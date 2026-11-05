@@ -28,12 +28,7 @@ the hull (`fixedMount` in `fireArcs`).
 
 ## Intervals
 
-The user's rule is that the new guns fire as fast as the example's crew still fits aboard. Shorter intervals feed
-the guns through conduits large enough to crowd out the crew. The thresholds below are measured with
-`computeStats` habitation:
-
-- **Recusant (15 s):** habitation is 1.005 at 15 s and 0.98 at 14 s.
-- **Munificent (1.6 s):** habitation is 1.49 at 1.6 s and 0.96 at 1.5 s.
+The native Recusant bow guns retain their 15 s interval and the Munificent bow gun retains its 1.6 s interval. The eighteen Munificent ventral twins fire every 0.2 s. These mechanical intervals specify each gun's maximum firing cadence; finite charging branches and the shared reactor output determine sustained fire. Crew accommodation is checked with the installed conduits and equipment.
 
 ## Armament changes in the examples
 

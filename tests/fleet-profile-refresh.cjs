@@ -8,7 +8,7 @@ function setup(realAsset=false){
  const R={designInfo:(s,p)=>({len:p.len,version:p.profileVersion}),FACTIONS:{empire:{name:'Empire'}},defaultAir:()=>[],makeSector:()=>({})};
  const voy={designs:new Map(),pending:new Map(),setup:{own:'empire',foe:'empire',seedFixed:true},screen:'setup',ops:{},sel:{}},voyDesign=key=>voy.designs.get(key),voyShipDesign=sh=>voyDesign(sh.key)||voyDesign(sh.src);
  const fleet={assets:new Map()},view={fleetCache:new Map(),loadFleet(key,geometry){if(!this.fleetCache.has(key))this.fleetCache.set(key,geometry);return this.fleetCache.get(key);}},Rts={CRAFT:{}};
- ${realAsset?'const YardEngineClient={request:(type,payload)=>{requests.push(payload.key);return new Promise((resolve,reject)=>replies.push({key:payload.key,resolve,reject}));}};':'const fleetAsset=key=>{requests.push(key);return new Promise((resolve,reject)=>replies.push({key,resolve,reject}));};'}
+ ${realAsset?'const YardEngineClient={request:(type,payload)=>{requests.push(payload.key);return new Promise((resolve,reject)=>replies.push({key:payload.key,payload,resolve,reject}));}};':'const fleetAsset=key=>{requests.push(key);return new Promise((resolve,reject)=>replies.push({key,resolve,reject}));};'}
  const showBusyOverlay=()=>busy++,hideBusyOverlay=()=>hidden++,voyRenderSetup=()=>rendered++,toast=s=>messages.push(s),showTitle=s=>titles.push(s),hideTitle=()=>titles.push('hidden');
  const example=(key,version)=>({key,name:key,faction:'empire',side:'Original navy',cls:'Original class',src:'example',p:{name:key,len:100,...(version?{profileVersion:version}:{})},info:{len:100},loadPreset:{air:[{craft:'tie',n:4}],ground:[]}});
  const ready=(key,version=2)=>({key,design:{faction:'empire'},stats:{name:key,cls:{name:'New class'}},p:{name:key,len:101,profileVersion:version}});
@@ -92,4 +92,50 @@ test('mission profile failure cannot advance campaign time, positions or create 
  const msAdvance=()=>advanced++;R.createWorld=()=>worlds.push(1);`);
  run(section('async function msBattleGo()','// The fleet battle\'s result sheet'));run('const launch=msBattleGo()');assert.equal(run('advanced'),0);assert.equal(run('worlds.length'),0);
  run("replies[0].reject(new Error('failed'))");await run('launch');assert.equal(run('advanced'),0);assert.equal(run('worlds.length'),0);assert.deepEqual(plain(run('titles')),[]);
+});
+
+
+test('current-version catalogue descriptors require a physical refresh before sailing',async()=>{
+ const {run}=setup();run("Object.assign(voyDesign('venator').p,{profileVersion:2,catalogOnly:true});const launch=voyRequireProfiles(['venator']);");
+ assert.equal(run("voyProfileStale(voyDesign('venator'))"),true);assert.deepEqual(plain(run('requests')),['venator']);
+ run("replies[0].resolve(ready('venator'))");assert.equal(await run('launch'),true);assert.equal(run("voyDesign('venator').p.catalogOnly"),undefined);
+});
+
+test('a current-version compact worker reply remains gated and can be retried',async()=>{
+ const {run}=setup();run("Object.assign(voyDesign('venator').p,{profileVersion:2,catalogOnly:true});const old=voyDesign('venator'),launch=voyRequireProfiles(['venator']);replies[0].resolve({...ready('venator'),p:{profileVersion:2,catalogOnly:true}});");
+ assert.equal(await run('launch'),false);assert.equal(run("voyDesign('venator')===old"),true);assert.equal(run('voy.pending.size'),0);
+ run("const retry=voyRequireProfiles(['venator']);replies[1].resolve(ready('venator'))");assert.equal(await run('retry'),true);
+});
+
+test('lite patrol and escort assets request full physical figures for compact catalogue rows',async()=>{
+ for(const cached of [false,true]){
+  const {run}=setup(true);run("const YardFleetData={designs:{venator:{p:{profileVersion:2,catalogOnly:true}}}};");
+  if(cached)run("const old={key:'venator',stats:{},p:{profileVersion:2,catalogOnly:true},geometry:{revision:1}};for(const k of ['venator','alias']){fleet.assets.set(k,old);view.fleetCache.set(k,old.geometry);}");
+  run("const launch=fleetAsset('venator',{lite:true});");assert.equal(run('replies[0].payload.lite'),false);
+  run("replies[0].resolve({...ready('venator'),profile:{profileVersion:2},geometry:{revision:2}})");const asset=await run('launch');assert.equal(asset.p.catalogOnly,undefined);assert.equal(asset.p.profileVersion,2);
+  if(cached){assert.equal(run("fleet.assets.has('alias')"),false);assert.equal(run("view.fleetCache.has('alias')"),false);}
+ }
+});
+
+test('actual asset cache rejects a compact physical-worker reply without caching it',async()=>{
+ const {run}=setup(true);run("const launch=fleetAsset('venator',{lite:true});replies[0].resolve({...ready('venator'),profile:{profileVersion:2,catalogOnly:true},geometry:{revision:1}});");
+ await assert.rejects(run('launch'),/catalogue-only/);assert.equal(run("fleet.assets.has('venator')"),false);assert.equal(run("view.fleetCache.has('venator')"),false);
+});
+
+test('custom battle refreshes compact supply-kit profiles before future convoys can enter combat',async()=>{
+ const {run}=setup();run(`voyDesign('venator').p.profileVersion=2;Object.assign(voyDesign('unused').p,{profileVersion:2,catalogOnly:true});
+ const sc={sides:[{faction:'empire',fleet:{ctgs:[{tgs:[{id:'chosen',ships:[{key:'venator'}]}]}]},sel:{}}]};
+ const voyScenarioOf=()=>sc,voyCraftPricesBlocked=()=>false,voyOnHit=()=>{},voyShow=()=>{},voyNote=()=>{},voyDraftSave=()=>{},voyCan3D=()=>false,voyWarm=()=>{},voyFormStore=()=>[];
+ R.convoyKit=()=>({ships:['unused'],escorts:[]});R.scenarioWorld=(s,designs)=>{worlds.push(designs);return{units:new Map(),ctgs:new Map(),sector:{name:'Test'}};};`);
+ run(section('async function voyStartBattle()','// The 3D models of every design in the battle'));run('const launch=voyStartBattle()');assert.equal(run('worlds.length'),0);assert.deepEqual(plain(run('requests')),['unused']);
+ run("replies[0].resolve(ready('unused'))");await run('launch');assert.equal(run('worlds.length'),1);assert.equal(run("worlds[0].find(d=>d.key==='unused').p.catalogOnly"),undefined);assert.equal(run('worlds[0].some(d=>d.p.catalogOnly)'),false,'catalogue descriptors never enter the combat world');
+});
+
+test('direct trial rejects compact current replies and requests physical figures for catalogue-only examples',async()=>{
+ const cx=vm.createContext({console:{error(){},warn(){}}}),run=code=>vm.runInContext(code,cx);
+ run(`const requests=[],messages=[];const trial={on:false,busy:false},ship=null,view={loadFleet(){throw new Error('must not upload a rejected compact response');}},fleet={mode:'design'},C={};
+ const fleetExampleData=()=>({p:{profileVersion:2,catalogOnly:true}}),fleetHash=()=> 'hash',loadShow=()=>{},loadHide=()=>{},hideBusyOverlay=()=>{},toast=m=>messages.push(m),esc=m=>m;
+ const YardEngineClient={request:(type,payload)=>{requests.push(payload);return Promise.resolve({profile:{profileVersion:2,catalogOnly:true},stats:{},design:{},geometry:{}});}};`);
+ run(section('async function trialStart(opts={})','function trialStop()'));await run("trialStart({design:{},rts:{uid:'u',w:{units:new Map([['u',{design:'venator'}]])}}})");
+ assert.equal(run('requests[0].lite'),false);assert.equal(run('trial.on'),false);assert.equal(run('trial.busy'),false);assert.equal(run('trial.asset'),undefined);assert.equal(run('messages.length'),1);
 });

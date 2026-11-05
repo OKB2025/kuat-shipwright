@@ -46,8 +46,8 @@ test('a sub-cubic-metre wing is a damageable dissipator in a fleet heat profile'
  const {s,w}=fixture(),S=C.computeStats(s),p=C.fleetProfile(S,s.name,s),mi=p.modules.findIndex(m=>m.part===w.id);
  assert.ok(C.partVolume(w)<1);assert.ok(mi>=0);assert.equal(p.modules[mi].k,'dissipator');
  const d=p.heat.dis.find(d=>d.m===mi);assert.ok(d);assert.equal(d.cap,C.wingCap(w,S));
- const u=C.fleetUnit('wing-test','test',p,0),mods=u.mods.slice();C.heatInit(u);C.heatTick({time:10},u,10);const intact=u.ht.cap;
- u.mods=mods;u.mods[mi]=0;C.heatInit(u);C.heatTick({time:20},u,10);
+ const u=C.fleetUnit('wing-test','test',p,0),mods=u.mods.slice();C.heatInit(u);C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0},10,'balanced');C.heatTick({time:10},u,10);const intact=u.ht.cap;
+ u.mods=mods;u.mods[mi]=0;C.heatInit(u);C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0},10,'balanced');C.heatTick({time:20},u,10);
  assert.ok(u.ht.cap<intact,'destroying the wing removes its heat-rejection capacity');
 });
 

@@ -583,20 +583,20 @@ function surfaceBatteryMesh(g,f,ship){
  const rows=p.barrels>4?2:1,per=Math.ceil(Math.min(16,p.barrels||1)/rows),iw=w-rim*2,ih=h-rim*2,r=Math.max(.025,Math.min(.13,iw/(per*3.1),ih/(rows*3.2)));
  for(let i=0;i<Math.min(16,p.barrels||1);i++){const x=(i%per-(per-1)/2)*iw/per*.86,y=(Math.floor(i/per)-(rows-1)/2)*ih/(rows+1);axisFrustum(g,at(x,y,back+.002),at(x,y,back+.008),r*1.30,r*1.30,[69,78,86],true,false,8);axisFrustum(g,at(x,y,back+.009),at(x,y,back+.011),r,r,[8,12,17],true,false,8);}
 }
-// Compact concussion launchers are shared by ships and aircraft. Craft keep
-// their selected stores; individual pods and surface VLS use the same Core
-// descriptor, including their actual muzzle and launch direction.
+// Compact aircraft pods and repeated ship cells use the same Core descriptor,
+// including their actual muzzles, launch direction and per-round range. Craft
+// keep their selected stores instead of inheriting the ship-cell payload.
 function craftLaunchers(model){
  const craft=!!C.isCraft(model),L=craft&&C.craftLoadout?C.craftLoadout(model):null,ld=L?.stations?.length?C.normalizeLoad(L.stations,L.load,L.load):[],out=[];
  for(const f of surfaceRenderFits(model)){const d=C.FITS[f.k];if(!d||f.float)continue;
   if(C.isConcussionLauncher(f)){
    let launcher=C.missileLauncherSpec(f);if(!launcher)continue;
    const i=craft?(L?.stations||[]).findIndex(st=>C.isConcussionLauncher(st.fit)):-1;
-   if(i>=0){const q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;launcher={...launcher,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n};}
+   if(i>=0){const q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;launcher={...launcher,tt:o.tt,ion:!!o.ion,kind:q.k,range:o.range,speed:o.speed,ammo:q.n,ammo0:q.n};}
    out.push(launcher);continue;
   }
   if(!craft||!d.store)continue;const i=(L?.stations||[]).findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
-  const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n});}
+  const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,range:o.range,speed:o.speed,ammo:q.n,ammo0:q.n});}
  return out;
 }
 function broadsideBatteryMesh(g,f){
@@ -610,6 +610,7 @@ function broadsideBatteryMesh(g,f){
 }
 function concussionLauncherMesh(g,f){
  const p=C.launcherGeometry(f),[L,h,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt];
+ if(p.shipLauncher){shipLauncherMesh(g,f,p);return;}
  // The body remains the aircraft's compact twin-mouth launch tube. Only the
  // hinge frame changes; supports stay in the fixed mounting frame.
  box(g,M,p.bodyCenter,0,0,0,L,h,W,FC.body);
@@ -619,6 +620,25 @@ function concussionLauncherMesh(g,f){
   box(g,B,p.baseOrigin,0,t/2,0,L*.5,t,W*1.35,FC.ped);
   for(const z of [-W*.6,W*.6])box(g,B,p.baseOrigin,0,t+height/2,z,L*.16,height,W*.15,FC.ring);
   const axle=C.mul(p.baseFrame.rt,W*.675);axisFrustum(g,C.sub(p.pivot,axle),C.add(p.pivot,axle),W*.12,W*.12,FC.dark,true,false,12);
+ }
+}
+// Repeated ship cells share a real open-front box. The dark rear panel and
+// dividers lie behind the mouths; no solid front quad seals the launch path.
+function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
+ const [L,H,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt],o=p.bodyCenter,t=.035;
+ box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
+ box(g,M,o,-L/2+t+.008,0,0,.016,H-t*2,W-t*2,FC.dark);
+ for(const sign of [-1,1]){box(g,M,o,0,sign*(H-t)/2,0,L,t,W,FC.body);box(g,M,o,0,0,sign*(W-t)/2,L,H-t*2,t,FC.body);}
+ const rows=p.rows||1,cols=p.cols||1,ch=H/rows,cw=W/cols;
+ for(let i=1;i<rows;i++)box(g,M,o,0,-H/2+i*ch,0,L,t,W-t*2,FC.ring);
+ for(let i=1;i<cols;i++)box(g,M,o,0,0,-W/2+i*cw,L,H-t*2,t,FC.ring);
+ for(let r=0;r<=rows;r++)box(g,M,o,L/2+.005,C.clamp(-H/2+r*ch,-(H-t)/2,(H-t)/2),0,.02,t,W,FC.ring);
+ for(let c=0;c<=cols;c++)box(g,M,o,L/2+.005,0,C.clamp(-W/2+c*cw,-(W-t)/2,(W-t)/2),.02,H-t*2,t,FC.ring);
+ if(!p.embedded&&p.supportHeight>0&&p.baseThickness>0){
+  const rt=p.bodyFrame.rt,fw=C.norm(C.cross(p.baseFrame.up,rt)),B=[...fw,...p.baseFrame.up,...rt],base=p.baseOrigin,th=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,base),p.baseFrame.up),height=Math.max(0,pivotY-th);
+  box(g,B,base,0,th/2,0,L*.5,th,W*1.35,FC.ped);
+  for(const z of [-W*.6,W*.6])box(g,B,base,0,th+height/2,z,L*.16,height,W*.15,FC.ring);
+  const axle=C.mul(rt,W*.675);axisFrustum(g,C.sub(p.pivot,axle),C.add(p.pivot,axle),W*.12,W*.12,FC.dark,true,false,12);
  }
 }
 // v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
@@ -1946,7 +1966,7 @@ function markRanges(ranges,id,before,out){for(const k in out){const n=out[k].ni-
 
 function meshHull(ship){
   if(ship.hullSkin?.enabled||ship.hull.assembly)return new Geo(16);
-  const equipment=equipmentSkinPatches(ship,'hull');if(!equipment.length&&!ship.solidCuts?.length&&!ship.trenches?.some(t=>t.mode==='split')&&!ship.hull.stations?.length&&!ship.hatches.some(h=>h.portal)&&ship.hull.sec!=='warship')return v3MeshHull(ship);
+  const equipment=equipmentSkinPatches(ship,'hull');if(!equipment.length&&!launcherRecessHost(ship,'hull')&&!ship.solidCuts?.length&&!ship.trenches?.some(t=>t.mode==='split')&&!ship.hull.stations?.length&&!ship.hatches.some(h=>h.portal)&&ship.hull.sec!=='warship')return v3MeshHull(ship);
   const bayCaps=ship.hatches.filter(h=>h.portal&&h.bay).map(h=>({h,b:C.openingBounds(ship,h),bay:ship.parts.find(p=>p.id===h.bay&&p.k==='hangar')})).filter(q=>q.b&&q.bay);
   const T=equipmentSkinTriangles(ship,'hull',C.hullGeo(ship).tris),g=new Geo(T.length/3+100),openings=ship.hatches.map(h=>C.openingBounds(ship,h)).filter(Boolean),paint=ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:[189,193,192];
   for(let i=0;i<T.length;i+=9){const tri=T.slice(i,i+9),p=[(T[i]+T[i+3]+T[i+6])/3,(T[i+1]+T[i+4]+T[i+7])/3,(T[i+2]+T[i+5]+T[i+8])/3],n=C.norm(C.cross(C.sub(Array.from(tri.slice(3,6)),Array.from(tri.slice(0,3))),C.sub(Array.from(tri.slice(6)),Array.from(tri.slice(0,3)))));
@@ -2010,8 +2030,21 @@ function equipmentSkinFragments(poly,cutters){
  }return fragments;
 }
 function equipmentSkinTriangles(ship,host,T){
- const patches=equipmentSkinPatches(ship,host);if(!patches.length)return T;const cutters=equipmentSkinCutters(patches),out=[];
- for(let i=0;i+8<T.length;i+=9)for(const p of equipmentSkinFragments([Array.from(T.slice(i,i+3)),Array.from(T.slice(i+3,i+6)),Array.from(T.slice(i+6,i+9))],cutters))C.triangulateFan(p,out);return out;
+ const patches=equipmentSkinPatches(ship,host);let result=T;
+ if(patches.length){const cutters=equipmentSkinCutters(patches),out=[];for(let i=0;i+8<T.length;i+=9)for(const p of equipmentSkinFragments([Array.from(T.slice(i,i+3)),Array.from(T.slice(i+3,i+6)),Array.from(T.slice(i+6,i+9))],cutters))C.triangulateFan(p,out);result=out;}
+ return C.launcherRecessTriangles?.(ship,host,result)||result;
+}
+function launcherRecessHost(ship,host){return !!ship?.fits?.some(f=>C.isShipLauncher?.(f)&&f.launcherEmbedded&&!f.float&&(String(f.host??'hull')===String(host)||'p'+f.host===String(host)));}
+// The shared physical cutter clips world positions. Interpolate the source
+// triangle's UVs for every retained point so reference textures keep their atlas.
+function launcherReferenceSkin(ship,host,data){
+ if(!C.launcherRecessTriangles||!launcherRecessHost(ship,host))return data;
+ const vertices=[];
+ for(let i=0;i<data.idx.length;i+=3){
+  const ids=[data.idx[i],data.idx[i+1],data.idx[i+2]],points=ids.map(k=>Array.from(data.pos.subarray(k*3,k*3+3))),uvs=ids.map(k=>Array.from(data.uv.subarray(k*2,k*2+2))),edge0=C.sub(points[1],points[0]),edge1=C.sub(points[2],points[0]),aa=C.dot(edge0,edge0),ab=C.dot(edge0,edge1),bb=C.dot(edge1,edge1),den=aa*bb-ab*ab,T=C.launcherRecessTriangles(ship,host,points.flat());
+  for(let j=0;j<T.length;j+=3){const point=Array.from(T.slice(j,j+3)),delta=C.sub(point,points[0]),da=C.dot(delta,edge0),db=C.dot(delta,edge1),b=Math.abs(den)>1e-20?(bb*da-ab*db)/den:0,c=Math.abs(den)>1e-20?(aa*db-ab*da)/den:0,a=1-b-c;vertices.push([...point,...[0,1].map(k=>uvs[0][k]*a+uvs[1][k]*b+uvs[2][k]*c)]);}
+ }
+ return{pos:Float32Array.from(vertices.flatMap(p=>p.slice(0,3))),uv:Float32Array.from(vertices.flatMap(p=>p.slice(3,5))),idx:Uint32Array.from(vertices.map((_,i)=>i))};
 }
 function equipmentReferenceSkin(data,patches){
  if(!patches.length)return data;const cutters=equipmentSkinCutters(patches),vertices=[];
@@ -2461,6 +2494,7 @@ function meshParts(ship,opt){
     // Deck edging and repeating stiffeners make scale legible; the editor controls their pitch.
     for(const p of ship.parts.filter(isStructuralPart)){const before=g.ni;try{structDetailFor(p);}finally{const n=g.ni-before;if(n>0)(result.ranges[p.id]||(result.ranges[p.id]=[])).push(['struct',before,n]);}}
     function structDetailFor(p){
+      if(launcherRecessHost(ship,'p'+p.id))return;
       if(ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))return;
       if(p.form==='reference'||p.plate)return;
       if(p.form==='ellipsoid'){if(!ship.hullSkin?.enabled)bulbDetail(p,g);return;}
@@ -2721,7 +2755,7 @@ function appendFamilyReference(g,f){
   item={key,mesh};FAMILY_REFERENCE_CACHE.set(f,item);}
  appendGeo(g,item.mesh);
 }
-function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[]){
+function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[],ship=null,host=null){
  const a=C.REFERENCE_ASSETS[id],d=C.decodeReference(id);if(!a||!d)return;if(!a.plainMetal)color=refTone(id,color);
  const pos=new Float32Array(d.pos.length),nor=new Float32Array(d.pos.length),indices=[];
  for(let i=0;i<d.pos.length;i+=3)pos.set(point([d.pos[i],d.pos[i+1],d.pos[i+2]],a),i);
@@ -2729,7 +2763,7 @@ function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[]){
   if(filter&&!filter(ids.map(k=>[d.pos[k*3],d.pos[k*3+1],d.pos[k*3+2]]),a))continue;
   indices.push(...ids);const [A,B,D]=ids.map(k=>Array.from(pos.subarray(k*3,k*3+3))),n=C.cross(C.sub(B,A),C.sub(D,A));for(const k of ids)for(let j=0;j<3;j++)nor[k*3+j]+=n[j];
  }
- if(cuts.length||skinPatches.length){let d2={pos,uv:d.uv,idx:Uint32Array.from(indices)};for(const b of cuts)d2=C.clipReferenceBox(d2,b);indexedReference(g,equipmentReferenceSkin(d2,skinPatches),color);return;}
+ if(cuts.length||skinPatches.length||launcherRecessHost(ship,host)){let d2={pos,uv:d.uv,idx:Uint32Array.from(indices)};for(const b of cuts)d2=C.clipReferenceBox(d2,b);indexedReference(g,launcherReferenceSkin(ship,host,equipmentReferenceSkin(d2,skinPatches)),color);return;}
  g.room(a.n,indices.length);const base=g.n;
  for(let i=0;i<a.n;i++){const n=C.norm(Array.from(nor.subarray(i*3,i*3+3)));g.v(...pos.subarray(i*3,i*3+3),...n,d.uv[i*2],d.uv[i*2+1],color,255);}
  for(let i=0;i<indices.length;i+=3)g.tri(base+indices[i],base+indices[i+1],base+indices[i+2]);
@@ -2739,7 +2773,7 @@ function indexedReference(g,d,color=REF_ONE){
  g.room(d.pos.length/3,d.idx.length);const base=g.n;for(let i=0;i<d.pos.length/3;i++)g.v(...d.pos.subarray(i*3,i*3+3),...C.norm(Array.from(normal.subarray(i*3,i*3+3))),d.uv[i*2],d.uv[i*2+1],color,255);
  for(let i=0;i<d.idx.length;i+=3)g.tri(base+d.idx[i],base+d.idx[i+1],base+d.idx[i+2]);
 }
-function meshReferenceHull(ship){const g=new Geo(16),d=C.referenceHullGeometry(ship);if(d)indexedReference(g,equipmentReferenceSkin(d,equipmentSkinPatches(ship,'hull')),refTone(ship.hullSkin?.asset||(ship.reference==='imperial'?'isd_hull':'ven_hull')));return g;}
+function meshReferenceHull(ship){const g=new Geo(16),d=C.referenceHullGeometry(ship);if(d)indexedReference(g,launcherReferenceSkin(ship,'hull',equipmentReferenceSkin(d,equipmentSkinPatches(ship,'hull'))),refTone(ship.hullSkin?.asset||(ship.reference==='imperial'?'isd_hull':'ven_hull')));return g;}
 function appendEngineSplit(outside,inside,ship,p){
  const entry=C.engineHullEntry(ship,p),d=C.engineSkinMesh(p);if(!d)return;
  if(entry==null){indexedReference(outside,d,refTone(d.skinAsset));return;}
@@ -2754,7 +2788,7 @@ function meshReferenceParts(ship,ranges,only,opt={}){
  const one=(p,a)=>{
   if(p.k==='engine'){if(opt.preview){const d=C.engineSkinMesh(p);if(d)indexedReference(refEngine,d,refTone(d.skinAsset));}else appendEngineSplit(refEngine,refPlant,ship,p);return;}
   if(isStructuralPart(p)&&!opt.preview&&ship.solidCuts?.some(c=>ship.hull.assembly||c.structures)){p._solidCutShip=ship;hullTriangleMesh(refStruct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),(p.paint?hex(p.paint):[205,211,216]).map(v=>Math.round(v/2)),40);return;}
-  if(isStructuralPart(p)){appendReference(refStruct,p.skinAsset,v=>C.referencePartPoint(p,v),null,p.paint?hex(p.paint):WHITE,opt.preview?[]:ship.hatches.filter(h=>h.portal&&!h.referenceMouth).map(h=>C.openingBounds(ship,h)).filter(Boolean),opt.preview?[]:equipmentSkinPatches(ship,'p'+p.id));return;}
+  if(isStructuralPart(p)){appendReference(refStruct,p.skinAsset,v=>C.referencePartPoint(p,v),null,p.paint?hex(p.paint):WHITE,opt.preview?[]:ship.hatches.filter(h=>h.portal&&!h.referenceMouth).map(h=>C.openingBounds(ship,h)).filter(Boolean),opt.preview?[]:equipmentSkinPatches(ship,'p'+p.id),opt.preview?null:ship,'p'+p.id);return;}
   const size=p.skinSize||a.size,scale=p.d/Math.max(...size),r=(p.yaw||0)*Math.PI/180;
   appendReference(refStruct,p.skinAsset,v=>{const x=v[0]*size[0]*scale,z=v[2]*size[2]*scale;return C.add(p.c,[x*Math.cos(r)-z*Math.sin(r),v[1]*size[1]*scale,x*Math.sin(r)+z*Math.cos(r)]);});
  };

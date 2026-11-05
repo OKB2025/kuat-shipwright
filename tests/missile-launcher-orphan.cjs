@@ -12,22 +12,18 @@ function atSurfaceLimit(){
  return C.deserialize(raw);
 }
 
-test('a legacy VLS at the surface limit stays saved inactive inventory through remounting and repeated reloads',()=>{
+test('a full unrelated armor ledger cannot disable a manually seated legacy pod',()=>{
  let ship=atSurfaceLimit();
  for(let round=0;round<3;round++){
-  const f=ship.fits.find(f=>f.id===10);assert.ok(f,'the disabled launcher must retain its original ID');
-  assert.equal(f.k,'cmsl');assert.equal(f.legacyMissileMount,'vls-orphan');assert.equal(ship.surfaces.patches.length,512);
+  const f=ship.fits.find(f=>f.id===10);assert.ok(f,'the launcher retains its original ID');
+  assert.equal(f.k,'cmsl');assert.equal(ship.surfaces.patches.length,512);assert.ok(ship.surfaces.patches.every(p=>p.functionMode==='armor'));
   C.remount(ship);
-  assert.equal(f.float,true,'remounting a valid old deck cannot reactivate a VLS that has no equipment surface');
-  assert.equal(f.surfaceUnplaced,true);assert.equal(C.missileCells(ship).length,0,'inactive inventory has no working magazine');
+  assert.equal(f.float,false,'the actual deck, rather than unrelated face-ledger capacity, determines whether this ordinary pod is seated');
+  assert.equal(f.surfacePatch,undefined);assert.equal(C.isSurfaceVLS(f),false);assert.equal(C.missileCells(ship).length,0,'external pod ammunition does not require an automatic below-deck VLS cell');assert.equal(C.missileLauncherSpec(f).ammo,6);
   const stats=C.computeStats(ship),modules=C.fleetModules(ship,stats);
-  assert.equal(stats.mslSalvo,0,'an orphan contributes no concussion missile output');
-  assert.ok(!modules.some(m=>m.fit===10&&m.k==='launcher'&&m.stock>0),'a fleet profile cannot give the orphan ammunition');
+  assert.ok(stats.mslSalvo>0);const module=modules.find(m=>m.fit===10&&m.k==='launcher');assert.ok(module);assert.equal(module.stock,6);assert.equal(module.missileKind,'cmsl');assert.equal(module.tt,25);assert.ok(module.muzzle.every(Number.isFinite));for(const value of [stats.mass,stats.cost])assert.ok(Number.isFinite(value)&&value>0);
   const saved=plain(C.serialize(ship)),row=saved.fits.find(f=>f.id===10);assert.ok(row,'saving must retain the launcher');
-  assert.equal(row.float,true);assert.equal(row.surfaceUnplaced,true);assert.equal(row.legacyMissileMount,'vls-orphan');
-  assert.equal(C.fitSpec(row).mass,C.FITS.cmsl.mass,'inactive inventory retains its fitting mass');
-  const removed=plain(saved);removed.fits=removed.fits.filter(f=>f.id!==10);
-  assert.ok(Math.abs(stats.mass-C.computeStats(C.deserialize(removed)).mass-C.FITS.cmsl.mass)<1e-6,'the saved orphan still contributes its installed mass');
-  ship=C.deserialize(saved);
+  assert.equal(row.k,'cmsl');assert.equal(row.surfacePatch,undefined);assert.equal(C.fitSpec(row).mass,C.FITS.cmsl.mass);
+  ship=C.deserialize(saved);C.remount(ship);assert.deepEqual(plain(C.serialize(ship)),saved,'an ordinary reload and remount does not duplicate or move the pod or armor ledger');
  }
 });

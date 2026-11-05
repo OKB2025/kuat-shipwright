@@ -7,7 +7,7 @@ const fit=(pitch=0,frame={a:2})=>({id:1,k:'cmsl',p:[13,-7,23],ped:0,base:0,low:0
 function vertices(g){const out=[];for(let i=0;i<g.ni;i++){const at=g.idx[i]*3;out.push(Array.from(g.pos.subarray(at,at+3)));}return out;}
 function fixture(){const s=C.newShip({L:100,W:60,H:50,assembly:true},'Shared missile launchers');s.parts=[];s.fits=[];s.armor={hull:0,cit:0};s.nextId=1;const body=C.placePart(s,'struct',[50,20,0],[80,40,30],{form:'box'},false);return {s,body};}
 
-test('one compact aircraft launcher is the canonical concussion weapon on every platform',()=>{
+test('legacy concussion pods retain the canonical compact aircraft fitting',()=>{
  assert.equal(C.canonicalWeaponKind('msl'),'cmsl');assert.equal(C.FITS.msl,C.FITS.cmsl,'the legacy spelling must not retain a separate large weapon');
  assert.ok(!Object.keys(C.FITS).includes('msl'),'the duplicate ship fitting is not a catalogue entry');
  const d=C.FITS.cmsl;vector([d.fm,d.hm,d.wm],[1.2,.45,.45],1e-12);assert.equal(d.store.slots,6);assert.equal(C.ORDNANCE.cmsl.tt,25);
@@ -41,18 +41,24 @@ test('picking follows a changed launch angle rather than retaining the old compa
 
 test('trial launch descriptors use the same pitched muzzle and direction on ships and aircraft',()=>{
  for(const craft of [false,true])for(const angle of [-60,35,90]){
-  const {s}=fixture();if(craft){s.hull.L=20;s.shipClass='starfighter';}assert.equal(C.isCraft(s),craft);const f=fit(angle);f.id=s.nextId++;f.p=[50,35,7];s.fits=[f];
+  const s=craft?C.newShip({L:20,W:12,H:8,assembly:true},'Compact aircraft fixture'):fixture().s;if(craft){s.parts=[];s.fits=[];s.nextId=1;C.placePart(s,'struct',[10,1,0],[16,10,2],{form:'box'},false);s.shipClass='starfighter';}assert.equal(C.isCraft(s),craft);const f=fit(angle);f.id=s.nextId++;f.p=craft?[10,2,2]:[50,35,7];s.fits=[f];assert.equal(C.isCraft(s),craft,'the actual geometry fits its intended class');
   const a=G.fleetGeometry(s,{trial:true}),rows=a.launchers.filter(l=>l.id===f.id),g=C.launcherGeometry(f);assert.equal(rows.length,1,'a common launcher must not be duplicated by ship and aircraft launch paths');const row=rows[0];
   vector(row.origin,g.origin);vector(row.axis,g.axis);assert.equal(row.kind,'cmsl');assert.equal(row.salvo,1);assert.equal(row.ammo,6);near(row.tt,C.ORDNANCE.cmsl.tt,1e-12);
  }
 });
 
-test('equipment-surface VLS uses flush normal-launch hatches and reserves native missile volume',()=>{
+test('retired equipment-surface VLS settings do not create hidden launcher inventory',()=>{
  const {s,body}=fixture(),patch=C.surfacePatches(s).find(p=>p.host==='p'+body.id&&p.face==='top');assert.ok(patch);
  const r=C.setSurfaceConfig(s,patch.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{limit:0},battery:{weapon:'cmsl',count:2,spacing:1}});assert.equal(r.ok,true,r.why);
- const fits=C.surfaceDerivedFits(s);assert.equal(fits.length,2);assert.equal(s.fits.length,0,'VLS belongs to the surface ledger, not a second set of loose pods');
- for(const f of fits){assert.equal(C.isSurfaceVLS(f),true);const g=C.surfaceBatteryGeometry(f),launch=C.missileLauncherSpec(f);assert.equal(g.vls,true);vector(launch.axis,g.normal,1e-10);vector(launch.origin,g.mouth,1e-10);assert.equal(launch.ammo,6);assert.ok(f.surfaceDepth>=C.FITS.cmsl.store.len,'the six cells have real below-deck depth');
-  const native={...f,launchPitch:70},mesh=G.meshFits(s,null,null,[native]);assert.ok(mesh.ni>0);for(const p of vertices(mesh))assert.ok(C.dot(C.sub(p,g.point),g.normal)<=.12,'a surface VLS cannot restore the bulky external box or angled stand');
+ assert.equal(C.surfaceDerivedFits(s).length,0);assert.equal(s.fits.length,0);C.syncCompartments(s);assert.equal(C.missileCells(s).length,0);assert.equal(s.surfaces.armorOnly,1,'the face ledger carries armor without automatic equipment');
+});
+
+test('saved manually authored VLS fittings remain flush and reserve their actual missile volume',()=>{
+ const {s,body}=fixture(),patch=C.surfacePatches(s).find(p=>p.host==='p'+body.id&&p.face==='top');
+ for(const [x,z]of [[45,-4],[55,4]]){const r=C.placeFit(s,'cmsl',[x,35,z],patch.normal,0,false,{localMount:true,tilt:true});assert.ok(!r.err,r.err);Object.assign(r.fit,{surfacePatch:patch.id,surfaceCell:'manual-vls-'+r.fit.id,surfaceRole:'weapons',surfacePoint:r.fit.p.slice(),surfaceFootprint:[1.2,.45],surfaceDepth:1.2,n:patch.normal.slice(),tilt:patch.normal.slice(),localMount:true,launchPitch:70});}
+ const loaded=C.deserialize(C.serialize(s));assert.equal(loaded.surfaces,undefined,'manually authored fittings do not require a retired automatic equipment ledger');assert.equal(loaded.fits.length,2);
+ for(const f of loaded.fits){C.mountFit(loaded,f);assert.equal(f.float,false);assert.equal(C.isSurfaceVLS(f),true);const g=C.surfaceBatteryGeometry(f),launch=C.missileLauncherSpec(f);assert.equal(g.vls,true);vector(launch.axis,g.normal,1e-10);vector(launch.origin,g.mouth,1e-10);assert.equal(launch.ammo,6);
+  const mesh=G.meshFits(loaded,null,null,[f]);assert.ok(mesh.ni>0);for(const p of vertices(mesh))assert.ok(C.dot(C.sub(p,g.point),g.normal)<=.12,'a legacy hatch cannot draw an external box or angled stand');
  }
- C.syncCompartments(s);const cells=C.missileCells(s),status=C.missileStatus(s);assert.equal(cells.length,2);for(const cell of cells){const v=C.partVolume(cell);assert.ok(v>0&&v<2,'native six-round VLS is not the old 3600 cubic metre magazine');assert.ok(cell.requiredVolume>0&&cell.requiredVolume<2);assert.ok(Math.abs(status[cell.weaponId].ratio-1)<=1e-8,'a full sub-cubic-metre cell must not lose capacity to a legacy one-cubic-metre divisor');}
+ C.syncCompartments(loaded);const cells=C.missileCells(loaded),status=C.missileStatus(loaded);assert.equal(cells.length,2);for(const cell of cells){const v=C.partVolume(cell);assert.ok(v>0&&v<2);assert.ok(cell.requiredVolume>0&&cell.requiredVolume<2);near(status[cell.weaponId].ratio,1,1e-8);}
 });

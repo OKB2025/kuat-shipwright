@@ -1,5 +1,10 @@
 {
   "baselineCommit": "9beee00",
+  "sourceSha256": {
+    "data/reference.js": "ab4c2477593dc90d7db474381854d8a6ec6202fd5790fd33520e023f83e1fd8a",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "js/core.js": "e6ae9edba2eb13c80c32c0b84ee058ebf290fa0783d9e5437af01681dfae31e5"
+  },
   "propulsionModel": "actual connected W / fixed 2e9 W/N; no derived performance overrides",
   "verification": {
     "seconds": 30,
@@ -36,6 +41,13 @@
         "gun": 11,
         "aa": 0.25,
         "cost": 222030,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 8654734950000000000,
+          "legacyDissipators": 10,
+          "physicalDissipators": 8,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -45,24 +57,31 @@
         }
       },
       "after": {
-        "massT": 36.64750348,
+        "massT": 37.01119252,
         "dimensionsM": [
           12.710000038146973,
           20.430400848388672,
           3.8475
         ],
         "powerW": 26943763870000000000,
-        "ratedEngineInputW": 2552382383000000000,
+        "ratedEngineInputW": 2577712171000000000,
         "ratedG": 3551,
-        "structuralG": 22947.2152,
+        "structuralG": 22692.37019,
         "defaultCombatActualG": 1242.85,
-        "defaultCombatInputW": 893333833900000000,
+        "defaultCombatInputW": 902199259800000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 3551,
         "speedMps": 2041,
         "gun": 11,
         "aa": 1.02,
-        "cost": 230512,
+        "cost": 230933,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 20,
+          "coolingInputW": 155968822700000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -97,7 +116,7 @@
           "available": true,
           "reactorId": 28,
           "grade": "advanced",
-          "ratedInputW": 1276191191000000000,
+          "ratedInputW": 1288856085000000000,
           "maxInputW": 3125157726000000000,
           "machineryVolumeM3": 0.0919164037,
           "legacyCoolingInputW": 0
@@ -108,7 +127,7 @@
           "available": true,
           "reactorId": 29,
           "grade": "advanced",
-          "ratedInputW": 1276191191000000000,
+          "ratedInputW": 1288856085000000000,
           "maxInputW": 3125157726000000000,
           "machineryVolumeM3": 0.0919164037,
           "legacyCoolingInputW": 0
@@ -139,6 +158,13 @@
         "gun": 10,
         "aa": 0.51,
         "cost": 159054,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 1927322418000000000,
+          "legacyDissipators": 9,
+          "physicalDissipators": 0,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -148,24 +174,31 @@
         }
       },
       "after": {
-        "massT": 10.74565808,
+        "massT": 10.81630738,
         "dimensionsM": [
           6.890000095590949,
           4.957405736643938,
           2.3886074314359576
         ],
         "powerW": 7050878085000000000,
-        "ratedEngineInputW": 1074864859000000000,
+        "ratedEngineInputW": 1081931756000000000,
         "ratedG": 5100,
         "structuralG": 64183.00875,
         "defaultCombatActualG": 1785,
-        "defaultCombatInputW": 376202700700000000,
+        "defaultCombatInputW": 378676114600000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 5100,
         "speedMps": 2309,
         "gun": 10,
         "aa": 1.28,
-        "cost": 159940,
+        "cost": 160004,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 3,
+          "coolingInputW": 32354864460000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -190,7 +223,7 @@
         "minimumWeaponsInputRatio": 1,
         "minimumShieldInputRatio": 1,
         "minimumThermalLimit": 1,
-        "maximumSourceDrawRatio": 0.7571033178,
+        "maximumSourceDrawRatio": 0.7626943606,
         "lastActualG": 5100
       },
       "engines": [
@@ -200,7 +233,7 @@
           "available": true,
           "reactorId": 14,
           "grade": "advanced",
-          "ratedInputW": 537432429600000000,
+          "ratedInputW": 540965878000000000,
           "maxInputW": 2365431883000000000,
           "machineryVolumeM3": 0.06957152596,
           "legacyCoolingInputW": 0
@@ -211,7 +244,7 @@
           "available": true,
           "reactorId": 14,
           "grade": "advanced",
-          "ratedInputW": 537432429600000000,
+          "ratedInputW": 540965878000000000,
           "maxInputW": 2365431883000000000,
           "machineryVolumeM3": 0.06957152596,
           "legacyCoolingInputW": 0
@@ -242,6 +275,13 @@
         "gun": 12,
         "aa": 0.23,
         "cost": 200851,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 8295134125000000000,
+          "legacyDissipators": 12,
+          "physicalDissipators": 2,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -251,24 +291,31 @@
         }
       },
       "after": {
-        "massT": 49.03087163,
+        "massT": 49.35600417,
         "dimensionsM": [
           23.448,
           10.015999794006348,
           3.2699700689315803
         ],
         "powerW": 22747682590000000000,
-        "ratedEngineInputW": 2884971583000000000,
+        "ratedEngineInputW": 2904102350000000000,
         "ratedG": 3000,
         "structuralG": 19054.49097,
         "defaultCombatActualG": 1050,
-        "defaultCombatInputW": 1009740054000000000,
+        "defaultCombatInputW": 1016435822000000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 3000,
         "speedMps": 1928,
         "gun": 12,
         "aa": 0.51,
-        "cost": 205143,
+        "cost": 205224,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 14,
+          "coolingInputW": 142460786700000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -303,7 +350,7 @@
           "available": true,
           "reactorId": 11,
           "grade": "advanced",
-          "ratedInputW": 1442485792000000000,
+          "ratedInputW": 1452051175000000000,
           "maxInputW": 13227334250000000000,
           "machineryVolumeM3": 0.3890392425,
           "legacyCoolingInputW": 0
@@ -314,7 +361,7 @@
           "available": true,
           "reactorId": 12,
           "grade": "advanced",
-          "ratedInputW": 1442485792000000000,
+          "ratedInputW": 1452051175000000000,
           "maxInputW": 13227334250000000000,
           "machineryVolumeM3": 0.3890392425,
           "legacyCoolingInputW": 0
@@ -345,6 +392,13 @@
         "gun": 14,
         "aa": 0.2,
         "cost": 210146,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 847226998400000000,
+          "legacyDissipators": 17,
+          "physicalDissipators": 4,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -354,24 +408,31 @@
         }
       },
       "after": {
-        "massT": 27.21415054,
+        "massT": 27.26651991,
         "dimensionsM": [
           12.420000076293945,
           9.32800026702881,
           3.3390000800136477
         ],
         "powerW": 6168401078000000000,
-        "ratedEngineInputW": 1200958422000000000,
+        "ratedEngineInputW": 1203269479000000000,
         "ratedG": 2250,
         "structuralG": 188804.2368,
         "defaultCombatActualG": 787.5,
-        "defaultCombatInputW": 420335447700000000,
+        "defaultCombatInputW": 421144317500000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 2250,
         "speedMps": 1748,
         "gun": 14,
         "aa": 0.42,
-        "cost": 186068,
+        "cost": 186079,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 6,
+          "coolingInputW": 20381488190000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -406,7 +467,7 @@
           "available": true,
           "reactorId": 17,
           "grade": "dense",
-          "ratedInputW": 217051484800000000,
+          "ratedInputW": 217469166400000000,
           "maxInputW": 226478055300000000,
           "machineryVolumeM3": 0.06661119273,
           "legacyCoolingInputW": 0
@@ -417,7 +478,7 @@
           "available": true,
           "reactorId": 18,
           "grade": "dense",
-          "ratedInputW": 217051484800000000,
+          "ratedInputW": 217469166400000000,
           "maxInputW": 226478055300000000,
           "machineryVolumeM3": 0.06661119273,
           "legacyCoolingInputW": 0
@@ -428,7 +489,7 @@
           "available": true,
           "reactorId": 23,
           "grade": "advanced",
-          "ratedInputW": 383427726200000000,
+          "ratedInputW": 384165572900000000,
           "maxInputW": 2531377758000000000,
           "machineryVolumeM3": 0.074452287,
           "legacyCoolingInputW": 0
@@ -439,7 +500,7 @@
           "available": true,
           "reactorId": 24,
           "grade": "advanced",
-          "ratedInputW": 383427726200000000,
+          "ratedInputW": 384165572900000000,
           "maxInputW": 2531377758000000000,
           "machineryVolumeM3": 0.074452287,
           "legacyCoolingInputW": 0
@@ -470,6 +531,13 @@
         "gun": 14,
         "aa": 0.07,
         "cost": 109120,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 1055393641000000000,
+          "legacyDissipators": 7,
+          "physicalDissipators": 6,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -479,24 +547,31 @@
         }
       },
       "after": {
-        "massT": 17.65406657,
+        "massT": 17.68970778,
         "dimensionsM": [
           9.64800000476837,
           8.887999732971192,
           7.078812837600708
         ],
         "powerW": 7276773006000000000,
-        "ratedEngineInputW": 1468119097000000000,
+        "ratedEngineInputW": 1471083033000000000,
         "ratedG": 4240,
         "structuralG": 60222.07975,
         "defaultCombatActualG": 1484,
-        "defaultCombatInputW": 513841683800000000,
+        "defaultCombatInputW": 514879061600000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 4240,
         "speedMps": 2168,
         "gun": 14,
         "aa": 1.27,
-        "cost": 99324,
+        "cost": 99338,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 8,
+          "coolingInputW": 20782427850000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -521,7 +596,7 @@
         "minimumWeaponsInputRatio": 1,
         "minimumShieldInputRatio": 1,
         "minimumThermalLimit": 1,
-        "maximumSourceDrawRatio": 0.6680791791,
+        "maximumSourceDrawRatio": 0.6710628511,
         "lastActualG": 4240
       },
       "engines": [
@@ -531,7 +606,7 @@
           "available": true,
           "reactorId": 32,
           "grade": "advanced",
-          "ratedInputW": 734059548300000000,
+          "ratedInputW": 735541516600000000,
           "maxInputW": 5865608536000000000,
           "machineryVolumeM3": 0.1725178981,
           "legacyCoolingInputW": 0
@@ -542,7 +617,7 @@
           "available": true,
           "reactorId": 32,
           "grade": "advanced",
-          "ratedInputW": 734059548300000000,
+          "ratedInputW": 735541516600000000,
           "maxInputW": 5865608536000000000,
           "machineryVolumeM3": 0.1725178981,
           "legacyCoolingInputW": 0
@@ -573,6 +648,13 @@
         "gun": 10,
         "aa": 0.05,
         "cost": 98082,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 527873323400000000,
+          "legacyDissipators": 5,
+          "physicalDissipators": 2,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -582,24 +664,31 @@
         }
       },
       "after": {
-        "massT": 10.4111604,
+        "massT": 10.43576526,
         "dimensionsM": [
           7.240000009536743,
           6.559999942779541,
           8.345999956130981
         ],
         "powerW": 3088413888000000000,
-        "ratedEngineInputW": 837208570700000000,
+        "ratedEngineInputW": 839187158200000000,
         "ratedG": 4100,
-        "structuralG": 313575.6781,
+        "structuralG": 311847.1464,
         "defaultCombatActualG": 1435,
-        "defaultCombatInputW": 293022999700000000,
+        "defaultCombatInputW": 293715505400000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 4100,
         "speedMps": 2144,
         "gun": 10,
         "aa": 0.98,
-        "cost": 84444,
+        "cost": 84455,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 3,
+          "coolingInputW": 10302009880000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -624,7 +713,7 @@
         "minimumWeaponsInputRatio": 1,
         "minimumShieldInputRatio": 1,
         "minimumThermalLimit": 1,
-        "maximumSourceDrawRatio": 0.8350765321,
+        "maximumSourceDrawRatio": 0.8387156527,
         "lastActualG": 4100
       },
       "engines": [
@@ -634,7 +723,7 @@
           "available": true,
           "reactorId": 43,
           "grade": "advanced",
-          "ratedInputW": 418604285300000000,
+          "ratedInputW": 419593579100000000,
           "maxInputW": 2832342948000000000,
           "machineryVolumeM3": 0.08330420434,
           "legacyCoolingInputW": 0
@@ -645,7 +734,7 @@
           "available": true,
           "reactorId": 43,
           "grade": "advanced",
-          "ratedInputW": 418604285300000000,
+          "ratedInputW": 419593579100000000,
           "maxInputW": 2832342948000000000,
           "machineryVolumeM3": 0.08330420434,
           "legacyCoolingInputW": 0
@@ -676,6 +765,13 @@
         "gun": 10,
         "aa": 0.16,
         "cost": 137742,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 809531018200000000,
+          "legacyDissipators": 8,
+          "physicalDissipators": 6,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -685,24 +781,31 @@
         }
       },
       "after": {
-        "massT": 48.32916857,
+        "massT": 48.35082168,
         "dimensionsM": [
           7.900000095367432,
           9.460000038146973,
           5.591440558433533
         ],
         "powerW": 7354377345000000000,
-        "ratedEngineInputW": 2255988867000000000,
+        "ratedEngineInputW": 2256999627000000000,
         "ratedG": 2380,
         "structuralG": 207533.3129,
         "defaultCombatActualG": 833,
-        "defaultCombatInputW": 789596103500000000,
+        "defaultCombatInputW": 789949869300000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 2380,
         "speedMps": 1782,
         "gun": 10,
         "aa": 0.35,
-        "cost": 134209,
+        "cost": 136048,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 7,
+          "coolingInputW": 9576644999000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -736,9 +839,9 @@
           "valid": true,
           "available": true,
           "reactorId": 36,
-          "grade": "dense",
-          "ratedInputW": 1127994434000000000,
-          "maxInputW": 1128181939000000000,
+          "grade": "advanced",
+          "ratedInputW": 1128499813000000000,
+          "maxInputW": 11281819390000000000,
           "machineryVolumeM3": 0.3318182174,
           "legacyCoolingInputW": 0
         },
@@ -747,9 +850,9 @@
           "valid": true,
           "available": true,
           "reactorId": 37,
-          "grade": "dense",
-          "ratedInputW": 1127994434000000000,
-          "maxInputW": 1128181939000000000,
+          "grade": "advanced",
+          "ratedInputW": 1128499813000000000,
+          "maxInputW": 11281819390000000000,
           "machineryVolumeM3": 0.3318182174,
           "legacyCoolingInputW": 0
         }
@@ -779,6 +882,13 @@
         "gun": 10,
         "aa": 0.37,
         "cost": 170459,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 667674549300000000,
+          "legacyDissipators": 10,
+          "physicalDissipators": 5,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -788,24 +898,31 @@
         }
       },
       "after": {
-        "massT": 12.58950565,
+        "massT": 12.61026156,
         "dimensionsM": [
           6,
           13.33307933807373,
           5.850300121307373
         ],
         "powerW": 3568703751000000000,
-        "ratedEngineInputW": 1159544544000000000,
+        "ratedEngineInputW": 1161456247000000000,
         "ratedG": 4696,
-        "structuralG": 102872.2253,
+        "structuralG": 102506.4726,
         "defaultCombatActualG": 1643.6,
-        "defaultCombatInputW": 405840590200000000,
+        "defaultCombatInputW": 406509686400000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 4696,
         "speedMps": 2245,
         "gun": 10,
         "aa": 1.09,
-        "cost": 139657,
+        "cost": 139677,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 6,
+          "coolingInputW": 9604432026000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -840,7 +957,7 @@
           "available": true,
           "reactorId": 16,
           "grade": "advanced",
-          "ratedInputW": 543822469100000000,
+          "ratedInputW": 544719051600000000,
           "maxInputW": 2000100945000000000,
           "machineryVolumeM3": 0.05882649837,
           "legacyCoolingInputW": 0
@@ -851,7 +968,7 @@
           "available": true,
           "reactorId": 17,
           "grade": "advanced",
-          "ratedInputW": 543822469100000000,
+          "ratedInputW": 544719051600000000,
           "maxInputW": 2000100945000000000,
           "machineryVolumeM3": 0.05882649837,
           "legacyCoolingInputW": 0
@@ -862,7 +979,7 @@
           "available": true,
           "reactorId": 18,
           "grade": "dense",
-          "ratedInputW": 71899605290000000,
+          "ratedInputW": 72018143840000000,
           "maxInputW": 78128943140000000,
           "machineryVolumeM3": 0.02297910092,
           "legacyCoolingInputW": 0
@@ -893,6 +1010,13 @@
         "gun": 14,
         "aa": 0.05,
         "cost": 144544,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 144218456800000000,
+          "legacyDissipators": 11,
+          "physicalDissipators": 4,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -902,24 +1026,31 @@
         }
       },
       "after": {
-        "massT": 9.862969821,
+        "massT": 9.91679567,
         "dimensionsM": [
           7.548,
           4.008000095367432,
           1.758999959565699
         ],
         "powerW": 4941390162000000000,
-        "ratedEngineInputW": 696403389500000000,
+        "ratedEngineInputW": 700203918700000000,
         "ratedG": 3600,
-        "structuralG": 15560.70229,
+        "structuralG": 15464.73774,
         "defaultCombatActualG": 1260,
-        "defaultCombatInputW": 243741186300000000,
+        "defaultCombatInputW": 245071371500000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 3600,
         "speedMps": 2051,
         "gun": 14,
         "aa": 1.12,
-        "cost": 121700,
+        "cost": 121781,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 39,
+          "coolingInputW": 21425366940000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -944,7 +1075,7 @@
         "minimumWeaponsInputRatio": 1,
         "minimumShieldInputRatio": 1,
         "minimumThermalLimit": 1,
-        "maximumSourceDrawRatio": 0.8221050546,
+        "maximumSourceDrawRatio": 0.8272100747,
         "lastActualG": 3600
       },
       "engines": [
@@ -954,7 +1085,7 @@
           "available": true,
           "reactorId": 16,
           "grade": "advanced",
-          "ratedInputW": 348201694800000000,
+          "ratedInputW": 350101959300000000,
           "maxInputW": 661283374800000000,
           "machineryVolumeM3": 0.01944951102,
           "legacyCoolingInputW": 0
@@ -965,7 +1096,7 @@
           "available": true,
           "reactorId": 16,
           "grade": "advanced",
-          "ratedInputW": 348201694800000000,
+          "ratedInputW": 350101959300000000,
           "maxInputW": 661283374800000000,
           "machineryVolumeM3": 0.01944951102,
           "legacyCoolingInputW": 0
@@ -996,6 +1127,13 @@
         "gun": 9,
         "aa": 0.15,
         "cost": 237213,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 2418524742000000000,
+          "legacyDissipators": 12,
+          "physicalDissipators": 4,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -1005,24 +1143,31 @@
         }
       },
       "after": {
-        "massT": 9.965941316,
+        "massT": 10.06658596,
         "dimensionsM": [
           7.902494322974235,
           4.91999993739142,
           5.881752014160156
         ],
         "powerW": 8394349152000000000,
-        "ratedEngineInputW": 1016417983000000000,
+        "ratedEngineInputW": 1026682646000000000,
         "ratedG": 5200,
-        "structuralG": 172399.5056,
+        "structuralG": 167507.5925,
         "defaultCombatActualG": 1820,
-        "defaultCombatInputW": 355746294200000000,
+        "defaultCombatInputW": 359338926200000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 5200,
         "speedMps": 2324,
         "gun": 9,
         "aa": 1.21,
-        "cost": 246592,
+        "cost": 246733,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 19,
+          "coolingInputW": 42901098530000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -1057,7 +1202,7 @@
           "available": true,
           "reactorId": 15,
           "grade": "advanced",
-          "ratedInputW": 365964009300000000,
+          "ratedInputW": 369659828600000000,
           "maxInputW": 1531327286000000000,
           "machineryVolumeM3": 0.04503903781,
           "legacyCoolingInputW": 0
@@ -1068,7 +1213,7 @@
           "available": true,
           "reactorId": 16,
           "grade": "advanced",
-          "ratedInputW": 650453974100000000,
+          "ratedInputW": 657022817600000000,
           "maxInputW": 1635470023000000000,
           "machineryVolumeM3": 0.0481020595,
           "legacyCoolingInputW": 0
@@ -1099,6 +1244,13 @@
         "gun": 14,
         "aa": 0.05,
         "cost": 188341,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 6146376685000000000,
+          "legacyDissipators": 12,
+          "physicalDissipators": 4,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -1108,24 +1260,31 @@
         }
       },
       "after": {
-        "massT": 25.63400672,
+        "massT": 25.89961763,
         "dimensionsM": [
           13.382523538544774,
           11.720273971557617,
           3.731052106612937
         ],
         "powerW": 24312294690000000000,
-        "ratedEngineInputW": 1860239617000000000,
+        "ratedEngineInputW": 1879514791000000000,
         "ratedG": 3700,
-        "structuralG": 26433.55528,
+        "structuralG": 26344.75371,
         "defaultCombatActualG": 1295,
-        "defaultCombatInputW": 651083865800000000,
+        "defaultCombatInputW": 657830176700000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 3700,
         "speedMps": 2070,
         "gun": 14,
         "aa": 1.25,
-        "cost": 180995,
+        "cost": 181319,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 14,
+          "coolingInputW": 117548246900000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -1150,7 +1309,7 @@
         "minimumWeaponsInputRatio": 1,
         "minimumShieldInputRatio": 1,
         "minimumThermalLimit": 1,
-        "maximumSourceDrawRatio": 0.672422452,
+        "maximumSourceDrawRatio": 0.6780501981,
         "lastActualG": 3700
       },
       "engines": [
@@ -1160,7 +1319,7 @@
           "available": true,
           "reactorId": 30,
           "grade": "advanced",
-          "ratedInputW": 465059904200000000,
+          "ratedInputW": 469878697600000000,
           "maxInputW": 1125056781000000000,
           "machineryVolumeM3": 0.03308990533,
           "legacyCoolingInputW": 0
@@ -1171,7 +1330,7 @@
           "available": true,
           "reactorId": 30,
           "grade": "advanced",
-          "ratedInputW": 465059904200000000,
+          "ratedInputW": 469878697600000000,
           "maxInputW": 1125056781000000000,
           "machineryVolumeM3": 0.03308990533,
           "legacyCoolingInputW": 0
@@ -1182,7 +1341,7 @@
           "available": true,
           "reactorId": 30,
           "grade": "advanced",
-          "ratedInputW": 465059904200000000,
+          "ratedInputW": 469878697600000000,
           "maxInputW": 1125056781000000000,
           "machineryVolumeM3": 0.03308990533,
           "legacyCoolingInputW": 0
@@ -1193,7 +1352,7 @@
           "available": true,
           "reactorId": 30,
           "grade": "advanced",
-          "ratedInputW": 465059904200000000,
+          "ratedInputW": 469878697600000000,
           "maxInputW": 1125056781000000000,
           "machineryVolumeM3": 0.03308990533,
           "legacyCoolingInputW": 0
@@ -1224,6 +1383,13 @@
         "gun": 10,
         "aa": 0.35,
         "cost": 140315,
+        "thermal": {
+          "mode": "compat",
+          "builtinCoolingW": 1174222860000000000,
+          "legacyDissipators": 9,
+          "physicalDissipators": 2,
+          "coolingInputW": 0
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -1233,24 +1399,31 @@
         }
       },
       "after": {
-        "massT": 19.48185541,
+        "massT": 19.51971739,
         "dimensionsM": [
           16.72238710336387,
           16.6200008392334,
           2.38000003695488
         ],
         "powerW": 5819852997000000000,
-        "ratedEngineInputW": 1272404571000000000,
+        "ratedEngineInputW": 1274877423000000000,
         "ratedG": 3330,
         "structuralG": 36569.61509,
         "defaultCombatActualG": 1165.5,
-        "defaultCombatInputW": 445341599800000000,
+        "defaultCombatInputW": 446207098200000000,
         "defaultCombatOutputRatio": 0.35,
         "planningG": 3330,
         "speedMps": 1997,
         "gun": 10,
         "aa": 0.83,
-        "cost": 141590,
+        "cost": 141625,
+        "thermal": {
+          "mode": "strict",
+          "builtinCoolingW": 0,
+          "legacyDissipators": 0,
+          "physicalDissipators": 4,
+          "coolingInputW": 18508887560000000
+        },
         "overlapIds": [],
         "systems": {
           "navReady": true,
@@ -1285,7 +1458,7 @@
           "available": true,
           "reactorId": 21,
           "grade": "advanced",
-          "ratedInputW": 636202285500000000,
+          "ratedInputW": 637438711700000000,
           "maxInputW": 1805091102000000000,
           "machineryVolumeM3": 0.05309091478,
           "legacyCoolingInputW": 0
@@ -1296,7 +1469,7 @@
           "available": true,
           "reactorId": 22,
           "grade": "advanced",
-          "ratedInputW": 636202285500000000,
+          "ratedInputW": 637438711700000000,
           "maxInputW": 1805091102000000000,
           "machineryVolumeM3": 0.05309091478,
           "legacyCoolingInputW": 0

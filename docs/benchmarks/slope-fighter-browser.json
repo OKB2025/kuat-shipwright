@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-05T13:41:42.576Z",
+  "date": "2026-11-05T18:17:39.897Z",
   "browser": "Chromium with software WebGL",
   "url": "http://127.0.0.1:8876",
-  "elapsedMs": 83634,
+  "elapsedMs": 75622,
   "sourceSha256": {
-    "data/reference.js": "4fa7586a61c2a9b5949b88e5cad7bd58d687805ee2dc58e2a9e90a21e4a63ea5",
-    "js/core.js": "720417cabb3a37fe734d801f473c42b6b0fd3c540b9b81aeff94b0230a256591",
-    "js/gfx.js": "758d23c4ec98e873102c90e3d4bde7157cb063c658f8c0c0bf554c7b80dad4af",
-    "js/app.js": "e4933edd44d0a832681155f7ba73e623b134cdc685acd9e370efd4b73e39fbf1",
-    "js/lang-en.js": "c0ead03ee730d489e051cc1a30f8ce76d3520156d57d69ce07887f9c5e46d53c"
+    "data/reference.js": "ab4c2477593dc90d7db474381854d8a6ec6202fd5790fd33520e023f83e1fd8a",
+    "js/core.js": "e6ae9edba2eb13c80c32c0b84ee058ebf290fa0783d9e5437af01681dfae31e5",
+    "js/gfx.js": "dc7eb8f5fb0504bea4c47c2fa2f1ad9b024377ce7c5ae28cca18711d3df5d21a",
+    "js/app.js": "6af3f1e34d6dc78fa3c11607d374441cef0cc16bdcc8f69bf139bf8f29960aa6",
+    "js/lang-en.js": "77a3effa09b7bce6bf091f16fe89f6e47512437f0f1a764962c03fd91a33cf4c"
   },
   "sourceSha256After": {
-    "data/reference.js": "4fa7586a61c2a9b5949b88e5cad7bd58d687805ee2dc58e2a9e90a21e4a63ea5",
-    "js/core.js": "720417cabb3a37fe734d801f473c42b6b0fd3c540b9b81aeff94b0230a256591",
-    "js/gfx.js": "758d23c4ec98e873102c90e3d4bde7157cb063c658f8c0c0bf554c7b80dad4af",
-    "js/app.js": "e4933edd44d0a832681155f7ba73e623b134cdc685acd9e370efd4b73e39fbf1",
-    "js/lang-en.js": "c0ead03ee730d489e051cc1a30f8ce76d3520156d57d69ce07887f9c5e46d53c"
+    "data/reference.js": "ab4c2477593dc90d7db474381854d8a6ec6202fd5790fd33520e023f83e1fd8a",
+    "js/core.js": "e6ae9edba2eb13c80c32c0b84ee058ebf290fa0783d9e5437af01681dfae31e5",
+    "js/gfx.js": "dc7eb8f5fb0504bea4c47c2fa2f1ad9b024377ce7c5ae28cca18711d3df5d21a",
+    "js/app.js": "6af3f1e34d6dc78fa3c11607d374441cef0cc16bdcc8f69bf139bf8f29960aa6",
+    "js/lang-en.js": "77a3effa09b7bce6bf091f16fe89f6e47512437f0f1a764962c03fd91a33cf4c"
   },
   "mounts": [
     {
@@ -1510,8 +1510,8 @@
     {
       "key": "craft_xwing",
       "name": "T-65B Xウイング",
-      "massTonnes": 25.63400671746658,
-      "accelG": 1295.0000000000002,
+      "massTonnes": 25.899617627547702,
+      "accelG": 1295,
       "maximumAccelMps2": 37234.815156669516,
       "craft": {
         "accelG": 3700,
@@ -1527,11 +1527,11 @@
             "version": 1,
             "id": 31,
             "machineryId": 31,
-            "ratedInputW": 465059904155310800,
+            "ratedInputW": 469878697633302700,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 232529952.0776554,
+            "ratedThrustN": 234939348.81665137,
             "effectiveMachineryVolumeM3": 0.03308990533180733,
             "machineryVolumeM3": 0.03308990533180733,
             "machineryLengthM": 0.3,
@@ -1540,9 +1540,9 @@
             "machineryOffsetM": 2.125,
             "maxInputW": 1125056781281449100,
             "maxRatedInputW": 1125056781281449100,
-            "inputDensityWPerM3": 14054434411097477000,
+            "inputDensityWPerM3": 14200061708294967000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 3771.955129440668,
+            "cost": 3852.449986809313,
             "powerNode": "p31",
             "heatNode": "p31",
             "reactorId": 30,
@@ -1573,11 +1573,11 @@
             "version": 1,
             "id": 32,
             "machineryId": 32,
-            "ratedInputW": 465059904155310800,
+            "ratedInputW": 469878697633302700,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 232529952.0776554,
+            "ratedThrustN": 234939348.81665137,
             "effectiveMachineryVolumeM3": 0.03308990533180733,
             "machineryVolumeM3": 0.03308990533180733,
             "machineryLengthM": 0.3,
@@ -1586,9 +1586,9 @@
             "machineryOffsetM": 2.125,
             "maxInputW": 1125056781281449100,
             "maxRatedInputW": 1125056781281449100,
-            "inputDensityWPerM3": 14054434411097477000,
+            "inputDensityWPerM3": 14200061708294967000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 3771.955129440668,
+            "cost": 3852.449986809313,
             "powerNode": "p32",
             "heatNode": "p32",
             "reactorId": 30,
@@ -1619,11 +1619,11 @@
             "version": 1,
             "id": 33,
             "machineryId": 33,
-            "ratedInputW": 465059904155310800,
+            "ratedInputW": 469878697633302700,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 232529952.0776554,
+            "ratedThrustN": 234939348.81665137,
             "effectiveMachineryVolumeM3": 0.03308990533180733,
             "machineryVolumeM3": 0.03308990533180733,
             "machineryLengthM": 0.3,
@@ -1632,9 +1632,9 @@
             "machineryOffsetM": 2.125,
             "maxInputW": 1125056781281449100,
             "maxRatedInputW": 1125056781281449100,
-            "inputDensityWPerM3": 14054434411097477000,
+            "inputDensityWPerM3": 14200061708294967000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 3771.955129440668,
+            "cost": 3852.449986809313,
             "powerNode": "p33",
             "heatNode": "p33",
             "reactorId": 30,
@@ -1665,11 +1665,11 @@
             "version": 1,
             "id": 34,
             "machineryId": 34,
-            "ratedInputW": 465059904155310800,
+            "ratedInputW": 469878697633302700,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 232529952.0776554,
+            "ratedThrustN": 234939348.81665137,
             "effectiveMachineryVolumeM3": 0.03308990533180733,
             "machineryVolumeM3": 0.03308990533180733,
             "machineryLengthM": 0.3,
@@ -1678,9 +1678,9 @@
             "machineryOffsetM": 2.125,
             "maxInputW": 1125056781281449100,
             "maxRatedInputW": 1125056781281449100,
-            "inputDensityWPerM3": 14054434411097477000,
+            "inputDensityWPerM3": 14200061708294967000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 3771.955129440668,
+            "cost": 3852.449986809313,
             "powerNode": "p34",
             "heatNode": "p34",
             "reactorId": 30,
@@ -1734,20 +1734,221 @@
         "landingRatio": 1,
         "landingReady": true
       },
+      "thermal": {
+        "stats": {
+          "mode": "strict",
+          "builtinCapacityW": 0,
+          "legacyCoolerCount": 0,
+          "networkKinds": [
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "wing",
+            "wing",
+            "wing",
+            "wing",
+            "skin"
+          ]
+        },
+        "profile": {
+          "strictOnly": true,
+          "version": 2,
+          "mode": "strict",
+          "storedVersion": 2,
+          "storedMode": "strict",
+          "phantomCoolers": [],
+          "legacyEngineInputW": 0,
+          "coolers": [
+            {
+              "id": "p77",
+              "kind": "hdis",
+              "capacityW": 837920977354792100,
+              "powerW": 12568814660321880,
+              "moduleIndex": 31,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p78",
+              "kind": "hdis",
+              "capacityW": 837921209174261400,
+              "powerW": 12568818137613920,
+              "moduleIndex": 32,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p79",
+              "kind": "hdis",
+              "capacityW": 837921209174261200,
+              "powerW": 12568818137613918,
+              "moduleIndex": 33,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p80",
+              "kind": "hdis",
+              "capacityW": 837921209174261400,
+              "powerW": 12568818137613920,
+              "moduleIndex": 34,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p81",
+              "kind": "hdis",
+              "capacityW": 837921209174261200,
+              "powerW": 12568818137613918,
+              "moduleIndex": 35,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p82",
+              "kind": "hdis",
+              "capacityW": 837920977354792100,
+              "powerW": 12568814660321880,
+              "moduleIndex": 36,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p83",
+              "kind": "hdis",
+              "capacityW": 837921093264526800,
+              "powerW": 12568816398967902,
+              "moduleIndex": 37,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p84",
+              "kind": "hdis",
+              "capacityW": 837920429294593000,
+              "powerW": 12568806439418894,
+              "moduleIndex": 38,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p85",
+              "kind": "hdis",
+              "capacityW": 837920429294593000,
+              "powerW": 12568806439418894,
+              "moduleIndex": 39,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p86",
+              "kind": "hdis",
+              "capacityW": 31881931172528064,
+              "powerW": 478228967587920.94,
+              "moduleIndex": 40,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p2",
+              "kind": "wing",
+              "capacityW": 97577204545454540,
+              "powerW": 975772045454545.5,
+              "moduleIndex": 45,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p3",
+              "kind": "wing",
+              "capacityW": 99957136363636370,
+              "powerW": 999571363636363.8,
+              "moduleIndex": 46,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p16",
+              "kind": "wing",
+              "capacityW": 99957136363636370,
+              "powerW": 999571363636363.8,
+              "moduleIndex": 47,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p17",
+              "kind": "wing",
+              "capacityW": 97577204545454540,
+              "powerW": 975772045454545.5,
+              "moduleIndex": 48,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "skin",
+              "kind": "skin",
+              "capacityW": 833493468577307000000,
+              "powerW": 0,
+              "moduleIndex": -1,
+              "moduleKind": null
+            }
+          ]
+        }
+      },
       "preview": {
-        "ratedInputW": 1860239616621243100,
-        "actualInputW": 651083865817435000,
-        "actualThrustN": 325541932.9087175,
-        "wasteHeatW": 32554193290871750,
-        "accelerationMps2": 12699.611750000002
+        "ratedInputW": 1879514790533211000,
+        "actualInputW": 657830176686623700,
+        "actualThrustN": 328915088.34331185,
+        "wasteHeatW": 32891508834331188,
+        "accelerationMps2": 12699.611749999998,
+        "ledger": {
+          "finite": true,
+          "drawW": 16100571613861941000,
+          "sourceDrawW": 16100571613861929000,
+          "consumerDrawW": 16100571613861937000,
+          "engineDrawW": 657830176686623700,
+          "sourceConservationRelativeError": 7.632027169408401e-16,
+          "consumerConservationRelativeError": 2.544009056469467e-16,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p30",
+              "moduleIndex": 6,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 29174753623962083000,
+              "drawW": 16100571613861929000
+            }
+          ]
+        }
       },
       "runtime": {
-        "actualInputW": 651083865817435000,
-        "actualThrustN": 325541932.9087175,
-        "wasteHeatW": 32554193290871750
+        "actualInputW": 657830176686623700,
+        "actualThrustN": 328915088.34331185,
+        "wasteHeatW": 32891508834331188,
+        "ledger": {
+          "finite": true,
+          "drawW": 11914071613861941000,
+          "sourceDrawW": 11914071613861929000,
+          "consumerDrawW": 11914071613861937000,
+          "engineDrawW": 657830176686623700,
+          "sourceConservationRelativeError": 1.0313854405326048e-15,
+          "consumerConservationRelativeError": 3.437951468442016e-16,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p30",
+              "moduleIndex": 6,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 29174753623962083000,
+              "drawW": 11914071613861929000
+            }
+          ]
+        }
       },
       "profile": {
-        "massKg": 25634.00671746658,
+        "massKg": 25899.6176275477,
         "engines": 4
       },
       "warnings": [
@@ -1771,12 +1972,49 @@
           ]
         },
         {
-          "lv": "info",
+          "lv": "warn",
           "code": "heat",
-          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。",
+          "text": "戦闘負荷で 4 系統の廃熱が処理しきれず蓄熱します（最短 2 分 で出力制限）。散逸装置か熱輸送路を足してください。",
           "targets": [
             {
-              "part": "radiator"
+              "list": "parts",
+              "id": 77
+            },
+            {
+              "list": "parts",
+              "id": 78
+            },
+            {
+              "list": "parts",
+              "id": 79
+            },
+            {
+              "list": "parts",
+              "id": 80
+            },
+            {
+              "list": "parts",
+              "id": 81
+            },
+            {
+              "list": "parts",
+              "id": 82
+            },
+            {
+              "list": "parts",
+              "id": 83
+            },
+            {
+              "list": "parts",
+              "id": 84
+            },
+            {
+              "list": "parts",
+              "id": 85
+            },
+            {
+              "list": "parts",
+              "id": 86
             }
           ]
         },
@@ -1835,7 +2073,11 @@
         "statistics": 10
       },
       "renderer": true,
-      "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n1.9×10¹⁸ W\n定格推力\n9.3×10⁸ N\n計画最大加速度（定格・無制限）\n36,284.605 m/s²\n推進への実入力\n6.5×10¹⁷ W\n実推力\n3.3×10⁸ N\n推進廃熱\n3.3×10¹⁶ W\n無制限時の実加速度\n12,699.612 m/s²\n構造・慣性制限後の実加速度\n12,699.612 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n1.9×10¹⁸ W\n定格推力\n9.4×10⁸ N\n計画最大加速度（定格・無制限）\n36,284.605 m/s²\n推進への実入力\n6.6×10¹⁷ W\n実推力\n3.3×10⁸ N\n推進廃熱\n3.3×10¹⁶ W\n無制限時の実加速度\n12,699.612 m/s²\n構造・慣性制限後の実加速度\n12,699.612 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "heatEditor": {
+        "text": "電力・熱ネットワーク\n戦闘",
+        "mode": "厳格運転"
+      },
       "displayAcceleration": {
         "label": "計画最大加速",
         "planned": "3,700 G",
@@ -1847,18 +2089,18 @@
       "squadron": {
         "registered": true,
         "firstMotion": {
-          "acc0": 72.56921000000003,
-          "acc": 72.56921000000003,
+          "acc0": 72.56921000000001,
+          "acc": 72.56921000000001,
           "turn": 1
         },
         "firing": {
           "motion": {
-            "acc0": 72.56921000000003,
-            "acc": 72.56921000000003,
+            "acc0": 72.56921000000001,
+            "acc": 72.56921000000001,
             "turn": 1
           },
           "weaponPowerK": 1,
-          "engineInputW": 1860239616621243100,
+          "engineInputW": 1879514790533211000,
           "modules": [
             {
               "index": 0,
@@ -1866,6 +2108,7 @@
               "name": "レーザー砲",
               "port": "f42",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -1874,6 +2117,7 @@
               "name": "レーザー砲",
               "port": "f43",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -1882,6 +2126,7 @@
               "name": "レーザー砲",
               "port": "f44",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -1890,6 +2135,7 @@
               "name": "レーザー砲",
               "port": "f45",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -1898,6 +2144,7 @@
               "name": "魚雷発射管",
               "port": "f46",
               "nameplateW": 1000000000000000,
+              "inputNameplateW": 1000000000000000,
               "grantedW": 1000000000000000
             },
             {
@@ -1906,9 +2153,164 @@
               "name": "魚雷発射管",
               "port": "f47",
               "nameplateW": 1000000000000000,
+              "inputNameplateW": 1000000000000000,
               "grantedW": 1000000000000000
             }
-          ]
+          ],
+          "ledger": {
+            "finite": true,
+            "drawW": 16484956227708527000,
+            "sourceDrawW": 16484956227708518000,
+            "consumerDrawW": 16484956227708527000,
+            "engineDrawW": 1879514790533211000,
+            "sourceConservationRelativeError": 4.969379285478831e-16,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p30",
+                "moduleIndex": 6,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 24312294686635070000,
+                "drawW": 16484956227708518000
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p77",
+                "kind": "hdis",
+                "capacityW": 837920977354792100,
+                "powerW": 12568814660321880,
+                "moduleIndex": 31,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p78",
+                "kind": "hdis",
+                "capacityW": 837921209174261400,
+                "powerW": 12568818137613920,
+                "moduleIndex": 32,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p79",
+                "kind": "hdis",
+                "capacityW": 837921209174261200,
+                "powerW": 12568818137613918,
+                "moduleIndex": 33,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p80",
+                "kind": "hdis",
+                "capacityW": 837921209174261400,
+                "powerW": 12568818137613920,
+                "moduleIndex": 34,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p81",
+                "kind": "hdis",
+                "capacityW": 837921209174261200,
+                "powerW": 12568818137613918,
+                "moduleIndex": 35,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p82",
+                "kind": "hdis",
+                "capacityW": 837920977354792100,
+                "powerW": 12568814660321880,
+                "moduleIndex": 36,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p83",
+                "kind": "hdis",
+                "capacityW": 837921093264526800,
+                "powerW": 12568816398967902,
+                "moduleIndex": 37,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p84",
+                "kind": "hdis",
+                "capacityW": 837920429294593000,
+                "powerW": 12568806439418894,
+                "moduleIndex": 38,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p85",
+                "kind": "hdis",
+                "capacityW": 837920429294593000,
+                "powerW": 12568806439418894,
+                "moduleIndex": 39,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p86",
+                "kind": "hdis",
+                "capacityW": 31881931172528064,
+                "powerW": 478228967587920.94,
+                "moduleIndex": 40,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p2",
+                "kind": "wing",
+                "capacityW": 97577204545454540,
+                "powerW": 975772045454545.5,
+                "moduleIndex": 45,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p3",
+                "kind": "wing",
+                "capacityW": 99957136363636370,
+                "powerW": 999571363636363.8,
+                "moduleIndex": 46,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p16",
+                "kind": "wing",
+                "capacityW": 99957136363636370,
+                "powerW": 999571363636363.8,
+                "moduleIndex": 47,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p17",
+                "kind": "wing",
+                "capacityW": 97577204545454540,
+                "powerW": 975772045454545.5,
+                "moduleIndex": 48,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 833493468577307000000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          }
         },
         "powered": {
           "position": [
@@ -1921,8 +2323,31 @@
             0,
             0
           ],
-          "inputW": 1860239616621243100,
-          "thrustN": 930119808.3106216
+          "inputW": 1879514790533211000,
+          "thrustN": 939757395.2666055,
+          "ledger": {
+            "finite": true,
+            "drawW": 13135756227708527000,
+            "sourceDrawW": 13135756227708518000,
+            "consumerDrawW": 13135756227708527000,
+            "engineDrawW": 1879514790533211000,
+            "sourceConservationRelativeError": 6.236412931232553e-16,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p30",
+                "moduleIndex": 6,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 24312294686635070000,
+                "drawW": 13135756227708518000
+              }
+            ]
+          }
         },
         "idle": {
           "position": [
@@ -1936,32 +2361,340 @@
             0
           ],
           "inputW": 0,
-          "thrustN": 0
+          "thrustN": 0,
+          "ledger": {
+            "finite": true,
+            "drawW": 11256241437175316000,
+            "sourceDrawW": 11256241437175308000,
+            "consumerDrawW": 11256241437175316000,
+            "engineDrawW": 0,
+            "sourceConservationRelativeError": 7.277740128196585e-16,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p30",
+                "moduleIndex": 6,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 24312294686635070000,
+                "drawW": 11256241437175308000
+              }
+            ]
+          }
         },
         "stock": {
           "type": "xwing",
           "catalogReady": true,
           "cachedProfilePresent": true,
-          "profileVersion": 14,
-          "expectedProfileVersion": 14,
+          "profileVersion": 15,
+          "expectedProfileVersion": 15,
           "systemsSource": "blueprint",
-          "massKg": 25634.00671746658,
-          "ratedAccelG": 3700.0000000000014,
+          "massKg": 25899.6176275477,
+          "ratedAccelG": 3700.0000000000005,
           "engineCount": 4,
           "motion": {
-            "acc0": 72.56921000000003,
-            "acc": 72.56921000000003,
+            "acc0": 72.56921000000001,
+            "acc": 72.56921000000001,
             "turn": 1
           },
-          "inputW": 1860239616621243100,
+          "inputW": 1879514790533211000,
+          "ledger": {
+            "finite": true,
+            "drawW": 2022509980011098000,
+            "sourceDrawW": 2022509980011098000,
+            "consumerDrawW": 2022509980011098000,
+            "engineDrawW": 1879514790533211000,
+            "sourceConservationRelativeError": 0,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p30",
+                "moduleIndex": 6,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 24312294686635070000,
+                "drawW": 2022509980011098000
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p77",
+                "kind": "hdis",
+                "capacityW": 837920977354792100,
+                "powerW": 12568814660321880,
+                "moduleIndex": 31,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p78",
+                "kind": "hdis",
+                "capacityW": 837921209174261400,
+                "powerW": 12568818137613920,
+                "moduleIndex": 32,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p79",
+                "kind": "hdis",
+                "capacityW": 837921209174261200,
+                "powerW": 12568818137613918,
+                "moduleIndex": 33,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p80",
+                "kind": "hdis",
+                "capacityW": 837921209174261400,
+                "powerW": 12568818137613920,
+                "moduleIndex": 34,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p81",
+                "kind": "hdis",
+                "capacityW": 837921209174261200,
+                "powerW": 12568818137613918,
+                "moduleIndex": 35,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p82",
+                "kind": "hdis",
+                "capacityW": 837920977354792100,
+                "powerW": 12568814660321880,
+                "moduleIndex": 36,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p83",
+                "kind": "hdis",
+                "capacityW": 837921093264526800,
+                "powerW": 12568816398967902,
+                "moduleIndex": 37,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p84",
+                "kind": "hdis",
+                "capacityW": 837920429294593000,
+                "powerW": 12568806439418894,
+                "moduleIndex": 38,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p85",
+                "kind": "hdis",
+                "capacityW": 837920429294593000,
+                "powerW": 12568806439418894,
+                "moduleIndex": 39,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p86",
+                "kind": "hdis",
+                "capacityW": 31881931172528064,
+                "powerW": 478228967587920.94,
+                "moduleIndex": 40,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p2",
+                "kind": "wing",
+                "capacityW": 97577204545454540,
+                "powerW": 975772045454545.5,
+                "moduleIndex": 45,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p3",
+                "kind": "wing",
+                "capacityW": 99957136363636370,
+                "powerW": 999571363636363.8,
+                "moduleIndex": 46,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p16",
+                "kind": "wing",
+                "capacityW": 99957136363636370,
+                "powerW": 999571363636363.8,
+                "moduleIndex": 47,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p17",
+                "kind": "wing",
+                "capacityW": 97577204545454540,
+                "powerW": 975772045454545.5,
+                "moduleIndex": 48,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 833493468577307000000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
+          "cachedThermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p77",
+                "kind": "hdis",
+                "capacityW": 837920977354792100,
+                "powerW": 12568814660321880,
+                "moduleIndex": 31,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p78",
+                "kind": "hdis",
+                "capacityW": 837921209174261400,
+                "powerW": 12568818137613920,
+                "moduleIndex": 32,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p79",
+                "kind": "hdis",
+                "capacityW": 837921209174261200,
+                "powerW": 12568818137613918,
+                "moduleIndex": 33,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p80",
+                "kind": "hdis",
+                "capacityW": 837921209174261400,
+                "powerW": 12568818137613920,
+                "moduleIndex": 34,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p81",
+                "kind": "hdis",
+                "capacityW": 837921209174261200,
+                "powerW": 12568818137613918,
+                "moduleIndex": 35,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p82",
+                "kind": "hdis",
+                "capacityW": 837920977354792100,
+                "powerW": 12568814660321880,
+                "moduleIndex": 36,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p83",
+                "kind": "hdis",
+                "capacityW": 837921093264526800,
+                "powerW": 12568816398967902,
+                "moduleIndex": 37,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p84",
+                "kind": "hdis",
+                "capacityW": 837920429294593000,
+                "powerW": 12568806439418894,
+                "moduleIndex": 38,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p85",
+                "kind": "hdis",
+                "capacityW": 837920429294593000,
+                "powerW": 12568806439418894,
+                "moduleIndex": 39,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p86",
+                "kind": "hdis",
+                "capacityW": 31881931172528064,
+                "powerW": 478228967587920.94,
+                "moduleIndex": 40,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p2",
+                "kind": "wing",
+                "capacityW": 97577204545454540,
+                "powerW": 975772045454545.5,
+                "moduleIndex": 45,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p3",
+                "kind": "wing",
+                "capacityW": 99957136363636370,
+                "powerW": 999571363636363.8,
+                "moduleIndex": 46,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p16",
+                "kind": "wing",
+                "capacityW": 99957136363636370,
+                "powerW": 999571363636363.8,
+                "moduleIndex": 47,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p17",
+                "kind": "wing",
+                "capacityW": 97577204545454540,
+                "powerW": 975772045454545.5,
+                "moduleIndex": 48,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 833493468577307000000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
           "firing": {
             "motion": {
-              "acc0": 72.56921000000003,
-              "acc": 72.56921000000003,
+              "acc0": 72.56921000000001,
+              "acc": 72.56921000000001,
               "turn": 1
             },
             "weaponPowerK": 1,
-            "engineInputW": 1860239616621243100,
+            "engineInputW": 1879514790533211000,
             "modules": [
               {
                 "index": 0,
@@ -1969,6 +2702,7 @@
                 "name": "レーザー砲",
                 "port": "f42",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -1977,6 +2711,7 @@
                 "name": "レーザー砲",
                 "port": "f43",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -1985,6 +2720,7 @@
                 "name": "レーザー砲",
                 "port": "f44",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -1993,6 +2729,7 @@
                 "name": "レーザー砲",
                 "port": "f45",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -2001,6 +2738,7 @@
                 "name": "魚雷発射管",
                 "port": "f46",
                 "nameplateW": 1000000000000000,
+                "inputNameplateW": 1000000000000000,
                 "grantedW": 1000000000000000
               },
               {
@@ -2009,23 +2747,178 @@
                 "name": "魚雷発射管",
                 "port": "f47",
                 "nameplateW": 1000000000000000,
+                "inputNameplateW": 1000000000000000,
                 "grantedW": 1000000000000000
               }
-            ]
+            ],
+            "ledger": {
+              "finite": true,
+              "drawW": 5371709980011098000,
+              "sourceDrawW": 5371709980011098000,
+              "consumerDrawW": 5371709980011097000,
+              "engineDrawW": 1879514790533211000,
+              "sourceConservationRelativeError": 0,
+              "consumerConservationRelativeError": 1.9062831087501942e-16,
+              "engineConservationRelativeError": 0,
+              "maximumSourceExcess": 0,
+              "maximumEngineRequestExcess": 0,
+              "maximumEngineThrustRelativeError": 0,
+              "sources": [
+                {
+                  "id": "p30",
+                  "moduleIndex": 6,
+                  "reactor": true,
+                  "domain": "main",
+                  "availableW": 24312294686635070000,
+                  "drawW": 5371709980011098000
+                }
+              ]
+            },
+            "thermal": {
+              "strictOnly": true,
+              "version": 2,
+              "mode": "strict",
+              "storedVersion": 2,
+              "storedMode": "strict",
+              "phantomCoolers": [],
+              "legacyEngineInputW": 0,
+              "coolers": [
+                {
+                  "id": "p77",
+                  "kind": "hdis",
+                  "capacityW": 837920977354792100,
+                  "powerW": 12568814660321880,
+                  "moduleIndex": 31,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p78",
+                  "kind": "hdis",
+                  "capacityW": 837921209174261400,
+                  "powerW": 12568818137613920,
+                  "moduleIndex": 32,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p79",
+                  "kind": "hdis",
+                  "capacityW": 837921209174261200,
+                  "powerW": 12568818137613918,
+                  "moduleIndex": 33,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p80",
+                  "kind": "hdis",
+                  "capacityW": 837921209174261400,
+                  "powerW": 12568818137613920,
+                  "moduleIndex": 34,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p81",
+                  "kind": "hdis",
+                  "capacityW": 837921209174261200,
+                  "powerW": 12568818137613918,
+                  "moduleIndex": 35,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p82",
+                  "kind": "hdis",
+                  "capacityW": 837920977354792100,
+                  "powerW": 12568814660321880,
+                  "moduleIndex": 36,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p83",
+                  "kind": "hdis",
+                  "capacityW": 837921093264526800,
+                  "powerW": 12568816398967902,
+                  "moduleIndex": 37,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p84",
+                  "kind": "hdis",
+                  "capacityW": 837920429294593000,
+                  "powerW": 12568806439418894,
+                  "moduleIndex": 38,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p85",
+                  "kind": "hdis",
+                  "capacityW": 837920429294593000,
+                  "powerW": 12568806439418894,
+                  "moduleIndex": 39,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p86",
+                  "kind": "hdis",
+                  "capacityW": 31881931172528064,
+                  "powerW": 478228967587920.94,
+                  "moduleIndex": 40,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p2",
+                  "kind": "wing",
+                  "capacityW": 97577204545454540,
+                  "powerW": 975772045454545.5,
+                  "moduleIndex": 45,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p3",
+                  "kind": "wing",
+                  "capacityW": 99957136363636370,
+                  "powerW": 999571363636363.8,
+                  "moduleIndex": 46,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p16",
+                  "kind": "wing",
+                  "capacityW": 99957136363636370,
+                  "powerW": 999571363636363.8,
+                  "moduleIndex": 47,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p17",
+                  "kind": "wing",
+                  "capacityW": 97577204545454540,
+                  "powerW": 975772045454545.5,
+                  "moduleIndex": 48,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "skin",
+                  "kind": "skin",
+                  "capacityW": 833493468577307000000,
+                  "powerW": 0,
+                  "moduleIndex": -1,
+                  "moduleKind": null
+                }
+              ]
+            }
           }
         }
       },
       "engineEditor": {
         "physicalRatingPresent": 1,
-        "text": "機関の定格・内部機構\n標準入力機関\n定格入力（W）\n推進プロファイル\n標準入力機関\n内部機関の仕様\n標準機関\n高密度機関\n超高密度機関\n内部機関の直径（m）\n内部機関の長さ（m）\nノズルから機関までの距離（m）\n実機関容積\n0.033 m³\n入力密度\n1.4×10¹⁹ W/m³\n容積・仕様による入力上限\n1.1×10¹⁸ W\n入力から推力への係数（固定）\n2.0×10⁹ W/N\n定格・高密度化の追加費用\n3,772 cr\n定格入力\n4.7×10¹⁷ W\n定格推力\n2.3×10⁸ N\n推進への実入力\n1.6×10¹⁷ W\n実推力\n8.1×10⁷ N\n推進廃熱\n8.1×10¹⁵ W\n持続運転能力\n未判定（熱平衡未解決）\n\n定格は電力の受入上限です。実推力は実給電で決まり、推進廃熱は実入力の5%です。内部機関と給電・散逸設備は別に確保します。密度・費用はゲーム用の暫定係数です。"
+        "text": "機関の定格・内部機構\n標準入力機関\n定格入力（W）\n推進プロファイル\n標準入力機関\n内部機関の仕様\n標準機関\n高密度機関\n超高密度機関\n内部機関の直径（m）\n内部機関の長さ（m）\nノズルから機関までの距離（m）\n実機関容積\n0.033 m³\n入力密度\n1.4×10¹⁹ W/m³\n容積・仕様による入力上限\n1.1×10¹⁸ W\n入力から推力への係数（固定）\n2.0×10⁹ W/N\n定格・高密度化の追加費用\n3,852 cr\n定格入力\n4.7×10¹⁷ W\n定格推力\n2.3×10⁸ N\n推進への実入力\n1.6×10¹⁷ W\n実推力\n8.2×10⁷ N\n推進廃熱\n8.2×10¹⁵ W\n持続運転能力\n未判定（熱平衡未解決）\n\n定格は電力の受入上限です。実推力は実給電で決まり、推進廃熱は実入力の5%です。内部機関と給電・散逸設備は別に確保します。密度・費用はゲーム用の暫定係数です。"
       }
     },
     {
       "key": "craft_tie_ln",
       "name": "TIE/ln 制宙戦闘機",
-      "massTonnes": 10.411160404665834,
-      "accelG": 1435,
-      "maximumAccelMps2": 40309.389797234646,
+      "massTonnes": 10.435765255714173,
+      "accelG": 1434.9999999999995,
+      "maximumAccelMps2": 40309.38979723465,
       "craft": {
         "accelG": 4100,
         "speed": 2144,
@@ -2040,11 +2933,11 @@
             "version": 1,
             "id": 44,
             "machineryId": 44,
-            "ratedInputW": 418604285347906370,
+            "ratedInputW": 419593579114292400,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 209302142.67395318,
+            "ratedThrustN": 209796789.55714622,
             "effectiveMachineryVolumeM3": 0.08330420433843971,
             "machineryVolumeM3": 0.08330420433843971,
             "machineryLengthM": 0.3,
@@ -2053,9 +2946,9 @@
             "machineryOffsetM": 0.8415,
             "maxInputW": 2832342947506950000,
             "maxRatedInputW": 2832342947506950000,
-            "inputDensityWPerM3": 5025007905330254000,
+            "inputDensityWPerM3": 5036883581645063000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 1110.1345782191554,
+            "cost": 1115.7617565069063,
             "powerNode": "p44",
             "heatNode": "p44",
             "reactorId": 43,
@@ -2086,11 +2979,11 @@
             "version": 1,
             "id": 45,
             "machineryId": 45,
-            "ratedInputW": 418604285347906370,
+            "ratedInputW": 419593579114292400,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 209302142.67395318,
+            "ratedThrustN": 209796789.55714622,
             "effectiveMachineryVolumeM3": 0.08330420433843971,
             "machineryVolumeM3": 0.08330420433843971,
             "machineryLengthM": 0.3,
@@ -2099,9 +2992,9 @@
             "machineryOffsetM": 0.8415,
             "maxInputW": 2832342947506950000,
             "maxRatedInputW": 2832342947506950000,
-            "inputDensityWPerM3": 5025007905330254000,
+            "inputDensityWPerM3": 5036883581645063000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 1110.1345782191554,
+            "cost": 1115.7617565069063,
             "powerNode": "p45",
             "heatNode": "p45",
             "reactorId": 43,
@@ -2155,20 +3048,154 @@
         "landingRatio": 1,
         "landingReady": true
       },
+      "thermal": {
+        "stats": {
+          "mode": "strict",
+          "builtinCapacityW": 0,
+          "legacyCoolerCount": 0,
+          "networkKinds": [
+            "hdis",
+            "solar",
+            "solar",
+            "skin"
+          ]
+        },
+        "profile": {
+          "strictOnly": true,
+          "version": 2,
+          "mode": "strict",
+          "storedVersion": 2,
+          "storedMode": "strict",
+          "phantomCoolers": [],
+          "legacyEngineInputW": 0,
+          "coolers": [
+            {
+              "id": "p61",
+              "kind": "hdis",
+              "capacityW": 602672978710778200,
+              "powerW": 9040094680661674,
+              "moduleIndex": 19,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p1",
+              "kind": "solar",
+              "capacityW": 63095760000000000,
+              "powerW": 630957600000000,
+              "moduleIndex": 22,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p2",
+              "kind": "solar",
+              "capacityW": 63095760000000000,
+              "powerW": 630957600000000,
+              "moduleIndex": 23,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "skin",
+              "kind": "skin",
+              "capacityW": 813537246195572900000,
+              "powerW": 0,
+              "moduleIndex": -1,
+              "moduleKind": null
+            }
+          ]
+        }
+      },
       "preview": {
-        "ratedInputW": 837208570695812700,
-        "actualInputW": 293022999743534460,
-        "actualThrustN": 146511499.87176722,
-        "wasteHeatW": 14651149987176724,
-        "accelerationMps2": 14072.542749999999
+        "ratedInputW": 839187158228584800,
+        "actualInputW": 293715505380004700,
+        "actualThrustN": 146857752.69000232,
+        "wasteHeatW": 14685775269000234,
+        "accelerationMps2": 14072.542749999995,
+        "ledger": {
+          "finite": true,
+          "drawW": 2485113106876395500,
+          "sourceDrawW": 2485113106876395500,
+          "consumerDrawW": 2485113106876396000,
+          "engineDrawW": 293715505380004700,
+          "sourceConservationRelativeError": 0,
+          "consumerConservationRelativeError": 2.060268398179857e-16,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p1",
+              "moduleIndex": 22,
+              "reactor": false,
+              "domain": "main",
+              "availableW": 36343157760000000,
+              "drawW": 36343157760000000
+            },
+            {
+              "id": "p2",
+              "moduleIndex": 23,
+              "reactor": false,
+              "domain": "main",
+              "availableW": 36343157760000000,
+              "drawW": 36343157760000000
+            },
+            {
+              "id": "p43",
+              "moduleIndex": 3,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 3633410349689204000,
+              "drawW": 2412426791356395500
+            }
+          ]
+        }
       },
       "runtime": {
-        "actualInputW": 293022999743534460,
-        "actualThrustN": 146511499.87176722,
-        "wasteHeatW": 14651149987176724
+        "actualInputW": 293715505380004700,
+        "actualThrustN": 146857752.69000232,
+        "wasteHeatW": 14685775269000234,
+        "ledger": {
+          "finite": true,
+          "drawW": 321688706556395800,
+          "sourceDrawW": 321688706556395500,
+          "consumerDrawW": 321688706556395800,
+          "engineDrawW": 293715505380004700,
+          "sourceConservationRelativeError": 7.958003957938766e-16,
+          "consumerConservationRelativeError": 0,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p1",
+              "moduleIndex": 22,
+              "reactor": false,
+              "domain": "main",
+              "availableW": 36343157760000000,
+              "drawW": 630957600000000
+            },
+            {
+              "id": "p2",
+              "moduleIndex": 23,
+              "reactor": false,
+              "domain": "main",
+              "availableW": 36343157760000000,
+              "drawW": 630957600000000
+            },
+            {
+              "id": "p43",
+              "moduleIndex": 3,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 3633410349689204000,
+              "drawW": 320426791356395500
+            }
+          ]
+        }
       },
       "profile": {
-        "massKg": 10411.160404665834,
+        "massKg": 10435.765255714174,
         "engines": 2
       },
       "warnings": [
@@ -2214,12 +3241,13 @@
           ]
         },
         {
-          "lv": "info",
+          "lv": "warn",
           "code": "heat",
-          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。",
+          "text": "戦闘負荷で 2 系統の廃熱が処理しきれず蓄熱します（最短 120 秒 で出力制限）。散逸装置か熱輸送路を足してください。",
           "targets": [
             {
-              "part": "radiator"
+              "list": "parts",
+              "id": 61
             }
           ]
         }
@@ -2231,6 +3259,10 @@
       },
       "renderer": true,
       "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n8.4×10¹⁷ W\n定格推力\n4.2×10⁸ N\n計画最大加速度（定格・無制限）\n40,207.265 m/s²\n推進への実入力\n2.9×10¹⁷ W\n実推力\n1.5×10⁸ N\n推進廃熱\n1.5×10¹⁶ W\n無制限時の実加速度\n14,072.543 m/s²\n構造・慣性制限後の実加速度\n14,072.543 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "heatEditor": {
+        "text": "電力・熱ネットワーク\n戦闘",
+        "mode": "厳格運転"
+      },
       "displayAcceleration": {
         "label": "計画最大加速",
         "planned": "4,100 G",
@@ -2253,7 +3285,7 @@
             "turn": 1
           },
           "weaponPowerK": 1,
-          "engineInputW": 837208570695812700,
+          "engineInputW": 839187158228584800,
           "modules": [
             {
               "index": 0,
@@ -2261,6 +3293,7 @@
               "name": "レーザー砲",
               "port": "f48",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -2269,9 +3302,92 @@
               "name": "レーザー砲",
               "port": "f49",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             }
-          ]
+          ],
+          "ledger": {
+            "finite": true,
+            "drawW": 2540760359404975600,
+            "sourceDrawW": 2540760359404975000,
+            "consumerDrawW": 2540760359404976000,
+            "engineDrawW": 839187158228584800,
+            "sourceConservationRelativeError": 2.0151447896483478e-16,
+            "consumerConservationRelativeError": 2.0151447896483473e-16,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p1",
+                "moduleIndex": 22,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p2",
+                "moduleIndex": 23,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p43",
+                "moduleIndex": 3,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 3027841958074337000,
+                "drawW": 2539498444204975000
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p61",
+                "kind": "hdis",
+                "capacityW": 602672978710778200,
+                "powerW": 9040094680661674,
+                "moduleIndex": 19,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p1",
+                "kind": "solar",
+                "capacityW": 63095760000000000,
+                "powerW": 630957600000000,
+                "moduleIndex": 22,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p2",
+                "kind": "solar",
+                "capacityW": 63095760000000000,
+                "powerW": 630957600000000,
+                "moduleIndex": 23,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 813537246195572900000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          }
         },
         "powered": {
           "position": [
@@ -2284,8 +3400,47 @@
             0,
             0
           ],
-          "inputW": 837208570695812700,
-          "thrustN": 418604285.34790635
+          "inputW": 839187158228584800,
+          "thrustN": 419593579.11429244,
+          "ledger": {
+            "finite": true,
+            "drawW": 867160359404975900,
+            "sourceDrawW": 867160359404975400,
+            "consumerDrawW": 867160359404975900,
+            "engineDrawW": 839187158228584800,
+            "sourceConservationRelativeError": 5.904328933478023e-16,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p1",
+                "moduleIndex": 22,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p2",
+                "moduleIndex": 23,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p43",
+                "moduleIndex": 3,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 3027841958074337000,
+                "drawW": 865898444204975400
+              }
+            ]
+          }
         },
         "idle": {
           "position": [
@@ -2299,16 +3454,55 @@
             0
           ],
           "inputW": 0,
-          "thrustN": 0
+          "thrustN": 0,
+          "ledger": {
+            "finite": true,
+            "drawW": 27973201176391056,
+            "sourceDrawW": 27973201176390656,
+            "consumerDrawW": 27973201176391056,
+            "engineDrawW": 0,
+            "sourceConservationRelativeError": 1.4299400253754074e-14,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p1",
+                "moduleIndex": 22,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p2",
+                "moduleIndex": 23,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p43",
+                "moduleIndex": 3,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 3027841958074337000,
+                "drawW": 26711285976390656
+              }
+            ]
+          }
         },
         "stock": {
           "type": "tie_ln",
           "catalogReady": true,
           "cachedProfilePresent": true,
-          "profileVersion": 14,
-          "expectedProfileVersion": 14,
+          "profileVersion": 15,
+          "expectedProfileVersion": 15,
           "systemsSource": "blueprint",
-          "massKg": 10411.160404665834,
+          "massKg": 10435.765255714174,
           "ratedAccelG": 4099.999999999999,
           "engineCount": 2,
           "motion": {
@@ -2316,7 +3510,132 @@
             "acc": 80.41452999999998,
             "turn": 1
           },
-          "inputW": 837208570695812700,
+          "inputW": 839187158228584800,
+          "ledger": {
+            "finite": true,
+            "drawW": 867160359404975900,
+            "sourceDrawW": 867160359404975400,
+            "consumerDrawW": 867160359404975900,
+            "engineDrawW": 839187158228584800,
+            "sourceConservationRelativeError": 5.904328933478023e-16,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p1",
+                "moduleIndex": 22,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p2",
+                "moduleIndex": 23,
+                "reactor": false,
+                "domain": "main",
+                "availableW": 30285964800000000,
+                "drawW": 630957600000000
+              },
+              {
+                "id": "p43",
+                "moduleIndex": 3,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 3027841958074337000,
+                "drawW": 865898444204975400
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p61",
+                "kind": "hdis",
+                "capacityW": 602672978710778200,
+                "powerW": 9040094680661674,
+                "moduleIndex": 19,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p1",
+                "kind": "solar",
+                "capacityW": 63095760000000000,
+                "powerW": 630957600000000,
+                "moduleIndex": 22,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p2",
+                "kind": "solar",
+                "capacityW": 63095760000000000,
+                "powerW": 630957600000000,
+                "moduleIndex": 23,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 813537246195572900000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
+          "cachedThermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p61",
+                "kind": "hdis",
+                "capacityW": 602672978710778200,
+                "powerW": 9040094680661674,
+                "moduleIndex": 19,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p1",
+                "kind": "solar",
+                "capacityW": 63095760000000000,
+                "powerW": 630957600000000,
+                "moduleIndex": 22,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p2",
+                "kind": "solar",
+                "capacityW": 63095760000000000,
+                "powerW": 630957600000000,
+                "moduleIndex": 23,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 813537246195572900000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
           "firing": {
             "motion": {
               "acc0": 80.41452999999998,
@@ -2324,7 +3643,7 @@
               "turn": 1
             },
             "weaponPowerK": 1,
-            "engineInputW": 837208570695812700,
+            "engineInputW": 839187158228584800,
             "modules": [
               {
                 "index": 0,
@@ -2332,6 +3651,7 @@
                 "name": "レーザー砲",
                 "port": "f48",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -2340,9 +3660,92 @@
                 "name": "レーザー砲",
                 "port": "f49",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               }
-            ]
+            ],
+            "ledger": {
+              "finite": true,
+              "drawW": 2540760359404975600,
+              "sourceDrawW": 2540760359404975000,
+              "consumerDrawW": 2540760359404976000,
+              "engineDrawW": 839187158228584800,
+              "sourceConservationRelativeError": 2.0151447896483478e-16,
+              "consumerConservationRelativeError": 2.0151447896483473e-16,
+              "engineConservationRelativeError": 0,
+              "maximumSourceExcess": 0,
+              "maximumEngineRequestExcess": 0,
+              "maximumEngineThrustRelativeError": 0,
+              "sources": [
+                {
+                  "id": "p1",
+                  "moduleIndex": 22,
+                  "reactor": false,
+                  "domain": "main",
+                  "availableW": 30285964800000000,
+                  "drawW": 630957600000000
+                },
+                {
+                  "id": "p2",
+                  "moduleIndex": 23,
+                  "reactor": false,
+                  "domain": "main",
+                  "availableW": 30285964800000000,
+                  "drawW": 630957600000000
+                },
+                {
+                  "id": "p43",
+                  "moduleIndex": 3,
+                  "reactor": true,
+                  "domain": "main",
+                  "availableW": 3027841958074337000,
+                  "drawW": 2539498444204975000
+                }
+              ]
+            },
+            "thermal": {
+              "strictOnly": true,
+              "version": 2,
+              "mode": "strict",
+              "storedVersion": 2,
+              "storedMode": "strict",
+              "phantomCoolers": [],
+              "legacyEngineInputW": 0,
+              "coolers": [
+                {
+                  "id": "p61",
+                  "kind": "hdis",
+                  "capacityW": 602672978710778200,
+                  "powerW": 9040094680661674,
+                  "moduleIndex": 19,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p1",
+                  "kind": "solar",
+                  "capacityW": 63095760000000000,
+                  "powerW": 630957600000000,
+                  "moduleIndex": 22,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p2",
+                  "kind": "solar",
+                  "capacityW": 63095760000000000,
+                  "powerW": 630957600000000,
+                  "moduleIndex": 23,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "skin",
+                  "kind": "skin",
+                  "capacityW": 813537246195572900000,
+                  "powerW": 0,
+                  "moduleIndex": -1,
+                  "moduleKind": null
+                }
+              ]
+            }
           }
         }
       }
@@ -2350,13 +3753,13 @@
     {
       "key": "craft_awing",
       "name": "RZ-1 Aウイング",
-      "massTonnes": 10.74565807506516,
-      "accelG": 1784.9999999999998,
-      "maximumAccelMps2": 50013.91499999999,
+      "massTonnes": 10.816307380776362,
+      "accelG": 1785,
+      "maximumAccelMps2": 50013.915,
       "craft": {
         "accelG": 5100,
         "speed": 2309,
-        "speedLoaded": 2270,
+        "speedLoaded": 2271,
         "aa": 1.28,
         "gun": 10
       },
@@ -2367,11 +3770,11 @@
             "version": 1,
             "id": 15,
             "machineryId": 15,
-            "ratedInputW": 537432429585372400,
+            "ratedInputW": 540965877956021570,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 268716214.7926862,
+            "ratedThrustN": 270482938.9780108,
             "effectiveMachineryVolumeM3": 0.0695715259601249,
             "machineryVolumeM3": 0.0695715259601249,
             "machineryLengthM": 0.3,
@@ -2380,9 +3783,9 @@
             "machineryOffsetM": 1.265,
             "maxInputW": 2365431882644246500,
             "maxRatedInputW": 2365431882644246500,
-            "inputDensityWPerM3": 7724890638354018000,
+            "inputDensityWPerM3": 7775679352873149000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 2301.2850479710983,
+            "cost": 2333.020338529516,
             "powerNode": "p15",
             "heatNode": "p15",
             "reactorId": 14,
@@ -2413,11 +3816,11 @@
             "version": 1,
             "id": 16,
             "machineryId": 16,
-            "ratedInputW": 537432429585372400,
+            "ratedInputW": 540965877956021570,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 268716214.7926862,
+            "ratedThrustN": 270482938.9780108,
             "effectiveMachineryVolumeM3": 0.0695715259601249,
             "machineryVolumeM3": 0.0695715259601249,
             "machineryLengthM": 0.3,
@@ -2426,9 +3829,9 @@
             "machineryOffsetM": 1.265,
             "maxInputW": 2365431882644246500,
             "maxRatedInputW": 2365431882644246500,
-            "inputDensityWPerM3": 7724890638354018000,
+            "inputDensityWPerM3": 7775679352873149000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 2301.2850479710983,
+            "cost": 2333.020338529516,
             "powerNode": "p16",
             "heatNode": "p16",
             "reactorId": 14,
@@ -2482,20 +3885,122 @@
         "landingRatio": 1,
         "landingReady": true
       },
+      "thermal": {
+        "stats": {
+          "mode": "strict",
+          "builtinCapacityW": 0,
+          "legacyCoolerCount": 0,
+          "networkKinds": [
+            "hdis",
+            "hdis",
+            "hdis",
+            "skin"
+          ]
+        },
+        "profile": {
+          "strictOnly": true,
+          "version": 2,
+          "mode": "strict",
+          "storedVersion": 2,
+          "storedMode": "strict",
+          "phantomCoolers": [],
+          "legacyEngineInputW": 0,
+          "coolers": [
+            {
+              "id": "p42",
+              "kind": "hdis",
+              "capacityW": 837920108032486400,
+              "powerW": 12568801620487296,
+              "moduleIndex": 28,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p43",
+              "kind": "hdis",
+              "capacityW": 837920108032486500,
+              "powerW": 12568801620487298,
+              "moduleIndex": 29,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p44",
+              "kind": "hdis",
+              "capacityW": 481150747808320700,
+              "powerW": 7217261217124810,
+              "moduleIndex": 30,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "skin",
+              "kind": "skin",
+              "capacityW": 192854855153675830000,
+              "powerW": 0,
+              "moduleIndex": -1,
+              "moduleKind": null
+            }
+          ]
+        }
+      },
       "preview": {
-        "ratedInputW": 1074864859170744800,
-        "actualInputW": 376202700709760640,
-        "actualThrustN": 188101350.35488033,
-        "wasteHeatW": 18810135035488030,
-        "accelerationMps2": 17504.870249999996
+        "ratedInputW": 1081931755912043100,
+        "actualInputW": 378676114569215100,
+        "actualThrustN": 189338057.28460756,
+        "wasteHeatW": 18933805728460756,
+        "accelerationMps2": 17504.87025,
+        "ledger": {
+          "finite": true,
+          "drawW": 5092809311519148000,
+          "sourceDrawW": 5092809311519147000,
+          "consumerDrawW": 5092809311519149000,
+          "engineDrawW": 378676114569215100,
+          "sourceConservationRelativeError": 2.0106780705177203e-16,
+          "consumerConservationRelativeError": 2.0106780705177198e-16,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p14",
+              "moduleIndex": 4,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 8461053702436760000,
+              "drawW": 5092809311519147000
+            }
+          ]
+        }
       },
       "runtime": {
-        "actualInputW": 376202700709760640,
-        "actualThrustN": 188101350.35488033,
-        "wasteHeatW": 18810135035488030
+        "actualInputW": 378676114569215100,
+        "actualThrustN": 189338057.28460756,
+        "wasteHeatW": 18933805728460756,
+        "ledger": {
+          "finite": true,
+          "drawW": 3000809311519147500,
+          "sourceDrawW": 3000809311519148000,
+          "consumerDrawW": 3000809311519148000,
+          "engineDrawW": 378676114569215100,
+          "sourceConservationRelativeError": 1.7062063825068646e-16,
+          "consumerConservationRelativeError": 1.7062063825068646e-16,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p14",
+              "moduleIndex": 4,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 8461053702436760000,
+              "drawW": 3000809311519148000
+            }
+          ]
+        }
       },
       "profile": {
-        "massKg": 10745.65807506516,
+        "massKg": 10816.307380776361,
         "engines": 2
       },
       "warnings": [
@@ -2525,22 +4030,21 @@
           ]
         },
         {
-          "lv": "info",
-          "code": "heat",
-          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。",
-          "targets": [
-            {
-              "part": "radiator"
-            }
-          ]
-        },
-        {
           "lv": "warn",
           "code": "heat",
           "text": "戦闘負荷で 2 系統の廃熱が処理しきれず蓄熱します（最短 2 分 で出力制限）。散逸装置か熱輸送路を足してください。",
           "targets": [
             {
-              "part": "radiator"
+              "list": "parts",
+              "id": 42
+            },
+            {
+              "list": "parts",
+              "id": 43
+            },
+            {
+              "list": "parts",
+              "id": 44
             }
           ]
         }
@@ -2552,6 +4056,10 @@
       },
       "renderer": true,
       "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n1.1×10¹⁸ W\n定格推力\n5.4×10⁸ N\n計画最大加速度（定格・無制限）\n50,013.915 m/s²\n推進への実入力\n3.8×10¹⁷ W\n実推力\n1.9×10⁸ N\n推進廃熱\n1.9×10¹⁶ W\n無制限時の実加速度\n17,504.870 m/s²\n構造・慣性制限後の実加速度\n17,504.870 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "heatEditor": {
+        "text": "電力・熱ネットワーク\n戦闘",
+        "mode": "厳格運転"
+      },
       "displayAcceleration": {
         "label": "計画最大加速",
         "planned": "5,100 G",
@@ -2563,18 +4071,18 @@
       "squadron": {
         "registered": true,
         "firstMotion": {
-          "acc0": 100.02783,
+          "acc0": 100.02783000000001,
           "acc": 100.02783000000001,
           "turn": 1
         },
         "firing": {
           "motion": {
-            "acc0": 100.02783,
+            "acc0": 100.02783000000001,
             "acc": 100.02783000000001,
             "turn": 1
           },
           "weaponPowerK": 1,
-          "engineInputW": 1074864859170744800,
+          "engineInputW": 1081931755912043100,
           "modules": [
             {
               "index": 0,
@@ -2582,6 +4090,7 @@
               "name": "レーザー砲",
               "port": "f25",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -2590,9 +4099,76 @@
               "name": "レーザー砲",
               "port": "f26",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             }
-          ]
+          ],
+          "ledger": {
+            "finite": true,
+            "drawW": 5377664952861976000,
+            "sourceDrawW": 5377664952861976000,
+            "consumerDrawW": 5377664952861976000,
+            "engineDrawW": 1081931755912043100,
+            "sourceConservationRelativeError": 0,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p14",
+                "moduleIndex": 4,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 7050878085363967000,
+                "drawW": 5377664952861976000
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p42",
+                "kind": "hdis",
+                "capacityW": 837920108032486400,
+                "powerW": 12568801620487296,
+                "moduleIndex": 28,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p43",
+                "kind": "hdis",
+                "capacityW": 837920108032486500,
+                "powerW": 12568801620487298,
+                "moduleIndex": 29,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p44",
+                "kind": "hdis",
+                "capacityW": 481150747808320700,
+                "powerW": 7217261217124810,
+                "moduleIndex": 30,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 192854855153675830000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          }
         },
         "powered": {
           "position": [
@@ -2605,8 +4181,31 @@
             0,
             0
           ],
-          "inputW": 1074864859170744800,
-          "thrustN": 537432429.5853724
+          "inputW": 1081931755912043100,
+          "thrustN": 540965877.9560215,
+          "ledger": {
+            "finite": true,
+            "drawW": 3704064952861975600,
+            "sourceDrawW": 3704064952861975600,
+            "consumerDrawW": 3704064952861976600,
+            "engineDrawW": 1081931755912043100,
+            "sourceConservationRelativeError": 0,
+            "consumerConservationRelativeError": 2.76453035524876e-16,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p14",
+                "moduleIndex": 4,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 7050878085363967000,
+                "drawW": 3704064952861975600
+              }
+            ]
+          }
         },
         "idle": {
           "position": [
@@ -2620,32 +4219,164 @@
             0
           ],
           "inputW": 0,
-          "thrustN": 0
+          "thrustN": 0,
+          "ledger": {
+            "finite": true,
+            "drawW": 2622133196949932500,
+            "sourceDrawW": 2622133196949932000,
+            "consumerDrawW": 2622133196949933000,
+            "engineDrawW": 0,
+            "sourceConservationRelativeError": 1.9526086645619637e-16,
+            "consumerConservationRelativeError": 1.9526086645619632e-16,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p14",
+                "moduleIndex": 4,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 7050878085363967000,
+                "drawW": 2622133196949932000
+              }
+            ]
+          }
         },
         "stock": {
           "type": "awing",
           "catalogReady": true,
           "cachedProfilePresent": true,
-          "profileVersion": 14,
-          "expectedProfileVersion": 14,
+          "profileVersion": 15,
+          "expectedProfileVersion": 15,
           "systemsSource": "blueprint",
-          "massKg": 10745.65807506516,
+          "massKg": 10816.307380776361,
           "ratedAccelG": 5100,
           "engineCount": 2,
           "motion": {
-            "acc0": 100.02783,
+            "acc0": 100.02783000000001,
             "acc": 100.02783000000001,
             "turn": 1
           },
-          "inputW": 1074864859170744800,
+          "inputW": 1081931755912043100,
+          "ledger": {
+            "finite": true,
+            "drawW": 1132666884146298200,
+            "sourceDrawW": 1132666884146296800,
+            "consumerDrawW": 1132666884146298100,
+            "engineDrawW": 1081931755912043100,
+            "sourceConservationRelativeError": 1.2430839284766614e-15,
+            "consumerConservationRelativeError": 1.1300762986151467e-16,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p14",
+                "moduleIndex": 4,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 7050878085363967000,
+                "drawW": 1132666884146296800
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p42",
+                "kind": "hdis",
+                "capacityW": 837920108032486400,
+                "powerW": 12568801620487296,
+                "moduleIndex": 28,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p43",
+                "kind": "hdis",
+                "capacityW": 837920108032486500,
+                "powerW": 12568801620487298,
+                "moduleIndex": 29,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p44",
+                "kind": "hdis",
+                "capacityW": 481150747808320700,
+                "powerW": 7217261217124810,
+                "moduleIndex": 30,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 192854855153675830000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
+          "cachedThermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p42",
+                "kind": "hdis",
+                "capacityW": 837920108032486400,
+                "powerW": 12568801620487296,
+                "moduleIndex": 28,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p43",
+                "kind": "hdis",
+                "capacityW": 837920108032486500,
+                "powerW": 12568801620487298,
+                "moduleIndex": 29,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p44",
+                "kind": "hdis",
+                "capacityW": 481150747808320700,
+                "powerW": 7217261217124810,
+                "moduleIndex": 30,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 192854855153675830000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
           "firing": {
             "motion": {
-              "acc0": 100.02783,
+              "acc0": 100.02783000000001,
               "acc": 100.02783000000001,
               "turn": 1
             },
             "weaponPowerK": 1,
-            "engineInputW": 1074864859170744800,
+            "engineInputW": 1081931755912043100,
             "modules": [
               {
                 "index": 0,
@@ -2653,6 +4384,7 @@
                 "name": "レーザー砲",
                 "port": "f25",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -2661,9 +4393,76 @@
                 "name": "レーザー砲",
                 "port": "f26",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               }
-            ]
+            ],
+            "ledger": {
+              "finite": true,
+              "drawW": 2806266884146298000,
+              "sourceDrawW": 2806266884146297000,
+              "consumerDrawW": 2806266884146298400,
+              "engineDrawW": 1081931755912043100,
+              "sourceConservationRelativeError": 3.6489758183192683e-16,
+              "consumerConservationRelativeError": 1.8244879091596336e-16,
+              "engineConservationRelativeError": 0,
+              "maximumSourceExcess": 0,
+              "maximumEngineRequestExcess": 0,
+              "maximumEngineThrustRelativeError": 0,
+              "sources": [
+                {
+                  "id": "p14",
+                  "moduleIndex": 4,
+                  "reactor": true,
+                  "domain": "main",
+                  "availableW": 7050878085363967000,
+                  "drawW": 2806266884146297000
+                }
+              ]
+            },
+            "thermal": {
+              "strictOnly": true,
+              "version": 2,
+              "mode": "strict",
+              "storedVersion": 2,
+              "storedMode": "strict",
+              "phantomCoolers": [],
+              "legacyEngineInputW": 0,
+              "coolers": [
+                {
+                  "id": "p42",
+                  "kind": "hdis",
+                  "capacityW": 837920108032486400,
+                  "powerW": 12568801620487296,
+                  "moduleIndex": 28,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p43",
+                  "kind": "hdis",
+                  "capacityW": 837920108032486500,
+                  "powerW": 12568801620487298,
+                  "moduleIndex": 29,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p44",
+                  "kind": "hdis",
+                  "capacityW": 481150747808320700,
+                  "powerW": 7217261217124810,
+                  "moduleIndex": 30,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "skin",
+                  "kind": "skin",
+                  "capacityW": 192854855153675830000,
+                  "powerW": 0,
+                  "moduleIndex": -1,
+                  "moduleKind": null
+                }
+              ]
+            }
           }
         }
       }
@@ -2671,8 +4470,8 @@
     {
       "key": "craft_vulture",
       "name": "ヴァルチャー級ドロイド・スターファイター",
-      "massTonnes": 9.862969820563274,
-      "accelG": 1259.9999999999998,
+      "massTonnes": 9.916795670356613,
+      "accelG": 1260,
       "maximumAccelMps2": 35378.46219797874,
       "craft": {
         "accelG": 3600,
@@ -2688,11 +4487,11 @@
             "version": 1,
             "id": 17,
             "machineryId": 17,
-            "ratedInputW": 348201694766976500,
+            "ratedInputW": 350101959338529660,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 174100847.38348827,
+            "ratedThrustN": 175050979.66926482,
             "effectiveMachineryVolumeM3": 0.019449511022806756,
             "machineryVolumeM3": 0.019449511022806756,
             "machineryLengthM": 0.3,
@@ -2701,9 +4500,9 @@
             "machineryOffsetM": 0,
             "maxInputW": 661283374775429600,
             "maxRatedInputW": 661283374775429600,
-            "inputDensityWPerM3": 17902850840757414000,
+            "inputDensityWPerM3": 18000553274989558000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 3635.215915722686,
+            "cost": 3675.760057411587,
             "powerNode": "p17",
             "heatNode": "p17",
             "reactorId": 16,
@@ -2734,11 +4533,11 @@
             "version": 1,
             "id": 18,
             "machineryId": 18,
-            "ratedInputW": 348201694766976500,
+            "ratedInputW": 350101959338529660,
             "driveProfileId": "standard",
             "machineryGradeId": "advanced",
             "wattsPerNewton": 2000000000,
-            "ratedThrustN": 174100847.38348827,
+            "ratedThrustN": 175050979.66926482,
             "effectiveMachineryVolumeM3": 0.019449511022806756,
             "machineryVolumeM3": 0.019449511022806756,
             "machineryLengthM": 0.3,
@@ -2747,9 +4546,9 @@
             "machineryOffsetM": 0,
             "maxInputW": 661283374775429600,
             "maxRatedInputW": 661283374775429600,
-            "inputDensityWPerM3": 17902850840757414000,
+            "inputDensityWPerM3": 18000553274989558000,
             "allowedInputDensityWPerM3": 34000000000000000000,
-            "cost": 3635.215915722686,
+            "cost": 3675.760057411587,
             "powerNode": "p18",
             "heatNode": "p18",
             "reactorId": 16,
@@ -2803,20 +4602,446 @@
         "landingRatio": 1,
         "landingReady": true
       },
+      "thermal": {
+        "stats": {
+          "mode": "strict",
+          "builtinCapacityW": 0,
+          "legacyCoolerCount": 0,
+          "networkKinds": [
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "hdis",
+            "wing",
+            "wing",
+            "wing",
+            "wing",
+            "skin"
+          ]
+        },
+        "profile": {
+          "strictOnly": true,
+          "version": 2,
+          "mode": "strict",
+          "storedVersion": 2,
+          "storedMode": "strict",
+          "phantomCoolers": [],
+          "legacyEngineInputW": 0,
+          "coolers": [
+            {
+              "id": "p38",
+              "kind": "hdis",
+              "capacityW": 104740135622344530,
+              "powerW": 1571102034335167.8,
+              "moduleIndex": 26,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p39",
+              "kind": "hdis",
+              "capacityW": 104740135622344530,
+              "powerW": 1571102034335167.8,
+              "moduleIndex": 27,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p40",
+              "kind": "hdis",
+              "capacityW": 52370050923697390,
+              "powerW": 785550763855460.9,
+              "moduleIndex": 28,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p41",
+              "kind": "hdis",
+              "capacityW": 52370033239524450,
+              "powerW": 785550498592866.8,
+              "moduleIndex": 29,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p42",
+              "kind": "hdis",
+              "capacityW": 52369977905177270,
+              "powerW": 785549668577659,
+              "moduleIndex": 30,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p43",
+              "kind": "hdis",
+              "capacityW": 52370023541753930,
+              "powerW": 785550353126308.9,
+              "moduleIndex": 31,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p44",
+              "kind": "hdis",
+              "capacityW": 52369993329442456,
+              "powerW": 785549899941636.8,
+              "moduleIndex": 32,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p45",
+              "kind": "hdis",
+              "capacityW": 52370008910733170,
+              "powerW": 785550133660997.5,
+              "moduleIndex": 33,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p46",
+              "kind": "hdis",
+              "capacityW": 52370018038042456,
+              "powerW": 785550270570636.8,
+              "moduleIndex": 34,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p47",
+              "kind": "hdis",
+              "capacityW": 49594253349898184,
+              "powerW": 743913800248472.8,
+              "moduleIndex": 35,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p48",
+              "kind": "hdis",
+              "capacityW": 46494534613253360,
+              "powerW": 697418019198800.4,
+              "moduleIndex": 36,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p49",
+              "kind": "hdis",
+              "capacityW": 43588668801326690,
+              "powerW": 653830032019900.2,
+              "moduleIndex": 37,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p50",
+              "kind": "hdis",
+              "capacityW": 40864381356154296,
+              "powerW": 612965720342314.4,
+              "moduleIndex": 38,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p51",
+              "kind": "hdis",
+              "capacityW": 38310352815606940,
+              "powerW": 574655292234104.1,
+              "moduleIndex": 39,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p52",
+              "kind": "hdis",
+              "capacityW": 35915937050618424,
+              "powerW": 538739055759276.3,
+              "moduleIndex": 40,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p53",
+              "kind": "hdis",
+              "capacityW": 33671214577575280,
+              "powerW": 505068218663629.2,
+              "moduleIndex": 41,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p54",
+              "kind": "hdis",
+              "capacityW": 63133470114319600,
+              "powerW": 947002051714794,
+              "moduleIndex": 42,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p55",
+              "kind": "hdis",
+              "capacityW": 27620915694994104,
+              "powerW": 414313735424911.56,
+              "moduleIndex": 43,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p56",
+              "kind": "hdis",
+              "capacityW": 25894626286155424,
+              "powerW": 388419394292331.4,
+              "moduleIndex": 44,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p57",
+              "kind": "hdis",
+              "capacityW": 24276193291337870,
+              "powerW": 364142899370068.06,
+              "moduleIndex": 45,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p58",
+              "kind": "hdis",
+              "capacityW": 45517883700213530,
+              "powerW": 682768255503202.9,
+              "moduleIndex": 46,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p59",
+              "kind": "hdis",
+              "capacityW": 39828137136412540,
+              "powerW": 597422057046188.1,
+              "moduleIndex": 47,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p60",
+              "kind": "hdis",
+              "capacityW": 34849610837531068,
+              "powerW": 522744162562966,
+              "moduleIndex": 48,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p61",
+              "kind": "hdis",
+              "capacityW": 30493388717488060,
+              "powerW": 457400830762320.9,
+              "moduleIndex": 49,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p62",
+              "kind": "hdis",
+              "capacityW": 26681772694928584,
+              "powerW": 400226590423928.75,
+              "moduleIndex": 50,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p63",
+              "kind": "hdis",
+              "capacityW": 11673256658584852,
+              "powerW": 175098849878772.78,
+              "moduleIndex": 51,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p64",
+              "kind": "hdis",
+              "capacityW": 21887351782600330,
+              "powerW": 328310276739004.94,
+              "moduleIndex": 52,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p65",
+              "kind": "hdis",
+              "capacityW": 38302864337350750,
+              "powerW": 574542965060261.2,
+              "moduleIndex": 53,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p66",
+              "kind": "hdis",
+              "capacityW": 14363555744441118,
+              "powerW": 215453336166616.75,
+              "moduleIndex": 54,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p67",
+              "kind": "hdis",
+              "capacityW": 12568144788944678,
+              "powerW": 188522171834170.16,
+              "moduleIndex": 55,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p68",
+              "kind": "hdis",
+              "capacityW": 21994214848165892,
+              "powerW": 329913222722488.4,
+              "moduleIndex": 56,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p69",
+              "kind": "hdis",
+              "capacityW": 16495673307506948,
+              "powerW": 247435099612604.22,
+              "moduleIndex": 57,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p70",
+              "kind": "hdis",
+              "capacityW": 12371773279038222,
+              "powerW": 185576599185573.3,
+              "moduleIndex": 58,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p71",
+              "kind": "hdis",
+              "capacityW": 18557662228581236,
+              "powerW": 278364933428718.53,
+              "moduleIndex": 59,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p72",
+              "kind": "hdis",
+              "capacityW": 18557629724421220,
+              "powerW": 278364445866318.28,
+              "moduleIndex": 60,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p4",
+              "kind": "wing",
+              "capacityW": 22042481767955796,
+              "powerW": 220424817679557.97,
+              "moduleIndex": 63,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p5",
+              "kind": "wing",
+              "capacityW": 22042481767955796,
+              "powerW": 220424817679557.97,
+              "moduleIndex": 64,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p6",
+              "kind": "wing",
+              "capacityW": 22042481767955796,
+              "powerW": 220424817679557.97,
+              "moduleIndex": 65,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "p7",
+              "kind": "wing",
+              "capacityW": 22042481767955796,
+              "powerW": 220424817679557.97,
+              "moduleIndex": 66,
+              "moduleKind": "dissipator"
+            },
+            {
+              "id": "skin",
+              "kind": "skin",
+              "capacityW": 189771600157165360000,
+              "powerW": 0,
+              "moduleIndex": -1,
+              "moduleKind": null
+            }
+          ]
+        }
+      },
       "preview": {
-        "ratedInputW": 696403389533953000,
-        "actualInputW": 243741186336883550,
-        "actualThrustN": 121870593.16844177,
-        "wasteHeatW": 12187059316844178,
-        "accelerationMps2": 12356.378999999997
+        "ratedInputW": 700203918677059300,
+        "actualInputW": 245071371536970750,
+        "actualThrustN": 122535685.76848538,
+        "wasteHeatW": 12253568576848538,
+        "accelerationMps2": 12356.378999999999,
+        "ledger": {
+          "finite": true,
+          "drawW": 4469735177262549000,
+          "sourceDrawW": 4469735177262547000,
+          "consumerDrawW": 4469735177262549000,
+          "engineDrawW": 245071371536970750,
+          "sourceConservationRelativeError": 4.581926934772632e-16,
+          "consumerConservationRelativeError": 0,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p16",
+              "moduleIndex": 11,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 5929668193833704000,
+              "drawW": 4469735177262547000
+            }
+          ]
+        }
       },
       "runtime": {
-        "actualInputW": 243741186336883550,
-        "actualThrustN": 121870593.16844177,
-        "wasteHeatW": 12187059316844178
+        "actualInputW": 245071371536970750,
+        "actualThrustN": 122535685.76848538,
+        "wasteHeatW": 12253568576848538,
+        "ledger": {
+          "finite": true,
+          "drawW": 283235177262549280,
+          "sourceDrawW": 283235177262545920,
+          "consumerDrawW": 283235177262549280,
+          "engineDrawW": 245071371536970750,
+          "sourceConservationRelativeError": 1.1862933243229866e-14,
+          "consumerConservationRelativeError": 0,
+          "engineConservationRelativeError": 0,
+          "maximumSourceExcess": 0,
+          "maximumEngineRequestExcess": 0,
+          "maximumEngineThrustRelativeError": 0,
+          "sources": [
+            {
+              "id": "p16",
+              "moduleIndex": 11,
+              "reactor": true,
+              "domain": "main",
+              "availableW": 5929668193833704000,
+              "drawW": 283235177262545920
+            }
+          ]
+        }
       },
       "profile": {
-        "massKg": 9862.969820563274,
+        "massKg": 9916.795670356614,
         "engines": 2
       },
       "warnings": [
@@ -2851,12 +5076,149 @@
           ]
         },
         {
-          "lv": "info",
+          "lv": "warn",
           "code": "heat",
-          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。",
+          "text": "戦闘負荷で 2 系統の廃熱が処理しきれず蓄熱します（最短 2 分 で出力制限）。散逸装置か熱輸送路を足してください。",
           "targets": [
             {
-              "part": "radiator"
+              "list": "parts",
+              "id": 38
+            },
+            {
+              "list": "parts",
+              "id": 39
+            },
+            {
+              "list": "parts",
+              "id": 40
+            },
+            {
+              "list": "parts",
+              "id": 41
+            },
+            {
+              "list": "parts",
+              "id": 42
+            },
+            {
+              "list": "parts",
+              "id": 43
+            },
+            {
+              "list": "parts",
+              "id": 44
+            },
+            {
+              "list": "parts",
+              "id": 45
+            },
+            {
+              "list": "parts",
+              "id": 46
+            },
+            {
+              "list": "parts",
+              "id": 47
+            },
+            {
+              "list": "parts",
+              "id": 48
+            },
+            {
+              "list": "parts",
+              "id": 49
+            },
+            {
+              "list": "parts",
+              "id": 50
+            },
+            {
+              "list": "parts",
+              "id": 51
+            },
+            {
+              "list": "parts",
+              "id": 52
+            },
+            {
+              "list": "parts",
+              "id": 53
+            },
+            {
+              "list": "parts",
+              "id": 54
+            },
+            {
+              "list": "parts",
+              "id": 55
+            },
+            {
+              "list": "parts",
+              "id": 56
+            },
+            {
+              "list": "parts",
+              "id": 57
+            },
+            {
+              "list": "parts",
+              "id": 58
+            },
+            {
+              "list": "parts",
+              "id": 59
+            },
+            {
+              "list": "parts",
+              "id": 60
+            },
+            {
+              "list": "parts",
+              "id": 61
+            },
+            {
+              "list": "parts",
+              "id": 62
+            },
+            {
+              "list": "parts",
+              "id": 63
+            },
+            {
+              "list": "parts",
+              "id": 64
+            },
+            {
+              "list": "parts",
+              "id": 65
+            },
+            {
+              "list": "parts",
+              "id": 66
+            },
+            {
+              "list": "parts",
+              "id": 67
+            },
+            {
+              "list": "parts",
+              "id": 68
+            },
+            {
+              "list": "parts",
+              "id": 69
+            },
+            {
+              "list": "parts",
+              "id": 70
+            },
+            {
+              "list": "parts",
+              "id": 71
+            },
+            {
+              "list": "parts",
+              "id": 72
             }
           ]
         }
@@ -2867,7 +5229,11 @@
         "statistics": 13
       },
       "renderer": true,
-      "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n7.0×10¹⁷ W\n定格推力\n3.5×10⁸ N\n計画最大加速度（定格・無制限）\n35,303.940 m/s²\n推進への実入力\n2.4×10¹⁷ W\n実推力\n1.2×10⁸ N\n推進廃熱\n1.2×10¹⁶ W\n無制限時の実加速度\n12,356.379 m/s²\n構造・慣性制限後の実加速度\n12,356.379 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n7.0×10¹⁷ W\n定格推力\n3.5×10⁸ N\n計画最大加速度（定格・無制限）\n35,303.940 m/s²\n推進への実入力\n2.5×10¹⁷ W\n実推力\n1.2×10⁸ N\n推進廃熱\n1.2×10¹⁶ W\n無制限時の実加速度\n12,356.379 m/s²\n構造・慣性制限後の実加速度\n12,356.379 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "heatEditor": {
+        "text": "電力・熱ネットワーク\n戦闘",
+        "mode": "厳格運転"
+      },
       "displayAcceleration": {
         "label": "計画最大加速",
         "planned": "3,600 G",
@@ -2890,7 +5256,7 @@
             "turn": 1
           },
           "weaponPowerK": 1,
-          "engineInputW": 696403389533953000,
+          "engineInputW": 700203918677059300,
           "modules": [
             {
               "index": 0,
@@ -2898,6 +5264,7 @@
               "name": "レーザー砲",
               "port": "f19",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -2906,6 +5273,7 @@
               "name": "レーザー砲",
               "port": "f20",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -2914,6 +5282,7 @@
               "name": "レーザー砲",
               "port": "f21",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -2922,6 +5291,7 @@
               "name": "レーザー砲",
               "port": "f22",
               "nameplateW": 836800000000000000,
+              "inputNameplateW": 836800000000000000,
               "grantedW": 836800000000000000
             },
             {
@@ -2930,6 +5300,7 @@
               "name": "魚雷発射管",
               "port": "f23",
               "nameplateW": 1000000000000000,
+              "inputNameplateW": 1000000000000000,
               "grantedW": 1000000000000000
             },
             {
@@ -2938,9 +5309,364 @@
               "name": "魚雷発射管",
               "port": "f24",
               "nameplateW": 1000000000000000,
+              "inputNameplateW": 1000000000000000,
               "grantedW": 1000000000000000
             }
-          ]
+          ],
+          "ledger": {
+            "finite": true,
+            "drawW": 4087567724402638000,
+            "sourceDrawW": 4087567724402636000,
+            "consumerDrawW": 4087567724402638000,
+            "engineDrawW": 700203918677059300,
+            "sourceConservationRelativeError": 5.010314539312733e-16,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p16",
+                "moduleIndex": 11,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 4941390161528088000,
+                "drawW": 4087567724402636000
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p38",
+                "kind": "hdis",
+                "capacityW": 104740135622344530,
+                "powerW": 1571102034335167.8,
+                "moduleIndex": 26,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p39",
+                "kind": "hdis",
+                "capacityW": 104740135622344530,
+                "powerW": 1571102034335167.8,
+                "moduleIndex": 27,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p40",
+                "kind": "hdis",
+                "capacityW": 52370050923697390,
+                "powerW": 785550763855460.9,
+                "moduleIndex": 28,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p41",
+                "kind": "hdis",
+                "capacityW": 52370033239524450,
+                "powerW": 785550498592866.8,
+                "moduleIndex": 29,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p42",
+                "kind": "hdis",
+                "capacityW": 52369977905177270,
+                "powerW": 785549668577659,
+                "moduleIndex": 30,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p43",
+                "kind": "hdis",
+                "capacityW": 52370023541753930,
+                "powerW": 785550353126308.9,
+                "moduleIndex": 31,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p44",
+                "kind": "hdis",
+                "capacityW": 52369993329442456,
+                "powerW": 785549899941636.8,
+                "moduleIndex": 32,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p45",
+                "kind": "hdis",
+                "capacityW": 52370008910733170,
+                "powerW": 785550133660997.5,
+                "moduleIndex": 33,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p46",
+                "kind": "hdis",
+                "capacityW": 52370018038042456,
+                "powerW": 785550270570636.8,
+                "moduleIndex": 34,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p47",
+                "kind": "hdis",
+                "capacityW": 49594253349898184,
+                "powerW": 743913800248472.8,
+                "moduleIndex": 35,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p48",
+                "kind": "hdis",
+                "capacityW": 46494534613253360,
+                "powerW": 697418019198800.4,
+                "moduleIndex": 36,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p49",
+                "kind": "hdis",
+                "capacityW": 43588668801326690,
+                "powerW": 653830032019900.2,
+                "moduleIndex": 37,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p50",
+                "kind": "hdis",
+                "capacityW": 40864381356154296,
+                "powerW": 612965720342314.4,
+                "moduleIndex": 38,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p51",
+                "kind": "hdis",
+                "capacityW": 38310352815606940,
+                "powerW": 574655292234104.1,
+                "moduleIndex": 39,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p52",
+                "kind": "hdis",
+                "capacityW": 35915937050618424,
+                "powerW": 538739055759276.3,
+                "moduleIndex": 40,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p53",
+                "kind": "hdis",
+                "capacityW": 33671214577575280,
+                "powerW": 505068218663629.2,
+                "moduleIndex": 41,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p54",
+                "kind": "hdis",
+                "capacityW": 63133470114319600,
+                "powerW": 947002051714794,
+                "moduleIndex": 42,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p55",
+                "kind": "hdis",
+                "capacityW": 27620915694994104,
+                "powerW": 414313735424911.56,
+                "moduleIndex": 43,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p56",
+                "kind": "hdis",
+                "capacityW": 25894626286155424,
+                "powerW": 388419394292331.4,
+                "moduleIndex": 44,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p57",
+                "kind": "hdis",
+                "capacityW": 24276193291337870,
+                "powerW": 364142899370068.06,
+                "moduleIndex": 45,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p58",
+                "kind": "hdis",
+                "capacityW": 45517883700213530,
+                "powerW": 682768255503202.9,
+                "moduleIndex": 46,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p59",
+                "kind": "hdis",
+                "capacityW": 39828137136412540,
+                "powerW": 597422057046188.1,
+                "moduleIndex": 47,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p60",
+                "kind": "hdis",
+                "capacityW": 34849610837531068,
+                "powerW": 522744162562966,
+                "moduleIndex": 48,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p61",
+                "kind": "hdis",
+                "capacityW": 30493388717488060,
+                "powerW": 457400830762320.9,
+                "moduleIndex": 49,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p62",
+                "kind": "hdis",
+                "capacityW": 26681772694928584,
+                "powerW": 400226590423928.75,
+                "moduleIndex": 50,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p63",
+                "kind": "hdis",
+                "capacityW": 11673256658584852,
+                "powerW": 175098849878772.78,
+                "moduleIndex": 51,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p64",
+                "kind": "hdis",
+                "capacityW": 21887351782600330,
+                "powerW": 328310276739004.94,
+                "moduleIndex": 52,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p65",
+                "kind": "hdis",
+                "capacityW": 38302864337350750,
+                "powerW": 574542965060261.2,
+                "moduleIndex": 53,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p66",
+                "kind": "hdis",
+                "capacityW": 14363555744441118,
+                "powerW": 215453336166616.75,
+                "moduleIndex": 54,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p67",
+                "kind": "hdis",
+                "capacityW": 12568144788944678,
+                "powerW": 188522171834170.16,
+                "moduleIndex": 55,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p68",
+                "kind": "hdis",
+                "capacityW": 21994214848165892,
+                "powerW": 329913222722488.4,
+                "moduleIndex": 56,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p69",
+                "kind": "hdis",
+                "capacityW": 16495673307506948,
+                "powerW": 247435099612604.22,
+                "moduleIndex": 57,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p70",
+                "kind": "hdis",
+                "capacityW": 12371773279038222,
+                "powerW": 185576599185573.3,
+                "moduleIndex": 58,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p71",
+                "kind": "hdis",
+                "capacityW": 18557662228581236,
+                "powerW": 278364933428718.53,
+                "moduleIndex": 59,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p72",
+                "kind": "hdis",
+                "capacityW": 18557629724421220,
+                "powerW": 278364445866318.28,
+                "moduleIndex": 60,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p4",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 63,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p5",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 64,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p6",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 65,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p7",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 66,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 189771600157165360000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          }
         },
         "powered": {
           "position": [
@@ -2953,8 +5679,31 @@
             0,
             0
           ],
-          "inputW": 696403389533953000,
-          "thrustN": 348201694.76697654
+          "inputW": 700203918677059300,
+          "thrustN": 350101959.33852965,
+          "ledger": {
+            "finite": true,
+            "drawW": 738367724402637800,
+            "sourceDrawW": 738367724402635800,
+            "consumerDrawW": 738367724402637800,
+            "engineDrawW": 700203918677059300,
+            "sourceConservationRelativeError": 2.773685702008298e-15,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p16",
+                "moduleIndex": 11,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 4941390161528088000,
+                "drawW": 738367724402635800
+              }
+            ]
+          }
         },
         "idle": {
           "position": [
@@ -2968,16 +5717,39 @@
             0
           ],
           "inputW": 0,
-          "thrustN": 0
+          "thrustN": 0,
+          "ledger": {
+            "finite": true,
+            "drawW": 38163805725578510,
+            "sourceDrawW": 38163805725576190,
+            "consumerDrawW": 38163805725578536,
+            "engineDrawW": 0,
+            "sourceConservationRelativeError": 6.079058301161688e-14,
+            "consumerConservationRelativeError": 6.288681001201742e-16,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p16",
+                "moduleIndex": 11,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 4941390161528088000,
+                "drawW": 38163805725576190
+              }
+            ]
+          }
         },
         "stock": {
           "type": "vulture",
           "catalogReady": true,
           "cachedProfilePresent": true,
-          "profileVersion": 14,
-          "expectedProfileVersion": 14,
+          "profileVersion": 15,
+          "expectedProfileVersion": 15,
           "systemsSource": "blueprint",
-          "massKg": 9862.969820563274,
+          "massKg": 9916.795670356614,
           "ratedAccelG": 3599.9999999999995,
           "engineCount": 2,
           "motion": {
@@ -2985,7 +5757,692 @@
             "acc": 70.60788,
             "turn": 1
           },
-          "inputW": 696403389533953000,
+          "inputW": 700203918677059300,
+          "ledger": {
+            "finite": true,
+            "drawW": 738367724402637800,
+            "sourceDrawW": 738367724402635800,
+            "consumerDrawW": 738367724402637800,
+            "engineDrawW": 700203918677059300,
+            "sourceConservationRelativeError": 2.773685702008298e-15,
+            "consumerConservationRelativeError": 0,
+            "engineConservationRelativeError": 0,
+            "maximumSourceExcess": 0,
+            "maximumEngineRequestExcess": 0,
+            "maximumEngineThrustRelativeError": 0,
+            "sources": [
+              {
+                "id": "p16",
+                "moduleIndex": 11,
+                "reactor": true,
+                "domain": "main",
+                "availableW": 4941390161528088000,
+                "drawW": 738367724402635800
+              }
+            ]
+          },
+          "thermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p38",
+                "kind": "hdis",
+                "capacityW": 104740135622344530,
+                "powerW": 1571102034335167.8,
+                "moduleIndex": 26,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p39",
+                "kind": "hdis",
+                "capacityW": 104740135622344530,
+                "powerW": 1571102034335167.8,
+                "moduleIndex": 27,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p40",
+                "kind": "hdis",
+                "capacityW": 52370050923697390,
+                "powerW": 785550763855460.9,
+                "moduleIndex": 28,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p41",
+                "kind": "hdis",
+                "capacityW": 52370033239524450,
+                "powerW": 785550498592866.8,
+                "moduleIndex": 29,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p42",
+                "kind": "hdis",
+                "capacityW": 52369977905177270,
+                "powerW": 785549668577659,
+                "moduleIndex": 30,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p43",
+                "kind": "hdis",
+                "capacityW": 52370023541753930,
+                "powerW": 785550353126308.9,
+                "moduleIndex": 31,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p44",
+                "kind": "hdis",
+                "capacityW": 52369993329442456,
+                "powerW": 785549899941636.8,
+                "moduleIndex": 32,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p45",
+                "kind": "hdis",
+                "capacityW": 52370008910733170,
+                "powerW": 785550133660997.5,
+                "moduleIndex": 33,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p46",
+                "kind": "hdis",
+                "capacityW": 52370018038042456,
+                "powerW": 785550270570636.8,
+                "moduleIndex": 34,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p47",
+                "kind": "hdis",
+                "capacityW": 49594253349898184,
+                "powerW": 743913800248472.8,
+                "moduleIndex": 35,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p48",
+                "kind": "hdis",
+                "capacityW": 46494534613253360,
+                "powerW": 697418019198800.4,
+                "moduleIndex": 36,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p49",
+                "kind": "hdis",
+                "capacityW": 43588668801326690,
+                "powerW": 653830032019900.2,
+                "moduleIndex": 37,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p50",
+                "kind": "hdis",
+                "capacityW": 40864381356154296,
+                "powerW": 612965720342314.4,
+                "moduleIndex": 38,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p51",
+                "kind": "hdis",
+                "capacityW": 38310352815606940,
+                "powerW": 574655292234104.1,
+                "moduleIndex": 39,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p52",
+                "kind": "hdis",
+                "capacityW": 35915937050618424,
+                "powerW": 538739055759276.3,
+                "moduleIndex": 40,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p53",
+                "kind": "hdis",
+                "capacityW": 33671214577575280,
+                "powerW": 505068218663629.2,
+                "moduleIndex": 41,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p54",
+                "kind": "hdis",
+                "capacityW": 63133470114319600,
+                "powerW": 947002051714794,
+                "moduleIndex": 42,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p55",
+                "kind": "hdis",
+                "capacityW": 27620915694994104,
+                "powerW": 414313735424911.56,
+                "moduleIndex": 43,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p56",
+                "kind": "hdis",
+                "capacityW": 25894626286155424,
+                "powerW": 388419394292331.4,
+                "moduleIndex": 44,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p57",
+                "kind": "hdis",
+                "capacityW": 24276193291337870,
+                "powerW": 364142899370068.06,
+                "moduleIndex": 45,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p58",
+                "kind": "hdis",
+                "capacityW": 45517883700213530,
+                "powerW": 682768255503202.9,
+                "moduleIndex": 46,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p59",
+                "kind": "hdis",
+                "capacityW": 39828137136412540,
+                "powerW": 597422057046188.1,
+                "moduleIndex": 47,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p60",
+                "kind": "hdis",
+                "capacityW": 34849610837531068,
+                "powerW": 522744162562966,
+                "moduleIndex": 48,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p61",
+                "kind": "hdis",
+                "capacityW": 30493388717488060,
+                "powerW": 457400830762320.9,
+                "moduleIndex": 49,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p62",
+                "kind": "hdis",
+                "capacityW": 26681772694928584,
+                "powerW": 400226590423928.75,
+                "moduleIndex": 50,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p63",
+                "kind": "hdis",
+                "capacityW": 11673256658584852,
+                "powerW": 175098849878772.78,
+                "moduleIndex": 51,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p64",
+                "kind": "hdis",
+                "capacityW": 21887351782600330,
+                "powerW": 328310276739004.94,
+                "moduleIndex": 52,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p65",
+                "kind": "hdis",
+                "capacityW": 38302864337350750,
+                "powerW": 574542965060261.2,
+                "moduleIndex": 53,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p66",
+                "kind": "hdis",
+                "capacityW": 14363555744441118,
+                "powerW": 215453336166616.75,
+                "moduleIndex": 54,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p67",
+                "kind": "hdis",
+                "capacityW": 12568144788944678,
+                "powerW": 188522171834170.16,
+                "moduleIndex": 55,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p68",
+                "kind": "hdis",
+                "capacityW": 21994214848165892,
+                "powerW": 329913222722488.4,
+                "moduleIndex": 56,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p69",
+                "kind": "hdis",
+                "capacityW": 16495673307506948,
+                "powerW": 247435099612604.22,
+                "moduleIndex": 57,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p70",
+                "kind": "hdis",
+                "capacityW": 12371773279038222,
+                "powerW": 185576599185573.3,
+                "moduleIndex": 58,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p71",
+                "kind": "hdis",
+                "capacityW": 18557662228581236,
+                "powerW": 278364933428718.53,
+                "moduleIndex": 59,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p72",
+                "kind": "hdis",
+                "capacityW": 18557629724421220,
+                "powerW": 278364445866318.28,
+                "moduleIndex": 60,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p4",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 63,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p5",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 64,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p6",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 65,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p7",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 66,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 189771600157165360000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
+          "cachedThermal": {
+            "strictOnly": true,
+            "version": 2,
+            "mode": "strict",
+            "storedVersion": 2,
+            "storedMode": "strict",
+            "phantomCoolers": [],
+            "legacyEngineInputW": 0,
+            "coolers": [
+              {
+                "id": "p38",
+                "kind": "hdis",
+                "capacityW": 104740135622344530,
+                "powerW": 1571102034335167.8,
+                "moduleIndex": 26,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p39",
+                "kind": "hdis",
+                "capacityW": 104740135622344530,
+                "powerW": 1571102034335167.8,
+                "moduleIndex": 27,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p40",
+                "kind": "hdis",
+                "capacityW": 52370050923697390,
+                "powerW": 785550763855460.9,
+                "moduleIndex": 28,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p41",
+                "kind": "hdis",
+                "capacityW": 52370033239524450,
+                "powerW": 785550498592866.8,
+                "moduleIndex": 29,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p42",
+                "kind": "hdis",
+                "capacityW": 52369977905177270,
+                "powerW": 785549668577659,
+                "moduleIndex": 30,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p43",
+                "kind": "hdis",
+                "capacityW": 52370023541753930,
+                "powerW": 785550353126308.9,
+                "moduleIndex": 31,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p44",
+                "kind": "hdis",
+                "capacityW": 52369993329442456,
+                "powerW": 785549899941636.8,
+                "moduleIndex": 32,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p45",
+                "kind": "hdis",
+                "capacityW": 52370008910733170,
+                "powerW": 785550133660997.5,
+                "moduleIndex": 33,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p46",
+                "kind": "hdis",
+                "capacityW": 52370018038042456,
+                "powerW": 785550270570636.8,
+                "moduleIndex": 34,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p47",
+                "kind": "hdis",
+                "capacityW": 49594253349898184,
+                "powerW": 743913800248472.8,
+                "moduleIndex": 35,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p48",
+                "kind": "hdis",
+                "capacityW": 46494534613253360,
+                "powerW": 697418019198800.4,
+                "moduleIndex": 36,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p49",
+                "kind": "hdis",
+                "capacityW": 43588668801326690,
+                "powerW": 653830032019900.2,
+                "moduleIndex": 37,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p50",
+                "kind": "hdis",
+                "capacityW": 40864381356154296,
+                "powerW": 612965720342314.4,
+                "moduleIndex": 38,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p51",
+                "kind": "hdis",
+                "capacityW": 38310352815606940,
+                "powerW": 574655292234104.1,
+                "moduleIndex": 39,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p52",
+                "kind": "hdis",
+                "capacityW": 35915937050618424,
+                "powerW": 538739055759276.3,
+                "moduleIndex": 40,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p53",
+                "kind": "hdis",
+                "capacityW": 33671214577575280,
+                "powerW": 505068218663629.2,
+                "moduleIndex": 41,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p54",
+                "kind": "hdis",
+                "capacityW": 63133470114319600,
+                "powerW": 947002051714794,
+                "moduleIndex": 42,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p55",
+                "kind": "hdis",
+                "capacityW": 27620915694994104,
+                "powerW": 414313735424911.56,
+                "moduleIndex": 43,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p56",
+                "kind": "hdis",
+                "capacityW": 25894626286155424,
+                "powerW": 388419394292331.4,
+                "moduleIndex": 44,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p57",
+                "kind": "hdis",
+                "capacityW": 24276193291337870,
+                "powerW": 364142899370068.06,
+                "moduleIndex": 45,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p58",
+                "kind": "hdis",
+                "capacityW": 45517883700213530,
+                "powerW": 682768255503202.9,
+                "moduleIndex": 46,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p59",
+                "kind": "hdis",
+                "capacityW": 39828137136412540,
+                "powerW": 597422057046188.1,
+                "moduleIndex": 47,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p60",
+                "kind": "hdis",
+                "capacityW": 34849610837531068,
+                "powerW": 522744162562966,
+                "moduleIndex": 48,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p61",
+                "kind": "hdis",
+                "capacityW": 30493388717488060,
+                "powerW": 457400830762320.9,
+                "moduleIndex": 49,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p62",
+                "kind": "hdis",
+                "capacityW": 26681772694928584,
+                "powerW": 400226590423928.75,
+                "moduleIndex": 50,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p63",
+                "kind": "hdis",
+                "capacityW": 11673256658584852,
+                "powerW": 175098849878772.78,
+                "moduleIndex": 51,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p64",
+                "kind": "hdis",
+                "capacityW": 21887351782600330,
+                "powerW": 328310276739004.94,
+                "moduleIndex": 52,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p65",
+                "kind": "hdis",
+                "capacityW": 38302864337350750,
+                "powerW": 574542965060261.2,
+                "moduleIndex": 53,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p66",
+                "kind": "hdis",
+                "capacityW": 14363555744441118,
+                "powerW": 215453336166616.75,
+                "moduleIndex": 54,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p67",
+                "kind": "hdis",
+                "capacityW": 12568144788944678,
+                "powerW": 188522171834170.16,
+                "moduleIndex": 55,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p68",
+                "kind": "hdis",
+                "capacityW": 21994214848165892,
+                "powerW": 329913222722488.4,
+                "moduleIndex": 56,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p69",
+                "kind": "hdis",
+                "capacityW": 16495673307506948,
+                "powerW": 247435099612604.22,
+                "moduleIndex": 57,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p70",
+                "kind": "hdis",
+                "capacityW": 12371773279038222,
+                "powerW": 185576599185573.3,
+                "moduleIndex": 58,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p71",
+                "kind": "hdis",
+                "capacityW": 18557662228581236,
+                "powerW": 278364933428718.53,
+                "moduleIndex": 59,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p72",
+                "kind": "hdis",
+                "capacityW": 18557629724421220,
+                "powerW": 278364445866318.28,
+                "moduleIndex": 60,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p4",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 63,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p5",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 64,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p6",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 65,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "p7",
+                "kind": "wing",
+                "capacityW": 22042481767955796,
+                "powerW": 220424817679557.97,
+                "moduleIndex": 66,
+                "moduleKind": "dissipator"
+              },
+              {
+                "id": "skin",
+                "kind": "skin",
+                "capacityW": 189771600157165360000,
+                "powerW": 0,
+                "moduleIndex": -1,
+                "moduleKind": null
+              }
+            ]
+          },
           "firing": {
             "motion": {
               "acc0": 70.60788,
@@ -2993,7 +6450,7 @@
               "turn": 1
             },
             "weaponPowerK": 1,
-            "engineInputW": 696403389533953000,
+            "engineInputW": 700203918677059300,
             "modules": [
               {
                 "index": 0,
@@ -3001,6 +6458,7 @@
                 "name": "レーザー砲",
                 "port": "f19",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -3009,6 +6467,7 @@
                 "name": "レーザー砲",
                 "port": "f20",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -3017,6 +6476,7 @@
                 "name": "レーザー砲",
                 "port": "f21",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -3025,6 +6485,7 @@
                 "name": "レーザー砲",
                 "port": "f22",
                 "nameplateW": 836800000000000000,
+                "inputNameplateW": 836800000000000000,
                 "grantedW": 836800000000000000
               },
               {
@@ -3033,6 +6494,7 @@
                 "name": "魚雷発射管",
                 "port": "f23",
                 "nameplateW": 1000000000000000,
+                "inputNameplateW": 1000000000000000,
                 "grantedW": 1000000000000000
               },
               {
@@ -3041,9 +6503,364 @@
                 "name": "魚雷発射管",
                 "port": "f24",
                 "nameplateW": 1000000000000000,
+                "inputNameplateW": 1000000000000000,
                 "grantedW": 1000000000000000
               }
-            ]
+            ],
+            "ledger": {
+              "finite": true,
+              "drawW": 4087567724402638000,
+              "sourceDrawW": 4087567724402636000,
+              "consumerDrawW": 4087567724402638000,
+              "engineDrawW": 700203918677059300,
+              "sourceConservationRelativeError": 5.010314539312733e-16,
+              "consumerConservationRelativeError": 0,
+              "engineConservationRelativeError": 0,
+              "maximumSourceExcess": 0,
+              "maximumEngineRequestExcess": 0,
+              "maximumEngineThrustRelativeError": 0,
+              "sources": [
+                {
+                  "id": "p16",
+                  "moduleIndex": 11,
+                  "reactor": true,
+                  "domain": "main",
+                  "availableW": 4941390161528088000,
+                  "drawW": 4087567724402636000
+                }
+              ]
+            },
+            "thermal": {
+              "strictOnly": true,
+              "version": 2,
+              "mode": "strict",
+              "storedVersion": 2,
+              "storedMode": "strict",
+              "phantomCoolers": [],
+              "legacyEngineInputW": 0,
+              "coolers": [
+                {
+                  "id": "p38",
+                  "kind": "hdis",
+                  "capacityW": 104740135622344530,
+                  "powerW": 1571102034335167.8,
+                  "moduleIndex": 26,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p39",
+                  "kind": "hdis",
+                  "capacityW": 104740135622344530,
+                  "powerW": 1571102034335167.8,
+                  "moduleIndex": 27,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p40",
+                  "kind": "hdis",
+                  "capacityW": 52370050923697390,
+                  "powerW": 785550763855460.9,
+                  "moduleIndex": 28,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p41",
+                  "kind": "hdis",
+                  "capacityW": 52370033239524450,
+                  "powerW": 785550498592866.8,
+                  "moduleIndex": 29,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p42",
+                  "kind": "hdis",
+                  "capacityW": 52369977905177270,
+                  "powerW": 785549668577659,
+                  "moduleIndex": 30,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p43",
+                  "kind": "hdis",
+                  "capacityW": 52370023541753930,
+                  "powerW": 785550353126308.9,
+                  "moduleIndex": 31,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p44",
+                  "kind": "hdis",
+                  "capacityW": 52369993329442456,
+                  "powerW": 785549899941636.8,
+                  "moduleIndex": 32,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p45",
+                  "kind": "hdis",
+                  "capacityW": 52370008910733170,
+                  "powerW": 785550133660997.5,
+                  "moduleIndex": 33,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p46",
+                  "kind": "hdis",
+                  "capacityW": 52370018038042456,
+                  "powerW": 785550270570636.8,
+                  "moduleIndex": 34,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p47",
+                  "kind": "hdis",
+                  "capacityW": 49594253349898184,
+                  "powerW": 743913800248472.8,
+                  "moduleIndex": 35,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p48",
+                  "kind": "hdis",
+                  "capacityW": 46494534613253360,
+                  "powerW": 697418019198800.4,
+                  "moduleIndex": 36,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p49",
+                  "kind": "hdis",
+                  "capacityW": 43588668801326690,
+                  "powerW": 653830032019900.2,
+                  "moduleIndex": 37,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p50",
+                  "kind": "hdis",
+                  "capacityW": 40864381356154296,
+                  "powerW": 612965720342314.4,
+                  "moduleIndex": 38,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p51",
+                  "kind": "hdis",
+                  "capacityW": 38310352815606940,
+                  "powerW": 574655292234104.1,
+                  "moduleIndex": 39,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p52",
+                  "kind": "hdis",
+                  "capacityW": 35915937050618424,
+                  "powerW": 538739055759276.3,
+                  "moduleIndex": 40,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p53",
+                  "kind": "hdis",
+                  "capacityW": 33671214577575280,
+                  "powerW": 505068218663629.2,
+                  "moduleIndex": 41,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p54",
+                  "kind": "hdis",
+                  "capacityW": 63133470114319600,
+                  "powerW": 947002051714794,
+                  "moduleIndex": 42,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p55",
+                  "kind": "hdis",
+                  "capacityW": 27620915694994104,
+                  "powerW": 414313735424911.56,
+                  "moduleIndex": 43,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p56",
+                  "kind": "hdis",
+                  "capacityW": 25894626286155424,
+                  "powerW": 388419394292331.4,
+                  "moduleIndex": 44,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p57",
+                  "kind": "hdis",
+                  "capacityW": 24276193291337870,
+                  "powerW": 364142899370068.06,
+                  "moduleIndex": 45,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p58",
+                  "kind": "hdis",
+                  "capacityW": 45517883700213530,
+                  "powerW": 682768255503202.9,
+                  "moduleIndex": 46,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p59",
+                  "kind": "hdis",
+                  "capacityW": 39828137136412540,
+                  "powerW": 597422057046188.1,
+                  "moduleIndex": 47,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p60",
+                  "kind": "hdis",
+                  "capacityW": 34849610837531068,
+                  "powerW": 522744162562966,
+                  "moduleIndex": 48,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p61",
+                  "kind": "hdis",
+                  "capacityW": 30493388717488060,
+                  "powerW": 457400830762320.9,
+                  "moduleIndex": 49,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p62",
+                  "kind": "hdis",
+                  "capacityW": 26681772694928584,
+                  "powerW": 400226590423928.75,
+                  "moduleIndex": 50,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p63",
+                  "kind": "hdis",
+                  "capacityW": 11673256658584852,
+                  "powerW": 175098849878772.78,
+                  "moduleIndex": 51,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p64",
+                  "kind": "hdis",
+                  "capacityW": 21887351782600330,
+                  "powerW": 328310276739004.94,
+                  "moduleIndex": 52,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p65",
+                  "kind": "hdis",
+                  "capacityW": 38302864337350750,
+                  "powerW": 574542965060261.2,
+                  "moduleIndex": 53,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p66",
+                  "kind": "hdis",
+                  "capacityW": 14363555744441118,
+                  "powerW": 215453336166616.75,
+                  "moduleIndex": 54,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p67",
+                  "kind": "hdis",
+                  "capacityW": 12568144788944678,
+                  "powerW": 188522171834170.16,
+                  "moduleIndex": 55,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p68",
+                  "kind": "hdis",
+                  "capacityW": 21994214848165892,
+                  "powerW": 329913222722488.4,
+                  "moduleIndex": 56,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p69",
+                  "kind": "hdis",
+                  "capacityW": 16495673307506948,
+                  "powerW": 247435099612604.22,
+                  "moduleIndex": 57,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p70",
+                  "kind": "hdis",
+                  "capacityW": 12371773279038222,
+                  "powerW": 185576599185573.3,
+                  "moduleIndex": 58,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p71",
+                  "kind": "hdis",
+                  "capacityW": 18557662228581236,
+                  "powerW": 278364933428718.53,
+                  "moduleIndex": 59,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p72",
+                  "kind": "hdis",
+                  "capacityW": 18557629724421220,
+                  "powerW": 278364445866318.28,
+                  "moduleIndex": 60,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p4",
+                  "kind": "wing",
+                  "capacityW": 22042481767955796,
+                  "powerW": 220424817679557.97,
+                  "moduleIndex": 63,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p5",
+                  "kind": "wing",
+                  "capacityW": 22042481767955796,
+                  "powerW": 220424817679557.97,
+                  "moduleIndex": 64,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p6",
+                  "kind": "wing",
+                  "capacityW": 22042481767955796,
+                  "powerW": 220424817679557.97,
+                  "moduleIndex": 65,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "p7",
+                  "kind": "wing",
+                  "capacityW": 22042481767955796,
+                  "powerW": 220424817679557.97,
+                  "moduleIndex": 66,
+                  "moduleKind": "dissipator"
+                },
+                {
+                  "id": "skin",
+                  "kind": "skin",
+                  "capacityW": 189771600157165360000,
+                  "powerW": 0,
+                  "moduleIndex": -1,
+                  "moduleKind": null
+                }
+              ]
+            }
           }
         }
       }
@@ -3069,7 +6886,9 @@
       "face-following retains the slope normal without upright support",
       "four rebuilt fighters finish worker geometry/statistics",
       "shared fighter power preview/fleet runtime parity",
-      "cached and registered fighter full-throttle/full-gun allocation including every physical gun port",
+      "cached and registered fighter finite power conservation and bounded grants for every physical gun port",
+      "strict heat profiles and physical powered coolers for fresh, registered and cached fighters",
+      "strict heat mode shown in the editor",
       "X-wing physical engine editor and performance panel",
       "planned acceleration and actual selected-condition acceleration shown separately"
     ],

@@ -36,7 +36,7 @@ test('the actual battle HUD distinguishes destruction, power cuts, heat, ion tri
  run(`globalThis.runtimeUnit=(()=>{
   const weapons=Array.from({length:7},(_,i)=>({k:'weapon',name:'Gun '+(i+1),domain:'main',powerConnected:i!==3})),modules=[...weapons,{k:'capacitor',name:'Gun 7 Capacitor',link:6,size:1,domain:'main'}],mounts=weapons.map((m,i)=>({id:i+1,module:i,patch:'qa-patch',capacity:2,boltTT:1,barrels:2,crewNeed:2}));
   const patch={id:'qa-patch',face:'port',host:'hull',area:2880,center:[0,0,-30],normal:[0,0,-1],polygon:[[-60,-12,-30],[60,-12,-30],[60,12,-30],[-60,12,-30]],exposed:true,armor:{material:'standard',thickness:1},fitIds:mounts.map(m=>m.id),partIds:[]};
-  const p={len:120,width:60,height:24,hp:100,crewNeed:14,autoCrew:0,modules,grid:{P:1e24,domains:[{id:'main',P:1e24,modules:[0,1,2,3,4,5,6,7]}]},heat:{v:1,src:weapons.map((m,i)=>({k:'weapon',m:[i]})),dis:[],links:[]},surface:{patches:[patch],mounts,devices:[]}};
+  const p={len:120,width:60,height:24,hp:100,crewNeed:14,autoCrew:0,modules,grid:{P:1e24,domains:[{id:'main',P:1e24,modules:[0,1,2,3,4,5,6,7]}]},heat:{v:1,src:weapons.map((m,i)=>({k:'weapon',m:[i]})),dis:[],ln:[]},surface:{patches:[patch],mounts,devices:[]}};
   const u={p,crew:14,mods:[1,0,1,1,1,1,1,0],shield:100,shieldMax:100,energy:10,surfaceArmor:{'qa-patch':{integrity:.5,load:1}},surfaceBanks:{1:2,2:2,3:2,4:2,5:2,6:0,7:0},gridState:{domains:{main:{load:0,trip:0}},local:{2:5}},ht:{n:7,e:{reactor:0,weapon:0,shield:0,engine:0,hotel:0},lim:{weapon:1},md:[0,0,0,0,2,0,0],lm:[1,1,1,1,1,1,1]}};
   C.shieldReceive(u,{energy:10,ion:10});return u;
  })()`);

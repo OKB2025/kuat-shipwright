@@ -59,3 +59,18 @@ test('the real trial loop selects a reachable equivalent pose across a vertical 
  assert.equal(run('q.t.arc'),false);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);
  run('globalThis.q=setup("ball720",{a:2},42);trial.gunMode="home";trialGunnery(.01)');near(run('q.t.yaw'),0);near(run('q.t.el'),0);vector(plain(run('q.t.bd')),plain(run('q.t.authored.fw')),1e-7);
 });
+
+test('actual capital trial fire samples independent shared dispersion at each physical muzzle without changing shot energy',()=>{
+ run(`globalThis.scatterProof=(()=>{
+  const original=C.gunScatter,calls=[];let seed=77;
+  const random=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296;};
+  try{
+   setup('ball175Quad',{a:2},42,true);Object.assign(trial.p,{len:50000,acc:C.GUN_ACCURACY.reference.acc,fireControl:true});
+   C.gunScatter=(direction,profile,range,control)=>{const result=original(direction,profile,range,control,random);calls.push({range,control,result});return result;};
+   trial.fire=true;trialGunnery(.001);return {calls,bolts:trial.bolts,energy:trial.bolts.reduce((n,b)=>n+b.tt,0),shots:trial.gun.shots};
+  }finally{C.gunScatter=original;}
+ })();`);
+ const proof=plain(run('scatterProof'));assert.equal(proof.calls.length,4);assert.equal(proof.bolts.length,4);assert.equal(proof.shots,4);near(proof.energy,700);
+ for(let i=0;i<4;i++){assert.equal(proof.calls[i].range,40000);assert.equal(proof.calls[i].control,1);assert.ok(proof.bolts[i].life<=40000/4500,'a longer platform cannot extend the gun\'s nominal reach');vector(run('tv.norm('+JSON.stringify(proof.bolts[i].vel)+')'),proof.calls[i].result,1e-7);}
+ assert.equal(new Set(proof.calls.map(c=>JSON.stringify(c.result))).size,4,'each barrel gets its own physical miss vector');
+});

@@ -52,7 +52,7 @@
 ```js
 surfaces: {
   version: 2,
-  mode: 'compat' | 'strict', // 熱管理の互換性。面の主用途とは別
+  mode: 'strict', // 熱管理は全設計で厳格運転。旧compat指定は読み込み時に正規化
   patches: [{
     id,
     functionMode: 'armor' | 'equipment' | 'legacy',

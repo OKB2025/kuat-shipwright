@@ -68,14 +68,14 @@ test('four independent main batteries form port/starboard pairs on the dorsal an
 });
 
 test('ordinary secondary armament and three independently supplied drives remain functional',()=>{
- const {s,S,p}=calculated();assert.equal(s.fits.filter(f=>f.k==='pd').length,8);assert.equal(s.fits.filter(f=>f.k==='cmsl').length,4);assert.equal(s.fits.filter(f=>f.k==='trc').length,1);
+ const {s,S,p}=calculated();assert.equal(s.fits.filter(f=>f.k==='pd').length,8);assert.equal(s.fits.filter(f=>f.k==='shipMsl').length,4);assert.equal(s.fits.filter(f=>f.k==='trc').length,1);
  assert.ok(s.fits.every(f=>!f.float),'replacing the hull cannot strand the mounted weapons');
  const engines=s.parts.filter(p=>p.k==='engine');assert.equal(engines.length,3);assert.equal(p.propulsion.engines.length,3);
  const internal=s.parts.filter(p=>!C.isShapePart(p)&&!['engine','sensor'].includes(p.k));assert.ok(internal.length>0);
  for(const part of internal){const b=C.partAABB(part);for(const x of [b[0],b[3]])for(const y of [b[1],b[4]])for(const z of [b[2],b[5]])assert.ok(solidAt(s,[x,y,z]),`${part.label||part.k} must fit inside the native hull at ${[x,y,z]}`);}
  assert.equal(new Set(engines.map(e=>e.reactor)).size,3,'each installed drive has an independent supply');
  for(const e of engines){assert.ok(s.parts.some(q=>q.id===e.reactor&&['gen','aux'].includes(q.k)));assert.equal(C.resolveEngineSpec(e,s).valid,true);}
- const launchers=p.modules.filter(m=>m.missileKind==='cmsl');assert.equal(launchers.length,4);
+ const launchers=p.modules.filter(m=>m.missileKind==='shipMsl');assert.equal(launchers.length,4);
  for(const m of launchers){assert.equal(m.k,'launcher');assert.equal(m.stock,6);assert.equal(m.tt,25);assert.equal(m.cycle,1.2);assert.equal(p.modules.filter(q=>q.fit===m.fit).length,1);const loads=p.grid.fixedLoads.filter(l=>l.port===m.port);assert.equal(loads.length,1);assert.equal(loads[0].weight,1e15);}
  for(const value of [S.mass,S.cost,p.propulsion.massKg,p.hp])assert.ok(Number.isFinite(value)&&value>0);
  const u=C.fleetUnit('new-arquitens','arquitens',p,0);C.allocateShipPower(u,C.fleetSystems(u),{throttle:1},.25,'balanced');assert.ok(u.propulsion.actualInputW>0);assert.ok(u.propulsion.actualThrustN>0);near(u.propulsion.wasteHeatW/u.propulsion.actualInputW,.05,1e-12);
@@ -84,7 +84,7 @@ test('ordinary secondary armament and three independently supplied drives remain
 
 test('saving and reloading preserves native structure parameters, main guns and independent propulsion fields',()=>{
  const s=ship(),loaded=C.deserialize(C.serialize(s)),twice=C.deserialize(C.serialize(loaded));
- for(const design of [loaded,twice]){assert.equal(design.hull.assembly,s.hull.assembly);assert.ok(!design.parts.some(p=>p.skinAsset==='arq_hull'||p.form==='reference'||p.form==='mesh'));assert.equal(design.fits.filter(f=>f.k==='quad500').length,4);assert.equal(design.fits.filter(f=>f.k==='cmsl').length,4);assert.equal(design.parts.filter(p=>p.k==='engine').length,3);assert.equal(design.parts.filter(p=>p.k==='engine').every(p=>p.propulsionModelVersion===C.PROPULSION_MODEL_VERSION),true);}
+ for(const design of [loaded,twice]){assert.equal(design.hull.assembly,s.hull.assembly);assert.ok(!design.parts.some(p=>p.skinAsset==='arq_hull'||p.form==='reference'||p.form==='mesh'));assert.equal(design.fits.filter(f=>f.k==='quad500').length,4);assert.equal(design.fits.filter(f=>f.k==='shipMsl').length,4);assert.equal(design.parts.filter(p=>p.k==='engine').length,3);assert.equal(design.parts.filter(p=>p.k==='engine').every(p=>p.propulsionModelVersion===C.PROPULSION_MODEL_VERSION),true);}
  const structureRows=d=>d.parts.filter(C.isShapePart).map(p=>({id:p.id,k:p.k,c:p.c,s:p.s,form:p.form,loft:p.loft,outline:p.outline}));
  assert.deepEqual(plain(structureRows(loaded)),plain(structureRows(s)));assert.deepEqual(plain(structureRows(twice)),plain(structureRows(loaded)));
  const fields=['id','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM'],rows=d=>d.parts.filter(p=>p.k==='engine').map(p=>Object.fromEntries(fields.map(k=>[k,p[k]])));

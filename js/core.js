@@ -196,7 +196,7 @@ const COST_MODEL=Object.freeze({version:15,hull:0.6,armor:30,wingInstall:1800,wi
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+(p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)?resolveEngineSpec(p).cost:0):0;}
-function fitBuildCost(f,spec){const d=spec||FITS[f?.k];return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command']):0;}
+function fitBuildCost(f,spec){const d=spec||(FITS[f?.k]?fitSpec(f):null);return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command']):0;}
 function costBreakdown(total,source){
  const keys=Object.keys(COST_CATS).filter(k=>k!=='crew'),raw=keys.map(k=>Number.isFinite(source?.[k])?Math.max(0,source[k]):0),sum=raw.reduce((a,b)=>a+b,0),target=Number.isFinite(total)?Math.max(0,Math.round(total)):0;
  if(!(sum>0))return target?{systems:target}:{};const values=raw.map(v=>v/sum*target),by=Object.fromEntries(keys.map((k,i)=>[k,Math.floor(values[i])])),order=keys.map((k,i)=>({k,r:values[i]-by[k]})).sort((a,b)=>b.r-a.r);
@@ -208,19 +208,19 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 15,
- "modelSignature": "1l0ps3k",
+ "modelSignature": "fda9da",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1ypt5h",
-   "build": 230512,
+   "signature": "1iyttyy",
+   "build": 230933,
    "crew": 3000,
-   "total": 233512,
+   "total": 233933,
    "by": {
     "hull": 20,
     "armor": 29,
-    "power": 59284,
-    "drive": 67468,
+    "power": 59287,
+    "drive": 67886,
     "defense": 16504,
     "command": 32505,
     "weapons": 34201,
@@ -257,9 +257,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00204,
-    "upS": 0.00204,
-    "down": 0.0132,
+    "up": 0.00174,
+    "upS": 0.00174,
+    "down": 0.0305,
     "T": 0
    },
    "powerProfile": {
@@ -886,6 +886,210 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.18566360999173018,
+      "hits": 1,
+      "crew": 0.0000040000018306411445,
+      "size": 0.0800000366128229,
+      "at": 0.463,
+      "part": 59,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970222831533735,
+      "domain": "main",
+      "port": "p59",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.18566360999173018,
+      "hits": 1,
+      "crew": 0.0000040000018306411445,
+      "size": 0.0800000366128229,
+      "at": 0.639,
+      "part": 60,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970222831533735,
+      "domain": "main",
+      "port": "p60",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 3",
+      "w": 0.18566360143077285,
+      "hits": 1,
+      "crew": 0.000004000001553980755,
+      "size": 0.08000003107961509,
+      "at": 0.507,
+      "part": 61,
+      "y": 0.08,
+      "z": -0.05,
+      "r": 0.017,
+      "share": 0.017970221588622087,
+      "domain": "main",
+      "port": "p61",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 4",
+      "w": 0.18566360143077287,
+      "hits": 1,
+      "crew": 0.0000040000015539807556,
+      "size": 0.0800000310796151,
+      "at": 0.507,
+      "part": 62,
+      "y": 0.08,
+      "z": 0.05,
+      "r": 0.017,
+      "share": 0.01797022158862209,
+      "domain": "main",
+      "port": "p62",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 5",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.529,
+      "part": 63,
+      "y": 0.23,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970227803180985,
+      "domain": "main",
+      "port": "p63",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 6",
+      "w": 0.1856636099917301,
+      "hits": 1,
+      "crew": 0.000004000001830641143,
+      "size": 0.08000003661282286,
+      "at": 0.463,
+      "part": 64,
+      "y": -0.07,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970222831533725,
+      "domain": "main",
+      "port": "p64",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 7",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.485,
+      "part": 65,
+      "y": 0.23,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970227803180985,
+      "domain": "main",
+      "port": "p65",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 8",
+      "w": 0.18566360143077287,
+      "hits": 1,
+      "crew": 0.0000040000015539807556,
+      "size": 0.0800000310796151,
+      "at": 0.463,
+      "part": 66,
+      "y": 0.08,
+      "z": -0.05,
+      "r": 0.017,
+      "share": 0.01797022158862209,
+      "domain": "main",
+      "port": "p66",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 9",
+      "w": 0.185663644235562,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565706,
+      "at": 0.842,
+      "part": 67,
+      "y": -0.25,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970227803180982,
+      "domain": "main",
+      "port": "p67",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 10",
+      "w": 0.18566364423556198,
+      "hits": 1,
+      "crew": 0.000004000002937282853,
+      "size": 0.08000005874565705,
+      "at": 0.798,
+      "part": 68,
+      "y": -0.25,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.01797022780318098,
+      "domain": "main",
+      "port": "p68",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 11",
+      "w": 0.18566362711364645,
+      "hits": 1,
+      "crew": 0.000004000002383961999,
+      "size": 0.08000004767923996,
+      "at": 0.842,
+      "part": 69,
+      "y": -0.54,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017970225317357355,
+      "domain": "main",
+      "port": "p69",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 12",
+      "w": 0.18431926849611568,
+      "hits": 1,
+      "crew": 0.000003956636122335157,
+      "size": 0.07913272244670314,
+      "at": 0.842,
+      "part": 70,
+      "y": 0.04,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.017775400060319906,
+      "domain": "main",
+      "port": "p70",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.20367075935777398,
@@ -934,10 +1138,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.08,
       "z": 0.47,
       "r": 0.038,
-      "share": 0.2607973952656535,
+      "share": 0.2046091519930134,
       "domain": "main",
       "port": "p9",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -952,10 +1156,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.08,
       "z": -0.47,
       "r": 0.038,
-      "share": 0.26079731159474456,
+      "share": 0.20460908634882358,
       "domain": "main",
       "port": "p10",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -970,10 +1174,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.2,
       "z": 0.85,
       "r": 0.027,
-      "share": 0.09047200985952789,
+      "share": 0.07098000805416581,
       "domain": "main",
       "port": "p11",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -988,10 +1192,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.2,
       "z": -0.85,
       "r": 0.027,
-      "share": 0.09047200791150838,
+      "share": 0.07098000652584295,
       "domain": "main",
       "port": "p12",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -1006,10 +1210,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.36,
       "z": 0.51,
       "r": 0.025,
-      "share": 0.07651632550846185,
+      "share": 0.06003104616884805,
       "domain": "main",
       "port": "p13",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -1024,10 +1228,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.36,
       "z": -0.51,
       "r": 0.025,
-      "share": 0.0765162832390138,
+      "share": 0.06003101300626254,
       "domain": "main",
       "port": "p14",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -1042,10 +1246,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.53,
       "z": 0.5,
       "r": 0.025,
-      "share": 0.07221432926486313,
+      "share": 0.05665590585203911,
       "domain": "main",
       "port": "p15",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -1060,10 +1264,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.53,
       "z": -0.5,
       "r": 0.025,
-      "share": 0.0722143373562268,
+      "share": 0.05665591220013572,
       "domain": "main",
       "port": "p16",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
@@ -1076,55 +1280,55 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": 0,
       "r": 0.064,
-      "share": 0.1063583815028902,
+      "share": 0.10861865407319954,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.0221192322973631,
+      "w": 1.0131571327455116,
       "hits": 1,
       "crew": 0,
-      "size": 17.787522053974577,
-      "at": 0.394,
+      "size": 17.554090006022157,
+      "at": 0.393,
       "y": 0,
       "z": 0,
-      "r": 0.103,
-      "share": 0.4404624277456648,
+      "r": 0.102,
+      "share": 0.4439197166469894,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.853065413019056,
+      "w": 0.843248643759578,
       "hits": 1,
       "crew": 0,
-      "size": 13.562401986035733,
-      "at": 0.594,
+      "size": 13.328969938083311,
+      "at": 0.595,
       "y": -0.15,
       "z": 0,
-      "r": 0.094,
-      "share": 0.33583815028901737,
+      "r": 0.093,
+      "share": 0.33707201889020066,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.42318370625503277,
+      "w": 0.40064462151002445,
       "hits": 1,
       "crew": 0,
-      "size": 4.738670573434172,
-      "at": 0.849,
-      "y": -0.37,
+      "size": 4.365179296710297,
+      "at": 0.851,
+      "y": -0.38,
       "z": 0,
-      "r": 0.066,
-      "share": 0.11734104046242776,
+      "r": 0.064,
+      "share": 0.11038961038961038,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 23.522466885122988,
+      "w": 24.8336475770809,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -1147,9 +1351,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 3.8475,
     "grid": {
      "P": 26943763873255174000,
-     "fixed": 37884383780655560,
-     "cooling": 0,
-     "De": 2552382382679540700,
+     "fixed": 193853206439669440,
+     "cooling": 155968822659013900,
+     "De": 2577712170843841000,
      "Ds": 12896044380293693000,
      "Dw": 7699560000000000000,
      "domains": [
@@ -1220,7 +1424,19 @@ const CRAFT_PRICE_CATALOG={
         46,
         47,
         48,
-        49
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61
        ],
        "protection": 1
       }
@@ -1230,7 +1446,71 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "hotel",
-       "cap": 37884383780655560,
+       "cap": 193853206439669440,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p9",
+       "cap": 926246744578151.9,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p10",
+       "cap": 947687641443386.9,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p11",
+       "cap": 563021081397991.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p12",
+       "cap": 563021081397991.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p13",
+       "cap": 583469449519152.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p14",
+       "cap": 542205697785125.06,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p15",
+       "cap": 561986469407343.94,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p16",
+       "cap": 591659354992051.8,
        "auto": true,
        "ok": true
       },
@@ -1238,7 +1518,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p24",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1246,7 +1526,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p25",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1254,7 +1534,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p26",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1262,7 +1542,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p27",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1270,7 +1550,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p33",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1278,7 +1558,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p34",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1286,7 +1566,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p35",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1294,7 +1574,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p36",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1302,7 +1582,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p37",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1310,7 +1590,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p38",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1318,7 +1598,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p44",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1326,7 +1606,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p45",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1334,7 +1614,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p46",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1342,7 +1622,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p47",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1350,7 +1630,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p48",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1358,7 +1638,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p49",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1366,7 +1646,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p50",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1374,7 +1654,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p51",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1382,7 +1662,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p52",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1390,7 +1670,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p53",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1398,7 +1678,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p54",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1406,7 +1686,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p55",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1414,7 +1694,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p56",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1422,7 +1702,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p57",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1430,7 +1710,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p58",
-       "cap": 1515375351226222.5,
+       "cap": 5239275849720796,
        "auto": true,
        "ok": true
       },
@@ -1438,7 +1718,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p30",
-       "cap": 1276191191339770400,
+       "cap": 1288856085421920500,
        "auto": false,
        "ok": true
       },
@@ -1446,7 +1726,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p31",
-       "cap": 1276191191339770400,
+       "cap": 1288856085421920500,
        "auto": false,
        "ok": true
       },
@@ -1502,7 +1782,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p30",
-       "cap": 1276191191339770400,
+       "cap": 1288856085421920500,
        "auto": false,
        "ok": true
       },
@@ -1510,7 +1790,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p31",
-       "cap": 1276191191339770400,
+       "cap": 1288856085421920500,
        "auto": false,
        "ok": true
       },
@@ -1559,6 +1839,198 @@ const CRAFT_PRICE_CATALOG={
        "from": "p29",
        "to": "f43",
        "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p59",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p60",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p61",
+       "cap": 12568813790998986,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p62",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p63",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p64",
+       "cap": 12568814660321872,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p65",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p66",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p67",
+       "cap": 12568818137613920,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p68",
+       "cap": 12568818137613918,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p69",
+       "cap": 12568816398967896,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p70",
+       "cap": 12432550835106536,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p59",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p60",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p61",
+       "cap": 12568813790998986,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p62",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p63",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p64",
+       "cap": 12568814660321872,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p65",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p66",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p67",
+       "cap": 12568818137613920,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p68",
+       "cap": 12568818137613918,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p69",
+       "cap": 12568816398967896,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p70",
+       "cap": 12432550835106536,
        "auto": false,
        "ok": true
       }
@@ -1568,11 +2040,132 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 37884383780655560,
+       "weight": 193853206439669440,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p59",
+       "port": "p59",
+       "weight": 12568814660321880,
+       "domain": "main"
+      },
+      {
+       "id": "p60",
+       "port": "p60",
+       "weight": 12568814660321880,
+       "domain": "main"
+      },
+      {
+       "id": "p61",
+       "port": "p61",
+       "weight": 12568813790998986,
+       "domain": "main"
+      },
+      {
+       "id": "p62",
+       "port": "p62",
+       "weight": 12568813790998988,
+       "domain": "main"
+      },
+      {
+       "id": "p63",
+       "port": "p63",
+       "weight": 12568818137613922,
+       "domain": "main"
+      },
+      {
+       "id": "p64",
+       "port": "p64",
+       "weight": 12568814660321872,
+       "domain": "main"
+      },
+      {
+       "id": "p65",
+       "port": "p65",
+       "weight": 12568818137613922,
+       "domain": "main"
+      },
+      {
+       "id": "p66",
+       "port": "p66",
+       "weight": 12568813790998988,
+       "domain": "main"
+      },
+      {
+       "id": "p67",
+       "port": "p67",
+       "weight": 12568818137613920,
+       "domain": "main"
+      },
+      {
+       "id": "p68",
+       "port": "p68",
+       "weight": 12568818137613918,
+       "domain": "main"
+      },
+      {
+       "id": "p69",
+       "port": "p69",
+       "weight": 12568816398967896,
+       "domain": "main"
+      },
+      {
+       "id": "p70",
+       "port": "p70",
+       "weight": 12432550835106536,
+       "domain": "main"
+      },
+      {
+       "id": "p9",
+       "port": "p9",
+       "weight": 926246744578151.9,
+       "domain": "main"
+      },
+      {
+       "id": "p10",
+       "port": "p10",
+       "weight": 947687641443386.9,
+       "domain": "main"
+      },
+      {
+       "id": "p11",
+       "port": "p11",
+       "weight": 563021081397991.6,
+       "domain": "main"
+      },
+      {
+       "id": "p12",
+       "port": "p12",
+       "weight": 563021081397991.8,
+       "domain": "main"
+      },
+      {
+       "id": "p13",
+       "port": "p13",
+       "weight": 583469449519152.8,
+       "domain": "main"
+      },
+      {
+       "id": "p14",
+       "port": "p14",
+       "weight": 542205697785125.06,
+       "domain": "main"
+      },
+      {
+       "id": "p15",
+       "port": "p15",
+       "weight": 561986469407343.94,
+       "domain": "main"
+      },
+      {
+       "id": "p16",
+       "port": "p16",
+       "weight": 591659354992051.8,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -1581,11 +2174,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 30,
        "machineryId": 30,
-       "ratedInputW": 1276191191339770400,
+       "ratedInputW": 1288856085421920500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 638095595.6698852,
+       "ratedThrustN": 644428042.7109603,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryLengthM": 0.3,
@@ -1594,9 +2187,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.25,
        "maxInputW": 3125157725781802500,
        "maxRatedInputW": 3125157725781802500,
-       "inputDensityWPerM3": 13884259391963150000,
+       "inputDensityWPerM3": 14022046485152305000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 10219.356817854536,
+       "cost": 10428.245468763047,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -1611,7 +2204,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 11,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 47,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -1621,11 +2214,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 31,
        "machineryId": 31,
-       "ratedInputW": 1276191191339770400,
+       "ratedInputW": 1288856085421920500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 638095595.6698852,
+       "ratedThrustN": 644428042.7109603,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryLengthM": 0.3,
@@ -1634,9 +2227,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.25,
        "maxInputW": 3125157725781802500,
        "maxRatedInputW": 3125157725781802500,
-       "inputDensityWPerM3": 13884259391963150000,
+       "inputDensityWPerM3": 14022046485152305000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 10219.356817854536,
+       "cost": 10428.245468763047,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -1651,30 +2244,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 12,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 48,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 3125157725781802500
       }
      ],
-     "massKg": 36647.503482646614,
-     "ratedThrustN": 1276191191.3397703,
-     "ratedAccelMps2": 34823.41415,
-     "structuralAccelerationLimitMps2": 225035.3079659832,
+     "massKg": 37011.19252323284,
+     "ratedThrustN": 1288856085.4219205,
+     "ratedAccelMps2": 34823.41414999999,
+     "structuralAccelerationLimitMps2": 222536.13213630876,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34823.41415
+     "accelerationLimitMps2": 34823.41414999999
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p28",
        "n": "右舷反応炉 #28",
        "g": "high",
-       "sh": 0.577886,
+       "sh": 0.5745,
        "st": 38799019977487450000,
        "m": [
         9
@@ -1689,8 +2283,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p29",
        "n": "左舷反応炉 #29",
        "g": "high",
-       "sh": 0.422114,
-       "st": 28340607514094227000,
+       "sh": 0.4255,
+       "st": 28736209710533874000,
        "m": [
         10
        ],
@@ -1705,10 +2299,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷IGP-440a イオン・タービン #30",
        "g": "high",
        "sh": 0.5,
-       "st": 3828573574019311000,
+       "st": 3866568256265762000,
        "m": [
         11,
-        35
+        47
        ],
        "pc": [],
        "sec": 0,
@@ -1721,10 +2315,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "左舷IGP-440a イオン・タービン #31",
        "g": "high",
        "sh": 0.5,
-       "st": 3828573574019311000,
+       "st": 3866568256265762000,
        "m": [
         12,
-        36
+        48
        ],
        "pc": [],
        "sec": 0,
@@ -1751,25 +2345,12 @@ const CRAFT_PRICE_CATALOG={
        "id": "f39",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.326045,
-       "st": 47070000000000000000,
+       "sh": 0.652219,
+       "st": 94158750000000000000,
        "m": [
-        0
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f40",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.326045,
-       "st": 47070000000000000000,
-       "m": [
-        1
+        0,
+        1,
+        4
        ],
        "pc": [],
        "sec": 4,
@@ -1793,27 +2374,12 @@ const CRAFT_PRICE_CATALOG={
        "gen": -1
       },
       {
-       "k": "weapon",
-       "id": "f43",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.000129878,
-       "st": 18750000000000000,
-       "m": [
-        4
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
        "k": "hotel",
        "id": "hotel",
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 2273063026839333600,
+       "st": 11631192386380167000,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -1823,14 +2389,147 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p59",
+       "n": "機体内高エネルギー散逸装置 1 #59",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354792100,
+       "m": 35,
+       "sec": 3,
+       "src": -1,
+       "power": 12568814660321880
+      },
+      {
+       "id": "p60",
+       "n": "機体内高エネルギー散逸装置 2 #60",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354792100,
+       "m": 36,
+       "sec": 4,
+       "src": -1,
+       "power": 12568814660321880
+      },
+      {
+       "id": "p61",
+       "n": "機体内高エネルギー散逸装置 3 #61",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920919399932400,
+       "m": 37,
+       "sec": 3,
+       "src": -1,
+       "power": 12568813790998986
+      },
+      {
+       "id": "p62",
+       "n": "機体内高エネルギー散逸装置 4 #62",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920919399932500,
+       "m": 38,
+       "sec": 3,
+       "src": -1,
+       "power": 12568813790998988
+      },
+      {
+       "id": "p63",
+       "n": "機体内高エネルギー散逸装置 5 #63",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261500,
+       "m": 39,
+       "sec": 3,
+       "src": -1,
+       "power": 12568818137613922
+      },
+      {
+       "id": "p64",
+       "n": "機体内高エネルギー散逸装置 6 #64",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354791600,
+       "m": 40,
+       "sec": 3,
+       "src": -1,
+       "power": 12568814660321872
+      },
+      {
+       "id": "p65",
+       "n": "機体内高エネルギー散逸装置 7 #65",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261500,
+       "m": 41,
+       "sec": 3,
+       "src": -1,
+       "power": 12568818137613922
+      },
+      {
+       "id": "p66",
+       "n": "機体内高エネルギー散逸装置 8 #66",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920919399932500,
+       "m": 42,
+       "sec": 3,
+       "src": -1,
+       "power": 12568813790998988
+      },
+      {
+       "id": "p67",
+       "n": "機体内高エネルギー散逸装置 9 #67",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261400,
+       "m": 43,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613920
+      },
+      {
+       "id": "p68",
+       "n": "機体内高エネルギー散逸装置 10 #68",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261200,
+       "m": 44,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613918
+      },
+      {
+       "id": "p69",
+       "n": "機体内高エネルギー散逸装置 11 #69",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921093264526500,
+       "m": 45,
+       "sec": 4,
+       "src": -1,
+       "power": 12568816398967896
+      },
+      {
+       "id": "p70",
+       "n": "機体内高エネルギー散逸装置 12 #70",
+       "k": "hdis",
+       "g": "high",
+       "cap": 828836722340435700,
+       "m": 46,
+       "sec": 4,
+       "src": -1,
+       "power": 12432550835106536
+      },
+      {
        "id": "p9",
        "n": "右舷主翼（内翼） #9",
        "k": "wing",
        "g": "high",
        "cap": 92624674457815180,
-       "m": 37,
+       "m": 49,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 926246744578151.9
       },
       {
        "id": "p10",
@@ -1838,9 +2537,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 94768764144338690,
-       "m": 38,
+       "m": 50,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 947687641443386.9
       },
       {
        "id": "p11",
@@ -1848,9 +2548,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 56302108139799160,
-       "m": 39,
+       "m": 51,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 563021081397991.6
       },
       {
        "id": "p12",
@@ -1858,9 +2559,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 56302108139799170,
-       "m": 40,
+       "m": 52,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 563021081397991.8
       },
       {
        "id": "p13",
@@ -1868,9 +2570,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 58346944951915280,
-       "m": 41,
+       "m": 53,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 583469449519152.8
       },
       {
        "id": "p14",
@@ -1878,9 +2581,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 54220569778512504,
-       "m": 42,
+       "m": 54,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 542205697785125.06
       },
       {
        "id": "p15",
@@ -1888,9 +2592,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 56198646940734390,
-       "m": 43,
+       "m": 55,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 561986469407343.94
       },
       {
        "id": "p16",
@@ -1898,9 +2603,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 59165935499205170,
-       "m": 44,
+       "m": 56,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 591659354992051.8
       },
       {
        "id": "skin",
@@ -1911,280 +2617,972 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p28",
-       "n": "右舷反応炉 #28（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 559496895763180700,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p29",
-       "n": "左舷反応炉 #29（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 559496895763180700,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p32",
-       "n": "シールド（艦尾区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 5803219971132162000,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:f39",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 784500000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 5
-      },
-      {
-       "id": "int:f40",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 784500000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 6
-      },
-      {
-       "id": "int:f41",
-       "n": "武装（艦尾区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 836800000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 7
-      },
-      {
-       "id": "int:f43",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 312500000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 8
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 9,
-       "cap": 559496895763180700,
-       "sec": -1
+       "d": 0,
+       "cap": 71740679152638080,
+       "sec": 3
       },
       {
        "s": 0,
-       "d": 0,
-       "cap": 896992043644771100,
+       "d": 1,
+       "cap": 71740679152638080,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 71740674190689280,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 71740674190689280,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 71740699000435940,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 71740679152638040,
        "sec": 3
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 896992043644771100,
+       "cap": 71740699000435940,
        "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 71740674190689280,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 8,
+       "cap": 71740699000435930,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 71740699000435910,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 10,
+       "cap": 71740689076536984,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 11,
+       "cap": 70962908167141280,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 12,
+       "cap": 7930290840638623,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 13,
+       "cap": 8113862387875629,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 14,
+       "cap": 4820444391338121,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 15,
+       "cap": 4820444391338122,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 16,
+       "cap": 4995518157984509,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 17,
+       "cap": 4642228330687161,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 18,
+       "cap": 4811586304612230,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 19,
+       "cap": 5065638061495756,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 42111888504329224,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 42111888504329224,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 42111885591657680,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 42111885591657690,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 42111900155016960,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 42111888504329210,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 42111900155016960,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 42111885591657690,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 42111900155016950,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 9,
+       "cap": 42111900155016940,
+       "sec": 4
       },
       {
        "s": 1,
        "d": 10,
-       "cap": 559496895763180700,
-       "sec": -1
+       "cap": 42111894329673070,
+       "sec": 4
       },
       {
        "s": 1,
-       "d": 1,
-       "cap": 896992043644771100,
+       "d": 11,
+       "cap": 41655335745002030,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 12,
+       "cap": 4655092865476400,
        "sec": 3
       },
       {
        "s": 1,
-       "d": 7,
-       "cap": 896992043644771100,
+       "d": 13,
+       "cap": 4762849644769835,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 14,
+       "cap": 2829608238269450.5,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 15,
+       "cap": 2829608238269451,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 16,
+       "cap": 2932376807345291.5,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 17,
+       "cap": 2724995137801777.5,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 18,
+       "cap": 2824408527798787.5,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 19,
+       "cap": 2973537298066563.5,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 95714339350482780,
-       "sec": 1
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 95714339350482780,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 8,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 10,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 12,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 13,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 14,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 15,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 16,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 17,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 18,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 19,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 0,
        "sec": 2
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 95714339350482780,
-       "sec": 1
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 0,
+       "sec": 3
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 95714339350482780,
+       "cap": 0,
        "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 11,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 13,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 14,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 15,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 16,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 17,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 18,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 19,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 551846409697192500,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 551846409697192500,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 551846371528699140,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 551846371528699260,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 551846562371186050,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 551846409697192100,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 551846562371186050,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 551846371528699260,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 8,
+       "cap": 551846562371185900,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 551846562371185800,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 10,
+       "cap": 551846486034189000,
+       "sec": 4
       },
       {
        "s": 4,
        "d": 11,
-       "cap": 5803219971132162000,
-       "sec": -1
+       "cap": 545863609827123500,
+       "sec": 4
       },
       {
        "s": 4,
+       "d": 12,
+       "cap": 61001688023468160,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 13,
+       "cap": 62413764135122520,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 14,
+       "cap": 37080007632003170,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 15,
+       "cap": 37080007632003176,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 16,
+       "cap": 38426716789166480,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 17,
+       "cap": 35709127200116516,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 18,
+       "cap": 37011869116809170,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 19,
+       "cap": 38966095806176690,
+       "sec": 2
+      },
+      {
+       "s": 5,
        "d": 0,
-       "cap": 8704829956698243000,
-       "sec": 1
+       "cap": 149230853409985730,
+       "sec": 4
       },
       {
-       "s": 4,
+       "s": 5,
        "d": 1,
-       "cap": 8704829956698243000,
-       "sec": 1
+       "cap": 149230853409985730,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 149230843088423940,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 149230843088423940,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 149230894696238500,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 149230853409985660,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 149230894696238500,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 7,
+       "cap": 149230843088423940,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 149230894696238460,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 9,
+       "cap": 149230894696238460,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 149230874053112060,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 147612978735614940,
+       "sec": 4
       },
       {
        "s": 5,
        "d": 12,
-       "cap": 784500000000000000,
-       "sec": -1
+       "cap": 16496136974392956,
+       "sec": 3
       },
       {
        "s": 5,
+       "d": 13,
+       "cap": 16877991996948350,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 14,
+       "cap": 10027212438346628,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 15,
+       "cap": 10027212438346628,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 16,
+       "cap": 10391390864240166,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 17,
+       "cap": 9656497592370282,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 18,
+       "cap": 10008786353490754,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 19,
+       "cap": 10537250272955066,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 79573939628643790,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 79573939628643790,
+       "sec": 3
+      },
+      {
+       "s": 6,
        "d": 2,
-       "cap": 1176750000000000000,
-       "sec": 4
+       "cap": 79573934124907000,
+       "sec": 0
       },
       {
-       "s": 5,
+       "s": 6,
+       "d": 3,
+       "cap": 79573934124907020,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 79573961643593860,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 79573939628643740,
+       "sec": 0
+      },
+      {
+       "s": 6,
        "d": 6,
-       "cap": 1176750000000000000,
-       "sec": 4
+       "cap": 79573961643593860,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 7,
+       "cap": 79573934124907020,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 8,
+       "cap": 79573961643593840,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 79573961643593820,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 10,
+       "cap": 79573950636118800,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 78711244959791380,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 12,
+       "cap": 8796187770231885,
+       "sec": 0
       },
       {
        "s": 6,
        "d": 13,
-       "cap": 784500000000000000,
-       "sec": -1
+       "cap": 8999803227876142,
+       "sec": 0
       },
       {
        "s": 6,
+       "d": 14,
+       "cap": 5346781707536554,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 15,
+       "cap": 5346781707536555,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 16,
+       "cap": 5540971524279690,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 17,
+       "cap": 5149106494274054,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 18,
+       "cap": 5336956419196982,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 19,
+       "cap": 5618747718130582,
+       "sec": 0
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
        "d": 3,
-       "cap": 1176750000000000000,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 290779809659504100,
        "sec": 4
       },
       {
-       "s": 6,
+       "s": 7,
        "d": 7,
-       "cap": 1176750000000000000,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 6,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 9,
+       "cap": 290779809659504100,
        "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 10,
+       "cap": 290779809659504100,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 8,
+       "cap": 290779809659504100,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 11,
+       "cap": 290779809659504100,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 18,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 19,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 13,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 16,
+       "cap": 290779809659504100,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 17,
+       "cap": 290779809659504100,
+       "sec": 3
       },
       {
        "s": 7,
        "d": 14,
-       "cap": 836800000000000000,
-       "sec": -1
+       "cap": 290779809659504100,
+       "sec": 3
       },
       {
        "s": 7,
-       "d": 0,
-       "cap": 1255200000000000000,
-       "sec": 0
-      },
-      {
-       "s": 7,
-       "d": 1,
-       "cap": 1255200000000000000,
-       "sec": 0
-      },
-      {
-       "s": 8,
        "d": 15,
-       "cap": 312500000000000,
-       "sec": -1
-      },
-      {
-       "s": 8,
-       "d": 6,
-       "cap": 468750000000000,
-       "sec": 4
-      },
-      {
-       "s": 8,
-       "d": 7,
-       "cap": 468750000000000,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 6,
-       "cap": 56826575670983340,
+       "cap": 290779809659504100,
        "sec": 3
       },
       {
-       "s": 9,
-       "d": 7,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 0,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 1,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 4,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 5,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 2,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 3,
-       "cap": 56826575670983340,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 8,
+       "s": 7,
+       "d": 20,
        "cap": 967203328522026900000,
        "sec": -1
       }
@@ -2194,15 +3592,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "12n1eet",
-   "build": 159940,
+   "signature": "1o6ms3z",
+   "build": 160004,
    "crew": 1000,
-   "total": 160940,
+   "total": 161004,
    "by": {
     "hull": 9,
     "armor": 3,
-    "power": 22511,
-    "drive": 51615,
+    "power": 22512,
+    "drive": 51678,
     "defense": 25501,
     "command": 14501,
     "weapons": 21800,
@@ -2239,9 +3637,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00279,
-    "upS": 0.00279,
-    "down": 0.0175,
+    "up": 0.00188,
+    "upS": 0.00188,
+    "down": 0.0351,
     "T": 0
    },
    "powerProfile": {
@@ -2302,6 +3700,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        1.906999952428043,
+        -0.7796452211129877,
+        0.7989999999999999
+       ],
+       [
+        1.906999952428043,
+        -0.7796452211129877,
+        0.601
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -2339,6 +3753,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        1.906999952428043,
+        -0.7796452211129877,
+        -0.601
+       ],
+       [
+        1.906999952428043,
+        -0.7796452211129877,
+        -0.7989999999999999
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -2774,6 +4204,57 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.1856634815774367,
+      "hits": 1,
+      "crew": 0.000003999997680738102,
+      "size": 0.07999995361476203,
+      "at": 0.736,
+      "part": 42,
+      "y": -0.15,
+      "z": 0.23,
+      "r": 0.031,
+      "share": 0.3884671387439839,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.18566348157743673,
+      "hits": 1,
+      "crew": 0.000003999997680738102,
+      "size": 0.07999995361476205,
+      "at": 0.777,
+      "part": 43,
+      "y": -0.15,
+      "z": -0.23,
+      "r": 0.031,
+      "share": 0.388467138743984,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 3",
+      "w": 0.128266189149157,
+      "hits": 1,
+      "crew": 0.0000022968799255072524,
+      "size": 0.04593759851014505,
+      "at": 0.594,
+      "part": 44,
+      "y": 0.09,
+      "z": 0.19,
+      "r": 0.026,
+      "share": 0.22306572251203208,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.3110180144543289,
@@ -2815,12 +4296,12 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.21704123706951747,
       "hits": 1,
       "crew": 0,
-      "size": 1.7405098907391292,
+      "size": 1.740509890739129,
       "at": 0.183,
       "y": -0.04,
       "z": 0,
       "r": 0.087,
-      "share": 0.17600325931961702,
+      "share": 0.1811320754716981,
       "domain": "main"
      },
      {
@@ -2829,46 +4310,46 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.33677828050247044,
       "hits": 1,
       "crew": 0,
-      "size": 3.364179997146233,
+      "size": 3.3641799971462336,
       "at": 0.402,
       "y": -0.07,
       "z": 0,
       "r": 0.109,
-      "share": 0.34019148502750046,
+      "share": 0.35010482180293506,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3656125260178779,
+      "w": 0.3537742503674476,
       "hits": 1,
       "crew": 0,
-      "size": 3.8053509069516376,
-      "at": 0.61,
+      "size": 3.622033314292771,
+      "at": 0.605,
       "y": -0.14,
-      "z": 0,
-      "r": 0.113,
-      "share": 0.38480342228559783,
+      "z": -0.01,
+      "r": 0.111,
+      "share": 0.3769392033542977,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.14789628801479346,
+      "w": 0.13799049359338159,
       "hits": 1,
       "crew": 0,
-      "size": 0.9790368135407602,
-      "at": 0.84,
-      "y": -0.13,
-      "z": 0,
-      "r": 0.072,
-      "share": 0.09900183336728458,
+      "size": 0.8823418196108085,
+      "at": 0.846,
+      "y": -0.12,
+      "z": 0.02,
+      "r": 0.07,
+      "share": 0.09182389937106919,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 7.107122331306514,
+      "w": 7.393831780645827,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -2891,9 +4372,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 2.3886074314359576,
     "grid": {
      "P": 7050878085363967000,
-     "fixed": 18380263776155636,
-     "cooling": 0,
-     "De": 1074864859170744800,
+     "fixed": 50735128234255040,
+     "cooling": 32354864458099400,
+     "De": 1081931755912043100,
      "Ds": 2571398068715677700,
      "Dw": 1673600000000000000,
      "domains": [
@@ -2944,7 +4425,10 @@ const CRAFT_PRICE_CATALOG={
         31,
         32,
         33,
-        34
+        34,
+        35,
+        36,
+        37
        ],
        "protection": 1
       }
@@ -2954,7 +4438,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "hotel",
-       "cap": 18380263776155636,
+       "cap": 50735128234255040,
        "auto": true,
        "ok": true
       },
@@ -2962,7 +4446,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p17",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -2970,7 +4454,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p20",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -2978,7 +4462,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p21",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -2986,7 +4470,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p22",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -2994,7 +4478,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p23",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3002,7 +4486,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p24",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3010,7 +4494,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p29",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3018,7 +4502,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p30",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3026,7 +4510,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p31",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3034,7 +4518,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p32",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3042,7 +4526,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p33",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3050,7 +4534,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p34",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3058,7 +4542,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p35",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3066,7 +4550,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p36",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3074,7 +4558,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p37",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3082,7 +4566,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p38",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3090,7 +4574,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p39",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3098,7 +4582,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p40",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3106,7 +4590,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p41",
-       "cap": 967382304008191.4,
+       "cap": 2306142192466138,
        "auto": true,
        "ok": true
       },
@@ -3114,7 +4598,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p15",
-       "cap": 537432429585372400,
+       "cap": 540965877956021570,
        "auto": false,
        "ok": true
       },
@@ -3122,7 +4606,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p16",
-       "cap": 537432429585372400,
+       "cap": 540965877956021570,
        "auto": false,
        "ok": true
       },
@@ -3173,6 +4657,30 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1500000000000000,
        "auto": false,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p42",
+       "cap": 12568801620487296,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p43",
+       "cap": 12568801620487298,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p44",
+       "cap": 7217261217124810,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -3180,7 +4688,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 16380263776155636,
+       "weight": 16380263776155640,
        "domain": "main"
       },
       {
@@ -3196,7 +4704,26 @@ const CRAFT_PRICE_CATALOG={
        "weight": 1000000000000000
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p42",
+       "port": "p42",
+       "weight": 12568801620487296,
+       "domain": "main"
+      },
+      {
+       "id": "p43",
+       "port": "p43",
+       "weight": 12568801620487298,
+       "domain": "main"
+      },
+      {
+       "id": "p44",
+       "port": "p44",
+       "weight": 7217261217124810,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -3205,11 +4732,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 15,
        "machineryId": 15,
-       "ratedInputW": 537432429585372400,
+       "ratedInputW": 540965877956021570,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 268716214.7926862,
+       "ratedThrustN": 270482938.9780108,
        "effectiveMachineryVolumeM3": 0.0695715259601249,
        "machineryVolumeM3": 0.0695715259601249,
        "machineryLengthM": 0.3,
@@ -3218,9 +4745,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.265,
        "maxInputW": 2365431882644246500,
        "maxRatedInputW": 2365431882644246500,
-       "inputDensityWPerM3": 7724890638354018000,
+       "inputDensityWPerM3": 7775679352873149000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2301.2850479710983,
+       "cost": 2333.020338529516,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 14,
@@ -3235,7 +4762,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 5,
-       "machineryModuleIndex": 28,
+       "machineryModuleIndex": 31,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -3245,11 +4772,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 16,
        "machineryId": 16,
-       "ratedInputW": 537432429585372400,
+       "ratedInputW": 540965877956021570,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 268716214.7926862,
+       "ratedThrustN": 270482938.9780108,
        "effectiveMachineryVolumeM3": 0.0695715259601249,
        "machineryVolumeM3": 0.0695715259601249,
        "machineryLengthM": 0.3,
@@ -3258,9 +4785,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.265,
        "maxInputW": 2365431882644246500,
        "maxRatedInputW": 2365431882644246500,
-       "inputDensityWPerM3": 7724890638354018000,
+       "inputDensityWPerM3": 7775679352873149000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2301.2850479710983,
+       "cost": 2333.020338529516,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -3275,23 +4802,24 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 6,
-       "machineryModuleIndex": 29,
+       "machineryModuleIndex": 32,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 2365431882644246500
       }
      ],
-     "massKg": 10745.65807506516,
-     "ratedThrustN": 537432429.5853724,
-     "ratedAccelMps2": 50013.91499999999,
+     "massKg": 10816.307380776361,
+     "ratedThrustN": 540965877.9560215,
+     "ratedAccelMps2": 50013.915,
      "structuralAccelerationLimitMps2": 629420.3027909993,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 50013.91499999999
+     "accelerationLimitMps2": 50013.915
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
@@ -3299,7 +4827,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "核融合炉 #14",
        "g": "high",
        "sh": 1,
-       "st": 14220672162142642000,
+       "st": 14304260030104769000,
        "m": [
         4
        ],
@@ -3314,10 +4842,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #15",
        "g": "high",
        "sh": 0.5,
-       "st": 1612297288756117500,
+       "st": 1622897633868064800,
        "m": [
         5,
-        28
+        31
        ],
        "pc": [],
        "sec": 1,
@@ -3330,10 +4858,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #16",
        "g": "high",
        "sh": 0.5,
-       "st": 1612297288756117500,
+       "st": 1622897633868064800,
        "m": [
         6,
-        29
+        32
        ],
        "pc": [],
        "sec": 1,
@@ -3394,7 +4922,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1102815826569338100,
+       "st": 3044107694055302000,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3404,6 +4932,39 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p42",
+       "n": "機体内高エネルギー散逸装置 1 #42",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920108032486400,
+       "m": 28,
+       "sec": 4,
+       "src": -1,
+       "power": 12568801620487296
+      },
+      {
+       "id": "p43",
+       "n": "機体内高エネルギー散逸装置 2 #43",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920108032486500,
+       "m": 29,
+       "sec": 4,
+       "src": -1,
+       "power": 12568801620487298
+      },
+      {
+       "id": "p44",
+       "n": "機体内高エネルギー散逸装置 3 #44",
+       "k": "hdis",
+       "g": "high",
+       "cap": 481150747808320700,
+       "m": 30,
+       "sec": 4,
+       "src": -1,
+       "power": 7217261217124810
+      },
+      {
        "id": "skin",
        "n": "外殻からの放熱",
        "k": "skin",
@@ -3412,76 +4973,138 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p14",
-       "n": "核融合炉 #14（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 237011202702377280,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p18",
-       "n": "シールド（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 1157129130922055000,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:f25",
-       "n": "武装（前部区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 522375746001432300,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:f27",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 624253998567677.2,
-       "m": -1,
-       "sec": -1,
-       "src": 5
       }
      ],
      "ln": [
       {
        "s": 0,
+       "d": 0,
+       "cap": 111875407672323060,
+       "sec": 3
+      },
+      {
+       "s": 0,
        "d": 1,
-       "cap": 237011202702377280,
-       "sec": -1
+       "cap": 111875407672323070,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 64241131758127016,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 539407971175924300,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 539407971175924350,
+       "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 1157129130922055000,
-       "sec": -1
+       "cap": 309739014754617540,
+       "sec": 4
       },
       {
        "s": 4,
-       "d": 3,
-       "cap": 522375746001432300,
-       "sec": -1
+       "d": 0,
+       "cap": 243510973678116640,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 243510973678116670,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 139828947845485500,
+       "sec": 3
       },
       {
        "s": 5,
-       "d": 4,
-       "cap": 624253998567677.2,
-       "sec": -1
+       "d": 0,
+       "cap": 291002597607691.94,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 291002597607692,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 167099603065828.75,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 76102692351382560,
+       "sec": 3
       },
       {
        "s": 6,
        "d": 0,
+       "cap": 76102692351382560,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 76102692351382560,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 3,
        "cap": 192854855153675830000,
        "sec": -1
       }
@@ -3491,15 +5114,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "hyf248",
-   "build": 205143,
+   "signature": "uz51u3",
+   "build": 205224,
    "crew": 2000,
-   "total": 207143,
+   "total": 207224,
    "by": {
-    "hull": 60,
+    "hull": 59,
     "armor": 21,
-    "power": 63452,
-    "drive": 52402,
+    "power": 63455,
+    "drive": 52481,
     "defense": 15004,
     "command": 20503,
     "weapons": 36700,
@@ -3536,9 +5159,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000901,
-    "upS": 0.000901,
-    "down": 0.0137,
+    "up": 0.000833,
+    "upS": 0.000833,
+    "down": 0.0324,
     "T": 0
    },
    "powerProfile": {
@@ -4119,6 +5742,210 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.842,
+      "part": 41,
+      "y": 0.02,
+      "z": -0.17,
+      "r": 0.009,
+      "share": 0.008397666102008063,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.842,
+      "part": 42,
+      "y": 0.02,
+      "z": 0.17,
+      "r": 0.009,
+      "share": 0.008397666102008063,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 3",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.818,
+      "part": 43,
+      "y": 0.02,
+      "z": -0.17,
+      "r": 0.009,
+      "share": 0.008397666102008063,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 4",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.818,
+      "part": 44,
+      "y": 0.02,
+      "z": 0.17,
+      "r": 0.009,
+      "share": 0.008397666102008063,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 5",
+      "w": 0.18566360999173018,
+      "hits": 1,
+      "crew": 0.0000040000018306411445,
+      "size": 0.0800000366128229,
+      "at": 0.512,
+      "part": 45,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.008397663778707877,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 6",
+      "w": 0.18566363567460437,
+      "hits": 1,
+      "crew": 0.0000040000026606224275,
+      "size": 0.08000005321244855,
+      "at": 0.512,
+      "part": 46,
+      "y": -0.28,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.008397665521183019,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 7",
+      "w": 0.18566360143077287,
+      "hits": 1,
+      "crew": 0.0000040000015539807556,
+      "size": 0.0800000310796151,
+      "at": 0.512,
+      "part": 47,
+      "y": 0.06,
+      "z": -0.11,
+      "r": 0.009,
+      "share": 0.008397663197882911,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 8",
+      "w": 0.18566360143077287,
+      "hits": 1,
+      "crew": 0.0000040000015539807556,
+      "size": 0.0800000310796151,
+      "at": 0.512,
+      "part": 48,
+      "y": 0.06,
+      "z": 0.11,
+      "r": 0.009,
+      "share": 0.008397663197882911,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 9",
+      "w": 0.18566360999173007,
+      "hits": 1,
+      "crew": 0.000004000001830641142,
+      "size": 0.08000003661282284,
+      "at": 0.512,
+      "part": 49,
+      "y": 0.41,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.008397663778707872,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 10",
+      "w": 0.18566364423556203,
+      "hits": 1,
+      "crew": 0.0000040000029372828546,
+      "size": 0.08000005874565709,
+      "at": 0.536,
+      "part": 50,
+      "y": 0.24,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.008397666102008065,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 11",
+      "w": 0.18566362711364587,
+      "hits": 1,
+      "crew": 0.000004000002383961979,
+      "size": 0.08000004767923959,
+      "at": 0.512,
+      "part": 51,
+      "y": -0.28,
+      "z": -0.11,
+      "r": 0.009,
+      "share": 0.008397664940357928,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 12",
+      "w": 0.05511466033187358,
+      "hits": 1,
+      "crew": 6.469499850699869e-7,
+      "size": 0.012938999701399737,
+      "at": 0.846,
+      "part": 52,
+      "y": 0.37,
+      "z": 0,
+      "r": 0.005,
+      "share": 0.001358216492462709,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.6095904953956194,
@@ -4167,10 +5994,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0.51,
       "r": 0.035,
-      "share": 0.5,
+      "share": 0.45313373429138715,
       "domain": "main",
       "port": "p3",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -4185,10 +6012,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": -0.51,
       "r": 0.035,
-      "share": 0.5000000000000001,
+      "share": 0.45313373429138726,
       "domain": "main",
       "port": "p4",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
@@ -4201,55 +6028,55 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.06,
       "z": 0,
       "r": 0.063,
-      "share": 0.18376529877609793,
+      "share": 0.18489677653024264,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 2.282337953203085,
+      "w": 2.2823379532030854,
       "hits": 1,
       "crew": 0,
-      "size": 59.35168317544424,
+      "size": 59.35168317544425,
       "at": 0.393,
       "y": -0.03,
       "z": 0,
       "r": 0.083,
-      "share": 0.4243160547156227,
+      "share": 0.4269286490402028,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.9210526757102766,
+      "w": 1.902718144826806,
       "hits": 1,
       "crew": 0,
-      "size": 45.832339012045075,
-      "at": 0.594,
+      "size": 45.177771138211966,
+      "at": 0.595,
       "y": 0,
       "z": 0,
       "r": 0.076,
-      "share": 0.3276637868970483,
+      "share": 0.3249728359290112,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.6484218317520754,
+      "w": 0.6386983133234998,
       "hits": 1,
       "crew": 0,
-      "size": 8.987720421477666,
-      "at": 0.82,
+      "size": 8.786314921836711,
+      "at": 0.819,
       "y": 0.12,
       "z": 0,
       "r": 0.044,
-      "share": 0.06425485961123112,
+      "share": 0.06320173850054328,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 26.141147119471533,
+      "w": 27.382761030170066,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -4272,9 +6099,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 3.2699700689315803,
     "grid": {
      "P": 22747682592261005000,
-     "fixed": 56684741446013420,
-     "cooling": 0,
-     "De": 2884971583390906000,
+     "fixed": 199145528129185150,
+     "cooling": 142460786683171740,
+     "De": 2904102349518203400,
      "Ds": 13917548652758966000,
      "Dw": 3015480000000000000,
      "domains": [
@@ -4341,7 +6168,19 @@ const CRAFT_PRICE_CATALOG={
         37,
         38,
         39,
-        40
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52
        ],
        "protection": 1
       }
@@ -4351,7 +6190,23 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "hotel",
-       "cap": 56684741446013420,
+       "cap": 199145528129185150,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p3",
+       "cap": 1085478870672318,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p4",
+       "cap": 1085478870672318,
        "auto": true,
        "ok": true
       },
@@ -4359,7 +6214,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p9",
-       "cap": 2895164146190124.5,
+       "cap": 6359777164680762,
        "auto": true,
        "ok": true
       },
@@ -4367,7 +6222,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p10",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4375,7 +6230,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p17",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4383,7 +6238,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p18",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4391,7 +6246,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p19",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4399,7 +6254,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p20",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4407,7 +6262,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p27",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4415,7 +6270,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p28",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4423,7 +6278,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p29",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4431,7 +6286,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p30",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4439,7 +6294,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p31",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4447,7 +6302,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p32",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4455,7 +6310,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p33",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4463,7 +6318,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p34",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4471,7 +6326,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p35",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4479,7 +6334,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p36",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4487,7 +6342,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p37",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4495,7 +6350,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p38",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4503,7 +6358,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p39",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4511,7 +6366,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p40",
-       "cap": 2831030384201226.5,
+       "cap": 6218895192403367,
        "auto": true,
        "ok": true
       },
@@ -4519,7 +6374,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p11",
        "to": "p13",
-       "cap": 1442485791695453000,
+       "cap": 1452051174759101700,
        "auto": false,
        "ok": true
       },
@@ -4527,7 +6382,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p11",
        "to": "p14",
-       "cap": 1442485791695453000,
+       "cap": 1452051174759101700,
        "auto": false,
        "ok": true
       },
@@ -4591,7 +6446,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p13",
-       "cap": 1442485791695453000,
+       "cap": 1452051174759101700,
        "auto": false,
        "ok": true
       },
@@ -4599,7 +6454,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p14",
-       "cap": 1442485791695453000,
+       "cap": 1452051174759101700,
        "auto": false,
        "ok": true
       },
@@ -4663,7 +6518,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p13",
-       "cap": 1442485791695453000,
+       "cap": 1452051174759101700,
        "auto": false,
        "ok": true
       },
@@ -4671,7 +6526,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p14",
-       "cap": 1442485791695453000,
+       "cap": 1452051174759101700,
        "auto": false,
        "ok": true
       },
@@ -4728,6 +6583,294 @@ const CRAFT_PRICE_CATALOG={
        "from": "p15",
        "to": "f26",
        "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p41",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p42",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p43",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p44",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p45",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p46",
+       "cap": 12568817268290914,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p47",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p48",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p49",
+       "cap": 12568814660321870,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p50",
+       "cap": 12568818137613924,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p51",
+       "cap": 12568816398967836,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p52",
+       "cap": 2032847683857015,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p41",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p42",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p43",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p44",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p45",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p46",
+       "cap": 12568817268290914,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p47",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p48",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p49",
+       "cap": 12568814660321870,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p50",
+       "cap": 12568818137613924,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p51",
+       "cap": 12568816398967836,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p52",
+       "cap": 2032847683857015,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p41",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p42",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p43",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p44",
+       "cap": 12568818137613922,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p45",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p46",
+       "cap": 12568817268290914,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p47",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p48",
+       "cap": 12568813790998988,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p49",
+       "cap": 12568814660321870,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p50",
+       "cap": 12568818137613924,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p51",
+       "cap": 12568816398967836,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p52",
+       "cap": 2032847683857015,
        "auto": false,
        "ok": true
       }
@@ -4737,11 +6880,96 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 56684741446013420,
+       "weight": 199145528129185150,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p41",
+       "port": "p41",
+       "weight": 12568818137613922,
+       "domain": "main"
+      },
+      {
+       "id": "p42",
+       "port": "p42",
+       "weight": 12568818137613922,
+       "domain": "main"
+      },
+      {
+       "id": "p43",
+       "port": "p43",
+       "weight": 12568818137613922,
+       "domain": "main"
+      },
+      {
+       "id": "p44",
+       "port": "p44",
+       "weight": 12568818137613922,
+       "domain": "main"
+      },
+      {
+       "id": "p45",
+       "port": "p45",
+       "weight": 12568814660321880,
+       "domain": "main"
+      },
+      {
+       "id": "p46",
+       "port": "p46",
+       "weight": 12568817268290914,
+       "domain": "main"
+      },
+      {
+       "id": "p47",
+       "port": "p47",
+       "weight": 12568813790998988,
+       "domain": "main"
+      },
+      {
+       "id": "p48",
+       "port": "p48",
+       "weight": 12568813790998988,
+       "domain": "main"
+      },
+      {
+       "id": "p49",
+       "port": "p49",
+       "weight": 12568814660321870,
+       "domain": "main"
+      },
+      {
+       "id": "p50",
+       "port": "p50",
+       "weight": 12568818137613924,
+       "domain": "main"
+      },
+      {
+       "id": "p51",
+       "port": "p51",
+       "weight": 12568816398967836,
+       "domain": "main"
+      },
+      {
+       "id": "p52",
+       "port": "p52",
+       "weight": 2032847683857015,
+       "domain": "main"
+      },
+      {
+       "id": "p3",
+       "port": "p3",
+       "weight": 1085478870672318,
+       "domain": "main"
+      },
+      {
+       "id": "p4",
+       "port": "p4",
+       "weight": 1085478870672318,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -4750,11 +6978,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 13,
        "machineryId": 13,
-       "ratedInputW": 1442485791695453000,
+       "ratedInputW": 1452051174759101700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 721242895.8477265,
+       "ratedThrustN": 726025587.3795508,
        "effectiveMachineryVolumeM3": 0.38903924253810795,
        "machineryVolumeM3": 0.38903924253810795,
        "machineryLengthM": 0.4959999999999999,
@@ -4763,9 +6991,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.1,
        "maxInputW": 13227334246295670000,
        "maxRatedInputW": 13227334246295670000,
-       "inputDensityWPerM3": 3707815649353562600,
+       "inputDensityWPerM3": 3732402842669187600,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2682.0591594970097,
+       "cost": 2721.282566684607,
        "powerNode": "p13",
        "heatNode": "p13",
        "reactorId": 11,
@@ -4780,7 +7008,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 44,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -4790,11 +7018,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 14,
        "machineryId": 14,
-       "ratedInputW": 1442485791695453000,
+       "ratedInputW": 1452051174759101700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 721242895.8477265,
+       "ratedThrustN": 726025587.3795508,
        "effectiveMachineryVolumeM3": 0.38903924253810795,
        "machineryVolumeM3": 0.38903924253810795,
        "machineryLengthM": 0.4959999999999999,
@@ -4803,9 +7031,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.1,
        "maxInputW": 13227334246295670000,
        "maxRatedInputW": 13227334246295670000,
-       "inputDensityWPerM3": 3707815649353562600,
+       "inputDensityWPerM3": 3732402842669187600,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2682.0591594970097,
+       "cost": 2721.282566684607,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -4820,30 +7048,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 11,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 45,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 13227334246295670000
       }
      ],
-     "massKg": 49030.871626071865,
-     "ratedThrustN": 1442485791.695453,
-     "ratedAccelMps2": 29419.95,
-     "structuralAccelerationLimitMps2": 186860.72390628685,
+     "massKg": 49356.00416585011,
+     "ratedThrustN": 1452051174.7591016,
+     "ratedAccelMps2": 29419.949999999997,
+     "structuralAccelerationLimitMps2": 186860.72390628682,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 29419.95
+     "accelerationLimitMps2": 29419.949999999997
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p11",
        "n": "ナセル反応炉 #11",
        "g": "high",
-       "sh": 0.324377,
+       "sh": 0.32245,
        "st": 19430111698984473000,
        "m": [
         8
@@ -4858,7 +7087,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p12",
        "n": "ナセル反応炉 #12",
        "g": "high",
-       "sh": 0.324377,
+       "sh": 0.32245,
        "st": 19430111698984473000,
        "m": [
         9
@@ -4874,10 +7103,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・ジェット・エンジン #13",
        "g": "high",
        "sh": 0.5,
-       "st": 4327457375086359600,
+       "st": 4356153524277305300,
        "m": [
         10,
-        32
+        44
        ],
        "pc": [],
        "sec": 0,
@@ -4890,10 +7119,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・ジェット・エンジン #14",
        "g": "high",
        "sh": 0.5,
-       "st": 4327457375086359600,
+       "st": 4356153524277305300,
        "m": [
         11,
-        33
+        45
        ],
        "pc": [],
        "sec": 0,
@@ -4905,8 +7134,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p15",
        "n": "主反応炉 #15",
        "g": "high",
-       "sh": 0.351246,
-       "st": 21039523261482127000,
+       "sh": 0.3551,
+       "st": 21397498993068667000,
        "m": [
         12
        ],
@@ -4970,7 +7199,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 3401084486760805400,
+       "st": 11948731687751109000,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -4980,14 +7209,147 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p41",
+       "n": "機体内高エネルギー散逸装置 1 #41",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261500,
+       "m": 32,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613922
+      },
+      {
+       "id": "p42",
+       "n": "機体内高エネルギー散逸装置 2 #42",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261500,
+       "m": 33,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613922
+      },
+      {
+       "id": "p43",
+       "n": "機体内高エネルギー散逸装置 3 #43",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261500,
+       "m": 34,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613922
+      },
+      {
+       "id": "p44",
+       "n": "機体内高エネルギー散逸装置 4 #44",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261500,
+       "m": 35,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613922
+      },
+      {
+       "id": "p45",
+       "n": "機体内高エネルギー散逸装置 5 #45",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354792100,
+       "m": 36,
+       "sec": 4,
+       "src": -1,
+       "power": 12568814660321880
+      },
+      {
+       "id": "p46",
+       "n": "機体内高エネルギー散逸装置 6 #46",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921151219394300,
+       "m": 37,
+       "sec": 4,
+       "src": -1,
+       "power": 12568817268290914
+      },
+      {
+       "id": "p47",
+       "n": "機体内高エネルギー散逸装置 7 #47",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920919399932500,
+       "m": 38,
+       "sec": 4,
+       "src": -1,
+       "power": 12568813790998988
+      },
+      {
+       "id": "p48",
+       "n": "機体内高エネルギー散逸装置 8 #48",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920919399932500,
+       "m": 39,
+       "sec": 4,
+       "src": -1,
+       "power": 12568813790998988
+      },
+      {
+       "id": "p49",
+       "n": "機体内高エネルギー散逸装置 9 #49",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354791400,
+       "m": 40,
+       "sec": 4,
+       "src": -1,
+       "power": 12568814660321870
+      },
+      {
+       "id": "p50",
+       "n": "機体内高エネルギー散逸装置 10 #50",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261600,
+       "m": 41,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613924
+      },
+      {
+       "id": "p51",
+       "n": "機体内高エネルギー散逸装置 11 #51",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921093264522500,
+       "m": 42,
+       "sec": 4,
+       "src": -1,
+       "power": 12568816398967836
+      },
+      {
+       "id": "p52",
+       "n": "機体内高エネルギー散逸装置 12 #52",
+       "k": "hdis",
+       "g": "high",
+       "cap": 135523178923801010,
+       "m": 43,
+       "sec": 4,
+       "src": -1,
+       "power": 2032847683857015
+      },
+      {
        "id": "p3",
        "n": "主翼（ナセル支持） #3",
        "k": "wing",
        "g": "high",
        "cap": 108547887067231790,
-       "m": 34,
+       "m": 46,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 1085478870672318
       },
       {
        "id": "p4",
@@ -4995,9 +7357,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 108547887067231790,
-       "m": 35,
+       "m": 47,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 1085478870672318
       },
       {
        "id": "skin",
@@ -5008,216 +7371,768 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p11",
-       "n": "ナセル反応炉 #11（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 296087030883779800,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p12",
-       "n": "ナセル反応炉 #12（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 296087030883779800,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p15",
-       "n": "主反応炉 #15（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 406155049223291840,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:p16",
-       "n": "シールド（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 6262896893741534000,
-       "m": -1,
-       "sec": -1,
-       "src": 5
-      },
-      {
-       "id": "int:f21",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 942025000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 6
-      },
-      {
-       "id": "int:f26",
-       "n": "武装（前部区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 312500000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 7
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 3,
-       "cap": 296087030883779800,
-       "sec": -1
-      },
-      {
-       "s": 0,
        "d": 0,
-       "cap": 457545629238607100,
-       "sec": 0
+       "cap": 39696720212369280,
+       "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 457545629238607100,
+       "cap": 39696720212369280,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 39696720212369280,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 39696720212369280,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 39696709229865780,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 39696717466743416,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 6,
+       "cap": 39696706484240270,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 39696706484240270,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 8,
+       "cap": 39696709229865740,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 39696720212369290,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 10,
+       "cap": 39696714721117330,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 11,
+       "cap": 6420443422515344,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 12,
+       "cap": 5142482437934832,
        "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 13,
+       "cap": 5142482437934832,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 39696720212369280,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 39696720212369280,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 39696720212369280,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 39696720212369280,
+       "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 296087030883779800,
-       "sec": -1
+       "cap": 39696709229865780,
+       "sec": 2
       },
       {
        "s": 1,
-       "d": 1,
-       "cap": 457545629238607100,
+       "d": 5,
+       "cap": 39696717466743416,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 39696706484240270,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 39696706484240270,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 39696709229865740,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 9,
+       "cap": 39696720212369290,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 10,
+       "cap": 39696714721117330,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 11,
+       "cap": 6420443422515344,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 12,
+       "cap": 5142482437934832,
        "sec": 0
       },
       {
        "s": 1,
-       "d": 0,
-       "cap": 457545629238607100,
+       "d": 13,
+       "cap": 5142482437934832,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 108186434377158980,
-       "sec": 0
+       "cap": 0,
+       "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 108186434377158980,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
        "sec": 0
       },
       {
-       "s": 3,
-       "d": 1,
-       "cap": 108186434377158980,
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 8,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 10,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 13,
+       "cap": 0,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 108186434377158980,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 0,
        "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 7,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 9,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 11,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 13,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 33199097130900224,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 33199097130900224,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 33199097130900224,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 33199097130900224,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 33199087946030576,
+       "sec": 3
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 406155049223291840,
-       "sec": -1
+       "cap": 33199094834682816,
+       "sec": 3
       },
       {
        "s": 4,
+       "d": 6,
+       "cap": 33199085649813470,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 33199085649813470,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 8,
+       "cap": 33199087946030550,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 33199097130900228,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 10,
+       "cap": 33199092538465230,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 5369534905332533,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 12,
+       "cap": 4300752632398831,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 13,
+       "cap": 4300752632398831,
+       "sec": 3
+      },
+      {
+       "s": 5,
        "d": 0,
-       "cap": 627634608009062900,
-       "sec": 3
+       "cap": 658050239914080400,
+       "sec": 4
       },
       {
-       "s": 4,
+       "s": 5,
        "d": 1,
-       "cap": 627634608009062900,
-       "sec": 3
+       "cap": 658050239914080400,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 658050239914080400,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 658050239914080400,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 658050057857753500,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 658050194399998700,
+       "sec": 4
       },
       {
        "s": 5,
        "d": 6,
-       "cap": 6262896893741534000,
-       "sec": -1
+       "cap": 658050012343678000,
+       "sec": 4
       },
       {
        "s": 5,
+       "d": 7,
+       "cap": 658050012343678000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 658050057857753000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 9,
+       "cap": 658050239914080400,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 658050148885913500,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 106431320067206000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 12,
+       "cap": 85246634581728510,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 13,
+       "cap": 85246634581728510,
+       "sec": 3
+      },
+      {
+       "s": 6,
        "d": 0,
-       "cap": 9394345340612300000,
-       "sec": 3
+       "cap": 98979719412996060,
+       "sec": 4
       },
       {
-       "s": 5,
+       "s": 6,
        "d": 1,
-       "cap": 9394345340612300000,
-       "sec": 3
+       "cap": 98979719412996060,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 98979719412996060,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 98979719412996060,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 98979692029244690,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 98979712567058220,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 6,
+       "cap": 98979685183307760,
+       "sec": 4
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 942025000000000000,
-       "sec": -1
+       "cap": 98979685183307760,
+       "sec": 4
       },
       {
        "s": 6,
+       "d": 8,
+       "cap": 98979692029244620,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 98979719412996060,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 10,
+       "cap": 98979705721119840,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 16008720243582444,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 12,
+       "cap": 12822254989077094,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 13,
+       "cap": 12822254989077094,
+       "sec": 4
+      },
+      {
+       "s": 7,
        "d": 0,
-       "cap": 1413037500000000000,
+       "cap": 32834757375400.082,
        "sec": 4
       },
       {
-       "s": 6,
+       "s": 7,
        "d": 1,
-       "cap": 1413037500000000000,
+       "cap": 32834757375400.082,
        "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 32834757375400.082,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 32834757375400.082,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 32834748291328.75,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 32834755104382.254,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 6,
+       "cap": 32834746020311.227,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 7,
+       "cap": 32834746020311.227,
+       "sec": 3
       },
       {
        "s": 7,
        "d": 8,
-       "cap": 312500000000000,
-       "sec": -1
-      },
-      {
-       "s": 7,
-       "d": 0,
-       "cap": 468750000000000,
+       "cap": 32834748291328.723,
        "sec": 3
       },
       {
        "s": 7,
-       "d": 1,
-       "cap": 468750000000000,
+       "d": 9,
+       "cap": 32834757375400.086,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 10,
+       "cap": 32834752833364.25,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 11,
+       "cap": 5310607548758.807,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 4253554506607.1406,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 13,
+       "cap": 4253554506607.1406,
        "sec": 3
       },
       {
        "s": 8,
-       "d": 0,
-       "cap": 85027112169020130,
+       "d": 5,
+       "cap": 298718292193777700,
        "sec": 3
       },
       {
        "s": 8,
-       "d": 1,
-       "cap": 85027112169020130,
+       "d": 10,
+       "cap": 298718292193777700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 4,
+       "cap": 298718292193777700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 6,
+       "cap": 298718292193777700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 7,
+       "cap": 298718292193777700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 9,
+       "cap": 298718292193777700,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 8,
+       "cap": 298718292193777700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 12,
+       "cap": 298718292193777700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 13,
+       "cap": 298718292193777700,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
+       "cap": 298718292193777700,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 3,
+       "cap": 298718292193777700,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 298718292193777700,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 298718292193777700,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 11,
+       "cap": 298718292193777700,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 14,
        "cap": 1.0438161489569224e+21,
        "sec": -1
       }
@@ -5227,15 +8142,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "qfla7o",
-   "build": 186068,
+   "signature": "15xcbxp",
+   "build": 186079,
    "crew": 0,
-   "total": 186068,
+   "total": 186079,
    "by": {
     "hull": 20,
     "armor": 11,
-    "power": 61974,
-    "drive": 44462,
+    "power": 61975,
+    "drive": 44472,
     "command": 13501,
     "weapons": 49100,
     "systems": 17000
@@ -5270,9 +8185,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00489,
-    "upS": 0.00489,
-    "down": 0.0394,
+    "up": 0.00547,
+    "upS": 0.00547,
+    "down": 0.0531,
     "T": 0
    },
    "powerProfile": {
@@ -5421,6 +8336,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        4.301999961853028,
+        0.4486473159793487,
+        0.351
+       ],
+       [
+        4.301999961853028,
+        0.4486473159793487,
+        0.549
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -5458,6 +8389,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        4.301999961853028,
+        0.4486473159793487,
+        -0.549
+       ],
+       [
+        4.301999961853028,
+        0.4486473159793487,
+        -0.351
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -5915,6 +8862,40 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.1856636613574791,
+      "hits": 1,
+      "crew": 0.000004000003490603784,
+      "size": 0.08000006981207568,
+      "at": 0.34,
+      "part": 46,
+      "y": 0.08,
+      "z": -0.23,
+      "r": 0.017,
+      "share": 0.007515343684581375,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.0978657981107792,
+      "hits": 1,
+      "crew": 0.0000015307928237795707,
+      "size": 0.030615856475591414,
+      "at": 0.474,
+      "part": 47,
+      "y": 0.13,
+      "z": -0.36,
+      "r": 0.013,
+      "share": 0.002876106035311919,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.16432291863915185,
@@ -5999,10 +8980,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.64,
       "z": 0.84,
       "r": 0.053,
-      "share": 0.2158152389897356,
+      "share": 0.21357260578498702,
       "domain": "main",
       "port": "p3",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -6017,10 +8998,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.64,
       "z": -0.84,
       "r": 0.053,
-      "share": 0.2158152389897356,
+      "share": 0.21357260578498702,
       "domain": "main",
       "port": "p4",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -6035,10 +9016,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.58,
       "z": 0.84,
       "r": 0.058,
-      "share": 0.2841847610102644,
+      "share": 0.2812316693550664,
       "domain": "main",
       "port": "p5",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -6053,10 +9034,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.58,
       "z": -0.84,
       "r": 0.058,
-      "share": 0.2841847610102644,
+      "share": 0.2812316693550664,
       "domain": "main",
       "port": "p6",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
@@ -6069,21 +9050,21 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.23,
       "z": 0,
       "r": 0.044,
-      "share": 0.04700854700854701,
+      "share": 0.04717655468191566,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.6837957982436479,
+      "w": 0.6793104005844325,
       "hits": 1,
       "crew": 0,
-      "size": 9.733135135055955,
+      "size": 9.637524770271513,
       "at": 0.405,
       "y": 0.1,
       "z": 0.02,
       "r": 0.086,
-      "share": 0.3625356125356125,
+      "share": 0.3602573266619013,
       "domain": "main"
      },
      {
@@ -6092,12 +9073,12 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.7786477666151463,
       "hits": 1,
       "crew": 0,
-      "size": 11.827002123835182,
+      "size": 11.827002123835184,
       "at": 0.602,
       "y": 0.11,
       "z": 0.01,
       "r": 0.092,
-      "share": 0.4405270655270655,
+      "share": 0.4421015010721945,
       "domain": "main"
      },
      {
@@ -6111,13 +9092,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0,
       "r": 0.064,
-      "share": 0.14992877492877493,
+      "share": 0.15046461758398857,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 26.140029472683047,
+      "w": 26.30745590976847,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -6140,9 +9121,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 3.3390000800136477,
     "grid": {
      "P": 6168401077645663000,
-     "fixed": 28573630179670040,
-     "cooling": 0,
-     "De": 1200958422056525000,
+     "fixed": 48955118371414670,
+     "cooling": 20381488191744628,
+     "De": 1203269478697325800,
      "Ds": 0,
      "Dw": 3350200000000000000,
      "domains": [
@@ -6219,7 +9200,9 @@ const CRAFT_PRICE_CATALOG={
         42,
         43,
         44,
-        45
+        45,
+        46,
+        47
        ],
        "protection": 1
       }
@@ -6229,7 +9212,39 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "hotel",
-       "cap": 28573630179670040,
+       "cap": 48955118371414670,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p3",
+       "cap": 689527598969072.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p4",
+       "cap": 689527598969072.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p5",
+       "cap": 811776248780487.9,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p6",
+       "cap": 811776248780487.9,
        "auto": true,
        "ok": true
       },
@@ -6237,7 +9252,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p13",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6245,7 +9260,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p14",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6253,7 +9268,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p15",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6261,7 +9276,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p16",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6269,7 +9284,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p34",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6277,7 +9292,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p35",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6285,7 +9300,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p36",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6293,7 +9308,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p37",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6301,7 +9316,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p38",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6309,7 +9324,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p39",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6317,7 +9332,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p40",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6325,7 +9340,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p41",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6333,7 +9348,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p42",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6341,7 +9356,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p43",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6349,7 +9364,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p44",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6357,7 +9372,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p45",
-       "cap": 1785851886229377.5,
+       "cap": 2719728798411926,
        "auto": true,
        "ok": true
       },
@@ -6365,7 +9380,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p19",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6373,7 +9388,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6381,7 +9396,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6389,7 +9404,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p22",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6469,7 +9484,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p19",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6477,7 +9492,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6485,7 +9500,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6493,7 +9508,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p22",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6573,7 +9588,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p19",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6581,7 +9596,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p20",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6589,7 +9604,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p21",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6597,7 +9612,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p22",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6677,7 +9692,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p19",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6685,7 +9700,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p20",
-       "cap": 217051484792889500,
+       "cap": 217469166426253100,
        "auto": false,
        "ok": true
       },
@@ -6693,7 +9708,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p21",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6701,7 +9716,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p22",
-       "cap": 383427726235373000,
+       "cap": 384165572922409800,
        "auto": false,
        "ok": true
       },
@@ -6774,6 +9789,70 @@ const CRAFT_PRICE_CATALOG={
        "from": "p24",
        "to": "f33",
        "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p46",
+       "cap": 12568819876260180,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p47",
+       "cap": 4810060619985329,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p46",
+       "cap": 12568819876260180,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p47",
+       "cap": 4810060619985329,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p46",
+       "cap": 12568819876260180,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p47",
+       "cap": 4810060619985329,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p46",
+       "cap": 12568819876260180,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p47",
+       "cap": 4810060619985329,
        "auto": false,
        "ok": true
       }
@@ -6783,7 +9862,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 26573630179670040,
+       "weight": 26573630179670044,
        "domain": "main"
       },
       {
@@ -6799,7 +9878,44 @@ const CRAFT_PRICE_CATALOG={
        "weight": 1000000000000000
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p46",
+       "port": "p46",
+       "weight": 12568819876260180,
+       "domain": "main"
+      },
+      {
+       "id": "p47",
+       "port": "p47",
+       "weight": 4810060619985329,
+       "domain": "main"
+      },
+      {
+       "id": "p3",
+       "port": "p3",
+       "weight": 689527598969072.1,
+       "domain": "main"
+      },
+      {
+       "id": "p4",
+       "port": "p4",
+       "weight": 689527598969072.1,
+       "domain": "main"
+      },
+      {
+       "id": "p5",
+       "port": "p5",
+       "weight": 811776248780487.9,
+       "domain": "main"
+      },
+      {
+       "id": "p6",
+       "port": "p6",
+       "weight": 811776248780487.9,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -6808,11 +9924,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 19,
        "machineryId": 19,
-       "ratedInputW": 217051484792889500,
+       "ratedInputW": 217469166426253100,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 108525742.39644475,
+       "ratedThrustN": 108734583.21312654,
        "effectiveMachineryVolumeM3": 0.06661119272945695,
        "machineryVolumeM3": 0.06661119272945695,
        "machineryLengthM": 0.4990999999999998,
@@ -6821,9 +9937,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1,
        "maxInputW": 226478055280153630,
        "maxRatedInputW": 226478055280153630,
-       "inputDensityWPerM3": 3258483685684020000,
+       "inputDensityWPerM3": 3264754127876221000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 177.46912573775808,
+       "cost": 178.23068191852045,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 17,
@@ -6838,7 +9954,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 15,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 35,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -6848,11 +9964,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 20,
        "machineryId": 20,
-       "ratedInputW": 217051484792889500,
+       "ratedInputW": 217469166426253100,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 108525742.39644475,
+       "ratedThrustN": 108734583.21312654,
        "effectiveMachineryVolumeM3": 0.06661119272945695,
        "machineryVolumeM3": 0.06661119272945695,
        "machineryLengthM": 0.4990999999999998,
@@ -6861,9 +9977,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1,
        "maxInputW": 226478055280153630,
        "maxRatedInputW": 226478055280153630,
-       "inputDensityWPerM3": 3258483685684020000,
+       "inputDensityWPerM3": 3264754127876221000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 177.46912573775808,
+       "cost": 178.23068191852045,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 18,
@@ -6878,7 +9994,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 16,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 36,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -6888,11 +10004,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 21,
        "machineryId": 21,
-       "ratedInputW": 383427726235373000,
+       "ratedInputW": 384165572922409800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 191713863.1176865,
+       "ratedThrustN": 192082786.4612049,
        "effectiveMachineryVolumeM3": 0.07445228699656649,
        "machineryVolumeM3": 0.07445228699656649,
        "machineryLengthM": 0.3,
@@ -6901,9 +10017,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.95,
        "maxInputW": 2531377757883260400,
        "maxRatedInputW": 2531377757883260400,
-       "inputDensityWPerM3": 5149979157162163000,
+       "inputDensityWPerM3": 5159889486539565000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1045.732817828371,
+       "cost": 1050.040540430568,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 23,
@@ -6918,7 +10034,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 17,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 37,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -6928,11 +10044,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 22,
        "machineryId": 22,
-       "ratedInputW": 383427726235373000,
+       "ratedInputW": 384165572922409800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 191713863.1176865,
+       "ratedThrustN": 192082786.4612049,
        "effectiveMachineryVolumeM3": 0.07445228699656649,
        "machineryVolumeM3": 0.07445228699656649,
        "machineryLengthM": 0.3,
@@ -6941,9 +10057,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.95,
        "maxInputW": 2531377757883260400,
        "maxRatedInputW": 2531377757883260400,
-       "inputDensityWPerM3": 5149979157162163000,
+       "inputDensityWPerM3": 5159889486539565000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1045.732817828371,
+       "cost": 1050.040540430568,
        "powerNode": "p22",
        "heatNode": "p22",
        "reactorId": 24,
@@ -6958,30 +10074,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 18,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 38,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 2531377757883260400
       }
      ],
-     "massKg": 27214.150535187295,
-     "ratedThrustN": 600479211.0282625,
-     "ratedAccelMps2": 22064.962499999998,
+     "massKg": 27266.519911314736,
+     "ratedThrustN": 601634739.3486629,
+     "ratedAccelMps2": 22064.962499999994,
      "structuralAccelerationLimitMps2": 1851537.0687221736,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 22064.962499999998
+     "accelerationLimitMps2": 22064.962499999994
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p17",
        "n": "反応炉 #17",
        "g": "high",
-       "sh": 0.575656,
+       "sh": 0.573089,
        "st": 6998712480269498000,
        "m": [
         13
@@ -6996,8 +10113,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "反応炉 #18",
        "g": "high",
-       "sh": 0.418704,
-       "st": 5090519812711079000,
+       "sh": 0.421137,
+       "st": 5143033657312113000,
        "m": [
         14
        ],
@@ -7012,10 +10129,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #19",
        "g": "high",
        "sh": 0.180732,
-       "st": 651154454378668500,
+       "st": 652407499278759400,
        "m": [
         15,
-        33
+        35
        ],
        "pc": [],
        "sec": 3,
@@ -7028,10 +10145,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #20",
        "g": "high",
        "sh": 0.180732,
-       "st": 651154454378668500,
+       "st": 652407499278759400,
        "m": [
         16,
-        34
+        36
        ],
        "pc": [],
        "sec": 3,
@@ -7044,10 +10161,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "主推進機関 #21",
        "g": "high",
        "sh": 0.319268,
-       "st": 1150283178706119200,
+       "st": 1152496718767229600,
        "m": [
         17,
-        35
+        37
        ],
        "pc": [],
        "sec": 0,
@@ -7060,10 +10177,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "主推進機関 #22",
        "g": "high",
        "sh": 0.319268,
-       "st": 1150283178706119200,
+       "st": 1152496718767229600,
        "m": [
         18,
-        36
+        38
        ],
        "pc": [],
        "sec": 0,
@@ -7090,8 +10207,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p24",
        "n": "主反応炉 #24",
        "g": "high",
-       "sh": 0.00564055,
-       "st": 68576712431208050,
+       "sh": 0.00577493,
+       "st": 70524975428281350,
        "m": [
         20
        ],
@@ -7105,30 +10222,16 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499851,
-       "st": 31398755593341686000,
+       "sh": 0.999702,
+       "st": 62797511186683370000,
        "m": [
         0,
-        2,
-        4,
-        6
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f26",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.499851,
-       "st": 31398755593341686000,
-       "m": [
         1,
+        2,
         3,
+        4,
         5,
+        6,
         7
        ],
        "pc": [],
@@ -7157,7 +10260,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1714417810780202500,
+       "st": 2937307102284880400,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -7167,14 +10270,37 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p46",
+       "n": "機体内高エネルギー散逸装置 1 #46",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921325084012000,
+       "m": 33,
+       "sec": 0,
+       "src": -1,
+       "power": 12568819876260180
+      },
+      {
+       "id": "p47",
+       "n": "機体内高エネルギー散逸装置 2 #47",
+       "k": "hdis",
+       "g": "high",
+       "cap": 320670707999021950,
+       "m": 34,
+       "sec": 0,
+       "src": -1,
+       "power": 4810060619985329
+      },
+      {
        "id": "p3",
        "n": "上翼 #3",
        "k": "wing",
        "g": "high",
        "cap": 68952759896907220,
-       "m": 37,
+       "m": 39,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 689527598969072.1
       },
       {
        "id": "p4",
@@ -7182,9 +10308,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 68952759896907220,
-       "m": 38,
+       "m": 40,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 689527598969072.1
       },
       {
        "id": "p5",
@@ -7192,9 +10319,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 81177624878048780,
-       "m": 39,
+       "m": 41,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 811776248780487.9
       },
       {
        "id": "p6",
@@ -7202,9 +10330,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 81177624878048780,
-       "m": 40,
+       "m": 42,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 811776248780487.9
       },
       {
        "id": "skin",
@@ -7215,280 +10344,408 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p17",
-       "n": "反応炉 #17（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 73066485109558300,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p18",
-       "n": "反応炉 #18（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 73101093359474200,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p23",
-       "n": "主反応炉 #23（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 19649392323472828,
-       "m": -1,
-       "sec": -1,
-       "src": 6
-      },
-      {
-       "id": "int:p24",
-       "n": "主反応炉 #24（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 19649392323472828,
-       "m": -1,
-       "sec": -1,
-       "src": 7
-      },
-      {
-       "id": "int:f25",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523312593222361400,
-       "m": -1,
-       "sec": -1,
-       "src": 8
-      },
-      {
-       "id": "int:f26",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523312593222361400,
-       "m": -1,
-       "sec": -1,
-       "src": 9
-      },
-      {
-       "id": "int:f33",
-       "n": "武装（艦尾区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 312313555277131.44,
-       "m": -1,
-       "sec": -1,
-       "src": 10
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 5,
-       "cap": 73066485109558300,
-       "sec": -1
+       "d": 0,
+       "cap": 93796515941287700,
+       "sec": 3
       },
       {
        "s": 0,
-       "d": 0,
-       "cap": 109599727664337460,
-       "sec": 4
+       "d": 1,
+       "cap": 35895727050172164,
+       "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 109599727664337460,
+       "cap": 7718539258107067,
        "sec": 4
       },
       {
-       "s": 1,
-       "d": 6,
-       "cap": 73101093359474200,
-       "sec": -1
-      },
-      {
-       "s": 1,
-       "d": 1,
-       "cap": 109651640039211310,
+       "s": 0,
+       "d": 3,
+       "cap": 7718539258107067,
        "sec": 4
       },
       {
-       "s": 1,
-       "d": 3,
-       "cap": 109651640039211310,
-       "sec": 4
-      },
-      {
-       "s": 2,
-       "d": 0,
-       "cap": 16278861359466714,
-       "sec": 3
-      },
-      {
-       "s": 2,
-       "d": 2,
-       "cap": 16278861359466714,
-       "sec": 3
-      },
-      {
-       "s": 3,
-       "d": 1,
-       "cap": 16278861359466714,
-       "sec": 3
-      },
-      {
-       "s": 3,
-       "d": 3,
-       "cap": 16278861359466714,
-       "sec": 3
-      },
-      {
-       "s": 4,
-       "d": 2,
-       "cap": 28757079467652972,
-       "sec": 1
-      },
-      {
-       "s": 4,
-       "d": 0,
-       "cap": 28757079467652972,
-       "sec": 2
-      },
-      {
-       "s": 5,
-       "d": 3,
-       "cap": 28757079467652972,
-       "sec": 1
-      },
-      {
-       "s": 5,
-       "d": 1,
-       "cap": 28757079467652972,
-       "sec": 2
-      },
-      {
-       "s": 6,
-       "d": 7,
-       "cap": 19649392323472828,
-       "sec": -1
-      },
-      {
-       "s": 6,
-       "d": 0,
-       "cap": 29474088485209240,
-       "sec": 3
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 29474088485209240,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 8,
-       "cap": 19649392323472828,
-       "sec": -1
-      },
-      {
-       "s": 7,
-       "d": 1,
-       "cap": 29474088485209240,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 3,
-       "cap": 29474088485209240,
-       "sec": 3
-      },
-      {
-       "s": 8,
-       "d": 9,
-       "cap": 523312593222361400,
-       "sec": -1
-      },
-      {
-       "s": 8,
-       "d": 0,
-       "cap": 784968889833542100,
-       "sec": 4
-      },
-      {
-       "s": 8,
-       "d": 2,
-       "cap": 784968889833542100,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 10,
-       "cap": 523312593222361400,
-       "sec": -1
-      },
-      {
-       "s": 9,
-       "d": 1,
-       "cap": 784968889833542100,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 3,
-       "cap": 784968889833542100,
-       "sec": 4
-      },
-      {
-       "s": 10,
-       "d": 11,
-       "cap": 312313555277131.44,
-       "sec": -1
-      },
-      {
-       "s": 10,
-       "d": 3,
-       "cap": 468470332915697.1,
-       "sec": 1
-      },
-      {
-       "s": 10,
-       "d": 1,
-       "cap": 468470332915697.1,
-       "sec": 3
-      },
-      {
-       "s": 11,
-       "d": 2,
-       "cap": 42860445269505060,
-       "sec": 2
-      },
-      {
-       "s": 11,
-       "d": 3,
-       "cap": 42860445269505060,
-       "sec": 2
-      },
-      {
-       "s": 11,
-       "d": 0,
-       "cap": 42860445269505060,
-       "sec": 3
-      },
-      {
-       "s": 11,
-       "d": 1,
-       "cap": 42860445269505060,
-       "sec": 3
-      },
-      {
-       "s": 11,
+       "s": 0,
        "d": 4,
+       "cap": 9086984849307134,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 9086984849307134,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 35597786690531250,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 13623197213779354,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 2929350960589790.5,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 2929350960589790.5,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 3448705371191037,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 3448705371191037,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 810148642217076.4,
+       "sec": 0
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 310042161366580.56,
+       "sec": 2
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 66667338728965.516,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 66667338728965.516,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 78487013762019.4,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 78487013762019.4,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 721380165162051300,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 276070654098429860,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 59362558075273976,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 3,
+       "cap": 59362558075273976,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 4,
+       "cap": 69887144161319096,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 5,
+       "cap": 69887144161319096,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 0,
+       "cap": 215260254584044.84,
+       "sec": 0
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 82379641351882.89,
+       "sec": 0
+      },
+      {
+       "s": 9,
+       "d": 2,
+       "cap": 17713821340198.727,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 3,
+       "cap": 17713821340198.727,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 4,
+       "cap": 20854363858116.223,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 5,
+       "cap": 20854363858116.223,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 73432677557122020,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 0,
+       "cap": 73432677557122020,
+       "sec": 0
+      },
+      {
+       "s": 10,
+       "d": 4,
+       "cap": 73432677557122020,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 5,
+       "cap": 73432677557122020,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 2,
+       "cap": 73432677557122020,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 73432677557122020,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 6,
        "cap": 720198405320013600000,
        "sec": -1
       }
@@ -7498,15 +10755,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "nq82me",
-   "build": 99324,
+   "signature": "14gwb9o",
+   "build": 99338,
    "crew": 1000,
-   "total": 100324,
+   "total": 100338,
    "by": {
     "hull": 16,
     "armor": 8,
     "power": 21468,
-    "drive": 30230,
+    "drive": 30244,
     "defense": 1500,
     "command": 14502,
     "weapons": 19600,
@@ -7543,9 +10800,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00548,
-    "upS": 0.00548,
-    "down": 0.033,
+    "up": 0.00546,
+    "upS": 0.00546,
+    "down": 0.0478,
     "T": 0
    },
    "powerProfile": {
@@ -7929,6 +11186,40 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.18566354150411377,
+      "hits": 1,
+      "crew": 0.0000039999996173595625,
+      "size": 0.07999999234719124,
+      "at": 0.318,
+      "part": 52,
+      "y": 0.24,
+      "z": -0.18,
+      "r": 0.022,
+      "share": 0.005655428538385173,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.11424847053664362,
+      "hits": 1,
+      "crew": 0.0000019308369292125822,
+      "size": 0.038616738584251645,
+      "at": 0.387,
+      "part": 53,
+      "y": 0.24,
+      "z": -0.06,
+      "r": 0.018,
+      "share": 0.0027299278292544026,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.30990085336483386,
@@ -7977,7 +11268,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.88,
       "r": 0.058,
-      "share": 0.10131830864636401,
+      "share": 0.10046871852179774,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -7995,7 +11286,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": -0.88,
       "r": 0.058,
-      "share": 0.10131830864636401,
+      "share": 0.10046871852179774,
       "domain": "main",
       "port": "p4",
       "powerConnected": true
@@ -8013,7 +11304,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.69,
       "z": 0.66,
       "r": 0.073,
-      "share": 0.19934086678310944,
+      "share": 0.19766932257649888,
       "domain": "main",
       "port": "p7",
       "powerConnected": true
@@ -8031,7 +11322,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.69,
       "z": -0.66,
       "r": 0.073,
-      "share": 0.19934086868189646,
+      "share": 0.1976693244593639,
       "domain": "main",
       "port": "p8",
       "powerConnected": true
@@ -8049,7 +11340,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.69,
       "z": 0.66,
       "r": 0.073,
-      "share": 0.1993408233689504,
+      "share": 0.19766927952638302,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -8067,7 +11358,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.69,
       "z": -0.66,
       "r": 0.073,
-      "share": 0.19934082387331567,
+      "share": 0.197669280026519,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -8083,21 +11374,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.125,
-      "share": 0.326072157930565,
+      "share": 0.32740943267259054,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.1630519512559645,
+      "w": 1.1567051268688904,
       "hits": 1,
       "crew": 0,
-      "size": 21.5904544023799,
+      "size": 21.413965674295053,
       "at": 0.35,
-      "y": 0,
+      "y": -0.01,
       "z": 0,
       "r": 0.144,
-      "share": 0.4996596324029952,
+      "share": 0.49760765550239233,
       "domain": "main"
      },
      {
@@ -8111,7 +11402,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.089,
-      "share": 0.11572498298162015,
+      "share": 0.11619958988380041,
       "domain": "main"
      },
      {
@@ -8125,13 +11416,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.071,
-      "share": 0.05854322668481961,
+      "share": 0.05878332194121668,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 22.9691622821209,
+      "w": 23.14530139471312,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -8154,9 +11445,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 7.078812837600708,
     "grid": {
      "P": 7276773006109312000,
-     "fixed": 21135216054766330,
-     "cooling": 0,
-     "De": 1468119096526696700,
+     "fixed": 41917643904992210,
+     "cooling": 20782427850225876,
+     "De": 1471083033130983700,
      "Ds": 0,
      "Dw": 3347200000000000000,
      "domains": [
@@ -8168,20 +11459,12 @@ const CRAFT_PRICE_CATALOG={
        ],
        "sources": [
         {
-         "moduleIndex": 23,
-         "P": 1938000000000000
-        },
-        {
-         "moduleIndex": 24,
-         "P": 1938000000000000
-        },
-        {
          "moduleIndex": 25,
-         "P": 8388507615769092
+         "P": 1938000000000000
         },
         {
          "moduleIndex": 26,
-         "P": 8388507615769092
+         "P": 1938000000000000
         },
         {
          "moduleIndex": 27,
@@ -8189,6 +11472,14 @@ const CRAFT_PRICE_CATALOG={
         },
         {
          "moduleIndex": 28,
+         "P": 8388507615769092
+        },
+        {
+         "moduleIndex": 29,
+         "P": 8388507615769092
+        },
+        {
+         "moduleIndex": 30,
          "P": 8388507615769092
         },
         {
@@ -8230,7 +11521,9 @@ const CRAFT_PRICE_CATALOG={
         30,
         31,
         32,
-        33
+        33,
+        34,
+        35
        ],
        "protection": 1
       }
@@ -8240,7 +11533,55 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "hotel",
-       "cap": 21135216054766330,
+       "cap": 41917643904992210,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p3",
+       "to": "p3",
+       "cap": 53833333333333.33,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p4",
+       "to": "p4",
+       "cap": 53833333333333.33,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p7",
+       "to": "p7",
+       "cap": 582535251095075.9,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p8",
+       "to": "p8",
+       "cap": 582535251095075.9,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p17",
+       "cap": 407774675766553.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p18",
+       "cap": 466028200876060.6,
        "auto": true,
        "ok": true
       },
@@ -8248,7 +11589,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p31",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8256,7 +11597,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p35",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8264,7 +11605,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p36",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8272,7 +11613,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p41",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8280,7 +11621,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p42",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8288,7 +11629,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p43",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8296,7 +11637,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p44",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8304,7 +11645,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p45",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8312,7 +11653,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p46",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8320,7 +11661,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p47",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8328,7 +11669,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p48",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8336,7 +11677,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p49",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8344,7 +11685,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p50",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8352,7 +11693,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p51",
-       "cap": 1509658289626166.2,
+       "cap": 2619852744062013,
        "auto": true,
        "ok": true
       },
@@ -8360,7 +11701,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p33",
-       "cap": 734059548263348400,
+       "cap": 735541516565491800,
        "auto": false,
        "ok": true
       },
@@ -8368,7 +11709,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p34",
-       "cap": 734059548263348400,
+       "cap": 735541516565491800,
        "auto": false,
        "ok": true
       },
@@ -8403,6 +11744,22 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1255200000000000000,
        "auto": false,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p52",
+       "cap": 12568807705743562,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p53",
+       "cap": 6067080098982881,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -8410,11 +11767,60 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 21135216054766330,
+       "weight": 41917643904992210,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p52",
+       "port": "p52",
+       "weight": 12568807705743562,
+       "domain": "main"
+      },
+      {
+       "id": "p53",
+       "port": "p53",
+       "weight": 6067080098982881,
+       "domain": "main"
+      },
+      {
+       "id": "p3",
+       "port": "p3",
+       "weight": 53833333333333.33,
+       "domain": "main"
+      },
+      {
+       "id": "p4",
+       "port": "p4",
+       "weight": 53833333333333.33,
+       "domain": "main"
+      },
+      {
+       "id": "p7",
+       "port": "p7",
+       "weight": 582535251095075.9,
+       "domain": "main"
+      },
+      {
+       "id": "p8",
+       "port": "p8",
+       "weight": 582535251095075.9,
+       "domain": "main"
+      },
+      {
+       "id": "p17",
+       "port": "p17",
+       "weight": 407774675766553.1,
+       "domain": "main"
+      },
+      {
+       "id": "p18",
+       "port": "p18",
+       "weight": 466028200876060.6,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -8423,11 +11829,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 33,
        "machineryId": 33,
-       "ratedInputW": 734059548263348400,
+       "ratedInputW": 735541516565491800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 367029774.1316742,
+       "ratedThrustN": 367770758.2827459,
        "effectiveMachineryVolumeM3": 0.17251789810352547,
        "machineryVolumeM3": 0.17251789810352547,
        "machineryLengthM": 0.3,
@@ -8436,9 +11842,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.7305,
        "maxInputW": 5865608535519866000,
        "maxRatedInputW": 5865608535519866000,
-       "inputDensityWPerM3": 4254976187009014000,
+       "inputDensityWPerM3": 4263566416303682000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1606.2906069210462,
+       "cost": 1613.3351763489688,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 32,
@@ -8453,7 +11859,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 6,
-       "machineryModuleIndex": 21,
+       "machineryModuleIndex": 23,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -8463,11 +11869,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 34,
        "machineryId": 34,
-       "ratedInputW": 734059548263348400,
+       "ratedInputW": 735541516565491800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 367029774.1316742,
+       "ratedThrustN": 367770758.2827459,
        "effectiveMachineryVolumeM3": 0.17251789810352547,
        "machineryVolumeM3": 0.17251789810352547,
        "machineryLengthM": 0.3,
@@ -8476,9 +11882,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.7305,
        "maxInputW": 5865608535519866000,
        "maxRatedInputW": 5865608535519866000,
-       "inputDensityWPerM3": 4254976187009014000,
+       "inputDensityWPerM3": 4263566416303682000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1606.2906069210462,
+       "cost": 1613.3351763489688,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 32,
@@ -8493,23 +11899,24 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 22,
+       "machineryModuleIndex": 24,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 5865608535519866000
       }
      ],
-     "massKg": 17654.066572061092,
-     "ratedThrustN": 734059548.2633483,
-     "ratedAccelMps2": 41580.196,
+     "massKg": 17689.707777363335,
+     "ratedThrustN": 735541516.5654918,
+     "ratedAccelMps2": 41580.195999999996,
      "structuralAccelerationLimitMps2": 590576.8583987862,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 41580.196
+     "accelerationLimitMps2": 41580.195999999996
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
@@ -8517,7 +11924,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "I-a3a 太陽イオン化反応炉 #32",
        "g": "high",
        "sh": 1,
-       "st": 11607490350195511000,
+       "st": 11659329928777142000,
        "m": [
         5
        ],
@@ -8532,10 +11939,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s5.6 イオン・エンジン #33",
        "g": "high",
        "sh": 0.5,
-       "st": 2202178644790045000,
+       "st": 2206624549696475600,
        "m": [
         6,
-        21
+        23
        ],
        "pc": [],
        "sec": 1,
@@ -8548,10 +11955,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s5.6 イオン・エンジン #34",
        "g": "high",
        "sh": 0.5,
-       "st": 2202178644790045000,
+       "st": 2206624549696475600,
        "m": [
         7,
-        22
+        24
        ],
        "pc": [],
        "sec": 1,
@@ -8563,25 +11970,11 @@ const CRAFT_PRICE_CATALOG={
        "id": "f37",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.5,
-       "st": 31380000000000000000,
+       "sh": 1,
+       "st": 62760000000000000000,
        "m": [
         0,
-        1
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f39",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.5,
-       "st": 31380000000000000000,
-       "m": [
+        1,
         2,
         3
        ],
@@ -8596,7 +11989,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1268112963285979600,
+       "st": 2515058634299532300,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -8606,14 +11999,37 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p52",
+       "n": "機体内高エネルギー散逸装置 1 #52",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920513716237400,
+       "m": 21,
+       "sec": 2,
+       "src": -1,
+       "power": 12568807705743562
+      },
+      {
+       "id": "p53",
+       "n": "機体内高エネルギー散逸装置 2 #53",
+       "k": "hdis",
+       "g": "high",
+       "cap": 404472006598858750,
+       "m": 22,
+       "sec": 2,
+       "src": -1,
+       "power": 6067080098982881
+      },
+      {
        "id": "p3",
        "n": "翼中央パネル #3",
        "k": "solar",
        "g": "high",
        "cap": 5383333333333333,
-       "m": 23,
+       "m": 25,
        "sec": 0,
-       "src": -1
+       "src": -1,
+       "power": 53833333333333.33
       },
       {
        "id": "p4",
@@ -8621,9 +12037,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 5383333333333333,
-       "m": 24,
+       "m": 26,
        "sec": 0,
-       "src": -1
+       "src": -1,
+       "power": 53833333333333.33
       },
       {
        "id": "p7",
@@ -8631,9 +12048,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 58253525109507590,
-       "m": 25,
+       "m": 27,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 582535251095075.9
       },
       {
        "id": "p8",
@@ -8641,9 +12059,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 58253525109507590,
-       "m": 26,
+       "m": 28,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 582535251095075.9
       },
       {
        "id": "p17",
@@ -8651,9 +12070,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 40777467576655310,
-       "m": 27,
+       "m": 29,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 407774675766553.1
       },
       {
        "id": "p18",
@@ -8661,9 +12081,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 46602820087606060,
-       "m": 28,
+       "m": 30,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 466028200876060.6
       },
       {
        "id": "skin",
@@ -8674,156 +12095,252 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p32",
-       "n": "I-a3a 太陽イオン化反応炉 #32（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 193458172503258530,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:f37",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523000000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:f39",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523000000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 4
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 7,
-       "cap": 193458172503258530,
-       "sec": -1
+       "d": 0,
+       "cap": 116592607616075420,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 56280333498360510,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 749064930056634.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 749064930056634.5,
+       "sec": 1
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 290187258754887800,
+       "cap": 8105697717344714,
        "sec": 3
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 290187258754887800,
+       "cap": 8105697717344714,
        "sec": 3
       },
       {
-       "s": 1,
-       "d": 0,
-       "cap": 55054466119751120,
-       "sec": 0
-      },
-      {
-       "s": 1,
-       "d": 4,
-       "cap": 55054466119751120,
-       "sec": 2
-      },
-      {
-       "s": 2,
-       "d": 1,
-       "cap": 55054466119751120,
-       "sec": 0
-      },
-      {
-       "s": 2,
-       "d": 5,
-       "cap": 55054466119751120,
-       "sec": 2
-      },
-      {
-       "s": 3,
-       "d": 8,
-       "cap": 523000000000000000,
-       "sec": -1
-      },
-      {
-       "s": 3,
-       "d": 2,
-       "cap": 784500000000000000,
-       "sec": 4
-      },
-      {
-       "s": 3,
-       "d": 4,
-       "cap": 784500000000000000,
-       "sec": 4
-      },
-      {
-       "s": 4,
-       "d": 9,
-       "cap": 523000000000000000,
-       "sec": -1
-      },
-      {
-       "s": 4,
-       "d": 3,
-       "cap": 784500000000000000,
-       "sec": 4
-      },
-      {
-       "s": 4,
-       "d": 5,
-       "cap": 784500000000000000,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 4,
-       "cap": 31702824082149492,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 5,
-       "cap": 31702824082149492,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 2,
-       "cap": 31702824082149492,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 3,
-       "cap": 31702824082149492,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 0,
-       "cap": 31702824082149492,
-       "sec": 1
-      },
-      {
-       "s": 5,
-       "d": 1,
-       "cap": 31702824082149492,
-       "sec": 1
-      },
-      {
-       "s": 5,
+       "s": 0,
        "d": 6,
+       "cap": 5673988402141299,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 6484558173875769,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 721842309677820200,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 348439980480316700,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 4637573258428307,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 4637573258428307,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 50183589521430520,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 50183589521430520,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 35128512665001360,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 7,
+       "cap": 40146871617144410,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 62876465857488310,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 62876465857488310,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 62876465857488310,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 62876465857488310,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 62876465857488310,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 62876465857488310,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 62876465857488310,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 62876465857488310,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 8,
        "cap": 807404577362123300000,
        "sec": -1
       }
@@ -8833,18 +12350,18 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "zn6lep",
-   "build": 84444,
+   "signature": "1ccz7sg",
+   "build": 84455,
    "crew": 1000,
-   "total": 85444,
+   "total": 85455,
    "by": {
-    "hull": 8,
+    "hull": 9,
     "armor": 6,
     "power": 15398,
-    "drive": 29230,
+    "drive": 29241,
     "defense": 1500,
     "command": 14501,
-    "weapons": 11801,
+    "weapons": 11800,
     "systems": 12000,
     "crew": 1000
    },
@@ -8878,9 +12395,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00493,
-    "upS": 0.00493,
-    "down": 0.043,
+    "up": 0.00537,
+    "upS": 0.00537,
+    "down": 0.0567,
     "T": 0
    },
    "powerProfile": {
@@ -9220,6 +12737,23 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.1490433356720047,
+      "hits": 1,
+      "crew": 0.000002876993276539407,
+      "size": 0.05753986553078813,
+      "at": 0.516,
+      "part": 61,
+      "y": 0.05,
+      "z": 0.38,
+      "r": 0.027,
+      "share": 0.003969947168510874,
+      "domain": "main",
+      "port": "p61",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.31101825548028994,
@@ -9267,7 +12801,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.91,
       "r": 0.133,
-      "share": 0.5,
+      "share": 0.4980150264157445,
       "domain": "main",
       "port": "p1",
       "powerConnected": true
@@ -9284,7 +12818,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": -0.91,
       "r": 0.133,
-      "share": 0.5,
+      "share": 0.4980150264157445,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -9300,7 +12834,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.113,
-      "share": 0.1338432122370937,
+      "share": 0.13418530351437702,
       "domain": "main"
      },
      {
@@ -9314,21 +12848,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.01,
       "z": 0,
       "r": 0.154,
-      "share": 0.33779477374123645,
+      "share": 0.3386581469648563,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.8312015575138089,
+      "w": 0.8276168538097576,
       "hits": 1,
       "crew": 0,
-      "size": 13.044355731997442,
+      "size": 12.960062641645278,
       "at": 0.595,
-      "y": 0.01,
+      "y": 0,
       "z": 0,
-      "r": 0.163,
-      "share": 0.39451880178457616,
+      "r": 0.162,
+      "share": 0.39297124600638983,
       "domain": "main"
      },
      {
@@ -9342,13 +12876,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.113,
-      "share": 0.1338432122370937,
+      "share": 0.13418530351437702,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 10.356199821437484,
+      "w": 10.443475000618257,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -9371,9 +12905,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 8.345999956130981,
     "grid": {
      "P": 3088413887674337000,
-     "fixed": 17671191295729384,
-     "cooling": 0,
-     "De": 837208570695812700,
+     "fixed": 27973201176391056,
+     "cooling": 10302009880661674,
+     "De": 839187158228584800,
      "Ds": 0,
      "Dw": 1673600000000000000,
      "domains": [
@@ -9385,11 +12919,11 @@ const CRAFT_PRICE_CATALOG={
        ],
        "sources": [
         {
-         "moduleIndex": 21,
+         "moduleIndex": 22,
          "P": 30285964800000000
         },
         {
-         "moduleIndex": 22,
+         "moduleIndex": 23,
          "P": 30285964800000000
         },
         {
@@ -9425,7 +12959,8 @@ const CRAFT_PRICE_CATALOG={
         24,
         25,
         26,
-        27
+        27,
+        28
        ],
        "protection": 1
       }
@@ -9435,7 +12970,23 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "hotel",
-       "cap": 17671191295729384,
+       "cap": 27973201176391056,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p1",
+       "to": "p1",
+       "cap": 630957600000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p2",
+       "to": "p2",
+       "cap": 630957600000000,
        "auto": true,
        "ok": true
       },
@@ -9443,7 +12994,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p42",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9451,7 +13002,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p46",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9459,7 +13010,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p47",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9467,7 +13018,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p50",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9475,7 +13026,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p51",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9483,7 +13034,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p52",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9491,7 +13042,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p53",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9499,7 +13050,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p54",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9507,7 +13058,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p55",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9515,7 +13066,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p56",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9523,7 +13074,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p57",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9531,7 +13082,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p58",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9539,7 +13090,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p59",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9547,7 +13098,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p60",
-       "cap": 1262227949694956,
+       "cap": 1864880078426070.5,
        "auto": true,
        "ok": true
       },
@@ -9555,7 +13106,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p44",
-       "cap": 418604285347906370,
+       "cap": 419593579114292400,
        "auto": false,
        "ok": true
       },
@@ -9563,7 +13114,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p43",
        "to": "p45",
-       "cap": 418604285347906370,
+       "cap": 419593579114292400,
        "auto": false,
        "ok": true
       },
@@ -9582,6 +13133,14 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1255200000000000000,
        "auto": false,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p61",
+       "cap": 9040094680661674,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -9589,11 +13148,30 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 17671191295729384,
+       "weight": 27973201176391056,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p61",
+       "port": "p61",
+       "weight": 9040094680661674,
+       "domain": "main"
+      },
+      {
+       "id": "p1",
+       "port": "p1",
+       "weight": 630957600000000,
+       "domain": "main"
+      },
+      {
+       "id": "p2",
+       "port": "p2",
+       "weight": 630957600000000,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -9602,11 +13180,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 44,
        "machineryId": 44,
-       "ratedInputW": 418604285347906370,
+       "ratedInputW": 419593579114292400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 209302142.67395318,
+       "ratedThrustN": 209796789.55714622,
        "effectiveMachineryVolumeM3": 0.08330420433843971,
        "machineryVolumeM3": 0.08330420433843971,
        "machineryLengthM": 0.3,
@@ -9615,9 +13193,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.8415,
        "maxInputW": 2832342947506950000,
        "maxRatedInputW": 2832342947506950000,
-       "inputDensityWPerM3": 5025007905330254000,
+       "inputDensityWPerM3": 5036883581645063000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1110.1345782191554,
+       "cost": 1115.7617565069063,
        "powerNode": "p44",
        "heatNode": "p44",
        "reactorId": 43,
@@ -9632,7 +13210,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 4,
-       "machineryModuleIndex": 19,
+       "machineryModuleIndex": 20,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -9642,11 +13220,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 45,
        "machineryId": 45,
-       "ratedInputW": 418604285347906370,
+       "ratedInputW": 419593579114292400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 209302142.67395318,
+       "ratedThrustN": 209796789.55714622,
        "effectiveMachineryVolumeM3": 0.08330420433843971,
        "machineryVolumeM3": 0.08330420433843971,
        "machineryLengthM": 0.3,
@@ -9655,9 +13233,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.8415,
        "maxInputW": 2832342947506950000,
        "maxRatedInputW": 2832342947506950000,
-       "inputDensityWPerM3": 5025007905330254000,
+       "inputDensityWPerM3": 5036883581645063000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1110.1345782191554,
+       "cost": 1115.7617565069063,
        "powerNode": "p45",
        "heatNode": "p45",
        "reactorId": 43,
@@ -9672,23 +13250,24 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 5,
-       "machineryModuleIndex": 20,
+       "machineryModuleIndex": 21,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 2832342947506950000
       }
      ],
-     "massKg": 10411.160404665834,
-     "ratedThrustN": 418604285.34790635,
+     "massKg": 10435.765255714174,
+     "ratedThrustN": 419593579.11429244,
      "ratedAccelMps2": 40207.26499999999,
-     "structuralAccelerationLimitMps2": 3075126.9232602096,
+     "structuralAccelerationLimitMps2": 3058175.81789112,
      "inertialFactor": 1,
      "accelerationLimitMps2": 40207.26499999999
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
@@ -9696,7 +13275,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "I-a2b 太陽イオン化反応炉 #43",
        "g": "high",
        "sh": 1,
-       "st": 6068351428779701000,
+       "st": 6094796266091941000,
        "m": [
         3
        ],
@@ -9711,10 +13290,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s4 イオン・エンジン #44",
        "g": "high",
        "sh": 0.5,
-       "st": 1255812856043719200,
+       "st": 1258780737342877200,
        "m": [
         4,
-        19
+        20
        ],
        "pc": [],
        "sec": 1,
@@ -9727,10 +13306,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s4 イオン・エンジン #45",
        "g": "high",
        "sh": 0.5,
-       "st": 1255812856043719200,
+       "st": 1258780737342877200,
        "m": [
         5,
-        20
+        21
        ],
        "pc": [],
        "sec": 1,
@@ -9759,7 +13338,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1060271477743763100,
+       "st": 1678392070583463400,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -9769,14 +13348,26 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p61",
+       "n": "機体内高エネルギー散逸装置 1 #61",
+       "k": "hdis",
+       "g": "high",
+       "cap": 602672978710778200,
+       "m": 19,
+       "sec": 2,
+       "src": -1,
+       "power": 9040094680661674
+      },
+      {
        "id": "p1",
        "n": "太陽電池翼 #1",
        "k": "solar",
        "g": "high",
        "cap": 63095760000000000,
-       "m": 21,
+       "m": 22,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 630957600000000
       },
       {
        "id": "p2",
@@ -9784,9 +13375,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 63095760000000000,
-       "m": 22,
+       "m": 23,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 630957600000000
       },
       {
        "id": "skin",
@@ -9797,104 +13389,102 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p43",
-       "n": "I-a2b 太陽イオン化反応炉 #43（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 101139190479661700,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:f48",
-       "n": "武装（艦尾区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523000000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 3
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 3,
-       "cap": 101139190479661700,
-       "sec": -1
-      },
-      {
-       "s": 0,
        "d": 0,
-       "cap": 151708785719492540,
+       "cap": 84090694652151710,
        "sec": 1
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 151708785719492540,
+       "cap": 8803723537357522,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 8803723537357522,
        "sec": 1
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 31395321401092980,
+       "cap": 0,
        "sec": 1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 31395321401092980,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
        "sec": 1
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 31395321401092980,
+       "cap": 0,
        "sec": 1
       },
       {
        "s": 2,
-       "d": 0,
-       "cap": 31395321401092980,
+       "d": 2,
+       "cap": 0,
        "sec": 1
       },
       {
        "s": 3,
-       "d": 4,
-       "cap": 523000000000000000,
-       "sec": -1
-      },
-      {
-       "s": 3,
        "d": 0,
-       "cap": 784500000000000000,
+       "cap": 518940848549921500,
        "sec": 1
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 784500000000000000,
+       "cap": 54329575725039250,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 54329575725039250,
        "sec": 1
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 26506786943594076,
-       "sec": 1
+       "cap": 41959801764586584,
+       "sec": 2
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 26506786943594076,
+       "cap": 41959801764586584,
        "sec": 1
       },
       {
        "s": 4,
        "d": 2,
+       "cap": 41959801764586584,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 3,
        "cap": 813537246195572900000,
        "sec": -1
       }
@@ -9904,15 +13494,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "17uewsj",
-   "build": 134209,
+   "signature": "khph22",
+   "build": 136048,
    "crew": 1000,
-   "total": 135209,
+   "total": 137048,
    "by": {
     "hull": 61,
     "armor": 29,
     "power": 52845,
-    "drive": 28971,
+    "drive": 30810,
     "defense": 1500,
     "command": 14502,
     "weapons": 24300,
@@ -9949,9 +13539,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00458,
-    "upS": 0.00458,
-    "down": 0.0738,
+    "up": 0.00514,
+    "upS": 0.00514,
+    "down": 0.081,
     "T": 0
    },
    "powerProfile": {
@@ -10352,6 +13942,23 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.12317661475122797,
+      "hits": 1,
+      "crew": 0.0000021615356400921005,
+      "size": 0.04323071280184201,
+      "at": 0.609,
+      "part": 57,
+      "y": 0.02,
+      "z": 0.24,
+      "r": 0.022,
+      "share": 0.0013677588410668925,
+      "domain": "main",
+      "port": "p57",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.5653483547384074,
@@ -10400,7 +14007,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.94,
       "r": 0.13,
-      "share": 0.27478582581235805,
+      "share": 0.2744099850697033,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -10418,7 +14025,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": -0.94,
       "r": 0.13,
-      "share": 0.274785825812358,
+      "share": 0.27440998506970327,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -10436,7 +14043,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.68,
       "z": 0.78,
       "r": 0.097,
-      "share": 0.11260707194357687,
+      "share": 0.11245305262535939,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -10454,7 +14061,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.68,
       "z": -0.78,
       "r": 0.097,
-      "share": 0.11260707194357691,
+      "share": 0.11245305262535943,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -10472,7 +14079,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.68,
       "z": 0.78,
       "r": 0.097,
-      "share": 0.11260710224406513,
+      "share": 0.11245308288440388,
       "domain": "main",
       "port": "p25",
       "powerConnected": true
@@ -10490,7 +14097,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.68,
       "z": -0.78,
       "r": 0.097,
-      "share": 0.11260710224406507,
+      "share": 0.11245308288440382,
       "domain": "main",
       "port": "p26",
       "powerConnected": true
@@ -10506,7 +14113,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.127,
-      "share": 0.09997215260373155,
+      "share": 0.10002786291446085,
       "domain": "main"
      },
      {
@@ -10520,21 +14127,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.177,
-      "share": 0.26649958228905596,
+      "share": 0.26664809139035944,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.649136764060085,
+      "w": 1.6477647699810432,
       "hits": 1,
       "crew": 0,
-      "size": 36.45424614170525,
+      "size": 36.408763613767995,
       "at": 0.621,
       "y": -0.01,
       "z": 0,
       "r": 0.2,
-      "share": 0.4463937621832359,
+      "share": 0.4460852605182502,
       "domain": "main"
      },
      {
@@ -10548,13 +14155,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.157,
-      "share": 0.18713450292397663,
+      "share": 0.18723878517692952,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 36.551010386844766,
+      "w": 36.62409315924808,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -10577,9 +14184,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 5.591440558433533,
     "grid": {
      "P": 7354377344558333000,
-     "fixed": 49563360330518440,
-     "cooling": 0,
-     "De": 2255988867089198000,
+     "fixed": 59140005329083710,
+     "cooling": 9576644998565268,
+     "De": 2256999626528850000,
      "Ds": 0,
      "Dw": 1675600000000000000,
      "domains": [
@@ -10592,16 +14199,12 @@ const CRAFT_PRICE_CATALOG={
        ],
        "sources": [
         {
-         "moduleIndex": 24,
-         "P": 10407921600000002
-        },
-        {
          "moduleIndex": 25,
          "P": 10407921600000002
         },
         {
          "moduleIndex": 26,
-         "P": 8530324693203418
+         "P": 10407921600000002
         },
         {
          "moduleIndex": 27,
@@ -10613,6 +14216,10 @@ const CRAFT_PRICE_CATALOG={
         },
         {
          "moduleIndex": 29,
+         "P": 8530324693203418
+        },
+        {
+         "moduleIndex": 30,
          "P": 8530324693203418
         },
         {
@@ -10659,7 +14266,8 @@ const CRAFT_PRICE_CATALOG={
         31,
         32,
         33,
-        34
+        34,
+        35
        ],
        "protection": 1
       }
@@ -10669,7 +14277,55 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "hotel",
-       "cap": 49563360330518440,
+       "cap": 59140005329083710,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p11",
+       "cap": 681471057142857.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p12",
+       "cap": 681471057142857.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p15",
+       "cap": 236953463700094.97,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p16",
+       "cap": 414668561475166.25,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p25",
+       "to": "p25",
+       "cap": 473906927400189.94,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p26",
+       "to": "p26",
+       "cap": 296191829625118.75,
        "auto": true,
        "ok": true
       },
@@ -10677,7 +14333,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p35",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10685,7 +14341,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p37",
        "to": "p40",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10693,7 +14349,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p41",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10701,7 +14357,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p46",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10709,7 +14365,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p47",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10717,7 +14373,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p48",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10725,7 +14381,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p49",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10733,7 +14389,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p50",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10741,7 +14397,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p51",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10749,7 +14405,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p52",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10757,7 +14413,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p53",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10765,7 +14421,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p54",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10773,7 +14429,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p55",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10781,7 +14437,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p56",
-       "cap": 3540240023608460,
+       "cap": 3942667021938914,
        "auto": true,
        "ok": true
       },
@@ -10789,7 +14445,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p38",
-       "cap": 1127994433544599000,
+       "cap": 1128499813264425000,
        "auto": false,
        "ok": true
       },
@@ -10797,7 +14453,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p36",
        "to": "p39",
-       "cap": 1127994433544599000,
+       "cap": 1128499813264425000,
        "auto": false,
        "ok": true
       },
@@ -10837,7 +14493,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p37",
        "to": "p38",
-       "cap": 1127994433544599000,
+       "cap": 1128499813264425000,
        "auto": false,
        "ok": true
       },
@@ -10845,7 +14501,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p37",
        "to": "p39",
-       "cap": 1127994433544599000,
+       "cap": 1128499813264425000,
        "auto": false,
        "ok": true
       },
@@ -10878,6 +14534,22 @@ const CRAFT_PRICE_CATALOG={
        "from": "p37",
        "to": "f45",
        "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p57",
+       "cap": 6791982102078985,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "p57",
+       "cap": 6791982102078985,
        "auto": false,
        "ok": true
       }
@@ -10887,11 +14559,54 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 49563360330518440,
+       "weight": 59140005329083710,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p57",
+       "port": "p57",
+       "weight": 6791982102078985,
+       "domain": "main"
+      },
+      {
+       "id": "p11",
+       "port": "p11",
+       "weight": 681471057142857.2,
+       "domain": "main"
+      },
+      {
+       "id": "p12",
+       "port": "p12",
+       "weight": 681471057142857.2,
+       "domain": "main"
+      },
+      {
+       "id": "p15",
+       "port": "p15",
+       "weight": 236953463700094.97,
+       "domain": "main"
+      },
+      {
+       "id": "p16",
+       "port": "p16",
+       "weight": 414668561475166.25,
+       "domain": "main"
+      },
+      {
+       "id": "p25",
+       "port": "p25",
+       "weight": 473906927400189.94,
+       "domain": "main"
+      },
+      {
+       "id": "p26",
+       "port": "p26",
+       "weight": 296191829625118.75,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -10900,22 +14615,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 38,
        "machineryId": 38,
-       "ratedInputW": 1127994433544599000,
+       "ratedInputW": 1128499813264425000,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 563997216.7722995,
+       "ratedThrustN": 564249906.6322125,
        "effectiveMachineryVolumeM3": 0.33181821735506783,
        "machineryVolumeM3": 0.33181821735506783,
        "machineryLengthM": 0.3,
        "machineryRadiusM": 0.6649999999999999,
        "machineryDiameterM": 1.3299999999999998,
        "machineryOffsetM": 0.625,
-       "maxInputW": 1128181939007230600,
-       "maxRatedInputW": 1128181939007230600,
-       "inputDensityWPerM3": 3399434915104643000,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 971.2853714126644,
+       "maxInputW": 11281819390072306000,
+       "maxRatedInputW": 11281819390072306000,
+       "inputDensityWPerM3": 3400957977110865400,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1890.4869800919373,
        "powerNode": "p38",
        "heatNode": "p38",
        "reactorId": 36,
@@ -10930,32 +14645,32 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 22,
+       "machineryModuleIndex": 23,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1128181939007230600
+       "pathCapacityW": 11281819390072306000
       },
       {
        "version": 1,
        "id": 39,
        "machineryId": 39,
-       "ratedInputW": 1127994433544599000,
+       "ratedInputW": 1128499813264425000,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 563997216.7722995,
+       "ratedThrustN": 564249906.6322125,
        "effectiveMachineryVolumeM3": 0.33181821735506783,
        "machineryVolumeM3": 0.33181821735506783,
        "machineryLengthM": 0.3,
        "machineryRadiusM": 0.6649999999999999,
        "machineryDiameterM": 1.3299999999999998,
        "machineryOffsetM": 0.625,
-       "maxInputW": 1128181939007230600,
-       "maxRatedInputW": 1128181939007230600,
-       "inputDensityWPerM3": 3399434915104643000,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 971.2853714126644,
+       "maxInputW": 11281819390072306000,
+       "maxRatedInputW": 11281819390072306000,
+       "inputDensityWPerM3": 3400957977110865400,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1890.4869800919373,
        "powerNode": "p39",
        "heatNode": "p39",
        "reactorId": 37,
@@ -10970,30 +14685,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 23,
+       "machineryModuleIndex": 24,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1128181939007230600
+       "pathCapacityW": 11281819390072306000
       }
      ],
-     "massKg": 48329.16857286899,
-     "ratedThrustN": 1127994433.544599,
-     "ratedAccelMps2": 23339.826999999997,
+     "massKg": 48350.8216776596,
+     "ratedThrustN": 1128499813.264425,
+     "ratedAccelMps2": 23339.827000000005,
      "structuralAccelerationLimitMps2": 2035206.5632773137,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 23339.826999999997
+     "accelerationLimitMps2": 23339.827000000005
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p36",
        "n": "太陽イオン化反応炉（操縦席ポッド） #36",
        "g": "high",
-       "sh": 0.91675,
+       "sh": 0.914956,
        "st": 8759328243102624000,
        "m": [
         5
@@ -11008,8 +14724,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p37",
        "n": "太陽イオン化反応炉（兵装ポッド） #37",
        "g": "high",
-       "sh": 0.0832503,
-       "st": 795437102704695700,
+       "sh": 0.0850435,
+       "st": 814163682404849700,
        "m": [
         6
        ],
@@ -11024,10 +14740,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・エンジン #38",
        "g": "high",
        "sh": 0.5,
-       "st": 3383983300633797000,
+       "st": 3385499439793275000,
        "m": [
         7,
-        22
+        23
        ],
        "pc": [],
        "sec": 0,
@@ -11040,10 +14756,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・エンジン #39",
        "g": "high",
        "sh": 0.5,
-       "st": 3383983300633797000,
+       "st": 3385499439793275000,
        "m": [
         8,
-        23
+        24
        ],
        "pc": [],
        "sec": 0,
@@ -11055,25 +14771,11 @@ const CRAFT_PRICE_CATALOG={
        "id": "f42",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.998806,
-       "st": 31380000000000000000,
+       "sh": 1,
+       "st": 31417500000000000000,
        "m": [
         0,
-        1
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f44",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.0011936,
-       "st": 37500000000000000,
-       "m": [
+        1,
         2,
         3
        ],
@@ -11088,7 +14790,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 2973801619831106600,
+       "st": 3548400319745023000,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -11098,14 +14800,26 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p57",
+       "n": "機体内高エネルギー散逸装置 1 #57",
+       "k": "hdis",
+       "g": "high",
+       "cap": 452798806805265660,
+       "m": 22,
+       "sec": 4,
+       "src": -1,
+       "power": 6791982102078985
+      },
+      {
        "id": "p11",
        "n": "翼中央部 #11",
        "k": "solar",
        "g": "high",
        "cap": 68147105714285730,
-       "m": 24,
+       "m": 25,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 681471057142857.2
       },
       {
        "id": "p12",
@@ -11113,9 +14827,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 68147105714285730,
-       "m": 25,
+       "m": 26,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 681471057142857.2
       },
       {
        "id": "p15",
@@ -11123,9 +14838,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 23695346370009496,
-       "m": 26,
+       "m": 27,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 236953463700094.97
       },
       {
        "id": "p16",
@@ -11133,9 +14849,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 41466856147516620,
-       "m": 27,
+       "m": 28,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 414668561475166.25
       },
       {
        "id": "p25",
@@ -11143,9 +14860,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 47390692740018990,
-       "m": 28,
+       "m": 29,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 473906927400189.94
       },
       {
        "id": "p26",
@@ -11153,9 +14871,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 29619182962511870,
-       "m": 29,
+       "m": 30,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 296191829625118.75
       },
       {
        "id": "skin",
@@ -11166,184 +14885,264 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p36",
-       "n": "太陽イオン化反応炉（操縦席ポッド） #36（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 79623044548394340,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p37",
-       "n": "太陽イオン化反応炉（兵装ポッド） #37（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 79623044548394340,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:f42",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523000000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:f44",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 625000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 5
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 7,
-       "cap": 79623044548394340,
-       "sec": -1
+       "d": 0,
+       "cap": 63926785777925550,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 9621106246104464,
+       "sec": 0
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 119434566822591500,
+       "cap": 9621106246104464,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 3345343027771705.5,
        "sec": 0
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 119434566822591500,
+       "cap": 5854350298600485,
        "sec": 0
       },
       {
-       "s": 1,
-       "d": 8,
-       "cap": 79623044548394340,
-       "sec": -1
-      },
-      {
-       "s": 1,
-       "d": 3,
-       "cap": 119434566822591500,
-       "sec": 0
-      },
-      {
-       "s": 1,
+       "s": 0,
        "d": 5,
-       "cap": 119434566822591500,
+       "cap": 6690686055543411,
        "sec": 0
       },
       {
-       "s": 2,
-       "d": 2,
-       "cap": 84599582515844930,
-       "sec": 0
-      },
-      {
-       "s": 2,
-       "d": 4,
-       "cap": 84599582515844930,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 3,
-       "cap": 84599582515844930,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 5,
-       "cap": 84599582515844930,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 9,
-       "cap": 523000000000000000,
-       "sec": -1
-      },
-      {
-       "s": 4,
-       "d": 4,
-       "cap": 784500000000000000,
-       "sec": 4
-      },
-      {
-       "s": 4,
-       "d": 0,
-       "cap": 784500000000000000,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 10,
-       "cap": 625000000000000,
-       "sec": -1
-      },
-      {
-       "s": 5,
-       "d": 5,
-       "cap": 937500000000000,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 1,
-       "cap": 937500000000000,
-       "sec": 4
-      },
-      {
-       "s": 6,
-       "d": 4,
-       "cap": 74345040495777660,
-       "sec": 1
-      },
-      {
-       "s": 6,
-       "d": 5,
-       "cap": 74345040495777660,
-       "sec": 1
-      },
-      {
-       "s": 6,
-       "d": 0,
-       "cap": 74345040495777660,
-       "sec": 1
-      },
-      {
-       "s": 6,
-       "d": 1,
-       "cap": 74345040495777660,
-       "sec": 1
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 74345040495777660,
-       "sec": 1
-      },
-      {
-       "s": 6,
-       "d": 3,
-       "cap": 74345040495777660,
-       "sec": 1
-      },
-      {
-       "s": 6,
+       "s": 0,
        "d": 6,
+       "cap": 4181678784714632,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 389073855207620100,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 58556375906929720,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 58556375906929720,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 20360565496420092,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 35630989618735176,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 40721130992840184,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 25450706870525124,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 88710007993625570,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 88710007993625570,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 88710007993625570,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 88710007993625570,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 88710007993625570,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 88710007993625570,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 88710007993625570,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 7,
        "cap": 1.0166067553859735e+21,
        "sec": -1
       }
@@ -11353,15 +15152,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "15fdg5a",
-   "build": 139657,
+   "signature": "wh8jnp",
+   "build": 139677,
    "crew": 1000,
-   "total": 140657,
+   "total": 140677,
    "by": {
     "hull": 4,
     "armor": 14,
     "power": 44611,
-    "drive": 40226,
+    "drive": 40246,
     "defense": 1500,
     "command": 14501,
     "weapons": 21800,
@@ -11398,9 +15197,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00289,
-    "upS": 0.00289,
-    "down": 0.0441,
+    "up": 0.00553,
+    "upS": 0.00553,
+    "down": 0.0528,
     "T": 0
    },
    "powerProfile": {
@@ -11461,6 +15260,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        1.237,
+        2.6626500606536867,
+        0.526
+       ],
+       [
+        1.237,
+        2.6626500606536867,
+        0.724
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -11498,6 +15313,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        1.237,
+        2.6626500606536867,
+        -0.724
+       ],
+       [
+        1.237,
+        2.6626500606536867,
+        -0.526
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -11916,6 +15747,23 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.12499301349115412,
+      "hits": 1,
+      "crew": 0.0000022095234360047803,
+      "size": 0.0441904687200956,
+      "at": 0.295,
+      "part": 42,
+      "y": 0.81,
+      "z": 0,
+      "r": 0.029,
+      "share": 0.016635648617236175,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.15125694757895664,
@@ -11982,10 +15830,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.54,
       "z": 0.4,
       "r": 0.053,
-      "share": 0.10000353054351693,
+      "share": 0.09833990694891194,
       "domain": "main",
       "port": "p5",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -12000,10 +15848,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.54,
       "z": -0.4,
       "r": 0.053,
-      "share": 0.1000035196147974,
+      "share": 0.09833989620199876,
       "domain": "main",
       "port": "p6",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -12018,10 +15866,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.02,
       "z": 0.74,
       "r": 0.072,
-      "share": 0.24291352002386107,
+      "share": 0.23887249606036817,
       "domain": "main",
       "port": "p7",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -12036,10 +15884,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.02,
       "z": -0.74,
       "r": 0.072,
-      "share": 0.24291350471974815,
+      "share": 0.2388724810108491,
       "domain": "main",
       "port": "p8",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -12054,37 +15902,37 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.17,
       "z": 0,
       "r": 0.078,
-      "share": 0.31416592509807645,
+      "share": 0.3089395711606359,
       "domain": "main",
       "port": "p9",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.08181774737529572,
+      "w": 0.07837213943860248,
       "hits": 1,
       "crew": 0,
-      "size": 0.4028416709996289,
-      "at": 0.18,
+      "size": 0.3776640665621521,
+      "at": 0.178,
       "y": 0.79,
       "z": 0,
-      "r": 0.062,
-      "share": 0.056338028169014086,
+      "r": 0.06,
+      "share": 0.052910052910052914,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.3580903461581324,
+      "w": 0.35890465096502105,
       "hits": 1,
       "crew": 0,
-      "size": 3.688519050090352,
-      "at": 0.391,
-      "y": 0.37,
+      "size": 3.701107852309091,
+      "at": 0.39,
+      "y": 0.38,
       "z": 0,
       "r": 0.129,
-      "share": 0.5158450704225352,
+      "share": 0.5185185185185186,
       "domain": "main"
      },
      {
@@ -12098,7 +15946,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.23,
       "z": 0,
       "r": 0.119,
-      "share": 0.4119718309859155,
+      "share": 0.4126984126984127,
       "domain": "main"
      },
      {
@@ -12112,13 +15960,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.69,
       "z": 0,
       "r": 0.04,
-      "share": 0.01584507042253521,
+      "share": 0.015873015873015872,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 12.423268949880367,
+      "w": 12.496685976097176,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -12141,9 +15989,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 5.850300121307373,
     "grid": {
      "P": 3568703751125112000,
-     "fixed": 18202532422957864,
-     "cooling": 0,
-     "De": 1159544543543860500,
+     "fixed": 27806964448710610,
+     "cooling": 9604432025752746,
+     "De": 1161456246958186800,
      "Ds": 0,
      "Dw": 1673600000000000000,
      "domains": [
@@ -12209,7 +16057,8 @@ const CRAFT_PRICE_CATALOG={
         36,
         37,
         38,
-        39
+        39,
+        40
        ],
        "protection": 1
       }
@@ -12219,7 +16068,47 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 18202532422957864,
+       "cap": 27806964448710604,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p5",
+       "cap": 245563728807109.12,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p6",
+       "cap": 245563728807109.12,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p7",
+       "cap": 729408761587970.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p8",
+       "cap": 729408761587970.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p9",
+       "cap": 711717583697032.6,
        "auto": true,
        "ok": true
       },
@@ -12227,7 +16116,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12235,7 +16124,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p22",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12243,7 +16132,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p23",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12251,7 +16140,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p24",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12259,7 +16148,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p29",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12267,7 +16156,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p30",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12275,7 +16164,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p31",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12283,7 +16172,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p32",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12291,7 +16180,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p33",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12299,7 +16188,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p34",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12307,7 +16196,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p35",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12315,7 +16204,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12323,7 +16212,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p37",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12331,7 +16220,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p38",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12339,7 +16228,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p39",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12347,7 +16236,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12355,7 +16244,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p41",
-       "cap": 1070737201350462.6,
+       "cap": 1544831358261700.5,
        "auto": true,
        "ok": true
       },
@@ -12363,7 +16252,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p19",
-       "cap": 543822469125418240,
+       "cap": 544719051560998500,
        "auto": false,
        "ok": true
       },
@@ -12371,7 +16260,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p20",
-       "cap": 543822469125418240,
+       "cap": 544719051560998500,
        "auto": false,
        "ok": true
       },
@@ -12379,7 +16268,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 71899605293024040,
+       "cap": 72018143836189690,
        "auto": false,
        "ok": true
       },
@@ -12419,7 +16308,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p19",
-       "cap": 543822469125418240,
+       "cap": 544719051560998500,
        "auto": false,
        "ok": true
       },
@@ -12427,7 +16316,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 543822469125418240,
+       "cap": 544719051560998500,
        "auto": false,
        "ok": true
       },
@@ -12435,7 +16324,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 71899605293024040,
+       "cap": 72018143836189690,
        "auto": false,
        "ok": true
       },
@@ -12475,7 +16364,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p19",
-       "cap": 543822469125418240,
+       "cap": 544719051560998500,
        "auto": false,
        "ok": true
       },
@@ -12483,7 +16372,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 543822469125418240,
+       "cap": 544719051560998500,
        "auto": false,
        "ok": true
       },
@@ -12491,7 +16380,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 71899605293024040,
+       "cap": 72018143836189690,
        "auto": false,
        "ok": true
       },
@@ -12524,6 +16413,30 @@ const CRAFT_PRICE_CATALOG={
        "from": "p18",
        "to": "f28",
        "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p42",
+       "cap": 6942769461265554,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p42",
+       "cap": 6942769461265554,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p42",
+       "cap": 6942769461265554,
        "auto": false,
        "ok": true
       }
@@ -12549,7 +16462,44 @@ const CRAFT_PRICE_CATALOG={
        "weight": 1000000000000000
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p42",
+       "port": "p42",
+       "weight": 6942769461265554,
+       "domain": "main"
+      },
+      {
+       "id": "p5",
+       "port": "p5",
+       "weight": 245563728807109.12,
+       "domain": "main"
+      },
+      {
+       "id": "p6",
+       "port": "p6",
+       "weight": 245563728807109.12,
+       "domain": "main"
+      },
+      {
+       "id": "p7",
+       "port": "p7",
+       "weight": 729408761587970.2,
+       "domain": "main"
+      },
+      {
+       "id": "p8",
+       "port": "p8",
+       "weight": 729408761587970.2,
+       "domain": "main"
+      },
+      {
+       "id": "p9",
+       "port": "p9",
+       "weight": 711717583697032.6,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -12558,11 +16508,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 19,
        "machineryId": 19,
-       "ratedInputW": 543822469125418240,
+       "ratedInputW": 544719051560998500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 271911234.5627091,
+       "ratedThrustN": 272359525.7804993,
        "effectiveMachineryVolumeM3": 0.058826498367657465,
        "machineryVolumeM3": 0.058826498367657465,
        "machineryLengthM": 0.3,
@@ -12571,9 +16521,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.625,
        "maxInputW": 2000100944500353800,
        "maxRatedInputW": 2000100944500353800,
-       "inputDensityWPerM3": 9244515383638903000,
+       "inputDensityWPerM3": 9259756515789533000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2828.256041196599,
+       "cost": 2837.9393504729774,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 16,
@@ -12588,7 +16538,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 28,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -12598,11 +16548,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 20,
        "machineryId": 20,
-       "ratedInputW": 543822469125418240,
+       "ratedInputW": 544719051560998500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 271911234.5627091,
+       "ratedThrustN": 272359525.7804993,
        "effectiveMachineryVolumeM3": 0.058826498367657465,
        "machineryVolumeM3": 0.058826498367657465,
        "machineryLengthM": 0.3,
@@ -12611,9 +16561,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.625,
        "maxInputW": 2000100944500353800,
        "maxRatedInputW": 2000100944500353800,
-       "inputDensityWPerM3": 9244515383638903000,
+       "inputDensityWPerM3": 9259756515789533000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2828.256041196599,
+       "cost": 2837.9393504729774,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 17,
@@ -12628,7 +16578,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 28,
+       "machineryModuleIndex": 29,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -12638,11 +16588,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 21,
        "machineryId": 21,
-       "ratedInputW": 71899605293024040,
+       "ratedInputW": 72018143836189690,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 35949802.64651202,
+       "ratedThrustN": 36009071.91809484,
        "effectiveMachineryVolumeM3": 0.022979100924866196,
        "machineryVolumeM3": 0.022979100924866196,
        "machineryLengthM": 0.3,
@@ -12651,9 +16601,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0.55,
        "maxInputW": 78128943144545070,
        "maxRatedInputW": 78128943144545070,
-       "inputDensityWPerM3": 3128912899077782500,
+       "inputDensityWPerM3": 3134071436113379300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 55.919402391110964,
+       "cost": 56.12592565119826,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 18,
@@ -12668,30 +16618,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 29,
+       "machineryModuleIndex": 30,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 78128943144545070
       }
      ],
-     "massKg": 12589.505650785415,
-     "ratedThrustN": 579772271.7719302,
-     "ratedAccelMps2": 46052.02839999998,
-     "structuralAccelerationLimitMps2": 1008831.9086888396,
+     "massKg": 12610.261559707833,
+     "ratedThrustN": 580728123.4790934,
+     "ratedAccelMps2": 46052.0284,
+     "structuralAccelerationLimitMps2": 1005245.0993211863,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 46052.02839999998
+     "accelerationLimitMps2": 46052.0284
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p16",
        "n": "右舷ナセル反応炉 #16",
        "g": "high",
-       "sh": 0.609411,
+       "sh": 0.607208,
        "st": 4641803005612009000,
        "m": [
         5
@@ -12706,8 +16657,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "左舷ナセル反応炉 #17",
        "g": "high",
-       "sh": 0.390589,
-       "st": 2975063810977023000,
+       "sh": 0.392569,
+       "st": 3000994413832340000,
        "m": [
         6
        ],
@@ -12721,8 +16672,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "腹部ポッド反応炉 #18",
        "g": "high",
-       "sh": 0,
-       "st": 1,
+       "sh": 0.000223444,
+       "st": 1708122200872857.8,
        "m": [
         7
        ],
@@ -12737,10 +16688,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷ナセル・イオンエンジン #19",
        "g": "high",
        "sh": 0.468997,
-       "st": 1631467407376254700,
+       "st": 1634157154682995700,
        "m": [
         8,
-        27
+        28
        ],
        "pc": [],
        "sec": 0,
@@ -12753,10 +16704,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "左舷ナセル・イオンエンジン #20",
        "g": "high",
        "sh": 0.468997,
-       "st": 1631467407376254700,
+       "st": 1634157154682995700,
        "m": [
         9,
-        28
+        29
        ],
        "pc": [],
        "sec": 0,
@@ -12769,10 +16720,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "腹部イオンエンジン #21",
        "g": "high",
        "sh": 0.0620068,
-       "st": 215698815879072130,
+       "st": 216054431508569060,
        "m": [
         10,
-        29
+        30
        ],
        "pc": [],
        "sec": 4,
@@ -12784,54 +16735,12 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499403,
-       "st": 15671272380042970000,
+       "sh": 1,
+       "st": 31380000000000000000,
        "m": [
-        0
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f26",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.499403,
-       "st": 15671272380042970000,
-       "m": [
-        1
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f27",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.000596801,
-       "st": 18727619957030316,
-       "m": [
-        2
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f28",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.000596801,
-       "st": 18727619957030316,
-       "m": [
+        0,
+        1,
+        2,
         3
        ],
        "pc": [],
@@ -12845,7 +16754,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1092151945377471900,
+       "st": 1668417866922636500,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -12855,14 +16764,26 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p42",
+       "n": "機体内高エネルギー散逸装置 1 #42",
+       "k": "hdis",
+       "g": "high",
+       "cap": 462851297417703600,
+       "m": 27,
+       "sec": 0,
+       "src": -1,
+       "power": 6942769461265554
+      },
+      {
        "id": "p5",
        "n": "右舷主翼（Sフォイル・付け根） #5",
        "k": "wing",
        "g": "high",
        "cap": 24556372880710910,
-       "m": 30,
+       "m": 31,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 245563728807109.12
       },
       {
        "id": "p6",
@@ -12870,9 +16791,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 24556372880710910,
-       "m": 31,
+       "m": 32,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 245563728807109.12
       },
       {
        "id": "p7",
@@ -12880,9 +16802,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 72940876158797020,
-       "m": 32,
+       "m": 33,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 729408761587970.2
       },
       {
        "id": "p8",
@@ -12890,9 +16813,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 72940876158797020,
-       "m": 33,
+       "m": 34,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 729408761587970.2
       },
       {
        "id": "p9",
@@ -12900,288 +16824,315 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 71171758369703260,
-       "m": 34,
+       "m": 35,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 711717583697032.6
       },
       {
        "id": "skin",
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 349057811612006400000,
+       "cap": 349057811612006350000,
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p16",
-       "n": "右舷ナセル反応炉 #16（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 51510266403114100,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p17",
-       "n": "左舷ナセル反応炉 #17（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 51589153571169880,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p18",
-       "n": "腹部ポッド反応炉 #18（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 10954463064388754,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:f25",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 261187873000716160,
-       "m": -1,
-       "sec": -1,
-       "src": 6
-      },
-      {
-       "id": "int:f26",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 261187873000716160,
-       "m": -1,
-       "sec": -1,
-       "src": 7
-      },
-      {
-       "id": "int:f27",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 312126999283838.6,
-       "m": -1,
-       "sec": -1,
-       "src": 8
-      },
-      {
-       "id": "int:f28",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 312126999283838.6,
-       "m": -1,
-       "sec": -1,
-       "src": 9
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 6,
-       "cap": 51510266403114100,
-       "sec": -1
+       "d": 0,
+       "cap": 64549867380164696,
+       "sec": 3
       },
       {
        "s": 0,
-       "d": 0,
-       "cap": 77265399604671140,
+       "d": 1,
+       "cap": 3424664944510822.5,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 3424664944510822.5,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 10172433152746038,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 77265399604671140,
+       "cap": 10172433152746038,
        "sec": 4
       },
       {
-       "s": 1,
-       "d": 7,
-       "cap": 51589153571169880,
-       "sec": -1
-      },
-      {
-       "s": 1,
-       "d": 1,
-       "cap": 77383730356754820,
-       "sec": 4
-      },
-      {
-       "s": 1,
-       "d": 4,
-       "cap": 77383730356754820,
-       "sec": 4
-      },
-      {
-       "s": 2,
-       "d": 8,
-       "cap": 10954463064388754,
-       "sec": -1
-      },
-      {
-       "s": 2,
-       "d": 4,
-       "cap": 16431694596583132,
-       "sec": 4
-      },
-      {
-       "s": 2,
-       "d": 0,
-       "cap": 16431694596583132,
-       "sec": 4
-      },
-      {
-       "s": 3,
-       "d": 0,
-       "cap": 40786685184406370,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 4,
-       "cap": 40786685184406370,
-       "sec": 2
-      },
-      {
-       "s": 4,
-       "d": 1,
-       "cap": 40786685184406370,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 4,
-       "cap": 40786685184406370,
-       "sec": 2
-      },
-      {
-       "s": 5,
-       "d": 4,
-       "cap": 5392470396976803,
-       "sec": 3
-      },
-      {
-       "s": 5,
-       "d": 0,
-       "cap": 5392470396976803,
-       "sec": 3
-      },
-      {
-       "s": 6,
-       "d": 9,
-       "cap": 261187873000716160,
-       "sec": -1
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 391781809501074240,
-       "sec": 4
-      },
-      {
-       "s": 6,
-       "d": 0,
-       "cap": 391781809501074240,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 10,
-       "cap": 261187873000716160,
-       "sec": -1
-      },
-      {
-       "s": 7,
-       "d": 3,
-       "cap": 391781809501074240,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 1,
-       "cap": 391781809501074240,
-       "sec": 3
-      },
-      {
-       "s": 8,
-       "d": 11,
-       "cap": 312126999283838.6,
-       "sec": -1
-      },
-      {
-       "s": 8,
-       "d": 0,
-       "cap": 468190498925757.94,
-       "sec": 4
-      },
-      {
-       "s": 8,
-       "d": 4,
-       "cap": 468190498925757.94,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 12,
-       "cap": 312126999283838.6,
-       "sec": -1
-      },
-      {
-       "s": 9,
-       "d": 1,
-       "cap": 468190498925757.94,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 4,
-       "cap": 468190498925757.94,
-       "sec": 4
-      },
-      {
-       "s": 10,
-       "d": 4,
-       "cap": 27303798634436796,
-       "sec": 4
-      },
-      {
-       "s": 10,
-       "d": 0,
-       "cap": 27303798634436796,
-       "sec": 3
-      },
-      {
-       "s": 10,
-       "d": 1,
-       "cap": 27303798634436796,
-       "sec": 3
-      },
-      {
-       "s": 10,
-       "d": 2,
-       "cap": 27303798634436796,
-       "sec": 3
-      },
-      {
-       "s": 10,
-       "d": 3,
-       "cap": 27303798634436796,
-       "sec": 3
-      },
-      {
-       "s": 10,
+       "s": 0,
        "d": 5,
-       "cap": 349057811612006400000,
+       "cap": 9925709595303278,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 5638213178178902,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 299132930936456.56,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 299132930936456.56,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 888527722577178.9,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 888527722577178.9,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 866977252074300.6,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 21689644443509.453,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 1150734587061.5366,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 1150734587061.5366,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 3418077637696.713,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 3418077637696.713,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 3335175124431.199,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 398461563399577900,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 21140203741593336,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 21140203741593336,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 62793678471079470,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 62793678471079470,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 61270672175076500,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 41710446673065900,
+       "sec": 2
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 41710446673065900,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 41710446673065900,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 41710446673065900,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 41710446673065900,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 41710446673065900,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 6,
+       "cap": 349057811612006350000,
        "sec": -1
       }
      ]
@@ -13190,17 +17141,17 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "7bn7r9",
-   "build": 121700,
+   "signature": "f0wt17",
+   "build": 121781,
    "crew": 0,
-   "total": 121700,
+   "total": 121781,
    "by": {
     "hull": 2,
     "armor": 1,
-    "power": 18324,
-    "drive": 34272,
+    "power": 18325,
+    "drive": 34353,
     "command": 13500,
-    "weapons": 38601,
+    "weapons": 38600,
     "systems": 17000
    },
    "detailed": true,
@@ -13233,9 +17184,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00721,
-    "upS": 0.00721,
-    "down": 0.0298,
+    "up": 0.00553,
+    "upS": 0.00553,
+    "down": 0.0476,
     "T": 0
    },
    "powerProfile": {
@@ -13384,6 +17335,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        -0.262,
+        -0.3545038542725488,
+        0.099
+       ],
+       [
+        -0.262,
+        -0.3545038542725488,
+        -0.099
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -13734,6 +17701,601 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.04641590647242294,
+      "hits": 1,
+      "crew": 5.000002930510043e-7,
+      "size": 0.010000005861020084,
+      "at": 0.166,
+      "part": 38,
+      "y": 0.07,
+      "z": -0.15,
+      "r": 0.014,
+      "share": 0.004007604693628226,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.04641590647242294,
+      "hits": 1,
+      "crew": 5.000002930510043e-7,
+      "size": 0.010000005861020084,
+      "at": 0.166,
+      "part": 39,
+      "y": 0.07,
+      "z": 0.15,
+      "r": 0.014,
+      "share": 0.004007604693628226,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 3",
+      "w": 0.029240182521334552,
+      "hits": 1,
+      "crew": 2.5000006590939126e-7,
+      "size": 0.0050000013181878255,
+      "at": 0.251,
+      "part": 40,
+      "y": 0.34,
+      "z": 0.17,
+      "r": 0.011,
+      "share": 0.0020038017006594835,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 4",
+      "w": 0.029240175938838583,
+      "hits": 1,
+      "crew": 2.499999814900653e-7,
+      "size": 0.0049999996298013055,
+      "at": 0.236,
+      "part": 41,
+      "y": 0.01,
+      "z": 0.06,
+      "r": 0.011,
+      "share": 0.0020038010240213057,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 5",
+      "w": 0.029240155341991723,
+      "hits": 1,
+      "crew": 2.4999971733927303e-7,
+      "size": 0.00499999434678546,
+      "at": 0.28,
+      "part": 42,
+      "y": 0.61,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.002003798906798637,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 6",
+      "w": 0.02924017232908306,
+      "hits": 1,
+      "crew": 2.499999351956045e-7,
+      "size": 0.0049999987039120895,
+      "at": 0.25,
+      "part": 43,
+      "y": 0.06,
+      "z": 0.22,
+      "r": 0.011,
+      "share": 0.0020038006529617264,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 7",
+      "w": 0.029240161083294993,
+      "hits": 1,
+      "crew": 2.499997909704276e-7,
+      "size": 0.0049999958194085516,
+      "at": 0.182,
+      "part": 44,
+      "y": 0.25,
+      "z": -0.16,
+      "r": 0.011,
+      "share": 0.0020037994969674122,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 8",
+      "w": 0.029240166883046575,
+      "hits": 1,
+      "crew": 2.4999986535117835e-7,
+      "size": 0.004999997307023566,
+      "at": 0.143,
+      "part": 45,
+      "y": 0.26,
+      "z": 0.12,
+      "r": 0.011,
+      "share": 0.0020038000931443542,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 9",
+      "w": 0.02924017028046232,
+      "hits": 1,
+      "crew": 2.499999089224158e-7,
+      "size": 0.0049999981784483154,
+      "at": 0.265,
+      "part": 46,
+      "y": 0.53,
+      "z": 0.12,
+      "r": 0.011,
+      "share": 0.002003800442376741,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 10",
+      "w": 0.028197611281247332,
+      "hits": 1,
+      "crew": 2.3674917987508118e-7,
+      "size": 0.004734983597501624,
+      "at": 0.251,
+      "part": 47,
+      "y": 0.07,
+      "z": -0.27,
+      "r": 0.011,
+      "share": 0.0018975931367768682,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 11",
+      "w": 0.027010089199207468,
+      "hits": 1,
+      "crew": 2.2195198424907644e-7,
+      "size": 0.004439039684981529,
+      "at": 0.206,
+      "part": 48,
+      "y": 0.03,
+      "z": 0.16,
+      "r": 0.011,
+      "share": 0.0017789905850034387,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 12",
+      "w": 0.025872624511678762,
+      "hits": 1,
+      "crew": 2.0808018860075887e-7,
+      "size": 0.004161603772015177,
+      "at": 0.178,
+      "part": 49,
+      "y": 0.25,
+      "z": 0.16,
+      "r": 0.011,
+      "share": 0.0016678053034708572,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 13",
+      "w": 0.02478304701584535,
+      "hits": 1,
+      "crew": 1.9507519760234375e-7,
+      "size": 0.003901503952046875,
+      "at": 0.124,
+      "part": 50,
+      "y": 0.15,
+      "z": -0.1,
+      "r": 0.01,
+      "share": 0.0015635676386330797,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 14",
+      "w": 0.023739351420630172,
+      "hits": 1,
+      "crew": 1.828829752880748e-7,
+      "size": 0.003657659505761496,
+      "at": 0.258,
+      "part": 51,
+      "y": 0.36,
+      "z": 0.05,
+      "r": 0.01,
+      "share": 0.0014658444811639722,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 15",
+      "w": 0.022739603241682307,
+      "hits": 1,
+      "crew": 1.7145269999707357e-7,
+      "size": 0.0034290539999414713,
+      "at": 0.192,
+      "part": 52,
+      "y": 0.07,
+      "z": -0.24,
+      "r": 0.01,
+      "share": 0.001374228485048933,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 16",
+      "w": 0.021781975740978517,
+      "hits": 1,
+      "crew": 1.607370188718688e-7,
+      "size": 0.0032147403774373754,
+      "at": 0.179,
+      "part": 53,
+      "y": 0.08,
+      "z": 0.24,
+      "r": 0.01,
+      "share": 0.0012883401074426954,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 17",
+      "w": 0.033120574068110566,
+      "hits": 1,
+      "crew": 3.0138163723889995e-7,
+      "size": 0.006027632744777999,
+      "at": 0.201,
+      "part": 54,
+      "y": 0.43,
+      "z": 0.14,
+      "r": 0.012,
+      "share": 0.002415635512135124,
+      "domain": "main",
+      "port": "p54",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 18",
+      "w": 0.019087547462196004,
+      "hits": 1,
+      "crew": 1.3185457379613995e-7,
+      "size": 0.0026370914759227993,
+      "at": 0.24,
+      "part": 55,
+      "y": 0.11,
+      "z": 0.13,
+      "r": 0.009,
+      "share": 0.0010568413982266535,
+      "domain": "main",
+      "port": "p55",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 19",
+      "w": 0.01828371796616314,
+      "hits": 1,
+      "crew": 1.2361374801162526e-7,
+      "size": 0.002472274960232505,
+      "at": 0.169,
+      "part": 56,
+      "y": 0.39,
+      "z": -0.13,
+      "r": 0.009,
+      "share": 0.0009907894927530206,
+      "domain": "main",
+      "port": "p56",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 20",
+      "w": 0.017513722853892095,
+      "hits": 1,
+      "crew": 1.1588779876701154e-7,
+      "size": 0.002317755975340231,
+      "at": 0.147,
+      "part": 57,
+      "y": 0.3,
+      "z": -0.13,
+      "r": 0.009,
+      "share": 0.0009288644281365306,
+      "domain": "main",
+      "port": "p57",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 21",
+      "w": 0.026630508322552184,
+      "hits": 1,
+      "crew": 2.1728972426796304e-7,
+      "size": 0.004345794485359261,
+      "at": 0.09,
+      "part": 58,
+      "y": 0.2,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.0017416216169390158,
+      "domain": "main",
+      "port": "p58",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 22",
+      "w": 0.024362288264391296,
+      "hits": 1,
+      "crew": 1.9012845574007e-7,
+      "size": 0.0038025691148013997,
+      "at": 0.119,
+      "part": 59,
+      "y": 0.11,
+      "z": 0.1,
+      "r": 0.01,
+      "share": 0.001523918490060694,
+      "domain": "main",
+      "port": "p59",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 23",
+      "w": 0.022287261234752727,
+      "hits": 1,
+      "crew": 1.6636235506040055e-7,
+      "size": 0.003327247101208011,
+      "at": 0.256,
+      "part": 60,
+      "y": 0.41,
+      "z": -0.14,
+      "r": 0.01,
+      "share": 0.001333428328441192,
+      "domain": "main",
+      "port": "p60",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 24",
+      "w": 0.020388966317974412,
+      "hits": 1,
+      "crew": 1.4556696154983395e-7,
+      "size": 0.0029113392309966786,
+      "at": 0.213,
+      "part": 61,
+      "y": 0.62,
+      "z": 0.08,
+      "r": 0.009,
+      "share": 0.0011667489928546997,
+      "domain": "main",
+      "port": "p61",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 25",
+      "w": 0.018652392046134482,
+      "hits": 1,
+      "crew": 1.273713661655649e-7,
+      "size": 0.0025474273233112984,
+      "at": 0.251,
+      "part": 62,
+      "y": 0.21,
+      "z": 0.04,
+      "r": 0.009,
+      "share": 0.0010209075714019368,
+      "domain": "main",
+      "port": "p62",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 26",
+      "w": 0.010749446552850374,
+      "hits": 1,
+      "crew": 5.572488249582586e-8,
+      "size": 0.0011144976499165172,
+      "at": 0.106,
+      "part": 63,
+      "y": 0.35,
+      "z": 0,
+      "r": 0.007,
+      "share": 0.0004466463395039895,
+      "domain": "main",
+      "port": "p63",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 27",
+      "w": 0.016345074102193376,
+      "hits": 1,
+      "crew": 1.0448413342588738e-7,
+      "size": 0.0020896826685177475,
+      "at": 0.155,
+      "part": 64,
+      "y": 0.58,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.0008374617162165343,
+      "domain": "main",
+      "port": "p64",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 28",
+      "w": 0.023736257784996738,
+      "hits": 1,
+      "crew": 1.828472273744374e-7,
+      "size": 0.0036569445474887476,
+      "at": 0.219,
+      "part": 65,
+      "y": 0.06,
+      "z": -0.25,
+      "r": 0.01,
+      "share": 0.0014655579543189448,
+      "domain": "main",
+      "port": "p65",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 29",
+      "w": 0.01234334092849089,
+      "hits": 1,
+      "crew": 6.856762251454336e-8,
+      "size": 0.001371352450290867,
+      "at": 0.284,
+      "part": 66,
+      "y": 0.61,
+      "z": -0.07,
+      "r": 0.007,
+      "share": 0.0005495835295284143,
+      "domain": "main",
+      "port": "p66",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 30",
+      "w": 0.011292034558339875,
+      "hits": 1,
+      "crew": 5.999682967986524e-8,
+      "size": 0.001199936593597305,
+      "at": 0.096,
+      "part": 67,
+      "y": 0.14,
+      "z": -0.07,
+      "r": 0.007,
+      "share": 0.00048088687060692176,
+      "domain": "main",
+      "port": "p67",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 31",
+      "w": 0.016398233158902,
+      "hits": 1,
+      "crew": 1.0499426799638064e-7,
+      "size": 0.0020998853599276126,
+      "at": 0.238,
+      "part": 68,
+      "y": 0.71,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.0008415505492182425,
+      "domain": "main",
+      "port": "p68",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 32",
+      "w": 0.013536449883884341,
+      "hits": 1,
+      "crew": 7.874575910008242e-8,
+      "size": 0.0015749151820016482,
+      "at": 0.152,
+      "part": 69,
+      "y": 0.41,
+      "z": 0.11,
+      "r": 0.008,
+      "share": 0.0006311633776194924,
+      "domain": "main",
+      "port": "p69",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 33",
+      "w": 0.01117410419922739,
+      "hits": 1,
+      "crew": 5.9059406676575286e-8,
+      "size": 0.0011811881335315056,
+      "at": 0.274,
+      "part": 70,
+      "y": 0.41,
+      "z": 0.17,
+      "r": 0.007,
+      "share": 0.00047337323335487977,
+      "domain": "main",
+      "port": "p70",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 34",
+      "w": 0.014642219924150561,
+      "hits": 1,
+      "crew": 8.858912104227493e-8,
+      "size": 0.0017717824208454986,
+      "at": 0.265,
+      "part": 71,
+      "y": 0.38,
+      "z": -0.04,
+      "r": 0.008,
+      "share": 0.0007100599384192841,
+      "domain": "main",
+      "port": "p71",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 35",
+      "w": 0.014642202826695342,
+      "hits": 1,
+      "crew": 8.858896587645013e-8,
+      "size": 0.0017717793175290025,
+      "at": 0.118,
+      "part": 72,
+      "y": 0.3,
+      "z": -0.08,
+      "r": 0.008,
+      "share": 0.0007100586947334374,
+      "domain": "main",
+      "port": "p72",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.12222854150764441,
@@ -13782,10 +18344,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.58,
       "z": 0.88,
       "r": 0.056,
-      "share": 0.2500000009543655,
+      "share": 0.23689918103530486,
       "domain": "main",
       "port": "p4",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -13800,10 +18362,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.58,
       "z": -0.88,
       "r": 0.056,
-      "share": 0.2500000009543655,
+      "share": 0.23689918103530486,
       "domain": "main",
       "port": "p5",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -13818,10 +18380,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.58,
       "z": 0.88,
       "r": 0.056,
-      "share": 0.24999999904563452,
+      "share": 0.23689917922659764,
       "domain": "main",
       "port": "p6",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -13836,37 +18398,37 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.58,
       "z": -0.88,
       "r": 0.056,
-      "share": 0.24999999904563452,
+      "share": 0.23689917922659764,
       "domain": "main",
       "port": "p7",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.1414624749259084,
+      "w": 0.1341010238662928,
       "hits": 1,
       "crew": 0,
-      "size": 0.9158513486780778,
-      "at": 0.165,
-      "y": 0.11,
-      "z": 0.01,
-      "r": 0.064,
-      "share": 0.21191051995163238,
+      "size": 0.8453007454988821,
+      "at": 0.164,
+      "y": 0.1,
+      "z": 0,
+      "r": 0.063,
+      "share": 0.2003095975232198,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.2534395461737531,
+      "w": 0.25102149526499973,
       "hits": 1,
       "crew": 0,
-      "size": 2.1962141471153336,
-      "at": 0.376,
+      "size": 2.1648583234801353,
+      "at": 0.377,
       "y": 0.03,
       "z": 0,
       "r": 0.086,
-      "share": 0.5081620314389359,
+      "share": 0.5130030959752322,
       "domain": "main"
      },
      {
@@ -13880,7 +18442,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.01,
       "z": 0,
       "r": 0.065,
-      "share": 0.22309552599758162,
+      "share": 0.22848297213622293,
       "domain": "main"
      },
      {
@@ -13894,13 +18456,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.041,
-      "share": 0.05683192261185006,
+      "share": 0.05820433436532508,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 11.452435907170225,
+      "w": 11.936662391303242,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -13923,9 +18485,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 1.758999959565699,
     "grid": {
      "P": 4941390161528088000,
-     "fixed": 16738438781802650,
-     "cooling": 0,
-     "De": 696403389533953000,
+     "fixed": 38163805725578520,
+     "cooling": 21425366943775868,
+     "De": 700203918677059300,
      "Ds": 0,
      "Dw": 3349200000000000000,
      "domains": [
@@ -13978,7 +18540,42 @@ const CRAFT_PRICE_CATALOG={
         33,
         34,
         35,
-        36
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71
        ],
        "protection": 1
       }
@@ -13988,7 +18585,39 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 16738438781802650,
+       "cap": 38163805725578520,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p4",
+       "cap": 220424817679557.97,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p5",
+       "cap": 220424817679557.97,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p6",
+       "cap": 220424817679557.97,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p7",
+       "cap": 220424817679557.97,
        "auto": true,
        "ok": true
       },
@@ -13996,7 +18625,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p12",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14004,7 +18633,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p13",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14012,7 +18641,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p14",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14020,7 +18649,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14028,7 +18657,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p26",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14036,7 +18665,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p27",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14044,7 +18673,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p28",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14052,7 +18681,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p29",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14060,7 +18689,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p30",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14068,7 +18697,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p31",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14076,7 +18705,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p32",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14084,7 +18713,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p33",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14092,7 +18721,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p34",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14100,7 +18729,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p35",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14108,7 +18737,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14116,7 +18745,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p37",
-       "cap": 1046152423862665.6,
+       "cap": 748309916187814.1,
        "auto": true,
        "ok": true
       },
@@ -14124,7 +18753,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p17",
-       "cap": 348201694766976500,
+       "cap": 350101959338529660,
        "auto": false,
        "ok": true
       },
@@ -14132,7 +18761,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p18",
-       "cap": 348201694766976500,
+       "cap": 350101959338529660,
        "auto": false,
        "ok": true
       },
@@ -14191,6 +18820,286 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1500000000000000,
        "auto": false,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p38",
+       "cap": 1571102034335167.8,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p39",
+       "cap": 1571102034335167.8,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p40",
+       "cap": 785550763855460.9,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p41",
+       "cap": 785550498592866.8,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p42",
+       "cap": 785549668577659,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p43",
+       "cap": 785550353126308.9,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p44",
+       "cap": 785549899941636.8,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p45",
+       "cap": 785550133660997.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p46",
+       "cap": 785550270570636.8,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p47",
+       "cap": 743913800248472.8,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p48",
+       "cap": 697418019198800.4,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p49",
+       "cap": 653830032019900.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p50",
+       "cap": 612965720342314.4,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p51",
+       "cap": 574655292234104.1,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p52",
+       "cap": 538739055759276.3,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p53",
+       "cap": 505068218663629.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p54",
+       "cap": 947002051714794,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p55",
+       "cap": 414313735424911.56,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p56",
+       "cap": 388419394292331.4,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p57",
+       "cap": 364142899370068.06,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p58",
+       "cap": 682768255503202.9,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p59",
+       "cap": 597422057046188.1,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p60",
+       "cap": 522744162562966,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p61",
+       "cap": 457400830762320.9,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p62",
+       "cap": 400226590423928.75,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p63",
+       "cap": 175098849878772.78,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p64",
+       "cap": 328310276739004.94,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p65",
+       "cap": 574542965060261.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p66",
+       "cap": 215453336166616.75,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p67",
+       "cap": 188522171834170.16,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p68",
+       "cap": 329913222722488.4,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p69",
+       "cap": 247435099612604.22,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p70",
+       "cap": 185576599185573.3,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p71",
+       "cap": 278364933428718.53,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p72",
+       "cap": 278364445866318.28,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -14198,7 +19107,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 15738438781802650,
+       "weight": 15738438781802652,
        "domain": "main"
       },
       {
@@ -14208,7 +19117,242 @@ const CRAFT_PRICE_CATALOG={
        "weight": 1000000000000000
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p38",
+       "port": "p38",
+       "weight": 1571102034335167.8,
+       "domain": "main"
+      },
+      {
+       "id": "p39",
+       "port": "p39",
+       "weight": 1571102034335167.8,
+       "domain": "main"
+      },
+      {
+       "id": "p40",
+       "port": "p40",
+       "weight": 785550763855460.9,
+       "domain": "main"
+      },
+      {
+       "id": "p41",
+       "port": "p41",
+       "weight": 785550498592866.8,
+       "domain": "main"
+      },
+      {
+       "id": "p42",
+       "port": "p42",
+       "weight": 785549668577659,
+       "domain": "main"
+      },
+      {
+       "id": "p43",
+       "port": "p43",
+       "weight": 785550353126308.9,
+       "domain": "main"
+      },
+      {
+       "id": "p44",
+       "port": "p44",
+       "weight": 785549899941636.8,
+       "domain": "main"
+      },
+      {
+       "id": "p45",
+       "port": "p45",
+       "weight": 785550133660997.5,
+       "domain": "main"
+      },
+      {
+       "id": "p46",
+       "port": "p46",
+       "weight": 785550270570636.8,
+       "domain": "main"
+      },
+      {
+       "id": "p47",
+       "port": "p47",
+       "weight": 743913800248472.8,
+       "domain": "main"
+      },
+      {
+       "id": "p48",
+       "port": "p48",
+       "weight": 697418019198800.4,
+       "domain": "main"
+      },
+      {
+       "id": "p49",
+       "port": "p49",
+       "weight": 653830032019900.2,
+       "domain": "main"
+      },
+      {
+       "id": "p50",
+       "port": "p50",
+       "weight": 612965720342314.4,
+       "domain": "main"
+      },
+      {
+       "id": "p51",
+       "port": "p51",
+       "weight": 574655292234104.1,
+       "domain": "main"
+      },
+      {
+       "id": "p52",
+       "port": "p52",
+       "weight": 538739055759276.3,
+       "domain": "main"
+      },
+      {
+       "id": "p53",
+       "port": "p53",
+       "weight": 505068218663629.2,
+       "domain": "main"
+      },
+      {
+       "id": "p54",
+       "port": "p54",
+       "weight": 947002051714794,
+       "domain": "main"
+      },
+      {
+       "id": "p55",
+       "port": "p55",
+       "weight": 414313735424911.56,
+       "domain": "main"
+      },
+      {
+       "id": "p56",
+       "port": "p56",
+       "weight": 388419394292331.4,
+       "domain": "main"
+      },
+      {
+       "id": "p57",
+       "port": "p57",
+       "weight": 364142899370068.06,
+       "domain": "main"
+      },
+      {
+       "id": "p58",
+       "port": "p58",
+       "weight": 682768255503202.9,
+       "domain": "main"
+      },
+      {
+       "id": "p59",
+       "port": "p59",
+       "weight": 597422057046188.1,
+       "domain": "main"
+      },
+      {
+       "id": "p60",
+       "port": "p60",
+       "weight": 522744162562966,
+       "domain": "main"
+      },
+      {
+       "id": "p61",
+       "port": "p61",
+       "weight": 457400830762320.9,
+       "domain": "main"
+      },
+      {
+       "id": "p62",
+       "port": "p62",
+       "weight": 400226590423928.75,
+       "domain": "main"
+      },
+      {
+       "id": "p63",
+       "port": "p63",
+       "weight": 175098849878772.78,
+       "domain": "main"
+      },
+      {
+       "id": "p64",
+       "port": "p64",
+       "weight": 328310276739004.94,
+       "domain": "main"
+      },
+      {
+       "id": "p65",
+       "port": "p65",
+       "weight": 574542965060261.2,
+       "domain": "main"
+      },
+      {
+       "id": "p66",
+       "port": "p66",
+       "weight": 215453336166616.75,
+       "domain": "main"
+      },
+      {
+       "id": "p67",
+       "port": "p67",
+       "weight": 188522171834170.16,
+       "domain": "main"
+      },
+      {
+       "id": "p68",
+       "port": "p68",
+       "weight": 329913222722488.4,
+       "domain": "main"
+      },
+      {
+       "id": "p69",
+       "port": "p69",
+       "weight": 247435099612604.22,
+       "domain": "main"
+      },
+      {
+       "id": "p70",
+       "port": "p70",
+       "weight": 185576599185573.3,
+       "domain": "main"
+      },
+      {
+       "id": "p71",
+       "port": "p71",
+       "weight": 278364933428718.53,
+       "domain": "main"
+      },
+      {
+       "id": "p72",
+       "port": "p72",
+       "weight": 278364445866318.28,
+       "domain": "main"
+      },
+      {
+       "id": "p4",
+       "port": "p4",
+       "weight": 220424817679557.97,
+       "domain": "main"
+      },
+      {
+       "id": "p5",
+       "port": "p5",
+       "weight": 220424817679557.97,
+       "domain": "main"
+      },
+      {
+       "id": "p6",
+       "port": "p6",
+       "weight": 220424817679557.97,
+       "domain": "main"
+      },
+      {
+       "id": "p7",
+       "port": "p7",
+       "weight": 220424817679557.97,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -14217,11 +19361,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 17,
        "machineryId": 17,
-       "ratedInputW": 348201694766976500,
+       "ratedInputW": 350101959338529660,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 174100847.38348827,
+       "ratedThrustN": 175050979.66926482,
        "effectiveMachineryVolumeM3": 0.019449511022806756,
        "machineryVolumeM3": 0.019449511022806756,
        "machineryLengthM": 0.3,
@@ -14230,9 +19374,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0,
        "maxInputW": 661283374775429600,
        "maxRatedInputW": 661283374775429600,
-       "inputDensityWPerM3": 17902850840757414000,
+       "inputDensityWPerM3": 18000553274989558000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3635.215915722686,
+       "cost": 3675.760057411587,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 16,
@@ -14247,7 +19391,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 12,
-       "machineryModuleIndex": 26,
+       "machineryModuleIndex": 61,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -14257,11 +19401,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 18,
        "machineryId": 18,
-       "ratedInputW": 348201694766976500,
+       "ratedInputW": 350101959338529660,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 174100847.38348827,
+       "ratedThrustN": 175050979.66926482,
        "effectiveMachineryVolumeM3": 0.019449511022806756,
        "machineryVolumeM3": 0.019449511022806756,
        "machineryLengthM": 0.3,
@@ -14270,9 +19414,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 0,
        "maxInputW": 661283374775429600,
        "maxRatedInputW": 661283374775429600,
-       "inputDensityWPerM3": 17902850840757414000,
+       "inputDensityWPerM3": 18000553274989558000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3635.215915722686,
+       "cost": 3675.760057411587,
        "powerNode": "p18",
        "heatNode": "p18",
        "reactorId": 16,
@@ -14287,23 +19431,24 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 13,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 62,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 661283374775429600
       }
      ],
-     "massKg": 9862.969820563274,
-     "ratedThrustN": 348201694.76697654,
+     "massKg": 9916.795670356614,
+     "ratedThrustN": 350101959.33852965,
      "ratedAccelMps2": 35303.939999999995,
-     "structuralAccelerationLimitMps2": 152598.36114259096,
+     "structuralAccelerationLimitMps2": 151657.27036085163,
      "inertialFactor": 1,
      "accelerationLimitMps2": 35303.939999999995
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
@@ -14311,7 +19456,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "胴体内反応炉 #16",
        "g": "high",
        "sh": 1,
-       "st": 10672751100284848000,
+       "st": 10727364425430114000,
        "m": [
         11
        ],
@@ -14326,10 +19471,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #17",
        "g": "high",
        "sh": 0.5,
-       "st": 1044605084300929500,
+       "st": 1050305878015589000,
        "m": [
         12,
-        26
+        61
        ],
        "pc": [],
        "sec": 1,
@@ -14342,10 +19487,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #18",
        "g": "high",
        "sh": 0.5,
-       "st": 1044605084300929500,
+       "st": 1050305878015589000,
        "m": [
         13,
-        27
+        62
        ],
        "pc": [],
        "sec": 1,
@@ -14357,28 +19502,14 @@ const CRAFT_PRICE_CATALOG={
        "id": "f19",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499851,
-       "st": 31389377798340400000,
+       "sh": 0.999702,
+       "st": 62778755596680790000,
        "m": [
         0,
-        2,
-        4
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f20",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.499851,
-       "st": 31389377798340400000,
-       "m": [
         1,
+        2,
         3,
+        4,
         5
        ],
        "pc": [],
@@ -14407,7 +19538,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1004306326908159000,
+       "st": 2289828343534711300,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -14417,14 +19548,400 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p38",
+       "n": "機体内高エネルギー散逸装置 1 #38",
+       "k": "hdis",
+       "g": "high",
+       "cap": 104740135622344530,
+       "m": 26,
+       "sec": 0,
+       "src": -1,
+       "power": 1571102034335167.8
+      },
+      {
+       "id": "p39",
+       "n": "機体内高エネルギー散逸装置 2 #39",
+       "k": "hdis",
+       "g": "high",
+       "cap": 104740135622344530,
+       "m": 27,
+       "sec": 0,
+       "src": -1,
+       "power": 1571102034335167.8
+      },
+      {
+       "id": "p40",
+       "n": "機体内高エネルギー散逸装置 3 #40",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52370050923697390,
+       "m": 28,
+       "sec": 1,
+       "src": -1,
+       "power": 785550763855460.9
+      },
+      {
+       "id": "p41",
+       "n": "機体内高エネルギー散逸装置 4 #41",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52370033239524450,
+       "m": 29,
+       "sec": 0,
+       "src": -1,
+       "power": 785550498592866.8
+      },
+      {
+       "id": "p42",
+       "n": "機体内高エネルギー散逸装置 5 #42",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52369977905177270,
+       "m": 30,
+       "sec": 1,
+       "src": -1,
+       "power": 785549668577659
+      },
+      {
+       "id": "p43",
+       "n": "機体内高エネルギー散逸装置 6 #43",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52370023541753930,
+       "m": 31,
+       "sec": 1,
+       "src": -1,
+       "power": 785550353126308.9
+      },
+      {
+       "id": "p44",
+       "n": "機体内高エネルギー散逸装置 7 #44",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52369993329442456,
+       "m": 32,
+       "sec": 0,
+       "src": -1,
+       "power": 785549899941636.8
+      },
+      {
+       "id": "p45",
+       "n": "機体内高エネルギー散逸装置 8 #45",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52370008910733170,
+       "m": 33,
+       "sec": 0,
+       "src": -1,
+       "power": 785550133660997.5
+      },
+      {
+       "id": "p46",
+       "n": "機体内高エネルギー散逸装置 9 #46",
+       "k": "hdis",
+       "g": "high",
+       "cap": 52370018038042456,
+       "m": 34,
+       "sec": 1,
+       "src": -1,
+       "power": 785550270570636.8
+      },
+      {
+       "id": "p47",
+       "n": "機体内高エネルギー散逸装置 10 #47",
+       "k": "hdis",
+       "g": "high",
+       "cap": 49594253349898184,
+       "m": 35,
+       "sec": 1,
+       "src": -1,
+       "power": 743913800248472.8
+      },
+      {
+       "id": "p48",
+       "n": "機体内高エネルギー散逸装置 11 #48",
+       "k": "hdis",
+       "g": "high",
+       "cap": 46494534613253360,
+       "m": 36,
+       "sec": 0,
+       "src": -1,
+       "power": 697418019198800.4
+      },
+      {
+       "id": "p49",
+       "n": "機体内高エネルギー散逸装置 12 #49",
+       "k": "hdis",
+       "g": "high",
+       "cap": 43588668801326690,
+       "m": 37,
+       "sec": 0,
+       "src": -1,
+       "power": 653830032019900.2
+      },
+      {
+       "id": "p50",
+       "n": "機体内高エネルギー散逸装置 13 #50",
+       "k": "hdis",
+       "g": "high",
+       "cap": 40864381356154296,
+       "m": 38,
+       "sec": 0,
+       "src": -1,
+       "power": 612965720342314.4
+      },
+      {
+       "id": "p51",
+       "n": "機体内高エネルギー散逸装置 14 #51",
+       "k": "hdis",
+       "g": "high",
+       "cap": 38310352815606940,
+       "m": 39,
+       "sec": 1,
+       "src": -1,
+       "power": 574655292234104.1
+      },
+      {
+       "id": "p52",
+       "n": "機体内高エネルギー散逸装置 15 #52",
+       "k": "hdis",
+       "g": "high",
+       "cap": 35915937050618424,
+       "m": 40,
+       "sec": 0,
+       "src": -1,
+       "power": 538739055759276.3
+      },
+      {
+       "id": "p53",
+       "n": "機体内高エネルギー散逸装置 16 #53",
+       "k": "hdis",
+       "g": "high",
+       "cap": 33671214577575280,
+       "m": 41,
+       "sec": 0,
+       "src": -1,
+       "power": 505068218663629.2
+      },
+      {
+       "id": "p54",
+       "n": "機体内高エネルギー散逸装置 17 #54",
+       "k": "hdis",
+       "g": "high",
+       "cap": 63133470114319600,
+       "m": 42,
+       "sec": 0,
+       "src": -1,
+       "power": 947002051714794
+      },
+      {
+       "id": "p55",
+       "n": "機体内高エネルギー散逸装置 18 #55",
+       "k": "hdis",
+       "g": "high",
+       "cap": 27620915694994104,
+       "m": 43,
+       "sec": 0,
+       "src": -1,
+       "power": 414313735424911.56
+      },
+      {
+       "id": "p56",
+       "n": "機体内高エネルギー散逸装置 19 #56",
+       "k": "hdis",
+       "g": "high",
+       "cap": 25894626286155424,
+       "m": 44,
+       "sec": 0,
+       "src": -1,
+       "power": 388419394292331.4
+      },
+      {
+       "id": "p57",
+       "n": "機体内高エネルギー散逸装置 20 #57",
+       "k": "hdis",
+       "g": "high",
+       "cap": 24276193291337870,
+       "m": 45,
+       "sec": 0,
+       "src": -1,
+       "power": 364142899370068.06
+      },
+      {
+       "id": "p58",
+       "n": "機体内高エネルギー散逸装置 21 #58",
+       "k": "hdis",
+       "g": "high",
+       "cap": 45517883700213530,
+       "m": 46,
+       "sec": 0,
+       "src": -1,
+       "power": 682768255503202.9
+      },
+      {
+       "id": "p59",
+       "n": "機体内高エネルギー散逸装置 22 #59",
+       "k": "hdis",
+       "g": "high",
+       "cap": 39828137136412540,
+       "m": 47,
+       "sec": 0,
+       "src": -1,
+       "power": 597422057046188.1
+      },
+      {
+       "id": "p60",
+       "n": "機体内高エネルギー散逸装置 23 #60",
+       "k": "hdis",
+       "g": "high",
+       "cap": 34849610837531068,
+       "m": 48,
+       "sec": 1,
+       "src": -1,
+       "power": 522744162562966
+      },
+      {
+       "id": "p61",
+       "n": "機体内高エネルギー散逸装置 24 #61",
+       "k": "hdis",
+       "g": "high",
+       "cap": 30493388717488060,
+       "m": 49,
+       "sec": 0,
+       "src": -1,
+       "power": 457400830762320.9
+      },
+      {
+       "id": "p62",
+       "n": "機体内高エネルギー散逸装置 25 #62",
+       "k": "hdis",
+       "g": "high",
+       "cap": 26681772694928584,
+       "m": 50,
+       "sec": 1,
+       "src": -1,
+       "power": 400226590423928.75
+      },
+      {
+       "id": "p63",
+       "n": "機体内高エネルギー散逸装置 26 #63",
+       "k": "hdis",
+       "g": "high",
+       "cap": 11673256658584852,
+       "m": 51,
+       "sec": 0,
+       "src": -1,
+       "power": 175098849878772.78
+      },
+      {
+       "id": "p64",
+       "n": "機体内高エネルギー散逸装置 27 #64",
+       "k": "hdis",
+       "g": "high",
+       "cap": 21887351782600330,
+       "m": 52,
+       "sec": 0,
+       "src": -1,
+       "power": 328310276739004.94
+      },
+      {
+       "id": "p65",
+       "n": "機体内高エネルギー散逸装置 28 #65",
+       "k": "hdis",
+       "g": "high",
+       "cap": 38302864337350750,
+       "m": 53,
+       "sec": 0,
+       "src": -1,
+       "power": 574542965060261.2
+      },
+      {
+       "id": "p66",
+       "n": "機体内高エネルギー散逸装置 29 #66",
+       "k": "hdis",
+       "g": "high",
+       "cap": 14363555744441118,
+       "m": 54,
+       "sec": 1,
+       "src": -1,
+       "power": 215453336166616.75
+      },
+      {
+       "id": "p67",
+       "n": "機体内高エネルギー散逸装置 30 #67",
+       "k": "hdis",
+       "g": "high",
+       "cap": 12568144788944678,
+       "m": 55,
+       "sec": 0,
+       "src": -1,
+       "power": 188522171834170.16
+      },
+      {
+       "id": "p68",
+       "n": "機体内高エネルギー散逸装置 31 #68",
+       "k": "hdis",
+       "g": "high",
+       "cap": 21994214848165892,
+       "m": 56,
+       "sec": 0,
+       "src": -1,
+       "power": 329913222722488.4
+      },
+      {
+       "id": "p69",
+       "n": "機体内高エネルギー散逸装置 32 #69",
+       "k": "hdis",
+       "g": "high",
+       "cap": 16495673307506948,
+       "m": 57,
+       "sec": 0,
+       "src": -1,
+       "power": 247435099612604.22
+      },
+      {
+       "id": "p70",
+       "n": "機体内高エネルギー散逸装置 33 #70",
+       "k": "hdis",
+       "g": "high",
+       "cap": 12371773279038222,
+       "m": 58,
+       "sec": 1,
+       "src": -1,
+       "power": 185576599185573.3
+      },
+      {
+       "id": "p71",
+       "n": "機体内高エネルギー散逸装置 34 #71",
+       "k": "hdis",
+       "g": "high",
+       "cap": 18557662228581236,
+       "m": 59,
+       "sec": 1,
+       "src": -1,
+       "power": 278364933428718.53
+      },
+      {
+       "id": "p72",
+       "n": "機体内高エネルギー散逸装置 35 #72",
+       "k": "hdis",
+       "g": "high",
+       "cap": 18557629724421220,
+       "m": 60,
+       "sec": 0,
+       "src": -1,
+       "power": 278364445866318.28
+      },
+      {
        "id": "p4",
        "n": "上翼 #4",
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 28,
+       "m": 63,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 220424817679557.97
       },
       {
        "id": "p5",
@@ -14432,9 +19949,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 29,
+       "m": 64,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 220424817679557.97
       },
       {
        "id": "p6",
@@ -14442,9 +19960,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 30,
+       "m": 65,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 220424817679557.97
       },
       {
        "id": "p7",
@@ -14452,9 +19971,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 31,
+       "m": 66,
        "sec": 3,
-       "src": -1
+       "src": -1,
+       "power": 220424817679557.97
       },
       {
        "id": "skin",
@@ -14465,172 +19985,1416 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p16",
-       "n": "胴体内反応炉 #16（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 177879185004747460,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:f19",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523156296639006660,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:f20",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523156296639006660,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:f25",
-       "n": "武装（中央区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 312406721986747.06,
-       "m": -1,
-       "sec": -1,
-       "src": 5
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 5,
-       "cap": 177879185004747460,
-       "sec": -1
+       "d": 0,
+       "cap": 14570153827286780,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 14570153827286780,
+       "sec": 1
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 266818777507121180,
-       "sec": 2
+       "cap": 7285074564466496,
+       "sec": 1
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 266818777507121180,
+       "cap": 7285072104462807,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 7285064407031965,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 7285070755428766,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 6,
+       "cap": 7285066552665203,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 7285068720141893,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 8,
+       "cap": 7285069989820413,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 6898939895045312,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 10,
+       "cap": 6467745314802633,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 11,
+       "cap": 6063517158808219,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 12,
+       "cap": 5684547942184062,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 13,
+       "cap": 5329263041186502,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 14,
+       "cap": 4996181497850017,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 15,
+       "cap": 4683923436148319,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 16,
+       "cap": 8782348483228544,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 17,
+       "cap": 3842280594113819,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 18,
+       "cap": 3602140536171887.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 19,
+       "cap": 3377004130213123.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 20,
+       "cap": 6331885704214973,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 21,
+       "cap": 5540398446915954,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 22,
+       "cap": 4847847367266396,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 23,
+       "cap": 4241863557738890.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 24,
+       "cap": 3711638621049053.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 25,
+       "cap": 1623839268207870,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 26,
+       "cap": 3044698008548253,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 27,
+       "cap": 5328221336595643,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 28,
+       "cap": 1998080444137496.8,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 29,
+       "cap": 1748325050473500,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 30,
+       "cap": 3059563478164979,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 31,
+       "cap": 2294674301756120,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 32,
+       "cap": 1721008271765575,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 33,
+       "cap": 2581512728990352.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 34,
+       "cap": 2581508207413130.5,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 35,
+       "cap": 3066277775811527,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 36,
+       "cap": 3066277775811527,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 37,
+       "cap": 3066277775811527,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 38,
+       "cap": 3066277775811527,
        "sec": 2
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 26115127107523240,
-       "sec": 2
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 0,
+       "sec": 0
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 26115127107523240,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 9,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 10,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 11,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 13,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 14,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 15,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 16,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 17,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 18,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 19,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 20,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 21,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 22,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 23,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 24,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 25,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 26,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 27,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 28,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 29,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 30,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 31,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 32,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 33,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 34,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 35,
+       "cap": 0,
        "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 36,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 37,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 38,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
+       "sec": 0
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 26115127107523240,
-       "sec": 2
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 1
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 26115127107523240,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 8,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 10,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 13,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 14,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 15,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 16,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 17,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 18,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 19,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 20,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 21,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 22,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 23,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 24,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 25,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 26,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 27,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 28,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 29,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 30,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 31,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 32,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 33,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 34,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 35,
+       "cap": 0,
        "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 36,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 37,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 38,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 90213897108374270,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 90213897108374270,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 45106934008808590,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 45106918777224740,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 45106871117107890,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 45106910424422184,
+       "sec": 4
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 523156296639006660,
-       "sec": -1
+       "cap": 45106884402206900,
+       "sec": 4
       },
       {
        "s": 3,
+       "d": 7,
+       "cap": 45106897822553830,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 45106905684011480,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 9,
+       "cap": 42716107271488860,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 40046283468884190,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 11,
+       "cap": 37543427445161710,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 35196966980774190,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 13,
+       "cap": 32997152491326120,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 14,
+       "cap": 30934814342021090,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 15,
+       "cap": 29001408766243228,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 16,
+       "cap": 54377592153631016,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 17,
+       "cap": 23790215963933664,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 18,
+       "cap": 22303342816568508,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 19,
+       "cap": 20909367653143948,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 20,
+       "cap": 39205082677456360,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 21,
+       "cap": 34304437781117636,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 22,
+       "cap": 30016375171593828,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 23,
+       "cap": 26264310389705708,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 24,
+       "cap": 22981321174228176,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 25,
+       "cap": 10054311738857054,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 26,
+       "cap": 18851830675585476,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 27,
+       "cap": 32990702577900964,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 28,
+       "cap": 12371497634026110,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 29,
+       "cap": 10825089294529458,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 30,
+       "cap": 18943873076947044,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 31,
+       "cap": 14207915291063634,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 32,
+       "cap": 10655952228929384,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 33,
+       "cap": 15983930333044530,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 34,
+       "cap": 15983902336833432,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 35,
+       "cap": 18985445936384280,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 36,
+       "cap": 18985445936384280,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 37,
+       "cap": 18985445936384280,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 38,
+       "cap": 18985445936384280,
+       "sec": 4
+      },
+      {
+       "s": 4,
        "d": 0,
-       "cap": 784734444958510000,
-       "sec": 4
+       "cap": 26935953991512.676,
+       "sec": 1
       },
       {
-       "s": 3,
+       "s": 4,
+       "d": 1,
+       "cap": 26935953991512.676,
+       "sec": 1
+      },
+      {
+       "s": 4,
        "d": 2,
-       "cap": 784734444958510000,
-       "sec": 4
+       "cap": 13467972652815.178,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 13467968104987.682,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 13467953874688.848,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 13467965611018.209,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 13467957841337.305,
+       "sec": 1
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 523156296639006660,
-       "sec": -1
+       "cap": 13467961848367.916,
+       "sec": 1
       },
       {
        "s": 4,
-       "d": 1,
-       "cap": 784734444958510000,
+       "d": 8,
+       "cap": 13467964195632.234,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 12754122558070.242,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 10,
+       "cap": 11956969864112.084,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 11209670203380.422,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 12,
+       "cap": 10509066935618.713,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 13,
+       "cap": 9852249041958.115,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 14,
+       "cap": 9236478664164.9,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 15,
+       "cap": 8659204814953.789,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 16,
+       "cap": 16235994313158.666,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 17,
+       "cap": 7103253303455.649,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 18,
+       "cap": 6659304555287.384,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 19,
+       "cap": 6243093172442.356,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 20,
+       "cap": 11705805170624.732,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 21,
+       "cap": 10242576669389,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 22,
+       "cap": 8962252230859.258,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 23,
+       "cap": 7841965361789.594,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 24,
+       "cap": 6861734496067.172,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 25,
+       "cap": 3002003982699.467,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 26,
+       "cap": 5628756322580.162,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 27,
+       "cap": 9850323234772.771,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 28,
+       "cap": 3693866485735.73,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 29,
+       "cap": 3232141793422.148,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 30,
+       "cap": 5656238229113.534,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 31,
+       "cap": 4242181801941.846,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 32,
+       "cap": 3181641057246.3228,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 33,
+       "cap": 4772462179936.86,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 34,
+       "cap": 4772453820862.725,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 35,
+       "cap": 5668651002145.074,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 36,
+       "cap": 5668651002145.074,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 37,
+       "cap": 5668651002145.074,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 38,
+       "cap": 5668651002145.074,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 37,
+       "cap": 57245708588367780,
        "sec": 4
       },
       {
-       "s": 4,
+       "s": 5,
+       "d": 38,
+       "cap": 57245708588367780,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 32,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 24,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 33,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 9,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
        "d": 3,
-       "cap": 784734444958510000,
-       "sec": 4
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 13,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 28,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 17,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 22,
+       "cap": 57245708588367780,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 57245708588367780,
+       "sec": 2
       },
       {
        "s": 5,
        "d": 8,
-       "cap": 312406721986747.06,
-       "sec": -1
-      },
-      {
-       "s": 5,
-       "d": 2,
-       "cap": 468610082980120.6,
+       "cap": 57245708588367780,
        "sec": 2
       },
       {
        "s": 5,
-       "d": 3,
-       "cap": 468610082980120.6,
+       "d": 35,
+       "cap": 57245708588367780,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 36,
+       "cap": 57245708588367780,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 27,
+       "cap": 57245708588367780,
        "sec": 2
       },
       {
-       "s": 6,
-       "d": 2,
-       "cap": 25107658172703976,
-       "sec": 4
+       "s": 5,
+       "d": 10,
+       "cap": 57245708588367780,
+       "sec": 1
       },
       {
-       "s": 6,
-       "d": 3,
-       "cap": 25107658172703976,
-       "sec": 4
+       "s": 5,
+       "d": 30,
+       "cap": 57245708588367780,
+       "sec": 2
       },
       {
-       "s": 6,
+       "s": 5,
+       "d": 14,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 16,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 23,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 15,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
        "d": 0,
-       "cap": 25107658172703976,
-       "sec": 4
+       "cap": 57245708588367780,
+       "sec": 1
       },
       {
-       "s": 6,
+       "s": 5,
        "d": 1,
-       "cap": 25107658172703976,
-       "sec": 4
+       "cap": 57245708588367780,
+       "sec": 1
       },
       {
-       "s": 6,
-       "d": 4,
+       "s": 5,
+       "d": 18,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 19,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 7,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 31,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 26,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 12,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 21,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 34,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 29,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 25,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 20,
+       "cap": 57245708588367780,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 39,
        "cap": 189771600157165360000,
        "sec": -1
       }
@@ -14640,15 +21404,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "17nzxrz",
-   "build": 246592,
+   "signature": "cfvbln",
+   "build": 246733,
    "crew": 1000,
-   "total": 247592,
+   "total": 247733,
    "by": {
     "hull": 7,
     "armor": 3,
-    "power": 116047,
-    "drive": 33733,
+    "power": 116048,
+    "drive": 33873,
     "defense": 37501,
     "command": 20501,
     "weapons": 14800,
@@ -14685,9 +21449,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00306,
-    "upS": 0.00306,
-    "down": 0.0153,
+    "up": 0.00217,
+    "upS": 0.00217,
+    "down": 0.0322,
     "T": 0
    },
    "powerProfile": {
@@ -15282,6 +22046,261 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.11696072436391271,
+      "hits": 1,
+      "crew": 0.0000020000003805226193,
+      "size": 0.04000000761045239,
+      "at": 0.881,
+      "part": 47,
+      "y": 0.08,
+      "z": 0,
+      "r": 0.022,
+      "share": 0.0596623510714852,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.07368067365289653,
+      "hits": 1,
+      "crew": 0.0000010000008892451507,
+      "size": 0.020000017784903013,
+      "at": 0.646,
+      "part": 48,
+      "y": 0.11,
+      "z": -0.14,
+      "r": 0.017,
+      "share": 0.02983119638724829,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 3",
+      "w": 0.07368067365289653,
+      "hits": 1,
+      "crew": 0.0000010000008892451507,
+      "size": 0.020000017784903013,
+      "at": 0.646,
+      "part": 49,
+      "y": 0.11,
+      "z": 0.14,
+      "r": 0.017,
+      "share": 0.02983119638724829,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 4",
+      "w": 0.07368066556329814,
+      "hits": 1,
+      "crew": 0.000001000000724555993,
+      "size": 0.020000014491119864,
+      "at": 0.37,
+      "part": 50,
+      "y": 0.1,
+      "z": -0.22,
+      "r": 0.017,
+      "share": 0.02983119147437806,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 5",
+      "w": 0.07368066556329812,
+      "hits": 1,
+      "crew": 0.000001000000724555993,
+      "size": 0.02000001449111986,
+      "at": 0.37,
+      "part": 51,
+      "y": 0.1,
+      "z": 0.22,
+      "r": 0.017,
+      "share": 0.029831191474378054,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 6",
+      "w": 0.07368066556329814,
+      "hits": 1,
+      "crew": 0.0000010000007245559933,
+      "size": 0.020000014491119867,
+      "at": 0.593,
+      "part": 52,
+      "y": 0.1,
+      "z": -0.22,
+      "r": 0.017,
+      "share": 0.029831191474378065,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 7",
+      "w": 0.07368066556329814,
+      "hits": 1,
+      "crew": 0.000001000000724555993,
+      "size": 0.020000014491119864,
+      "at": 0.593,
+      "part": 53,
+      "y": 0.1,
+      "z": 0.22,
+      "r": 0.017,
+      "share": 0.02983119147437806,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 8",
+      "w": 0.0464159110588905,
+      "hits": 1,
+      "crew": 5.000003671603567e-7,
+      "size": 0.010000007343207133,
+      "at": 0.646,
+      "part": 54,
+      "y": 0.16,
+      "z": 0,
+      "r": 0.014,
+      "share": 0.014915595882835543,
+      "domain": "main",
+      "port": "p54",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 9",
+      "w": 0.04641590249793253,
+      "hits": 1,
+      "crew": 5.000002288301429e-7,
+      "size": 0.010000004576602857,
+      "at": 0.681,
+      "part": 55,
+      "y": 0.11,
+      "z": -0.17,
+      "r": 0.014,
+      "share": 0.01491559175628344,
+      "domain": "main",
+      "port": "p55",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 10",
+      "w": 0.04641590249793254,
+      "hits": 1,
+      "crew": 5.00000228830143e-7,
+      "size": 0.010000004576602859,
+      "at": 0.681,
+      "part": 56,
+      "y": 0.11,
+      "z": 0.17,
+      "r": 0.014,
+      "share": 0.014915591756283441,
+      "domain": "main",
+      "port": "p56",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 11",
+      "w": 0.07243165816488074,
+      "hits": 1,
+      "crew": 9.746813264154127e-7,
+      "size": 0.01949362652830825,
+      "at": 0.37,
+      "part": 57,
+      "y": 0.22,
+      "z": -0.21,
+      "r": 0.017,
+      "share": 0.029075884207692797,
+      "domain": "main",
+      "port": "p57",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 12",
+      "w": 0.059791049951248385,
+      "hits": 1,
+      "crew": 7.310116093004524e-7,
+      "size": 0.014620232186009047,
+      "at": 0.381,
+      "part": 58,
+      "y": 0.21,
+      "z": 0.19,
+      "r": 0.015,
+      "share": 0.02180693148669214,
+      "domain": "main",
+      "port": "p58",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 13",
+      "w": 0.04935641575094849,
+      "hits": 1,
+      "crew": 5.482585650537538e-7,
+      "size": 0.010965171301075076,
+      "at": 0.546,
+      "part": 59,
+      "y": 0.17,
+      "z": -0.17,
+      "r": 0.014,
+      "share": 0.01635519438133218,
+      "domain": "main",
+      "port": "p59",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 14",
+      "w": 0.06467521668835965,
+      "hits": 1,
+      "crew": 8.223881484499233e-7,
+      "size": 0.016447762968998466,
+      "at": 0.377,
+      "part": 60,
+      "y": -0.01,
+      "z": -0.2,
+      "r": 0.016,
+      "share": 0.024532800547281245,
+      "domain": "main",
+      "port": "p60",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 15",
+      "w": 0.064675209109235,
+      "hits": 1,
+      "crew": 8.223880038895547e-7,
+      "size": 0.016447760077791092,
+      "at": 0.377,
+      "part": 61,
+      "y": -0.01,
+      "z": 0.2,
+      "r": 0.016,
+      "share": 0.02453279623487633,
+      "domain": "main",
+      "port": "p61",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.14414967684219493,
@@ -15330,10 +22349,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": 0.68,
       "r": 0.029,
-      "share": 0.23030243590345398,
+      "share": 0.13825057622504036,
       "domain": "main",
       "port": "p1",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -15348,10 +22367,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": -0.68,
       "r": 0.029,
-      "share": 0.23030239590375898,
+      "share": 0.13825055221321927,
       "domain": "main",
       "port": "p2",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -15366,10 +22385,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": 0.68,
       "r": 0.03,
-      "share": 0.2696976135489702,
+      "share": 0.16189950546286944,
       "domain": "main",
       "port": "p3",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -15384,10 +22403,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": -0.68,
       "r": 0.03,
-      "share": 0.2696975546438168,
+      "share": 0.1618994701020997,
       "domain": "main",
       "port": "p4",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
@@ -15395,60 +22414,60 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.26564477643785733,
       "hits": 1,
       "crew": 0,
-      "size": 2.356758228913945,
+      "size": 2.3567582289139444,
       "at": 0.161,
       "y": 0.17,
       "z": 0,
       "r": 0.084,
-      "share": 0.31134401972873,
+      "share": 0.32206632653061223,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.33181787144409636,
+      "w": 0.3264620127709375,
       "hits": 1,
       "crew": 0,
-      "size": 3.2901278245234282,
+      "size": 3.2107914088966214,
       "at": 0.346,
       "y": 0.12,
       "z": 0,
-      "r": 0.094,
-      "share": 0.434648581997534,
+      "r": 0.093,
+      "share": 0.4387755102040817,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.19597786131794473,
+      "w": 0.183951085263895,
       "hits": 1,
       "crew": 0,
-      "size": 1.493391352975173,
-      "at": 0.605,
+      "size": 1.3580527616117979,
+      "at": 0.604,
       "y": 0.08,
       "z": 0,
-      "r": 0.072,
-      "share": 0.19728729963008632,
+      "r": 0.07,
+      "share": 0.18558673469387757,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.08536874821800328,
+      "w": 0.08034519068012931,
       "hits": 1,
       "crew": 0,
-      "size": 0.4293500139803622,
-      "at": 0.831,
+      "size": 0.39201523015598294,
+      "at": 0.827,
       "y": 0.08,
       "z": 0,
-      "r": 0.048,
-      "share": 0.05672009864364982,
+      "r": 0.046,
+      "share": 0.05357142857142859,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 9.305336092358413,
+      "w": 9.897425576784759,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -15471,9 +22490,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 5.881752014160156,
     "grid": {
      "P": 8394349151915561000,
-     "fixed": 15273978238234222,
-     "cooling": 0,
-     "De": 1016417983421410600,
+     "fixed": 58175076769253670,
+     "cooling": 42901098531019450,
+     "De": 1026682646143268200,
      "Ds": 3192963157632363500,
      "Dw": 2677760000000000000,
      "domains": [
@@ -15564,7 +22583,22 @@ const CRAFT_PRICE_CATALOG={
         41,
         42,
         43,
-        44
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
        ],
        "protection": 1
       }
@@ -15574,7 +22608,39 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 15273978238234222,
+       "cap": 58175076769253670,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p1",
+       "cap": 176172701534109.3,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p2",
+       "cap": 182144657518316.47,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p3",
+       "cap": 220625409264132.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p4",
+       "cap": 220625409264132.6,
        "auto": true,
        "ok": true
       },
@@ -15582,7 +22648,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p13",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15590,7 +22656,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p14",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15598,7 +22664,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p25",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15606,7 +22672,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p26",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15614,7 +22680,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p27",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15622,7 +22688,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p28",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15630,7 +22696,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p29",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15638,7 +22704,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p34",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15646,7 +22712,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p35",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15654,7 +22720,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15662,7 +22728,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p37",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15670,7 +22736,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p38",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15678,7 +22744,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p39",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15686,7 +22752,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15694,7 +22760,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p41",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15702,7 +22768,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p42",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15710,7 +22776,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p43",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15718,7 +22784,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p44",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15726,7 +22792,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p45",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15734,7 +22800,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p46",
-       "cap": 763698911911711.1,
+       "cap": 1662145050550105,
        "auto": true,
        "ok": true
       },
@@ -15742,7 +22808,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -15750,7 +22816,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -15798,7 +22864,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -15806,7 +22872,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -15854,7 +22920,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -15862,7 +22928,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -15910,7 +22976,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -15918,7 +22984,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -15966,7 +23032,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -15974,7 +23040,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -16022,7 +23088,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -16030,7 +23096,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -16078,7 +23144,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p20",
-       "cap": 365964009338216700,
+       "cap": 369659828563640700,
        "auto": false,
        "ok": true
       },
@@ -16086,7 +23152,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p21",
-       "cap": 650453974083193900,
+       "cap": 657022817579627500,
        "auto": false,
        "ok": true
       },
@@ -16127,6 +23193,846 @@ const CRAFT_PRICE_CATALOG={
        "from": "p33",
        "to": "f31",
        "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p61",
+       "cap": 2584109417295714.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p61",
+       "cap": 2584109417295714.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p61",
+       "cap": 2584109417295714.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p61",
+       "cap": 2584109417295714.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p61",
+       "cap": 2584109417295714.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p61",
+       "cap": 2584109417295714.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p47",
+       "cap": 6284405649717621,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p48",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p49",
+       "cap": 3142205021207392,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p50",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p51",
+       "cap": 3142204503720754,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p52",
+       "cap": 3142204503720755.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p53",
+       "cap": 3142204503720754.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p54",
+       "cap": 1571102267201740,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p55",
+       "cap": 1571101832540234,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p56",
+       "cap": 1571101832540234.2,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p57",
+       "cap": 3062645834496634,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p58",
+       "cap": 2296986306720843.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p59",
+       "cap": 1722739284094310.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p60",
+       "cap": 2584109871533627,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p61",
+       "cap": 2584109417295714.5,
        "auto": false,
        "ok": true
       }
@@ -16136,11 +24042,126 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 15273978238234222,
+       "weight": 58175076769253670,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p47",
+       "port": "p47",
+       "weight": 6284405649717621,
+       "domain": "main"
+      },
+      {
+       "id": "p48",
+       "port": "p48",
+       "weight": 3142205021207392,
+       "domain": "main"
+      },
+      {
+       "id": "p49",
+       "port": "p49",
+       "weight": 3142205021207392,
+       "domain": "main"
+      },
+      {
+       "id": "p50",
+       "port": "p50",
+       "weight": 3142204503720754.5,
+       "domain": "main"
+      },
+      {
+       "id": "p51",
+       "port": "p51",
+       "weight": 3142204503720754,
+       "domain": "main"
+      },
+      {
+       "id": "p52",
+       "port": "p52",
+       "weight": 3142204503720755.5,
+       "domain": "main"
+      },
+      {
+       "id": "p53",
+       "port": "p53",
+       "weight": 3142204503720754.5,
+       "domain": "main"
+      },
+      {
+       "id": "p54",
+       "port": "p54",
+       "weight": 1571102267201740,
+       "domain": "main"
+      },
+      {
+       "id": "p55",
+       "port": "p55",
+       "weight": 1571101832540234,
+       "domain": "main"
+      },
+      {
+       "id": "p56",
+       "port": "p56",
+       "weight": 1571101832540234.2,
+       "domain": "main"
+      },
+      {
+       "id": "p57",
+       "port": "p57",
+       "weight": 3062645834496634,
+       "domain": "main"
+      },
+      {
+       "id": "p58",
+       "port": "p58",
+       "weight": 2296986306720843.5,
+       "domain": "main"
+      },
+      {
+       "id": "p59",
+       "port": "p59",
+       "weight": 1722739284094310.5,
+       "domain": "main"
+      },
+      {
+       "id": "p60",
+       "port": "p60",
+       "weight": 2584109871533627,
+       "domain": "main"
+      },
+      {
+       "id": "p61",
+       "port": "p61",
+       "weight": 2584109417295714.5,
+       "domain": "main"
+      },
+      {
+       "id": "p1",
+       "port": "p1",
+       "weight": 176172701534109.3,
+       "domain": "main"
+      },
+      {
+       "id": "p2",
+       "port": "p2",
+       "weight": 182144657518316.47,
+       "domain": "main"
+      },
+      {
+       "id": "p3",
+       "port": "p3",
+       "weight": 220625409264132.6,
+       "domain": "main"
+      },
+      {
+       "id": "p4",
+       "port": "p4",
+       "weight": 220625409264132.6,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -16149,11 +24170,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 20,
        "machineryId": 20,
-       "ratedInputW": 365964009338216700,
+       "ratedInputW": 369659828563640700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 182982004.66910836,
+       "ratedThrustN": 184829914.28182036,
        "effectiveMachineryVolumeM3": 0.04503903781273774,
        "machineryVolumeM3": 0.04503903781273774,
        "machineryLengthM": 0.3,
@@ -16162,9 +24183,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 1.25,
        "maxInputW": 1531327285633083100,
        "maxRatedInputW": 1531327285633083100,
-       "inputDensityWPerM3": 8125484626465896000,
+       "inputDensityWPerM3": 8207542756588266000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1655.667407837917,
+       "cost": 1690.724015317188,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -16179,7 +24200,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 49,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -16189,11 +24210,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 21,
        "machineryId": 21,
-       "ratedInputW": 650453974083193900,
+       "ratedInputW": 657022817579627500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 325226987.04159695,
+       "ratedThrustN": 328511408.78981376,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryLengthM": 0.3028495335971314,
@@ -16202,9 +24223,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.1,
        "maxInputW": 1635470023110608600,
        "maxRatedInputW": 1635470023110608600,
-       "inputDensityWPerM3": 13522372655150098000,
+       "inputDensityWPerM3": 13658933200878694000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 5066.190764146269,
+       "cost": 5171.650285353134,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -16219,30 +24240,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 50,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 1635470023110608600
       }
      ],
-     "massKg": 9965.941315934071,
-     "ratedThrustN": 508208991.7107053,
+     "massKg": 10066.585960147806,
+     "ratedThrustN": 513341323.0716341,
      "ratedAccelMps2": 50994.58,
-     "structuralAccelerationLimitMps2": 1690661.6118690767,
+     "structuralAccelerationLimitMps2": 1642688.3316405124,
      "inertialFactor": 1,
      "accelerationLimitMps2": 50994.58
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p15",
        "n": "上部機関用反応炉 #15",
        "g": "high",
-       "sh": 0.0506464,
+       "sh": 0.050317,
        "st": 987151943249731800,
        "m": [
         4
@@ -16257,7 +24279,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "下部機関用反応炉 #16",
        "g": "high",
-       "sh": 0.17786,
+       "sh": 0.176704,
        "st": 3466688091519954400,
        "m": [
         5
@@ -16272,7 +24294,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "補助反応炉（機首） #17",
        "g": "high",
-       "sh": 0.0965636,
+       "sh": 0.0959355,
        "st": 1882127586646576600,
        "m": [
         6
@@ -16287,7 +24309,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "右舷補助反応炉 #18",
        "g": "high",
-       "sh": 0.116485,
+       "sh": 0.115727,
        "st": 2270417880612199200,
        "m": [
         7
@@ -16302,7 +24324,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p19",
        "n": "左舷補助反応炉 #19",
        "g": "high",
-       "sh": 0.116485,
+       "sh": 0.115727,
        "st": 2270417880612199200,
        "m": [
         8
@@ -16318,10 +24340,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "上部イオン・エンジン #20",
        "g": "high",
        "sh": 0.360053,
-       "st": 1097892028014650100,
+       "st": 1108979485690922100,
        "m": [
         9,
-        34
+        49
        ],
        "pc": [],
        "sec": 0,
@@ -16334,10 +24356,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "下部イオン・エンジン #21",
        "g": "high",
        "sh": 0.639947,
-       "st": 1951361922249581800,
+       "st": 1971068452738882600,
        "m": [
         10,
-        35
+        50
        ],
        "pc": [],
        "sec": 1,
@@ -16349,39 +24371,11 @@ const CRAFT_PRICE_CATALOG={
        "id": "p22",
        "n": "シールド（艦首区画）",
        "g": "high",
-       "sh": 0.477232,
-       "st": 41142171744651936000,
+       "sh": 1,
+       "st": 86210005256073800000,
        "m": [
-        11
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "shield",
-       "id": "p23",
-       "n": "シールド（艦首区画）",
-       "g": "high",
-       "sh": 0.261384,
-       "st": 22533916755710940000,
-       "m": [
-        12
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "shield",
-       "id": "p24",
-       "n": "シールド（艦首区画）",
-       "g": "high",
-       "sh": 0.261384,
-       "st": 22533916755710940000,
-       "m": [
+        11,
+        12,
         13
        ],
        "pc": [],
@@ -16394,7 +24388,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p32",
        "n": "翼根部の推進・兵装用反応炉 #32",
        "g": "high",
-       "sh": 0.342456,
+       "sh": 0.340229,
        "st": 6674834677837730000,
        "m": [
         19
@@ -16409,8 +24403,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p33",
        "n": "翼根部の推進・兵装用反応炉 #33",
        "g": "high",
-       "sh": 0.0995036,
-       "st": 1939431235902161200,
+       "sh": 0.10536,
+       "st": 2067029062909067800,
        "m": [
         20
        ],
@@ -16424,24 +24418,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "f30",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.5,
-       "st": 25104000000000000000,
+       "sh": 1,
+       "st": 50208000000000000000,
        "m": [
-        0
-       ],
-       "pc": [],
-       "sec": 2,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f31",
-       "n": "武装（中央区画）",
-       "g": "high",
-       "sh": 0.5,
-       "st": 25104000000000000000,
-       "m": [
+        0,
         1
        ],
        "pc": [],
@@ -16455,7 +24435,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 916438694294053400,
+       "st": 3490504606155220500,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16465,14 +24445,180 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p47",
+       "n": "機体内高エネルギー散逸装置 1 #47",
+       "k": "hdis",
+       "g": "high",
+       "cap": 418960376647841400,
+       "m": 34,
+       "sec": 4,
+       "src": -1,
+       "power": 6284405649717621
+      },
+      {
+       "id": "p48",
+       "n": "機体内高エネルギー散逸装置 2 #48",
+       "k": "hdis",
+       "g": "high",
+       "cap": 209480334747159500,
+       "m": 35,
+       "sec": 4,
+       "src": -1,
+       "power": 3142205021207392
+      },
+      {
+       "id": "p49",
+       "n": "機体内高エネルギー散逸装置 3 #49",
+       "k": "hdis",
+       "g": "high",
+       "cap": 209480334747159500,
+       "m": 36,
+       "sec": 4,
+       "src": -1,
+       "power": 3142205021207392
+      },
+      {
+       "id": "p50",
+       "n": "機体内高エネルギー散逸装置 4 #50",
+       "k": "hdis",
+       "g": "high",
+       "cap": 209480300248050300,
+       "m": 37,
+       "sec": 3,
+       "src": -1,
+       "power": 3142204503720754.5
+      },
+      {
+       "id": "p51",
+       "n": "機体内高エネルギー散逸装置 5 #51",
+       "k": "hdis",
+       "g": "high",
+       "cap": 209480300248050270,
+       "m": 38,
+       "sec": 3,
+       "src": -1,
+       "power": 3142204503720754
+      },
+      {
+       "id": "p52",
+       "n": "機体内高エネルギー散逸装置 6 #52",
+       "k": "hdis",
+       "g": "high",
+       "cap": 209480300248050370,
+       "m": 39,
+       "sec": 4,
+       "src": -1,
+       "power": 3142204503720755.5
+      },
+      {
+       "id": "p53",
+       "n": "機体内高エネルギー散逸装置 7 #53",
+       "k": "hdis",
+       "g": "high",
+       "cap": 209480300248050300,
+       "m": 40,
+       "sec": 4,
+       "src": -1,
+       "power": 3142204503720754.5
+      },
+      {
+       "id": "p54",
+       "n": "機体内高エネルギー散逸装置 8 #54",
+       "k": "hdis",
+       "g": "high",
+       "cap": 104740151146782670,
+       "m": 41,
+       "sec": 4,
+       "src": -1,
+       "power": 1571102267201740
+      },
+      {
+       "id": "p55",
+       "n": "機体内高エネルギー散逸装置 9 #55",
+       "k": "hdis",
+       "g": "high",
+       "cap": 104740122169348940,
+       "m": 42,
+       "sec": 4,
+       "src": -1,
+       "power": 1571101832540234
+      },
+      {
+       "id": "p56",
+       "n": "機体内高エネルギー散逸装置 10 #56",
+       "k": "hdis",
+       "g": "high",
+       "cap": 104740122169348960,
+       "m": 43,
+       "sec": 4,
+       "src": -1,
+       "power": 1571101832540234.2
+      },
+      {
+       "id": "p57",
+       "n": "機体内高エネルギー散逸装置 11 #57",
+       "k": "hdis",
+       "g": "high",
+       "cap": 204176388966442270,
+       "m": 44,
+       "sec": 3,
+       "src": -1,
+       "power": 3062645834496634
+      },
+      {
+       "id": "p58",
+       "n": "機体内高エネルギー散逸装置 12 #58",
+       "k": "hdis",
+       "g": "high",
+       "cap": 153132420448056220,
+       "m": 45,
+       "sec": 3,
+       "src": -1,
+       "power": 2296986306720843.5
+      },
+      {
+       "id": "p59",
+       "n": "機体内高エネルギー散逸装置 13 #59",
+       "k": "hdis",
+       "g": "high",
+       "cap": 114849285606287380,
+       "m": 46,
+       "sec": 4,
+       "src": -1,
+       "power": 1722739284094310.5
+      },
+      {
+       "id": "p60",
+       "n": "機体内高エネルギー散逸装置 14 #60",
+       "k": "hdis",
+       "g": "high",
+       "cap": 172273991435575140,
+       "m": 47,
+       "sec": 3,
+       "src": -1,
+       "power": 2584109871533627
+      },
+      {
+       "id": "p61",
+       "n": "機体内高エネルギー散逸装置 15 #61",
+       "k": "hdis",
+       "g": "high",
+       "cap": 172273961153047650,
+       "m": 48,
+       "sec": 3,
+       "src": -1,
+       "power": 2584109417295714.5
+      },
+      {
        "id": "p1",
        "n": "右舷上部翼（放熱板） #1",
        "k": "wing",
        "g": "high",
        "cap": 17617270153410932,
-       "m": 36,
+       "m": 51,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 176172701534109.3
       },
       {
        "id": "p2",
@@ -16480,9 +24626,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 18214465751831650,
-       "m": 37,
+       "m": 52,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 182144657518316.47
       },
       {
        "id": "p3",
@@ -16490,9 +24637,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22062540926413260,
-       "m": 38,
+       "m": 53,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 220625409264132.6
       },
       {
        "id": "p4",
@@ -16500,9 +24648,10 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22062540926413260,
-       "m": 39,
+       "m": 54,
        "sec": 1,
-       "src": -1
+       "src": -1,
+       "power": 220625409264132.6
       },
       {
        "id": "skin",
@@ -16513,396 +24662,1380 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p15",
-       "n": "上部機関用反応炉 #15（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 12802129194824476,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p16",
-       "n": "下部機関用反応炉 #16（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 44958619723418150,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p17",
-       "n": "補助反応炉（機首） #17（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 24408846773953020,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p18",
-       "n": "右舷補助反応炉 #18（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 29444487479962064,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:p19",
-       "n": "左舷補助反応炉 #19（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 29444487479962064,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:p22",
-       "n": "シールド（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 685702862410865500,
-       "m": -1,
-       "sec": -1,
-       "src": 7
-      },
-      {
-       "id": "int:p23",
-       "n": "シールド（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 375565279261848900,
-       "m": -1,
-       "sec": -1,
-       "src": 8
-      },
-      {
-       "id": "int:p24",
-       "n": "シールド（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 375565279261848900,
-       "m": -1,
-       "sec": -1,
-       "src": 9
-      },
-      {
-       "id": "int:p32",
-       "n": "翼根部の推進・兵装用反応炉 #32（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 86564278664602080,
-       "m": -1,
-       "sec": -1,
-       "src": 10
-      },
-      {
-       "id": "int:p33",
-       "n": "翼根部の推進・兵装用反応炉 #33（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 85906151038649150,
-       "m": -1,
-       "sec": -1,
-       "src": 11
-      },
-      {
-       "id": "int:f30",
-       "n": "武装（中央区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 418400000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 12
-      },
-      {
-       "id": "int:f31",
-       "n": "武装（中央区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 418400000000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 13
       }
      ],
      "ln": [
       {
        "s": 0,
-       "d": 5,
-       "cap": 12802129194824476,
-       "sec": -1
-      },
-      {
-       "s": 0,
        "d": 0,
-       "cap": 20843282720240690,
-       "sec": 2
+       "cap": 3342937458211804.5,
+       "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 20843282720240690,
+       "cap": 1671469897435312.2,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 1671469897435312.2,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 1671469622162587.8,
        "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 1671469622162587.5,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 1671469622162588.2,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 6,
+       "cap": 1671469622162587.8,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 835734819242004.6,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 8,
+       "cap": 835734588027421.8,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 835734588027421.9,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 10,
+       "cap": 1629149047982793,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 11,
+       "cap": 1221862813085868.2,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 12,
+       "cap": 916396872596954.1,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 13,
+       "cap": 1374595811788949.8,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 14,
+       "cap": 1374595570160860,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 15,
+       "cap": 140570410926418.72,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 16,
+       "cap": 145335509601890.6,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 17,
+       "cap": 176039784660189.4,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 18,
+       "cap": 176039784660189.4,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 11739754509247880,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 5869881357572509,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 5869881357572509,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 5869880390867553,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 5869880390867552,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 5869880390867554,
+       "sec": 4
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 44958619723418150,
-       "sec": -1
+       "cap": 5869880390867553,
+       "sec": 4
       },
       {
        "s": 1,
+       "d": 7,
+       "cap": 2934940224092625.5,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 2934939412111404.5,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 9,
+       "cap": 2934939412111404.5,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 10,
+       "cap": 5721258659898357,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 11,
+       "cap": 4290947601897457,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 12,
+       "cap": 3218209868360965,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 13,
+       "cap": 4827316568606928,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 14,
+       "cap": 4827315720055469,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 15,
+       "cap": 493656293654684.6,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 16,
+       "cap": 510390405303996.2,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 17,
+       "cap": 618217924087930.4,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 18,
+       "cap": 618217924087930.4,
+       "sec": 3
+      },
+      {
+       "s": 2,
        "d": 0,
-       "cap": 73197607003203000,
-       "sec": 3
+       "cap": 6373724788325622,
+       "sec": 4
       },
       {
-       "s": 1,
+       "s": 2,
        "d": 1,
-       "cap": 73197607003203000,
-       "sec": 3
+       "cap": 3186864621727704,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 3186864621727704,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 3186864096886121,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 3186864096886120.5,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 3186864096886122,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 3186864096886121,
+       "sec": 4
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 24408846773953020,
-       "sec": -1
+       "cap": 1593432064002467.2,
+       "sec": 4
       },
       {
        "s": 2,
+       "d": 8,
+       "cap": 1593431623163194.8,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 1593431623163195,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 10,
+       "cap": 3106174674461144.5,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 2329632964137030,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 12,
+       "cap": 1747224270818294.8,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 13,
+       "cap": 2620837365056294,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 14,
+       "cap": 2620836904362379.5,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 15,
+       "cap": 268014919162172.1,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 16,
+       "cap": 277100170659195,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 17,
+       "cap": 335641678387948.9,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 18,
+       "cap": 335641678387948.9,
+       "sec": 3
+      },
+      {
+       "s": 3,
        "d": 0,
-       "cap": 39740303073196180,
+       "cap": 7688649179888486,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 3844327277064500,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 3844327277064500,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 3844326643946042.5,
        "sec": 3
       },
       {
-       "s": 2,
-       "d": 1,
-       "cap": 39740303073196180,
+       "s": 3,
+       "d": 4,
+       "cap": 3844326643946041.5,
        "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 3844326643946043,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 3844326643946042.5,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 7,
+       "cap": 1922163340742394.8,
+       "sec": 4
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 29444487479962064,
-       "sec": -1
+       "cap": 1922162808956253.2,
+       "sec": 4
       },
       {
        "s": 3,
+       "d": 9,
+       "cap": 1922162808956253.2,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 3746990677590888.5,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 11,
+       "cap": 2810245370487478,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 2107683482273071.8,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 13,
+       "cap": 3161526380048607,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 14,
+       "cap": 3161525824311733,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 15,
+       "cap": 323307446877613.4,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 16,
+       "cap": 334267021348041.06,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 17,
+       "cap": 404885871445326.5,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 18,
+       "cap": 404885871445326.5,
+       "sec": 2
+      },
+      {
+       "s": 4,
        "d": 0,
-       "cap": 47938883271506540,
-       "sec": 2
+       "cap": 7688649179888486,
+       "sec": 4
       },
       {
-       "s": 3,
+       "s": 4,
+       "d": 1,
+       "cap": 3844327277064500,
+       "sec": 4
+      },
+      {
+       "s": 4,
        "d": 2,
-       "cap": 47938883271506540,
-       "sec": 2
+       "cap": 3844327277064500,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 3844326643946042.5,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 3844326643946041.5,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 3844326643946043,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 3844326643946042.5,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 1922163340742394.8,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 8,
+       "cap": 1922162808956253.2,
+       "sec": 4
       },
       {
        "s": 4,
        "d": 9,
-       "cap": 29444487479962064,
-       "sec": -1
+       "cap": 1922162808956253.2,
+       "sec": 4
       },
       {
        "s": 4,
-       "d": 1,
-       "cap": 47938883271506540,
+       "d": 10,
+       "cap": 3746990677590888.5,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 2810245370487478,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 12,
+       "cap": 2107683482273071.8,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 13,
+       "cap": 3161526380048607,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 14,
+       "cap": 3161525824311733,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 15,
+       "cap": 323307446877613.4,
        "sec": 2
       },
       {
        "s": 4,
-       "d": 3,
-       "cap": 47938883271506540,
+       "d": 16,
+       "cap": 334267021348041.06,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 17,
+       "cap": 404885871445326.5,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 18,
+       "cap": 404885871445326.5,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 27447300700366256,
-       "sec": 0
+       "cap": 0,
+       "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 27447300700366256,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 7,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 12,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 13,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 14,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 15,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 16,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 17,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 18,
+       "cap": 0,
        "sec": 0
       },
       {
        "s": 6,
+       "d": 0,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
        "d": 2,
-       "cap": 48784048056239540,
-       "sec": 1
+       "cap": 0,
+       "sec": 3
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 48784048056239540,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 6,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 7,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 8,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 10,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 12,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 13,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 14,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 15,
+       "cap": 0,
        "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 16,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 17,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 18,
+       "cap": 0,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 250239076579744700,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 125119625746391170,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 125119625746391170,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 125119605140563740,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 125119605140563700,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 125119605140563760,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 6,
+       "cap": 125119605140563740,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 7,
+       "cap": 62559803181160400,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 8,
+       "cap": 62559785873351200,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 9,
+       "cap": 62559785873351210,
+       "sec": 4
       },
       {
        "s": 7,
        "d": 10,
-       "cap": 685702862410865500,
-       "sec": -1
-      },
-      {
-       "s": 7,
-       "d": 0,
-       "cap": 1028554293616298200,
+       "cap": 121951654338175310,
        "sec": 4
       },
       {
        "s": 7,
-       "d": 1,
-       "cap": 1028554293616298200,
-       "sec": 4
-      },
-      {
-       "s": 8,
        "d": 11,
-       "cap": 375565279261848900,
-       "sec": -1
+       "cap": 91463817638183420,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 68597845471477700,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 13,
+       "cap": 102896805851836350,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 14,
+       "cap": 102896787764513200,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 15,
+       "cap": 10522544996542844,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 16,
+       "cap": 10879241437103622,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 17,
+       "cap": 13177642030499462,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 18,
+       "cap": 13177642030499462,
+       "sec": 4
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 563347918892773400,
+       "cap": 20251951699465692,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 10125982927624992,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 563347918892773400,
+       "cap": 10125982927624992,
        "sec": 3
       },
       {
-       "s": 9,
+       "s": 8,
+       "d": 3,
+       "cap": 10125981259986876,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 4,
+       "cap": 10125981259986876,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 5,
+       "cap": 10125981259986880,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 6,
+       "cap": 10125981259986876,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 7,
+       "cap": 5062990679432090,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 8,
+       "cap": 5062989278703951,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 9,
+       "cap": 5062989278703952,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 10,
+       "cap": 9869597694665460,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 11,
+       "cap": 7402204493297600,
+       "sec": 2
+      },
+      {
+       "s": 8,
        "d": 12,
-       "cap": 375565279261848900,
-       "sec": -1
+       "cap": 5551651932878927,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 13,
+       "cap": 8327480945913001,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 14,
+       "cap": 8327479482098478,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 15,
+       "cap": 851593907466845.8,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 16,
+       "cap": 880461497550468,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 17,
+       "cap": 1066472005739993,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 18,
+       "cap": 1066472005739993,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 0,
+       "cap": 1478252179627890.2,
+       "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 563347918892773400,
+       "cap": 739126606451040,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 2,
+       "cap": 739126606451040,
        "sec": 3
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 563347918892773400,
+       "cap": 739126484725010,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 4,
+       "cap": 739126484725010,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 5,
+       "cap": 739126484725010.2,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 6,
+       "cap": 739126484725010,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 7,
+       "cap": 369563245971184.06,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 8,
+       "cap": 369563143727733.5,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 9,
+       "cap": 369563143727733.56,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 10,
+       "cap": 720412260541513.1,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 11,
+       "cap": 540309649590821.06,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 12,
+       "cap": 405232132295189.25,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 13,
+       "cap": 607848420823085.4,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 14,
+       "cap": 607848313974765.6,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 15,
+       "cap": 62160455868750.15,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 16,
+       "cap": 64267589965995.94,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 17,
+       "cap": 77845068484874.27,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 18,
+       "cap": 77845068484874.27,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 0,
+       "cap": 145737185835870750,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 72868643851894660,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 2,
+       "cap": 72868643851894660,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 72868631851229740,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 4,
+       "cap": 72868631851229740,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 5,
+       "cap": 72868631851229780,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 6,
+       "cap": 72868631851229740,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 7,
+       "cap": 36434316281385520,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 8,
+       "cap": 36434306201459400,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 9,
+       "cap": 36434306201459410,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 10,
+       "cap": 71023643286226600,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 11,
+       "cap": 53267777241602420,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 12,
+       "cap": 39950822589577544,
        "sec": 3
       },
       {
        "s": 10,
        "d": 13,
-       "cap": 86564278664602080,
-       "sec": -1
+       "cap": 59926255808284140,
+       "sec": 2
       },
       {
        "s": 10,
-       "d": 1,
-       "cap": 140936222890909340,
+       "d": 14,
+       "cap": 59926245274375490,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 15,
+       "cap": 6128243904140133,
        "sec": 1
       },
       {
        "s": 10,
-       "d": 3,
-       "cap": 140936222890909340,
+       "d": 16,
+       "cap": 6335980985636411,
        "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 17,
+       "cap": 7674550640636960,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 18,
+       "cap": 7674550640636960,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 12,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 5,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 6,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 13,
+       "cap": 87262615153880510,
+       "sec": 3
       },
       {
        "s": 11,
        "d": 14,
-       "cap": 85906151038649150,
-       "sec": -1
+       "cap": 87262615153880510,
+       "sec": 3
       },
       {
        "s": 11,
-       "d": 0,
-       "cap": 139864718302494190,
-       "sec": 1
+       "d": 3,
+       "cap": 87262615153880510,
+       "sec": 3
       },
       {
        "s": 11,
-       "d": 2,
-       "cap": 139864718302494190,
-       "sec": 1
-      },
-      {
-       "s": 12,
-       "d": 15,
-       "cap": 418400000000000000,
-       "sec": -1
-      },
-      {
-       "s": 12,
-       "d": 0,
-       "cap": 627600000000000000,
-       "sec": 1
-      },
-      {
-       "s": 12,
-       "d": 2,
-       "cap": 627600000000000000,
-       "sec": 1
-      },
-      {
-       "s": 13,
-       "d": 16,
-       "cap": 418400000000000000,
-       "sec": -1
-      },
-      {
-       "s": 13,
-       "d": 1,
-       "cap": 627600000000000000,
-       "sec": 1
-      },
-      {
-       "s": 13,
-       "d": 3,
-       "cap": 627600000000000000,
-       "sec": 1
-      },
-      {
-       "s": 14,
-       "d": 2,
-       "cap": 22910967357351332,
-       "sec": 3
-      },
-      {
-       "s": 14,
-       "d": 3,
-       "cap": 22910967357351332,
-       "sec": 3
-      },
-      {
-       "s": 14,
-       "d": 0,
-       "cap": 22910967357351332,
-       "sec": 3
-      },
-      {
-       "s": 14,
-       "d": 1,
-       "cap": 22910967357351332,
-       "sec": 3
-      },
-      {
-       "s": 14,
        "d": 4,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 1,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 2,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 7,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 11,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 10,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 8,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 9,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 17,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 18,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 0,
+       "cap": 87262615153880510,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 15,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 16,
+       "cap": 87262615153880510,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 19,
        "cap": 239472236822427270000,
        "sec": -1
       }
@@ -16912,15 +26045,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "sdekdk",
-   "build": 180995,
+   "signature": "s8roqu",
+   "build": 181319,
    "crew": 1000,
-   "total": 181995,
+   "total": 182319,
    "by": {
     "hull": 20,
-    "armor": 13,
-    "power": 19249,
-    "drive": 77108,
+    "armor": 12,
+    "power": 19252,
+    "drive": 77430,
     "defense": 13502,
     "command": 20502,
     "weapons": 33600,
@@ -16957,9 +26090,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000633,
-    "upS": 0.00124,
-    "down": 0.0117,
+    "up": 0.00106,
+    "upS": 0.00109,
+    "down": 0.0297,
     "T": 1
    },
    "powerProfile": {
@@ -17523,6 +26656,176 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.18566360999173018,
+      "hits": 1,
+      "crew": 0.0000040000018306411445,
+      "size": 0.0800000366128229,
+      "at": 0.649,
+      "part": 77,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.019213256649379357,
+      "domain": "main",
+      "port": "p77",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.185663644235562,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565706,
+      "at": 0.41,
+      "part": 78,
+      "y": 0.04,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.019213261964924712,
+      "domain": "main",
+      "port": "p78",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 3",
+      "w": 0.18566364423556198,
+      "hits": 1,
+      "crew": 0.000004000002937282853,
+      "size": 0.08000005874565705,
+      "at": 0.368,
+      "part": 79,
+      "y": 0.04,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.01921326196492471,
+      "domain": "main",
+      "port": "p79",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 4",
+      "w": 0.185663644235562,
+      "hits": 1,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565706,
+      "at": 0.41,
+      "part": 80,
+      "y": 0.34,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.019213261964924712,
+      "domain": "main",
+      "port": "p80",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 5",
+      "w": 0.18566364423556198,
+      "hits": 1,
+      "crew": 0.000004000002937282853,
+      "size": 0.08000005874565705,
+      "at": 0.368,
+      "part": 81,
+      "y": -0.26,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.01921326196492471,
+      "domain": "main",
+      "port": "p81",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 6",
+      "w": 0.18566360999173018,
+      "hits": 1,
+      "crew": 0.0000040000018306411445,
+      "size": 0.0800000366128229,
+      "at": 0.326,
+      "part": 82,
+      "y": 0.19,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.019213256649379357,
+      "domain": "main",
+      "port": "p82",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 7",
+      "w": 0.1856636271136465,
+      "hits": 1,
+      "crew": 0.000004000002383962,
+      "size": 0.08000004767924,
+      "at": 0.326,
+      "part": 83,
+      "y": -0.41,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.01921325930715204,
+      "domain": "main",
+      "port": "p83",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 8",
+      "w": 0.18566352903354208,
+      "hits": 1,
+      "crew": 0.0000039999992143540985,
+      "size": 0.07999998428708197,
+      "at": 0.529,
+      "part": 84,
+      "y": -0.12,
+      "z": 0.07,
+      "r": 0.016,
+      "share": 0.019213244082536482,
+      "domain": "main",
+      "port": "p84",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 9",
+      "w": 0.18566352903354208,
+      "hits": 1,
+      "crew": 0.0000039999992143540985,
+      "size": 0.07999998428708197,
+      "at": 0.395,
+      "part": 85,
+      "y": 0.04,
+      "z": -0.07,
+      "r": 0.016,
+      "share": 0.019213244082536482,
+      "domain": "main",
+      "port": "p85",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 10",
+      "w": 0.021003314155198162,
+      "hits": 1,
+      "crew": 1.521954772597721e-7,
+      "size": 0.0030439095451954413,
+      "at": 0.523,
+      "part": 86,
+      "y": 0.09,
+      "z": -0.03,
+      "r": 0.005,
+      "share": 0.0007310423567976408,
+      "domain": "main",
+      "port": "p86",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.2369850425530182,
@@ -17607,10 +26910,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.2500000118331241,
+      "share": 0.20658742203142783,
       "domain": "main",
       "port": "p2",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -17625,10 +26928,10 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.25000001708194053,
+      "share": 0.20658742636878544,
       "domain": "main",
       "port": "p3",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -17643,10 +26946,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.24999998236624604,
+      "share": 0.20658739768148351,
       "domain": "main",
       "port": "p16",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -17661,10 +26964,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.24999998871868945,
+      "share": 0.2065874029308229,
       "domain": "main",
       "port": "p17",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
@@ -17677,35 +26980,35 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.01,
       "z": 0,
       "r": 0.095,
-      "share": 0.4605577689243027,
+      "share": 0.4706840390879478,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.8969051068223237,
+      "w": 0.8731599984181817,
       "hits": 1,
       "crew": 0,
-      "size": 14.621194575672911,
-      "at": 0.325,
+      "size": 14.044421614107902,
+      "at": 0.324,
       "y": 0,
       "z": 0,
-      "r": 0.091,
-      "share": 0.40398406374501994,
+      "r": 0.09,
+      "share": 0.3965798045602605,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.33164828676605873,
+      "w": 0.31792916960543843,
       "hits": 1,
       "crew": 0,
-      "size": 3.2876058809205357,
-      "at": 0.615,
+      "size": 3.0857353443727837,
+      "at": 0.616,
       "y": 0.07,
       "z": 0,
-      "r": 0.056,
-      "share": 0.09083665338645418,
+      "r": 0.054,
+      "share": 0.08713355048859935,
       "domain": "main"
      },
      {
@@ -17719,13 +27022,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.044,
-      "share": 0.044621513944223104,
+      "share": 0.045602605863192175,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 19.033868340286528,
+      "w": 20.026575282704652,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -17778,9 +27081,9 @@ const CRAFT_PRICE_CATALOG={
     ],
     "grid": {
      "P": 24312294686635070000,
-     "fixed": 25446942543212250,
-     "cooling": 0,
-     "De": 1860239616621243100,
+     "fixed": 142995189477887100,
+     "cooling": 117548246934674860,
+     "De": 1879514790533211000,
      "Ds": 11113246247697428000,
      "Dw": 3349200000000000000,
      "domains": [
@@ -17840,7 +27143,17 @@ const CRAFT_PRICE_CATALOG={
         40,
         41,
         42,
-        43
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
        ],
        "protection": 1
       }
@@ -17850,7 +27163,39 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "hotel",
-       "cap": 25446942543212250,
+       "cap": 142995189477887100,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p2",
+       "cap": 975772045454545.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p3",
+       "cap": 999571363636363.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p16",
+       "cap": 999571363636363.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p17",
+       "cap": 975772045454545.5,
        "auto": true,
        "ok": true
       },
@@ -17858,7 +27203,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p35",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17866,7 +27211,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p36",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17874,7 +27219,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p37",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17882,7 +27227,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p38",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17890,7 +27235,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p40",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17898,7 +27243,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p41",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17906,7 +27251,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p64",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17914,7 +27259,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p65",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17922,7 +27267,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p66",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17930,7 +27275,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p67",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17938,7 +27283,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p68",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17946,7 +27291,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p69",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17954,7 +27299,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p70",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17962,7 +27307,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p71",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17970,7 +27315,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p72",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17978,7 +27323,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p73",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17986,7 +27331,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p74",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -17994,7 +27339,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p75",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -18002,7 +27347,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p76",
-       "cap": 1339312765432223.5,
+       "cap": 4930868602685762,
        "auto": true,
        "ok": true
       },
@@ -18010,7 +27355,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p31",
-       "cap": 465059904155310800,
+       "cap": 469878697633302700,
        "auto": false,
        "ok": true
       },
@@ -18018,7 +27363,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p32",
-       "cap": 465059904155310800,
+       "cap": 469878697633302700,
        "auto": false,
        "ok": true
       },
@@ -18026,7 +27371,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p33",
-       "cap": 465059904155310800,
+       "cap": 469878697633302700,
        "auto": false,
        "ok": true
       },
@@ -18034,7 +27379,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p34",
-       "cap": 465059904155310800,
+       "cap": 469878697633302700,
        "auto": false,
        "ok": true
       },
@@ -18093,6 +27438,86 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1500000000000000,
        "auto": false,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p77",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p78",
+       "cap": 12568818137613920,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p79",
+       "cap": 12568818137613918,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p80",
+       "cap": 12568818137613920,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p81",
+       "cap": 12568818137613918,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p82",
+       "cap": 12568814660321880,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p83",
+       "cap": 12568816398967902,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p84",
+       "cap": 12568806439418894,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p85",
+       "cap": 12568806439418894,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p86",
+       "cap": 478228967587920.94,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -18100,11 +27525,96 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 25446942543212250,
+       "weight": 142995189477887100,
        "domain": "main"
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p77",
+       "port": "p77",
+       "weight": 12568814660321880,
+       "domain": "main"
+      },
+      {
+       "id": "p78",
+       "port": "p78",
+       "weight": 12568818137613920,
+       "domain": "main"
+      },
+      {
+       "id": "p79",
+       "port": "p79",
+       "weight": 12568818137613918,
+       "domain": "main"
+      },
+      {
+       "id": "p80",
+       "port": "p80",
+       "weight": 12568818137613920,
+       "domain": "main"
+      },
+      {
+       "id": "p81",
+       "port": "p81",
+       "weight": 12568818137613918,
+       "domain": "main"
+      },
+      {
+       "id": "p82",
+       "port": "p82",
+       "weight": 12568814660321880,
+       "domain": "main"
+      },
+      {
+       "id": "p83",
+       "port": "p83",
+       "weight": 12568816398967902,
+       "domain": "main"
+      },
+      {
+       "id": "p84",
+       "port": "p84",
+       "weight": 12568806439418894,
+       "domain": "main"
+      },
+      {
+       "id": "p85",
+       "port": "p85",
+       "weight": 12568806439418894,
+       "domain": "main"
+      },
+      {
+       "id": "p86",
+       "port": "p86",
+       "weight": 478228967587920.94,
+       "domain": "main"
+      },
+      {
+       "id": "p2",
+       "port": "p2",
+       "weight": 975772045454545.5,
+       "domain": "main"
+      },
+      {
+       "id": "p3",
+       "port": "p3",
+       "weight": 999571363636363.8,
+       "domain": "main"
+      },
+      {
+       "id": "p16",
+       "port": "p16",
+       "weight": 999571363636363.8,
+       "domain": "main"
+      },
+      {
+       "id": "p17",
+       "port": "p17",
+       "weight": 975772045454545.5,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -18113,11 +27623,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 31,
        "machineryId": 31,
-       "ratedInputW": 465059904155310800,
+       "ratedInputW": 469878697633302700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 232529952.0776554,
+       "ratedThrustN": 234939348.81665137,
        "effectiveMachineryVolumeM3": 0.03308990533180733,
        "machineryVolumeM3": 0.03308990533180733,
        "machineryLengthM": 0.3,
@@ -18126,9 +27636,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.125,
        "maxInputW": 1125056781281449100,
        "maxRatedInputW": 1125056781281449100,
-       "inputDensityWPerM3": 14054434411097477000,
+       "inputDensityWPerM3": 14200061708294967000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3771.955129440668,
+       "cost": 3852.449986809313,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 30,
@@ -18143,7 +27653,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 31,
+       "machineryModuleIndex": 41,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -18153,11 +27663,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 32,
        "machineryId": 32,
-       "ratedInputW": 465059904155310800,
+       "ratedInputW": 469878697633302700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 232529952.0776554,
+       "ratedThrustN": 234939348.81665137,
        "effectiveMachineryVolumeM3": 0.03308990533180733,
        "machineryVolumeM3": 0.03308990533180733,
        "machineryLengthM": 0.3,
@@ -18166,9 +27676,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.125,
        "maxInputW": 1125056781281449100,
        "maxRatedInputW": 1125056781281449100,
-       "inputDensityWPerM3": 14054434411097477000,
+       "inputDensityWPerM3": 14200061708294967000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3771.955129440668,
+       "cost": 3852.449986809313,
        "powerNode": "p32",
        "heatNode": "p32",
        "reactorId": 30,
@@ -18183,7 +27693,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 42,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -18193,11 +27703,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 33,
        "machineryId": 33,
-       "ratedInputW": 465059904155310800,
+       "ratedInputW": 469878697633302700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 232529952.0776554,
+       "ratedThrustN": 234939348.81665137,
        "effectiveMachineryVolumeM3": 0.03308990533180733,
        "machineryVolumeM3": 0.03308990533180733,
        "machineryLengthM": 0.3,
@@ -18206,9 +27716,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.125,
        "maxInputW": 1125056781281449100,
        "maxRatedInputW": 1125056781281449100,
-       "inputDensityWPerM3": 14054434411097477000,
+       "inputDensityWPerM3": 14200061708294967000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3771.955129440668,
+       "cost": 3852.449986809313,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 30,
@@ -18223,7 +27733,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 43,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -18233,11 +27743,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 34,
        "machineryId": 34,
-       "ratedInputW": 465059904155310800,
+       "ratedInputW": 469878697633302700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 232529952.0776554,
+       "ratedThrustN": 234939348.81665137,
        "effectiveMachineryVolumeM3": 0.03308990533180733,
        "machineryVolumeM3": 0.03308990533180733,
        "machineryLengthM": 0.3,
@@ -18246,9 +27756,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.125,
        "maxInputW": 1125056781281449100,
        "maxRatedInputW": 1125056781281449100,
-       "inputDensityWPerM3": 14054434411097477000,
+       "inputDensityWPerM3": 14200061708294967000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3771.955129440668,
+       "cost": 3852.449986809313,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 30,
@@ -18263,23 +27773,24 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 44,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 1125056781281449100
       }
      ],
-     "massKg": 25634.00671746658,
-     "ratedThrustN": 930119808.3106216,
-     "ratedAccelMps2": 36284.60500000001,
-     "structuralAccelerationLimitMps2": 259224.6249207138,
+     "massKg": 25899.6176275477,
+     "ratedThrustN": 939757395.2666055,
+     "ratedAccelMps2": 36284.605,
+     "structuralAccelerationLimitMps2": 258353.77892866277,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 36284.60500000001
+     "accelerationLimitMps2": 36284.605
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
@@ -18287,7 +27798,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "核融合炉 #30",
        "g": "high",
        "sh": 1,
-       "st": 49669440431776300000,
+       "st": 49967747370505550000,
        "m": [
         6
        ],
@@ -18302,10 +27813,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷上機関 4L4 核融合推進機関 #31",
        "g": "high",
        "sh": 0.25,
-       "st": 1395179712465932300,
+       "st": 1409636092899908000,
        "m": [
         7,
-        31
+        41
        ],
        "pc": [],
        "sec": 0,
@@ -18318,10 +27829,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷上機関 4L4 核融合推進機関 #32",
        "g": "high",
        "sh": 0.25,
-       "st": 1395179712465932300,
+       "st": 1409636092899908000,
        "m": [
         8,
-        32
+        42
        ],
        "pc": [],
        "sec": 0,
@@ -18334,10 +27845,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷下機関 4L4 核融合推進機関 #33",
        "g": "high",
        "sh": 0.25,
-       "st": 1395179712465932300,
+       "st": 1409636092899908000,
        "m": [
         9,
-        33
+        43
        ],
        "pc": [],
        "sec": 0,
@@ -18350,10 +27861,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷下機関 4L4 核融合推進機関 #34",
        "g": "high",
        "sh": 0.25,
-       "st": 1395179712465932300,
+       "st": 1409636092899908000,
        "m": [
         10,
-        34
+        44
        ],
        "pc": [],
        "sec": 0,
@@ -18380,28 +27891,14 @@ const CRAFT_PRICE_CATALOG={
        "id": "f42",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.5,
-       "st": 31398750000000000000,
+       "sh": 1,
+       "st": 62797500000000000000,
        "m": [
         0,
-        2,
-        4
-       ],
-       "pc": [],
-       "sec": 4,
-       "sw": -1,
-       "gen": -1
-      },
-      {
-       "k": "weapon",
-       "id": "f43",
-       "n": "武装（艦首区画）",
-       "g": "high",
-       "sh": 0.5,
-       "st": 31398750000000000000,
-       "m": [
         1,
+        2,
         3,
+        4,
         5
        ],
        "pc": [],
@@ -18415,7 +27912,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1526816552592735000,
+       "st": 8579711368673227000,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -18425,17 +27922,128 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p77",
+       "n": "機体内高エネルギー散逸装置 1 #77",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354792100,
+       "m": 31,
+       "sec": 4,
+       "src": -1,
+       "power": 12568814660321880
+      },
+      {
+       "id": "p78",
+       "n": "機体内高エネルギー散逸装置 2 #78",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261400,
+       "m": 32,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613920
+      },
+      {
+       "id": "p79",
+       "n": "機体内高エネルギー散逸装置 3 #79",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261200,
+       "m": 33,
+       "sec": 3,
+       "src": -1,
+       "power": 12568818137613918
+      },
+      {
+       "id": "p80",
+       "n": "機体内高エネルギー散逸装置 4 #80",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261400,
+       "m": 34,
+       "sec": 4,
+       "src": -1,
+       "power": 12568818137613920
+      },
+      {
+       "id": "p81",
+       "n": "機体内高エネルギー散逸装置 5 #81",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921209174261200,
+       "m": 35,
+       "sec": 3,
+       "src": -1,
+       "power": 12568818137613918
+      },
+      {
+       "id": "p82",
+       "n": "機体内高エネルギー散逸装置 6 #82",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920977354792100,
+       "m": 36,
+       "sec": 3,
+       "src": -1,
+       "power": 12568814660321880
+      },
+      {
+       "id": "p83",
+       "n": "機体内高エネルギー散逸装置 7 #83",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837921093264526800,
+       "m": 37,
+       "sec": 3,
+       "src": -1,
+       "power": 12568816398967902
+      },
+      {
+       "id": "p84",
+       "n": "機体内高エネルギー散逸装置 8 #84",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920429294593000,
+       "m": 38,
+       "sec": 4,
+       "src": -1,
+       "power": 12568806439418894
+      },
+      {
+       "id": "p85",
+       "n": "機体内高エネルギー散逸装置 9 #85",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920429294593000,
+       "m": 39,
+       "sec": 3,
+       "src": -1,
+       "power": 12568806439418894
+      },
+      {
+       "id": "p86",
+       "n": "機体内高エネルギー散逸装置 10 #86",
+       "k": "hdis",
+       "g": "high",
+       "cap": 31881931172528064,
+       "m": 40,
+       "sec": 4,
+       "src": -1,
+       "power": 478228967587920.94
+      },
+      {
        "id": "p2",
        "n": "右舷上翼（Sフォイル） #2",
        "k": "wing",
        "g": "high",
        "cap": 97577204545454540,
-       "m": 35,
+       "m": 45,
        "sec": 1,
        "src": -1,
        "fo": 0,
        "cs": 0.35,
-       "sh": 0.6
+       "sh": 0.6,
+       "power": 975772045454545.5
       },
       {
        "id": "p3",
@@ -18443,12 +28051,13 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 99957136363636370,
-       "m": 36,
+       "m": 46,
        "sec": 1,
        "src": -1,
        "fo": 1,
        "cs": 0.35,
-       "sh": 0.6
+       "sh": 0.6,
+       "power": 999571363636363.8
       },
       {
        "id": "p16",
@@ -18456,12 +28065,13 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 99957136363636370,
-       "m": 37,
+       "m": 47,
        "sec": 1,
        "src": -1,
        "fo": 2,
        "cs": 0.35,
-       "sh": 0.6
+       "sh": 0.6,
+       "power": 999571363636363.8
       },
       {
        "id": "p17",
@@ -18469,12 +28079,13 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 97577204545454540,
-       "m": 38,
+       "m": 48,
        "sec": 1,
        "src": -1,
        "fo": 3,
        "cs": 0.35,
-       "sh": 0.6
+       "sh": 0.6,
+       "power": 975772045454545.5
       },
       {
        "id": "skin",
@@ -18485,196 +28096,684 @@ const CRAFT_PRICE_CATALOG={
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p30",
-       "n": "核融合炉 #30（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 827824007196271600,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p39",
-       "n": "シールド（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 5000960811463843000,
-       "m": -1,
-       "sec": -1,
-       "src": 5
-      },
-      {
-       "id": "int:f42",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523312500000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 6
-      },
-      {
-       "id": "int:f43",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 523312500000000000,
-       "m": -1,
-       "sec": -1,
-       "src": 7
       }
      ],
      "ln": [
       {
        "s": 0,
+       "d": 0,
+       "cap": 105995659759386080,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 105995689084177150,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 105995689084177140,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 105995689084177150,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 105995689084177140,
+       "sec": 3
+      },
+      {
+       "s": 0,
        "d": 5,
-       "cap": 827824007196271600,
-       "sec": -1
+       "cap": 105995659759386080,
+       "sec": 3
       },
       {
        "s": 0,
-       "d": 2,
-       "cap": 1291974010794407400,
-       "sec": 1
-      },
-      {
-       "s": 0,
-       "d": 3,
-       "cap": 1291974010794407400,
-       "sec": 1
-      },
-      {
-       "s": 1,
-       "d": 0,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 1,
-       "d": 2,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 2,
-       "d": 1,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 2,
-       "d": 3,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 2,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 0,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 3,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 1,
-       "cap": 34879492811648304,
-       "sec": 0
-      },
-      {
-       "s": 5,
        "d": 6,
-       "cap": 5000960811463843000,
-       "sec": -1
+       "cap": 105995674421781620,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 105995590430649890,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 8,
+       "cap": 105995590430649890,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 4033013160386087.5,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 10,
+       "cap": 12343359878544600,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 11,
+       "cap": 12644417436557886,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 12,
+       "cap": 12644417436557886,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 13,
+       "cap": 12343359878544600,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 10,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 11,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 13,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 8,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 10,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 13,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 7,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 11,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 13,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 0,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 0,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 8,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 10,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 12,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 13,
+       "cap": 0,
+       "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 7501441217195764000,
+       "cap": 631066881930564100,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 7501441217195764000,
+       "cap": 631067056521717200,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 631067056521717100,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 631067056521717200,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 631067056521717100,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 631066881930564100,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 631066969226140800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 7,
+       "cap": 631066469167725700,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 631066469167725700,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 9,
+       "cap": 24011370330513990,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 73488722545643650,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 75281130412610580,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 12,
+       "cap": 75281130412610580,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 13,
+       "cap": 73488722545643650,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 132072695668103620,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 132072732207375280,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 132072732207375260,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 132072732207375280,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 132072732207375260,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 132072695668103620,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 6,
+       "cap": 132072713937739470,
        "sec": 4
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 523312500000000000,
-       "sec": -1
+       "cap": 132072609283122430,
+       "sec": 4
       },
       {
        "s": 6,
-       "d": 0,
-       "cap": 784968750000000000,
+       "d": 8,
+       "cap": 132072609283122430,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 5025214437706838,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 10,
+       "cap": 15380071377088090,
        "sec": 3
       },
       {
        "s": 6,
-       "d": 2,
-       "cap": 784968750000000000,
+       "d": 11,
+       "cap": 15755195069212192,
        "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 12,
+       "cap": 15755195069212192,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 13,
+       "cap": 15380071377088090,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 7,
+       "cap": 214492784216830660,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 9,
+       "cap": 214492784216830660,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 214492784216830660,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 214492784216830660,
+       "sec": 4
       },
       {
        "s": 7,
        "d": 8,
-       "cap": 523312500000000000,
-       "sec": -1
+       "cap": 214492784216830660,
+       "sec": 4
       },
       {
        "s": 7,
-       "d": 1,
-       "cap": 784968750000000000,
-       "sec": 3
+       "d": 6,
+       "cap": 214492784216830660,
+       "sec": 4
       },
       {
        "s": 7,
-       "d": 3,
-       "cap": 784968750000000000,
-       "sec": 3
-      },
-      {
-       "s": 8,
        "d": 2,
-       "cap": 38170413814818370,
-       "sec": 3
+       "cap": 214492784216830660,
+       "sec": 4
       },
       {
-       "s": 8,
+       "s": 7,
        "d": 3,
-       "cap": 38170413814818370,
-       "sec": 3
+       "cap": 214492784216830660,
+       "sec": 4
       },
       {
-       "s": 8,
+       "s": 7,
        "d": 0,
-       "cap": 38170413814818370,
+       "cap": 214492784216830660,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 214492784216830660,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 214492784216830660,
        "sec": 3
       },
       {
-       "s": 8,
-       "d": 1,
-       "cap": 38170413814818370,
+       "s": 7,
+       "d": 13,
+       "cap": 214492784216830660,
        "sec": 3
       },
       {
-       "s": 8,
-       "d": 4,
+       "s": 7,
+       "d": 10,
+       "cap": 214492784216830660,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 11,
+       "cap": 214492784216830660,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 14,
        "cap": 833493468577307000000,
        "sec": -1
       }
@@ -18684,15 +28783,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "10zpbxl",
-   "build": 141590,
+   "signature": "pz565e",
+   "build": 141625,
    "crew": 1000,
-   "total": 142590,
+   "total": 142625,
    "by": {
     "hull": 20,
     "armor": 10,
     "power": 45618,
-    "drive": 35740,
+    "drive": 35775,
     "defense": 1500,
     "command": 14501,
     "weapons": 27200,
@@ -18729,9 +28828,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00554,
-    "upS": 0.00554,
-    "down": 0.0374,
+    "up": 0.00555,
+    "upS": 0.00555,
+    "down": 0.0512,
     "T": 0
    },
    "powerProfile": {
@@ -18814,6 +28913,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        -3.1668062194362285,
+        -0.9650000184774398,
+        0.699
+       ],
+       [
+        -3.1668062194362285,
+        -0.9650000184774398,
+        0.501
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -18851,6 +28966,22 @@ const CRAFT_PRICE_CATALOG={
       "stock": 6,
       "mount": "ext",
       "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        -3.1668062194362285,
+        -0.9650000184774398,
+        -0.501
+       ],
+       [
+        -3.1668062194362285,
+        -0.9650000184774398,
+        -0.699
+       ]
+      ],
+      "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
       "tt": 25,
@@ -19235,6 +29366,40 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 1",
+      "w": 0.1856634815774367,
+      "hits": 1,
+      "crew": 0.000003999997680738102,
+      "size": 0.07999995361476203,
+      "at": 0.486,
+      "part": 47,
+      "y": -0.19,
+      "z": 0.07,
+      "r": 0.013,
+      "share": 0.034558553350335385,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 2",
+      "w": 0.08076677314268929,
+      "hits": 1,
+      "crew": 0.0000011476754778786626,
+      "size": 0.02295350955757325,
+      "at": 0.497,
+      "part": 48,
+      "y": 0.12,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.009915506806949638,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
       "k": "engine",
       "name": "自動推進機関",
       "w": 0.2564602002353808,
@@ -19283,10 +29448,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0.53,
       "r": 0.031,
-      "share": 0.5000000018614136,
+      "share": 0.47776297169998644,
       "domain": "main",
       "port": "p7",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "dissipator",
@@ -19301,10 +29466,10 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": -0.53,
       "r": 0.031,
-      "share": 0.4999999981385865,
+      "share": 0.47776296814272856,
       "domain": "main",
       "port": "p8",
-      "powerConnected": false
+      "powerConnected": true
      },
      {
       "k": "quarters",
@@ -19317,21 +29482,21 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.1,
       "z": 0,
       "r": 0.074,
-      "share": 0.35123809523809524,
+      "share": 0.3519083969465649,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.2028446518878895,
+      "w": 1.1999749265725586,
       "hits": 1,
       "crew": 0,
-      "size": 22.707923567577577,
-      "at": 0.348,
+      "size": 22.62670781805119,
+      "at": 0.347,
       "y": -0.14,
       "z": 0,
       "r": 0.085,
-      "share": 0.5325714285714286,
+      "share": 0.5316793893129771,
       "domain": "main"
      },
      {
@@ -19345,7 +29510,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.23,
       "z": 0,
       "r": 0.047,
-      "share": 0.08914285714285715,
+      "share": 0.08931297709923665,
       "domain": "main"
      },
      {
@@ -19359,13 +29524,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0,
       "r": 0.031,
-      "share": 0.02704761904761905,
+      "share": 0.027099236641221373,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 11.587353499148472,
+      "w": 11.74548981679135,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -19388,9 +29553,9 @@ const CRAFT_PRICE_CATALOG={
     "height": 2.38000003695488,
     "grid": {
      "P": 5819852996623119000,
-     "fixed": 24590622592056412,
-     "cooling": 0,
-     "De": 1272404570902172400,
+     "fixed": 43099510155029480,
+     "cooling": 18508887562973068,
+     "De": 1274877423418198300,
      "Ds": 0,
      "Dw": 3012480000000000000,
      "domains": [
@@ -19446,7 +29611,9 @@ const CRAFT_PRICE_CATALOG={
         31,
         32,
         33,
-        34
+        34,
+        35,
+        36
        ],
        "protection": 1
       }
@@ -19456,7 +29623,23 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "hotel",
-       "cap": 24590622592056412,
+       "cap": 43099510155029480,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p7",
+       "cap": 1166928750000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p8",
+       "cap": 1166928750000000,
        "auto": true,
        "ok": true
       },
@@ -19464,7 +29647,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p25",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19472,7 +29655,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p26",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19480,7 +29663,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p27",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19488,7 +29671,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p28",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19496,7 +29679,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p34",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19504,7 +29687,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p35",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19512,7 +29695,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p36",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19520,7 +29703,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p37",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19528,7 +29711,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p38",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19536,7 +29719,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p39",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19544,7 +29727,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p40",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19552,7 +29735,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p41",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19560,7 +29743,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p42",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19568,7 +29751,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p43",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19576,7 +29759,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p44",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19584,7 +29767,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p45",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19592,7 +29775,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p46",
-       "cap": 1446507211297436,
+       "cap": 2268395271317341,
        "auto": true,
        "ok": true
       },
@@ -19600,7 +29783,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p23",
-       "cap": 636202285451086200,
+       "cap": 637438711709099100,
        "auto": false,
        "ok": true
       },
@@ -19608,7 +29791,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p24",
-       "cap": 636202285451086200,
+       "cap": 637438711709099100,
        "auto": false,
        "ok": true
       },
@@ -19656,7 +29839,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p23",
-       "cap": 636202285451086200,
+       "cap": 637438711709099100,
        "auto": false,
        "ok": true
       },
@@ -19664,7 +29847,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p24",
-       "cap": 636202285451086200,
+       "cap": 637438711709099100,
        "auto": false,
        "ok": true
       },
@@ -19705,6 +29888,38 @@ const CRAFT_PRICE_CATALOG={
        "from": "p22",
        "to": "f33",
        "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p47",
+       "cap": 12568801620487296,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p48",
+       "cap": 3606228442485771.5,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p47",
+       "cap": 12568801620487296,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p48",
+       "cap": 3606228442485771.5,
        "auto": false,
        "ok": true
       }
@@ -19730,7 +29945,32 @@ const CRAFT_PRICE_CATALOG={
        "weight": 1000000000000000
       }
      ],
-     "coolingLoads": []
+     "coolingLoads": [
+      {
+       "id": "p47",
+       "port": "p47",
+       "weight": 12568801620487296,
+       "domain": "main"
+      },
+      {
+       "id": "p48",
+       "port": "p48",
+       "weight": 3606228442485771.5,
+       "domain": "main"
+      },
+      {
+       "id": "p7",
+       "port": "p7",
+       "weight": 1166928750000000,
+       "domain": "main"
+      },
+      {
+       "id": "p8",
+       "port": "p8",
+       "weight": 1166928750000000,
+       "domain": "main"
+      }
+     ]
     },
     "propulsion": {
      "version": 1,
@@ -19739,11 +29979,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 23,
        "machineryId": 23,
-       "ratedInputW": 636202285451086200,
+       "ratedInputW": 637438711709099100,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 318101142.7255431,
+       "ratedThrustN": 318719355.8545496,
        "effectiveMachineryVolumeM3": 0.05309091477681085,
        "machineryVolumeM3": 0.05309091477681085,
        "machineryLengthM": 0.3,
@@ -19752,9 +29992,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.0100000000000002,
        "maxInputW": 1805091102411569000,
        "maxRatedInputW": 1805091102411569000,
-       "inputDensityWPerM3": 11983260942585375000,
+       "inputDensityWPerM3": 12006549790841442000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 4362.678699847387,
+       "cost": 4380.139433933344,
        "powerNode": "p23",
        "heatNode": "p23",
        "reactorId": 21,
@@ -19769,7 +30009,7 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 26,
+       "machineryModuleIndex": 28,
        "available": true,
        "connected": true,
        "outletAvailable": true,
@@ -19779,11 +30019,11 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 24,
        "machineryId": 24,
-       "ratedInputW": 636202285451086200,
+       "ratedInputW": 637438711709099100,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 318101142.7255431,
+       "ratedThrustN": 318719355.8545496,
        "effectiveMachineryVolumeM3": 0.05309091477681085,
        "machineryVolumeM3": 0.05309091477681085,
        "machineryLengthM": 0.3,
@@ -19792,9 +30032,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryOffsetM": 2.0100000000000002,
        "maxInputW": 1805091102411569000,
        "maxRatedInputW": 1805091102411569000,
-       "inputDensityWPerM3": 11983260942585375000,
+       "inputDensityWPerM3": 12006549790841442000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 4362.678699847387,
+       "cost": 4380.139433933344,
        "powerNode": "p24",
        "heatNode": "p24",
        "reactorId": 22,
@@ -19809,30 +30049,31 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 29,
        "available": true,
        "connected": true,
        "outletAvailable": true,
        "pathCapacityW": 1805091102411569000
       }
      ],
-     "massKg": 19481.85541165419,
-     "ratedThrustN": 636202285.4510862,
+     "massKg": 19519.717390676637,
+     "ratedThrustN": 637438711.7090992,
      "ratedAccelMps2": 32656.1445,
-     "structuralAccelerationLimitMps2": 358625.4158543422,
+     "structuralAccelerationLimitMps2": 358625.4158543423,
      "inertialFactor": 1,
      "accelerationLimitMps2": 32656.1445
     },
     "profileVersion": 15,
     "heat": {
-     "v": 1,
+     "v": 2,
+     "mode": "strict",
      "src": [
       {
        "k": "reactor",
        "id": "p21",
        "n": "右舷ナセル核融合炉 #21",
        "g": "high",
-       "sh": 0.713879,
+       "sh": 0.71083,
        "st": 8380588315137292000,
        "m": [
         5
@@ -19847,8 +30088,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p22",
        "n": "右舷ナセル核融合炉 #22",
        "g": "high",
-       "sh": 0.286121,
-       "st": 3358916868438406700,
+       "sh": 0.28917,
+       "st": 3409273044628003000,
        "m": [
         6
        ],
@@ -19863,10 +30104,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #23",
        "g": "high",
        "sh": 0.5,
-       "st": 1908606856353258800,
+       "st": 1912316135127297500,
        "m": [
         7,
-        26
+        28
        ],
        "pc": [],
        "sec": 0,
@@ -19879,10 +30120,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #24",
        "g": "high",
        "sh": 0.5,
-       "st": 1908606856353258800,
+       "st": 1912316135127297500,
        "m": [
         8,
-        27
+        29
        ],
        "pc": [],
        "sec": 0,
@@ -19942,7 +30183,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1475437355523384800,
+       "st": 2585970609301768700,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -19952,14 +30193,37 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
+       "id": "p47",
+       "n": "機体内高エネルギー散逸装置 1 #47",
+       "k": "hdis",
+       "g": "high",
+       "cap": 837920108032486400,
+       "m": 26,
+       "sec": 4,
+       "src": -1,
+       "power": 12568801620487296
+      },
+      {
+       "id": "p48",
+       "n": "機体内高エネルギー散逸装置 2 #48",
+       "k": "hdis",
+       "g": "high",
+       "cap": 240415229499051460,
+       "m": 27,
+       "sec": 4,
+       "src": -1,
+       "power": 3606228442485771.5
+      },
+      {
        "id": "p7",
        "n": "右舷主翼 #7",
        "k": "wing",
        "g": "high",
        "cap": 116692875000000000,
-       "m": 28,
+       "m": 30,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 1166928750000000
       },
       {
        "id": "p8",
@@ -19967,202 +30231,219 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 116692875000000000,
-       "m": 29,
+       "m": 31,
        "sec": 2,
-       "src": -1
+       "src": -1,
+       "power": 1166928750000000
       },
       {
        "id": "skin",
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 673327963815822200000,
+       "cap": 673327963815822400000,
        "m": -1,
        "sec": -1,
        "src": -1
-      },
-      {
-       "id": "int:p21",
-       "n": "右舷ナセル核融合炉 #21（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 86189503869884580,
-       "m": -1,
-       "sec": -1,
-       "src": 0
-      },
-      {
-       "id": "int:p22",
-       "n": "右舷ナセル核融合炉 #22（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 86189503869884580,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:f29",
-       "n": "武装（前部区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 522653008147342200,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:f31",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 418122406517873700,
-       "m": -1,
-       "sec": -1,
-       "src": 5
-      },
-      {
-       "id": "int:f32",
-       "n": "武装（中央区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 624585334784108.8,
-       "m": -1,
-       "sec": -1,
-       "src": 6
       }
      ],
      "ln": [
       {
        "s": 0,
+       "d": 0,
+       "cap": 116747066757686400,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 33496955830068308,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 16258770659843344,
+       "sec": 3
+      },
+      {
+       "s": 0,
        "d": 3,
-       "cap": 86189503869884580,
-       "sec": -1
-      },
-      {
-       "s": 0,
-       "d": 0,
-       "cap": 129284255804826860,
-       "sec": 3
-      },
-      {
-       "s": 0,
-       "d": 1,
-       "cap": 129284255804826860,
-       "sec": 3
-      },
-      {
-       "s": 1,
-       "d": 4,
-       "cap": 86189503869884580,
-       "sec": -1
-      },
-      {
-       "s": 1,
-       "d": 1,
-       "cap": 129284255804826860,
+       "cap": 16258770659843344,
        "sec": 3
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 129284255804826860,
+       "cap": 9713386659551816,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 2786955535000285,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 1352733995071761.8,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 1352733995071761.8,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 47715171408831470,
-       "sec": 0
+       "cap": 0,
+       "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 47715171408831470,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 0,
        "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 0,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 0,
+       "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 47715171408831470,
+       "cap": 0,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 0,
        "sec": 0
       },
       {
        "s": 3,
-       "d": 0,
-       "cap": 47715171408831470,
+       "d": 3,
+       "cap": 0,
        "sec": 0
       },
       {
        "s": 4,
-       "d": 5,
-       "cap": 522653008147342200,
-       "sec": -1
-      },
-      {
-       "s": 4,
        "d": 0,
-       "cap": 783979512221013200,
+       "cap": 400641388673073800,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 783979512221013200,
+       "cap": 114951640951575470,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 55795290076080660,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 55795290076080660,
        "sec": 3
       },
       {
        "s": 5,
-       "d": 6,
-       "cap": 418122406517873700,
-       "sec": -1
-      },
-      {
-       "s": 5,
        "d": 0,
-       "cap": 627183609776810600,
+       "cap": 320513110938459000,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 627183609776810600,
+       "cap": 91961312761260380,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 44636232060864520,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 44636232060864520,
        "sec": 4
       },
       {
        "s": 6,
-       "d": 7,
-       "cap": 624585334784108.8,
-       "sec": -1
-      },
-      {
-       "s": 6,
        "d": 0,
-       "cap": 936878002176163.1,
-       "sec": 2
+       "cap": 478777950135126.44,
+       "sec": 3
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 936878002176163.1,
+       "cap": 137370507829320.61,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 66676971888241.71,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 66676971888241.71,
        "sec": 2
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 36885933888084616,
-       "sec": 3
+       "cap": 64649265232544220,
+       "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 36885933888084616,
-       "sec": 3
+       "cap": 64649265232544220,
+       "sec": 4
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 673327963815822200000,
+       "cap": 64649265232544220,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 64649265232544220,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 673327963815822400000,
        "sec": -1
       }
      ]
@@ -20211,9 +30492,9 @@ const FITS = {
   htl: {cat: 'w', name: '重ターボレーザー連装砲塔', short: '重TL連装', fm: 22, wm: 22, hm: 13, tt: 140, aa: .25, mass: 6000, crew: 18, cost: 500e3, desc: '2門×70TT。砲塔本体は幅22m・高さ13m級。'},
   stl: {cat: 'w', name: '大型重ターボレーザー連装砲塔', short: '大型重TL', fm: 34, wm: 34, hm: 18, tt: 350, aa: .12, mass: 16000, crew: 30, cost: 1.2e6, desc: '2門×175TT。スター・デストロイヤー級の主砲。'},
   utl: {cat: 'w', name: '超重ターボレーザー連装砲塔', short: '超重TL', fm: 56, wm: 56, hm: 26, tt: 1440, aa: .05, mass: 52000, crew: 60, cost: 6e6, desc: '2門×720TT。弩級艦向け。'},
-  ion: {cat: 'w', name: 'イオン砲（連装）', short: 'イオン砲', fm: 22, wm: 22, hm: 14, ion: 120, aa: .4, mass: 5500, crew: 18, cost: 600e3, desc: '対シールド120TT相当。船体への損害は小さい。'},
+  ion: {cat: 'w', name: 'イオン砲（連装）', short: 'イオン砲', fm: 22, wm: 22, hm: 14, ion: 120, aa: .4, mass: 5500, crew: 18, cost: 600e3, desc: 'イオンエネルギーを照射し、漏出した分が接続された電力・電子系統に過負荷を与える。大きな過負荷では共通電力網が保護停止する。'},
   // v22 The ion torpedo launcher: the missile launcher's box and magazine, firing ion torpedoes. Its hits go to the
-  // ion channel (three times as hard on shields; what gets through drains the stored charge and chokes the reactor),
+  // ion channel. Leakage beyond shield acceptance can overload connected electrical systems and trip protection,
   // and point defence engages its salvos like missiles. The same mounts as the missile launcher (VLS or external box).
   itl: {cat: 'w', name: 'イオン魚雷発射管', short: 'イオン魚雷', fm: 12, wm: 12, hm: 3, msl: 80, ionMsl: true, pw: 1e21, mass: 600, crew: 8, cost: 180e3, desc: '20秒ごとに8発のイオン魚雷（1発 10 TT 相当のイオン）。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。点防御に迎撃される。射界の制約なし。'},
   trc: {cat: 'w', name: 'トラクター・ビーム投射機', short: '牽引', fm: 16, wm: 16, hm: 8, trac: 1, pw: 2e22, mass: 800, crew: 6, cost: 300e3, desc: '敵艦の機動を拘束する。'},
@@ -20223,13 +30504,14 @@ const FITS = {
   // v21 Starfighter and small-craft weapons (metres; the pilot fires them, so no gun crew). Fixed guns point to the bow.
   claser: {cat: 'w', craft: true, fixed: true, name: '固定式レーザー砲', short: 'レーザー砲', fm: 2.6, wm: .32, hm: .32, tt: .0005, aa: 2, mass: 1.2, crew: 0, cost: 400, desc: '機首方向に固定した戦闘機用レーザー砲（KX9・L-s1級）。'},
   claserH: {cat: 'w', craft: true, fixed: true, name: '重レーザー砲', short: '重レーザー', fm: 3.6, wm: .5, hm: .5, tt: .0015, aa: 1, mass: 3, crew: 0, cost: 1200, desc: '重戦闘機・ガンシップ用の大口径レーザー砲（ARC-170 の主砲級）。'},
-  cion: {cat: 'w', craft: true, fixed: true, name: '固定式イオン砲', short: 'イオン砲', fm: 1.8, wm: .55, hm: .55, ion: .0008, mass: 1.6, crew: 0, cost: 900, desc: '機首方向に固定したイオン砲。シールドと電装を麻痺させる。'},
+  cion: {cat: 'w', craft: true, fixed: true, name: '固定式イオン砲', short: 'イオン砲', fm: 1.8, wm: .55, hm: .55, ion: .0008, mass: 1.6, crew: 0, cost: 900, desc: '機首方向に固定したイオン砲。漏出したイオンエネルギーが、接続された電力・電子系統に過負荷を与える。'},
   cturret: {cat: 'w', craft: true, name: '小型旋回砲塔', short: '旋回砲塔', fm: 1.3, wm: 1.3, hm: .7, tt: .0008, aa: 1.5, mass: 2, crew: 0, cost: 900, desc: '後部銃座・上部砲塔などの小型レーザー砲塔（連装）。'},
   // v22 Ordnance is carried as stores (ORDNANCE): these fittings are the stations that hold it — launch tubes with
   // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
   // are chosen in the order of battle (the default is the craft's canon loadout).
   ctorp: {cat: 'w', craft: true, fixed: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: .32, len: 1.4}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 0.32 m：プロトン魚雷・イオン魚雷・震盪ミサイル・爆弾を装填できる。'},
   cmsl: {cat: 'w', craft: true, fixed: true, msl:25, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .22, len: 1.1}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発25 TT。'},
+  shipMsl: {cat:'w',fixed:true,msl:25,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:2.4,wm:.9,hm:.9,pw:1e15,mass:6.4,crew:0,cost:8000,store:{mount:'tube',slots:6,bore:.22,len:1.1},desc:'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発25 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
   cbomb: {cat: 'w', craft: true, fixed: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
   cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', slots: 2, maxMass: .3}, desc: '翼の下面などに付ける外部懸架1か所。魚雷・爆弾なら1発、細いミサイルなら2発を機外に吊る（1か所 0.3 t まで）。機内の容積を使わない。'},
 };
@@ -20643,7 +30925,7 @@ function sampleSection(ship, x, options={}) {
 }
 function cache(ship) {
   if(ship._lockedCache)return ship._lockedCache;
-  const key = JSON.stringify([ship.hull, ship.cuts, ship.subs, ship.trenches, ship.solidCuts, ship.hatches.filter(h=>h.portal), ship.parts.filter(p=>ship.hatches.some(h=>h.bay===p.id)).map(p=>[p.c,p.room,p.yaw,p.foreWidth,p.aftWidth])],(k,v)=>k.startsWith('_')&&k!=='_doorDetached'?undefined:v);
+  const key = JSON.stringify([ship.hull, ship.cuts, ship.subs, ship.trenches, ship.solidCuts, ship.hatches.filter(h=>h.portal),ship.fits.filter(f=>isShipLauncher(f)&&shipLauncherConfig(f).embedded).map(launcherStateKey), ship.parts.filter(p=>ship.hatches.some(h=>h.bay===p.id)).map(p=>[p.c,p.room,p.yaw,p.foreWidth,p.aftWidth])],(k,v)=>k.startsWith('_')&&k!=='_doorDetached'?undefined:v);
   if (!ship._cache || ship._cache.key !== key) ship._cache = {key, sec: new Map(), geo: null, hf: null, hfKey: ''};
   return ship._cache;
 }
@@ -20873,7 +31155,7 @@ function rayEnv(ship, o, d, opts) {
   opts = opts || {};
   const lock = ship._rayLock, g = lock ? lock.env || (lock.env = referenceHullGeometry(ship) || hullGeo(ship)) : referenceHullGeometry(ship)||hullGeo(ship);
   if (!g.bvh) g.bvh = buildBVH(g.tris);
-  let best = rayBVH(g.bvh, o, d, opts.maxT);
+  let best = opts.launcherCuts?rayTris(launcherRecessTriangles(ship,'hull',g.tris),o,d,opts.maxT):rayBVH(g.bvh, o, d, opts.maxT);
   if (best) best.kind = 'hull';
   for (const pt of ship.parts) {
     if (opts.structOnly && !isShapePart(pt)) continue;
@@ -20882,6 +31164,7 @@ function rayEnv(ship, o, d, opts) {
     let h;
     if (lock && isShapePart(pt) && !pt._surfaceAdapter) { let T = lock.tris.get(pt); if (!T) { T = lockedRayTris(pt); lock.tris.set(pt, T); } h = pt.form==='reference'?rayReferenceMesh(T,o,d):rayTris(T, o, d); }
     else h = rayPart(o, d, pt);
+    if(opts.launcherCuts&&isShapePart(pt))h=rayTris(launcherRecessTriangles(ship,pt.id,lockedRayTris(pt)),o,d,opts.maxT);
     if (h && (!best || h.t < best.t) && (opts.maxT == null || h.t < opts.maxT)) { best = h; best.kind = 'part'; best.part = pt; }
   }
   return best;
@@ -20913,6 +31196,7 @@ function weaponMountAllowed(f,normal){if(!weaponWallOnly(f))return true;if(!Arra
 function weaponBodyFrame(f){const fw=fitUp(f);let up=sub([0,1,0],mul(fw,fw[1]));if(len(up)<1e-8)up=sub([1,0,0],mul(fw,fw[0]));up=norm(up);return {fw,up,rt:cross(fw,up)};}
 function normalizeFitMount(f){
  f=migrateWeaponFit(f);if(weaponWallOnly(f)){delete f.assetYaw;const n=f.tilt||f.n||AXES[f.mountAxis??f.a];if(!weaponMountAllowed(f,n)){f.float=true;f.wallMountInvalid=true;}else delete f.wallMountInvalid;}if(isConcussionLauncher(f)&&f.legacyMissileMount==='vls-orphan'){f.float=true;f.surfaceUnplaced=true;}
+ if(isShipLauncher(f)){const q=shipLauncherConfig(f);f.launcherCols=q.cols;f.launcherRows=q.rows;f.launchYaw=q.yaw;f.launcherEmbedded=q.embedded;}
  if(isConcussionLauncher(f)){const angle=launcherPitch(f);if(angle)f.launchPitch=angle;else delete f.launchPitch;}
  if(f){const ballPitch=ballTurretPitch(f);if(ballPitch)f.assetPitch=ballPitch;else delete f.assetPitch;}
  if(f&&FITS[f.k]?.cat==='w'){
@@ -20946,11 +31230,18 @@ function broadsideBatteryGeometry(f){
 function broadsideBatteryMuzzles(f){return broadsideBatteryGeometry(f)?.muzzles.map(p=>p.slice())||[];}
 // One concussion-launcher body is shared by ships and aircraft. The fitting's
 // normal remains the attachment normal; pitch articulates the tube above it.
-function isConcussionLauncher(f){return canonicalWeaponKind(typeof f==='string'?f:f?.k)==='cmsl';}
-function isSurfaceVLS(f){return isConcussionLauncher(f)&&isSurfaceBattery(f);}
+function isShipLauncher(f){return canonicalWeaponKind(typeof f==='string'?f:f?.k)==='shipMsl';}
+function isConcussionLauncher(f){const k=canonicalWeaponKind(typeof f==='string'?f:f?.k);return k==='cmsl'||k==='shipMsl';}
+function isSurfaceVLS(f){return !isShipLauncher(f)&&isConcussionLauncher(f)&&isSurfaceBattery(f);}
+function shipLauncherConfig(f={}){
+ const integer=v=>clamp(Number.isFinite(+v)?Math.round(+v):1,1,16),cols=integer(f.launcherCols),rows=integer(f.launcherRows),yaw=Number.isFinite(f.launchYaw)?clamp(f.launchYaw,-180,180):0,pitch=Number.isFinite(f.launchPitch)?clamp(f.launchPitch,-90,90):0;
+ return {cols,rows,cells:cols*rows,embedded:f.launcherEmbedded===true,yaw,pitch};
+}
+function launcherStateKey(f){const q=shipLauncherConfig(f);return [f.id,f.k,f.p,f.a,f.n,f.tilt,f.host,f.local,f.localNormal,f.mountAxis,f.mountOffset,f.base,f.ped,f.scale,f.frameFlip,!!f.float,q.cols,q.rows,q.yaw,q.pitch,q.embedded];}
 function launcherPitch(f){return isConcussionLauncher(f)&&!isSurfaceVLS(f)&&Number.isFinite(f?.launchPitch)?clamp(f.launchPitch,-90,90):0;}
 function launcherGeometry(f){
  if(!isConcussionLauncher(f))return null;
+ if(isShipLauncher(f))return shipLauncherGeometry(f);
  const d=fitSpec(f),L=d.fm,H=d.hm,W=d.wm,baseFrame=fitFrameOf(f),baseOrigin=fitOrigin(f),pitchDeg=launcherPitch(f);
  if(isSurfaceVLS(f)){
   const p=surfaceBatteryGeometry(f);if(!p)return null;
@@ -20969,11 +31260,30 @@ function launcherGeometry(f){
  const bounds=[0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i])))),muzzles=[-1,1].map(sign=>point(bodyFrame,pivot,L*.51,0,sign*W*.22)),origin=mul(add(muzzles[0],muzzles[1]),.5);
  return {pitchDeg,baseFrame,baseOrigin,bodyCenter,pivot,bodyFrame,supportHeight:raised?pivotHeight:0,baseThickness,bodySize:[L,H,W],bounds,muzzles,origin,axis:fw};
 }
+function shipLauncherGeometry(f){
+ const q=shipLauncherConfig(f),d=fitSpec(f),L=d.fm,H=d.hm,W=d.wm,baseFrame=fitFrameOf(f),baseOrigin=fitOrigin(f),yaw=q.yaw*Math.PI/180,pitch=q.pitch*Math.PI/180;
+ const startFw=q.embedded?baseFrame.up:baseFrame.fw,startUp=q.embedded?mul(baseFrame.fw,-1):baseFrame.up,startRt=baseFrame.rt,flat=norm(add(mul(startFw,Math.cos(yaw)),mul(startRt,Math.sin(yaw)))),rt=norm(add(mul(startRt,Math.cos(yaw)),mul(startFw,-Math.sin(yaw)))),fw=norm(add(mul(flat,Math.cos(pitch)),mul(startUp,Math.sin(pitch)))),up=norm(add(mul(startUp,Math.cos(pitch)),mul(flat,-Math.sin(pitch)))),bodyFrame={fw,up,rt},supportFrame={fw:flat,up:baseFrame.up,rt};
+ const raised=!q.embedded&&(Math.abs(q.pitch)>1e-9||q.rows>1),baseThickness=raised?.12:0,minY=-L*.5*Math.abs(Math.sin(pitch))-Math.abs(Math.cos(pitch))*H/2,pivotHeight=q.embedded?0:raised?-minY+baseThickness+.04:H/2,pivot=q.embedded?sub(baseOrigin,mul(fw,L/2)):add(baseOrigin,mul(baseFrame.up,pivotHeight)),bodyCenter=pivot.slice(),points=[],cellCenters=[],muzzles=[];
+ const point=(frame,origin,x,y,z)=>add(origin,add(add(mul(frame.fw,x),mul(frame.up,y)),mul(frame.rt,z)));
+ for(const x of [-L*.5,L*.5+.04])for(const y of [-H/2,H/2])for(const z of [-W/2,W/2])points.push(point(bodyFrame,pivot,x,y,z));
+ for(let row=0;row<q.rows;row++)for(let col=0;col<q.cols;col++){const y=(row-(q.rows-1)/2)*(H/q.rows),z=(col-(q.cols-1)/2)*(W/q.cols);cellCenters.push(point(bodyFrame,pivot,0,y,z));muzzles.push(point(bodyFrame,pivot,L/2+.02,y,z));}
+ if(raised){for(const x of [-L*.25,L*.25])for(const y of [0,baseThickness])for(const z of [-W*.675,W*.675])points.push(point(supportFrame,baseOrigin,x,y,z));for(const x of [-Math.max(L*.08,W*.12),Math.max(L*.08,W*.12)])for(const y of [baseThickness,pivotHeight+W*.12])for(const z of [-W*.675,W*.675])points.push(point(supportFrame,baseOrigin,x,y,z));}
+ const bounds=[0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i])))),origin=mul(muzzles.reduce((v,p)=>add(v,p),[0,0,0]),1/q.cells);
+ return {shipLauncher:true,...q,pitchDeg:q.pitch,yawDeg:q.yaw,cellSize:[L,H/q.rows,W/q.cols],cellCenters,muzzles,origin,axis:fw,frontPoint:baseOrigin.slice(),supportFrame,baseFrame,baseOrigin,bodyCenter,pivot,bodyFrame,supportHeight:raised?pivotHeight:0,baseThickness,bodySize:[L,H,W],bounds};
+}
+const launcherRecessCache=new WeakMap();
+function launcherRecessTriangles(ship,host,T){
+ const hostKey=host==='hull'?'hull':String(typeof host==='object'?host.id:host).replace(/^p/,'');
+ const fits=(ship.fits||[]).filter(f=>isShipLauncher(f)&&shipLauncherConfig(f).embedded&&!f.float&&(f.host==='hull'?'hull':String(f.host).replace(/^p/,''))===hostKey);if(!fits.length)return T;
+ const key=JSON.stringify(fits.map(launcherStateKey));let cached=launcherRecessCache.get(T);if(cached?.ship===ship&&cached.key===key)return cached.tris;let out=T;
+ for(const f of fits){const g=launcherGeometry(f),fr=g.bodyFrame,o=g.bodyCenter,[L,H,W]=g.bodySize,local=new Float32Array(out.length);for(let i=0;i<out.length;i+=3){const q=sub(Array.from(out.slice(i,i+3)),o);local[i]=dot(q,fr.fw);local[i+1]=dot(q,fr.up);local[i+2]=dot(q,fr.rt);}const cut=subtractBoxMesh(local,[-L/2-.02,-H/2,-W/2,L/2+H+W+.1,H/2,W/2]);out=new Float32Array(cut.length);for(let i=0;i<cut.length;i+=3){const q=add(o,add(mul(fr.fw,cut[i]),add(mul(fr.up,cut[i+1]),mul(fr.rt,cut[i+2]))));out.set(q,i);}}
+ launcherRecessCache.set(T,{ship,key,tris:out});return out;
+}
 function missileLauncherSpec(f){
- const d=FITS[canonicalWeaponKind(f?.k)];if(!d)return null;
+ const d=FITS[canonicalWeaponKind(f?.k)]&&fitSpec(f);if(!d)return null;
  if(isConcussionLauncher(f)){
   const g=launcherGeometry(f);if(!g)return null;const ammo=Math.max(0,Math.floor(d.store?.slots||0));
-  return {id:f.id,kind:'cmsl',origin:g.origin.slice(),axis:g.axis.slice(),salvo:1,cycle:1.2,tt:ORDNANCE.cmsl.tt,ammo,ammo0:ammo,stock:ammo,mount:isSurfaceVLS(f)?'vls':'ext',ion:false};
+  const ship=isShipLauncher(f);return {id:f.id,kind:ship?'shipMsl':'cmsl',origin:g.origin.slice(),muzzles:g.muzzles.map(p=>p.slice()),axis:g.axis.slice(),salvo:ship?shipLauncherConfig(f).cells:1,cycle:1.2,tt:ORDNANCE.cmsl.tt,volleyTT:ORDNANCE.cmsl.tt*(ship?shipLauncherConfig(f).cells:1),cells:ship?shipLauncherConfig(f).cells:1,ammoPerCell:6,range:ship?60000:10000,ammo,ammo0:ammo,stock:ammo,mount:isSurfaceVLS(f)||ship&&g.embedded?'vls':'ext',blocked:!!f.launcherBlocked,ion:false};
  }
  if(!d.msl)return null;const up=fitUp(f),port=surfaceBatteryGeometry(f),M=MISSILE_MOUNTS[missileMount(f)];
  return {id:f.id,kind:d.ionMsl?'itorp':undefined,origin:port?port.mouth:add(fitOrigin(f),mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:d.msl/8,ammo:M.stock,ammo0:M.stock,stock:M.stock,mount:missileMount(f),ion:!!d.ionMsl};
@@ -21207,7 +31517,7 @@ function fireArcs(ship, f, hf, obst) {
       if(facing<0||d.casemate&&(port?!surfaceBatteryInArc(port,dir):facing<Math.cos(65*Math.PI/180)||Math.abs(dir[1])>Math.sin(20*Math.PI/180)))continue;
       const start=add(o,mul(dir,port?.001:d.casemate?.2:d.r*1.1));
       if(port||f.localMount||d.casemate){
-        const c=cache(ship);if(!c.trenchBVH||c.trenchBVHKey!==c.hfKey){const tris=[...hullGeo(ship).tris];for(const p of ship.parts)if(isShapePart(p))for(const n of structTriangles(p))tris.push(n);c.trenchBVH=buildBVH(Float32Array.from(tris));c.trenchBVHKey=c.hfKey;}
+        const c=cache(ship);if(!c.trenchBVH||c.trenchBVHKey!==c.hfKey){const tris=[...launcherRecessTriangles(ship,'hull',hullGeo(ship).tris)];for(const p of ship.parts)if(isShapePart(p))for(const n of launcherRecessTriangles(ship,p.id,structTriangles(p)))tris.push(n);c.trenchBVH=buildBVH(Float32Array.from(tris));c.trenchBVHKey=c.hfKey;}
         if(rayBVH(c.trenchBVH,start,dir,maxT))continue;
         if(obst.some(ob=>ob.fit!==f&&(()=>{const h=ob.sphere?raySphere(start,dir,ob.c,ob.r):rayAABB(start,dir,ob.b);return h&&h.t<maxT;})()))continue;
         free++;
@@ -21287,14 +31597,14 @@ function basePlaceFit(ship, k, p, n, ped, mirror, options={}) {
   if (d.cat === 'b') { if (n[1] < 0.2) return {err: '艦橋は上向きの面に置いてください'}; }
   else { let bv = -2; for (let i = 0; i < 6; i++) { const v = dot(AXES[i], n); if (v > bv) { bv = v; a = i; } } }
   const tilt = (options.tilt||d.wallOnly) && d.cat === 'w' && (!options.localMount||d.wallOnly) && !d.casemate ? fitTilt(n) : null;
-  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(isConcussionLauncher(k)&&Number.isFinite(options.launchPitch)&&options.launchPitch!==0?{launchPitch:clamp(options.launchPitch,-90,90)}:{}),...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(isBallTurret(k)&&Number.isFinite(options.assetPitch)?{assetPitch:clamp(options.assetPitch,-90,90)}:{}),...(['top','bottom','auto','trench'].includes(options.mountMode)?{mountMode:options.mountMode}:{}),...(options.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber,batteryGuns:options.batteryGuns,...(options.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
+  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(isConcussionLauncher(k)&&Number.isFinite(options.launchPitch)&&options.launchPitch!==0?{launchPitch:clamp(options.launchPitch,-90,90)}:{}),...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(isBallTurret(k)&&Number.isFinite(options.assetPitch)?{assetPitch:clamp(options.assetPitch,-90,90)}:{}),...(['top','bottom','auto','trench'].includes(options.mountMode)?{mountMode:options.mountMode}:{}),...(options.localMount?{localMount:true}:{}),...(isShipLauncher(k)?{launcherCols:options.launcherCols,launcherRows:options.launcherRows,launchYaw:options.launchYaw,launcherEmbedded:options.launcherEmbedded,...(options.launcherEmbedded?{n:n.slice(),tilt:n.slice(),localMount:true}:{})}:{}),...(isBroadsideBattery(k)?{n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber,batteryGuns:options.batteryGuns,...(options.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
   if (f.float) return {err: f._onPlate ? '装甲外板には武装・装備を取り付けられません' : '取り付ける面が見つかりません'};
   const clash = fitClash(ship, f); if (clash) return {err: clash};
   ship.fits.push(f);
   const mirrorBounds=mirror&&d.craft?fitAABB(f):null;
   if (mirror && (mirrorBounds?mirrorBounds[2]>1e-6||mirrorBounds[5]<-1e-6:Math.abs(f.p[2])>d.r)) {
     const am = a === 4 ? 5 : a === 5 ? 4 : a;
-    const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(isBallTurret(f)&&f.assetPitch!=null?{assetPitch:f.assetPitch}:{}),...(isConcussionLauncher(k)&&Number.isFinite(f.launchPitch)?{launchPitch:f.launchPitch}:{}),...(f.mountMode?{mountMode:f.mountMode}:{}),...(f.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{batteryCaliber:f.batteryCaliber,batteryGuns:f.batteryGuns,...(f.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
+    const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(isBallTurret(f)&&f.assetPitch!=null?{assetPitch:f.assetPitch}:{}),...(isConcussionLauncher(k)&&Number.isFinite(f.launchPitch)?{launchPitch:f.launchPitch}:{}),...(f.mountMode?{mountMode:f.mountMode}:{}),...(f.localMount?{localMount:true}:{}),...(isShipLauncher(k)?{launcherCols:f.launcherCols,launcherRows:f.launcherRows,launchYaw:-(f.launchYaw||0),launcherEmbedded:f.launcherEmbedded}:{}),...(isBroadsideBattery(k)?{batteryCaliber:f.batteryCaliber,batteryGuns:f.batteryGuns,...(f.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
     if (!g.float && !fitClash(ship, g)) { g.tw = f.id; f.tw = g.id; ship.fits.push(g); }
   }
   return {fit: f};
@@ -21389,7 +31699,7 @@ function baseComputeStats(ship,options={}) {
   }
   let crew = 0, cost = 0, hpSum = 0;const costBy = {hull: 0, armor: 0, power: 0, drive: 0, defense: 0, hangar: 0, command: 0, weapons: 0, systems: 0};   // PLAN-002 the build cost by category (costCategory)
   let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
-  let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,hyperEffectiveVolume=0;
+  let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,shieldDissipationW,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
@@ -21436,7 +31746,7 @@ function baseComputeStats(ship,options={}) {
     }
     if (invalid.has(pt.id)) continue;
     if (isReactor(pt)) {Vgen+=V;reactorOutput+=reactorPower(pt);}
-    else if (pt.k === 'shield'||pt.k==='localShield') {Vsh += V;shieldCapacity+=shieldLoad(pt);}
+    else if (pt.k === 'shield'||pt.k==='localShield') {Vsh += V;shieldCapacity+=shieldLoad(pt);if(Number.isFinite(pt.shieldDissipationW)&&pt.shieldDissipationW>=0)shieldDissipationW=(shieldDissipationW||0)+pt.shieldDissipationW;}
     else if (pt.k === 'hyper') {Vhyp += V;hyperEffectiveVolume+=hyperCapacity(pt);}
     else if (pt.k === 'hangar'||pt.k==='service') { if(pt.k==='hangar')Vhang += V; hangars.push({pt, b: ab, expF, A, acc: false, doors: new Set()}); }
     else if (pt.k === 'engine') {
@@ -21493,10 +31803,11 @@ function baseComputeStats(ship,options={}) {
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid),vlsInfo=missileStatus(ship,invalid);
   // fittings
   const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]};
-  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0, weaponCrew = 0;
+  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0, weaponCrew = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};let aaCh=AA_CHANNELS.base;
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
+    if(!f.float&&raw.cat==='w'&&!raw.msl)allGunVolleyTT+=(raw.tt||0)+(raw.ion||0);
     if (f.float) { floatFits++; if (f._onPlate) plateFits++; }
     // v21 Craft weapons sit flush on their mount (drawn without a pedestal), so they carry no pedestal mass.
     const foundation=turretSupportGeometry(f),ph=fitHasPedestal(f)?Math.max(0,foundation?(f.ped||0):(f.base||0)+(f.ped||0)-(f.low||0)):0,pr=d.r*.8,pv=(foundation?.volume||0)+Math.PI*pr*pr*ph;pedVol+=pv;
@@ -21598,11 +31909,11 @@ function baseComputeStats(ship,options={}) {
     rc, coreRate,weaponBudget,chargeInfo,vlsInfo, rm, jumpOK, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
     weakAt: worstX, cutSection: cut, structLimited: aStruct < aThrust, MGLT: Math.round(aEff / G0 / 30),
     engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
-    shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate, shieldTarget:ship.shieldTarget||1, armorHull:ship.surfaces?surfaceArmor.average:ship.armor.hull,armorCit:cit,armorAvg:surfaceArmor.average+(area>0?plateAT/area:0),armorPlate:plateA>0?plateAT/plateA:0,plateArea:plateA,plateShare:area>0?Math.min(1,plateA/area):0,plateMass:plateM,
+    shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate,...(shieldDissipationW!=null?{shieldDissipationW}:{}), shieldTarget:ship.shieldTarget||1, armorHull:ship.surfaces?surfaceArmor.average:ship.armor.hull,armorCit:cit,armorAvg:surfaceArmor.average+(area>0?plateAT/area:0),armorPlate:plateA>0?plateAT/plateA:0,plateArea:plateA,plateShare:area>0?Math.min(1,plateA/area):0,plateMass:plateM,
     slots, aviation, deployableSlots:aviation.combatDeployable, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
-    alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
+    allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
-    commandInfo, bridges, view, accuracy, sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
+    commandInfo, bridges, view, accuracy, fireControl:ship.parts.some(p=>p.k==='firecontrol'&&!p.surfaceUnplaced&&!info[p.id]?.overlap), sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost:Math.round(cost), costBy:costBreakdown(cost,costBy),
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol,
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
@@ -21616,7 +31927,7 @@ const CLASSES = [[0, 'コルベット'], [150, 'スター・フリゲート'], [
   [5500, '重スター・デストロイヤー'], [12000, '巡洋戦艦'], [40000, 'スター・クルーザー'], [200000, 'スター・ドレッドノート']];
 function classify(S) {
   // v18 Ion cannons count at a third of their rating toward the firepower class
-  // (they strip shields but do little to the hull), and a ship whose ion rating
+  // (their connected-equipment overload role differs from direct hull damage), and a ship whose ion rating
   // exceeds its gun rating fights as an ion gunship.
   const fire = S.alphaTot + (S.ionTot || 0) / 3;
   let name = CLASSES[0][1]; for (const [th, nm] of CLASSES) if (fire >= th) name = nm;
@@ -21819,8 +32130,8 @@ function baseBuildDesign(key) { const d = DESIGNS[key], s = newShip(d.hull, d.na
 function baseProfile(S, name) {
   return {name, hp: Math.max(1, S.hp), dr: 1 / (1 + (S.armorAvg ?? S.armorHull)), crit: 1 + 0.7 * S.vuln,
     D: S.shieldP / TT * K.deflect, gunBest: S.alphaBest, gunMean: S.alphaMean, ionBest: S.ionBest, ionMean: S.ionMean,
-    msl: S.mslSalvo, imsl: S.imslSalvo || 0, aa: S.aa, rc: S.rc, acc: S.accuracy, agility: clamp(S.accelG / 3000, 0.08, 0.9),
-    trac: S.tractors, slots: Math.floor(S.deployableSlots??S.aviation?.deployableCount??S.slots), launch: S.launch, len: S.hullLen, cls: S.cls};
+    msl: S.mslSalvo, imsl: S.imslSalvo || 0, aa: S.aa, rc: S.rc, acc: S.accuracy, ...(S.fireControl!=null?{fireControl:!!S.fireControl}:{}), agility: clamp(S.accelG / 3000, 0.08, 0.9),
+    trac: S.tractors, slots: Math.floor(S.deployableSlots??S.aviation?.deployableCount??S.slots), launch: S.launch, len: S.hullLen, width:S.dims?.[1], height:S.dims?.[2], cls: S.cls};
 }
 function simulate(A, B, tmax) {
   tmax = tmax || 900;
@@ -21832,8 +32143,9 @@ function simulate(A, B, tmax) {
     for (let k = 0; k < 2; k++) {
       const X = sd[k], Y = sd[1 - k], p = X.p, health = 0.35 + 0.65 * Math.max(0, X.hp) / p.hp;
       const w = clamp(p.agility - 0.06 * Y.p.trac, 0.06, 0.9);
-      const gun = (w * (p.gunRateBest??p.gunBest/K.cycle) + (1 - w) * (p.gunRateMean??p.gunMean/K.cycle)) * p.rc * p.acc * health;
-      const ion = (w * (p.ionRateBest??p.ionBest/K.cycle) + (1 - w) * (p.ionRateMean??p.ionMean/K.cycle)) * p.rc * p.acc * health;
+      const accuracy=gunHitChance({p,pos:[0,0,0]},{p:Y.p,pos:[0,0,22000],yaw:0},22000);
+      const gun = (w * (p.gunRateBest??p.gunBest/K.cycle) + (1 - w) * (p.gunRateMean??p.gunMean/K.cycle)) * p.rc * accuracy * health;
+      const ion = (w * (p.ionRateBest??p.ionBest/K.cycle) + (1 - w) * (p.ionRateMean??p.ionMean/K.cycle)) * p.rc * accuracy * health;
       // v22 Ion torpedoes fly with the missiles (and are intercepted with them); they work on the ion channel.
       let msl = 0, imsl = 0; const mt = (p.msl || 0) + (p.imsl || 0); if (mt > 0 && t % 20 === 8) { const icpt = 0.7 * Y.p.aa / (Y.p.aa + mt * 0.5 + 1e-9); msl = (p.msl || 0) * (1 - icpt) * health; imsl = (p.imsl || 0) * (1 - icpt) * health; }
       if (p.slots > 0 && X.launched < p.slots) { const n = Math.min(p.slots - X.launched, p.launch * health); X.launched += n; X.queue.push([t + 25, n]); if (!X.allOut && X.launched >= p.slots - 1e-6) { X.allOut = true; ev(t, k, '全機発艦完了'); } }
@@ -21897,7 +32209,7 @@ Object.assign(CRAFT_PART_SIZE,{wing:[.02,100,4],solarPanel:[.02,100,4]});
 addComp('aux','補助反応炉','sphere',0.9,[243,187,91],'power','主反応炉と同じ容積あたりの出力を持つ補助炉。独立したノズルの接続先にもできます。',{def:48,crit:true});
 addComp('fuel','反応物サイロ','cyl',0.25,[183,135,85],'power','反応物を貯蔵。搭載量と出力から巡航時の持続時間を算出します。',{def:55,crit:true,ratio:2});
 addComp('pump','反応物供給設備','cube',0.3,[197,155,95],'power','ポンプ・弁・供給設備。搭載量に応じて燃料供給能力を確保します。',{def:24});
-addComp('battery','パワーセル','cube',0.45,[226,189,77],'power','電力の蓄積設備。武装への配電の起点で、近くの砲ほど配電路が短く済みます（出せる電力は蓄電量を30秒で出し切る分まで、残りは炉から直接）。戦闘ではシールドへの給電を肩代わりし、炉の出力を推進や兵装に回している間もシールドを再生させます。満充電のシールドの余剰給電で充電され、イオン砲の被弾で奪われます。',{def:30});
+addComp('battery','パワーセル','cube',0.45,[226,189,77],'power','電力の蓄積設備。武装への配電の起点で、近くの砲ほど配電路が短く済みます（出せる電力は蓄電量を30秒で出し切る分まで、残りは炉から直接）。戦闘ではシールドへの給電を肩代わりし、炉の出力を推進や兵装に回している間もシールドを再生させます。満充電のシールドの余剰給電で充電されます。',{def:30});
 addComp('localShield','局所シールド発生器','sphere',0.5,[82,192,164],'support','広域発生器とともに防御出力を担います。',{def:20,crit:true});
 addComp('inertial','慣性制御装置','cyl',0.4,[134,158,211],'support','艦の質量に応じた慣性制御能力。足りない場合は警告します。',{def:44});
 addComp('integrity','構造維持装置','cube',0.45,[127,156,177],'support','構造維持フィールドを支える装置。艦体規模との適合を確認できます。',{def:36});
@@ -22277,12 +32589,13 @@ function v3SurfSamples(pt,inflate=0){
   return baseSurfSamples(pt,inflate);
 }
 function mountFit(ship,f){
-  f=migrateWeaponFit(f);normalizeFitMount(f);
+  f=migrateWeaponFit(f);if(stockShipLauncherBuild&&!isCraft(ship)&&f.k==='cmsl')f.k='shipMsl';normalizeFitMount(f);
+  if(isShipLauncher(f)&&shipLauncherConfig(f).embedded)return mountEmbeddedLauncher(ship,f);
   if(isBroadsideBattery(f))return mountBroadsideBattery(ship,f);
   if(weaponWallOnly(f)&&!weaponMountAllowed(f,f.tilt||f.n||AXES[f.mountAxis??f.a])){f.float=true;f.wallMountInvalid=true;return f;}
   if(isConcussionLauncher(f)&&f.legacyMissileMount==='vls-orphan'){f.float=true;f.surfaceUnplaced=true;return f;}
   if(FITS[f.k]?.asset)return normalizeFitMount(mountReferenceFit(ship,f));
-  if(!FITS[f.k]?.window)return baseMountFit(ship,f);
+  if(!FITS[f.k]?.window){const out=baseMountFit(ship,f);if(isShipLauncher(out)&&!out.float){out.launcherBlocked=!launcherClearance(ship,out);if(stockShipLauncherBuild&&out.launcherBlocked){for(const angle of [15,30,45,60,90]){out.launchPitch=angle;if(launcherClearance(ship,out)){out.launcherBlocked=false;break;}}}}return out;}
   let p=f.p,n=f.n||AXES[f.a],host=f.host?ship.parts.find(q=>q.id===f.host):null,h=null;
   if(f.host&&!host){f.float=true;return f;}
   if(host&&f.local){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
@@ -22294,6 +32607,21 @@ function mountFit(ship,f){
   if(!valid)return f;f.p=h.p;f.n=h.n;f._wallUp=structFrame(h.part).up;
   if(isShapePart(h.part)&&!f.local){f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
   return f;
+}
+function mountEmbeddedLauncher(ship,f){
+ const host=f.host==='hull'?null:ship.parts.find(p=>p.id===f.host),up=fitUp(f);let p=f.p.slice(),n=up.slice(),h;
+ const moved=f._launcherHostPoint&&len(sub(f.p,f._launcherHostPoint))>1e-6;
+ if(host&&f.local&&!moved){p=worldStruct(host,[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]]);if(f.localNormal)n=norm(worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]));}
+ h=rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:8,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
+ f.p=h.p.slice();f.n=h.n.slice();f.tilt=h.n.slice();f.a=AXES.reduce((i,x,j)=>dot(x,h.n)>dot(AXES[i],h.n)?j:i,0);f.base=f.low=f.slope=f.ped=0;f.localMount=true;f.host=h.part?.id||'hull';f.float=false;
+ if(h.part&&isShapePart(h.part)){const q=localStruct(h.part,f.p),nn=localStruct({...h.part,c:[0,0,0]},f.n);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}else{delete f.local;delete f.localNormal;}
+ const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>h.part?inPart(h.part,q):insideOriginalEnvelope(ship,q);let valid=dot(g.axis,f.n)>.05;
+ for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
+ f.float=!valid;f.launcherBlocked=!valid||!launcherClearance(ship,f);f._launcherHostPoint=f.p.slice();return f;
+}
+function launcherClearance(ship,f){
+ if(!isShipLauncher(f))return true;const g=launcherGeometry(f),temporary=ship.fits.includes(f)?ship:{...ship,fits:[...ship.fits.filter(q=>q.id!==f.id),f]},distance=Math.max(ship.hull.L,ship.hull.W,ship.hull.H)*2+20;
+ return g.muzzles.every(m=>{const start=add(m,mul(g.axis,.025));if(rayEnv(temporary,start,g.axis,{maxT:distance,structOnly:true,launcherCuts:true}))return false;for(const other of ship.fits){if(other===f||other.id===f.id||other.float)continue;const hit=rayAABB(start,g.axis,fitAABB(other));if(hit&&hit.t<distance)return false;}return true;});
 }
 function mountBroadsideBattery(ship,f){
  const host=f.host?ship.parts.find(p=>p.id===f.host):null,n=f.tilt||f.n||AXES[f.a],probe=(p,out)=>rayEnv(ship,add(p,mul(out,4)),mul(out,-1),{maxT:8,structOnly:true});let p=f.p,h=null;
@@ -22335,7 +32663,7 @@ function fitAABB(f){
 }
 function placeFit(ship,k,p,n,ped,mirror,options={}){
   const legacyCaliber=LEGACY_BROADSIDE_CALIBERS[k],legacyBroadside=!!legacyCaliber;
-  k=canonicalWeaponKind(k);
+  k=canonicalWeaponKind(k);if(stockShipLauncherBuild&&!isCraft(ship)&&k==='cmsl')k='shipMsl';
   if(isBroadsideBattery(k)){
     if(!weaponMountAllowed(k,n))return {err:'側面砲列区画は構造物の側壁に貼り付けてください'};
     const pending={id:0,k,p:p.slice(),a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber||legacyCaliber,batteryGuns:options.batteryGuns,...(legacyBroadside?{batteryLegacyHull:true}:{})};setBroadsideBattery(pending);mountBroadsideBattery(ship,pending);
@@ -22396,16 +32724,19 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['imperial','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+let stockShipLauncherBuild=false;
 function buildDesign(key){
+ const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');try{
   const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);const out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);return SHIP_SYSTEM_REFIT_KEYS.includes(key)?refitShipSystems(out,key):out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
   const d=DESIGNS[key];if(!d)throw new Error('設計見本が見つかりません');
   const s=newShip(d.hull,d.name);s._building=true;d.build(s);delete s._building;return finish(s);
+ }finally{stockShipLauncherBuild=previousLauncherBuild;}
 }
 
-function profile(S,name){const p=baseProfile(S,name);p.gunRateBest=Math.max(...S.alphaRate);p.gunRateMean=S.alphaRate.reduce((a,b)=>a+b,0)/6;p.ionRateBest=Math.max(...S.ionRate);p.ionRateMean=S.ionRate.reduce((a,b)=>a+b,0)/6;p.shieldBuffer=S.shieldCapacity/TT;p.reserve=(S.batteryEnergy||0)/TT;return p;}
+function profile(S,name){const p=baseProfile(S,name);p.gunRateBest=Math.max(...S.alphaRate);p.gunRateMean=S.alphaRate.reduce((a,b)=>a+b,0)/6;p.ionRateBest=Math.max(...S.ionRate);p.ionRateMean=S.ionRate.reduce((a,b)=>a+b,0)/6;p.allGunVolleyTT=S.allGunVolleyTT||0;p.shieldBuffer=S.shieldCapacity/TT;if(Number.isFinite(S.shieldDissipationW))p.shieldDissipationW=Math.max(0,S.shieldDissipationW);p.reserve=(S.batteryEnergy||0)/TT;return p;}
 
 // Parametric shipbuilding: station lofts, shaped rooms, engine bodies and physical bay mouths.
 function aeroMeshPart(p,mesh){const key=JSON.stringify([p.k,p.c,p.s,p.surfaceNormal,p.pitch,p.roll,p.yaw]),old=p._aeroMeshPart;if(old?.mesh===mesh&&old.key===key&&Array.isArray(old.c)&&Array.isArray(old.s))return old;const q={key,k:p.k,c:p.c,s:p.s,surfaceNormal:p.surfaceNormal,pitch:p.pitch||0,roll:p.roll||0,yaw:p.yaw||0,form:'mesh',mesh};p._aeroMeshPart=q;return q;}
@@ -22554,7 +32885,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW','busFeed','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW','busFeed','shieldDissipationW','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){normalizeAeroPart(q);enforceEquipment(q);normalizeSuperweapon(q);if(isShapePart(q))q._solidCutShip=ship;if(q.k==='cockpit'){if(Number.isFinite(opt.seats))q.seats=clamp(Math.round(opt.seats),1,20);if(opt.suit===true)q.suit=true;}}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made){if(!old&&q.k==='engine')initializeEngineSpec(q,ship,false);if(isInternal(q))q._envelope=ship;}
@@ -22736,7 +33067,7 @@ function normalizeSurfaces(value){
  for(const p of (Array.isArray(value.partitions)?value.partitions:[]).slice(0,SURFACE_MAX)){
   if(!p||typeof p.baseId!=='string')continue;const leaves=[];for(const r of (p.leaves||[]).slice(0,64)){if(typeof r?.id!=='string'||!r.id.startsWith(p.baseId+'/')||!Array.isArray(r.range)||r.range.length!==4||!r.range.every(Number.isFinite))continue;const a=r.range.map(x=>clamp(x,0,1));if(a[2]-a[0]<.001||a[3]-a[1]<.001)continue;if(leaves.some(x=>Math.min(a[2],x.range[2])-Math.max(a[0],x.range[0])>1e-6&&Math.min(a[3],x.range[3])-Math.max(a[1],x.range[1])>1e-6))continue;leaves.push({id:r.id,range:a});}if(leaves.length)partitions.push({baseId:p.baseId,leaves});
  }
- return {version:SURFACE_VERSION,armorOnly:1,mode:value.mode==='strict'?'strict':'compat',compatAllowed:value.compatAllowed!==false,patches:records,...(partitions.length?{partitions}:{}),...(Number.isFinite(value.legacyArmor)?{legacyArmor:clamp(value.legacyArmor,0,100)}:{})};
+ return {version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:false,patches:records,...(partitions.length?{partitions}:{}),...(Number.isFinite(value.legacyArmor)?{legacyArmor:clamp(value.legacyArmor,0,100)}:{})};
 }
 function surfaceDefaultConfig(ship,id){
  return {id,authored:false,functionMode:'armor',allocation:surfaceAllocation(),armor:{material:'standard',thickness:ship.surfaces?.armorOnly===1?(ship.surfaces.legacyArmor??ship.armor?.hull??0):ship.surfaces?0:ship.armor?.hull??0},equipment:{kind:'none',count:0,depth:1},battery:{weapon:'none',count:0,spacing:2,angle:0,reversed:false},style:{kind:'standard',depth:0,density:0,seed:1},powerDomain:'main',layout:{u:1,v:1}};
@@ -22749,7 +33080,7 @@ function surfaceEditablePatch(ship,patch){
 }
 function surfaceConfig(ship,id){const q=ship.surfaces?.patches?.find(x=>x.id===id),base=surfaceDefaultConfig(ship,id);if(!q)return base;for(const k of ['armor','equipment','battery','style'])base[k]={...base[k],...q[k]};if(q.aggregate)base.aggregate=q.aggregate;base.authored=q.authored!==false;base.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';base.allocation=surfaceAllocation(q.allocation);if(q.legacyAllocation){base.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation);base.battery.count=(q.aggregate?.guns?.length??ship.fits.filter(f=>f.surfacePatch===id&&FITS[f.k]?.cat==='w').length);}base.powerDomain=q.powerDomain||'main';if(q.boundArea!=null)base.boundArea=q.boundArea;base.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};return base;}
 function surfaceTopology(ship,p){const key=[p?p.k:'hull',p?.form||ship.hull.plan,p?.mesh?.f||null,p?.mesh?.v?.length||null,ship.cuts||[],ship.trenches||[],ship.subs||[],(ship.solidCuts||[]).filter(c=>!p||ship.hull.assembly||c.structures),p?null:(ship.hatches||[]).map(h=>[h.id,h.portal,h.bay,h.face,h.a,h.b,h.w])];if(p?.form==='wedge')key.push('outward-wedge-2');return surfaceHash(key);}
-function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize,p.dir,p.segments,p.boxSize,p.boxFrame,p.length,p.nozzleLength,p.light,p.plate]),ship.surfaces?.partitions]);}
+function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize,p.dir,p.segments,p.boxSize,p.boxFrame,p.length,p.nozzleLength,p.light,p.plate]),(ship.fits||[]).filter(isShipLauncher).map(launcherStateKey),ship.surfaces?.partitions]);}
 function surfaceHull2(points){const a=points.map(p=>p.slice()).sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross2=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);if(a.length<3)return a;const lo=[],hi=[];for(const p of a){while(lo.length>1&&cross2(lo.at(-2),lo.at(-1),p)<=1e-8)lo.pop();lo.push(p);}for(let i=a.length-1;i>=0;i--){const p=a[i];while(hi.length>1&&cross2(hi.at(-2),hi.at(-1),p)<=1e-8)hi.pop();hi.push(p);}lo.pop();hi.pop();return lo.concat(hi);}
 function surfaceBlocked(ship,p,n,host){const q=surfaceAdd(p,mul(n,.025));if(inHull(ship,q))return true;for(const part of ship.parts||[]){if(part===host||part.surfacePatch)continue;const b=partAABB(part);if(q.some((v,i)=>v<b[i]-.001||v>b[i+3]+.001))continue;if(inPart(part,q))return true;}return false;}
 function surfaceHosts(ship,defaultsOnly=false){const out=[];if(!defaultsOnly&&!ship.hull.assembly)out.push({host:'hull',part:null,T:hullGeo(ship).tris});for(const p of ship.parts||[]){if(p.surfacePatch||defaultsOnly&&!isFaceEditablePart(p))continue;if(isShapePart(p)){p._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(p)});continue;}if(p.room||PARTS[p.k]?.shape==='cube'){const q=roomShape(p);q._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(q)});}}return out;}
@@ -22872,7 +33203,7 @@ function surfaceAutoCandidates(ship,options={}){const angle=clamp(Number.isFinit
 function autoConfigureSurfaces(ship,options={}){
  surfaceSync(ship);
  const candidates=surfaceAutoCandidates(ship,options);if(!candidates.length)return {ok:true,ids:[],skipped:[],report:surfaceReport(ship)};
- const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;
+ const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,true);if(!enabled.ok)return enabled;
  if(new Set([...ship.surfaces.patches.map(p=>p.id),...candidates.map(p=>p.id)]).size>SURFACE_MAX){if(previous)ship.surfaces=previous;else delete ship.surfaces;return {ok:false,why:'表面設定の上限です'};}
  const targetIds=new Set(candidates.map(p=>p.id)),used=ship.parts.filter(q=>!q.surfacePatch||!targetIds.has(q.surfacePatch)).length,available=Math.max(0,DESIGN_LIMITS.parts-used),per=Math.min(SURFACE_DEVICE_MAX,Math.floor(available/candidates.length)),extra=Math.min(candidates.length,available-per*candidates.length),partial=options.config||options;
  for(let i=0;i<candidates.length;i++){const p=candidates[i],old=surfaceConfig(ship,p.id),q={...old,authored:true,functionMode:'equipment',allocation:surfaceAllocation(partial.allocation||old.allocation),equipment:{...old.equipment,kind:'hdis',depth:1,...partial.equipment,capacityModel:'area-v1',limit:Math.min(per+(i<extra?1:0),partial.equipment?.limit??SURFACE_DEVICE_MAX)},battery:{...old.battery,weapon:old.battery.weapon==='none'?'pd':old.battery.weapon,...partial.battery,count:0},style:{...old.style,kind:'machinery',...partial.style},boundArea:p.area};delete q.legacyAllocation;const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],index=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(index<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[index]=clean;}
@@ -22882,7 +33213,7 @@ function surfaceSymmetryIds(ship,ids,options={}){
  const patches=surfacePatches(ship),out=new Set(),find=(p,y,z)=>{let host=p._part;if(host){if(z){if(host.tw!=null)host=ship.parts.find(q=>q.id===host.tw)||host;else if(Math.abs(host.c[2])>1e-4)return null;}if(y){if(host.vt!=null)host=ship.parts.find(q=>q.id===host.vt)||host;else if(Math.abs(host.c[1]-vmirrorPlane(ship,host.c[0]))>1e-4)return null;}}const name=host?'p'+host.id:'hull',point=y?vmirrorPoint(ship,p.center):p.center,center=z?mirrorP(point):point,n=[p.normal[0],y?-p.normal[1]:p.normal[1],z?-p.normal[2]:p.normal[2]],scale=Math.max(1,Math.sqrt(p.area));return patches.filter(q=>q.host===name&&q.exposed&&dot(q.normal,n)>.999&&Math.abs(q.area-p.area)<=Math.max(.01,p.area*.001)).sort((a,b)=>len(sub(a.center,center))-len(sub(b.center,center))).find(q=>len(sub(q.center,center))<scale*.02+.01)?.id;};
  for(const id of Array.isArray(ids)?ids:[ids]){const p=patches.find(q=>q.id===id&&q.exposed);if(!p)continue;out.add(id);for(const y of options.vmirror?[false,true]:[false])for(const z of options.mirror?[false,true]:[false]){if(!y&&!z)continue;const q=find(p,y,z);if(q)out.add(q);}}return [...out];
 }
-function enableSurfaceMode(ship,strict=true,options={}){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';
+function enableSurfaceMode(ship,strict=true,options={}){if(!strict)return {ok:false,why:'互換冷却は廃止されました。厳格運転のみ使用できます'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:false,legacyArmor:ship.armor?.hull||0,patches:records};}else{ship.surfaces.mode='strict';ship.surfaces.compatAllowed=false;}
  // New-design UI callers let the worker compile the derived face report.
  return options?.report===false?{ok:true}:{ok:true,report:surfaceReport(ship)};}
 function surfaceInvalidate(ship){ship._cache=null;delete ship._feed;surfaceCache.delete(ship);surfaceStructuralCache.delete(ship);}
@@ -22904,14 +33235,14 @@ function structureArmorFaces(ship,part){
 function setStructureFaceArmor(ship,part,face,thickness){
  if(!Object.hasOwn(SURFACE_FACE,face)||!Number.isFinite(thickness)||thickness<0||thickness>SURFACE_LIMITS.armorThickness)return {ok:false,why:'装甲厚は0〜100 mで指定してください'};
  const faces=structureArmorFaces(ship,part).filter(q=>q.face===face);if(!faces.length)return {ok:false,why:'装甲厚を変更する構造物の面がありません'};
- if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:[]};
+ if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:false,legacyArmor:ship.armor?.hull||0,patches:[]};
  const ids=new Set(ship.surfaces.patches.map(q=>q.id));if(ids.size+faces.filter(q=>!ids.has(q.id)).length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
  for(const p of faces){const current=surfaceConfig(ship,p.id),record={...current,authored:true,functionMode:'armor',armor:{...current.armor,thickness},boundArea:p.area},clean=normalizeSurfaces({version:SURFACE_VERSION,armorOnly:1,patches:[record]}).patches[0],i=ship.surfaces.patches.findIndex(q=>q.id===p.id);if(i<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[i]=clean;}
  surfaceInvalidate(ship);return {ok:true,ids:faces.map(q=>q.id)};
 }
 function setSurfaceConfig(ship,ids,partial){
  surfaceSync(ship);
- if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};if(partial?.battery?.weapon&&weaponWallOnly(partial.battery.weapon)&&selected.some(p=>!weaponMountAllowed(partial.battery.weapon,p.normal)))return {ok:false,why:'この砲は左右の舷側面に配置してください'};if(partial?.battery&&!partial.battery.legacyHull&&selected.some(p=>isBroadsideBattery(partial.battery.weapon||surfaceConfig(ship,p.id).battery.weapon)&&(!isShapePart(p._part)||p._part.plate||Math.abs(dot(p.normal,structFrame(p._part).up))>=.65)))return {ok:false,why:'側面砲列区画は構造物の側壁に貼り付けてください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;if(partial?.allocation||partial?.allocationEdits?.length||partial?.functionMode||partial?.battery||partial?.equipment)surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
+ if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};if(partial?.battery?.weapon&&weaponWallOnly(partial.battery.weapon)&&selected.some(p=>!weaponMountAllowed(partial.battery.weapon,p.normal)))return {ok:false,why:'この砲は左右の舷側面に配置してください'};if(partial?.battery&&!partial.battery.legacyHull&&selected.some(p=>isBroadsideBattery(partial.battery.weapon||surfaceConfig(ship,p.id).battery.weapon)&&(!isShapePart(p._part)||p._part.plate||Math.abs(dot(p.normal,structFrame(p._part).up))>=.65)))return {ok:false,why:'側面砲列区画は構造物の側壁に貼り付けてください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;if(partial?.allocation||partial?.allocationEdits?.length||partial?.functionMode||partial?.battery||partial?.equipment)surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,true);if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
  for(const p of selected){let q=surfaceConfig(ship,p.id);const wasEquipment=q.functionMode==='equipment',hadLedger=!!q.aggregate,copiedCount=partial?.aggregate?.version===1&&partial?.equipment?.capacityModel!=='area-v1';q.authored=true;for(const k of ['armor','equipment','battery','style'])if(Object.hasOwn(partial||{},k))q[k]=partial[k]===null?surfaceConfig({...ship,surfaces:null},p.id)[k]:{...q[k],...partial[k]};if(['armor','equipment','legacy'].includes(partial?.functionMode))q.functionMode=partial.functionMode;else if(q.functionMode!=='equipment'&&!partial?.allocation&&!partial?.allocationEdits&&(Object.hasOwn(partial?.battery||{},'count')||Object.hasOwn(partial?.equipment||{},'count')))q.functionMode='legacy';if(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.battery||{},'count'))delete q.legacyAllocation;if(partial?.legacyAllocation)q.legacyAllocation=surfaceLegacyAllocation(partial.legacyAllocation);if(partial?.aggregate){q.aggregate=surfaceNormalizeAggregate(partial.aggregate);if(q.aggregate){const nodes=new Map();for(const r of [...q.aggregate.cells,...(q.aggregate.aliases||[]),...q.aggregate.guns]){if(!nodes.has(r[0]))nodes.set(r[0],nid(ship));r[0]=nodes.get(r[0]);}q.aggregate.signature='';}}if(copiedCount)delete q.equipment.capacityModel;if(q.functionMode==='equipment'&&(partial?.equipment?.capacityModel==='area-v1'||!copiedCount&&(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.equipment||{},'depth')||Object.hasOwn(partial?.equipment||{},'kind')||(!wasEquipment||!hadLedger)&&partial?.functionMode==='equipment'))){q.equipment.capacityModel='area-v1';delete q.legacyAllocation;}if(partial?.allocation)q.allocation=surfaceAllocation({...q.allocation,...partial.allocation});for(const edit of partial?.allocationEdits||[])q.allocation=surfaceAllocation(q.allocation,edit.key,edit.value);if(typeof partial?.powerDomain==='string')q.powerDomain=partial.powerDomain;if(q.aggregate?.legacyVLS&&(partial?.battery||partial?.functionMode)){delete q.aggregate.legacyVLS;delete q.aggregate.equipmentKey;}const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],i=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(i>=0)ship.surfaces.patches[i]=clean;else if(ship.surfaces.patches.length<SURFACE_MAX)ship.surfaces.patches.push(clean);else return {ok:false,why:'表面設定の上限です'};}
  const totals=surfaceDeviceTotals(ship,patches);if(totals.parts>DESIGN_LIMITS.parts||totals.fits>DESIGN_LIMITS.fits){if(previous)ship.surfaces=previous;else delete ship.surfaces;surfaceCache.delete(ship);return {ok:false,why:'設計全体のパーツ・砲座数の上限を超えます'};}
  surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};
@@ -22946,7 +33277,7 @@ function migrateLegacyConcussionVLS(ship){
  const old=ship.fits.filter(f=>f.k==='cmsl'&&f.legacyMissileMount==='vls'&&!f.surfacePatch);if(!old.length)return ship;ship._migratingConcussionVLS=true;
  try{
   const materialized=[...ship.parts,...ship.fits].some(q=>q.surfacePatch);let patches=surfacePatches(ship).filter(p=>p.exposed);
-  if(!ship.surfaces){if(patches.length>SURFACE_MAX){for(const f of old){f.surfaceUnplaced=true;f.float=true;f.legacyMissileMount='vls-orphan';}return ship;}ship.surfaces={version:SURFACE_VERSION,mode:'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:patches.map(p=>({...surfaceConfig({...ship,surfaces:null},p.id),boundArea:p.area}))};}
+  if(!ship.surfaces){if(patches.length>SURFACE_MAX){for(const f of old){f.surfaceUnplaced=true;f.float=true;f.legacyMissileMount='vls-orphan';}return ship;}ship.surfaces={version:SURFACE_VERSION,mode:'strict',compatAllowed:false,legacyArmor:ship.armor?.hull||0,patches:patches.map(p=>({...surfaceConfig({...ship,surfaces:null},p.id),boundArea:p.area}))};}
   for(const f of old){
    const up=norm(f.n||f.tilt||AXES[f.mountAxis??f.a]||[0,1,0]),hit=surfacePick(ship,add(f.p,mul(up,3)),mul(up,-1));let p=hit&&hit.distance<=6&&dot(hit.normal,up)>.8&&surfaceInwardDepth(ship,hit,f.p)>=surfaceWeaponDepth('cmsl')-1e-3?legacyVLSPanel(ship,hit,f):null;
    if(!p&&ship.surfaces.patches.length>=SURFACE_MAX){f.surfaceUnplaced=true;f.float=true;f.legacyMissileMount='vls-orphan';continue;}
@@ -23175,7 +33506,7 @@ function surfaceReportLegacy(ship){
   const physicalHabitationVolume=parts.filter(q=>q.k==='habitat').reduce((n,q)=>n+partVolume(q),0),habitationVolume=parts.filter(q=>q.k==='habitat').reduce((n,q)=>n+(hab?.explicitByPart?.[q.id]||0),0),habitationCapacity=Math.floor(habitationVolume/personVolume(ship.hull.L));if(active&&config.functionMode==='legacy')warnings.push({code:'surface-legacy',text:'旧式の面設定を保持しています。装甲面または機材配分へ変換できます。',patch:p.id});
   rows.push({...surfacePublicPatch(p),config,active,installed,requested:layout.requested,installedEquipment:partIds.length,requestedEquipment:layout.requestedEquipment,fitIds,partIds,cells,categories,occupiedArea:cells.reduce((n,c)=>n+c.w*c.h,0),volume:cells.reduce((n,c)=>n+c.w*c.h*c.depth,0),mass,armorMass,crew,powerDemand,coolingCapacity,physicalHabitationVolume,habitationVolume,habitationCapacity,sensorVolume:parts.filter(q=>q.k==='sensor'||q.k==='scanner').reduce((n,q)=>n+partVolume(q),0),barrels,errors});totals.physicalArea+=p.area;totals.area+=p.exposedArea;for(const k of ['exposedArea','occupiedArea','volume','mass','requested','installed','barrels'])totals[k]+=rows.at(-1)[k]||0;totals.equipment+=partIds.length;
  }
- const ids=new Set(patches.map(p=>p.id)),orphaned=records.filter(q=>!ids.has(q.id));totals.orphans=orphaned.length;for(const q of orphaned)warnings.push({code:'surface-orphan',text:'形状変更で面が失われました。設備を移設するか設定を解除してください。',patch:q.id});return {version:SURFACE_VERSION,mode:ship.surfaces?.mode||'compat',patches:rows,orphaned,warnings,totals};
+ const ids=new Set(patches.map(p=>p.id)),orphaned=records.filter(q=>!ids.has(q.id));totals.orphans=orphaned.length;for(const q of orphaned)warnings.push({code:'surface-orphan',text:'形状変更で面が失われました。設備を移設するか設定を解除してください。',patch:q.id});return {version:SURFACE_VERSION,mode:'strict',patches:rows,orphaned,warnings,totals};
 }
 function surfaceArmorBudget(ship,area){if(!ship.surfaces)return {volume:ship.armor.hull*area,mass:ship.armor.hull*area*K.armorDens,average:ship.armor.hull};let volume=0,mass=0;const surveyed=surfacePatches(ship),patches=new Map(surveyed.map(p=>[p.id,p]));for(const q of ship.surfaces.armorOnly===1?surveyed.map(p=>p.config):ship.surfaces.patches){const armor=surfaceArmor(q),m=SURFACE_MATERIALS[armor.material],a=patches.get(q.id)?.exposedArea??0;volume+=a*armor.thickness;mass+=a*armor.thickness*m.density;}return {volume,mass,average:area>0?volume/area:0};}
 function surfaceStats(ship,S){if(!ship.surfaces)return S;const r=surfaceReport(ship),hab=ship.parts.some(p=>p.k==='habitat')?habitationSpace(ship):null,net=S.heat?.net,e=net?heatEvaluate({...net,links:net.links.map(l=>({...l,kind:'heat',ok:true}))},'combat'):null,paths=S.heat?.powerPaths||[],crewK=S.crew>0?clamp((S.crewAboard??S.crew)/S.crew,0,1):1,factor=ship.surfaces.mode==='strict'?1/ENERGY_MODEL.eta:1;
@@ -23275,7 +33606,12 @@ function surfaceMountArc(u,t,m,d,query){
  const shell=surfaceShellBVH(u.p);if(m.authored){const want=sub([q.x,q.y,q.z],m.authored.elevationPivot);if(!authoredTurretInArc(m.authored,want))return 0;const pose=aimAuthoredTurretAt(m.authored,want);if(shell&&pose.muzzles.some(p=>surfaceCachedRay(shell,surfaceAdd(p,pose.fw,.02),pose.fw,Math.max(.1,len(sub([q.x,q.y,q.z],p))-.1),true,m)!=null))return 0;}else if(shell&&surfaceCachedRay(shell,surfaceAdd(origin,dir,m.embedded?.001:.05),dir,Math.max(.1,distance-.1),true,m)!=null)return 0;
  return q.sum>0?(q.ax*(m.arcs[q.ix]||0)+q.az*(m.arcs[q.iz]||0)+q.ay*(m.arcs[q.iy]||0))/q.sum:0;
 }
-function surfaceFleetFire(u,t,d){const query=surfaceFireQuery(u,t);let gun=0,ion=0;for(const m of u.p.surface.mounts){if(u.dualDefense&&m.dualPurpose)continue;const state=surfaceMountState(u,m),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query);gun+=m.gun*a*k;ion+=m.ion*a*k;}return {gun,ion,cost:(gun+ion)*weaponInputFactor(u.p),fall:bandFall(d),runtime:true};}
+function surfaceFleetFire(u,t,d){
+ const query=surfaceFireQuery(u,t),control=fleetSystems(u).fire,hits={};let gun=0,ion=0,gunLanded=0,ionLanded=0;
+ const chance=band=>hits[band]??(hits[band]=gunHitChance(u,t,d,GUN_BANDS[band]?.range||GUN_BANDS.long.range,control));
+ for(const m of u.p.surface.mounts){if(u.dualDefense&&m.dualPurpose)continue;const state=surfaceMountState(u,m),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),g=m.gun*a*k,i=m.ion*a*k;gun+=g;ion+=i;gunLanded+=g*chance(m.band||'mid');ionLanded+=i*chance('long');}
+ return {gun,ion,cost:(gun+ion)*weaponInputFactor(u.p),gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0,runtime:true};
+}
 function surfacePowerStep(u,s,t,raw,dt,chargingW,volley=1){
  surfaceCapacitorSync(u);
  const mounts=u.p.surface.mounts||[],banks=surfaceBanks(u),factor=weaponInputFactor(u.p),state=mounts.map(m=>surfaceMountState(u,m)),domain=m=>u.p.modules?.[m.module]?.domain||'main',domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0}],limits=new Map(domains.map(d=>[d.id,Math.max(0,powerDomainWatts(u,d.id))*dt/TT/factor])),cellLimits=mounts.map((m,i)=>Math.max(0,m.power)*state[i].operable*state[i].capacitorK*dt/TT/factor);let charge=Math.max(0,chargingW)*dt/TT/factor;
@@ -23327,7 +33663,7 @@ function surfacePartitionLedger(ship,q,p,axis,fraction){
   for(const role of SURFACE_ROLES){const d=q.aggregate.demand?.[role];if(d){const count=Math.round(d.requested*fraction);a.demand[role]={requested:j?d.requested-count:count,budgetArea:d.budgetArea*(j?1-fraction:fraction)};}}for(const key of ['requested','requestedEquipment']){const count=Math.round((q.aggregate[key]||0)*fraction);a[key]=j?(q.aggregate[key]||0)-count:count;}a.signature='';
  }return out;
 }
-function surfaceSplit(ship,id,axis='u',at=.5){const p=surfacePatches(ship).find(q=>q.id===id);if(!p||!p.exposed)return {ok:false,why:'分割する外面を選んでください'};const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(ship.surfaces.patches.length>=SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const r=p.range.slice(),i=axis==='v'?1:0,x=r[i]+(r[i+2]-r[i])*clamp(at,.05,.95),a=r.slice(),b=r.slice();a[i+2]=x;b[i]=x;const partition=ship.surfaces.partitions||(ship.surfaces.partitions=[]);let group=partition.find(q=>q.baseId===p.baseId);if(!group)partition.push(group={baseId:p.baseId,leaves:[]});group.leaves=group.leaves.filter(q=>q.id!==id);const q=surfaceConfig(ship,id),leaf=range=>({id:p.baseId+'/r'+range.map(n=>Math.round(n*1e6).toString(36)).join('.'),range}),children=[leaf(a),leaf(b)],first=Math.round(q.battery.count*clamp(at,.05,.95)),firstE=Math.round(q.equipment.count*clamp(at,.05,.95));group.leaves.push(...children);ship.surfaces.patches=ship.surfaces.patches.filter(q=>q.id!==id);const fraction=clamp(at,.05,.95),ledgers=q.aggregate?surfacePartitionLedger(ship,q,p,i,fraction):null,ownedG=ledgers?ledgers[0].guns.length+ledgers[1].guns.length:0,ownedE=ledgers?ledgers[0].cells.length+ledgers[1].cells.length:0,remainingG=Math.max(0,q.battery.count-ownedG),equipmentCap=Math.max(ownedE,Math.min(q.equipment.limit??SURFACE_DEVICE_MAX,Math.max(0,SURFACE_DEVICE_MAX-q.battery.count))),remainingE=Math.max(0,equipmentCap-ownedE);for(let j=0;j<2;j++){const gunCount=ledgers?ledgers[j].guns.length+(j?remainingG-Math.round(remainingG*fraction):Math.round(remainingG*fraction)):j?q.battery.count-first:first,limit=ledgers?ledgers[j].cells.length+(j?remainingE-Math.round(remainingE*fraction):Math.round(remainingE*fraction)):q.equipment.limit;ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id:children[j].id,...(ledgers?{aggregate:ledgers[j]}:{}),battery:{...q.battery,count:gunCount},equipment:{...q.equipment,count:j?q.equipment.count-firstE:firstE,...(Number.isFinite(limit)?{limit}:{})}});}if(ledgers)surfaceStampPartition(ship);else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:children.map(q=>q.id),report:surfaceReport(ship)};}
+function surfaceSplit(ship,id,axis='u',at=.5){const p=surfacePatches(ship).find(q=>q.id===id);if(!p||!p.exposed)return {ok:false,why:'分割する外面を選んでください'};const enabled=enableSurfaceMode(ship,true);if(!enabled.ok)return enabled;if(ship.surfaces.patches.length>=SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const r=p.range.slice(),i=axis==='v'?1:0,x=r[i]+(r[i+2]-r[i])*clamp(at,.05,.95),a=r.slice(),b=r.slice();a[i+2]=x;b[i]=x;const partition=ship.surfaces.partitions||(ship.surfaces.partitions=[]);let group=partition.find(q=>q.baseId===p.baseId);if(!group)partition.push(group={baseId:p.baseId,leaves:[]});group.leaves=group.leaves.filter(q=>q.id!==id);const q=surfaceConfig(ship,id),leaf=range=>({id:p.baseId+'/r'+range.map(n=>Math.round(n*1e6).toString(36)).join('.'),range}),children=[leaf(a),leaf(b)],first=Math.round(q.battery.count*clamp(at,.05,.95)),firstE=Math.round(q.equipment.count*clamp(at,.05,.95));group.leaves.push(...children);ship.surfaces.patches=ship.surfaces.patches.filter(q=>q.id!==id);const fraction=clamp(at,.05,.95),ledgers=q.aggregate?surfacePartitionLedger(ship,q,p,i,fraction):null,ownedG=ledgers?ledgers[0].guns.length+ledgers[1].guns.length:0,ownedE=ledgers?ledgers[0].cells.length+ledgers[1].cells.length:0,remainingG=Math.max(0,q.battery.count-ownedG),equipmentCap=Math.max(ownedE,Math.min(q.equipment.limit??SURFACE_DEVICE_MAX,Math.max(0,SURFACE_DEVICE_MAX-q.battery.count))),remainingE=Math.max(0,equipmentCap-ownedE);for(let j=0;j<2;j++){const gunCount=ledgers?ledgers[j].guns.length+(j?remainingG-Math.round(remainingG*fraction):Math.round(remainingG*fraction)):j?q.battery.count-first:first,limit=ledgers?ledgers[j].cells.length+(j?remainingE-Math.round(remainingE*fraction):Math.round(remainingE*fraction)):q.equipment.limit;ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id:children[j].id,...(ledgers?{aggregate:ledgers[j]}:{}),battery:{...q.battery,count:gunCount},equipment:{...q.equipment,count:j?q.equipment.count-firstE:firstE,...(Number.isFinite(limit)?{limit}:{})}});}if(ledgers)surfaceStampPartition(ship);else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:children.map(q=>q.id),report:surfaceReport(ship)};}
 function surfaceMergeBands(aggregates){const totals=Object.fromEntries(Object.keys(SENSOR_BANDS).map(k=>[k,0]));let aperture=0;for(const a of aggregates){const amount=(a.cells||[]).filter(r=>r[1]===2&&!r[3]).reduce((n,r)=>n+r[24],0);aperture+=amount;const mix=surfaceAreaBands(a);for(const k in totals)totals[k]+=amount*(mix[k]||0);}if(aperture>0)for(const k in totals)totals[k]/=aperture;else totals.multi=1;return totals;}
 function surfaceMerge(ship,ids){const patches=surfacePatches(ship),a=ids.map(id=>patches.find(q=>q.id===id));if(a.length<2||a.some(q=>!q||q.baseId!==a[0].baseId))return {ok:false,why:'同じ元の面にある隣接パッチを選んでください'};const r=[Math.min(...a.map(q=>q.range[0])),Math.min(...a.map(q=>q.range[1])),Math.max(...a.map(q=>q.range[2])),Math.max(...a.map(q=>q.range[3]))],sum=a.reduce((n,q)=>n+(q.range[2]-q.range[0])*(q.range[3]-q.range[1]),0);if(Math.abs(sum-(r[2]-r[0])*(r[3]-r[1]))>1e-5)return {ok:false,why:'長方形に連続したパッチだけ結合できます'};const configs=a.map(q=>surfaceConfig(ship,q.id)),q=configs[0];if(configs.some(c=>c.functionMode!==q.functionMode||JSON.stringify(c.allocation)!==JSON.stringify(q.allocation)||JSON.stringify(c.armor)!==JSON.stringify(q.armor)||c.battery.weapon!==q.battery.weapon||c.equipment.kind!==q.equipment.kind||c.equipment.depth!==q.equipment.depth||c.equipment.capacityModel!==q.equipment.capacityModel||c.battery.spacing!==q.battery.spacing||c.battery.angle!==q.battery.angle||c.battery.reversed!==q.battery.reversed||c.powerDomain!==q.powerDomain))return {ok:false,why:'材質・兵装・設備が一致する面を選んでください'};const aggregates=configs.every(c=>c.aggregate)?configs.map(c=>c.aggregate):null;if(aggregates&&((surfaceIsArea(q)?aggregates.reduce((n,a)=>n+a.cells.filter(r=>r[30]===1).length,0)>SURFACE_AREA_REGIONS||aggregates.reduce((n,a)=>n+a.cells.filter(r=>r[30]!==1).length,0)>SURFACE_DEVICE_MAX:aggregates.reduce((n,a)=>n+a.cells.length,0)>SURFACE_DEVICE_MAX)||aggregates.reduce((n,a)=>n+a.guns.length,0)>SURFACE_DEVICE_MAX||configs.reduce((n,c)=>n+c.battery.count,0)>SURFACE_DEVICE_MAX))return {ok:false,why:'結合すると面の設備上限を超えます。設定を整理してから結合してください。'};const group=ship.surfaces.partitions.find(p=>p.baseId===a[0].baseId),id=a[0].baseId+'/r'+r.map(n=>Math.round(n*1e6).toString(36)).join('.');group.leaves=group.leaves.filter(q=>!ids.includes(q.id));group.leaves.push({id,range:r});ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id,...(aggregates?{aggregate:{version:surfaceIsArea(q)?2:1,...(surfaceIsArea(q)?{capacityModel:SURFACE_AREA_MODEL,aliases:aggregates.flatMap(a=>a.aliases||[]),sensorMix:surfaceMergeBands(aggregates)}:{}),signature:'',cells:aggregates.flatMap(a=>a.cells),guns:aggregates.flatMap(a=>a.guns),errors:[...new Set(aggregates.flatMap(a=>a.errors||[]))],requested:configs.reduce((n,c)=>n+c.battery.count,0),requestedEquipment:aggregates.reduce((n,a)=>n+(a.requestedEquipment||0),0),demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.requested||0),0),budgetArea:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.budgetArea||0),0)}]))}}:{}),battery:{...q.battery,count:configs.reduce((n,q)=>n+q.battery.count,0)},equipment:{...q.equipment,count:configs.reduce((n,q)=>n+q.equipment.count,0),...(aggregates?{limit:Math.min(SURFACE_DEVICE_MAX,configs.reduce((n,c)=>n+(c.equipment.limit??SURFACE_DEVICE_MAX),0))}:{})}});if(aggregates){const merged=ship.surfaces.patches.find(q=>q.id===id),counts={};for(const r of merged.aggregate.cells){const prefix=merged.functionMode==='legacy'?'e':SURFACE_ROLES[r[1]][0];r[26]=prefix+(counts[prefix]||0);counts[prefix]=(counts[prefix]||0)+1;}merged.aggregate.guns.forEach((r,i)=>r[20]=(merged.functionMode==='legacy'?'b':'w')+i);surfaceStampPartition(ship);}else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:[id],report:surfaceReport(ship)};}
 function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const work=surfaceWorkingShip(ship);if(work!==ship)return computeStats(work);}return withFrozenStructures(()=>{
@@ -23409,7 +33745,7 @@ function deserialize(o){
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
   for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
   if(o.hull?.maxAt!=null)s.hull.maxAt=finite(o.hull.maxAt,.05,.9,.3);
-  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if(Array.isArray(q.room)&&q.room.length===3&&(PARTS[p.k].shape==='cube'||p.k==='aux'||p.k==='inertial'))setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
+  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if((p.k==='shield'||p.k==='localShield')&&Number.isFinite(q.shieldDissipationW)&&q.shieldDissipationW>=0)p.shieldDissipationW=q.shieldDissipationW;if(Array.isArray(q.room)&&q.room.length===3&&(PARTS[p.k].shape==='cube'||p.k==='aux'||p.k==='inertial'))setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
     for(const k of ['aftWidth','foreWidth'])if(q[k]!=null)p[k]=finite(q[k],.03,2,1);
     if(q.loft){if(!Array.isArray(q.loft)||q.loft.length<2||q.loft.length>32)throw new Error('ロフト断面は2〜32個にしてください');p.loft=q.loft.map(a=>[finite(a?.[0],0,1,0),finite(a?.[1],.02,2,1),finite(a?.[2],.03,1.5,1),finite(a?.[3],0,1,0),...(a?.length>4?[finite(a[4],-2,2,0)]:[])]).sort((a,b)=>a[0]-b[0]);if(p.loft.some((a,i)=>a[3]>=a[2]||(i&&a[0]-p.loft[i-1][0]<.002)))throw new Error('ロフトの断面位置か上下寸法が不正です');p.loft[0][0]=0;p.loft.at(-1)[0]=1;}
     if(Array.isArray(q.skinAxial)&&q.skinAxial.length===3&&q.skinAxial.every(v=>Number.isFinite(v)&&v>0&&v<=10000))p.skinAxial=q.skinAxial.slice();
@@ -23438,7 +33774,7 @@ function deserialize(o){
   migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(['top','bottom','auto','trench'].includes(q.mountMode))f.mountMode=q.mountMode;if(validTurretSupport(q.mountSupport))f.mountSupport=JSON.parse(JSON.stringify(q.mountSupport));if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(isBallTurret(f)&&Number.isFinite(q.assetPitch))f.assetPitch=finite(q.assetPitch,-90,90,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(isShipLauncher(f)){const z=shipLauncherConfig(q);f.launcherCols=z.cols;f.launcherRows=z.rows;f.launchYaw=z.yaw;f.launcherEmbedded=z.embedded;}if(['top','bottom','auto','trench'].includes(q.mountMode))f.mountMode=q.mountMode;if(validTurretSupport(q.mountSupport))f.mountSupport=JSON.parse(JSON.stringify(q.mountSupport));if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(isBallTurret(f)&&Number.isFinite(q.assetPitch))f.assetPitch=finite(q.assetPitch,-90,90,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -23752,6 +34088,7 @@ const HYPERDRIVE_REFERENCE={
  subjugator:{class:2}
 };
 const SHIP_REFERENCE={
+ mandator2:{name:'Mandator II',power:7.7e26,shieldLoad:7.7e27,shieldDissipationW:184034,volleyTT:317520,armament:'194×2×720 TT + 81×2×175 TT + 28×2×175 TT ion + 250×2×20 GT PD'},
  // Executor formation is the user's explicit setting; aircraftText remains the workbook's original text.
  executor:{name:'Executor',row:4,power:2e27,shieldSeconds:10,shieldLoad:2e28,accelG:3300,sustainedTT:478011.4723,aircraftText:'Y e s（機数未記載）',aircraft:3600,aircraftFormation:'50個飛行隊',aircraftPerSquadron:72,armament:'指定表は未記載。作例は正史の一覧（連装重ターボレーザー750・連装軽ターボレーザー1,000・連装戦艦級イオン砲100・突撃震盪ミサイル発射機125・四連レーザー砲250）'},
  lucrehulk:{name:'Lucrehulk',row:111,power:5e25,shieldSeconds:10,shieldLoad:5e26,sustainedTT:5e25/TT,derivedShield:true,aircraftText:'未記載',armament:'未記載（作例の兵装・搭載数はゲーム用仮設定）'},
@@ -23812,15 +34149,15 @@ function resolveEngineSpec(part,ship){
  if(ratedInputW>maxInputW*(1+1e-12))issues.push('machinery-density-exceeded');
  if(grade?.legacy)issues.push('legacy-refit-required');
  const valid=issues.every(x=>x==='legacy-refit-required'),wattsPerNewton=profile?.wattsPerNewton||PROPULSION.standardWattsPerNewton,x=m.volume>0?ratedInputW/(PROPULSION.referenceInputDensity*m.volume):0,upgradeCost=(PROPULSION.ratingCost*ratedInputW/PROPULSION.referencePower+PROPULSION.densityCost*m.volume*Math.max(0,x-1)**2)*(grade?.costMultiplier||1),direction=mul(machineryGeometry(part||p,ship).dir,-1),reactor=ship?reactorFor(ship,p):null;
- return {version:PROPULSION_MODEL_VERSION,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:Number.isFinite(p.legacyCoolingInputW)?Math.max(0,p.legacyCoolingInputW):0,valid,issues,reasons:issues};
+ return {version:PROPULSION_MODEL_VERSION,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:0,valid,issues,reasons:issues};
 }
 function initializeEngineSpec(p,ship,legacy=false){
- if(p?.k!=='engine'||p.propulsionModelVersion!=null&&p.propulsionModelVersion!==0)return p;
+ if(p?.k!=='engine')return p;p.legacyCoolingInputW=0;if(p.propulsionModelVersion!=null&&p.propulsionModelVersion!==0)return p;
  const old=legacyEngineValues(p),m=machineryGeometry(p,ship);
  if(legacy)p.propulsionMigration={version:1,previous:JSON.parse(JSON.stringify(p,publicReplacer)),baselineThrustN:old.thrust,baselineInputW:old.power};
  p.propulsionModelVersion=PROPULSION_MODEL_VERSION;p.ratedInputW=Number.isFinite(old.power)&&old.power>=0?old.power:0;p.driveProfileId=legacy?old.profile:'standard';p.machineryLengthM=m.length;p.machineryRadiusM=m.radius;p.machineryOffsetM=m.offset;p.machineryFeedRadiusM=p.d*.29;
  const density=m.volume>0?p.ratedInputW/m.volume:Infinity;p.machineryGradeId=Object.entries(MACHINERY_GRADES).find(([,g])=>!g.legacy&&density<=g.allowedInputDensityWPerM3*(1+1e-12))?.[0]||'legacy-refit';
- if(legacy)p.legacyCoolingInputW=p.ratedInputW;return p;
+ return p;
 }
 function migrateLegacyPropulsion(value,seen=new WeakSet()){
  if(!value||typeof value!=='object'||seen.has(value))return value;seen.add(value);
@@ -24004,7 +34341,7 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 FITS.quad500={...FITS.mtl,key:'quad500',name:'500GT 4連装中型ターボレーザー',short:'500GT 4連装中型TL',barrels:4,boltTT:.5,tt:2,cycle:.2,power:2*TT/.2,mass:2250,crew:10,cost:200e3,source:null,evidence:'砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。'};
 // XX-9 and NK-7 survive only as migration inputs for the unified photo family.
 for(const k of ['itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
-function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}const s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
+function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f);d={...d,msl:25*q.cells,fm:2.4,hm:.9*q.rows,wm:.9*q.cols,r:Math.max(2.4,.9*q.cols)/2,mass:FITS.shipMsl.mass*q.cells,cost:FITS.shipMsl.cost*q.cells,power:FITS.shipMsl.power*q.cells,store:{...FITS.shipMsl.store,slots:6*q.cells},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 const REFERENCE_ASSETS=YardReferenceData.assets;
@@ -24563,14 +34900,15 @@ function attachedEngine(ship,p){const r=reactorFor(ship,p);return p.k==='engine'
 // is easier to hit.
 const MISSILE_MOUNTS={vls:{name:'VLS（船内セル）',short:'VLS',stock:120,expose:.6},ext:{name:'外置き（箱型発射機）',short:'外置き',stock:60,expose:1.6}};
 const VLS_CELL_M3=3600,VLS_DEPTH=24;
-const missileMount=f=>isConcussionLauncher(f)?(isSurfaceVLS(f)?'vls':'ext'):f?.mount==='ext'?'ext':'vls';
+const missileMount=f=>isConcussionLauncher(f)?(isSurfaceVLS(f)||isShipLauncher(f)&&shipLauncherConfig(f).embedded?'vls':'ext'):f?.mount==='ext'?'ext':'vls';
 addComp('vls','VLS弾庫','cube',.55,[198,92,70],'power','ミサイルのセルと弾庫。発射機の下に船内容積を確保します。周辺区画と干渉すると、必要容積を保って空き空間に形を組み替えます。',{crew:.05,def:12});
 INTERNAL_PARTS.add('vls');
 function missileCells(ship){
  if(!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return missileCells(surfaceWorkingShip(ship));
- const key=JSON.stringify(ship.fits.map(f=>FITS[f.k]?.msl?[f.id,f.p,f.a,f.tilt,f.mountAxis,f.mountOffset,f.float,f.scale,f.mount,f.surfacePatch,f.surfaceDepth,f.surfaceFootprint,f.surfacePoint]:0));
+ const key=JSON.stringify(ship.fits.map(f=>FITS[f.k]?.msl?[f.id,f.p,f.a,f.tilt,f.mountAxis,f.mountOffset,f.float,f.scale,f.mount,f.surfacePatch,f.surfaceDepth,f.surfaceFootprint,f.surfacePoint,f.launcherCols,f.launcherRows,f.launcherEmbedded,f.launchPitch,f.launchYaw,f.host,f.local,f.localNormal]:0));
  if(ship._cells?.key===key)return ship._cells.parts;
  const parts=ship.fits.filter(f=>FITS[f.k]?.msl&&!f.float&&(f.k==='cmsl'?isSurfaceVLS(f):missileMount(f)==='vls')).map(f=>{
+  if(isShipLauncher(f)&&shipLauncherConfig(f).embedded){const g=launcherGeometry(f),V=g.bodySize.reduce((n,v)=>n*v,1);return {id:-300000-f.id,k:'vls',label:'艦艇ミサイル #'+f.id+' 埋め込みセル',c:g.bodyCenter.slice(),d:Math.cbrt(V),boxFrame:g.bodyFrame,boxSize:g.bodySize.slice(),weaponId:f.id,requiredVolume:V,shipLauncherMagazine:true};}
   if(isSurfaceVLS(f)){const port=surfaceBatteryGeometry(f),depth=port.depth,side=f.surfaceFootprint||[FITS[f.k].fm,FITS[f.k].wm],V=side[0]*side[1]*depth;return {id:-300000-f.id,k:'vls',label:'ミサイル #'+f.id+' 面VLS弾庫',c:sub(port.point,mul(port.normal,depth/2)),d:Math.cbrt(V),boxFrame:{fw:port.u,up:port.normal,rt:port.v},boxSize:[side[0],depth,side[1]],weaponId:f.id,requiredVolume:V,surfacePatch:f.surfacePatch,surfaceVLSMagazine:true};}
   const scale=f.scale||1,V=VLS_CELL_M3*scale**3,depth=VLS_DEPTH*scale,side=Math.sqrt(V/depth),up=fitUp(f),fr=frameAxis(up),offset=depth/2+2+(f.mountOffset||0);
   return {id:-300000-f.id,k:'vls',label:'ミサイル #'+f.id+' VLS弾庫',c:sub(f.p,mul(up,offset)),d:Math.cbrt(V),boxFrame:{fw:fr.v,up:fr.u,rt:fr.w},boxSize:[side,depth,side],weaponId:f.id,requiredVolume:V};
@@ -25156,7 +35494,7 @@ Object.assign(FITS.oct40,{source:null,evidence:'ユーザー指定の口径・�
 // house envelope. Reused stl/ion/utl keys keep saved fitting identities intact.
 const CAPITAL_TURRET_KEYS=Object.freeze(['ion','stl','quad175','triple175','ball175TripleIon','ball175Quad','ball175QuadIon','ball720','utl']);
 const CAPITAL_TURRET_MODELS=[
- ['ion','capital_twin175_ion','175TT 2連装重イオン砲','175TT イオン2連装',2,175,'ion',null,null,null,'IS重戦車の鋳造砲塔に似た、前後に長い楕円で潰れたお椀型の砲室。前へ張り出す砲基部と、付け根が太く先細の砲身を持つ。175TT系列と同じ基準寸法で、2門×175TT相当のイオン砲。'],
+ ['ion','capital_twin175_ion','175TT 2連装重イオン砲','175TT イオン2連装',2,175,'ion',null,null,null,'IS重戦車の鋳造砲塔に似た、前後に長い楕円で潰れたお椀型の砲室。前へ張り出す砲基部と、付け根が太く先細の砲身を持つ。175TT系列と同じ基準寸法で、2門×175TT・一斉射350TTのイオン砲。漏出したイオンエネルギーが接続された電力・電子系統に過負荷を与える。'],
  ['stl','capital_twin175','175TT 2連装重ターボレーザー','175TT 2連装',2,175,'gun',null,null,null,'70TT三連装を基にした角形砲室と、細く絞った前部砲基部を持つ。175TT三連装・四連装と同寸法で、2門×175TT。'],
  ['quad175','capital_quad175','175TT 4連装重ターボレーザー','175TT 4連装',4,175,'gun',32000,60,2400000,'175TT連装・三連装と同寸法の砲室に4門を収める。幅広い前部砲基部と絞った装甲側面をつなぐ。4門×175TT。'],
  ['triple175','capital_triple175','175TT 3連装重ターボレーザー','175TT 3連装',3,175,'gun',24000,45,1800000,'175TT連装と同じ砲室・砲基部を使い、外側2門の位置を保って中央に1門を追加した三連装。3門×175TT。'],
@@ -25427,7 +35765,7 @@ function registerShipExample(d){
  if(!d||typeof d.key!=='string'||typeof d.build!=='function')throw new Error('作例の登録が不正です');
  const {airWings,groundForces,...example}=d;
  if(airWings?.length||groundForces?.length)EXAMPLE_COMPLEMENTS[d.key]=JSON.parse(JSON.stringify({air:airWings||[],ground:groundForces||[]}));
- SHIP_EXAMPLES[d.key]={...example,build:()=>clearDesignLoadouts(d.craft?refitCraftInterior(d.build(),d.key):d.build())};DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return SHIP_EXAMPLES[d.key];
+ SHIP_EXAMPLES[d.key]={...example,build:()=>{const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!d.craft;try{return clearDesignLoadouts(d.craft?refitCraftInterior(d.build(),d.key):d.build());}finally{stockShipLauncherBuild=previousLauncherBuild;}}};DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return SHIP_EXAMPLES[d.key];
 }
 // Measured-section helpers for those builders (absolute metres, x bow, y up,
 // z starboard). Rows are [x, zMin, zMax, yMin, yMax]; the bounding box of the
@@ -27020,14 +37358,60 @@ function refitCraftInterior(ship,key){
  syncCompartments(ship);installCraftSystems(ship,CRAFT_SYSTEM_RECIPES[key]);
  // The mass used for hardware selection includes the rebuilt plant, casing and installed flight
  // systems. Setting component input ratings is construction, not a multiplier on derived stats.
- const S=computeStats(ship),weights=engines.map(e=>e.d*e.d*e.nozzleLength),sum=weights.reduce((a,b)=>a+b,0),input=S.mass*1000*G0*target.g*DRIVE_PROFILES.standard.wattsPerNewton;
- engines.forEach((e,i)=>{e.ratedInputW=input*weights[i]/sum;const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||'advanced';if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 機関の実容量が不足しています');});
+ const weights=engines.map(e=>e.d*e.d*e.nozzleLength),sum=weights.reduce((a,b)=>a+b,0),rate=S=>{
+  const input=S.mass*1000*G0*target.g*DRIVE_PROFILES.standard.wattsPerNewton;
+  engines.forEach((e,i)=>{e.ratedInputW=input*weights[i]/sum;const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||'advanced';if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 機関の実容量が不足しています');});
+ };
  // Ordinary finite electrical links form redundant crossfeeds. The former nearest-reactor-only
  // layout could spend one wing reactor on guns and strand its engine despite spare power opposite.
- const ports=[...engines.map(e=>({id:'p'+e.id,W:e.ratedInputW})),...ship.parts.filter(p=>p.k==='shield'||p.k==='localShield').map(p=>({id:'p'+p.id,W:Math.max(S.draw.shields,shieldLoad(p))})),...ship.fits.filter(f=>fitSpec(f).cat==='w').map(f=>({id:'f'+f.id,W:(fitSpec(f).power||0)*1.5}))];
- const replaced=new Set(ports.map(p=>p.id));ship.links=(ship.links||[]).filter(l=>l.kind!=='power'||!replaced.has(l.to));
- for(const r of reactors)for(const p of ports)if(p.W>0)ship.links.push({kind:'power',from:'p'+r.id,to:p.id,cap:p.W});
+ const wire=S=>{
+  const ports=[...engines.map(e=>({id:'p'+e.id,W:e.ratedInputW})),...ship.parts.filter(p=>p.k==='shield'||p.k==='localShield').map(p=>({id:'p'+p.id,W:Math.max(S.draw.shields,shieldLoad(p))})),...ship.fits.filter(f=>fitSpec(f).cat==='w').map(f=>({id:'f'+f.id,W:(fitSpec(f).power||0)*1.5}))];
+  const replaced=new Set(ports.map(p=>p.id));ship.links=(ship.links||[]).filter(l=>l.kind!=='power'||!replaced.has(l.to));
+  for(const r of reactors)for(const p of ports)if(p.W>0)ship.links.push({kind:'power',from:'p'+r.id,to:p.id,cap:p.W});
+ };
+ let S=computeStats(ship);rate(S);wire(S);
+ // Cooling occupies real airframe volume and shares the original finite plant.
+ // Select the final machinery ratings after that equipment's mass is installed.
+ refitCraftThermal(ship,key,computeStats(ship));S=computeStats(ship);rate(S);wire(S);
+ refitCraftThermal(ship,key,computeStats(ship),false);
  syncCompartments(ship);ship._craftInteriorRefit=true;return ship;
+}
+function refitCraftThermal(ship,key,S,install=true){
+ const net=heatNetwork(ship,S),density=REACTOR_POWER_DENSITY*HEAT.disK.hdis,margin=1.2;
+ const peak=Math.max(0,...HEAT_SIZING.map(pr=>net.src.filter(s=>s.grade==='high').reduce((n,s)=>n+(s.rated[pr]||0),0))),existing=net.dis.filter(d=>d.part!=null&&d.grade==='high'),capacity=existing.reduce((n,d)=>n+d.cap,0);
+ if(install&&capacity<peak*margin){
+  const old=ship._building;ship._building=true;let installed=capacity;
+  try{for(let i=0;i<64&&installed<peak*margin*(1-1e-6);i++){
+   let volume=Math.max(.001,Math.min(.08,(peak*margin-installed)/density)),part=null;
+   while(volume>=.001&&!part){part=craftThermalBank(ship,key,volume,i);if(!part)volume/=2;}
+   if(!part)throw new Error(key+': 散逸設備を収める機体内部の空間が不足しています');
+   syncCompartments(ship);installed+=dissipatorCap(part,S);
+  }}finally{ship._building=old;}
+ }
+ const now=heatNetwork(ship,computeStats(ship)),banks=now.dis.filter(d=>d.part!=null&&d.grade==='high'),total=banks.reduce((n,d)=>n+d.cap,0),sources=now.src.filter(s=>s.grade==='high'),sourceIds=new Set(sources.map(s=>s.id)),coolerIds=new Set(ship.parts.filter(p=>p.k==='hdis').map(p=>'p'+p.id));
+ if(total<peak*(1-1e-6))throw new Error(key+': 実機の高温散逸設備が不足しています');
+ ship.links=(ship.links||[]).filter(l=>!(l.kind==='heat'&&sourceIds.has(l.from))&&!(l.kind==='power'&&coolerIds.has(l.to)));
+ for(const src of sources)for(const bank of banks)ship.links.push({kind:'heat',from:src.id,to:bank.id,cap:margin*Math.max(src.size||0,...Object.values(src.rated))*bank.cap/Math.max(1,total)});
+ for(const r of ship.parts.filter(isReactor))for(const p of ship.parts.filter(p=>p.k==='hdis'))ship.links.push({kind:'power',from:'p'+r.id,to:'p'+p.id,cap:dissipatorCap(p,S)*HEAT.disPowerK.hdis});
+}
+// Compact banks stay inside the measured solid, clear of fixed hardware. A narrow
+// fighter needs smaller individual modules rather than a capital ship's flexible room.
+function craftThermalBank(ship,key,volume,index){
+ const d=Math.cbrt(volume),anchors=CRAFT_SYSTEM_RECIPES[key].anchors,offsets=[],occupied=allOccupied(ship).filter(p=>!isShapePart(p)&&!flexibleCompartment(ship,p)).map(p=>({p,b:partAABB(p)}));
+ for(let x=-5;x<=5;x++)for(let y=-5;y<=5;y++)for(let z=-5;z<=5;z++)offsets.push([x,y,z]);
+ offsets.sort((a,b)=>dot(a,a)-dot(b,b)||a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
+ const saved=ship._lockedCache;ship._lockedCache=cache(ship);const unlock=()=>{if(saved)ship._lockedCache=saved;else delete ship._lockedCache;};
+ try{for(const aspect of [[1,1,1],[2,.7071067811865476,.7071067811865476],[3,.5773502691896258,.5773502691896258]]){
+  const room=aspect.map(v=>v*d),half=[room[0]/2,room[2]/2,room[1]/2],step=Math.max(.05,Math.min(...room)*.65),part={id:-1,k:'hdis',d,room,c:[0,0,0],autoFit:false};
+  for(const anchor of anchors)for(const off of offsets){
+   part.c=anchor.map((v,a)=>Math.round((v+off[a]*step)*1e6)/1e6);
+   if(!insideOriginalEnvelope(ship,part.c))continue;
+   const bounds=part.c.map((v,a)=>v-half[a]-.003).concat(part.c.map((v,a)=>v+half[a]+.003));if(occupied.some(o=>packingObstacleHits(o.p,bounds,o.b)))continue;
+   let fits=true;for(const x of [-1,0,1])for(const y of [-1,0,1])for(const z of [-1,0,1])if(!insideOriginalEnvelope(ship,part.c.map((v,a)=>v+[x,y,z][a]*(half[a]+.003))))fits=false;
+   if(fits){unlock();return placePart(ship,'hdis',part.c,d,{room,autoFit:false,label:'機体内高エネルギー散逸装置 '+(index+1)});}
+  }
+ }}finally{unlock();}
+ return null;
 }
 // Public opt-in helper: any design can install the same sized systems from a recipe. Loading a
 // saved design never invokes it, so removed or modified systems stay exactly as the user saved them.
@@ -27928,13 +38312,53 @@ registerShipExample({
 // kept in git history (src/ships/mandator2.js before v20.5).
 {
 const MAN_DESIGN={"format":"starship-yard","v":3,"name":"マンデイターII級スター・ドレッドノート","hull":{"plan":"wedge","sec":"warship","L":8000,"W":2900,"H":1000,"bowW":0.005517,"bowH":0.079,"stern":1,"stations":[[0,0.037931,0.202,0.025,0.4,0.9,0.871287,0.435644],[0.0075,0.075862,0.241,0.0435,0.35,0.9,0.784232,0.392116],[0.03125,0.110345,0.296,0.034,0.3,0.95,0.722973,0.361486],[0.0575,0.110345,0.316,0.042,0.3,0.95,0.71519,0.357595],[0.05875,0.331034,0.486,-0.041,0.2,0.98,0.635802,0.317901],[0.0975,0.448276,0.574,0.003,0.2,0.98,0.529617,0.264808],[0.1225,0.448276,0.622,0.025,0.2,0.98,0.491961,0.245981],[0.12375,0.784828,0.44946,-0.15127,0,0,0.344858,0.515063],[0.14425,0.794483,0.447425,-0.147872,0,0,0.299492,0.50195],[0.16675,0.998621,0.492934,-0.120307,0,0,0.192724,0.434691],[0.1875,0.973793,0.482415,-0.121168,0,0,0.140957,0.431941],[0.30125,0.842759,0.426,-0.12526,0,0,0.159624,0.432535],[0.30725,0.787586,0.411128,-0.131424,0,0,0.165399,0.445088],[0.319,0.773793,0.405237,-0.131879,0,0,0.167803,0.445411],[0.3275,0.812414,0.412955,-0.126217,0,0,0.164667,0.432723],[0.41675,0.708966,0.368534,-0.129507,0,0,0.184515,0.433539],[0.422,0.663448,0.356201,-0.134561,0,0,0.190903,0.445425],[0.4725,0.617241,0.334105,-0.134903,0,0,0.203529,0.44284],[0.4765,0.64,0.338867,-0.131673,0,0,0.200669,0.434114],[0.6335,0.457931,0.260703,-0.137471,0,0,0.260833,0.4366],[0.6385,0.423448,0.251143,-0.141192,0,0,0.270762,0.448999],[0.69,0.372414,0.227645,-0.142022,0,0,0.298711,0.447385],[0.695,0.386207,0.229985,-0.139793,0,0,0.295671,0.438224],[0.829,0.231724,0.163497,-0.144629,0,0,0.41591,0.442681],[0.83575,0.18069,0.149486,-0.150203,0,0,0.454892,0.4746],[0.847,0.165517,0.143361,-0.15088,0,0,0.474327,0.47824],[0.855,0.201379,0.150505,-0.145613,0,0,0.451812,0.444271],[0.998125,0.037931,0.079873,-0.150586,0,0,0.851357,0.45726],[1,0.005517,0.079,-0.1555,0,0,0.949367,0.474684]],"assembly":false,"bowFree":true,"deckWidth":0,"belt":0.13,"chineHeight":0.5,"keelWidth":0},"cuts":[],"trenches":[],"solidCuts":[],"subs":[],"parts":[{"id":1,"k":"struct","c":[50,624.95,1],"s":[100,130,68.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.3615384615],[-0.46,0.4384615385],[0.5,0.5],[0,0.2692307692],[0.02,-0.3],[0.5,-0.5],[-0.38,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":2,"k":"struct","c":[478,571,254],"s":[228,180,45.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":3,"label":"城郭の甲板","outline":[[-0.5,0.1444444444],[0.5,0.5],[0.1842105263,0.1],[0.01754385965,0.1111111111],[-0.0350877193,0.2333333333],[-0.0701754386,-0.5],[-0.2631578947,-0.3222222222]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":3,"k":"struct","c":[478,571,-254],"s":[228,180,45.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":2,"label":"城郭の甲板","outline":[[-0.5,-0.1444444444],[0.5,-0.5],[0.1842105263,-0.1],[0.01754385965,-0.1111111111],[-0.0350877193,-0.2333333333],[-0.0701754386,0.5],[-0.2631578947,0.3222222222]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":4,"k":"struct","c":[512,710.75,1],"s":[64,146,35.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.2260273973],[-0.46875,0.2534246575],[-0.03125,0.5],[0.5,0.4726027397],[-0.125,0.1164383562],[-0.03125,-0.2397260274],[0.5,-0.4726027397],[-0.03125,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":5,"k":"struct","c":[860,533.35,608],"s":[244,48,29.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":6,"label":"城郭の甲板","outline":[[-0.5,-0.1666666667],[-0.3278688525,0.5],[0.5,0.5],[-0.02459016393,-0.1666666667],[-0.1721311475,0.04166666667],[-0.393442623,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":6,"k":"struct","c":[860,533.35,-608],"s":[244,48,29.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":5,"label":"城郭の甲板","outline":[[-0.5,0.1666666667],[-0.3278688525,-0.5],[0.5,-0.5],[-0.02459016393,0.1666666667],[-0.1721311475,-0.04166666667],[-0.393442623,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":7,"k":"struct","c":[910,816.75,1],"s":[56,142,30.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.2464788732],[-0.5,0.2464788732],[0.03571428571,0.5],[0.5,0.485915493],[-0.1071428571,0.1197183099],[-0.07142857143,-0.176056338],[0.5,-0.485915493],[0.03571428571,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":8,"k":"struct","c":[3374,390.9,1],"s":[4940,2454,36.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.2302363488],[-0.5,-0.1870415648],[-0.4834008097,-0.2196414018],[-0.4663967611,-0.1992665037],[-0.4842105263,-0.09576202119],[-0.483805668,0.163406683],[-0.4663967611,0.1984515077],[-0.4834008097,0.2188264059],[-0.5,0.1870415648],[-0.5,0.2302363488],[-0.4829959514,0.2310513447],[-0.4821862348,0.4266503667],[-0.4384615385,0.4902200489],[-0.4129554656,0.3549307253],[-0.3538461538,0.4739201304],[-0.2740890688,0.5],[-0.1910931174,0.3777506112],[-0.1902834008,0.4641401793],[-0.1627530364,0.4470252649],[-0.1566801619,0.2905460473],[-0.002429149798,0.3035859821],[-0.002834008097,0.3875305623],[0.08218623482,0.3533007335],[0.05506072874,0.3484107579],[0.06194331984,0.304400978],[0.08906882591,0.3622656887],[0.1085020243,0.3549307253],[0.1052631579,0.2962510187],[0.1222672065,0.3166259169],[0.1141700405,0.3516707416],[0.1668016194,0.3288508557],[0.1672064777,0.2758761206],[0.09271255061,0.2595762021],[0.07570850202,0.2921760391],[0.06599190283,0.2555012225],[0.09311740891,0.2555012225],[0.08461538462,0.2131214344],[0.2890688259,0.1471067645],[0.2923076923,0.08761206194],[0.2206477733,0.04930725346],[0.3453441296,0.02974735126],[0.3570850202,0.1658516707],[0.4190283401,0.09657701711],[0.4336032389,0.1332518337],[0.4910931174,0.108801956],[0.5,0.04930725346],[0.4578947368,0.04604726976],[0.4578947368,-0.04604726976],[0.5,-0.04604726976],[0.4910931174,-0.108801956],[0.4336032389,-0.1332518337],[0.4190283401,-0.09657701711],[0.3570850202,-0.1658516707],[0.3453441296,-0.02974735126],[0.2206477733,-0.04930725346],[0.2923076923,-0.08761206194],[0.2882591093,-0.1471067645],[0.08461538462,-0.2131214344],[0.09311740891,-0.2563162184],[0.06599190283,-0.2563162184],[0.07570850202,-0.292991035],[0.09271255061,-0.2595762021],[0.1672064777,-0.2758761206],[0.1668016194,-0.3288508557],[0.1510121457,-0.3353708231],[0.1408906883,-0.2807660962],[0.1437246964,-0.3394458028],[0.1157894737,-0.3508557457],[0.1052631579,-0.2970660147],[0.1085020243,-0.3549307253],[0.08906882591,-0.3622656887],[0.06194331984,-0.304400978],[0.05506072874,-0.3484107579],[0.08218623482,-0.3533007335],[-0.002834008097,-0.3875305623],[-0.002429149798,-0.3035859821],[-0.1566801619,-0.2905460473],[-0.1627530364,-0.4470252649],[-0.1902834008,-0.4641401793],[-0.1910931174,-0.3777506112],[-0.2740890688,-0.5],[-0.3538461538,-0.4739201304],[-0.4117408907,-0.3549307253],[-0.4384615385,-0.4902200489],[-0.4821862348,-0.4266503667],[-0.4829959514,-0.2310513447]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":9,"k":"struct","c":[1601,394.65,1302],"s":[6,12,24.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":10,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":10,"k":"struct","c":[1601,394.65,-1302],"s":[6,12,24.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":9,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":11,"k":"struct","c":[1679,395,1285],"s":[6,10,24.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":12,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":12,"k":"struct","c":[1679,395,-1285],"s":[6,10,24.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":11,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":13,"k":"struct","c":[2165,394.85,1186],"s":[6,8,24.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":14,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":14,"k":"struct","c":[2165,394.85,-1186],"s":[6,8,24.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":13,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":15,"k":"struct","c":[2201,394.6,1178],"s":[6,8,24],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":16,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":16,"k":"struct","c":[2201,394.6,-1178],"s":[6,8,24],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":15,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":17,"k":"struct","c":[2251,395.15,1166],"s":[6,8,24.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":18,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":18,"k":"struct","c":[2251,395.15,-1166],"s":[6,8,24.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":17,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":19,"k":"struct","c":[3916,384.6,867],"s":[8,6,20],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":20,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":20,"k":"struct","c":[3916,384.6,-867],"s":[8,6,20],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":19,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":21,"k":"struct","c":[4879,449.9,286],"s":[62,128,42.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":22,"label":"背部の段甲板","outline":[[-0.5,-0.5],[0.1451612903,-0.109375],[0.1451612903,0.171875],[-0.2741935484,0.5],[0.5,0.453125],[0.5,-0.4375]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":22,"k":"struct","c":[4879,449.9,-286],"s":[62,128,42.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":21,"label":"背部の段甲板","outline":[[-0.5,0.5],[0.1451612903,0.109375],[0.1451612903,-0.171875],[-0.2741935484,-0.5],[0.5,-0.453125],[0.5,0.4375]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":23,"k":"struct","c":[5281,385.4,528],"s":[366,100,22.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":24,"label":"背部の段甲板","outline":[[-0.5,0.22],[-0.4945355191,0.5],[-0.456284153,0.5],[0.3032786885,-0.08],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":24,"k":"struct","c":[5281,385.4,-528],"s":[366,100,22.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":23,"label":"背部の段甲板","outline":[[-0.5,-0.22],[-0.4945355191,-0.5],[-0.456284153,-0.5],[0.3032786885,0.08],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":25,"k":"struct","c":[5286,393.95,480],"s":[204,92,26.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":26,"label":"背部の段甲板","outline":[[-0.5,0.08695652174],[-0.4803921569,0.4565217391],[-0.4117647059,0.5],[0.5,-0.04347826087],[0.4705882353,-0.347826087],[0.3235294118,-0.5],[-0.4019607843,-0.152173913]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":26,"k":"struct","c":[5286,393.95,-480],"s":[204,92,26.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":25,"label":"背部の段甲板","outline":[[-0.5,-0.08695652174],[-0.4803921569,-0.4565217391],[-0.4117647059,-0.5],[0.5,0.04347826087],[0.4705882353,0.347826087],[0.3235294118,0.5],[-0.4019607843,0.152173913]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":27,"k":"struct","c":[6181,399.5,221],"s":[454,274,28.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":28,"label":"背部の段甲板","outline":[[-0.5,-0.397810219],[-0.5,-0.01094890511],[-0.3237885463,0.5],[0.1960352423,0.3540145985],[0.5,0.03284671533],[0.5,-0.2664233577],[0.3898678414,-0.2664233577],[0.4251101322,-0.1058394161],[0.3414096916,-0.04744525547],[0.3061674009,-0.1058394161],[0.3414096916,-0.2664233577],[0.1916299559,-0.2664233577],[-0.07268722467,-0.5],[-0.2973568282,-0.4489051095],[-0.2004405286,-0.302919708],[-0.1872246696,-0.1204379562],[-0.2621145374,0.0401459854],[-0.372246696,0.06204379562],[-0.4823788546,-0.1204379562],[-0.4691629956,-0.302919708],[-0.4074889868,-0.4197080292]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":28,"k":"struct","c":[6181,399.5,-221],"s":[454,274,28.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":27,"label":"背部の段甲板","outline":[[-0.5,0.397810219],[-0.5,0.01094890511],[-0.3237885463,-0.5],[0.1960352423,-0.3540145985],[0.5,-0.03284671533],[0.5,0.2664233577],[0.3898678414,0.2664233577],[0.4251101322,0.1058394161],[0.3414096916,0.04744525547],[0.3061674009,0.1058394161],[0.3414096916,0.2664233577],[0.1916299559,0.2664233577],[-0.07268722467,0.5],[-0.2973568282,0.4489051095],[-0.2004405286,0.302919708],[-0.1872246696,0.1204379562],[-0.2621145374,-0.0401459854],[-0.372246696,-0.06204379562],[-0.4823788546,0.1204379562],[-0.4691629956,0.302919708],[-0.4074889868,0.4197080292]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":29,"k":"struct","c":[6735,382.8,1],"s":[150,534,26.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.4662921348],[-0.5,-0.425093633],[-0.38,-0.4176029963],[-0.4866666667,-0.05056179775],[-0.38,0.4176029963],[-0.5,0.425093633],[-0.4866666667,0.5],[-0.4066666667,0.4662921348],[0.2466666667,0.4288389513],[0.4733333333,0.4700374532],[0.5,0.4101123596],[0.3666666667,0.3764044944],[0.4733333333,0.0468164794],[0.3666666667,-0.3764044944],[0.5,-0.4101123596],[0.4866666667,-0.4625468165],[0.2466666667,-0.4288389513],[-0.4066666667,-0.4662921348],[-0.4466666667,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":30,"k":"struct","c":[6977,396.25,174],"s":[6,8,24.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":31,"label":"背部の段甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":31,"k":"struct","c":[6977,396.25,-174],"s":[6,8,24.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":30,"label":"背部の段甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":32,"k":"struct","c":[6734,401.75,1],"s":[144,390,17.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.06923076923],[-0.4027777778,0.5],[0.4027777778,0.4384615385],[0.5,0.0641025641],[0.4027777778,-0.4384615385],[-0.4027777778,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":33,"k":"struct","c":[3374,418.6,1],"s":[4940,2406,25.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.2348295927],[-0.5,-0.1907730673],[-0.4834008097,-0.2240232751],[-0.4663967611,-0.2032418953],[-0.483805668,-0.1674979219],[-0.4842105263,-0.09767248545],[-0.4728744939,-0.007896924356],[-0.483805668,0.1666666667],[-0.4663967611,0.2024106401],[-0.4834008097,0.22319202],[-0.5,0.1907730673],[-0.5,0.2348295927],[-0.4829959514,0.2356608479],[-0.4821862348,0.4351620948],[-0.4384615385,0.5],[-0.4129554656,0.3620116376],[-0.4044534413,0.4002493766],[-0.3708502024,0.4135494597],[-0.3538461538,0.4833748961],[-0.2854251012,0.491687448],[-0.2858299595,0.431837074],[-0.2680161943,0.4492934331],[-0.2761133603,0.4875311721],[-0.2433198381,0.4326683292],[-0.2060728745,0.4326683292],[-0.1910931174,0.385286783],[-0.1603238866,0.3927680798],[-0.1566801619,0.2963424771],[-0.07287449393,0.3279301746],[0.05668016194,0.2988362427],[0.06923076923,0.3196176226],[0.151417004,0.2822111388],[0.09271255061,0.2647547797],[0.07570850202,0.2980049875],[0.06558704453,0.2630922693],[0.09311740891,0.2605985037],[0.08461538462,0.2173732336],[0.2890688259,0.1500415628],[0.2793522267,0.112635079],[0.2923076923,0.0893599335],[0.2206477733,0.05029093932],[0.2736842105,0.06442227764],[0.2890688259,0.03034081463],[0.3453441296,0.03034081463],[0.3570850202,0.1691604323],[0.4190283401,0.09850374065],[0.4336032389,0.1359102244],[0.4910931174,0.1109725686],[0.5,0.05029093932],[0.4578947368,0.04696591854],[0.4578947368,-0.04696591854],[0.5,-0.04696591854],[0.4910931174,-0.1109725686],[0.4336032389,-0.1359102244],[0.4190283401,-0.09850374065],[0.3570850202,-0.1691604323],[0.3453441296,-0.03034081463],[0.2890688259,-0.03034081463],[0.2736842105,-0.06442227764],[0.2206477733,-0.05029093932],[0.2923076923,-0.0893599335],[0.2793522267,-0.1134663342],[0.2882591093,-0.1500415628],[0.08461538462,-0.2173732336],[0.09311740891,-0.2614297589],[0.06963562753,-0.2497921862],[0.07246963563,-0.2963424771],[0.09271255061,-0.2647547797],[0.151417004,-0.2822111388],[0.06923076923,-0.3196176226],[0.05668016194,-0.2988362427],[-0.07570850202,-0.3279301746],[-0.1566801619,-0.2963424771],[-0.1603238866,-0.3927680798],[-0.1910931174,-0.385286783],[-0.2060728745,-0.4326683292],[-0.2433198381,-0.4326683292],[-0.2724696356,-0.4858686617],[-0.2688259109,-0.4459684123],[-0.2858299595,-0.4326683292],[-0.2854251012,-0.491687448],[-0.3538461538,-0.4833748961],[-0.3688259109,-0.4177057357],[-0.4044534413,-0.4002493766],[-0.4129554656,-0.3620116376],[-0.4384615385,-0.5],[-0.4821862348,-0.4351620948],[-0.4829959514,-0.2356608479]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":34,"k":"struct","c":[6181,420.25,197],"s":[454,226,18.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":35,"label":"背部の段甲板","outline":[[-0.5,-0.3761061947],[-0.5,0.09292035398],[-0.3942731278,0.4557522124],[-0.1740088106,0.3672566372],[-0.1740088106,0.5],[-0.09471365639,0.4734513274],[-0.1431718062,0.4115044248],[-0.1475770925,0.296460177],[-0.06387665198,0.2256637168],[-0.006607929515,0.482300885],[0.002202643172,0.2876106195],[0.1740088106,0.3407079646],[0.231277533,0.2876106195],[0.231277533,0.1902654867],[0.5,0.07522123894],[0.5,-0.2168141593],[0.3898678414,-0.2168141593],[0.4251101322,-0.02212389381],[0.3414096916,0.04867256637],[0.3061674009,-0.02212389381],[0.3414096916,-0.2168141593],[0.1916299559,-0.2168141593],[-0.07268722467,-0.5],[-0.2973568282,-0.4380530973],[-0.2004405286,-0.2610619469],[-0.1872246696,-0.03982300885],[-0.2621145374,0.1548672566],[-0.372246696,0.1814159292],[-0.4823788546,-0.03982300885],[-0.4691629956,-0.2610619469],[-0.4074889868,-0.4026548673]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":35,"k":"struct","c":[6181,420.25,-197],"s":[454,226,18.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":34,"label":"背部の段甲板","outline":[[-0.5,0.3761061947],[-0.5,-0.09292035398],[-0.3942731278,-0.4557522124],[-0.1740088106,-0.3672566372],[-0.1740088106,-0.5],[-0.09471365639,-0.4734513274],[-0.1431718062,-0.4115044248],[-0.1475770925,-0.296460177],[-0.06387665198,-0.2256637168],[-0.006607929515,-0.482300885],[0.002202643172,-0.2876106195],[0.1740088106,-0.3407079646],[0.231277533,-0.2876106195],[0.231277533,-0.1902654867],[0.5,-0.07522123894],[0.5,0.2168141593],[0.3898678414,0.2168141593],[0.4251101322,0.02212389381],[0.3414096916,-0.04867256637],[0.3061674009,0.02212389381],[0.3414096916,0.2168141593],[0.1916299559,0.2168141593],[-0.07268722467,0.5],[-0.2973568282,0.4380530973],[-0.2004405286,0.2610619469],[-0.1872246696,0.03982300885],[-0.2621145374,-0.1548672566],[-0.372246696,-0.1814159292],[-0.4823788546,0.03982300885],[-0.4691629956,0.2610619469],[-0.4074889868,0.4026548673]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":36,"k":"struct","c":[6732,417.15,1],"s":[140,178,19.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.1516853933],[-0.4571428571,0.5],[0.5,0.3426966292],[0.5,-0.3426966292],[-0.4571428571,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":37,"k":"struct","c":[3374,439.7,1],"s":[4940,2302,23],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.2454387489],[-0.5,-0.1993918332],[-0.4834008097,-0.2341442224],[-0.4663967611,-0.2124239791],[-0.483805668,-0.1750651607],[-0.4842105263,-0.1020851434],[-0.4728744939,-0.008253692441],[-0.483805668,0.174196351],[-0.4663967611,0.2115551694],[-0.4834008097,0.2332754127],[-0.5,0.1993918332],[-0.5,0.2454387489],[-0.4829959514,0.2463075586],[-0.4821862348,0.454821894],[-0.4449392713,0.5],[-0.4129554656,0.3783666377],[-0.4044534413,0.4183318853],[-0.3230769231,0.4834926151],[-0.3117408907,0.4782797567],[-0.3230769231,0.4556907037],[-0.3129554656,0.4183318853],[-0.2971659919,0.4331016507],[-0.3008097166,0.4730668983],[-0.2384615385,0.4261511729],[-0.2291497976,0.3853171156],[-0.1923076923,0.4061685491],[-0.1587044534,0.3627280626],[-0.1566801619,0.309730669],[-0.07287449393,0.3427454387],[0.03076923077,0.3140747176],[0.05303643725,0.2680278019],[0.04858299595,0.2897480452],[0.07368421053,0.3210251955],[0.06882591093,0.2619461338],[0.09311740891,0.2723718506],[0.08461538462,0.2271937446],[0.2890688259,0.1568201564],[0.2793522267,0.1177237185],[0.2923076923,0.09339704605],[0.2206477733,0.05256298871],[0.2736842105,0.06733275413],[0.2890688259,0.03171155517],[0.3453441296,0.03171155517],[0.3493927126,0.1333622937],[0.4708502024,0.1099044309],[0.4748987854,0.05430060817],[0.4927125506,0.1003475239],[0.5,0.05256298871],[0.4578947368,0.04908774978],[0.4578947368,-0.04908774978],[0.5,-0.04908774978],[0.4927125506,-0.1003475239],[0.4748987854,-0.0551694179],[0.4704453441,-0.1099044309],[0.3493927126,-0.1342311034],[0.3453441296,-0.03171155517],[0.2890688259,-0.03171155517],[0.2736842105,-0.06733275413],[0.2206477733,-0.05256298871],[0.2923076923,-0.09339704605],[0.2793522267,-0.1185925282],[0.2882591093,-0.1568201564],[0.08461538462,-0.2271937446],[0.09311740891,-0.2732406603],[0.06882591093,-0.2628149435],[0.07368421053,-0.3210251955],[0.04858299595,-0.2897480452],[0.05303643725,-0.2680278019],[0.03076923077,-0.3140747176],[-0.07287449393,-0.3427454387],[-0.1566801619,-0.309730669],[-0.1587044534,-0.3627280626],[-0.1923076923,-0.4061685491],[-0.2291497976,-0.3861859253],[-0.2388663968,-0.4261511729],[-0.2987854251,-0.4721980886],[-0.2971659919,-0.4339704605],[-0.3129554656,-0.419200695],[-0.3230769231,-0.4834926151],[-0.4044534413,-0.4183318853],[-0.4117408907,-0.3783666377],[-0.4433198381,-0.5],[-0.4821862348,-0.454821894],[-0.4829959514,-0.2463075586]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":38,"k":"struct","c":[3831,440.3,682],"s":[66,60,24.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":39,"label":"背部の段甲板","outline":[[-0.5,0.4666666667],[0.4696969697,0.5],[0.5,0.1],[0.01515151515,-0.5],[-0.07575757576,0.03333333333]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":39,"k":"struct","c":[3831,440.3,-682],"s":[66,60,24.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":38,"label":"背部の段甲板","outline":[[-0.5,-0.4666666667],[0.4696969697,-0.5],[0.5,-0.1],[0.01515151515,0.5],[-0.07575757576,-0.03333333333]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":40,"k":"struct","c":[5975,439.55,154],"s":[42,96,25.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":41,"label":"背部の段甲板","outline":[[-0.5,-0.4375],[-0.4047619048,0.5],[-0.2619047619,-0.0625],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":41,"k":"struct","c":[5975,439.55,-154],"s":[42,96,25.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":40,"label":"背部の段甲板","outline":[[-0.5,0.4375],[-0.4047619048,-0.5],[-0.2619047619,0.0625],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":42,"k":"struct","c":[6148,436.55,128],"s":[204,88,19.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":43,"label":"背部の段甲板","outline":[[-0.5,-0.3409090909],[-0.3039215686,0.04545454545],[-0.2450980392,0.5],[0.5,0.1363636364],[0.04901960784,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":43,"k":"struct","c":[6148,436.55,-128],"s":[204,88,19.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":42,"label":"背部の段甲板","outline":[[-0.5,0.3409090909],[-0.3039215686,-0.04545454545],[-0.2450980392,-0.5],[0.5,-0.1363636364],[0.04901960784,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":44,"k":"struct","c":[3374,459.7,3],"s":[4940,2114,23],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.2682119205],[-0.5,-0.2180700095],[-0.4834008097,-0.2559129612],[-0.4663967611,-0.2322611164],[-0.483805668,-0.1915799432],[-0.4842105263,-0.1121097446],[-0.4728744939,-0.009933774834],[-0.483805668,0.1887417219],[-0.4663967611,0.229422895],[-0.4834008097,0.2530747398],[-0.5,0.2161778619],[-0.5,0.2663197729],[-0.4829959514,0.2672658467],[-0.4821862348,0.4706717124],[-0.4599190283,0.5],[-0.4287449393,0.4754020814],[-0.4129554656,0.4110690634],[-0.4044534413,0.4545884579],[-0.3493927126,0.4867549669],[-0.3421052632,0.4186376537],[-0.3263157895,0.4347209082],[-0.3287449393,0.4763481552],[-0.208097166,0.3694418165],[-0.1736842105,0.3789025544],[-0.2388663968,0.3249763482],[-0.383805668,0.3495742668],[-0.4157894737,0.321192053],[-0.416194332,0.2719962157],[-0.387854251,0.2729422895],[-0.3793522267,0.3315988647],[-0.2765182186,0.2767265847],[-0.204048583,0.2786187323],[-0.191902834,0.3590350047],[-0.1546558704,0.3363292337],[-0.07489878543,0.371333964],[0.008097165992,0.3297067171],[0.01336032389,0.2701040681],[0.02914979757,0.3192999054],[0.05425101215,0.2578051088],[0.2890688259,0.169820246],[0.2793522267,0.1272469253],[0.2923076923,0.100756859],[0.2206477733,0.05629139073],[0.2736842105,0.07237464522],[0.2890688259,0.03358561968],[0.3453441296,0.03358561968],[0.3473684211,0.09508041627],[0.4036437247,0.06669820246],[0.4153846154,0.09508041627],[0.5,0.05439924314],[0.4578947368,0.05250709555],[0.4578947368,-0.05439924314],[0.5,-0.05629139073],[0.4153846154,-0.09697256386],[0.4060728745,-0.06859035005],[0.3473684211,-0.09697256386],[0.3453441296,-0.03547776727],[0.2890688259,-0.03547776727],[0.2736842105,-0.07426679281],[0.2206477733,-0.05818353832],[0.2923076923,-0.1026490066],[0.2793522267,-0.1300851466],[0.2882591093,-0.1717123936],[0.05425101215,-0.2596972564],[0.03117408907,-0.3202459792],[0.01336032389,-0.2729422895],[0.008097165992,-0.3315988647],[-0.07489878543,-0.3732261116],[-0.1546558704,-0.3382213813],[-0.191902834,-0.3609271523],[-0.204048583,-0.2805108798],[-0.2765182186,-0.2786187323],[-0.3793522267,-0.3334910123],[-0.387854251,-0.2748344371],[-0.416194332,-0.2738883633],[-0.4157894737,-0.3230842006],[-0.383805668,-0.3514664144],[-0.2388663968,-0.3268684957],[-0.1736842105,-0.3798486282],[-0.208097166,-0.3722800378],[-0.3271255061,-0.4772942289],[-0.3421052632,-0.4214758751],[-0.3493927126,-0.4886471145],[-0.4044534413,-0.4564806055],[-0.4117408907,-0.412961211],[-0.4149797571,-0.4508041627],[-0.4546558704,-0.5],[-0.4821862348,-0.47256386],[-0.4829959514,-0.2691579943]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":45,"k":"struct","c":[3762,460.9,625],"s":[144,126,25.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":46,"label":"背部の段甲板","outline":[[-0.5,-0.2619047619],[-0.4583333333,0.5],[-0.4305555556,0.02380952381],[-0.2083333333,-0.2777777778],[0.1388888889,-0.3253968254],[0.5,-0.02380952381],[0.5,-0.2619047619],[0.2222222222,-0.5],[-0.2222222222,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":46,"k":"struct","c":[3762,460.9,-625],"s":[144,126,25.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":45,"label":"背部の段甲板","outline":[[-0.5,0.2619047619],[-0.4583333333,-0.5],[-0.4305555556,-0.02380952381],[-0.2083333333,0.2777777778],[0.1388888889,0.3253968254],[0.5,0.02380952381],[0.5,0.2619047619],[0.2222222222,0.5],[-0.2222222222,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":47,"k":"struct","c":[3270,478.95,1],"s":[4732,1926,21.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.2933541018],[-0.5,-0.238317757],[-0.482671175,-0.279854621],[-0.4649196957,-0.253894081],[-0.4830938292,-0.2092419522],[-0.4835164835,-0.1220145379],[-0.4835164835,-0.03582554517],[-0.471682164,-0.009865005192],[-0.4835164835,0.03478712357],[-0.4830938292,0.2082035306],[-0.4649196957,0.2528556594],[-0.482671175,0.2788161994],[-0.5,0.238317757],[-0.5,0.2933541018],[-0.4822485207,0.2943925234],[-0.482671175,0.4460020768],[-0.4699915469,0.5],[-0.4315300085,0.468847352],[-0.4120879121,0.4906542056],[-0.4091293322,0.4522326064],[-0.4023668639,0.4854620976],[-0.3748943364,0.4730010384],[-0.3655959425,0.4210799585],[-0.3512256974,0.4314641745],[-0.347421809,0.4802699896],[-0.2510566357,0.4086188993],[-0.2392223161,0.4511941848],[-0.2434488588,0.3785046729],[-0.2121724429,0.3899273105],[-0.2273879966,0.3577362409],[-0.2493660186,0.3847352025],[-0.3786982249,0.3847352025],[-0.4120879121,0.3535825545],[-0.4125105664,0.2995846314],[-0.3829247675,0.300623053],[-0.3740490279,0.3650051921],[-0.2666948436,0.3047767394],[-0.1910397295,0.3068535826],[-0.1906170752,0.3473520249],[-0.1158072697,0.3816199377],[-0.0583262891,0.3265835929],[-0.04226542688,0.3431983385],[0.3114961961,0.1552440291],[0.3271344041,0.1147455867],[0.253169907,0.08774662513],[0.2523245985,0.06282450675],[0.3076923077,0.08047767394],[0.3237531699,0.03790238837],[0.4408284024,0.05763239875],[0.5,0.02751817238],[0.5,-0.02751817238],[0.4408284024,-0.05763239875],[0.3237531699,-0.03790238837],[0.3076923077,-0.08047767394],[0.2523245985,-0.06282450675],[0.253169907,-0.08774662513],[0.3275570583,-0.1157840083],[0.3114961961,-0.1552440291],[-0.04226542688,-0.3431983385],[-0.0583262891,-0.3276220145],[-0.1158072697,-0.3816199377],[-0.1906170752,-0.3473520249],[-0.1910397295,-0.3068535826],[-0.2666948436,-0.3047767394],[-0.3740490279,-0.3650051921],[-0.3829247675,-0.300623053],[-0.4125105664,-0.2995846314],[-0.4120879121,-0.3535825545],[-0.3786982249,-0.3847352025],[-0.2493660186,-0.3847352025],[-0.2273879966,-0.3577362409],[-0.2121724429,-0.3899273105],[-0.2434488588,-0.3795430945],[-0.2392223161,-0.4511941848],[-0.2510566357,-0.4086188993],[-0.347421809,-0.4802699896],[-0.3512256974,-0.4325025961],[-0.3655959425,-0.4221183801],[-0.3748943364,-0.4730010384],[-0.4023668639,-0.4854620976],[-0.4091293322,-0.4522326064],[-0.4120879121,-0.4906542056],[-0.4315300085,-0.468847352],[-0.4699915469,-0.5],[-0.482671175,-0.4460020768],[-0.4822485207,-0.2943925234]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":48,"k":"struct","c":[2231,479.05,811],"s":[66,58,21.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":49,"label":"背部の段甲板","outline":[[-0.5,0.5],[0.5,0.5],[0.5,0.1206896552],[0.01515151515,-0.5],[-0.07575757576,0.05172413793]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":49,"k":"struct","c":[2231,479.05,-811],"s":[66,58,21.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":48,"label":"背部の段甲板","outline":[[-0.5,-0.5],[0.5,-0.5],[0.5,-0.1206896552],[0.01515151515,0.5],[-0.07575757576,-0.05172413793]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":50,"k":"struct","c":[4879,476.45,245],"s":[62,46,16.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":51,"label":"背部の段甲板","outline":[[-0.5,-0.5],[0.1129032258,0.5],[0.5,0.4130434783],[0.5,-0.3260869565]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":51,"k":"struct","c":[4879,476.45,-245],"s":[62,46,16.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":50,"label":"背部の段甲板","outline":[[-0.5,0.5],[0.1129032258,-0.5],[0.5,-0.4130434783],[0.5,0.3260869565]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":52,"k":"struct","c":[3138,498.25,1],"s":[4468,1778,23.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"背部の段甲板","outline":[[-0.5,-0.3177727784],[-0.5,-0.2581552306],[-0.4816472695,-0.3031496063],[-0.4704565801,-0.2997750281],[-0.4628469114,-0.2750281215],[-0.466427932,-0.2379077615],[-0.482094897,-0.2266591676],[-0.4825425246,-0.1321709786],[-0.4825425246,-0.03880764904],[-0.4700089526,-0.01068616423],[-0.4713518353,0.01856017998],[-0.4825425246,0.03768278965],[-0.482094897,0.2255343082],[-0.4673231871,0.2345331834],[-0.4628469114,0.2739032621],[-0.4704565801,0.2986501687],[-0.4816472695,0.3020247469],[-0.5,0.2581552306],[-0.5,0.3177727784],[-0.4811996419,0.3188976378],[-0.4807520143,0.4865016873],[-0.4749328559,0.4842519685],[-0.4767233662,0.4730033746],[-0.4444941808,0.4572553431],[-0.4395702775,0.4865016873],[-0.4037600716,0.4696287964],[-0.3957027753,0.4988751406],[-0.3804834378,0.5],[-0.3715308863,0.4831271091],[-0.3715308863,0.4516310461],[-0.3043867502,0.4178852643],[-0.3715308863,0.4167604049],[-0.3804834378,0.3965129359],[-0.3988361683,0.4021372328],[-0.4068934646,0.3830146232],[-0.4073410922,0.3245219348],[-0.376007162,0.3256467942],[-0.366606983,0.3953880765],[-0.2529095792,0.3301462317],[-0.1727842435,0.3323959505],[-0.1727842435,0.3751406074],[-0.1580125336,0.3830146232],[-0.06132497762,0.3323959505],[-0.0004476275739,0.3323959505],[-0.0004476275739,0.3132733408],[0.009400179051,0.2941507312],[0.1338406446,0.2266591676],[0.1906893465,0.2187851519],[0.2023276634,0.1895388076],[0.3464637422,0.1119235096],[0.2976723366,0.09505061867],[0.2967770815,0.06805399325],[0.3415398389,0.08267716535],[0.3607878245,0.07255343082],[0.3724261415,0.04105736783],[0.4221128021,0.04105736783],[0.5,0.0005624296963],[0.4221128021,-0.04105736783],[0.3724261415,-0.04105736783],[0.3607878245,-0.07255343082],[0.3415398389,-0.08267716535],[0.2967770815,-0.06805399325],[0.2976723366,-0.09505061867],[0.3464637422,-0.1119235096],[0.2023276634,-0.1895388076],[0.1906893465,-0.2187851519],[0.1338406446,-0.2266591676],[0.009400179051,-0.2941507312],[-0.0004476275739,-0.3132733408],[-0.0004476275739,-0.3323959505],[-0.06132497762,-0.3323959505],[-0.1580125336,-0.3830146232],[-0.1727842435,-0.3751406074],[-0.1727842435,-0.3323959505],[-0.2529095792,-0.3301462317],[-0.366606983,-0.3953880765],[-0.376007162,-0.3256467942],[-0.4073410922,-0.3245219348],[-0.4068934646,-0.3830146232],[-0.3988361683,-0.4021372328],[-0.3804834378,-0.3965129359],[-0.3715308863,-0.4167604049],[-0.3043867502,-0.4167604049],[-0.3715308863,-0.4516310461],[-0.3715308863,-0.4831271091],[-0.3804834378,-0.5],[-0.3957027753,-0.4988751406],[-0.4037600716,-0.4696287964],[-0.4395702775,-0.4865016873],[-0.4444941808,-0.4572553431],[-0.4767233662,-0.4730033746],[-0.4749328559,-0.4842519685],[-0.4807520143,-0.4865016873],[-0.4811996419,-0.3188976378]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":53,"k":"struct","c":[2163,499.15,745],"s":[142,106,24.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":54,"label":"背部の段甲板","outline":[[-0.5,-0.2169811321],[-0.4718309859,0.5],[-0.4154929577,0.02830188679],[-0.1056338028,-0.2924528302],[0.2464788732,-0.2358490566],[0.485915493,0.141509434],[0.5,-0.2169811321],[0.2323943662,-0.4811320755],[-0.2183098592,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":54,"k":"struct","c":[2163,499.15,-745],"s":[142,106,24.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":53,"label":"背部の段甲板","outline":[[-0.5,0.2169811321],[-0.4718309859,-0.5],[-0.4154929577,-0.02830188679],[-0.1056338028,0.2924528302],[0.2464788732,0.2358490566],[0.485915493,-0.141509434],[0.5,0.2169811321],[0.2323943662,0.4811320755],[-0.2183098592,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":55,"k":"struct","c":[2767,517.8,1],"s":[3726,1774,22],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.3184892897],[-0.5,-0.2587373168],[-0.4779924852,-0.3038331454],[-0.4645732689,-0.3004509583],[-0.4554482018,-0.2756482525],[-0.459742351,-0.2384441939],[-0.4785292539,-0.2271702368],[-0.4790660225,-0.1324689966],[-0.4790660225,-0.0388951522],[-0.4640365003,-0.0107102593],[-0.4656468062,0.01860202931],[-0.4790660225,0.03776775648],[-0.4785292539,0.226042841],[-0.4608158884,0.2350620068],[-0.4554482018,0.2745208568],[-0.4645732689,0.2993235626],[-0.4779924852,0.3027057497],[-0.5,0.2587373168],[-0.5,0.3184892897],[-0.4774557166,0.3196166855],[-0.4774557166,0.4154453213],[-0.435050993,0.3974069899],[-0.435050993,0.4301014656],[-0.4275362319,0.4278466742],[-0.4162640902,0.4560315671],[-0.3996242619,0.4560315671],[-0.3888888889,0.4391206313],[-0.3888888889,0.4098083427],[-0.3819108964,0.4075535513],[-0.3845947397,0.48421646],[-0.3738593666,0.5],[-0.3459473967,0.48421646],[-0.3459473967,0.4154453213],[-0.3572195384,0.3974069899],[-0.3786902845,0.4030439684],[-0.3883521202,0.3838782413],[-0.3888888889,0.325253664],[-0.3513150832,0.3263810598],[-0.3459473967,0.3579481398],[-0.280461621,0.3286358512],[0.09903381643,0.3286358512],[0.09903381643,0.3139797069],[0.1097691895,0.3038331454],[0.1097691895,0.2812852311],[0.09903381643,0.2677564825],[0.09903381643,0.2361894025],[0.2332259796,0.1753100338],[0.2466451959,0.1978579481],[0.3234031133,0.1753100338],[0.435050993,0.118940248],[0.4355877617,0.08399098083],[0.4554482018,0.07497181511],[0.4554482018,0.04565952649],[0.5,0.02649379932],[0.5,-0.02649379932],[0.4554482018,-0.04565952649],[0.4554482018,-0.07497181511],[0.4355877617,-0.08399098083],[0.435050993,-0.118940248],[0.3234031133,-0.1753100338],[0.2493290392,-0.1978579481],[0.2332259796,-0.1753100338],[0.09903381643,-0.2361894025],[0.09903381643,-0.2677564825],[0.1097691895,-0.2812852311],[0.1097691895,-0.3038331454],[0.09903381643,-0.3139797069],[0.09903381643,-0.3286358512],[-0.280461621,-0.3286358512],[-0.3459473967,-0.3579481398],[-0.3513150832,-0.3263810598],[-0.3888888889,-0.325253664],[-0.3883521202,-0.3838782413],[-0.3786902845,-0.4030439684],[-0.3572195384,-0.3974069899],[-0.3459473967,-0.4154453213],[-0.3459473967,-0.48421646],[-0.3572195384,-0.5],[-0.3845947397,-0.48421646],[-0.3819108964,-0.4075535513],[-0.3888888889,-0.4098083427],[-0.3888888889,-0.4391206313],[-0.3996242619,-0.4560315671],[-0.4162640902,-0.4560315671],[-0.4275362319,-0.4278466742],[-0.435050993,-0.4301014656],[-0.435050993,-0.3974069899],[-0.4774557166,-0.4154453213],[-0.4774557166,-0.3196166855]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":56,"k":"struct","c":[4801,514,1],"s":[110,46,14.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.02173913043]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":57,"k":"struct","c":[2735,536.7,1],"s":[3662,1258,21.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.4491255962],[-0.5,-0.3648648649],[-0.4918077553,-0.3696343402],[-0.4885308575,-0.406200318],[-0.4776078646,-0.4284578696],[-0.4639541234,-0.4236883943],[-0.4546695795,-0.3887122417],[-0.4590387766,-0.3362480127],[-0.4781540142,-0.3203497615],[-0.4787001638,-0.1868044515],[-0.4787001638,-0.05484896661],[-0.4634079738,-0.01510333863],[-0.4650464227,0.02623211447],[-0.4787001638,0.05325914149],[-0.4781540142,0.3187599364],[-0.4601310759,0.3314785374],[-0.4546695795,0.3871224165],[-0.4639541234,0.4220985692],[-0.4776078646,0.4268680445],[-0.4885308575,0.4046104928],[-0.4918077553,0.3696343402],[-0.5,0.3648648649],[-0.5,0.4491255962],[-0.4776078646,0.4475357711],[-0.4770617149,0.5],[-0.4098853086,0.4586645469],[-0.3126706718,0.4523052464],[-0.273894047,0.4586645469],[-0.2711632987,0.4713831479],[-0.2651556526,0.4586645469],[0.1095030038,0.4586645469],[0.1095030038,0.4427662957],[0.1204259967,0.4284578696],[0.1204259967,0.3966613672],[0.1095030038,0.3775834658],[0.1160567996,0.2392686804],[0.2023484435,0.1852146264],[0.2252867286,0.1852146264],[0.2323866739,0.2058823529],[0.2695248498,0.1852146264],[0.2695248498,0.2281399046],[0.2766247952,0.1915739269],[0.2837247406,0.193163752],[0.2902785363,0.2233704293],[0.2946477335,0.1915739269],[0.3017476789,0.193163752],[0.3050245767,0.2122416534],[0.3170398689,0.1915739269],[0.323047515,0.2154213037],[0.3312397597,0.1852146264],[0.4044238121,0.1852146264],[0.4044238121,0.1613672496],[0.4126160568,0.1613672496],[0.4142545057,0.1454689984],[0.4126160568,0.08187599364],[0.4497542327,0.05484896661],[0.4503003823,0.02941176471],[0.458492627,0.05802861685],[0.492353905,0.05802861685],[0.5,0.02782193959],[0.5,-0.02782193959],[0.492353905,-0.05802861685],[0.458492627,-0.05802861685],[0.4503003823,-0.02941176471],[0.4497542327,-0.05484896661],[0.4126160568,-0.08187599364],[0.4142545057,-0.1454689984],[0.4126160568,-0.1613672496],[0.4044238121,-0.1613672496],[0.4044238121,-0.1852146264],[0.3312397597,-0.1852146264],[0.323047515,-0.2154213037],[0.3170398689,-0.1947535771],[0.3099399235,-0.1963434022],[0.3066630257,-0.2154213037],[0.2946477335,-0.1947535771],[0.2902785363,-0.2233704293],[0.2837247406,-0.1963434022],[0.2766247952,-0.1947535771],[0.2728017477,-0.2281399046],[0.2695248498,-0.1852146264],[0.2334789732,-0.2058823529],[0.2252867286,-0.1852146264],[0.2023484435,-0.1852146264],[0.1160567996,-0.2392686804],[0.1095030038,-0.3775834658],[0.1204259967,-0.3966613672],[0.1204259967,-0.4284578696],[0.1095030038,-0.4427662957],[0.1095030038,-0.4586645469],[-0.2651556526,-0.4586645469],[-0.2678864009,-0.4713831479],[-0.3126706718,-0.4523052464],[-0.4098853086,-0.4586645469],[-0.4770617149,-0.5],[-0.4776078646,-0.4475357711]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":58,"k":"struct","c":[1246,541.3,717],"s":[144,186,31],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":59,"label":"城郭の甲板","outline":[[-0.5,-0.3387096774],[-0.5,0.3387096774],[-0.2083333333,0.5],[0.2222222222,0.5],[0.5,0.3387096774],[0.4861111111,-0.3494623656],[0.2222222222,-0.5],[-0.2222222222,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":59,"k":"struct","c":[1246,541.3,-717],"s":[144,186,31],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":58,"label":"城郭の甲板","outline":[[-0.5,0.3387096774],[-0.5,-0.3387096774],[-0.2083333333,-0.5],[0.2222222222,-0.5],[0.5,-0.3387096774],[0.4861111111,0.3494623656],[0.2222222222,0.5],[-0.2222222222,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":60,"k":"struct","c":[1406,538.7,765],"s":[144,110,25.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":61,"label":"城郭の甲板","outline":[[-0.5,-0.2272727273],[-0.4583333333,0.5],[-0.4027777778,0.04545454545],[-0.1388888889,-0.2454545455],[0.1805555556,-0.2454545455],[0.4861111111,0.08181818182],[0.5,-0.2272727273],[0.2222222222,-0.5],[-0.2222222222,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":61,"k":"struct","c":[1406,538.7,-765],"s":[144,110,25.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":60,"label":"城郭の甲板","outline":[[-0.5,0.2272727273],[-0.4583333333,-0.5],[-0.4027777778,-0.04545454545],[-0.1388888889,0.2454545455],[0.1805555556,0.2454545455],[0.4861111111,-0.08181818182],[0.5,0.2272727273],[0.2222222222,0.5],[-0.2222222222,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":62,"k":"struct","c":[2644,578,1],"s":[3480,1186,66.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.476391231],[-0.5,-0.3870151771],[-0.4913793103,-0.392074199],[-0.4879310345,-0.4308600337],[-0.4764367816,-0.4544688027],[-0.4620689655,-0.4494097808],[-0.4522988506,-0.4123102867],[-0.4568965517,-0.3566610455],[-0.4770114943,-0.3397976391],[-0.4775862069,-0.1981450253],[-0.4775862069,-0.05817875211],[-0.4672413793,-0.04468802698],[-0.4614942529,-0.01602023609],[-0.4632183908,0.02782462057],[-0.4775862069,0.05649241147],[-0.4770114943,0.3381112985],[-0.458045977,0.3516020236],[-0.4522988506,0.410623946],[-0.4620689655,0.4477234401],[-0.4764367816,0.4527824621],[-0.4879310345,0.4291736931],[-0.4913793103,0.392074199],[-0.5,0.3870151771],[-0.5,0.476391231],[-0.2775862069,0.4747048904],[-0.2620689655,0.4780775717],[-0.2591954023,0.5],[-0.2534482759,0.4966273187],[-0.2528735632,0.4747048904],[0.1413793103,0.4797639123],[0.1528735632,0.4544688027],[0.1528735632,0.4207419899],[0.1413793103,0.4005059022],[0.1436781609,0.2807757167],[0.1488505747,0.2706576728],[0.1454022989,0.2521079258],[0.1488505747,0.2301854975],[0.1413793103,0.2032040472],[0.141954023,0.1863406408],[0.4517241379,0.1880269815],[0.4522988506,0.09190556492],[0.4655172414,0.086846543],[0.474137931,0.06492411467],[0.4971264368,0.05143338954],[0.5,0.03962900506],[0.4982758621,-0.0497470489],[0.4522988506,-0.09190556492],[0.4517241379,-0.1880269815],[0.141954023,-0.1863406408],[0.1413793103,-0.2032040472],[0.1488505747,-0.2301854975],[0.1454022989,-0.2470489039],[0.1488505747,-0.2706576728],[0.1436781609,-0.2807757167],[0.1413793103,-0.4005059022],[0.1528735632,-0.4207419899],[0.1528735632,-0.4544688027],[0.1413793103,-0.4797639123],[-0.2528735632,-0.4747048904],[-0.2534482759,-0.4966273187],[-0.2591954023,-0.5],[-0.2620689655,-0.4780775717],[-0.2775862069,-0.4747048904]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":63,"k":"struct","c":[1248,562.55,709],"s":[144,162,17.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":64,"label":"城郭の甲板","outline":[[-0.5,-0.3271604938],[-0.4861111111,0.4259259259],[-0.3611111111,0.5],[-0.1944444444,0.462962963],[-0.4166666667,0.2901234568],[-0.4583333333,-0.03086419753],[-0.2222222222,-0.3024691358],[0.2361111111,-0.3024691358],[0.4861111111,0.06790123457],[0.5,-0.3148148148],[0.2222222222,-0.5],[-0.2361111111,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":64,"k":"struct","c":[1248,562.55,-709],"s":[144,162,17.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":63,"label":"城郭の甲板","outline":[[-0.5,0.3271604938],[-0.4861111111,-0.4259259259],[-0.3611111111,-0.5],[-0.1944444444,-0.462962963],[-0.4166666667,-0.2901234568],[-0.4583333333,0.03086419753],[-0.2222222222,0.3024691358],[0.2361111111,0.3024691358],[0.4861111111,-0.06790123457],[0.5,0.3148148148],[0.2222222222,0.5],[-0.2361111111,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":65,"k":"struct","c":[1308,557.45,754],"s":[16,28,7.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":66,"label":"城郭の甲板","outline":[[-0.5,0.4285714286],[0.375,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":66,"k":"struct","c":[1308,557.45,-754],"s":[16,28,7.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":65,"label":"城郭の甲板","outline":[[-0.5,-0.4285714286],[0.375,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":67,"k":"struct","c":[1242,575.75,657],"s":[124,50,14.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":68,"label":"城郭の甲板","outline":[[-0.5,0.1],[-0.4677419355,0.5],[-0.08064516129,-0.06],[0.5,-0.02],[0.2903225806,-0.46],[-0.2096774194,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":68,"k":"struct","c":[1242,575.75,-657],"s":[124,50,14.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":67,"label":"城郭の甲板","outline":[[-0.5,-0.1],[-0.4677419355,-0.5],[-0.08064516129,0.06],[0.5,0.02],[0.2903225806,0.46],[-0.2096774194,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":69,"k":"struct","c":[488,601.45,254],"s":[208,180,21.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":70,"label":"城郭の甲板","outline":[[-0.5,-0.03333333333],[-0.3076923077,0.2666666667],[0.5,0.5],[0.1538461538,0.1],[-0.02884615385,0.1111111111],[-0.08653846154,0.2333333333],[-0.125,-0.5],[-0.3365384615,-0.3222222222]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":70,"k":"struct","c":[488,601.45,-254],"s":[208,180,21.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":69,"label":"城郭の甲板","outline":[[-0.5,0.03333333333],[-0.3076923077,-0.2666666667],[0.5,-0.5],[0.1538461538,-0.1],[-0.02884615385,-0.1111111111],[-0.08653846154,-0.2333333333],[-0.125,0.5],[-0.3365384615,0.3222222222]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":71,"k":"struct","c":[436,619.15,225],"s":[68,122,19.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":72,"label":"城郭の甲板","outline":[[-0.5,-0.05737704918],[0.5,0.5],[0.3823529412,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":72,"k":"struct","c":[436,619.15,-225],"s":[68,122,19.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":71,"label":"城郭の甲板","outline":[[-0.5,0.05737704918],[0.5,-0.5],[0.3823529412,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":73,"k":"struct","c":[536,619.85,309],"s":[112,70,21.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":74,"label":"城郭の甲板","outline":[[-0.5,-0.3571428571],[-0.1428571429,0.2428571429],[0.5,0.5],[-0.1071428571,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":74,"k":"struct","c":[536,619.85,-309],"s":[112,70,21.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":73,"label":"城郭の甲板","outline":[[-0.5,0.3571428571],[-0.1428571429,-0.2428571429],[0.5,-0.5],[-0.1071428571,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":75,"k":"struct","c":[930,617.45,491],"s":[52,62,18.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":76,"label":"城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.07692307692,-0.4032258065]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":76,"k":"struct","c":[930,617.45,-491],"s":[52,62,18.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":75,"label":"城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.07692307692,0.4032258065]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":77,"k":"struct","c":[2630,619.05,1],"s":[3296,1042,21.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.2255278311],[-0.5,-0.06621880998],[-0.4890776699,-0.05086372361],[-0.4830097087,-0.01823416507],[-0.4848300971,0.03166986564],[-0.5,0.06429942418],[-0.4993932039,0.3848368522],[-0.4836165049,0.3905950096],[-0.4751213592,0.4174664107],[-0.4733009709,0.4673704415],[-0.479368932,0.5],[0.1535194175,0.5],[0.1535194175,0.1813819578],[0.4811893204,0.1833013436],[0.484223301,0.04510556622],[0.5,0.04510556622],[0.5,-0.04510556622],[0.484223301,-0.04510556622],[0.4811893204,-0.1833013436],[0.1535194175,-0.1813819578],[0.1535194175,-0.5],[-0.4787621359,-0.5],[-0.4733009709,-0.4692898273],[-0.4751213592,-0.4193857965],[-0.4836165049,-0.3925143954],[-0.4993932039,-0.386756238]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":78,"k":"struct","c":[4313,632.1,1],"s":[42,42,47.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.1666666667],[-0.2142857143,0.5],[0.5,0.3095238095],[0.2619047619,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":79,"k":"struct","c":[448,635.8,196],"s":[40,64,19.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":80,"label":"城郭の甲板","outline":[[-0.5,-0.125],[0.5,0.5],[0.35,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":80,"k":"struct","c":[448,635.8,-196],"s":[40,64,19.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":79,"label":"城郭の甲板","outline":[[-0.5,0.125],[0.5,-0.5],[0.35,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":81,"k":"struct","c":[2628,637.95,1],"s":[3292,926,22.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.2537796976],[-0.5,-0.07451403888],[-0.4829890644,-0.02051835853],[-0.4848116646,0.03563714903],[-0.5,0.07235421166],[-0.4993924666,0.4330453564],[-0.4835965978,0.439524838],[-0.4738760632,0.4827213823],[-0.4477521264,0.4827213823],[-0.4428918591,0.5],[-0.4343863913,0.4827213823],[-0.4234507898,0.5],[-0.4167679222,0.4827213823],[-0.3772782503,0.4827213823],[-0.372417983,0.5],[-0.3639125152,0.4827213823],[-0.3274605103,0.4827213823],[-0.322600243,0.5],[-0.3140947752,0.4827213823],[-0.252126367,0.4827213823],[-0.2490886999,0.5],[-0.2424058323,0.4827213823],[-0.2193195626,0.4827213823],[-0.2162818955,0.5],[-0.2095990279,0.4827213823],[0.1123936817,0.4827213823],[0.1044957473,0.4028077754],[0.1196840826,0.348812095],[0.134872418,0.3552915767],[0.1433778858,0.3855291577],[0.145200486,0.4416846652],[0.1373025516,0.4827213823],[0.1543134872,0.4827213823],[0.1543134872,0.1933045356],[0.482381531,0.1954643629],[0.482381531,0.03995680346],[0.5,0.03995680346],[0.5,-0.03995680346],[0.482381531,-0.03995680346],[0.482381531,-0.1954643629],[0.1543134872,-0.1933045356],[0.1543134872,-0.4827213823],[0.1379100851,-0.4827213823],[0.145200486,-0.4438444924],[0.1433778858,-0.3876889849],[0.134872418,-0.3574514039],[0.1196840826,-0.3509719222],[0.1044957473,-0.4049676026],[0.1117861482,-0.4827213823],[-0.2095990279,-0.4827213823],[-0.212636695,-0.5],[-0.2193195626,-0.4827213823],[-0.2424058323,-0.4827213823],[-0.2454434994,-0.5],[-0.252126367,-0.4827213823],[-0.3140947752,-0.4827213823],[-0.3189550425,-0.5],[-0.3274605103,-0.4827213823],[-0.3639125152,-0.4827213823],[-0.3687727825,-0.5],[-0.3772782503,-0.4827213823],[-0.4167679222,-0.4827213823],[-0.4198055893,-0.5],[-0.4343863913,-0.4827213823],[-0.4428918591,-0.5],[-0.4477521264,-0.4827213823],[-0.4744835966,-0.4827213823],[-0.4835965978,-0.4416846652],[-0.4993924666,-0.4352051836]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":82,"k":"struct","c":[55,659.05,1],"s":[90,130,6.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.4846153846],[-0.5,0.4846153846],[0.5,0.5],[-0.05555555556,0.2692307692],[-0.03333333333,-0.3],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":83,"k":"struct","c":[2622,659.3,1],"s":[3280,926,26.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.2537796976],[-0.5,-0.07451403888],[-0.4890243902,-0.05723542117],[-0.4829268293,-0.02051835853],[-0.4847560976,0.03563714903],[-0.5,0.07235421166],[-0.4993902439,0.4028077754],[-0.4609756098,0.4006479482],[-0.4609756098,0.469762419],[-0.4475609756,0.469762419],[-0.4426829268,0.5],[-0.437195122,0.4978401728],[-0.4341463415,0.4719222462],[-0.3768292683,0.4740820734],[-0.3719512195,0.5],[-0.3664634146,0.4978401728],[-0.3634146341,0.4719222462],[-0.3268292683,0.4719222462],[-0.3219512195,0.5],[-0.3164634146,0.4978401728],[-0.3134146341,0.4740820734],[-0.2512195122,0.469762419],[-0.2481707317,0.5],[-0.2420731707,0.4956803456],[-0.2414634146,0.469762419],[-0.08536585366,0.4762419006],[-0.08231707317,0.4028077754],[0.1073170732,0.4028077754],[0.1115853659,0.3704103672],[0.1219512195,0.348812095],[0.137195122,0.3552915767],[0.1469512195,0.4028077754],[0.1567073171,0.4028077754],[0.1567073171,0.1825053996],[0.4859756098,0.1846652268],[0.4859756098,0.0161987041],[0.493902439,0.02483801296],[0.5,0.005399568035],[0.4963414634,-0.02267818575],[0.4859756098,-0.0161987041],[0.4859756098,-0.1846652268],[0.1567073171,-0.1825053996],[0.1567073171,-0.4028077754],[0.1469512195,-0.4028077754],[0.1323170732,-0.3509719222],[0.1170731707,-0.3574514039],[0.1073170732,-0.4028077754],[-0.08231707317,-0.4028077754],[-0.08536585366,-0.4762419006],[-0.2414634146,-0.469762419],[-0.2420731707,-0.4956803456],[-0.2481707317,-0.5],[-0.2512195122,-0.469762419],[-0.3134146341,-0.4740820734],[-0.3164634146,-0.4978401728],[-0.3219512195,-0.5],[-0.3268292683,-0.4719222462],[-0.3634146341,-0.4719222462],[-0.3664634146,-0.4978401728],[-0.3719512195,-0.5],[-0.3768292683,-0.4740820734],[-0.4341463415,-0.4719222462],[-0.437195122,-0.4978401728],[-0.4426829268,-0.5],[-0.4475609756,-0.469762419],[-0.4609756098,-0.469762419],[-0.4609756098,-0.4006479482],[-0.4993902439,-0.4028077754]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":84,"k":"struct","c":[4313,658.8,1],"s":[30,34,12],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.2058823529],[-0.1666666667,0.5],[0.5,0.3235294118],[0.2333333333,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":85,"k":"struct","c":[2622,677.05,1],"s":[3280,802,15.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"城郭の甲板","outline":[[-0.5,-0.2930174564],[-0.5,-0.08603491272],[-0.4890243902,-0.06608478803],[-0.4829268293,-0.02369077307],[-0.4847560976,0.04114713217],[-0.5,0.08354114713],[-0.4993902439,0.3703241895],[-0.4762195122,0.3728179551],[-0.4707317073,0.4301745636],[-0.4609756098,0.4476309227],[-0.4609756098,0.4950124688],[-0.4518292683,0.5],[-0.08231707317,0.4950124688],[-0.08231707317,0.397755611],[0.1146341463,0.397755611],[0.1146341463,0.3728179551],[0.1567073171,0.3728179551],[0.1567073171,0.1982543641],[0.4859756098,0.1982543641],[0.4859756098,0.0187032419],[0.493902439,0.02867830424],[0.5,0.006234413965],[0.4963414634,-0.02618453865],[0.4859756098,-0.0187032419],[0.4859756098,-0.1982543641],[0.1567073171,-0.1982543641],[0.1567073171,-0.3728179551],[0.1146341463,-0.3728179551],[0.1146341463,-0.397755611],[-0.08231707317,-0.397755611],[-0.08231707317,-0.4950124688],[-0.4518292683,-0.5],[-0.4609756098,-0.4950124688],[-0.4609756098,-0.4476309227],[-0.4707317073,-0.4301745636],[-0.4762195122,-0.3728179551],[-0.4993902439,-0.3703241895]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":86,"k":"struct","c":[2599,698.35,1],"s":[3234,786,33.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.2989821883],[-0.5,-0.08778625954],[-0.4888682746,-0.06743002545],[-0.4826839827,-0.02417302799],[-0.4845392703,0.04198473282],[-0.5,0.08524173028],[-0.5,0.2989821883],[-0.4845392703,0.2989821883],[-0.4696969697,0.441475827],[-0.4604205318,0.4491094148],[-0.4604205318,0.4720101781],[-0.451144094,0.5],[-0.4474335189,0.4796437659],[-0.4344465059,0.4974554707],[-0.4264069264,0.4720101781],[-0.4220779221,0.4872773537],[-0.3367346939,0.4720101781],[-0.3089053803,0.4796437659],[-0.3082869511,0.5],[-0.3039579468,0.5],[-0.3033395176,0.4720101781],[-0.294681509,0.4720101781],[-0.2934446506,0.5],[-0.2897340754,0.4745547074],[-0.2130488559,0.4872773537],[-0.1307977737,0.4720101781],[-0.1307977737,0.489821883],[-0.08317872604,0.489821883],[-0.07637600495,0.4720101781],[-0.07637600495,0.3727735369],[0.02690166976,0.3676844784],[0.03123067409,0.4083969466],[0.0367965368,0.4007633588],[0.03741496599,0.3676844784],[0.04359925788,0.4058524173],[0.05040197897,0.403307888],[0.05102040816,0.3676844784],[0.1233766234,0.3753180662],[0.1239950526,0.286259542],[0.1660482375,0.286259542],[0.1660482375,0.18956743],[0.5,0.18956743],[0.5,-0.18956743],[0.1660482375,-0.18956743],[0.1660482375,-0.286259542],[0.1239950526,-0.286259542],[0.1233766234,-0.3753180662],[0.05102040816,-0.3676844784],[0.05040197897,-0.403307888],[0.04359925788,-0.4058524173],[0.03741496599,-0.3676844784],[0.0367965368,-0.4007633588],[0.03123067409,-0.4083969466],[0.02690166976,-0.3676844784],[-0.07637600495,-0.3727735369],[-0.07637600495,-0.4720101781],[-0.08317872604,-0.489821883],[-0.1307977737,-0.489821883],[-0.1307977737,-0.4720101781],[-0.2130488559,-0.4872773537],[-0.2897340754,-0.4745547074],[-0.2934446506,-0.5],[-0.294681509,-0.4720101781],[-0.3033395176,-0.4720101781],[-0.3039579468,-0.5],[-0.3082869511,-0.5],[-0.3089053803,-0.4796437659],[-0.3367346939,-0.4720101781],[-0.4010513296,-0.4872773537],[-0.4264069264,-0.4720101781],[-0.4344465059,-0.4974554707],[-0.4474335189,-0.4796437659],[-0.451144094,-0.5],[-0.4604205318,-0.4720101781],[-0.4604205318,-0.4491094148],[-0.4696969697,-0.441475827],[-0.4839208411,-0.3015267176]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":87,"k":"struct","c":[1429,691.75,386],"s":[18,24,20.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":88,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.3888888889,0.5],[0.3888888889,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":88,"k":"struct","c":[1429,691.75,-386],"s":[18,24,20.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":87,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.3888888889,-0.5],[0.3888888889,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":89,"k":"struct","c":[1474,691.75,386],"s":[16,24,20.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":90,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.4166666667],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":90,"k":"struct","c":[1474,691.75,-386],"s":[16,24,20.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":89,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.4166666667],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":91,"k":"struct","c":[4240,693.2,1],"s":[32,30,23],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.1666666667],[-0.25,0.5],[0.5,0.1666666667],[0.1875,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":92,"k":"struct","c":[2599,720.6,1],"s":[3234,698,17.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.3366762178],[-0.5,-0.09885386819],[-0.4888682746,-0.07593123209],[-0.4826839827,-0.02722063037],[-0.4845392703,0.04727793696],[-0.5,0.09598853868],[-0.5,0.3366762178],[-0.4839208411,0.3366762178],[-0.4727891156,0.4455587393],[-0.4604205318,0.4455587393],[-0.4604205318,0.5],[-0.07637600495,0.5],[-0.07637600495,0.3739255014],[0.1239950526,0.3739255014],[0.1239950526,0.276504298],[0.08750773036,0.276504298],[0.07204700062,0.2134670487],[0.5,0.1991404011],[0.5,-0.1991404011],[0.07204700062,-0.2134670487],[0.08750773036,-0.276504298],[0.1239950526,-0.276504298],[0.1239950526,-0.3739255014],[-0.07637600495,-0.3739255014],[-0.07637600495,-0.5],[-0.4604205318,-0.5],[-0.4604205318,-0.4455587393],[-0.4727891156,-0.4455587393],[-0.4839208411,-0.3366762178]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":93,"k":"struct","c":[2599,737.5,1],"s":[3234,630,22.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.373015873],[-0.5,-0.1095238095],[-0.4888682746,-0.08412698413],[-0.4826839827,-0.03015873016],[-0.4845392703,0.05238095238],[-0.5,0.1063492063],[-0.5,0.373015873],[-0.4826839827,0.373015873],[-0.4795918367,0.4111111111],[-0.4604205318,0.4142857143],[-0.4604205318,0.4396825397],[-0.3460111317,0.4555555556],[-0.3460111317,0.5],[-0.3373531231,0.4365079365],[-0.3157081014,0.446031746],[-0.3107606679,0.4619047619],[-0.3107606679,0.5],[-0.3014842301,0.4365079365],[-0.2421150278,0.4619047619],[-0.1963512678,0.4396825397],[-0.07637600495,0.4396825397],[-0.07637600495,0.2968253968],[0.08503401361,0.2968253968],[0.06462585034,0.2047619048],[0.5,0.2047619048],[0.5,-0.2047619048],[0.06462585034,-0.2047619048],[0.08503401361,-0.2968253968],[-0.07637600495,-0.2968253968],[-0.07637600495,-0.4396825397],[-0.1963512678,-0.4396825397],[-0.2247990105,-0.4619047619],[-0.3014842301,-0.4396825397],[-0.3070500928,-0.5],[-0.3157081014,-0.446031746],[-0.3373531231,-0.4396825397],[-0.3460111317,-0.5],[-0.3460111317,-0.4555555556],[-0.4604205318,-0.4396825397],[-0.4604205318,-0.4142857143],[-0.4795918367,-0.4111111111],[-0.4826839827,-0.373015873]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":94,"k":"struct","c":[1551,735.6,301],"s":[18,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":95,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.2777777778,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":95,"k":"struct","c":[1551,735.6,-301],"s":[18,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":94,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.2777777778,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":96,"k":"struct","c":[1666,735.6,301],"s":[16,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":97,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.375,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":97,"k":"struct","c":[1666,735.6,-301],"s":[16,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":96,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.375,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":98,"k":"struct","c":[2122,735.6,301],"s":[20,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":99,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.2,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":99,"k":"struct","c":[2122,735.6,-301],"s":[20,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":98,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.2,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":100,"k":"struct","c":[2184,735.6,301],"s":[20,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":101,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.2,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":101,"k":"struct","c":[2184,735.6,-301],"s":[20,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":100,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.2,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":102,"k":"struct","c":[2236,735.6,301],"s":[16,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":103,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.25,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":103,"k":"struct","c":[2236,735.6,-301],"s":[16,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":102,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.25,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":104,"k":"struct","c":[2299,735.6,301],"s":[18,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":105,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.2777777778,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":105,"k":"struct","c":[2299,735.6,-301],"s":[18,30,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":104,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.2777777778,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":106,"k":"struct","c":[2599,758.65,-4],"s":[3234,572,25.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.3636363636],[-0.5,-0.1118881119],[-0.4888682746,-0.08391608392],[-0.4826839827,-0.02447552448],[-0.4845392703,0.06643356643],[-0.5,0.1258741259],[-0.5,0.3811188811],[-0.412183055,0.3881118881],[-0.4084724799,0.4055944056],[-0.4115646259,0.4615384615],[-0.4029066172,0.5],[-0.196969697,0.5],[-0.1963512678,0.4090909091],[-0.1852195424,0.4090909091],[-0.1852195424,0.3636363636],[-0.07637600495,0.3636363636],[-0.07390228819,0.2412587413],[-0.06771799629,0.2132867133],[0.5,0.2132867133],[0.5,-0.1958041958],[-0.06771799629,-0.1958041958],[-0.07390228819,-0.2237762238],[-0.07637600495,-0.3461538462],[-0.1852195424,-0.3461538462],[-0.1852195424,-0.3916083916],[-0.1963512678,-0.3916083916],[-0.196969697,-0.4825174825],[-0.2247990105,-0.5],[-0.294681509,-0.4755244755],[-0.3089053803,-0.5],[-0.330550402,-0.4755244755],[-0.4029066172,-0.4825174825],[-0.4115646259,-0.4440559441],[-0.4084724799,-0.3881118881],[-0.412183055,-0.3706293706]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":107,"k":"struct","c":[2008,780.05,6],"s":[2052,572,23.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.3006993007],[-0.5,-0.1293706294],[-0.4824561404,-0.1013986014],[-0.4727095517,-0.04195804196],[-0.4756335283,0.04895104895],[-0.5,0.1083916084],[-0.5,0.2832167832],[-0.3489278752,0.2937062937],[-0.3489278752,0.3251748252],[-0.3615984405,0.3496503497],[-0.3557504873,0.3881118881],[-0.3615984405,0.4335664336],[-0.3469785575,0.4825174825],[-0.2329434698,0.472027972],[-0.1988304094,0.5],[-0.1764132554,0.472027972],[-0.06627680312,0.5],[-0.022417154,0.4825174825],[-0.02144249513,0.3916083916],[-0.003898635478,0.3916083916],[-0.003898635478,0.3146853147],[0.05555555556,0.3146853147],[0.06335282651,0.3391608392],[0.0730994152,0.3181818182],[0.08966861598,0.3391608392],[0.0955165692,0.3146853147],[0.1676413255,0.3146853147],[0.171539961,0.2237762238],[0.1812865497,0.1888111888],[0.5,0.1888111888],[0.5,-0.2062937063],[0.1812865497,-0.2062937063],[0.171539961,-0.2412587413],[0.1676413255,-0.3321678322],[0.0955165692,-0.3321678322],[0.08966861598,-0.3566433566],[0.08089668616,-0.3356643357],[0.06335282651,-0.3566433566],[0.05555555556,-0.3321678322],[-0.003898635478,-0.3321678322],[-0.003898635478,-0.4090909091],[-0.02144249513,-0.4090909091],[-0.022417154,-0.5],[-0.3469785575,-0.5],[-0.3615984405,-0.451048951],[-0.3557504873,-0.4160839161],[-0.3615984405,-0.3671328671],[-0.3489278752,-0.3426573427],[-0.3489278752,-0.3111888112]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":108,"k":"struct","c":[3139,775.35,61],"s":[182,58,13.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":109,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":109,"k":"struct","c":[3139,775.35,-61],"s":[182,58,13.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":108,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":110,"k":"struct","c":[3355,780.15,-1],"s":[330,70,23.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.1571428571],[-0.4757575758,0.3285714286],[0.5,0.5],[0.5,-0.4428571429],[0.01515151515,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":111,"k":"struct","c":[3584,779.95,1],"s":[72,82,22.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.2804878049],[-0.5,0.2804878049],[-0.05555555556,0.5],[0.5,0.2804878049],[0.5,-0.2804878049],[0.05555555556,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":112,"k":"struct","c":[3900,778.65,47],"s":[132,58,20.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":113,"label":"上部城郭の甲板","outline":[[-0.5,-0.3965517241],[-0.5,0.5],[0.5,0.5],[0.5,-0.5],[0.1212121212,0.3620689655],[-0.2575757576,0.2586206897]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":113,"k":"struct","c":[3900,778.65,-47],"s":[132,58,20.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":112,"label":"上部城郭の甲板","outline":[[-0.5,0.3965517241],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[0.1212121212,-0.3620689655],[-0.2575757576,-0.2586206897]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":114,"k":"struct","c":[4032,774.35,1],"s":[132,126,11.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.1031746032],[-0.5,0.1031746032],[-0.2424242424,0.1031746032],[-0.2424242424,0.5],[0.5,0.5],[0.5,-0.5],[-0.2424242424,-0.5],[-0.2424242424,-0.1031746032]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":115,"k":"struct","c":[4132,775.65,32],"s":[44,20,14.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":116,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.3]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":116,"k":"struct","c":[4132,775.65,-32],"s":[44,20,14.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":115,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.3]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":117,"k":"struct","c":[2007,796.95,1],"s":[2050,582,16.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.1597938144],[-0.5,-0.118556701],[-0.4824390244,-0.0910652921],[-0.4726829268,-0.03264604811],[-0.4756097561,0.05670103093],[-0.5,0.1151202749],[-0.5,0.1597938144],[-0.3507317073,0.1838487973],[-0.3468292683,0.3487972509],[-0.3575609756,0.3728522337],[-0.3468292683,0.3797250859],[-0.3468292683,0.410652921],[-0.3575609756,0.4347079038],[-0.3468292683,0.441580756],[-0.3468292683,0.4793814433],[-0.2326829268,0.4725085911],[-0.2053658537,0.5],[-0.1868292683,0.4725085911],[-0.09317073171,0.5],[-0.02195121951,0.4828178694],[-0.02097560976,0.3934707904],[-0.003414634146,0.3934707904],[-0.003414634146,0.3178694158],[0.05609756098,0.3178694158],[0.06390243902,0.3419243986],[0.07365853659,0.3213058419],[0.09024390244,0.3419243986],[0.09609756098,0.3178694158],[0.1682926829,0.3178694158],[0.172195122,0.2285223368],[0.1809756098,0.2216494845],[0.1819512195,0.1872852234],[0.4941463415,0.1872852234],[0.4941463415,0.1426116838],[0.5,0.1426116838],[0.5,0.08075601375],[0.4941463415,0.08075601375],[0.5,0.06701030928],[0.5,0.008591065292],[0.4941463415,0.008591065292],[0.5,-0.008591065292],[0.5,-0.06701030928],[0.4941463415,-0.06701030928],[0.5,-0.1426116838],[0.4941463415,-0.1426116838],[0.4941463415,-0.1872852234],[0.1819512195,-0.1872852234],[0.1809756098,-0.2216494845],[0.172195122,-0.2285223368],[0.1682926829,-0.3178694158],[0.09609756098,-0.3178694158],[0.09024390244,-0.3419243986],[0.08146341463,-0.3213058419],[0.06390243902,-0.3419243986],[0.05609756098,-0.3178694158],[-0.003414634146,-0.3178694158],[-0.003414634146,-0.3934707904],[-0.02097560976,-0.3934707904],[-0.02195121951,-0.4828178694],[-0.06585365854,-0.5],[-0.3468292683,-0.4793814433],[-0.3468292683,-0.441580756],[-0.3575609756,-0.4347079038],[-0.3468292683,-0.410652921],[-0.3468292683,-0.3797250859],[-0.3575609756,-0.3728522337],[-0.3468292683,-0.3487972509],[-0.3507317073,-0.1838487973]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":118,"k":"struct","c":[1022,817.15,1],"s":[80,146,29.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.05,-0.3630136986],[0.2,-0.1301369863],[0.125,0.2260273973],[-0.5,0.5],[0.15,0.5],[0.5,0.2397260274],[0.5,-0.2397260274],[0.15,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":119,"k":"struct","c":[2047,815.25,1],"s":[1946,582,25.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.08419243986],[-0.5,0.08419243986],[-0.4650565262,0.1013745704],[-0.4619732785,0.1426116838],[-0.4465570401,0.1013745704],[-0.3900308325,0.1048109966],[-0.3900308325,0.2697594502],[-0.3766700925,0.2835051546],[-0.3807810894,0.3178694158],[-0.3417266187,0.3178694158],[-0.3437821172,0.3934707904],[-0.3355601233,0.4621993127],[-0.3859198356,0.4793814433],[-0.2656731757,0.4725085911],[-0.2368961973,0.5],[-0.217368962,0.4725085911],[-0.1238437821,0.4793814433],[-0.118705036,0.5],[-0.1002055498,0.4793814433],[-0.08992805755,0.5],[-0.08478931141,0.4793814433],[-0.04367934224,0.4793814433],[-0.04265159301,0.3934707904],[-0.02415210689,0.3934707904],[-0.02415210689,0.3144329897],[0.03854059609,0.3144329897],[0.04676258993,0.3419243986],[0.05704008222,0.3213058419],[0.07451181912,0.3419243986],[0.08067831449,0.3144329897],[0.1567317575,0.3144329897],[0.1598150051,0.2285223368],[0.1700924974,0.2216494845],[0.1700924974,0.1804123711],[0.4938335046,0.1804123711],[0.5,0.1426116838],[0.5,0.008591065292],[0.4938335046,0.005154639175],[0.5,-0.008591065292],[0.5,-0.1426116838],[0.4938335046,-0.1804123711],[0.1700924974,-0.1804123711],[0.1700924974,-0.2216494845],[0.1598150051,-0.2285223368],[0.1567317575,-0.3144329897],[0.08067831449,-0.3144329897],[0.07451181912,-0.3419243986],[0.06526207605,-0.3213058419],[0.04676258993,-0.3419243986],[0.03854059609,-0.3144329897],[-0.02415210689,-0.3144329897],[-0.02415210689,-0.3934707904],[-0.04265159301,-0.3934707904],[-0.04367934224,-0.4793814433],[-0.08478931141,-0.4793814433],[-0.08992805755,-0.5],[-0.1002055498,-0.4793814433],[-0.1125385406,-0.5],[-0.1238437821,-0.4793814433],[-0.217368962,-0.4759450172],[-0.2297019527,-0.5],[-0.2656731757,-0.4759450172],[-0.3859198356,-0.4793814433],[-0.3355601233,-0.4450171821],[-0.3417266187,-0.441580756],[-0.3417266187,-0.3178694158],[-0.3807810894,-0.3178694158],[-0.3766700925,-0.2835051546],[-0.3900308325,-0.2697594502],[-0.3900308325,-0.1048109966],[-0.4465570401,-0.1013745704],[-0.4619732785,-0.1426116838],[-0.4650565262,-0.1013745704]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":120,"k":"struct","c":[2036,838.65,1],"s":[1920,582,26.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.08419243986],[-0.5,0.08419243986],[-0.4927083333,0.1013745704],[-0.465625,0.1013745704],[-0.4614583333,0.1357388316],[-0.446875,0.1013745704],[-0.3395833333,0.1013745704],[-0.3479166667,0.1391752577],[-0.3416666667,0.1735395189],[-0.3479166667,0.293814433],[-0.340625,0.3144329897],[-0.3427083333,0.3934707904],[-0.334375,0.3969072165],[-0.334375,0.4587628866],[-0.2385416667,0.4587628866],[-0.234375,0.5],[-0.2239583333,0.4965635739],[-0.221875,0.4587628866],[-0.2,0.4828178694],[-0.1989583333,0.4587628866],[-0.1197916667,0.4587628866],[-0.1145833333,0.5],[-0.1041666667,0.4931271478],[-0.103125,0.4587628866],[-0.090625,0.5],[-0.08125,0.4931271478],[-0.07916666667,0.4587628866],[-0.0375,0.4587628866],[-0.0375,0.3934707904],[-0.01875,0.3934707904],[-0.01875,0.3075601375],[-0.0125,0.3041237113],[0.1645833333,0.3075601375],[0.1666666667,0.2285223368],[0.178125,0.2216494845],[0.1770833333,0.1735395189],[0.5,0.1735395189],[0.5,-0.1735395189],[0.1770833333,-0.1735395189],[0.178125,-0.2216494845],[0.1666666667,-0.2285223368],[0.1645833333,-0.3075601375],[-0.01875,-0.3075601375],[-0.01875,-0.3934707904],[-0.0375,-0.3934707904],[-0.0375,-0.4587628866],[-0.07916666667,-0.4587628866],[-0.08541666667,-0.5],[-0.09583333333,-0.4896907216],[-0.096875,-0.4587628866],[-0.1083333333,-0.5],[-0.11875,-0.4931271478],[-0.1197916667,-0.4587628866],[-0.1989583333,-0.4587628866],[-0.1989583333,-0.4862542955],[-0.221875,-0.4587628866],[-0.2270833333,-0.5],[-0.2375,-0.4965635739],[-0.2385416667,-0.4587628866],[-0.3270833333,-0.4690721649],[-0.334375,-0.4587628866],[-0.334375,-0.3969072165],[-0.3427083333,-0.3934707904],[-0.340625,-0.3144329897],[-0.3479166667,-0.293814433],[-0.3416666667,-0.2628865979],[-0.3479166667,-0.1391752577],[-0.3395833333,-0.1013745704],[-0.446875,-0.1013745704],[-0.4614583333,-0.1357388316],[-0.465625,-0.1013745704]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":121,"k":"struct","c":[1909,860.25,1],"s":[1638,494,22.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.1194331984],[-0.5,0.1194331984],[-0.3205128205,0.1194331984],[-0.3302808303,0.1639676113],[-0.322954823,0.2044534413],[-0.3302808303,0.3461538462],[-0.3180708181,0.3785425101],[-0.3241758242,0.463562753],[-0.278998779,0.475708502],[-0.2741147741,0.5],[-0.2032967033,0.45951417],[-0.1752136752,0.483805668],[-0.01892551893,0.45951417],[-0.01892551893,0.483805668],[-0.0006105006105,0.483805668],[0.0006105006105,0.45951417],[0.05555555556,0.463562753],[0.05555555556,0.3623481781],[0.06288156288,0.3582995951],[0.2704517705,0.3542510121],[0.2704517705,0.2692307692],[0.2863247863,0.2611336032],[0.2851037851,0.2004048583],[0.3498168498,0.1842105263],[0.3485958486,0.07489878543],[0.4242979243,0.08299595142],[0.4328449328,0.04655870445],[0.4413919414,0.0991902834],[0.4731379731,0.0991902834],[0.5,0.04655870445],[0.4926739927,0.03846153846],[0.4926739927,-0.03846153846],[0.5,-0.04655870445],[0.4731379731,-0.0991902834],[0.4413919414,-0.0991902834],[0.4328449328,-0.04655870445],[0.4242979243,-0.08299595142],[0.3485958486,-0.07489878543],[0.3498168498,-0.1842105263],[0.2851037851,-0.2004048583],[0.2863247863,-0.2611336032],[0.2704517705,-0.2692307692],[0.2704517705,-0.3542510121],[0.06288156288,-0.3582995951],[0.05555555556,-0.3623481781],[0.05555555556,-0.463562753],[0.0006105006105,-0.45951417],[-0.0006105006105,-0.483805668],[-0.01892551893,-0.483805668],[-0.01892551893,-0.45951417],[-0.1568986569,-0.483805668],[-0.2032967033,-0.45951417],[-0.2741147741,-0.5],[-0.278998779,-0.475708502],[-0.3241758242,-0.463562753],[-0.3180708181,-0.3785425101],[-0.3302808303,-0.3461538462],[-0.322954823,-0.3097165992],[-0.3302808303,-0.1639676113],[-0.3205128205,-0.1194331984]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":122,"k":"struct","c":[2778,856.3,28],"s":[92,12,14.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":123,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":123,"k":"struct","c":[2778,856.3,-28],"s":[92,12,14.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":122,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":124,"k":"struct","c":[2909,859.75,1],"s":[150,198,21.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.3080808081],[-0.4333333333,0.5],[0.5,0.5],[0.5,-0.5],[-0.4333333333,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":125,"k":"struct","c":[1750,878.75,1],"s":[1320,494,20.7],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.07894736842],[-0.5,-0.04655870445],[-0.403030303,-0.03846153846],[-0.403030303,0.03846153846],[-0.5,0.04655870445],[-0.5,0.07894736842],[-0.4772727273,0.1194331984],[-0.2772727273,0.1194331984],[-0.2893939394,0.1639676113],[-0.2803030303,0.2044534413],[-0.2878787879,0.3582995951],[-0.2742424242,0.3785425101],[-0.2696969697,0.4433198381],[-0.2196969697,0.5],[-0.2,0.475708502],[-0.1712121212,0.495951417],[-0.1681818182,0.4473684211],[-0.1181818182,0.471659919],[0.1893939394,0.463562753],[0.1893939394,0.3623481781],[0.2196969697,0.3502024291],[0.2196969697,0.2165991903],[0.4560606061,0.2165991903],[0.4560606061,0.1923076923],[0.4803030303,0.1923076923],[0.5,0.1518218623],[0.4984848485,0.1113360324],[0.4803030303,0.1032388664],[0.4803030303,-0.1032388664],[0.4984848485,-0.1113360324],[0.4984848485,-0.1639676113],[0.4560606061,-0.1923076923],[0.4560606061,-0.2165991903],[0.2196969697,-0.2165991903],[0.2196969697,-0.3502024291],[0.1893939394,-0.3623481781],[0.1893939394,-0.463562753],[-0.1181818182,-0.471659919],[-0.1681818182,-0.4473684211],[-0.1712121212,-0.495951417],[-0.2,-0.475708502],[-0.2196969697,-0.5],[-0.2696969697,-0.4433198381],[-0.2742424242,-0.3785425101],[-0.2878787879,-0.3582995951],[-0.2803030303,-0.2044534413],[-0.2893939394,-0.1639676113],[-0.2772727273,-0.1194331984],[-0.4772727273,-0.1194331984]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":126,"k":"struct","c":[2853,874.3,1],"s":[6,38,13.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":127,"k":"struct","c":[2853,874.3,45],"s":[6,38,13.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":128,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":128,"k":"struct","c":[2853,874.3,-45],"s":[6,38,13.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":127,"label":"上部城郭の甲板","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":129,"k":"struct","c":[2914,875.2,1],"s":[112,190,15.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":130,"k":"struct","c":[1830,899.65,1],"s":[1020,474,27.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.002109704641],[-0.4725490196,0.0358649789],[-0.4764705882,0.1075949367],[-0.4333333333,0.1075949367],[-0.4529411765,0.1708860759],[-0.4411764706,0.2130801688],[-0.4529411765,0.2805907173],[-0.4294117647,0.4578059072],[-0.4098039216,0.4578059072],[-0.3960784314,0.5],[-0.3725490196,0.4746835443],[-0.337254902,0.5],[-0.3235294118,0.4578059072],[0.1666666667,0.4578059072],[0.1666666667,0.3776371308],[0.2058823529,0.364978903],[0.2058823529,0.1919831224],[0.5,0.1919831224],[0.5,-0.1919831224],[0.2058823529,-0.1919831224],[0.2058823529,-0.364978903],[0.1666666667,-0.3776371308],[0.1666666667,-0.4578059072],[-0.3235294118,-0.4578059072],[-0.337254902,-0.5],[-0.3588235294,-0.4746835443],[-0.3960784314,-0.5],[-0.4098039216,-0.4578059072],[-0.4294117647,-0.4578059072],[-0.4529411765,-0.2805907173],[-0.4411764706,-0.246835443],[-0.4529411765,-0.1708860759],[-0.4333333333,-0.1075949367],[-0.4764705882,-0.1075949367],[-0.4725490196,-0.0358649789]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":131,"k":"struct","c":[2355,893.05,2],"s":[22,16,13.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.5],[-0.4090909091,0.5],[0.5,0.375],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":132,"k":"struct","c":[1765,919.45,1],"s":[826,362,18.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"上部城郭の甲板","outline":[[-0.5,-0.1408839779],[-0.5,0.1408839779],[-0.4515738499,0.1408839779],[-0.4515738499,0.5],[0.3232445521,0.4889502762],[0.3329297821,0.2458563536],[0.5,0.2458563536],[0.5,-0.2458563536],[0.3329297821,-0.2458563536],[0.3232445521,-0.4889502762],[-0.4515738499,-0.5],[-0.4515738499,-0.1408839779]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#8c9399"},{"id":133,"k":"struct","c":[1700,935.75,-1],"s":[680,350,20.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"艦橋塔","outline":[[-0.5,-0.14],[-0.5,0.1514285714],[-0.4529411765,0.1514285714],[-0.4529411765,0.3057142857],[-0.09117647059,0.3057142857],[-0.07352941176,0.34],[0.06176470588,0.3057142857],[0.08823529412,0.4828571429],[0.5,0.5],[0.4882352941,-0.5],[0.08823529412,-0.4714285714],[0.06176470588,-0.2942857143],[-0.04411764706,-0.2942857143],[-0.06176470588,-0.3285714286],[-0.09117647059,-0.2942857143],[-0.4529411765,-0.2942857143],[-0.4529411765,-0.14]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#9aa1a6"},{"id":134,"k":"struct","c":[1704,955.8,1],"s":[672,354,26],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"艦橋塔","outline":[[-0.5,-0.1440677966],[-0.5,0.1440677966],[-0.2857142857,0.1440677966],[-0.2708333333,0.2514124294],[-0.1458333333,0.2740112994],[-0.1041666667,0.2288135593],[-0.08035714286,0.3079096045],[-0.0625,0.2514124294],[-0.02083333333,0.2627118644],[-0.008928571429,0.3079096045],[0.005952380952,0.2570621469],[0.04761904762,0.2570621469],[0.08035714286,0.4661016949],[0.1607142857,0.5],[0.5,0.488700565],[0.4970238095,-0.4943502825],[0.1607142857,-0.5],[0.08035714286,-0.4661016949],[0.04761904762,-0.2570621469],[0.005952380952,-0.2570621469],[-0.008928571429,-0.3079096045],[-0.02083333333,-0.2627118644],[-0.0625,-0.2514124294],[-0.08035714286,-0.3079096045],[-0.1041666667,-0.2288135593],[-0.1458333333,-0.2740112994],[-0.2708333333,-0.2514124294],[-0.2857142857,-0.1440677966]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#9aa1a6"},{"id":135,"k":"struct","c":[1733,978.35,2],"s":[614,352,25.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"艦橋塔","outline":[[-0.5,-0.1477272727],[-0.4771986971,-0.1136363636],[-0.4771986971,0.1079545455],[-0.5,0.1420454545],[-0.3534201954,0.1420454545],[-0.3534201954,0.2102272727],[-0.3110749186,0.2670454545],[-0.2426710098,0.2386363636],[-0.2068403909,0.2727272727],[-0.1872964169,0.2159090909],[0.004885993485,0.2556818182],[0.04071661238,0.4659090909],[0.1286644951,0.5],[0.5,0.4886363636],[0.496742671,-0.5],[0.04397394137,-0.4772727273],[0.004885993485,-0.2613636364],[-0.1872964169,-0.2215909091],[-0.2068403909,-0.2784090909],[-0.2426710098,-0.2443181818],[-0.3013029316,-0.2784090909],[-0.3436482085,-0.2443181818],[-0.3534201954,-0.1477272727]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#9aa1a6"},{"id":136,"k":"struct","c":[1765,1001.7,0],"s":[550,348,27.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"艦橋塔","outline":[[-0.5,-0.1436781609],[-0.4781818182,-0.1091954023],[-0.4781818182,0.1149425287],[-0.5,0.1494252874],[-0.2163636364,0.1494252874],[-0.1909090909,0.2356321839],[-0.04545454545,0.2701149425],[-0.009090909091,0.4827586207],[0.5,0.5],[0.4963636364,-0.5],[-0.009090909091,-0.4770114943],[-0.04545454545,-0.2643678161],[-0.1909090909,-0.2298850575],[-0.2163636364,-0.1436781609]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#9aa1a6"},{"id":137,"k":"struct","c":[1796,1020.55,0],"s":[488,348,16.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"艦橋塔","outline":[[-0.5,-0.1436781609],[-0.5,-0.1091954023],[-0.3073770492,-0.1091954023],[-0.3073770492,0.1149425287],[-0.5,0.1149425287],[-0.5,0.1494252874],[-0.3032786885,0.1494252874],[-0.2786885246,0.2356321839],[-0.1147540984,0.2701149425],[-0.0737704918,0.4827586207],[0.5,0.5],[0.4959016393,-0.5],[-0.0737704918,-0.4770114943],[-0.1147540984,-0.2643678161],[-0.2786885246,-0.2298850575],[-0.3032786885,-0.1436781609]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#9aa1a6"},{"id":138,"k":"struct","c":[1876.037862,1036.1,0],"s":[394,348,21],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"艦橋塔","outline":[[-0.5,-0.02298850575],[-0.4847715736,0.2126436782],[-0.2360406091,0.2701149425],[-0.1954314721,0.4827586207],[0.5,0.5],[0.4949238579,-0.5],[-0.1954314721,-0.4770114943],[-0.2360406091,-0.2643678161],[-0.4847715736,-0.2068965517]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#9aa1a6"},{"id":139,"k":"struct","c":[1980,219.3,1],"s":[1660,1002,35],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4880239521],[-0.5,-0.3622754491],[-0.4746987952,-0.3622754491],[-0.4746987952,-0.3423153693],[-0.5,-0.3403193613],[-0.5,0.3403193613],[-0.4746987952,0.3423153693],[-0.4746987952,0.3622754491],[-0.5,0.3622754491],[-0.5,0.4880239521],[-0.4746987952,0.4880239521],[-0.4746987952,0.5],[-0.09397590361,0.5],[-0.09397590361,0.1866267465],[-0.1951807229,0.1866267465],[-0.1951807229,0.1546906188],[0.1240963855,0.1526946108],[0.1240963855,0.2345309381],[0.2891566265,0.4301397206],[0.5,0.4281437126],[0.5,0.3263473054],[0.3698795181,0.1407185629],[0.3698795181,0.1127744511],[0.4108433735,0.1107784431],[0.4734939759,0.05489021956],[0.4734939759,-0.05489021956],[0.4108433735,-0.1107784431],[0.3698795181,-0.1127744511],[0.3698795181,-0.1407185629],[0.5,-0.3263473054],[0.5,-0.4281437126],[0.2891566265,-0.4301397206],[0.1240963855,-0.2345309381],[0.1240963855,-0.1526946108],[-0.1951807229,-0.1546906188],[-0.1951807229,-0.1866267465],[-0.09397590361,-0.1866267465],[-0.09397590361,-0.5],[-0.4746987952,-0.5],[-0.4746987952,-0.4880239521]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":140,"k":"struct","c":[1174,283.9,894],"s":[48,568,23.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":141,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.5,0.3908450704],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":141,"k":"struct","c":[1174,283.9,-894],"s":[48,568,23.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":140,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.5,-0.3908450704],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":142,"k":"struct","c":[3291,239.7,1],"s":[942,1034,51.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1963249516],[-0.440552017,-0.1866537718],[-0.364118896,-0.2949709865],[-0.2324840764,-0.3878143133],[-0.1093418259,-0.4284332689],[-0.003184713376,-0.4381044487],[0.1263269639,-0.420696325],[0.2685774947,-0.3588007737],[0.3662420382,-0.2756286267],[0.4384288747,-0.16344294],[0.4723991507,-0.01837524178],[0.4384288747,0.16344294],[0.3535031847,0.2891682785],[0.2770700637,0.3529980658],[0.1751592357,0.4052224371],[0.03715498938,0.4361702128],[-0.07112526539,0.4342359768],[-0.1751592357,0.4110251451],[-0.3322717622,0.3239845261],[-0.440552017,0.1866537718],[-0.5,0.1905222437],[-0.4511677282,0.2794970986],[-0.389596603,0.3491295938],[-0.304670913,0.414893617],[-0.2070063694,0.4632495164],[-0.009554140127,0.5],[0.1135881104,0.4903288201],[0.2112526539,0.4632495164],[0.3874734607,0.3568665377],[0.5,0.2059961315],[0.449044586,0.1982591876],[0.483014862,0.08800773694],[0.4851380042,0.01063829787],[0.5,0.01063829787],[0.4851380042,0.004835589942],[0.5,-0.01063829787],[0.4851380042,-0.01063829787],[0.483014862,-0.08800773694],[0.449044586,-0.1982591876],[0.5,-0.2059961315],[0.3874734607,-0.3568665377],[0.2112526539,-0.4632495164],[0.01380042463,-0.5],[-0.1093418259,-0.4903288201],[-0.2070063694,-0.4632495164],[-0.3768577495,-0.3607350097],[-0.4511677282,-0.2794970986]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":143,"k":"struct","c":[3413,310.55,916],"s":[78,32,19.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":144,"label":"腹部の装甲区画","outline":[[-0.5,-0.0625],[-0.5,0.5],[0.5,0.125],[0.2948717949,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":144,"k":"struct","c":[3413,310.55,-916],"s":[78,32,19.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":143,"label":"腹部の装甲区画","outline":[[-0.5,0.0625],[-0.5,-0.5],[0.5,-0.125],[0.2948717949,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":145,"k":"struct","c":[4250,281.7,524],"s":[840,332,39.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":146,"label":"腹部の装甲区画","outline":[[-0.5,-0.1807228916],[-0.5,0.0843373494],[-0.3904761905,0.2108433735],[-0.3880952381,0.4036144578],[-0.2119047619,0.5],[0.5,0.1265060241],[0.5,-0.07228915663],[0.369047619,-0.07228915663],[0.369047619,-0.5],[-0.4976190476,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":146,"k":"struct","c":[4250,281.7,-524],"s":[840,332,39.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":145,"label":"腹部の装甲区画","outline":[[-0.5,0.1807228916],[-0.5,-0.0843373494],[-0.3904761905,-0.2108433735],[-0.3880952381,-0.4036144578],[-0.2119047619,-0.5],[0.5,-0.1265060241],[0.5,0.07228915663],[0.369047619,0.07228915663],[0.369047619,0.5],[-0.4976190476,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":147,"k":"struct","c":[4488,241.2,1],"s":[1252,270,29.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1],[-0.5,0.1],[-0.4313099042,0.5],[-0.2795527157,0.5],[-0.2060702875,0.2333333333],[0.1709265176,0.2259259259],[0.1709265176,0.4185185185],[0.3977635783,0.4185185185],[0.5,0.1962962963],[0.5,-0.1962962963],[0.3977635783,-0.4185185185],[0.1709265176,-0.4185185185],[0.1709265176,-0.2259259259],[-0.2060702875,-0.2333333333],[-0.2795527157,-0.5],[-0.4313099042,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":148,"k":"struct","c":[5376,264.1,2],"s":[492,500,41],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1],[-0.5,-0.072],[-0.4512195122,-0.072],[-0.3943089431,-0.236],[-0.2845528455,-0.356],[-0.06910569106,-0.444],[0.162601626,-0.416],[0.2845528455,-0.344],[0.3861788618,-0.224],[0.4430894309,-0.048],[0.4146341463,0.16],[0.2886178862,0.336],[0.1504065041,0.416],[-0.06910569106,0.44],[-0.2357723577,0.384],[-0.3780487805,0.256],[-0.4512195122,0.068],[-0.5,0.068],[-0.4471544715,0.244],[-0.3658536585,0.352],[-0.1341463415,0.484],[0.02032520325,0.5],[0.256097561,0.436],[0.3780487805,0.34],[0.5,0.124],[0.5,0.088],[0.4512195122,0.088],[0.4512195122,-0.092],[0.5,-0.092],[0.5,-0.128],[0.4430894309,-0.26],[0.3008130081,-0.408],[0.1382113821,-0.488],[-0.0487804878,-0.5],[-0.2601626016,-0.436],[-0.4430894309,-0.256]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":149,"k":"struct","c":[6126,287.6,1],"s":[936,418,30.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1746411483],[-0.5,0.1746411483],[-0.4465811966,0.2416267943],[-0.3311965812,0.0980861244],[-0.2307692308,0.0980861244],[-0.1004273504,0.5],[0.2841880342,0.495215311],[0.3931623932,0.1650717703],[0.5,0.07894736842],[0.5,-0.07894736842],[0.3931623932,-0.1650717703],[0.2841880342,-0.495215311],[-0.1004273504,-0.5],[-0.2307692308,-0.0980861244],[-0.3311965812,-0.0980861244],[-0.4465811966,-0.2416267943]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":150,"k":"struct","c":[6735,311.75,225],"s":[114,46,21.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":151,"label":"腹部の装甲区画","outline":[[-0.5,-0.02173913043],[-0.5,0.5],[0.2719298246,0.1086956522],[0.5,0.2826086957],[0.4824561404,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":151,"k":"struct","c":[6735,311.75,-225],"s":[114,46,21.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":150,"label":"腹部の装甲区画","outline":[[-0.5,0.02173913043],[-0.5,-0.5],[0.2719298246,-0.1086956522],[0.5,-0.2826086957],[0.4824561404,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":152,"k":"struct","c":[1167,269,873],"s":[34,526,12],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":153,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.5,0.4619771863],[0.2647058824,0.5],[0.5,0.2376425856]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":153,"k":"struct","c":[1167,269,-873],"s":[34,526,12],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":152,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.5,-0.4619771863],[0.2647058824,-0.5],[0.5,-0.2376425856]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":154,"k":"struct","c":[6126,268.5,1],"s":[936,418,14],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1746411483],[-0.5,0.1746411483],[-0.4465811966,0.2416267943],[-0.3311965812,0.0980861244],[-0.2307692308,0.0980861244],[-0.1004273504,0.5],[0.3376068376,0.3181818182],[0.3931623932,0.1650717703],[0.5,0.07894736842],[0.5,-0.07894736842],[0.3931623932,-0.1650717703],[0.344017094,-0.3133971292],[-0.0811965812,-0.5],[-0.1047008547,-0.490430622],[-0.2307692308,-0.0980861244],[-0.3311965812,-0.0980861244],[-0.4465811966,-0.2416267943]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":155,"k":"struct","c":[1166,257.05,805],"s":[32,390,17.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":156,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.25,0.5],[0.5,0.4846153846],[0.5,0.4230769231]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":156,"k":"struct","c":[1166,257.05,-805],"s":[32,390,17.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":155,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.25,-0.5],[0.5,-0.4846153846],[0.5,-0.4230769231]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":157,"k":"struct","c":[4195,256.1,482],"s":[730,248,17.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":158,"label":"腹部の装甲区画","outline":[[-0.5,-0.07258064516],[-0.5,0.2741935484],[-0.3739726027,0.4193548387],[-0.3712328767,0.5],[0.4945205479,-0.01612903226],[0.5,-0.5],[-0.497260274,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":158,"k":"struct","c":[4195,256.1,-482],"s":[730,248,17.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":157,"label":"腹部の装甲区画","outline":[[-0.5,0.07258064516],[-0.5,-0.2741935484],[-0.3739726027,-0.4193548387],[-0.3712328767,-0.5],[0.4945205479,0.01612903226],[0.5,0.5],[-0.497260274,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":159,"k":"struct","c":[6094,256.7,1],"s":[872,222,15.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.3288288288],[-0.5,0.3288288288],[-0.4495412844,0.454954955],[-0.3188073394,0.1846846847],[-0.2110091743,0.1846846847],[-0.1513761468,0.5],[0.5,0.004504504505],[-0.1513761468,-0.5],[-0.2110091743,-0.1846846847],[-0.3188073394,-0.1846846847],[-0.4426605505,-0.454954955]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":160,"k":"struct","c":[1162,242,746],"s":[24,272,18.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":161,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.25,0.5],[0.5,0.4852941176],[0.5,0.4117647059]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":161,"k":"struct","c":[1162,242,-746],"s":[24,272,18.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":160,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.25,-0.5],[0.5,-0.4852941176],[0.5,-0.4117647059]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":162,"k":"struct","c":[4184,242.6,430],"s":[708,144,15.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":163,"label":"腹部の装甲区画","outline":[[-0.5,0.2361111111],[-0.4915254237,0.5],[0.5,-0.5],[-0.4971751412,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":163,"k":"struct","c":[4184,242.6,-430],"s":[708,144,15.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":162,"label":"腹部の装甲区画","outline":[[-0.5,-0.2361111111],[-0.4915254237,-0.5],[0.5,0.5],[-0.4971751412,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":164,"k":"struct","c":[5362,240.7,1],"s":[464,498,11.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.0983935743],[-0.4482758621,-0.0702811245],[-0.2715517241,-0.3554216867],[-0.04310344828,-0.4437751004],[0.2025862069,-0.4156626506],[0.4396551724,-0.2228915663],[0.4698275862,0.1626506024],[0.1896551724,0.4196787149],[-0.2198275862,0.3875502008],[-0.5,0.0702811245],[-0.3663793103,0.343373494],[-0.1120689655,0.4879518072],[0.08189655172,0.5],[0.3836206897,0.3473895582],[0.5,0.1265060241],[0.5,-0.1265060241],[0.400862069,-0.3313253012],[0.08189655172,-0.5],[-0.2456896552,-0.4357429719]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":165,"k":"struct","c":[5798,244.9,1],"s":[280,106,14],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.009433962264]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":166,"k":"struct","c":[1159,227.4,687],"s":[18,154,17],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":167,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.2777777778,0.5],[0.5,0.474025974],[0.5,0.3441558442]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":167,"k":"struct","c":[1159,227.4,-687],"s":[18,154,17],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":166,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.2777777778,-0.5],[0.5,-0.474025974],[0.5,-0.3441558442]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":168,"k":"struct","c":[3884,231.1,369],"s":[104,22,13.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":169,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,-0.4090909091]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":169,"k":"struct","c":[3884,231.1,-369],"s":[104,22,13.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":168,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.5,-0.5],[0.5,0.4090909091]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":170,"k":"struct","c":[4488,224.05,1],"s":[1252,270,11.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1],[-0.5,0.1],[-0.4313099042,0.5],[-0.2795527157,0.5],[-0.2060702875,0.2333333333],[0.1709265176,0.2259259259],[0.1709265176,0.4185185185],[0.2476038339,0.4185185185],[0.5,0.1666666667],[0.4984025559,-0.1740740741],[0.2476038339,-0.4185185185],[0.1709265176,-0.4185185185],[0.1709265176,-0.2259259259],[-0.2060702875,-0.2333333333],[-0.2795527157,-0.5],[-0.4313099042,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":171,"k":"struct","c":[3291,209.45,-3],"s":[942,1026,15.1],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.193957115],[-0.440552017,-0.1842105263],[-0.3874734607,-0.2680311891],[-0.3152866242,-0.3362573099],[-0.2324840764,-0.3869395712],[-0.1348195329,-0.4220272904],[0.05626326964,-0.4337231969],[0.1645435244,-0.4083820663],[0.2494692144,-0.3693957115],[0.355626327,-0.2855750487],[0.4108280255,-0.2134502924],[0.4554140127,-0.1140350877],[0.4723991507,-0.01461988304],[0.4639065817,0.08869395712],[0.432059448,0.1822612086],[0.3662420382,0.2816764133],[0.2961783439,0.3460038986],[0.1263269639,0.4278752437],[0.03715498938,0.4434697856],[-0.09872611465,0.4376218324],[-0.2154989384,0.4025341131],[-0.304670913,0.3518518519],[-0.3938428875,0.2680311891],[-0.440552017,0.1920077973],[-0.5,0.201754386],[-0.4363057325,0.3031189084],[-0.3067940552,0.4200779727],[-0.2048832272,0.4707602339],[-0.09447983015,0.5],[0.1008492569,0.5],[0.2112526539,0.4707602339],[0.2133757962,0.4142300195],[0.338641189,0.3343079922],[0.3577494692,0.3421052632],[0.3535031847,0.3226120858],[0.372611465,0.328460039],[0.364118896,0.3109161793],[0.4596602972,0.1764132554],[0.4851380042,0.01461988304],[0.5,0.01461988304],[0.4851380042,-0.0009746588694],[0.5,-0.006822612086],[0.4851380042,-0.006822612086],[0.4596602972,-0.1686159844],[0.364118896,-0.3031189084],[0.372611465,-0.320662768],[0.3535031847,-0.3148148148],[0.3577494692,-0.3343079922],[0.338641189,-0.3265107212],[0.2133757962,-0.4064327485],[0.2112526539,-0.462962963],[0.01380042463,-0.5],[-0.1072186837,-0.4902534113],[-0.2048832272,-0.462962963],[-0.3789808917,-0.3576998051],[-0.4511677282,-0.2777777778]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":172,"k":"struct","c":[4307,212.35,1],"s":[890,270,18.3],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.1],[-0.5,0.1],[-0.4033707865,0.5],[-0.2168539326,0.5],[-0.1764044944,0.4703703704],[-0.08651685393,0.2333333333],[0.1674157303,0.2333333333],[0.5,0.003703703704],[0.1674157303,-0.2333333333],[-0.08651685393,-0.2333333333],[-0.1764044944,-0.4703703704],[-0.2168539326,-0.5],[-0.4033707865,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":173,"k":"struct","c":[1959,196.1,1],"s":[1618,1002,17.4],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4880239521],[-0.5,-0.3622754491],[-0.4740420272,-0.3622754491],[-0.4740420272,-0.3423153693],[-0.5,-0.3403193613],[-0.5,0.3403193613],[-0.4740420272,0.3423153693],[-0.4740420272,0.3622754491],[-0.5,0.3622754491],[-0.5,0.4880239521],[-0.4740420272,0.4880239521],[-0.4740420272,0.5],[-0.08343634116,0.5],[-0.08343634116,0.1866267465],[-0.1872682324,0.1866267465],[-0.1872682324,0.1546906188],[0.1402966625,0.1526946108],[0.1402966625,0.2345309381],[0.2552533993,0.3682634731],[0.5,0.2924151697],[0.3924598269,0.1407185629],[0.3924598269,0.1127744511],[0.434487021,0.1107784431],[0.4987639061,0.05489021956],[0.4987639061,-0.05489021956],[0.434487021,-0.1107784431],[0.3924598269,-0.1127744511],[0.3924598269,-0.1407185629],[0.4987639061,-0.2944111776],[0.2552533993,-0.3682634731],[0.1402966625,-0.2345309381],[0.1402966625,-0.1526946108],[-0.1872682324,-0.1546906188],[-0.1872682324,-0.1866267465],[-0.08343634116,-0.1866267465],[-0.08343634116,-0.5],[-0.4740420272,-0.5],[-0.4740420272,-0.4880239521]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":174,"k":"struct","c":[3291,198.3,1],"s":[942,954,13.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.21278826],[-0.440552017,-0.2023060797],[-0.364118896,-0.319706499],[-0.2154989384,-0.428721174],[-0.08598726115,-0.4685534591],[0.05626326964,-0.4706498952],[0.1900212314,-0.4329140461],[0.3089171975,-0.357442348],[0.4108280255,-0.2337526205],[0.4617834395,-0.1016771488],[0.4702760085,0.04926624738],[0.4384288747,0.177148847],[0.3662420382,0.2987421384],[0.2558386412,0.3972746331],[0.1645435244,0.4433962264],[0.05626326964,0.4706498952],[-0.1348195329,0.4580712788],[-0.2324840764,0.4203354298],[-0.3152866242,0.3658280922],[-0.3938428875,0.284067086],[-0.440552017,0.2023060797],[-0.5,0.2064989518],[-0.4511677282,0.3029350105],[-0.3450106157,0.4161425577],[-0.3343949045,0.357442348],[-0.1878980892,0.4517819706],[-0.01167728238,0.4832285115],[-0.007430997877,0.5],[0.009554140127,0.4853249476],[0.01592356688,0.5],[0.01592356688,0.4832285115],[0.1878980892,0.4475890985],[0.3343949045,0.3490566038],[0.3513800425,0.357442348],[0.347133758,0.3385744235],[0.3662420382,0.3427672956],[0.3598726115,0.321802935],[0.4511677282,0.1855345912],[0.4851380042,0.01153039832],[0.5,0.01153039832],[0.4851380042,0.005241090147],[0.5,-0.01153039832],[0.4851380042,-0.01153039832],[0.4511677282,-0.1855345912],[0.3598726115,-0.321802935],[0.3662420382,-0.3427672956],[0.347133758,-0.3385744235],[0.3513800425,-0.357442348],[0.3343949045,-0.3490566038],[0.1878980892,-0.4475890985],[0.01592356688,-0.4832285115],[0.01592356688,-0.5],[-0.001061571125,-0.4853249476],[-0.007430997877,-0.5],[-0.01167728238,-0.4832285115],[-0.1878980892,-0.4517819706],[-0.3343949045,-0.357442348],[-0.3450106157,-0.4161425577],[-0.4447983015,-0.3113207547]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":175,"k":"struct","c":[4017,199.4,1],"s":[310,118,13.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.2288135593],[-0.5,0.2288135593],[-0.4161290323,0.5],[0.5,0.008474576271],[-0.3903225806,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":176,"k":"struct","c":[1958,181.45,1],"s":[1616,994,17.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4919517103],[-0.5,-0.3651911469],[-0.474009901,-0.3651911469],[-0.474009901,-0.3450704225],[-0.5,-0.3430583501],[-0.5,0.3430583501],[-0.474009901,0.3450704225],[-0.474009901,0.3651911469],[-0.5,0.3651911469],[-0.5,0.4919517103],[-0.08292079208,0.5],[-0.08292079208,0.1881287726],[-0.1868811881,0.1881287726],[-0.1868811881,0.1559356137],[0.1410891089,0.1539235412],[0.1410891089,0.2364185111],[0.1794554455,0.2786720322],[0.4331683168,0.1981891348],[0.3935643564,0.1418511066],[0.3935643564,0.1136820926],[0.4356435644,0.1116700201],[0.5,0.05533199195],[0.5,-0.05533199195],[0.4356435644,-0.1116700201],[0.3935643564,-0.1136820926],[0.3935643564,-0.1418511066],[0.4331683168,-0.1981891348],[0.1930693069,-0.2746478873],[0.176980198,-0.2786720322],[0.1410891089,-0.2364185111],[0.1410891089,-0.1539235412],[-0.1868811881,-0.1559356137],[-0.1868811881,-0.1881287726],[-0.08292079208,-0.1881287726],[-0.08292079208,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":177,"k":"struct","c":[3290,185.75,461],"s":[60,18,17.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":178,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.1,-0.3888888889],[-0.1,0.5],[0,-0.2777777778],[0.2666666667,0.5],[0.2666666667,-0.3888888889],[0.5,-0.3888888889]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":178,"k":"struct","c":[3290,185.75,-461],"s":[60,18,17.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":177,"label":"腹部の装甲区画","outline":[[-0.5,0.5],[-0.1,0.3888888889],[-0.1,-0.5],[0,0.2777777778],[0.2666666667,-0.5],[0.2666666667,0.3888888889],[0.5,0.3888888889]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":179,"k":"struct","c":[3615,184.7,321],"s":[30,30,20],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":180,"label":"腹部の装甲区画","outline":[[-0.5,0.03333333333],[0.03333333333,0.5],[-0.1666666667,-0.1666666667],[0.5,-0.1],[0.03333333333,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":180,"k":"struct","c":[3615,184.7,-321],"s":[30,30,20],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":179,"label":"腹部の装甲区画","outline":[[-0.5,-0.03333333333],[0.03333333333,-0.5],[-0.1666666667,0.1666666667],[0.5,0.1],[0.03333333333,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":181,"k":"struct","c":[3746,184.25,1],"s":[20,22,20.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.5],[-0.5,0.5],[0.5,0.5],[-0.4,0.2272727273],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":182,"k":"struct","c":[1958,165.2,1],"s":[1616,990,20.6],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4212121212],[-0.5,-0.3666666667],[-0.474009901,-0.3666666667],[-0.474009901,-0.3464646465],[-0.5,-0.3444444444],[-0.5,0.3444444444],[-0.474009901,0.3464646465],[-0.474009901,0.3666666667],[-0.5,0.3666666667],[-0.5,0.4212121212],[-0.474009901,0.4212121212],[-0.474009901,0.5],[-0.08292079208,0.497979798],[-0.08292079208,0.1888888889],[-0.1868811881,0.1888888889],[-0.1868811881,0.1565656566],[0.1410891089,0.1545454545],[0.1423267327,0.1727272727],[0.3217821782,0.1141414141],[0.4356435644,0.1121212121],[0.5,0.05555555556],[0.5,-0.05555555556],[0.4356435644,-0.1121212121],[0.3217821782,-0.1141414141],[0.1423267327,-0.1727272727],[0.1410891089,-0.1545454545],[-0.1868811881,-0.1565656566],[-0.1868811881,-0.1888888889],[-0.08292079208,-0.1888888889],[-0.08292079208,-0.497979798],[-0.474009901,-0.5],[-0.474009901,-0.4212121212]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":183,"k":"struct","c":[1958,150.95,1],"s":[1616,986,13.9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.345841785],[-0.5,0.345841785],[-0.474009901,0.3478701826],[-0.474009901,0.5],[-0.08292079208,0.4716024341],[-0.08292079208,0.1937119675],[-0.1868811881,0.19168357],[-0.1844059406,0.1551724138],[0.1101485149,0.06186612576],[0.245049505,0.06186612576],[0.245049505,0.1146044625],[0.2945544554,0.1146044625],[0.5,0.04361054767],[0.5,-0.04361054767],[0.2945544554,-0.1146044625],[0.245049505,-0.1146044625],[0.245049505,-0.06186612576],[0.1101485149,-0.06186612576],[-0.1868811881,-0.1572008114],[-0.1868811881,-0.19168357],[-0.08292079208,-0.1937119675],[-0.08787128713,-0.4736308316],[-0.474009901,-0.5],[-0.474009901,-0.3478701826]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":184,"k":"struct","c":[1769,137.75,1],"s":[1238,938,18.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.3635394456],[-0.5,0.3635394456],[-0.4660743134,0.3656716418],[-0.4660743134,0.5],[0.04442649435,0.4616204691],[0.04442649435,0.2078891258],[-0.09127625202,0.2057569296],[-0.09127625202,0.1439232409],[0.02988691438,0.131130064],[0.0928917609,0.0671641791],[0.260904685,0.0671641791],[0.5,0.001066098081],[0.260904685,-0.0671641791],[0.0928917609,-0.0671641791],[0.02988691438,-0.131130064],[-0.09127625202,-0.1439232409],[-0.09127625202,-0.2057569296],[0.04442649435,-0.2078891258],[0.04442649435,-0.4616204691],[-0.4660743134,-0.5],[-0.4660743134,-0.3656716418]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":185,"k":"struct","c":[1487,122.4,1],"s":[674,870,18.2],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.3896551724],[-0.5,0.3896551724],[-0.4376854599,0.391954023],[-0.4376854599,0.5],[0.5,0.4586206897],[0.5,0.2287356322],[0.2507418398,0.2264367816],[0.2507418398,0.03563218391],[0.4762611276,0.001149425287],[0.2507418398,-0.03563218391],[0.2507418398,-0.2264367816],[0.5,-0.2287356322],[0.5,-0.4586206897],[-0.4376854599,-0.5],[-0.4376854599,-0.391954023]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":186,"k":"struct","c":[1487,106.9,1],"s":[674,806,18.8],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4131513648],[-0.5,0.4131513648],[-0.4376854599,0.4181141439],[-0.4376854599,0.5],[0.5,0.452853598],[0.5,0.2518610422],[0.2507418398,0.2493796526],[0.2507418398,-0.2493796526],[0.5,-0.2518610422],[0.5,-0.452853598],[-0.4376854599,-0.5],[-0.4376854599,-0.4181141439]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":187,"k":"struct","c":[1487,91.5,1],"s":[674,738,18],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4403794038],[-0.5,0.4403794038],[-0.4376854599,0.4430894309],[-0.4376854599,0.5],[0.5,0.4512195122],[0.5,0.2804878049],[0.2507418398,0.2804878049],[0.2507418398,-0.2804878049],[0.5,-0.2804878049],[0.5,-0.4512195122],[-0.4376854599,-0.5],[-0.4376854599,-0.4430894309]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":188,"k":"struct","c":[1487,74.75,1],"s":[674,670,21.5],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4611940299],[-0.5,0.4611940299],[-0.4376854599,0.4671641791],[-0.4376854599,0.5],[-0.4020771513,0.5],[0.5,0.4462686567],[0.5,0.3149253731],[0.2507418398,0.3149253731],[0.2507418398,-0.3149253731],[0.5,-0.3149253731],[0.5,-0.4462686567],[-0.4020771513,-0.5],[-0.4376854599,-0.5],[-0.4376854599,-0.4671641791]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":189,"k":"struct","c":[1329,61,1],"s":[358,606,12],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"腹部の装甲区画","outline":[[-0.5,-0.4603960396],[-0.5,-0.4075907591],[-0.3826815642,-0.397689769],[-0.3826815642,-0.3745874587],[-0.5,-0.3745874587],[-0.5,0.3745874587],[-0.3826815642,0.3745874587],[-0.3826815642,0.397689769],[-0.5,0.4075907591],[-0.5,0.4603960396],[-0.3826815642,0.4702970297],[-0.3826815642,0.5],[0.2541899441,0.4768976898],[0.3044692737,0.3646864686],[0.5,0.3613861386],[0.5,-0.3613861386],[0.3044692737,-0.3646864686],[0.2541899441,-0.4768976898],[-0.3826815642,-0.5],[-0.3826815642,-0.4702970297]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#6f767c"},{"id":190,"k":"struct","c":[3282.4,206.7,0],"s":[901.6,901.6,382.6],"taper":0,"form":"ellipsoid","yaw":0,"offsetX":0,"offsetZ":0,"label":"主反応炉の腹部球状装甲","skin":"armor","pitch":0,"roll":0,"paint":"#9da3a8"},{"id":191,"k":"struct","c":[5371.2,241,0],"s":[441.6,441.6,198.6],"taper":0,"form":"ellipsoid","yaw":0,"offsetX":0,"offsetZ":0,"label":"副反応炉の腹部球状装甲","skin":"armor","pitch":0,"roll":0,"paint":"#9da3a8"},{"id":192,"k":"struct","c":[280,540,285],"s":[380,270,96],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":193,"label":"艦尾の舷側張出し板","outline":[[-0.5,-0.5],[-0.5,0.1666666667],[0.5,0.5],[0.5,-0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":193,"k":"struct","c":[280,540,-285],"s":[380,270,96],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"tw":192,"label":"艦尾の舷側張出し板","outline":[[-0.5,0.5],[-0.5,-0.1666666667],[0.5,-0.5],[0.5,0.5]],"skin":"armor","pitch":0,"roll":0,"corner":0,"paint":"#959ba1"},{"id":194,"k":"struct","c":[2657.2,871.4000244,0.3],"s":[44,44,12],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"重魚雷サイロの砲座","outline":[[-0.5,-0.005681818182],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.005681818182],[-0.3863636364,0.005681818182],[-0.3863636364,0.1600370582],[-0.1600370582,0.3863636364],[0.1600370582,0.3863636364],[0.3863636364,0.1600370582],[0.3863636364,-0.1600370582],[0.1600370582,-0.3863636364],[-0.1600370582,-0.3863636364],[-0.3863636364,-0.1600370582],[-0.3863636364,-0.005681818182]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":195,"k":"struct","c":[3583,791.4000244,0.3],"s":[44,44,12],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"重魚雷サイロの砲座","outline":[[-0.5,-0.005681818182],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.005681818182],[-0.3863636364,0.005681818182],[-0.3863636364,0.1600370582],[-0.1600370582,0.3863636364],[0.1600370582,0.3863636364],[0.3863636364,0.1600370582],[0.3863636364,-0.1600370582],[0.1600370582,-0.3863636364],[-0.1600370582,-0.3863636364],[-0.3863636364,-0.1600370582],[-0.3863636364,-0.005681818182]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":196,"k":"struct","c":[570.2,732.4438641,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":197,"k":"struct","c":[971.2,835.975998,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":198,"k":"struct","c":[1002.1,517.0600545,471.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":199,"k":"struct","c":[1002.1,517.0309229,-471.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":200,"k":"struct","c":[1249.350006,558.7782143,723.2900332],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02500286299,0.98911326,0.1450166054],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":201,"k":"struct","c":[1249.350006,558.7782143,-723.2900332],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02500286299,0.98911326,-0.1450166054],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":202,"k":"struct","c":[1408.449998,530.7779265,804.3919909],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02499922504,0.9889693424,0.1459954742],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":203,"k":"struct","c":[1408.449998,530.7779265,-804.3919909],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02499922504,0.9889693424,-0.1459954742],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":204,"k":"struct","c":[1557.15601,473.1783674,880.0880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":205,"k":"struct","c":[1557.15601,473.1783674,-880.0880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":206,"k":"struct","c":[1701.856018,453.1786514,956.6860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":207,"k":"struct","c":[1701.856018,453.1786514,-956.6860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,-0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":208,"k":"struct","c":[1845.75601,434.2542683,1033.188052],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":209,"k":"struct","c":[1845.75601,434.2553106,-1033.188052],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":210,"k":"struct","c":[1985.75601,416.6880508,1107.388052],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":211,"k":"struct","c":[1985.75601,416.6881143,-1107.388052],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":212,"k":"struct","c":[2164.95601,473.1783674,782.0880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":213,"k":"struct","c":[2164.95601,473.1783674,-782.0880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":214,"k":"struct","c":[2258.356018,433.1786514,956.4860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":215,"k":"struct","c":[2258.356018,433.1786514,-956.4860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,-0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":216,"k":"struct","c":[2363.95601,453.1783674,851.7880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":217,"k":"struct","c":[2363.95601,453.1783674,-851.7880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":218,"k":"struct","c":[3011.65601,473.1783674,697.9880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":219,"k":"struct","c":[3011.65601,473.1783674,-697.9880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":220,"k":"struct","c":[3039.5,631.7000122,393.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":221,"k":"struct","c":[3039.5,631.7000122,-393.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":222,"k":"struct","c":[3456.456018,453.1786514,641.7860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":223,"k":"struct","c":[3456.456018,453.1786514,-641.7860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,-0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":224,"k":"struct","c":[3764.05601,423.826279,651.7880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":225,"k":"struct","c":[3764.05601,423.8259525,-651.7880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":226,"k":"struct","c":[3899.9,773.5,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":227,"k":"struct","c":[3910.45601,400.9380342,796.9880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":228,"k":"struct","c":[3910.45601,400.9474621,-796.9880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":229,"k":"struct","c":[4086.55601,410.9783551,757.1880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":230,"k":"struct","c":[4086.55601,401.6325532,-757.1880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":231,"k":"struct","c":[4475.2,549.5999756,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":232,"k":"struct","c":[4680.3,511.7999878,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":233,"k":"struct","c":[4821.65601,454.4950305,290.4880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":234,"k":"struct","c":[4821.65601,454.4852966,-290.4880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":235,"k":"struct","c":[5077.85601,429.5870538,371.9880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":236,"k":"struct","c":[5077.85601,429.5870492,-371.9880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":237,"k":"struct","c":[5524.2,491.7000122,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":238,"k":"struct","c":[5736.456018,438.1092014,194.4860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":239,"k":"struct","c":[5736.456018,438.1166874,-194.4860924],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800904838,0.9893196019,-0.1430462114],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":240,"k":"struct","c":[6028.85601,431.7071474,172.0880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":241,"k":"struct","c":[6028.85601,431.7105829,-172.0880517],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0.02800502735,0.9891775733,-0.144025855],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":242,"k":"struct","c":[6137.6,456.6315074,0.3],"s":[104,104,16],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"主砲塔の八角形砲座","outline":[[-0.5,-0.002403846154],[-0.5,-0.2071067812],[-0.2071067812,-0.5],[0.2071067812,-0.5],[0.5,-0.2071067812],[0.5,0.2071067812],[0.2071067812,0.5],[-0.2071067812,0.5],[-0.5,0.2071067812],[-0.5,0.002403846154],[-0.3028846154,0.002403846154],[-0.3028846154,0.1254589155],[-0.1254589155,0.3028846154],[0.1254589155,0.3028846154],[0.3028846154,0.1254589155],[0.3028846154,-0.1254589155],[0.1254589155,-0.3028846154],[-0.1254589155,-0.3028846154],[-0.3028846154,-0.1254589155],[-0.3028846154,-0.002403846154]],"skin":"armor","surfaceNormal":[0,1,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":243,"k":"struct","c":[1519.001499,727.7845061,307.1036732],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[-0.0009996511826,0.9436707164,0.3308845414],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":244,"k":"struct","c":[1519.001499,727.7845061,-307.1036732],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[-0.0009996511826,0.9436707164,-0.3308845414],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":245,"k":"struct","c":[1633.601499,727.7845061,307.1036732],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[-0.0009996511826,0.9436707164,0.3308845414],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":246,"k":"struct","c":[1633.601499,727.7845061,-307.1036732],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[-0.0009996511826,0.9436707164,-0.3308845414],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":247,"k":"struct","c":[2152.4,727.7845054,307.1036729],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0,0.9436711879,0.3308847068],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":248,"k":"struct","c":[2152.4,727.7845054,-307.1036729],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0,0.9436711879,-0.3308847068],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":249,"k":"struct","c":[2267.001499,727.7845061,307.1036732],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[-0.0009996511826,0.9436707164,0.3308845414],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":250,"k":"struct","c":[2267.001499,727.7845061,-307.1036732],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[-0.0009996511826,0.9436707164,-0.3308845414],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":251,"k":"struct","c":[3759.469992,527.3941173,269.6778624],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02000527208,0.9372469971,0.3480917343],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":252,"k":"struct","c":[3759.469992,527.3941173,-269.6778624],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02000527208,0.9372469971,-0.3480917343],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":253,"k":"struct","c":[3824.466993,527.3941764,269.6778843],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02200487462,0.9372076145,0.3480771076],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":254,"k":"struct","c":[3824.466993,527.3941764,-269.6778843],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02200487462,0.9372076145,-0.3480771076],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":255,"k":"struct","c":[3885.266993,527.3941764,269.6778843],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02200487462,0.9372076145,0.3480771076],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":256,"k":"struct","c":[3885.266993,527.3941764,-269.6778843],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02200487462,0.9372076145,-0.3480771076],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":257,"k":"struct","c":[3950.266993,527.3941764,269.6778843],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02200487462,0.9372076145,0.3480771076],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":258,"k":"struct","c":[3950.266993,527.3941764,-269.6778843],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.02200487462,0.9372076145,-0.3480771076],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":259,"k":"struct","c":[4040.708043,778.7123454,0.3],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.1279713376,0.9917778666,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":260,"k":"struct","c":[4129.108043,770.0123332,0.3],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.1279713376,0.9917778666,0],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":261,"k":"struct","c":[6141.444481,412.4354915,275.2803904],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.03701269753,0.9763349403,0.2130730966],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":262,"k":"struct","c":[6141.444481,412.4354915,-275.2803904],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.03701269753,0.9763349403,-0.2130730966],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":263,"k":"struct","c":[6244.544481,428.1355037,227.7803904],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.03701269753,0.9763349403,0.2130730966],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":264,"k":"struct","c":[6244.544481,428.1355037,-227.7803904],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.03701269753,0.9763349403,-0.2130730966],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":265,"k":"struct","c":[6347.744481,415.4106121,180.3803904],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.03701269753,0.9763349403,0.2130730966],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":266,"k":"struct","c":[6347.744481,415.4051833,-180.3803904],"s":[46,46,9],"taper":0,"form":"outline","yaw":0,"offsetX":0,"offsetZ":0,"label":"副砲塔の角形砲座","outline":[[-0.5,-0.005434782609],[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5],[-0.5,0.005434782609],[-0.4076086957,0.005434782609],[-0.4076086957,0.4076086957],[0.4076086957,0.4076086957],[0.4076086957,-0.4076086957],[-0.4076086957,-0.4076086957],[-0.4076086957,-0.005434782609]],"skin":"armor","surfaceNormal":[0.03701269753,0.9763349403,-0.2130730966],"pitch":0,"roll":0,"corner":0,"paint":"#a7adb1"},{"id":267,"k":"gen","c":[3282.4,250.4,0],"d":420,"label":"主反応炉（腹部大型球状装甲内）"},{"id":268,"k":"aux","c":[5371.2,246.7,0],"d":200,"label":"副反応炉（腹部前方球状装甲内）"},{"id":269,"k":"engine","c":[303.6,300.6,0],"d":126.4,"dir":[-1,0,0],"reactor":267,"label":"タービン露出型エンジン","engineLength":322,"nozzleLength":63.2,"skinAsset":"ven_inner_port","skinAnchor":[53,42,-54],"skinDiameter":48,"bodyLength":256.7192278,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":270,"k":"engine","c":[520,356.4,-354.7],"d":200,"dir":[-1,0,0],"reactor":267,"tw":271,"label":"タービン露出型エンジン","engineLength":372,"nozzleLength":100,"skinAsset":"ven_inner_port","skinAnchor":[53,42,-54],"skinDiameter":48,"bodyLength":296.582462,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":271,"k":"engine","c":[520,356.4,354.7],"d":200,"dir":[-1,0,0],"reactor":267,"tw":270,"label":"タービン露出型エンジン","engineLength":372,"nozzleLength":100,"skinAsset":"ven_inner_stbd","skinAnchor":[53,42,54],"skinDiameter":48,"bodyLength":296.582462,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":272,"k":"engine","c":[821,369.4,-786.4],"d":200,"dir":[-1,0,0],"reactor":267,"tw":273,"label":"タービン露出型エンジン","engineLength":372,"nozzleLength":100,"skinAsset":"ven_inner_port","skinAnchor":[53,42,-54],"skinDiameter":48,"bodyLength":296.582462,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":273,"k":"engine","c":[821,369.4,786.4],"d":200,"dir":[-1,0,0],"reactor":267,"tw":272,"label":"タービン露出型エンジン","engineLength":372,"nozzleLength":100,"skinAsset":"ven_inner_stbd","skinAnchor":[53,42,54],"skinDiameter":48,"bodyLength":296.582462,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":274,"k":"engine","c":[875,367.4,-1000.5],"d":124,"dir":[-1,0,0],"reactor":267,"tw":275,"label":"タービン露出型エンジン","engineLength":328,"nozzleLength":62,"skinAsset":"ven_inner_port","skinAnchor":[53,42,-54],"skinDiameter":48,"bodyLength":261.5028159,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":275,"k":"engine","c":[875,367.4,1000.5],"d":124,"dir":[-1,0,0],"reactor":267,"tw":274,"label":"タービン露出型エンジン","engineLength":328,"nozzleLength":62,"skinAsset":"ven_inner_stbd","skinAnchor":[53,42,54],"skinDiameter":48,"bodyLength":261.5028159,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":276,"k":"engine","c":[931.8,132,-95.3],"d":127.2,"dir":[-1,0,0],"reactor":267,"tw":277,"label":"タービン露出型エンジン","engineLength":328,"nozzleLength":63.6,"skinAsset":"ven_inner_port","skinAnchor":[53,42,-54],"skinDiameter":48,"bodyLength":261.5028159,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":277,"k":"engine","c":[931.8,132,95.3],"d":127.2,"dir":[-1,0,0],"reactor":267,"tw":276,"label":"タービン露出型エンジン","engineLength":328,"nozzleLength":63.6,"skinAsset":"ven_inner_stbd","skinAnchor":[53,42,54],"skinDiameter":48,"bodyLength":261.5028159,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":278,"k":"engine","c":[1007.6,135.8,-262.9],"d":126.4,"dir":[-1,0,0],"reactor":267,"tw":279,"label":"タービン露出型エンジン","engineLength":322,"nozzleLength":63.2,"skinAsset":"ven_inner_port","skinAnchor":[53,42,-54],"skinDiameter":48,"bodyLength":256.7192278,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":279,"k":"engine","c":[1007.6,135.8,262.9],"d":126.4,"dir":[-1,0,0],"reactor":267,"tw":278,"label":"タービン露出型エンジン","engineLength":322,"nozzleLength":63.2,"skinAsset":"ven_inner_stbd","skinAnchor":[53,42,54],"skinDiameter":48,"bodyLength":256.7192278,"bodyRadius":0.36,"equipmentId":"exposedTurbine"},{"id":280,"k":"shield","c":[2250,370,760],"d":170,"tw":281,"label":"偏向シールド発生器（後部）"},{"id":281,"k":"shield","c":[2250,370,-760],"d":170,"tw":280,"label":"偏向シールド発生器（後部）"},{"id":282,"k":"shield","c":[3700,360,420],"d":150,"tw":283,"label":"偏向シールド発生器（中央）"},{"id":283,"k":"shield","c":[3700,360,-420],"d":150,"tw":282,"label":"偏向シールド発生器（中央）"},{"id":284,"k":"shield","c":[5800,345,160],"d":110,"tw":285,"label":"偏向シールド発生器（前部）"},{"id":285,"k":"shield","c":[5800,345,-160],"d":110,"tw":284,"label":"偏向シールド発生器（前部）"},{"id":286,"k":"hyper","c":[3700,380,0],"d":150,"dir":[1,0,0],"label":"ハイパードライブ","length":300},{"id":287,"k":"fuel","c":[3350,330,290],"d":120,"dir":[1,0,0],"tw":288,"label":"反応物サイロ","length":320},{"id":288,"k":"fuel","c":[3350,330,-290],"d":120,"dir":[1,0,0],"tw":287,"label":"反応物サイロ","length":320},{"id":289,"k":"pump","c":[3350,330,420],"d":129.2660814,"tw":290,"label":"反応物供給設備","room":[200,120,90]},{"id":290,"k":"pump","c":[3350,330,-420],"d":129.2660814,"tw":289,"label":"反応物供給設備","room":[200,120,90]},{"id":291,"k":"inertial","c":[5280,350,185],"d":150,"dir":[1,0,0],"tw":292,"label":"慣性補償装置","length":560},{"id":292,"k":"inertial","c":[5280,350,-185],"d":150,"dir":[1,0,0],"tw":291,"label":"慣性補償装置","length":560},{"id":293,"k":"integrity","c":[2950,350,760],"d":240.2081527,"tw":294,"label":"縦通構造維持幹線","room":[1100,140,90]},{"id":294,"k":"integrity","c":[2950,350,-760],"d":240.2081527,"tw":293,"label":"縦通構造維持幹線","room":[1100,140,90]},{"id":295,"k":"integrity","c":[6600,345,60],"d":140.9459746,"tw":296,"label":"前部構造維持幹線","room":[1000,70,40]},{"id":296,"k":"integrity","c":[6600,345,-60],"d":140.9459746,"tw":295,"label":"前部構造維持幹線","room":[1000,70,40]},{"id":297,"k":"command","c":[1950,880,0],"d":54.51361778,"label":"司令部（戦闘情報センター）","room":[90,60,30]},{"id":298,"k":"command","c":[5900,410,0],"d":40.65585427,"label":"予備艦橋","room":[70,40,24]},{"id":299,"k":"cargo","c":[1900,400,700],"d":149.7774477,"tw":300,"label":"地上部隊の補給物資・予備部品庫","room":[320,150,70]},{"id":300,"k":"cargo","c":[1900,400,-700],"d":149.7774477,"tw":299,"label":"地上部隊の補給物資・予備部品庫","room":[320,150,70]},{"id":301,"k":"cargo","c":[6150,340,170],"d":130.0591447,"tw":302,"label":"物資庫","room":[400,110,50]},{"id":302,"k":"cargo","c":[6150,340,-170],"d":130.0591447,"tw":301,"label":"物資庫","room":[400,110,50]},{"id":303,"k":"automation","c":[4000,486,220],"d":214.7554457,"tw":304,"label":"艦内運用の自動化装置","room":[930,150,71]},{"id":304,"k":"automation","c":[4000,486,-220],"d":214.7554457,"tw":303,"label":"艦内運用の自動化装置","room":[930,150,71]},{"id":305,"k":"hangar","c":[4210,275,285],"d":196.0907535,"label":"右舷腹部発着格納庫","room":[580,130,100],"airRole":"mixed","aviationSurfaces":{"bottom":"ray"}},{"id":307,"k":"hangar","c":[4210,330,154.5],"d":174.1097647,"label":"右舷艦載機格納甲板","room":[580,130,70],"airRole":"storage","aviationSurfaces":{}},{"id":308,"k":"service","c":[4710,300,285],"d":148.5187542,"label":"右舷航空整備・補給区画","room":[420,130,60]},{"id":309,"k":"hangar","c":[4210,275,-285],"d":196.0907535,"label":"左舷腹部発着格納庫","room":[580,130,100],"airRole":"mixed","aviationSurfaces":{"bottom":"ray"}},{"id":311,"k":"hangar","c":[4210,330,-154.5],"d":174.1097647,"label":"左舷艦載機格納甲板","room":[580,130,70],"airRole":"storage","aviationSurfaces":{}},{"id":312,"k":"service","c":[4710,300,-285],"d":148.5187542,"label":"左舷航空整備・補給区画","room":[420,130,60]},{"id":314,"k":"sensor","c":[2007.370368,1071,-155],"d":100,"label":"インペリアル追跡センサー","skinAsset":"isd_sensor_port","skinSize":[50.123215,59.727192,56.200004],"equipmentId":"isdSensor"},{"id":315,"k":"sensor","c":[2007.370368,1071,155],"d":100,"label":"インペリアル追跡センサー（右）","skinAsset":"isd_sensor_stbd","skinSize":[50.123215,59.727192,56.200802],"equipmentId":"isdSensor"},{"id":316,"k":"sensor","c":[2050.463103,1076.219886,0],"d":100,"label":"インペリアル通信マスト","skinAsset":"isd_mast","skinSize":[56.022358,34.403205,95.837042],"equipmentId":"isdMast"},{"id":456,"k":"struct","c":[1987,1019,0],"s":[309.571777,402.44397,167.795898],"taper":0,"form":"reference","yaw":0,"offsetX":0,"offsetZ":0,"pitch":0,"roll":0,"equipmentId":"exeBridge","label":"エグゼクター級 艦橋本体","skinAsset":"exe_bridge"}],"hatches":[{"id":306,"k":"ray","a":[3922,224.96,285],"b":[4498,224.96,285],"n":[0,-1,0],"w":110.5,"portal":true,"face":"bottom","surface":true,"open":1,"aperture":0.85,"bay":305},{"id":310,"k":"ray","a":[3922,224.96,-285],"b":[4498,224.96,-285],"n":[0,-1,0],"w":110.5,"portal":true,"face":"bottom","surface":true,"open":1,"aperture":0.85,"bay":309}],"fits":[{"id":317,"k":"podCombat","p":[2039.344828,1000,60],"a":0,"ped":0,"base":0,"low":0,"slope":0,"n":[0.9999834857,0,-0.005747031527],"host":136,"local":[0.4988087774,-0.0615942029,0.1724137931],"localNormal":[549.9909171,0,-1.999966971],"width":16,"height":6,"commandEnabled":true,"commandDepth":8,"commandHeight":6,"float":false},{"id":318,"k":"podAir","p":[2038.655172,1000,-60],"a":0,"ped":0,"base":0,"low":0,"slope":0,"n":[0.9999834857,0,-0.005747031527],"host":136,"local":[0.4975548589,-0.0615942029,-0.1724137931],"localNormal":[549.9909171,0,-1.999966971],"width":16,"height":6,"commandEnabled":true,"commandDepth":8,"commandHeight":6,"float":false},{"id":319,"k":"msl","p":[2657.2,871.4000244,0.3],"a":2,"ped":0,"base":9.094947018e-13,"low":0,"slope":9.094947018e-13,"batteryZone":"centre-silo","chargeDepth":16,"float":false},{"id":320,"k":"msl","p":[3583,791.4000244,0.3],"a":2,"ped":0,"base":9.094947018e-13,"low":0,"slope":9.094947018e-13,"batteryZone":"centre-silo","chargeDepth":16,"float":false},{"id":321,"k":"utl","p":[570.2,730.4438641,0.3],"a":2,"ped":0,"base":7.550971094,"low":-7.550971094,"slope":15.10194219,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":322,"k":"utl","p":[971.2,833.975998,0.3],"a":2,"ped":0,"base":0,"low":-262.1330953,"slope":262.1330953,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":323,"k":"utl","p":[1002.1,515.0600545,471.3],"a":2,"ped":0,"base":121.5478821,"low":-3.302692959,"slope":124.850575,"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":324,"k":"utl","p":[1002.1,515.0309229,-471.3],"a":2,"ped":0,"base":121.5404535,"low":-3.302692959,"slope":124.8431464,"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":325,"k":"utl","p":[1249.3,556.7999878,723],"a":2,"ped":0,"base":3.901118457,"low":-3.901118457,"slope":7.802236914,"n":[0.02500286299,0.98911326,0.1450166054],"tilt":[0.02500286299,0.98911326,0.1450166054],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":326,"k":"utl","p":[1249.3,556.7999878,-723],"a":2,"ped":0,"base":3.901118457,"low":-3.901118457,"slope":7.802236914,"n":[0.02500286299,0.98911326,-0.1450166054],"tilt":[0.02500286299,0.98911326,-0.1450166054],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":327,"k":"utl","p":[1408.4,528.7999878,804.1],"a":2,"ped":0,"base":3.928022365,"low":-3.928022365,"slope":7.85604473,"n":[0.02499922504,0.9889693424,0.1459954742],"tilt":[0.02499922504,0.9889693424,0.1459954742],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":328,"k":"utl","p":[1408.4,528.7999878,-804.1],"a":2,"ped":0,"base":3.928022365,"low":-3.928022365,"slope":7.85604473,"n":[0.02499922504,0.9889693424,-0.1459954742],"tilt":[0.02499922504,0.9889693424,-0.1459954742],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":329,"k":"utl","p":[1557.1,471.2000122,879.8],"a":2,"ped":0,"base":3.87452269,"low":-2.237304982,"slope":6.111827672,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":330,"k":"utl","p":[1557.1,471.2000122,-879.8],"a":2,"ped":0,"base":3.87452269,"low":-2.233762091,"slope":6.10828478,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":331,"k":"utl","p":[1701.8,451.2000122,956.4],"a":2,"ped":0,"base":3.847616716,"low":-0.6603988382,"slope":4.508015554,"n":[0.02800904838,0.9893196019,0.1430462114],"tilt":[0.02800904838,0.9893196019,0.1430462114],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":332,"k":"utl","p":[1701.8,451.2000122,-956.4],"a":2,"ped":0,"base":20.96124711,"low":-0.65394782,"slope":21.61519493,"n":[0.02800904838,0.9893196019,-0.1430462114],"tilt":[0.02800904838,0.9893196019,-0.1430462114],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":333,"k":"utl","p":[1845.7,432.2759132,1032.9],"a":2,"ped":0,"base":2.78685046,"low":-0.1809821237,"slope":2.967832584,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":334,"k":"utl","p":[1845.7,432.2769554,-1032.9],"a":2,"ped":0,"base":2.785796813,"low":-0.1819141315,"slope":2.967710944,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":335,"k":"utl","p":[1985.7,414.7096956,1107.1],"a":2,"ped":0,"base":17.04581353,"low":-0.6380492917,"slope":17.68386282,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":336,"k":"utl","p":[1985.7,414.7097592,-1107.1],"a":2,"ped":0,"base":17.66941521,"low":-0.638104275,"slope":18.30751949,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":337,"k":"utl","p":[2164.9,471.2000122,781.8],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":338,"k":"utl","p":[2164.9,471.2000122,-781.8],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":339,"k":"utl","p":[2258.3,431.2000122,956.2],"a":2,"ped":0,"base":3.847616716,"low":-0.4012339991,"slope":4.248850715,"n":[0.02800904838,0.9893196019,0.1430462114],"tilt":[0.02800904838,0.9893196019,0.1430462114],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":340,"k":"utl","p":[2258.3,431.2000122,-956.2],"a":2,"ped":0,"base":3.847616716,"low":-0.4036522424,"slope":4.251268958,"n":[0.02800904838,0.9893196019,-0.1430462114],"tilt":[0.02800904838,0.9893196019,-0.1430462114],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":341,"k":"utl","p":[2363.9,451.2000122,851.5],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":342,"k":"utl","p":[2363.9,451.2000122,-851.5],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":343,"k":"utl","p":[3011.6,471.2000122,697.7],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":344,"k":"utl","p":[3011.6,471.2000122,-697.7],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":345,"k":"utl","p":[3039.5,629.7000122,393.3],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":346,"k":"utl","p":[3039.5,629.7000122,-393.3],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":347,"k":"utl","p":[3456.4,451.2000122,641.5],"a":2,"ped":0,"base":3.847616716,"low":-3.847616716,"slope":7.695233432,"n":[0.02800904838,0.9893196019,0.1430462114],"tilt":[0.02800904838,0.9893196019,0.1430462114],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":348,"k":"utl","p":[3456.4,451.2000122,-641.5],"a":2,"ped":0,"base":3.847616716,"low":-3.847616716,"slope":7.695233432,"n":[0.02800904838,0.9893196019,-0.1430462114],"tilt":[0.02800904838,0.9893196019,-0.1430462114],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":349,"k":"utl","p":[3764,421.8479238,651.5],"a":2,"ped":0,"base":6.47158594,"low":-0.6329133709,"slope":7.104499311,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":350,"k":"utl","p":[3764,421.8475974,-651.5],"a":2,"ped":0,"base":2.140372821,"low":-0.633013182,"slope":2.773386003,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":351,"k":"utl","p":[3899.9,771.5,0.3],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":352,"k":"utl","p":[3910.400122,398.9639837,796.7006268],"a":2,"ped":0,"base":13.12864079,"low":-0.6272443683,"slope":13.75588516,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":353,"k":"utl","p":[3910.399944,398.9671415,-796.6997138],"a":2,"ped":0,"base":13.12544836,"low":-0.6272391797,"slope":13.75268754,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":354,"k":"utl","p":[4086.5,409,756.9],"a":2,"ped":0,"base":3.87452269,"low":-3.87452269,"slope":7.749045379,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":355,"k":"utl","p":[4086.5,399.6541981,-756.9],"a":2,"ped":0,"base":12.43087485,"low":-0.618682089,"slope":13.04955694,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":356,"k":"utl","p":[4475.2,547.5999756,0.3],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":357,"k":"utl","p":[4680.3,509.7999878,0.3],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":358,"k":"utl","p":[4821.6,452.5166753,290.2],"a":2,"ped":0,"base":0.6340334432,"low":-0.6407423524,"slope":1.274775796,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":359,"k":"utl","p":[4821.6,452.5069414,-290.2],"a":2,"ped":0,"base":0.6384175259,"low":-0.6384175259,"slope":1.276835052,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":360,"k":"utl","p":[5077.8,427.6086987,371.7],"a":2,"ped":0,"base":2.355948103,"low":-4.801385104,"slope":7.157333207,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":361,"k":"utl","p":[5077.8,427.608694,-371.7],"a":2,"ped":0,"base":2.354872807,"low":-4.801382452,"slope":7.156255259,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":362,"k":"utl","p":[5524.2,489.7000122,0.3],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":363,"k":"utl","p":[5736.4,436.1305622,194.2],"a":2,"ped":0,"base":0.6355811488,"low":-0.6282134254,"slope":1.263794574,"n":[0.02800904838,0.9893196019,0.1430462114],"tilt":[0.02800904838,0.9893196019,0.1430462114],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":364,"k":"utl","p":[5736.4,436.1380482,-194.2],"a":2,"ped":0,"base":0.6329791635,"low":-0.6282038778,"slope":1.261183041,"n":[0.02800904838,0.9893196019,-0.1430462114],"tilt":[0.02800904838,0.9893196019,-0.1430462114],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":365,"k":"utl","p":[6028.8,429.7287923,171.8],"a":2,"ped":0,"base":0.5875121634,"low":-0.588668785,"slope":1.176180948,"n":[0.02800502735,0.9891775733,0.144025855],"tilt":[0.02800502735,0.9891775733,0.144025855],"batteryZone":"stbd-main","chargeDepth":24,"float":false},{"id":366,"k":"utl","p":[6028.8,429.7322277,-171.8],"a":2,"ped":0,"base":0.585279843,"low":-0.5871072456,"slope":1.172387089,"n":[0.02800502735,0.9891775733,-0.144025855],"tilt":[0.02800502735,0.9891775733,-0.144025855],"batteryZone":"port-main","chargeDepth":24,"float":false},{"id":367,"k":"utl","p":[6137.6,454.6315074,0.3],"a":2,"ped":0,"base":0.9448335546,"low":-4.457592302,"slope":5.402425856,"batteryZone":"centre-main","chargeDepth":24,"float":false},{"id":368,"k":"stl","p":[1519,729.2000122,307.6],"a":2,"ped":0,"base":5.66276766,"low":-5.66276766,"slope":11.32553532,"n":[-0.0009996511826,0.9436707164,0.3308845414],"tilt":[-0.0009996511826,0.9436707164,0.3308845414],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":369,"k":"stl","p":[1519,729.2000122,-307.6],"a":2,"ped":0,"base":5.66276766,"low":-5.66276766,"slope":11.32553532,"n":[-0.0009996511826,0.9436707164,-0.3308845414],"tilt":[-0.0009996511826,0.9436707164,-0.3308845414],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":370,"k":"stl","p":[1633.6,729.2000122,307.6],"a":2,"ped":0,"base":5.66276766,"low":-5.66276766,"slope":11.32553532,"n":[-0.0009996511826,0.9436707164,0.3308845414],"tilt":[-0.0009996511826,0.9436707164,0.3308845414],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":371,"k":"stl","p":[1633.6,729.2000122,-307.6],"a":2,"ped":0,"base":5.66276766,"low":-5.66276766,"slope":11.32553532,"n":[-0.0009996511826,0.9436707164,-0.3308845414],"tilt":[-0.0009996511826,0.9436707164,-0.3308845414],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":372,"k":"stl","p":[2152.4,729.2000122,307.6],"a":2,"ped":0,"base":5.662764831,"low":-5.662764831,"slope":11.32552966,"n":[0,0.9436711879,0.3308847068],"tilt":[0,0.9436711879,0.3308847068],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":373,"k":"stl","p":[2152.4,729.2000122,-307.6],"a":2,"ped":0,"base":5.662764831,"low":-5.662764831,"slope":11.32552966,"n":[0,0.9436711879,-0.3308847068],"tilt":[0,0.9436711879,-0.3308847068],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":374,"k":"stl","p":[2267,729.2000122,307.6],"a":2,"ped":0,"base":5.66276766,"low":-5.66276766,"slope":11.32553532,"n":[-0.0009996511826,0.9436707164,0.3308845414],"tilt":[-0.0009996511826,0.9436707164,0.3308845414],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":375,"k":"stl","p":[2267,729.2000122,-307.6],"a":2,"ped":0,"base":5.66276766,"low":-5.66276766,"slope":11.32553532,"n":[-0.0009996511826,0.9436707164,-0.3308845414],"tilt":[-0.0009996511826,0.9436707164,-0.3308845414],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":376,"k":"stl","p":[3759.5,528.7999878,270.2],"a":2,"ped":0,"base":5.999279584,"low":-5.999279584,"slope":11.99855917,"n":[0.02000527208,0.9372469971,0.3480917343],"tilt":[0.02000527208,0.9372469971,0.3480917343],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":377,"k":"stl","p":[3759.5,528.7999878,-270.2],"a":2,"ped":0,"base":5.999279584,"low":-5.999279584,"slope":11.99855917,"n":[0.02000527208,0.9372469971,-0.3480917343],"tilt":[0.02000527208,0.9372469971,-0.3480917343],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":378,"k":"stl","p":[3824.5,528.7999878,270.2],"a":2,"ped":0,"base":5.999531681,"low":-5.999531681,"slope":11.99906336,"n":[0.02200487462,0.9372076145,0.3480771076],"tilt":[0.02200487462,0.9372076145,0.3480771076],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":379,"k":"stl","p":[3824.5,528.7999878,-270.2],"a":2,"ped":0,"base":5.999531681,"low":-5.999531681,"slope":11.99906336,"n":[0.02200487462,0.9372076145,-0.3480771076],"tilt":[0.02200487462,0.9372076145,-0.3480771076],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":380,"k":"stl","p":[3885.3,528.7999878,270.2],"a":2,"ped":0,"base":5.999531681,"low":-5.999531681,"slope":11.99906336,"n":[0.02200487462,0.9372076145,0.3480771076],"tilt":[0.02200487462,0.9372076145,0.3480771076],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":381,"k":"stl","p":[3885.3,528.7999878,-270.2],"a":2,"ped":0,"base":5.999531681,"low":-5.999531681,"slope":11.99906336,"n":[0.02200487462,0.9372076145,-0.3480771076],"tilt":[0.02200487462,0.9372076145,-0.3480771076],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":382,"k":"stl","p":[3950.3,528.7999878,270.2],"a":2,"ped":0,"base":5.999531681,"low":-5.999531682,"slope":11.99906336,"n":[0.02200487462,0.9372076145,0.3480771076],"tilt":[0.02200487462,0.9372076145,0.3480771076],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":383,"k":"stl","p":[3950.3,528.7999878,-270.2],"a":2,"ped":0,"base":5.999531681,"low":-5.999531681,"slope":11.99906336,"n":[0.02200487462,0.9372076145,-0.3480771076],"tilt":[0.02200487462,0.9372076145,-0.3480771076],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":384,"k":"stl","p":[4040.9,780.2000122,0.3],"a":2,"ped":0,"base":2.083870968,"low":-2.083870968,"slope":4.167741935,"n":[0.1279713376,0.9917778666,0],"tilt":[0.1279713376,0.9917778666,0],"batteryZone":"centre-secondary","chargeDepth":16,"float":false},{"id":385,"k":"stl","p":[4129.3,771.5,0.3],"a":2,"ped":0,"base":2.083870968,"low":-2.083870968,"slope":4.167741935,"n":[0.1279713376,0.9917778666,0],"tilt":[0.1279713376,0.9917778666,0],"batteryZone":"centre-secondary","chargeDepth":16,"float":false},{"id":386,"k":"ion","p":[6141.5,413.8999939,275.6],"a":2,"ped":0,"base":3.423221632,"low":-3.423221632,"slope":6.846443264,"n":[0.03701269753,0.9763349403,0.2130730966],"tilt":[0.03701269753,0.9763349403,0.2130730966],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":387,"k":"ion","p":[6141.5,413.8999939,-275.6],"a":2,"ped":0,"base":3.423221632,"low":-3.423221632,"slope":6.846443264,"n":[0.03701269753,0.9763349403,-0.2130730966],"tilt":[0.03701269753,0.9763349403,-0.2130730966],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":388,"k":"ion","p":[6244.6,429.6000061,228.1],"a":2,"ped":0,"base":3.423221632,"low":-3.423221632,"slope":6.846443264,"n":[0.03701269753,0.9763349403,0.2130730966],"tilt":[0.03701269753,0.9763349403,0.2130730966],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":389,"k":"ion","p":[6244.6,429.6000061,-228.1],"a":2,"ped":0,"base":3.423221632,"low":-3.423221632,"slope":6.846443264,"n":[0.03701269753,0.9763349403,-0.2130730966],"tilt":[0.03701269753,0.9763349403,-0.2130730966],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":390,"k":"ion","p":[6347.8,416.8751145,180.7],"a":2,"ped":0,"base":0.7592697983,"low":-0.7592697983,"slope":1.518539597,"n":[0.03701269753,0.9763349403,0.2130730966],"tilt":[0.03701269753,0.9763349403,0.2130730966],"batteryZone":"stbd-secondary","chargeDepth":16,"float":false},{"id":391,"k":"ion","p":[6347.8,416.8696857,-180.7],"a":2,"ped":0,"base":0.7640893297,"low":-0.7592753327,"slope":1.523364662,"n":[0.03701269753,0.9763349403,-0.2130730966],"tilt":[0.03701269753,0.9763349403,-0.2130730966],"batteryZone":"port-secondary","chargeDepth":16,"float":false},{"id":392,"k":"pd","p":[1700,403.3757698,1233.217586],"a":2,"ped":0,"base":0.0002868365678,"low":-2.60236277e-13,"slope":0.000286836568,"n":[0.03466552396,0.9852710717,0.1674491466],"tilt":[0.03466552396,0.9852710717,0.1674491466],"batteryZone":"stbd-pd","float":false},{"id":393,"k":"pd","p":[1700,403.3788901,-1233.217586],"a":2,"ped":0,"base":2.246758335e-12,"low":-1.647570969e-13,"slope":2.411515432e-12,"n":[0.03465987062,0.9852768237,-0.1674164689],"tilt":[0.03465987062,0.9852768237,-0.1674164689],"batteryZone":"port-pd","float":false},{"id":394,"k":"pd","p":[2080,409,1161.811256],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-pd","float":false},{"id":395,"k":"pd","p":[2080,409,-1161.811256],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-pd","float":false},{"id":396,"k":"pd","p":[2460,409,1027.416754],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-pd","float":false},{"id":397,"k":"pd","p":[2460,409,-1027.416754],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-pd","float":false},{"id":398,"k":"pd","p":[2840,399.3284369,1018.603742],"a":2,"ped":0,"base":4.847788837e-13,"low":-2.254973985e-12,"slope":2.739752869e-12,"n":[0.03486574673,0.9852723154,0.1674002514],"tilt":[0.03486574673,0.9852723154,0.1674002514],"batteryZone":"stbd-pd","float":false},{"id":399,"k":"pd","p":[2840,399.3303502,-1018.603742],"a":2,"ped":0,"base":7.680522884e-13,"low":-1.282529638e-12,"slope":2.050581926e-12,"n":[0.03491954396,0.9852704637,-0.1673999367],"tilt":[0.03491954396,0.9852704637,-0.1673999367],"batteryZone":"port-pd","float":false},{"id":400,"k":"pd","p":[3220,397.9395297,946.7551944],"a":2,"ped":0,"base":6.026845689e-13,"low":-1.038630119e-12,"slope":1.641314688e-12,"n":[0.03556652677,0.9852398048,0.1674441672],"tilt":[0.03556652677,0.9852398048,0.1674441672],"batteryZone":"stbd-pd","float":false},{"id":401,"k":"pd","p":[3220,397.9376063,-946.7551944],"a":2,"ped":0,"base":1.691757845e-12,"low":-5.901945599e-13,"slope":2.281952405e-12,"n":[0.03550343745,0.9852420164,-0.1674445431],"tilt":[0.03550343745,0.9852420164,-0.1674445431],"batteryZone":"port-pd","float":false},{"id":402,"k":"pd","p":[3600,409,832.3659018],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-pd","float":false},{"id":403,"k":"pd","p":[3600,409,-832.3659018],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-pd","float":false},{"id":404,"k":"pd","p":[3980,409,803.4191023],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-pd","float":false},{"id":405,"k":"pd","p":[3980,409,-803.4191023],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-pd","float":false},{"id":406,"k":"pd","p":[4360,394.3785239,731.5337383],"a":2,"ped":0,"base":0,"low":-2.270392208e-12,"slope":2.270392208e-12,"n":[0.03464376811,0.9853903711,0.1667501903],"tilt":[0.03464376811,0.9853903711,0.1667501903],"batteryZone":"stbd-pd","float":false},{"id":407,"k":"pd","p":[4360,394.3799641,-731.5337383],"a":2,"ped":0,"base":1.080358025e-12,"low":-9.358069875e-13,"slope":2.016165013e-12,"n":[0.0347382641,0.9853871369,-0.166749643],"tilt":[0.0347382641,0.9853871369,-0.166749643],"batteryZone":"port-pd","float":false},{"id":408,"k":"pd","p":[4740,392.9015029,659.6483744],"a":2,"ped":0,"base":2.160382984e-12,"low":-7.527312107e-14,"slope":2.235656105e-12,"n":[0.03585904977,0.9853287858,0.1668571615],"tilt":[0.03585904977,0.9853287858,0.1668571615],"batteryZone":"stbd-pd","float":false},{"id":409,"k":"pd","p":[4740,392.9004014,-659.6483744],"a":2,"ped":0,"base":5.53890267e-13,"low":-2.507827279e-12,"slope":3.061717546e-12,"n":[0.03575065673,0.9853326148,-0.1668578099],"tilt":[0.03575065673,0.9853326148,-0.1668578099],"batteryZone":"port-pd","float":false},{"id":410,"k":"pd","p":[5120,396.5,550.6598525],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-pd","float":false},{"id":411,"k":"pd","p":[5120,396.5,-550.6598525],"a":2,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-pd","float":false},{"id":412,"k":"pd","p":[5500,389.2535782,489.2332491],"a":2,"ped":0,"base":6.431521982e-13,"low":-0.000572125977,"slope":0.0005721259776,"n":[0.03063131588,0.9853972913,0.1674929871],"tilt":[0.03063131588,0.9853972913,0.1674929871],"batteryZone":"stbd-pd","float":false},{"id":413,"k":"pd","p":[5500,389.2535782,-489.2332491],"a":2,"ped":0,"base":2.912114994e-13,"low":-0.001339037062,"slope":0.001339037062,"n":[0.03074208828,0.9853939386,-0.1674924172],"tilt":[0.03074208828,0.9853939386,-0.1674924172],"batteryZone":"port-pd","float":false},{"id":414,"k":"pd","p":[5880,389.1893597,443.8209365],"a":2,"ped":0,"base":3.612665722e-13,"low":-5.937472736e-13,"slope":9.550138458e-13,"n":[0.03372826053,0.985586969,0.1657731312],"tilt":[0.03372826053,0.985586969,0.1657731312],"batteryZone":"stbd-pd","float":false},{"id":415,"k":"pd","p":[5880,389.1906614,-443.8209365],"a":2,"ped":0,"base":5.144704107e-13,"low":-2.101208096e-12,"slope":2.615678507e-12,"n":[0.03347196956,0.9855954659,-0.1657745604],"tilt":[0.03347196956,0.9855954659,-0.1657745604],"batteryZone":"port-pd","float":false},{"id":416,"k":"pd","p":[6260,387.9054169,372.3581383],"a":2,"ped":0,"base":1.258659843e-12,"low":-3.103073354e-13,"slope":1.568967178e-12,"n":[0.03593336812,0.9856021451,0.1652186569],"tilt":[0.03593336812,0.9856021451,0.1652186569],"batteryZone":"stbd-pd","float":false},{"id":417,"k":"pd","p":[6260,387.9035487,-372.3581383],"a":2,"ped":0,"base":5.016109056e-13,"low":-9.606759832e-13,"slope":1.462286889e-12,"n":[0.03611726254,0.9855956072,-0.1652175609],"tilt":[0.03611726254,0.9855956072,-0.1652175609],"batteryZone":"port-pd","float":false},{"id":418,"k":"pd","p":[6640,385.5252393,292.5332467],"a":2,"ped":0,"base":0,"low":-3.112288205e-12,"slope":3.112288205e-12,"n":[0.2238300587,0.9608428992,0.1633432824],"tilt":[0.2238300587,0.9608428992,0.1633432824],"batteryZone":"stbd-pd","float":false},{"id":419,"k":"pd","p":[6640,385.5252445,-292.5332467],"a":2,"ped":0,"base":6.216867299e-13,"low":-3.759215161e-13,"slope":9.97608246e-13,"n":[0.223829471,0.9608430322,-0.163343305],"tilt":[0.223829471,0.9608430322,-0.163343305],"batteryZone":"port-pd","float":false},{"id":420,"k":"pd","p":[7020,386.0879124,229.2677739],"a":2,"ped":0,"base":1.24747131e-12,"low":-6.787348461e-13,"slope":1.926206156e-12,"n":[0.02693129738,0.9866130473,0.160839672],"tilt":[0.02693129738,0.9866130473,0.160839672],"batteryZone":"stbd-pd","float":false},{"id":421,"k":"pd","p":[7020,386.119472,-229.2677739],"a":2,"ped":0,"base":3.161915174e-13,"low":-3.161915174e-13,"slope":6.323830348e-13,"n":[0.02537547276,0.986653221,-0.1608462212],"tilt":[0.02537547276,0.986653221,-0.1608462212],"batteryZone":"port-pd","float":false},{"id":422,"k":"pd","p":[7400,386.3411266,158.4783737],"a":2,"ped":0,"base":1.277644657e-12,"low":-3.911315716e-13,"slope":1.668776228e-12,"n":[0.03173650869,0.9885303892,0.1476498007],"tilt":[0.03173650869,0.9885303892,0.1476498007],"batteryZone":"stbd-pd","float":false},{"id":423,"k":"pd","p":[7400,386.3565353,-158.4783737],"a":2,"ped":0,"base":4.227859382e-13,"low":-1.80389037e-12,"slope":2.226676309e-12,"n":[0.03112782422,0.9885493209,-0.1476526284],"tilt":[0.03112782422,0.9885493209,-0.1476526284],"batteryZone":"port-pd","float":false},{"id":424,"k":"pd","p":[1900,238.2326344,730.6660208],"a":3,"ped":0,"base":7.831513216e-13,"low":-1.000421967e-12,"slope":1.783573289e-12,"n":[0.02576585477,-0.992166168,0.1222391745],"tilt":[0.02576585477,-0.992166168,0.1222391745],"batteryZone":"stbd-ventral-pd","float":false},{"id":425,"k":"pd","p":[1900,238.2359574,-730.6660208],"a":3,"ped":0,"base":6.161737787e-14,"low":-1.064426325e-12,"slope":1.126043703e-12,"n":[0.02589764507,-0.9921627881,-0.122238758],"tilt":[0.02589764507,-0.9921627881,-0.122238758],"batteryZone":"port-ventral-pd","float":false},{"id":426,"k":"pd","p":[2350,243.6510803,678.990387],"a":3,"ped":0,"base":1.835420704e-12,"low":-1.060151966e-12,"slope":2.895572671e-12,"n":[0.02609541342,-0.9921857585,0.1220100409],"tilt":[0.02609541342,-0.9921857585,0.1220100409],"batteryZone":"stbd-ventral-pd","float":false},{"id":427,"k":"pd","p":[2350,243.6527432,-678.990387],"a":3,"ped":0,"base":3.17523785e-13,"low":-2.312650071e-12,"slope":2.630173856e-12,"n":[0.02602946031,-0.9921874651,-0.1220102508],"tilt":[0.02602946031,-0.9921874651,-0.1220102508],"batteryZone":"port-ventral-pd","float":false},{"id":428,"k":"pd","p":[2800,248.9900442,627.1019011],"a":3,"ped":0,"base":2.711164626e-13,"low":-7.402412017e-13,"slope":1.011357664e-12,"n":[0.02579396104,-0.9922391523,0.1216393693],"tilt":[0.02579396104,-0.9922391523,0.1216393693],"batteryZone":"stbd-ventral-pd","float":false},{"id":429,"k":"pd","p":[2800,248.9962857,-627.1019011],"a":3,"ped":0,"base":4.448210463e-13,"low":-7.20923321e-13,"slope":1.165744367e-12,"n":[0.02580502332,-0.9922257431,-0.1217463569],"tilt":[0.02580502332,-0.9922257431,-0.1217463569],"batteryZone":"port-ventral-pd","float":false},{"id":430,"k":"pd","p":[3250,254.3768826,575.1062415],"a":3,"ped":0,"base":9.168221737e-13,"low":-0.0001455343095,"slope":0.0001455343104,"n":[0.02610097869,-0.9922574529,0.1214244049],"tilt":[0.02610097869,-0.9922574529,0.1214244049],"batteryZone":"stbd-ventral-pd","float":false},{"id":431,"k":"pd","p":[3250,254.3768826,-575.1062415],"a":3,"ped":0,"base":6.363798377e-13,"low":-0.0006750794803,"slope":0.000675079481,"n":[0.02599131561,-0.992260289,-0.121424752],"tilt":[0.02599131561,-0.992260289,-0.121424752],"batteryZone":"port-ventral-pd","float":false},{"id":432,"k":"pd","p":[3700,259.7383315,499.5467435],"a":3,"ped":0,"base":4.728439862e-13,"low":-1.243949388e-12,"slope":1.716793374e-12,"n":[0.02375452509,-0.9916911535,0.1264293424],"tilt":[0.02375452509,-0.9916911535,0.1264293424],"batteryZone":"stbd-ventral-pd","float":false},{"id":433,"k":"pd","p":[3700,259.7697298,-499.5467435],"a":3,"ped":0,"base":6.464273561e-13,"low":-1.026678742e-12,"slope":1.673106098e-12,"n":[0.02380927784,-0.9916036256,-0.127103769],"tilt":[0.02380927784,-0.9916036256,-0.127103769],"batteryZone":"port-ventral-pd","float":false},{"id":434,"k":"pd","p":[4150,247.1999969,471.3254703],"a":3,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-ventral-pd","float":false},{"id":435,"k":"pd","p":[4150,247.1999969,-471.3254703],"a":3,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-ventral-pd","float":false},{"id":436,"k":"pd","p":[4600,270.222647,419.3031675],"a":3,"ped":0,"base":1.881293515e-12,"low":-3.025357742e-13,"slope":2.183829289e-12,"n":[0.02586402816,-0.9925111343,0.1193846738],"tilt":[0.02586402816,-0.9925111343,0.1193846738],"batteryZone":"stbd-ventral-pd","float":false},{"id":437,"k":"pd","p":[4600,270.2263274,-419.3031675],"a":3,"ped":0,"base":1.545930051e-12,"low":-5.290212712e-13,"slope":2.074951322e-12,"n":[0.0257180116,-0.9925148745,-0.1193851237],"tilt":[0.0257180116,-0.9925148745,-0.1193851237],"batteryZone":"port-ventral-pd","float":false},{"id":438,"k":"pd","p":[5050,275.8497498,367.2808646],"a":3,"ped":0,"base":1.144084827e-12,"low":-4.324318681e-13,"slope":1.576516695e-12,"n":[0.02649627906,-0.9925029749,0.1193138382],"tilt":[0.02649627906,-0.9925029749,0.1193138382],"batteryZone":"stbd-ventral-pd","float":false},{"id":439,"k":"pd","p":[5050,275.8485795,-367.2808646],"a":3,"ped":0,"base":7.363571558e-13,"low":-0.0002013601189,"slope":0.0002013601197,"n":[0.02656076207,-0.9925012759,-0.119313634],"tilt":[0.02656076207,-0.9925012759,-0.119313634],"batteryZone":"port-ventral-pd","float":false},{"id":440,"k":"pd","p":[5500,281.222344,298.9758745],"a":3,"ped":0,"base":0.001505432199,"low":-6.00519634e-13,"slope":0.0015054322,"n":[0.02461063876,-0.9918852065,0.1247319271],"tilt":[0.02461063876,-0.9918852065,0.1247319271],"batteryZone":"stbd-ventral-pd","float":false},{"id":441,"k":"pd","p":[5500,281.222344,-298.9758745],"a":3,"ped":0,"base":1.391498028e-12,"low":-0.003057275434,"slope":0.003057275436,"n":[0.02476700131,-0.9918813751,-0.1247314453],"tilt":[0.02476700131,-0.9918813751,-0.1247314453],"batteryZone":"port-ventral-pd","float":false},{"id":442,"k":"pd","p":[5950,286.1242482,263.1791169],"a":3,"ped":0,"base":1.841859998e-12,"low":-7.090103244e-13,"slope":2.550870322e-12,"n":[0.02467169258,-0.9930526739,0.11505518],"tilt":[0.02467169258,-0.9930526739,0.11505518],"batteryZone":"stbd-ventral-pd","float":false},{"id":443,"k":"pd","p":[5950,286.1442905,-263.1791169],"a":3,"ped":0,"base":0,"low":-1.058153565e-12,"slope":1.058153565e-12,"n":[0.0247561743,-0.9929551644,-0.1158756801],"tilt":[0.0247561743,-0.9929551644,-0.1158756801],"batteryZone":"port-ventral-pd","float":false},{"id":444,"k":"pd","p":[6400,291.6212371,211.4626182],"a":3,"ped":0,"base":7.754352715e-13,"low":-9.412193247e-13,"slope":1.716654596e-12,"n":[0.02603335015,-0.993202938,0.1134468538],"tilt":[0.02603335015,-0.993202938,0.1134468538],"batteryZone":"stbd-ventral-pd","float":false},{"id":445,"k":"pd","p":[6400,291.6230404,-211.4626182],"a":3,"ped":0,"base":6.914412619e-14,"low":-1.613958966e-12,"slope":1.683103093e-12,"n":[0.02610494371,-0.993201083,-0.1134466419],"tilt":[0.02610494371,-0.993201083,-0.1134466419],"batteryZone":"port-ventral-pd","float":false},{"id":446,"k":"pd","p":[6850,297.2513212,159.4613265],"a":3,"ped":0,"base":6.014682025e-13,"low":-0.01023447534,"slope":0.01023447534,"n":[0.01680982546,-0.9935851977,0.1118297132],"tilt":[0.01680982546,-0.9935851977,0.1118297132],"batteryZone":"stbd-ventral-pd","float":false},{"id":447,"k":"pd","p":[6850,297.2752722,-159.4613265],"a":3,"ped":0,"base":4.582445534e-14,"low":-1.191935439e-12,"slope":1.237759895e-12,"n":[0.01918873884,-0.9935426407,-0.1118249233],"tilt":[0.01918873884,-0.9935426407,-0.1118249233],"batteryZone":"port-ventral-pd","float":false},{"id":448,"k":"pd","p":[7300,300.9317752,108.2321553],"a":3,"ped":0,"base":3.414213356e-13,"low":-0.01322226812,"slope":0.01322226812,"n":[0.02095880437,-0.9961897954,0.08465589169],"tilt":[0.02095880437,-0.9961897954,0.08465589169],"batteryZone":"stbd-ventral-pd","float":false},{"id":449,"k":"pd","p":[7300,300.9966275,-108.2321553],"a":3,"ped":0,"base":1.18013932e-12,"low":-5.468958619e-13,"slope":1.727035182e-12,"n":[0.02162554971,-0.9956006896,-0.09116798984],"tilt":[0.02162554971,-0.9956006896,-0.09116798984],"batteryZone":"port-ventral-pd","float":false},{"id":450,"k":"trc","p":[6400,261.5,115.3432463],"a":3,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"stbd-tractor","float":false},{"id":451,"k":"trc","p":[6400,261.5,-115.3432463],"a":3,"ped":0,"base":0,"low":0,"slope":0,"batteryZone":"port-tractor","float":false},{"id":452,"k":"trc","p":[6800,288.1378171,77.84988375],"a":3,"ped":0,"base":2.597921878e-14,"low":-1.157518525e-12,"slope":1.183497744e-12,"n":[-0.02112661797,-0.9895691044,0.1425014164],"tilt":[-0.02112661797,-0.9895691044,0.1425014164],"batteryZone":"stbd-tractor","float":false},{"id":453,"k":"trc","p":[6800,288.4098747,-77.84988375],"a":3,"ped":0,"base":0,"low":-1.906697022e-12,"slope":1.906697022e-12,"n":[-0.0127495927,-0.9936448359,-0.1118364343],"tilt":[-0.0127495927,-0.9936448359,-0.1118364343],"batteryZone":"port-tractor","float":false},{"id":454,"k":"trc","p":[7200,294.8035015,65.24531758],"a":3,"ped":0,"base":0.002026588532,"low":-1.020572515e-12,"slope":0.002026588533,"n":[0.02280703683,-0.9949687773,0.09755496549],"tilt":[0.02280703683,-0.9949687773,0.09755496549],"batteryZone":"stbd-tractor","float":false},{"id":455,"k":"trc","p":[7200,294.8504596,-65.24531758],"a":3,"ped":0,"base":1.514288694e-12,"low":-0.002055018021,"slope":0.002055018023,"n":[0.02237620367,-0.9955842403,-0.09116647349],"tilt":[0.02237620367,-0.9955842403,-0.09116647349],"batteryZone":"port-tractor","float":false}],"armor":{"hull":1.1,"cit":0.9},"nextId":457,"shieldTarget":1,"airWings":[{"id":"air-1","name":"Vウイング迎撃機隊","type":"vwing","size":0.54,"count":288},{"id":"air-2","name":"イータ2 アクティス迎撃機隊","type":"eta2","size":0.25,"count":72},{"id":"air-3","name":"ARC-170 戦闘機隊","type":"arc170","size":2.22,"count":144},{"id":"air-4","name":"BTL-B Yウイング爆撃機隊","type":"btlb","size":1.43,"count":72},{"id":"air-5","name":"LAAT/i ガンシップ隊","type":"laat","size":3.98,"count":96},{"id":"air-6","name":"LAAT/c 歩行機輸送隊","type":"laatc","size":6,"count":96}],"groundForces":[{"id":"ground-1","name":"クローン・トルーパー軍団","kind":"troops","size":1,"count":36864},{"id":"ground-2","name":"AT-TE 全地形戦術攻撃トランスポート","kind":"vehicle","type":"atte","size":0.488,"count":288},{"id":"ground-3","name":"SPHA 自走式重砲","kind":"vehicle","type":"spha","size":15.688,"count":48}],"paint":"republic","lights":"white","detail":1,"reference":"mandator2","autoHabitation":true,"hullLocked":true};
+// This reference is rebuilt from physical devices; saved user designs are not
+// recalibrated. Existing stations remain and the additional batteries cover
+// the decks and terraces of the measured 8 km hull.
+function buildMandatorReference(){
+ const s=deserialize(JSON.parse(JSON.stringify(MAN_DESIGN)));s.reference='mandator2';s._building=true;
+ const ref=SHIP_REFERENCE.mandator2,main=s.parts.find(p=>p.k==='gen'),aux=s.parts.find(p=>p.k==='aux');
+ const reactorVolume=ref.power/REACTOR_POWER_DENSITY-partVolume(main);
+ aux.room=[1000,430,reactorVolume/(1000*430)];aux.corner=0;aux.autoFit=true;aux.customEquipment=true;delete aux.equipmentId;
+ aux.label='分散副反応炉区画（標準出力密度）';
+ const shields=s.parts.filter(p=>p.k==='shield'||p.k==='localShield'),shieldVolume=shields.reduce((n,p)=>n+partVolume(p),0),shieldScale=Math.cbrt(ref.shieldLoad/(SHIELD_ENERGY_DENSITY*shieldVolume));
+ for(const p of shields){p.d*=shieldScale;p.customEquipment=true;delete p.equipmentId;p.shieldDissipationW=ref.shieldDissipationW/shields.length;}
+ const target={utl:194,stl:81,ion:28,pd:250},count=k=>s.fits.filter(f=>f.k===k).length,oldLock=s._lockedCache;
+ s._lockedCache=cache(s);s._rayLock={env:null,tris:new Map()};
+ try{
+  for(const [k,total] of Object.entries(target)){
+   // An odd remainder receives a centreline station before mirrored rows.
+   if((total-count(k))%2)for(let x=680;x<7300&&((total-count(k))%2);x+=150){
+    const h=deckPoint(s,x,0,false);if(!h)continue;const r=placeFit(s,k,h.p,[0,1,0],0,false,{mountMode:'top'});if(r.fit)r.fit.batteryZone='centre-'+k;
+   }
+   for(let row=0;row<2&&count(k)<total;row++)for(let ix=0;ix<44&&count(k)<total;ix++)for(const zf of [.23,.43,.63,.81]){
+    if(count(k)>=total)break;const x=700+ix*150+(row?65:0),z=sectionBase(s.hull,x).hw*zf,h=deckPoint(s,x,z,!!row);if(!h)continue;
+    const before=s.fits.length,r=placeFit(s,k,h.p,[0,row?-1:1,0],0,true,{mountMode:row?'bottom':'top'}),made=s.fits.slice(before);
+    // Keep each extra broadside station paired, including failed mirrored seats.
+    if(made.length!==2||count(k)>total){s.fits.splice(before);continue;}
+    for(const f of made)f.batteryZone=(row?'ventral-':'dorsal-')+(f.p[2]>0?'stbd-':'port-')+k;
+   }
+   if(count(k)!==total)throw new Error('Mandator II: '+k+' の砲座を配置できません（'+count(k)+'/'+total+'）');
+  }
+ }finally{if(oldLock)s._lockedCache=oldLock;else delete s._lockedCache;delete s._rayLock;delete s._building;}
+ syncCompartments(s);
+ // Room tessellation is Float32. Solve its real retained volume, rather than
+ // storing a nominal reactor rating or earning output for clipped machinery.
+ for(let i=0;i<4;i++){
+  const actual=partVolume(aux),ratio=reactorVolume/Math.max(1,actual);if(Math.abs(ratio-1)<2e-8)break;aux.room[2]*=ratio;syncCompartments(s);
+ }
+ const actualPower=s.parts.filter(isReactor).reduce((n,p)=>n+reactorPower(p),0),actualShield=shields.reduce((n,p)=>n+shieldLoad(p),0);
+ if(Math.abs(actualPower/ref.power-1)>1e-7)throw new Error('Mandator II: 反応炉の実区画容積が指定出力に不足しています');
+ if(Math.abs(actualShield/ref.shieldLoad-1)>1e-7)throw new Error('Mandator II: シールド発生器の実容積が指定容量に不足しています');
+ return s;
+}
 registerShipExample({
  key:'mandator2',name:MAN_DESIGN.name,side:'銀河共和国',role:'艦隊旗艦・ドレッドノート',length:8000,
  title:'Mandator II-class Star Dreadnaught',credit:'MandatorIIClassDreadnaught.STL（ユーザー提供。作者・ライセンスの表記なし）をもとにユーザーが仕上げた設計',author:'ユーザー（形状の元は作者不明の STL）',source:'ユーザーの設計ファイル（STL の実測から組んだ v19.1 の作例を調整）',license:'不明（元の STL に出典・ライセンスの記載なし）',
  note:'ユーザーの設計（v20.5 で差し替え）。公式の寸法は無く、ファン設定で多い全長 8 km。ユーザー提供の STL モデル（作者・ライセンス表記なし）の実測形状から組んだ v19.1 の作例が元で、V 字の竜骨と舷側帯をもつ短剣形の主船体、段状の城郭と艦橋塔、腹部の装甲区画と二つの反応炉ドーム（大きい方に主反応炉、前方の小さい方に副反応炉）、艦尾の11基の亜光速機関をもつ。ユーザーの調整で艦橋塔を前へ 33 m 移し、頂部をエグゼクター級の艦橋本体に替えた。武装はモデルの砲座（凹んだ床を囲む八角形・角形のカラー）にちょうど収まる砲塔を一基ずつ：八角形 47 基に超重ターボレーザー連装砲塔、角形 24 基に大型重ターボレーザー連装砲塔（前方の 6 基は同寸の重イオン砲）、輻のある六角形ハッチ 2 基に重魚雷サイロ。ハイパードライブ（クラス 2、予備クラス 10）も公式値が無いため想定。公式の乗員数も無く、持ち場の約 9 割を自動化装置に任せて必要乗員を約 8 万 7,000 名に抑えている。',
  airWings:MAN_DESIGN.airWings,groundForces:MAN_DESIGN.groundForces,
  // A fresh copy per build, so nothing done to one build's arrays reaches the next.
- build(){const s=deserialize(JSON.parse(JSON.stringify(MAN_DESIGN)));s.reference='mandator2';return s;}
+ build:buildMandatorReference
 });
 }
 
@@ -29724,21 +40148,43 @@ function weaponRoles(d={}){const dualPurpose=!!(d.dualPurpose&&(d.tt||0)>0&&(d.a
 // Fleet fire is continuous, so one role is chosen for the entire simulation step.
 function fleetDefense(u,threats,range=6000){const d=u.p?.dualPurpose;u.dualDefense=false;if(!d)return false;const r=range+(u.p.len||0)*.5;for(const q of threats){if(!q?.pos||q.alive===false||q.dead||q.warp||(q.n??1)<=0)continue;if(q.side!=null&&u.side!=null?q.side===u.side:q.team!=null&&u.team!=null&&q.team===u.team)continue;const distance=len(sub(q.pos,u.pos));if(distance>r)continue;if(distance<1e-6?(d.aa||0)>0:fleetArc(u,q,d.aaArcs||[])>0){u.dualDefense=true;break;}}return u.dualDefense;}
 function fitBand(d){if(!d)return 'mid';if(d.band)return d.band;if(d.casemate)return 'close';if(d.ion)return 'long';const tt=d.tt||0,bolt=d.boltTT??(d.barrels?tt/d.barrels:tt);if(tt>=100||bolt>=30)return 'long';if(bolt>=.1)return 'mid';return 'close';}
-// Hit chance falls with distance the same for every gun; the band only sets
-// how far a gun reaches and what its fire costs in stored energy per TT:
-// broadside batteries give the most fire for the power, so a ship whose
-// reactor cannot feed every gun does best close in with its beam turned.
-const bandFall=d=>clamp(1-.72*d/GUN_BANDS.long.range,.2,1);
+// One angular shot distribution drives expected fleet hits and physical trial
+// bolts. A normal ISD's control/sensor quality and intact fire control land
+// half their shots on a broadside 1600 m ISD at the battery's nominal reach.
+// These are projected hull dimensions, not an arbitrary target-size bonus.
+const GUN_ACCURACY={reference:{len:1600,width:868.4,height:444.017,acc:.7041666666666667},uncontrolled:.42,samples:48};
+function gunEllipseChance(a,b,sigma){
+ if(!(a>0&&b>0))return 0;if(!(sigma>0))return 1;let chance=0;
+ for(let i=0;i<GUN_ACCURACY.samples;i++){const angle=(i+.5)*Math.PI*2/GUN_ACCURACY.samples,c=Math.cos(angle),s=Math.sin(angle),r2=1/(c*c/(a*a)+s*s/(b*b));chance+=-Math.expm1(-r2/(2*sigma*sigma));}
+ return clamp(chance/GUN_ACCURACY.samples,0,1);
+}
+const GUN_REFERENCE_SPREAD=(()=>{let lo=0,hi=GUN_ACCURACY.reference.len;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(gunEllipseChance(GUN_ACCURACY.reference.len/2,GUN_ACCURACY.reference.height/2,m)>.5)lo=m;else hi=m;}return (lo+hi)/2;})();
+function gunControl(p,fireState=1){
+ const installed=(p.fireControl??(p.modules||[]).some(m=>m.k==='fire'))||(p.systems?.targetCapacity||0)>0,fc=installed?clamp(fireState,0,1):0;
+ return clamp((p.acc??GUN_ACCURACY.reference.acc)/GUN_ACCURACY.reference.acc,.15,1.25)*(GUN_ACCURACY.uncontrolled+(1-GUN_ACCURACY.uncontrolled)*fc);
+}
+function gunDispersion(p,range=GUN_BANDS.long.range,fireState=1){return GUN_REFERENCE_SPREAD/Math.max(1,range)/gunControl(p,fireState);}
+function gunTargetEllipse(target,direction){
+ const p=target.p||target,n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right),rot=target.rot;
+ const local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(target.yaw||0),s=Math.sin(target.yaw||0);return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];},r=local(right),u=local(up),size=target.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
+ let a=0,b=0,c=0;for(let i=0;i<3;i++){const s=size[i]*size[i];a+=r[i]*r[i]*s;b+=r[i]*u[i]*s;c+=u[i]*u[i]*s;}const d=Math.hypot(a-c,2*b);return [Math.sqrt(Math.max(1e-12,(a+c+d)/2)),Math.sqrt(Math.max(1e-12,(a+c-d)/2))];
+}
+function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
+ if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),ellipse=gunTargetEllipse(t,direction),state=fireState??(u.p?.modules?fleetSystems(u).fire:1);return gunEllipseChance(ellipse[0],ellipse[1],d*gunDispersion(u.p||u,range,state));
+}
+function gunScatter(direction,p,range=GUN_BANDS.long.range,fireState=1,random=Math.random){
+ let x=0,y=0,s=0;for(let i=0;i<16;i++){x=2*random()-1;y=2*random()-1;s=x*x+y*y;if(s<1)break;}if(!(s>0&&s<1))return norm(direction);const k=Math.sqrt(-2*Math.log(s)/s)*gunDispersion(p,range,fireState),n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right);return norm(add(add(n,mul(right,x*k)),mul(up,y*k)));
+}
 // Gun and ion fire (TT/s at full rate, before power and accuracy) u brings to
 // bear on t at distance d, the energy that fire costs (TT/s) and the hit factor.
 function fleetFire(u,t,d){
  if(u.p.surface?.mounts&&typeof surfaceFleetFire==='function')return surfaceFleetFire(u,t,d);
- const p=u.p,B=p.gunBands;let gun=0,ion=0,cost=0;
- if(B){for(const k in GUN_BANDS){if(d>GUN_BANDS[k].range||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(u.dualDefense?fleetArc(u,t,p.dualPurpose?.gunBands?.[k]||[]):0));gun+=g;cost+=g*COMBAT.bandCost[k];}}
- else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(u.dualDefense?fleetArc(u,t,p.dualPurpose?.gunArcs||[]):0));cost=gun;}
- if(d<=GUN_BANDS.long.range){ion=fleetArc(u,t,p.ionArcs);cost+=ion;}
+ const p=u.p,B=p.gunBands,control=fleetSystems(u).fire;let gun=0,ion=0,cost=0,gunLanded=0,ionLanded=0;
+ if(B){for(const k in GUN_BANDS){if(d>GUN_BANDS[k].range||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(u.dualDefense?fleetArc(u,t,p.dualPurpose?.gunBands?.[k]||[]):0));gun+=g;gunLanded+=g*gunHitChance(u,t,d,GUN_BANDS[k].range,control);cost+=g*COMBAT.bandCost[k];}}
+ else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(u.dualDefense?fleetArc(u,t,p.dualPurpose?.gunArcs||[]):0));cost=gun;gunLanded=gun*gunHitChance(u,t,d,GUN_BANDS.long.range,control);}
+ if(d<=GUN_BANDS.long.range){ion=fleetArc(u,t,p.ionArcs);ionLanded=ion*gunHitChance(u,t,d,GUN_BANDS.long.range,control);cost+=ion;}
  if(p.energyModel?.version===1)cost=(gun+ion)*weaponInputFactor(p);
- return {gun,ion,cost,fall:bandFall(d)};
+ return {gun,ion,cost,gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0};
 }
 // Fire control is independent of the course being steered. An assigned target
 // has priority; otherwise bearings ahead of this ship's bow come first.
@@ -29753,10 +40199,10 @@ function fleetReach(p){const B=p.gunBands;if(!B)return GUN_BANDS.long.range;let 
 // Best-arc fire a profile lands at a distance (TT/s), as far as its reactor can
 // feed the guns in reach (for choosing where to fight).
 function bandFireAt(p,d){
- const B=p.gunBands,best=a=>a?Math.max(...a):0;let gun=0,cost=0;
- if(B){for(const k in GUN_BANDS)if(d<=GUN_BANDS[k].range){const g=best(B[k]);gun+=g;cost+=g*COMBAT.bandCost[k];}}else if(d<=GUN_BANDS.long.range){gun=best(p.gunArcs);cost=gun;}
- if(d<=GUN_BANDS.long.range){const i=best(p.ionArcs);gun+=i;cost+=i;}
- const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity,fed=cost>0?Math.min(1,budget/cost):0;return gun*fed*bandFall(d);
+ const B=p.gunBands,best=a=>a?Math.max(...a):0,source={p,pos:[0,0,0]},target={p:GUN_ACCURACY.reference,pos:[0,0,d],yaw:0},chance=range=>gunHitChance(source,target,d,range,1);let gun=0,cost=0;
+ if(B){for(const k in GUN_BANDS)if(d<=GUN_BANDS[k].range){const g=best(B[k]);gun+=g*chance(GUN_BANDS[k].range);cost+=g*COMBAT.bandCost[k];}}else if(d<=GUN_BANDS.long.range){const g=best(p.gunArcs);gun=g*chance(GUN_BANDS.long.range);cost=g;}
+ if(d<=GUN_BANDS.long.range){const i=best(p.ionArcs);gun+=i*chance(GUN_BANDS.long.range);cost+=i;}
+ const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity,fed=cost>0?Math.min(1,budget/cost):0;return gun*fed;
 }
 // Where u wants to fight t: the distance that best weighs its own fire against
 // the target's, never closer than the two hulls allow.
@@ -29768,7 +40214,8 @@ function fleetStandoff(u,t){
  // v21.1 Against a ship far larger than itself, point-blank range, inside the reach of its heaviest guns' best
  // distance and close enough to hold an aim on its bridge (canon: 「至近距離で交戦しろ」 at Endor).
  if(t.p.len>=COMBAT.bigAim*(u.p.len||1)&&(u.p.len||0)<=COMBAT.smallShip){const r=Math.max(t.p.width||t.p.len*.35,t.p.height||t.p.len*.2)*.5+u.p.len*.5+1500;m.set(t.p,r);return r;}
- let best=null,bs=-Infinity;for(const d of STANDOFFS){if(d<floor)continue;const mine=bandFireAt(u.p,d),theirs=bandFireAt(t.p,d),sc=mine-.8*theirs+d*1e-9;if(sc>bs){bs=sc;best=d;}}
+ const distances=[...STANDOFFS,...(u.p.modules||[]).filter(m=>m.k==='launcher').map(m=>missileRange(m)*.9)];
+ let best=null,bs=-Infinity;for(const d of distances){if(d<floor)continue;const mine=bandFireAt(u.p,d)+missileFireAt(u.p,d),theirs=bandFireAt(t.p,d)+missileFireAt(t.p,d),sc=mine-.8*theirs+d*1e-9;if(sc>bs){bs=sc;best=d;}}
  const r=best??Math.max(floor,14000);m.set(t.p,r);return r;
 }
 // A ship that lands more fire with its beam than with its bow at its fighting
@@ -29844,6 +40291,20 @@ function powerStatus(u){
  const rated=ds.reduce((a,d)=>a+(d.P||0),0),live=ds.reduce((a,d)=>a+powerDomainWatts(u,d.id),0),available=u?.p?.grid?rated>0?clamp(live/rated,0,1):0:1;
  return {available,blackout:available<=0,domains:ds.map(d=>({id:d.id,rated:d.P,available:powerDomainWatts(u,d.id),load:st?.domains?.[d.id]?.load||0,restart:st?.domains?.[d.id]?.trip||0,state:st?.domains?.[d.id]?.trip>0?'イオン遮断':powerDomainWatts(u,d.id)<=0?'給電停止':st?.domains?.[d.id]?.load>0?'放電中':'給電中'})),local:Object.entries(st?.local||{}).filter(([,t])=>t>0).map(([i,t])=>({module:+i,name:u.p.modules?.[i]?.name||'設備',restart:t,state:'イオン遮断'}))};
 }
+// Explicit external processing ratings follow the installed shield devices,
+// their damage, their electrical connection and the power actually granted.
+function shieldDissipationRate(u){
+ const rated=u?.p?.shieldDissipationW;if(!Number.isFinite(rated))return null;
+ const rows=(u.p.modules||[]).map((m,i)=>({m,i})).filter(({m})=>m.k==='shield'),Ds=Math.max(0,u.p.grid?.Ds||0),granted=u.propulsion?.power?.granted;
+ if(!rows.length)return Math.max(0,rated)*powerFactor(u,'shield');
+ const weights=rows.reduce((n,{m})=>n+Math.max(0,m.share??m.size??1),0);
+ let actual=0;for(const {m,i}of rows){
+  const share=Math.max(0,m.share??m.size??1)/Math.max(1e-30,weights),limit=Number.isFinite(m.shieldDissipationW)?Math.max(0,m.shieldDissipationW):Math.max(0,rated)*share;
+  const input=Ds*share,electrical=granted&&Ds>0?clamp((granted['shields:'+i]||0)/Math.max(1,input),0,1):u.pw&&Ds>0?clamp((u.pw.sh||0)/Ds,0,1):1;
+  actual+=limit*clamp(u.mods?.[i]??1,0,1)*powerFactor(u,'shield',i)*electrical;
+ }
+ return Math.min(Math.max(0,rated),actual);
+}
 function powerTick(u,dt,ctx){
  if(!(dt>0)||!Number.isFinite(dt))return;const st=u.gridState;
  if(typeof surfaceArmorTick==='function')surfaceArmorTick(u,dt,ctx?.time);
@@ -29851,7 +40312,7 @@ function powerTick(u,dt,ctx){
   for(const i in st.local){st.local[i]=Math.max(0,st.local[i]-dt);if(!st.local[i])delete st.local[i];}
   const left=Object.values(st.domains).reduce((a,d)=>Math.max(a,d.trip||0),0);if(u.ionLedger)u.ionLedger.stored=Object.values(st.domains).reduce((a,d)=>a+(d.load||0),0);if(u.down?.reason==='ion-grid'){if(left>0){u.down.t=left;u.down.black=powerFactor(u,'reactor')<=0;u.down.aux=powerFactor(u,'reactor');}else u.down=null;}
  }
- if(u.shieldTransient>0){const released=u.shieldTransient*(1-Math.exp(-dt/SHIELD_MODEL.processSeconds));u.shieldTransient-=released;const l=u.shieldLedger||(u.shieldLedger={incoming:0,external:0,heat:0,leaked:0,stored:0,processed:0});l.external+=released;l.processed+=released;l.stored=u.shieldTransient;}
+ if(u.shieldTransient>0){const natural=u.shieldTransient*(1-Math.exp(-dt/SHIELD_MODEL.processSeconds)),rating=shieldDissipationRate(u),released=Number.isFinite(rating)?Math.min(natural,Math.max(0,rating)*dt/TT):natural;u.shieldTransient-=released;const l=u.shieldLedger||(u.shieldLedger={incoming:0,external:0,heat:0,leaked:0,stored:0,processed:0});l.external+=released;l.processed+=released;l.stored=u.shieldTransient;}
 }
 function shieldReceive(u,packet={},ctx){
  const energy=Math.max(0,packet.energy??packet.sf??0),ion=Math.min(energy,Math.max(0,packet.ion||0)),normal=energy-ion,capacity=Math.max(0,u.shieldMax||0),state=Math.max(0,u.shieldTransient||0),room=Math.max(0,capacity*SHIELD_MODEL.transientShare-state),desired=ion*SHIELD_MODEL.ionStore+normal*SHIELD_MODEL.beamStore;
@@ -29862,10 +40323,10 @@ function shieldReceive(u,packet={},ctx){
  if(heat>0){const h=heatOf(u);if(h)h.e.shield+=heat*TT;}
  return rec;
 }
-function shieldStatus(u){return {defense:u?.shield||0,capacity:u?.shieldMax||0,transient:u?.shieldTransient||0,transientCapacity:(u?.shieldMax||0)*SHIELD_MODEL.transientShare,ledger:u?.shieldLedger?{...u.shieldLedger}:null,last:u?.lastShieldHit?{...u.lastShieldHit}:null};}
+function shieldStatus(u){return {...(Number.isFinite(u?.p?.shieldDissipationW)?{dissipationW:Math.max(0,u.p.shieldDissipationW),activeDissipationW:shieldDissipationRate(u)}:{}),defense:u?.shield||0,capacity:u?.shieldMax||0,transient:u?.shieldTransient||0,transientCapacity:(u?.shieldMax||0)*SHIELD_MODEL.transientShare,ledger:u?.shieldLedger?{...u.shieldLedger}:null,last:u?.lastShieldHit?{...u.lastShieldHit}:null};}
 function coolingPowerReserve(u,got,g,dt,supplyW=g?.P||0){
- const rated=Math.max(0,g?.cooling||0);if(!u||!(rated>0))return {fixed:Math.max(0,g?.fixed||0),reserved:0,draw:0};
- const fixed=got.fixedGranted??Math.max(0,(g.fixed||0)-rated),reserved=got.coolingGranted??Math.min(rated,Math.max(0,Math.min(g.fixed||0,got.draw||0)-fixed)),h=heatOf(u),c=h?(h.cooling||(h.cooling={reserveJ:0,reservedJ:0,inputJ:0,heatJ:0,reactorWasteJ:0,handledJ:0,lastDraw:0})):null;
+ const rated=(heatProfile(u?.p)?.dis||[]).reduce((n,d)=>n+Math.max(0,d.power||0),0);if(!u||!(rated>0))return {fixed:Math.max(0,g?.fixed||0),reserved:0,draw:0};
+ const fixed=got.fixedGranted??Math.max(0,(g.fixed||0)-(g.cooling||0)),reserved=got.coolingGranted??Math.min(rated,Math.max(0,Math.min(g.fixed||0,got.draw||0)-fixed)),h=heatOf(u),c=h?(h.cooling||(h.cooling={reserveJ:0,reservedJ:0,inputJ:0,heatJ:0,reactorWasteJ:0,handledJ:0,lastDraw:0})):null;
  got.draw=Math.max(0,(got.draw||0)-reserved);got.load=supplyW>0?got.draw/supplyW:0;if(c){c.reserveJ+=reserved*Math.max(0,dt||0);c.reservedJ+=reserved*Math.max(0,dt||0);c.rated=rated;c.lastDraw=Math.min(c.lastDraw||0,reserved);if(got.coolingInputs?.length){c.reserveByNodeJ=c.reserveByNodeJ||{};c.reserveByNodeSourceJ=c.reserveByNodeSourceJ||{};for(const q of got.coolingInputs)if(q.id){c.reserveByNodeJ[q.id]=(c.reserveByNodeJ[q.id]||0)+Math.max(0,q.W||0)*Math.max(0,dt||0);const target=c.reserveByNodeSourceJ[q.id]||(c.reserveByNodeSourceJ[q.id]={});for(const [source,W]of Object.entries(q.sourceInputs||{}))target[source]=(target[source]||0)+Math.max(0,W)*Math.max(0,dt||0);}}c.sources=Object.fromEntries((got.propulsion?.power?.sources||[]).map(source=>[source.id,source]));}return {fixed,reserved,draw:c?.lastDraw||0};
 }
 function ionHitDomain(u,hit={}){
@@ -30008,7 +40469,8 @@ function shipPowerSources(u,s={}){
 function shipPowerLoads(u,want={}){
  const p=u.p,g=p.grid||{},mods=p.modules||[],loads=[],add=(kind,total,rows)=>{if(!(total>0))return;const all=rows.reduce((a,r)=>a+Math.max(0,r.weight||0),0);if(!rows.length){loads.push({id:kind,kind,domain:'main',requestedInputW:total});return;}for(const r of rows)loads.push({id:kind+':'+r.id,kind,port:r.port,domain:r.domain||'main',requestedInputW:total*Math.max(0,r.weight||0)/Math.max(1e-30,all)});};
  const rows=kind=>mods.map((m,i)=>({m,i})).filter(x=>x.m.k===kind).map(({m,i})=>({id:i,port:m.port||(m.part!=null?'p'+m.part:m.fit!=null?'f'+m.fit:null),domain:m.domain||'main',weight:Math.max(0,kind==='weapon'&&Number.isFinite(m.weaponPowerW)?m.weaponPowerW:(m.share??m.size??1))*(powerFactor(u,kind,i)>0?1:0)}));
- add('fixed',Math.max(0,(g.fixed||0)-(g.cooling||0)),g.fixedLoads||[]);add('cooling',Math.max(0,g.cooling||0),g.coolingLoads||[]);add('shields',Math.max(0,want.shields||0),rows('shield'));add('weapons',Math.max(0,want.weapons||0),rows('weapon'));return loads;
+ const coolers=(heatProfile(p)?.dis||[]).filter(d=>d.power>0&&d.m>=0),cooling=coolers.reduce((n,d)=>n+d.power,0),coolingRows=coolers.map(d=>({id:d.id||d.m,port:d.id||mods[d.m]?.port||(mods[d.m]?.part!=null?'p'+mods[d.m].part:null),domain:mods[d.m]?.domain||'main',weight:d.power}));
+ add('fixed',Math.max(0,(g.fixed||0)-(g.cooling||0)),g.fixedLoads||[]);add('cooling',cooling,coolingRows);add('shields',Math.max(0,want.shields||0),rows('shield'));add('weapons',Math.max(0,want.weapons||0),rows('weapon'));return loads;
 }
 function attachShipPowerProfile(out,ship,S){
  if(ship?.surfaces&&!ship._surfaceWorking&&!ship._surfaceCompiling)ship=surfaceWorkingShip(ship);
@@ -30017,7 +40479,7 @@ function attachShipPowerProfile(out,ship,S){
  const downstream=new Set(out.grid.powerPaths.map(l=>l.from)),sourcePorts=new Set((ship.parts||[]).filter(p=>electricalSourcePower(p)>0).map(p=>'p'+p.id));out.grid.trunks=[...downstream].filter(port=>!sourcePorts.has(port)).map(port=>({port,moduleIndex:mods.findIndex(m=>m.port===port)})).filter(t=>t.moduleIndex>=0);
  const row=(id,weight)=>({id,port:id,weight:Math.max(0,weight||0),domain:owner.has(id)?groups.of(owner.get(id)):'main'});out.grid.fixedLoads=(net?.src||[]).filter(s=>s.k==='hotel').map(s=>row(s.id,s.powerWeight??s.size??s.rated?.combat??1));out.grid.coolingLoads=(net?.dis||[]).filter(d=>d.power>0).map(d=>row(d.id,d.power));
  // Launcher electronics are part of the fixed total, charged once at their own physical port.
- const launchers=mods.filter(m=>m.missileKind==='cmsl'&&m.launchPowerW>0),launchPower=launchers.reduce((n,m)=>n+m.launchPowerW,0),fixed=Math.max(0,(out.grid.fixed||0)-(out.grid.cooling||0)),hotel=Math.max(0,fixed-launchPower),weights=out.grid.fixedLoads.reduce((n,l)=>n+l.weight,0);
+ const launchers=mods.filter(m=>isConcussionLauncher(m.missileKind)&&m.launchPowerW>0),launchPower=launchers.reduce((n,m)=>n+m.launchPowerW,0),fixed=Math.max(0,(out.grid.fixed||0)-(out.grid.cooling||0)),hotel=Math.max(0,fixed-launchPower),weights=out.grid.fixedLoads.reduce((n,l)=>n+l.weight,0);
  if(launchers.length){out.grid.fixedLoads=out.grid.fixedLoads.map(l=>({...l,weight:weights>0?l.weight/weights*hotel:0}));if(!weights&&hotel>0)out.grid.fixedLoads.push({id:'hotel',port:null,domain:'main',weight:hotel});for(const m of launchers)out.grid.fixedLoads.push({id:m.port||'f'+m.fit,port:m.port||'f'+m.fit,domain:m.domain||'main',weight:m.launchPowerW});}
  out.propulsion=propulsionProfile(ship,S);for(const e of out.propulsion.engines){const m=mods[e.moduleIndex];if(m)e.domain=m.domain||'main';}return out;
 }
@@ -30082,7 +40544,7 @@ function fleetModules(ship,S){
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
   const mm=k==='launcher'?MISSILE_MOUNTS[missileMount(f)]:null,cellK=mm&&missileMount(f)==='vls'?clamp(S.vlsInfo?.[f.id]?.ratio??1,0,1):1,launcher=k==='launcher'?missileLauncherSpec(f):null;
-  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,...(k==='weapon'?{weaponPowerW:Math.max(0,s.power||0)}:{}),stock:launcher?(launcher.kind==='cmsl'?Math.floor(launcher.ammo*cellK+1e-9):Math.round(launcher.ammo*cellK)):0,mount:launcher?.mount,...(launcher?{missileKind:launcher.kind,salvo:launcher.salvo,cycle:launcher.cycle,tt:launcher.tt,ammo0:launcher.ammo0,muzzle:sub(launcher.origin,[(X0+X1)/2,yc,zc]),launchDir:launcher.axis.slice(),...(launcher.kind==='cmsl'?{launchPowerW:s.power||0}:{})}:{}),ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
+  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,...(k==='weapon'?{weaponPowerW:Math.max(0,s.power||0)}:{}),stock:launcher?(isConcussionLauncher(launcher.kind)?Math.floor(launcher.ammo*cellK+1e-9):Math.round(launcher.ammo*cellK)):0,mount:launcher?.mount,...(launcher?{missileKind:launcher.kind,launcherCells:launcher.cells||1,ammoPerCell:launcher.ammoPerCell||6,missileRange:launcher.range??(isCraft(ship)?10000:60000),launchMuzzles:(launcher.muzzles||[launcher.origin]).map(q=>sub(q,[(X0+X1)/2,yc,zc])),launchBlocked:!!launcher.blocked||isShipLauncher(f)&&!launcherClearance(ship,f),salvo:launcher.salvo,cycle:launcher.cycle,tt:launcher.tt,ammo0:launcher.ammo0,muzzle:sub(launcher.origin,[(X0+X1)/2,yc,zc]),launchDir:launcher.axis.slice(),...(isConcussionLauncher(launcher.kind)?{launchPowerW:s.power||0}:{})}:{}),ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
  for(const p of [...allOccupied(ship),...ship.parts.filter(isWing)]){
   if(p.windowId!=null||p.turretRoom)continue;const V=partVolume(p);if(!(V>0))continue;const k=isWing(p)?p.wing.thermal==='low'&&!p.wing.solar?'radiator':'dissipator':MODULE_PART_KIND[p.k]||'other';
@@ -30090,7 +40552,7 @@ function fleetModules(ship,S){
   // v23 External dissipators stand out of the hull: they present more to fire and are as fragile as a turret.
   const ext=(isWing(p)||DISSIPATORS[p.k]?.ext)&&(S.info?.[p.id]?.exposed||0)>.2;if(ext)w*=1+2*(S.info[p.id].exposed||0);
   const credited=k==='quarters'?(commonHab.explicitByPart?.[p.id]??0):V;const m={k,name:partLabel(p),w:k==='quarters'?Math.pow(credited,2/3)*QUARTERS_WEIGHT:w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:credited,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};
-  if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(p.id>0||p.k==='machinery'&&p.id<0)m.part=p.id;if(p.k==='machinery')m.machineryOwner=-p.id;if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
+  if(k==='shield'&&Number.isFinite(p.shieldDissipationW)&&p.shieldDissipationW>=0)m.shieldDissipationW=p.shieldDissipationW;if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(p.id>0||p.k==='machinery'&&p.id<0)m.part=p.id;if(p.k==='machinery')m.machineryOwner=-p.id;if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
  // v19: the crew and troops live in the free volume; hits through it kill people
  // (living zones by quarter length, weighted lightly against the systems).
  const hab=habitationSpace(ship);if(hab.points?.length){const dv=hab.cell.reduce((a,b)=>a*b,1),zones=[0,1,2,3].map(()=>({n:0,c:[0,0,0]}));
@@ -30260,35 +40722,73 @@ function fleetUnit(id,key,p,team=0){
  const shield=Math.max(0,p.shieldBuffer??p.D*K.bufferS),bank=Math.max(0,p.reserve||0),mods=p.modules||[];
  return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:0,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false});
 }
+// Ranges belong to the round/launcher, including old profiles without the new metadata.
+function missileRange(value){
+ if(Number.isFinite(value)&&value>0)return value;
+ const explicit=value?.missileRange??value?.range;if(Number.isFinite(explicit)&&explicit>0)return explicit;
+ const kind=typeof value==='string'?value:value?.missileKind||value?.kind||value?.k;
+ return kind==='cmsl'?10000:60000;
+}
+function missileMaxRange(value){
+ const p=value?.p||value,mods=p?.modules||[],launchers=mods.filter(m=>m.k==='launcher');
+ if(launchers.length)return Math.max(0,...launchers.map(m=>missileRange(m)));
+ return (p?.msl||0)+(p?.imsl||0)>0&&!(p?.profileVersion>=5)?60000:0;
+}
+function missileFireAt(p,distance){
+ const launchers=(p.modules||[]).filter(m=>m.k==='launcher');
+ if(!launchers.length)return distance<=missileMaxRange(p)?((p.msl||0)+(p.imsl||0))/20:0;
+ return launchers.reduce((n,m)=>n+(distance<=missileRange(m)&&!m.launchBlocked?(m.tt||10)*(m.salvo||8)/(m.cycle||20):0),0);
+}
+function missileFlightLife(range,speed=2600,launch=220,accel=650){
+ const r=missileRange(range),v=Math.max(1,speed),s=clamp(launch,0,v),a=Math.max(0,accel),t=a>0?(v-s)/a:0,d=(s+v)*t/2;
+ return a>0&&r<d?(Math.sqrt(s*s+2*a*r)-s)/a:t+(r-d)/v;
+}
+function missileCellAmmo(u,i){
+ const m=u.p.modules?.[i],cells=Math.max(1,Math.min(256,Math.round(m?.launcherCells||m?.salvo||1))),total=Math.min(6*cells,Math.max(0,Math.floor(u.ammo?.[i]||0)));
+ u.launcherCellAmmo=Array.isArray(u.launcherCellAmmo)?u.launcherCellAmmo:[];
+ let row=u.launcherCellAmmo[i];if(!Array.isArray(row)||row.length!==cells)row=new Array(cells).fill(0);
+ row=row.map(n=>clamp(Math.floor(n)||0,0,6));let difference=total-row.reduce((a,b)=>a+b,0);
+ // A refill or retained magazine fills cells evenly; live cells otherwise keep their own inventory.
+ while(difference!==0){let changed=false;for(let j=0;j<cells&&difference!==0;j++){if(difference>0&&row[j]<6){row[j]++;difference--;changed=true;}else if(difference<0&&row[j]>0){row[j]--;difference++;changed=true;}}if(!changed)break;}
+ u.launcherCellAmmo[i]=row;return row;
+}
 function missileLauncherPowered(u,i){
  const m=u.p.modules?.[i];if(!m||m.k!=='launcher'||u.dead||u.out||!(u.mods?.[i]>0)||m.powerConnected===false)return false;
- if(m.missileKind==='cmsl'&&(![m.muzzle,m.launchDir].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))||len(m.launchDir)<=1e-9||!(m.cycle>0)||!(m.salvo>0)||!(m.tt>0)))return false;
+ if(m.launchBlocked)return false;
+ if(isConcussionLauncher(m.missileKind)&&(![m.muzzle,m.launchDir].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))||len(m.launchDir)<=1e-9||!(m.cycle>0)||!(m.salvo>0)||!(m.tt>0)))return false;
  if(!((u.pw?.P||0)>0&&powerFactor(u,'reactor')>0&&powerFactor(u,'launcher',i)>0&&propulsionModuleHeat(u,'weapon',i)>0))return false;
  const port=m.port||(m.fit!=null?'f'+m.fit:null),loads=u.p.grid?.fixedLoads||[],known=port&&loads.some(l=>l.port===port&&l.weight>0),grants=u.propulsion?.power?.granted;
  if(known)return !!grants&&(grants['fixed:'+port]||0)>0;
- return !(m.missileKind==='cmsl'&&u.p.profileVersion>=5);
+ return !(isConcussionLauncher(m.missileKind)&&u.p.profileVersion>=5);
 }
 function fleetMissileStep(u,dt,active=false,options={}){
  const mods=u.p.modules||[],out=[];if(!(dt>0)||!Number.isFinite(dt))return out;
  u.launcherT=Array.isArray(u.launcherT)?u.launcherT:[];
  for(let i=0;i<mods.length;i++){
   const m=mods[i];if(m.k!=='launcher')continue;
-  const native=m.missileKind==='cmsl',cycle=native&&Number.isFinite(m.cycle)&&m.cycle>0?m.cycle:20,salvo=native&&Number.isInteger(m.salvo)&&m.salvo>0?m.salvo:8,tt=native&&Number.isFinite(m.tt)&&m.tt>0?m.tt:10;
-  if(native&&Array.isArray(u.ammo)){const capacity=Math.max(0,Math.min(6,Number.isFinite(m.stock)?m.stock:6)),loadCap=u.missileLoadCaps?.[m.fit];u.ammo[i]=Math.min(capacity,Number.isFinite(loadCap)?Math.max(0,loadCap):capacity,Math.max(0,Number.isFinite(u.ammo[i])?u.ammo[i]:0));}
-  const ready=active&&missileLauncherPowered(u,i),ammo=Math.max(0,Number.isFinite(u.ammo?.[i])?u.ammo[i]:0),previous=Number.isFinite(u.launcherT[i])?Math.max(0,u.launcherT[i]):native?0:Math.max(0,u.mslT||0);
+  const native=isConcussionLauncher(m.missileKind),cycle=native&&Number.isFinite(m.cycle)&&m.cycle>0?m.cycle:20,salvo=native&&Number.isInteger(m.salvo)&&m.salvo>0?m.salvo:8,tt=native&&Number.isFinite(m.tt)&&m.tt>0?m.tt:10,range=missileRange(m);
+  if(native&&Array.isArray(u.ammo)){const capacity=Math.max(0,Math.min(6*(m.missileKind==='shipMsl'?salvo:1),Number.isFinite(m.stock)?m.stock:6)),loadCap=u.missileLoadCaps?.[m.fit];u.ammo[i]=Math.min(capacity,Number.isFinite(loadCap)?Math.max(0,loadCap):capacity,Math.max(0,Number.isFinite(u.ammo[i])?u.ammo[i]:0));}
+  const distance=typeof options.distance==='function'?options.distance(m,i):options.distance,ready=active&&(distance==null||distance<=range)&&missileLauncherPowered(u,i),ammo=Math.max(0,Number.isFinite(u.ammo?.[i])?u.ammo[i]:0),previous=Number.isFinite(u.launcherT[i])?Math.max(0,u.launcherT[i]):native?0:Math.max(0,u.mslT||0);
+  if(m.missileKind==='shipMsl'){
+   const cells=missileCellAmmo(u,i);if(!ready||!(ammo>0)){u.launcherT[i]=Math.max(0,previous-dt);continue;}
+   let timer=previous-dt,volleys=0;while(timer<=1e-9&&cells.some(n=>n>0)){
+    for(let cell=0;cell<cells.length;cell++)if(cells[cell]>0){cells[cell]--;u.ammo[i]--;out.push({module:i,cell,n:1,tt,range,ion:!!m.ion,kind:m.missileKind,muzzle:m.launchMuzzles?.[cell]||m.muzzle,axis:m.launchDir});}
+    timer+=cycle;if(++volleys>=6)break;
+   }u.launcherT[i]=Math.max(0,timer);continue;
+  }
   if(!native&&options.legacyContinuous){
    u.launcherT[i]=Math.max(0,previous-dt);if(!ready||!(ammo>0))continue;
-   const n=Math.min(ammo,8/20*dt);u.ammo[i]=ammo-n;out.push({module:i,n,tt,ion:!!m.ion,kind:m.ion?'itorp':'legacy',muzzle:m.muzzle,axis:m.launchDir});continue;
+   const n=Math.min(ammo,8/20*dt);u.ammo[i]=ammo-n;out.push({module:i,n,tt,range,ion:!!m.ion,kind:m.ion?'itorp':'legacy',muzzle:m.muzzle,axis:m.launchDir});continue;
   }
   if(!ready||ammo<salvo){u.launcherT[i]=Math.max(0,previous-dt);continue;}
   let timer=previous-dt;const salvos=timer<=1e-9?Math.min(Math.floor(ammo/salvo),Math.floor((-timer+1e-9)/cycle)+1):0,n=salvos*salvo,remaining=ammo-n;timer+=salvos*cycle;
   u.launcherT[i]=Math.max(0,timer);if(!(n>0))continue;u.ammo[i]=remaining;
-  out.push({module:i,n,tt,ion:!!m.ion,kind:native?'cmsl':m.ion?'itorp':'legacy',muzzle:m.muzzle,axis:m.launchDir});
+  out.push({module:i,n,tt,range,ion:!!m.ion,kind:native?m.missileKind:m.ion?'itorp':'legacy',muzzle:m.muzzle,axis:m.launchDir});
  }
  return out;
 }
 function missileLaunchWorld(u,packet,target){
- const vector=q=>Array.isArray(q)&&q.length===3&&q.every(Number.isFinite),c=Math.cos(u.yaw||0),s=Math.sin(u.yaw||0),rotate=q=>[q[0]*c-q[2]*s,q[1],q[0]*s+q[2]*c],physical=packet.kind==='cmsl'&&vector(packet.muzzle)&&vector(packet.axis)&&len(packet.axis)>1e-9;
+ const vector=q=>Array.isArray(q)&&q.length===3&&q.every(Number.isFinite),c=Math.cos(u.yaw||0),s=Math.sin(u.yaw||0),rotate=q=>[q[0]*c-q[2]*s,q[1],q[0]*s+q[2]*c],physical=isConcussionLauncher(packet.kind)&&vector(packet.muzzle)&&vector(packet.axis)&&len(packet.axis)>1e-9;
  const origin=physical?add(u.pos,rotate(packet.muzzle)):add(u.pos,[0,u.p.height?u.p.height*.3:50,0]),axis=physical?norm(rotate(packet.axis)):target?norm(sub(target.pos,origin)):[c,0,s];
  return {origin,axis,physical};
 }
@@ -30578,7 +41078,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -30964,16 +41464,16 @@ function fleetTick(b,dt,opts={}){
  // Choose the shared battery's role from the common pre-step snapshot, before
  // any gun fires or an arriving flight is added to its carrier's aircraft.
  const defenseThreats=before.filter(x=>{if(x.manual||x.out||x.order.fire===false)return false;if(x.air>0)return true;if(!((x.p.msl||0)+(x.p.imsl||0)>0))return false;const launchers=(x.p.modules||[]).map((m,i)=>m.k==='launcher'?i:-1).filter(i=>i>=0);return !launchers.length||launchers.some(i=>x.mods[i]>0&&x.ammo[i]>0);});
- for(const u of alive)fleetDefense(u,defenseThreats.filter(x=>x.air>0||len(sub(x.pos,u.pos))<=GUN_BANDS.long.range*1.5).map(x=>({team:x.team,pos:u.pos})));
+ for(const u of alive)fleetDefense(u,defenseThreats.filter(x=>x.air>0||len(sub(x.pos,u.pos))<=missileMaxRange(x)).map(x=>({team:x.team,pos:u.pos})));
  for(const u of alive){const o=u.order,p=u.p,s=sys.get(u.id),crewEff=fleetCrewEff(u);
   if(u.manual)continue;
-  let t=null,raw=0,F=null,distance=0;const enemies=alive.filter(x=>x.team!==u.team),live=enemies.filter(fleetEffective),pool=live.length?live:enemies,reach=Math.max(fleetReach(p),(p.msl||0)+(p.imsl||0)>0?GUN_BANDS.long.range*1.5:0);
+  let t=null,raw=0,F=null,distance=0;const enemies=alive.filter(x=>x.team!==u.team),live=enemies.filter(fleetEffective),pool=live.length?live:enemies,reach=Math.max(fleetReach(p),missileMaxRange(u));
   if(b.combat&&!u.out&&o.fire!==false){const explicit=o.type==='attack'?enemies.find(x=>x.id===o.target):null,priority=explicit||(o.type==='escort'&&byId.get(o.target)?escortPick(u,byId.get(o.target),pool,reach):null),targets=explicit&&!pool.includes(explicit)?[explicit,...pool]:pool;
    u.blocked=null;let blocked=null;for(const q of fleetTargetCandidates(u,targets,reach,priority,false)){const obstruction=fireBlocker(alive,u,q.target);if(obstruction){blocked||=obstruction;continue;}t=q.target;distance=q.distance;F=q.F;raw=F.cost*(F.runtime?1:s.weapon);break;}if(!t&&blocked)u.blocked=blocked.id;
   }
   const vk=volleyStep(u,dt,!!t&&(F.gun+F.ion>0)),accounted=F?.runtime||p.energyModel?.version===1;if(accounted)raw*=vk;
   const fire=fleetPowerStep(u,s,t&&byId.get(t.id),raw,dt,vk);u.firingAt=t?t.id:null;
-  const missilePackets=fleetMissileStep(u,dt,!!(b.combat&&!u.out&&t&&((p.msl||0)+(p.imsl||0)>0)&&distance<=GUN_BANDS.long.range*1.5),{legacyContinuous:true});
+  const missilePackets=fleetMissileStep(u,dt,!!(b.combat&&!u.out&&t&&((p.msl||0)+(p.imsl||0)>0)),{legacyContinuous:true,distance});
   if(!b.combat||u.out)continue;
   const requested=o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
   const hatchSeconds=u.hatchTarget?(p.hatchOpenSeconds||4):(p.hatchCloseSeconds||4);u.hatchOpen=sliding?clamp(oldOpen+(u.hatchTarget?1:-1)*dt/hatchSeconds,0,1):0;
@@ -30982,11 +41482,11 @@ function fleetTick(b,dt,opts={}){
   // v22 Each craft that arrives brings its stores (p.airOrd TT); they are spent as the craft attack, and lost with them.
   while(u.queue.length&&u.queue[0][0]<=b.time){const n=u.queue.shift()[1];u.air+=n;if(p.airOrd>0)u.ordPool=(u.ordPool||0)+n*p.airOrd;}
   if(!t)continue;const aim=fleetAim(u,t,true),defenseAA=Math.max(0,(t.p.aa||0)-(t.dualDefense&&!t.manual?0:t.p.dualPurpose?.aa||0));
-  const hit=p.acc*F.fall*crewEff*(.6+.4*s.fire)*(aim?.8:1),gun=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*hit,ion=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*hit;
+  const quality=crewEff*(aim?.8:1),gunHit=quality*F.gunHit,ionHit=quality*F.ionHit,hit=quality*F.fall,gun=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*gunHit,ion=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*ionHit;
   // Missiles draw on each intact launcher's magazine.
   // v22 Ion torpedo launchers draw on their magazines the same way; their share goes to the ion channel.
-  let msl=0,imsl=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=GUN_BANDS.long.range*1.5){const total=(p.modules||[]).filter(m=>m.k==='launcher').length;
-   if(!total&&!(p.profileVersion>=5)&&(u.pw?.P||0)>0&&powerFactor(u,'reactor')>0){msl=(p.msl||0)/20*crewEff;imsl=(p.imsl||0)/20*crewEff;}else for(const packet of missilePackets){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*(packet.kind==='cmsl'?1:crewEff);if(packet.ion)imsl+=damage;else msl+=damage;}
+  let msl=0,imsl=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=missileMaxRange(u)){const total=(p.modules||[]).filter(m=>m.k==='launcher').length;
+   if(!total&&!(p.profileVersion>=5)&&(u.pw?.P||0)>0&&powerFactor(u,'reactor')>0){msl=(p.msl||0)/20*crewEff;imsl=(p.imsl||0)/20*crewEff;}else for(const packet of missilePackets){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*(isConcussionLauncher(packet.kind)?1:crewEff);if(packet.ion)imsl+=damage;else msl+=damage;}
    const icpt=1-.7*defenseAA/(defenseAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*.6*(1-.5*airEnemy/(u.air+airEnemy+1));
@@ -31000,7 +41500,7 @@ function fleetTick(b,dt,opts={}){
   if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f});combatAdd(incoming.get(scr.id),scr,u.pos,part(k),null,u.id);combatAdd(incoming.get(t.id),t,u.pos,part(1-k),null,u.id);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
   else combatAdd(incoming.get(t.id),t,u.pos,amt,aim,u.id);
   // What misses may strike a ship of our own close to the target.
-  const miss=Math.max(0,1-hit);if(miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*miss*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*miss*k;if(!(g2+i2>0))continue;combatAdd(incoming.get(x.id),x,u.pos,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},null,u.id);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
+  const miss=Math.max(0,1-hit);if(miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAdd(incoming.get(x.id),x,u.pos,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},null,u.id);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
   if(gun+ion+msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,salvo:vk>1,...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
  }
  // Current power allocation controls this tick's thrust; the thermal update follows motion and accrual once.
@@ -31388,7 +41888,7 @@ function craftSystemsStats(ship,S){
 }
 // ---------- v22 ordnance as stores ----------
 // Each round is a physical object: a length and diameter (m), a mass (t) and what its hit delivers (TT; an ion
-// round's TT go to the ion channel, three times as hard on shields). Rounds ride in the craft's store stations —
+// round's TT enter shield acceptance and connected-grid overload). Rounds ride in the craft's store stations —
 // a launch tube's magazine, the bomb bay, a wing pylon — and are used up as they are fired; the craft rearms in
 // its carrier's hangar. The designer shows only what the stations can take; the order of battle chooses what
 // each squadron carries (お任せ: the craft's canon loadout, CRAFT_LOADOUT).
@@ -31400,7 +41900,7 @@ const ORDNANCE=Object.freeze({
  ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',dims:[1.3,.3],mass:.12,tt:70,guided:true,speed:1600,desc:'誘導式の対艦魚雷。半分はシールドを抜ける。'},
  itorp:{name:'イオン魚雷',short:'イオン魚雷',dims:[1.3,.3],mass:.12,tt:40,ion:true,guided:true,speed:1600,desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
  etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',dims:[1.3,.3],mass:.1,tt:25,guided:true,speed:1800,desc:'ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。'},
- cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',dims:[1.0,.2],mass:.045,tt:25,guided:true,speed:2000,desc:'細く速い誘導ミサイル。弾頭は魚雷より小さい。'},
+ cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',dims:[1.0,.2],mass:.045,tt:25,guided:true,speed:2000,range:10000,desc:'細く速い誘導ミサイル。弾頭は魚雷より小さい。射程10 km。'},
  bomb:{name:'プロトン爆弾',short:'プロトン爆弾',dims:[1.0,.3],mass:.14,tt:60,bomb:true,speed:600,desc:'誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'}
 });
 const ORDNANCE_EVIDENCE='弾の寸法・質量は正史・レジェンズに数値がないため、作例の発射管（実測）に収まる大きさとしたゲーム用仮定。威力はゲーム用仮定（正史の搭載で1回目の攻撃航過が航行の機種表の対艦値に近くなる値）。';
@@ -31464,7 +41964,7 @@ function normalizeLoad(stations,load,base){
 // holder (a design craft's snapshot, a voyage craft entry); load: a squadron's chosen loadout (stations' [{k, n}]).
 function craftOrdnance(x,load){
  const L=craftLoadout(x);if(!L)return [];const ld=normalizeLoad(L.stations,load==null||load==='auto'?L.load:load,L.load);
- return L.stations.map((st,i)=>{const q=ld[i],o=ORDNANCE[q?.k];if(!o||!(q.n>0))return null;return {kind:q.k,n:q.n*st.count,per:q.n,stations:st.count,mount:st.mount,fit:st.fit,dims:o.dims.slice(),name:o.name,mass:o.mass,tt:o.tt,ion:!!o.ion,guided:!!o.guided,bomb:!!o.bomb};}).filter(Boolean);
+ return L.stations.map((st,i)=>{const q=ld[i],o=ORDNANCE[q?.k];if(!o||!(q.n>0))return null;return {kind:q.k,n:q.n*st.count,per:q.n,stations:st.count,mount:st.mount,fit:st.fit,dims:o.dims.slice(),name:o.name,mass:o.mass,tt:o.tt,...(o.range?{range:o.range}:{}),ion:!!o.ion,guided:!!o.guided,bomb:!!o.bomb};}).filter(Boolean);
 }
 // Attack runs a full load lasts (bombers release in two sticks, the rest fire over three runs), and the rounds
 // one craft releases on a run.
@@ -31526,7 +42026,7 @@ function craftCombat(ship,S,options={}){
 // Aircraft retain the same connected electrical and local thermal model as their editable design.
 // Omit tactical hull geometry: this snapshot is reused by every squadron of the type.
 function craftPowerProfile(ship,S){
- const p={name:ship.name||'設計機',modules:fleetModules(ship,S),energyModel:{version:ship.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta},D:Math.max(0,S.shieldP||0)/TT*K.deflect,shieldBuffer:Math.max(0,S.shieldCapacity||0)/TT,wCap:0,crewNeed:Math.max(0,S.crew||0),crewMax:Math.max(0,S.crewAboard??S.crew??0),hp:Math.max(1,S.hp||1),len:S.dims?.[0]||ship.hull.L,width:S.dims?.[1]||ship.hull.W,height:S.dims?.[2]||ship.hull.H};
+ const p={name:ship.name||'設計機',modules:fleetModules(ship,S),energyModel:{version:ship.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta},D:Math.max(0,S.shieldP||0)/TT*K.deflect,shieldBuffer:Math.max(0,S.shieldCapacity||0)/TT,...(Number.isFinite(S.shieldDissipationW)?{shieldDissipationW:Math.max(0,S.shieldDissipationW)}:{}),wCap:0,crewNeed:Math.max(0,S.crew||0),crewMax:Math.max(0,S.crewAboard??S.crew??0),hp:Math.max(1,S.hp||1),len:S.dims?.[0]||ship.hull.L,width:S.dims?.[1]||ship.hull.W,height:S.dims?.[2]||ship.hull.H};
  if(S.wings?.some(x=>x.foil))p.foils=S.wings.filter(x=>x.foil).map(x=>({id:x.id,n:x.name||'S-foil',T:x.T,sec:-1,jam:Math.max(0,x.jamAt||0)}));
  attachShipPowerProfile(p,ship,S);p.profileVersion=FLEET_PROFILE_VERSION;const H=heatProfileOf(p,S);if(H)p.heat=H;return p;
 }
@@ -31534,7 +42034,7 @@ function cleanCraftPowerProfile(raw,blueprint=null){
  if(!raw||typeof raw!=='object'||raw.propulsion?.version!==PROPULSION_MODEL_VERSION||!Array.isArray(raw.propulsion.engines)||!Array.isArray(raw.modules)||raw.modules.length>DESIGN_LIMITS.parts+DESIGN_LIMITS.fits)return null;
  let count=0;const copy=(v,depth=0)=>{if(++count>200000||depth>16)throw new Error('power snapshot too large');if(v==null||typeof v==='boolean')return v;if(typeof v==='number')return Number.isFinite(v)&&Math.abs(v)<=1e40?v:null;if(typeof v==='string')return v.slice(0,200);if(Array.isArray(v))return v.slice(0,12000).map(q=>copy(q,depth+1));if(typeof v!=='object')return undefined;const q={};for(const k of Object.keys(v))if(!k.startsWith('_')&&!['__proto__','constructor','prototype'].includes(k))q[k]=copy(v[k],depth+1);return q;};
  try{
-  const p={};for(const k of ['profileVersion','name','modules','grid','propulsion','heat','foils','surface','energyModel','D','shieldBuffer','wCap','crewNeed','crewMax','hp','len','width','height'])if(Object.hasOwn(raw,k))p[k]=copy(raw[k]);
+  const p={};for(const k of ['profileVersion','name','modules','grid','propulsion','heat','foils','surface','energyModel','D','shieldBuffer','shieldDissipationW','wCap','crewNeed','crewMax','hp','len','width','height'])if(Object.hasOwn(raw,k))p[k]=copy(raw[k]);
   const descriptor=p.propulsion,mass=descriptor.massKg;descriptor.massKg=Number.isFinite(mass)&&mass>0?mass:0;descriptor.engines=descriptor.engines.slice(0,DESIGN_LIMITS.parts);
   let canonical=null;if(blueprint){canonical=CRAFT_PROPULSION_BLUEPRINTS.get(blueprint);if(!canonical){const ship=deserialize(blueprint);canonical=new Map(ship.parts.filter(q=>q.k==='engine').map(q=>{const spec=resolveEngineSpec(q,ship);return [q.id,{spec,feedCap:Number.isFinite(q.feedCapacityW)?Math.max(0,q.feedCapacityW):spec.maxInputW,sourceExists:ship.parts.some(r=>isReactor(r)&&r.id===spec.reactorId),outletAvailable:engineVented(ship,q)}];}));CRAFT_PROPULSION_BLUEPRINTS.set(blueprint,canonical);}}
   const unique=new Map(),outlets=new Set();for(const e of descriptor.engines){
@@ -32084,7 +42584,7 @@ function hullGeo(ship){
 }
 function structTriangles(p){
  const base=uncutSolidStructTriangles(p),ship=p._solidCutShip;if(!ship?.solidCuts?.some(c=>ship.hull.assembly||c.structures)){delete p._solidGeometry;return base;}
- const key=JSON.stringify([ship.hull.assembly,ship.solidCuts]),old=p._solidGeometry;if(old?.base===base&&old.key===key)return old.tris;
+ const key=JSON.stringify([ship.hull.assembly,ship.solidCuts,ship.fits.filter(f=>isShipLauncher(f)&&shipLauncherConfig(f).embedded&&(f.host===p.id||f.host==='p'+p.id)).map(launcherStateKey)]),old=p._solidGeometry;if(old?.base===base&&old.key===key)return old.tris;
  const materialBase=p._apertures?.length?p._pierced.material:base,material=applySolidCuts(ship,materialBase,true);let tris=material;
  if(materialBase!==base){const doors=base.slice(materialBase.length),fragments=[];for(let i=0;i<doors.length;i+=9){let polys=[[Array.from(doors.slice(i,i+3)),Array.from(doors.slice(i+3,i+6)),Array.from(doors.slice(i+6,i+9))]];for(const c of ship.solidCuts){if(!ship.hull.assembly&&!c.structures)continue;for(const q of compiledSolidCut(c).instances){const next=[];for(let poly of polys)for(const plane of q.planes){const outside=clipGeneral(poly,mul(plane.n,-1),-plane.d);if(outside.length>2)next.push(outside);poly=clipGeneral(poly,plane.n,plane.d);if(poly.length<3)break;}polys=next;}}for(const poly of polys)triangulateFan(poly,fragments);}tris=new Float32Array(material.length+fragments.length);tris.set(material);tris.set(fragments,material.length);}
  p._solidGeometry={base,key,tris,material};return tris;
@@ -32534,12 +43034,12 @@ function surfaceCaptureConfig(ship,ids){
  for(const p of source.patches)if(hosts.has(surfaceHostOf(p.id))&&!seen.has(p.id))patches.push(publicCopyOf(p));
  const partitions=(source.partitions||[]).filter(p=>hosts.has(surfaceHostOf(p.baseId))).map(publicCopyOf),frames=[...new Map(descriptors.map(p=>[p.baseId,{id:p.baseId,u:p.u.slice(),v:p.v.slice(),center:(p._origin||p.center).slice()}])).values()];
  const orphaned=patches.filter(p=>!seen.has(p.id)).map(p=>p.id);
- return patches.length||partitions.length?{version:SURFACE_VERSION,mode:source.mode==='strict'?'strict':'compat',compatAllowed:source.compatAllowed!==false,patches,...(partitions.length?{partitions}:{}),...(orphaned.length?{orphaned}:{}),frames}:null;
+ return patches.length||partitions.length?{version:SURFACE_VERSION,mode:'strict',compatAllowed:false,patches,...(partitions.length?{partitions}:{}),...(orphaned.length?{orphaned}:{}),frames}:null;
 }
 function surfaceMapSnapshot(snapshot,mapping,mirror=false,patches=null){
  if(!Array.isArray(snapshot?.patches))return null;
  const clean=normalizeSurfaces(snapshot);if(!clean)return null;const frames=(Array.isArray(snapshot.frames)?snapshot.frames:[]).filter(f=>typeof f?.id==='string'&&[f.u,f.v].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))).slice(0,SURFACE_MAX).map(f=>({id:f.id,u:norm(f.u),v:norm(f.v),...(Array.isArray(f.center)&&f.center.length===3&&f.center.every(Number.isFinite)?{center:f.center.slice()}: {})})),orphaned=(Array.isArray(snapshot.orphaned)?snapshot.orphaned:[]).filter(id=>typeof id==='string').slice(0,SURFACE_MAX);snapshot={...clean,frames,orphaned};
- const out={version:SURFACE_VERSION,mode:snapshot.mode==='strict'?'strict':'compat',compatAllowed:snapshot.compatAllowed!==false,patches:[]},remap=new Map(),z=!!(mirror===true||mirror==='z'||mirror?.z),y=!!(mirror==='y'||mirror?.y),reflect=v=>[v[0],y?-v[1]:v[1],z?-v[2]:v[2]];
+ const out={version:SURFACE_VERSION,mode:'strict',compatAllowed:false,patches:[]},remap=new Map(),z=!!(mirror===true||mirror==='z'||mirror?.z),y=!!(mirror==='y'||mirror?.y),reflect=v=>[v[0],y?-v[1]:v[1],z?-v[2]:v[2]];
  const orphanBases=new Set(orphaned.map(id=>id.split('/')[0])),orphanId=id=>{const base=id.split('/')[0],bits=base.split(':'),host=surfaceMappedHost(bits[0],mapping);return host?[host,surfaceMirrorFace(bits[1],mirror),bits[2],'orphan'+surfaceHash(base)].join(':')+id.slice(base.length):null;};
  const partitions=[];for(const source of snapshot.partitions||[]){const baseId=orphanBases.has(source.baseId)?orphanId(source.baseId):surfaceRemapPatchId(source.baseId,mapping,mirror,patches,frames);if(!baseId)continue;const frame=snapshot.frames?.find(f=>f.id===source.baseId),target=patches?.find(p=>p.baseId===baseId||p.id===baseId),flipU=!!(frame&&target&&dot(reflect(frame.u),target.u)<0),flipV=!!(frame&&target&&dot(reflect(frame.v),target.v)<0),leaves=[];
   for(const src of source.leaves||[]){const r=src.range.slice(),range=[flipU?1-r[2]:r[0],flipV?1-r[3]:r[1],flipU?1-r[0]:r[2],flipV?1-r[1]:r[3]],id=baseId+'/r'+range.map(n=>Math.round(n*1e6).toString(36)).join('.');leaves.push({id,range});remap.set(src.id,id);}
@@ -32588,7 +43088,7 @@ function surfaceCopySelection(ship,ids){
 function surfacePasteConfig(ship,snapshot,mapping,mirror=false,netLinks=[]){
  const logicalMaps=mapping?.parts?mapping:{parts:mapping||new Map(),fits:new Map()},ensure=(kind,id)=>{const m=logicalMaps[kind]||(logicalMaps[kind]=new Map());if(m instanceof Map){if(!m.has(id))m.set(id,nid(ship));}else if(m[id]==null)m[id]=nid(ship);};for(const q of snapshot?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])ensure('parts',r[0]);for(const r of q.aggregate?.guns||[])ensure('fits',r[0]);}mapping=logicalMaps; if(!snapshot?.patches?.length&&!snapshot?.partitions?.length&&!netLinks?.length)return [];
  const patches=typeof surfacePatches==='function'?surfacePatches(ship):[],mapped=surfaceMapSnapshot(snapshot,mapping,mirror,patches),records=mapped?.patches||[],remap=mapped?mapped._ids:new Map();
- if(records.length){if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,mode:snapshot.mode==='strict'?'strict':'compat',compatAllowed:snapshot.compatAllowed!==false,patches:[]};if(!Array.isArray(ship.surfaces.patches))ship.surfaces.patches=[];
+ if(records.length){if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,mode:'strict',compatAllowed:false,patches:[]};if(!Array.isArray(ship.surfaces.patches))ship.surfaces.patches=[];
   const existing=new Set(ship.surfaces.patches.map(p=>p.id));
   for(const src of records){if(existing.has(src.id))continue;ship.surfaces.patches.push(publicCopyOf(src));existing.add(src.id);
   }
@@ -32680,7 +43180,7 @@ function normalizeAssemblyTemplate(o){
 // Mirror one child across Z = 0 (USERPART-003): the same transform as the
 // ship's left-right symmetry (positions, rotations, nozzle directions, mesh
 // winding, equipment skins); fittings flip their normal and local position.
-function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(validTurretSupport(q.mountSupport))q.mountSupport={...q.mountSupport,polys:q.mountSupport.polys.map(poly=>poly.map(p=>[p[0],-p[1],p[2]]).reverse())};if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(fitCanRotate(f)){if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(q.tilt)q.tilt=mirrorP(q.tilt);if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;if(q.assetYaw!=null)q.assetYaw=-q.assetYaw;}if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
+function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(validTurretSupport(q.mountSupport))q.mountSupport={...q.mountSupport,polys:q.mountSupport.polys.map(poly=>poly.map(p=>[p[0],-p[1],p[2]]).reverse())};if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(fitCanRotate(f)){if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(q.tilt)q.tilt=mirrorP(q.tilt);if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;if(q.assetYaw!=null)q.assetYaw=-q.assetYaw;}if(isShipLauncher(f)){q.launchYaw=-(q.launchYaw||0);if(q.tilt)q.tilt=mirrorP(q.tilt);if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;}if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
 // USERPART-002/005: place independent copies at a point. Returns the new
 // group(s) and children, or {error}. With mirror (and the point off the
 // centre line) a mirrored instance is placed too and paired child by child.
@@ -32753,11 +43253,10 @@ const HEAT={
  waste:{reactor:.04,weapon:.25,shield:.3,engine:.05,hotel:1,sw:.12}, // share of drawn power left aboard as heat
  swShot:.02,         // share of a superweapon shot's energy left in its generator's direct system when it fires
  grade:{reactor:'high',weapon:'high',shield:'high',engine:'high',sw:'high',hotel:'low'},
- // Built-in cooling of each machine (a dedicated path to its own heat sink), as a share of the waste it makes at
- // the 'combat' preset. This is the auto-assignment that keeps every existing design (the canon examples have no
- // dissipator parts) able to fight as before at combat load; running harder ('max'), losing cooling to damage or
- // firing a superweapon (which has none: it must be wired through its generator to dissipators) fills the stores.
- integral:{reactor:1,weapon:1,shield:1,engine:1,sw:0,hotel:0},
+ // Compatibility cooling is retired. These zero values retain readable old
+ // configuration keys; only physical dissipators and the low-grade hull skin remove heat.
+ strictOnly:true,
+ integral:{reactor:0,weapon:0,shield:0,engine:0,sw:0,hotel:0},
  storeS:60,          // a source's local store holds this many seconds of its 'combat' waste
  // Dissipator ratings, W per m³, as multiples of the yard's reactor power density (fictional): internal
  // high-energy (ENG-003), external high-energy (ENG-004, × its exposed share), ordinary radiator (ENG-005, low grade only).
@@ -32773,12 +43272,12 @@ const HEAT={
  drainS:20,          // a store is offered to the paths at stored/drainS on top of what is being made
  dt:1,               // s between network solves of one ship in battle (staggered by ship; the stores accrue every tick)
  linkBreak:.35,      // a path through a section whose frames are below this share is cut
- legacySw:1.15,      // a superweapon with no dissipator in reach gets an auto-assigned one (× its average waste)
+ legacySw:0,         // retired: no automatic superweapon dissipator
  blastK:.5,          // a generator explosion takes this share of its section's frames (plus half its share of the plant)
  swInterlock:true    // AI ships hold a superweapon shot that would push its generator past critical (a pilot may not)
 };
-// Load presets for the designer (cruise, combat, max) and the hidden ones the built-in cooling is sized on: the
-// heaviest loads the automatic power distribution runs (weapons first at a standstill, shields first, full evasion).
+// Load presets for the designer (cruise, combat, max) and hidden sizing cases:
+// the heaviest loads the automatic power distribution runs (weapons first at a standstill, shields first, full evasion).
 const HEAT_PRESETS={cruise:{name:'通常航行',mode:'cruise',eng:.6,sh:1,wpn:0,sw:0},combat:{name:'戦闘',mode:'weapons',eng:.35,sh:1,wpn:1,sw:1},max:{name:'最大出力',mode:'overload',eng:.35,sh:1.5,wpn:1,sw:1},
  hold:{hidden:true,mode:'weapons',eng:.06,sh:1,wpn:1,sw:1},defend:{hidden:true,mode:'shields',eng:.35,sh:1.5,wpn:1,sw:1},evade:{hidden:true,mode:'balanced',eng:1,sh:1,wpn:1,sw:1}};
 const HEAT_SIZING=['cruise','combat','hold','defend','evade'];
@@ -32804,7 +43303,7 @@ function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon
 // with their own capacity. Each source offers what is left of its demand over its open paths (in proportion to
 // what each can still take), each dissipator accepts as much of what is offered as it has room for (the same
 // share from everyone), and that repeats until nothing moves. Paths to a dissipator only one source reaches
-// (built-in cooling, a dedicated dissipator) are filled first, then the shared ones: dedicated and shared
+// (a dedicated physical dissipator) are filled first, then the shared ones: dedicated and shared
 // equipment run on this one algorithm. Returns the flow on each link, what left each source, what each dissipator took.
 function heatSolve(D,cap,L){
  const n=D.length,m=cap.length,left=D.map(v=>Math.max(0,v||0)),room=cap.map(v=>Math.max(0,v||0)),lr=L.map(l=>Math.max(0,l.cap||0)),flow=new Float64Array(L.length),deg=new Int32Array(m);
@@ -32828,11 +43327,11 @@ function heatSolve(D,cap,L){
 const LINK_LIMIT=32000;
 function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,LINK_LIMIT)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>=0)o.cap=+l.cap;out.push(o);}return out.length?out:undefined;}
 const heatSec=(x,X0,L,cuts)=>{const a=(x-X0)/L;let i=0;while(i<cuts.length&&a>=cuts[i])i++;return i;};
-// The ship's network (ENG-001/002/006): sources, dissipators (built-in, skin, parts, auto-assigned) and links,
+// The ship's network (ENG-001/002/006): sources, real dissipator parts, low-grade skin and finite links,
 // with each source's waste at the three load presets. Ports are 'p<part id>' and 'f<fit id>'.
 function heatNetwork(ship,S){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return heatNetwork(surfaceWorkingShip(ship),S);
- const strict=ship.surfaces?.mode==='strict',domains=powerDomainGroups(ship),info=S.info||{},unplaced=new Set([...ship.parts,...ship.fits].filter(p=>p.surfaceUnplaced).map(p=>p.id)),bad=id=>!!info[id]?.overlap||unplaced.has(id),[X0,X1]=shipSpan(ship),Lx=Math.max(1,X1-X0),cuts=hullSectionShares(ship).cuts,sec=q=>heatSec(q?.[0]??(X0+Lx/2),X0,Lx,cuts);
+ const strict=true,domains=powerDomainGroups(ship),info=S.info||{},unplaced=new Set([...ship.parts,...ship.fits].filter(p=>p.surfaceUnplaced).map(p=>p.id)),bad=id=>!!info[id]?.overlap||unplaced.has(id),[X0,X1]=shipSpan(ship),Lx=Math.max(1,X1-X0),cuts=hullSectionShares(ship).cuts,sec=q=>heatSec(q?.[0]??(X0+Lx/2),X0,Lx,cuts);
  const src=[],dis=[],links=[],mid=[(X0+X1)/2,0,0];
  // v25 dissipators inside a functional wing radiate through its skin; an S-foil's stowed state masks them (WING)
  const WM=wingMap(ship),foils=ship.parts.filter(isFoil);
@@ -32843,7 +43342,7 @@ function heatNetwork(ship,S){
  for(const p of ship.parts){if(bad(p.id))continue;
   if(isReactor(p))addSrc('reactor','p'+p.id,partLabel(p)+' #'+p.id,p.c,reactorPower(p),{part:p.id});
   else if(p.k==='shield'||p.k==='localShield')addSrc('shield','p'+p.id,partLabel(p)+' #'+p.id,p.c,partVolume(p),{part:p.id});
-  else if(p.k==='engine'&&engineVented(ship,p)){const spec=resolveEngineSpec(p,ship),owner=ship.parts.find(q=>q.id===spec.machineryId)||p,source=ship.parts.find(q=>isReactor(q)&&q.id===spec.reactorId);if(spec.valid&&source&&!bad(source.id)&&!src.some(s=>s.k==='engine'&&s.id===spec.heatNode))addSrc('engine',spec.heatNode,partLabel(owner)+' #'+owner.id,owner.c,spec.ratedInputW,{part:owner.id,legacyCoolingW:spec.legacyCoolingInputW*HEAT.waste.engine});}}
+  else if(p.k==='engine'&&engineVented(ship,p)){const spec=resolveEngineSpec(p,ship),owner=ship.parts.find(q=>q.id===spec.machineryId)||p,source=ship.parts.find(q=>isReactor(q)&&q.id===spec.reactorId);if(spec.valid&&source&&!bad(source.id)&&!src.some(s=>s.k==='engine'&&s.id===spec.heatNode))addSrc('engine',spec.heatNode,partLabel(owner)+' #'+owner.id,owner.c,spec.ratedInputW,{part:owner.id});}}
  for(const f of ship.fits){const d=FITS[f.k];if(d?.cat!=='w'||f.float)continue;const P=fitSpec(f).power||0;if(P>0)addSrc('weapon','f'+f.id,(d.short||d.name)+' #'+f.id,f.p,P,{fit:f.id});}
  let localHotel=0;for(const p of ship.parts){const P=PARTS[p.k]?.power?partVolume(p)*PARTS[p.k].power:0;if(!(P>0)||bad(p.id))continue;localHotel+=P;addSrc('hotel','p'+p.id,partLabel(p)+' #'+p.id,p.c,P,{part:p.id});}
  addSrc('hotel','hotel','生活・電子設備',mid,Math.max(1,g.fixed-localHotel));
@@ -32851,7 +43350,7 @@ function heatNetwork(ship,S){
  // Each source's share of its kind's waste, its rated waste at each preset and its store.
  const tot={};for(const s of src)if(s.k!=='sw')tot[s.k]=(tot[s.k]||0)+s.w;
  for(const s of src){s.rated={};for(const pr in W)s.rated[pr]=s.k==='sw'?W[pr].sw[s.sw]||0:W[pr][s.k]*s.w/Math.max(1e-30,tot[s.k]);s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=Math.max(1,HEAT.storeS*s.size);}
- // Dissipators: the parts, the hull skin (low grade) and every source's built-in cooling.
+ // Dissipators: installed physical parts and the low-grade hull skin.
  for(const p of ship.parts){if(!DISSIPATORS[p.k]||bad(p.id))continue;const w=WM.get(p.id),e0=info[p.id]?.exposed??0,e=w&&DISSIPATORS[p.k].ext?Math.max(e0,WING.expose):e0,fo=w?foils.indexOf(w):-1;
   dis.push({k:p.k,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:DISSIPATORS[p.k].grade,cap:dissipatorCap(p,S,e)*(w?Math.min(1,w.wing.feed??1):1),part:p.id,ext:DISSIPATORS[p.k].ext,exposed:e,sec:sec(p.c),wing:w?.id??null,fo,cs:fo>=0?WING.stowK[p.k]??1:1,sh:fo>=0?WING.shade[p.k]??0:0});}
  // The wing IS the dissipator. Solar collection and cooling share one node and one damageable part.
@@ -32862,7 +43361,6 @@ function heatNetwork(ship,S){
  for(const l of manual){if(l.kind!=='heat')continue;const s=portIx.get(l.from),d=disIx.get(l.to),ok=s!=null&&d!=null&&!(dis[d]?.grade==='low'&&src[s]?.grade==='high');
   links.push({kind:'heat',from:l.from,to:l.to,s:s??-1,d:d??-1,cap:l.cap??(s!=null?HEAT.linkK*Math.max(src[s].rated.max,src[s].size):0),auto:false,ok,why:ok?null:s==null||d==null?'missing':'grade'});if(s!=null)manualHeat.add(s);}
  src.forEach((s,i)=>{
-  const ic=strict?0:s.k==='engine'?Math.max(0,s.legacyCoolingW||0):HEAT.integral[s.k]*s.size;if(ic>0){dis.push({k:'integral',id:'int:'+s.id,name:s.name+'（内蔵冷却）',at:s.at,grade:s.grade,cap:ic,src:i,sec:-1});links.push({kind:'heat',from:s.id,to:'int:'+s.id,s:i,d:dis.length-1,cap:ic,auto:true,ok:true,dedicated:true});}
   if(manualHeat.has(i))return;
   const cand=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null&&(d.grade==='high'||s.grade==='low')).sort((a,b)=>len(sub(a.d.at,s.at))-len(sub(b.d.at,s.at))||a.j-b.j).slice(0,s.grade==='low'?Infinity:HEAT.autoLinks);
   // v25 sized on the heaviest load the source sees (s.size), not only on 'max': at 'max' shields can take all the power and a gun
@@ -32870,9 +43368,6 @@ function heatNetwork(ship,S){
   for(const {d,j} of cand)links.push({kind:'heat',from:s.id,to:d.id,s:i,d:j,cap:HEAT.linkK*Math.max(s.rated.max,s.size),auto:true,ok:true,l:len(sub(d.at,s.at))});
   if(s.grade==='low')links.push({kind:'heat',from:s.id,to:'skin',s:i,d:disIx.get('skin'),cap:dis[disIx.get('skin')].cap,auto:true,ok:true});   // finite: profiles are JSON
  });
- // PLAN-016 auto-assignment: a superweapon that reaches no dissipator gets one on its generator (the canon
- // examples), sized to legacySw × its average waste at 'combat', and the network says so.
- if(!strict)src.forEach((s,i)=>{if(s.k!=='sw'||links.some(l=>l.s===i&&l.kind==='heat'&&l.ok&&!l.dedicated))return;const c=HEAT.legacySw*s.size;dis.push({k:'legacy',id:'legacy:'+s.id,name:'自動割当の散逸（'+s.name+'）',at:s.at,grade:'high',cap:c,src:i,sec:-1,legacy:true});links.push({kind:'heat',from:s.id,to:'legacy:'+s.id,s:i,d:dis.length-1,cap:c,auto:true,ok:true,dedicated:true});});
  // Power paths: weapons from their conduits (feedConduits), nozzles through their machinery, superweapons on
  // their direct line, shields and the hotel load from the nearest reactor. A consumer with no source is broken.
  if(strict)for(const d of dis)if(d.k==='radiator'&&d.ext){const e=clamp(d.exposed||0,0,1);d.cap*=e/Math.max(.3,.3+.7*e);}
@@ -32919,8 +43414,8 @@ function heatEvaluate(net,pr,caps){
 // Designer statistics and inspection (10.5): S.heat and the warnings.
 function heatStats(ship,S){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return heatStats(surfaceWorkingShip(ship),S);
- const strict=ship.surfaces?.mode==='strict',rated=strict?ship.parts.filter(p=>!p.surfaceUnplaced&&(DISSIPATORS[p.k]||isWing(p))).reduce((a,p)=>a+dissipatorCap(p,S)*(HEAT.disPowerK[p.k]??HEAT.disPowerK.wing),0):0;
- if(strict&&!S.energyInputAdjusted){S.draw=S.draw||{};S.draw.weapons=(S.draw.weapons||0)/ENERGY_MODEL.eta;S.energyInputAdjusted=true;}
+ const strict=true,rated=ship.parts.filter(p=>!p.surfaceUnplaced&&(DISSIPATORS[p.k]||isWing(p))).reduce((a,p)=>a+dissipatorCap(p,S)*(HEAT.disPowerK[p.k]??HEAT.disPowerK.wing),0);
+ if(ship.surfaces?.mode==='strict'&&!S.energyInputAdjusted){S.draw=S.draw||{};S.draw.weapons=(S.draw.weapons||0)/ENERGY_MODEL.eta;S.energyInputAdjusted=true;}
  S.draw=S.draw||{};S.draw.hotel=Math.max(0,(S.draw.hotel||0)-(S.dissipatorPower||0))+rated;S.draw.dissipators=rated;S.dissipatorPower=rated;
  let net;try{net=heatNetwork(ship,S);}catch(e){S.heat=null;return S;}
  // v25 each preset with the S-foils deployed (as modelled) and stowed, and the band signatures of what is actually shed (SENS-001)
@@ -32928,11 +43423,11 @@ function heatStats(ship,S){
  const presets={};for(const pr in HEAT_PRESETS){if(HEAT_PRESETS[pr].hidden)continue;const e=heatEvaluate(net,pr);presets[pr]={name:HEAT_PRESETS[pr].name,gen:e.gen,out:e.out,cap:e.cap,used:e.used,margin:e.margin,stored:e.stored,endurance:e.endurance,over:e.over.slice(0,8).map(x=>({name:x.name,k:x.k,gen:x.gen,stored:x.stored,t:x.t})),overCount:e.over.length,sig:sig(e,false)};
   if(hasFoil){const z=heatEvaluate(net,pr,capS);presets[pr].stow={cap:z.cap,out:z.out,margin:z.margin,stored:z.stored,overCount:z.over.length,over:z.over.slice(0,4).map(x=>({name:x.name,t:x.t})),sig:sig(z,true)};}}
  const pw=net.links.filter(l=>l.kind==='power'),ht=net.links.filter(l=>l.kind==='heat');
- const explicit=net.dis.filter(d=>d.part!=null),legacy=net.dis.filter(d=>d.legacy);
+ const explicit=net.dis.filter(d=>d.part!=null);
  S.heat={presets,sources:net.src.length,kinds:Object.fromEntries(Object.keys(HEAT_KINDS).map(k=>[k,net.src.filter(s=>s.k===k).length])),
   power:{links:pw.length,broken:pw.filter(l=>!l.ok).length,cap:pw.reduce((n,l)=>n+(l.ok?l.cap||0:0),0)},
   heat:{links:ht.length,broken:ht.filter(l=>!l.ok).length,dedicated:ht.filter(l=>l.dedicated).length,shared:ht.filter(l=>!l.dedicated).length},
-  dis:explicit.map(d=>({id:d.part,k:d.k,name:d.name,cap:d.cap,grade:d.grade,ext:!!d.ext,exposed:d.exposed})),disCap:explicit.reduce((n,d)=>n+d.cap,0),builtin:net.dis.filter(d=>d.k==='integral').reduce((n,d)=>n+d.cap,0),skin:net.dis.find(d=>d.k==='skin')?.cap||0,legacy:legacy.length,
+  dis:explicit.map(d=>({id:d.part,k:d.k,name:d.name,cap:d.cap,grade:d.grade,ext:!!d.ext,exposed:d.exposed})),disCap:explicit.reduce((n,d)=>n+d.cap,0),builtin:0,skin:net.dis.find(d=>d.k==='skin')?.cap||0,legacy:0,
   store:net.src.reduce((n,s)=>n+s.store,0),
   // positions for the X-ray view: [kind 0 power / 1 heat, ok, ax,ay,az, bx,by,bz] (at most 600 paths)
   draw:heatDrawLinks(ship,net),
@@ -32940,15 +43435,13 @@ function heatStats(ship,S){
  S.heat.powerPaths=pw.map(l=>({kind:'power',from:l.from,to:l.to,cap:l.cap,auto:l.auto,ok:l.ok}));
  for(let i=0;i<net.src.length;i++)S.heat.net.src[i].powerWeight=net.src[i].w;
  for(let i=0;i<net.dis.length;i++)if(net.dis[i].power>0)S.heat.net.dis[i].power=net.dis[i].power;
- S.heat.mode=strict?'strict':'compat';S.heat.dissipatorPower=rated;
+ S.heat.mode='strict';S.heat.dissipatorPower=rated;
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:inspectionTargets(ship,S,{code:'heat',text})});
- if(!strict&&S.heat.builtin>0)warn('info','互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。');
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
  if(S.heat.power.broken)warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
  if(S.heat.heat.broken)warn('warn',`接続できない熱輸送路が ${S.heat.heat.broken} 本あります（相手がない、または通常放熱装置に高エネルギーの廃熱）。`);
  if(c.overCount)warn('warn',`戦闘負荷で ${c.overCount} 系統の廃熱が処理しきれず蓄熱します（最短 ${f(c.over[0].t)} で出力制限）。散逸装置か熱輸送路を足してください。`);
  else if(m.overCount)warn('info',`最大出力では ${m.overCount} 系統が蓄熱します（最短 ${f(m.over[0].t)} で出力制限）。散逸装置を足すと全力運転を続けられます。`);
- if(S.heat.legacy)warn('info',`超兵器 ${S.heat.legacy} 基の直結系統に散逸装置がつながっていないため、ジェネレーターに散逸能力を自動割当しています。`);
  return S;
 }
 function heatDrawLinks(ship,net){const out=[];const at=id=>{if(id==null)return null;const p=id[0]==='p'?ship.parts.find(q=>'p'+q.id===id):id[0]==='f'?ship.fits.find(q=>'f'+q.id===id):null;return p?(p.c||p.p):null;};
@@ -32958,9 +43451,9 @@ function heatDrawLinks(ship,net){const out=[];const at=id=>{if(id==null)return n
 // A profile carries the network compressed to groups of the same kind in the same hull section with the same
 // paths (p.heat), each tied to the combat modules it lives in: the guns of a group and their power compartments
 // (capacitors), the generator of a superweapon, the dissipator parts. Profiles made before v23 (the precomputed
-// fleet data, old saves) get the same network built from their modules (heatLegacy: no dissipator parts,
-// built-in cooling and the auto-assigned superweapon dissipators), so every ship runs the one model.
-const HEAT_V=1,heatCache=new WeakMap();
+// fleet data, old saves) retain their real hardware; omitted or legacy cooling
+// never creates a heat sink. All networks use the strict policy.
+const HEAT_V=2,heatCache=new WeakMap(),strictHeatNetworks=new WeakSet();
 function heatGroup(p,net,modIx){
  const mods=p.modules||[],srcIx=[],groups=new Map(),src=[],dis=[],ln=[];
  const shKind={};for(const s of net.src)if(s.k!=='sw')shKind[s.k]=(shKind[s.k]||0)+(s.size||0);
@@ -32972,11 +43465,11 @@ function heatGroup(p,net,modIx){
   if(s.k==='weapon'&&mi>=0)mods.forEach((m,j)=>{if(m.k==='capacitor'&&m.link===mi&&!G.pc.includes(j))G.pc.push(j);});
   if(s.k==='sw'){G.gen=s.gen!=null?mods.findIndex(m=>m.k==='reactor'&&m.part===s.gen):-1;if(G.gen<0)G.gen=heatBiggest(mods,'reactor');}});
  const disIx=[],dmap=new Map();
- net.dis.forEach((d,j)=>{let key=d.k==='integral'||d.k==='legacy'?'int:'+srcIx[d.src]+':'+d.k:d.id;let D=dmap.get(key);if(!D){D={id:d.id,n:d.name,k:d.k,g:d.grade,cap:0,m:d.part!=null?mods.findIndex(m=>m.part===d.part&&(m.k==='dissipator'||m.k==='radiator')):-1,sec:d.sec??-1,src:d.src!=null?srcIx[d.src]:-1};if(d.fo>=0){D.fo=d.fo;D.cs=d.cs;D.sh=d.sh;}if(d.k==='integral')D.n=src[D.src]?.n+'（内蔵冷却）';dmap.set(key,D);dis.push(D);}D.cap+=d.cap;disIx[j]=dis.indexOf(D);});
+ net.dis.forEach((d,j)=>{if(d.k==='integral'||d.k==='legacy'||d.k!=='skin'&&d.part==null)return;let key=d.id;let D=dmap.get(key);if(!D){D={id:d.id,n:d.name,k:d.k,g:d.grade,cap:0,m:d.part!=null?mods.findIndex(m=>m.part===d.part&&(m.k==='dissipator'||m.k==='radiator')):-1,sec:d.sec??-1,src:d.src!=null?srcIx[d.src]:-1};if(d.fo>=0){D.fo=d.fo;D.cs=d.cs;D.sh=d.sh;}dmap.set(key,D);dis.push(D);}D.cap+=d.cap;disIx[j]=dis.indexOf(D);});
  for(let j=0;j<net.dis.length;j++){const D=dis[disIx[j]],source=net.dis[j];if(D&&source.power>0)D.power=(D.power||0)+source.power;}
  const lmap=new Map();for(const l of net.links){const s=srcIx[l.s],d=disIx[l.d];if(s==null||d==null)continue;const key=s+':'+d;let x=lmap.get(key);if(!x){x={s,d,cap:0,sec:l.sec??-1};lmap.set(key,x);ln.push(x);}x.cap+=l.cap;}
  for(const G of src)G.sh=+G.sh.toPrecision(6);
- return {v:HEAT_V,src,dis,ln};
+ const out={v:HEAT_V,mode:'strict',src,dis,ln};strictHeatNetworks.add(out);return out;
 }
 function heatBiggest(mods,k){let b=-1,bs=-1;mods.forEach((m,i)=>{if(m.k===k&&(m.size||0)>bs){bs=m.size||0;b=i;}});return b;}
 // The design-side network → the profile's (fleetProfile).
@@ -32987,7 +43480,7 @@ function heatProfileOf(p,S){
 }
 // A pre-v23 profile's network from its modules and power figures.
 function heatLegacy(p){
- const g=p.grid;if(!g||!(g.P>0))return null;const strict=p.energyModel?.version===1,mods=p.modules||[],cuts=p.sectionCuts||[.2,.4,.6,.8],sec=m=>heatSec(m.at??.5,0,1,cuts);
+ const g=p.grid;if(!g||!(g.P>0))return null;const mods=p.modules||[],cuts=p.sectionCuts||[.2,.4,.6,.8],sec=m=>heatSec(m.at??.5,0,1,cuts);
  const sw=(p.sw||[]).map(w=>({k:w.k,Pshare:w.Pshare||0,n:(p.sw||[]).filter(x=>x.r===w.r).length,E:w.k==='hion'?w.Emax:SW_COMBAT[w.k].E,chargeT:w.chargeT}));
  const W={};for(const pr in HEAT_PRESETS)W[pr]=heatWaste(heatLoads(g,pr,sw));
  const src=[],dis=[],links=[],put=(k,name,s,w,ix,extra={})=>{src.push({k,name,sec:s,w,grade:HEAT.grade[k],ix,...extra});};
@@ -33001,16 +43494,30 @@ function heatLegacy(p){
  sw.forEach((w,i)=>{const mi=p.sw[i].mod??-1;put('sw',SW_COMBAT[w.k].name,mi>=0?sec(mods[mi]):2,1,mi,{sw:i});});
  const tot={};for(const s of src)if(s.k!=='sw')tot[s.k]=(tot[s.k]||0)+s.w;
  for(const s of src){s.rated={};for(const pr in W)s.rated[pr]=s.k==='sw'?W[pr].sw[s.sw]||0:W[pr][s.k]*s.w/Math.max(1e-30,tot[s.k]);s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=Math.max(1,HEAT.storeS*s.size);}
- src.forEach((s,i)=>{const ic=(strict?0:HEAT.integral[s.k])*s.size;if(ic>0){dis.push({k:'integral',name:s.name,grade:s.grade,cap:ic,src:i});links.push({s:i,d:dis.length-1,cap:ic,dedicated:true});}
-  if(s.k==='sw'&&!strict){const c=HEAT.legacySw*s.size;dis.push({k:'legacy',name:'自動割当の散逸',grade:'high',cap:c,src:i,legacy:true});links.push({s:i,d:dis.length-1,cap:c,dedicated:true});}});
+ for(const [m,i]of byK('dissipator'))if(Number.isInteger(m.part)&&Number.isFinite(m.size)&&m.size>0){const cap=m.size*REACTOR_POWER_DENSITY*HEAT.disK.hdis;dis.push({k:'hdis',id:'p'+m.part,name:m.name||'散逸装置',grade:'high',cap,part:m.part,sec:sec(m),power:cap*HEAT.disPowerK.hdis});}
+ for(let i=0;i<src.length;i++){const s=src[i],m=mods[s.ix],candidates=dis.map((d,j)=>({d,j})).filter(({d})=>(d.grade==='high'||s.grade==='low')&&(mods.find(q=>q.part===d.part)?.domain||'main')===(m?.domain||'main')).sort((a,b)=>Math.abs(a.d.sec-s.sec)-Math.abs(b.d.sec-s.sec)).slice(0,HEAT.autoLinks);for(const {d,j}of candidates)links.push({s:i,d:j,cap:HEAT.linkK*Math.max(s.rated.max,s.size),sec:s.sec});}
  const area=(p.zA||[]).reduce((a,b)=>a+b,0)||(p.len||100)*(p.width||35)*4;
  dis.push({k:'skin',id:'skin',name:'外殻からの放熱',grade:'low',cap:area*HEAT.skinW,sec:-1});src.forEach((s,i)=>{if(s.grade==='low')links.push({s:i,d:dis.length-1,cap:dis[dis.length-1].cap});});
  const net={src:src.map(s=>({...s,part:null,fit:null})),dis,links:links.map(l=>({...l,sec:-1}))};
  return heatGroup(p,net,s=>s.ix??-1);
 }
+// Migrate cached thermal networks without inventing hardware. Keep existing
+// physical dissipators and their finite paths, remove retired phantom sinks,
+// and charge their actual electrical input even if an old snapshot omitted it.
+function strictHeatProfile(raw,p){
+ if(!raw||!Array.isArray(raw.src)||!Array.isArray(raw.dis))return null;
+ const dis=[],index=new Map(),mods=p.modules||[];
+ for(let j=0;j<raw.dis.length;j++){const d=raw.dis[j];if(!d||!Number.isFinite(d.cap)||d.cap<0)continue;const skin=d.k==='skin',m=mods[d.m],physical=Number.isInteger(d.m)&&d.m>=0&&(d.k==='radiator'?m?.k==='radiator':m?.k==='dissipator');
+  if(!skin&&(!physical||!['hdis','radiator','wing','solar'].includes(d.k)))continue;
+  const q={...d,cap:Math.max(0,d.cap),...(skin?{m:-1,g:'low',power:0}:{power:Math.max(d.cap*(HEAT.disPowerK[d.k]??HEAT.disPowerK.wing),Number.isFinite(d.power)?d.power:0)})};delete q.legacy;index.set(j,dis.length);dis.push(q);
+ }
+ const ln=[];for(const l of Array.isArray(raw.ln)?raw.ln:Array.isArray(raw.links)?raw.links:[]){const d=index.get(l?.d);if(d==null||!Number.isInteger(l.s)||l.s<0||l.s>=raw.src.length||!Number.isFinite(l.cap)||l.cap<0||dis[d].g==='low'&&raw.src[l.s]?.g==='high')continue;ln.push(d===l.d?l:{...l,d});}
+ const out={...raw,v:HEAT_V,mode:'strict',dis,ln};strictHeatNetworks.add(out);return out;
+}
 function heatProfile(p){
- if(!p)return null;if(p.heat&&p.heat.v===HEAT_V&&Array.isArray(p.heat.src))return p.heat;
- if(heatCache.has(p))return heatCache.get(p);let H=null;try{H=heatLegacy(p);}catch(e){H=null;}heatCache.set(p,H);return H;
+ if(!p)return null;if(p.heat&&strictHeatNetworks.has(p.heat))return p.heat;
+ const raw=p.heat,cached=heatCache.get(p);if(cached&&cached.source===raw&&cached.dis===raw?.dis&&cached.ln===raw?.ln&&cached.disCount===(raw?.dis?.length||0)&&cached.linkCount===(raw?.ln?.length||0)&&cached.moduleCount===(p.modules?.length||0))return cached.value;
+ let H=null;try{H=strictHeatProfile(raw,p)||heatLegacy(p);}catch(e){H=null;}heatCache.set(p,{source:raw,dis:raw?.dis,ln:raw?.ln,disCount:raw?.dis?.length||0,linkCount:raw?.ln?.length||0,moduleCount:p.modules?.length||0,value:H});return H;
 }
 function heatStagger(id){const s=String(id);let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return ((h>>>0)%997)/997*HEAT.dt;}
 function heatInit(u){
@@ -33053,7 +43560,7 @@ function heatTick(ctx,u,dt,interval=null){
  // v25 an S-foil's deploy state masks the dissipators inside its wing (cs: stowed share); the emission mode closes
  // them down (low), or overdrives them and empties the stores faster (emergency, high) (WING-004, SENS-005)
  const em=EMCON[emconOf(u)],fd=u.fo?.d;
- const cap=H.dis.map(d=>d.cap*(d.m>=0?Math.max(0,mods[d.m]??1):d.k==='skin'?integ:d.k==='legacy'?(H.src[d.src]?.gen>=0?Math.max(0,mods[H.src[d.src].gen]??1):1):d.src>=0?alive[d.src]:1)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
+ const cap=H.dis.map(d=>d.cap*(d.m>=0?Math.max(0,mods[d.m]??1):d.k==='skin'?integ:0)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
  const cooling=h.cooling,coolingRated=H.dis.reduce((a,d)=>a+Math.max(0,d.power||0),0),reservedW=cooling?Math.max(0,cooling.reserveJ||0)/Math.max(1e-9,T):0;
  for(let i=0;i<H.dis.length;i++){const d=H.dis[i];if(d.power>0){const node=d.id||(d.m>=0?u.p.modules[d.m]?.port:null),reserve=cooling?.reserveByNodeJ,localReserved=reserve&&node&&(Object.hasOwn(reserve,node)||!Object.hasOwn(reserve,'cooling'))?Math.max(0,reserve[node]||0)/Math.max(1e-9,T):null;cap[i]*=(d.m>=0?powerFactor(u,u.p.modules[d.m]?.k,d.m):powerFactor(u,'reactor'))*clamp(localReserved==null?reservedW/Math.max(1e-30,coolingRated):localReserved/d.power,0,1);}}
  const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?l.cap??Infinity:0})),D=Array.from(gen,(g,i)=>Math.min(g+h.st[i]/(HEAT.drainS*em.drain),g+h.st[i]/T)),r=heatSolve(D,cap,L);
@@ -33630,10 +44137,10 @@ function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;
 
 return {BROADSIDE_BATTERY_CALIBERS,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,resolveEngineSpec,updateEngineSpec,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+ isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
-  missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher, isSurfaceVLS, launcherPitch, launcherGeometry, missileLauncherSpec, migrateLegacyConcussionVLS,
+  missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -34345,7 +44852,7 @@ const SIDE_OF = {'銀河帝国': 'empire', '反乱同盟': 'rebel', '銀河共�
 // whose shields still stand, finishing one before starting the next, and its
 // bomber wings hold back until a target's shields are down to strike before
 // they recover. Other factions fight as before.
-const DOCTRINE = {rebel: {name: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈', strip: .15, strike: .3, abort: .6}};
+const DOCTRINE = {rebel: {name: 'イオン砲と航空攻撃を連携', strip: .15, strike: .3, abort: .6}};
 // SBOX A scenario may set a side's air doctrine apart from its faction ('faction' its own, 'standard' none, 'strip' the Alliance's).
 const doctrineOf = (w, side) => { const sd = w.sides[side];if (!sd) return null;if (sd.air === 'standard') return null;if (sd.air === 'strip') return DOCTRINE.rebel;return DOCTRINE[sd.faction] || null; };
 // SBOX The AI commander's temper (provisional values): odds — how much stronger than a contact the force must be before it
@@ -34356,7 +44863,7 @@ const AI_STRATEGY = {
  aggressive: {name: '積極的', odds: .8, bold: .6, retreat: .25},
  cautious: {name: '慎重', odds: 1.6, bold: 1.2, retreat: .65}
 };
-const AIR_DOCTRINES = {faction: '陣営の既定', standard: '標準（爆撃機は最大の敵艦へ）', strip: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈'};
+const AIR_DOCTRINES = {faction: '陣営の既定', standard: '標準（爆撃機は最大の敵艦へ）', strip: 'イオン砲と航空攻撃を連携'};
 const strategyOf = (w, side) => AI_STRATEGY[w.sides[side]?.strategy] || AI_STRATEGY.balanced;
 // ---------- FACTION-001 factions the player makes ----------
 // A made faction is chosen like the four of the films everywhere a faction is chosen (the designer's 所属陣営, the
@@ -35877,7 +46384,7 @@ function battleTick(w, sys, dt) {
   if (!t || u.out)continue;
   const aim = C.fleetAim(u, t, true);
   // v20.6 Continuous fire lands every tick; salvos land all at once every few seconds (C.VOLLEY).
-  const hit = p.acc * F.fall * crewEff * (.6 + .4 * s.fire) * (aim ? .8 : 1) * (sensorsOn(w) ? SN.fire[contactStage(w, u.side, t)] ?? 1 : 1), gun = (F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*hit, ion = (F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*hit;
+  const quality=crewEff*(aim?.8:1)*(sensorsOn(w)?SN.fire[contactStage(w,u.side,t)]??1:1),gunHit=quality*F.gunHit,ionHit=quality*F.ionHit,hit=quality*F.fall,gun=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*gunHit,ion=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*ionHit;
   const x = inc.get(t.id), hd = dt * DMG, dealt = (gun + ion) * hd;
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr = gun + ion > 0 ? C.fireScreen(lof, u, t, C.aimPoint(t, aim)) : null;
@@ -35886,7 +46393,7 @@ function battleTick(w, sys, dt) {
   u.dmgDone += dealt;u.shots = (u.shots || 0) + (gun + ion) * dt;if (gun + ion > 0) { u.lastShot = {to: t.id, gun: (gun + ion) * dt, ion: ion > gun, salvo: vk > 1}; if (vk > 1) u.lastSalvo = {...u.lastShot, t: w.time}; }
   // What misses may strike a ship of our own close to the target (friendly fire).
   const miss = Math.max(0, 1 - hit);
-  if (miss > 0 && vk > 0 && F.gun + F.ion > 0) for (const {x, k} of C.fireStray(lof, u, t, distance)) { const g2 = (F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*miss*k, i2 = (F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*miss*k; if (!(g2 + i2 > 0)) continue; C.combatAdd(inc.get(x.id), x, u.pos, {sf: (g2 + C.COMBAT.ionShield * i2) * hd, hull: (g2 + C.COMBAT.ionHull * i2) * hd, ion: i2 * hd}, null, u.id); x.ffTaken = (x.ffTaken || 0) + (g2 + i2) * hd; if (u.lastShot) u.lastShot.ff = {to: x.id, gun: (g2 + i2) * dt}; if (w.time - (x.ffLog || -99) > 20) { x.ffLog = w.time; blog(w, sys, `${x.name}：味方の${u.name}の流れ弾を受けた`, x); } }
+  if (miss > 0 && vk > 0 && F.gun + F.ion > 0) for (const {x, k} of C.fireStray(lof, u, t, distance)) { const g2 = (F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k, i2 = (F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k; if (!(g2 + i2 > 0)) continue; C.combatAdd(inc.get(x.id), x, u.pos, {sf: (g2 + C.COMBAT.ionShield * i2) * hd, hull: (g2 + C.COMBAT.ionHull * i2) * hd, ion: i2 * hd}, null, u.id); x.ffTaken = (x.ffTaken || 0) + (g2 + i2) * hd; if (u.lastShot) u.lastShot.ff = {to: x.id, gun: (g2 + i2) * dt}; if (w.time - (x.ffLog || -99) > 20) { x.ffLog = w.time; blog(w, sys, `${x.name}：味方の${u.name}の流れ弾を受けた`, x); } }
  }
  // Use the allocation just made for this tick; thrust, heat and weapon recharge share it once.
  moveShips(w, sys, us, byId, sysOf, plan, inc, dt);
@@ -35895,20 +46402,25 @@ function battleTick(w, sys, dt) {
  for (const u of us) {
   const eligible=!u.manual&&!u.out&&!u.warp&&!u.jump&&u.order.fire!==false&&(u.p.msl>0||u.p.imsl>0),mods=u.p.modules||[],total=mods.filter(m=>m.k==='launcher').length;
   let t=null;
-  if(eligible){const o=effectiveOrder(u,w),want=commandedTarget(w,u,o),missileFoes=us.filter(x=>x.side!==u.side&&!x.warp&&!x.out&&known(w,u.side,x,4)&&len(sub(x.pos,u.pos))<=RULES.missileRange);
-   t=want&&byId.has(want.id)&&want.side!==u.side&&!want.warp&&known(w,u.side,want,4)&&len(sub(want.pos,u.pos))<=RULES.missileRange?want:forwardTarget(missileFoes,u,u.firingAt);}
-  const packets=C.fleetMissileStep(u,dt,!!t);
+  if(eligible){const o=effectiveOrder(u,w),want=commandedTarget(w,u,o),reach=C.missileMaxRange(u),missileFoes=us.filter(x=>x.side!==u.side&&!x.warp&&!x.out&&known(w,u.side,x,4)&&len(sub(x.pos,u.pos))<=reach);
+   t=want&&byId.has(want.id)&&want.side!==u.side&&!want.warp&&known(w,u.side,want,4)&&len(sub(want.pos,u.pos))<=reach?want:forwardTarget(missileFoes,u,u.firingAt);}
+  const packets=C.fleetMissileStep(u,dt,!!t,{distance:t?len(sub(t.pos,u.pos)):Infinity});
   if(!t)continue;
   if(!total&&!(u.p.profileVersion>=5)&&(u.pw?.P||0)>0&&C.powerFactor(u,'reactor')>0){u.mslT=(u.mslT||0)-dt;if(u.mslT<=0){u.mslT=20;const n=Math.round((u.p.msl||0)/10),ni=Math.round((u.p.imsl||0)/10);if(n>0)packets.push({n,tt:10,ion:false,kind:'legacy'});if(ni>0)packets.push({n:ni,tt:10,ion:true,kind:'itorp'});}}
-  for(const packet of packets){const launch=C.missileLaunchWorld(u,packet,t),native=packet.kind==='cmsl';
-   w.missiles.push({id:'m'+(w.nextId++),side:u.side,sys,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:packet.ion,launcher:packet.module,pos:launch.origin.slice(),vel:scale(launch.axis,220),s:220,life:45,...(native?{launchOrigin:launch.origin.slice(),launchDir:launch.axis.slice(),launchClearance:.35}:{})});}
+  for(const packet of packets){const launch=C.missileLaunchWorld(u,packet,t),native=C.isConcussionLauncher(packet.kind),range=C.missileRange(packet);
+   w.missiles.push({id:'m'+(w.nextId++),side:u.side,sys,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:packet.ion,launcher:packet.module,cell:packet.cell,range,traveled:0,pos:launch.origin.slice(),vel:scale(launch.axis,220),s:220,life:native?C.missileFlightLife(range):45,...(native?{launchOrigin:launch.origin.slice(),launchDir:launch.axis.slice(),launchClearance:.35}:{})});}
  }
  for (const m of w.missiles) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
-  const rel=sub(t.pos,m.pos),d=len(rel);m.s=m.top?m.top:Math.min(2600,m.s+650*dt);
+  m.range=Number.isFinite(m.range)&&m.range>0?m.range:C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);
+  if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;continue;}
+  const rel=sub(t.pos,m.pos),d=len(rel),flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(2600,m.s+650*flightDt);
+  const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,remaining=Math.max(0,m.range-m.traveled),travel=Math.min(distance,remaining);if(distance>0)m.pos=add(m.pos,velocity,seconds*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);};
   // A physical tube/VLS clears its mount along the actual barrel axis before homing.
-  const clear=Math.min(dt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);m.pos=add(m.pos,m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
-  const follow=dt-clear;if(follow>0){const aim=sub(t.pos,m.pos),range=len(aim);m.vel=scale(norm(add(aim,t.velocity||[0,0,0],range/Math.max(300,m.s))),m.s);m.pos=add(m.pos,m.vel,follow);}m.life-=dt;
+  const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
+  const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),range=len(aim);m.vel=scale(norm(add(aim,t.velocity||[0,0,0],range/Math.max(300,m.s))),m.s);advance(m.vel,follow);}m.life-=dt;
+  // Expiry is resolved before proximity damage, including the final capped step.
+  if(m.traveled>=m.range||!(m.life>0)){m.life=0;m.n=0;continue;}
   // Every enemy ship within reach adds its point defence, weighted by the arc facing the salvo.
   // v21.2 …as far as its fire control has targets to spare (C.AA_CHANNELS: a salvo of eight is one target).
   let kill = 0;for (const x of us) { if (x.side === m.side || x.warp || x.manual) continue; const r = len(sub(m.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; if (x.aaLeft == null || x.aaT !== w.time) { x.aaLeft = x.p.aaCh ?? 4; x.aaT = w.time; } if (!(x.aaLeft > 0)) continue; const need = Math.max(1, Math.ceil(m.n / C.AA_CHANNELS.salvo)), got = Math.min(need, x.aaLeft); x.aaLeft -= got; kill += RULES.pdMissile * pdToward(x, m.pos, true) * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt * got / need; }
@@ -36039,7 +46551,8 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
     // v23 The run goes over (or under) the hull from the bearing ordered to its far side, skimming the plating.
     const aimK = o.aim && o.aim !== 'auto' ? o.aim : C.fleetAim({p: {len: 20}, order: {aim: 'auto'}}, t, true);
     for (const s of out) { const dd = len(sub(t.pos, s.pos)),gate=r.lineReady&&dd<Math.max(3000,t.p.len*.6+2200)?squadFireArc(s,t,'gun'):0;
-     if (!s.fired && dd < Math.max(3000, t.p.len * .6)) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
+     const releaseRange=Math.min(Math.max(3000,t.p.len*.6),...(s.ldg||[]).filter((x,i)=>!x.bomb&&(s.ammo[i]||0)>0).map(x=>C.ORDNANCE[x.kind]?.range||Infinity));
+     if (!s.fired && dd <= releaseRange) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
      if(!(gate>0))s.strafeT=null;
      if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const c2=CRAFT[s.craft],tt=s.n*(c2.gun??c2.strike)*RULES.damage*C.squadFireK(s)*squadLaserK(s)*(s.weaponPowerK??1)*gate,x=inc.get(t.id);
       if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:.7*tt,hull:.7*tt,direct:.3*tt},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
@@ -36117,9 +46630,10 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
 // Returns what was released, [{kind, n}].
 function squadRelease(w, sys, s, t, bombs, aim) {
  const out = [];if (!s.ldg?.length || !(s.n > 0)) return out;
- s.ldg.forEach((x, i) => { if (!!x.bomb !== bombs) return; const k = Math.min(s.ammo[i] || 0, x.salvo);if (!(k > 0)) return; s.ammo[i] -= k;
-  const n = k * s.n, o = C.ORDNANCE[x.kind], sp = Math.max(o.speed, bombs ? 0 : sqSpeed(s)), dir = norm(sub(t.pos, s.pos));
-  w.missiles.push({id: 'm' + (w.nextId++), side: s.side, sys, from: s.home, sq: s.id, target: t.id, n, kind: x.kind, tt: x.tt, ion: x.ion, bomb: x.bomb, craft: true, aim: aim || null, pos: [...s.pos], vel: scale(dir, sp), s: sp, top: sp, life: bombs ? 8 : 20});
+ s.ldg.forEach((x, i) => { if (!!x.bomb !== bombs) return;const o=C.ORDNANCE[x.kind],sp=Math.max(o.speed,bombs?0:sqSpeed(s)),range=o.range||sp*(bombs?8:20);if(len(sub(t.pos,s.pos))>range)return;
+  const k = Math.min(s.ammo[i] || 0, x.salvo);if (!(k > 0)) return; s.ammo[i] -= k;
+  const n = k * s.n, dir = norm(sub(t.pos, s.pos));
+  w.missiles.push({id: 'm' + (w.nextId++), side: s.side, sys, from: s.home, sq: s.id, target: t.id, n, kind: x.kind, tt: x.tt, range,traveled:0,ion: x.ion, bomb: x.bomb, craft: true, aim: aim || null, pos: [...s.pos], vel: scale(dir, sp), s: sp, top: sp, life:Math.min(bombs?8:20,range/Math.max(1,sp))});
   out.push({kind: x.kind, n}); });
  if (out.length) squadMassK(s);if (!bombs && out.length) s.relG = out;return out;
 }

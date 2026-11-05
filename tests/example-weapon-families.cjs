@@ -16,8 +16,8 @@ const plans={
  mc30c:{monCalPD:10,single500:16,cmsl:8,trc:2},
  mc75:{monCalPD:20,monCal34:12,monCal150Ion:16,cmsl:12,trc:6},
  munificent:{munBow:1,munTwin:18,pd:58},
- providence:{monCalPD:58,monCal200Triple:14,monCal150Ion:2,cmsl:34,trc:4},
- providenceDn:{monCalPD:24,monCal80:34,monCal200Triple:14,monCal150Ion:2,cmsl:34,trc:10},
+ providence:{monCalPD:58,monCal200Triple:14,cmsl:34,trc:4},
+ providenceDn:{monCalPD:24,monCal80:34,monCal200Triple:14,cmsl:34,trc:10},
  recusant:{recProw:1,recTwin:1,recKeel:1,refVen:4,pd:30,monCal34:26,monCalPD:10},
  recusantDn:{stl:9,refVen:21,pd:90,monCal34:24},
  lucrehulk:{monCalPD:4,monCal34:28,quad1Rapid:14,trc:6},
@@ -25,6 +25,7 @@ const plans={
 };
 for(const [key,counts] of Object.entries(plans))test(`${key} preserves its curated weapon roster and native spherical seats`,()=>{
  const s=ship(key),weapons=s.fits.filter(f=>C.FITS[f.k]?.cat==='w');
+ if(key.startsWith('providence'))assert.equal(s.fits.filter(f=>(C.fitSpec(f).ion||0)>0).length,0,'the current Providence recipes omit both bow ion cannons');
  if(key==='mc30c'){assert.equal(s.fits.filter(f=>C.fitSpec(f).ion>0).length,0,'no oversized ion batteries');for(const f of s.fits.filter(f=>f.k==='single500')){assert.equal(C.fitSpec(f).boltTT,.5);assert.equal(C.fitSpec(f).barrels,1);assert.equal(C.fitSpec(f).cycle,C.FITS.single500.cycle);}}
  for(const [kind,total] of Object.entries(counts))assert.equal(s.fits.filter(f=>f.k===kind).length,total,kind);
  for(const f of weapons){
