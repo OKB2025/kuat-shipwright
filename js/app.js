@@ -1898,18 +1898,15 @@ function pSize(k){const v=smallPartSize(k)?st.sizeCraft?.[k]:st.size?.[k];return
 function setPSize(k,v){const key=smallPartSize(k)?'sizeCraft':'size';(st[key]||(st[key]={}))[k]=v;}
 function partSizeRange(k,v=pSize(k)){
  const d=C.PARTS[k],lm=C.partLimits(ship,k),precise=precisePartSize({k}),min=lm.min;
- return {min,max:Math.min(C.DESIGN_LIMITS.diameter,Math.max(v,lm.max,d.group==='craft'?lm.max:precise?C.DESIGN_LIMITS.diameter:Math.max(d.max||0,(ship.hull.H||0)*1.5))),step:.01};
+ return {min,max:Math.min(C.DESIGN_LIMITS.diameter,Math.max(v,lm.max,d.group==='craft'?lm.max:precise?C.DESIGN_LIMITS.diameter:Math.max(d.max||0,(C.designEnvelope(ship).H||0)*1.5))),step:.01};
 }
 function paletteParts(group){const keys=PART_KEYS.filter(k=>C.PARTS[k].group===group&&partOffered(k));return craftDesign()?keys.filter(C.craftPart).concat(keys.filter(k=>!C.craftPart(k))):keys;}
 // v23 (UI-008) 配置 is the catalogue of parts to add (tab key 'mod', as before); 編集 lists and edits what is placed.
-// v27 表面 is a sub-menu of 編集 (tab key 'surface'); 搭載 and 地上部隊 were folded into 性能.
+// 搭載 and 地上部隊 were folded into 性能.
 const TABS = [['hull', '船体'], ['mod', '配置'], ['edit', '編集'], ['systems','系統'], ['spec', '性能']];
-// 編集 has two sub-menus: the placed parts and fittings, and the outer surfaces (their own tab key).
-const EDIT_SUB = [['edit', '部品'], ['surface', '表面']];
-const editSubHTML = () => `<div class="pgroup edit-sub panel-nav">${seg('editsub', EDIT_SUB, st.tab === 'surface' ? 'surface' : 'edit')}</div>`;
 // 削る・装甲 live inside 船体; their editors keep their own tab keys.
 const HULL_SUB = [['hull', '船体の形'], ['carve', '削る'], ['armor', '装甲']];
-const TAB_NAMES = {...Object.fromEntries(TABS), surface: '表面', carve: '削る', armor: '装甲', bridge: '指揮・艦橋'};
+const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '指揮・艦橋'};
 // Weapons live inside 配置 as a group of their own.
 const armMode = () => st.tab === 'arm' || st.tab === 'mod' && st.group === 'weapons';
 // v22.3 One menu 「指揮・艦橋」 holds the command rooms (指揮 parts), the bridge bodies and the bridge pods; a
@@ -1926,7 +1923,7 @@ function openCommandMenu(sub) {
   else { st.tab = 'bridge'; st.bridgeMode = sub; st.bridgeTool = 'place'; }
 }
 // The bridge editor lives inside 区画 → 指揮・艦橋; its state keeps the 'bridge' key.
-const tabKey = () => st.tab === 'bridge' ? 'mod' : st.tab === 'surface' ? 'edit' : st.tab === 'carve' || st.tab === 'armor' ? 'hull' : st.tab;
+const tabKey = () => st.tab === 'bridge' ? 'mod' : st.tab === 'carve' || st.tab === 'armor' ? 'hull' : st.tab;
 function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); if (!nativeRender) renderInspBar(); }
 const PLACE = [['inside', '内蔵'], ['partial', '一部露出'], ['outside', '外付け']];
 const st = {
@@ -2062,7 +2059,6 @@ function onEngineGeometry(msg) {
   if (!dragSnap && msg.gen === eng.gen && msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if ((live.active || live.queued) && st.foilView !== 'stow') clearPreview(); }
   if (!dragSnap && msg.gen === eng.gen && msg.state) {
     adoptEngineState(msg);
-    if(msg.surfaceReport)surfaceRemoteReport={ship,gen:msg.gen,report:msg.surfaceReport};
     if (st.foilView === 'stow') foilPreview(true);
     if (eng.fitOnGeometry) { eng.fitOnGeometry = false; fitCamera(eng.keepCam); }
     hideBusyOverlay();
@@ -2076,8 +2072,7 @@ function onEngineSurfaceGeometry(msg) {
   if (!ship || msg.gen !== eng.gen || msg.gen !== eng.geoGen) return;
   if (dragSnap) { meshStore.pendingSurfaceGeometry = msg; return; }
   adoptEngineState(msg);
-  if (msg.surfaceReport) surfaceRemoteReport = {ship, gen: msg.gen, report: msg.surfaceReport};
-  if (st.tab === 'surface') { surfaceSyncSelection(); renderPanel(); requestDraw(); }
+  refreshDerivedPanel();
 }
 function onEngineStats(msg) {
   if (dragSnap || msg.gen < eng.gen) return;
@@ -2086,8 +2081,8 @@ function onEngineStats(msg) {
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
   prevS = S; S = msg.stats;
+  if(st.tab==='hull'&&S?.dims){const dimensions=$('#panel [data-actual-dimensions] dd');if(dimensions)dimensions.textContent=S.dims.map(fLen).join(' × ');}
   {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
-  if(st.tab==='surface')surfaceRefreshReport();
   renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
   if (st.tab !== 'spec' && st.tab !== 'sim') renderPanelInfo();
   updateAviationUI(); updateGroundUI();
@@ -2108,11 +2103,10 @@ function onEngineError(msg) {
 // person is in the middle of dragging a control.
 function refreshDerivedPanel() {
   if (dragSnap || fleet.mode !== 'design') return;
-  if(st.tab==='surface'&&!surfaceEditorPending()){const count=(st.surfaceIds||[]).length;surfaceSelection();if(count!==(st.surfaceIds||[]).length){renderPanel();return;}}
   const a = document.activeElement;
   if (a && a.closest && a.closest('#panel') && a.matches('input, select, textarea')) return;
   const it = selItem();
-  if (['surface', 'systems'].includes(st.tab) || ((st.tab === 'mod' || st.tab === 'edit' && selSingle()) && it && st.sel?.list === 'parts' && (it.k === 'hangar' || it._packingGroup || C.isInternal(it))) || ((armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits')) renderPanel();
+  if (st.tab === 'systems' || ((st.tab === 'mod' || st.tab === 'edit' && selSingle()) && it && st.sel?.list === 'parts' && (C.isStructuralPart(it) || it.k === 'hangar' || it._packingGroup || C.isInternal(it))) || ((armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits')) renderPanel();
 }
 function engineHello(mode) {
   eng.mode = mode; eng.ready = true;
@@ -2375,7 +2369,7 @@ function setShip(s, opts) {
   // design share a destination. Imported blueprints never supply this field.
   if (!s.saveId) s.saveId = newSaveId();
   dragSnap = null; clearPreview();
-  ship = s; s._client = true;if(opts?.deferPreparation)s._deferredPreparation=true;else delete s._deferredPreparation; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;st.surfacePage=0;st.hatchA = null; resetSolidCutter();
+  ship = s; s._client = true;if(opts?.deferPreparation)s._deferredPreparation=true;else delete s._deferredPreparation; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.hatchA = null; resetSolidCutter();
   eng.profile = null; eng.profileGen = -1;
   // Loading another design remains undoable. The engine starts from scratch.
   eng.designGen = eng.gen + 1; eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
@@ -2500,7 +2494,6 @@ function pickRay(o, d, want) {
 // ---------- tools ----------
 function tool() {
   switch (st.tab) {
-    case 'surface': return 'surface';
     case 'mod': if(st.group==='user'&&st.partTool==='place')return 'userpart';if(st.group==='shape'&&st.partTool==='place'&&st.importRaw&&!importResult()?.error)return 'importmesh';return st.group==='weapons'?(st.fitTool==='place'?'fit':st.fitTool==='remove'?'unfit':st.fitTool==='multi'?'multi':'adjust'):st.partTool === 'select' ? 'select' : st.partTool === 'multi' ? 'multi' : st.partTool === 'remove' ? 'unpart' : 'part';
     case 'edit': return st.editTool === 'remove' ? 'unany' : 'edit';
     case 'arm': return st.fitTool === 'place' ? 'fit' : st.fitTool === 'remove' ? 'unfit' : st.fitTool === 'multi' ? 'multi' : 'adjust';
@@ -2513,7 +2506,6 @@ function curFit() { const k=st.tab === 'bridge' ? st.bridge : st.fit;return C.ca
 function hintText() {
   const t = tool();
   switch (t) {
-    case 'surface': return '外面を選んで装甲・設備・砲列を設定。追加選択と範囲選択は一覧でも操作できます';
     case 'multi': return '区画・構造物・装備をタップして選択に追加／もう一度で解除';
     case 'importmesh': return '面をタップして取り込んだ3D形状を構造物として配置';
     case 'userpart': return st.userPart ? '面をタップしてユーザー部品を配置（基準点がタップ位置に来ます）' : '一覧からユーザー部品を選んでください';
@@ -2524,7 +2516,7 @@ function hintText() {
       const spec=activeEquipment();if(spec)return `面をタップして${spec.name}を配置${spec.k==='engine'?'（実給電で推力が変化）':''}`;
       if(st.part==='struct'&&isSponsonPlacement())return '壁をタップして水平な張出し砲座を作る';
       const k = st.part, nm = C.PARTS[k].name;
-      if (C.isShapeKind(k)) return `面をタップして${st.structPlate ? '装甲外板' : st.structLight ? '軽構造' : isAeroKind(k)?C.PARTS[k].name:'構造物'}（${st.structSize.map(v => num(v,3)).join('×')} m${st.structPlate ? `・装甲 ${num(st.structPlateT, 1)} m` : ''}）を据える`;
+      if (C.isShapeKind(k)) return `面をタップして${k==='struct'&&st.structPlate ? '装甲外板' : k==='struct'&&st.structLight ? '軽構造' : C.PARTS[k].name}（${st.structSize.map(v => num(v,3)).join('×')} m${k==='struct'&&st.structPlate ? `・装甲 ${num(st.structPlateT, 1)} m` : ''}）を据える`;
       const size=C.PARTS[k].shape==='cube'?(st.roomSize||[120,60,24]).map(v=>num(v,2)).join('×')+' m':fmtM(pSize(k));return `面をタップして${nm}（${size}・${PLACE.find(p => p[0] === st.placeBy[k])?.[1]||PLACE[0][1]}）を置く`;
     }
     case 'select': return st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
@@ -2551,7 +2543,7 @@ function unalignedPartPreview(hit) {
     const [l, w, hh] = st.structSize, n = hit.n, ax = Math.abs(n[1]) >= Math.abs(n[2]) && Math.abs(n[1]) >= Math.abs(n[0]) ? 1 : Math.abs(n[2]) >= Math.abs(n[0]) ? 2 : 0;
     const ext = [l / 2, hh / 2, w / 2][ax], c = hit.p.slice();
     if (hit.kind !== 'section') c[ax] += Math.sign(n[ax] || 1) * ext * 0.6;
-    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{wingTipSide:st.wingTipSide??1})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
+    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{wingTipSide:st.wingTipSide??1})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(k==='struct'&&st.structPlate?{plate:true,plateT:st.structPlateT}:k==='struct'&&st.structLight?{light:true}:{})},hit,st.surfaceMode);
   }
   const size = pSize(k);
   let c;
@@ -2629,7 +2621,6 @@ function onHover(px, py) {
   if(fleet.mode!=='design'||trial.on)return;
   if (!ship || !view) return;
   const t = tool();
-  if(t==='surface'){hoverLines=null;return;}
   if(t === 'solid') return;
   hoverLines = ghostFor(pick(px, py, {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'edit' || t === 'unany' || t === 'fit' && curFit()==='broadsideBattery', fits: t === 'unfit' || t === 'adjust' || t === 'inspect' || t === 'fit' || t === 'multi' || t === 'edit' || t === 'unany'}));
   refreshOverlay();
@@ -2641,7 +2632,6 @@ function onTap(px, py, add) {
   if(fleet.mode!=='design'){fleetTap(px,py);return;}
   if(!view)return;
   const t = tool();
-  if(t==='surface'){surfaceTap(px,py,add);return;}
   if(t === 'solid') { if(st.cutterAction === 'place') { const hit=pick(px,py,{parts:true,fits:false}); if(hit?.p)placeSolidCutter(hit);else toast('カッターを重ねる船体・構造物をタップしてください'); } return; }
   tapHit(t, pick(px, py, tapWant(t)), add);
 }
@@ -2968,7 +2958,8 @@ function slider(id, label, v, min, max, step, out, numberStep=step,numberMax=max
 }
 // Metre sliders move in centimetres; direct entries keep finer measured dimensions.
 function metreSlider(id,label,v,min,max,out=fmtM(v)){return slider(id,label,Number(v.toFixed(6)),min,max,.01,out,'any');}
-function shapeDimensionSlider(id,label,v,axis){const limit=C.DESIGN_LIMITS.partSize,extent=[ship.hull.L,ship.hull.W*1.6,ship.hull.H*1.5][axis],max=Math.min(limit,Math.max(v,extent,axis===2?2:40));return slider(id,label,Number(v.toFixed(6)),.02,max,.01,fmtM(v),'any',limit);}
+function actualShipDimensions(){return S?.dims&&(typeof eng==='undefined'||eng.statsGen===eng.gen)?S.dims:C.shipDimensions(ship);}
+function shapeDimensionSlider(id,label,v,axis){const limit=C.DESIGN_LIMITS.partSize,plan=C.designEnvelope(ship),extent=[plan.L,plan.W*1.6,plan.H*1.5][axis],max=Math.min(limit,Math.max(v,extent,axis===2?2:40));return slider(id,label,Number(v.toFixed(6)),.02,max,.01,fmtM(v),'any',limit);}
 function silhouette(hp) {
   const pts = [], n = 28;
   for (let k = 0; k <= n; k++) { const t = k / n, w = C.profileAt(hp,t)[1]; pts.push([4 + t * 92, 20 - w * 15]); }
@@ -3026,13 +3017,13 @@ function fitBtn(k, sel, data) {
 const fmtM = (v) => v.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3})+' m';
 function basePartEditor() {
   const it = selItem(); if (!it || st.sel.list !== 'parts') return '';
-  const d = C.PARTS[it.k], hp = ship.hull, tw = twinOfItem('parts', it);
+  const d = C.PARTS[it.k], hp = C.designEnvelope(ship), pb = C.designPlacementBounds(ship), tw = twinOfItem('parts', it);
   let h = `<div class="editor"><div class="ed-head"><b>${esc(C.partLabel(it))}</b>${tw ? '<span class="tag">左右対</span>' : ''}<button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
     <h4>位置</h4><p class="note tight">艦尾・船底・中心線からの距離です。</p>
     <div class="sliders">
-    ${metreSlider('ex', '前後 X', it.c[0], Math.min(it.c[0],-hp.L * 0.1), Math.max(it.c[0],hp.L * 1.1))}
-    ${metreSlider('ey', '高さ Y', it.c[1], Math.min(it.c[1],-hp.H * 0.8), Math.max(it.c[1],hp.H * 3.5))}
-    ${metreSlider('ez', '左右 Z', it.c[2], Math.min(it.c[2],-hp.W * 0.75), Math.max(it.c[2],hp.W * 0.75))}</div>`;
+    ${metreSlider('ex', '前後 X', it.c[0], Math.min(it.c[0],pb[0]), Math.max(it.c[0],pb[3]))}
+    ${metreSlider('ey', '高さ Y', it.c[1], Math.min(it.c[1],pb[1]), Math.max(it.c[1],pb[4]))}
+    ${metreSlider('ez', '左右 Z', it.c[2], Math.min(it.c[2],pb[2]), Math.max(it.c[2],pb[5]))}</div>`;
   // v22.3 Position and size are two sections of the editor (folded on a phone).
   let size = '';
   if (C.isShapePart(it) && it.form === 'reference' && C.equipmentSpec(it)) {
@@ -3247,28 +3238,30 @@ function scaleContents(fx, fy, fz, mode = 'scale') {
 }
 function setHullDims(L, W, H) {
   const hp = ship.hull, lim = C.DESIGN_LIMITS;
+  C.designEnvelope(ship);
   const cr = C.isCraft(ship), r = v => v;
   L = C.clamp(r(L), cr ? 1.5 : 60, lim.length); W = C.clamp(r(W), cr ? .5 : 20, lim.width); H = C.clamp(r(H), cr ? .3 : 10, lim.height);
   const fx = L / hp.L, fy = H / hp.H, fz = W / hp.W;
   scaleContents(fx, fy, fz, st.hullFollow); hp.L = L; hp.W = W; hp.H = H;
 }
-// Length, beam and depth: class-aware bounds with fractional metre editing.
+// Length, beam and depth: hull dimensions are independent of class and the planned envelope.
 function refitOnGeometry() { eng.fitOnGeometry = true; eng.keepCam = true; }
 function syncHullInputs(except) {
   const hp = ship.hull;
-  for (const k of ['L', 'W', 'H']) { for (const q of $$(`#panel [data-sl="${k}"]`)) if (q !== except) q.value = hp[k]; const o = $('#out-' + k); if (o) o.textContent = fLen(hp[k]) + (k === 'L' ? '' : ` · 全長比 ${(hp[k] / hp.L * 100).toFixed(1)}%`); }
+  for (const k of ['L', 'W', 'H']) { for (const q of $$(`#panel [data-sl="${k}"]`)) if (q !== except) q.value = hp[k]; const o = $('#out-' + k); if (o) o.textContent = fLen(hp[k]) + (k === 'L' ? '' : ` · 船体長比 ${(hp[k] / hp.L * 100).toFixed(1)}%`); }
 }
 function hullDimsHTML() {
-  const hp = ship.hull, cls = C.shipClassFor(hp.L, ship.shipClass), lim = C.DESIGN_LIMITS;
-  // Hull classes keep their scale bounds while all dimensions accept fractional metres.
-  const cr = !!cls.craft, lo = cr ? Math.min(cls.min, hp.L) : Math.max(60, Math.min(cls.min, hp.L)), hi = Math.min(lim.length, Math.max(cls.max, hp.L));
-  const wMax = Math.min(lim.width, Math.max(cr ? 4 : 60, Math.round(hp.L * 1.2), hp.W)), hMax = Math.min(lim.height, Math.max(cr ? 3 : 40, Math.round(hp.L * .6), hp.H));
-  const nudge = (k) => `<div class="nudges" role="group" aria-label="${{L: '全長', W: '全幅', H: '全高'}[k]}の微調整">${(cr ? [-1, -.1, .1, 1] : [-10, -1, 1, 10]).map(d => `<button type="button" class="chip" data-nudge="${k}" data-step="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)} m</button>`).join('')}</div>`;
-  return `<div class="pgroup blueprint-card hull-dims"><h4>艦種と寸法</h4>
+  const hp = ship.hull, lim = C.DESIGN_LIMITS, plan = C.designEnvelope(ship), actual = actualShipDimensions(), cls = C.shipClassFor(actual[0],ship.shipClass);
+  const cr = !!cls.craft, lo = Math.min(hp.L,cr ? 1.5 : 60), hi = lim.length;
+  const wMax = lim.width, hMax = lim.height;
+  const nudge = (k) => `<div class="nudges" role="group" aria-label="${{L: '船体長', W: '船体幅', H: '船体高'}[k]}の微調整">${(cr ? [-1, -.1, .1, 1] : [-10, -1, 1, 10]).map(d => `<button type="button" class="chip" data-nudge="${k}" data-step="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)} m</button>`).join('')}</div>`;
+  return `<div class="pgroup blueprint-card hull-dims"><h4>艦種と船体寸法</h4>
     <label class="field-label">艦種（全長の範囲）<select data-shipclass>${shipClassList(cls.id).map(c => `<option value="${c.id}" ${c.id === cls.id ? 'selected' : ''}>${esc(c.name)} · ${fLen(c.min)}〜${fLen(c.max)}</option>`).join('')}</select></label>
     <p class="note">${esc(cls.note)}</p>
-    <div class="sliders">${metreSlider('L', '全長', hp.L, lo, hi, fLen(hp.L))}${nudge('L')}${metreSlider('W', '全幅', hp.W, cr ? .5 : 20, wMax, fLen(hp.W) + ` · 全長比 ${(hp.W / hp.L * 100).toFixed(1)}%`)}${nudge('W')}${metreSlider('H', '全高', hp.H, cr ? .3 : 10, hMax, fLen(hp.H) + ` · 全長比 ${(hp.H / hp.L * 100).toFixed(1)}%`)}${nudge('H')}</div>
-    <label class="check"><input type="checkbox" data-hullratio ${st.hullRatio ? 'checked' : ''}> 全長を変えるとき幅と高さも同じ比率で変える</label>
+    <dl class="engineering-stats"><div data-design-envelope><dt>完成艦の予定寸法</dt><dd>${[plan.L,plan.W,plan.H].map(fLen).join(' × ')}</dd></div><div data-actual-dimensions><dt>現在の全長×全幅×全高</dt><dd>${actual.map(fLen).join(' × ')}</dd></div></dl>
+    <p class="note">予定寸法は設計開始時の目安と配置範囲です。船体を縮めても保持し、実際の艦の寸法は構造物・装備を含む外形から計算します。</p>
+    <div class="sliders">${metreSlider('L', '船体長', hp.L, lo, hi, fLen(hp.L))}${nudge('L')}${metreSlider('W', '船体幅', hp.W, Math.min(hp.W,cr ? .5 : 20), wMax, fLen(hp.W) + ` · 船体長比 ${(hp.W / hp.L * 100).toFixed(1)}%`)}${nudge('W')}${metreSlider('H', '船体高', hp.H, Math.min(hp.H,cr ? .3 : 10), hMax, fLen(hp.H) + ` · 船体長比 ${(hp.H / hp.L * 100).toFixed(1)}%`)}${nudge('H')}</div>
+    <label class="check"><input type="checkbox" data-hullratio ${st.hullRatio ? 'checked' : ''}> 船体長を変えるとき幅と高さも同じ比率で変える</label>
     <h4>寸法を変えたときの搭載物</h4>${seg('hullfollow', HULL_FOLLOW, st.hullFollow)}
     <p class="note">${st.hullFollow === 'surface' ? '格納庫・貨物庫などの内部区画は位置と寸法を保ちます。武装・艦橋ポッド・構造物・露出した機関は外板に合わせて移動します。' : st.hullFollow === 'scale' ? 'すべての区画と装備の位置を船体寸法の比率で移動します。区画の大きさは変わりません。' : '区画も装備も位置を保ちます。外板から離れた装備は浮いた扱いになります。'}</p></div>`;
 }
@@ -3325,7 +3318,7 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
 };
 let saveT = 0;
-function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return; LS.set('yard.draft3', snap()); LS.set('yard.draft3.meta', JSON.stringify({name: ship.name, L: ship.hull.L, savedAt: Date.now()})); }, 1200); }
+function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return; LS.set('yard.draft3', snap()); LS.set('yard.draft3.meta', JSON.stringify({name: ship.name, L: actualShipDimensions()[0], savedAt: Date.now()})); }, 1200); }
 async function pack(obj) {
   const json = JSON.stringify(obj);
   if (typeof CompressionStream === 'function') {
@@ -3733,7 +3726,7 @@ function placeVerticalFits(f, k, ped, opts) {
   return made.length;
 }
 function bind() {
-  bindSurfaceEditor();
+  bindStructureFaceArmor();
   $('#tabs').addEventListener('click', e => {
     const b = e.target.closest('button[data-tab]'); if (!b) return;
     if (tabKey() === b.dataset.tab && !st.dockCollapsed) { st.dockCollapsed = true; $('#dock').classList.add('collapsed'); return; }
@@ -3749,7 +3742,6 @@ function bind() {
     const b = e.target.closest('button'); if (!b) return;
     if(blockedHullControl(b))return;const d = b.dataset;
     if (d.hullsub) { st.tab = d.hullsub; st.sel = null; st.hatchA = null; hideInspect(); renderPanel(); syncHud(); requestDraw(); return; }
-    if (d.editsub) { st.tab = d.editsub === 'surface' ? 'surface' : 'edit'; st.hatchA = null; hideInspect(); renderPanel(); syncHud(); requestDraw(); return; }
     if (d.notchstructures) { st.notchStructures=d.notchstructures==='yes';renderPanel(); }
     else if (d.parttool) { if (d.parttool === 'place' && st.partTool !== 'place') carryToPlace(); st.partTool = d.parttool; renderPanel(); }
     else if (d.part) { if(isAeroKind(d.part)){selectAeroPart(d.part);renderPanel();return;}st.template=null;st.equipmentId=null;st.structWing=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.part = d.part; st.partTool = 'place'; renderPanel(); }
@@ -3784,7 +3776,7 @@ function bind() {
     else if (d.hullfollow) { st.hullFollow = d.hullfollow; renderPanel(); }
     else if (d.nudge) {
       const k = d.nudge, step = +d.step, v = hp[k] + step;
-      mutate({L: '全長', W: '全幅', H: '全高'}[k] + 'の微調整', () => setHullDims(k === 'L' ? v : hp.L, k === 'W' ? v : hp.W, k === 'H' ? v : hp.H), 'hull', {quiet: true});
+      mutate({L: '船体長', W: '船体幅', H: '船体高'}[k] + 'の微調整', () => setHullDims(k === 'L' ? v : hp.L, k === 'W' ? v : hp.W, k === 'H' ? v : hp.H), 'hull', {quiet: true});
       refitOnGeometry(); renderPanel();
     }
     else if (d.sec) { mutate('断面', () => { ship.hull.sec = d.sec; }, 'hull'); renderPanel(); }
@@ -3812,9 +3804,9 @@ function bind() {
     $$('[data-sl="'+k+'"]').forEach(q=>{if(q!==t){if(q.type==='range'&&v>+q.max&&+t.max>+q.max)q.max=Math.min(+t.max,Math.max(v,+q.max*2));q.value=v;}});
     const live = (label, what, fn, txt) => { beginDrag(label); fn(); touch(what); if (out) out.textContent = txt; scheduleStats(350); };
     switch (k) {
-      case 'L': live('全長', 'hull', () => { const r = v / hp.L; setHullDims(v, st.hullRatio ? hp.W * r : hp.W, st.hullRatio ? hp.H * r : hp.H); }, fLen(v)); syncHullInputs(t); break;
-      case 'W': live('全幅', 'hull', () => setHullDims(hp.L, v, hp.H), fLen(v) + ` · 全長比 ${(v / hp.L * 100).toFixed(1)}%`); break;
-      case 'H': live('全高', 'hull', () => setHullDims(hp.L, hp.W, v), fLen(v) + ` · 全長比 ${(v / hp.L * 100).toFixed(1)}%`); break;
+      case 'L': live('船体長', 'hull', () => { const r = v / hp.L; setHullDims(v, st.hullRatio ? hp.W * r : hp.W, st.hullRatio ? hp.H * r : hp.H); }, fLen(v)); syncHullInputs(t); break;
+      case 'W': live('船体幅', 'hull', () => setHullDims(hp.L, v, hp.H), fLen(v) + ` · 船体長比 ${(v / hp.L * 100).toFixed(1)}%`); break;
+      case 'H': live('船体高', 'hull', () => setHullDims(hp.L, hp.W, v), fLen(v) + ` · 船体長比 ${(v / hp.L * 100).toFixed(1)}%`); break;
       case 'bowW': live('艦首の幅・厚み', 'hull', () => { hp.bowW = v / 100; if(hp.stations)hp.stations.at(-1)[1]=Math.max(.005,v/100); C.normalizeBow(hp); }, v + '%'); break;
       case 'maxAt': live('最大幅の位置', 'hull', () => { hp.maxAt = v / 100; }, `${v}% · ${fLen(v / 100 * hp.L)}`); break;
       case 'stern': live('艦尾幅', 'hull', () => { hp.stern = v / 100; if(hp.stations)hp.stations[0][1]=Math.max(.01,v/100); }, v + '%'); break;
@@ -3858,10 +3850,8 @@ function bind() {
     if ('yardenginecolor' in t.dataset) { setEngineGlow(t.value); return; }
     if ('hullratio' in t.dataset) { st.hullRatio = t.checked; return; }
     if ('shipclass' in t.dataset) {
-      const c = C.SHIP_CLASSES.find(c => c.id === t.value), hp = ship.hull; if (!c) return;
-      if (hp.L >= c.min && hp.L <= c.max) { mutate(`艦種を${c.name}に`, () => { ship.shipClass = c.id; }, 'view'); renderPanel(); return; }
-      const L = c.def, r = L / hp.L;
-      mutate(`${c.name}の全長`, () => { ship.shipClass = c.id; setHullDims(L, hp.W * r, hp.H * r); }, 'hull'); refitOnGeometry(); renderPanel();
+      const c = C.SHIP_CLASSES.find(c => c.id === t.value); if (!c) return;
+      mutate(`艦種を${c.name}に`, () => { ship.shipClass = c.id; }, 'view'); renderPanel();
     }
   });
   // HUD
@@ -4052,8 +4042,9 @@ function renderTitle() {
   for (const g of $$('#titleMenu [data-tgroup]')) g.hidden = g.dataset.tgroup !== (titleState.mode || 'top');
   const cont = $('#titleMenu [data-title="continue"]');
   if (cont) {
+    const actual=ship?actualShipDimensions():null;
     cont.disabled = !ship;
-    $('#titleDraft').textContent = ship ? `「${ship.name}」 · ${fLen(ship.hull.L)} · ${C.shipClassFor(ship.hull.L, ship.shipClass).name}${meta?.savedAt ? ' · ' + new Date(meta.savedAt).toLocaleString(I18N?.locale||'ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : ''}` : '下書きはありません';
+    $('#titleDraft').textContent = ship ? `「${ship.name}」 · ${fLen(actual[0])} · ${C.shipClassFor(actual[0],ship.shipClass).name}${meta?.savedAt ? ' · ' + new Date(meta.savedAt).toLocaleString(I18N?.locale||'ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : ''}` : '下書きはありません';
   }
   for (const b of $$('#titleMenu .tmenu')) b.setAttribute('aria-pressed', String(b.dataset.title === titleState.panel));
   const panel = $('#titlePanel');
@@ -4080,8 +4071,8 @@ function titleNewHTML() {
   return `<div class="tpanel-head"><h2>新規設計</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
   <h3>1 · 艦種</h3><div class="tclass">${shipClassList(t.cls).map(c => `<button type="button" class="tcard" data-title-class="${c.id}" aria-pressed="${c.id === t.cls}"><b>${esc(c.name)}</b><span>${fLen(c.min)}〜${fLen(c.max)}</span><small>${esc(c.note)}</small></button>`).join('')}</div>
   <h3>2 · 船体の型</h3><div class="hulls">${Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-title-hull="${k}" aria-pressed="${k === t.hull}">${silhouette(v)}<span>${v.name}</span></button>`).join('')}</div>
-  <h3>3 · 寸法</h3><div class="sliders">${(() => { const cr = !!cls.craft; return metreSlider('tL', '全長', t.L, cls.min, cls.max, fLen(t.L)) + metreSlider('tW', '全幅', t.W, cr ? .5 : 20, Math.min(C.DESIGN_LIMITS.width, Math.max(cr ? 4 : 60, Math.round(t.L * 1.2))), fLen(t.W)) + metreSlider('tH', '全高', t.H, cr ? .3 : 10, Math.min(C.DESIGN_LIMITS.height, Math.max(cr ? 3 : 40, Math.round(t.L * .6))), fLen(t.H)); })()}</div>
-  <p class="note">寸法は小数で入力でき、ゲージでは0.01 mずつ調整できます。全幅・全高は船体の型の比率から始まり、個別に調整できます。設計中も「船体」タブで変更できます。</p>
+  <h3>3 · 完成艦の予定寸法</h3><div class="sliders">${(() => { const cr = !!cls.craft; return metreSlider('tL', '予定全長', t.L, cls.min, cls.max, fLen(t.L)) + metreSlider('tW', '予定全幅', t.W, cr ? .5 : 20, Math.min(C.DESIGN_LIMITS.width, Math.max(cr ? 4 : 60, Math.round(t.L * 1.2))), fLen(t.W)) + metreSlider('tH', '予定全高', t.H, cr ? .3 : 10, Math.min(C.DESIGN_LIMITS.height, Math.max(cr ? 3 : 40, Math.round(t.L * .6))), fLen(t.H)); })()}</div>
+  <p class="note">構造物・装備を含む完成艦のおおよその寸法です。この寸法の船体から始め、「船体」タブで船体だけを縮められます。予定寸法と配置範囲は保持し、現在の全長・全幅・全高は組み上がった外形から計算します。小数で入力でき、ゲージでは0.01 mずつ調整できます。</p>
   <label class="field-label">艦名<input type="text" data-title-name value="${esc(t.name)}" maxlength="40"></label>
   <button type="button" class="btn primary tgo" data-title-start>この船体で設計を始める</button>`;
 }
@@ -4104,12 +4095,12 @@ const PATROL_ESCORTS = 4;
 function titlePatrolBody() {
   const ex = Object.values(YardFleetData?.designs || {}), sides = [...new Set(ex.map(d => d.side))];
   if (!SYSTEMS[patrolOpt.sys] || patrolOpt.sys === 'rts') patrolOpt.sys = 'kuat';patrolOpt.escorts = patrolOpt.escorts.filter(k => YardFleetData?.designs?.[k]);
-  const esc1 = patrolOpt.escorts, count = k => esc1.filter(x => x === k).length;
+  const esc1 = patrolOpt.escorts, count = k => esc1.filter(x => x === k).length, actual=ship?actualShipDimensions():null;
   return `<h3>随伴艦（AI）<small class="tp-count">${esc1.length} / ${PATROL_ESCORTS} 隻</small></h3><p class="note">旗艦の後方で隊形を組んで続き、ハイパースペースにも同行し、旗艦が狙う目標に援護射撃します。タップで追加、もう一度で外します（同じ艦を複数も可：右上の＋）。</p>
   <div class="ref-grid tp-escorts">${sides.map(side => ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => { const n = count(d.key); return `<button type="button" class="btn${n ? ' on' : ''}" data-patrol-esc="${esc(d.key)}" aria-pressed="${n > 0}">${esc(String(d.name).split('｜')[0])}${n > 1 ? ` ×${n}` : ''}<small>${fLen(d.info.len)}</small>${n ? `<i class="tp-plus" data-patrol-more="${esc(d.key)}" role="button" aria-label="もう1隻">＋</i>` : ''}</button>`; }).join('')).join('')}</div>
   ${esc1.length ? '<button type="button" class="btn sm ghost" data-patrol-esc-clear>随伴艦をすべて外す</button>' : ''}
   <h3>旗艦を選んで出発</h3><p class="note">輸送船や貨物船などの民間船がハイパースペースから出入りし、惑星との間を行き来します（民間船は照準の対象外です）。ときおり敵対勢力の艦艇が出現して交戦になり、撃退すればパトロールを続けます。</p>
-  ${ship ? `<h4>設計中の艦</h4><div class="ref-grid"><button type="button" class="btn" data-title-patrol="current">${esc(ship.name)}<small>${fLen(ship.hull.L)} · ${esc(C.shipClassFor(ship.hull.L, ship.shipClass).name)}</small></button></div>` : ''}
+  ${ship ? `<h4>設計中の艦</h4><div class="ref-grid"><button type="button" class="btn" data-title-patrol="current">${esc(ship.name)}<small>${fLen(actual[0])} · ${esc(C.shipClassFor(actual[0],ship.shipClass).name)}</small></button></div>` : ''}
   <h4>保存した設計</h4><div class="ref-grid" id="titlePatrolSaves"><p class="muted">一覧を確認中…</p></div>
   <h4>作例</h4>${sides.map(side => `<p class="eyebrow">${esc(side)}</p><div class="ref-grid">${ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => `<button type="button" class="btn" data-title-patrol="${esc(d.key)}">${esc(String(d.name).split('｜')[0])}<small>${fLen(d.info.len)} · ${esc(examplePurpose(d.key, d.cls || ''))}</small></button>`).join('')}</div>`).join('')}
   <p class="note">大型艦は準備に時間がかかります。</p>`;
@@ -4402,7 +4393,7 @@ function engineControls(p,selected,multiple=false){
 }
 function v3PartEditor(){
   let h=basePartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return h;
-  let extra=isAeroKind(p.k)?aeroShapeControls(p,true)+wingControls(p):p.k==='struct'?structureControls(p,true):p.k==='engine'?engineControls(p,true):sensorBandControls(p);
+  let extra=isAeroKind(p.k)?aeroShapeControls(p,true)+wingControls(p):C.isStructuralPart(p)?structureControls(p,true)+structureFaceArmorControls(p):p.k==='engine'?engineControls(p,true):sensorBandControls(p);
   if(C.isSuperweapon(p))extra+=superweaponControls(p);
   else if(C.PARTS[p.k].shape==='cyl')extra+=`<div class="pgroup"><h4>円筒の向き</h4>${seg('partaxis',[['x','前後'],['y','上下'],['z','左右']],Math.abs(p.dir?.[1]||0)>.9?'y':Math.abs(p.dir?.[2]||0)>.9?'z':'x')}</div>`;
   if(C.isShapePart(p))extra+=`<button class="btn sm" data-duplicate="${p.id}">${isAeroKind(p.k)?'パーツを複製':'構造物を複製'}</button>`;
@@ -4411,14 +4402,14 @@ function v3PartEditor(){
 // Position of a placed fitting. Pods move along their wall and up or down it;
 // deck fittings move fore/aft and port/starboard and re-seat on the surface.
 function fitPositionSliders(f){
-  const hp=ship.hull;
+  const hp=C.designEnvelope(ship),pb=C.designPlacementBounds(ship);
   if(C.FITS[f.k].window||f.k==='broadsideBattery'){
     // Fore/aft walls slide port-starboard; side walls slide fore-aft.
     const host=ship.parts.find(q=>q.id===f.host),n=f.n||C.AXES[f.a],side=Math.abs(n[2])>Math.abs(n[0]),c=host?host.c:f.p,span=host?Math.max(...host.s)/2+10:60,y0=host?host.c[1]-host.s[2]/2-5:0,y1=host?host.c[1]+host.s[2]/2+5:hp.H*2;
     const axis=side?['fitX','前後 X',0]:['fitZ','左右 Z',2],v=f.p[axis[2]];
     return `<h4>位置</h4><div class="sliders">${metreSlider(axis[0],axis[1],v,Math.floor(c[axis[2]]-span),Math.ceil(c[axis[2]]+span))}${metreSlider('fitY','高さ Y',f.p[1],Math.floor(y0),Math.ceil(y1))}</div><p class="note">取り付けた壁に沿って動きます。3D画面で${f.k==='broadsideBattery'?'砲列区画':'ポッド'}をドラッグしても動かせます。</p>`;
   }
-  return `<h4>位置</h4><div class="sliders">${metreSlider('fitX','前後 X',f.p[0],Math.min(f.p[0],-hp.L*.1),Math.max(f.p[0],hp.L*1.1))}${metreSlider('fitZ','左右 Z',f.p[2],Math.min(f.p[2],-hp.W*.75),Math.max(f.p[2],hp.W*.75))}</div><p class="note">面に沿って据え直します。3D画面で装備をドラッグしても動かせます。</p>`;
+  return `<h4>位置</h4><div class="sliders">${metreSlider('fitX','前後 X',f.p[0],Math.min(f.p[0],pb[0]),Math.max(f.p[0],pb[3]))}${metreSlider('fitZ','左右 Z',f.p[2],Math.min(f.p[2],pb[2]),Math.max(f.p[2],pb[5]))}</div><p class="note">面に沿って据え直します。3D画面で装備をドラッグしても動かせます。</p>`;
 }
 function fitPairHTML(f){
   const find=id=>id==null?null:ship.fits.find(q=>q.id===id),tw=find(f.tw),vt=find(f.vt),vtw=(vt&&find(vt.tw))||(tw&&find(tw.vt)),n=[tw,vt,vtw].filter(Boolean).length;if(!n)return '';
@@ -4438,7 +4429,7 @@ function v3RenderPanel(){
   const panel=$('#panel');
   if(st.tab==='mod'&&st.partTool==='place'){
     const parts=panel.querySelector('.parts');if(parts)parts.insertAdjacentHTML('beforebegin',`<div class="pgroup panel-nav">${seg('group',layoutGroups(),st.group)}</div>${st.group==='command'?bridgeSubHTML():''}`);
-    if(st.part==='struct'&&!isSponsonPlacement())panel.insertAdjacentHTML('beforeend',structureControls({form:st.structForm,skinAsset:st.skinAsset,angles:st.structAngles,yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,shellCurve:st.shellCurve,shellThick:st.shellThick,shellFlip:st.shellFlip},false));
+    if(C.isStructuralPart({k:st.part})&&!isSponsonPlacement())panel.insertAdjacentHTML('beforeend',structureControls({k:st.part,form:st.structForm,skinAsset:st.skinAsset,angles:st.structAngles,yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,shellCurve:st.shellCurve,shellThick:st.shellThick,shellFlip:st.shellFlip},false));
     if(isAeroKind(st.part))panel.insertAdjacentHTML('beforeend',aeroShapeControls({k:st.part,s:st.structSize,form:st.structForm,yaw:st.structYaw},false));
     if(st.part==='engine')panel.insertAdjacentHTML('beforeend',engineControls({k:'engine',c:[0,0,0],d:pSize('engine'),dir:st.engineDir,reactor:st.reactor},false));
     if(st.part!=='struct'||!isSponsonPlacement())panel.insertAdjacentHTML('beforeend',coordinateControls());
@@ -4783,8 +4774,9 @@ function craftPaletteGuard(){
  if(!partOffered(st.part))st.part=paletteParts(st.group)[0]||'struct';
  const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];
  if(paletteShip!==ship){paletteShip=ship;if(craftDesign()){
-  if(st.structSize[0]>ship.hull.L)st.structSize=[Math.max(.2,+(ship.hull.L*.3).toFixed(2)),Math.max(.2,+(ship.hull.W*.3).toFixed(2)),Math.max(.05,+(ship.hull.H*.1).toFixed(2))];
-  if(st.roomSize.some((v,i)=>v>[ship.hull.L,ship.hull.W,ship.hull.H][i]))st.roomSize=[ship.hull.L,ship.hull.W,ship.hull.H].map(v=>Math.max(.1,+(v*.25).toFixed(2)));
+  const plan=C.designEnvelope(ship);
+  if(st.structSize[0]>plan.L)st.structSize=[Math.max(.2,+(plan.L*.3).toFixed(2)),Math.max(.2,+(plan.W*.3).toFixed(2)),Math.max(.05,+(plan.H*.1).toFixed(2))];
+  if(st.roomSize.some((v,i)=>v>[plan.L,plan.W,plan.H][i]))st.roomSize=[plan.L,plan.W,plan.H].map(v=>Math.max(.1,+(v*.25).toFixed(2)));
  }}
 }
 // v23 Item selection in the 配置 menus (the old 選択 / 複数 tools, the inspection list, a placed-item chip) opens the
@@ -4799,20 +4791,17 @@ function editRedirect(){
  st.tab='edit';st.edReveal=true;
 }
 // v27 The 搭載 and 地上部隊 tabs are gone: their figures are in 性能 (a tab only on narrow screens).
-const legacyTab = t => t === 'launch' || t === 'ground' ? (isWide() ? 'mod' : 'spec') : t;
+const legacyTab = t => t === 'surface' ? 'edit' : t === 'launch' || t === 'ground' ? (isWide() ? 'mod' : 'spec') : t;
 function renderPanel(){st.tab=legacyTab(st.tab);if(!nativeRender&&fleet.mode==='design'&&ship){editRedirect();selSync();if(st.tab==='edit'){editRenderPanel();renderInspBar();return;}}craftPaletteGuard();if(st.tab==='bridge')st.cmdSub=st.bridgeMode==='windows'?'windows':'body';else if(st.tab==='mod'&&st.group==='command')st.cmdSub='rooms';
-  if(st.tab==='armor'&&ship?.surfaces)st.tab='surface';
-  surfaceSyncSelection();
   if(fleet.mode!=='design'){fleetRender();return;}
   refreshSolidCutterOverlay();
 
-  if(ship&&st.tab==='surface'){markTabs();$('#panel').innerHTML=editSubHTML()+(surfaceEditorPending()?'<p class="note" data-surface-pending-geometry>形状を計算中…</p>':surfaceEditorHTML());updateHint();refreshOverlay();organizePanel();return;}
 
   if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();organizePanel();return;}
   if(ship&&st.tab==='mod'&&st.group==='user'&&st.partTool==='place'){markTabs();$('#panel').innerHTML=userPartPanelHTML();updateHint();refreshOverlay();organizePanel();return;}
   v3RenderPanel();if(!ship)return;const panel=$('#panel');
   if(st.tab==='hull'){
-    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><h4>船体の組立</h4><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。長さ・幅・高さは設計範囲です。</p><label><input type="checkbox" data-corehull ${ship.hull.core?'checked':''}> 船体をコア船体にする</label><p class="note">ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。全長・艦種・損傷区画・艦隊戦での大きさを、構造物を含めた全体で計算します。</p></div>`);
+    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><h4>船体の組立</h4><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。完成艦の予定寸法と配置範囲は、船体寸法を変えても保持します。</p><label><input type="checkbox" data-corehull ${ship.hull.core?'checked':''}> 船体をコア船体にする</label><p class="note">ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。完成艦の全長・全幅・全高は、この設定によらず構造物・装備を含めた全体で計算します。</p></div>`);
     const rows=ship.hull.stations||C.planStations(ship.hull).map(t=>C.profileAt(ship.hull,t)),deckOK=ship.hull.sec!=='ellipse';
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（下のチェックで解除できます）。上の列で断面を選び、「＋」で次の断面との間に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p>${stationEditorHTML(rows,deckOK)}<label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}</div><div class="pgroup"><h4>甲板・舷側帯・艦尾位置</h4><div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
     // FACTION-001 the player's own factions are listed beside the four (Rts.registerFaction adds them); a made faction
@@ -4820,7 +4809,7 @@ function renderPanel(){st.tab=legacyTab(st.tab);if(!nativeRender&&fleet.mode==='
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>所属陣営</h4>${seg('yardfaction',Object.entries(C.DESIGN_FACTIONS).map(([k,v])=>[k,R.isCustomFaction(k)?`<i class="swatch" style="background:${esc(R.FACTIONS[k].color)}"></i>${esc(v)}`:v]),ship.faction&&C.DESIGN_FACTIONS[ship.faction]?ship.faction:'any')}${ship.faction&&!C.DESIGN_FACTIONS[ship.faction]?'<p class="note bad">この設計の陣営はこの端末にありません（全陣営として扱います）。</p>':''}<p class="note">編成画面の艦の一覧・お任せ編成と、任務で使える陣営を決めます（全陣営ならどの艦隊にも加えられます）。</p><button type="button" class="btn sm ghost" data-facedit>陣営を作る・編集する</button></div>`);
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「配置 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
   }
-  if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube')panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>metreSlider('newRoom'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[ship.hull.L,ship.hull.W,ship.hull.H][i]))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);
+  if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube'){const plan=C.designEnvelope(ship);panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>metreSlider('newRoom'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[plan.L,plan.W,plan.H][i]))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);}
   if(st.tab==='mod')panel.insertAdjacentHTML('afterbegin','<div class="note compartment-rule">内部区画は外殻内に収容。箱形区画の干渉は必要容積を保って自動統合します。主炉・シールド・エンジンと外装機器は張出し可能。</div>');
   referencePanel(panel);layoutPanel(panel);
   if(st.tab==='hull')panel.insertAdjacentHTML('afterbegin',hullDimsHTML());
@@ -4833,7 +4822,7 @@ function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
   html+=cockpitEquipmentHTML(p);
   html+=`<div class="pgroup"><h4>区画名</h4><label class="field-label"><input type="text" data-partlabel aria-label="区画名" value="${esc(p.label||C.PARTS[p.k].name)}" maxlength="80"></label></div>`;
-  if((p.k==='struct'&&!['reference','outline','airfoil','loft','roundloft','arc','ellipsoid','dome','cylinder','cone','shell','mesh'].includes(p.form))||(p.room&&!p.outline)){html+=`<div class="pgroup"><h4>平面の輪郭</h4>${C.isShapePart(p)&&p.form!=='chamfer'?'<button class="btn sm" data-chamfer>切隅・平面台形にする</button>':''}<div class="sliders">${slider('aftWidth','艦尾側の幅',Math.round((p.aftWidth??1)*100),3,150,1,Math.round((p.aftWidth??1)*100)+'%')}${slider('foreWidth','艦首側の幅',Math.round((p.foreWidth??1)*100),3,150,1,Math.round((p.foreWidth??1)*100)+'%')}${slider('corner','隅を落とす',Math.round((p.corner??.12)*100),0,45,1,Math.round((p.corner??.12)*100)+'%')}</div><p class="note">甲板・艦橋の角や、船首へ細くなる区画を再現できます。</p></div>`;}
+  if((C.isStructuralPart(p)&&!['reference','outline','airfoil','loft','roundloft','arc','ellipsoid','dome','cylinder','cone','shell','mesh'].includes(p.form))||(p.room&&!p.outline)){html+=`<div class="pgroup"><h4>平面の輪郭</h4>${C.isShapePart(p)&&p.form!=='chamfer'?'<button class="btn sm" data-chamfer>切隅・平面台形にする</button>':''}<div class="sliders">${slider('aftWidth','艦尾側の幅',Math.round((p.aftWidth??1)*100),3,150,1,Math.round((p.aftWidth??1)*100)+'%')}${slider('foreWidth','艦首側の幅',Math.round((p.foreWidth??1)*100),3,150,1,Math.round((p.foreWidth??1)*100)+'%')}${slider('corner','隅を落とす',Math.round((p.corner??.12)*100),0,45,1,Math.round((p.corner??.12)*100)+'%')}</div><p class="note">甲板・艦橋の角や、船首へ細くなる区画を再現できます。</p></div>`;}
   if(C.PARTS[p.k].shape==='cube'&&!p.room)html+='<button class="btn" data-roomconvert>長さ・幅・高さを個別に編集</button>';
   if(p.room&&!p.outline)html+='<button class="btn" data-roomoutline>区画の輪郭を頂点で編集する</button>';
   if(p.room&&p.outline)html+='<p class="note">輪郭区画の発着には、矩形の飛行・ドッキング区画を隣接させて接続します。</p>';
@@ -4842,7 +4831,7 @@ function partEditor(){
   if(C.isShapePart(p)&&p.form==='mesh'&&p.mesh)html+=st.ve.target?.kind==='struct'&&st.ve.target.id===p.id?vertexPanelHTML():`<div class="pgroup"><h4>頂点編集</h4><button class="btn" data-veopen>頂点を編集する</button><p class="note">頂点 ${p.mesh.v.length}・面 ${p.mesh.f.length}。前後・上下・左右（X/Y/Z）に頂点を動かせます。${p.imported?'外部ファイルから取り込んだ構造形状です（機能は持ちません）。':''}</p></div>`;
   else if(C.isShapePart(p)&&p.form!=='reference')html+=`<div class="pgroup"><h4>頂点編集</h4><button class="btn" data-meshconvert>頂点編集できる形に変換</button><p class="note">今の外形を頂点と面に置き換え、上下（Y）を含む3方向に頂点を動かせるようにします。元の形の寸法パラメータは使えなくなります（元に戻すで戻せます）。</p></div>`;
   if(p.k==='struct')html+=`<div class="pgroup"><h4>構造物のスキン</h4>${seg('partskin',[['armor','装甲板'],['service','整備機器'],['plain','追加模様なし']],p.skin||'armor')}<p class="note">スキンは外板の模様です。指揮所が必要なら艦橋ポッドを壁に取り付けます。</p><label>構造物の塗色 <input type="color" data-partpaint value="${p.paint||'#ced2d6'}"></label></div>`;
-  if(C.PARTS[p.k].shape==='cyl'&&!C.PARTS[p.k].fixed)html+=`<div class="sliders">${metreSlider('cylLength','筒の長さ',p.length||C.partDims(p).l,.1,Math.max(p.length||C.partDims(p).l,p.k==='hyper'?C.DESIGN_LIMITS.partSize:Math.min(C.DESIGN_LIMITS.partSize,ship.hull.L)))}</div>`;
+  if(C.PARTS[p.k].shape==='cyl'&&!C.PARTS[p.k].fixed)html+=`<div class="sliders">${metreSlider('cylLength','筒の長さ',p.length||C.partDims(p).l,.1,Math.max(p.length||C.partDims(p).l,p.k==='hyper'?C.DESIGN_LIMITS.partSize:Math.min(C.DESIGN_LIMITS.partSize,C.designEnvelope(ship).L)))}</div>`;
   if(C.isInternal(p)&&C.PARTS[p.k].shape==='cube'&&!ship.hatches.some(h=>h.bay===p.id)&&!['flight','dock'].includes(p.airRole))html+=`<div class="pgroup blueprint-card"><label><input type="checkbox" data-autofit ${p.autoFit!==false?'checked':''}> 干渉時に容積を保って自動統合</label><p class="note">近くの区画と用途・必要容積を分けたまま統合し、空き空間に形を組み替えます。指定した位置・寸法は基準形状として保持します。</p></div>`;
   if(p._packingGroup)html+=packingInfoHTML(p);
   if(C.isInternal(p))html+=`<div class="pgroup blueprint-card"><h4>外殻内に自動切取り</h4><p>使用できる体積 <b>${Math.round((p._packing?.retained??p._clip?.retained??1)*100)}%</b></p><p class="note">船体・構造物の内側だけを容量と質量に算入します。指定寸法は保持。外へ広げるには先に構造物を追加してください。</p></div>`;
@@ -5555,217 +5544,16 @@ function bindPalette(){
   const note=e.target.closest('.note.clamp');if(note&&!e.target.closest('a,button,input,select'))note.classList.toggle('full');
  },true);
 }
-// ---------- surface patch editing ----------
-// The selection contains semantic patch IDs. The form records only fields the
-// player changed, so applying one layer to several faces preserves their others.
-const SURFACE_FACES={top:'上面',bottom:'下面',port:'左舷',stbd:'右舷',fore:'前面',aft:'後面'};
-const SURFACE_ALLOCATION_LABELS={cooling:'散熱',sensors:'センサー',habitation:'居住区'};
-let surfaceRemoteReport=null;
-function surfaceReportForEditor(){
- if(S?.surface&&(typeof eng==='undefined'||eng.statsGen===eng.gen))return S.surface;
- if(surfaceRemoteReport?.ship===ship&&surfaceRemoteReport.gen===eng.gen)return surfaceRemoteReport.report;
- surfaceRemoteReport=null;return C.surfaceReport(ship);
+// ---------- structure face armor ----------
+const STRUCTURE_ARMOR_FACES={top:'上面',bottom:'下面',fore:'前面',aft:'後面',port:'左舷',stbd:'右舷'};
+function structureFaceArmorControls(p){
+ if(!C.isStructuralPart(p))return '';
+ const rows=C.structureArmorFaces(ship,p),max=C.SURFACE_LIMITS?.armorThickness??100;
+ const controls=Object.entries(STRUCTURE_ARMOR_FACES).flatMap(([face,label])=>{const faces=rows.filter(q=>q.face===face);if(!faces.length)return [];const values=faces.map(q=>q.thickness),same=values.every(v=>Math.abs(v-values[0])<1e-9);return [`<label class="field-label">${label}（m）<input type="number" inputmode="decimal" data-structure-face-armor="${face}" data-structure-armor-host="${p.id}" value="${same?values[0]:''}" min="0" max="${max}" step="any" aria-label="${label}の装甲厚（m）" ${same?'':'placeholder="複数の値"'}></label>`];}).join('');
+ return `<div class="pgroup" data-structure-face-armor-editor><h4>面ごとの装甲厚</h4><p class="note">スキンと形状を保ち、各面の装甲厚だけを変更します。0.3 m以下の面には光点を表示します。</p>${controls||'<p class="note">装甲面を準備中…</p>'}</div>`;
 }
-const SURFACE_FIELDS={
- 'functionMode':'text','allocation.cooling':'number','allocation.sensors':'number','allocation.habitation':'number',
- 'armor.material':'text','armor.thickness':'number','equipment.kind':'text','equipment.count':'number','equipment.depth':'number','equipment.capacityModel':'text',
- 'battery.weapon':'text','battery.count':'number','battery.spacing':'number','battery.angle':'number',
- 'style.kind':'text','style.depth':'number','style.density':'number','style.seed':'number'
-};
-function surfaceEditorPending(){return !!(ship?._client&&(!Array.isArray(ship._geoProxy?.surfaces)||typeof eng!=='undefined'&&eng.adoptedGen<eng.gen));}
-function surfaceRows(){return ship&&C.surfacePatches?C.surfacePatches(ship):[];}
-function surfaceExterior(p){return !!p?.exposed&&Number.isFinite(p.exposedArea)&&p.exposedArea>1e-8;}
-function surfaceSelection(rows=surfaceRows()){
- const valid=new Set(rows.filter(surfaceExterior).map(p=>p.id)),old=st.surfaceIds||[],ids=old.filter(id=>valid.has(id));
- if(ids.length!==old.length){st.surfaceIds=ids;if(!ids.length)st.surfaceDraft={};}
- if(st.surfaceLast&&!valid.has(st.surfaceLast))st.surfaceLast=null;
- const wanted=new Set(ids);return rows.filter(p=>surfaceExterior(p)&&wanted.has(p.id));
-}
-function surfaceSyncSelection(){
- const active=st.tab==='surface'&&fleet.mode==='design'&&!surfaceEditorPending();
- // Surface exposure is derived in the worker. Other tabs only need to clear
- // the highlight; surveying every face here blocks opening a large design.
- if(active)surfaceSelection();
- if(!view)return;
- if(view.setSurfaceSelection)view.setSurfaceSelection(active?ship:null,active?st.surfaceIds||[]:[]);
- else{view.surfaceShip=active?ship:null;view.surfaceSelection=active?st.surfaceIds||[]:[];}
-}
-function surfaceHostName(p){const part=p.host==='hull'?null:ship.parts.find(q=>'p'+q.id===p.host);return part?(part.label||C.PARTS[part.k]?.name||'構造物')+' #'+part.id:'船体';}
-function surfacePatchName(p){return `${surfaceHostName(p)} · ${SURFACE_FACES[p.face]||p.face}${p.range?' · '+p.range.map(v=>Math.round(v*100)).join('/'):''}`;}
-function surfaceFilteredRows(rows=surfaceRows()){
- const filter=st.surfaceFilter||'all';return rows.filter(p=>surfaceExterior(p)&&(filter==='all'||filter==='hull'&&p.host==='hull'||filter==='parts'&&p.host!=='hull'||filter==='configured'&&ship.surfaces?.patches?.some(q=>q.id===p.id)));
-}
-function surfaceSymmetricIds(ids,rows=surfaceRows()){const valid=new Set(rows.filter(surfaceExterior).map(p=>p.id));return C.surfaceSymmetryIds(ship,ids,{mirror:!!st.mirror,vmirror:!!st.vmirror}).filter(id=>valid.has(id));}
-function surfaceSelectPatch(id,add=false,range=false){
- const all=surfaceRows(),rows=surfaceFilteredRows(all);surfaceSelection(all);const p=all.find(q=>q.id===id&&surfaceExterior(q));if(!p)return false;
- const ids=new Set(add?st.surfaceIds||[]:[]),a=rows.findIndex(q=>q.id===st.surfaceLast),b=rows.findIndex(q=>q.id===id);
- if(range&&a>=0&&b>=0){for(const q of surfaceSymmetricIds(rows.slice(Math.min(a,b),Math.max(a,b)+1).map(q=>q.id),all))ids.add(q);}
- else{const group=surfaceSymmetricIds([id],all);if(add&&ids.has(id))for(const q of group)ids.delete(q);else for(const q of group)ids.add(q);}
- st.surfaceIds=[...ids];st.surfaceLast=id;st.surfaceDraft={};surfaceSyncSelection();renderPanel();requestDraw();return true;
-}
-function surfaceTap(px,py,add){
- if(surfaceEditorPending())return false;
- let hit=view?.pickSurface?.(px,py,ship);if(!hit&&C.surfacePick){const ray=view?.ray(px,py);if(ray)hit=C.surfacePick(ship,ray.o,ray.d);}
- const p=hit?.patch||hit;if(!p?.id){toast('船外に露出している面を選択してください');return;}
- if(!surfaceSelectPatch(p.id,!!add||!!st.surfaceAdd,!!st.surfaceRange))toast('船外に露出している面を選択してください');
-}
-function surfaceFormValue(configs,path){
- const values=configs.map(c=>path.split('.').reduce((q,k)=>q?.[k],c));
- return values.length&&values.every(v=>JSON.stringify(v)===JSON.stringify(values[0]))?values[0]:undefined;
-}
-function surfaceRatioEdits(){const draft=st.surfaceDraft||{};return draft._allocationEdits||Object.entries(draft).filter(([path])=>path.startsWith('allocation.')).map(([path,value])=>({key:path.split('.')[1],value}));}
-function surfaceDraftConfig(config){
- const q={...config,armor:{...config.armor},equipment:{...config.equipment},battery:{...config.battery},style:{...config.style},allocation:C.surfaceAllocation(config.allocation)};
- for(const [path,value]of Object.entries(st.surfaceDraft||{})){if(!Object.hasOwn(SURFACE_FIELDS,path)||path.startsWith('allocation.'))continue;const a=path.split('.');if(a.length===1)q[a[0]]=value;else q[a[0]][a[1]]=value;}
- for(const edit of surfaceRatioEdits())q.allocation=C.surfaceAllocation(q.allocation,edit.key,edit.value);
- if(q.functionMode==='equipment'){if(q.battery.weapon==='none')q.battery.weapon='pd';if(q.equipment.kind==='none'||q.equipment.kind==='machinery')q.equipment.kind='hdis';}
- return q;
-}
-function surfaceDraftValue(configs,path){return surfaceFormValue(configs.map(surfaceDraftConfig),path);}
-function surfaceNumberField(configs,path,label,min,max,step,range=false){
- const value=surfaceDraftValue(configs,path),empty=value==null,attr=esc(path);
- return `<label class="field-label">${label}<input type="number" data-surface-field="${attr}" value="${empty?'':value}" min="${min}" max="${max}" step="${path.startsWith('allocation.')?'any':step}" ${path.startsWith('allocation.')&&!empty?'required':''} placeholder="${empty?'複数の値':''}"></label>${range?`<input type="range" aria-label="${label}" data-surface-field="${attr}" value="${empty?min:value}" min="${min}" max="${max}" step="${step}">`:''}`;
-}
-function surfaceSelectField(configs,path,label,options){
- const value=surfaceDraftValue(configs,path);
- return `<label class="field-label">${label}<select data-surface-field="${esc(path)}">${value==null?'<option value="" selected>複数の値</option>':''}${options.map(([k,n])=>`<option value="${esc(k)}" ${value===k?'selected':''}>${esc(n)}</option>`).join('')}</select></label>`;
-}
-function surfaceReportHTML(report){
- const selected=new Map(surfaceSelection().map(p=>[p.id,p])),statsReady=!!S&&(typeof eng==='undefined'||eng.gen===eng.statsGen),computed=statsReady?new Map((S.surface?.patches||[]).map(p=>[p.id,p])):new Map(),rows=(report.patches||[]).filter(p=>selected.has(p.id)).map(p=>({...p,...computed.get(p.id),exposed:true,exposedArea:selected.get(p.id).exposedArea})),total=(key)=>rows.reduce((n,p)=>n+(Number.isFinite(p[key])?p[key]:0),0),errors=rows.flatMap(p=>(p.errors||[]).map(text=>({text,patch:p.id}))),warnings=(report.warnings||[]).filter(w=>!w.patch||selected.has(w.patch));
- const installed=total('installed'),requested=total('requested'),aggregate=rows.some(p=>p.aggregate),fids=new Set(rows.flatMap(p=>p.fitIds||[])),fits=ship.fits.filter(f=>fids.has(f.id)),metric=(key,read)=>rows.reduce((n,p)=>n+(Number.isFinite(p[key])?p[key]:fits.filter(f=>p.fitIds?.includes(f.id)).reduce((a,f)=>a+read(C.fitSpec(f)),0)),0),crew=metric('batteryCrew',d=>(d.crew||0)*2),power=metric('batteryPowerDemand',d=>d.power||0),fedKnown=statsReady&&rows.every(p=>Number.isFinite(p.fed)||!p.aggregate),fed=rows.every(p=>Number.isFinite(p.fed))?total('fed'):fits.filter(f=>S?.feedInfo?.[f.id]&&(!C.needsCapacitor?.(f)||(S.chargeInfo?.[f.id]?.ratio||0)>0)).length;
- const table=[['有効な外面積',`${num(total('exposedArea'),2)} m²`],['予約した共用面積',`${num(total('occupiedArea'),2)} m²`],['設備の占有容積',`${num(total('volume'),2)} m³`],['装甲と設備の質量',fMass(total('mass'))],['砲座の設置数／要求数',`${installed} / ${requested} 基`],['砲列の砲員・給電整備要員',`${num(crew)} 名`],['砲列の定格給電要求',fW(power)],['配電路が届く砲座',fedKnown?`${fed} / ${installed} 基`:'計算中']];
- table.splice(5,0,['砲身総数',`${total('barrels')} 門`],...(!aggregate?[['設備の設置数／要求数',`${total('installedEquipment')} / ${total('requestedEquipment')} 基`]]:[]),['散逸設備の定格容量',fW(total('coolingCapacity'))]);
- if(total('inactiveVolume')>0)table.push(['保管中の面設備容積',`${num(total('inactiveVolume'),2)} m³`]);
- const measured=rows.length&&rows.every(p=>computed.has(p.id)&&Number.isFinite(p.maximumTT));
- table.push(['稼働可能な砲座',measured?`${total('operating')} / ${installed} 基`:'計算中'],['給電要求／供給',measured?`${fW(total('chargeRequested'))} / ${fW(total('chargeSupplied'))}`:'計算中'],['最大／持続射撃（ゲーム換算）',measured?`${num(total('maximumTT'),3)} / ${num(total('sustainedTT'),3)} TT/s`:'計算中'],['選択面の発熱／熱輸送',measured?`${fW(total('heatGenerated'))} / ${fW(total('heatExported'))}`:'計算中'],['最大蓄電量（ゲーム換算）',measured?`${num(total('maxEnergy'),3)} TT`:'計算中']);
- if(S)table.push(['艦全体の要員',`${num(S.crewAboard??S.crew??0)} / ${num(S.crew||0)} 名`],['共通熱系統の発熱／処理',`${fW(S.heat?.presets?.combat?.gen||0)} / ${fW(S.heat?.presets?.combat?.out||0)}`]);
- const equipmentRows=rows.filter(p=>p.config?.functionMode==='equipment'),category=(key,value)=>equipmentRows.reduce((n,p)=>n+(Number.isFinite(p.categories?.[key]?.[value])?p.categories[key][value]:0),0),allocationTable=equipmentRows.length?`<div data-surface-allocation-report><h4>機材構造面の面積配分</h4><dl class="engineering-stats">${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-category="${key}"><dt>${label}</dt><dd>${num(category(key,'budgetArea'),2)} m²${aggregate?'':` · ${category(key,'installed')} / ${category(key,'requested')} 基`}</dd><dd>占有 ${num(category(key,'occupiedArea'),2)} m² · 未使用 ${num(category(key,'unusedArea'),2)} m²</dd>${aggregate?`<dd>設備容積 ${num(category(key,'volume'),2)} m³</dd>`:''}</div>`).join('')}<div><dt>居住容積／居住定員</dt><dd>${num(total('habitationVolume'),2)} m³ / ${num(total('habitationCapacity'))} 名</dd></div></dl><p class="note">比率は面全体の機能に割り当てる面積です。内部深さと有効な容積に応じて能力を計算します。居住定員は収容上限で、乗員を新規に生成しません。</p></div>`:'';
- const seen=new Set(),issues=[...errors,...warnings].map(w=>typeof w==='string'?w:w.text||w.code||'配置条件を確認してください').filter(text=>!seen.has(text)&&seen.add(text));
- return `<div class="pgroup" data-surface-report data-surface-representation="${aggregate?'face':'legacy'}"><h4>選択面の搭載と接続</h4>${allocationTable}<dl class="engineering-stats">${table.map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><p class="note">面全体の占有面積・容積から機能を集計します。見た目の機材の個数や細部密度を変えても、能力や要員は増えません。砲列の基数と砲身数は別に扱います。</p>${issues.slice(0,20).map(text=>`<p class="note warn">${esc(text)}</p>`).join('')}</div>`;
-}
-function surfaceAllocationHTML(configs){
- const preview=configs.map(surfaceDraftConfig),totals=preview.map(q=>Object.values(q.allocation).reduce((a,b)=>a+b,0)),total=totals.length&&totals.every(v=>Math.abs(v-100)<.001)?'100%':'—';
- return `<div data-surface-allocation><p><b>割当合計</b> <output data-surface-allocation-total>${total}</output></p><p class="note">散熱・センサー・居住区を合計100%で配分します。1項目を変えると残りを比例調整します。砲列は比率に含めず、砲座基数を別に指定します。</p>${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-allocation-row="${key}">${surfaceNumberField(configs,'allocation.'+key,label+'（%）',0,100,.1,true)}</div>`).join('')}</div>`;
-}
-function surfaceWeaponChoices(){return [...new Map(Object.entries(C.FITS).filter(([k,d])=>d.cat==='w'&&(C.canonicalWeaponKind?.(k)||k)!=='broadsideBattery').map(([k,d])=>{const kind=C.canonicalWeaponKind?.(k)||k,spec=C.FITS[kind]||d;return [kind,[kind,spec.short||spec.name]];})).values()];}
-function surfaceFunctionFormHTML(configs,selected,weapons){
- const preview=configs.map(surfaceDraftConfig),vls=surfaceFormValue(preview,'battery.weapon')==='cmsl',weaponOptions=weapons.map(([k,name])=>[k,k==='cmsl'?'震盪ミサイルVLS（器材面）':name]),mode=surfaceFormValue(preview,'functionMode'),legacy=configs.every(q=>q.functionMode==='legacy'||!q.functionMode),modeOptions=[['armor','装甲面'],['equipment','機材構造面'],...(legacy?[['legacy','旧式の重ね合わせ（互換保持）']]:[])];
- let fields=`<p class="note">面の用途を選びます。変更した項目だけを各選択面に適用し、「複数の値」は変更するまで維持します。</p>${surfaceSelectField(configs,'functionMode','面の用途',modeOptions)}`;
- if(configs.some(q=>q.legacyAllocation))fields+='<p class="note warn" data-surface-density-compat>旧版の密度配分による配置を保持しています。機材の比率か砲座基数を変更して適用すると、新しい配置方式へ更新します。</p>';
- if(mode==='armor')fields+=`<details open><summary>装甲面</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}<p class="note">この面は装甲として集計します。面生成の機材と砲列は稼働せず、個別配置した砲塔はそのまま残ります。</p></details>`;
- else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>表面兵装（砲列・VLS）</summary>${surfaceSelectField(configs,'battery.weapon','兵装の定義',weaponOptions)}${surfaceNumberField(configs,'battery.count',vls?'要求するVLS基数':'要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">砲列の基数は機材の密度配分から独立しています。砲座基数が0なら砲列を設置しません。砲座と機材は実際の面積・内部容積を共用します。</p>${vls?'<p class="note">震盪ミサイルVLSは器材面に埋め込む共通の発射セルです。1基6発を基準に、面積と内部容積に収まる分だけ搭載します。個別の小型発射装置は「配置 → 武装」から設置できます。</p>':''}</details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}<p class="note">面全体に、配分に応じた散熱・探知・居住機能を持たせます。横長の段差と溝が入り組むローポリの面を、比率と配置シードから生成します。設備の内部深さは機能用の容積を決める設定で、外観の凹凸の奥行きとは別に扱います。</p></details>`;
- else if(mode==='legacy'||legacy&&mode==null)fields+=`<p class="note warn" data-surface-legacy-warning>旧式の装甲・機材の重ね合わせを保持しています。面用途を選んで適用すると、新しい方式へ変換します。</p><div class="row2"><button type="button" class="btn sm" data-surface-action="convert-armor">装甲面へ切り替える</button><button type="button" class="btn sm" data-surface-action="convert-equipment">比率式の機材構造面へ切り替える</button></div><details data-surface-legacy><summary>旧式の設定（互換）</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}${surfaceSelectField(configs,'equipment.kind','設備の種類',[['none','設備なし'],['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備'],['machinery','機材群']])}${surfaceNumberField(configs,'equipment.count','ユニット数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'equipment.depth','内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}${surfaceSelectField(configs,'battery.weapon','兵器定義',[['none','砲列なし'],...weaponOptions])}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}</details>`;
- else fields+='<p class="note">選択した面の用途が異なります。装甲面か機材構造面を選ぶと、共通の設定を編集できます。</p>';
- if(mode==='equipment'){
-  const retained=configs.some(q=>q.functionMode==='equipment'&&q.equipment?.capacityModel!=='area-v1'),eligible=configs.every(q=>q.functionMode==='equipment'),pending=st.surfaceDraft?.['equipment.capacityModel']==='area-v1';
-  fields+=retained?`<p class="note warn" data-surface-capacity-legacy>旧設計の設備容量を保持しています。見た目の変更では容量を変えません。機能の配分・内部深さ・散熱方式を変えるか、面積方式への更新を適用すると容量を再計算します。質量・費用・能力は適用後の表示で確認でき、元に戻す操作で戻せます。</p>${eligible?`<button type="button" class="btn sm" data-surface-action="capacity-area" ${pending?'disabled':''}>面積方式へ更新</button>`:''}`:'<p class="note" data-surface-capacity-area>設備機能は有効面積・内部深さ・配分で計算します。</p>';
- }
- fields+=`<details><summary>外観の細部</summary>${mode==='equipment'?'':surfaceSelectField(configs,'style.kind','仕上げ',[['standard','標準外板'],['slab','装甲スラブ'],['machinery','機材密集面'],['rounded','丸みのある仕上げ']])}${surfaceNumberField(configs,'style.depth',mode==='equipment'?'構造の凹凸の奥行き（m、0＝自動）':'装飾の突出量（m）',0,C.SURFACE_LIMITS?.styleDepth??30,mode==='equipment'?.1:.01)}${mode==='equipment'?'<p class="note" data-surface-visual-depth>外観の凹凸だけを変え、設備の容積や性能には影響しません。0は構造の外形内の空間に合わせて自動調整します。同じ比率と配置シードから同じ外観を再現します。</p>':''}${surfaceNumberField(configs,'style.density','細部ディテール密度',0,1,.05,true)}${surfaceNumberField(configs,'style.seed','配置シード',0,2147483647,1)}<p class="note">細部ディテール密度は、面上の追加の凹凸だけを調整します。発光点は密度0でも表示します。機材構造面の機能は、100%の面積配分と有効な内部容積から計算します。</p></details>`;
- return `<div class="pgroup" data-surface-form><h4>${selected.length===1?esc(surfacePatchName(selected[0])):`${selected.length} 面に一括設定`}</h4>${fields}<p class="note" data-surface-pending>${Object.keys(st.surfaceDraft||{}).length?'未適用の変更があります':'設定値を変更してから適用します'}</p><button type="button" class="btn primary" data-surface-action="apply" ${Object.keys(st.surfaceDraft||{}).length?'':'disabled'}>選択面へ適用</button><div class="row2"><button type="button" class="btn sm" data-surface-action="copy">先頭面の設定をコピー</button><button type="button" class="btn sm" data-surface-action="paste" ${st.surfaceClipboard?'':'disabled'}>設定を貼り付け</button><button type="button" class="btn sm" data-surface-action="split-u" ${selected.length===1?'':'disabled'}>面を縦に二分</button><button type="button" class="btn sm" data-surface-action="split-v" ${selected.length===1?'':'disabled'}>面を横に二分</button><button type="button" class="btn sm" data-surface-action="merge" ${selected.length>1?'':'disabled'}>隣接する面を結合</button><button type="button" class="btn sm danger" data-surface-action="reset">選択面の設定を解除</button><button type="button" class="btn sm" data-surface-action="systems">給電・熱輸送を診断</button></div></div>`;
-}
-function surfaceAutoOptions(){return {minAngle:45,overwrite:!!st.surfaceAutoOverwrite,config:{allocation:C.surfaceAllocation()}};}
-function surfaceAutoRows(){return C.surfaceAutoCandidates(ship,surfaceAutoOptions()).filter(surfaceExterior);}
-async function surfaceAutoRemote(){
- if(!ship||st.surfaceAutoBusy)return false;
- const target=ship,generation=eng.gen,before=snap(),options=surfaceAutoOptions();let adopted=false;
- st.surfaceAutoBusy=true;showBusyOverlay('機材構造面を生成中…');renderPanel();
- try{
-  const response=await YardEngineClient.request('op',{gen:generation,state:C.publicJSON(target),op:'surfaceAuto',args:[options]});
-  if(ship!==target||eng.gen!==generation)return false;
-  const result=response.result;if(!result?.ok){toast(result?.why||'機材構造面を自動設定できませんでした');return false;}if(!result.ids?.length)return false;
-  C.patchShip(target,JSON.parse(response.state));target._client=true;
-  undoStack.push(before);if(undoStack.length>60)undoStack.shift();redoStack.length=0;
-  const valid=new Set(surfaceRows().filter(surfaceExterior).map(p=>p.id));st.surfaceIds=result.ids.filter(id=>valid.has(id));st.surfaceDraft={};lastOp='機材構造面を自動設定';touch('all');if(result.report)surfaceRemoteReport={ship:target,gen:eng.gen,report:result.report};scheduleStats(60);updateUndo();autosave();adopted=true;
-  surfaceSyncSelection();requestDraw();return true;
- }catch(e){console.error(e);if(ship===target&&eng.gen===generation)toast('機材構造面を自動設定できませんでした：'+esc(e.message||''));return false;}
- finally{st.surfaceAutoBusy=false;if(!adopted&&ship===target)hideBusyOverlay();renderPanel();}
-}
-function surfaceAutoHTML(){
- const candidates=surfaceAutoRows();
- return `<div class="pgroup" data-surface-auto><h4>機材構造面の自動設定</h4><p class="note">船外に露出した側面と、水平から45°以上傾いた斜面を対象にします。水平な上下面や内部の面は対象外です。</p><label class="field-label"><input type="checkbox" data-surface-auto-overwrite ${st.surfaceAutoOverwrite?'checked':''}>装甲や既存の面設定を置き換える</label><p data-surface-auto-count>自動設定の対象 · ${candidates.length} 面</p><div class="row2"><button type="button" class="btn sm" data-surface-action="select-auto" ${candidates.length?'':'disabled'}>対象の面を選択</button><button type="button" class="btn primary" data-surface-action="auto-equipment" ${candidates.length&&!st.surfaceAutoBusy?'':'disabled'}>${st.surfaceAutoBusy?'機材構造面を生成中…':'対象を機材構造面に一括設定'}</button></div><p class="note">自動設定では砲列を追加しません。散熱・センサー・居住区を均等に配分し、元に戻す操作で一括して取り消せます。</p></div>`;
-}
-function surfaceEditorHTML(){
- const all=surfaceRows(),selected=surfaceSelection(all),configs=selected.map(p=>C.surfaceConfig(ship,p.id)),report=surfaceReportForEditor(),filtered=surfaceFilteredRows(all),page=Math.min(Math.max(0,st.surfacePage||0),Math.max(0,Math.ceil(filtered.length/48)-1));st.surfacePage=page;
- const mode=ship.surfaces?.mode||'compat',weapons=surfaceWeaponChoices(),orphans=report.orphaned||[];
- let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面を選び、装甲で覆う面か機材構造面を設定します。機材構造面は横方向に広がる粗いローポリの凹凸面と発光点で表現し、面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
- html+=surfaceAutoHTML();
- html+=`<div class="pgroup"><h4>外面を選ぶ · ${selected.length} 面選択</h4><p class="note" data-surface-exposed-count>一覧の露出面 · ${filtered.length} 面</p><p class="note">埋まった面は一覧と選択から除外し、面積は船外に露出した部分だけを表示します。保存した面設定は保持します。</p><p class="note">左右・上下対称が有効なときは、対応する鏡写しの面も選択します。追加選択や範囲選択で複数の面をまとめて編集できます。</p><div class="row2"><button type="button" class="btn sm${st.mirror?' on':''}" data-surface-action="mirror" aria-pressed="${!!st.mirror}">左右対称</button><button type="button" class="btn sm${st.vmirror?' on':''}" data-surface-action="vmirror" aria-pressed="${!!st.vmirror}">上下対称</button><button type="button" class="btn sm${st.surfaceAdd?' on':''}" data-surface-action="add" aria-pressed="${!!st.surfaceAdd}">追加選択</button><button type="button" class="btn sm${st.surfaceRange?' on':''}" data-surface-action="range" aria-pressed="${!!st.surfaceRange}">範囲選択</button><button type="button" class="btn sm" data-surface-action="all">表示中の外面をすべて選択</button><button type="button" class="btn sm" data-surface-action="clear">選択解除</button></div><label class="field-label">一覧の対象<select data-surface-filter>${[['all','すべての外面'],['hull','船体'],['parts','構造物・露出区画'],['configured','設定済みの面']].map(([k,n])=>`<option value="${k}" ${(st.surfaceFilter||'all')===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="surface-patch-list">${filtered.slice(page*48,page*48+48).map(p=>`<button type="button" class="engine-row${st.surfaceIds.includes(p.id)?' on':''}" data-surface-pick="${esc(p.id)}" aria-pressed="${st.surfaceIds.includes(p.id)}"><span>${esc(surfacePatchName(p))}</span><b>${num(p.exposedArea,2)} m²</b></button>`).join('')||'<p class="note">この条件に合う外面はありません。</p>'}</div>${filtered.length>48?`<div class="row2"><button type="button" class="btn sm" data-surface-action="prev" ${page===0?'disabled':''}>前の面</button><span>${page+1} / ${Math.ceil(filtered.length/48)}</span><button type="button" class="btn sm" data-surface-action="next" ${(page+1)*48>=filtered.length?'disabled':''}>次の面</button></div>`:''}</div>`;
- if(selected.length){
-  html+=surfaceFunctionFormHTML(configs,selected,weapons);
-  if(C.surfaceCarve&&selected.length===1)html+=`<div class="pgroup"><h4>実際の形状を切削</h4><label class="field-label">切削の深さ（m）<input type="number" data-surface-cutdepth value="${st.surfaceCarveDepth??1}" min=".02" max="${Math.max(.02,selected[0].depth||100)}" step=".01"></label><button type="button" class="btn danger" data-surface-action="carve">選択面を後退させて切削</button><p class="note">この操作は装飾と違い、船体・構造物の形状を削ります。既存の設備を新しい切削面へ自動では移さず、未配置の設定として保持します。</p></div>`;
-  html+=surfaceReportHTML(report);
- }
- if(orphans.length)html+=`<div class="pgroup"><h4>未配置の面設定 · ${orphans.length} 件</h4><p class="note warn">形状の変更で対応する面がなくなった設定です。設備を別の面へ自動で複製せず、設定を保持しています。</p>${orphans.slice(0,24).map(p=>`<p><b>${esc(p.id)}</b>${C.surfaceReassign&&selected.length===1?` <button type="button" class="btn sm" data-surface-orphan="${esc(p.id)}">選択面へ移設</button>`:''}</p>`).join('')}</div>`;
- return html;
-}
-function surfaceRefreshReport(){
- if(!ship||st.tab!=='surface')return;
- const current=$('#panel [data-surface-report]');
- if(!current||!document.activeElement?.closest?.('[data-surface-form]')){renderPanel();return;}
- // An engine result must refresh derived numbers without replacing the form
- // under a player who has already started typing their next pending edit.
- const holder=document.createElement('div');holder.innerHTML=surfaceReportHTML(surfaceReportForEditor());let next=holder.firstElementChild;
- if(!next)return;if(current.tagName==='DETAILS'){next=foldSection(next);next.open=current.open;}
- current.replaceWith(next);
-}
-function surfaceUpdateDraft(el){
- const path=el.dataset.surfaceField;if(!Object.hasOwn(SURFACE_FIELDS,path))return;
- st.surfaceDraft||={};const ratio=path.startsWith('allocation.');
- if(el.value===''){if(ratio){el.required=true;return;}delete st.surfaceDraft[path];}
- else{const value=SURFACE_FIELDS[path]==='number'?Number(el.value):el.value;if(typeof value==='number'&&!Number.isFinite(value)||ratio&&(value<0||value>100))return;
-  if(ratio){if(!st.surfaceDraft._allocationEdits)Object.defineProperty(st.surfaceDraft,'_allocationEdits',{value:[],writable:true,configurable:true});st.surfaceDraft._allocationEdits.push({key:path.split('.')[1],value});}
-  st.surfaceDraft[path]=value;
- }
- const form=el.closest('[data-surface-form]');if(!form)return;
- if(ratio){const configs=surfaceSelection().map(p=>surfaceDraftConfig(C.surfaceConfig(ship,p.id)));for(const other of form.querySelectorAll('[data-surface-field]'))if(other.dataset.surfaceField.startsWith('allocation.')){const value=surfaceFormValue(configs,other.dataset.surfaceField);other.value=value??(other.type==='range'?0:'');if(other.type==='number')other.required=value!=null;}const total=form.querySelector('[data-surface-allocation-total]');if(total)total.textContent='100%';}
- else for(const other of form.querySelectorAll('[data-surface-field]'))if(other!==el&&other.dataset.surfaceField===path)other.value=el.value;
- const button=form.querySelector('[data-surface-action="apply"]');if(button)button.disabled=!Object.keys(st.surfaceDraft).length;
- const note=form.querySelector('[data-surface-pending]');if(note)note.textContent=Object.keys(st.surfaceDraft).length?'未適用の変更があります':'設定値を変更してから適用します';
- if(path==='functionMode')renderPanel();
-}
-function surfaceApplyDraft(){
- const form=$('#panel [data-surface-form]');if(form)for(const input of form.querySelectorAll('[data-surface-field]'))if(input.checkValidity&&!input.checkValidity()){input.reportValidity?.();return false;}
- const ids=surfaceSelection().map(p=>p.id),partial={};if(!ids.length||!Object.keys(st.surfaceDraft||{}).length)return false;
- for(const [path,value]of Object.entries(st.surfaceDraft)){if(!Object.hasOwn(SURFACE_FIELDS,path)||path.startsWith('allocation.'))continue;const [layer,key]=path.split('.');if(key==null)partial[layer]=value;else(partial[layer]||={})[key]=value;}
- const allocationEdits=surfaceRatioEdits();if(allocationEdits.length)partial.allocationEdits=allocationEdits.map(q=>({...q}));
- const result=mutate('表面機能を設定',()=>{const r=C.setSurfaceConfig(ship,ids,partial);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');
- if(result){st.surfaceDraft={};renderPanel();surfaceSyncSelection();}return result;
-}
-function surfaceTopology(action){
- const selected=surfaceSelection(),before=new Set(surfaceRows().map(p=>p.id));if(!selected.length)return;
- const result=mutate(action==='merge'?'表面パッチを結合':'表面パッチを分割',()=>{const r=action==='merge'?C.surfaceMerge(ship,selected.map(p=>p.id)):C.surfaceSplit(ship,selected[0].id,action==='split-u'?'u':'v',.5);if(!r.ok)throw Error(r.why||'面を分割・結合できません');},'all');
- if(result){const created=surfaceRows().filter(p=>surfaceExterior(p)&&!before.has(p.id));st.surfaceIds=created.map(p=>p.id);st.surfaceDraft={};renderPanel();surfaceSyncSelection();}
-}
-function surfaceAction(action){
- const selected=surfaceSelection(),ids=selected.map(p=>p.id);
- if(action==='apply'){surfaceApplyDraft();return;}
- if(action==='strict'||action==='compat'){mutate('表面設備の運転方式',()=>{const r=C.enableSurfaceMode(ship,action==='strict');if(!r.ok)throw Error(r.why||'この設計の運転方式は変更できません');},'all');}
- else if(action==='add')st.surfaceAdd=!st.surfaceAdd;
- else if(action==='range')st.surfaceRange=!st.surfaceRange;
- else if(action==='mirror'||action==='vmirror'){st[action]=!st[action];if(st[action])st.surfaceIds=surfaceSymmetricIds(st.surfaceIds||[]);st.surfaceDraft={};if(typeof syncHud==='function')syncHud();}
- else if(action==='all'){st.surfaceIds=surfaceSymmetricIds(surfaceFilteredRows().map(p=>p.id));st.surfaceDraft={};}
- else if(action==='select-auto'){st.surfaceIds=surfaceAutoRows().map(p=>p.id);st.surfaceDraft={};}
- else if(action==='auto-equipment')return surfaceAutoRemote();
- else if(action==='clear'){st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;}
- else if(action==='prev'||action==='next')st.surfacePage=Math.max(0,(st.surfacePage||0)+(action==='next'?1:-1));
- else if(action==='convert-armor'||action==='convert-equipment'){st.surfaceDraft||={};st.surfaceDraft.functionMode=action==='convert-equipment'?'equipment':'armor';}
- else if(action==='capacity-area'&&ids.length&&selected.every(p=>C.surfaceConfig(ship,p.id).functionMode==='equipment')){st.surfaceDraft||={};st.surfaceDraft['equipment.capacityModel']='area-v1';}
- else if(action==='copy'&&selected.length){const q=C.surfaceConfig(ship,selected[0].id);st.surfaceClipboard=JSON.parse(JSON.stringify({functionMode:q.functionMode,allocation:q.allocation,legacyAllocation:q.legacyAllocation,aggregate:q.aggregate?.version===1?q.aggregate:undefined,armor:q.armor,equipment:q.equipment,battery:q.battery,style:q.style}));toast('面の設定をコピーしました');}
- else if(action==='paste'&&ids.length&&st.surfaceClipboard){mutate('表面設定を貼り付け',()=>{const r=C.setSurfaceConfig(ship,ids,st.surfaceClipboard);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');st.surfaceDraft={};}
- else if(action==='reset'&&ids.length){mutate('表面設定を解除',()=>{const r=C.setSurfaceConfig(ship,ids,{functionMode:'armor',armor:null,equipment:null,battery:null,style:null});if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');st.surfaceDraft={};}
- else if(action==='split-u'||action==='split-v'||action==='merge'){surfaceTopology(action);return;}
- else if(action==='carve'&&selected.length===1&&C.surfaceCarve){const input=$('#panel [data-surface-cutdepth]');if(input?.checkValidity&&!input.checkValidity()){input.reportValidity?.();return;}const result=mutate('表面にトレンチを切削',()=>{const r=C.surfaceCarve(ship,selected[0].id,st.surfaceCarveDepth??1);if(!r.ok)throw Error(r.why||'この面は切削できません');},'all');if(result){st.surfaceIds=[];st.surfaceDraft={};}}
- else if(action==='systems'){st.tab='systems';}
- surfaceSyncSelection();renderPanel();requestDraw();
-}
-function bindSurfaceEditor(){
- const panel=$('#panel');panel.addEventListener('input',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceCutdepth'in e.target.dataset&&e.target.value!==''&&Number.isFinite(+e.target.value))st.surfaceCarveDepth=+e.target.value;});
- panel.addEventListener('change',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceAutoOverwrite'in e.target.dataset){st.surfaceAutoOverwrite=e.target.checked;renderPanel();}if('surfaceFilter'in e.target.dataset){st.surfaceFilter=e.target.value;st.surfacePage=0;renderPanel();}});
- panel.addEventListener('click',e=>{
-  const pick=e.target.closest('[data-surface-pick]');if(pick){e.stopImmediatePropagation();surfaceSelectPatch(pick.dataset.surfacePick,!!e.shiftKey||!!e.ctrlKey||!!st.surfaceAdd,!!st.surfaceRange||!!e.shiftKey);return;}
-  const orphan=e.target.closest('[data-surface-orphan]');if(orphan&&C.surfaceReassign){e.stopImmediatePropagation();const selected=surfaceSelection();if(selected.length===1)mutate('未配置の面設定を移設',()=>{const r=C.surfaceReassign(ship,orphan.dataset.surfaceOrphan,selected[0].id);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');renderPanel();return;}
-  const b=e.target.closest('[data-surface-action]');if(b){e.stopImmediatePropagation();surfaceAction(b.dataset.surfaceAction);}
- },true);
+function bindStructureFaceArmor(){
+ $('#panel').addEventListener('change',e=>{const t=e.target,face=t.dataset.structureFaceArmor;if(!face)return;const p=ship.parts.find(p=>p.id===+t.dataset.structureArmorHost),thickness=Number(t.value);if(!C.isStructuralPart(p)||t.value===''||!Number.isFinite(thickness)||thickness<0||thickness>(C.SURFACE_LIMITS?.armorThickness??100)){t.reportValidity?.();return;}mutate('構造物の面装甲厚',()=>{const result=C.setStructureFaceArmor(ship,p,face,thickness);if(!result.ok)throw Error(result.why||'装甲厚を変更できません');},'all');renderPanel();});
 }
 
 // ---------- multiple selection, copy and paste ----------
@@ -5852,7 +5640,7 @@ function bindMulti(){
   if(d.multimove!=null){multiMove(+d.multimove,+d.sign);renderPanel();refreshOverlay();return;}
   if(!d.multi)return;const a=d.multi;
   if(a==='allparts')st.multi.parts=new Set(ship.parts.map(p=>p.id));
-  else if(a==='allstruct')st.multi.parts=new Set(ship.parts.filter(p=>p.k==='struct').map(p=>p.id));
+  else if(a==='allstruct')st.multi.parts=new Set(ship.parts.filter(C.isStructuralPart).map(p=>p.id));
   else if(a==='allfits')st.multi.fits=new Set(ship.fits.map(f=>f.id));
   else if(a==='none')st.multi={parts:new Set(),fits:new Set()};
   else if(a==='copy'){if(multiCopy())toast('コピーしました。別の艦を開いても貼り付けられます');}
@@ -6247,7 +6035,6 @@ function editRenderPanel(){
  markTabs();renderPanelInfo();organizePanel();
  // The selection line first, then the operations and the list, then the item editor and the tools.
  {const at=panel.querySelector(':scope > .sel-info')||panel.querySelector(':scope > .sel-strip'),ops=panel.querySelector(':scope > .ed-ops'),list=panel.querySelector(':scope > .ed-list');if(at&&ops&&list){at.after(ops);ops.after(list);}}
- panel.insertAdjacentHTML('afterbegin',editSubHTML());
  const sc=panel.querySelector('.ed-scroll');if(sc){sc.scrollTop=st.edScroll||0;const on=sc.querySelector('.ed-row.prim');if(on&&st.edReveal){st.edReveal=false;const r=on.offsetTop-sc.offsetTop;if(r<sc.scrollTop||r+on.offsetHeight>sc.scrollTop+sc.clientHeight)sc.scrollTop=Math.max(0,r-sc.clientHeight/2);}}
  updateHint();refreshOverlay();
 }
@@ -6408,7 +6195,7 @@ const trialApplyT=(M,v)=>[M[0]*v[0]+M[1]*v[1]+M[2]*v[2],M[3]*v[0]+M[4]*v[1]+M[5]
 // Rotation about a unit axis, column-major.
 function trialAxisMatrix(a,t,out){const c=Math.cos(t),s=Math.sin(t),k=1-c,[x,y,z]=a;out=out||new Array(9);out[0]=c+x*x*k;out[1]=y*x*k+z*s;out[2]=z*x*k-y*s;out[3]=x*y*k-z*s;out[4]=c+y*y*k;out[5]=z*y*k+x*s;out[6]=x*z*k+y*s;out[7]=y*z*k-x*s;out[8]=c+z*z*k;return out;}
 const trialWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
-function trialProfile(){if(!ship||!S)return null;if(typeof eng!=='undefined'&&eng.profile&&eng.profileGen===eng.statsGen)return eng.profile;try{return C.fleetProfile(S,ship.name);}catch(e){return null;}}
+function trialProfile(){if(!ship||!S)return null;if(typeof eng!=='undefined'&&eng.profile&&eng.profileGen===eng.statsGen)return eng.profile;try{return C.fleetProfile(S,ship.name,ship);}catch(e){return null;}}
 function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0),craft=!!ship&&C.isCraft(ship),b=ok?trialRateBase(p,craft):null,yaw=craft&&b?b.yaw:p?.turnRate||0;const rates=(ship?.fits||[]).filter(f=>{const d=C.FITS[f.k];return d.cat==='w'&&(d.tt||d.ion)&&!f.float&&!d.casemate;}).map(f=>C.turretRate(f));return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?yaw*180/Math.PI:0,circle:ok?2*v/yaw:0,craft,pitch:b?b.pitch*180/Math.PI:0,roll:b?b.roll*180/Math.PI:0,traverse:rates.length?[Math.min(...rates),Math.max(...rates)]:null};}
 function trialCardHTML(side){
  if(!ship||!S)return '';const f=trialFigures(trialProfile()),tr=f.traverse;
@@ -8700,7 +8487,7 @@ function compartmentWeaponsPanel(){
 function layoutPanel(panel){
  const p=selItem();
  if(!isSponsonPlacement()&&(((st.tab==='mod'&&st.group!=='weapons'||st.tab==='bridge'&&st.bridgeMode==='body')&&st.partTool==='place')||(st.tab==='bridge'&&st.bridgeMode==='windows'&&st.bridgeTool==='place'))){const anchor=panel.querySelector('.command-sub')||panel.querySelector('[data-group]')?.closest('.pgroup');if(anchor)anchor.insertAdjacentHTML('afterend',alignmentControls());else panel.insertAdjacentHTML('afterbegin',alignmentControls());}
- if(p&&st.sel.list==='parts'&&['mod','bridge'].includes(st.tab))panel.insertAdjacentHTML('beforeend',alignmentControls(true)+replacementControls(p)+(p.k==='struct'?derivedRoomsHTML(p.id):''));
+ if(p&&st.sel.list==='parts'&&['mod','bridge'].includes(st.tab))panel.insertAdjacentHTML('beforeend',alignmentControls(true)+replacementControls(p)+(C.isStructuralPart(p)?derivedRoomsHTML(p.id):''));
  if(p&&st.sel.list==='fits'&&C.FITS[p.k].window&&st.tab==='bridge')panel.insertAdjacentHTML('beforeend',alignmentControls(true)+commandControls(p));
  if(st.tab==='systems')panel.insertAdjacentHTML('afterbegin',habitationHTML()+derivedRoomsHTML());
  if(st.tab==='mod'&&st.group==='command')panel.insertAdjacentHTML('beforeend',derivedRoomsHTML()+`<button class="btn" data-habitation-menu>空き容積と乗員</button>`);
@@ -8719,7 +8506,7 @@ function openLayoutTarget(t){
  }else if(p&&t.list==='hatches'){
   // A door is edited with its bay: select the bay in 編集 (the door slider is in its editor).
   const bay=ship.parts.find(q=>q.id===p.bay);if(bay){selClear();st.tab='mod';st.group=C.PARTS[bay.k].group;st.partTool='select';st.sel={list:'parts',id:bay.id};}else{st.tab='mod';st.group=C.PARTS.hangar.group;st.part='hangar';st.partTool='place';}st.view='normal';
- }else if(t.patch&&C.surfacePatches(ship).some(q=>q.id===t.patch)){st.tab='surface';st.surfaceIds=[t.patch];st.surfaceLast=t.patch;}
+ }else if(t.patch){const patch=C.surfacePatches(ship).find(q=>q.id===t.patch),host=patch&&ship.parts.find(q=>'p'+q.id===patch.host);if(host){st.tab='mod';st.group=C.PARTS[host.k].group;st.partTool='select';st.sel={list:'parts',id:host.id};}else st.tab='hull';}
  else if(t.part){st.tab='mod';st.group=C.PARTS[t.part].group;st.part=t.part;st.partTool='place';}
  else{st.tab=legacyTab(t.tab||'mod');if(st.tab==='bridge'){st.bridgeMode='windows';st.bridgeTool='place';st.bridge=t.window||'podBridge';}if(st.tab==='arm'){st.tab='mod';st.group='weapons';st.fitTool='adjust';}}
  syncHud();renderPanel();
@@ -9110,7 +8897,7 @@ function userParts(){try{const o=JSON.parse(LS.get(USER_PART_KEY)||'null');if(o&
 function userPartsWrite(list){if(!LS.set(USER_PART_KEY,JSON.stringify({v:1,parts:list.slice(0,200)}))){toast('この端末には保存できません（容量不足の可能性があります）');return false;}return true;}
 function userPartFind(id){return userParts().find(t=>t.id===id)||null;}
 const upCat=k=>C.ASSEMBLY_CATEGORIES[k]||k;
-function userPartCounts(t){const eng=t.parts.filter(p=>p.k==='engine').length,gen=t.parts.filter(p=>C.isReactor(p)).length,str=t.parts.filter(p=>p.k==='struct').length;return `区画・構造物 ${t.parts.length}・装備 ${t.fits.length}${gen?` · 反応炉 ${gen}`:''}${eng?` · ノズル ${eng}`:''}${str?` · 構造物 ${str}`:''}`;}
+function userPartCounts(t){const eng=t.parts.filter(p=>p.k==='engine').length,gen=t.parts.filter(p=>C.isReactor(p)).length,str=t.parts.filter(C.isStructuralPart).length;return `区画・構造物 ${t.parts.length}・装備 ${t.fits.length}${gen?` · 反応炉 ${gen}`:''}${eng?` · ノズル ${eng}`:''}${str?` · 構造物 ${str}`:''}`;}
 // Registration card (編集): name, category, description, origin, mounting side, links and ports.
 function userPartRegisterHTML(){
  const r=st.upReg;if(!r)return '';const ids={parts:[...st.multi.parts],fits:[...st.multi.fits]},L=C.assemblyLinks(ship,ids),cap=C.assemblyCapture(ship,ids,r),t=cap.template;
@@ -10174,7 +9961,7 @@ function voyDesignOptions(faction) {
  const opt = d => d.saveId ? `<option value="save:${esc(d.saveId)}" data-l10n-skip>${voySaveLabel(d.name, d.info.len, '自作')}</option>` : `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}・${esc(examplePurpose(d.key, d.cls || ''))}）</option>`;
  const groups = (mine.length ? `<optgroup label="${esc(R.FACTIONS[faction]?.name || faction)}">${mine.map(opt).join('')}</optgroup>` : '') + order.map(f => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${by[f].map(opt).join('')}</optgroup>`).join('');
  const saves = (voy.saves || []).map(r => `<option value="save:${esc(r.id)}" data-l10n-skip>${voySaveLabel(r.name, r.len || 0, r.faction && r.faction !== 'any' && R.FACTIONS[r.faction] ? voyFacName(r.faction) : '')}</option>`).join('');
- return `${groups}${saves ? `<optgroup label="保存した設計">${saves}</optgroup>` : ''}${ship ? `<optgroup label="設計中の艦"><option value="current">${esc(ship.name)}（${fLen(ship.hull.L)}）</option></optgroup>` : ''}`;
+ return `${groups}${saves ? `<optgroup label="保存した設計">${saves}</optgroup>` : ''}${ship ? `<optgroup label="設計中の艦"><option value="current">${esc(ship.name)}（${fLen(actualShipDimensions()[0])}）</option></optgroup>` : ''}`;
 }
 // v22 The battle areas, by region of the galaxy map (the two first ones under their own names).
 // v23 The theatres (戦域) of several systems first, by era, each opening with the two sides that fought there.

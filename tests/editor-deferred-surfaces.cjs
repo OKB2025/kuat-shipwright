@@ -6,11 +6,11 @@ function fixture({configured=false,inline=false}={}){
  const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone});
  for(const[file,source]of sources)vm.runInContext(source,cx,{filename:file});
  const {C,E}=vm.runInContext('({C:Core,E:YardEngine})',cx),messages=[],waiting=[],calls=[];
- const ship=C.newShip({L:100,W:80,H:50,assembly:true},'Deferred exposure');ship.parts=[];ship.fits=[];ship.hatches=[];ship.nextId=1;ship.armor={hull:0,cit:0};ship.detail=0;
+ const ship=C.newShip({L:100,W:80,H:50,assembly:true},'Deferred exposure');ship.parts=[];ship.fits=[];ship.hatches=[];ship.nextId=1;ship.armor={hull:0,cit:0};ship.detail=0;ship.lights='off'; // Isolate packet deferral from the exposure-dependent thin-armor lights.
  const host=C.placePart(ship,'struct',[50,20,0],[60,40,20],{form:'box'},false);
  if(configured){
   const face=C.surfacePatches(ship).find(p=>p.host==='p'+host.id&&p.face==='top'&&p.exposed);
-  assert.ok(face);assert.equal(C.setSurfaceConfig(ship,face.id,{functionMode:'equipment',allocation:{cooling:50,sensors:25,habitation:25},equipment:{depth:2,limit:3},battery:{weapon:'pd',count:1}}).ok,true);
+  assert.ok(face);assert.equal(C.setStructureFaceArmor(ship,host.id,'top',.4).ok,true);
  }
  const state=C.publicJSON(ship),surfacePatches=C.surfacePatches,surfaceReport=C.surfaceReport;
  C.surfacePatches=(s,...args)=>{calls.push({kind:'faces',name:s.name});return surfacePatches(s,...args);};
@@ -55,7 +55,7 @@ test('updates without the opt-in preserve the original geometry and statistics p
  assert.ok(f.calls.findIndex(c=>c.kind==='faces')<f.calls.findIndex(c=>c.kind==='packet'&&c.type==='geometry'));
 });
 
-test('a configured equipment face retains identical public design, surface ledger, statistics and profile after deferred completion',async()=>{
+test('a configured armor face retains identical public design, surface ledger, statistics and profile after deferred completion',async()=>{
  const normal=fixture({configured:true}),deferred=fixture({configured:true});
  normal.update(1);deferred.update(1,{view:{deferSurfaces:true}});
  const [a,b,faces]=await Promise.all([normal.wait('stats',1),deferred.wait('stats',1),deferred.wait('surfaceGeometry',1)]);
@@ -64,7 +64,8 @@ test('a configured equipment face retains identical public design, surface ledge
  assert.deepEqual(plain(faces.surfaceReport),plain(original.surfaceReport));
  assert.deepEqual(plain(faces.caches.geoProxy.surfaces),plain(original.caches.geoProxy.surfaces));
  assert.deepEqual(plain(b.stats),plain(a.stats));assert.deepEqual(plain(b.profile),plain(a.profile));
- assert.ok(b.stats.surface.patches.some(p=>p.config?.functionMode==='equipment'));
+ assert.ok(b.stats.surface.patches.some(p=>p.config?.functionMode==='armor'&&p.config.armor.thickness===.4));
+ assert.ok(JSON.parse(faces.state).surfaces.patches.some(p=>p.authored&&p.functionMode==='armor'&&p.armor.thickness===.4));
  assert.equal(JSON.parse(faces.state).parts.length,1,'surface adapters remain private to the simulation');
 });
 

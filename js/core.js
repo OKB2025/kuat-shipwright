@@ -108,7 +108,7 @@ function adoptWeaponFits(ship){
  if(Object.isFrozen(ship)||Object.isFrozen(ship.fits))return migrateWeaponDesign(ship);
  if(Array.isArray(ship.fits))for(let i=0;i<ship.fits.length;i++)ship.fits[i]=normalizeFitMount(migrateWeaponFit(ship.fits[i]));
  if(ship.surfaces)ship.surfaces=migrateWeaponSurfaces(ship.surfaces);
- migrateLegacyConcussionVLS(ship);return ship;
+ return ship;
 }
 
 // Public state is every field without a leading underscore; underscore fields
@@ -165,6 +165,8 @@ const CREW_LIVING_M3=100,CREW_REF_L=1600,CREW_REF_M3=1195,CREW_B=2.19132,CREW_C=
 function personVolume(L){const d=Math.min(Math.log(Math.max(10,+L||0)/CREW_REF_L),CREW_B/(-2*CREW_C));return Math.max(CREW_LIVING_M3,CREW_REF_M3*Math.exp(CREW_B*d+CREW_C*d*d));}
 function isShapeKind(k){return k==='struct'||k==='wing'||k==='solarPanel';}
 function isShapePart(p){return isShapeKind(p?.k);}
+function isStructuralPart(p){return p?.k==='struct';}
+function isFaceEditablePart(p){return isStructuralPart(p);}
 function isAeroPart(p){return p?.k==='wing'||p?.k==='solarPanel';}
 // ---------- PLAN-002 cost (建造費) ----------
 // One provisional engineering price model applies to every hull, irrespective of its origin or class.
@@ -188,10 +190,10 @@ function navigationItinerary(route){
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:12,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:13,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
-function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+(p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)?resolveEngineSpec(p).cost:0):0;}
+function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+(p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)?resolveEngineSpec(p).cost:0):0;}
 function fitBuildCost(f,spec){const d=spec||FITS[f?.k];return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command']):0;}
 function costBreakdown(total,source){
  const keys=Object.keys(COST_CATS).filter(k=>k!=='crew'),raw=keys.map(k=>Number.isFinite(source?.[k])?Math.max(0,source[k]):0),sum=raw.reduce((a,b)=>a+b,0),target=Number.isFinite(total)?Math.max(0,Math.round(total)):0;
@@ -203,12 +205,12 @@ function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof
 function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:{model:PROPULSION,profiles:DRIVE_PROFILES,grades:MACHINERY_GRADES},systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 12,
- "modelSignature": "1gegsuz",
+ "modelVersion": 13,
+ "modelSignature": "1svbe8",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1xh5it0",
+   "signature": "gy9j72",
    "build": 222030,
    "crew": 3000,
    "total": 225030,
@@ -1133,7 +1135,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 3,
     "crewMax": 3,
     "hp": 1,
-    "len": 12.71,
+    "len": 12.710000038146973,
     "width": 20.430400848388672,
     "height": 3.8475,
     "grid": {
@@ -1590,14 +1592,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 4598871559463399400
       }
      ],
-     "massKg": 34645.83464190234,
+     "massKg": 34645.83464185987,
      "ratedThrustN": 1201659189.998096,
-     "ratedAccelMps2": 34684.08835920355,
-     "structuralAccelerationLimitMps2": 225065.4928695397,
+     "ratedAccelMps2": 34684.08835924607,
+     "structuralAccelerationLimitMps2": 225065.4930342831,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34684.08835920355
+     "accelerationLimitMps2": 34684.08835924607
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -2158,7 +2160,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1jiuemi",
+   "signature": "zlphnv",
    "build": 159054,
    "crew": 1000,
    "total": 160054,
@@ -2220,13 +2222,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.435,
+      "at": 0.434,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.02,
       "z": 0.9,
-      "r": 0.188,
+      "r": 0.189,
       "share": 0.5,
       "domain": "main",
       "port": "f25",
@@ -2241,13 +2243,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.435,
+      "at": 0.434,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.02,
       "z": -0.9,
-      "r": 0.188,
+      "r": 0.189,
       "share": 0.5,
       "domain": "main",
       "port": "f26",
@@ -2269,7 +2271,7 @@ const CRAFT_PRICE_CATALOG={
       "tt": 25,
       "ammo0": 6,
       "muzzle": [
-       1.912,
+       1.906999952428043,
        -0.7796452211129877,
        0.7
       ],
@@ -2306,7 +2308,7 @@ const CRAFT_PRICE_CATALOG={
       "tt": 25,
       "ammo0": 6,
       "muzzle": [
-       1.912,
+       1.906999952428043,
        -0.7796452211129877,
        -0.7
       ],
@@ -2334,11 +2336,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00036780929030188347,
       "size": 0.735618580603767,
-      "at": 0.29,
+      "at": 0.289,
       "part": 14,
       "y": -0.08,
       "z": 0,
-      "r": 0.065,
+      "r": 0.066,
       "share": 1,
       "domain": "main",
       "port": "p14",
@@ -2351,7 +2353,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000601601484314035,
       "size": 1.5040037107850872,
-      "at": 0.273,
+      "at": 0.272,
       "part": 15,
       "y": -0.13,
       "z": 0.48,
@@ -2368,7 +2370,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000601601484314035,
       "size": 1.5040037107850872,
-      "at": 0.273,
+      "at": 0.272,
       "part": 16,
       "y": -0.13,
       "z": -0.48,
@@ -2436,7 +2438,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000007068583470577035,
       "size": 0.035342917352885174,
-      "at": 0.667,
+      "at": 0.666,
       "part": 20,
       "y": -0.13,
       "z": 0.22,
@@ -2453,7 +2455,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000007068583470577035,
       "size": 0.035342917352885174,
-      "at": 0.667,
+      "at": 0.666,
       "part": 21,
       "y": -0.13,
       "z": -0.22,
@@ -2470,7 +2472,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000009987123045761957,
       "size": 0.04993561522880978,
-      "at": 0.667,
+      "at": 0.666,
       "part": 22,
       "y": -0.13,
       "z": 0,
@@ -2521,7 +2523,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.696,
+      "at": 0.695,
       "part": 29,
       "y": -0.13,
       "z": -0.1,
@@ -2538,7 +2540,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.456,
+      "at": 0.455,
       "part": 30,
       "y": -0.33,
       "z": -0.16,
@@ -2555,7 +2557,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.696,
+      "at": 0.695,
       "part": 31,
       "y": 0.09,
       "z": 0,
@@ -2589,7 +2591,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.696,
+      "at": 0.695,
       "part": 33,
       "y": 0.09,
       "z": -0.05,
@@ -2606,7 +2608,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.696,
+      "at": 0.695,
       "part": 34,
       "y": 0.09,
       "z": 0.05,
@@ -2623,7 +2625,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.714,
+      "at": 0.713,
       "part": 35,
       "y": 0.09,
       "z": 0,
@@ -2657,7 +2659,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.021952000000000006,
-      "at": 0.639,
+      "at": 0.638,
       "part": 37,
       "y": 0.09,
       "z": 0,
@@ -2674,7 +2676,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.021952000000000006,
-      "at": 0.639,
+      "at": 0.638,
       "part": 38,
       "y": 0.09,
       "z": -0.08,
@@ -2747,7 +2749,7 @@ const CRAFT_PRICE_CATALOG={
       "machineryOwner": 15,
       "y": -0.11,
       "z": 0.32,
-      "r": 0.053,
+      "r": 0.054,
       "share": 0.10519765703377922,
       "domain": "main",
       "port": "p15",
@@ -2765,7 +2767,7 @@ const CRAFT_PRICE_CATALOG={
       "machineryOwner": 16,
       "y": -0.11,
       "z": -0.32,
-      "r": 0.053,
+      "r": 0.054,
       "share": 0.10519765703377922,
       "domain": "main",
       "port": "p16",
@@ -2774,63 +2776,63 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.2143533766849094,
+      "w": 0.23315772502127324,
       "hits": 1,
       "crew": 0,
-      "size": 1.7082782260958118,
-      "at": 0.181,
+      "size": 1.937928836679447,
+      "at": 0.188,
       "y": -0.04,
       "z": 0,
-      "r": 0.087,
-      "share": 0.16660117878192532,
+      "r": 0.09,
+      "share": 0.18899803536345774,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.3619906417445086,
+      "w": 0.34705238325816157,
       "hits": 1,
       "crew": 0,
-      "size": 3.7489454938258326,
-      "at": 0.385,
+      "size": 3.5192948832421975,
+      "at": 0.393,
       "y": -0.05,
       "z": 0,
-      "r": 0.113,
-      "share": 0.3656188605108055,
+      "r": 0.11,
+      "share": 0.3432220039292731,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.35573912336932234,
+      "w": 0.3663863095023749,
       "hits": 1,
       "crew": 0,
-      "size": 3.652250499895881,
-      "at": 0.604,
+      "size": 3.8174377811928815,
+      "at": 0.61,
       "y": -0.14,
       "z": 0,
-      "r": 0.112,
-      "share": 0.356188605108055,
+      "r": 0.113,
+      "share": 0.3722986247544204,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.1640962481557223,
+      "w": 0.14789628801479346,
       "hits": 1,
       "crew": 0,
-      "size": 1.1442240948377609,
-      "at": 0.828,
-      "y": -0.12,
+      "size": 0.97903681354076,
+      "at": 0.84,
+      "y": -0.13,
       "z": 0,
-      "r": 0.076,
-      "share": 0.11159135559921414,
+      "r": 0.072,
+      "share": 0.0954813359528487,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 7.1608507490595334,
+      "w": 7.159838738564818,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -2848,7 +2850,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 1,
     "crewMax": 1,
     "hp": 1,
-    "len": 6.9,
+    "len": 6.890000095590949,
     "width": 4.957405736643938,
     "height": 2.3886074314359576,
     "grid": {
@@ -3244,14 +3246,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 2610664412518385000
       }
      ],
-     "massKg": 10564.515339153068,
+     "massKg": 10494.646256155853,
      "ratedThrustN": 511361261.66692966,
-     "ratedAccelMps2": 48403.665028700154,
-     "structuralAccelerationLimitMps2": 1204300.3128840288,
+     "ratedAccelMps2": 48725.91692806988,
+     "structuralAccelerationLimitMps2": 629420.3027909993,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 48403.665028700154
+     "accelerationLimitMps2": 48725.91692806988
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -3266,7 +3268,7 @@ const CRAFT_PRICE_CATALOG={
         4
        ],
        "pc": [],
-       "sec": 2,
+       "sec": 1,
        "sw": -1,
        "gen": -1
       },
@@ -3485,7 +3487,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1xs8byu",
+   "signature": "19eu6nm",
    "build": 200851,
    "crew": 2000,
    "total": 202851,
@@ -3547,13 +3549,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.983,
+      "at": 0.941,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.13,
       "z": 0.1,
-      "r": 0.058,
+      "r": 0.055,
       "share": 0.36358020204956754,
       "domain": "main",
       "port": "f21",
@@ -3568,13 +3570,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.983,
+      "at": 0.941,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.13,
       "z": -0.1,
-      "r": 0.058,
+      "r": 0.055,
       "share": 0.36358020204956754,
       "domain": "main",
       "port": "f22",
@@ -3589,13 +3591,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.7508,
       "stock": 0,
-      "at": 0.789,
+      "at": 0.756,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.66,
       "z": 0,
-      "r": 0.029,
+      "r": 0.028,
       "share": 0.27283959590086493,
       "domain": "main",
       "port": "f23",
@@ -3610,13 +3612,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.757,
+      "at": 0.725,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": -0.47,
       "z": 0.05,
-      "r": 0.031,
+      "r": 0.03,
       "share": 0,
       "domain": "main",
       "port": "f24",
@@ -3631,13 +3633,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.757,
+      "at": 0.725,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": -0.47,
       "z": -0.05,
-      "r": 0.031,
+      "r": 0.03,
       "share": 0,
       "domain": "main",
       "port": "f25",
@@ -3652,13 +3654,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.49,
+      "at": 0.469,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": -0.57,
       "z": 0,
-      "r": 0.053,
+      "r": 0.051,
       "share": 0,
       "domain": "main",
       "port": "f26",
@@ -3671,11 +3673,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0226538585904275,
-      "at": 0.846,
+      "at": 0.81,
       "part": 9,
       "y": 0.22,
       "z": 0,
-      "r": 0.022,
+      "r": 0.021,
       "share": 0.5227935464170073,
       "domain": "main",
       "port": "p9",
@@ -3688,7 +3690,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.2059006108348058,
-      "at": 0.733,
+      "at": 0.702,
       "part": 10,
       "y": 0.47,
       "z": 0,
@@ -3705,11 +3707,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0005751732549947313,
       "size": 1.1503465099894625,
-      "at": 0.147,
+      "at": 0.141,
       "part": 11,
       "y": -0.05,
       "z": 0.8,
-      "r": 0.023,
+      "r": 0.022,
       "share": 0.30778929672177086,
       "domain": "main",
       "port": "p11",
@@ -3722,11 +3724,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0005751732549947313,
       "size": 1.1503465099894625,
-      "at": 0.147,
+      "at": 0.141,
       "part": 12,
       "y": -0.05,
       "z": -0.8,
-      "r": 0.023,
+      "r": 0.022,
       "share": 0.30778929672177086,
       "domain": "main",
       "port": "p12",
@@ -3739,11 +3741,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.001769344982501772,
       "size": 4.42336245625443,
-      "at": 0.062,
+      "at": 0.06,
       "part": 13,
       "y": -0.05,
       "z": 0.8,
-      "r": 0.037,
+      "r": 0.035,
       "share": 0.4012934820935442,
       "domain": "main",
       "port": "p13",
@@ -3756,11 +3758,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.001769344982501772,
       "size": 4.42336245625443,
-      "at": 0.062,
+      "at": 0.06,
       "part": 14,
       "y": -0.05,
       "z": -0.8,
-      "r": 0.037,
+      "r": 0.035,
       "share": 0.4012934820935442,
       "domain": "main",
       "port": "p14",
@@ -3773,11 +3775,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0007183775201208657,
       "size": 1.4367550402417315,
-      "at": 0.49,
+      "at": 0.469,
       "part": 15,
       "y": 0.06,
       "z": 0,
-      "r": 0.025,
+      "r": 0.024,
       "share": 0.3844214065564583,
       "domain": "main",
       "port": "p15",
@@ -3790,11 +3792,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0002424524130407923,
       "size": 0.6061310326019808,
-      "at": 0.592,
+      "at": 0.567,
       "part": 16,
       "y": -0.03,
       "z": 0,
-      "r": 0.019,
+      "r": 0.018,
       "share": 1,
       "domain": "main",
       "port": "p16",
@@ -3807,7 +3809,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00011875220230569416,
       "size": 0.3958406743523139,
-      "at": 0.414,
+      "at": 0.397,
       "part": 17,
       "y": 0.06,
       "z": 0,
@@ -3824,7 +3826,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00007696902001294993,
       "size": 0.38484510006474965,
-      "at": 0.69,
+      "at": 0.661,
       "part": 18,
       "y": 0.09,
       "z": 0,
@@ -3841,7 +3843,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000025,
       "size": 0.125,
-      "at": 0.784,
+      "at": 0.751,
       "part": 19,
       "y": 0.13,
       "z": 0,
@@ -3858,7 +3860,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00003267256359733386,
       "size": 0.16336281798666927,
-      "at": 0.646,
+      "at": 0.618,
       "part": 20,
       "y": 0.06,
       "z": 0,
@@ -3875,7 +3877,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.10382299999999998,
-      "at": 0.904,
+      "at": 0.866,
       "part": 27,
       "y": 0.19,
       "z": 0,
@@ -3892,7 +3894,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.819,
+      "at": 0.784,
       "part": 28,
       "y": -0.32,
       "z": 0.01,
@@ -3909,7 +3911,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.819,
+      "at": 0.784,
       "part": 29,
       "y": -0.19,
       "z": -0.01,
@@ -3926,7 +3928,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.891,
+      "at": 0.853,
       "part": 30,
       "y": 0.19,
       "z": 0,
@@ -3943,7 +3945,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.029791,
-      "at": 0.904,
+      "at": 0.866,
       "part": 31,
       "y": -0.08,
       "z": 0,
@@ -3960,7 +3962,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.017576,
-      "at": 0.904,
+      "at": 0.866,
       "part": 32,
       "y": 0.19,
       "z": -0.07,
@@ -3977,7 +3979,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.017576,
-      "at": 0.904,
+      "at": 0.866,
       "part": 33,
       "y": 0.19,
       "z": 0.07,
@@ -3994,7 +3996,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.017576,
-      "at": 0.92,
+      "at": 0.881,
       "part": 34,
       "y": 0.19,
       "z": 0,
@@ -4011,7 +4013,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.017576,
-      "at": 0.888,
+      "at": 0.85,
       "part": 35,
       "y": 0.08,
       "z": 0,
@@ -4028,11 +4030,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.03930400000000001,
-      "at": 0.883,
+      "at": 0.845,
       "part": 36,
       "y": 0.19,
       "z": -0.05,
-      "r": 0.008,
+      "r": 0.007,
       "share": 0.020092700355813627,
       "domain": "main",
       "port": "p36",
@@ -4045,11 +4047,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.03930400000000001,
-      "at": 0.883,
+      "at": 0.845,
       "part": 37,
       "y": 0.19,
       "z": 0.05,
-      "r": 0.008,
+      "r": 0.007,
       "share": 0.020092700355813627,
       "domain": "main",
       "port": "p37",
@@ -4062,7 +4064,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.07408799999999999,
-      "at": 0.904,
+      "at": 0.866,
       "part": 38,
       "y": 0.01,
       "z": -0.12,
@@ -4079,7 +4081,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.07408799999999999,
-      "at": 0.904,
+      "at": 0.866,
       "part": 39,
       "y": 0.01,
       "z": 0.12,
@@ -4096,7 +4098,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.07408799999999999,
-      "at": 0.93,
+      "at": 0.891,
       "part": 40,
       "y": 0.01,
       "z": 0,
@@ -4113,12 +4115,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00021760368656735085,
       "size": 1.0880184328367541,
-      "at": 0.115,
+      "at": 0.11,
       "part": -13,
       "machineryOwner": 13,
       "y": -0.05,
       "z": 0.8,
-      "r": 0.023,
+      "r": 0.022,
       "share": 0.09870651790645577,
       "domain": "main",
       "port": "p13",
@@ -4131,12 +4133,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00021760368656735085,
       "size": 1.0880184328367541,
-      "at": 0.115,
+      "at": 0.11,
       "part": -14,
       "machineryOwner": 14,
       "y": -0.05,
       "z": -0.8,
-      "r": 0.023,
+      "r": 0.022,
       "share": 0.09870651790645577,
       "domain": "main",
       "port": "p14",
@@ -4149,12 +4151,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 4.316761933923713,
-      "at": 0.39,
+      "at": 0.373,
       "part": 3,
       "ext": 1,
       "y": 0.03,
       "z": 0.51,
-      "r": 0.036,
+      "r": 0.035,
       "share": 0.5,
       "domain": "main",
       "port": "p3",
@@ -4167,12 +4169,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 4.316761933923714,
-      "at": 0.39,
+      "at": 0.373,
       "part": 4,
       "ext": 1,
       "y": 0.03,
       "z": -0.51,
-      "r": 0.036,
+      "r": 0.035,
       "share": 0.5000000000000001,
       "domain": "main",
       "port": "p4",
@@ -4181,63 +4183,63 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 1.1688388715049227,
+      "w": 1.2764292898408511,
       "hits": 1,
       "crew": 0,
-      "size": 21.75179396122326,
-      "at": 0.147,
+      "size": 24.82322783074784,
+      "at": 0.153,
       "y": -0.06,
       "z": 0,
       "r": 0.062,
-      "share": 0.1560411775329601,
+      "share": 0.1780747697309012,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 2.21667680312791,
+      "w": 2.2926528984111445,
       "hits": 1,
       "crew": 0,
-      "size": 56.80893874247718,
-      "at": 0.392,
+      "size": 59.75449417472617,
+      "at": 0.393,
       "y": -0.03,
       "z": 0,
-      "r": 0.086,
-      "share": 0.4075311540545422,
+      "r": 0.083,
+      "share": 0.42866173017879716,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.9727644100791446,
+      "w": 1.9210526757102766,
       "hits": 1,
       "crew": 0,
-      "size": 47.69533988372392,
+      "size": 45.832339012045075,
       "at": 0.594,
-      "y": -0.02,
+      "y": 0,
       "z": 0,
-      "r": 0.081,
-      "share": 0.3421527903196677,
+      "r": 0.076,
+      "share": 0.3287881524291132,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.835332066495726,
+      "w": 0.6484218317520754,
       "hits": 1,
       "crew": 0,
-      "size": 13.141708851572385,
-      "at": 0.827,
-      "y": 0.13,
+      "size": 8.987720421477666,
+      "at": 0.82,
+      "y": 0.12,
       "z": 0,
-      "r": 0.053,
-      "share": 0.09427487809283006,
+      "r": 0.044,
+      "share": 0.06447534766118837,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 26.48414318585163,
+      "w": 26.451109912555612,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -4255,7 +4257,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 2,
     "crewMax": 2,
     "hp": 1,
-    "len": 22.450000762939453,
+    "len": 23.448,
     "width": 10.015999794006348,
     "height": 3.2699700689315803,
     "grid": {
@@ -4676,14 +4678,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 2919731575672123000
       }
      ],
-     "massKg": 49991.73261853888,
+     "massKg": 49175.50272860784,
      "ratedThrustN": 1503943235.126506,
-     "ratedAccelMps2": 30083.838993985686,
-     "structuralAccelerationLimitMps2": 384258.1827358539,
+     "ratedAccelMps2": 30583.179666236283,
+     "structuralAccelerationLimitMps2": 186860.72390628685,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 30083.838993985686
+     "accelerationLimitMps2": 30583.179666236283
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -5108,7 +5110,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "dfpge0",
+   "signature": "145o1u0",
    "build": 210146,
    "crew": 0,
    "total": 210146,
@@ -6564,14 +6566,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 3810762940318157300
       }
      ],
-     "massKg": 26788.775950206007,
+     "massKg": 26637.043417632576,
      "ratedThrustN": 643608662.1629802,
-     "ratedAccelMps2": 24025.310576313615,
-     "structuralAccelerationLimitMps2": 2083184.7581767498,
+     "ratedAccelMps2": 24162.16590077482,
+     "structuralAccelerationLimitMps2": 1969551.606843148,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 24025.310576313615
+     "accelerationLimitMps2": 24162.16590077482
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -7161,7 +7163,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "4t7ucs",
+   "signature": "r6lzsn",
    "build": 109120,
    "crew": 1000,
    "total": 110120,
@@ -7223,13 +7225,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.907,
+      "at": 0.857,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.34,
       "z": 0.93,
-      "r": 0.143,
+      "r": 0.135,
       "share": 0.25,
       "domain": "main",
       "port": "f37",
@@ -7244,13 +7246,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.907,
+      "at": 0.857,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": -0.34,
       "z": 0.93,
-      "r": 0.143,
+      "r": 0.135,
       "share": 0.25,
       "domain": "main",
       "port": "f38",
@@ -7265,13 +7267,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.907,
+      "at": 0.857,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.34,
       "z": -0.93,
-      "r": 0.143,
+      "r": 0.135,
       "share": 0.25,
       "domain": "main",
       "port": "f39",
@@ -7286,13 +7288,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.907,
+      "at": 0.857,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": -0.34,
       "z": -0.93,
-      "r": 0.143,
+      "r": 0.135,
       "share": 0.25,
       "domain": "main",
       "port": "f40",
@@ -7305,11 +7307,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.817283234436282,
-      "at": 0.313,
+      "at": 0.295,
       "part": 31,
       "y": 0.28,
       "z": 0,
-      "r": 0.051,
+      "r": 0.048,
       "share": 0.7332166204610195,
       "domain": "main",
       "port": "p31",
@@ -7322,11 +7324,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000267335749250128,
       "size": 0.534671498500256,
-      "at": 0.434,
+      "at": 0.411,
       "part": 32,
       "y": -0.03,
       "z": 0,
-      "r": 0.044,
+      "r": 0.042,
       "share": 1,
       "domain": "main",
       "port": "p32",
@@ -7339,11 +7341,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0008614721122474642,
       "size": 2.1536802806186603,
-      "at": 0.299,
+      "at": 0.282,
       "part": 33,
       "y": -0.03,
       "z": 0.16,
-      "r": 0.071,
+      "r": 0.067,
       "share": 0.4163023834957037,
       "domain": "main",
       "port": "p33",
@@ -7356,11 +7358,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0008614721122474642,
       "size": 2.1536802806186603,
-      "at": 0.299,
+      "at": 0.282,
       "part": 34,
       "y": -0.03,
       "z": -0.16,
-      "r": 0.071,
+      "r": 0.067,
       "share": 0.4163023834957037,
       "domain": "main",
       "port": "p34",
@@ -7373,11 +7375,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000012347715765669329,
       "size": 0.06173857882834664,
-      "at": 0.34,
+      "at": 0.322,
       "part": 35,
       "y": -0.35,
       "z": 0,
-      "r": 0.022,
+      "r": 0.02,
       "share": 1,
       "domain": "main",
       "port": "p35",
@@ -7390,11 +7392,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000010993061013441406,
       "size": 0.054965305067207024,
-      "at": 0.26,
+      "at": 0.246,
       "part": 36,
       "y": -0.3,
       "z": 0,
-      "r": 0.021,
+      "r": 0.02,
       "share": 0.04931151591747049,
       "domain": "main",
       "port": "p36",
@@ -7407,11 +7409,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.313,
+      "at": 0.295,
       "part": 41,
       "y": -0.18,
       "z": 0,
-      "r": 0.016,
+      "r": 0.015,
       "share": 0.021880321781907266,
       "domain": "main",
       "port": "p41",
@@ -7424,11 +7426,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.337,
+      "at": 0.318,
       "part": 42,
       "y": 0.24,
       "z": 0.14,
-      "r": 0.012,
+      "r": 0.011,
       "share": 0.00955273550919466,
       "domain": "main",
       "port": "p42",
@@ -7441,11 +7443,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.019683000000000003,
-      "at": 0.337,
+      "at": 0.318,
       "part": 43,
       "y": 0.24,
       "z": 0.18,
-      "r": 0.015,
+      "r": 0.014,
       "share": 0.017658385896645243,
       "domain": "main",
       "port": "p43",
@@ -7458,11 +7460,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.323,
+      "at": 0.305,
       "part": 44,
       "y": 0.24,
       "z": 0.14,
-      "r": 0.01,
+      "r": 0.009,
       "share": 0.005232114339746737,
       "domain": "main",
       "port": "p44",
@@ -7475,11 +7477,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.337,
+      "at": 0.318,
       "part": 45,
       "y": 0.2,
       "z": 0.14,
-      "r": 0.01,
+      "r": 0.009,
       "share": 0.005232114339746737,
       "domain": "main",
       "port": "p45",
@@ -7492,11 +7494,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.337,
+      "at": 0.318,
       "part": 46,
       "y": 0.28,
       "z": 0.14,
-      "r": 0.01,
+      "r": 0.009,
       "share": 0.005232114339746737,
       "domain": "main",
       "port": "p46",
@@ -7509,11 +7511,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.35,
+      "at": 0.331,
       "part": 47,
       "y": 0.24,
       "z": 0.14,
-      "r": 0.01,
+      "r": 0.009,
       "share": 0.005232114339746737,
       "domain": "main",
       "port": "p47",
@@ -7526,11 +7528,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.31,
+      "at": 0.293,
       "part": 48,
       "y": 0.24,
       "z": 0.19,
-      "r": 0.019,
+      "r": 0.018,
       "share": 0.038464832358820526,
       "domain": "main",
       "port": "p48",
@@ -7543,11 +7545,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.39,
+      "at": 0.369,
       "part": 49,
       "y": 0.24,
       "z": 0.14,
-      "r": 0.019,
+      "r": 0.018,
       "share": 0.038464832358820526,
       "domain": "main",
       "port": "p49",
@@ -7560,11 +7562,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.03930400000000001,
-      "at": 0.363,
+      "at": 0.343,
       "part": 50,
       "y": 0.24,
       "z": 0.19,
-      "r": 0.019,
+      "r": 0.018,
       "share": 0.03526114917856753,
       "domain": "main",
       "port": "p50",
@@ -7577,11 +7579,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.03930400000000001,
-      "at": 0.389,
+      "at": 0.368,
       "part": 51,
       "y": 0.24,
       "z": 0.03,
-      "r": 0.019,
+      "r": 0.018,
       "share": 0.03526114917856753,
       "domain": "main",
       "port": "p51",
@@ -7594,12 +7596,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00008659950715941374,
       "size": 0.4329975357970687,
-      "at": 0.394,
+      "at": 0.373,
       "part": -33,
       "machineryOwner": 33,
       "y": -0.03,
       "z": 0.13,
-      "r": 0.041,
+      "r": 0.039,
       "share": 0.08369761650429636,
       "domain": "main",
       "port": "p33",
@@ -7612,12 +7614,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00008659950715941374,
       "size": 0.4329975357970687,
-      "at": 0.394,
+      "at": 0.373,
       "part": -34,
       "machineryOwner": 34,
       "y": -0.03,
       "z": -0.13,
-      "r": 0.041,
+      "r": 0.039,
       "share": 0.08369761650429636,
       "domain": "main",
       "port": "p34",
@@ -7630,12 +7632,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.4212002960205246,
-      "at": 0.126,
+      "at": 0.119,
       "part": 3,
       "ext": 1,
       "y": 0,
       "z": 0.88,
-      "r": 0.062,
+      "r": 0.058,
       "share": 0.10131830864636401,
       "domain": "main",
       "port": "p3",
@@ -7648,12 +7650,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.4212002960205246,
-      "at": 0.126,
+      "at": 0.119,
       "part": 4,
       "ext": 1,
       "y": 0,
       "z": -0.88,
-      "r": 0.062,
+      "r": 0.058,
       "share": 0.10131830864636401,
       "domain": "main",
       "port": "p4",
@@ -7666,12 +7668,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 2.7961708270315655,
-      "at": 0.489,
+      "at": 0.462,
       "part": 7,
       "ext": 1,
       "y": 0.69,
       "z": 0.66,
-      "r": 0.077,
+      "r": 0.073,
       "share": 0.19934086678310944,
       "domain": "main",
       "port": "p7",
@@ -7684,12 +7686,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 2.796170853666008,
-      "at": 0.489,
+      "at": 0.462,
       "part": 8,
       "ext": 1,
       "y": 0.69,
       "z": -0.66,
-      "r": 0.077,
+      "r": 0.073,
       "share": 0.19934086868189646,
       "domain": "main",
       "port": "p8",
@@ -7702,12 +7704,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 2.7961702180575654,
-      "at": 0.489,
+      "at": 0.462,
       "part": 17,
       "ext": 1,
       "y": -0.69,
       "z": 0.66,
-      "r": 0.077,
+      "r": 0.073,
       "share": 0.1993408233689504,
       "domain": "main",
       "port": "p17",
@@ -7720,12 +7722,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 2.796170225132339,
-      "at": 0.489,
+      "at": 0.462,
       "part": 18,
       "ext": 1,
       "y": -0.69,
       "z": -0.66,
-      "r": 0.077,
+      "r": 0.073,
       "share": 0.19934082387331567,
       "domain": "main",
       "port": "p18",
@@ -7734,63 +7736,63 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.7824172613697874,
+      "w": 0.8750349841331139,
       "hits": 1,
       "crew": 0,
-      "size": 11.91298914572733,
-      "at": 0.147,
+      "size": 14.089683458773806,
+      "at": 0.155,
       "y": 0,
       "z": 0,
       "r": 0.125,
-      "share": 0.27309507754551576,
+      "share": 0.32299393122049896,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.1945306932661173,
+      "w": 1.1777943669376496,
       "hits": 1,
       "crew": 0,
-      "size": 22.47289804280415,
-      "at": 0.351,
+      "size": 22.002261434577886,
+      "at": 0.353,
       "y": 0,
       "z": 0,
-      "r": 0.155,
-      "share": 0.5151719487525286,
+      "r": 0.145,
+      "share": 0.5043830074173972,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.511380609601021,
+      "w": 0.43863271692074474,
       "hits": 1,
       "crew": 0,
-      "size": 6.2947646350262945,
-      "at": 0.607,
+      "size": 5.000513962404065,
+      "at": 0.616,
       "y": 0,
       "z": 0,
-      "r": 0.101,
-      "share": 0.14430209035738367,
+      "r": 0.089,
+      "share": 0.11463250168577208,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.30794163239666494,
+      "w": 0.27848429507193045,
       "hits": 1,
       "crew": 0,
-      "size": 2.9414788014141555,
-      "at": 0.864,
+      "size": 2.529671769216174,
+      "at": 0.831,
       "y": 0,
       "z": 0,
-      "r": 0.079,
-      "share": 0.0674308833445718,
+      "r": 0.071,
+      "share": 0.05799055967633176,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 22.58715819251435,
+      "w": 22.571363892372265,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -7808,7 +7810,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 1,
     "crewMax": 1,
     "hp": 1,
-    "len": 9.120000004768372,
+    "len": 9.64800000476837,
     "width": 8.887999732971192,
     "height": 7.078812837600708,
     "grid": {
@@ -8263,14 +8265,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 879209231081703600
       }
      ],
-     "massKg": 17756.683255730255,
+     "massKg": 17128.350094050988,
      "ratedThrustN": 732251295.4103445,
-     "ratedAccelMps2": 41238.067090825636,
-     "structuralAccelerationLimitMps2": 850000.682679623,
+     "ratedAccelMps2": 42750.83655983128,
+     "structuralAccelerationLimitMps2": 590576.858398786,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 41238.067090825636
+     "accelerationLimitMps2": 42750.83655983128
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -8362,7 +8364,7 @@ const CRAFT_PRICE_CATALOG={
        "st": 1268112963285979600,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1
       }
@@ -8395,7 +8397,7 @@ const CRAFT_PRICE_CATALOG={
        "g": "high",
        "cap": 58253525109507590,
        "m": 25,
-       "sec": 2,
+       "sec": 3,
        "src": -1
       },
       {
@@ -8405,7 +8407,7 @@ const CRAFT_PRICE_CATALOG={
        "g": "high",
        "cap": 58253525109507590,
        "m": 26,
-       "sec": 2,
+       "sec": 3,
        "src": -1
       },
       {
@@ -8415,7 +8417,7 @@ const CRAFT_PRICE_CATALOG={
        "g": "high",
        "cap": 40777467576655310,
        "m": 27,
-       "sec": 2,
+       "sec": 3,
        "src": -1
       },
       {
@@ -8425,7 +8427,7 @@ const CRAFT_PRICE_CATALOG={
        "g": "high",
        "cap": 46602820087606060,
        "m": 28,
-       "sec": 2,
+       "sec": 3,
        "src": -1
       },
       {
@@ -8584,25 +8586,25 @@ const CRAFT_PRICE_CATALOG={
        "s": 5,
        "d": 4,
        "cap": 31702824082149492,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 5,
        "d": 5,
        "cap": 31702824082149492,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 5,
        "d": 2,
        "cap": 31702824082149492,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 5,
        "d": 3,
        "cap": 31702824082149492,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 5,
@@ -8628,7 +8630,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "4bq9lm",
+   "signature": "nm504j",
    "build": 98082,
    "crew": 1000,
    "total": 99082,
@@ -9512,14 +9514,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 1634389047129562000
       }
      ],
-     "massKg": 10527.415885686929,
+     "massKg": 10194.093392096773,
      "ratedThrustN": 407311630.4189808,
-     "ratedAccelMps2": 38690.56137249803,
-     "structuralAccelerationLimitMps2": 2841808.2212511105,
+     "ratedAccelMps2": 39955.65027241749,
+     "structuralAccelerationLimitMps2": 3151941.201170542,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 38690.56137249803
+     "accelerationLimitMps2": 39955.65027241749
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -9769,7 +9771,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1l8m0wl",
+   "signature": "11sa64s",
    "build": 137742,
    "crew": 1000,
    "total": 138742,
@@ -10798,14 +10800,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 9324769087712827000
       }
      ],
-     "massKg": 48481.82000819932,
+     "massKg": 48481.207654794416,
      "ratedThrustN": 1204997132.192535,
-     "ratedAccelMps2": 24854.61832886521,
-     "structuralAccelerationLimitMps2": 2051534.6199551262,
+     "ratedAccelMps2": 24854.93226102362,
+     "structuralAccelerationLimitMps2": 2022223.9111432116,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 24854.61832886521
+     "accelerationLimitMps2": 24854.93226102362
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -11206,7 +11208,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1p6gzut",
+   "signature": "18ucw6k",
    "build": 170459,
    "crew": 1000,
    "total": 171459,
@@ -12442,7 +12444,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48149.98712420482
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -12998,7 +13000,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "9ansk6",
+   "signature": "1co9uw1",
    "build": 144544,
    "crew": 0,
    "total": 144544,
@@ -13058,13 +13060,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.886,
+      "at": 0.817,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.37,
       "z": 0.85,
-      "r": 0.187,
+      "r": 0.172,
       "share": 0.25,
       "domain": "main",
       "port": "f20",
@@ -13079,13 +13081,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.886,
+      "at": 0.817,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.37,
       "z": -0.85,
-      "r": 0.187,
+      "r": 0.172,
       "share": 0.25,
       "domain": "main",
       "port": "f21",
@@ -13100,13 +13102,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.886,
+      "at": 0.817,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": -0.37,
       "z": 0.85,
-      "r": 0.187,
+      "r": 0.172,
       "share": 0.25,
       "domain": "main",
       "port": "f22",
@@ -13121,13 +13123,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.886,
+      "at": 0.817,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": -0.37,
       "z": -0.85,
-      "r": 0.187,
+      "r": 0.172,
       "share": 0.25,
       "domain": "main",
       "port": "f23",
@@ -13142,13 +13144,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.51,
+      "at": 0.47,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": 0.15,
       "z": 0.12,
-      "r": 0.101,
+      "r": 0.093,
       "share": 0,
       "domain": "main",
       "port": "f24",
@@ -13163,13 +13165,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.51,
+      "at": 0.47,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": 0.15,
       "z": -0.12,
-      "r": 0.101,
+      "r": 0.093,
       "share": 0,
       "domain": "main",
       "port": "f25",
@@ -13191,7 +13193,7 @@ const CRAFT_PRICE_CATALOG={
       "tt": 25,
       "ammo0": 6,
       "muzzle": [
-       0.03199998092651368,
+       -0.262,
        -0.3545038542725488,
        0
       ],
@@ -13201,12 +13203,12 @@ const CRAFT_PRICE_CATALOG={
        0
       ],
       "launchPowerW": 1000000000000000,
-      "at": 0.417,
+      "at": 0.384,
       "pd": false,
       "dualPurpose": false,
       "y": -0.13,
       "z": 0,
-      "r": 0.086,
+      "r": 0.079,
       "share": 1,
       "domain": "main",
       "port": "f26",
@@ -13219,11 +13221,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.03930400000000001,
-      "at": 0.237,
+      "at": 0.219,
       "part": 12,
       "y": 0.33,
       "z": 0,
-      "r": 0.024,
+      "r": 0.023,
       "share": 0.15292821872516119,
       "domain": "main",
       "port": "p12",
@@ -13236,11 +13238,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0000016000000000000006,
       "size": 0.008000000000000002,
-      "at": 0.323,
+      "at": 0.298,
       "part": 13,
       "y": 0.21,
       "z": 0,
-      "r": 0.014,
+      "r": 0.013,
       "share": 1,
       "domain": "main",
       "port": "p13",
@@ -13253,11 +13255,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0000031415926535897938,
       "size": 0.015707963267948967,
-      "at": 0.395,
+      "at": 0.364,
       "part": 14,
       "y": 0.16,
       "z": 0,
-      "r": 0.018,
+      "r": 0.017,
       "share": 1,
       "domain": "main",
       "port": "p14",
@@ -13270,11 +13272,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000004523893421169302,
       "size": 0.02261946710584651,
-      "at": 0.151,
+      "at": 0.139,
       "part": 15,
       "y": 0.13,
       "z": 0,
-      "r": 0.02,
+      "r": 0.019,
       "share": 0.088010248651778,
       "domain": "main",
       "port": "p15",
@@ -13287,11 +13289,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000019396193043263377,
       "size": 0.038792386086526756,
-      "at": 0.478,
+      "at": 0.441,
       "part": 16,
       "y": 0,
       "z": 0.86,
-      "r": 0.024,
+      "r": 0.022,
       "share": 0.5,
       "domain": "main",
       "port": "p16",
@@ -13304,11 +13306,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000019396193043263377,
       "size": 0.038792386086526756,
-      "at": 0.478,
+      "at": 0.441,
       "part": 17,
       "y": 0,
       "z": -0.86,
-      "r": 0.024,
+      "r": 0.022,
       "share": 0.5,
       "domain": "main",
       "port": "p17",
@@ -13321,11 +13323,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00008243036468195043,
       "size": 0.20607591170487607,
-      "at": 0.355,
+      "at": 0.327,
       "part": 18,
       "y": 0,
       "z": 0.86,
-      "r": 0.042,
+      "r": 0.039,
       "share": 0.45283084838461274,
       "domain": "main",
       "port": "p18",
@@ -13338,11 +13340,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00008243036468195043,
       "size": 0.20607591170487607,
-      "at": 0.355,
+      "at": 0.327,
       "part": 19,
       "y": 0,
       "z": -0.86,
-      "r": 0.042,
+      "r": 0.039,
       "share": 0.45283084838461274,
       "domain": "main",
       "port": "p19",
@@ -13355,11 +13357,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.487,
+      "at": 0.449,
       "part": 27,
       "y": 0,
       "z": 0,
-      "r": 0.016,
+      "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
       "port": "p27",
@@ -13372,11 +13374,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.176,
+      "at": 0.162,
       "part": 28,
       "y": 0.41,
       "z": 0,
-      "r": 0.023,
+      "r": 0.021,
       "share": 0.1274972489106982,
       "domain": "main",
       "port": "p28",
@@ -13389,11 +13391,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.144,
+      "at": 0.132,
       "part": 29,
       "y": 0.41,
       "z": 0,
-      "r": 0.013,
+      "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
       "port": "p29",
@@ -13406,11 +13408,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.144,
+      "at": 0.132,
       "part": 30,
       "y": 0.29,
       "z": 0,
-      "r": 0.013,
+      "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
       "port": "p30",
@@ -13423,11 +13425,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.126,
+      "at": 0.116,
       "part": 31,
       "y": 0.29,
       "z": 0,
-      "r": 0.013,
+      "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
       "port": "p31",
@@ -13440,11 +13442,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.144,
+      "at": 0.132,
       "part": 32,
       "y": 0.29,
       "z": -0.06,
-      "r": 0.013,
+      "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
       "port": "p32",
@@ -13457,11 +13459,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.249,
+      "at": 0.23,
       "part": 33,
       "y": 0.17,
       "z": -0.12,
-      "r": 0.025,
+      "r": 0.023,
       "share": 0.1668226485304621,
       "domain": "main",
       "port": "p33",
@@ -13474,11 +13476,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.249,
+      "at": 0.23,
       "part": 34,
       "y": 0.17,
       "z": 0.12,
-      "r": 0.025,
+      "r": 0.023,
       "share": 0.1668226485304621,
       "domain": "main",
       "port": "p34",
@@ -13491,11 +13493,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.487,
+      "at": 0.449,
       "part": 35,
       "y": 0,
       "z": -0.08,
-      "r": 0.016,
+      "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
       "port": "p35",
@@ -13508,11 +13510,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.487,
+      "at": 0.449,
       "part": 36,
       "y": 0,
       "z": 0.08,
-      "r": 0.016,
+      "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
       "port": "p36",
@@ -13525,11 +13527,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.487,
+      "at": 0.449,
       "part": 37,
       "y": 0,
       "z": -0.15,
-      "r": 0.016,
+      "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
       "port": "p37",
@@ -13542,11 +13544,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.487,
+      "at": 0.449,
       "part": 38,
       "y": 0,
       "z": 0.15,
-      "r": 0.016,
+      "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
       "port": "p38",
@@ -13559,12 +13561,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000004293181861687301,
       "size": 0.021465909308436507,
-      "at": 0.446,
+      "at": 0.412,
       "part": -18,
       "machineryOwner": 18,
       "y": 0,
       "z": 0.86,
-      "r": 0.02,
+      "r": 0.018,
       "share": 0.04716915161538727,
       "domain": "main",
       "port": "p18",
@@ -13577,12 +13579,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000004293181861687301,
       "size": 0.021465909308436507,
-      "at": 0.446,
+      "at": 0.412,
       "part": -19,
       "machineryOwner": 19,
       "y": 0,
       "z": -0.86,
-      "r": 0.02,
+      "r": 0.018,
       "share": 0.04716915161538727,
       "domain": "main",
       "port": "p19",
@@ -13595,12 +13597,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5911244695841429,
-      "at": 0.481,
+      "at": 0.444,
       "part": 4,
       "ext": 1,
       "y": 0.58,
       "z": 0.88,
-      "r": 0.06,
+      "r": 0.056,
       "share": 0.2500000009543655,
       "domain": "main",
       "port": "p4",
@@ -13613,12 +13615,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5911244695841429,
-      "at": 0.481,
+      "at": 0.444,
       "part": 5,
       "ext": 1,
       "y": 0.58,
       "z": -0.88,
-      "r": 0.06,
+      "r": 0.056,
       "share": 0.2500000009543655,
       "domain": "main",
       "port": "p5",
@@ -13631,12 +13633,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5911244650709526,
-      "at": 0.481,
+      "at": 0.444,
       "part": 6,
       "ext": 1,
       "y": -0.58,
       "z": 0.88,
-      "r": 0.06,
+      "r": 0.056,
       "share": 0.24999999904563452,
       "domain": "main",
       "port": "p6",
@@ -13649,12 +13651,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5911244650709526,
-      "at": 0.481,
+      "at": 0.444,
       "part": 7,
       "ext": 1,
       "y": -0.58,
       "z": -0.88,
-      "r": 0.06,
+      "r": 0.056,
       "share": 0.24999999904563452,
       "domain": "main",
       "port": "p7",
@@ -13663,63 +13665,63 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.1383510212223883,
+      "w": 0.14745351336660145,
       "hits": 1,
       "crew": 0,
-      "size": 0.8858020176943463,
-      "at": 0.174,
+      "size": 0.9746435179940743,
+      "at": 0.167,
       "y": 0.12,
       "z": 0,
-      "r": 0.069,
-      "share": 0.17138523761375124,
+      "r": 0.066,
+      "share": 0.1885743174924166,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.2866487204123057,
+      "w": 0.3109042362918976,
       "hits": 1,
       "crew": 0,
-      "size": 2.64172814126544,
-      "at": 0.377,
-      "y": 0.07,
+      "size": 2.9840292159496857,
+      "at": 0.37,
+      "y": 0.05,
       "z": 0,
-      "r": 0.099,
-      "share": 0.5111223458038422,
+      "r": 0.095,
+      "share": 0.577350859453994,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.17250852803215178,
+      "w": 0.14639743956833332,
       "hits": 1,
       "crew": 0,
-      "size": 1.2333290629844587,
-      "at": 0.593,
+      "size": 0.9641915767823416,
+      "at": 0.606,
       "y": 0.01,
       "z": 0,
-      "r": 0.077,
-      "share": 0.23862487360970677,
+      "r": 0.065,
+      "share": 0.1865520728008089,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.08246423527752052,
+      "w": 0.05883031035045631,
       "hits": 1,
       "crew": 0,
-      "size": 0.4076257072575753,
-      "at": 0.845,
+      "size": 0.24562061847571845,
+      "at": 0.819,
       "y": 0,
       "z": 0,
-      "r": 0.053,
-      "share": 0.07886754297269968,
+      "r": 0.041,
+      "share": 0.04752275025278059,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 10.718062006620732,
+      "w": 10.708229803400487,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -13737,7 +13739,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 0,
     "crewMax": 0,
     "hp": 1,
-    "len": 6.960000038146973,
+    "len": 7.548,
     "width": 4.008000095367432,
     "height": 1.758999959565699,
     "grid": {
@@ -14156,14 +14158,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 72984091648684160
       }
      ],
-     "massKg": 9209.356865334836,
+     "massKg": 9200.742764625225,
      "ratedThrustN": 70065809.97965786,
-     "ratedAccelMps2": 7608.111077049721,
-     "structuralAccelerationLimitMps2": 183791.8499056866,
+     "ratedAccelMps2": 7615.234092734888,
+     "structuralAccelerationLimitMps2": 176293.6292163333,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 7608.111077049721
+     "accelerationLimitMps2": 7615.234092734888
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -14545,25 +14547,25 @@ const CRAFT_PRICE_CATALOG={
        "s": 7,
        "d": 2,
        "cap": 25107658172703976,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 7,
        "d": 3,
        "cap": 25107658172703976,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 7,
        "d": 0,
        "cap": 25107658172703976,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 7,
        "d": 1,
        "cap": 25107658172703976,
-       "sec": 3
+       "sec": 4
       },
       {
        "s": 7,
@@ -14577,7 +14579,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1nc3td8",
+   "signature": "18avg97",
    "build": 237213,
    "crew": 1000,
    "total": 238213,
@@ -14696,7 +14698,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.06283185307179587,
-      "at": 0.278,
+      "at": 0.279,
       "part": 14,
       "y": 0.41,
       "z": 0,
@@ -14717,7 +14719,7 @@ const CRAFT_PRICE_CATALOG={
       "part": 15,
       "y": 0.25,
       "z": 0,
-      "r": 0.026,
+      "r": 0.025,
       "share": 0.09075754231479652,
       "domain": "main",
       "port": "p15",
@@ -14764,7 +14766,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00007526627679470427,
       "size": 0.15053255358940854,
-      "at": 0.43,
+      "at": 0.431,
       "part": 18,
       "y": 0.09,
       "z": 0.27,
@@ -14781,7 +14783,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00007526627679470427,
       "size": 0.15053255358940854,
-      "at": 0.43,
+      "at": 0.431,
       "part": 19,
       "y": 0.09,
       "z": -0.27,
@@ -14968,7 +14970,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.491,
+      "at": 0.492,
       "part": 32,
       "y": 0.11,
       "z": -0.21,
@@ -15104,7 +15106,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.035937000000000004,
-      "at": 0.498,
+      "at": 0.499,
       "part": 40,
       "y": 0.13,
       "z": 0.19,
@@ -15297,7 +15299,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 2.562099539948031,
-      "at": 0.167,
+      "at": 0.168,
       "y": 0.16,
       "z": 0,
       "r": 0.087,
@@ -15311,7 +15313,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 4.074158284835394,
-      "at": 0.336,
+      "at": 0.337,
       "y": 0.1,
       "z": 0,
       "r": 0.101,
@@ -15367,7 +15369,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 1,
     "crewMax": 1,
     "hp": 1,
-    "len": 7.9,
+    "len": 7.902494322974235,
     "width": 4.91999993739142,
     "height": 5.881752014160156,
     "grid": {
@@ -15803,14 +15805,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 1201569812897590000
       }
      ],
-     "massKg": 9151.848127134728,
+     "massKg": 9156.75783279554,
      "ratedThrustN": 454264558.771858,
-     "ratedAccelMps2": 49636.37425592635,
-     "structuralAccelerationLimitMps2": 1698905.5432817356,
+     "ratedAccelMps2": 49609.76003371839,
+     "structuralAccelerationLimitMps2": 1693755.1926985206,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 49636.37425592635
+     "accelerationLimitMps2": 49609.76003371839
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -16435,7 +16437,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "74449p",
+   "signature": "9vd493",
    "build": 188341,
    "crew": 1000,
    "total": 189341,
@@ -16497,7 +16499,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.575,
+      "at": 0.574,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
@@ -16518,7 +16520,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.575,
+      "at": 0.574,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
@@ -16539,7 +16541,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.575,
+      "at": 0.574,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
@@ -16560,7 +16562,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.575,
+      "at": 0.574,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
@@ -16581,7 +16583,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.672,
+      "at": 0.671,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
@@ -16602,7 +16604,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0,
       "stock": 0,
-      "at": 0.672,
+      "at": 0.671,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
@@ -16621,7 +16623,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.001176035574917254,
       "size": 2.352071149834508,
-      "at": 0.19,
+      "at": 0.189,
       "part": 30,
       "y": -0.08,
       "z": 0,
@@ -16638,7 +16640,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0004806636759992384,
       "size": 1.201659189998096,
-      "at": 0.16,
+      "at": 0.159,
       "part": 31,
       "y": 0.54,
       "z": 0.24,
@@ -16655,7 +16657,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0004806636759992384,
       "size": 1.201659189998096,
-      "at": 0.16,
+      "at": 0.159,
       "part": 32,
       "y": 0.54,
       "z": -0.24,
@@ -16672,7 +16674,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0004806636759992384,
       "size": 1.201659189998096,
-      "at": 0.16,
+      "at": 0.159,
       "part": 33,
       "y": -0.54,
       "z": 0.24,
@@ -16689,7 +16691,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0004806636759992384,
       "size": 1.201659189998096,
-      "at": 0.16,
+      "at": 0.159,
       "part": 34,
       "y": -0.54,
       "z": -0.24,
@@ -16706,7 +16708,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.696909970321336,
-      "at": 0.474,
+      "at": 0.473,
       "part": 35,
       "y": 0.25,
       "z": 0,
@@ -16723,7 +16725,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.10799224746714915,
-      "at": 0.354,
+      "at": 0.353,
       "part": 36,
       "y": 0.5,
       "z": 0,
@@ -16740,7 +16742,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00003166725394818512,
       "size": 0.1583362697409256,
-      "at": 0.108,
+      "at": 0.107,
       "part": 37,
       "y": -0.08,
       "z": 0,
@@ -16757,7 +16759,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000020414069063026475,
       "size": 0.10207034531513237,
-      "at": 0.474,
+      "at": 0.473,
       "part": 38,
       "y": -0.11,
       "z": 0,
@@ -16774,7 +16776,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00013321525712478065,
       "size": 0.33303814281195154,
-      "at": 0.597,
+      "at": 0.596,
       "part": 39,
       "y": 0.08,
       "z": 0,
@@ -16825,7 +16827,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.545,
+      "at": 0.544,
       "part": 48,
       "y": 0.09,
       "z": 0,
@@ -16842,7 +16844,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.474,
+      "at": 0.473,
       "part": 49,
       "y": -0.16,
       "z": -0.07,
@@ -16859,7 +16861,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.522,
+      "at": 0.521,
       "part": 50,
       "y": 0.09,
       "z": 0,
@@ -16876,7 +16878,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.029791,
-      "at": 0.545,
+      "at": 0.544,
       "part": 51,
       "y": -0.14,
       "z": 0,
@@ -16893,7 +16895,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.008000000000000002,
-      "at": 0.545,
+      "at": 0.544,
       "part": 52,
       "y": 0.09,
       "z": -0.05,
@@ -16910,7 +16912,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.008000000000000002,
-      "at": 0.545,
+      "at": 0.544,
       "part": 53,
       "y": 0.09,
       "z": 0.05,
@@ -16927,7 +16929,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.008000000000000002,
-      "at": 0.545,
+      "at": 0.544,
       "part": 54,
       "y": 0.24,
       "z": 0,
@@ -16944,7 +16946,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.008000000000000002,
-      "at": 0.524,
+      "at": 0.523,
       "part": 55,
       "y": 0.02,
       "z": 0,
@@ -16995,7 +16997,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.545,
+      "at": 0.544,
       "part": 58,
       "y": 0.09,
       "z": -0.08,
@@ -17012,7 +17014,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.545,
+      "at": 0.544,
       "part": 59,
       "y": 0.09,
       "z": 0.08,
@@ -17029,7 +17031,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.545,
+      "at": 0.544,
       "part": 60,
       "y": 0.33,
       "z": 0,
@@ -17046,7 +17048,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00005719950442777241,
       "size": 0.28599752213886204,
-      "at": 0.276,
+      "at": 0.275,
       "part": -31,
       "machineryOwner": 31,
       "y": 0.32,
@@ -17064,7 +17066,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00005719950442777241,
       "size": 0.28599752213886204,
-      "at": 0.276,
+      "at": 0.275,
       "part": -32,
       "machineryOwner": 32,
       "y": 0.32,
@@ -17082,7 +17084,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00005413424139810133,
       "size": 0.2706712069905066,
-      "at": 0.277,
+      "at": 0.276,
       "part": -33,
       "machineryOwner": 33,
       "y": -0.38,
@@ -17100,7 +17102,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00005413424139810133,
       "size": 0.2706712069905066,
-      "at": 0.277,
+      "at": 0.276,
       "part": -34,
       "machineryOwner": 34,
       "y": -0.38,
@@ -17118,12 +17120,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.8601874022640921,
-      "at": 0.199,
+      "at": 0.197,
       "part": 2,
       "ext": 1,
       "y": 0.29,
       "z": 0.53,
-      "r": 0.035,
+      "r": 0.036,
       "share": 0.2500000118331241,
       "domain": "main",
       "port": "p2",
@@ -17136,12 +17138,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.8601874203239543,
-      "at": 0.199,
+      "at": 0.197,
       "part": 3,
       "ext": 1,
       "y": 0.29,
       "z": -0.53,
-      "r": 0.035,
+      "r": 0.036,
       "share": 0.25000001708194053,
       "domain": "main",
       "port": "p3",
@@ -17154,12 +17156,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.8601873008759479,
-      "at": 0.199,
+      "at": 0.197,
       "part": 16,
       "ext": 1,
       "y": -0.29,
       "z": 0.53,
-      "r": 0.035,
+      "r": 0.036,
       "share": 0.24999998236624604,
       "domain": "main",
       "port": "p16",
@@ -17172,12 +17174,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.8601873227331139,
-      "at": 0.199,
+      "at": 0.197,
       "part": 17,
       "ext": 1,
       "y": -0.29,
       "z": -0.53,
-      "r": 0.035,
+      "r": 0.036,
       "share": 0.24999998871868945,
       "domain": "main",
       "port": "p17",
@@ -17190,7 +17192,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 18.773959898940955,
-      "at": 0.182,
+      "at": 0.181,
       "y": -0.02,
       "z": 0,
       "r": 0.099,
@@ -17200,29 +17202,29 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.8898149015378726,
+      "w": 0.9004397139354664,
       "hits": 1,
       "crew": 0,
-      "size": 14.448162687203409,
-      "at": 0.323,
+      "size": 14.707710519907659,
+      "at": 0.326,
       "y": 0,
       "z": 0,
-      "r": 0.091,
-      "share": 0.37640871525169045,
+      "r": 0.092,
+      "share": 0.3831705484598046,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3488814924955283,
+      "w": 0.33164828676605873,
       "hits": 1,
       "crew": 0,
-      "size": 3.5471537136247884,
-      "at": 0.607,
-      "y": 0.06,
+      "size": 3.2876058809205357,
+      "at": 0.615,
+      "y": 0.07,
       "z": 0,
-      "r": 0.057,
-      "share": 0.09241172051089405,
+      "r": 0.056,
+      "share": 0.08564988730277985,
       "domain": "main"
      },
      {
@@ -17242,7 +17244,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 18.10779445554793,
+      "w": 18.103829419548802,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -17260,7 +17262,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 1,
     "crewMax": 1,
     "hp": 1,
-    "len": 13.4,
+    "len": 13.382523538544774,
     "width": 11.720273971557617,
     "height": 3.731052106612937,
     "foils": [
@@ -17792,14 +17794,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 1241695321055117600
       }
      ],
-     "massKg": 24139.330299542857,
+     "massKg": 24093.535620462328,
      "ratedThrustN": 817128249.1987052,
-     "ratedAccelMps2": 33850.49374025839,
-     "structuralAccelerationLimitMps2": 261254.37176592028,
+     "ratedAccelMps2": 33914.83350848386,
+     "structuralAccelerationLimitMps2": 0,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 33850.49374025839
+     "accelerationLimitMps2": 0
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -18270,7 +18272,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "u8h59s",
+   "signature": "1nlx5e4",
    "build": 140315,
    "crew": 1000,
    "total": 141315,
@@ -18332,7 +18334,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.311,
+      "at": 0.31,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
@@ -18353,7 +18355,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 1.0005,
       "stock": 0,
-      "at": 0.311,
+      "at": 0.31,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
@@ -18402,7 +18404,7 @@ const CRAFT_PRICE_CATALOG={
       "tt": 25,
       "ammo0": 6,
       "muzzle": [
-       -3.1579999999999995,
+       -3.1668062194362285,
        -0.9650000184774398,
        0.6
       ],
@@ -18412,7 +18414,7 @@ const CRAFT_PRICE_CATALOG={
        0
       ],
       "launchPowerW": 1000000000000000,
-      "at": 0.275,
+      "at": 0.274,
       "pd": false,
       "dualPurpose": false,
       "y": -0.62,
@@ -18439,7 +18441,7 @@ const CRAFT_PRICE_CATALOG={
       "tt": 25,
       "ammo0": 6,
       "muzzle": [
-       -3.1579999999999995,
+       -3.1668062194362285,
        -0.9650000184774398,
        -0.6
       ],
@@ -18449,7 +18451,7 @@ const CRAFT_PRICE_CATALOG={
        0
       ],
       "launchPowerW": 1000000000000000,
-      "at": 0.275,
+      "at": 0.274,
       "pd": false,
       "dualPurpose": false,
       "y": -0.62,
@@ -18501,11 +18503,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0007294627345188127,
       "size": 1.8236568362970318,
-      "at": 0.121,
+      "at": 0.12,
       "part": 23,
       "y": -0.22,
       "z": 0.34,
-      "r": 0.036,
+      "r": 0.037,
       "share": 0.4267454114761047,
       "domain": "main",
       "port": "p23",
@@ -18518,11 +18520,11 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0007294627345188127,
       "size": 1.8236568362970318,
-      "at": 0.121,
+      "at": 0.12,
       "part": 24,
       "y": -0.22,
       "z": -0.34,
-      "r": 0.036,
+      "r": 0.037,
       "share": 0.4267454114761047,
       "domain": "main",
       "port": "p24",
@@ -18535,7 +18537,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5235987755982988,
-      "at": 0.451,
+      "at": 0.45,
       "part": 25,
       "y": -0.03,
       "z": 0,
@@ -18552,7 +18554,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000018321768355735675,
       "size": 0.09160884177867837,
-      "at": 0.263,
+      "at": 0.262,
       "part": 26,
       "y": -0.03,
       "z": 0,
@@ -18569,7 +18571,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000004241150082346221,
       "size": 0.021205750411731103,
-      "at": 0.185,
+      "at": 0.184,
       "part": 27,
       "y": -0.07,
       "z": 0,
@@ -18603,7 +18605,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.52,
+      "at": 0.519,
       "part": 34,
       "y": -0.19,
       "z": 0,
@@ -18620,7 +18622,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.427,
+      "at": 0.426,
       "part": 35,
       "y": -0.44,
       "z": -0.05,
@@ -18654,7 +18656,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.024388999999999997,
-      "at": 0.52,
+      "at": 0.519,
       "part": 37,
       "y": -0.19,
       "z": -0.05,
@@ -18671,7 +18673,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0068590000000000005,
-      "at": 0.52,
+      "at": 0.519,
       "part": 38,
       "y": -0.42,
       "z": 0,
@@ -18688,7 +18690,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0068590000000000005,
-      "at": 0.52,
+      "at": 0.519,
       "part": 39,
       "y": -0.19,
       "z": -0.03,
@@ -18705,7 +18707,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0068590000000000005,
-      "at": 0.52,
+      "at": 0.519,
       "part": 40,
       "y": -0.19,
       "z": 0.03,
@@ -18722,7 +18724,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0068590000000000005,
-      "at": 0.52,
+      "at": 0.519,
       "part": 41,
       "y": 0.03,
       "z": 0,
@@ -18773,7 +18775,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.027,
-      "at": 0.52,
+      "at": 0.519,
       "part": 44,
       "y": -0.19,
       "z": 0.05,
@@ -18790,7 +18792,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.027,
-      "at": 0.52,
+      "at": 0.519,
       "part": 45,
       "y": 0.16,
       "z": 0,
@@ -18807,7 +18809,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.027,
-      "at": 0.495,
+      "at": 0.494,
       "part": 46,
       "y": -0.19,
       "z": -0.03,
@@ -18824,7 +18826,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00006260933453959729,
       "size": 0.3130466726979864,
-      "at": 0.285,
+      "at": 0.284,
       "part": -23,
       "machineryOwner": 23,
       "y": -0.22,
@@ -18842,7 +18844,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00006260933453959729,
       "size": 0.3130466726979864,
-      "at": 0.285,
+      "at": 0.284,
       "part": -24,
       "machineryOwner": 24,
       "y": -0.22,
@@ -18860,7 +18862,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.1059784588604271,
-      "at": 0.284,
+      "at": 0.283,
       "part": 7,
       "ext": 1,
       "y": -0.22,
@@ -18878,7 +18880,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.105978450625694,
-      "at": 0.284,
+      "at": 0.283,
       "part": 8,
       "ext": 1,
       "y": -0.22,
@@ -18896,39 +18898,39 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 14.976184212665613,
-      "at": 0.172,
+      "at": 0.171,
       "y": -0.1,
       "z": 0,
       "r": 0.074,
-      "share": 0.3501709077098367,
+      "share": 0.35017090770983667,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.188461503793346,
+      "w": 1.2074291072229042,
       "hits": 1,
       "crew": 0,
-      "size": 22.301844819945646,
-      "at": 0.346,
+      "size": 22.837868766819795,
+      "at": 0.349,
       "y": -0.14,
       "z": 0,
-      "r": 0.084,
-      "share": 0.5214584124572731,
+      "r": 0.085,
+      "share": 0.5339916445119635,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3989136845805466,
+      "w": 0.3653271921000805,
       "hits": 1,
       "crew": 0,
-      "size": 4.336921024709023,
-      "at": 0.591,
-      "y": -0.22,
+      "size": 3.8008970778348736,
+      "at": 0.604,
+      "y": -0.23,
       "z": 0,
-      "r": 0.049,
-      "share": 0.10140524116976835,
+      "r": 0.047,
+      "share": 0.08887200911507785,
       "domain": "main"
      },
      {
@@ -18942,13 +18944,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0,
       "r": 0.031,
-      "share": 0.026965438663121916,
+      "share": 0.026965438663121913,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 11.693138518478811,
+      "w": 11.684367185048268,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -18966,7 +18968,7 @@ const CRAFT_PRICE_CATALOG={
     "crewNeed": 1,
     "crewMax": 1,
     "hp": 1,
-    "len": 16.74,
+    "len": 16.72238710336387,
     "width": 16.6200008392334,
     "height": 2.38000003695488,
     "grid": {
@@ -19348,14 +19350,14 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 1992231159559544600
       }
      ],
-     "massKg": 19436.817431194548,
+     "massKg": 19417.058295657243,
      "ratedThrustN": 620043324.3409907,
-     "ratedAccelMps2": 31900.455233266242,
-     "structuralAccelerationLimitMps2": 366719.95777578634,
+     "ratedAccelMps2": 31932.91769019757,
+     "structuralAccelerationLimitMps2": 358625.4158462263,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 31900.455233266242
+     "accelerationLimitMps2": 31932.91769019757
     },
-    "profileVersion": 11,
+    "profileVersion": 12,
     "heat": {
      "v": 1,
      "src": [
@@ -19837,7 +19839,8 @@ function shipClassFor(L, prefer) {
   return L < SHIP_CLASSES[0].min ? SHIP_CLASSES[0] : SHIP_CLASSES[SHIP_CLASSES.length - 1];
 }
 // v21 A design is a craft when its class (kept, or the one its length falls in) is a craft class.
-function isCraft(ship) { const L = ship?.hull?.L; return Number.isFinite(L) && !!shipClassFor(L, ship.shipClass).craft; }
+function shipClassOf(ship){const h=ship?.hull||{},geometric=Number.isFinite(h.W)&&Number.isFinite(h.H),b=geometric?shipBounds(ship,{simple:true}):null,L=(b&&b[3]-b[0])||h.L||0;return shipClassFor(L,ship?.shipClass);}
+function isCraft(ship){return !!ship?.hull&&!!shipClassOf(ship).craft;}
 // Inertial compensators and structural integrity fields bear more mass per m³ on a small hull, in steps by length.
 const craftFieldGain = L => L < 30 ? 4 : L < 100 ? 2 : 1;
 // v27 Spacecraft have no keel. Longitudinal strength comes from the hull's own framing: the skin frames
@@ -19870,10 +19873,39 @@ function normalizeBow(h){
 
 // ---------- ship ----------
 function newShip(hp, name) {
-  return {v: 2, name: name || '新設計艦', hull: normalizeBow(Object.assign({}, HULLS.wedge, hp || {})),
+  const hull=normalizeBow(Object.assign({},HULLS.wedge,hp||{}));
+  return {v: 2, name: name || '新設計艦', hull, designEnvelope:normalizeDesignEnvelope(hull,hull),
     hullLocked:false,autoHabitation:true,systemsVersion:1,cuts: [], trenches: [], solidCuts: [], subs: [], parts: [], hatches: [], fits: [], airWings: [], groundForces: [], armor: {hull: 0.5, cit: 0}, nextId: 1, _cache: null};
 }
 const nid = (ship) => ship.nextId++;
+
+// The planned completed size is a persistent coordinate guide, independent
+// of the editable first hull and of the ship's measured physical dimensions.
+function normalizeDesignEnvelope(value,hull={}){
+ const limits={L:DESIGN_LIMITS.length,W:DESIGN_LIMITS.width,H:DESIGN_LIMITS.height};
+ return Object.fromEntries(['L','W','H'].map(k=>[k,clamp(Number.isFinite(value?.[k])&&value[k]>0?value[k]:Number.isFinite(hull[k])&&hull[k]>0?hull[k]:1,.02,limits[k])]));
+}
+function designEnvelope(ship){return normalizeDesignEnvelope(ship?.designEnvelope,ship?.hull);}
+function designPlacementBounds(ship){const{L,W,H}=designEnvelope(ship);return[-L*.1,-H*.8,-W*.75,L*1.1,H*3.5,W*.75];}
+
+// World-space bounds of actual installed geometry. Classification uses only
+// direct geometry: derived engine paths call isCraft themselves.
+function shipBounds(ship,options={}){
+ const locked=ship?._boundsPass,slot=options.simple?'directShipBounds':'physicalShipBounds',cacheable=!options.parts&&!options.fits;if(locked&&cacheable&&locked[slot])return locked[slot].slice();
+ const b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity],addBox=a=>{if(!a||a.length!==6||!a.every(Number.isFinite)||a.some((v,i)=>i<3&&v>a[i+3]))return;for(let k=0;k<3;k++){b[k]=Math.min(b[k],a[k]);b[k+3]=Math.max(b[k+3],a[k+3]);}},addTriangles=T=>{if(!T?.length)return;for(let i=0;i<T.length;i+=3)for(let k=0;k<3;k++){b[k]=Math.min(b[k],T[i+k]);b[k+3]=Math.max(b[k+3],T[i+k]);}};
+ if(!ship?.hull)return[0,0,0,0,0,0];
+ if(!ship.hull.assembly){if(options.simple)addBox([(ship.hull.start||0)*ship.hull.L,0,-ship.hull.W/2,ship.hull.L,ship.hull.H,ship.hull.W/2]);else addTriangles((options.hullGeometry||hullGeo(ship)).tris);}
+ const reference=referenceHullGeometry(ship);if(reference?.bounds)addBox(reference.bounds);
+ for(const p of options.parts||ship.parts||[]){if(!p||!PARTS[p.k]||p.surfaceUnplaced||!Array.isArray(p.c)||p.c.length!==3||!p.c.every(Number.isFinite))continue;addBox(partAABB(p));addBox(p.k==='engine'?engineSkinMesh(p)?.b:refPartBounds(p));}
+ for(const f of options.fits||ship.fits||[]){if(!f||!FITS[f.k]||f.surfaceUnplaced||!Array.isArray(f.p)||f.p.length!==3||!f.p.every(Number.isFinite))continue;addBox(fitAABB(AXES[f.a]?f:{...f,a:2}));}
+ if(!options.simple){
+  for(const p of enginePaths(ship))if(!p.surfaceUnplaced)addBox(partAABB(p));
+  if(ship.surfaces?.patches?.length&&ship.surfaces.armorOnly!==1){const configured=new Set(ship.surfaces.patches.map(q=>q.id));for(const p of surfacePatches(ship)){const t=surfaceArmor(p.config).thickness;if(!p.exposed||!(t>0)||!configured.has(p.id))continue;const T=p.exposedTriangles||p.triangles;for(let i=0;i<T.length;i+=3)for(let k=0;k<3;k++){const v=T[i+k]+p.normal[k]*t;b[k]=Math.min(b[k],v);b[k+3]=Math.max(b[k+3],v);}}}
+ }
+ const result=Number.isFinite(b[0])?b:[0,0,0,0,0,0];if(locked&&cacheable)locked[slot]=result;return result.slice();
+}
+function shipDimensions(ship){const b=shipBounds(ship);return[b[3]-b[0],b[5]-b[2],b[4]-b[1]];}
+function shipCenter(ship,S){const b=S?.bounds||shipBounds(ship);return[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2];}
 
 // section base polygon in (z, y); y = 0 at keel
 function v3SectionBase(hp, x) {
@@ -20832,10 +20864,10 @@ function fillHangars(ship, size, x0f, x1f, mirror, ylimit) {
 
 // ---------- performance model ----------
 function baseComputeStats(ship) {
-  const g = hullGeo(ship), hp = ship.hull, L = hp.L;
+  const g = hullGeo(ship), hp = ship.hull, physicalBounds=shipBounds(ship,{hullGeometry:g}), spanStart=physicalBounds[0], L=Math.max(.001,physicalBounds[3]-spanStart);
   const hf = heightfield(ship), obst = obstacles(ship);
   const nb = 120, bins = new Float64Array(nb), dxb = L / nb, strA = new Float64Array(nb);
-  const binOf = (x) => clamp(Math.floor(x / dxb), 0, nb - 1);
+  const binOf = (x) => clamp(Math.floor((x-spanStart) / dxb), 0, nb - 1);
   for (let i = 0; i + 1 < g.xs.length; i++) {
     const xm = (g.xs[i] + g.xs[i + 1]) / 2, v = (g.secs[i].area + g.secs[i + 1].area) / 2 * (g.xs[i + 1] - g.xs[i]);
     bins[binOf(xm)] += v * K.hullDens;
@@ -20861,7 +20893,7 @@ function baseComputeStats(ship) {
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
-    const d = PARTS[pt.k], V = partVolume(pt), materialV=pt.k==='struct'&&!pt.plate?(material.volumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
@@ -20869,7 +20901,7 @@ function baseComputeStats(ship) {
     const expF=pt.surfacePatch&&!pt.surfaceUnplaced&&Number.isFinite(pt.surfaceExposure)?clamp(pt.surfaceExposure,0,1):ss.length?out/ss.length:1,A=partArea(pt);
     info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id)};
     exposedArea += A * expF;
-    if (pt.k === 'struct' && pt.plate) {
+    if (isStructuralPart(pt) && pt.plate) {
       // Independent plate hardware keeps its material when buried, while only
       // its actual exposed skin contributes to the exterior protection survey.
       const t = plateThickness(pt), physicalSkin = unclippedPartArea(pt), skin = structuralArmorArea(ship,pt), armV = Math.min(materialV, physicalSkin * t), m = (materialV - armV) * .05 + armV * K.armorDens;
@@ -20887,7 +20919,7 @@ function baseComputeStats(ship) {
       info[pt.id].materialVolume=materialV;info[pt.id].materialMass=m;
       Vstruct += materialV; structOut += vOut; hpSum += m * 1.5;const price=partBuildCost(pt,materialV);cost += price;costBy[costCategory(pt.k)]+=price;crew += materialV * d.crew / 1000;
       const b = structBox(pt);
-      // The whole mass goes into the bins the structure spans (those beyond the hull's own length fold into the end bins).
+      // Distribute the structure along the measured completed ship span.
       { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * lf * materialRatio; bins[k] += m / nk; } }
       continue;
     }
@@ -20922,7 +20954,7 @@ function baseComputeStats(ship) {
   // is laid into the same section.
   let framingMass = 0;
   for (let k = 0; k < nb; k++) {
-    const x = (k + 0.5) * dxb, sbA = sectionBase(hp, x), box = sbA.hw * 2 * sbA.h, fm = K.framingStiff * box * dxb * K.framingDens;
+    const x = spanStart+(k + 0.5) * dxb;if(ship.hull.assembly||x<(hp.start||0)*hp.L||x>hp.L)continue;const sbA = sectionBase(hp, x), box = sbA.hw * 2 * sbA.h, fm = K.framingStiff * box * dxb * K.framingDens;
     bins[k] += fm; framingMass += fm;
     strA[k] += (K.framing + K.framingStiff) * box + ship.armor.hull * (sbA.hw * 2 + sbA.h) * 0.3;
   }
@@ -21004,12 +21036,12 @@ function baseComputeStats(ship) {
   // The exposed skin is also binned along the length and by facing (bow, stern,
   // starboard, port, dorsal, ventral) with the plate thickness over it: the
   // armour zones the battles load and penetrate.
-  const [skX0, skX1] = shipSpan(ship);let skY0 = Infinity, skY1 = -Infinity;for (const sc of g.secs) for (const y of sc.Y) { if (y < skY0) skY0 = y; if (y > skY1) skY1 = y; }
+  const [skX0, skX1] = [physicalBounds[0],physicalBounds[3]];let skY0 = Infinity, skY1 = -Infinity;for (const sc of g.secs) for (const y of sc.Y) { if (y < skY0) skY0 = y; if (y > skY1) skY1 = y; }
   const skin = {x0: skX0, x1: skX1, n: 40, yc: Number.isFinite(skY0) ? (skY0 + skY1) / 2 : 0, a: new Float64Array(240), t: new Float64Array(240)};
   const area = exposedSurface(ship,occupied,skin);
   const armorArea=armoredMaterialArea(ship,area),surfaceArmor=surfaceArmorBudget(ship,armorArea),armHull=surfaceArmor.mass,armCit=ship.armor.cit*citArea*K.armorDens;
   let perSum = 0; const per = new Float64Array(nb);
-  for (let k = 0; k < nb; k++) { const sb = sectionBase(hp, (k + 0.5) * dxb); per[k] = sb.hw * 2 + sb.h * 2; perSum += per[k]; }
+  for (let k = 0; k < nb; k++) {const x=spanStart+(k+.5)*dxb;if(ship.hull.assembly||x<(hp.start||0)*hp.L||x>hp.L)continue;const sb=sectionBase(hp,x);per[k]=sb.hw*2+sb.h*2;perSum+=per[k];}
   if(perSum>0){for(let k=0;k<nb;k++)bins[k]+=armHull*per[k]/perSum;}
   else if(armHull>0){
     // Assembly hulls have no loft perimeter. Their armor still belongs to
@@ -21041,7 +21073,7 @@ function baseComputeStats(ship) {
     mAft += bins[k];
     const dem = Math.min(mAft, M - mAft); if (dem <= M * 0.01) continue;
     const A2 = Math.min(strA[k], strA[k + 1]); if (A2 <= 1e-6) cut = true;
-    const r = A2 / dem; if (r < worst) { worst = r; worstX = (k + 1) * dxb; }
+    const r = A2 / dem; if (r < worst) { worst = r; worstX = spanStart+(k + 1) * dxb; }
   }
   const aStruct = worst === Infinity ? 1e9 : K.sigma * worst / 1000;
   const aEff = Math.min(aThrust, aStruct);
@@ -21054,15 +21086,10 @@ function baseComputeStats(ship) {
   const accuracy = bridges ? clamp(0.45 + 0.35 * Math.min(1, sensor) + 0.1 * Math.min(2, bridges) / 2, 0.3, 0.92) : 0.3;
   const volume = g.volume + structOut;
   const habit = crew > 0 ? Math.max(0, g.volume - Vint) * 0.5 / (crew * K.crewM3) : 9;
-  let ymin = Infinity, ymax = -Infinity, zmax = 0, xmin = 0, xmax = L;
-  for (const s of g.secs) for (let j = 0; j < s.Y.length; j++) { ymin = Math.min(ymin, s.Y[j]); ymax = Math.max(ymax, s.Y[j]); zmax = Math.max(zmax, Math.abs(s.Z[j])); }
-  for (const pt of ship.parts) { const b = partAABB(pt); xmin = Math.min(xmin, b[0]); xmax = Math.max(xmax, b[3]); ymin = Math.min(ymin, b[1]); ymax = Math.max(ymax, b[4]); zmax = Math.max(zmax, Math.abs(b[2]), Math.abs(b[5])); }
-  for (const f of ship.fits) { const b = fitAABB(f); ymin = Math.min(ymin, b[1]); ymax = Math.max(ymax, b[4]); zmax = Math.max(zmax, Math.abs(b[2]), Math.abs(b[5])); }
-  const rb=referenceHullGeometry(ship)?.bounds;if(rb){xmin=Math.min(xmin,rb[0]);ymin=Math.min(ymin,rb[1]);zmax=Math.max(zmax,Math.abs(rb[2]),Math.abs(rb[5]));xmax=Math.max(xmax,rb[3]);ymax=Math.max(ymax,rb[4]);}
-  for(const p of ship.parts){const b=refPartBounds(p);if(b){xmin=Math.min(xmin,b[0]);ymin=Math.min(ymin,b[1]);zmax=Math.max(zmax,Math.abs(b[2]),Math.abs(b[5]));xmax=Math.max(xmax,b[3]);ymax=Math.max(ymax,b[4]);}}
+  const [xmin,ymin,zmin,xmax,ymax,zmax]=physicalBounds;
   const S = {
     volume, area, VS: area > 0 ? volume / area : 0, hullVolume: ship.hull.assembly?volume:g.volume, hullArea: ship.hull.assembly?area:g.area,
-    mass: M, framingMass, armorMass: armHull + armCit + plateM, dims: [xmax - xmin, zmax * 2, ymax - ymin], ybox: [ymin, ymax], hullLen: ship.hull.core ? Math.max(L, xmax - xmin) : L,
+    mass: M, framingMass, armorMass: armHull + armCit + plateM, dims: [xmax-xmin,zmax-zmin,ymax-ymin], bounds:physicalBounds, ybox: [ymin, ymax], hullLen:xmax-xmin,
     skin: {x0: skin.x0, x1: skin.x1, n: skin.n, a: Array.from(skin.a, v => Math.round(v)), t: Array.from(skin.t, v => Math.round(v * 10) / 10)},
     power: P, xISD: P / ISD_W, draw: {weapons: Dw, shields: Ds, engines: De, hotel: Dh, systems:systemsPower, ray: Dr, jump: Dj},
     rc, coreRate,weaponBudget,chargeInfo,vlsInfo, rm, jumpOK, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
@@ -21414,7 +21441,7 @@ for(const [k,name,role,col] of [['podBridge','艦橋ポッド','bridge',[172,223
 // Model bridge bodies carry their command role themselves; the view is
 // measured from the drum on their fore face (both models have one).
 const BRIDGE_BODY_COMMAND={isd_bridge:{role:'bridge',at:[.5,-.0374,0]},isdh_bridge:{role:'bridge',at:[.5,-.025,0]},exe_bridge:{role:'bridge',at:[.375,-.085,0]},ven_bridge_stbd:{role:'bridge',at:[.5,-.207,0]},ven_bridge_port:{role:'air',at:[.5,-.207,0]}};
-function bridgeBodyRole(p){const d=p?.k==='struct'&&p.form==='reference'&&BRIDGE_BODY_COMMAND[p.skinAsset];if(!d)return null;return ['bridge','air','hangar','combat'].includes(p.commandRole)?p.commandRole:d.role;}
+function bridgeBodyRole(p){const d=isStructuralPart(p)&&p.form==='reference'&&BRIDGE_BODY_COMMAND[p.skinAsset];if(!d)return null;return ['bridge','air','hangar','combat'].includes(p.commandRole)?p.commandRole:d.role;}
 function podDepth(f){const a=REFERENCE_ASSETS[POD_ASSET];return (f.width||FITS[f.k].fm)*a.size[0]/a.size[2];}
 function podPoint(f,v){const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm;return add(f.p,add(add(mul(fr.up,(v[0]+.5)*podDepth(f)),mul(fr.rt,-v[1]*h)),mul(fr.fw,-v[2]*w)));}
 function intrinsicCommandFits(ship){
@@ -21573,7 +21600,7 @@ function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepIn
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
- const bulk=p=>p.k==='struct'&&!p.plate,g=hullGeo(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(isShapePart).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
+ const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullGeo(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(isShapePart).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
  // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
  // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
@@ -21592,7 +21619,7 @@ function structuralMaterial(ship){
  const result={hull,entries,volumes,envelopeVolumes,extension,boundary};STRUCTURAL_MATERIAL_CACHE.set(ship,result);return result;
 }
 function structuralCoincidentTriangles(ship,patch,T){
- if(!T.length||patch._part?.k!=='struct')return T;const prior=ship.parts.filter(p=>p.k==='struct'&&structuralMaterialOrder(p,patch._part)<0).sort(structuralMaterialOrder);let result=T;if(!ship.hull.assembly)result=structuralClipBoundary(result,hullGeo(ship).tris,true,true);for(const p of prior){result=structuralClipBoundary(result,structTriangles(p),true,true);if(!result.length)break;}return result;
+ if(!T.length||!isStructuralPart(patch._part))return T;const prior=ship.parts.filter(p=>isStructuralPart(p)&&structuralMaterialOrder(p,patch._part)<0).sort(structuralMaterialOrder);let result=T;if(!ship.hull.assembly)result=structuralClipBoundary(result,hullGeo(ship).tris,true,true);for(const p of prior){result=structuralClipBoundary(result,structTriangles(p),true,true);if(!result.length)break;}return result;
 }
 function structuralArmorArea(ship,part){return surfacePatches(ship,!ship.surfaces).filter(p=>p._part===part).reduce((n,p)=>n+p.exposedArea,0);}
 function cylinderLocal(pt,p){const q=sub(p,pt.c),f=frameAxis(pt.dir||[1,0,0]);return [dot(q,f.u),dot(q,f.v),dot(q,f.w)];}
@@ -21712,7 +21739,7 @@ function engineeringStats(ship,S){
   S.fuelVolume=v('fuel');S.fuelHours=S.power>0?v('fuel')*1.2e25/(S.power*.25)/3600:0;
   // v21 A craft's reactor feeds itself (no separate pumps at this size).
   S.supplyRatio=S.Vgen>0?(isCraft(ship)?1:Math.min(1,v('pump')*70/S.Vgen)):0;
-  S.batteryEnergy=v('battery')*CELL_ENERGY_DENSITY;S.fieldGain=craftFieldGain(Math.max(ship.hull.L||0,S.dims?.[0]||0));S.inertialSupport=v('inertial')*120*S.fieldGain;S.integritySupport=v('integrity')*180*S.fieldGain;S.repulsorSupport=v('repulsor')*70;
+  S.batteryEnergy=v('battery')*CELL_ENERGY_DENSITY;S.fieldGain=craftFieldGain(Math.max(.001,S.dims?.[0]||0));S.inertialSupport=v('inertial')*120*S.fieldGain;S.integritySupport=v('integrity')*180*S.fieldGain;S.repulsorSupport=v('repulsor')*70;
   S.crewCapacity=0;S.troopCapacity=0;S.vehicleCapacity=(S.aviation?.vehicles||[]).reduce((n,r)=>n+r.embarked,0);S.vehicleSizeCapacity=(S.aviation?.vehicleSize||0)+(S.aviation?.freeSize||0);S.cargoCapacity=v('cargo')*.4;S.serviceCapacity=Math.floor(v('service')/1500);
   S.airControl=Object.values(S.commandInfo).filter(c=>c.role==='air'&&c.ratio>=.5).length;S.hangarControl=Object.values(S.commandInfo).filter(c=>c.role==='hangar'&&c.ratio>=.5).length;
   // Field-strength gain is a common game coefficient, not a class-name override.
@@ -21823,6 +21850,7 @@ function placeFit(ship,k,p,n,ped,mirror,options={}){
 function v3ComputeStats(ship){return engineeringStats(ship,baseComputeStats(ship));}
 function v3Serialize(ship){
   const o={format:'starship-yard',v:3,propulsionModelVersion:PROPULSION_MODEL_VERSION};for(const k of ['name','hull','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget'])o[k]=ship[k];if(ship.systemsVersion===1||ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))o.systemsVersion=1;o.airWings=[];
+  o.designEnvelope=designEnvelope(ship);
   // Old performance multipliers have no place in new saves. Physical
   // dimensions and positions survive unchanged, including on legacy imports.
   return JSON.parse(JSON.stringify(o,(k,v)=>k.startsWith('_')||LEGACY_PERFORMANCE_FACTORS.has(k)||k==='aircraftType'||k==='berths'?undefined:v));
@@ -21833,6 +21861,7 @@ function v3Deserialize(o){
   const vec=(x,def=[0,0,0])=>Array.isArray(x)&&x.length===3?x.map((n,i)=>number(n,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate,def[i])):def.slice();
   const s=newShip({},String(o.name||'読み込んだ設計').slice(0,60)),h=o.hull||{};
   s.hull={plan:['wedge','arrow','rect','cigar','ellipse'].includes(h.plan)?h.plan:'wedge',sec:Object.hasOwn(SECTIONS,h.sec)?h.sec:'rect',L:number(h.L,1.5,DESIGN_LIMITS.length,1100),W:number(h.W,.5,DESIGN_LIMITS.width,540),H:number(h.H,.3,DESIGN_LIMITS.height,180),bowW:number(h.bowW,0,1,.02),bowH:number(h.bowH,.1,1,.5),stern:number(h.stern,.2,1,1)};
+  s.designEnvelope=normalizeDesignEnvelope(o.designEnvelope,s.hull);
   s.armor={hull:number(o.armor?.hull,0,3,.5),cit:number(o.armor?.cit,0,4,0)};s.shieldTarget=number(o.shieldTarget,.1,3,1);
   if(!Array.isArray(o.parts)||o.parts.length>DESIGN_LIMITS.parts||!Array.isArray(o.fits)||o.fits.length>DESIGN_LIMITS.fits)throw new Error('区画数または装備数が上限を超えています');
   const ids=new Set();let mx=0;
@@ -21880,7 +21909,7 @@ STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
 addComp('sensor','センサー・標的追跡装置','sphere',.18,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
 // Active electronics draw and reject heat through the common hotel network.
 PARTS.sensor.power=2e15;PARTS.scanner.power=2e15;
-function partLabel(p){return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':p.k==='struct'&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
+function partLabel(p){return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':isStructuralPart(p)&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
 // Default stations for the section table: they fall on the plan's own corners.
 function planStations(h){if(h.plan==='arrow'){const m=clamp(h.maxAt??.3,.05,.9);return [0,m/2,m,m+(1-m)/3,m+(1-m)*2/3,1];}if(h.plan==='rect')return [0,.35,.7,.8,.9,1];return [0,.2,.4,.6,.8,1];}
 function profileAt(h,t){
@@ -21958,7 +21987,7 @@ function unpiercedInStruct(p,q){
   const ring=chamferRing(p,t);let yes=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[i],b=ring[j];if((a[1]>v[2])!==(b[1]>v[2])&&v[0]<(b[0]-a[0])*(v[2]-a[1])/(b[1]-a[1])+a[0])yes=!yes;}return yes;
 }
 function enginePaths(ship){
-  const ps=ship.parts.filter(p=>isReactor(p)||p.k==='engine'),key=JSON.stringify(ps,(k,v)=>k.startsWith('_')?undefined:v);if(ship._engines4?.key===key)return ship._engines4.paths;
+  const ps=ship.parts.filter(p=>isReactor(p)||p.k==='engine'),key=JSON.stringify([isCraft(ship),ps],(k,v)=>k.startsWith('_')?undefined:v);if(ship._engines4?.key===key)return ship._engines4.paths;
   const paths=[];
   const segment=(a,b,r0,r1)=>({a,b,r0,r1,l:len(sub(b,a)),...frameAxis(sub(b,a))});
   for(const e of ps.filter(p=>p.k==='engine')){
@@ -21994,7 +22023,7 @@ function unclippedRayPart(o,d,p){if(p.k==='sensor'&&p.skinSize)return rayTris(st
 // Project a separate, level gun deck from a hull or superstructure wall.
 // The root overlaps the host; the tapped height is the top of the new deck.
 function canPlaceSponson(hit){
- return !!(hit&&!hit.fit&&(!hit.part||hit.part.k==='struct')&&(hit.kind==='hull'||hit.part?.k==='struct')&&hit.kind!=='section'&&[hit.p,hit.n].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))&&len(hit.n)>.001&&Math.hypot(hit.n[0],hit.n[2])/len(hit.n)>.35);
+ return !!(hit&&!hit.fit&&(!hit.part||isStructuralPart(hit.part))&&(hit.kind==='hull'||isStructuralPart(hit.part))&&hit.kind!=='section'&&[hit.p,hit.n].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))&&len(hit.n)>.001&&Math.hypot(hit.n[0],hit.n[2])/len(hit.n)>.35);
 }
 function sponsonPreview(hit,size=[24,20,5]){
  if(!canPlaceSponson(hit))return null;
@@ -22192,23 +22221,30 @@ function normalizeSurfaces(value){
   const a=q.armor||{},e=q.equipment||{},b=q.battery||{},s=q.style||{},o={id:q.id,armor:{material:Object.hasOwn(SURFACE_MATERIALS,a.material)?a.material:'standard',thickness:number(a.thickness,0,100,0)},equipment:{kind:['none','hdis','radiator','machinery'].includes(e.kind)?e.kind:'none',count:Math.round(number(e.count,0,SURFACE_DEVICE_MAX,0)),depth:number(e.depth,.02,100,1)},battery:{weapon:Object.hasOwn(FITS,b.weapon)&&FITS[b.weapon].cat==='w'?b.weapon:'none',count:Math.round(number(b.count,0,SURFACE_DEVICE_MAX,0)),spacing:number(b.spacing,0,1000,2),angle:number(b.angle,-180,180,0),reversed:b.reversed===true},style:{kind:['standard','slab','machinery','rounded'].includes(s.kind)?s.kind:'standard',depth:number(s.depth,0,30,0),density:number(s.density,0,1,.25),seed:Math.round(number(s.seed,0,2147483647,1))},powerDomain:typeof q.powerDomain==='string'?q.powerDomain.slice(0,40):'main'};
   if(isBroadsideBattery(o.battery.weapon)){const c=broadsideBatteryConfig({k:o.battery.weapon,batteryCaliber:b.caliber,batteryGuns:b.guns});Object.assign(o.battery,{caliber:c.caliber,guns:c.guns,...(b.legacyHull?{legacyHull:true}:{})});}
   o.authored=q.authored!==false;o.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';o.allocation=surfaceAllocation(q.allocation);if(o.functionMode==='equipment'){if(o.equipment.kind==='none'||o.equipment.kind==='machinery')o.equipment.kind='hdis';if(o.battery.weapon==='none')o.battery.weapon='pd';if(q.legacyAllocation||value.version<3&&Number.isFinite(q.allocation?.weapons))o.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation||q.allocation);}
-  if(q.aggregate)o.aggregate=surfaceNormalizeAggregate(q.aggregate);
-  if(e.capacityModel==='area-v1')o.equipment.capacityModel='area-v1';
-  if(Number.isFinite(e.limit))o.equipment.limit=Math.round(number(e.limit,0,SURFACE_DEVICE_MAX,SURFACE_DEVICE_MAX));
+  o.functionMode='armor';if(q.functionMode==='equipment')o.armor.thickness=0;o.equipment={kind:'none',count:0,depth:1};o.battery={weapon:'none',count:0,spacing:2,angle:0,reversed:false};o.style={kind:'standard',depth:0,density:0,seed:1};delete o.legacyAllocation;
   if(Number.isFinite(q.boundArea)&&q.boundArea>=0)o.boundArea=Math.min(q.boundArea,1e14);o.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};records.push(o);
  }
  const partitions=[];
  for(const p of (Array.isArray(value.partitions)?value.partitions:[]).slice(0,SURFACE_MAX)){
   if(!p||typeof p.baseId!=='string')continue;const leaves=[];for(const r of (p.leaves||[]).slice(0,64)){if(typeof r?.id!=='string'||!r.id.startsWith(p.baseId+'/')||!Array.isArray(r.range)||r.range.length!==4||!r.range.every(Number.isFinite))continue;const a=r.range.map(x=>clamp(x,0,1));if(a[2]-a[0]<.001||a[3]-a[1]<.001)continue;if(leaves.some(x=>Math.min(a[2],x.range[2])-Math.max(a[0],x.range[0])>1e-6&&Math.min(a[3],x.range[3])-Math.max(a[1],x.range[1])>1e-6))continue;leaves.push({id:r.id,range:a});}if(leaves.length)partitions.push({baseId:p.baseId,leaves});
  }
- return {version:SURFACE_VERSION,mode:value.mode==='strict'?'strict':'compat',compatAllowed:value.compatAllowed!==false,patches:records,...(partitions.length?{partitions}:{}),...(Number.isFinite(value.legacyArmor)?{legacyArmor:clamp(value.legacyArmor,0,100)}:{})};
+ return {version:SURFACE_VERSION,armorOnly:1,mode:value.mode==='strict'?'strict':'compat',compatAllowed:value.compatAllowed!==false,patches:records,...(partitions.length?{partitions}:{}),...(Number.isFinite(value.legacyArmor)?{legacyArmor:clamp(value.legacyArmor,0,100)}:{})};
 }
-function surfaceConfig(ship,id){const q=ship.surfaces?.patches?.find(x=>x.id===id),base={id,authored:false,functionMode:'armor',allocation:surfaceAllocation(),armor:{material:'standard',thickness:ship.surfaces?0:ship.armor?.hull??0},equipment:{kind:'none',count:0,depth:1},battery:{weapon:'none',count:0,spacing:2,angle:0,reversed:false},style:{kind:'standard',depth:0,density:.25,seed:1},powerDomain:'main',layout:{u:1,v:1}};if(!q)return base;for(const k of ['armor','equipment','battery','style'])base[k]={...base[k],...q[k]};if(q.aggregate)base.aggregate=q.aggregate;base.authored=q.authored!==false;base.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';base.allocation=surfaceAllocation(q.allocation);if(q.legacyAllocation){base.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation);base.battery.count=(q.aggregate?.guns?.length??ship.fits.filter(f=>f.surfacePatch===id&&FITS[f.k]?.cat==='w').length);}base.powerDomain=q.powerDomain||'main';if(q.boundArea!=null)base.boundArea=q.boundArea;base.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};return base;}
+function surfaceDefaultConfig(ship,id){
+ return {id,authored:false,functionMode:'armor',allocation:surfaceAllocation(),armor:{material:'standard',thickness:ship.surfaces?.armorOnly===1?(ship.surfaces.legacyArmor??ship.armor?.hull??0):ship.surfaces?0:ship.armor?.hull??0},equipment:{kind:'none',count:0,depth:1},battery:{weapon:'none',count:0,spacing:2,angle:0,reversed:false},style:{kind:'standard',depth:0,density:0,seed:1},powerDomain:'main',layout:{u:1,v:1}};
+}
+function surfaceEditablePatch(ship,patch){
+ const id=typeof patch==='string'?patch:patch?.id;if(!id)return false;
+ if(patch?.host==='hull'||id.startsWith('hull:'))return true;
+ const host=patch?._part||ship.parts?.find(p=>'p'+p.id===(patch?.host||id.split(':')[0]));
+ return isStructuralPart(host);
+}
+function surfaceConfig(ship,id){const q=ship.surfaces?.patches?.find(x=>x.id===id),base=surfaceDefaultConfig(ship,id);if(!q)return base;for(const k of ['armor','equipment','battery','style'])base[k]={...base[k],...q[k]};if(q.aggregate)base.aggregate=q.aggregate;base.authored=q.authored!==false;base.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';base.allocation=surfaceAllocation(q.allocation);if(q.legacyAllocation){base.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation);base.battery.count=(q.aggregate?.guns?.length??ship.fits.filter(f=>f.surfacePatch===id&&FITS[f.k]?.cat==='w').length);}base.powerDomain=q.powerDomain||'main';if(q.boundArea!=null)base.boundArea=q.boundArea;base.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};return base;}
 function surfaceTopology(ship,p){const key=[p?p.k:'hull',p?.form||ship.hull.plan,p?.mesh?.f||null,p?.mesh?.v?.length||null,ship.cuts||[],ship.trenches||[],ship.subs||[],(ship.solidCuts||[]).filter(c=>!p||ship.hull.assembly||c.structures),p?null:(ship.hatches||[]).map(h=>[h.id,h.portal,h.bay,h.face,h.a,h.b,h.w])];if(p?.form==='wedge')key.push('outward-wedge-2');return surfaceHash(key);}
 function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize,p.dir,p.segments,p.boxSize,p.boxFrame,p.length,p.nozzleLength,p.light,p.plate]),ship.surfaces?.partitions]);}
 function surfaceHull2(points){const a=points.map(p=>p.slice()).sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross2=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);if(a.length<3)return a;const lo=[],hi=[];for(const p of a){while(lo.length>1&&cross2(lo.at(-2),lo.at(-1),p)<=1e-8)lo.pop();lo.push(p);}for(let i=a.length-1;i>=0;i--){const p=a[i];while(hi.length>1&&cross2(hi.at(-2),hi.at(-1),p)<=1e-8)hi.pop();hi.push(p);}lo.pop();hi.pop();return lo.concat(hi);}
 function surfaceBlocked(ship,p,n,host){const q=surfaceAdd(p,mul(n,.025));if(inHull(ship,q))return true;for(const part of ship.parts||[]){if(part===host||part.surfacePatch)continue;const b=partAABB(part);if(q.some((v,i)=>v<b[i]-.001||v>b[i+3]+.001))continue;if(inPart(part,q))return true;}return false;}
-function surfaceHosts(ship){const out=[];if(!ship.hull.assembly)out.push({host:'hull',part:null,T:hullGeo(ship).tris});for(const p of ship.parts||[]){if(p.surfacePatch)continue;if(isShapePart(p)){p._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(p)});continue;}if(p.room||PARTS[p.k]?.shape==='cube'){const q=roomShape(p);q._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(q)});}}return out;}
+function surfaceHosts(ship,defaultsOnly=false){const out=[];if(!defaultsOnly&&!ship.hull.assembly)out.push({host:'hull',part:null,T:hullGeo(ship).tris});for(const p of ship.parts||[]){if(p.surfacePatch||defaultsOnly&&!isFaceEditablePart(p))continue;if(isShapePart(p)){p._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(p)});continue;}if(p.room||PARTS[p.k]?.shape==='cube'){const q=roomShape(p);q._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(q)});}}return out;}
 function surfaceComponents(g){const n=g.triangles.length/9;if(n<2)return[g];const parent=Array.from({length:n},(_,i)=>i),find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;},vertices=new Map();for(let i=0;i<n;i++)for(let j=0;j<3;j++){const p=g.triangles.slice(i*9+j*3,i*9+j*3+3),key=p.map(v=>Math.round(v*1e4)).join(','),old=vertices.get(key);if(old!=null)parent[find(i)]=find(old);else vertices.set(key,i);}const map=new Map();for(let i=0;i<n;i++){const root=find(i);if(!map.has(root))map.set(root,[]);map.get(root).push(...g.triangles.slice(i*9,i*9+9));}if(map.size===1)return[g];const list=[];for(const T of map.values()){let area=0,center=[0,0,0],normal=[0,0,0];const samples=[];for(let i=0;i<T.length;i+=9){const a=T.slice(i,i+3),b=T.slice(i+3,i+6),c=T.slice(i+6,i+9),raw=cross(sub(b,a),sub(c,a)),ar=len(raw)/2,p=mul(surfaceAdd(surfaceAdd(a,b),c),1/3);area+=ar;center=surfaceAdd(center,p,ar);normal=surfaceAdd(normal,norm(raw),ar);if(samples.length<12)samples.push({p,n:norm(raw)});}list.push({...g,triangles:T,area,center,normal,samples});}list.sort((a,b)=>a.center[0]/a.area-b.center[0]/b.area||a.center[1]/a.area-b.center[1]/b.area||a.center[2]/a.area-b.center[2]/b.area);return list.map((p,i)=>({...p,seg:g.seg*64+i}));}
 // Exterior masks are derived from the same closed solids as collision. The
 // original face mesh remains the physical skin; only its externally open
@@ -22272,7 +22308,7 @@ function surfaceExposureCurrent(ship,key){
 }
 const SURFACE_EXPOSED_MEMO=new WeakMap(),SURFACE_MESH_IDS=new WeakMap();let surfaceMeshNext=1;
 function surfaceMeshId(T){if(!T||typeof T!=='object')return '0';let id=SURFACE_MESH_IDS.get(T);if(!id){id=surfaceMeshNext++;SURFACE_MESH_IDS.set(T,id);}return id;}
-function surfacePatches(ship,structuralOnly=false){
+function surfacePatches(ship,structuralOnly=false,defaultsOnly=false){
  // The editor uses the last complete survey from the geometry worker. Moving
  // a structure invalidates exposure across the whole ship; rebuilding that
  // survey here would put the expensive clipping pass back on the UI thread.
@@ -22280,11 +22316,11 @@ function surfacePatches(ship,structuralOnly=false){
  // Explicit split/merge commands need their new leaves immediately for
  // ledger areas and selection. Only a changed partition layout bypasses
  // the snapshot; ordinary position/size edits still wait for the worker.
- if(ship._client&&Array.isArray(ship._geoProxy?.surfaces)&&(ship._geoProxy.surfacePartitions===undefined||ship._geoProxy.surfacePartitions===JSON.stringify(ship.surfaces?.partitions||null))){
+ if(!defaultsOnly&&ship._client&&Array.isArray(ship._geoProxy?.surfaces)&&(ship._geoProxy.surfacePartitions===undefined||ship._geoProxy.surfacePartitions===JSON.stringify(ship.surfaces?.partitions||null))){
   const parts=new Map(ship.parts.map(p=>['p'+p.id,p]));
   return ship._geoProxy.surfaces.filter(p=>p.host==='hull'||parts.has(p.host)).map(p=>({...p,_part:p.host==='hull'?null:parts.get(p.host),config:surfaceConfig(ship,p.id)})).filter(p=>!structuralOnly||!p._part||isShapePart(p._part));
  }
- const key=surfaceGeometryKey(ship),full=surfaceCache.get(ship),old=full?.key===key?full:structuralOnly?surfaceStructuralCache.get(ship):null;if(old?.key===key)return (structuralOnly?old.patches.filter(p=>!p._part||isShapePart(p._part)):old.patches).map(p=>({...p,config:surfaceConfig(ship,p.id)}));const out=[],hosts=surfaceHosts(ship),meshes=surfaceExposureMeshes(ship,hosts);
+ const key=surfaceGeometryKey(ship),full=surfaceCache.get(ship),old=full?.key===key?full:structuralOnly?surfaceStructuralCache.get(ship):null;if(!defaultsOnly&&old?.key===key)return (structuralOnly?old.patches.filter(p=>!p._part||isShapePart(p._part)):old.patches).map(p=>({...p,config:surfaceConfig(ship,p.id)}));const out=[],hosts=surfaceHosts(ship,defaultsOnly),meshes=defaultsOnly?[]:surfaceExposureMeshes(ship,hosts);
  for(const host of hosts){
   // Aggregate hull surveys do not need semantic faces for native apparatus,
   // but all those hosts remain in the shared occluder mesh list above.
@@ -22300,12 +22336,14 @@ function surfacePatches(ship,structuralOnly=false){
    for(const leaf of partition.leaves){let tris=[];const [a,b,c,d]=leaf.range,lo=[min[0]+(max[0]-min[0])*a,min[1]+(max[1]-min[1])*b],hi=[min[0]+(max[0]-min[0])*c,min[1]+(max[1]-min[1])*d];for(let i=0;i<g.triangles.length;i+=9){let poly=[g.triangles.slice(i,i+3),g.triangles.slice(i+3,i+6),g.triangles.slice(i+6,i+9)];for(const [axis,sign,lim]of [[u,-1,-lo[0]],[u,1,hi[0]],[v,-1,-lo[1]],[v,1,hi[1]]])poly=clipGeneral(poly,mul(axis,sign),dot(mul(axis,sign),center)+lim);if(poly.length>=3)triangulateFan(poly,tris);}if(!tris.length)continue;const poly=[[lo[0],lo[1]],[hi[0],lo[1]],[hi[0],hi[1]],[lo[0],hi[1]]].map(p=>surfaceAdd(surfaceAdd(center,u,p[0]),v,p[1])),lc=mul(poly.reduce((s,p)=>surfaceAdd(s,p),[0,0,0]),.25),area=solidMeshArea(tris);out.push({...base,id:leaf.id,range:leaf.range.slice(),center:lc,polygon:poly,triangles:tris,area,exposedArea:base.exposedArea*area/base.area,_min:lo,_max:hi,_origin:center});}
   }
  }
+ // Default assignments include buried faces and need only their host geometry.
+ if(defaultsOnly)return out.map(p=>({...p,config:surfaceConfig(ship,p.id)}));
  // v13 PERF A patch's exposed triangles depend only on its host mesh and range, the meshes that can occlude it and
  // the earlier structures sharing its sheets. Kept per host mesh and patch under the identities of those meshes, so
  // after an edit only the patches the edited parts can reach are clipped again.
  const hostT=new Map(hosts.map(h=>[h.host,h.T])),priorIds=new Map();
  for(const p of out){const T0=hostT.get(p.host),b=solidMeshBounds(p.triangles),probe=1e-6,cands=meshes.filter(m=>m.part!==p._part&&[0,1,2].every(i=>m.b[i]<=b[i+3]+probe&&m.b[i+3]>=b[i]-probe)).map(m=>surfaceMeshId(m.T)).join(',');
-  let prior='';if(p._part?.k==='struct'){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>q.k==='struct'&&structuralMaterialOrder(q,p._part)<0).sort(structuralMaterialOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
+  let prior='';if(isStructuralPart(p._part)){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>isStructuralPart(q)&&structuralMaterialOrder(q,p._part)<0).sort(structuralMaterialOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
   const sig=[p.id,p.range.join(','),p.triangles.length,cands,prior].join('|');let memo=T0&&SURFACE_EXPOSED_MEMO.get(T0);if(T0&&!memo)SURFACE_EXPOSED_MEMO.set(T0,memo=new Map());const hit=memo?.get(p.id);
   if(hit?.sig===sig&&hit.n===p.triangles.length&&hit.triangles.every((x,i)=>x===p.triangles[i]))p.exposedTriangles=hit.value;else{p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));memo?.set(p.id,{sig,n:p.triangles.length,triangles:p.triangles,value:p.exposedTriangles});}
   p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
@@ -22322,7 +22360,7 @@ function surfaceInwardDepth(ship,patch,point=patch.center){
  if(!part)T=hullGeo(ship).tris;else if(part._packing)T=part._packing.tris;else if(part._clip)T=part._clip.tris;else if(part.k==='sensor'&&part.skinSize)T=structTriangles(sensorShape(part));else if(part.room)T=structTriangles(roomShape(part));else if(isShapePart(part))T=structTriangles(part);
  const h=T?surfaceDepthRay(T,o,d):rayPart(o,d,part);return h?Math.max(0,Math.min(patch.depth,h.t+1e-4)):0;
 }
-function surfaceAutoCandidates(ship,options={}){const angle=clamp(Number.isFinite(options.minAngle)?options.minAngle:45,0,90),lim=Math.cos(angle*Math.PI/180),records=new Map((ship.surfaces?.patches||[]).map(q=>[q.id,q]));return surfacePatches(ship).filter(p=>p.exposed&&Math.abs(p.normal[1])<=lim+1e-6&&(options.overwrite===true||!records.has(p.id)||records.get(p.id).authored===false));}
+function surfaceAutoCandidates(ship,options={}){const angle=clamp(Number.isFinite(options.minAngle)?options.minAngle:45,0,90),lim=Math.cos(angle*Math.PI/180),ids=Array.isArray(options.ids)?new Set(options.ids):null,records=new Map((ship.surfaces?.patches||[]).map(q=>[q.id,q]));return surfacePatches(ship).filter(p=>surfaceEditablePatch(ship,p)&&(!ids||ids.has(p.id))&&p.exposed&&Math.abs(p.normal[1])<=lim+1e-6&&(options.overwrite===true||!records.has(p.id)||records.get(p.id).authored===false));}
 function autoConfigureSurfaces(ship,options={}){
  surfaceSync(ship);
  const candidates=surfaceAutoCandidates(ship,options);if(!candidates.length)return {ok:true,ids:[],skipped:[],report:surfaceReport(ship)};
@@ -22336,10 +22374,33 @@ function surfaceSymmetryIds(ship,ids,options={}){
  const patches=surfacePatches(ship),out=new Set(),find=(p,y,z)=>{let host=p._part;if(host){if(z){if(host.tw!=null)host=ship.parts.find(q=>q.id===host.tw)||host;else if(Math.abs(host.c[2])>1e-4)return null;}if(y){if(host.vt!=null)host=ship.parts.find(q=>q.id===host.vt)||host;else if(Math.abs(host.c[1]-vmirrorPlane(ship,host.c[0]))>1e-4)return null;}}const name=host?'p'+host.id:'hull',point=y?vmirrorPoint(ship,p.center):p.center,center=z?mirrorP(point):point,n=[p.normal[0],y?-p.normal[1]:p.normal[1],z?-p.normal[2]:p.normal[2]],scale=Math.max(1,Math.sqrt(p.area));return patches.filter(q=>q.host===name&&q.exposed&&dot(q.normal,n)>.999&&Math.abs(q.area-p.area)<=Math.max(.01,p.area*.001)).sort((a,b)=>len(sub(a.center,center))-len(sub(b.center,center))).find(q=>len(sub(q.center,center))<scale*.02+.01)?.id;};
  for(const id of Array.isArray(ids)?ids:[ids]){const p=patches.find(q=>q.id===id&&q.exposed);if(!p)continue;out.add(id);for(const y of options.vmirror?[false,true]:[false])for(const z of options.mirror?[false,true]:[false]){if(!y&&!z)continue;const q=find(p,y,z);if(q)out.add(q);}}return [...out];
 }
-function enableSurfaceMode(ship,strict=true,options={}){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';
+function enableSurfaceMode(ship,strict=true,options={}){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';
  // New-design UI callers let the worker compile the derived face report.
  return options?.report===false?{ok:true}:{ok:true,report:surfaceReport(ship)};}
 function surfaceInvalidate(ship){ship._cache=null;delete ship._feed;surfaceCache.delete(ship);surfaceStructuralCache.delete(ship);}
+// Face armor is an inward material budget; the original visible skin remains unchanged.
+function surfaceArmorOnly(ship){
+ if(!ship?.surfaces||ship._surfaceWorking||ship._surfaceCompiling||ship._surfaceRenderOnly)return ship;
+ const patches=ship.surfaces.patches||[],dirty=ship.surfaces.armorOnly!==1||patches.some(q=>q.functionMode!=='armor'||q.aggregate||q.equipment?.kind!=='none'||q.equipment?.count||q.battery?.weapon!=='none'||q.battery?.count||q.style?.kind!=='standard'||q.style?.depth||q.style?.density);
+ const generated=(ship.parts||[]).some(p=>p.surfacePatch)||(ship.fits||[]).some(f=>f.surfacePatch),offsets=(ship.fits||[]).some(f=>f.surfaceArmorOffset);
+ if(!dirty&&!generated&&!offsets)return ship;
+ ship.surfaces=normalizeSurfaces({...ship.surfaces,legacyArmor:ship.surfaces.legacyArmor??ship.armor?.hull??0});
+ if(generated){ship.parts=ship.parts.filter(p=>!p.surfacePatch);ship.fits=ship.fits.filter(f=>!f.surfacePatch);}for(const f of ship.fits)if(f.surfaceArmorOffset)f.surfaceArmorOffset=0;
+ surfaceDataCache.delete(ship);surfaceWorkCache.delete(ship);surfaceLayoutCache.delete(ship);surfaceInvalidate(ship);
+ return ship;
+}
+function structureArmorFaces(ship,part){
+ surfaceArmorOnly(ship);const id=typeof part==='object'?part?.id:part,p=ship?.parts?.find(p=>p.id===id);if(!isStructuralPart(p))return [];
+ return surfacePatches(ship,false,true).filter(q=>q.host==='p'+p.id).map(q=>({...q,thickness:surfaceArmor(q.config).thickness}));
+}
+function setStructureFaceArmor(ship,part,face,thickness){
+ if(!Object.hasOwn(SURFACE_FACE,face)||!Number.isFinite(thickness)||thickness<0||thickness>SURFACE_LIMITS.armorThickness)return {ok:false,why:'装甲厚は0〜100 mで指定してください'};
+ const faces=structureArmorFaces(ship,part).filter(q=>q.face===face);if(!faces.length)return {ok:false,why:'装甲厚を変更する構造物の面がありません'};
+ if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:[]};
+ const ids=new Set(ship.surfaces.patches.map(q=>q.id));if(ids.size+faces.filter(q=>!ids.has(q.id)).length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
+ for(const p of faces){const current=surfaceConfig(ship,p.id),record={...current,authored:true,functionMode:'armor',armor:{...current.armor,thickness},boundArea:p.area},clean=normalizeSurfaces({version:SURFACE_VERSION,armorOnly:1,patches:[record]}).patches[0],i=ship.surfaces.patches.findIndex(q=>q.id===p.id);if(i<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[i]=clean;}
+ surfaceInvalidate(ship);return {ok:true,ids:faces.map(q=>q.id)};
+}
 function setSurfaceConfig(ship,ids,partial){
  surfaceSync(ship);
  if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};if(partial?.battery?.weapon&&weaponWallOnly(partial.battery.weapon)&&selected.some(p=>!weaponMountAllowed(partial.battery.weapon,p.normal)))return {ok:false,why:'この砲は左右の舷側面に配置してください'};if(partial?.battery&&!partial.battery.legacyHull&&selected.some(p=>isBroadsideBattery(partial.battery.weapon||surfaceConfig(ship,p.id).battery.weapon)&&(!isShapePart(p._part)||p._part.plate||Math.abs(dot(p.normal,structFrame(p._part).up))>=.65)))return {ok:false,why:'側面砲列区画は構造物の側壁に貼り付けてください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;if(partial?.allocation||partial?.allocationEdits?.length||partial?.functionMode||partial?.battery||partial?.equipment)surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
@@ -22536,6 +22597,8 @@ function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(
 function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:canonicalWeaponKind(r[1]),p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18]};if(host)q.host=host.id;if(isBroadsideBattery(q)){setBroadsideBattery(q,{caliber:r[21],guns:r[22]});if(r[23])q.batteryLegacyHull=true;if(!q.batteryLegacyHull&&(!isShapePart(host)||host.plate||Math.abs(dot(q.n,structFrame(host).up))>=.65)){q.float=true;q.surfaceUnplaced=true;}}return normalizeFitMount(q);}
 function surfaceSync(ship){
  ship=adoptWeaponFits(ship);
+ surfaceArmorOnly(ship);
+ if(ship?.surfaces?.armorOnly===1)return;
  if(!ship?.surfaces||ship._surfaceWorking||ship._surfaceCompiling||ship._surfaceRenderOnly)return;
  if(ship.surfaces.version<SURFACE_VERSION)ship.surfaces=normalizeSurfaces(ship.surfaces);surfaceReserveIds(ship);
  const configs=ship.surfaces.patches||[],materialized=[...ship.parts,...ship.fits].some(q=>q.surfacePatch);
@@ -22603,7 +22666,7 @@ function surfaceReportLegacy(ship){
  }
  const ids=new Set(patches.map(p=>p.id)),orphaned=records.filter(q=>!ids.has(q.id));totals.orphans=orphaned.length;for(const q of orphaned)warnings.push({code:'surface-orphan',text:'形状変更で面が失われました。設備を移設するか設定を解除してください。',patch:q.id});return {version:SURFACE_VERSION,mode:ship.surfaces?.mode||'compat',patches:rows,orphaned,warnings,totals};
 }
-function surfaceArmorBudget(ship,area){if(!ship.surfaces)return {volume:ship.armor.hull*area,mass:ship.armor.hull*area*K.armorDens,average:ship.armor.hull};let volume=0,mass=0;const patches=new Map(surfacePatches(ship).map(p=>[p.id,p]));for(const q of ship.surfaces.patches){const armor=surfaceArmor(q),m=SURFACE_MATERIALS[armor.material],a=patches.get(q.id)?.exposedArea??0;volume+=a*armor.thickness;mass+=a*armor.thickness*m.density;}return {volume,mass,average:area>0?volume/area:0};}
+function surfaceArmorBudget(ship,area){if(!ship.surfaces)return {volume:ship.armor.hull*area,mass:ship.armor.hull*area*K.armorDens,average:ship.armor.hull};let volume=0,mass=0;const surveyed=surfacePatches(ship),patches=new Map(surveyed.map(p=>[p.id,p]));for(const q of ship.surfaces.armorOnly===1?surveyed.map(p=>p.config):ship.surfaces.patches){const armor=surfaceArmor(q),m=SURFACE_MATERIALS[armor.material],a=patches.get(q.id)?.exposedArea??0;volume+=a*armor.thickness;mass+=a*armor.thickness*m.density;}return {volume,mass,average:area>0?volume/area:0};}
 function surfaceStats(ship,S){if(!ship.surfaces)return S;const r=surfaceReport(ship),hab=ship.parts.some(p=>p.k==='habitat')?habitationSpace(ship):null,net=S.heat?.net,e=net?heatEvaluate({...net,links:net.links.map(l=>({...l,kind:'heat',ok:true}))},'combat'):null,paths=S.heat?.powerPaths||[],crewK=S.crew>0?clamp((S.crewAboard??S.crew)/S.crew,0,1):1,factor=ship.surfaces.mode==='strict'?1/ENERGY_MODEL.eta:1;
  for(const row of r.patches){let maximum=0,sustained=0,heatGenerated=0,heatExported=0,requested=0,supplied=0,fed=0,operating=0,energy=0,volley=0;const bolts=[];for(const id of row.fitIds){const f=ship.fits.find(f=>f.id===id),d=fitSpec(f),cr=needsCapacitor(f)?S.chargeInfo?.[id]?.ratio||0:1,out=((d.tt||0)+(d.ion||0))*cr/(d.cycle||K.cycle),need=(d.power||0)*factor,got=Math.min(need,paths.filter(l=>l.ok&&l.to==='f'+id).reduce((n,l)=>n+(l.cap||0),0)),si=net?.src.findIndex(s=>s.id==='f'+id)??-1,gen=si>=0?net.src[si].rated.combat||0:0,shed=si>=0?e?.flow.out[si]||0:0,cool=gen>0?clamp(shed/gen,0,1):1,power=need>0?clamp(got/need,0,1):1;maximum+=out;sustained+=out*Math.min(power,cool,crewK);heatGenerated+=gen;heatExported+=shed;requested+=need;supplied+=got;if(power>0)fed++;if(power>0&&cool>0&&crewK>0)operating++;energy+=needsCapacitor(f)?S.chargeInfo?.[id]?.storedTT||0:(d.tt||d.ion||0);volley+=(d.tt||0)+(d.ion||0);bolts.push(((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1));}Object.assign(row,{maximumTT:maximum,sustainedTT:sustained,heatGenerated,heatExported,chargeRequested:requested,chargeSupplied:supplied,fed,operating,maxEnergy:energy,volleyTT:volley,boltTT:bolts.length?Math.max(...bolts):0,crewAssigned:row.crew*crewK});}
  for(const row of r.patches){row.equipmentPower=(net?.dis||[]).filter(d=>row.partIds.includes(d.part)).reduce((n,d)=>n+(d.power||0),0);row.equipmentPower+=ship.parts.filter(p=>row.partIds.includes(p.id)).reduce((n,p)=>n+(PARTS[p.k]?.power||0)*partVolume(p),0);row.powerDemand+=row.equipmentPower;row.habitationPoweredCapacity=row.partIds.filter(id=>ship.parts.find(p=>p.id===id)?.k==='habitat').reduce((n,id)=>{const p=ship.parts.find(p=>p.id===id),need=partVolume(p)*(PARTS[p.k]?.power||0),fed=paths.filter(l=>l.ok&&l.to==='p'+id).reduce((n,l)=>n+(l.cap||0),0),ratio=need>0?clamp(fed/need,0,1):1;return n+(hab?.explicitByPart?.[id]||0)*ratio;},0)/personVolume(ship.hull.L);}
@@ -22615,7 +22678,7 @@ function surfaceProfilePatch(q,offset){
 }
 function surfaceProfile(ship,S,p){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return surfaceProfile(surfaceWorkingShip(ship),S,p);
- if(!ship?.surfaces)return p;const report=S.surface||surfaceReport(ship),span=shipSpan(ship),offset=[(span[0]+span[1])/2,((S.ybox?.[0]||0)+(S.ybox?.[1]??ship.hull.H))/2,0],local=q=>sub(q,offset),shell=[];
+ if(!ship?.surfaces)return p;const report=S.surface||surfaceReport(ship),span=shipSpan(ship),offset=shipCenter(ship,S),local=q=>sub(q,offset),shell=[];
  p.surface={version:SURFACE_VERSION,mode:ship.surfaces.mode,offset,patches:report.patches.map(q=>surfaceProfilePatch(q,offset)),devices:[],mounts:[]};
  for(const q of p.surface.patches)if(q.exposed)for(const v of q.triangles)shell.push(v);p.surface.shell=shell;
  for(const f of ship.fits){const d=fitSpec(f);if(FITS[f.k]?.cat!=='w'||f.float||!((d.tt||0)+(d.ion||0)+(d.aa||0)+(d.msl||0)>0))continue;const mi=(p.modules||[]).findIndex(m=>m.fit===f.id),cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,capacity=needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(d.tt||d.ion||d.aa||0),mount={id:f.id,module:mi,patch:f.surfacePatch||null,cell:f.surfaceCell||null,name:d.short||d.name,volleyTT:(d.tt||0)+(d.ion||0),boltTT:((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1),...surfaceWeaponGeometry(f,offset),center:local(f.surfacePoint||f.p),normal:(f.n||AXES[f.a]||[0,1,0]).slice(),footprint:f.surfaceFootprint?.slice()||[d.fm,d.wm],arcs:Array.isArray(S.fitInfo?.[f.id])?S.fitInfo[f.id].slice():[0,0,0,0,0,0],gun:(d.tt||0)*cr/(d.cycle||K.cycle),ion:(d.ion||0)*cr/(d.cycle||K.cycle),capacity:Math.max(0,capacity),housingCapacity:Math.max(0,(S.chargeInfo?.[f.id]?.housingUsed||0)*CHARGE_TT_M3),power:Math.max(0,d.power||0)*weaponInputFactor(p),barrels:Math.max(1,d.barrels||1),crewNeed:(d.crew||0)*WEAPON_CREW_K,crew:(d.crew||0)*WEAPON_CREW_K,cycle:d.cycle||K.cycle,band:fitBand(d),dualPurpose:weaponRoles(d).dualPurpose,missile:!!d.msl,roundKind:d.roundKind||null};p.surface.mounts.push(mount);if(f.surfacePatch){const port=surfaceBatteryGeometry(f);p.surface.devices.push({...mount,...(port?{center:local(port.mouth),wallPoint:local(port.wallPoint),wallOffset:port.armorOffset,footprint:[port.width,port.height],u:port.u.slice(),v:port.v.slice(),normal:port.normal.slice(),lip:port.lip}:{}),kind:'weapon',external:true});}}
@@ -22759,14 +22822,14 @@ function surfaceMerge(ship,ids){const patches=surfacePatches(ship),a=ids.map(id=
 function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const work=surfaceWorkingShip(ship);if(work!==ship)return computeStats(work);}return withFrozenStructures(()=>{
  migrateLegacyPropulsion(ship);
  surfaceSync(ship);
- clearDesignLoadouts(ship);syncCompartments(ship);ship._lockedCache=cache(ship);
+ clearDesignLoadouts(ship);syncCompartments(ship);ship._lockedCache=cache(ship);ship._boundsPass={};
  try{
   const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>(p.k==='sensor'||p.k==='scanner')&&!p.surfaceUnplaced&&!s.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0);
   for(const stage of [outfittingStats,superweaponStats,groundingStats,layoutStats,hatchMotionStats,solarStats,craftSystemsStats,heatStats,wingStats,sensorSuite,shapeStats,surfaceStats])stage(ship,s);
   s.propulsion=propulsionPreview(ship,s,'combat');s.actualThrustN=s.propulsion.actualThrustN;s.actualInputW=s.propulsion.actualInputW;s.actualAccelMps2=s.propulsion.actualAccelMps2;s.freeAccelerationMps2=s.propulsion.freeAccelerationMps2;
   s.thrust=s.actualThrustN;s.aThrust=s.freeAccelerationMps2;s.aEff=s.actualAccelMps2;s.accelG=s.aEff/G0;s.thrustG=s.aThrust/G0;s.structLimited=s.aThrust>s.aStruct;s.MGLT=Math.round(s.accelG/30);
   return s;
- }finally{delete ship._lockedCache;}
+ }finally{delete ship._boundsPass;delete ship._lockedCache;}
 });}
 // Shape inspection (EDIT-003, PLAN-010/013, USERPART-004/006): thin walls left
 // by cuts, editable meshes that are not closed solids, and user-part instances.
@@ -22844,8 +22907,8 @@ function deserialize(o){
     if(q.outline){if(!validOutline(q.outline)||q.outline.some(a=>a.some(v=>Math.abs(v)>2)))throw new Error('輪郭が交差しているか、頂点が不正です');p.outline=q.outline.map(a=>a.slice());}if(q.deckSlope!=null)p.deckSlope=finite(q.deckSlope,-60,60,0);
     if(q.ridge!=null)p.ridge=finite(q.ridge,-1000,1000,0);
     if(['armor','service','plain'].includes(q.skin))p.skin=q.skin;
-    if(p.k==='struct'&&q.sponson===true)p.sponson=true;
-    if(p.k==='struct'&&q.plate===true){p.plate=true;p.plateT=plateThickness(q);}if(isShapePart(p)&&q.light===true&&!p.plate)p.light=true;
+    if(isStructuralPart(p)&&q.sponson===true)p.sponson=true;
+    if(isStructuralPart(p)&&q.plate===true){p.plate=true;p.plateT=plateThickness(q);}if(isShapePart(p)&&q.light===true&&!p.plate)p.light=true;
     if(REFERENCE_ASSETS[q.skinAsset]){p.skinAsset=q.skinAsset;for(const k of ['skinAnchor','skinSize'])if(Array.isArray(q[k])&&q[k].length===3&&q[k].every(Number.isFinite))p[k]=q[k].slice();if(Number.isFinite(q.skinDiameter))p.skinDiameter=finite(q.skinDiameter,1,1000,p.d);}
     if(p.k==='hangar'&&Object.hasOwn(AVIATION_ROLES,q.airRole))p.airRole=q.airRole;else if(p.k==='hangar'&&q.k==='vehicle')p.airRole='storage';
     if(Array.isArray(q.arcBands)&&q.arcBands.length<=12&&q.arcBands.every(a=>Array.isArray(a)&&a.length===2&&a.every(Number.isFinite)&&a[0]>=0&&a[1]<=1&&a[0]<a[1]))p.arcBands=q.arcBands.map(a=>a.slice());
@@ -22870,6 +22933,8 @@ function deserialize(o){
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
   s.fits=s.fits.filter(f=>!dropped.has(f.id));for(const f of s.fits){delete f.legacyWindow;if(dropped.has(f.tw))delete f.tw;}
   if(o.groups!=null){const g=normalizeGroups(o.groups,s);if(g.groups.length){s.groups=g.groups;s.nextId=Math.max(s.nextId,g.nextId);}}
+  surfaceArmorOnly(s);
+  if(Number.isSafeInteger(o.nextId)&&o.nextId>0)s.nextId=Math.max(s.nextId,o.nextId);
   return adoptWeaponFits(s);
 }
 
@@ -23711,7 +23776,7 @@ const EQUIPMENT = {
 const EQUIPMENT_MIRRORS={isd_engine_0:'isd_engine_2',isd_engine_2:'isd_engine_0',isd_engine_3:'isd_engine_5',isd_engine_5:'isd_engine_3',isd_engine_4:'isd_engine_6',isd_engine_6:'isd_engine_4'};
 for(const [id,d] of Object.entries(EQUIPMENT)){
  d.id=id;const a=REFERENCE_ASSETS[d.assets[0]];
- if(d.k==='struct')d.s=[a.size[0],a.size[2],a.size[1]];
+ if(isStructuralPart(d))d.s=[a.size[0],a.size[2],a.size[1]];
  if(d.k==='sensor')d.d=Math.max(...a.size);
  if(d.assets.length===2){EQUIPMENT_MIRRORS[d.assets[0]]=d.assets[1];EQUIPMENT_MIRRORS[d.assets[1]]=d.assets[0];}
  if(d.mirror)EQUIPMENT_MIRRORS[d.assets[0]]=EQUIPMENT[d.mirror].assets[0];
@@ -23719,13 +23784,13 @@ for(const [id,d] of Object.entries(EQUIPMENT)){
 for(const family of ['inner','outer','upper','aux']){EQUIPMENT_MIRRORS['ven_'+family+'_port']='ven_'+family+'_stbd';EQUIPMENT_MIRRORS['ven_'+family+'_stbd']='ven_'+family+'_port';}
 function equipmentSpec(p){
  const d=Object.hasOwn(EQUIPMENT,p?.equipmentId)?EQUIPMENT[p.equipmentId]:null;
- return d&&d.k===p.k&&(p.k!=='struct'||p.form==='reference')?d:null;
+ return d&&d.k===p.k&&(!isStructuralPart(p)||p.form==='reference')?d:null;
 }
 function parametricEngine(p){return p?.k==='engine'&&!!equipmentSpec(p)?.engineStyle;}
 function equipmentOptions(id){
  if(!Object.hasOwn(EQUIPMENT,id))throw new Error('機器の規格が見つかりません');
  const d=EQUIPMENT[id],asset=d.assets[0],a=REFERENCE_ASSETS[asset];
- return {equipmentId:id,k:d.k,label:d.name,skinAsset:asset,...(d.k==='struct'?{form:'reference',s:d.s.slice(),taper:0}:d.k==='sensor'?{d:d.d,skinSize:a.size.slice()}:{d:d.d,nozzleLength:d.nozzleLength,bodyLength:d.bodyLength,bodyRadius:d.bodyRadius,engineLength:a.size[0],skinDiameter:d.d,skinAnchor:d.anchor.slice()})};
+ return {equipmentId:id,k:d.k,label:d.name,skinAsset:asset,...(isStructuralPart(d)?{form:'reference',s:d.s.slice(),taper:0}:d.k==='sensor'?{d:d.d,skinSize:a.size.slice()}:{d:d.d,nozzleLength:d.nozzleLength,bodyLength:d.bodyLength,bodyRadius:d.bodyRadius,engineLength:a.size[0],skinDiameter:d.d,skinAnchor:d.anchor.slice()})};
 }
 function enforceEquipment(p){
  const d=equipmentSpec(p);if(!d)return;
@@ -23748,7 +23813,7 @@ function vmirrorPart(p,ship){
  // Y rotates about the reflected axis; Z's sense already follows its vertical side.
  if(q.wing?.foil&&(q.wing.axis||'x')==='x'){q.wing.stow=-(q.wing.stow??0);q.wing.open=-(q.wing.open??15);}
  if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.top,a.bottom]=[a.bottom||'none',a.top||'none'];}
- if(p.k==='struct'){
+ if(isStructuralPart(p)){
   // A vertical reflection equals a 180° roll of the left-right reflected shape.
   if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;
   if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;
@@ -23817,7 +23882,7 @@ function adoptEquipment(ship,standardExample=false){
   }
   if(equipmentSpec(p)){enforceEquipment(p);continue;}
   if(p.customEquipment)continue;
-  const d=Object.values(EQUIPMENT).find(d=>d.k===p.k&&d.assets.includes(p.skinAsset)&&(p.k!=='struct'||p.form==='reference'));
+  const d=Object.values(EQUIPMENT).find(d=>d.k===p.k&&d.assets.includes(p.skinAsset)&&(!isStructuralPart(p)||p.form==='reference'));
   if(!d)continue;
   if(p.k==='engine'){
    const a=sourceEngine(p);if(!a||Math.abs(p.d-a.d)>.0001||Math.abs((p.nozzleLength||p.d*.32)-a.nozzleLength)>.0001||Math.abs((p.bodyRadius??.52)-a.bodyRadius)>.0001||Math.abs((p.skinDiameter||p.d)-a.d)>.0001)continue;
@@ -24778,7 +24843,7 @@ function sideBattery(s,xs,y,k='casemateMid',opt={}){
   // y: a height, or a share of the hull's own height there ('level').
   const find=xx=>{const yy=typeof y==='number'?y:(()=>{const b=sectionBase(s.hull,xx);return b.ybot+b.h*(opt.level??.5);})();
    const h=rayEnv(s,[xx,yy,sg*20000],[0,0,-sg],{structOnly:!!opt.structOnly});if(!h||Math.abs(h.p[2])<1)return null;
-   return s.parts.find(p=>p.k==='struct'&&p.plate&&inStruct(p,sub(h.p,[0,0,sg*.5])))?null:h;};
+   return s.parts.find(p=>isStructuralPart(p)&&p.plate&&inStruct(p,sub(h.p,[0,0,sg*.5])))?null:h;};
   const h=batteryPoint(s,x,find,k,opt);if(!h)continue;
   const f={id:s.nextId++,k,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,scale:opt.scale||1,chargeDepth:opt.chargeDepth||14,batteryZone:sg<0?'port-side':'stbd-side'};
   mountFit(s,f);if(f.float){s.nextId--;continue;}s.fits.push(f);out.push(f);}
@@ -29112,14 +29177,14 @@ const AIM_KINDS={auto:'自動（艦全体）',reactor:'反応炉',bridge:'艦橋
 const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35,QUARTERS_WEIGHT=.15;
 function fleetModules(ship,S){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetModules(surfaceWorkingShip(ship),S);
- const mods=[],commonHab=habitationSpace(ship),protect=1-.4*(S.protectedFrac||0),byFit=new Map(),[X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0),yb=S.ybox||[0,S.dims?.[2]||ship.hull.H||100],yc=(yb[0]+yb[1])/2,hh=Math.max(1,(yb[1]-yb[0])/2),hw=Math.max(1,(S.dims?.[1]||ship.hull.W||100)/2);
+ const mods=[],commonHab=habitationSpace(ship),protect=1-.4*(S.protectedFrac||0),byFit=new Map(),[X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0),yb=S.ybox||[0,S.dims?.[2]||ship.hull.H||100],yc=(yb[0]+yb[1])/2,zc=shipCenter(ship,S)[2],hh=Math.max(1,(yb[1]-yb[0])/2),hw=Math.max(1,(S.dims?.[1]||ship.hull.W||100)/2);
  // Where a module sits across the hull (-1…1 up and to starboard) and its size, for penetration paths and the hit replay.
- const place=(m,q,r)=>{if(q){m.y=+clamp((q[1]-yc)/hh,-1,1).toFixed(2);m.z=+clamp(q[2]/hw,-1,1).toFixed(2);}m.r=+clamp(r/L,.002,.2).toFixed(3);return m;};
+ const place=(m,q,r)=>{if(q){m.y=+clamp((q[1]-yc)/hh,-1,1).toFixed(2);m.z=+clamp((q[2]-zc)/hw,-1,1).toFixed(2);}m.r=+clamp(r/L,.002,.2).toFixed(3);return m;};
  for(const f of ship.fits){const d=FITS[f.k];if(!d||f.float)continue;let k=null;
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
   const mm=k==='launcher'?MISSILE_MOUNTS[missileMount(f)]:null,cellK=mm&&missileMount(f)==='vls'?clamp(S.vlsInfo?.[f.id]?.ratio??1,0,1):1,launcher=k==='launcher'?missileLauncherSpec(f):null;
-  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:launcher?(launcher.kind==='cmsl'?Math.floor(launcher.ammo*cellK+1e-9):Math.round(launcher.ammo*cellK)):0,mount:launcher?.mount,...(launcher?{missileKind:launcher.kind,salvo:launcher.salvo,cycle:launcher.cycle,tt:launcher.tt,ammo0:launcher.ammo0,muzzle:sub(launcher.origin,[(X0+X1)/2,yc,0]),launchDir:launcher.axis.slice(),...(launcher.kind==='cmsl'?{launchPowerW:s.power||0}:{})}:{}),ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
+  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:launcher?(launcher.kind==='cmsl'?Math.floor(launcher.ammo*cellK+1e-9):Math.round(launcher.ammo*cellK)):0,mount:launcher?.mount,...(launcher?{missileKind:launcher.kind,salvo:launcher.salvo,cycle:launcher.cycle,tt:launcher.tt,ammo0:launcher.ammo0,muzzle:sub(launcher.origin,[(X0+X1)/2,yc,zc]),launchDir:launcher.axis.slice(),...(launcher.kind==='cmsl'?{launchPowerW:s.power||0}:{})}:{}),ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
  for(const p of [...allOccupied(ship),...ship.parts.filter(isWing)]){
   if(p.windowId!=null||p.turretRoom)continue;const V=partVolume(p);if(!(V>0))continue;const k=isWing(p)?p.wing.thermal==='low'&&!p.wing.solar?'radiator':'dissipator':MODULE_PART_KIND[p.k]||'other';
@@ -29144,8 +29209,8 @@ function fleetModules(ship,S){
 const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
 function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
-// v11: compact175TT mechanisms and the twin-based triple change saved room capacity and firing geometry.
-const FLEET_PROFILE_VERSION=11;
+// v12: assembled dimensions and separate face-editable structures change physical profiles.
+const FLEET_PROFILE_VERSION=12;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
@@ -29173,7 +29238,7 @@ function fleetProfile(S,name,ship){
  out.airCtl=S.airCtl||AIR_CTL.base;
  // v21 Superweapons that can fire (muzzle open, a reactor feeding them), with the module that carries each.
  // The muzzle (centre of the face) relative to the ship's middle, for drawing the shots.
- const swC=ship?(()=>{const [X0,X1]=shipSpan(ship),yb=S.ybox||[0,S.dims?.[2]||ship.hull.H||100];return [(X0+X1)/2,(yb[0]+yb[1])/2];})():[0,0],swMz=w=>{const q=ship?.parts.find(p=>p.id===w.id);if(!q)return [0,0,0];const u=norm(q.dir||superweaponAim(q)),h=(q.length||partDims(q).l)/2;return [+(q.c[0]+u[0]*h-swC[0]).toFixed(1),+(q.c[1]+u[1]*h-swC[1]).toFixed(1),+(q.c[2]+u[2]*h).toFixed(1)];};
+ const swC=ship?shipCenter(ship,S):[0,0,0],swMz=w=>{const q=ship?.parts.find(p=>p.id===w.id);if(!q)return [0,0,0];const u=norm(q.dir||superweaponAim(q)),h=(q.length||partDims(q).l)/2;return [+(q.c[0]+u[0]*h-swC[0]).toFixed(1),+(q.c[1]+u[1]*h-swC[1]).toFixed(1),+(q.c[2]+u[2]*h-swC[2]).toFixed(1)];};
  const sw=(S.superweapons||[]).filter(w=>w.ok);if(sw.length)out.sw=sw.map(w=>({id:w.id,k:w.k,aim:w.aim,mz:swMz(w),mode:w.mode||'beam',chargeT:w.chargeT,chargeW:w.chargeW,efficiency:w.efficiency,Emax:w.Emax,initialCharge:w.initialCharge||0,d:SUPERWEAPONS[w.k]?.d,r:w.reactor,rk:w.reactorKind,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),mod:out.modules?out.modules.findIndex(m=>m.k==='superweapon'&&m.part===w.id):-1}));
  // v23 The power + heat network, grouped onto the combat modules (heatProfileOf; old profiles: heatLegacy).
  if(ship&&S.heat){const H=heatProfileOf(out,S);if(H)out.heat=H;}
@@ -29188,14 +29253,14 @@ const B64C='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 function packBits(a){let s='';for(let i=0;i<a.length;i+=6){let v=0;for(let j=0;j<6;j++)if(a[i+j])v|=1<<j;s+=B64C[v];}return s;}
 function unpackBits(s,n){const a=new Uint8Array(n);for(let i=0;i<s.length;i++){const v=B64C.indexOf(s[i]);for(let j=0;j<6;j++)if(v&(1<<j)&&i*6+j<n)a[i*6+j]=1;}return a;}
 function shipOutline(ship,S){
- const [X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0),yb=S.ybox||[0,S.dims[2]],H=Math.max(1,yb[1]-yb[0]),hw=Math.max(1,S.dims[1]/2),nx=120;
+ const zc=shipCenter(ship,S)[2],[X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0),yb=S.ybox||[0,S.dims[2]],H=Math.max(1,yb[1]-yb[0]),hw=Math.max(1,S.dims[1]/2),nx=120;
  const nz=clamp(Math.round(nx*hw*2/L),8,72),ny=clamp(Math.round(nx*H/L),6,72),top=new Uint8Array(nx*nz),side=new Uint8Array(nx*ny);
  const fill=(m,w,h,ax,ay,bx,by,cx,cy)=>{
   const gx=Math.floor((ax+bx+cx)/3),gy=Math.floor((ay+by+cy)/3);if(gx>=0&&gx<w&&gy>=0&&gy<h)m[gy*w+gx]=1;
   const d=(bx-ax)*(cy-ay)-(cx-ax)*(by-ay);if(Math.abs(d)<1e-9)return;
   const x0=Math.max(0,Math.floor(Math.min(ax,bx,cx))),x1=Math.min(w-1,Math.ceil(Math.max(ax,bx,cx))),y0=Math.max(0,Math.floor(Math.min(ay,by,cy))),y1=Math.min(h-1,Math.ceil(Math.max(ay,by,cy)));
   for(let j=y0;j<=y1;j++)for(let i=x0;i<=x1;i++){const px=i+.5,py=j+.5,u=((bx-px)*(cy-py)-(cx-px)*(by-py))/d,v=((cx-px)*(ay-py)-(ax-px)*(cy-py))/d;if(u>=-.02&&v>=-.02&&u+v<=1.04)m[j*w+i]=1;}};
- const put=T=>{for(let k=0;k<T.length;k+=9){const X=q=>(T[k+q]-X0)/L*nx,Z=q=>(T[k+q+2]+hw)/(2*hw)*nz,Y=q=>(T[k+q+1]-yb[0])/H*ny;fill(top,nx,nz,X(0),Z(0),X(3),Z(3),X(6),Z(6));fill(side,nx,ny,X(0),Y(0),X(3),Y(3),X(6),Y(6));}};
+ const put=T=>{for(let k=0;k<T.length;k+=9){const X=q=>(T[k+q]-X0)/L*nx,Z=q=>(T[k+q+2]-zc+hw)/(2*hw)*nz,Y=q=>(T[k+q+1]-yb[0])/H*ny;fill(top,nx,nz,X(0),Z(0),X(3),Z(3),X(6),Z(6));fill(side,nx,ny,X(0),Y(0),X(3),Y(3),X(6),Y(6));}};
  if(!ship.hull.assembly)put(hullGeo(ship).tris);for(const p of ship.parts)if(isShapePart(p))put(structTriangles(p));
  return {nx,nz,ny,top:packBits(top),side:packBits(side)};
 }
@@ -29207,10 +29272,10 @@ function shipOutline(ship,S){
 // every craft out of it. A cell is a few tens of metres on a destroyer, cheap to look up for hundreds of craft.
 const HF={nx:48,min:4,max:40};
 function hullField(ship,S){
- const [X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0),yb=S.ybox||[0,S.dims[2]],H=Math.max(1,yb[1]-yb[0]),hw=Math.max(1,S.dims[1]/2),nx=HF.nx,nz=clamp(Math.round(nx*hw*2/L),HF.min,HF.max),n=nx*nz;
+ const zc=shipCenter(ship,S)[2],[X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0),yb=S.ybox||[0,S.dims[2]],H=Math.max(1,yb[1]-yb[0]),hw=Math.max(1,S.dims[1]/2),nx=HF.nx,nz=clamp(Math.round(nx*hw*2/L),HF.min,HF.max),n=nx*nz;
  const top=new Float64Array(n).fill(-Infinity),bot=new Float64Array(n).fill(Infinity),at=(gx,gz,y)=>{const i=Math.floor(gx),j=Math.floor(gz);if(i<0||i>=nx||j<0||j>=nz)return;const k=i*nz+j;if(y>top[k])top[k]=y;if(y<bot[k])bot[k]=y;};
  const put=T=>{for(let k=0;k<T.length;k+=9){
-  const ax=(T[k]-X0)/L*nx,ay=T[k+1],az=(T[k+2]+hw)/(2*hw)*nz,bx=(T[k+3]-X0)/L*nx,by=T[k+4],bz=(T[k+5]+hw)/(2*hw)*nz,cx=(T[k+6]-X0)/L*nx,cy=T[k+7],cz=(T[k+8]+hw)/(2*hw)*nz;
+  const ax=(T[k]-X0)/L*nx,ay=T[k+1],az=(T[k+2]-zc+hw)/(2*hw)*nz,bx=(T[k+3]-X0)/L*nx,by=T[k+4],bz=(T[k+5]-zc+hw)/(2*hw)*nz,cx=(T[k+6]-X0)/L*nx,cy=T[k+7],cz=(T[k+8]-zc+hw)/(2*hw)*nz;
   for(const [px,py,pz,qx,qy,qz] of [[ax,ay,az,bx,by,bz],[bx,by,bz,cx,cy,cz],[cx,cy,cz,ax,ay,az]]){const m=Math.min(400,Math.ceil(Math.hypot(qx-px,qz-pz)*2)+1);for(let s=0;s<=m;s++){const f=s/m;at(px+(qx-px)*f,pz+(qz-pz)*f,py+(qy-py)*f);}}
   const d=(bx-ax)*(cz-az)-(cx-ax)*(bz-az);if(Math.abs(d)<1e-9)continue;
   const i0=Math.max(0,Math.floor(Math.min(ax,bx,cx))),i1=Math.min(nx-1,Math.ceil(Math.max(ax,bx,cx))),j0=Math.max(0,Math.floor(Math.min(az,bz,cz))),j1=Math.min(nz-1,Math.ceil(Math.max(az,bz,cz)));
@@ -29242,7 +29307,7 @@ function hullIn(s,l,m=0){const tb=hullTB(s,l,m);return tb?Math.min(tb[0]+m-l[1],
 // stowed (in), how deep that is (d), its share of the launch rate (r: its open area at its kind's rate, a sliding door
 // open) and whether its doors slide (sl). Ship-centred.
 function airMouths(ship,S){
- const [X0,X1]=shipSpan(ship),yb=S.ybox||[0,S.dims?.[2]||0],c=[(X0+X1)/2,(yb[0]+yb[1])/2,0],out=[],r1=v=>v.map(x=>+x.toFixed(1)),r3=v=>v.map(x=>+x.toFixed(3)),bays=ship.parts.filter(p=>p.k==='hangar');
+ const [X0,X1]=shipSpan(ship),yb=S.ybox||[0,S.dims?.[2]||0],c=shipCenter(ship,S),out=[],r1=v=>v.map(x=>+x.toFixed(1)),r3=v=>v.map(x=>+x.toFixed(3)),bays=ship.parts.filter(p=>p.k==='hangar');
  for(const h of ship.hatches){
   const hi=S.hatchInfo?.[h.id];if(!hi?.connected)continue;const slide=isSlidingHatch(ship,h),A=slide?hatchOpenArea(ship,h,1):hi.area;if(!(A>0))continue;
   const n=norm(h.n),ax=hatchAxes(h);let m=null,dir=null;
@@ -29261,7 +29326,7 @@ const HULL_SECTIONS=5,SECTION_NAMES=['艦尾区画','後部区画','中央区画
 // The ship's extent along its length: the hull's own, or for a core hull (a
 // small hull inside a larger assembly of structures, like a Lucrehulk's core
 // sphere) the whole ship's, structures included.
-function shipSpan(ship){const L=Math.max(1,ship.hull.L);if(!ship.hull.core)return [0,L];let x0=0,x1=L;for(const p of ship.parts){let b;try{b=partAABB(p);}catch(e){continue;}if(!b||!Number.isFinite(b[0])||!Number.isFinite(b[3]))continue;if(b[0]<x0)x0=b[0];if(b[3]>x1)x1=b[3];}return [x0,Math.max(x0+1,x1)];}
+function shipSpan(ship){const b=shipBounds(ship);return[b[0],b[3]];}
 function hullSectionShares(ship){
  const [x0,x1]=shipSpan(ship),L=x1-x0,HL=Math.max(1,ship.hull.L),B=80,v=new Array(B).fill(0),put=(x,vol)=>{if(!(vol>0))return;v[clamp(Math.floor((x-x0)/L*B),0,B-1)]+=vol;};
  if(!ship.hull.assembly)for(let i=0;i<B;i++){const x=x0+(i+.5)/B*L;if(x<0||x>HL)continue;const b=sectionBase(ship.hull,x);put(x,Math.max(0,b.hw*2*b.h*.8)*L/B);}
@@ -30157,11 +30222,11 @@ function alignPart(ship,p,mode,mirror=true){
 }
 function replacementShape(p){
  if(!p||['machinery','capacitor','vls','engine'].includes(p.k))return null;
- if(p.k==='struct')return p.form==='box'?'cube':p.form==='ellipsoid'&&Math.max(...p.s)-Math.min(...p.s)<.01?'sphere':null;
+ if(isStructuralPart(p))return p.form==='box'?'cube':p.form==='ellipsoid'&&Math.max(...p.s)-Math.min(...p.s)<.01?'sphere':null;
  if(p.skinAsset&&!(p.k==='sensor'&&(equipmentSpec(p)?.id==='isdSensor'||p.skinAsset.startsWith('isd_sensor_'))))return null;
  return ['sphere','cube','cyl'].includes(PARTS[p.k]?.shape)?PARTS[p.k].shape:null;
 }
-function replacementOptions(p){const shape=replacementShape(p);return shape?Object.keys(PARTS).filter(k=>!['machinery','capacitor','vls','engine'].includes(k)&&(k==='struct'?['sphere','cube'].includes(shape):PARTS[k].shape===shape)):[];}
+function replacementOptions(p){const shape=replacementShape(p);return shape?Object.keys(PARTS).filter(k=>!['machinery','capacitor','vls','engine'].includes(k)&&(isStructuralPart({k})?['sphere','cube'].includes(shape):PARTS[k].shape===shape)):[];}
 function replacePart(ship,p,k,mirror=true){
  if(!replacementOptions(p).includes(k))throw new Error('同じ基本形状の設備を選んでください');
  if(k===p.k)return p;
@@ -30170,8 +30235,8 @@ function replacePart(ship,p,k,mirror=true){
   const q={id:old.id,k,c:old.c.slice(),...(old.tw?{tw:old.tw}:{})};
   for(const key of ['autoFit','yaw','dir','pitch','roll','surfaceNormal'])if(old[key]!=null)q[key]=Array.isArray(old[key])?old[key].slice():old[key];
   const shape=replacementShape(old);
-  if(k==='struct'){q.s=old.room?.slice()||[old.d,old.d,old.d];q.form=shape==='sphere'?'ellipsoid':'box';q.taper=0;}
-  else if(old.k==='struct'){q.d=Math.cbrt(old.s[0]*old.s[1]*old.s[2]);if(shape==='cube'){q.room=old.s.slice();q.d=Math.max(...q.room);}}
+  if(isStructuralPart({k})){q.s=old.s?.slice()||old.room?.slice()||[old.d,old.d,old.d];q.form=shape==='sphere'?'ellipsoid':'box';q.taper=0;}
+  else if(isStructuralPart(old)){q.d=Math.cbrt(old.s[0]*old.s[1]*old.s[2]);if(shape==='cube'){q.room=old.s.slice();q.d=Math.max(...q.room);}}
   else{q.d=old.d;for(const key of ['room','outline','corner','foreWidth','aftWidth','deckSlope','ridge','length'])if(old[key]!=null)q[key]=JSON.parse(JSON.stringify(old[key]));}
   if(k==='hangar')q.airRole='mixed';
   if(isInternal(q))q._envelope=ship;
@@ -30182,8 +30247,8 @@ function replacePart(ship,p,k,mirror=true){
  const trial={...ship,parts:ship.parts.map(q=>made.find(m=>m.id===q.id)||q),hatches:ship.hatches.filter(h=>k==='hangar'||!removed.has(h.bay))};
  delete trial._clipEnvelope;delete trial._engines4;delete trial._commands;
  for(const q of made)if(isInternal(q))q._envelope=trial;
- for(const q of made)if(q.k!=='struct'&&hardConflicts(trial,q,Array.from(removed)).length)throw new Error('交換後の区画が機関や指揮室と干渉します');
- if(made.length>1&&k!=='struct'&&!flexibleCompartment(trial,made[0])&&!flexibleCompartment(trial,made[1])&&overlapParts(made[0],made[1]))throw new Error('交換後の左右の区画が重なります');
+ for(const q of made)if(!isStructuralPart(q)&&hardConflicts(trial,q,Array.from(removed)).length)throw new Error('交換後の区画が機関や指揮室と干渉します');
+ if(made.length>1&&!isStructuralPart({k})&&!flexibleCompartment(trial,made[0])&&!flexibleCompartment(trial,made[1])&&overlapParts(made[0],made[1]))throw new Error('交換後の左右の区画が重なります');
  for(const old of list){const q=made.find(q=>q.id===old.id);for(const key of Object.keys(old))delete old[key];Object.assign(old,q);if(isInternal(old))old._envelope=ship;}
  ship.hatches=trial.hatches;
  if(!mirror&&p.tw){const t=ship.parts.find(q=>q.id===p.tw);if(t)delete t.tw;delete p.tw;}
@@ -30348,7 +30413,7 @@ function craftCrew(ship,S){
  // Seats replace the small hull's command posts, not the crew of ship-scale equipment.
  // Keep normal gun, bridge and servicing requirements and the automation's power/cost.
  const extra=Math.max(0,Math.round(S.crewBase??S.crew??0)),crewBase=seats+extra,autoVolume=Math.max(0,S.autoVolume||0),reserve=Math.max(seats,Math.ceil(crewBase*AUTO_MIN_HUMAN));
- const autoCrew=Math.max(0,Math.min(Math.floor(autoVolume/AUTO_M3_PER_CREW),crewBase-reserve)),crew=crewBase-autoCrew,capacity=seats+(extra>0?Math.floor(Math.max(0,S.habitableVolume||0)/personVolume(ship.hull.L)):0);
+ const autoCrew=Math.max(0,Math.min(Math.floor(autoVolume/AUTO_M3_PER_CREW),crewBase-reserve)),crew=crewBase-autoCrew,capacity=seats+(extra>0?Math.floor(Math.max(0,S.habitableVolume||0)/personVolume(S.hullLen||ship.hull.L)):0);
  Object.assign(S,{craft:true,seats,crew,crewBase,autoCrew,autoVolume,weaponCrew:S.weaponCrew||0,crewCapacity:capacity,autoCrewCapacity:capacity,personCapacity:capacity+troops,crewAboard:Math.min(crew,capacity),habit:crew>0?capacity/crew:1,troopVolume:troopV,troopCapacity:troops,droidCapacity:troops,droidCrewed:droid&&!crew});
  S.ground=groundStatus(ship,S);
  const bombs=ship.fits.some(f=>f.k==='cbomb'),heavy=S.alphaTot+(S.ionTot||0)/3,L=ship.hull.L;
@@ -30585,7 +30650,7 @@ function cleanCraftPowerProfile(raw,blueprint=null){
 }
 // Only validated, immutable leaf blueprints are shared between repeated carrier normalization passes.
 // A nested carrier complement is deliberately not embedded again inside each embarked copy.
-const DESIGN_BLUEPRINTS=new WeakSet(),CRAFT_PROPULSION_BLUEPRINTS=new WeakMap(),DESIGN_BLUEPRINT_KEYS=['format','v','name','hull','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget','paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction','links','groups','systemsVersion','surfaces'];
+const DESIGN_BLUEPRINTS=new WeakSet(),CRAFT_PROPULSION_BLUEPRINTS=new WeakMap(),DESIGN_BLUEPRINT_KEYS=['format','v','name','hull','designEnvelope','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget','paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction','links','groups','systemsVersion','surfaces'];
 function cleanDesignBlueprint(raw){
  if(!raw||typeof raw!=='object'||raw.format!=='starship-yard'||![2,3].includes(raw.v))return null;if(DESIGN_BLUEPRINTS.has(raw))return raw;
  if(!Array.isArray(raw.parts)||raw.parts.length>DESIGN_LIMITS.parts||!Array.isArray(raw.fits)||raw.fits.length>DESIGN_LIMITS.fits)return null;
@@ -30628,7 +30693,7 @@ function cleanDesignCraft(d){
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
- const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=cleanDims(d.dims)||cleanDims(c.dims),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0)),powerProfile=cleanCraftPowerProfile(c.powerProfile,blueprint);
+ const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=(needsWeaponRefresh&&blueprint?cleanDims(c.dims):null)||cleanDims(d.dims)||cleanDims(c.dims),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0)),powerProfile=cleanCraftPowerProfile(c.powerProfile,blueprint);
  return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),...(weaponProfileVersion!=null?{weaponProfileVersion}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(powerProfile?{powerProfile}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
 }
 function layoutStats(ship,S){
@@ -30639,7 +30704,7 @@ function layoutStats(ship,S){
  S.feedInfo=Object.fromEntries(fd.rows.map(w=>[w.id,[w.volume,w.length,w.fromCells]]));S.feedShare=S.autoHabitationVolume>0?Math.min(1,fd.volume/S.autoHabitationVolume):fd.volume>0?1:0;
  S.habitableVolume=Math.max(0,S.autoHabitationVolume-fd.volume);
  // Everyone aboard lives in that space: the crew first, then troops, then stored droids.
- const L=Math.max(ship.hull.L||0,S.dims?.[0]||0),K=personVolume(L);
+ const L=Math.max(.001,S.dims?.[0]||0),K=personVolume(L);
  S.personVolume=K;S.personCapacity=Math.floor(S.habitableVolume/K);S.crewCapacity=S.autoCrewCapacity=S.personCapacity;S.explicitHabitationVolume=Math.min(h.explicitVolume||0,S.habitableVolume);S.explicitCrewCapacity=Math.floor(S.explicitHabitationVolume/K);
  S.habit=S.crew?S.crewCapacity/S.crew:1;S.crewAboard=Math.min(S.crew||0,S.crewCapacity);
  S.troopVolume=Math.max(0,S.habitableVolume-S.crewAboard*K);S.troopCapacity=Math.max(0,S.personCapacity-S.crewAboard);S.droidCapacity=Math.floor(S.troopVolume/DROID_STORE_M3);
@@ -32656,12 +32721,12 @@ function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;
 
 return {BROADSIDE_BATTERY_CALIBERS,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,resolveEngineSpec,updateEngineSpec,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+ isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher, isSurfaceVLS, launcherPitch, launcherGeometry, missileLauncherSpec, migrateLegacyConcussionVLS,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
-  newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
+  newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};

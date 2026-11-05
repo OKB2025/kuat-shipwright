@@ -9979,4 +9979,32 @@ Object.assign(root.KS_EN.messages,{
 "この項目は数値の確認だけです（編集する対象はありません）": "This item is a figure to check; there is nothing to edit for it."
 });
 // </v27-menu-catalog>
+// <structure-envelope-catalog>
+Object.assign(root.KS_EN.terms,{
+"面ごとの装甲厚": "Armor Thickness by Face",
+"構造物の面装甲厚": "Structure Face Armor Thickness",
+"装甲面を準備中…": "Preparing armor faces…",
+"装甲厚を変更できません": "Could not change armor thickness",
+"艦種と船体寸法": "Ship Class and Hull Dimensions",
+"完成艦の予定寸法": "Planned Overall Dimensions",
+"現在の全長×全幅×全高": "Current Overall Length × Beam × Height",
+"予定全長": "Planned Overall Length",
+"予定全幅": "Planned Overall Beam",
+"予定全高": "Planned Overall Height",
+"船体長比": "Hull Length Ratio",
+"船体長": "Hull Length",
+"船体幅": "Hull Beam",
+"船体高": "Hull Height",
+"船体長を変えるとき幅と高さも同じ比率で変える": "Scale hull beam and height with hull length"
+});
+Object.assign(root.KS_EN.messages,{
+"{0}の装甲厚（m）": "{0} Armor Thickness (m)",
+"スキンと形状を保ち、各面の装甲厚だけを変更します。0.3 m以下の面には光点を表示します。": "Change each face's armor thickness while preserving its skin and shape. Faces at or below 0.3 m show light points.",
+"· 船体長比 {0}%": "· {0}% of Hull Length",
+"予定寸法は設計開始時の目安と配置範囲です。船体を縮めても保持し、実際の艦の寸法は構造物・装備を含む外形から計算します。": "The initial planned dimensions define the working placement range and remain saved when the hull is reduced. Actual ship dimensions include the assembled structures and equipment.",
+"構造物・装備を含む完成艦のおおよその寸法です。この寸法の船体から始め、「船体」タブで船体だけを縮められます。予定寸法と配置範囲は保持し、現在の全長・全幅・全高は組み上がった外形から計算します。小数で入力でき、ゲージでは0.01 mずつ調整できます。": "Set the approximate finished size, including structures and equipment. The initial hull uses these dimensions; reduce the hull separately in Hull. The plan and placement range remain saved, while current overall dimensions follow the assembled exterior. Enter fractional metres or adjust the sliders in 0.01 m steps.",
+"有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。完成艦の予定寸法と配置範囲は、船体寸法を変えても保持します。": "When enabled, only the placed structural shells define volume, mass and compartment boundaries. Use this for ring hulls or separate pods. Planned overall dimensions and the placement range remain saved when the hull dimensions change.",
+"ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。完成艦の全長・全幅・全高は、この設定によらず構造物・装備を含めた全体で計算します。": "Use this for a small central hull surrounded by larger structures, such as the Lucrehulk's spherical core ship. Overall length, beam and height always include the assembled structures and equipment."
+});
+// </structure-envelope-catalog>
 })(typeof window==="undefined"?globalThis:window);

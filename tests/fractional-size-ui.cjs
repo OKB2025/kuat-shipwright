@@ -12,11 +12,11 @@ function setup(){const context=vm.createContext({console,C});vm.runInContext(`
  ship.parts=[{id:1,k:'struct',form:'box',c:[5.125,2.375,-.0625],s:[2.35,1.125,.064],taper:0}];ship.nextId=2;
  const num=(n,d=0)=>Number(n).toFixed(d),esc=String,seg=()=>'',partInfoHTML=()=>'',twinOfItem=()=>null,selItem=()=>ship.parts.find(p=>p.id===st.sel.id),editSel=fn=>fn(selItem()),craftDesign=()=>C.isCraft(ship),blockedHullControl=()=>false;
  const precisePartSize=p=>C.isReactor(p)||['engine','hyper','shield','localShield'].includes(p.k),smallPartSize=k=>C.PARTS[k]?.group==='craft'||craftDesign()&&C.craftPart(k),pSize=k=>C.partLimits(ship,k).def,setPSize=(k,v)=>st.size[k]=v,sizeOut=(k,v)=>v+' m';
- const undoStack=[],redoStack=[],listeners={},controls=new Map(),outputs=new Map(),panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)};
+ const undoStack=[],redoStack=[],listeners={},controls=new Map(),outputs=new Map(),meshStore={pendingSurfaceGeometry:null},panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)};
  let dragSnap=null,dragLabel='',lastOp='';
  const $=selector=>selector==='#panel'?panel:selector.startsWith('#out-')?(outputs.has(selector)||outputs.set(selector,{}),outputs.get(selector)):null;
  const $$=selector=>controls.get(selector.match(/data-sl="([^"]+)"/)?.[1])||[];
- const touch=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},refitOnGeometry=()=>{},scaleContents=()=>{};
+ const touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},refitOnGeometry=()=>{},scaleContents=()=>{};
  const cockpitEquipmentHTML=()=>'',v3PartEditor=()=>'';
  `,context);
  for(const [start,end]of [
