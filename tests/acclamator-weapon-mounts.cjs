@@ -21,7 +21,7 @@ function assertMissiles(s){
 }
 
 test('Acclamator station columns install all bow launchers directly on the dorsal hull without lift',()=>{
- const s=fitted();assert.equal(s.fits.filter(f=>f.k==='quad200').length,12);assert.equal(s.fits.filter(f=>f.k==='pd').length,24);assertMissiles(s);
+ const s=fitted();assert.equal(s.fits.filter(f=>f.k==='quad200').length,12);assert.equal(s.fits.filter(f=>f.k==='pd').length,12);assertMissiles(s);
  const before=plain(s.fits.filter(f=>f.k==='cmsl').map(f=>f.p));C.remount(s);assertMissiles(s);assert.deepEqual(plain(s.fits.filter(f=>f.k==='cmsl').map(f=>f.p)),before);
 });
 
@@ -54,7 +54,7 @@ test('Arquitens fitted presets install all four flush prong launchers',()=>{
 
 test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain six external launchers',()=>{
  const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='cmsl'),pending=launchers.filter(f=>f.legacyMissileMount==='vls'),external=launchers.filter(f=>!f.legacyMissileMount);assert.equal(launchers.length,8);assert.equal(pending.length,2);assert.equal(external.length,6);assert.ok(external.every(f=>C.missileMount(f)==='ext'));
- const bays=s.fits.filter(f=>f.k==='monCal34'||f.k==='monCal150Ion');assert.equal(bays.length,28);assert.equal(bays.filter(f=>f.k==='monCal34').length,12);assert.equal(bays.filter(f=>f.k==='monCal150Ion').length,16);
+ const bays=s.fits.filter(f=>f.k==='single500'||f.k==='monCal150Ion');assert.equal(bays.length,16);assert.equal(bays.filter(f=>f.k==='single500').length,16);assert.equal(bays.filter(f=>f.k==='monCal150Ion').length,0);
  for(let i=0;i<bays.length;i++){
   const f=bays[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.equal(C.fitSpec(f).barrels,1);assert.ok(f.p[0]>=195&&f.p[0]<=368,'the migrated bays remain on the existing head');
   assert.ok(bays.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<.1),'opposite spheres follow matching native hull faces within ten centimetres');
@@ -68,18 +68,18 @@ test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain 
  for(const f of vls){assert.ok(C.isSurfaceVLS(f));assert.equal(C.missileMount(f),'vls');assert.equal(f.float,false);assert.equal(f.surfaceUnplaced,false);assert.equal(s.surfaces.patches.find(q=>q.id===f.surfacePatch)?.functionMode,'equipment');}
  const migratedIds=[...native,...vls].map(f=>f.id).sort((a,b)=>a-b);assert.deepEqual(plain(migratedIds),plain(originalIds),'migration retains all eight launcher IDs without replacement or duplication');
  const stats=C.computeStats(s),capacitors=C.weaponCapacitors(s);
- for(const f of bays){assert.ok(capacitors.some(p=>p.weaponId===f.id),'each bay owns actual charging hardware');assert.ok(stats.chargeInfo[f.id].ratio>1-1e-6,'the fitted bay has room for its full firing charge');assert.ok(stats.chargeInfo[f.id].internalVolume>0);}
+ for(const f of bays){const q=stats.chargeInfo[f.id];assert.ok(q.ratio>1-1e-6,'the fitted bay has room for its full firing charge');assert.ok(q.housingUsed>0,'each spherical gun uses real closed charging cells');if(q.internalRequired>1e-5)assert.ok(capacitors.some(p=>p.weaponId===f.id),'any missing charge volume has ship-internal hardware');}
 });
 
 test('MC30c spherical replacements retain clear native seats and full physically allocated firing charges',()=>{
- const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),guns=s.fits.filter(f=>['monCal34','monCal150Ion'].includes(f.k));assert.equal(guns.length,28);assert.equal(guns.filter(f=>f.k==='monCal34').length,12);assert.equal(guns.filter(f=>f.k==='monCal150Ion').length,16);
+ const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),guns=s.fits.filter(f=>['single500','monCal150Ion'].includes(f.k));assert.equal(guns.length,16);assert.equal(guns.filter(f=>f.k==='single500').length,16);assert.equal(guns.filter(f=>f.k==='monCal150Ion').length,0);
  for(let i=0;i<guns.length;i++){const f=guns[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.ok(C.isBallTurret(f));assert.ok(guns.some(g=>g!==f&&g.k===f.k&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<.1),'opposite spherical mounts follow their actual hull faces');for(const g of guns.slice(i+1)){const q=C.fitAABB(g);assert.ok([0,1,2].some(a=>b[a+3]+.49<=q[a]||q[a+3]+.49<=b[a]),'adjacent spherical gun bounds retain a physical gap');}}
  C.syncCompartments(s);const stats=C.computeStats(s),capacitors=C.weaponCapacitors(s);
  for(const f of guns){const charge=stats.chargeInfo[f.id],volley=C.fitSpec(f).tt||C.fitSpec(f).ion;assert.ok(charge,f.k+' #'+f.id+' has a real charging allocation');assert.ok(charge.ratio>1-1e-6,f.k+' #'+f.id+' has its full firing charge');assert.equal(charge.blocked,false);near(charge.storedTT,volley);near(charge.storedTT,charge.volume*C.CHARGE_TT_M3);assert.ok(charge.housingUsed>0);if(charge.internalRequired>1e-5){assert.ok(charge.internalVolume>0);assert.ok(capacitors.some(p=>p.weaponId===f.id&&C.partVolume(p)>0),'missing housing volume is backed by physical internal equipment');}}
 });
 
 test('the full Acclamator builder and current fleet profile complete with four usable launchers',()=>{
- const s=C.buildDesign('acclamator');assertMissiles(s);assert.equal(s.fits.filter(f=>f.k==='quad200').length,12,'the completed example retains all twelve canonical quad turrets');assert.equal(s.fits.filter(f=>f.k==='pd').length,24,'weapon consolidation does not convert its independent point defenses');assert.deepEqual(plain(s.airWings),[]);assert.deepEqual(plain(s.groundForces),[]);
+ const s=C.buildDesign('acclamator');assertMissiles(s);assert.equal(s.fits.filter(f=>f.k==='quad200').length,12,'the completed example retains all twelve canonical quad turrets');assert.equal(s.fits.filter(f=>f.k==='pd').length,12,'weapon consolidation does not convert its independent point defenses');assert.deepEqual(plain(s.airWings),[]);assert.deepEqual(plain(s.groundForces),[]);
  const stats=C.computeStats(s),profile=C.fleetProfile(stats,s.name,s);assert.ok(Number.isFinite(stats.mass)&&stats.mass>0);assert.equal(profile.profileVersion,C.FLEET_PROFILE_VERSION);
  const launchers=profile.modules.filter(m=>m.k==='launcher');assert.equal(launchers.length,4);assert.ok(launchers.every(m=>m.stock>0));assert.ok(profile.msl>0);
 });

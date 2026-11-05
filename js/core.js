@@ -192,7 +192,7 @@ function navigationItinerary(route){
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:14,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:15,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+(p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)?resolveEngineSpec(p).cost:0):0;}
@@ -207,12 +207,12 @@ function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof
 function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:{model:PROPULSION,profiles:DRIVE_PROFILES,grades:MACHINERY_GRADES},systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 14,
- "modelSignature": "d2vo03",
+ "modelVersion": 15,
+ "modelSignature": "19w6mu0",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "37gipx",
+   "signature": "z2hfby",
    "build": 230512,
    "crew": 3000,
    "total": 233512,
@@ -1665,7 +1665,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 34823.41415
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -2194,7 +2194,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "qf9ns5",
+   "signature": "1nh2jpa",
    "build": 159940,
    "crew": 1000,
    "total": 160940,
@@ -3289,7 +3289,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 50013.91499999999
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -3491,7 +3491,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "2l1gqm",
+   "signature": "52agov",
    "build": 205143,
    "crew": 2000,
    "total": 207143,
@@ -4834,7 +4834,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 29419.95
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -5227,7 +5227,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "h27ma",
+   "signature": "c14xtf",
    "build": 186068,
    "crew": 0,
    "total": 186068,
@@ -6972,7 +6972,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 22064.962499999998
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -7498,7 +7498,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "kw0ez0",
+   "signature": "15uqzwp",
    "build": 99324,
    "crew": 1000,
    "total": 100324,
@@ -8507,7 +8507,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 41580.196
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -8833,7 +8833,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1u2azg9",
+   "signature": "1igadvm",
    "build": 84444,
    "crew": 1000,
    "total": 85444,
@@ -9686,7 +9686,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 40207.26499999999
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -9904,7 +9904,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "196errv",
+   "signature": "vfonls",
    "build": 134209,
    "crew": 1000,
    "total": 135209,
@@ -10984,7 +10984,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 23339.826999999997
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -11353,7 +11353,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "11ckfyc",
+   "signature": "ti3wyp",
    "build": 139657,
    "crew": 1000,
    "total": 140657,
@@ -12682,7 +12682,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 46052.02839999998
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -13190,7 +13190,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "1k80o51",
+   "signature": "n2m3ce",
    "build": 121700,
    "crew": 0,
    "total": 121700,
@@ -14301,7 +14301,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 35303.939999999995
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -14640,7 +14640,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "64j433",
+   "signature": "vzcdwk",
    "build": 246592,
    "crew": 1000,
    "total": 247592,
@@ -16233,7 +16233,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 50994.58
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -16912,7 +16912,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "17rhmem",
+   "signature": "1pslrnz",
    "build": 180995,
    "crew": 1000,
    "total": 181995,
@@ -18277,7 +18277,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 36284.60500000001
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -18684,7 +18684,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "7rlbvl",
+   "signature": "1dmam4q",
    "build": 141590,
    "crew": 1000,
    "total": 142590,
@@ -19823,7 +19823,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 32656.1445
     },
-    "profileVersion": 14,
+    "profileVersion": 15,
     "heat": {
      "v": 1,
      "src": [
@@ -21361,7 +21361,7 @@ function fillHangars(ship, size, x0f, x1f, mirror, ylimit) {
 }
 
 // ---------- performance model ----------
-function baseComputeStats(ship) {
+function baseComputeStats(ship,options={}) {
   const g = hullGeo(ship), hp = ship.hull, physicalBounds=shipBounds(ship,{hullGeometry:g}), spanStart=physicalBounds[0], L=Math.max(.001,physicalBounds[3]-spanStart);
   const hf = heightfield(ship), obst = obstacles(ship);
   const nb = 120, bins = new Float64Array(nb), dxb = L / nb, strA = new Float64Array(nb);
@@ -21505,7 +21505,9 @@ function baseComputeStats(ship) {
       if(f.float)continue;
       if(isConcussionLauncher(f))bPower+=d.power;else wPower+=d.power;
       if (d.tt || d.ion || d.aa) {
-        const arc = fireArcs(ship, f, hf, obst); fitInfo[f.id] = arc;
+        // Stock engineering passes need the same physical mass and loads but
+        // no firing survey. The final editor/fleet calculation always surveys.
+        const arc = options.engineeringOnly ? [0,0,0,0,0,0] : fireArcs(ship, f, hf, obst); fitInfo[f.id] = arc;
         const mean = arc.reduce((a, b) => a + b, 0) / 6;
         const br = bandRate[fitBand(FITS[f.k] || d)];
         for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);br[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);}if (d.aa) aaArc[k] += d.aa * arc[k]; }
@@ -21515,11 +21517,11 @@ function baseComputeStats(ship) {
     } else if(!f.float && (!d.window || d.role==='bridge'||d.role==='combat')) {
       const effective=d.window?(commandInfo[f.id]?.ratio||0):1;if(effective<=0)continue;
       bridges++; bPower += d.power*effective;
-      const vw = bridgeView(ship, f, hf, obst)*effective; fitInfo[f.id] = vw; viewSum += vw; sensor += d.sensor * (0.5 + 0.5 * vw)*effective;aaCh+=AA_CHANNELS.w[d.role==='combat'?'combat':'bridge']*d.sensor*effective*AA_CHANNELS.k;
+      const vw = (options.engineeringOnly ? 0 : bridgeView(ship, f, hf, obst))*effective; fitInfo[f.id] = vw; viewSum += vw; sensor += d.sensor * (0.5 + 0.5 * vw)*effective;aaCh+=AA_CHANNELS.w[d.role==='combat'?'combat':'bridge']*d.sensor*effective*AA_CHANNELS.k;
     }
   }
   // Model bridge bodies command from their own drum or window band.
-  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(d.role!=='bridge'&&d.role!=='combat')continue;const effective=commandInfo[f.id]?.ratio||0;if(effective<=0)continue;bridges++;bPower+=d.power*effective;const vw=bridgeView(ship,f,hf,obst)*effective;fitInfo[f.id]=vw;viewSum+=vw;sensor+=d.sensor*(0.5+0.5*vw)*effective;aaCh+=AA_CHANNELS.w[d.role==='combat'?'combat':'bridge']*d.sensor*effective*AA_CHANNELS.k;}
+  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(d.role!=='bridge'&&d.role!=='combat')continue;const effective=commandInfo[f.id]?.ratio||0;if(effective<=0)continue;bridges++;bPower+=d.power*effective;const vw=(options.engineeringOnly?0:bridgeView(ship,f,hf,obst))*effective;fitInfo[f.id]=vw;viewSum+=vw;sensor+=d.sensor*(0.5+0.5*vw)*effective;aaCh+=AA_CHANNELS.w[d.role==='combat'?'combat':'bridge']*d.sensor*effective*AA_CHANNELS.k;}
   for(const p of ship.parts)if((p.k==='cockpit'||p.k==='droidbrain')&&!invalid.has(p.id)){const ratio=clamp(partVolume(p)/Math.max(1e-9,unclippedPartVolume(p)),0,1);if(ratio<=0)continue;const ck=p.k==='cockpit';bridges++;sensor+=(ck?.75:.55)*ratio;viewSum+=(ck?.85:.5)*ratio;bPower+=partVolume(p)*2e15;aaCh+=AA_CHANNELS.w.cockpit*ratio*AA_CHANNELS.k;}
   for(const p of ship.parts)if(p.k==='command'&&!invalid.has(p.id)){const ratio=clamp(partVolume(p)/Math.max(1,unclippedPartVolume(p)),0,1);if(ratio<=0)continue;bridges++;sensor+=.7*ratio;viewSum+=.7*ratio;bPower+=4e20*ratio;aaCh+=AA_CHANNELS.w.combat*.7*ratio*AA_CHANNELS.k;}
   // v21.2 Target-tracking domes and sensor arrays (the ISD's globes over its bridge) work like a modern warship's
@@ -22193,6 +22195,10 @@ function boxesOverlap(a,b,tol=0){return a[0]<b[3]-tol&&a[3]>b[0]+tol&&a[1]<b[4]-
 function overlapParts(a,b){
  if(a._surfaceAdapter&&b._surfaceAdapter)return false;
   const A=partAABB(a),B=partAABB(b);if(!boxesOverlap(A,B,.1))return false;
+  // Packed rooms are unions of real axis-aligned cells. Their shared
+  // bulkheads have no occupied volume; sampling an inclusive boundary in
+  // both rooms must not disable either piece of machinery.
+  if(a._packing&&b._packing)return a._packing.boxes.some(x=>b._packing.boxes.some(y=>boxesOverlap(x,y,1e-7)));
   if(PARTS[a.k].shape==='cube'&&PARTS[b.k].shape==='cube'&&!a.boxSize&&!b.boxSize&&!a.room&&!b.room&&!isInternal(a)&&!isInternal(b))return true;
   const lo=[0,1,2].map(k=>Math.max(A[k],B[k])),hi=[0,1,2].map(k=>Math.min(A[k+3],B[k+3]));
   for(let i=0;i<5;i++)for(let j=0;j<5;j++)for(let k=0;k<5;k++){const p=[i,j,k].map((v,a)=>lo[a]+(hi[a]-lo[a])*(v+.5)/5);if(inPart(a,p)&&inPart(b,p))return true;}
@@ -22386,8 +22392,9 @@ function v3Deserialize(o){
   if(o.systemsVersion===1||s.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))s.systemsVersion=1;else delete s.systemsVersion;
   s.nextId=mx+1;return s;
 }
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['imperial','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 function buildDesign(key){
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);const out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);const out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);return SHIP_SYSTEM_REFIT_KEYS.includes(key)?refitShipSystems(out,key):out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -22494,9 +22501,9 @@ function enginePaths(ship){
     const m=machineryGeometry(e,ship),dir=m.dir,b=m.b,mn=isCraft(ship)?.15:2,bl=m.length,joint=sub(b,mul(dir,bl));
     if(!(m.volume>0)||!Number.isFinite(m.volume)||m.length>DESIGN_LIMITS.engineLength||m.radius>DESIGN_LIMITS.engineDiameter||!Number.isFinite(m.offset)||Math.abs(m.offset)>DESIGN_LIMITS.coordinate||!m.b.every(Number.isFinite))continue;
     const u=r?norm(sub(joint,r.c)):dir,a=r?add(r.c,mul(u,r.d*.49)):joint;
-    const rad=m.radius,connectionSegments=r&&len(sub(a,b))>=mn/2?[segment(a,joint,Math.min(r.d*.2,e.machineryFeedRadiusM??e.d*.29),rad*.78)].filter(s=>s.l>.1):[],machinerySegment=segment(joint,b,rad*.78,rad),segments=[...connectionSegments,machinerySegment];
-    const seg=segment(a,b,segments[0].r0,rad);
-    paths.push({id:-e.id,k:'machinery',c:mul(add(a,b),.5),d:e.d,seg,segments,machinerySegment,connectionSegments,effectiveMachineryVolumeM3:m.volume,reactor:r?.id??null,nozzle:e.id});
+    const rad=m.radius,connectionSegments=r&&!e.busFeed&&len(sub(a,b))>=mn/2?[segment(a,joint,Math.min(r.d*.2,e.machineryFeedRadiusM??e.d*.29),rad*.78)].filter(s=>s.l>.1):[],machinerySegment=segment(joint,b,rad*.78,rad),segments=[...connectionSegments,machinerySegment];
+    const seg=segment(e.busFeed?joint:a,b,segments[0].r0,rad);
+    paths.push({id:-e.id,k:'machinery',c:mul(add(e.busFeed?joint:a,b),.5),d:e.d,seg,segments,machinerySegment,connectionSegments,effectiveMachineryVolumeM3:m.volume,reactor:r?.id??null,nozzle:e.id});
   }
   ship._engines4={key,paths};return paths;
 }
@@ -22544,7 +22551,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW','busFeed','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){normalizeAeroPart(q);enforceEquipment(q);normalizeSuperweapon(q);if(isShapePart(q))q._solidCutShip=ship;if(q.k==='cockpit'){if(Number.isFinite(opt.seats))q.seats=clamp(Math.round(opt.seats),1,20);if(opt.suit===true)q.suit=true;}}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made){if(!old&&q.k==='engine')initializeEngineSpec(q,ship,false);if(isInternal(q))q._envelope=ship;}
@@ -23132,6 +23139,9 @@ function surfaceAdapterRay(p,o,d){const a=p._surfaceAdapter;if(!a.triangles){con
 function surfaceLedgerKey(ship){return surfaceHash((ship.surfaces?.patches||[]).map(q=>[q.id,q.aggregate]));}
 function surfaceData(ship){
  surfaceSync(ship);const key=surfaceAggregateKey(ship)+'|'+surfaceLedgerKey(ship),old=surfaceDataCache.get(ship);if(old?.key===key)return old;
+ // Native-only ships have no face-derived devices. The physical armor and
+ // exposed-face surveys still run when the final statistics need them.
+ if(!ship.surfaces?.patches?.length){const data={key,parts:[],fits:[],aliases:new Map(),roles:new Map()};surfaceDataCache.set(ship,data);return data;}
  const parts=[],fits=[],aliases=new Map(),patches=surfacePatches(ship),roles=new Map();
  for(const config of ship.surfaces?.patches||[]){const patch=patches.find(p=>p.id===config.id),groups=new Map();for(const r of config.aggregate?.cells||[]){const k=r[1]+':'+r[2]+':'+(r[3]?1:0);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);}const faceRoles=[];
   for(const cells of groups.values()){const first=cells[0],volume=cells.reduce((a,r)=>a+r[21],0),geometry=cells.map(surfaceCellGeometry),center=volume>0?[0,1,2].map(i=>cells.reduce((a,r)=>a+r[i+4]*r[21],0)/volume):first.slice(4,7),id=first[0],kind=SURFACE_CELL_KINDS[first[2]],role=SURFACE_ROLES[first[1]],inactive=first[3]!==0,meta={cells,geometry,volume,cost:cells.reduce((a,r)=>a+r[22],0),area:cells.reduce((a,r)=>a+r[23],0),aperture:cells.reduce((a,r)=>a+(r[28]===0?0:r[24]),0),bands:Object.fromEntries(Object.keys(SENSOR_BANDS).map(b=>[b,cells.filter(r=>(r[27]||'multi')===b&&r[28]!==0).reduce((a,r)=>a+r[24],0)])),tracking:cells.reduce((a,r)=>a+(r[28]===0?0:r[25]),0),channels:cells.reduce((a,r)=>a+r[25],0),bounds:[0,1,2].map(i=>Math.min(...geometry.map(g=>g.b[i]))).concat([3,4,5].map(i=>Math.max(...geometry.map(g=>g.b[i]))))},p={id,k:kind,c:center,d:Math.cbrt(volume),surfacePatch:config.id,host:patch?._part?.id,surfaceRole:role,surfaceCell:'role:'+role+(inactive?':inactive':''),surfaceUnplaced:inactive,surfaceNormal:patch?.normal.slice()||first.slice(10,13),surfacePoint:patch?.center.slice()||first.slice(14,17),surfaceFootprint:[Math.sqrt(cells.reduce((a,r)=>a+r[17]*r[18],0)),Math.sqrt(cells.reduce((a,r)=>a+r[17]*r[18],0))],surfaceExposure:volume?cells.reduce((a,r)=>a+r[20]*r[21],0)/volume:0,powerDomain:config.powerDomain||'main',label:'面設備・'+({cooling:'散熱',sensors:'センサー',habitation:'居住区'}[role]||role),_surfaceAdapter:meta};parts.push(p);faceRoles.push(p);for(const r of cells)aliases.set('p'+r[0],'p'+id);}
@@ -23396,7 +23406,7 @@ function deserialize(o){
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
   for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
   if(o.hull?.maxAt!=null)s.hull.maxAt=finite(o.hull.maxAt,.05,.9,.3);
-  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if(Array.isArray(q.room)&&q.room.length===3&&PARTS[p.k].shape==='cube')setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
+  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if(Array.isArray(q.room)&&q.room.length===3&&(PARTS[p.k].shape==='cube'||p.k==='aux'||p.k==='inertial'))setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
     for(const k of ['aftWidth','foreWidth'])if(q[k]!=null)p[k]=finite(q[k],.03,2,1);
     if(q.loft){if(!Array.isArray(q.loft)||q.loft.length<2||q.loft.length>32)throw new Error('ロフト断面は2〜32個にしてください');p.loft=q.loft.map(a=>[finite(a?.[0],0,1,0),finite(a?.[1],.02,2,1),finite(a?.[2],.03,1.5,1),finite(a?.[3],0,1,0),...(a?.length>4?[finite(a[4],-2,2,0)]:[])]).sort((a,b)=>a[0]-b[0]);if(p.loft.some((a,i)=>a[3]>=a[2]||(i&&a[0]-p.loft[i-1][0]<.002)))throw new Error('ロフトの断面位置か上下寸法が不正です');p.loft[0][0]=0;p.loft.at(-1)[0]=1;}
     if(Array.isArray(q.skinAxial)&&q.skinAxial.length===3&&q.skinAxial.every(v=>Number.isFinite(v)&&v>0&&v<=10000))p.skinAxial=q.skinAxial.slice();
@@ -23421,7 +23431,7 @@ function deserialize(o){
     if(q.corner!=null)p.corner=finite(q.corner,0,.45,.12);if(q.length!=null)p.length=finite(q.length,.1,DESIGN_LIMITS.partSize,p.d*1.5);if(q.bodyLength!=null)p.bodyLength=finite(q.bodyLength,.1,DESIGN_LIMITS.engineLength,p.d*2.2);if(q.bodyRadius!=null)p.bodyRadius=finite(q.bodyRadius,.3,.8,.52);if(q.yaw!=null)p.yaw=finite(q.yaw,-180,180,0);if(p.dir&&len(p.dir)<.1)p.dir=[-1,0,0];if(/^#[0-9a-f]{6}$/i.test(q.paint))p.paint=q.paint;if(q.ribSpacing!=null)p.ribSpacing=finite(q.ribSpacing,0,100,12);
   }
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(q.customEquipment===true)p.customEquipment=true;if(typeof q.autoFit==='boolean')p.autoFit=q.autoFit;if(((Object.hasOwn(EQUIPMENT,q.equipmentId)&&EQUIPMENT[q.equipmentId].k===p.k)||(p.k==='engine'&&Object.hasOwn(LEGACY_ENGINES,q.equipmentId))))p.equipmentId=q.equipmentId;}
-  for(const p of s.parts)if(p.k==='engine'){const q=o.parts.find(q=>q.id===p.id);for(const key of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW'])if(Object.hasOwn(q,key))p[key]=q[key];if(q.propulsionMigration&&typeof q.propulsionMigration==='object')p.propulsionMigration=JSON.parse(JSON.stringify(q.propulsionMigration));}
+  for(const p of s.parts)if(p.k==='engine'){const q=o.parts.find(q=>q.id===p.id);for(const key of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW'])if(Object.hasOwn(q,key))p[key]=q[key];if(q.busFeed===true)p.busFeed=true;if(q.propulsionMigration&&typeof q.propulsionMigration==='object')p.propulsionMigration=JSON.parse(JSON.stringify(q.propulsionMigration));}
   migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
@@ -23618,7 +23628,7 @@ function clipCompartmentMesh(ship,p,b){
 // volume budgets. The derived solids are disjoint; no capacity is counted twice.
 // Anchored flight decks, windows and physical machinery retain their geometry.
 function flexibleCompartment(ship,p){
- return isInternal(p)&&PARTS[p.k]?.shape==='cube'&&p.autoFit!==false&&!p.windowId&&!ship.hatches.some(h=>h.bay===p.id)&&!(p.k==='hangar'&&['flight','dock'].includes(p.airRole));
+ return isInternal(p)&&(PARTS[p.k]?.shape==='cube'||(p.k==='aux'||p.k==='inertial')&&p.room)&&p.autoFit!==false&&!p.windowId&&!ship.hatches.some(h=>h.bay===p.id)&&!(p.k==='hangar'&&['flight','dock'].includes(p.airRole));
 }
 function hardConflicts(ship,p,ignore=[]){return conflicts(ship,p,ignore).filter(q=>!flexibleCompartment(ship,p)&&!flexibleCompartment(ship,q));}
 function packingBounds(boxes,c=[0,0,0]){return boxes.length?[0,1,2].map(i=>Math.min(...boxes.map(b=>b[i]))).concat([3,4,5].map(i=>Math.max(...boxes.map(b=>b[i])))):c.concat(c);}
@@ -23709,7 +23719,7 @@ function integrateCompartments(ship,occupied){
  const fixed=occupied.filter(p=>!flexibleCompartment(ship,p)),accepted=fixed.slice(),parent=new Map(occupied.map(p=>[p.id,p.id]));
  const root=id=>{while(parent.get(id)!==id)id=parent.get(id);return id;},union=(a,b)=>{a=root(a);b=root(b);if(a!==b)parent.set(Math.max(a,b),Math.min(a,b));};
  for(const p of flexible){
-  const clashes=accepted.filter(q=>overlapParts(p,q)),target=unclippedPartVolume(p),clipped=gen(p)&&partVolume(p)<target*.999999;
+  const clashes=accepted.filter(q=>overlapParts(p,q)),target=unclippedPartVolume(p),clipped=(gen(p)||(p.k==='aux'||p.k==='inertial')&&p.room)&&partVolume(p)<target*.999999;
   if(clashes.length||clipped){p._packing=packFlexibleVolume(ship,p,target,accepted,clashes);for(const q of clashes)union(p.id,q.id);}
   accepted.push(p);
  }
@@ -23866,60 +23876,54 @@ function hyperCapacity(p){return partVolume(p);}
 function partRatingKeys(){return [];}
 function completeReferenceArmament(ship){
  const key=ship.reference;
- const gun=(k,x,z)=>{const h=rayEnv(ship,[x,1000,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の砲座がありません');const r=placeFit(ship,k,h.p,h.n,0,false);if(!r.fit)throw new Error('作例の砲座: '+r.err);if(needsCapacitor(r.fit))r.fit.chargeDepth=14;return r.fit;};
- const hull=(k,x,zf,under,scale)=>{const z=zf*sectionBase(ship.hull,x).hw,h=rayEnv(ship,[x,under?-1000:1000,z],[0,under?1:-1,0]);if(!h)return null;const r=placeFit(ship,k,h.p,h.n,0,false);if(r.fit&&scale)r.fit.scale=scale;if(r.fit&&needsCapacitor(r.fit))r.fit.chargeDepth=14;return r.fit||null;};
+ if(!['imperial','venator','acclamator'].includes(key))return ship;
+ // These examples use the current independent turret models. Keep their
+ // surveyed heavy batteries, then give the lighter guns explicit hull seats.
+ if(key==='imperial'||key==='venator')ship.fits=ship.fits.filter(f=>f.k!=='pd');
+ const gun=(k,x,z,under=false,zone='dorsal')=>{const up=under?[0,-1,0]:[0,1,0],h=rayEnv(ship,[x,under?-1000:1000,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('作例の砲座がありません: '+k+' '+x+','+z);const f={id:ship.nextId++,k,p:h.p,a:under?3:2,ped:0,base:0,low:0,float:false,mountMode:under?'bottom':'top',chargeDepth:14,batteryZone:zone};mountFit(ship,f);if(f.float)throw new Error('作例の砲座が浮いています: '+k+' '+x+','+z);ship.fits.push(f);return f;};
+ const hull=(k,x,zf,under=false,zone)=>gun(k,x,zf*sectionBase(ship.hull,x).hw,under,zone);
  if(key==='imperial'){
-  // v22 The Imperial I-class armament as canon and Legends give it (Wookieepedia, "Imperial I-class Star
-  // Destroyer", canon infobox: 60 XX-9 heavy turbolaser batteries, 60 NK-7 ion cannons, 6 dual heavy
-  // turbolaser turrets, 2 dual heavy ion cannon turrets, 2 quad heavy turbolasers, 3 triple medium
-  // turbolasers, 2 medium turbolasers, 10 Q7 tractor beam projectors; Legends adds the layout after Curtis
-  // Saxton's analysis of the film models). The eight heavy mounts that flank the tower (six turbolaser, the
-  // aft pair ion) are placed by attachReferenceSkin. Neither continuity gives the class missile
-  // launchers, so it carries none. zf is a share of the half-width there.
-  const under=(k,x,z)=>{const h=rayEnv(ship,[x,-1000,z],[0,1,0]);if(!h)throw new Error('作例の腹部砲座がありません');const r=placeFit(ship,k,h.p,h.n,0,false);if(!r.fit)throw new Error('作例の腹部砲座: '+r.err);if(needsCapacitor(r.fit))r.fit.chargeDepth=14;return r.fit;};
-  // Two quad heavy turbolasers: "two large ventral turbolasers ... just past the forward tip of the attack
-  // hangar, near its corners" (Legends). At standard size a quad mount is a pair of twin heavy turrets (htl),
-  // fore and aft of each other: 8 barrels × 70 TT, the reference workbook's 8×70 TT.
-  for(const x of [1000,1036])for(const z of [-82,82])under('htl',x,z);
-  // Three triple medium turbolasers "on the ship's ridge, just forward of the lowest, forwardmost terrace of
-  // the dorsal superstructure" (Legends): on the ridge block ahead of the forward citadel. The workbook's
-  // 27×40 TT counted nine; canon and Legends give three (9 barrels × 40 TT).
-  for(const x of [772,802,832])gun('triple40',x,0);
-  // Two medium turbolasers (canon gives no place): on the forward deck either side of the centre line.
-  for(const z of [-36,36])gun('mtl',1185,z);
-  // The former 60 XX-9 positions now use the unified 40 TT twins: 30 a side from the stern
-  // shoulders to the bow (the trench that rings the hull between its dorsal and ventral halves).
-  trenchBattery(ship,Array.from({length:30},(_,i)=>250+i*38),'twin40',{chargeDepth:14});
-  // The former 60 NK-7 positions now use spherical 4x40 TT ion turrets: 20 a side on the dorsal plating
-  // (from the heavy battery deck to the bow) and 10 a side under the hull.
-  // (none over the forward deck armour at x 1,105 m; the ventral row keeps clear of the lower point defence)
-  // Keep the forward dorsal ion pair clear of the longer twin40 trench housing.
-  for(const x of [565,610,655,700,745,790,835,880,925,970,1015,1060,1150,1195,1240,1285,1330,1385,1420,1460])for(const sg of [-1,1])hull('quad40Ion',x,sg*.78,false);
-  for(const x of [300,380,520,600,740,830,920,1010,1100,1250])for(const sg of [-1,1])hull('quad40Ion',x,sg*.72,true);
-  // Ten Q7 tractor beam projectors: the forward pursuit array at the bow (six, under the prow) and four
-  // "near the hangar bay opening" (canon), beside the attack hangar's sides.
-  for(const x of [1380,1420,1460])for(const z of [-12,12])under('trc',x,z);
-  for(const x of [800,965])for(const z of [-104,104])under('trc',x,z);
-  // Point defence lasers along the lower hull (canon: point-defence laser cannon at both "ends").
-  for(const x of [430,660,1170,1330])for(const zf of [-.62,.62])hull('pd',x,zf,true);
+  // Six 175 TT twins and two ion twins already occupy the measured eight
+  // wells. The secondary battery is nine 40 TT triples, plus a 70 TT quad
+  // on each trench wall. No retired gun decks or spherical ion batteries.
+  for(const x of [772,802,832])gun('triple40',x,0,false,'ridge-medium');
+  for(const [x,z] of [[650,82],[930,105],[1160,58]])for(const sg of [-1,1])gun('triple40',x,sg*z,false,'forward-medium');
+  if(trenchBattery(ship,[700],'quad70Side',{chargeDepth:14}).length!==2)throw new Error('ISDの左右舷側重砲座が不足しています');
+  for(const x of [260,420,570,860,1040,1240])for(const sg of [-1,1])hull('pd',x,sg*.84,false,'dorsal-defence');
+  for(const x of [430,660,1170,1330])for(const sg of [-1,1])hull('pd',x,sg*.62,true,'ventral-defence');
+  // Ten tractor projectors preserve the original hangar and pursuit roles.
+  for(const x of [1380,1420,1460])for(const z of [-12,12])gun('trc',x,z,true,'bow-tractor');
+  for(const x of [800,965])for(const z of [-104,104])gun('trc',x,z,true,'hangar-tractor');
  }
- if(key==='acclamator'){
-  gunsDeck(ship,'pd',[.16,.36,.58],[.88],null,false,0);
- }
+ if(key==='acclamator')gunsDeck(ship,'pd',[.16,.36,.58],[.88],null,false,0);
  if(key==='venator'||key==='acclamator')for(const x of key==='venator'?[250,285]:[445,545])for(const z of key==='venator'?[-150,150]:[-50,50])gun('msl',x,z);
- // Venator: tractor projectors under the fore hull, for recovering disabled ships and taking prizes.
- // v22 Canon (Star Wars: Complete Vehicles, New Edition; Wookieepedia, "Venator-class Star Destroyer"):
- // eight DBY-827 heavy turbolaser turrets (four a side of the bridge area, from attachReferenceSkin), two
- // medium dual turbolasers in the hull trench (one a side, now twin40), at least 52 point-defence laser cannons,
- // "at the rear, light laser cannons", four heavy proton torpedo launchers and six heavy tractor beam
- // projectors. The point defence added here joins the ten along the deck edges from the hull builder.
  if(key==='venator'){
-  for(const [x,zf] of [[620,.4],[860,.34],[1000,.3]])for(const sg of [-1,1])hull('trc',x,sg*zf,true);
-  // 42 more: 8 pairs along the dorsal edges (clear of the turret decks and the deck-edge row), 12 pairs
-  // under the hull and one pair at the stern: 52 in all.
-  for(const x of [330,594,660,726,858,924,990,1056])for(const sg of [-1,1])hull('pd',x,sg*.82,false);
-  for(const x of [300,540,588,636,684,732,780,828,876,924,972,1020])for(const sg of [-1,1])hull('pd',x,sg*.7,true);
-  for(const sg of [-1,1])hull('pd',150,sg*.5,false);
+  // Eight DBY-827 70 TT twins and the two 40 TT twins keep the source
+  // stations. Small 200 GT singles line the trench, between the deck guns.
+  const singles=trenchBattery(ship,[620,710,850,940,1030],'single200',{chargeDepth:6});
+  if(singles.length!==10)throw new Error('ヴェネターのトレンチ砲座が不足しています');
+  // Reserve each actual bank's solid in the aviation decks. Splitting the
+  // neighbouring outline rooms keeps every remaining cubic metre available;
+  // a tiny charger must not have to escape an entire full-height hangar.
+  const clip=(poly,axis,value,less)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],ia=less?a[axis]<=value:a[axis]>=value,ib=less?b[axis]<=value:b[axis]>=value;if(ia)out.push(a);if(ia!==ib){const t=(value-a[axis])/(b[axis]-a[axis]);out.push(a.map((v,j)=>lerp(v,b[j],t)));}}return out;};
+  const banks=new Map(weaponCapacitors(ship).map(p=>[p.weaponId,p]));
+  for(const f of singles){const bank=banks.get(f.id);if(!bank)continue;const raw=partAABB(bank),b=raw.map((v,i)=>v+(i<3?-.15:.15)),next=[];
+   for(const p of ship.parts){if(!p.room||!['hangar','service'].includes(p.k)||ship.hatches.some(h=>h.bay===p.id)||!boxesOverlap(partAABB(p),b)){next.push(p);continue;}
+    const [L,W,H]=p.room,poly=(p.outline||[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]]).map(([x,z])=>[p.c[0]+x*L,p.c[2]+z*W]),y0=p.c[1]-H/2,y1=p.c[1]+H/2,lo=Math.max(y0,b[1]),hi=Math.min(y1,b[4]),pieces=[];
+    const put=(poly,low,high)=>{if(poly.length<3||high-low<1e-6)return;const area=Math.abs(poly.reduce((n,q,i)=>{const r=poly[(i+1)%poly.length];return n+q[0]*r[1]-r[0]*q[1];},0))/2;if(area<1e-6)return;const q=Object.fromEntries(Object.entries(p).filter(([k])=>!k.startsWith('_')));q.id=pieces.length?ship.nextId++:p.id;q.c=[p.c[0],(low+high)/2,p.c[2]];q.room=[L,W,high-low];q.outline=poly.map(([x,z])=>[(x-p.c[0])/L,(z-p.c[2])/W]);q.label=p.label+'・砲充電区画を避けた甲板';pieces.push(q);};
+    put(poly,y0,lo);put(poly,hi,y1);
+    put(clip(poly,0,b[0],true),lo,hi);put(clip(poly,0,b[3],false),lo,hi);
+    const middle=clip(clip(poly,0,b[0],false),0,b[3],true);put(clip(middle,1,b[2],true),lo,hi);put(clip(middle,1,b[5],false),lo,hi);
+    next.push(...pieces);
+   }ship.parts=next;
+  }
+  // Keep the measured port-forward DBY station while turning its barrels
+  // clear of the adjacent armoured wall in the resting pose.
+  const native=REFERENCE_ASSETS.ven_turret_2,forwardPort=ship.fits.find(f=>f.k==='refVen'&&Math.abs(f.p[0]-native.c[0])<.1&&f.p[2]<0);if(forwardPort)forwardPort.assetYaw=-25;
+
+  for(const x of [330,594,660,726,858,924,990,1056])for(const sg of [-1,1])hull('pd',x,sg*.82,false,'dorsal-defence');
+  for(const x of [300,540,684,828,972,1050])for(const sg of [-1,1])hull('pd',x,sg*.7,true,'ventral-defence');
+  for(const [x,zf] of [[620,.4],[860,.34],[1000,.3]])for(const sg of [-1,1])hull('trc',x,sg*zf,true,'recovery-tractor');
  }
  remount(ship);return ship;
 }
@@ -25118,8 +25122,8 @@ const SEPARATIST_EXAMPLES={
  providence:{name:'プロヴィデンス級',role:'キャリア／デストロイヤー',length:1088,width:202.7,height:373.9,author:'lolqeeeeeeeeee',source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc',license:'CC BY-NC 4.0'},
  lucrehulk:{name:'ルクレハルク級',role:'環状母艦',length:3170,width:2806.7,height:735.1,author:'Professor E12^2',source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0'}
 };
-// Separatist, ISD-II and Acclamator builders were withdrawn from the examples.
-// Their provenance tables stay so older saved designs keep their credits.
+// These provenance records also cover the model-measured Separatist examples
+// registered below, and preserve credits for older saved designs.
 
 // Measured layout, not source triangle meshes. See README for attribution.
 // v21.2 Behind each of the inner eleven nozzles the turbine section is this share of the engine block's measured depth
@@ -25541,9 +25545,9 @@ function accBuild(opt={}){
   pairs('quad200',12,'top','dorsal-tl',[[200,118],[245,118],[290,104],[340,96],[390,84],[440,74],[490,62],[540,52]]);
   // 4 missile and torpedo launch tubes forward on the dorsal hull.
   pairs('msl',4,'top','bow-msl',[[640,8],[665,7],[690,6]],{mount:'ext'});
-  // 24 point-defence laser cannons along the brim.
-  const st=[];for(let x=200;x<=720;x+=26){const e=x<262?200:Math.max(8,206.45-.411*(x-262)-9);st.push([x,Math.min(198,e)]);}
-  pairs('pd',24,'top','brim-pd',st);
+  // Twelve twin point-defence stations distributed along both brim edges.
+  const st=[];for(let x=200;x<=700;x+=82){const e=x<262?200:Math.max(8,206.45-.411*(x-262)-9);st.push([x,Math.min(198,e)]);}
+  pairs('pd',12,'top','brim-pd',st);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  s.airWings=ACC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(ACC_GROUND);
@@ -25554,7 +25558,7 @@ registerShipExample({
  key:'acclamator',name:'アクラメイター級',side:'銀河共和国',role:'強襲揚陸艦（兵員輸送）',length:752,
  title:'Acclamator',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（Acclamator.stl、Blender 2.82 書き出し）',license:'不明（出典未記載）',
  credit:'アクラメイター級の形状は、ユーザーが提供した STL ファイル（Acclamator.stl、作者・ライセンス表記なし）から実測した。',
- note:'752 m（正史）。ユーザー提供の STL ファイル（Acclamator.stl、Blender 2.82 書き出し、作者・ライセンス表記なし）の実測形状を正史の全長に等倍で合わせた（モデルは幅 425 m・高さ 134 m で、正史の 460 m・飛行時 183 m より平たい。形状はモデルに従った）。尾部ブロック、V 字底の中央胴（ブリムの帯は胴自身の幅で取る）、腹部ブロック上の前部胴を1本の主船体として断面ごとに合わせ、周囲の翼状ブリムとその上縁の張り出し、腹部前方ブロック、尾部下部ブロック、背部テラス・ブロック、KDY 標準の艦橋塔モジュール、司令塔走査・通信機器ハウジング、艦尾機関間の張り出しを構造物として組み直した。速さを優先した設計（正史の最大加速 3,500 G に近づける）：主推進機関2基の推進粒子流路を艦尾面から腹部ブロックの付け根まで（x 92〜297 m）、補助推進機関2基を中央胴の先まで（x 118〜250 m）艦内へ延ばし、推進機関の容積は 31.1 万 m³。DK 断面図のとおり艦体は空洞を多く含む構造を慣性補償フィールドで保つものとして、ブリムと上縁の張り出し、腹部前方ブロック、尾部下部ブロック、背部テラス、艦橋塔、ハウジングを軽構造とし、外殻装甲は 0.16 m（重装甲より速さ）。機関は DK 断面図に従う。主反応炉は艦橋塔の下の船体テラスに内蔵（腹部ドームなし）、艦首に副反応炉、補助推進機関には専用の小型炉。尾部の先端にハイパードライブ発生装置（クラス 0.6）、尾部に慣性補償フィールドの脊柱導管、中央胴上部に構造維持フィールド導管、区域シールド発生器ノード4基、反応物凝縮サイロ4基と反応物バルブ・モジュール、前部ブリムに貨物庫約 17.6 万 m³（標準寸法の点防御砲の乗員 96 名ぶん居住容積を空けるため、高さを 13 m から 11.2 m に詰めた）、艦橋塔に無窓式の主艦橋と戦闘指揮室、ハウジングに走査・通信機器、集合ホール、ガンシップ周回整備レールと重戦闘車両整備ベイ。反重力リパルサーリフトが艦の全質量を支え、自ら着陸して地上部隊と車両を降ろせる。格納区画は腹部ブロックの揚陸甲板（前に AT-TE、上にガンシップ搭乗甲板。竜骨の降下ハッチ）、前部ガンシップ甲板、ブリムの前後のガンシップ甲板（下面ハッチ）と背部の兵站受入ベイ（上面ハッチ）。兵装は四連ターボレーザー砲塔 12 基（4門×200 GT）、点防御レーザー砲 24 基、ミサイル・魚雷発射管 4 基。乗艦はクローン・トルーパーと支援要員 1万6,000 名（正史どおり）、LAAT/i 32 機、LAAT/c 9 機、AT-TE 48 両（9 両は LAAT/c に積載）、BARC スピーダー 320 両（128 両は LAAT/i に積載）。延ばした推進機関に中央胴の格納庫と揚陸甲板の後部を譲ったため、SPHA-T（全長 140 m）が入る格納区画はなくなり、ガンシップは正史の 80 機から 41 機に減らした（兵員を優先）。必要乗員は艦の規模・格納庫・兵装から計算した値（正史は 700 名）。最大加速度は約 3,030 G：正史の 3,500 G には、推進機関を実測の噴射口の大きさのまま延ばせる限り延ばしても、装甲を約 0.09 m まで削らないと届かないため、そこまでは削っていない。出力 2×10²³ W、シールド蓄積 2×10²⁴ J（シールド出力は全出力の 35%＝7×10²² W）。',
+ note:'752 m（正史）。ユーザー提供の STL ファイル（Acclamator.stl、Blender 2.82 書き出し、作者・ライセンス表記なし）の実測形状を正史の全長に等倍で合わせた（モデルは幅 425 m・高さ 134 m で、正史の 460 m・飛行時 183 m より平たい。形状はモデルに従った）。尾部ブロック、V 字底の中央胴（ブリムの帯は胴自身の幅で取る）、腹部ブロック上の前部胴を1本の主船体として断面ごとに合わせ、周囲の翼状ブリムとその上縁の張り出し、腹部前方ブロック、尾部下部ブロック、背部テラス・ブロック、KDY 標準の艦橋塔モジュール、司令塔走査・通信機器ハウジング、艦尾機関間の張り出しを構造物として組み直した。速さを優先した設計（正史の最大加速 3,500 G に近づける）：主推進機関2基の推進粒子流路を艦尾面から腹部ブロックの付け根まで（x 92〜297 m）、補助推進機関2基を中央胴の先まで（x 118〜250 m）艦内へ延ばし、推進機関の容積は 31.1 万 m³。DK 断面図のとおり艦体は空洞を多く含む構造を慣性補償フィールドで保つものとして、ブリムと上縁の張り出し、腹部前方ブロック、尾部下部ブロック、背部テラス、艦橋塔、ハウジングを軽構造とし、外殻装甲は 0.16 m（重装甲より速さ）。機関は DK 断面図に従う。主反応炉は艦橋塔の下の船体テラスに内蔵（腹部ドームなし）、艦首に副反応炉、補助推進機関には専用の小型炉。尾部の先端にハイパードライブ発生装置（クラス 0.6）、尾部に慣性補償フィールドの脊柱導管、中央胴上部に構造維持フィールド導管、区域シールド発生器ノード4基、反応物凝縮サイロ4基と反応物バルブ・モジュール、前部ブリムに貨物庫約 17.6 万 m³（標準寸法の点防御砲の乗員 96 名ぶん居住容積を空けるため、高さを 13 m から 11.2 m に詰めた）、艦橋塔に無窓式の主艦橋と戦闘指揮室、ハウジングに走査・通信機器、集合ホール、ガンシップ周回整備レールと重戦闘車両整備ベイ。反重力リパルサーリフトが艦の全質量を支え、自ら着陸して地上部隊と車両を降ろせる。格納区画は腹部ブロックの揚陸甲板（前に AT-TE、上にガンシップ搭乗甲板。竜骨の降下ハッチ）、前部ガンシップ甲板、ブリムの前後のガンシップ甲板（下面ハッチ）と背部の兵站受入ベイ（上面ハッチ）。兵装は四連ターボレーザー砲塔 12 基（4門×200 GT）、2連装点防御レーザー砲 12 基、ミサイル・魚雷発射管 4 基。乗艦はクローン・トルーパーと支援要員 1万6,000 名（正史どおり）、LAAT/i 32 機、LAAT/c 9 機、AT-TE 48 両（9 両は LAAT/c に積載）、BARC スピーダー 320 両（128 両は LAAT/i に積載）。延ばした推進機関に中央胴の格納庫と揚陸甲板の後部を譲ったため、SPHA-T（全長 140 m）が入る格納区画はなくなり、ガンシップは正史の 80 機から 41 機に減らした（兵員を優先）。必要乗員は艦の規模・格納庫・兵装から計算した値（正史は 700 名）。最大加速度は約 3,030 G：正史の 3,500 G には、推進機関を実測の噴射口の大きさのまま延ばせる限り延ばしても、装甲を約 0.09 m まで削らないと届かないため、そこまでは削っていない。出力 2×10²³ W、シールド蓄積 2×10²⁴ J（シールド出力は全出力の 35%＝7×10²² W）。',
  airWings:ACC_AIR,groundForces:ACC_GROUND,
  build:accBuild
 });
@@ -25718,7 +25722,7 @@ registerShipExample({
  title:'Star Wars: CR-90',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
  source:'https://sketchfab.com/3d-models/star-wars-cr-90-60e26a508ca84126b30f01461f60086e',license:'CC-BY-4.0',
  credit:'This work is based on "Star Wars: CR-90" (https://sketchfab.com/3d-models/star-wars-cr-90-60e26a508ca84126b30f01461f60086e) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'150 m・11基の機関・ターボレーザー砲塔4基（正史の連装2基は柱の上下の中ターボレーザー砲塔、単装4基は標準寸法の軽ターボレーザー砲塔が砲塔台座に1基ずつしか載らないため2基）・点防御4基。背骨の円筒1本を船体とし、外形は原型モデルから実測した構造物',
+ note:'150 m・11基の機関・200GT単装ターボレーザー砲2基・200GT連装ターボレーザー砲2基（柱の上下）・2連装点防御砲4基。背骨の円筒1本を船体とし、外形は原型モデルから実測した構造物',
  // Suggested embarked forces (buildDesign's finish() does not read these yet).
  groundForces:[{name:'反乱同盟艦隊兵小隊',kind:'troops',count:60}],
  build(){
@@ -25787,17 +25791,14 @@ registerShipExample({
   part('fuel','反応物サイロ',[89.6,14,0],8,{length:4});
   part('shield','シールド発生器',[143,14,6.6],CR90_SHIELD_D,{},true);   // v21.2 a little larger: the deeper engines leave more of the hull exposed
   room('command','指揮所',[143.5,14,0],[7,5,6]);
-  // Armament (canon: two dual and four single turbolasers): light turrets on
-  // the turret blocks, the two dual turrets on the column ahead (dorsal and
-  // ventral) and four point-defence guns for fighters and missiles. At the
-  // standard size (14 m) one light turret fills a 14.6 m turret plinth, so the
-  // four single turbolasers become two light turrets, one on each plinth (just aft
-  // of its centre, clear of the dual turret's 18 m mount).
+  // Conventional 200 GT turbolasers retain the two single-gun plinths and
+  // the dorsal/ventral twin stations. Four independent twin PD mounts cover
+  // the bow and stern; none of these Corellian stations uses Mon Calamari guns.
   const gun=(kind,x,z,axis,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-500:500,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('CR90の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,chargeDepth:4,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
   syncAviationSurfaces(s);s._lockedCache=cache(s);
   try{withFrozenStructures(()=>{
-   for(const z of [-7.2,7.2])gun('ltl',102.2,z,2,z<0?'port':'stbd');
-   gun('mtl',118.4,0,2,'dorsal');gun('mtl',118.4,0,3,'ventral');
+   for(const z of [-7.2,7.2])gun('single200',102.2,z,2,z<0?'port':'stbd');
+   gun('twin200',118.4,0,2,'dorsal');gun('twin200',118.4,0,3,'ventral');
    for(const z of [-6.5,6.5])gun('pd',142.5,z,2,'bow');
    for(const z of [-16,16])gun('pd',39.4,z,3,'stern');
   });}finally{delete s._lockedCache;}
@@ -27025,13 +27026,231 @@ function installCraftSystems(ship,recipe){
  }catch(e){ship.parts=before;ship.nextId=nextId;cockpits.forEach((p,i)=>{if(suits[i]===undefined)delete p.suit;else p.suit=suits[i];});if(oldVersion===undefined)delete ship.systemsVersion;else ship.systemsVersion=oldVersion;throw e;}
 }
 
+// ---- src/ship-system-refit.js ----
+// Rebuild only the stock constructor's engineering. Saved and edited ships are
+// never passed through this routine. Every rating below belongs to installed
+// finite machinery; derived mass, thrust and power remain solver results.
+function shipRefitMeasure(ship){return withFrozenStructures(()=>{const old=ship._lockedCache;ship._lockedCache=cache(ship);ship._boundsPass={};try{return baseComputeStats(ship,{engineeringOnly:true});}finally{delete ship._boundsPass;if(old)ship._lockedCache=old;else delete ship._lockedCache;}});}
+function shipRefitAnchors(ship){
+ const b=shipBounds(ship),out=[],put=q=>{if(q.every(Number.isFinite)&&insideOriginalEnvelope(ship,q))out.push(q.slice());};
+ for(const p of ship.parts.filter(isShapePart).sort((a,c)=>partVolume(c)-partVolume(a)))put(p.c);
+ for(const x of [.12,.2,.3,.4,.5,.6,.7,.8,.88])for(const y of [.2,.35,.5,.65,.8])for(const z of [.15,.3,.5,.7,.85])put([lerp(b[0],b[3],x),lerp(b[1],b[4],y),lerp(b[2],b[5],z)]);
+ return out;
+}
+function shipRefitFixedPart(ship,k,volume,label,preferred){
+ const anchors=shipRefitAnchors(ship),occupied=allOccupied(ship).filter(p=>!isShapePart(p)&&!flexibleCompartment(ship,p)),bounds=occupied.map(p=>partAABB(p));
+ if(preferred)anchors.unshift(preferred.slice());
+ const shape=PARTS[k].shape,d=shape==='sphere'?Math.cbrt(volume*6/Math.PI):shape==='cyl'?Math.cbrt(volume*4/Math.PI):Math.cbrt(volume),candidate={id:-999999,k,c:[0,0,0],d,autoFit:false};
+ if(shape==='cyl'){candidate.length=d;candidate.dir=[1,0,0];}
+ for(const c of anchors){candidate.c=c;const bb=partAABB(candidate);if(occupied.some((p,i)=>boxesOverlap(bb,bounds[i],.01)&&overlapParts(candidate,p)))continue;
+  if(!unclippedSurfSamples(candidate).concat(unclippedVolSamples(candidate),[c]).every(q=>insideOriginalEnvelope(ship,q)))continue;
+  return placePart(ship,k,c,d,{label,autoFit:false,...(shape==='cyl'?{length:d,dir:[1,0,0]}:{})});
+ }
+ return null;
+}
+function shipRefitAddVolume(ship,k,volume,label){
+ if(!(volume>1e-6))return [];
+ if(['aux','pump','integrity','battery','inertial'].includes(k)){
+  const anchors=shipRefitAnchors(ship),b=shipBounds(ship),count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
+  const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
+  let remaining=volume;for(let pass=0;pass<4&&remaining>Math.max(.1,volume*1e-5);pass++){
+   const n=pass?4:count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true}));
+   syncCompartments(ship);remaining=Math.max(0,volume-made.reduce((total,p)=>total+partVolume(p),0));
+  }
+  if(remaining>Math.max(.1,volume*(['pump','integrity','inertial'].includes(k)?.02:1e-4)))throw new Error(ship.name+'：'+label+' の船内容積が不足しています（'+Math.round(remaining)+' m³）');return shipRefitFreezeRooms(ship,made);
+ }
+ const made=[],b=shipBounds(ship),span=Math.max(1,Math.min(b[4]-b[1],b[5]-b[2])),maxChunk=Math.max(1,Math.PI/6*(span*.48)**3);let remaining=volume;
+ for(let n=0;n<80&&remaining>Math.max(.001,volume*1e-7);n++){
+  let chunk=Math.min(remaining,maxChunk),p=null;
+  for(let j=0;j<8&&!p;j++,chunk*=.55)p=shipRefitFixedPart(ship,k,chunk,label+' '+(made.length+1));
+  if(!p)break;made.push(p);remaining-=unclippedPartVolume(p);
+ }
+ if(remaining>Math.max(.001,volume*1e-5))throw new Error(ship.name+'：'+label+' の船内容積が不足しています（'+Math.round(remaining)+' m³）');
+ return made;
+}
+// Turn accepted packing cells into ordinary editable, fixed compartment banks.
+// Their union, volume and density are unchanged; future edits do not rerun a
+// hidden construction recipe or depend on a private packing cache.
+function shipRefitFreezeRooms(ship,parts){
+ const empty=new Set(parts.filter(p=>partVolume(p)<=1e-6).map(p=>p.id));ship.parts=ship.parts.filter(p=>!empty.has(p.id));
+ let allowance=Math.max(0,Math.min(180-(ship._shipRefitMaterializedParts||0),DESIGN_LIMITS.parts-ship.parts.length));
+ const plans=parts.map(p=>{let boxes=p._packing?.boxes?.filter(b=>boxVolume(b)>1e-6)||null;if(boxes&&(boxes.length>64||boxes.some(b=>[0,1,2].some(i=>b[i+3]-b[i]<.02))||boxes.length-1>allowance))boxes=null;if(boxes){allowance-=Math.max(0,boxes.length-1);ship._shipRefitMaterializedParts=(ship._shipRefitMaterializedParts||0)+Math.max(0,boxes.length-1);}return {p,boxes};});
+ const out=[];for(const {p,boxes} of plans){if(empty.has(p.id))continue;if(!boxes){out.push(p);continue;}
+  for(let i=0;i<boxes.length;i++){const b=boxes[i],c=[0,1,2].map(a=>(b[a]+b[a+3])/2),size=[b[3]-b[0],b[5]-b[2],b[4]-b[1]];
+   let q=p;if(i)q=placePart(ship,p.k,c,Math.cbrt(boxVolume(b)),{label:p.label+' / '+(i+1),room:size,autoFit:false});else{p.c=c;setRoomSize(p,size);p.autoFit=false;for(const k of ['_packing','_packingGroup','_clip','_clipKey','_roomShape'])delete p[k];}out.push(q);
+  }
+ }
+ syncCompartments(ship);return out;
+}
+function refitShipPropulsion(ship,key,options={}){
+ const engines=ship.parts.filter(p=>p.k==='engine'),before=engines.map(e=>resolveEngineSpec(e,ship)),oldThrust=before.reduce((n,e)=>n+e.ratedThrustN,0),casings=new Map(engines.map(e=>[e.id,{...e,c:e.c.slice(),dir:e.dir?.slice(),_originalMachineryBody:enginePaths(ship).find(p=>p.nozzle===e.id)?.machinerySegment}])),targetG=SHIP_REFERENCE[key]?.accelG;
+ const mass=options.massT||0,targetThrust=targetG&&mass>0?mass*1000*G0*targetG:oldThrust,totalInput=targetThrust*DRIVE_PROFILES.standard.wattsPerNewton,weights=targetG?engines.map(e=>e.d**3):before.map(e=>e.ratedThrustN),sum=weights.reduce((a,b)=>a+b,0)||engines.length;
+ // Detach the obsolete reactor-to-nozzle solid cones. The body remains a real
+ // frustum and receives its finite electrical feed through the installed bus.
+ engines.forEach((e,i)=>{const old=machineryGeometry(e,ship);if(partDims(e).l>e.d*1.2){const dir=norm(e.dir||[-1,0,0]),outlet=add(e.c,mul(dir,partDims(e).l/2));e.nozzleLength=e.d*.9;e.c=sub(outlet,mul(dir,e.nozzleLength/2));}Object.assign(e,{busFeed:true,propulsionModelVersion:PROPULSION_MODEL_VERSION,driveProfileId:'standard',machineryGradeId:'advanced',ratedInputW:totalInput*(weights[i]||1)/sum,legacyCoolingInputW:0,machineryFeedRadiusM:Math.min(1,e.d*.04),machineryLengthM:Math.max(2,Math.min(old.length,e.d)),machineryRadiusM:Math.max(.1,e.d*.3),machineryOffsetM:old.offset});delete e.machineryId;delete e.propulsionMigration;});
+ const bodies=[];
+ for(const e of engines){
+  const occupied=allOccupied(ship).filter(p=>p.id!==e.id&&p.id!==-e.id&&p.id!==reactorFor(ship,e)?.id&&!isShapePart(p)&&p.k!=='machinery'&&!flexibleCompartment(ship,p)),required=e.ratedInputW*1.3/MACHINERY_GRADES.advanced.allowedInputDensityWPerM3,baseOffset=partDims(e).l/2;
+  let found=false;
+  for(const fraction of [1,.75,.5,.25,.125,.0625]){
+  for(const radial of [.32,.4,.25,.48,.18]){const radius=Math.max(.15,e.d*radial),length=Math.max(2,required*fraction/(Math.PI*radius*radius*(.78*.78+.78+1)/3));if(length>DESIGN_LIMITS.engineLength)continue;
+   for(const advance of [0,-.25,-.5,.5,1,2,3,5]){Object.assign(e,{machineryRadiusM:radius,machineryLengthM:length,machineryOffsetM:baseOffset+advance*e.d});const path=enginePaths(ship).find(p=>p.nozzle===e.id);
+    if(!path||occupied.some(p=>overlapParts(path,p))||bodies.some(p=>overlapParts(path,p)))continue;const casing=casings.get(e.id);if(unclippedSurfSamples(path).concat(unclippedVolSamples(path)).some(q=>!insideOriginalEnvelope(ship,q)&&!unclippedInPart(casing,q)&&!(casing._originalMachineryBody&&inRoute(casing._originalMachineryBody,q))))continue;
+    bodies.push(path);e.ratedInputW*=fraction;found=true;break;
+   }if(found)break;
+  }
+  if(found)break;}
+  if(!found)throw new Error(key+': 機関 #'+e.id+' の実機区画を配置できません');
+  const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3*(1+1e-12))||'advanced';e.feedCapacityW=e.ratedInputW*1.3;
+  if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 機関 #'+e.id+' の実容量が不足しています');
+ }
+ return {engines,oldThrustN:oldThrust,targetThrustN:targetThrust,targetG:targetG||null,basis:targetG?'published acceleration goal; physically fitted machinery capacity':'authored rated-thrust goal; physically fitted machinery capacity',inputW:engines.reduce((n,e)=>n+e.ratedInputW,0)};
+}
+function refitShipSystems(ship,key){return withFrozenStructures(()=>constructShipSystems(ship,key));}
+function constructShipSystems(ship,key){
+ if(!ship||isCraft(ship)||ship._shipSystemRefit)return ship;
+ const oldBuilding=ship._building;ship._building=true;
+ try{
+  migrateLegacyPropulsion(ship);syncCompartments(ship);
+  const initial=shipRefitMeasure(ship);superweaponStats(ship,initial);for(const p of ship.parts.filter(isSuperweapon))if(p.reactor==null)p.reactor=reactorFor(ship,p)?.id;const originalEngineOutlets=ship.parts.filter(p=>p.k==='engine').map(p=>({id:p.id,p:add(p.c,mul(norm(p.dir||[-1,0,0]),partDims(p).l/2))}));
+  const weaponInput=f=>(fitSpec(f).power||0)/ENERGY_MODEL.eta,fullWeaponInputW=ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w').reduce((n,f)=>n+(fitSpec(f).power||0)/ENERGY_MODEL.eta,0);
+  const propulsion=refitShipPropulsion(ship,key,{massT:initial.mass*1.08}),E=propulsion.inputW*1.1,W=ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w').reduce((n,f)=>n+weaponInput(f),0),Q=ship.parts.some(p=>(p.k==='shield'||p.k==='localShield')&&partVolume(p)>0)?initial.area*K.shieldStd*(ship.shieldTarget||1):0,H=(initial.draw?.hotel||0)+(initial.draw?.ray||0),SW=(initial.superweapons||[]).filter(w=>w.ok).reduce((n,w)=>n+(w.chargeW||0),0);
+  const baselinePowerW=ship.parts.filter(isReactor).reduce((n,p)=>n+reactorPower(p),0),addedReactors=[];
+  const supportMass=initial.mass*1.03,field=craftFieldGain(Math.max(.001,initial.dims?.[0]||0));
+  const inertial=ship.parts.filter(p=>p.k==='inertial').reduce((n,p)=>n+partVolume(p),0),integrity=ship.parts.filter(p=>p.k==='integrity').reduce((n,p)=>n+partVolume(p),0);
+  const addedInertial=shipRefitAddVolume(ship,'inertial',Math.max(0,supportMass/(120*field)-inertial),'分散慣性補償設備'),addedIntegrity=shipRefitAddVolume(ship,'integrity',Math.max(0,supportMass/(180*field)-integrity),'分散構造維持設備');
+  const pumpV=ship.parts.filter(p=>p.k==='pump').reduce((n,p)=>n+partVolume(p),0),plantV=ship.parts.filter(isReactor).reduce((n,p)=>n+partVolume(p),0),addedPumps=shipRefitAddVolume(ship,'pump',Math.max(0,plantV/70*1.05-pumpV),'反応物供給設備');
+  let hub=ship.parts.find(p=>p.k==='battery'&&partVolume(p)>0);if(!hub)hub=shipRefitFixedPart(ship,'battery',1,'主配電・蓄電区画');if(!hub)hub=shipRefitAddVolume(ship,'battery',1,'主配電・蓄電区画')[0];if(!hub)throw new Error(key+': 主配電区画を配置できません');
+  const wirePower=()=>{
+  const ports=new Map(),put=(id,W)=>{if(W>0)ports.set(id,Math.max(ports.get(id)||0,W));};
+  for(const p of ship.parts){if(isReactor(p)||p===hub||isShapePart(p))continue;put('p'+p.id,p.k==='engine'?resolveEngineSpec(p,ship).ratedInputW*1.3:p.k==='shield'||p.k==='localShield'?shieldLoad(p)*2:p.k==='hdis'?dissipatorCap(p,initial)*HEAT.disPowerK.hdis:Math.max(H,partVolume(p)*(PARTS[p.k]?.power||0)));}
+  for(const f of ship.fits)if(!f.float)put('f'+f.id,FITS[f.k]?.cat==='w'?weaponInput(f)*1.5:Math.max(H,fitSpec(f).power||0));
+  ship.links=(ship.links||[]).filter(l=>l.kind!=='power');for(const r of ship.parts.filter(isReactor))ship.links.push({kind:'power',from:'p'+r.id,to:'p'+hub.id,cap:reactorPower(r)*1.4});for(const [to,cap] of ports)ship.links.push({kind:'power',from:'p'+hub.id,to,cap});
+  };wirePower();
+  syncCompartments(ship);
+  refitShipThermal(ship,key,{stats:initial,powerW:baselinePowerW,E,W,S:Q,H,margin:1.15});
+  syncCompartments(ship);
+  let measured=shipRefitMeasure(ship);
+  // Size the support equipment against the completed plant's actual mass.
+  // Its own modest mass fits within the three-percent physical design margin.
+  const supported=k=>ship.parts.filter(p=>p.k===k&&!measured.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),finalInertial=Math.max(0,measured.mass*1.03/(120*field)-supported('inertial')),finalIntegrity=Math.max(0,measured.mass*1.03/(180*field)-supported('integrity'));
+  if(finalInertial>Math.max(.1,measured.mass/120*1e-5)||finalIntegrity>Math.max(.1,measured.mass/180*1e-5)){
+   addedInertial.push(...shipRefitAddVolume(ship,'inertial',finalInertial,'追加慣性補償設備'));addedIntegrity.push(...shipRefitAddVolume(ship,'integrity',finalIntegrity,'追加構造維持設備'));syncCompartments(ship);
+   refitShipThermal(ship,key,{stats:initial,powerW:baselinePowerW,E,W,S:Q,H,margin:1.15});syncCompartments(ship);measured=shipRefitMeasure(ship);
+  }
+  const requestedInputW=(propulsion.targetG?measured.mass*1000*G0*propulsion.targetG:propulsion.oldThrustN)*DRIVE_PROFILES.standard.wattsPerNewton,bodyCaps=propulsion.engines.map(e=>Math.min(PROPULSION.maxInputW,machineryGeometry(e,ship).volume*MACHINERY_GRADES.advanced.allowedInputDensityWPerM3)),bodyCapacityW=bodyCaps.reduce((a,b)=>a+b,0),installedInputW=Math.min(requestedInputW,bodyCapacityW*(1-1e-10));
+  propulsion.engines.forEach((e,i)=>{e.ratedInputW=installedInputW*bodyCaps[i]/Math.max(1,bodyCapacityW);const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3*(1+1e-12))||'advanced';e.feedCapacityW=e.ratedInputW*1.3;if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 実装機関の実容量が不足しています');});propulsion.inputW=installedInputW;
+  wirePower();refitShipThermal(ship,key,{stats:measured,powerW:baselinePowerW,E:installedInputW,W,S:Q,H,margin:1.15});syncCompartments(ship);wirePower();
+  if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
+  ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),addedInertial:addedInertial.map(p=>p.id),addedIntegrity:addedIntegrity.map(p=>p.id),addedPumps:addedPumps.map(p=>p.id),powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:W,originalEngineOutlets,thermal:ship._shipThermalRefit};
+  ship._shipSystemRefit=true;return ship;
+ }finally{ship._building=oldBuilding;}
+}
+
+// Stock capital ships use the same finite cooling equipment as player designs.
+// This constructor is never called by deserialize: an edited ship keeps the
+// machinery, room volume and transport paths that its owner actually saved.
+function refitShipThermal(ship,key,options={}){
+ if(!ship)return ship;
+ ship.surfaces=normalizeSurfaces({...ship.surfaces,mode:'strict',compatAllowed:false,legacyArmor:ship.surfaces?.legacyArmor??ship.armor?.hull??0});
+ const S=options.stats||computeStats(ship),positive=(v,fallback)=>Number.isFinite(v)?Math.max(0,v):Math.max(0,fallback||0),margin=Number.isFinite(options.margin)?Math.max(1,options.margin):1.15;
+ // Engineering constructors may supply the inexpensive base statistics,
+ // before the normal superweapon stage. Read the actual current plant here
+ // so its reserved charging input cannot disappear from the cooling budget.
+ if(ship.parts.some(isSuperweapon))superweaponStats(ship,S);
+ const sw=(S.superweapons||[]).filter(w=>w.ok),E=positive(options.engineInputW??options.E,S.draw?.engines),W=positive(options.weaponInputW??options.W,S.draw?.weapons),Q=positive(options.shieldInputW??options.S,S.draw?.shields),H=positive(options.fixedInputW??options.H,(S.draw?.hotel||0)+(S.draw?.ray||0)-(S.dissipatorPower||0)),SW=positive(options.superweaponInputW,sw.reduce((n,w)=>n+Math.max(0,w.chargeW||0),0));
+ const modes=Object.values(HEAT_PRESETS),weaponFactor=Math.max(1,...modes.map(p=>(POWER_MODES[p.mode]?.weapons||1)*(p.wpn||0))),shieldFactor=Math.max(1,...modes.map(p=>p.sh||0)),reactorFactor=Math.max(1,...modes.map(p=>POWER_MODES[p.mode]?.max||1));
+ // The installed plant limits the operating load. A ship cannot turn the
+ // sum of every engine, gun and shield nameplate into simultaneous output.
+ // Reserve the cooler's own electrical input before the ordinary priority
+ // split, then include that input's hotel and reactor heat in the next pass.
+ const fixedWaste=HEAT.waste.reactor+HEAT.waste.hotel;
+ if(!(1-margin*fixedWaste*HEAT.disPowerK.hdis>0))throw new Error(key+': 散逸設備の設計余裕が電力収支を超えています');
+ const P=positive(options.powerW??options.P,ship.parts.filter(p=>isReactor(p)&&!S.info?.[p.id]?.overlap).reduce((n,p)=>n+reactorPower(p),0)),density=REACTOR_POWER_DENSITY*HEAT.disK.hdis,existing=ship.parts.filter(p=>p.k==='hdis'),existingCapacity=existing.reduce((n,p)=>n+dissipatorCap(p,S),0);
+ let requestedCapacityW=0,operatingPresets={};
+ for(let iteration=0;iteration<24;iteration++){
+  const coolingInputW=Math.max(existingCapacity,requestedCapacityW)*HEAT.disPowerK.hdis,presets={};let peak=0;
+  for(const pr of HEAT_SIZING){
+   const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true},pr),waste=heatWaste(load);
+   const generatedW=waste.reactor+waste.engine+waste.weapon+waste.shield+waste.hotel+(HEAT.waste.reactor+HEAT.waste.sw)*chargeW;
+   peak=Math.max(peak,generatedW);presets[pr]={mode:X.mode,generatedW,inputW:load.draw+chargeW,enginesW:load.engine,weaponsW:load.weapon,shieldsW:load.shield,fixedW:load.fixed,superweaponW:chargeW,coolingReservationW:coolingInputW};
+  }
+  const next=margin*peak,converged=Math.abs(next-requestedCapacityW)<=Math.max(1,next*1e-9);requestedCapacityW=next;operatingPresets=presets;if(converged)break;
+ }
+ const deficit=Math.max(0,(requestedCapacityW-existingCapacity)/density),missingVolume=deficit>Math.max(.001,requestedCapacityW/density*1e-5)?deficit:0;
+ const made=[],oldBuilding=ship._building;ship._building=true;
+ try{
+  // Several modest banks fit beside machinery instead of putting one enormous
+  // room through the main reactor. When a narrow hull cannot take a cube, an
+  // ordinary flexible compartment packs its requested volume around the fixed
+  // machinery. Only its retained, disjoint physical volume earns capacity.
+  if(missingVolume>1e-6){
+   const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(missingVolume)/Math.max(2,Math.min(ship.hull.W||30,ship.hull.H||30)*.18)))),each=missingVolume/count;
+   for(let i=0;i<count;i++)made.push(shipThermalBank(ship,each,i));
+   syncCompartments(ship);
+   // A clipped bank can lose volume in a very thin or hollow measured hull.
+   // Offer smaller additional banks rather than counting the nominal box.
+   for(let pass=0;pass<2;pass++){
+    const installed=ship.parts.filter(p=>p.k==='hdis').reduce((n,p)=>n+dissipatorCap(p,S),0),short=Math.max(0,(requestedCapacityW-installed)/density);
+    if(short<=Math.max(.001,missingVolume*1e-6))break;
+    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length));
+    syncCompartments(ship);
+   }
+  }
+ }finally{ship._building=oldBuilding;}
+ const banks=ship.parts.filter(p=>p.k==='hdis'&&partVolume(p)>0),caps=banks.map(p=>dissipatorCap(p,S)),capacityW=caps.reduce((a,b)=>a+b,0),source=new Map(),put=(id,w)=>{if(w>0)source.set(id,Math.max(source.get(id)||0,w));};
+ if(requestedCapacityW>0&&capacityW<requestedCapacityW*(1-1e-5))throw new Error(key+': 散逸装置の実船内容積が不足しています（必要 '+Math.ceil(requestedCapacityW/density)+' m³、設置 '+Math.floor(capacityW/density)+' m³）');
+ for(const p of ship.parts){
+  if(isReactor(p))put('p'+p.id,HEAT.waste.reactor*reactorPower(p)*reactorFactor);
+  else if(p.k==='shield'||p.k==='localShield')put('p'+p.id,HEAT.waste.shield*shieldLoad(p)*shieldFactor);
+  else if(p.k==='engine'){const e=resolveEngineSpec(p,ship);if(e.valid)put(e.heatNode,HEAT.waste.engine*e.ratedInputW);}
+ }
+ for(const f of ship.fits)if(!f.float&&FITS[f.k]?.cat==='w')put('f'+f.id,HEAT.waste.weapon*(fitSpec(f).power||0)*weaponFactor/ENERGY_MODEL.eta);
+ for(const w of sw)put('p'+w.id,HEAT.waste.sw*Math.max(0,w.chargeW||0));
+ // Manual heat paths replace automatic ones for their source. Every new path
+ // has a finite watt rating, and the bank split lets shared sources use the
+ // whole installed capacity without a nearest-bank congestion artifact.
+ ship.links=(ship.links||[]).filter(l=>l.kind!=='heat'||!source.has(l.from));
+ const available=Math.max(0,LINK_LIMIT-ship.links.length),allPaths=source.size*banks.length;
+ if(allPaths>available)throw new Error(key+': 実機の熱輸送路が保存上限を超えています');
+ for(const [from,w] of source)for(let j=0;j<banks.length;j++)ship.links.push({kind:'heat',from,to:'p'+banks[j].id,cap:margin*w*caps[j]/Math.max(1,capacityW)});
+ ship._shipThermalRefit={key,requestedCapacityW,capacityW,coolingPowerW:capacityW*HEAT.disPowerK.hdis,requestedVolumeM3:missingVolume+existing.reduce((n,p)=>n+partVolume(p),0),installedVolumeM3:banks.reduce((n,p)=>n+partVolume(p),0),addedParts:made.map(p=>p.id),margin,sourcePowerW:P,requestedInput:{engines:E,weapons:W,shields:Q,fixed:H,superweapons:SW},operatingPresets,envelope:{weaponFactor,shieldFactor,reactorFactor},capacityRatio:requestedCapacityW>0?capacityW/requestedCapacityW:1};
+ return ship;
+}
+function shipThermalBank(ship,volume,index){
+ const d=Math.cbrt(Math.max(.001,volume)),b=shipBounds(ship),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2),reactors=ship.parts.filter(isReactor),shapes=ship.parts.filter(isShapePart),anchors=[];
+ const push=q=>{if(q.every(Number.isFinite)&&insideOriginalEnvelope(ship,q))anchors.push(q);};
+ // Reactor-adjacent spaces first, followed by the measured solid components
+ // and longitudinal hull stations. AABB tests here are conservative; the
+ // ordinary room packer is the final authority for a flexible bank.
+ for(const r of reactors)for(const axis of [0,1,2])for(const sign of [-1,1]){const q=r.c.slice();q[axis]+=sign*(r.d/2+d*.55);push(q);}
+ for(const p of shapes.slice().sort((a,c)=>partVolume(c)-partVolume(a)))push(p.c.slice());
+ for(const x of [.15,.3,.45,.6,.75,.9])for(const y of [.3,.5,.7])for(const z of [.25,.5,.75])push([lerp(b[0],b[3],x),lerp(b[1],b[4],y),lerp(b[2],b[5],z)]);
+ if(!anchors.length)throw new Error(ship.name+'：散逸装置の設置可能な船内容積がありません');
+ const occupied=allOccupied(ship).map(p=>({p,b:partAABB(p)})),near=reactors.length?reactors[index%reactors.length].c:mid;
+ anchors.sort((a,c)=>len(sub(a,near))-len(sub(c,near)));
+ let center=null,room=null;
+ outer:for(const aspect of [[1,1,1],[2,.7071067811865476,.7071067811865476],[3,.5773502691896258,.5773502691896258]]){
+  const size=aspect.map(v=>v*d),half=[size[0]/2,size[2]/2,size[1]/2];
+  for(const q of anchors){const bb=q.map((v,a)=>v-half[a]-.02).concat(q.map((v,a)=>v+half[a]+.02));if(occupied.some(o=>packingObstacleHits(o.p,bb,o.b)))continue;
+   let inside=true;for(const x of [-1,0,1])for(const y of [-1,0,1])for(const z of [-1,0,1])if(!insideOriginalEnvelope(ship,q.map((v,a)=>v+[x,y,z][a]*half[a])))inside=false;
+   if(inside){center=q;room=size;break outer;}
+  }
+ }
+ const previous=ship.parts.filter(p=>p.k==='hdis'),fallback=previous.length?anchors.reduce((best,q)=>{
+  const distance=c=>Math.min(...previous.map(p=>len(sub(c,p.c))));return distance(q)>distance(best)?q:best;
+ },anchors[0]):anchors[0];
+ const p=placePart(ship,'hdis',center||fallback,d,{label:'艦内高エネルギー散逸区画 '+(index+1),...(room?{room,autoFit:false}:{autoFit:true})});
+ return p;
+}
+
 // ---- src/ships/dreadnaught.js ----
 // Dreadnaught-class heavy cruiser, measured from flannelandfilm's Sketchfab
 // model scaled to 600 m (x0.98620). Ship frame: x stern 0 -> bow 600, y up
 // from the keel of the main hull, z starboard.
 // v22 Armament as Legends gives it (Wookieepedia, "Dreadnaught-class heavy cruiser/Legends", after the
 // Imperial Sourcebook and The Thrawn Trilogy Sourcebook): 20 quad laser cannons (6 at the bow, 7 a side;
-// the four-barrel quad200 mount), 10 turbolaser cannons in the flank blisters (twin casemates) and 10
+// the four-barrel quad200 mount), 10 turbolaser cannons in the flank blisters (200 GT twin turbolasers) and 10
 // laser cannons (5 at the bow, 5 at the stern; point-defence mounts). The v14 broadside casemates went.
 registerShipExample({
  key:'dreadnaught',name:'ドレッドノート級重巡洋艦',side:'銀河帝国',role:'重巡洋艦',length:600,
@@ -27039,7 +27258,7 @@ registerShipExample({
  source:'https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2',
  license:'CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
  credit:'This work is based on "Star Wars Dreadnaught-Class Heavy Cruiser" (https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2) by flannelandfilm (https://sketchfab.com/flannelandfilm) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'旧共和国の設計を帝国軍が改装した全長600 mの重巡洋艦。八角断面の船体を2 m毎の断面測定から28断面で合わせ、艦首下部の楕円体、舷側の砲塔ブリスター、腹部の機関区画、6基の機関ハウジングを構造物で再現。武装はレジェンズの一覧どおり、四連レーザー砲20基（艦首6・両舷7基ずつ）、舷側ブリスターのターボレーザー砲10基（連装ケースメイト中砲で代表）、レーザー砲10基（艦首・艦尾に5基ずつ、点防御砲）（v22。以前は甲板上の砲を減らし、正史にない舷側砲4基を加えていました。v19.1 で、公式の乗員・兵員約2万人は武装が軽かった頃の値とみて、ブリスターの砲を重ターボレーザーから下げています）、兵員3,000名、貨物9,000 t、TIE戦闘機1個中隊（12機）。',
+ note:'旧共和国の設計を帝国軍が改装した全長600 mの重巡洋艦。八角断面の船体を2 m毎の断面測定から28断面で合わせ、艦首下部の楕円体、舷側の砲塔ブリスター、腹部の機関区画、6基の機関ハウジングを構造物で再現。武装はレジェンズの一覧どおり、四連レーザー砲20基（艦首6・両舷7基ずつ）、舷側ブリスターのターボレーザー砲10基（200GT連装ターボレーザー砲で代表）、レーザー砲10基（艦首・艦尾に5基ずつ、点防御砲）（v22。以前は甲板上の砲を減らし、正史にない舷側砲4基を加えていました。v19.1 で、公式の乗員・兵員約2万人は武装が軽かった頃の値とみて、ブリスターの砲を重ターボレーザーから下げています）、兵員3,000名、貨物9,000 t、TIE戦闘機1個中隊（12機）。',
  build(){
   const s=newShip({L:600,W:96.566,H:90.242,sec:'warship',plan:'rect',bowFree:true,stern:1,
    stations:[[0,.7746,.20722,.00697,.97,.97,.9,.5],[.01767,.7746,.20722,.00697,.97,.97,.9,.5],[.01883,.7746,.47206,.13939,.845,.97,.455,.232],[.02667,.7746,.47206,.13939,.845,.97,.455,.232],[.02783,.7746,.71585,.0175,.845,.89,.319,.485],[.0309,.7746,.71585,.0175,.845,.89,.319,.485],[.032,.76927,.32936,.00663,.85211,.98,.05496,.48305],[.03333,.94473,.33074,.00732,.83898,.87978,.05496,.46924],[.04333,.98077,.33142,.00759,.75014,.79305,.05027,.43731],[.04667,.96781,.92353,.03824,.62644,.60826,.04255,.43637],[.19,.96678,.97457,-.0127,.68011,.68693,.02,.44862],[.26667,.86769,.82318,.01702,.69207,.75659,.04345,.42505],[.31,.69987,.65566,-.00628,.68985,.75983,.04373,.44786],[.35667,.76556,.6551,-.0067,.69354,.74928,.02057,.45374],[.36,.7664,.70716,-.03176,.69354,.68506,.02057,.48435],[.37667,.77352,.71799,-.03303,.6859,.67452,.02,.48922],[.40333,.76586,.61325,-.02545,.7399,.75519,.04788,.48224],[.61333,.76128,.70109,-.02,.69461,.74403,.04723,.48075],[.63,.76833,.63184,.01649,.68643,.76857,.04358,.40911],[.66,.77321,.63164,.0166,.68467,.76397,.04358,.40884],[.66333,.79922,.58944,.03769,.65036,.73863,.03659,.32874],[.67667,.82028,.66797,.07834,.6963,.62375,.04188,.29443],[.68,.82287,.50415,.1648,.7111,.98,.04188,.2],[.71333,.82423,.55544,.19045,.68793,.98,.02,.2],[.86667,.81029,.53139,.17893,.7164,.98,.02,.2],[.93667,.70861,.38687,.10616,.77618,.98,.02,.2],[.97333,.60168,.21541,.02042,.84234,.98,.02,.2],[1,.42669,.05399,-.05613,.96441,.98,.03793,.51014]]},'ドレッドノート級重巡洋艦');
@@ -27085,7 +27304,7 @@ registerShipExample({
   const bay=room('hangar','腹部戦闘機格納庫（TIE 1個中隊）',[347,32.2,0],[50,44,38.4],{airRole:'mixed'});openBay(s,bay,'bottom','ray');
   delete s._building;
   // Armament (Legends): 20 quad laser cannons (6 bow, 7 port, 7 starboard),
-  // 10 turbolaser cannons in the flank blisters (here twin casemate guns), 10 laser cannons (5 bow, 5 stern).
+  // 10 turbolaser cannons in the flank blisters (200 GT twin turbolasers), 10 laser cannons (5 bow, 5 stern).
   syncAviationSurfaces(s);s._lockedCache=cache(s);
   try{withFrozenStructures(()=>{
    const up=(k,x,z,opt={})=>{const h=rayEnv(s,[x,400,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の砲座がありません: '+x+','+z);const f={id:s.nextId++,k,p:h.p,a:2,ped:0,base:0,low:0,float:false,...opt};mountFit(s,f);s.fits.push(f);return f;};
@@ -27094,8 +27313,8 @@ registerShipExample({
    for(const x of [470,500,530])for(const sg of [-1,1])up('quad200',x,sg*16,{batteryZone:'bow'});
    for(const sg of [-1,1]){const zone=sg<0?'port':'stbd';for(const x of [80,135,190,245,300,355,408])up('quad200',x,sg*22,{batteryZone:zone});}
    // v19.1: the official complement (about 20,000) belongs to the early, lighter battery, so the
-   // flank blisters carry twin casemate guns rather than heavy turbolaser turrets.
-   for(const sg of [-1,1])for(const [x,y] of [[304.1,59.3],[344.1,47.4],[378,59.3],[340.2,67],[424.2,49.6]])side('casemateMid',x,y,sg,{batteryZone:sg<0?'port':'stbd',localMount:true,chargeDepth:14});
+   // flank blisters retain conventional 200 GT twin turbolasers.
+   for(const sg of [-1,1])for(const [x,y] of [[304.1,59.3],[344.1,47.4],[378,59.3],[340.2,67],[424.2,49.6]])side('twin200',x,y,sg,{batteryZone:sg<0?'port':'stbd',localMount:true,chargeDepth:14});
    // Laser cannons (point defence): five at the bow and five at the stern.
    for(const [x,z] of [[545,-14],[545,14],[520,0],[568,0],[495,0]])up('pd',x,z,{batteryZone:'bow'});
    for(const [x,z] of [[30,-16],[30,16],[30,0],[55,-16],[55,16]])up('pd',x,z,{batteryZone:'stern'});
@@ -27258,10 +27477,10 @@ registerShipExample({
   part('inertial','慣性制御装置',[72.6,3.8,0],5.4,{length:5.2,dir:[1,0,0]});
   room('cargo','貨物区画（貨物架）',[52,3.7,0],[22,13,5]);
   room('command','操縦・指揮区画',[23,9.2,0],[4,4,4]);
-  // Four twin laser cannons for close defence.
+  // Two twin laser turrets provide the transport's limited close defence.
   const gun=(kind,x,z,axis,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-200:200,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('GR-75の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,chargeDepth:2,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
   syncAviationSurfaces(s);s._lockedCache=cache(s);
-  try{withFrozenStructures(()=>{for(const x of [58,74])for(const z of [-6,6])gun('pd',x,z,2,x<70?'dorsal':'bow');});}finally{delete s._lockedCache;}
+  try{withFrozenStructures(()=>{for(const z of [-6,6])gun('pd',74,z,2,'bow');});}finally{delete s._lockedCache;}
   delete s._building;remount(s);return s;
  }
 });
@@ -27582,17 +27801,18 @@ function lucrehulkBuild(opt={}){
  pod('podAir',claw,[X(2800),418,-200],[0,0,1]);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // 42 quad laser batteries: fourteen typical triple quad laser batteries along the ring's equator
-  for(let g=0;g<7;g++){const a0=42+g*20;spread('quad200',6,'beam','midline-'+(g+1),[a0-4,a0,a0+4].map(a=>X(1611)+1403*Math.cos(a*Math.PI/180)),[418,430,406,442,394]);}
+  // Forty-two equatorial stations retain their mirrored arrangement: each
+  // group seats a pair of CIS rapid quads and four Mon Calamari 34 TT balls.
+  for(let g=0;g<7;g++){const a0=42+g*20,xs=[a0-4,a0,a0+4].map(a=>X(1611)+1403*Math.cos(a*Math.PI/180));spread('quad1Rapid',2,'beam','midline-rapid-'+(g+1),xs,[418,430,406,442,394]);spread('monCal34',4,'beam','midline-ball-'+(g+1),xs,[418,430,406,442,394]);}
   // transmitter platform defence artillery
-  spread('pd',4,'top','platform-defence',range(X(570),X(850),30),[130,100]);
+  spread('monCalPD',4,'top','platform-defence',range(X(570),X(850),30),[130,100]);
   // main tractor beam generators and multiple tractor beam projectors on the forward arms
   spread('trc',6,'beam','arm-tractor',range(X(2860),X(3060),20),[470,430,510,390]);
  });}finally{delete s._lockedCache;}
  // LH-3210 freighter (opt.freighter): the same hull unarmed — the quad laser batteries and the defence artillery come
  // off (the tractor beams stay for cargo handling) and the volume their mounts took (footprint × height of each fit,
  // fitSpec) goes back to the holds below.
- let freed=0;if(opt.freighter){const gone=s.fits.filter(f=>f.k==='quad200'||f.k==='pd');for(const f of gone){const d=fitSpec(f);freed+=Math.max(0,(d.fm||0)*(d.wm||0)*(d.hm||0));}s.fits=s.fits.filter(f=>!gone.includes(f));}
+ let freed=0;if(opt.freighter){const gone=s.fits.filter(f=>['quad1Rapid','monCal34','monCalPD'].includes(f.k));for(const f of gone){const d=fitSpec(f);freed+=Math.max(0,(d.fm||0)*(d.wm||0)*(d.hm||0));}s.fits=s.fits.filter(f=>!gone.includes(f));}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
  if(opt.stage==='shape'){delete s._building;return s;}
@@ -27615,7 +27835,7 @@ registerShipExample({
  title:'Lucrehulk',author:'Professor E12^2',authorUrl:'https://sketchfab.com/profanity2009',
  source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0',
  credit:'This work is based on "Lucrehulk" (https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115) by Professor E12^2 (https://sketchfab.com/profanity2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、地上部隊の補給物資庫、格納甲板床下の予備部品庫、貨物ベイ、大規模弾薬庫。環状船体の左右に C-9979 上陸艇の格納甲板 4 区画（14 段積み、下面に扉）。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った三連四連レーザー砲台 14 群（計 42 基）。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。MTT と AAT の大半は上陸艇 1 隻に AAT 114 両・MTT 11 両ずつ積んだまま格納し、1 回の降下で上陸艇 50 隻と MTT がドロイド全軍を降ろせる。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。',
+ note:'基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、地上部隊の補給物資庫、格納甲板床下の予備部品庫、貨物ベイ、大規模弾薬庫。環状船体の左右に C-9979 上陸艇の格納甲板 4 区画（14 段積み、下面に扉）。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った34TT単装球状ターボレーザー28基とCIS向け1TT×4速射砲14基（計42基）、送信プラットフォームの球状3連装点防御砲4基、トラクター・ビーム6基。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。MTT と AAT の大半は上陸艇 1 隻に AAT 114 両・MTT 11 両ずつ積んだまま格納し、1 回の降下で上陸艇 50 隻と MTT がドロイド全軍を降ろせる。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。',
  airWings:LUC_AIR,groundForces:LUC_GROUND,
  build:lucrehulkBuild
 });
@@ -27626,7 +27846,7 @@ registerShipExample({
  title:'Lucrehulk',author:'Professor E12^2',authorUrl:'https://sketchfab.com/profanity2009',
  source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0',
  credit:'This work is based on "Lucrehulk" (https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115) by Professor E12^2 (https://sketchfab.com/profanity2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、四連レーザー砲台と防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。',
+ note:'ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、球状ターボレーザー、CIS四連装速射砲、防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。',
  airWings:[],groundForces:[],
  build:(opt={})=>lucrehulkBuild({...opt,freighter:true})
 });
@@ -27799,24 +28019,22 @@ function mc30Build(opt={}){
   spread('msl',4,'top','cluster-bomb',[326,340],[7],{mount:'ext'});
   spread('msl',2,'top','cluster-bomb',[352,366],[0],{mount:'ext'});
   spread('trc',2,'bottom','bow-tractor',[330,348],[0]);
-  // Full-size dual-purpose guns need charging space in the broad head: the narrow
-  // spine, integrity plant and bow tips cannot contain their banks. Keep the ten
-  // guns directly on existing dorsal blocks, shoulders and the forward underside.
-  spread('pd',4,'top','block-pd',[219.45,233,245,258,272,285,310,330],[5.5,9,12]);
-  spread('pd',4,'top','spine-pd',[198,232.85,250,270,290,310,330],[17,13,8]);
-  spread('pd',2,'bottom','bow-pd',[290,310,270,250,230,210],[0]);
-  // Pack the replacement single-ball mounts by their actual oriented bounds,
-  // after the existing launchers, projectors and PD retain their seats. The
-  // retired window-radius heuristic cannot size these moving spheres.
+  // The ten spherical triple PD guns retain the dorsal blocks, shoulders
+  // and forward underside, leaving the missile and tractor stations independent.
+  spread('monCalPD',4,'top','block-pd',[219.45,233,245,258,272,285,310,330],[5.5,9,12]);
+  spread('monCalPD',4,'top','spine-pd',[198,232.85,250,270,290,310,330],[17,13,8]);
+  spread('monCalPD',2,'bottom','bow-pd',[290,310,270,250,230,210],[0]);
+  // Sixteen 500 GT single spherical turbolasers are the frigate's medium
+  // battery. The existing single500 model has the full rotating sphere and
+  // its ordinary firing cycle; no large ion batteries are fitted.
+  // Pack their real bounds after the launchers, projectors and PD.
   const freeBox=(b,q)=>[0,1,2].some(a=>b[a+3]+.5<=q[a]||q[a+3]+.5<=b[a]);
   const headBalls=(kind,total,zone,ys,xs)=>{let got=0;
    for(const y of ys)for(const x of xs){if(got>=total)break;const pair=[];
     for(const sg of [1,-1]){
      const h=rayEnv(s,[x,y,sg*500],[0,0,-sg],{structOnly:true});if(!h||h.part?.plate)break;
-     // Shallow anchors let the common allocator reshape banks into the free
-     // hull volume. The two port banks beside the forward machinery need a
-     // deeper anchor; full-size banks are retained for every gun.
-     const chargeDepth=kind==='monCal150Ion'&&sg<0&&x>=280&&x<=310?14:2;
+     // Full-size charging banks stay inside the native head.
+     const chargeDepth=2;
      const f={id:s.nextId+pair.length,k:kind,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,chargeDepth,batteryZone:zone+(sg>0?'-stbd':'-port')};mountFit(s,f);if(f.float)break;
      const b=fitAABB(f);if(!s.fits.concat(pair).every(g=>freeBox(b,fitAABB(g))))break;pair.push(f);
     }
@@ -27824,8 +28042,7 @@ function mc30Build(opt={}){
    }
    if(got<total)throw new Error('MC30c球状砲座が不足しています: '+kind+' '+got+'/'+total);
   };
-  headBalls('monCal150Ion',16,'beam-ion',[11,20,27,16,23],range(204,364,20));
-  headBalls('monCal34',12,'beam-tl',[25,19,12,29,7,23,16],range(200,368,12));
+  headBalls('single500',16,'beam-tl',[25,19,12,29,7,23,16],range(200,368,12));
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  s.groundForces=normalizeGroundForces(MC30C_GROUND);
@@ -27836,7 +28053,7 @@ registerShipExample({
  key:'mc30c',name:'MC30cフリゲート',side:'反乱同盟',role:'雷撃フリゲート',length:380,
  title:'MC30c Frigate',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（MC30CFrigate.STL）',license:'不明（出典未記載）',
  credit:'MC30cフリゲートの形状は、ユーザーが提供した STL ファイル（MC30CFrigate.STL、作者・ライセンス表記なし）から実測した。',
- note:'380 m（正史）。ユーザー提供の STL ファイル（MC30CFrigate.STL、作者・ライセンス表記なし）の実測形状から、尾翼内の細い芯・後部機関ハウジング・背骨・大きな丸い頭部を1本の主船体として断面ごとに合わせ、下反角の尾翼と中央板、背鰭、尾翼下の放熱翼、主機関ポッド、腹部キール、背部稜線と4つの砲塔ブロックを構造物として組み直した。頭部の下の4つのポッドから出る主機関4基と後部ハウジングの機関1基、反応炉は中心線上に並べ、前後の偏向シールド発生器、ハイパードライブ（クラス1）。武装は頭部の舷側の34TT単装球状ターボレーザー12基と150TT単装球状イオン砲16基（廃止された砲列区画と小型イオン砲から置換）、前部甲板の VLS に重プロトン魚雷発射管2基、外置きのクラスター爆弾発射機6基、艦首下面のトラクター・ビーム2基、点防御10基（砲塔ブロック上など）。艦隊兵95名。居住区・兵員室は置かず、乗員と兵員は船内の空き容積に乗る。',
+ note:'380 m（正史）。ユーザー提供の STL ファイル（MC30CFrigate.STL、作者・ライセンス表記なし）の実測形状から、尾翼内の細い芯・後部機関ハウジング・背骨・大きな丸い頭部を1本の主船体として断面ごとに合わせ、下反角の尾翼と中央板、背鰭、尾翼下の放熱翼、主機関ポッド、腹部キール、背部稜線と4つの砲塔ブロックを構造物として組み直した。頭部の下の4つのポッドから出る主機関4基と後部ハウジングの機関1基、反応炉は中心線上に並べ、前後の偏向シールド発生器、ハイパードライブ（クラス1）。武装は頭部の左右舷に500GT単装球状ターボレーザーを8基ずつ、計16基、前部甲板に重プロトン魚雷発射機2基、外置きのクラスター爆弾発射機6基、艦首下面のトラクター・ビーム2基、球状3連装点防御砲10基（砲塔ブロック上など）。艦隊兵95名。居住区・兵員室は置かず、乗員と兵員は船内の空き容積に乗る。',
  groundForces:MC30C_GROUND,
  build:mc30Build
 });
@@ -27851,9 +28068,8 @@ registerShipExample({
 // its weapon collar, fitted station by station; the ventral outrigger fin, the
 // command bridge pod at its foot and the dorsal communications mast are
 // ordinary structures measured from the model.
-// v22 Mon Calamari batteries are recessed into the hull, so the turbolasers and ion cannons are casemates
-// (twin casemate guns along the weapon collar, twin ion casemates along the flanks), not turrets; canon
-// gives no counts, so the earlier ones are kept (12 turbolasers, 16 ion cannons).
+// The existing 12 turbolaser, 16 ion and 20 PD stations now use the shared
+// Mon Calamari spherical turret family, preserving the hull and weapon collar.
 {
 const MC75={"loft":{"fin":[[25.19,-0.07,0.06,618.48,618.48],[26.19,-16.11,16.11,626.6,756.74],[30.19,-14.45,14.44,640.09,729.42],[34.19,-7.62,7.62,671.1,728.3],[49.19,-7.33,7.33,680.75,733.59],[130.19,-12.81,12.8,680.37,740.43],[134.19,-13.08,13.07,680.26,756.2],[140.19,-13.48,13.48,680.11,751.91],[143.19,-13.68,13.68,680.03,739.5],[190.19,-16.86,16.86,678.82,746.76],[194.19,-17.13,17.13,678.72,763.64],[198.19,-17.4,17.4,678.62,761.9],[199.19,-17.47,17.47,607.86,755.03],[207.19,-18.24,18.24,591.01,754.43],[216.19,-27.15,27.14,603.49,771.55],[221.19,-39.77,39.77,603.48,819.9],[224.19,-42.17,42.17,585.64,875.52],[228.19,-50.16,50.16,568.82,875.52],[234.19,-53.96,53.95,562.09,887.79],[237.19,-54.55,54.55,534.28,888.21],[238.19,-53.93,53.93,568.82,888.28],[240.19,-51.54,51.47,568.82,888.32],[240.92,-46.65,46.65,652.53,653.03]],"pod":[[607.49,-1.61,1.6,19.22,21.52],[614.49,-5.84,5.83,14.86,24.41],[632.49,-9.86,9.85,8.74,26.69],[639.49,-13.42,13.41,6.78,30.07],[669.49,-15.84,15.83,1.38,32.92],[675.49,-16.01,16.0,0.8,38.13],[679.49,-16.12,16.11,0.57,45.22],[683.49,-17.16,17.16,0.34,35.52],[695.49,-18.31,18.3,0.02,32.64],[696.49,-18.35,18.33,0.02,44.24],[724.49,-17.25,17.25,0.36,35.62],[725.49,-16.83,16.83,0.4,44.22],[727.49,-13.72,13.72,0.46,37.08],[729.49,-13.65,13.64,0.53,29.94],[749.49,-11.0,10.99,3.15,27.97],[754.49,-7.44,7.43,6.76,27.23],[755.49,-5.29,5.28,8.96,26.92],[756.49,-3.14,3.14,21.76,26.41],[758.37,-0.16,0.15,23.97,24.2]],"mast":[[336.34,-10.49,10.48,660.9,661.19],[336.84,-9.94,9.92,660.83,755.87],[341.34,-10.55,10.54,659.5,734.59],[343.84,-3.95,3.94,657.8,726.06],[348.84,-2.76,2.75,652.05,713.28],[349.84,-5.93,5.93,644.04,714.61],[351.84,-6.85,6.85,643.23,715.72],[352.84,-7.1,7.09,643.01,708.63],[353.34,-7.1,7.09,643.02,708.58],[353.84,-4.06,4.05,666.65,708.52],[373.34,-5.35,5.35,665.62,706.45],[375.34,-5.35,5.35,651.62,724.67],[379.34,-4.6,4.59,647.78,724.67],[381.34,-4.6,4.59,659.05,718.89],[382.84,-4.06,4.05,665.12,705.43],[397.34,-4.06,4.05,664.37,703.81],[397.84,-4.39,4.39,643.89,703.98],[400.34,-5.56,5.55,638.79,706.81],[401.84,-1.02,1.02,626.32,702.96],[402.83,-1.02,1.02,626.32,702.96]]},"W":230.051,"H":240.0,"st":[[0.0,0.5147,0.125,0.7708,0.173,0.1381,0.54,0.59],[0.00498,0.5211,0.125,0.7708,0.2718,0.2167,0.54,0.59],[0.00996,0.5895,0.1458,0.7688,0.3812,0.3805,0.27,0.65],[0.04234,0.6372,0.1542,0.7646,0.7523,0.5509,0.11,0.67],[0.28644,0.8621,0.2792,0.7271,0.4228,0.298,0.21,0.69],[0.38109,0.8845,0.3667,0.7167,0.27,0.3894,0.21,0.65],[0.38607,0.8855,0.3833,0.7208,0.2784,0.3949,0.19,0.63],[0.39354,0.8845,0.3667,0.7083,0.2715,0.4028,0.21,0.68],[0.40849,0.8819,0.375,0.7042,0.3157,0.3576,0.23,0.67],[0.44336,0.9193,0.4375,0.6771,0.3507,0.3101,0.25,0.72],[0.47076,0.9127,0.4542,0.6687,0.3667,0.3279,0.24,0.73],[0.47574,0.9993,0.45,0.6708,0.3138,0.298,0.32,0.72],[0.51559,0.9217,0.4458,0.6646,0.2835,0.4487,0.34,0.71],[0.53801,0.8967,0.4375,0.6687,0.3379,0.2514,0.32,0.72],[0.5405,0.9853,0.4583,0.6708,0.3512,0.3389,0.31,0.73],[0.675,0.9286,0.4583,0.6708,0.3889,0.3301,0.29,0.74],[0.72482,0.8869,0.4667,0.6708,0.2025,0.2568,0.34,0.72],[0.72731,0.8057,0.4458,0.6854,0.2793,0.2754,0.31,0.68],[0.76467,0.7739,0.3625,0.7021,0.3564,0.5668,0.37,0.68],[0.88174,0.6661,0.3375,0.7021,0.629,0.2746,0.48,0.58],[0.96144,0.5171,0.2417,0.7375,0.5043,0.373,0.26,0.7],[0.99133,0.272,0.1292,0.7604,0.5335,0.3094,0.45,0.66],[0.999,0.0829,0.0625,0.7771,0.1315,0.1309,0.5,0.63],[1.0,0.0202,0.0333,0.7833,0.9755,0.1703,0.02,0.71]],"rooms":[["service","航空整備・補給区画",[870.82,286,52],[17.05,43.4,27.4],1],["cargo","貨物・物資庫",[494.38,278,-54],[104.17,23.4,11.4]],["cargo","貨物・物資庫 2",[448,272,32],[11.4,27.4,31.4]]]};
 const MC75_AIR=[{id:'air-1',name:'Xウイング中隊',type:'xwing',count:12},{id:'air-2',name:'Uウイング小隊（兵員輸送）',type:'uwing',count:6},{id:'air-3',name:'Yウイング小隊',type:'ywing',count:6}];
@@ -27937,20 +28153,17 @@ function mc75Build(opt={}){
  const {spread,range}=mc75MountKit(s,opt);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // v22 Mon Calamari batteries are recessed into the hull, so the guns are casemates, not turrets: twelve
-  // broadside turbolasers (twin casemate guns) along the weapon collar's band, six a side, and sixteen ion
-  // cannons (twin ion casemates; Rebel doctrine) in rows along the hull's flanks. (As standard-size turrets
-  // two of the sixteen had to be left off for want of room for the crew and the conduits; the casemates
-  // need far less, so all sixteen are back.)
-  casemateRows(s,'casemateMid',12,[[300,[535,660]],[285,[535,660]],[315,[535,660]]],25,{zone:'collar-broadside'});
-  casemateRows(s,'casemateIon',16,[[.5,[220,1100]],[.38,[220,1100]],[.62,[220,1100]]],125,{zone:'beam-ion'});
+  // Twelve single 34 TT balls on the collar and sixteen single 150 TT ion
+  // balls on the flanks replace the retired broadside and small-ion batteries.
+  casemateRows(s,'monCal34',12,[[300,[535,660]],[285,[535,660]],[315,[535,660]]],25,{zone:'collar-broadside'});
+  casemateRows(s,'monCal150Ion',16,[[.5,[220,1100]],[.38,[220,1100]],[.62,[220,1100]]],125,{zone:'beam-ion'});
   // Twelve proton torpedo launchers on the ordnance fairing at the root of the outrigger fin.
   spread('msl',12,'bottom','ordnance-pod',range(560,880,24),[18,36,50,0],{});
   // Six tractor beam projectors in the port forward of the collar.
   spread('trc',6,'beam','fore-collar-tractor',range(670,800,22),[285,300,270,315],{});
   // Twenty point-defence laser cannons.
-  spread('pd',10,'top','dorsal-pd',range(120,1180,40),[20,50,80,100,0]);
-  spread('pd',10,'bottom','ventral-pd',range(120,1180,40),[20,50,80,100,0]);
+  spread('monCalPD',10,'top','dorsal-pd',range(120,1180,40),[20,50,80,100,0]);
+  spread('monCalPD',10,'bottom','ventral-pd',range(120,1180,40),[20,50,80,100,0]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  // Compartments packed into free space of the hull: crew decks, troops, cargo and aircraft servicing.
@@ -27964,7 +28177,7 @@ registerShipExample({
  title:'MC75 Star Cruiser (Profundity)',author:'Snickett（原型 Warb Null）',authorUrl:'https://www.thingiverse.com/thing:2806900',
  source:'https://www.thingiverse.com/thing:2806900',license:'CC BY-NC',
  credit:'MC75 Star Cruiser (Profundity) by Snickett on Thingiverse: https://www.thingiverse.com/thing:2806900 (original model by Warb Null, http://www.moddb.com/members/warb-null), licensed under Creative Commons - Attribution - Non-Commercial',
- note:'1,204.44 m（正史）。Thingiverse の 3D モデル（Snickett 作・原型 Warb Null、CC BY-NC）の実測形状から、平らな上甲板と兵装カラーを持つ主船体、腹部の装甲アウトリガー翼と先端の艦橋ポッド、背部の通信マストを組み直した。艦尾の機関平面の下に KDY ゲモン15 亜光速イオン機関12基、旧市民アトリウムを改装した腹部ドッキング・ベイ（2個中隊）、前後に強化した偏向シールド。モン・カラマリの艦らしく砲塔は立てず、兵装カラーの帯に舷側ターボレーザー12基（連装ケースメイト中砲）、船体の舷側にイオン砲16基（連装ケースメイト・イオン砲、反乱同盟のドクトリン）を埋め込み、アウトリガー翼付け根の兵装ポッドにプロトン魚雷発射管12基、カラー前方の舷側にトラクター・ビーム6基、点防御レーザー砲20基。',
+ note:'1,204.44 m（正史）。Thingiverse の 3D モデル（Snickett 作・原型 Warb Null、CC BY-NC）の実測形状から、平らな上甲板と兵装カラーを持つ主船体、腹部の装甲アウトリガー翼と先端の艦橋ポッド、背部の通信マストを組み直した。艦尾の機関平面の下に KDY ゲモン15 亜光速イオン機関12基、旧市民アトリウムを改装した腹部ドッキング・ベイ（2個中隊）、前後に強化した偏向シールド。兵装カラーの帯に34TT単装球状ターボレーザー12基、船体の舷側に150TT単装球状イオン砲16基を配置し、アウトリガー翼付け根の兵装ポッドにプロトン魚雷発射管12基、カラー前方の舷側にトラクター・ビーム6基、球状3連装点防御レーザー砲20基。',
  airWings:MC75_AIR,groundForces:MC75_GROUND,
  build:mc75Build
 });
@@ -28390,24 +28603,20 @@ function munificentBuild(opt={}){
  pod('podCombat',tower,[705,195,Z(80)],[0,0,-1]);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // v22 The canon and Legends list (Wookieepedia, "Munificent-class star frigate"; Revenge of the Sith
-  // Incredible Cross-Sections): 2 forward heavy turbolaser cannons, 2 long-range ion cannons, 26 twin
-  // turbolaser cannons (13 a side), 20 light turbolaser turrets and 38 point-defence laser cannons. (The
-  // canon article's later additions, 12 medium flak guns and 40 retractable twin light turbolasers, are
-  // left out.) The twin turbolasers are medium turrets (mtl), as before.
-  // 2 heavy turbolaser cannons on the prow elevation mounts, ventral bow
-  spread('stl',2,'beam','prow-heavy',range(600,740,8).reverse(),[70,62,78,86,54]);
-  // 2 long-range ion cannons under the bow
-  spread('ion',2,'beam','bow-ion',range(560,740,8).reverse(),[70,62,78,86,54]);
-  // 26 twin turbolaser cannons on the flanks below the shells and on the keels
-  spread('mtl',26,'beam','twin',range(290,750,40),[82,64,72,56,46,92]);
-  // 20 light turbolaser turrets on top: the dorsal spine and the central neck
-  spread('ltl',20,'top','dorsal-light',range(290,700,16),[0]);
-  // 38 point-defence laser cannons: lower mast and transceiver mast, wings, stern
-  spread('pd',14,'beam','mast-pd',range(188,238,14),[20,38,56,165,180]);
-  // The full-size dual-purpose gun banks fit below the thick inner-wing/neck
-  // junction, not inside the thin outboard panels; no extra gun platforms are added.
-  spread('pd',24,'top','wing-pd',range(295,379,14),[Z(16),Z(28)]);
+  // Preserve the existing heavy, ion, flank, light and PD station counts,
+  // replacing their general-purpose turrets with the spherical CIS/Mon Cal family.
+  // Two 200 TT triple balls on the prow elevation mounts, ventral bow.
+  spread('monCal200Triple',2,'beam','prow-heavy',range(600,740,8).reverse(),[70,62,78,86,54]);
+  // Two single 150 TT ion balls under the bow.
+  spread('monCal150Ion',2,'beam','bow-ion',range(560,740,8).reverse(),[70,62,78,86,54]);
+  // Twenty-six single 34 TT balls on the flanks and keels.
+  spread('monCal34',26,'beam','twin',range(290,750,40),[82,64,72,56,46,92]);
+  // Twenty spherical triple dual-purpose guns on the dorsal spine and neck.
+  spread('monCalPD',20,'top','dorsal-light',range(290,700,16),[0]);
+  // Thirty-eight spherical triple PD guns: masts, wings and stern.
+  spread('monCalPD',14,'beam','mast-pd',range(188,238,14),[20,38,56,165,180]);
+  // The inner-wing/neck stations retain the existing hull contact surfaces.
+  spread('monCalPD',24,'top','wing-pd',range(295,379,14),[Z(16),Z(28)]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -28425,7 +28634,7 @@ registerShipExample({
  title:'Munificent Class Star Frigate',author:'SomeGuyUsingBlender',authorUrl:'https://sketchfab.com/SomeGuyUsingBlender',
  source:'https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5',license:'CC BY 4.0',
  credit:'This work is based on "Munificent Class Star Frigate" (https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5) by SomeGuyUsingBlender (https://sketchfab.com/SomeGuyUsingBlender) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'DK の断面図の配置と寸法（全長 825 m・幅 426 m・高さ 243 m）に合わせ、Sketchfab の 3D モデル（SomeGuyUsingBlender 作、CC BY 4.0）の実測形状を幅方向に 1.061 倍して組み直した銀行グループのフリゲート。背部は左右一対の曲面の外殻板（前部と艦尾、装甲外板）が下の船体を覆い、中央に黒い背骨がのぞく形（v19）。外殻板には分離主義ブルーの縦帯、翼には黄色の帯を入れた。艦尾と機関区画の装甲殻、舷側の青い装甲板も装甲外板で、武装は背部縦通材・中央連結部・竜骨・翼・送受信マストに載せる。艦尾にイオン・ドライブ・スラスターとエネルギー・セル、レイ・シールド発生器、送受信マスト基部にハイパードライブ・ユニット、中央に双子の主反応炉と超高密度反応物タンク、艦首側の縦通材に慣性補償装置、艦首下部に旧保管庫の貨物区画。乗員とドロイドは船内の空き容積に乗る。兵装は正史・レジェンズの一覧どおり、艦首の重ターボレーザー砲 2 基、長距離イオン砲 2 基、舷側の連装ターボレーザー砲 26 基（片舷 13 基、中ターボレーザー砲塔で代表）、背部の軽ターボレーザー砲塔 20 基、点防御レーザー砲 38 基（v22。以前は砲塔数を減らし、正史にない舷側のケースメイト砲 6 基を加えていました）。格納庫は持たず、停止保管バトル・ドロイド 15 万体を積む。加速約 2,100 G、ハイパードライブ・クラス 1。公式の乗員は 200。',
+ note:'DK の断面図の配置と寸法（全長 825 m・幅 426 m・高さ 243 m）に合わせ、Sketchfab の 3D モデル（SomeGuyUsingBlender 作、CC BY 4.0）の実測形状を幅方向に 1.061 倍して組み直した銀行グループのフリゲート。背部は左右一対の曲面の外殻板（前部と艦尾、装甲外板）が下の船体を覆い、中央に黒い背骨がのぞく形（v19）。外殻板には分離主義ブルーの縦帯、翼には黄色の帯を入れた。艦尾と機関区画の装甲殻、舷側の青い装甲板も装甲外板で、武装は背部縦通材・中央連結部・竜骨・翼・送受信マストに載せる。艦尾にイオン・ドライブ・スラスターとエネルギー・セル、レイ・シールド発生器、送受信マスト基部にハイパードライブ・ユニット、中央に双子の主反応炉と超高密度反応物タンク、艦首側の縦通材に慣性補償装置、艦首下部に旧保管庫の貨物区画。乗員とドロイドは船内の空き容積に乗る。兵装は艦首の200TT三連装球状ターボレーザー2基と150TT単装球状イオン砲2基、舷側の34TT単装球状ターボレーザー26基（片舷13基）、背部の球状3連装両用砲20基、球状3連装点防御砲38基。格納庫は持たず、停止保管バトル・ドロイド 15 万体を積む。加速約 2,100 G、ハイパードライブ・クラス 1。公式の乗員は 200。',
  airWings:MUN_AIR,groundForces:MUN_GROUND,
  build:munificentBuild
 });
@@ -28545,19 +28754,13 @@ registerShipExample({
   part('hyper','ハイパードライブ',[247,60.5,0],9,{length:13,dir:[0,1,0]});
   part('shield','シールド発生器',[270,103,8],10,{},true);
   room('command','艦橋',[284,108,0],[10,8,6]);
-  // Armament (12 turbolasers, 12 laser cannons, 2 tractor beams).
+  // Three 200 GT twins and five twin PD mounts on the native decks.
   const gun=(kind,x,z,axis,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-600:600,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('ネビュロンBの砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,chargeDepth:6,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
   syncAviationSurfaces(s);s._lockedCache=cache(s);
   try{withFrozenStructures(()=>{
-   // Twelve turbolasers on the dorsal decks, the rails and the bow: standard 18 m mounts
-   // spaced 18 m apart, pairs abreast on the forward deck and the bow, singles on the superstructure.
-   for(const x of [195,267])for(const z of [-10,10])gun('mtl',x,z,2,'fore-dorsal');
-   for(const x of [213,231,249])gun('mtl',x,0,2,'fore-dorsal');
-   for(const x of [16,46])for(const z of [-20.25,20.25])gun('mtl',x,z,2,'aft-'+(z<0?'port':'stbd'));
-   gun('mtl',285,0,2,'bow');
-   // Twelve laser cannons under the forward hull, the bow and the block.
-   for(const [x,z] of [[200,17],[222,17],[244,17],[270,12]])for(const sg of [-1,1])gun('pd',x,sg*z,3,'fore-ventral');
-   for(const x of [22,40])for(const z of [-16,16])gun('pd',x,z,3,'aft-ventral');
+   for(const [x,z] of [[27,0],[235,0],[278,0]])gun('twin200',x,z,2,x<100?'aft-dorsal':'fore-dorsal');
+   for(const [x,z] of [[205,15],[265,12]])for(const sg of [-1,1])gun('pd',x,sg*z,3,'fore-ventral');
+   gun('pd',14,0,3,'aft-ventral');
    gun('trc',286,0,3,'bow');gun('trc',30,0,3,'stern');
   });}finally{delete s._lockedCache;}
   delete s._building;remount(s);return s;
@@ -28872,43 +29075,40 @@ function providenceBuild(opt={}){
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
   if(!dn){
-  // v22 The canon and Legends list of the carrier/destroyer (Wookieepedia, "Providence-class
-  // carrier/destroyer" and "Invisible Hand", after the Revenge of the Sith Incredible Cross-Sections):
-  // 14 quad turbolaser turrets, 34 dual laser cannons, 2 heavy ion cannons, 12 point-defence ion cannons,
-  // 102 proton torpedo launchers; canon adds 12 heavy flak guns and tractor beam projectors (no count;
-  // four kept). The quad turrets are twin heavy turrets (htl) under the hull, as the cross-section shows.
-  spread('htl',14,'bottom','ventral-quad',range(330,1040,26),[60,45,75,30,88]);
-  // 2 ion cannons at the bow
-  spread('ion',2,'top','bow-ion',range(950,1050,8).reverse(),[18,24,12,30]);
-  // 34 dual laser cannons in dorsal and ventral turrets (light turbolaser turrets)
-  spread('ltl',16,'top','dorsal-laser',range(540,1040,16),[20,34,48,8,60]);
-  spread('ltl',18,'bottom','ventral-laser',range(300,1040,16),[15,98,22,105,8]);
-  // 12 heavy flak guns along the sides of the bow
-  spread('ltl',12,'beam','flak',range(540,1020,15),[Y(130),Y(116),Y(104),Y(142)]);
+  // Fourteen triple 200 TT balls replace the carrier's former ventral main
+  // batteries; ion, dual-purpose, flak, PD, missile and tractor seats retain their counts.
+  spread('monCal200Triple',14,'bottom','ventral-quad',range(330,1040,26),[60,45,75,30,88]);
+  // Two single 150 TT ion balls at the bow.
+  spread('monCal150Ion',2,'top','bow-ion',range(950,1050,8).reverse(),[18,24,12,30]);
+  // Thirty-four spherical triple dual-purpose guns on both faces.
+  spread('monCalPD',16,'top','dorsal-laser',range(540,1040,16),[20,34,48,8,60]);
+  spread('monCalPD',18,'bottom','ventral-laser',range(300,1040,16),[15,98,22,105,8]);
+  // Twelve spherical triple flak/PD guns on the bow sides.
+  spread('monCalPD',12,'beam','flak',range(540,1020,15),[Y(130),Y(116),Y(104),Y(142)]);
   // 102 proton torpedo launchers in 34 banks of three: bow sides and dorsal
   spread('msl',20,'beam','side-torpedo',range(545,1020,14),[Y(124),Y(110),Y(136),Y(98)]);
   spread('msl',14,'top','dorsal-torpedo',range(545,1010,20),[14,28,42,56,0]);
-  // 12 point-defence ion cannons: ventral and dorsal-aft
-  spread('pd',8,'bottom','ventral-pd',range(300,980,30),[70,85,55]);
-  spread('pd',4,'top','dorsal-aft-pd',range(280,500,12),[0,20]);
+  // Twelve spherical triple PD guns: ventral and dorsal-aft.
+  spread('monCalPD',8,'bottom','ventral-pd',range(300,980,30),[70,85,55]);
+  spread('monCalPD',4,'top','dorsal-aft-pd',range(280,500,12),[0,20]);
   // tractor beam projectors, ventral
   spread('trc',4,'bottom','tractor',range(500,960,25),[55,70,40,85]);
   }else{
-  // The canon dreadnought list. 14 heavy quad turbolasers, port and starboard under the hull.
-  spread('stl',14,'bottom','ventral-quad',mr(330,1040,22),[M(60),M(45),M(75),M(30),M(88)]);
-  // 2 battleship heavy ion cannons at the bow
-  spread('ion',2,'top','bow-ion',mr(950,1050,8).reverse(),[M(18),M(24),M(12),M(30)]);
-  // 34 dual heavy laser cannons, dorsal and ventral
-  spread('htl',16,'top','dorsal-laser',mr(540,1040,16),[M(20),M(34),M(48),M(8),M(60)]);
-  spread('htl',18,'bottom','ventral-laser',mr(300,1040,16),[M(15),M(98),M(22),M(105),M(8)]);
+  // Dreadnought: fourteen triple 200 TT balls beneath the hull.
+  spread('monCal200Triple',14,'bottom','ventral-quad',mr(330,1040,22),[M(60),M(45),M(75),M(30),M(88)]);
+  // Two single 150 TT ion balls at the bow.
+  spread('monCal150Ion',2,'top','bow-ion',mr(950,1050,8).reverse(),[M(18),M(24),M(12),M(30)]);
+  // Thirty-four single 80 TT balls, dorsal and ventral.
+  spread('monCal80',16,'top','dorsal-laser',mr(540,1040,16),[M(20),M(34),M(48),M(8),M(60)]);
+  spread('monCal80',18,'bottom','ventral-laser',mr(300,1040,16),[M(15),M(98),M(22),M(105),M(8)]);
   // 102 proton torpedo launchers in 34 banks of three: bow sides and dorsal
   spread('msl',20,'beam','side-torpedo',mr(545,1020,14),[Y(124),Y(110),Y(136),Y(98)]);
   spread('msl',14,'top','dorsal-torpedo',mr(545,1010,20),[M(14),M(28),M(42),M(56),0]);
-  // 12 heavy flak guns along the sides of the bow
-  spread('ltl',12,'beam','flak',mr(540,1020,15),[Y(130),Y(116),Y(104),Y(142)]);
-  // 12 twin point-defence ion cannons: ventral and dorsal-aft
-  spread('pd',8,'bottom','ventral-pd',mr(300,980,30),[M(70),M(85),M(55)]);
-  spread('pd',4,'top','dorsal-aft-pd',mr(280,500,12),[0,M(20)]);
+  // Twelve spherical triple flak/PD guns on the bow sides.
+  spread('monCalPD',12,'beam','flak',mr(540,1020,15),[Y(130),Y(116),Y(104),Y(142)]);
+  // Twelve spherical triple PD guns: ventral and dorsal-aft.
+  spread('monCalPD',8,'bottom','ventral-pd',mr(300,980,30),[M(70),M(85),M(55)]);
+  spread('monCalPD',4,'top','dorsal-aft-pd',mr(280,500,12),[0,M(20)]);
   // 10 heavy tractor beam emitters, port and starboard under the hull
   spread('trc',10,'bottom','tractor',mr(500,960,12),[M(55),M(70),M(40),M(85)]);
   }
@@ -28935,13 +29135,13 @@ const PROV_CREDIT={title:'Star Wars: The Clone Wars Providence',author:'lolqeeee
  credit:'This work is based on "Star Wars: The Clone Wars Providence" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)'};
 registerShipExample({
  key:'providence',name:'プロヴィデンス級キャリア／デストロイヤー',side:'独立星系連合',role:'キャリア／デストロイヤー',length:1088,...PROV_CREDIT,
- note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合のキャリア／デストロイヤー。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。主艦橋は艦尾上部の垂直尾翼のような塔（ウィザーズ・タワー）の頂部で、『クローン・ウォーズ』の画面と正史の資料のとおり、前端を回り込む 180 度の展望窓（模型の窓の発光テクスチャの位置）から前方を見る艦橋甲板と、その上の最上層の将官区画・展望甲板からなる。艦首上部の稜線とドーム窓（『シスの復讐』のインヴィジブル・ハンドの前部艦橋）は前部指揮所（戦闘指揮）とした。艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は正史・レジェンズの一覧どおり、腹部の四連ターボレーザー砲塔 14 基（重ターボレーザー連装砲塔で代表）、背部・腹部の二連レーザー砲 34 基（軽ターボレーザー砲塔で代表）、艦首の重イオン砲 2 基、点防御イオン砲 12 基、プロトン魚雷発射管 102 門（3 門ずつまとめた発射機 34 基）、艦首側面の重対空砲 12 基（正史。軽ターボレーザー四連砲塔）、トラクター・ビーム投射機 4 基（正史に数の記載なし）（v22。以前は砲塔数を減らし、正史にない舷側のケースメイト砲を加えていました）。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 12 万 5,000 体とした（v22。正史の武装を積むと砲の持ち場の乗員が増え、以前の 16 万 2,000 体は収まらない）。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
+ note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合のキャリア／デストロイヤー。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。主艦橋は艦尾上部の垂直尾翼のような塔（ウィザーズ・タワー）の頂部で、『クローン・ウォーズ』の画面と正史の資料のとおり、前端を回り込む 180 度の展望窓（模型の窓の発光テクスチャの位置）から前方を見る艦橋甲板と、その上の最上層の将官区画・展望甲板からなる。艦首上部の稜線とドーム窓（『シスの復讐』のインヴィジブル・ハンドの前部艦橋）は前部指揮所（戦闘指揮）とした。艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は腹部の200TT三連装球状ターボレーザー14基、艦首の150TT単装球状イオン砲2基、背部・腹部の球状3連装両用砲34基、艦首側面の球状3連装対空砲12基、球状3連装点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム4基。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 12 万 5,000 体とした（v22。正史の武装を積むと砲の持ち場の乗員が増え、以前の 16 万 2,000 体は収まらない）。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
  airWings:PROV_AIR,groundForces:PROV_GROUND,
  build:providenceBuild
 });
 registerShipExample({
  key:'providenceDn',name:'プロヴィデンス級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2177.35,...PROV_CREDIT,
- note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じで、主艦橋は塔の頂部、前部指揮所は艦首上部。兵装は正史のプロヴィデンス級ドレッドノートの一覧に合わせ、重四連ターボレーザー砲を大型重ターボレーザー砲塔 14 基（腹部の左右）、背部・腹部の二連重レーザー砲を重ターボレーザー連装砲塔 34 基、艦首の戦艦級重イオン砲 2 基、プロトン魚雷発射機 102 門を 3 門ずつまとめた発射機 34 基、重対空砲を軽ターボレーザー四連砲塔 12 基、点防御イオン砲 12 基、トラクター・ビーム投射機 10 基とした（v22。正史にない舷側のケースメイト砲 24 基を外した）。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち 100 万体（1 部隊の上限）、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイドで、持ち場の約 7 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。',
+ note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じで、主艦橋は塔の頂部、前部指揮所は艦首上部。兵装は腹部の200TT三連装球状ターボレーザー14基、背部・腹部の80TT単装球状ターボレーザー34基、艦首の150TT単装球状イオン砲2基、球状3連装対空砲12基と点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム10基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち 100 万体（1 部隊の上限）、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイドで、持ち場の約 7 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。',
  airWings:PROV_DN_AIR,groundForces:PROV_DN_GROUND,
  build:(opt={})=>providenceBuild({...opt,scale:PROV_DN_K})
 });
@@ -29042,45 +29242,41 @@ function recusantBuild(opt={}){
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
   if(!dn){
-  // 1 prow heavy turbolaser cannon at the very front
-  spread('stl',1,'bottom','prow',range(1080,1170,6).reverse(),[0]);
-  // 4 heavy turbolaser cannons on the forward flanks, below the smooth segments
-  spread('htl',4,'beam','fwd-flank-heavy',range(860,1060,14),[66,72,60,78,54]);
-  // v22 The canon list (Wookieepedia, "Recusant-class light destroyer", after the Revenge of the Sith
-  // Incredible Cross-Sections): 1 prow heavy turbolaser cannon, 4 heavy turbolaser cannons, 6 heavy
-  // turbolaser turrets, 5 turbolaser cannons, 30 dual laser cannons, 12 dual light laser cannons (the
-  // broadside casemates below) and 60 point-defence laser cannons. The six heavy turbolaser turrets are
-  // medium turrets (mtl): as standard twin heavy turrets their power conduits fill the free volume and
-  // the crew no longer fits (habitation 0.56), so the armament is lightened rather than the count cut.
-  // 6 heavy turbolaser turrets on the dorsal hump
-  spread('mtl',6,'top','dorsal-heavy',range(590,800,18),[Z(28),Z(20),Z(36),0]);
-  // 5 turbolaser cannons on the bow ridge
-  spread('mtl',5,'top','bow-ridge',range(850,1090,20),[0]);
-  // 30 dual laser cannons along the mid-ship flanks
-  spread('ltl',30,'beam','laser',range(470,880,18),[34,48,80,92,62]);
-  // 60 point-defence laser cannons: ventral, dorsal and aft
-  spread('pd',24,'bottom','ventral-pd',range(470,1010,30),[Z(14),Z(30),Z(44)]);
-  spread('pd',24,'top','dorsal-pd',range(470,1080,32),[Z(40),Z(48),Z(30),Z(56)]);
-  spread('pd',12,'top','aft-pd',range(150,460,26),[Z(8),Z(20)]);
+  // One single 200 TT ball at the prow.
+  spread('monCal200',1,'bottom','prow',range(1080,1170,6).reverse(),[0]);
+  // Four single 80 TT balls on the forward flanks.
+  spread('monCal80',4,'beam','fwd-flank-heavy',range(860,1060,14),[66,72,60,78,54]);
+  // The existing six dorsal and five bow-ridge seats take single 34 TT
+  // balls. Lower-yield dual-purpose and PD stations retain their own positions.
+  // Six single 34 TT balls on the dorsal hump.
+  spread('monCal34',6,'top','dorsal-heavy',range(590,800,18),[Z(28),Z(20),Z(36),0]);
+  // Five single 34 TT balls on the bow ridge.
+  spread('monCal34',5,'top','bow-ridge',range(850,1090,20),[0]);
+  // Thirty spherical triple dual-purpose guns on the mid-ship flanks.
+  spread('monCalPD',30,'beam','laser',range(470,880,18),[34,48,80,92,62]);
+  // Sixty spherical triple PD guns: ventral, dorsal and aft.
+  spread('monCalPD',24,'bottom','ventral-pd',range(470,1010,30),[Z(14),Z(30),Z(44)]);
+  spread('monCalPD',24,'top','dorsal-pd',range(470,1080,32),[Z(40),Z(48),Z(30),Z(56)]);
+  spread('monCalPD',12,'top','aft-pd',range(150,460,26),[Z(8),Z(20)]);
   // (the pod point-defence row of earlier versions is left off)
   }else{
-  // The dreadnought: about three times the light destroyer's guns. v19.1: the
-  // weapon conduits run through the free volume, so the prow gun is the light
-  // destroyer's heavy turbolaser (no longer super-heavy) and the forward flanks
-  // carry 8 heavy turbolaser cannons (was 12), leaving room for the crew.
-  spread('stl',1,'bottom','prow',mr(1080,1170,4).reverse(),[0]);
-  // 8 heavy turbolaser cannons on the forward flanks, below the smooth segments
-  spread('stl',8,'beam','fwd-flank-heavy',mr(860,1060,40),[M(66),M(72),M(60),M(78),M(54)]);
-  // 12 heavy turbolaser turrets on the dorsal hump, 9 on the bow ridge
-  spread('htl',12,'top','dorsal-heavy',mr(590,800,12),[Z(28),Z(20),Z(36),0,Z(44)]);
-  spread('htl',9,'top','bow-ridge',mr(850,1090,12),[0]);
-  // 30 dual laser cannons along the mid-ship flanks
-  spread('ltl',30,'beam','laser',mr(470,880,14),[M(34),M(48),M(80),M(92),M(62)]);
-  // 60 point-defence laser cannons
-  spread('pd',24,'bottom','ventral-pd',mr(470,1010,24),[Z(14),Z(30),Z(44)]);
-  spread('pd',24,'top','dorsal-pd',mr(470,1080,24),[Z(40),Z(48),Z(30),Z(56)]);
-  spread('pd',12,'top','aft-pd',mr(150,460,24),[Z(8),Z(20)]);
+  // Dreadnought: preserve the existing station count with heavier spherical
+  // flank batteries and single 80 TT dorsal/bow-ridge balls.
+  spread('monCal200',1,'bottom','prow',mr(1080,1170,4).reverse(),[0]);
+  // Eight triple 200 TT balls on the forward flanks.
+  spread('monCal200Triple',8,'beam','fwd-flank-heavy',mr(860,1060,40),[M(66),M(72),M(60),M(78),M(54)]);
+  // Twelve single 80 TT balls on the dorsal hump, nine on the bow ridge.
+  spread('monCal80',12,'top','dorsal-heavy',mr(590,800,12),[Z(28),Z(20),Z(36),0,Z(44)]);
+  spread('monCal80',9,'top','bow-ridge',mr(850,1090,12),[0]);
+  // Thirty spherical triple dual-purpose guns on the mid-ship flanks.
+  spread('monCalPD',30,'beam','laser',mr(470,880,14),[M(34),M(48),M(80),M(92),M(62)]);
+  // Sixty spherical triple PD guns.
+  spread('monCalPD',24,'bottom','ventral-pd',mr(470,1010,24),[Z(14),Z(30),Z(44)]);
+  spread('monCalPD',24,'top','dorsal-pd',mr(470,1080,24),[Z(40),Z(48),Z(30),Z(56)]);
+  spread('monCalPD',12,'top','aft-pd',mr(150,460,24),[Z(8),Z(20)]);
   }
+ // Retired casemate stations now hold the same count of single 34 TT balls.
+ sideBattery(s,dn?[240,300,360,420,480,540,600,690,750,810,870,930].map(M):[300,420,540,660,780,900],null,'monCal34',{level:.5});
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -29091,9 +29287,7 @@ function recusantBuild(opt={}){
  if(opt.stage==='rooms'){delete s._building;return s;}
  s.airWings=(dn?REC_DN_AIR:REC_AIR).map(r=>({...r}));s.groundForces=normalizeGroundForces(dn?REC_DN_GROUND:REC_GROUND);
  delete s._building;adoptEquipment(s,true);remount(s);
- // Broadside batteries along the flanks (v14): short-ranged, the most fire for the power. v22: on the
- // light destroyer they are the canon 12 dual light laser cannons (twin light casemates).
- sideBattery(s,dn?[240,300,360,420,480,540,600,690,750,810,870,930].map(M):[300,420,540,660,780,900],null,dn?'casemateMid':'casemateLight',{level:.5});remount(s);syncCompartments(s);
+ syncCompartments(s);
  return s;
 
 }
@@ -29102,13 +29296,13 @@ const REC_CREDIT={title:'Star Wars: The Clone Wars Recusant (S3E2 style)',author
  credit:'This work is based on "Star Wars: The Clone Wars Recusant (S3E2 style)" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)'};
 registerShipExample({
  key:'recusant',name:'レキューザント級軽デストロイヤー',side:'独立星系連合',role:'軽デストロイヤー',length:1187,...REC_CREDIT,
- note:'DK の断面図の配置と寸法（全長 1,187 m・幅 157 m・高さ 163 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）の実測形状を幅方向に 0.921 倍して組み直した軽デストロイヤー。艦首上部と前部腹部の平滑装甲セグメントは装甲外板（厚さ 0.6 m）で、武装は載せない。艦尾ブロックにハイパードライブとイオン化室（舷側ポッド）、主船体後端に主反応炉、中央部の中空構造に艦載機の待機空洞（腹部に開口、格納庫ではない）、艦首側に偏向シールド発生器と慣性補償装置、艦首上部の稜線に艦橋。兵装は正史の一覧どおり、艦首重ターボレーザー砲 1 基、艦首側面の重ターボレーザー砲 4 基、背部の重ターボレーザー砲塔 6 基（標準寸法の重砲塔では配電路が空き容積を使い乗員が乗れないため、中ターボレーザー砲塔で代表）、艦首稜線のターボレーザー砲 5 基、二連レーザー砲 30 基、二連軽レーザー砲 12 基（舷側の連装ケースメイト軽砲）、点防御レーザー砲 60 基（v22。以前は砲塔数を減らしていました）。停止保管バトル・ドロイド 4 万体、空洞にヴァルチャー 66 機とトライファイター 32 機（機数はゲーム上の設定）。加速約 2,840 G、ハイパードライブ・クラス 2。公式の乗員は 300。',
+ note:'DK の断面図の配置と寸法（全長 1,187 m・幅 157 m・高さ 163 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）の実測形状を幅方向に 0.921 倍して組み直した軽デストロイヤー。艦首上部と前部腹部の平滑装甲セグメントは装甲外板（厚さ 0.6 m）で、武装は載せない。艦尾ブロックにハイパードライブとイオン化室（舷側ポッド）、主船体後端に主反応炉、中央部の中空構造に艦載機の待機空洞（腹部に開口、格納庫ではない）、艦首側に偏向シールド発生器と慣性補償装置、艦首上部の稜線に艦橋。兵装は艦首の200TT単装球状ターボレーザー1基、前部舷側の80TT単装球状ターボレーザー4基、背部・艦首稜線・舷側の34TT単装球状ターボレーザー23基、球状3連装両用砲30基と点防御砲60基。停止保管バトル・ドロイド 4 万体、空洞にヴァルチャー 66 機とトライファイター 32 機（機数はゲーム上の設定）。加速約 2,840 G、ハイパードライブ・クラス 2。公式の乗員は 300。',
  airWings:REC_AIR,groundForces:REC_GROUND,
  build:recusantBuild
 });
 registerShipExample({
  key:'recusantDn',name:'レキューザント級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2374,...REC_CREDIT,
- note:'レキューザント級軽デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）から組み直した船体・構造物・区画を全寸法 2 倍（全長 2,374 m、容積は約 8 倍）にした独立星系連合のドレッドノート。正史の諸元はなく、ゲーム上の設定。区画の配置は軽デストロイヤーと同じ。兵装は軽デストロイヤーの約 3 倍で、艦首の大型重ターボレーザー砲 1 基、艦首側面の大型重ターボレーザー砲 8 基（v19.1 で武装の配電路が空き容積を使うため、乗員が乗れるよう艦首砲を超重から一段軽くし、艦首側面砲を 12 基から減らした）、背部の重ターボレーザー砲塔 12 基、艦首稜線の重ターボレーザー砲 9 基、二連レーザー砲 30 基、点防御砲 60 基、舷側の連装ケースメイト砲 24 基。停止保管バトル・ドロイド 32 万体、中央の空洞にヴァルチャー 264 機とトライファイター 128 機（機数はゲーム上の設定）。持ち場の約 9 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。加速約 2,960 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.7。',
+ note:'レキューザント級軽デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）から組み直した船体・構造物・区画を全寸法 2 倍（全長 2,374 m、容積は約 8 倍）にした独立星系連合のドレッドノート。正史の諸元はなく、ゲーム上の設定。区画の配置は軽デストロイヤーと同じ。兵装は艦首の200TT単装球状ターボレーザー1基、前部舷側の200TT三連装球状ターボレーザー8基、背部・艦首稜線の80TT単装球状ターボレーザー21基、舷側の34TT単装球状ターボレーザー24基、球状3連装両用砲30基と点防御砲60基。停止保管バトル・ドロイド 32 万体、中央の空洞にヴァルチャー 264 機とトライファイター 128 機（機数はゲーム上の設定）。持ち場の約 9 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。加速約 2,960 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.7。',
  airWings:REC_DN_AIR,groundForces:REC_DN_GROUND,
  build:(opt={})=>recusantBuild({...opt,scale:2})
 });
@@ -29195,11 +29389,10 @@ registerShipExample({
 // wired to the spherical main reactor amidships between them (324 m across, sized
 // so the whole load, guns included, recharges at the full rate), as the cutaway
 // shows; the corridor between the reactor and each cannon is kept clear.
-// The armament is at the canon counts: 20 twin heavy and 20 medium turbolaser
-// turrets, 200 light turbolaser turrets (the game's light turret is a quad),
-// 400 point-defence turrets, 10 proton torpedo launchers, 2 heavy tractor beams
-// and the 500 dual turbolasers as casemates, 30 in the trench walls and 470 in
-// four rows along the fuselage's flanks (mirrored pairs only). The batteries are
+// The existing 20 heavy, 20 medium, 200 light and 400 PD turret seats now
+// use the spherical Mon Calamari family. Five hundred more single 34 TT balls
+// replace the former casemates in the trench walls and fuselage flank rows.
+// Ten proton-torpedo launchers and two heavy tractor stations remain. The batteries are
 // mounted in one pass under a locked cache and frozen structure meshes, which
 // keeps the build time down; droid-control automation holds the crew at the
 // canon 23,530.
@@ -29249,23 +29442,21 @@ const SUBJ_REACTOR_D=324,SUBJ_AUX_D=184,SUBJ_HYPER_D=110,SUBJ_HYPER_LEN=150.9,SU
 const SUBJ_BAY=[200,130,40],SUBJ_SERVICE=[200,40,20],SUBJ_CARGO=[200,50,22],SUBJ_AUTO=[300,125.2068,40];
 const SUBJ_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',type:'vulture',count:144},{id:'air-2',name:'ハイエナ級ボマー',type:'hyena',count:48},{id:'air-3',name:'ドロッチ級搭乗艇',dims:[18.5,9.3,9.3],count:20}];
 const SUBJ_GROUND=[{id:'ground-1',name:'B1・B2 バトル・ドロイドとドロイデカ（停止保管）',kind:'droids',count:10000}];
-// The batteries at the canon counts (see the note): 20 twin heavy and 20 medium turbolaser turrets, 10 proton
-// torpedo launchers, the two heavy tractor beam emitters, 200 light turbolaser turrets (canon twin; the game's light
-// turret is a quad) and 400 point-defence turrets, in rows at |z| offsets (the first offset fills first). The
-// casemates for the 500 dual turbolasers follow (SUBJ_TRENCH_XS, SUBJ_SIDE_ROWS).
+// Spherical replacements retain the existing station counts and rows.
+// The 500 additional single 34 TT flank/trench balls follow in SUBJ_SIDE_ROWS.
 function SUBJ_GUNS(s,spread,range,opt){
- spread('htl',20,'top','head-heavy',range(2380,4300,60),[200,320,120,400]);
- spread('mtl',20,'top','fuselage-medium',range(1000,2280,64),[200,160,240]);
+ spread('monCal200Triple',20,'top','head-heavy',range(2380,4300,60),[200,320,120,400]);
+ spread('monCal80',20,'top','fuselage-medium',range(1000,2280,64),[200,160,240]);
  spread('msl',10,'top','prow-torpedo',range(3960,4500,54),[60,120,0],{mount:'ext'});
  spread('trc',2,'beam','tractor',[2573.5],[463.3,470,456]);
- spread('ltl',120,'bottom','ventral-light',range(800,4200,50),[120,200,60,260]);
- spread('ltl',80,'top','dorsal-light',range(800,4500,50),[100,280,360,440]);
- spread('pd',240,'top','dorsal-pd',range(700,4700,40),[40,160,240,320,400,480]);
- spread('pd',160,'bottom','ventral-pd',range(700,4500,40),[30,90,160,230,300]);
+ spread('monCal34',120,'bottom','ventral-light',range(800,4200,50),[120,200,60,260]);
+ spread('monCal34',80,'top','dorsal-light',range(800,4500,50),[100,280,360,440]);
+ spread('monCalPD',240,'top','dorsal-pd',range(700,4700,40),[40,160,240,320,400,480]);
+ spread('monCalPD',160,'bottom','ventral-pd',range(700,4500,40),[30,90,160,230,300]);
 }
 // (the trench wall takes no mount at x 2485-2510 on either side, nor at x 2620-2645 on the port side, so the forward row steps over them)
 const SUBJ_TRENCH_XS=[2330,2360,2390,2420,2450,2480,2540,2573,2606,2650,2683,2716,2749,2782,2815];
-// The rest of the canon 500 dual turbolasers: four rows of casemates along the fuselage's flanks (each row at a
+// The remaining single 34 TT balls: four rows along the fuselage's flanks (each row at a
 // share of the hull's height there, [x0, x1] runs at SUBJ_SIDE_PITCH; the aft ring ports break the lower three).
 const SUBJ_CASEMATES=500,SUBJ_SIDE_PITCH=23;
 const SUBJ_SIDE_ROWS=[[.15,[800,1980],[2180,2290]],[.35,[800,1980],[2180,2290]],[.55,[800,1980],[2180,2290]],[.75,[800,2295]]];
@@ -29394,13 +29585,13 @@ function subjBuild(opt={}){
   for(const dy of [0,-10,10,-20,20])for(const x of [3470,3440,3500]){if(made)break;const hit=rayPart([x,150+dy,1500],[0,0,-1],jaw);if(!hit)continue;const r=placeFit(s,'podAir',hit.p,hit.n,0,false);if(r.fit)made=r.fit;else err=r.err;}
   if(!made)throw new Error('航空指揮ポッド: '+err);}
  const {spread,range}=subjMountKit(s,opt);
- // Broadside batteries (v14 casemates): in the walls of the head's side trenches and in rows along the fuselage's flanks.
- // (a casemate whose mirror image did not mount is dropped, so the batteries stay symmetric)
+ // Single 34 TT balls replace the head trench and fuselage-flank casemates;
+ // retain mirrored pairs at every station.
  const pairs=list=>{const lone=new Set(list.filter(f=>!list.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<1e-6&&g.p[2]*f.p[2]<0)));if(lone.size)s.fits=s.fits.filter(f=>!lone.has(f));return list.filter(f=>!lone.has(f));};
- const broadside=()=>{let cm=pairs(trenchBattery(s,SUBJ_TRENCH_XS,'casemateMid')).length,row=[];
-  for(const [lv,...runs] of SUBJ_SIDE_ROWS){const xs=[];for(const [a,b] of runs)for(let x=a;x<=b+1e-6;x+=SUBJ_SIDE_PITCH)xs.push(x);row=pairs(sideBattery(s,xs,null,'casemateMid',{level:lv}));cm+=row.length;}
-  // exactly the canon 500: any surplus pairs come off the forward end of the top row
-  if(cm<SUBJ_CASEMATES)throw new Error('作例のケースメイト砲が不足しています: '+cm+'/'+SUBJ_CASEMATES);
+ const broadside=()=>{let cm=pairs(trenchBattery(s,SUBJ_TRENCH_XS,'monCal34')).length,row=[];
+  for(const [lv,...runs] of SUBJ_SIDE_ROWS){const xs=[];for(const [a,b] of runs)for(let x=a;x<=b+1e-6;x+=SUBJ_SIDE_PITCH)xs.push(x);row=pairs(sideBattery(s,xs,null,'monCal34',{level:lv}));cm+=row.length;}
+  // Retain exactly 500 former broadside stations.
+  if(cm<SUBJ_CASEMATES)throw new Error('作例の球状舷側砲が不足しています: '+cm+'/'+SUBJ_CASEMATES);
   if(cm>SUBJ_CASEMATES){const drop=new Set(row.slice().sort((a,b)=>b.p[0]-a.p[0]).slice(0,cm-SUBJ_CASEMATES));s.fits=s.fits.filter(f=>!drop.has(f));}};
  // Mounting never changes the hull or the structures, so one locked cache and one frozen set of structure meshes serve every fitting.
  syncAviationSurfaces(s);s._lockedCache=cache(s);
@@ -29414,7 +29605,7 @@ registerShipExample({
  key:'subjugator',name:'サブジュゲイター級重クルーザー',side:'独立星系連合',role:'重クルーザー（超兵器艦）',length:4845,
  title:'Malevolence',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（Malevolence.stl）',license:'不明（出典未記載）',
  credit:'サブジュゲイター級重クルーザー（マレヴォレンス）の形状は、ユーザーが提供した STL ファイル（Malevolence.stl、作者・ライセンス表記なし）から実測した。',
- note:'4,845 m（正史）。ユーザー提供の STL ファイル（Malevolence.stl、3D Object Converter 書き出し、作者・ライセンス表記なし）の実測形状を正史の全長に等倍で合わせた（幅 1,342 m・高さ 858 m）。ノズル群を覆う艦尾フード（船体はここから始まる）、長い円筒形の主胴、肩から主砲区画へ膨らむ頭部（舷側の「市街地のような」トレンチは船体の溝として彫り込んだ）、上下二段に割れた艦首の口の上側の胴と艦首先端までを1本の主船体として断面ごとに合わせ、艦尾スパー（後退した支柱、頂部の主艦橋頭部、その後方の通信アレイのブーム）、主艦橋の前面に段状に張り出す下層・中層甲板と各段の展望窓、14 本のノズル外筒、背部中央の隆起帯、背部装甲ブリスター（装甲外板）、排気塔とアンテナ・マスト、腹部支柱、舷側の十字桟付き円形ポート 4 基、上顎の翼と下顎、ハイパーイオン砲の収容バルジ（半径 280.5 m の球冠）と集束リングを構造物として組み直した。正史どおり艦はハイパーイオン砲を中心に設計され、両舷の砲（ゲームの「ハイパーイオン砲」、直径 310.8 m・奥行き 250 m の固定寸法。皿形の発射面は艦の最大幅の位置）は、両砲の間に置いた艦中央の球形の主反応炉（直径 324 m、9.3×10²⁵ W。断面図の配置）に直結する。主反応炉はシールド・兵装・艦内にも給電し、全負荷でも兵装を最大連射で再充電できる大きさにした。砲と炉の間の導管の通り道は空けてある。推進区画の前の副動力プラント（廃熱回収、1.7×10²⁵ W）が亜光速機関 14 基（模型のノズル数。正史は 16 基）に給電する。亜光速機関は模型の噴射口の位置を保ったまま、見えている外筒の長さの 2.05〜2.6 倍まで船体内へ前方に延ばした推進路で、機関から副動力プラントへの給電路が竜骨を断つ区間は推進区画の縦通桁 2 本が推力を受ける。主胴にハイパードライブ（クラス 2。正史の予備機クラス 12 は別の装置としては置いていない）、慣性補償装置、構造維持フィールド発生装置、主反応炉の前に主偏向シールド発生器 2 基と反応物サイロ、艦尾スパーの頂部に主艦橋（『クローン・ウォーズ』でグリーヴァスが指揮を執る艦橋。レジェンズの資料の「塔の頂部の多層構造」。主艦橋室は中層甲板の展望窓の後ろ）、背部装甲ブリスターに装甲指揮センター（正史の資料が「司令センター」を置く場所。窓のない予備の指揮所）、アンテナ基部にセンサー・通信アレイ、主胴のレール・ジェット輸送網沿いに貨物倉 88,000 t（正史 85,000 t）。格納庫は下顎の左右 2 区画で、艦首の口の中へ上向きに発艦する。航空指揮ポッドは下顎の舷側。艦載機はヴァルチャー 144 機とハイエナ級ボマー 48 機（正史の「200 機以上」の内訳）、ドロッチ級搭乗艇 20 隻（数はゲームの設定。ゲームでは搭乗艇の兵員輸送を表せないため、地上部隊を降ろす輸送機がないという案内が出る）。乗客は停止保管のバトル・ドロイド 1 万体（正史は 1 万体以上）。兵装は正史の一覧どおりの数で、重ターボレーザー連装砲塔 20 基（頭部背面）、中ターボレーザー砲塔 20 基（主胴背面。ゲームの中型砲は三連装）、軽ターボレーザー砲塔 200 基（腹部に 120 基、背部に 80 基。正史は連装、ゲームの軽砲塔は四連装）、点防御レーザー砲塔 400 基（背部に 240 基、腹部に 160 基）、連装ターボレーザー 500 基（連装ケースメイト中砲。頭部のトレンチ壁に 30 基、主胴の舷側に 4 段で 470 基）、プロトン魚雷発射管 10 基（艦首上段、外付け）、重トラクター・ビーム投射機 2 基（前部の円形ポート）。ゲームの規則ではこの大きさの艦に持ち場が 324,026 名分あり、正史どおりドロイドが動かす艦として、艦内運用の自動化装置（ドロイド制御）が持ち場の 93% を受け持ち、乗員を正史の 23,530 体と同じ 23,530 名にした。自動化装置は電力 1.5×10²⁵ W を常に使い、損傷・炉の出力低下・イオン被弾で受け持ちが抜けると操艦不能になる（警告 1 件。ドロイドの乗員だけでは持ち場の 35% に届かない）。最大加速度は約 2,130 G で最高速度 66 MGLT（正史の大気中最高速度 1,050 km/h を、インペリアル級の 975 km/h が 60 MGLT であるのに比べた値）、出力 1.1×10²⁶ W、シールド蓄積 6.1×10²⁶ J、質量 3.8×10⁸ t。',
+ note:'4,845 m（正史）。ユーザー提供の STL ファイル（Malevolence.stl、3D Object Converter 書き出し、作者・ライセンス表記なし）の実測形状を正史の全長に等倍で合わせた（幅 1,342 m・高さ 858 m）。ノズル群を覆う艦尾フード（船体はここから始まる）、長い円筒形の主胴、肩から主砲区画へ膨らむ頭部（舷側の「市街地のような」トレンチは船体の溝として彫り込んだ）、上下二段に割れた艦首の口の上側の胴と艦首先端までを1本の主船体として断面ごとに合わせ、艦尾スパー（後退した支柱、頂部の主艦橋頭部、その後方の通信アレイのブーム）、主艦橋の前面に段状に張り出す下層・中層甲板と各段の展望窓、14 本のノズル外筒、背部中央の隆起帯、背部装甲ブリスター（装甲外板）、排気塔とアンテナ・マスト、腹部支柱、舷側の十字桟付き円形ポート 4 基、上顎の翼と下顎、ハイパーイオン砲の収容バルジ（半径 280.5 m の球冠）と集束リングを構造物として組み直した。正史どおり艦はハイパーイオン砲を中心に設計され、両舷の砲（ゲームの「ハイパーイオン砲」、直径 310.8 m・奥行き 250 m の固定寸法。皿形の発射面は艦の最大幅の位置）は、両砲の間に置いた艦中央の球形の主反応炉（直径 324 m、9.3×10²⁵ W。断面図の配置）に直結する。主反応炉はシールド・兵装・艦内にも給電し、全負荷でも兵装を最大連射で再充電できる大きさにした。砲と炉の間の導管の通り道は空けてある。推進区画の前の副動力プラント（廃熱回収、1.7×10²⁵ W）が亜光速機関 14 基（模型のノズル数。正史は 16 基）に給電する。亜光速機関は模型の噴射口の位置を保ったまま、見えている外筒の長さの 2.05〜2.6 倍まで船体内へ前方に延ばした推進路で、機関から副動力プラントへの給電路が竜骨を断つ区間は推進区画の縦通桁 2 本が推力を受ける。主胴にハイパードライブ（クラス 2。正史の予備機クラス 12 は別の装置としては置いていない）、慣性補償装置、構造維持フィールド発生装置、主反応炉の前に主偏向シールド発生器 2 基と反応物サイロ、艦尾スパーの頂部に主艦橋（『クローン・ウォーズ』でグリーヴァスが指揮を執る艦橋。レジェンズの資料の「塔の頂部の多層構造」。主艦橋室は中層甲板の展望窓の後ろ）、背部装甲ブリスターに装甲指揮センター（正史の資料が「司令センター」を置く場所。窓のない予備の指揮所）、アンテナ基部にセンサー・通信アレイ、主胴のレール・ジェット輸送網沿いに貨物倉 88,000 t（正史 85,000 t）。格納庫は下顎の左右 2 区画で、艦首の口の中へ上向きに発艦する。航空指揮ポッドは下顎の舷側。艦載機はヴァルチャー 144 機とハイエナ級ボマー 48 機（正史の「200 機以上」の内訳）、ドロッチ級搭乗艇 20 隻（数はゲームの設定。ゲームでは搭乗艇の兵員輸送を表せないため、地上部隊を降ろす輸送機がないという案内が出る）。乗客は停止保管のバトル・ドロイド 1 万体（正史は 1 万体以上）。兵装は頭部背面の200TT三連装球状ターボレーザー20基、主胴背面の80TT単装球状ターボレーザー20基、背部・腹部の34TT単装球状ターボレーザー200基、球状3連装点防御砲400基、トレンチ壁と主胴の舷側4段の34TT単装球状ターボレーザー500基、艦首の外付けプロトン魚雷発射機10基、重トラクター・ビーム2基。ゲームの規則ではこの大きさの艦に持ち場が 324,026 名分あり、正史どおりドロイドが動かす艦として、艦内運用の自動化装置（ドロイド制御）が持ち場の 93% を受け持ち、乗員を正史の 23,530 体と同じ 23,530 名にした。自動化装置は電力 1.5×10²⁵ W を常に使い、損傷・炉の出力低下・イオン被弾で受け持ちが抜けると操艦不能になる（警告 1 件。ドロイドの乗員だけでは持ち場の 35% に届かない）。最大加速度は約 2,130 G で最高速度 66 MGLT（正史の大気中最高速度 1,050 km/h を、インペリアル級の 975 km/h が 60 MGLT であるのに比べた値）、出力 1.1×10²⁶ W、シールド蓄積 6.1×10²⁶ J、質量 3.8×10⁸ t。',
  airWings:SUBJ_AIR,groundForces:SUBJ_GROUND,
  build:subjBuild
 });
@@ -29822,7 +30013,7 @@ const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
 function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
-const FLEET_PROFILE_VERSION=14;
+const FLEET_PROFILE_VERSION=15;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
@@ -32533,7 +32724,10 @@ function heatSolve(D,cap,L){
 }
 // Manual links (later: the designer's own paths): ship.links [{kind:'power'|'heat', from:'p12'|'f7', to:'p40', cap?}].
 // Loaded designs keep them; any manual heat link from a source replaces that source's auto-generated ones.
-function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,4000)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>=0)o.cap=+l.cap;out.push(o);}return out.length?out:undefined;}
+// Large stock capitals wire every gun and cooler explicitly. Keep a bounded
+// saved graph large enough to preserve those physical power and heat paths.
+const LINK_LIMIT=32000;
+function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,LINK_LIMIT)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>=0)o.cap=+l.cap;out.push(o);}return out.length?out:undefined;}
 const heatSec=(x,X0,L,cuts)=>{const a=(x-X0)/L;let i=0;while(i<cuts.length&&a>=cuts[i])i++;return i;};
 // The ship's network (ENG-001/002/006): sources, dissipators (built-in, skin, parts, auto-assigned) and links,
 // with each source's waste at the three load presets. Ports are 'p<part id>' and 'f<fit id>'.
@@ -32583,10 +32777,10 @@ function heatNetwork(ship,S){
  // Power paths: weapons from their conduits (feedConduits), nozzles through their machinery, superweapons on
  // their direct line, shields and the hotel load from the nearest reactor. A consumer with no source is broken.
  if(strict)for(const d of dis)if(d.k==='radiator'&&d.ext){const e=clamp(d.exposed||0,0,1);d.cap*=e/Math.max(.3,.3+.7*e);}
- const fd=feedConduits(ship),rs=ship.parts.filter(p=>electricalSourcePower(p)>0&&!bad(p.id)),near=(q,owner)=>rs.filter(r=>domains.of(r)===domains.of(owner||{powerDomain:'main'})).sort((a,b)=>len(sub(a.c,q))-len(sub(b.c,q)))[0]||null;
+ const fd=feedConduits(ship),rs=ship.parts.filter(p=>electricalSourcePower(p)>0&&!bad(p.id)),wiredEnginePorts=new Set(ship.parts.filter(p=>p.k==='engine'&&p.busFeed===true).map(p=>'p'+p.id)),wiredBusPorts=new Set(manual.filter(l=>l.kind==='power'&&wiredEnginePorts.has(l.to)).map(l=>l.from)),near=(q,owner)=>owner?.k==='battery'&&wiredBusPorts.has('p'+owner.id)?null:rs.filter(r=>domains.of(r)===domains.of(owner||{powerDomain:'main'})).sort((a,b)=>len(sub(a.c,q))-len(sub(b.c,q)))[0]||null;
  for(const w of fd.rows||[])for(const k of w.links)links.push({kind:'power',from:'p'+k.src,to:'f'+w.id,cap:k.P,auto:true,ok:true,l:k.l});
  for(const s of src){if(s.k==='weapon'){if(!(fd.rows||[]).some(w=>'f'+w.id===s.id&&w.links.length))links.push({kind:'power',from:null,to:s.id,cap:0,auto:true,ok:false,why:'no-source'});continue;}
-  if(s.k==='reactor')continue;const owner=ship.parts.find(p=>p.id===s.part);let r=s.k==='engine'?reactorFor(ship,owner):s.k==='sw'?ship.parts.find(p=>p.id===s.gen):near(s.at,owner);if(r&&owner&&domains.of(r)!==domains.of(owner))r=null;
+  if(s.k==='reactor')continue;const owner=ship.parts.find(p=>p.id===s.part);let r=s.k==='engine'?reactorFor(ship,owner):s.k==='sw'?ship.parts.find(p=>p.id===s.gen):near(s.at,owner);if(r&&owner&&(domains.of(r)!==domains.of(owner)||s.k==='engine'&&owner.busFeed===true))r=null;
   links.push({kind:'power',from:r?'p'+r.id:null,to:s.id,cap:s.k==='sw'?swIn[s.sw]&&SW_COMBAT[swIn[s.sw].k].share*(r?reactorPower(r):0):s.k==='hotel'?g.fixed*s.w/Math.max(1,tot.hotel):s.k==='engine'?s.w:g.Ds*s.w/Math.max(1e-30,tot.shield||1),auto:true,ok:!!r,why:r?null:'no-source',direct:s.k==='sw'});}
  for(const d of dis)if(strict&&d.part!=null){const owner=ship.parts.find(p=>p.id===d.part),r=owner&&near(d.at,owner);d.power=d.cap*(HEAT.disPowerK[d.k]??HEAT.disPowerK.wing);d.powered=!!r;links.push({kind:'power',from:r?'p'+r.id:null,to:d.id,cap:d.power,auto:true,ok:!!r,why:r?null:'no-source'});if(!r)d.cap=0;}
  const consumers=[...ship.parts.filter(p=>!bad(p.id)&&!(electricalSourcePower(p)>0)&&!isShapePart(p)&&!src.some(s=>s.id==='p'+p.id)).map(p=>({owner:p,id:'p'+p.id,at:p.c,weight:Math.max(1,partVolume(p))})),...ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat!=='w').map(f=>({owner:f,id:'f'+f.id,at:f.p,weight:Math.max(1,fitSpec(f).mass||1)}))],totalConsumer=consumers.reduce((a,p)=>a+p.weight,0);
@@ -32604,8 +32798,12 @@ function heatNetwork(ship,S){
   for(const d of dis)if(d.power>0)loads.push({id:'cooling:'+d.id,kind:'cooling',port:d.id,domain:domains.of(ship.parts.find(p=>p.id===d.part)||{powerDomain:'main'}),requestedInputW:d.power});
   const sources=rs.map(r=>({id:'p'+r.id,domain:domains.of(r),powerW:Math.max(0,electricalSourcePower(r)-(X.sw?sws.filter(w=>w.reactor===r.id).reduce((a,w)=>a+Math.max(0,w.chargeW||SW_COMBAT[w.k].share*electricalSourcePower(r)/Math.max(1,sws.filter(v=>v.reactor===r.id).length)),0):0))})),power=allocateConnectedPower({sources,links:powerLinks,loads,mode:X.mode}),engineHeat=new Map();
   for(const r of engineRequests)engineHeat.set(r.spec.heatNode,(engineHeat.get(r.spec.heatNode)||0)+HEAT.waste.engine*(power.granted['engine:'+r.id]||0));
-  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,fixed:power.fixed,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0)});
-  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=HEAT.waste.weapon*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*(power.granted['fixed:'+s.id]||0);}
+  // The cooling electrical reservation is a separate load in the power
+  // ledger, but its input is still low-grade heat aboard the ship. Size the
+  // hotel paths/stores for that real connected input as well as ordinary
+  // fixed loads, matching heatTick's cooling.inputJ/heatJ accounting.
+  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,fixed:power.fixed+power.cooling,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0)});
+  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=HEAT.waste.weapon*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*((power.granted['fixed:'+s.id]||0)+power.cooling*s.w/Math.max(1e-30,tot.hotel||1));}
  }
  for(const s of src){s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=Math.max(1,HEAT.storeS*s.size);}
  return {src,dis,links,waste:W,g};
@@ -33333,7 +33531,7 @@ function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;
 
 return {BROADSIDE_BATTERY_CALIBERS,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,resolveEngineSpec,updateEngineSpec,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+ isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher, isSurfaceVLS, launcherPitch, launcherGeometry, missileLauncherSpec, migrateLegacyConcussionVLS,
