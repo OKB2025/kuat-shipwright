@@ -920,27 +920,42 @@ function tlFac(E, o, t, p, x, s) {
  else if (f === 'cis') { const b = E.flt('bandpass', 700 * p, 1.2), sh = E.sat(), g = E.G(.5 * k); b.connect(sh); sh.connect(g); g.connect(o); tone(E, b, t, .5, 'sawtooth', 260 * p, 85 * p, .002, .6, .12 + .05 * s, .25); tone(E, b, t, .5, 'square', 175 * p, 60 * p, .002, .35, .1 + .05 * s, .22); nzf(E, o, t, .3, 'bandpass', 1800 * p, 900 * p, .9, .002, .4 * k, .1, 0, E.grit); }
  else if (f === 'rebel') { tone(E, o, t, .15, 'sine', 5200 * p, 2100 * p, .001, .2 * k, .04, .07); tone(E, o, t, .25, 'triangle', 1500 * p, 600 * p, .001, .15 * k, .06, .12); }
 }
+// v22.1 Re-voiced on the user's reference (the opening of A New Hope; measured, not sampled). The shot: a broadband
+// crack whose first 0.1 s is bright (energy peaking at 2-4 kHz), a clean whistle diving 4.7 kHz -> 1.3 kHz in 0.11 s ->
+// 800 Hz at 0.2 s -> ~480 Hz by 0.8 s, and a long mid body (500 Hz-1 kHz) that holds ~0.4 s and then fades ~9 dB a
+// second (-5 dB at 0.8 s, -10 to -14 at 1.4 s, about -20 at 1.9 s). Hardly anything above 7 kHz.
+// tlRidge(): the whistle; k stretches it in time (light .6, medium 1, heavy 1.35).
+function tlRidge(E, out, t, p, k, pk, f0) {
+ f0 = (f0 || 4700) * p; const end = t + k * 2, g = ENV(E, t, .002, pk, .35 * k, .15 * k);
+ for (const [m, a] of [[1, 1], [2, .18]]) { const o = E.osc('sine', f0 * m, t, end), F = o.frequency, gg = E.G(a);
+  F.setValueAtTime(f0 * m, t); F.exponentialRampToValueAtTime(f0 * .277 * m, t + .11 * k); F.exponentialRampToValueAtTime(f0 * .17 * m, t + .2 * k); F.exponentialRampToValueAtTime(f0 * .102 * m, t + .85 * k); o.connect(gg); gg.connect(g); }
+ g.connect(out);
+}
 def('turbolaser_light', .04, 5, 2, 1.1, .12, (E, t, o, p, x) => {
- p *= jit(.08) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 0);
- bolt(E, o, t, {d0: .00098 / p, d1: .00108 / p, sd: 1.2, f0: 6000, f1: 2300, fs: .12, f2: 1100, fl: .9, a: .003, pk: .7, tau: .28, hold: .15, hp: 150});
- const ring = E.flt('lowpass', 3000, .7); ring.connect(o);
- for (const [ty, k, a] of [['sawtooth', 1, .12], ['square', 2, .03]]) tone(E, ring, t, 1, ty, 1020 * p * k, 950 * p * k, .02, a, .2, .9, .06);
- zap(E, o, t, 'sawtooth', 1900 * p, 700 * p, .1, 1500 * p, .2, .07);
- body(E, o, t, .8, 420, 300, .7, .005, 1.5, .24, .15); tone(E, o, t, .5, 'sine', 140 * p, 80 * p, .003, .3, .1, .08); nzf(E, o, t, .8, 'lowpass', 150, 0, .7, .005, .35, .25, 0, E.brown); return 1.5;
+ p *= jit(.08) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 0); const lp = E.flt('lowpass', 7500, .7); lp.connect(o);
+ tlRidge(E, lp, t, p, .6, .45, 5600);
+ bolt(E, lp, t, {d0: .00098 / p, d1: .00108 / p, sd: 1.2, g: .45, f0: 6500, f1: 2800, fs: .07, f2: 1100, fl: .9, a: .003, pk: .7, tau: .36, hold: .2, hp: 150});
+ nzf(E, lp, t, .1, 'bandpass', 3400 * p, 2000 * p, .6, .001, .8, .035);
+ zap(E, lp, t, 'sawtooth', 1900 * p, 700 * p, .1, 1500 * p, .18, .07);
+ body(E, lp, t, 1.2, 900, 650, .6, .005, 1.4, .36, .18); tone(E, o, t, .5, 'sine', 140 * p, 80 * p, .003, .22, .1, .08); nzf(E, o, t, 1.2, 'lowpass', 360, 0, .7, .005, .75, .36, .18, E.brown); return 1.9;
 });
 def('turbolaser', .04, 5, 2, 1.4, .12, (E, t, o, p, x) => {
- p *= jit(.08) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 1);
- bolt(E, o, t, {d0: .00085 / p, d1: .00125 / p, sd: 1.4, f0: 6500, f1: 2200, fs: .18, f2: 950, fl: 1.1, a: .004, pk: .85, tau: .3, hold: .22});
- zap(E, o, t, 'sawtooth', 1150 * p, 260 * p, .14, 1300 * p, .35, .1);
- body(E, o, t, 1.6, 400, 280, .6, .006, 1.7, .3, .22);
- tone(E, o, t, .6, 'sine', 150 * p, 75 * p, .003, .3, .1, .08); nzf(E, o, t, 1, 'lowpass', 150, 0, .7, .005, .4, .3, 0, E.brown); return 2;
+ p *= jit(.08) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 1); const lp = E.flt('lowpass', 6200, .7); lp.connect(o);
+ tlRidge(E, lp, t, p, 1, .5);
+ bolt(E, lp, t, {d0: .00085 / p, d1: .00125 / p, sd: 1.4, g: .45, f0: 6500, f1: 2600, fs: .1, f2: 900, fl: 1.4, a: .004, pk: .8, tau: .62, hold: .38});
+ nzf(E, lp, t, .15, 'bandpass', 3000 * p, 1800 * p, .6, .001, .9, .05);
+ zap(E, lp, t, 'sawtooth', 1150 * p, 260 * p, .14, 1300 * p, .28, .1);
+ body(E, lp, t, 2, 760, 560, .55, .006, 1.6, .62, .36);
+ tone(E, o, t, .6, 'sine', 150 * p, 75 * p, .003, .22, .1, .08); nzf(E, o, t, 2, 'lowpass', 330, 0, .7, .04, .9, .6, .32, E.brown); return 3;
 });
 def('turbolaser_heavy', .05, 4, 3, 1.25, .15, (E, t, o, p, x) => {
- p *= jit(.06) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 2);
- bolt(E, o, t, {d0: .0013 / p, d1: .002 / p, sd: 1.8, f0: 6500, f1: 1500, fs: .2, f2: 750, fl: 1.3, a: .006, pk: .9, tau: .38, hold: .3});
- zap(E, o, t, 'sawtooth', 900 * p, 170 * p, .2, 900 * p, .55, .14);
- body(E, o, t, 2, 340, 230, .6, .008, 1.7, .36, .3); nzf(E, o, t, 1.6, 'lowpass', 200, 0, .7, .008, .75, .42, .04, E.brown);
- boom(E, o, t, 105 * p, 50 * p, .2, .3, .22); snapT(E, o, t, .3, 1800); return 2.2;
+ p *= jit(.06) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 2); const lp = E.flt('lowpass', 6500, .7); lp.connect(o);
+ tlRidge(E, lp, t, p, 1.35, .5, 4200);
+ bolt(E, lp, t, {d0: .0013 / p, d1: .002 / p, sd: 1.8, g: .5, f0: 6500, f1: 2200, fs: .14, f2: 750, fl: 1.8, a: .006, pk: .85, tau: .8, hold: .48});
+ nzf(E, lp, t, .2, 'bandpass', 2600 * p, 1500 * p, .6, .001, .9, .07);
+ zap(E, lp, t, 'sawtooth', 900 * p, 170 * p, .2, 900 * p, .45, .14);
+ body(E, lp, t, 2.6, 640, 460, .55, .008, 1.7, .8, .48); nzf(E, o, t, 2.6, 'lowpass', 300, 0, .7, .008, 1, .8, .45, E.brown);
+ boom(E, o, t, 105 * p, 50 * p, .2, .3, .22); snapT(E, lp, t, .3, 1800); return 4;
 });
 // starfighter guns: the same family, short and high
 def('laser_light', .04, 6, 1, 6, .05, (E, t, o, p) => {
@@ -964,13 +979,27 @@ function ionBody(E, o, t, p, hold, tau, lo) {
  m.connect(mg); mg.connect(c.frequency); const g = ENV(E, t, .1, .42, tau, hold); c.connect(lp); lp.connect(g); g.connect(o);
  body(E, o, t, .5, 420, 320, .7, .08, lo * 1.4, tau * 1.1, hold); nzf(E, o, t, .5, 'lowpass', 130, 0, .7, .08, lo * .4, tau, hold, E.brown);
 }
-def('ion', .05, 4, 2, 1.75, .16, (E, t, o, p) => { ionBody(E, o, t, p, .3, .15, .6); zap(E, o, t, 'square', 3200 * p, 900 * p, .1, 2500 * p, .3, .05); return 1.2; });
-// v22 …with the deep electric whoom of the films' heavy ion guns (the Hoth ion cannon) under the measured voice.
+// v22.1 Ion guns re-voiced on the user's reference (the Hoth ion cannon, The Empire Strikes Back; measured, not
+// sampled): two broadband discharges ~0.46 s apart, then the deep "whoom": glides diving from ~300 Hz to ~55 Hz in about
+// 1.1 s, one starting every ~0.3 s, harmonics running parallel, under a crackling 1-3 kHz body; ~3 s from the first
+// discharge to silence. The whole swells for ~1 s, holds ~1 s and fades about 9 dB a second. ionGlide(): one dive (sawtooth through a resonant low-pass).
+function ionGlide(E, out, t, p, f0, f1, sd, pk, hold, tau, a) {
+ const c = E.osc('sawtooth', f0 * p, t, t + sd + life(a || .06, hold, tau)), F = c.frequency, lp = E.flt('lowpass', 720, 1.3), g = ENV(E, t, a || .06, pk, tau, hold);
+ F.setValueAtTime(f0 * p, t); F.exponentialRampToValueAtTime(f1 * p, t + sd); c.connect(lp); lp.connect(g); g.connect(out);
+}
+def('ion', .05, 4, 2, 1.75, .16, (E, t, o, p) => {
+ p *= jit(.06); const lp = E.flt('lowpass', 8000, .7); lp.connect(o);
+ nzf(E, lp, t, .18, 'highpass', 1500, 0, .7, .002, .7, .05); zap(E, lp, t, 'square', 3200 * p, 900 * p, .1, 2500 * p, .25, .05);
+ ionBody(E, lp, t, p, .3, .2, .55);
+ ionGlide(E, o, t + .02, p, 280, 60, .7, .55, .25, .25); ionGlide(E, o, t + .26, p, 260, 58, .65, .3, .15, .22); return 1.9;
+});
 def('ion_heavy', .06, 3, 3, .9, .2, (E, t, o, p) => {
- boom(E, o, t + .04, 64 * p, 30 * p, .6, .3, .5); { const h = E.osc('sawtooth', 96 * p, t, t + 2.4), lp = E.flt('lowpass', 500, 1.5), g = ENV(E, t, .15, .16, .5, .5); h.frequency.setValueAtTime(96 * p, t); h.frequency.linearRampToValueAtTime(128 * p, t + .35); h.frequency.exponentialRampToValueAtTime(60 * p, t + 1.8); h.connect(lp); lp.connect(g); g.connect(o); }
- ionBody(E, o, t, p * .85, .85, .55, .8);
- bolt(E, o, t + .15, {d0: .0012, d1: .0021, sd: 2.6, f0: 4200, f1: 2600, fs: .4, f2: 1000, fl: 2, a: .3, pk: .7, tau: .7, hold: .4, hp: 250});
- zap(E, o, t, 'square', 2600 * p, 600 * p, .16, 2000 * p, .1, .08); nzf(E, o, t, 2, 'lowpass', 160, 0, .7, .05, .3, .6, .6, E.brown); return 3.6;
+ const lp = E.flt('lowpass', 8000, .7); lp.connect(o);
+ for (const [d, k] of [[0, 1], [.46, .8]]) { nzf(E, lp, t + d, .25, 'highpass', 1500, 0, .7, .002, .8 * k, .07);
+  bolt(E, lp, t + d, {d0: .0012, d1: .0021, sd: 2.6, g: .6, f0: 7000, f1: 3000, fs: .15, f2: 1100, fl: 1.5, a: .003, pk: .65 * k, tau: .45, hold: .22, hp: 250}); }
+ for (const [d, k] of [[0, .6], [.3, .9], [.6, 1], [.95, .85], [1.3, .6]]) ionGlide(E, o, t + d, p, 300, 55, 1.15, .55 * k, .6, .5, .25);
+ ionBody(E, lp, t + .1, p * .85, 1.4, .6, .7);
+ boom(E, o, t + .04, 64 * p, 30 * p, .6, .3, .5); rumble(E, o, t, 3, 200, 110, .45, .6, .75, 1.2, .5, 2.4); return 5.2;
 });
 // v21.2 The hyper-ion cannon, voiced after the Malevolence's shot in The Clone Wars (measured, not sampled: a bright
 // discharge whose energy sits at 4-8 kHz for the first second, a shimmering electric buzz near 1.26 kHz through it, then
@@ -1179,26 +1208,30 @@ function dopNoise(E, cv, t, dst, type, f, q, a, buf) { const n = E.nz(t, cv.end,
 // TIE/ln and TIE/IN: Ben Burtt's scream — a slowed elephant trumpet (a brassy, saturated call near 400 Hz whose pitch
 // jitters in fast steps, with a subharmonic under it, as an elephant's has) over a car tearing through a wet road
 // (a hiss whose comb teeth slide with the pass, fluttering); after the SuperCollider study «Bye Fighter» (sccode.org/1-p).
+// v22.1 Checked against the user's TIE flyby reference (measured): the energy sits between 500 Hz and 2 kHz (peaks on a
+// ~450 Hz series, strongest near 0.9-1.5 kHz), little under 250 Hz or over 4 kHz, and the scream flutters at 15-45 Hz.
 def('pass_tie', .07, 3, 2, 1.35, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .18}, x), (out, cv) => {
- const f0 = 405 * p, brass = E.flt('bandpass', 1250 * p, .5), hp = E.flt('highpass', 170, .7), sat = E.sat(), tg = E.G(.55), lp = E.flt('lowpass', 5200, .6);
- brass.connect(hp); hp.connect(sat); sat.connect(lp); lp.connect(tg); tg.connect(out); cv.lp(lp.frequency, 5200, .35);
+ const f0 = 405 * p, brass = E.flt('bandpass', 1250 * p, .5), hp = E.flt('highpass', 260, .7), sat = E.sat(), tg = E.G(.62), lp = E.flt('lowpass', 3000, .6), ff = E.osc('sawtooth', 23.3, t, cv.end), ffg = E.G(.22);
+ brass.connect(hp); hp.connect(sat); sat.connect(lp); lp.connect(tg); tg.connect(out); cv.lp(lp.frequency, 3000, .35); ff.connect(ffg); ffg.connect(tg.gain);
  const os = dopOsc(E, cv, t, brass, [['sawtooth', f0, .5], ['sawtooth', f0 * 1.007, .38], ['sawtooth', f0 * .994, .38], ['square', f0 * .5, .16], ['sawtooth', f0 * 2.01, .14]]);
  const j1 = E.osc('square', 27.5, t, cv.end), j2 = E.osc('sawtooth', 16.3, t, cv.end), jg = E.G(f0 * .022); j1.connect(jg); j2.connect(jg); for (const s of os) jg.connect(s.frequency);
- const n = E.nz(t, cv.end), c = comb(E, n, t, .00098 / p, .00098 / p, 1, .85), hs = E.flt('bandpass', 3600 * p, .55), fl = E.G(.7), fo = E.osc('sawtooth', 37.2, t, cv.end), fg = E.G(.3), ng = E.G(.6);
- cv.r(n.playbackRate, 1); cv.f(hs.frequency, 3600 * p); c.connect(hs); hs.connect(fl); fo.connect(fg); fg.connect(fl.gain); fl.connect(ng); ng.connect(out);
- dopNoise(E, cv, t, out, 'highpass', 6000, .7, .18);
+ const n = E.nz(t, cv.end), c = comb(E, n, t, .00098 / p, .00098 / p, 1, .85), hs = E.flt('bandpass', 2300 * p, .7), hl = E.flt('lowpass', 3800, .7), fl = E.G(.7), fo = E.osc('sawtooth', 37.2, t, cv.end), fg = E.G(.3), ng = E.G(.32);
+ cv.r(n.playbackRate, 1); cv.f(hs.frequency, 2300 * p); c.connect(hs); hs.connect(hl); hl.connect(fl); fo.connect(fg); fg.connect(fl.gain); fl.connect(ng); ng.connect(out);
+ dopNoise(E, cv, t, out, 'highpass', 6000, .7, .012);
 }));
 // The TIE/sa bomber: the same scream, lower and heavier.
 def('pass_tieb', .07, 3, 2, 1.3, .2, (E, t, o, p, x) => SFX.pass_tie.f(E, t, o, p * .78, Object.assign({stretch: 2.1, beta: .15}, x)));
 // T-65 X-wing (and the other Incom-style fighters): jet engines pitched up into a shriek, with the throb of a P-51
 // Mustang under it — a vowel-like roar (formants near 1.1 and 2.4 kHz), the piston throb, a turbine whine on top.
+// v22.1 Checked against the user's X-wing flyby reference (measured): a low roar (most energy 60-500 Hz, peaks near
+// 100, 250-350 and 540 Hz; -13 dB by 1 kHz, -17 dB at 4 kHz), throbbing at ~19 Hz, with a thin whine near 3.7 kHz.
 def('pass_xwing', .07, 3, 2, 1.25, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .17}, x), (out, cv) => {
- const f0 = 182 * p, f1 = E.flt('bandpass', 1100 * p, 1.6), f2 = E.flt('bandpass', 2400 * p, 2.2), lp = E.flt('lowpass', 3800, .7), mix = E.G(.9), thr = E.G(.78), lf = E.osc('square', 31, t, cv.end), lg = E.G(.22);
- f1.connect(mix); f2.connect(mix); mix.connect(lp); lp.connect(thr); thr.connect(out); lf.connect(lg); lg.connect(thr.gain); cv.lp(lp.frequency, 3800, .35); cv.f(f1.frequency, 1100 * p); cv.f(f2.frequency, 2400 * p);
- dopOsc(E, cv, t, f1, [['sawtooth', f0, .9], ['sawtooth', f0 * 1.5, .4], ['sawtooth', f0 * 2.003, .35]]); dopOsc(E, cv, t, f2, [['sawtooth', f0 * 2.003, .3], ['square', f0 * 3, .12]]);
- dopNoise(E, cv, t, out, 'bandpass', 900 * p, .45, .9, E.pink); dopNoise(E, cv, t, out, 'bandpass', 3000 * p, .8, .3);
- dopOsc(E, cv, t, out, [['sine', 3050 * p, .05], ['sine', 4580 * p, .025]]);
- const r = E.nz(t, cv.end, 1, E.brown), rl = E.flt('lowpass', 260, .7), rg = E.G(.8); cv.am(rg.gain, .8); r.connect(rl); rl.connect(rg); rg.connect(out);
+ const f0 = 112 * p, f1 = E.flt('bandpass', 540 * p, 1.1), f2 = E.flt('bandpass', 1500 * p, 1.6), lp = E.flt('lowpass', 3000, .7), mix = E.G(.9), thr = E.G(.74), lf = E.osc('square', 19, t, cv.end), lg = E.G(.26);
+ f1.connect(mix); f2.connect(mix); mix.connect(lp); lp.connect(thr); thr.connect(out); lf.connect(lg); lg.connect(thr.gain); cv.lp(lp.frequency, 3000, .35); cv.f(f1.frequency, 540 * p); cv.f(f2.frequency, 1500 * p);
+ dopOsc(E, cv, t, f1, [['sawtooth', f0, .9], ['sawtooth', f0 * 2.5, .45], ['sawtooth', f0 * 3.003, .35]]); dopOsc(E, cv, t, f2, [['sawtooth', f0 * 3.003, .22], ['square', f0 * 4.8, .08]]);
+ dopNoise(E, cv, t, out, 'bandpass', 330 * p, .5, 1.1, E.pink); dopNoise(E, cv, t, out, 'bandpass', 2400 * p, .8, .16);
+ dopOsc(E, cv, t, out, [['sine', 3700 * p, .04], ['sine', 5550 * p, .012]]);
+ const r = E.nz(t, cv.end, 1, E.brown), rl = E.flt('lowpass', 320, .7), rg = E.G(1.3); cv.am(rg.gain, 1.3); r.connect(rl); rl.connect(rg); rg.connect(out);
 }));
 // Y-wing, BTL-B, B-wing, Hyena: a heavy craft — a gravelly low roar that rattles (choppy at about 19 Hz), a growl and a
 // little whine, slower through the pass.
@@ -1228,20 +1261,32 @@ def('pass_droid', .07, 3, 2, 1.6, .18, (E, t, o, p, x) => dopPass(E, o, t, Objec
 def('pass_ord', .1, 3, 2, 1.1, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .22, stretch: 1.2}, x), (out, cv) => {
  dopNoise(E, cv, t, out, 'bandpass', 1500 * p, .6, .9); dopNoise(E, cv, t, out, 'highpass', 4200, .7, .3); dopOsc(E, cv, t, out, [['sine', 2100 * p, .1], ['sine', 3150 * p, .04]]);
 }));
-// --- the craft's guns, by faction. The blaster family began as a guy-wire struck with a hammer: a dispersive chirp
-// whose highs arrive first and slide down, ringing. Rebel and Republic laser cannons: that bright "pew"; TIE cannons: a
-// lower, raspier, buzzing shot; droid guns: thin and quick.
+// --- the craft's guns, by faction. The blaster family began as a guy-wire struck with a hammer: dispersion spreads
+// each strike into chirps, and the wire's ends send them back, so one shot is a quick train of chirps.
+// v22.1 Re-voiced on the user's film references (2026-11-05, measured, not sampled). An X-wing's shot is ~5 chirps
+// 10-12 ms apart, each dipping briefly (to ~1 kHz) then rising to 4-6 kHz in ~35 ms, over a low thump at 200-400 Hz;
+// it fires in bursts of 3-4 shots ~85 ms apart. A TIE's shot is shorter and brighter: 3 deep U-chirps 7 ms apart,
+// down from ~4 kHz to ~800 Hz in 12 ms and up to ~9 kHz by 40 ms, with almost nothing under 250 Hz; all of it ~55 ms.
+// chirp(): one dispersive strike: f0 -> fmin over tmin, then up to f1 by T (exponential), a sine with a weak 2nd partial.
+function chirp(E, out, t, f0, fmin, tmin, f1, T, pk, tau, h2) {
+ const end = t + T + tau * 6, g = ENV(E, t, .0008, pk, tau, T * .8);
+ for (const [k, a] of [[1, 1], [2, h2 == null ? .25 : h2]]) { if (!a) continue; const o = E.osc('sine', f0 * k, t, end), F = o.frequency, gg = E.G(a);
+  F.setValueAtTime(f0 * k, t); F.exponentialRampToValueAtTime(fmin * k, t + tmin); F.exponentialRampToValueAtTime(f1 * k, t + T); o.connect(gg); gg.connect(g); }
+ g.connect(out);
+}
 def('gun_rebel', .035, 6, 1, 4.2, .06, (E, t, o, p) => {
- p *= jit(.1);
- tone(E, o, t, .22, 'sine', 3900 * p, 520 * p, .001, .5, .06, .13); tone(E, o, t, .2, 'triangle', 2600 * p, 380 * p, .001, .22, .05, .12);
- bolt(E, o, t, {d0: .00062 / p, d1: .0009 / p, sd: .2, f0: 6500, f1: 2400, fs: .04, f2: 1300, fl: .2, a: .001, pk: .42, tau: .055, hp: 500});
- body(E, o, t, .15, 470, 360, .9, .002, .9, .05); tone(E, o, t, .12, 'sine', 210 * p, 120 * p, .001, .25, .035, .05); return .38;
+ p *= jit(.08); const lp = E.flt('lowpass', 7500, .7); lp.connect(o);
+ for (let i = 0; i < 5; i++) { const d = i * (.0105 + Math.random() * .002), k = 1 + i * .09; chirp(E, lp, t + d, 1900 * p, 1000 * p * k, .006, 4600 * p * k, .036, .42 * Math.pow(.84, i), .007, .3); }
+ nzf(E, lp, t + .03, .05, 'bandpass', 5200 * p, 0, .8, .001, .22, .012);
+ tone(E, o, t, .12, 'sine', 330 * p, 170 * p, .002, .55, .03, .06); body(E, o, t, .12, 480, 380, .9, .002, .7, .035);
+ return .3;
 });
 def('gun_tie', .035, 6, 1, 4.4, .06, (E, t, o, p) => {
- p *= jit(.1); tone(E, o, t, .06, 'sine', 4600 * p, 1500 * p, .0008, .16, .018, .03); const b = E.flt('bandpass', 900 * p, .9), sh = E.sat(), g = E.G(1); b.connect(sh); sh.connect(g); g.connect(o);
- tone(E, b, t, .3, 'sawtooth', 1450 * p, 190 * p, .001, .7, .075, .17); tone(E, b, t, .3, 'square', 980 * p, 140 * p, .001, .25, .07, .16);
- nzf(E, o, t, .16, 'bandpass', 2300 * p, 900 * p, .9, .001, .55, .055, 0, E.grit); bolt(E, o, t, {d0: .0011 / p, d1: .0016 / p, sd: .25, f0: 4200, f1: 1600, fs: .05, f2: 800, fl: .25, a: .001, pk: .3, tau: .07, hp: 260});
- tone(E, o, t, .14, 'sine', 160 * p, 85 * p, .001, .3, .045, .06); return .45;
+ p *= jit(.08); const hp = E.flt('highpass', 300, .7), lp = E.flt('lowpass', 9500, .7); hp.connect(lp); lp.connect(o);
+ for (let i = 0; i < 3; i++) chirp(E, hp, t + i * (.0065 + Math.random() * .0015), 4100 * p, 820 * p * (1 + i * .06), .012, 8800 * p, .04, .5 * Math.pow(.8, i), .005, .22);
+ nzf(E, hp, t, .04, 'bandpass', 3200 * p, 0, .7, .0008, .3, .01); nzf(E, hp, t + .03, .03, 'highpass', 6000, 0, .7, .001, .18, .008);
+ tone(E, o, t, .06, 'sine', 900 * p, 500 * p, .001, .2, .015, .02);
+ return .22;
 });
 def('gun_droid', .03, 6, 1, 3.6, .05, (E, t, o, p) => {
  p *= jit(.12); zap(E, o, t, 'square', 2700 * p, 950 * p, .08, 1900 * p, .45, .05, .8); tone(E, o, t, .12, 'sine', 3300 * p, 1200 * p, .001, .22, .035, .08);
@@ -1296,8 +1341,8 @@ ldef('fighter', 1, .15, (E, out, L) => { const a = lam(E, out, 9.9, .2), b = E.f
 ldef('shuttle_light', .28, .2, (E, out, L) => { const a = lam(E, out, 19, .1), lp = E.flt('lowpass', 290, .8); lsrc(E, L, 'sawtooth', 86, .5, a, lp); lsrc(E, L, 'sine', 3600, .16, a); lsrc(E, L, 'brown', 0, .9, a, E.flt('lowpass', 260, .7)); });
 ldef('shuttle_heavy', .34, .2, (E, out, L) => { const a = lam(E, out, 12, .14), lp = E.flt('lowpass', 650, .8); lsrc(E, L, 'sawtooth', 86, .5, a, lp); lsrc(E, L, 'sawtooth', 129, .25, a, lp); lsrc(E, L, 'sine', 4400, .03, a); lsrc(E, L, 'brown', 0, .9, a, E.flt('lowpass', 520, .7)); });
 // v22 Riding with a squadron: its engines as heard from just behind (the pass voices held steady).
-ldef('eng_tie', .3, .15, (E, out, L) => { const a = lam(E, out, 37, .2), b = E.flt('bandpass', 1250, .5), s = E.sat(); b.connect(s); s.connect(a); lsrc(E, L, 'sawtooth', 405, .45, b); lsrc(E, L, 'sawtooth', 408, .32, b); lsrc(E, L, 'square', 202, .14, b); lsrc(E, L, 'white', 0, .2, a, E.flt('bandpass', 3600, .6)); });
-ldef('eng_xwing', .32, .15, (E, out, L) => { const a = lam(E, out, 31, .18), b = E.flt('bandpass', 1100, 1.4); b.connect(a); lsrc(E, L, 'sawtooth', 182, .8, b); lsrc(E, L, 'sawtooth', 273, .35, b); lsrc(E, L, 'sine', 3050, .03, a); lsrc(E, L, 'brown', 0, .7, a, E.flt('lowpass', 300, .7)); lsrc(E, L, 'white', 0, .12, a, E.flt('bandpass', 900, .5)); });
+ldef('eng_tie', .3, .15, (E, out, L) => { const a = lam(E, out, 23.3, .22), b = E.flt('bandpass', 1250, .5), s = E.sat(); b.connect(s); s.connect(a); lsrc(E, L, 'sawtooth', 405, .45, b); lsrc(E, L, 'sawtooth', 408, .32, b); lsrc(E, L, 'square', 202, .1, b); lsrc(E, L, 'white', 0, .1, a, E.flt('bandpass', 2300, .7)); });
+ldef('eng_xwing', .32, .15, (E, out, L) => { const a = lam(E, out, 19, .22), b = E.flt('bandpass', 540, 1.1); b.connect(a); lsrc(E, L, 'sawtooth', 112, .8, b); lsrc(E, L, 'sawtooth', 280, .4, b); lsrc(E, L, 'sine', 3700, .025, a); lsrc(E, L, 'brown', 0, 1, a, E.flt('lowpass', 320, .7)); lsrc(E, L, 'white', 0, .1, a, E.flt('bandpass', 330, .5)); });
 ldef('eng_ywing', .36, .15, (E, out, L) => { const a = lam(E, out, 19, .3), lp = E.flt('lowpass', 800, .8); lp.connect(a); lsrc(E, L, 'sawtooth', 74, .8, lp); lsrc(E, L, 'sawtooth', 111, .45, lp); lsrc(E, L, 'brown', 0, 1, a, E.flt('lowpass', 240, .7)); lsrc(E, L, 'sine', 1240, .02, a); });
 ldef('eng_awing', .3, .15, (E, out, L) => { const a = lam(E, out, 23, .14), b = E.flt('bandpass', 1650, 1); b.connect(a); lsrc(E, L, 'sawtooth', 265, .7, b); lsrc(E, L, 'sawtooth', 531, .4, b); lsrc(E, L, 'sine', 3700, .05, a); lsrc(E, L, 'white', 0, .15, a, E.flt('bandpass', 1500, .5)); });
 
