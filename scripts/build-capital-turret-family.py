@@ -2,7 +2,7 @@
 """Build the photographed 175 TT naval turrets and the enlarged 720 TT twin.
 
 The existing 40 m ISD octuple is the dimensional anchor. All four 175 TT
-variants have the same 60 x 16.5 x 45 m native envelope, rather than being scaled
+variants have the same 60 x 16.425 x 45 m native envelope, rather than being scaled
 by their aggregate output. Their forward mechanism narrows with barrel count.
 The ion twin has a low cast-bowl shell; the other cases are naval hexagons.
 Only Python's standard library is used. Existing meshes are never rewritten.
@@ -29,6 +29,10 @@ ORDER = ['capital_twin175_ion', 'capital_twin175', 'capital_quad175',
 PROTOTYPE_SIZE = [40.0, 11.0, 30.0]
 ANGULAR_175_SCALE = 1.5
 COMMON_SIZE = [v*ANGULAR_175_SCALE for v in PROTOTYPE_SIZE]
+REDUCED_175_SIZE = [60.0,16.425,45.0]
+FRONT_175_SCALE = .8
+LEGACY_720_SIZE = [90.0,24.75,67.5]
+LEGACY_720_SHA256 = 'b2e696e0559820d653b3e884491bcbdc6ef9f2d1890afd443f66f940a3ab2350'
 LARGE_SCALE = 1.5
 POD_WIDTHS = {2: 12.0, 3: 17.25, 4: 22.5}
 ROW_SPANS = {2: 7.6/ANGULAR_175_SCALE, 3: 9.5, 4: 11.4}
@@ -52,6 +56,19 @@ def role(row, name):
 
 def piece(m, vertices, faces, label, compartment=False):
     return m.convex(vertices, faces, label, compartment)
+
+
+def reduce_front_point(point,pivot,factor):
+    return [pivot[k]+(point[k]-pivot[k])*factor for k in range(3)]
+
+
+def reduce_front_range(m,start,end,pivot,factor):
+    if factor==1:return
+    for i in range(start[0],end[0]):m.points[i]=reduce_front_point(m.points[i],pivot,factor)
+    for cell in m.compartments:
+        if start[0]<=cell['meshRange']['firstVertex']<end[0]:
+            cell['verticesM']=[reduce_front_point(p,pivot,factor) for p in cell['verticesM']]
+            cell['volumeM3']*=factor**3
 
 
 def ring_mesh(m, label, center_x, radius, y0, y1, segments=32):
@@ -117,6 +134,88 @@ def compact_cell(cell):
     return compact
 
 
+def intersect_side_armor(parent,low_x,low_y,z0,z1):
+    """Exact convex case/side-interval intersection, built from plane corners.
+
+    Generate corners from original edges and new clipping planes, then author
+    one planar polygon per supporting plane. This avoids triangulated clipping
+    debris and makes each side cheek one closed structural volume.
+    """
+    vertices,faces=parent;planes={};edges=set()
+    for face in faces:
+        a,b,c=[vertices[i] for i in face[:3]]
+        n=F.cross(F.sub(b,a),F.sub(c,a));length=math.sqrt(F.dot(n,n))
+        if length<1e-12:continue
+        n=[v/length for v in n];d=F.dot(n,a)
+        planes[tuple(round(v,8) for v in n+[d])]=(n,d)
+        edges.update(tuple(sorted((a,b))) for a,b in zip(face,face[1:]+face[:1]))
+    parent_planes=list(planes.values())
+    bounds=[([-1,0,0],-low_x),([0,-1,0],-low_y),([0,0,-1],-z0),([0,0,1],z1)]
+    all_planes=parent_planes+bounds;points={}
+    def accept(p):
+        if all(F.dot(n,p)<=d+1e-7 for n,d in all_planes):points.setdefault(tuple(round(v,8) for v in p),p)
+    def intersection(a,b,c):
+        cross=F.cross(b[0],c[0]);det=F.dot(a[0],cross)
+        if abs(det)<1e-9:return None
+        ca=F.cross(c[0],a[0]);ab=F.cross(a[0],b[0])
+        return [(a[1]*cross[k]+b[1]*ca[k]+c[1]*ab[k])/det for k in range(3)]
+    for p in vertices:accept(p)
+    for ia,ib in edges:
+        a,b=vertices[ia],vertices[ib];delta=F.sub(b,a)
+        for n,d in bounds:
+            divisor=F.dot(n,delta)
+            if abs(divisor)<1e-12:continue
+            t=(d-F.dot(n,a))/divisor
+            if -1e-9<=t<=1+1e-9:accept([a[k]+t*delta[k] for k in range(3)])
+    for i,a in enumerate(bounds):
+        for b in bounds[i+1:]:
+            for c in parent_planes:
+                p=intersection(a,b,c)
+                if p is not None:accept(p)
+    for i,a in enumerate(bounds):
+        for j,b in enumerate(bounds[i+1:],i+1):
+            for c in bounds[j+1:]:
+                p=intersection(a,b,c)
+                if p is not None:accept(p)
+    corners=[]
+    for p in points.values():
+        incident=[plane for plane in all_planes if abs(F.dot(plane[0],p)-plane[1])<2e-7]
+        best=None;best_det=0
+        for i,a in enumerate(incident):
+            for j,b in enumerate(incident[i+1:],i+1):
+                for c in incident[j+1:]:
+                    det=abs(F.dot(a[0],F.cross(b[0],c[0])))
+                    if det>best_det:best_det=det;best=(a,b,c)
+        if best_det>1e-8:
+            q=intersection(*best)
+            if not any(math.dist(q,r)<1e-7 for r in corners):corners.append(q)
+    polygons=[]
+    for n,d in all_planes:
+        ids=[i for i,p in enumerate(corners) if abs(F.dot(n,p)-d)<3e-7]
+        if len(ids)<3:continue
+        axis=min(range(3),key=lambda k:abs(n[k]));unit=[1 if k==axis else 0 for k in range(3)]
+        u=F.cross(n,unit);length=math.sqrt(F.dot(u,u));u=[v/length for v in u];v=F.cross(n,u)
+        projected=sorted((F.dot(corners[i],u),F.dot(corners[i],v),i) for i in ids)
+        cross=lambda a,b,c:(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        lower=[]
+        for p in projected:
+            while len(lower)>1 and cross(lower[-2],lower[-1],p)<=1e-9:lower.pop()
+            lower.append(p)
+        upper=[]
+        for p in reversed(projected):
+            while len(upper)>1 and cross(upper[-2],upper[-1],p)<=1e-9:upper.pop()
+            upper.append(p)
+        polygon=[p[2] for p in lower[:-1]+upper[:-1]]
+        if len(polygon)>=3:polygons.append(polygon)
+    edge_counts={}
+    for face in polygons:
+        for a,b in zip(face,face[1:]+face[:1]):
+            key=tuple(sorted((a,b)));edge_counts[key]=edge_counts.get(key,0)+1
+    if not polygons or set(edge_counts.values())!={2}:
+        raise ValueError('Side armor is not a closed convex planar volume')
+    return corners,polygons
+
+
 def clip_plane(cell, normal, distance):
     vertices, faces = cell
     signed = lambda p: F.dot(p, normal)-distance
@@ -175,7 +274,7 @@ def add_bowl_normal_runs(m,row):
           'normalClippingCapsExcluded':True,'floorYM':0})
 
 
-def add_case(m, count, bowl=False):
+def add_case(m, count, bowl=False,front_scale=1,pivot=None):
     width = POD_WIDTHS[count]
     (vertices, faces), footprint = bowl_case_geometry() if bowl else angular_case_geometry(width)
     # The recoil opening is real air and is not counted as charging equipment.
@@ -214,6 +313,20 @@ def add_case(m, count, bowl=False):
         roof['addsCapacitorRoom']=False
         roof_rows.append(roof)
         if bowl:add_bowl_normal_runs(m,roof)
+    if front_scale!=1:
+        # Two complete structural cheeks close the old side gaps. They remain
+        # outside every moving part's constant-Z envelope and earn no room.
+        inner=(width/2+.85)*front_scale;outer=width/2+.85+.02
+        for sign in [-1,1]:
+            z0,z1=sorted([sign*inner,sign*outer])
+            v,f=intersect_side_armor((vertices,faces),5.,.12,z0,z1)
+            row=role(piece(m,v,f,'capital continuous side-gap armor '+str(sign)),
+                     'fixed-socket-structural-fill')
+            row.update(addsCapacitorRoom=False,structuralSocketFill=True,
+                       continuousSideArmor=True,side='port' if sign<0 else 'starboard',
+                       socketAdaptation='continuous-closed-case-cheek')
+            roof_rows.append(row)
+            if bowl:add_bowl_normal_runs(m,row)
     # This is only the intrinsic yaw race and remains inside the native house.
     role(ring_mesh(m, 'intrinsic capital yaw bearing race', 4, 8.4, 0, .16,14 if bowl else 8), 'fixed-yaw-race')
     samples=[]
@@ -403,8 +516,8 @@ def add_bearings(m, pivot, half_width, sloped_case=False):
     return fixed
 
 
-def moving_pod(m, count, pivot, ion=False, offset_x=0):
-    width = POD_WIDTHS[count]
+def moving_pod(m, count, pivot, ion=False, offset_x=0,front_scale=1,barrel_count=None):
+    width = POD_WIDTHS[count];barrel_count=barrel_count or count
     first = m.mark()
     profile=[[6,6.2],[6.8,4.2],[8.5,2.8],[13.5,2.8],[15.2,4.2],
              [16,6.2],[15.2,8.4],[13.1,9.65],[8.5,9.65],[6.7,8.2]]
@@ -412,8 +525,9 @@ def moving_pod(m, count, pivot, ion=False, offset_x=0):
     source=F.convex_hull(raw.points)
     # The actual receiver/breech volume is occupied hardware. Credit only the
     # remaining closed floor/roof/side cells, not a full opaque pod envelope.
-    for i,(v,f) in enumerate(F.convex_without_box(source,[8.8,4.65,-width*.42],[17.5,8.35,width*.42])):
-        if not ion:v,f=compact_cell((v,f))
+    occupied_rear=8.8 if front_scale==1 else pivot[0]+(8.8-offset_x-pivot[0])/front_scale
+    for i,(v,f) in enumerate(F.convex_without_box(source,[occupied_rear,4.65,-width*.42],[17.5,8.35,width*.42])):
+        if not ion or front_scale!=1:v,f=compact_cell((v,f))
         role(m.convex(v,f,'capital moving pod closed equipment cell '+str(i),True),'moving-front-pod-cell')
         m.compartments[-1]['movesWithGun']=True
     pod=role(m.record(first,'capital common elevating '+str(count)+'-gun pod'),'moving-front-pod')
@@ -427,11 +541,11 @@ def moving_pod(m, count, pivot, ion=False, offset_x=0):
     drives = []
     for sign in [-1, 1]:
         center = [pivot[0], pivot[1], sign*(width/2+.35)]
-        row = role(m.cylinder(center, 3.25, .6, 2, 'capital moving circular pod bearing '+str(sign), 22), 'moving-pod-bearing')
+        row = role(m.cylinder(center, 3.25, .6, 2, 'capital moving circular pod bearing '+str(sign),20 if front_scale!=1 else 22), 'moving-pod-bearing')
         row.update(centerM=center, radiusM=3.25, axis=[0, 0, 1])
         drives.append(row)
         role(m.cylinder([center[0], center[1], center[2]+sign*.38], 2.40, .16, 2,
-                        'capital concentric pod bearing cover '+str(sign),16 if ion else 14), 'moving-bearing-cover')
+                        'capital concentric pod bearing cover '+str(sign),(12 if front_scale!=1 else 16) if ion else (12 if front_scale!=1 else 14)), 'moving-bearing-cover')
         role(m.cylinder([center[0], center[1], center[2]+sign*.44],1.05,.10,2,
                         'capital recessed trunnion central drive boss '+str(sign),10 if ion else 6),'moving-bearing-central-boss')
         # A stepped, connected frame at the front of the gun cradle matches the
@@ -461,31 +575,59 @@ def moving_pod(m, count, pivot, ion=False, offset_x=0):
             if cell.get('movesWithGun'):
                 for p in cell['verticesM']:p[0]+=offset_x
         for drive in drives:drive['centerM'][0]+=offset_x
+    if front_scale!=1:
+        center=[pivot[0]+offset_x,pivot[1],pivot[2]]
+        interface_rows=[r for r in m.components if r['firstVertex']>=first[0]
+                        and r.get('componentRole') in ['moving-recoil-slide','moving-breech-collar']]
+        axes=[(r,(min(p[2] for p in m.points[r['firstVertex']:r['firstVertex']+r['vertices']])+
+                  max(p[2] for p in m.points[r['firstVertex']:r['firstVertex']+r['vertices']]))/2)
+              for r in interface_rows]
+        reduce_front_range(m,first,m.mark(),center,front_scale)
+        for row,z in axes:
+            for p in m.points[row['firstVertex']:row['firstVertex']+row['vertices']]:
+                p[2]+=z*(1-front_scale)
+                p[1]+=(6.6-pivot[1])*(1-front_scale)
+        for drive in drives:
+            drive['centerM']=reduce_front_point(drive['centerM'],center,front_scale)
+            drive['radiusM']*=front_scale
     barrels = []
-    for i in range(count):
-        z = (i-(count-1)/2)*ROW_SPANS[count]/(count-1)
+    barrel_axes=[(i-(count-1)/2)*ROW_SPANS[count]/(count-1) for i in range(count)]
+    if barrel_count!=count:
+        if count!=2 or barrel_count!=3:raise ValueError('Only the twin base supports an added center barrel')
+        barrel_axes.append(0.)
+    for i,z in enumerate(barrel_axes):
         row = (m.ion_barrel if ion else m.barrel)(9, 26.5, 6.6, z, BARREL_RADIUS,
                        ('175TT ion' if ion else '175TT turbo')+' complete barrel '+str(i+1),
                        segments=BARREL_SEGMENTS,**({'taper_start_x':16.7+offset_x} if ion else {}))
+        visible_front=17.1+offset_x
+        if front_scale!=1:visible_front=pivot[0]+offset_x+(17.1-pivot[0])*front_scale
         row.update(muzzleStyle='modeled-recessed', radialSegments=BARREL_SEGMENTS,
                    fullLengthM=BARREL_LENGTH,weaponRole='ion' if ion else 'turbolaser',
-                   mechanicalRole='moving-complete-barrel', photoVisibleReachM=26.5-17.1-offset_x)
+                   mechanicalRole='moving-complete-barrel', photoVisibleReachM=26.5-visible_front)
         if not ion:row['shaftRadiusM']=BARREL_RADIUS
         barrels.append(row)
     return pod, moving_range, drives, barrels, receiver
 
 
-def build_one(kind, title, count, ion=False, bowl=False, scale=ANGULAR_175_SCALE, bolt_tt=175):
+def build_one(kind, title, count, ion=False, bowl=False, scale=ANGULAR_175_SCALE, bolt_tt=175,
+              profile_count=None,front_scale=1):
+    profile_count=profile_count or count
     m = F.Mesh()
-    fixed_rows, footprint, deck, roof_rows = add_case(m, count, bowl)
-    machinery = roof_mechanisms(m, count, bowl)
     pod_offset_x = 1.1 if bowl else 0
     pivot = [11+pod_offset_x, 6.2, 0]
-    fixed_axles = add_bearings(m, pivot, POD_WIDTHS[count]/2,not bowl)
+    fixed_rows, footprint, deck, roof_rows = add_case(m,profile_count,bowl,front_scale,pivot)
+    machinery = roof_mechanisms(m,profile_count,bowl)
+    bearings_start=m.mark()
+    fixed_axles = add_bearings(m,pivot,POD_WIDTHS[profile_count]/2,not bowl)
+    reduce_front_range(m,bearings_start,m.mark(),pivot,front_scale)
+    if front_scale!=1:
+        for row in fixed_axles:
+            row['centerM']=reduce_front_point(row['centerM'],pivot,front_scale)
+            row['radiusM']*=front_scale;row['engagementM']*=front_scale
     split = m.mark()
     # Author around the unshifted pivot, then translate every moving cradle
     # part together. Complete tubes keep their common root/muzzle planes.
-    pod, moving_range, drives, barrels, receiver = moving_pod(m, count, [11,6.2,0], ion,pod_offset_x)
+    pod, moving_range, drives, barrels, receiver = moving_pod(m,profile_count,[11,6.2,0],ion,pod_offset_x,front_scale,count)
     # Clipping arithmetic can leave a cardinal extremum a few ulps short of
     # the common family envelope. Snap only those exact intended extrema.
     for points in [m.points]+[c['verticesM'] for c in m.compartments]:
@@ -522,7 +664,7 @@ def build_one(kind, title, count, ion=False, bowl=False, scale=ANGULAR_175_SCALE
                  caseBoundsM=[point(p) for p in actual_case_bounds],
                  castBowlRadiiM=point([17.5,9.1,15]) if bowl else None,
                  castBowlLongitudinalAxis=[1,0,0] if bowl else None,
-                 caseFrontWidthM=(30*math.sqrt(1-(9.5/17.5)**2) if bowl else POD_WIDTHS[count]+2.8)*scale,
+                 caseFrontWidthM=(30*math.sqrt(1-(9.5/17.5)**2) if bowl else POD_WIDTHS[profile_count]+2.8)*scale,
                  caseFrontWidthStationXM=13.5*scale,
                  caseFootprintVerticesM=[point(p) for p in footprint],
                  fixedCaseMeshRanges=[scaled_range(r) for r in fixed_rows+roof_rows],
@@ -542,20 +684,20 @@ def build_one(kind, title, count, ion=False, bowl=False, scale=ANGULAR_175_SCALE
                                     'interiorMechanismEnvelopeExcludedFromCapacitorRoom':True,
                                     'detailReference':'assets/source/capital-turret-reference-'+('6' if bowl else '5')+'.jpg'},
                  frontGunhouseElevates=True,
-                 frontPod={'widthM': POD_WIDTHS[count]*scale, 'rearXM': (6+pod_offset_x)*scale,
+                 frontPod={'widthM': POD_WIDTHS[profile_count]*scale, 'rearXM': (6+pod_offset_x)*scale,
                            'completeMovingAssemblyWidthM':(moving_bounds[1][2]-moving_bounds[0][2])*scale,
-                           'barrelRowSpanM':ROW_SPANS[count]*scale,
+                           'barrelRowSpanM':ROW_SPANS[profile_count]*scale,
                            'mainCaseFrontXM': 5.0*scale, 'frontXM': (16+pod_offset_x)*scale,
                            'forwardOffsetFromTLTwinM':pod_offset_x*scale,
-                           'caseBoundsM':[point([6+pod_offset_x, 2.8, -POD_WIDTHS[count]/2]), point([16+pod_offset_x, 9.65, POD_WIDTHS[count]/2])],
+                           'caseBoundsM':[point([6+pod_offset_x,2.8,-POD_WIDTHS[profile_count]/2]), point([16+pod_offset_x,9.65,POD_WIDTHS[profile_count]/2])],
                            'movingMeshRange': scaled_range(pod), 'podMeshRange': scaled_range(pod),
                            'mechanismMeshRange':moving_range,
                            'receiverMeshRange': scaled_range(receiver)},
                  frontConnection={'fixedAxleLabels':[r['label'] for r in fixed_axles],
                                   'fixedStanchionLabels':[r['label'] for r in m.components if r.get('componentRole')=='fixed-bearing-stanchion'],
                                   'movingWheelLabels':[r['label'] for r in drives],
-                                  'fixedAxleEngagementM':.30*scale,
-                                  'recoilSocketClearanceM':.01*scale,
+                                  'fixedAxleEngagementM':.30*front_scale*scale,
+                                  'recoilSocketClearanceM':.01*front_scale*scale,
                                   'displaySupportStand':False},
                  jointLimits={'yaw':None, 'lo':-10*math.pi/180, 'hi':85*math.pi/180},
                  photoFeatureComponents={'mainCase':[r['label'] for r in fixed_rows+roof_rows],
@@ -566,16 +708,16 @@ def build_one(kind, title, count, ion=False, bowl=False, scale=ANGULAR_175_SCALE
         supports=[r for r in a['components'] if r.get('componentRole') in ['fixed-bearing-stanchion','fixed-bearing-axle']]
         points=m.points[split[0]:]+[p for row in supports for p in m.points[row['firstVertex']:row['firstVertex']+row['vertices']]]
         support_bounds=F.bounds(points)
-        parent,parent_footprint=parent_angular_case_geometry(POD_WIDTHS[count])
-        clipped,_=angular_case_geometry(POD_WIDTHS[count])
+        parent,parent_footprint=parent_angular_case_geometry(POD_WIDTHS[profile_count])
+        clipped,_=angular_case_geometry(POD_WIDTHS[profile_count])
         shoulder=max((p for p in clipped[0] if abs(p[1]-8.6)<1e-7),key=lambda p:p[2])
-        front_normal,front_distance=front_bevel_planes(POD_WIDTHS[count])[0]
+        front_normal,front_distance=front_bevel_planes(POD_WIDTHS[profile_count])[0]
         actual_knee=min((p for p in clipped[0] if abs(F.dot(front_normal,p)-front_distance)<1e-7),key=lambda p:p[1])
         a['frontArmorBevel']={
             'referenceFile':str(BEVEL_REFERENCE.relative_to(ROOT)),
             'referenceSha256':hashlib.sha256(BEVEL_REFERENCE.read_bytes()).hexdigest(),
             'imageFile':reference['image']['path'],'imageSha256':reference['image']['sha256'],
-            'clipPlanes':[{'normal':n,'distanceM':d*scale} for n,d in front_bevel_planes(POD_WIDTHS[count])],
+            'clipPlanes':[{'normal':n,'distanceM':d*scale} for n,d in front_bevel_planes(POD_WIDTHS[profile_count])],
             'kneeM':[13.5*scale,BEVEL_KNEE_Y*scale],
             'roofM':[(13.5-BEVEL_ROOF_SETBACK)*scale,8.6*scale],
             'sectionCoordinatesRole':'authoring-guide-plane',
@@ -587,6 +729,37 @@ def build_one(kind, title, count, ion=False, bowl=False, scale=ANGULAR_175_SCALE
             'supportComponentLabels':a['frontConnection']['fixedStanchionLabels'],
             'completeMechanicalWidthIncludingFixedSupportsM':support_bounds[1][2]-support_bounds[0][2],
             'supportsAddCapacitorRoom':False}
+    if front_scale!=1:
+        bounds=F.bounds(m.points[pod['firstVertex']:pod['firstVertex']+pod['vertices']])
+        a['sameCaliberEnvelopeM']=a['size'][:]
+        a['frontPod'].update(widthM=bounds[1][2]-bounds[0][2],rearXM=bounds[0][0],frontXM=bounds[1][0],
+                             caseBoundsM=bounds,mainCaseFrontXM=5*scale)
+        a['frontBaseRevision']={'baselineCommit':'0ef37aa','uniformFrontHardwareScale':front_scale,
+            'pivotM':point(pivot),'baseProfileBarrels':profile_count,'actualBarrels':count,
+            'barrelGeometryAndOuterAxesUnchanged':True,'centerBarrelAppendedLast':count==3,
+            'barrelInterfacesRecenteredYZ':True,
+            'structuralSocketFillAddsCapacitorRoom':False,
+            'socketAdaptation':'continuous-closed-case-side-cheeks',
+            'socketFillComponentLabels':[r['label'] for r in m.components if r.get('structuralSocketFill')],
+            'sharedBaseAsset':'capital_twin175' if profile_count==2 and not ion else None}
+        side_rows=[r for r in m.components if r.get('continuousSideArmor')]
+        inner=(POD_WIDTHS[profile_count]/2+.85)*front_scale*scale
+        old_inner=(POD_WIDTHS[profile_count]/2+.85)*scale
+        half_moving=a['frontPod']['completeMovingAssemblyWidthM']/2
+        samples=[]
+        for sign in [-1,1]:
+            for dx in [3.75,4.25,4.75]:
+                for dy in [-.4,0,.4]:
+                    x=pivot[0]*scale-dx;y=pivot[1]*scale+dy
+                    samples.append({'originM':[x,y,sign*(half_moving+.003)],'direction':[0,0,sign],
+                                    'expectedHitM':[x,y,sign*inner]})
+        a['frontBaseRevision']['sideCaseFill']={
+            'componentLabels':[r['label'] for r in side_rows],
+            'meshRanges':[scaled_range(r) for r in side_rows],
+            'boundsM':[F.bounds(m.points[r['firstVertex']:r['firstVertex']+r['vertices']]) for r in side_rows],
+            'innerAbsZM':inner,'originalCaseInnerAbsZM':old_inner,'caseOverlapM':.02*scale,
+            'minimumMovingClearanceM':inner-half_moving,'socketRearXM':5*scale,'socketFloorYM':.12*scale,
+            'raySamples':samples,'addsCapacitorRoom':False,'preservesOriginalChargingCells':True}
     return a
 
 
@@ -594,13 +767,15 @@ def build():
     if MEASUREMENTS.exists():
         d = json.loads(MEASUREMENTS.read_text()).get('dimensions', {})
         actual = d.get('angular175SizeM', COMMON_SIZE)
-        if actual != COMMON_SIZE:raise ValueError('Generator dimensions do not match the reviewed photographic calibration')
-        if d.get('twin720UniformScale', LARGE_SCALE) != LARGE_SCALE:raise ValueError('720 TT photo scale has changed')
+        if actual != REDUCED_175_SIZE:raise ValueError('Generator dimensions do not match the reviewed photographic calibration')
+        if d.get('twin720ScaleFromOriginal175Envelope')!=LARGE_SCALE:raise ValueError('720 TT original photo scale has changed')
+        if d.get('twin720Original175EnvelopeM')!=COMMON_SIZE:raise ValueError('720 TT original 175 envelope has changed')
+        if d.get('twin720SizeM')!=LEGACY_720_SIZE:raise ValueError('720 TT frozen native envelope has changed')
     return {
-        'capital_twin175_ion':build_one('ion', '175TT 2連装イオン砲', 2, ion=True, bowl=True),
-        'capital_twin175':build_one('stl', '175TT 2連装重ターボレーザー', 2),
-        'capital_quad175':build_one('quad175', '175TT 4連装重ターボレーザー', 4),
-        'capital_triple175':build_one('triple175', '175TT 3連装重ターボレーザー', 3),
+        'capital_twin175_ion':build_one('ion', '175TT 2連装イオン砲', 2, ion=True,bowl=True,front_scale=FRONT_175_SCALE),
+        'capital_twin175':build_one('stl', '175TT 2連装重ターボレーザー',2,front_scale=FRONT_175_SCALE),
+        'capital_quad175':build_one('quad175', '175TT 4連装重ターボレーザー',4,front_scale=FRONT_175_SCALE),
+        'capital_triple175':build_one('triple175', '175TT 3連装重ターボレーザー',3,profile_count=2,front_scale=FRONT_175_SCALE),
         'capital_twin720':build_one('utl', '720TT 2連装超重ターボレーザー', 2,
                                   scale=ANGULAR_175_SCALE*LARGE_SCALE,bolt_tt=720),
     }
@@ -617,10 +792,24 @@ def decode(a):
 
 
 def validate(assets):
+    legacy=json.dumps(assets['capital_twin720'],sort_keys=True,separators=(',',':'),ensure_ascii=False)
+    if hashlib.sha256(legacy.encode()).hexdigest()!=LEGACY_720_SHA256:
+        raise ValueError('720 TT geometry, pivots, rooms or metadata drifted from frozen 0ef37aa')
+    twin,triple=assets['capital_twin175'],assets['capital_triple175']
+    twin_points,twin_indices=decode(twin);triple_points,triple_indices=decode(triple)
+    if triple_points[:len(twin_points)]!=twin_points or triple_indices[:len(twin_indices)]!=twin_indices:
+        raise ValueError('Triple175 does not preserve the entire twin175 mesh as its exact prefix')
+    for field in ['size','c','mount','elevationPivot','elevationVertexStart','elevationIndexStart','turretCompartment']:
+        if twin[field]!=triple[field]:raise ValueError('Twin/triple shared-base mismatch in '+field)
+    extra=triple['barrelCenters'][-1]
+    if extra['firstVertex']!=twin['n'] or extra['firstIndex']!=twin['faces']*3 or extra['root'][2]!=0:
+        raise ValueError('Triple175 must append only one centered complete tube')
+    if triple['n']!=twin['n']+extra['vertices'] or triple['faces']*3!=twin['faces']*3+extra['indices']:
+        raise ValueError('Triple175 includes geometry beyond the one added center barrel')
     result = F.validate(assets)
     f32 = lambda x: struct.unpack('<f', struct.pack('<f', x))[0]
     for key, a in assets.items():
-        expected = [v*(LARGE_SCALE if key == 'capital_twin720' else 1) for v in COMMON_SIZE]
+        expected = LEGACY_720_SIZE if key=='capital_twin720' else REDUCED_175_SIZE
         if any(abs(x-y)>1e-8 for x, y in zip(a['size'], expected)):
             raise ValueError(key+': common photographic envelope changed: '+str(a['size']))
         p, idx = decode(a)
@@ -647,6 +836,7 @@ def validate(assets):
             return min(hits) if hits else math.inf
         shafts=[r for r in a['components'] if r.get('componentRole')=='fixed-bearing-axle']
         case=[r for r in a['components'] if r.get('componentRole')=='fixed-gunhouse']
+        socket_fill=[r for r in a['components'] if r.get('structuralSocketFill')]
         stanchions=[r for r in a['components'] if r.get('componentRole')=='fixed-bearing-stanchion']
         for shaft,drive in zip(shafts,a['drivePivots']):
             sign=1 if shaft['centerM'][2]>0 else -1
@@ -661,17 +851,24 @@ def validate(assets):
                 if not math.isfinite(distance) or not sl[2]+.02*a['prototypeScale']<z<sh[2]-.02*a['prototypeScale']:
                     raise ValueError(key+': axle does not engage the actual circular drive')
                 start=[x,y,sign*(a['frontPod']['widthM']/2)]
-                distance=hit_rows(case+stanchions,start,[0,0,sign]);z=start[2]+sign*distance
+                distance=hit_rows(case+socket_fill+stanchions,start,[0,0,sign]);z=start[2]+sign*distance
                 if not math.isfinite(distance) or not sl[2]+.02*a['prototypeScale']<z<sh[2]-.02*a['prototypeScale']:
                     raise ValueError(key+': axle does not join the actual fixed house')
         for ear in stanchions:
             lo,hi=F.bounds(p[ear['firstVertex']:ear['firstVertex']+ear['vertices']])
             center=[(x+y)/2 for x,y in zip(lo,hi)]
-            for offset in [-.4,0,.4]:
+            if key!='capital_twin720':center[2]+=(1 if center[2]>0 else -1)*.45*(hi[2]-lo[2])
+            seat_offsets=[-.4,0,.4] if key=='capital_twin720' else [-.32,-.16,0]
+            for offset in seat_offsets:
                 start=[center[0]+offset*a['prototypeScale'],hi[1]+a['prototypeScale'],center[2]]
-                t=hit_rows(case,start,[0,-1,0]);y=start[1]-t
+                t=hit_rows(case+socket_fill,start,[0,-1,0]);y=start[1]-t
                 if not math.isfinite(t) or not lo[1]+.05*a['prototypeScale']<y<hi[1]-.05*a['prototypeScale']:
                     raise ValueError(key+': integral trunnion support floats above the actual shell')
+                upper=start[1]-hit_rows([ear],start,[0,-1,0])
+                below=[start[0],lo[1]-a['prototypeScale'],start[2]]
+                lower=below[1]+hit_rows([ear],below,[0,1,0])
+                if not lower+.005*a['prototypeScale']<y<upper-.005*a['prototypeScale']:
+                    raise ValueError(key+': case interface does not overlap the actual trunnion support interior')
         # Every exposed fixed machine and the uncredited armored deck is
         # checked as solid hardware too, independently of charging capacity.
         hardware=[]
@@ -684,6 +881,21 @@ def validate(assets):
                              'faces':[[v-low for v in idx[j:j+3]]
                                       for j in range(row['firstIndex'],row['firstIndex']+row['indices'],3)]})
         hardware_clearance=F.moving_case_clearance(p,idx,{**a,'turretCompartment':{'convexes':hardware}},ELEVATION_DEGREES)
+        side_fill=a.get('frontBaseRevision',{}).get('sideCaseFill');side_fill_rays=0
+        if side_fill:
+            rows=[r for r in a['components'] if r.get('continuousSideArmor')]
+            if len(rows)!=2:raise ValueError(key+': both continuous side cheeks are required')
+            for sample in side_fill['raySamples']:
+                origin,direction=sample['originM'],sample['direction']
+                expected=math.dist(origin,sample['expectedHitM'])
+                hit=hit_rows(rows,origin,direction)
+                if not math.isfinite(hit) or abs(hit-expected)>a['maxQuantizationErrorM']*5:
+                    raise ValueError(key+': a visible side gap lacks real continuous armor backing')
+                case_hit=hit_rows(case,origin,direction)
+                case_z=abs(origin[2]+direction[2]*case_hit)
+                if not math.isfinite(case_hit) or not side_fill['originalCaseInnerAbsZM']-a['maxQuantizationErrorM']*5<=case_z<side_fill['originalCaseInnerAbsZM']+side_fill['caseOverlapM']:
+                    raise ValueError(key+': side cheek does not join the actual original case')
+                side_fill_rays+=1
         for sample in a['closedRoof']['coverageSamplesM']:
             start=[sample[0],a['size'][1]+a['prototypeScale'],sample[2]]
             hit=hit_rows([r for r in a['components'] if r['firstIndex']<a['elevationIndexStart']],start,[0,-1,0])
@@ -778,6 +990,7 @@ def validate(assets):
                             'actualCompleteMovingAssemblyWidthM':moving_width,
                             'caseStanchionContactRays':3*len(stanchions),
                             'actualCaseAxleDriveContactRays':32,
+                            **({'continuousSideArmorBackingRays':side_fill_rays} if side_fill else {}),
                             **({'frontArmorBevel':bevel_validation} if bevel_validation else {}),
                             'envelopeM':a['size'], 'podWidthM':a['frontPod']['widthM']})
     return result
@@ -792,7 +1005,7 @@ def main():
     assets = build()
     validation = validate(assets)
     manifest = {'schemaVersion':1, 'order':ORDER, 'anchorAsset':'isd_heavy_octuple', 'anchorFootprintM':40,
-                'angular175SizeM':COMMON_SIZE, '175PrototypeScale':ANGULAR_175_SCALE,
+                'angular175SizeM':REDUCED_175_SIZE, '175PrototypeScale':ANGULAR_175_SCALE,
                 '720TwinScale':LARGE_SCALE,
                 'measurementFile':'assets/source/capital-turret-photo-measurements.json',
                 'measurementSha256':hashlib.sha256(MEASUREMENTS.read_bytes()).hexdigest() if MEASUREMENTS.exists() else None,

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "User-provided capital turret photographs and later ion-profile correction",
   "photoMeasurements": "assets/source/capital-turret-photo-measurements.json",
-  "photoMeasurementsSha256": "640d26af84bebb459745e4bbca1977bc2575f90d82c08913da6212fc6272a068",
+  "photoMeasurementsSha256": "c4dc3a337d2c84ef4c5923d12a7939a2c0fb67adfd5592b2d492f416eb88963d",
   "commonSphereDiameterM": 36.0,
   "order": [
     "capital_ball175_triple_ion",

@@ -1597,7 +1597,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 34684.08835920355
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -3251,7 +3251,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48403.665028700154
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -4683,7 +4683,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 30083.838993985686
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -6571,7 +6571,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 24025.310576313615
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -8270,7 +8270,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 41238.067090825636
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -9519,7 +9519,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 38690.56137249803
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -10805,7 +10805,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 24854.61832886521
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -12442,7 +12442,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48149.98712420482
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -14163,7 +14163,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 7608.111077049721
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -15810,7 +15810,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 49636.37425592635
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -17799,7 +17799,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 33850.49374025839
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -19355,7 +19355,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 31900.455233266242
     },
-    "profileVersion": 10,
+    "profileVersion": 11,
     "heat": {
      "v": 1,
      "src": [
@@ -24596,7 +24596,7 @@ const CAPITAL_TURRET_MODELS=[
  ['ion','capital_twin175_ion','175TT 2連装重イオン砲','175TT イオン2連装',2,175,'ion',null,null,null,'IS重戦車の鋳造砲塔に似た、前後に長い楕円で潰れたお椀型の砲室。前へ張り出す砲基部と、付け根が太く先細の砲身を持つ。175TT系列と同じ基準寸法で、2門×175TT相当のイオン砲。'],
  ['stl','capital_twin175','175TT 2連装重ターボレーザー','175TT 2連装',2,175,'gun',null,null,null,'70TT三連装を基にした角形砲室と、細く絞った前部砲基部を持つ。175TT三連装・四連装と同寸法で、2門×175TT。'],
  ['quad175','capital_quad175','175TT 4連装重ターボレーザー','175TT 4連装',4,175,'gun',32000,60,2400000,'175TT連装・三連装と同寸法の砲室に4門を収める。幅広い前部砲基部と絞った装甲側面をつなぐ。4門×175TT。'],
- ['triple175','capital_triple175','175TT 3連装重ターボレーザー','175TT 3連装',3,175,'gun',24000,45,1800000,'70TT三連装に基づく砲室を使い、175TT四連装と同寸法のまま、前部を狭めて3門を収める。3門×175TT。'],
+ ['triple175','capital_triple175','175TT 3連装重ターボレーザー','175TT 3連装',3,175,'gun',24000,45,1800000,'175TT連装と同じ砲室・砲基部を使い、外側2門の位置を保って中央に1門を追加した三連装。3門×175TT。'],
  ['ball175TripleIon','capital_ball175_triple_ion','175TT 3連装ボールイオン砲','175TT イオン球3連装',3,175,'ion',8250,27,900000,'共通寸法の球状砲室に、付け根が太く先細の砲身を持つ175TT相当イオン砲3門を収める。下側約3分の1を取付面へ埋め込み、球体全体が旋回・俯仰する。'],
  ['ball175Quad','capital_ball175_quad','175TT 4連装ボールターボレーザー','175TT 球4連装',4,175,'gun',32000,60,2400000,'共通寸法の球状砲室に175TTの砲4門を収める。下側約3分の1を取付面へ埋め込み、球体全体が旋回・俯仰する。'],
  ['ball175QuadIon','capital_ball175_quad_ion','175TT 4連装ボールイオン砲','175TT イオン球4連装',4,175,'ion',11000,36,1200000,'共通寸法の球状砲室に、付け根が太く先細の砲身を持つ175TT相当イオン砲4門を収める。下側約3分の1を取付面へ埋め込み、球体全体が旋回・俯仰する。'],
@@ -29144,8 +29144,8 @@ function fleetModules(ship,S){
 const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
 function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
-// v10: photographic capital gunhouses and posed balls change real capacity and firing geometry.
-const FLEET_PROFILE_VERSION=10;
+// v11: compact175TT mechanisms and the twin-based triple change saved room capacity and firing geometry.
+const FLEET_PROFILE_VERSION=11;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;

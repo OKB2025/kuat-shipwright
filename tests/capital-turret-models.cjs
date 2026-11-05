@@ -14,6 +14,7 @@ const FAMILY=[
  ['ball720','capital_ball720_single',1,720,false],['utl','capital_twin720',2,720,false]
 ];
 const BALLS=FAMILY.filter(([k])=>k.startsWith('ball')).map(([k])=>k);
+const FRONT_BASELINE=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/capital-front-base-0ef37aa.json'),'utf8'));
 const fit=(k,extra={})=>({id:41,k,p:[200,35,-70],a:2,ped:0,base:0,low:0,float:false,assetYaw:23,...extra});
 function model(k){const d=C.FITS[k];assert.ok(d,k+' catalog entry');const a=C.REFERENCE_ASSETS[d.asset];assert.ok(a,k+' registered model');return{d,a,m:C.decodeReference(d.asset)};}
 const point=(a,m,i)=>[0,1,2].map(k=>m.pos[i*3+k]*a.size[k]+a.c[k]);
@@ -21,6 +22,12 @@ const points=(a,m,r={firstVertex:0,vertices:a.n})=>Array.from({length:r.vertices
 const bounds=P=>[0,1,2].map(k=>Math.min(...P.map(p=>p[k]))).concat([0,1,2].map(k=>Math.max(...P.map(p=>p[k]))));
 const spans=P=>{const b=bounds(P);return[0,1,2].map(k=>b[k+3]-b[k]);};
 function rangeTriangles(a,m,r){const T=new Float32Array(r.indices*3);for(let i=0;i<r.indices;i++)point(a,m,m.idx[r.firstIndex+i]).forEach((v,j)=>T[i*3+j]=v);return T;}
+const socketFills=a=>a.components.filter(r=>r.structuralSocketFill||r.componentRole==='fixed-socket-structural-fill');
+function caseRanges(a,includeContinuous=true){const fills=new Set(socketFills(a).filter(r=>!includeContinuous||!r.continuousSideArmor).map(r=>r.firstIndex+':'+r.indices));return[...new Map([...a.fixedCaseMeshRanges,...a.closedRoof.meshRanges].filter(r=>!fills.has(r.firstIndex+':'+r.indices)).map(r=>[r.firstIndex+':'+r.indices,r])).values()];}
+function frontGroups(a,m){
+ const all=Array.from({length:a.faces},(_,i)=>i*3),moving=all.filter(i=>i>=a.elevationIndexStart&&!a.barrelCenters.some(r=>i>=r.firstIndex&&i<r.firstIndex+r.indices)),labels=[...a.frontConnection.fixedAxleLabels,...(a.frontConnection.fixedStanchionLabels||[])],fixed=a.components.filter(r=>labels.includes(r.label)).flatMap(r=>Array.from({length:r.indices/3},(_,i)=>r.firstIndex+i*3)),info=I=>{const used=new Set(I.flatMap(i=>Array.from(m.idx.subarray(i,i+3)))),P=Array.from(used,i=>point(a,m,i));return{boundsM:bounds(P),sizeM:spans(P)};};
+ return{movingFront:info(moving),completeFront:info([...new Set([...moving,...fixed])]),podShell:{boundsM:bounds(points(a,m,a.frontPod.podMeshRange)),sizeM:spans(points(a,m,a.frontPod.podMeshRange))}};
+}
 function connected(m,r){
  const parent=Array.from({length:r.vertices},(_,i)=>i),find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;},join=(a,b)=>parent[find(a)]=find(b),weld=new Map();
  for(let i=r.firstVertex;i<r.firstVertex+r.vertices;i++){const key=Array.from(m.pos.subarray(i*3,i*3+3)).join(',');if(weld.has(key))join(i-r.firstVertex,weld.get(key)-r.firstVertex);else weld.set(key,i);}
@@ -64,6 +71,38 @@ test('all nine capital weapons use their native physical models, requested barre
   const geos=[G.meshFits({fits:[fit(k)]}),G.meshReferenceFits({fits:[fit(k)]})];assert.equal(geos.reduce((s,g)=>s+g.ni,0),m.idx.length,'no duplicate mesh or omitted moving assembly');
  }
  assert.equal(new Set(ids).size,9);
+});
+
+test('the four angular175TT front modules shrink in three dimensions against the independent0ef37aa baseline',()=>{
+ assert.equal(FRONT_BASELINE.sourceCommit,'0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb');
+ for(const k of ['ion','stl','triple175','quad175']){const{a,m}=model(k),original=FRONT_BASELINE.models[k],template=FRONT_BASELINE.models[k==='triple175'?'stl':k],actual=frontGroups(a,m);vector(a.elevationPivot,original.elevationPivotM,1e-9);near(a.frontBaseRevision.uniformFrontHardwareScale,.8,1e-12);
+  for(const group of ['movingFront','completeFront','podShell']){const old=template.groups[group],own=original.groups[group],expected=old.boundsM.map((v,i)=>a.elevationPivot[i%3]+(v-a.elevationPivot[i%3])*.8);vector(actual[group].boundsM,expected,.02,k+' '+group+' actual affine reduction');for(let axis=0;axis<3;axis++)assert.ok(actual[group].sizeM[axis]<=own.sizeM[axis]*.8+.02,k+' front width/height/depth is reduced at least20%');}
+ }
+});
+
+test('closed fixed side armor fills the complete socket gap on both sides with real clearance and case backing',()=>{
+ const parents=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/capital-pre-bevel-hulls.json'),'utf8')).models,bowl=[],center=[6,3,0],ring=[];
+ for(let level=0;level<8;level++){const a=level*Math.PI/16;ring.push(Array.from({length:32},(_,i)=>{const t=i*Math.PI/16;return[6+26.25*Math.cos(a)*Math.cos(t),13.65*Math.sin(a),22.5*Math.cos(a)*Math.sin(t)];}));}
+ for(let level=0;level<8;level++)for(let i=0;i<32;i++){const A=ring[level][i],B=ring[level][(i+1)%32],D=level===7?[6,13.65,0]:ring[level+1][i];let n=C.norm(C.cross(C.sub(B,A),C.sub(D,A)));if(C.dot(n,C.sub(center,A))>0)n=C.mul(n,-1);bowl.push({normal:n,distanceM:C.dot(n,A)});}bowl.push({normal:[0,-1,0],distanceM:0});
+ for(const k of ['ion','stl','triple175','quad175']){const{a,m}=model(k),base=FRONT_BASELINE.models[k==='triple175'?'stl':k],inner=base.oldSocket.halfWidthM*.8,meta=a.frontBaseRevision.sideCaseFill,fills=socketFills(a);assert.ok(meta&&fills.length>=2);near(meta.innerAbsZM,inner,.002);const original=k==='triple175'?'stl':k,planes=k==='ion'?bowl:[...parents[original].planes,...a.frontArmorBevel.clipPlanes],inside=(p,pad)=>planes.every(q=>q.distanceM-C.dot(q.normal,p)>pad*C.len(q.normal));
+  const T=Float32Array.from(fills.flatMap(r=>Array.from(rangeTriangles(a,m,r)))),moving=bounds(points(a,m,{firstVertex:a.elevationVertexStart,vertices:a.n-a.elevationVertexStart}));near(a.elevationAxis[0],0,1e-12);near(a.elevationAxis[1],0,1e-12);near(Math.abs(a.elevationAxis[2]),1,1e-12);
+  for(const r of fills){assert.equal(r.continuousSideArmor,true);assert.equal(r.addsCapacitorRoom,false);assert.notEqual(r.compartment,true);const P=points(a,m,r),B=bounds(P),sign=B[2]>0?1:-1;assert.ok(sign>0?B[2]>=inner-.008:B[5]<=-inner+.008,'fixed cheeks stay wholly outside the rotating assembly');for(const p of P)for(const q of planes)assert.ok(C.dot(q.normal,p)<=q.distanceM+.008*C.len(q.normal),'side armor is clipped inside the approved original case');const edges=new Map(),Q=rangeTriangles(a,m,r);for(let i=0;i<Q.length;i+=9){const v=[0,1,2].map(j=>Array.from(Q.subarray(i+j*3,i+j*3+3)).join(','));for(let j=0;j<3;j++){const e=[v[j],v[(j+1)%3]].sort().join('|');edges.set(e,(edges.get(e)||0)+1);}}assert.ok([...edges.values()].every(n=>n===2),'each actual side cheek is a closed rendered solid');assert.ok(!a.turretCompartment.convexes.some(c=>c.meshRange?.firstIndex===r.firstIndex&&c.meshRange?.indices===r.indices),'side armor cannot become charging-room capacity');}
+  const front=Math.max(...a.caseFootprintVerticesM.map(p=>p[0])),rear=base.oldSocket.rearXM,top=a.closedRoof.nominalRoofYM;
+  for(const sign of [-1,1]){const side=fills.flatMap(r=>points(a,m,r)).filter(p=>p[2]*sign>0),edge=sign>0?Math.min(...side.map(p=>p[2])):-Math.max(...side.map(p=>p[2])),clearance=edge-(sign>0?moving[5]:-moving[2]);assert.ok(clearance>.004&&clearance<.04,'the full moving geometry has a small real gap to both fixed cheeks');const sampled=[];
+   for(let ix=0;ix<5;ix++)for(let iy=0;iy<5;iy++){const x=rear+(front-rear)*(.1+.2*ix),y=top*(.1+.2*iy),p=[x,y,sign*inner];if(!inside(p,.04))continue;const h=C.rayTris(T,[x,y,0],[0,0,sign]);assert.ok(h,'independent whole-gap grid rays hit continuous side structure');near(h.p[2],sign*inner,.008,'the actual backing starts at the reduced socket edge');assert.ok(C.dot(h.n,[0,0,-sign])>.999);sampled.push(p);}
+   assert.ok(sampled.length>=10);assert.ok(spans(sampled)[0]>(front-rear)*.4&&spans(sampled)[1]>top*.5,'coverage spans the socket length and height, not only tiny bearing seats');
+  }
+ }
+});
+
+test('the triple175 asset is the exact complete twin mesh followed only by one centered full barrel',()=>{
+ const A=model('stl'),B=model('triple175'),center=B.a.barrelCenters[2],hash=(v,n=v.length)=>crypto.createHash('sha256').update(Buffer.from(v.buffer,v.byteOffset,n*v.BYTES_PER_ELEMENT)).digest('hex');assert.equal(B.a.barrels,3);assert.equal(A.a.barrels,2);vector(B.a.c,A.a.c,1e-12);vector(B.a.size,A.a.size,1e-12);vector(B.a.mount,A.a.mount,1e-12);vector(B.a.elevationPivot,A.a.elevationPivot,1e-12);assert.equal(B.a.elevationIndexStart,A.a.elevationIndexStart);assert.equal(B.a.elevationVertexStart,A.a.elevationVertexStart);
+ assert.equal(center.firstVertex,A.a.n);assert.equal(center.firstIndex,A.m.idx.length);assert.equal(B.a.n,A.a.n+center.vertices);assert.equal(B.m.idx.length,A.m.idx.length+center.indices);for(const key of ['pos','uv','idx'])assert.equal(hash(A.m[key]),hash(B.m[key],A.m[key].length),key+' twin body/roof/drives and outer two tubes remain an exact prefix');
+ for(let i=0;i<2;i++)for(const key of ['root','muzzle','axis'])vector(B.a.barrelCenters[i][key],A.a.barrelCenters[i][key],1e-12);near(center.root[2],0,1e-12);near(center.muzzle[2],0,1e-12);vector(center.root.slice(0,2),A.a.barrelCenters[0].root.slice(0,2),1e-12);vector(center.muzzle.slice(0,2),A.a.barrelCenters[0].muzzle.slice(0,2),1e-12);assert.equal(crypto.createHash('sha256').update(JSON.stringify(A.a.turretCompartment)).digest('hex'),crypto.createHash('sha256').update(JSON.stringify(B.a.turretCompartment)).digest('hex'),'the exact shared base also has the same real charging cells');
+});
+
+test('angular720 and all four ball models preserve exact0ef37aa geometry, articulation and room metadata',()=>{
+ for(const k of FRONT_BASELINE.unchangedKinds){const{a}=model(k),baseline=FRONT_BASELINE.models[k],physical={};let raw=a;while(raw.dataFrom)raw=C.REFERENCE_ASSETS[raw.dataFrom];assert.equal(crypto.createHash('sha256').update(Buffer.from(raw.data,'base64')).digest('hex'),baseline.packedGeometrySha256,k+' exact geometry and UV payload');for(const key of baseline.physicalMetadataKeys)physical[key]=a[key];assert.equal(crypto.createHash('sha256').update(JSON.stringify(physical)).digest('hex'),baseline.physicalMetadataSha256,k+' exact components, pivots, barrels and real room cells');}
 });
 
 test('twenty-five complete physical barrels have circular mouths, real recessed bores and distinct firing positions',()=>{
@@ -122,20 +161,20 @@ test('all four capital balls share one closed sphere embedded by one third and a
  }
 });
 
-test('two, three and four 175TT barrels retain one envelope while their real front pods and cheeks narrow naturally',()=>{
+test('the reduced175TT cradles retain their case envelope and the triple uses the narrow twin base',()=>{
  const rows=['ion','stl','triple175','quad175'].map(k=>({k,...model(k)}));
- for(const{a,m,k}of rows){vector(a.size,[60,16.5,45],.001);vector(spans(points(a,m)),[60,16.5,45]);assert.ok(a.caseMaximumWidthXM>0,'maximum width is ahead of the footprint midpoint');near(a.mount[0],a.caseMaximumWidthXM,.001);}
+ for(const{a,m,k}of rows){vector(a.size,[60,16.425,45],.001);vector(spans(points(a,m)),[60,16.425,45]);assert.ok(a.caseMaximumWidthXM>0,'maximum width is ahead of the footprint midpoint');near(a.mount[0],a.caseMaximumWidthXM,.001);}
  const widths=[];
- for(const[k,expectedWidth,expectedRowSpan]of [['stl',18,7.6],['triple175',25.875,14.25],['quad175',33.75,17.1]]){const{a,m}=model(k),P=points(a,m,a.frontPod.podMeshRange),B=bounds(P),width=B[5]-B[2];near(width,a.frontPod.widthM);near(width,expectedWidth);widths.push(width);
+ for(const[k,expectedWidth,expectedRowSpan]of [['stl',14.4,7.6],['triple175',14.4,7.6],['quad175',27,17.1]]){const{a,m}=model(k),P=points(a,m,a.frontPod.podMeshRange),B=bounds(P),width=B[5]-B[2];near(width,a.frontPod.widthM);near(width,expectedWidth);widths.push(width);
   const centers=a.barrelCenters.map(r=>{const b=bounds(points(a,m,r));return(b[2]+b[5])/2;});near(Math.max(...centers)-Math.min(...centers),expectedRowSpan,.008,'actual gun rows retain the wider reference spacing');
   const footprint=a.caseFootprintVerticesM;assert.ok(footprint.length>=6);const front=Math.max(...footprint.map(p=>p[0])),frontWidth=Math.max(...footprint.filter(p=>Math.abs(p[0]-front)<.001).map(p=>p[2]))-Math.min(...footprint.filter(p=>Math.abs(p[0]-front)<.001).map(p=>p[2]));
-  near(frontWidth,a.caseFrontWidthM);assert.ok(frontWidth>width&&frontWidth-width<a.size[2]*.14,'front cheeks meet a pod with a modest structural margin');
+  near(frontWidth,a.caseFrontWidthM);assert.ok(frontWidth>width,'the unchanged case shoulders surround the reduced cradle');
   const fixed=a.fixedCaseMeshRanges.flatMap(r=>points(a,m,r));for(const p of footprint)assert.ok(fixed.some(q=>Math.hypot(p[0]-q[0],p[2]-q[2])<.012),'authored footprint corners belong to real visible fixed armor');
  }
- assert.ok(widths[0]<widths[1]&&widths[1]<widths[2]);
- for(const k of ['ion','stl']){const{a,m}=model(k),used=new Set();for(let i=a.elevationIndexStart;i<m.idx.length;i++)if(!a.barrelCenters.some(r=>i>=r.firstIndex&&i<r.firstIndex+r.indices))used.add(m.idx[i]);assert.ok(used.size);const P=Array.from(used,i=>point(a,m,i));assert.ok(spans(P)[2]<=a.size[2]/2+.01,'the complete twin front mechanism including both drives fits within half the case width');near(spans(points(a,m,a.frontPod.podMeshRange))[2],18,.008);const Z=a.barrelCenters.map(r=>{const b=bounds(points(a,m,r));return(b[2]+b[5])/2;});near(Math.max(...Z)-Math.min(...Z),7.6,.008);}
- const original=model('triple70'),old=spans(points(original.a,original.m,original.a.frontPod.movingMeshRange))[2]/original.a.size[2];near(widths[2]/model('quad175').a.size[2],old,.005,'four-gun pod retains the 70TT triple’s proportion');
- const twin=model('stl'),small=twin.a,heavy=model('utl'),large=heavy.a;vector(large.size,[90,24.75,67.5],.001);vector(large.size,small.size.map(v=>v*1.5),.001);near(large.frontPod.widthM,small.frontPod.widthM*1.5,.001);near(large.caseFrontWidthM,small.caseFrontWidthM*1.5,.001);
+ near(widths[0],widths[1],.001);assert.ok(widths[1]<widths[2]);
+ for(const k of ['ion','stl','triple175']){const{a,m}=model(k),used=new Set();for(let i=a.elevationIndexStart;i<m.idx.length;i++)if(!a.barrelCenters.some(r=>i>=r.firstIndex&&i<r.firstIndex+r.indices))used.add(m.idx[i]);assert.ok(used.size);const P=Array.from(used,i=>point(a,m,i));assert.ok(spans(P)[2]<=a.size[2]/2+.01,'the complete narrow mechanism including both drives fits within half the case width');near(spans(points(a,m,a.frontPod.podMeshRange))[2],14.4,.008);const Z=a.barrelCenters.map(r=>{const b=bounds(points(a,m,r));return(b[2]+b[5])/2;});near(Math.max(...Z)-Math.min(...Z),7.6,.008);}
+ const original=model('triple70'),old=spans(points(original.a,original.m,original.a.frontPod.movingMeshRange))[2]/original.a.size[2];near(widths[2]/(model('quad175').a.size[2]*.8),old,.005,'the four-gun cradle is reduced20% from its approved70TT-derived proportion');
+ const twin=model('stl'),heavy=model('utl'),large=heavy.a;vector(large.size,[90,24.75,67.5],.001);vector(large.size,FRONT_BASELINE.models.stl.sizeM.map(v=>v*1.5),.001);
  for(const r of large.barrelCenters){near(spans(points(large,heavy.m,r))[0],39.375,.012,'actual 720TT tube is the uniformly enlarged 175TT tube');near(r.shaftRadiusM,1.2375,.001);}
  const oct=model('oct40'),octSize=spans(points(oct.a,oct.m)),houseSize=spans(twin.a.fixedCaseMeshRanges.flatMap(r=>points(twin.a,twin.m,r)));
  for(const axis of [0,2])assert.ok(houseSize[axis]>octSize[axis],`the actual angular 175TT twin house exceeds the 40TT octuple on plan axis ${axis}, before barrel reach`);
@@ -155,9 +194,11 @@ test('capital ion tubes physically taper from fat roots to tips thicker than mat
 
 test('actual forward bearing triangles connect each capital pod to its fixed case throughout the common elevation range',()=>{
  for(const k of ['ion','stl','triple175','quad175','utl']){const{a,m}=model(k),components=a.components,labels=a.frontConnection;assert.ok(labels?.fixedAxleLabels.length===2&&labels.movingWheelLabels.length===2);
-  const caseT=Float32Array.from(a.fixedCaseMeshRanges.flatMap(r=>Array.from(rangeTriangles(a,m,r))));
+  const armorT=Float32Array.from(caseRanges(a,false).flatMap(r=>Array.from(rangeTriangles(a,m,r)))),fills=socketFills(a).map(r=>({r,T:rangeTriangles(a,m,r)})),anchored=new Set();let changed=true;while(changed){changed=false;for(let j=0;j<fills.length;j++)if(!anchored.has(j)&&(touches(armorT,fills[j].T)||[...anchored].some(i=>touches(fills[i].T,fills[j].T)))){anchored.add(j);changed=true;}}assert.equal(anchored.size,fills.length,k+' actual socket fills connect to original case armor');for(const{r}of fills)assert.equal(r.addsCapacitorRoom,false);
+  const caseT=Float32Array.from([...armorT,...fills.flatMap(q=>Array.from(q.T))]);
   for(let i=0;i<2;i++){const fixed=components.find(r=>r.label===labels.fixedAxleLabels[i]),moving=components.find(r=>r.label===labels.movingWheelLabels[i]);assert.ok(fixed&&moving);assert.ok(fixed.firstIndex+fixed.indices<=a.elevationIndexStart);assert.ok(moving.firstIndex>=a.elevationIndexStart);const axle=rangeTriangles(a,m,fixed);assert.ok(touches(axle,rangeTriangles(a,m,moving)),k+' real fixed axle engages the actual moving wheel, rather than an AABB');const support=labels.fixedStanchionLabels?.[i]&&components.find(r=>r.label===labels.fixedStanchionLabels[i]);if(support){const T=rangeTriangles(a,m,support);assert.ok(touches(caseT,T)&&touches(T,axle),k+' fixed support joins both case and axle');}else assert.ok(touches(caseT,axle),k+' actual case triangles connect the axle to the gunhouse');}
   const cells=a.turretCompartment.convexes.filter(p=>!p.movesWithGun).map(p=>p.faces.map(([ia,ib,ic])=>({p:p.verticesM[ia],n:C.norm(C.cross(C.sub(p.verticesM[ib],p.verticesM[ia]),C.sub(p.verticesM[ic],p.verticesM[ia])))})));
+  for(const{r,T}of fills){const planes=[];for(let i=0;i<T.length;i+=9){const p=Array.from(T.subarray(i,i+3)),n=C.norm(C.cross(C.sub(Array.from(T.subarray(i+3,i+6)),p),C.sub(Array.from(T.subarray(i+6,i+9)),p)));planes.push({p,n});}for(const p of points(a,m,r))assert.ok(planes.every(q=>C.dot(q.n,C.sub(p,q.p))<=.008),'socket fill is an actual closed convex body');cells.push(planes);}
   const g=C.authoredTurretGeometry(fit(k,{p:[0,0,0],assetYaw:0}));
   for(const degrees of [-10,0,25,55,85]){const pose=C.aimAuthoredTurret(g,0,degrees*Math.PI/180);assert.ok(C.authoredTurretInArc(g,pose.fw));for(let i=a.elevationVertexStart;i<a.n;i++){const p=C.sub(point(a,m,i),a.elevationPivot),R=pose.rotation,q=C.add(a.elevationPivot,[R[0]*p[0]+R[3]*p[1]+R[6]*p[2],R[1]*p[0]+R[4]*p[1]+R[7]*p[2],R[2]*p[0]+R[5]*p[1]+R[8]*p[2]]);assert.ok(!cells.some(cell=>cell.every(f=>C.dot(f.n,C.sub(q,f.p))<-.005)),`${k}: moving front mechanism enters fixed closed armor at ${degrees}°`);}}
  }
@@ -183,14 +224,14 @@ test('capital machinery sits over a real closed roof, with raised vent geometry 
 
 test('all four angular houses retain their lower skirts while the front and both upper cheeks form real oblique armor planes',()=>{
  const file='assets/source/capital-turret-front-bevel-reference.json',raw=fs.readFileSync(path.join(root,file)),ref=JSON.parse(raw),refSha=crypto.createHash('sha256').update(raw).digest('hex');assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,ref.image.path))).digest('hex'),ref.image.sha256);assert.deepEqual(ref.scope,['stl','triple175','quad175','utl']);
- const parents=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/capital-pre-bevel-hulls.json'),'utf8')).models,podWidths={stl:12,triple175:17.25,quad175:22.5,utl:12};
+ const parents=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/capital-pre-bevel-hulls.json'),'utf8')).models,podWidths={stl:12,triple175:12,quad175:22.5,utl:12};
  const knee=ref.prototypeSideSectionM.lowerFrontKnee,roof=ref.prototypeSideSectionM.upperFrontRoof,k=(knee[0]-roof[0])/(roof[1]-knee[1]);near(knee[0],13.5,1e-12);near(knee[1],3,1e-12);near(roof[0],6.75,1e-12);near(roof[1],8.6,1e-12);
  for(const kind of ref.scope){const{a,m}=model(kind),S=a.size[0]/40,meta=a.frontArmorBevel;assert.ok(meta?.clipPlanes.length===3);assert.equal(meta.referenceFile,file);assert.equal(meta.referenceSha256,refSha);assert.equal(meta.imageSha256,ref.image.sha256);vector(meta.kneeM,knee.map(v=>v*S),.001);vector(meta.roofM,roof.map(v=>v*S),.001);near(meta.roofRetreatM,(knee[0]-roof[0])*S,.001);near(meta.lowerSkirtHeightM,knee[1]*S,.001);assert.ok(meta.meshRanges.length);for(const r of meta.meshRanges)assert.ok(r.firstIndex+r.indices<=a.elevationIndexStart);
   const front=Math.max(...a.caseFootprintVerticesM.map(p=>p[0])),nose=podWidths[kind]/2+1.4,half=15,station=4,side=(half-nose)/(knee[0]-station),up=side*k+.3/(roof[1]-knee[1]);near(a.caseMaximumWidthXM,station*S,.001);near(a.caseFrontWidthM,2*nose*S,.001);
   const expected=[{normal:[1,k,0],distanceM:(knee[0]+knee[1]*k)*S},{normal:[side,up,1],distanceM:(half+station*side+knee[1]*up)*S},{normal:[side,up,-1],distanceM:(half+station*side+knee[1]*up)*S}];
-  const ranges=[...new Map([...a.fixedCaseMeshRanges,...a.closedRoof.meshRanges].map(r=>[r.firstIndex+':'+r.indices,r])).values()],P=ranges.flatMap(r=>points(a,m,r)),T=Float32Array.from(ranges.flatMap(r=>Array.from(rangeTriangles(a,m,r))));
+  const ranges=caseRanges(a),P=ranges.flatMap(r=>points(a,m,r)),T=Float32Array.from(ranges.flatMap(r=>Array.from(rangeTriangles(a,m,r))));
   const footprint=[[-13.5,0,-9.8],[4,0,-15],[13.5,0,-nose],[13.5,0,nose],[4,0,15],[-13.5,0,9.8]].map(p=>p.map(v=>v*S));assert.equal(a.caseFootprintVerticesM.length,6);for(const p of footprint){assert.ok(a.caseFootprintVerticesM.some(q=>C.len(C.sub(p,q))<.001),'the original six lower footprint corners remain authored');assert.ok(P.some(q=>C.len(C.sub(p,q))<.015),'the retained lower skirt belongs to actual rendered geometry');}
-  const parent=parents[kind],parentScale=parent.uniformScale||1,parentPlanes=parent.scaledFrom?parents[parent.scaledFrom].planes:parent.planes,contained=[...P,...a.turretCompartment.convexes.filter(c=>!c.movesWithGun).flatMap(c=>c.verticesM)];for(const plane of parentPlanes)for(const p of contained)assert.ok(C.dot(plane.normal,p)<=plane.distanceM*parentScale+.015*parentScale,'post-bevel case, roof and fixed room cells remain inside the independently captured original hull');
+  const parent=parents[kind==='triple175'?'stl':kind],parentScale=parent.uniformScale||1,parentPlanes=parent.scaledFrom?parents[parent.scaledFrom].planes:parent.planes,contained=[...P,...a.turretCompartment.convexes.filter(c=>!c.movesWithGun).flatMap(c=>c.verticesM)];for(const plane of parentPlanes)for(const p of contained)assert.ok(C.dot(plane.normal,p)<=plane.distanceM*parentScale+.015*parentScale,'post-bevel case, roof and fixed room cells remain inside the independently captured original hull');
   const parentLimit=(axis,sign,other)=>Math.min(...parentPlanes.filter(p=>p.normal[axis]*sign>1e-6).map(p=>(p.distanceM*parentScale-p.normal.reduce((q,v,j)=>q+(j===axis?0:v*other[j]),0))/(p.normal[axis]*sign)));
   for(let j=0;j<expected.length;j++){const p=meta.clipPlanes[j],e=expected[j];vector(C.norm(p.normal),C.norm(e.normal),1e-7);near(p.distanceM/C.len(p.normal),e.distanceM/C.len(e.normal),.001);const n=C.norm(p.normal),D=p.distanceM/C.len(p.normal);for(const v of P)assert.ok(C.dot(n,v)<=D+.012,'actual case and roof stay behind every sloped armor plane');let area=0,on=[];
    for(let i=0;i<T.length;i+=9){const q=[0,1,2].map(b=>Array.from(T.subarray(i+b*3,i+b*3+3)));if(!q.every(v=>Math.abs(C.dot(n,v)-D)<.012))continue;const N=C.cross(C.sub(q[1],q[0]),C.sub(q[2],q[0]));if(C.dot(C.norm(N),n)<=.995)continue;area+=C.len(N)/2;on.push(...q);}

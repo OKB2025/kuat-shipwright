@@ -24,7 +24,7 @@ root.KS_EN={
  "175TT連装・三連装と同寸法の砲室に4門を収める。幅広い前部砲基部と絞った装甲側面をつなぐ。4門×175TT。": "Four 175 TT barrels in the same gunhouse envelope as the twin and triple. A broad front cradle joins the tapered armor cheeks.",
  "175TT 3連装重ターボレーザー": "175 TT Triple Heavy Turbolaser",
  "175TT 3連装": "175 TT Triple",
- "70TT三連装に基づく砲室を使い、175TT四連装と同寸法のまま、前部を狭めて3門を収める。3門×175TT。": "A gunhouse based on the 70 TT triple, sharing the 175 TT quad envelope with a narrower front cradle for three 175 TT barrels.",
+ "175TT連装と同じ砲室・砲基部を使い、外側2門の位置を保って中央に1門を追加した三連装。3門×175TT。": "The same gunhouse and cradle as the 175 TT twin, retaining the outer two barrels and adding one central barrel. Three 175 TT barrels.",
  "175TT 3連装ボールイオン砲": "175 TT Triple Ball Ion Cannon",
  "175TT イオン球3連装": "175 TT Triple Ion Ball",
  "共通寸法の球状砲室に175TT相当のイオン砲3門を収める。下側約3分の1を取付面へ埋め込み、球体全体が旋回・俯仰する。": "Three ion barrels rated at 175 TT equivalent each in the common ball gunhouse. Its lower third is embedded in the mounting surface; the whole sphere traverses and elevates.",

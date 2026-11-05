@@ -30,11 +30,11 @@ test('nine capital entries use physical native models and exact per-barrel gun o
   vector([d.fm,d.hm,d.wm],a.size);assert.equal(d.casemate,false);assert.equal(d.fixed,false);assert.equal(C.fitCanRotate(k),true);
  }
  assert.equal(C.FITS.ionL.asset,undefined,'the existing 120 GT light ion cannon is not rebound to the 175 TT heavy house');
- near(C.FITS.ionL.boltTT,.12);near(C.FITS.pd.boltTT,.02);assert.ok(C.FLEET_PROFILE_VERSION>=10);
+ near(C.FITS.ionL.boltTT,.12);near(C.FITS.pd.boltTT,.02);assert.ok(C.FLEET_PROFILE_VERSION>=11);
 });
 
 test('barrel counts share the corrected photographic size anchors and the ion twin owns the cast bowl',()=>{
- for(const k of ['ion','stl','triple175','quad175'])vector([C.FITS[k].fm,C.FITS[k].hm,C.FITS[k].wm],[60,16.5,45],.01);
+ for(const k of ['ion','stl','triple175','quad175'])vector([C.FITS[k].fm,C.FITS[k].hm,C.FITS[k].wm],[60,16.425,45],.01);
  vector([C.FITS.utl.fm,C.FITS.utl.hm,C.FITS.utl.wm],[90,24.75,67.5],.01);
  const model=k=>C.REFERENCE_ASSETS[C.FITS[k].asset];assert.equal(model('ion').caseStyle,'flattened-is-cast-bowl');
  for(const k of ['stl','triple175','quad175','utl'])assert.equal(model(k).caseStyle,'forward-wide-naval-hexagon');
@@ -106,6 +106,24 @@ test('saved profile9 surface guns recompile their old physical footprint once un
  const loaded=C.deserialize(plain(old.state)),derived=C.surfaceDerivedFits(loaded);assert.equal(derived.length,1);assert.equal(derived[0].id,row[0]);assert.equal(derived[0].k,'stl');vector(derived[0].surfaceFootprint,[60,45],1e-8);
  assert.notEqual(C.surfaceConfig(loaded,old.patchId).aggregate.signature,record.aggregate.signature);
  const once=plain(C.serialize(loaded)),again=C.deserialize(plain(once));C.surfaceSync(again);assert.deepEqual(plain(C.serialize(again)),once,'current compiled inventory must stay stable on the next load');
+});
+
+test('real profile10 saved designs rebuild the compact triple room, surface cache and embarked profile once',()=>{
+ const old=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/capital-profile-v10.json'),'utf8')),before=plain(old);
+ assert.equal(old.sourceCommit,'0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb');assert.equal(old.profileVersion,10);
+ const oldFit=old.state.fits.find(f=>f.id===old.nativeFitId),loaded=C.deserialize(plain(old.state)),current=loaded.fits.find(f=>f.id===old.nativeFitId);
+ assert.equal(current.k,'triple175');vector(current.p,oldFit.p);assert.equal(current.assetYaw,oldFit.assetYaw);assert.equal(current.chargeSalvos,2);
+ const previousPatch=old.state.surfaces.patches.find(p=>p.id===old.patchId),surface=C.surfaceDerivedFits(loaded);
+ assert.equal(surface.length,1);assert.equal(surface[0].id,previousPatch.aggregate.guns[0][0]);assert.equal(surface[0].k,'stl');vector(surface[0].surfaceFootprint,[60,45],1e-8);
+ assert.notEqual(C.surfaceConfig(loaded,old.patchId).aggregate.signature,previousPatch.aggregate.signature);
+ C.syncCompartments(loaded);const charge=C.chargingStatus(loaded)[current.id],room=C.REFERENCE_ASSETS.capital_triple175.turretCompartment.volumeM3;
+ near(charge.housingVolume,room,.01);assert.ok(Math.abs(charge.housingVolume-old.charge.housingVolume)>1,'the old wider triple room is not reused');
+ near(charge.required,21000);near(charge.storedTT,1050);near(charge.volume,21000);near(charge.internalRequired,21000-room,.01);assert.equal(charge.allocationPending,false);
+ const snapshot=C.cleanDesignCraft({...plain(old.craftSnapshot),blueprint:plain(old.state)});assert.ok(snapshot);
+ assert.equal(snapshot.craft.powerProfile.profileVersion,C.FLEET_PROFILE_VERSION);near(snapshot.craft.powerProfile.height,116.425,.01);
+ assert.equal(snapshot.craft.gun,old.craftSnapshot.craft.gun);assert.equal(snapshot.craft.fireArcs.length,2);assert.ok(snapshot.craft.fireArcs.some(f=>f.k==='triple175'));
+ const once=plain(C.serialize(loaded)),again=C.deserialize(plain(once));C.surfaceSync(again);assert.deepEqual(plain(C.serialize(again)),once);
+ assert.deepEqual(plain(C.cleanDesignCraft(snapshot)),plain(snapshot),'current embarked snapshots stay stable');assert.deepEqual(old,before,'the genuine old fixture stays unchanged');
 });
 
 const BALLS=['quad40Ion','single500','ball175TripleIon','ball175Quad','ball175QuadIon','ball720'];

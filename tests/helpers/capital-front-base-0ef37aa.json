@@ -1,0 +1,645 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+  "referenceSha256": "969cff47275df460f43b79660b1f489c525d392914658628fb16e7c92271d7d2",
+  "units": "native metres decoded from approved0ef37aa",
+  "note": "Approved decoded geometry before175TT angular front-cradle reduction. Only four angular175TT models shrink. Triple175 adopts the exact twin base; its width reduction can exceed20%. Angular720 and all four balls remain physically exact.",
+  "models": {
+    "ion": {
+      "asset": "capital_twin175_ion",
+      "sizeM": [
+        60,
+        16.5,
+        45
+      ],
+      "elevationPivotM": [
+        18.15,
+        9.3,
+        0
+      ],
+      "groups": {
+        "movingFront": {
+          "triangles": 758,
+          "geometrySha256": "979b656e444b4db5bb58149448e610218a1ee0291a6059e8c96fa2d7e2bddc45",
+          "boundsM": [
+            10.6500183083117,
+            4.200032137334347,
+            -10.25979682803154,
+            27.299899220466614,
+            16.5,
+            10.25979682803154
+          ],
+          "sizeM": [
+            16.649880912154913,
+            12.299967862665653,
+            20.51959365606308
+          ]
+        },
+        "fixedConnections": {
+          "triangles": 120,
+          "geometrySha256": "49124042fae1210a97b029c14b51f52956500ecca8269062bd7f8172c177757e",
+          "boundsM": [
+            17.30997061729431,
+            8.459989012219012,
+            -11.024766191840172,
+            18.9900661110878,
+            10.139901079237461,
+            11.024766191840172
+          ],
+          "sizeM": [
+            1.6800954937934875,
+            1.6799120670184493,
+            22.049532383680344
+          ]
+        },
+        "completeFront": {
+          "triangles": 878,
+          "geometrySha256": "a93cf9e3fa54867e957b6a87f2bf66621314f46eecf5749b668837e5647e55e3",
+          "boundsM": [
+            10.6500183083117,
+            4.200032137334347,
+            -11.024766191840172,
+            27.299899220466614,
+            16.5,
+            11.024766191840172
+          ],
+          "sizeM": [
+            16.649880912154913,
+            12.299967862665653,
+            22.049532383680344
+          ]
+        },
+        "podShell": {
+          "triangles": 226,
+          "geometrySha256": "f956c4923601cbc89d261b99ecc85d235d4c4ba7eb7c1a216d0fb9395a3f8f30",
+          "boundsM": [
+            10.6500183083117,
+            4.200032137334347,
+            -8.999725207686424,
+            25.65001881122589,
+            14.474890306591988,
+            8.999725207686424
+          ],
+          "sizeM": [
+            15.00000050291419,
+            10.27485816925764,
+            17.99945041537285
+          ]
+        }
+      },
+      "oldSocket": {
+        "rearXM": 7.5,
+        "halfWidthM": 10.274999999999999
+      }
+    },
+    "stl": {
+      "asset": "capital_twin175",
+      "sizeM": [
+        60,
+        16.5,
+        45
+      ],
+      "elevationPivotM": [
+        16.5,
+        9.3,
+        0
+      ],
+      "groups": {
+        "movingFront": {
+          "triangles": 572,
+          "geometrySha256": "e937d5681449cc50235edeb65337ea6fca3d9f9ab2ab96b30481d2d12936e382",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -10.25979682803154,
+            25.65001881122589,
+            16.5,
+            10.25979682803154
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            20.51959365606308
+          ]
+        },
+        "fixedConnections": {
+          "triangles": 144,
+          "geometrySha256": "d3bfd1e38055bc6c27582ef18d44d8ecbbf6ed4d8a284eb1bfc96f41665ec824",
+          "boundsM": [
+            14.024858236312866,
+            6.824894651770592,
+            -11.25,
+            18.975416779518127,
+            11.774995408952236,
+            11.25
+          ],
+          "sizeM": [
+            4.950558543205261,
+            4.950100757181644,
+            22.5
+          ]
+        },
+        "completeFront": {
+          "triangles": 716,
+          "geometrySha256": "ff1b5da19c7dd3c0381cdd6164c1c8e3cbc22f03e9b6a056a1a1cb33e52aef10",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -11.25,
+            25.65001881122589,
+            16.5,
+            11.25
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            22.5
+          ]
+        },
+        "podShell": {
+          "triangles": 88,
+          "geometrySha256": "89e1259adc4a60a7ba0dcce0664f1cc04c48f39598991e9d631504589f03c7c0",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -8.999725207686424,
+            24.000137507915497,
+            14.474890306591988,
+            8.999725207686424
+          ],
+          "sizeM": [
+            15.000000167638063,
+            10.27485816925764,
+            17.99945041537285
+          ]
+        }
+      },
+      "oldSocket": {
+        "rearXM": 7.5,
+        "halfWidthM": 10.274999999999999
+      }
+    },
+    "triple175": {
+      "asset": "capital_triple175",
+      "sizeM": [
+        60,
+        16.5,
+        45
+      ],
+      "elevationPivotM": [
+        16.5,
+        9.3,
+        0
+      ],
+      "groups": {
+        "movingFront": {
+          "triangles": 596,
+          "geometrySha256": "85da1a4f83768a173d3021c82da2de331731bc537b0e4349bb773316b889fbaa",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -14.197262227535248,
+            25.65001881122589,
+            16.5,
+            14.197262227535248
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            28.394524455070496
+          ]
+        },
+        "fixedConnections": {
+          "triangles": 144,
+          "geometrySha256": "871a0a7efe25efa064f687967a7b7d315f5c78bef4a8dda9d422d735569da2e2",
+          "boundsM": [
+            14.024858236312866,
+            6.824894651770592,
+            -15.187465399503708,
+            18.975416779518127,
+            11.774995408952236,
+            15.187465399503708
+          ],
+          "sizeM": [
+            4.950558543205261,
+            4.950100757181644,
+            30.374930799007416
+          ]
+        },
+        "completeFront": {
+          "triangles": 740,
+          "geometrySha256": "2c3a7d7f993f3c5a0389fad22e65a3e191187d922ccd0a0f4def1c678fe6383f",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -15.187465399503708,
+            25.65001881122589,
+            16.5,
+            15.187465399503708
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            30.374930799007416
+          ]
+        },
+        "podShell": {
+          "triangles": 88,
+          "geometrySha256": "04d2173afa6ddc93162be3174b9b127cb9190e1f09d6c8b433d82dbb134a4c6c",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -12.937191277742386,
+            24.000137507915497,
+            14.474890306591988,
+            12.937191277742386
+          ],
+          "sizeM": [
+            15.000000167638063,
+            10.27485816925764,
+            25.87438255548477
+          ]
+        }
+      },
+      "oldSocket": {
+        "rearXM": 7.5,
+        "halfWidthM": 14.212499999999999
+      }
+    },
+    "quad175": {
+      "asset": "capital_quad175",
+      "sizeM": [
+        60,
+        16.5,
+        45
+      ],
+      "elevationPivotM": [
+        16.5,
+        9.3,
+        0
+      ],
+      "groups": {
+        "movingFront": {
+          "triangles": 620,
+          "geometrySha256": "aa1058121a6db6c26bfa563d007835d9df26ce169e10b2cef1fa0c6917044a50",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -18.134727627038956,
+            25.65001881122589,
+            16.5,
+            18.134727627038956
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            36.26945525407791
+          ]
+        },
+        "fixedConnections": {
+          "triangles": 144,
+          "geometrySha256": "b62f75db0cb78e10a657e7dc832120f34327f2e3ee38bd0f7e72099d0e263961",
+          "boundsM": [
+            14.024858236312866,
+            6.824894651770592,
+            -19.124930799007416,
+            18.975416779518127,
+            11.774995408952236,
+            19.124930799007416
+          ],
+          "sizeM": [
+            4.950558543205261,
+            4.950100757181644,
+            38.24986159801483
+          ]
+        },
+        "completeFront": {
+          "triangles": 764,
+          "geometrySha256": "3336163a4796045bc741e41bc245503aa7392aaa3a59b087f7c759410746dc4f",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -19.124930799007416,
+            25.65001881122589,
+            16.5,
+            19.124930799007416
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            38.24986159801483
+          ]
+        },
+        "podShell": {
+          "triangles": 88,
+          "geometrySha256": "8e38ba6bedd8fe36098036f7e6057eafcec00a1f0614ed564988fdf4e7078481",
+          "boundsM": [
+            9.000137340277433,
+            4.200032137334347,
+            -16.874656677246094,
+            24.000137507915497,
+            14.474890306591988,
+            16.874656677246094
+          ],
+          "sizeM": [
+            15.000000167638063,
+            10.27485816925764,
+            33.74931335449219
+          ]
+        }
+      },
+      "oldSocket": {
+        "rearXM": 7.5,
+        "halfWidthM": 18.15
+      }
+    },
+    "ball175TripleIon": {
+      "asset": "capital_ball175_triple_ion",
+      "sizeM": [
+        44.5,
+        36,
+        36
+      ],
+      "elevationPivotM": [
+        0,
+        6,
+        0
+      ],
+      "packedGeometrySha256": "c14e399be26a9080c2a8b3a8e6aa5d8f8f826394897679cb77b9ca4cdd5d624a",
+      "physicalMetadataSha256": "409aff646fb60af23cf0358ca6c19c90cf912d8f53977d9f053f715e7b9eb670",
+      "physicalMetadataKeys": [
+        "n",
+        "faces",
+        "indexBytes",
+        "c",
+        "size",
+        "bounds",
+        "mount",
+        "forward",
+        "up",
+        "barrels",
+        "barrelCenters",
+        "elevationPivot",
+        "elevationAxis",
+        "barrelAxis",
+        "muzzlePoints",
+        "elevationIndexStart",
+        "elevationVertexStart",
+        "jointLimits",
+        "components",
+        "turretCompartment",
+        "sphereRadiusM",
+        "sphereCenterM",
+        "sphereMeshRange",
+        "grossSphereVolumeM3",
+        "reservedMachineryAabbM"
+      ]
+    },
+    "ball175Quad": {
+      "asset": "capital_ball175_quad",
+      "sizeM": [
+        44.5,
+        36,
+        36
+      ],
+      "elevationPivotM": [
+        0,
+        6,
+        0
+      ],
+      "packedGeometrySha256": "ad070bb051ff34db75f65c05db4d73129eae05b4477a600f1292f45b426d2a9e",
+      "physicalMetadataSha256": "7dac39a352b19992e977310def84d369847adab469827e4d1b605c3357540852",
+      "physicalMetadataKeys": [
+        "n",
+        "faces",
+        "indexBytes",
+        "c",
+        "size",
+        "bounds",
+        "mount",
+        "forward",
+        "up",
+        "barrels",
+        "barrelCenters",
+        "elevationPivot",
+        "elevationAxis",
+        "barrelAxis",
+        "muzzlePoints",
+        "elevationIndexStart",
+        "elevationVertexStart",
+        "jointLimits",
+        "components",
+        "turretCompartment",
+        "sphereRadiusM",
+        "sphereCenterM",
+        "sphereMeshRange",
+        "grossSphereVolumeM3",
+        "reservedMachineryAabbM"
+      ]
+    },
+    "ball175QuadIon": {
+      "asset": "capital_ball175_quad_ion",
+      "sizeM": [
+        44.5,
+        36,
+        36
+      ],
+      "elevationPivotM": [
+        0,
+        6,
+        0
+      ],
+      "packedGeometrySha256": "932a371d60b1208491650794bf92cf3cd68795d7faad82f8f7799d8ea6f23e20",
+      "physicalMetadataSha256": "fb6349aed207940d9e8a923a335101df47f9ca6f177b6a55fcb392e71a224725",
+      "physicalMetadataKeys": [
+        "n",
+        "faces",
+        "indexBytes",
+        "c",
+        "size",
+        "bounds",
+        "mount",
+        "forward",
+        "up",
+        "barrels",
+        "barrelCenters",
+        "elevationPivot",
+        "elevationAxis",
+        "barrelAxis",
+        "muzzlePoints",
+        "elevationIndexStart",
+        "elevationVertexStart",
+        "jointLimits",
+        "components",
+        "turretCompartment",
+        "sphereRadiusM",
+        "sphereCenterM",
+        "sphereMeshRange",
+        "grossSphereVolumeM3",
+        "reservedMachineryAabbM"
+      ]
+    },
+    "utl": {
+      "asset": "capital_twin720",
+      "sizeM": [
+        90,
+        24.75,
+        67.5
+      ],
+      "elevationPivotM": [
+        24.75,
+        13.950000000000001,
+        0
+      ],
+      "groups": {
+        "movingFront": {
+          "triangles": 572,
+          "geometrySha256": "aa218de56eb15eaee06dff01ce72fb08553d2d3d02bec7aaed42cbb712346704",
+          "boundsM": [
+            13.50020601041615,
+            6.30004820600152,
+            -15.38969524204731,
+            38.47502821683884,
+            24.75,
+            15.38969524204731
+          ],
+          "sizeM": [
+            24.974822206422687,
+            18.44995179399848,
+            30.77939048409462
+          ]
+        },
+        "fixedConnections": {
+          "triangles": 144,
+          "geometrySha256": "8f83683d5ab9ccfacecad2e1c36402b80acc15ad11cfa57ab09f9a36efaf6514",
+          "boundsM": [
+            21.0372873544693,
+            10.237341977655888,
+            -16.875,
+            28.46312516927719,
+            17.662493113428354,
+            16.875
+          ],
+          "sizeM": [
+            7.425837814807892,
+            7.425151135772467,
+            33.75
+          ]
+        },
+        "completeFront": {
+          "triangles": 716,
+          "geometrySha256": "ec38624c1f58f73d0721f966a27c99d3c5633b41e0084a28111845b6534905ca",
+          "boundsM": [
+            13.50020601041615,
+            6.30004820600152,
+            -16.875,
+            38.47502821683884,
+            24.75,
+            16.875
+          ],
+          "sizeM": [
+            24.974822206422687,
+            18.44995179399848,
+            33.75
+          ]
+        },
+        "podShell": {
+          "triangles": 88,
+          "geometrySha256": "eef65249b10e455582dc3d38e0c53ce3fef1d81867188f2c2ba519615b580762",
+          "boundsM": [
+            13.50020601041615,
+            6.30004820600152,
+            -13.499587811529636,
+            36.000206261873245,
+            21.71233545988798,
+            13.499587811529636
+          ],
+          "sizeM": [
+            22.500000251457095,
+            15.412287253886461,
+            26.999175623059273
+          ]
+        }
+      },
+      "packedGeometrySha256": "e27ae2319f1ecf753c3db9b662e42256d1484763ae4f73c2cbbc20eec355a98b",
+      "physicalMetadataSha256": "af8f6f1a8f38caf7c492d703e63a22557b45d69b4891d507a16452ae99f63d70",
+      "physicalMetadataKeys": [
+        "n",
+        "faces",
+        "indexBytes",
+        "c",
+        "size",
+        "bounds",
+        "mount",
+        "forward",
+        "up",
+        "barrels",
+        "barrelCenters",
+        "elevationPivot",
+        "elevationAxis",
+        "barrelAxis",
+        "muzzlePoints",
+        "elevationIndexStart",
+        "elevationVertexStart",
+        "jointLimits",
+        "components",
+        "turretCompartment"
+      ]
+    },
+    "ball720": {
+      "asset": "capital_ball720_single",
+      "sizeM": [
+        44.5,
+        36,
+        36
+      ],
+      "elevationPivotM": [
+        0,
+        6,
+        0
+      ],
+      "packedGeometrySha256": "befa89bc189e7f8cfd4bb04ddcb163c2eb13f16c90f606a8dc9174222ba78610",
+      "physicalMetadataSha256": "ec293d9aa72f2510632e55ed0b56c8c6face4de25e469a247dfade7d8d280d37",
+      "physicalMetadataKeys": [
+        "n",
+        "faces",
+        "indexBytes",
+        "c",
+        "size",
+        "bounds",
+        "mount",
+        "forward",
+        "up",
+        "barrels",
+        "barrelCenters",
+        "elevationPivot",
+        "elevationAxis",
+        "barrelAxis",
+        "muzzlePoints",
+        "elevationIndexStart",
+        "elevationVertexStart",
+        "jointLimits",
+        "components",
+        "turretCompartment",
+        "sphereRadiusM",
+        "sphereCenterM",
+        "sphereMeshRange",
+        "grossSphereVolumeM3",
+        "reservedMachineryAabbM"
+      ]
+    }
+  },
+  "affectedKinds": [
+    "ion",
+    "stl",
+    "triple175",
+    "quad175"
+  ],
+  "unchangedKinds": [
+    "utl",
+    "ball175TripleIon",
+    "ball175Quad",
+    "ball175QuadIon",
+    "ball720"
+  ]
+}

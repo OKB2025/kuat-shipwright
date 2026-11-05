@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-05T07:53:46.609Z",
+  "date": "2026-11-05T09:17:32.194Z",
   "sourceSha256": {
-    "data/reference.js": "969cff47275df460f43b79660b1f489c525d392914658628fb16e7c92271d7d2",
+    "data/reference.js": "4af956724bbf84ef200e324bbe1cf2b2394d28d8c0aea3776ac20a356eb0554f",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
     "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
-    "js/core.js": "bd03c4884ff35b62d21c76a98709e3de754ace20404cccac00420d03a0494797",
+    "js/core.js": "bdd359aa49507c6333c93944eea7b66cab5f2292ac59fdd144d85626dd2178ba",
     "js/app.js": "578af51ea4ce3390b5f4b826c19e72e17492bee35e7fe17458d44ad0adb71e70",
     "js/gfx.js": "b117bd99575d7563980fad7089a536ee950699e9847dea72ed6ee287e2e7b945",
-    "js/lang-en.js": "b2bfa1ab4c5789e6b8628254a82470ba528dedcb61da221a9a94569c3fd12cb3",
+    "js/lang-en.js": "c036aafb0f809da54398f77569a15aed8cb83cba94fe546fda4c0ec3d5cf637a",
     "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
-    "index.html": "1fa88418ea5a977207cfea4e7b183737abbfb81b069e0e31245864bb607c394a"
+    "index.html": "21aa02012f499ef6413954f90fccc3dbf54675ae1f36b086b7fd1081041c6495"
   },
   "sourceGuard": {
     "unchanged": true,
@@ -19,11 +19,11 @@
   },
   "calibration": {
     "path": "assets/source/capital-turret-photo-measurements.json",
-    "sha256": "640d26af84bebb459745e4bbca1977bc2575f90d82c08913da6212fc6272a068",
+    "sha256": "c4dc3a337d2c84ef4c5923d12a7939a2c0fb67adfd5592b2d492f416eb88963d",
     "dimensions": {
       "angular175SizeM": [
         60,
-        16.5,
+        16.425,
         45
       ],
       "angular175HouseLengthM": 40.5,
@@ -37,7 +37,6 @@
       ],
       "ballMuzzleXM": 26.5,
       "ballEmbeddedHeightFraction": 0.3333333333333333,
-      "twin720UniformScale": 1.5,
       "twin720SizeM": [
         90,
         24.75,
@@ -45,7 +44,19 @@
       ],
       "angular175PrototypeScale": 1.5,
       "ball175RootXM": 0.25,
-      "ball720RootXM": -12.875
+      "ball720RootXM": -12.875,
+      "angular175OriginalEnvelopeM": [
+        60,
+        16.5,
+        45
+      ],
+      "twin720ScaleFromOriginal175Envelope": 1.5,
+      "twin720Original175EnvelopeM": [
+        60,
+        16.5,
+        45
+      ],
+      "twin720PreservedFromCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb"
     },
     "ionDesign": {
       "references": [
@@ -53,7 +64,7 @@
         "photo6",
         "photo9"
       ],
-      "case175Twin": "Longitudinal flattened oval cast bowl with curved forward shoulders; narrow front mantlet advances relative to the angular TL twin. Same whole60×16.5×45m envelope.",
+      "case175Twin": "Longitudinal flattened oval cast bowl with curved forward shoulders; narrow front mantlet advances relative to the angular TL twin. Current whole60×16.425×45m envelope; the original16.5m height is retained only as the720 scaling reference.",
       "podForwardOffset175M": 1.65,
       "completePodMaximumWidthM": 22.5,
       "barrelStyle": "tapered-ion-tube",
@@ -82,6 +93,42 @@
       "machineryMountedAboveRoof": true,
       "centralOpenCavity": false,
       "status": "Explicit user correction. Earlier open-well interpretation is rejected. Internal recoil/equipment clearance remains reserved and is not free charging volume."
+    },
+    "frontBaseRevision": {
+      "baselineCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+      "source": "User requested the angular twin-based triple with one center barrel and smaller175TT gun bases; later explicitly excluded spherical175TT bases.",
+      "mechanismScale175": 0.8,
+      "bodyAndTubeScale": 1,
+      "angularTripleBaseKind": "stl",
+      "tripleRetainsOuterPair": true,
+      "tripleAddsCenterTubeZ": 0,
+      "affectedKinds": [
+        "ion",
+        "stl",
+        "triple175",
+        "quad175"
+      ],
+      "ballSphereAndMuzzlePlaneUnchanged": true,
+      "roomPolicy": "Reserve conservative angular mechanism space and keep it excluded from charging cells. Do not credit new interface supports.720 and all ball geometry, mechanisms and rooms are preserved.",
+      "status": "A20percent authoring adjustment, not a new image-derived metre calibration. Actual geometry, contact, bounds and unchanged720 models are checked by generators and independent tests.",
+      "unchangedKinds": [
+        "utl",
+        "ball175TripleIon",
+        "ball175Quad",
+        "ball175QuadIon",
+        "ball720"
+      ],
+      "ballHardwarePreservedFromCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+      "sideCaseFill": {
+        "source": "User requested structural filling on both sides of the reduced gun base.",
+        "fixedToCase": true,
+        "spanOriginalSocketSides": true,
+        "clipToOriginalBeveledOrOvalCase": true,
+        "maintainMovingEnvelopeClearance": true,
+        "addsCapacitorRoom": false,
+        "sharedByTwinAndTriple": true,
+        "excludesBallTurrets": true
+      }
     }
   },
   "frontBevel": {
@@ -101,12 +148,494 @@
     }
   },
   "url": "http://127.0.0.1:8876",
-  "totalElapsedMs": 84630,
+  "totalElapsedMs": 90687,
   "models": [
     {
+      "bearingContacts": [
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        }
+      ],
+      "nativeGeometryContract": {
+        "size": [
+          60,
+          16.424999999999997,
+          45
+        ],
+        "c": [
+          9.75,
+          8.212499999999999,
+          0
+        ],
+        "mount": [
+          6,
+          0,
+          0
+        ],
+        "n": 7384,
+        "faces": 3552,
+        "indexBytes": 2,
+        "elevationPivot": [
+          18.15,
+          9.3,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            39.75,
+            9.899999999999999,
+            -3.8
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            3.8
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 5984,
+        "elevationIndexStart": 7248,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          12.14974357187748,
+          5.220098253339528,
+          -8.207974657416344
+        ],
+        "highM": [
+          25.46964919567108,
+          15.0600097104907,
+          8.207974657416344
+        ],
+        "sizeM": [
+          13.319905623793602,
+          9.839911457151171,
+          16.415949314832687
+        ],
+        "triangles": 576
+      },
+      "sideCaseFill": {
+        "componentLabels": [
+          "capital continuous side-gap armor -1",
+          "capital continuous side-gap armor 1"
+        ],
+        "meshRanges": [
+          {
+            "firstVertex": 4176,
+            "vertices": 106,
+            "firstIndex": 4176,
+            "indices": 192
+          },
+          {
+            "firstVertex": 4282,
+            "vertices": 106,
+            "firstIndex": 4368,
+            "indices": 192
+          }
+        ],
+        "boundsM": [
+          [
+            [
+              7.5,
+              0.18,
+              -10.305
+            ],
+            [
+              30.354538250630007,
+              12.659492773903779,
+              -8.219999999999999
+            ]
+          ],
+          [
+            [
+              7.5,
+              0.18,
+              8.22
+            ],
+            [
+              30.35453825063,
+              12.659492773903775,
+              10.305
+            ]
+          ]
+        ],
+        "innerAbsZM": 8.22,
+        "originalCaseInnerAbsZM": 10.274999999999999,
+        "caseOverlapM": 0.03,
+        "minimumMovingClearanceM": 0.012000000000000455,
+        "socketRearXM": 7.5,
+        "socketFloorYM": 0.18,
+        "raySamples": [
+          {
+            "originM": [
+              14.399999999999999,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              14.399999999999999,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              14.399999999999999,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              14.399999999999999,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              14.399999999999999,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              14.399999999999999,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              13.899999999999999,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              13.899999999999999,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              13.899999999999999,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              13.899999999999999,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              13.899999999999999,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              13.899999999999999,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              13.399999999999999,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              13.399999999999999,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              13.399999999999999,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              13.399999999999999,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              13.399999999999999,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              13.399999999999999,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              14.399999999999999,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              14.399999999999999,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              14.399999999999999,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              14.399999999999999,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              14.399999999999999,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              14.399999999999999,
+              9.700000000000001,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              13.899999999999999,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              13.899999999999999,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              13.899999999999999,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              13.899999999999999,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              13.899999999999999,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              13.899999999999999,
+              9.700000000000001,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              13.399999999999999,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              13.399999999999999,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              13.399999999999999,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              13.399999999999999,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              13.399999999999999,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              13.399999999999999,
+              9.700000000000001,
+              8.22
+            ]
+          }
+        ],
+        "addsCapacitorRoom": false,
+        "preservesOriginalChargingCells": true
+      },
       "frontArmorGeometry": null,
       "roofGeometry": {
-        "caseAndArmoredRoofTriangles": 1704,
+        "caseAndArmoredRoofTriangles": 1960,
         "roofDatumYM": 13.649999999999999,
         "probes": [
           {
@@ -114,48 +643,48 @@
             "z": 0,
             "expectedYM": 12.067693921798242,
             "hit": true,
-            "y": 12.067575307579082
+            "y": 12.067636358621973
           },
           {
             "x": -4.5,
             "z": 0,
             "expectedYM": 12.484612607839857,
             "hit": true,
-            "y": 12.484485711717705
+            "y": 12.484556940246936
           },
           {
             "x": -6,
             "z": 2.7,
             "expectedYM": 11.940487072744386,
             "hit": true,
-            "y": 11.940387066100683
+            "y": 11.940445012264018
           },
           {
             "x": -6,
             "z": -2.7,
             "expectedYM": 11.940487072744386,
             "hit": true,
-            "y": 11.940481915214098
+            "y": 11.94053986369286
           }
         ],
-        "minimumSurfaceYM": 11.940387066100683
+        "minimumSurfaceYM": 11.940445012264018
       },
       "podGeometry": {
-        "widthM": 17.99945041537285,
-        "fullAssemblyWidthM": 20.51959365606308,
+        "widthM": 14.399834722280502,
+        "fullAssemblyWidthM": 16.415949314832687,
         "caseWidthM": 45,
         "frontCaseWidthM": 44.74729835987091,
-        "declaredWidthM": 18,
+        "declaredWidthM": 14.400000000000002,
         "caseStyle": "flattened-is-cast-bowl"
       },
       "kind": "ion",
       "id": 2,
       "asset": "capital_twin175_ion",
-      "triangles": 3606,
-      "vertices": 7646,
+      "triangles": 3552,
+      "vertices": 7384,
       "size": [
         60,
-        16.5,
+        16.424999999999997,
         45
       ],
       "modelScale": 1,
@@ -172,11 +701,11 @@
       "ped": 0,
       "base": 0,
       "low": 0,
-      "drawnIndices": 10818,
+      "drawnIndices": 10656,
       "drawOutsideBounds": 0,
       "decoded": {
         "finite": true,
-        "indexCount": 10818,
+        "indexCount": 10656,
         "indexRangeValid": true,
         "uvRange": [
           0,
@@ -200,14 +729,14 @@
           3.8000000000000003
         ]
       ],
-      "elevationIndexStart": 6864,
+      "elevationIndexStart": 7248,
       "gunhouseElevates": false,
-      "roomVolumeM3": 11568.999223951,
+      "roomVolumeM3": 10757.16133674749,
       "charge": {
         "required": 7000,
         "plannedVolume": 7000,
-        "housingVolume": 11568.999714249398,
-        "externalVolume": 11568.999714249398,
+        "housingVolume": 10757.161761665759,
+        "externalVolume": 10757.161761665759,
         "embeddedVolume": 0,
         "externalUsed": 7000,
         "embeddedUsed": 0,
@@ -1653,6 +2182,22 @@
           "indices": 3
         },
         {
+          "label": "capital continuous side-gap armor -1",
+          "indices": 192
+        },
+        {
+          "label": "cast-bowl analytic curved skin 4176 0",
+          "indices": 102
+        },
+        {
+          "label": "capital continuous side-gap armor 1",
+          "indices": 192
+        },
+        {
+          "label": "cast-bowl analytic curved skin 4282 0",
+          "indices": 102
+        },
+        {
           "label": "intrinsic capital yaw bearing race",
           "indices": 156
         },
@@ -1822,27 +2367,27 @@
         },
         {
           "label": "capital moving pod closed equipment cell 0",
-          "indices": 96
+          "indices": 48
         },
         {
           "label": "capital moving pod closed equipment cell 1",
-          "indices": 114
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 2",
-          "indices": 66
+          "indices": 48
         },
         {
           "label": "capital moving pod closed equipment cell 3",
-          "indices": 252
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 4",
-          "indices": 150
+          "indices": 60
         },
         {
           "label": "capital common elevating 2-gun pod",
-          "indices": 678
+          "indices": 276
         },
         {
           "label": "capital stepped upper mantlet ledge",
@@ -1862,11 +2407,11 @@
         },
         {
           "label": "capital moving circular pod bearing -1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover -1",
-          "indices": 180
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss -1",
@@ -1878,11 +2423,11 @@
         },
         {
           "label": "capital moving circular pod bearing 1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover 1",
-          "indices": 180
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss 1",
@@ -1931,8 +2476,8 @@
       ],
       "barrelsPhysical": [
         {
-          "rootBandMaxRadiusM": 1.8152974891083333,
-          "tipBandMaxRadiusM": 1.1345779135306282,
+          "rootBandMaxRadiusM": 1.8153159641901384,
+          "tipBandMaxRadiusM": 1.1346438227010505,
           "root": [
             13.5,
             9.899999999999999,
@@ -1956,8 +2501,8 @@
           "muzzleRayErrorM": 0.000457763671875
         },
         {
-          "rootBandMaxRadiusM": 1.8152974891083333,
-          "tipBandMaxRadiusM": 1.1345779135306282,
+          "rootBandMaxRadiusM": 1.8153159641901384,
+          "tipBandMaxRadiusM": 1.1346438227010505,
           "root": [
             13.5,
             9.899999999999999,
@@ -1983,7 +2528,490 @@
       ]
     },
     {
+      "bearingContacts": [
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        }
+      ],
+      "nativeGeometryContract": {
+        "size": [
+          60,
+          16.424999999999997,
+          45
+        ],
+        "c": [
+          9.75,
+          8.212499999999999,
+          0
+        ],
+        "mount": [
+          6,
+          0,
+          0
+        ],
+        "n": 5596,
+        "faces": 3696,
+        "indexBytes": 2,
+        "elevationPivot": [
+          16.5,
+          9.3,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            39.75,
+            9.899999999999999,
+            -3.8
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            3.8
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 3936,
+        "elevationIndexStart": 5868,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          10.499862659722567,
+          5.220098253339528,
+          -8.207974657416344
+        ],
+        "highM": [
+          23.819766998291016,
+          15.0600097104907,
+          8.207974657416344
+        ],
+        "sizeM": [
+          13.319904338568449,
+          9.839911457151171,
+          16.415949314832687
+        ],
+        "triangles": 540
+      },
+      "sideCaseFill": {
+        "componentLabels": [
+          "capital continuous side-gap armor -1",
+          "capital continuous side-gap armor 1"
+        ],
+        "meshRanges": [
+          {
+            "firstVertex": 612,
+            "vertices": 30,
+            "firstIndex": 612,
+            "indices": 48
+          },
+          {
+            "firstVertex": 642,
+            "vertices": 30,
+            "firstIndex": 660,
+            "indices": 48
+          }
+        ],
+        "boundsM": [
+          [
+            [
+              7.5,
+              0.18,
+              -10.305
+            ],
+            [
+              20.24372093023256,
+              12.899999999999999,
+              -8.22
+            ]
+          ],
+          [
+            [
+              7.5,
+              0.18,
+              8.22
+            ],
+            [
+              20.24372093023256,
+              12.899999999999999,
+              10.305
+            ]
+          ]
+        ],
+        "innerAbsZM": 8.22,
+        "originalCaseInnerAbsZM": 10.274999999999999,
+        "caseOverlapM": 0.03,
+        "minimumMovingClearanceM": 0.012000000000000455,
+        "socketRearXM": 7.5,
+        "socketFloorYM": 0.18,
+        "raySamples": [
+          {
+            "originM": [
+              12.75,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.700000000000001,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.700000000000001,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.700000000000001,
+              8.22
+            ]
+          }
+        ],
+        "addsCapacitorRoom": false,
+        "preservesOriginalChargingCells": true
+      },
       "frontArmorGeometry": {
+        "nonroomInterfaceLabelsExcludedFromArmorPlanes": [],
         "referenceFile": "assets/source/capital-turret-front-bevel-reference.json",
         "referenceSha256": "7959f56eda9e552cc96e371a0d764aa0cca60c528825a4148258dbf9602ff015",
         "imageFile": "assets/source/capital-turret-reference-10.jpg",
@@ -2023,329 +3051,329 @@
             "distanceM": 31.88035714285714
           }
         ],
-        "maximumPlaneViolationM": 0.0006606133122559754,
+        "maximumPlaneViolationM": 0.0007559645255774683,
         "actualLowerFrontXM": 20.24990862607956,
         "actualUpperFrontXM": 10.125389121472836,
         "actualRoofRetreatM": 10.124519504606724,
-        "roofVertexSamples": 154
+        "roofVertexSamples": 194
       },
       "roofGeometry": {
-        "caseAndArmoredRoofTriangles": 224,
+        "caseAndArmoredRoofTriangles": 288,
         "roofDatumYM": 12.899999999999999,
         "probes": [
           {
             "x": -14.175,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713415
+            "y": 12.899986034631725
           }
         ],
-        "minimumSurfaceYM": 12.899972453713415
+        "minimumSurfaceYM": 12.899986034631725
       },
       "podGeometry": {
-        "widthM": 17.99945041537285,
-        "fullAssemblyWidthM": 20.51959365606308,
+        "widthM": 14.399834722280502,
+        "fullAssemblyWidthM": 16.415949314832687,
         "caseWidthM": 45,
         "frontCaseWidthM": 42.59933978319168,
-        "declaredWidthM": 18,
+        "declaredWidthM": 14.400000000000002,
         "caseStyle": "forward-wide-naval-hexagon"
       },
       "kind": "stl",
       "id": 3,
       "asset": "capital_twin175",
       "triangles": 3696,
-      "vertices": 5584,
+      "vertices": 5596,
       "size": [
         60,
-        16.5,
+        16.424999999999997,
         45
       ],
       "modelScale": 1,
@@ -2390,14 +3418,14 @@
           3.8000000000000003
         ]
       ],
-      "elevationIndexStart": 5772,
+      "elevationIndexStart": 5868,
       "gunhouseElevates": false,
-      "roomVolumeM3": 12126.97468201377,
+      "roomVolumeM3": 11403.751209679225,
       "charge": {
         "required": 7000,
         "plannedVolume": 7000,
-        "housingVolume": 12126.974973462347,
-        "externalVolume": 12126.974973462347,
+        "housingVolume": 11403.751372820529,
+        "externalVolume": 11403.751372820529,
         "embeddedVolume": 0,
         "externalUsed": 7000,
         "embeddedUsed": 0,
@@ -2449,6 +3477,14 @@
         {
           "label": "capital closed armored machinery roof 0",
           "indices": 60
+        },
+        {
+          "label": "capital continuous side-gap armor -1",
+          "indices": 48
+        },
+        {
+          "label": "capital continuous side-gap armor 1",
+          "indices": 48
         },
         {
           "label": "intrinsic capital yaw bearing race",
@@ -2908,15 +3944,15 @@
         },
         {
           "label": "capital moving pod closed equipment cell 0",
-          "indices": 72
+          "indices": 48
         },
         {
           "label": "capital moving pod closed equipment cell 1",
-          "indices": 48
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 2",
-          "indices": 48
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 3",
@@ -2948,11 +3984,11 @@
         },
         {
           "label": "capital moving circular pod bearing -1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover -1",
-          "indices": 156
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss -1",
@@ -2964,11 +4000,11 @@
         },
         {
           "label": "capital moving circular pod bearing 1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover 1",
-          "indices": 156
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss 1",
@@ -3017,8 +4053,8 @@
       ],
       "barrelsPhysical": [
         {
-          "rootBandMaxRadiusM": 1.8152974891083333,
-          "tipBandMaxRadiusM": 0.9077330650230041,
+          "rootBandMaxRadiusM": 1.8153159641901384,
+          "tipBandMaxRadiusM": 0.9077309626226564,
           "root": [
             13.5,
             9.899999999999999,
@@ -3042,8 +4078,8 @@
           "muzzleRayErrorM": 0.0003692626953011313
         },
         {
-          "rootBandMaxRadiusM": 1.8152974891083333,
-          "tipBandMaxRadiusM": 0.9077330650230041,
+          "rootBandMaxRadiusM": 1.8153159641901384,
+          "tipBandMaxRadiusM": 0.9077309626226564,
           "root": [
             13.5,
             9.899999999999999,
@@ -3066,10 +4102,531 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.0003692626953011313
         }
+      ],
+      "baseGeometrySha256": "09930e3f33043ab63c81c2fd37f8de69d58993721c1566851eefe98d0330ff40",
+      "barrelGeometry": [
+        {
+          "root": [
+            13.5,
+            9.899999999999999,
+            -3.8
+          ],
+          "muzzle": [
+            39.75,
+            9.899999999999999,
+            -3.8
+          ],
+          "triangles": 600,
+          "geometrySha256": "8b6fcfea43afb76e0d86973f02404e1fa0d15d9ce8ef2abd7c579712588a6841",
+          "profileSha256": "1bb1af1d2245b2e5e3d34586cc0e52a87c8bb9a895aff53ec7cf15bbed18931c"
+        },
+        {
+          "root": [
+            13.5,
+            9.899999999999999,
+            3.8
+          ],
+          "muzzle": [
+            39.75,
+            9.899999999999999,
+            3.8
+          ],
+          "triangles": 600,
+          "geometrySha256": "823692d30c766687c1aebf19fd44d6f565dfe82ab213de6e611960314b567f09",
+          "profileSha256": "0e02115bef30ce89d1735c1d7e13692088e9527046194c0286f258493a3c9b0f"
+        }
       ]
     },
     {
+      "bearingContacts": [
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        }
+      ],
+      "nativeGeometryContract": {
+        "size": [
+          60,
+          16.424999999999997,
+          45
+        ],
+        "c": [
+          9.75,
+          8.212499999999999,
+          0
+        ],
+        "mount": [
+          6,
+          0,
+          0
+        ],
+        "n": 5898,
+        "faces": 4296,
+        "indexBytes": 2,
+        "elevationPivot": [
+          16.5,
+          9.3,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            39.75,
+            9.899999999999999,
+            -3.8
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            3.8
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            0
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 3936,
+        "elevationIndexStart": 5868,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          10.499862659722567,
+          5.220098253339528,
+          -8.207974657416344
+        ],
+        "highM": [
+          23.819766998291016,
+          15.0600097104907,
+          8.207974657416344
+        ],
+        "sizeM": [
+          13.319904338568449,
+          9.839911457151171,
+          16.415949314832687
+        ],
+        "triangles": 540
+      },
+      "sideCaseFill": {
+        "componentLabels": [
+          "capital continuous side-gap armor -1",
+          "capital continuous side-gap armor 1"
+        ],
+        "meshRanges": [
+          {
+            "firstVertex": 612,
+            "vertices": 30,
+            "firstIndex": 612,
+            "indices": 48
+          },
+          {
+            "firstVertex": 642,
+            "vertices": 30,
+            "firstIndex": 660,
+            "indices": 48
+          }
+        ],
+        "boundsM": [
+          [
+            [
+              7.5,
+              0.18,
+              -10.305
+            ],
+            [
+              20.24372093023256,
+              12.899999999999999,
+              -8.22
+            ]
+          ],
+          [
+            [
+              7.5,
+              0.18,
+              8.22
+            ],
+            [
+              20.24372093023256,
+              12.899999999999999,
+              10.305
+            ]
+          ]
+        ],
+        "innerAbsZM": 8.22,
+        "originalCaseInnerAbsZM": 10.274999999999999,
+        "caseOverlapM": 0.03,
+        "minimumMovingClearanceM": 0.012000000000000455,
+        "socketRearXM": 7.5,
+        "socketFloorYM": 0.18,
+        "raySamples": [
+          {
+            "originM": [
+              12.75,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              8.9,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              8.9,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.3,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.3,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.700000000000001,
+              -8.211
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.700000000000001,
+              -8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.700000000000001,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.700000000000001,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              8.9,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              8.9,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.3,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.3,
+              8.22
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.700000000000001,
+              8.211
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.700000000000001,
+              8.22
+            ]
+          }
+        ],
+        "addsCapacitorRoom": false,
+        "preservesOriginalChargingCells": true
+      },
       "frontArmorGeometry": {
+        "nonroomInterfaceLabelsExcludedFromArmorPlanes": [],
         "referenceFile": "assets/source/capital-turret-front-bevel-reference.json",
         "referenceSha256": "7959f56eda9e552cc96e371a0d764aa0cca60c528825a4148258dbf9602ff015",
         "imageFile": "assets/source/capital-turret-reference-10.jpg",
@@ -3094,344 +4651,344 @@
           },
           {
             "normal": [
-              0.5236842105263158,
-              0.6847979323308271,
+              0.7999999999999999,
+              1.0178571428571428,
               1
             ],
-            "distanceM": 28.723695958646616
+            "distanceM": 31.88035714285714
           },
           {
             "normal": [
-              0.5236842105263158,
-              0.6847979323308271,
+              0.7999999999999999,
+              1.0178571428571428,
               -1
             ],
-            "distanceM": 28.723695958646616
+            "distanceM": 31.88035714285714
           }
         ],
-        "maximumPlaneViolationM": 0.00041637582970111,
+        "maximumPlaneViolationM": 0.0007559645255774683,
         "actualLowerFrontXM": 20.24990862607956,
         "actualUpperFrontXM": 10.125389121472836,
         "actualRoofRetreatM": 10.124519504606724,
-        "roofVertexSamples": 148
+        "roofVertexSamples": 194
       },
       "roofGeometry": {
-        "caseAndArmoredRoofTriangles": 208,
+        "caseAndArmoredRoofTriangles": 288,
         "roofDatumYM": 12.899999999999999,
         "probes": [
           {
             "x": -14.175,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -14.175,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -12.15,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -10.125,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -8.1,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -6.075000000000001,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -4.050000000000001,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           },
           {
             "x": -2.025000000000002,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631725
           }
         ],
-        "minimumSurfaceYM": 12.899972453713417
+        "minimumSurfaceYM": 12.899986034631725
       },
       "podGeometry": {
-        "widthM": 25.87438255548477,
-        "fullAssemblyWidthM": 28.394524455070496,
+        "widthM": 14.399834722280502,
+        "fullAssemblyWidthM": 16.415949314832687,
         "caseWidthM": 45,
-        "frontCaseWidthM": 43.428858518600464,
-        "declaredWidthM": 25.875,
+        "frontCaseWidthM": 42.59933978319168,
+        "declaredWidthM": 14.400000000000002,
         "caseStyle": "forward-wide-naval-hexagon"
       },
       "kind": "triple175",
       "id": 4,
       "asset": "capital_triple175",
-      "triangles": 4312,
-      "vertices": 5910,
+      "triangles": 4296,
+      "vertices": 5898,
       "size": [
         60,
-        16.5,
+        16.424999999999997,
         45
       ],
       "modelScale": 1,
@@ -3448,11 +5005,11 @@
       "ped": 0,
       "base": 0,
       "low": 0,
-      "drawnIndices": 12936,
+      "drawnIndices": 12888,
       "drawOutsideBounds": 0,
       "decoded": {
         "finite": true,
-        "indexCount": 12936,
+        "indexCount": 12888,
         "indexRangeValid": true,
         "uvRange": [
           0,
@@ -3468,27 +5025,27 @@
         [
           237.75,
           33.9,
-          -7.125
+          -3.8000000000000003
+        ],
+        [
+          237.75,
+          33.9,
+          3.8000000000000003
         ],
         [
           237.75,
           33.9,
           0
-        ],
-        [
-          237.75,
-          33.9,
-          7.125
         ]
       ],
-      "elevationIndexStart": 5748,
+      "elevationIndexStart": 5868,
       "gunhouseElevates": false,
-      "roomVolumeM3": 12510.378258413204,
+      "roomVolumeM3": 11403.751209679225,
       "charge": {
         "required": 10500,
         "plannedVolume": 10500,
-        "housingVolume": 12510.378479381647,
-        "externalVolume": 12510.378479381647,
+        "housingVolume": 11403.75137282053,
+        "externalVolume": 11403.75137282053,
         "embeddedVolume": 0,
         "externalUsed": 10500,
         "embeddedUsed": 0,
@@ -3539,7 +5096,15 @@
         },
         {
           "label": "capital closed armored machinery roof 0",
-          "indices": 36
+          "indices": 60
+        },
+        {
+          "label": "capital continuous side-gap armor -1",
+          "indices": 48
+        },
+        {
+          "label": "capital continuous side-gap armor 1",
+          "indices": 48
         },
         {
           "label": "intrinsic capital yaw bearing race",
@@ -3718,39 +5283,39 @@
           "indices": 36
         },
         {
-          "label": "capital upper trapezoid armor panel -1 0 face 6",
-          "indices": 36
+          "label": "capital upper trapezoid armor panel -1 0 face 1",
+          "indices": 48
         },
         {
           "label": "capital upper trapezoid armor panel -1 0 face 7",
-          "indices": 36
+          "indices": 24
         },
         {
           "label": "capital upper trapezoid armor panel -1 0 face 8",
           "indices": 48
         },
         {
-          "label": "capital trapezoid raised rim -1 0 0 face 6",
-          "indices": 48
+          "label": "capital trapezoid raised rim -1 0 0 face 1",
+          "indices": 36
         },
         {
           "label": "capital trapezoid raised rim -1 0 0 face 7",
-          "indices": 24
+          "indices": 36
         },
         {
           "label": "capital trapezoid raised rim -1 0 0 face 8",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim -1 0 1 face 6",
-          "indices": 36
-        },
-        {
           "label": "capital trapezoid raised rim -1 0 1 face 7",
-          "indices": 36
+          "indices": 24
         },
         {
-          "label": "capital trapezoid raised rim -1 0 2 face 7",
+          "label": "capital trapezoid raised rim -1 0 1 face 8",
+          "indices": 48
+        },
+        {
+          "label": "capital trapezoid raised rim -1 0 2 face 1",
           "indices": 36
         },
         {
@@ -3758,67 +5323,67 @@
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim -1 0 3 face 8",
+          "label": "capital trapezoid raised rim -1 0 3 face 1",
           "indices": 36
         },
         {
-          "label": "capital lower armor band -1 0 1.0 face 6",
+          "label": "capital lower armor band -1 0 1.0 face 1",
           "indices": 36
         },
         {
-          "label": "capital lower armor band -1 0 1.0 face 8",
+          "label": "capital lower armor band -1 0 1.0 face 7",
           "indices": 36
         },
         {
-          "label": "capital lower armor band -1 0 2.75 face 6",
+          "label": "capital lower armor band -1 0 2.75 face 1",
           "indices": 36
         },
         {
-          "label": "capital lower armor band -1 0 2.75 face 8",
+          "label": "capital lower armor band -1 0 2.75 face 7",
           "indices": 36
         },
         {
-          "label": "capital inset-slot separating armor -1 0 0 face 6",
+          "label": "capital inset-slot separating armor -1 0 0 face 1",
+          "indices": 48
+        },
+        {
+          "label": "capital inset-slot separating armor -1 0 0 face 7",
           "indices": 24
         },
         {
-          "label": "capital inset-slot separating armor -1 0 0 face 8",
+          "label": "capital inset-slot separating armor -1 0 2 face 7",
+          "indices": 36
+        },
+        {
+          "label": "capital inset-slot separating armor -1 0 4 face 7",
+          "indices": 36
+        },
+        {
+          "label": "capital upper trapezoid armor panel -1 1 face 8",
           "indices": 48
         },
         {
-          "label": "capital inset-slot separating armor -1 0 2 face 6",
+          "label": "capital trapezoid raised rim -1 1 0 face 8",
           "indices": 36
         },
         {
-          "label": "capital inset-slot separating armor -1 0 4 face 6",
+          "label": "capital trapezoid raised rim -1 1 1 face 8",
           "indices": 36
         },
         {
-          "label": "capital upper trapezoid armor panel -1 1 face 7",
-          "indices": 48
-        },
-        {
-          "label": "capital trapezoid raised rim -1 1 0 face 7",
+          "label": "capital trapezoid raised rim -1 1 2 face 8",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim -1 1 1 face 7",
+          "label": "capital trapezoid raised rim -1 1 3 face 8",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim -1 1 2 face 7",
+          "label": "capital trapezoid raised rim -1 1 4 face 8",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim -1 1 3 face 7",
-          "indices": 36
-        },
-        {
-          "label": "capital trapezoid raised rim -1 1 4 face 7",
-          "indices": 36
-        },
-        {
-          "label": "capital lower armor band -1 1 1.0 face 1",
+          "label": "capital lower armor band -1 1 1.0 face 2",
           "indices": 36
         },
         {
@@ -3826,7 +5391,7 @@
           "indices": 36
         },
         {
-          "label": "capital lower armor band -1 1 2.75 face 1",
+          "label": "capital lower armor band -1 1 2.75 face 2",
           "indices": 36
         },
         {
@@ -3834,7 +5399,7 @@
           "indices": 36
         },
         {
-          "label": "capital inset-slot separating armor -1 1 0 face 1",
+          "label": "capital inset-slot separating armor -1 1 0 face 2",
           "indices": 24
         },
         {
@@ -3842,59 +5407,55 @@
           "indices": 48
         },
         {
-          "label": "capital inset-slot separating armor -1 1 2 face 1",
+          "label": "capital inset-slot separating armor -1 1 2 face 2",
           "indices": 36
         },
         {
-          "label": "capital inset-slot separating armor -1 1 4 face 1",
+          "label": "capital inset-slot separating armor -1 1 4 face 2",
           "indices": 36
-        },
-        {
-          "label": "capital upper trapezoid armor panel 1 0 face 2",
-          "indices": 48
         },
         {
           "label": "capital upper trapezoid armor panel 1 0 face 3",
-          "indices": 36
-        },
-        {
-          "label": "capital upper trapezoid armor panel 1 0 face 4",
-          "indices": 36
-        },
-        {
-          "label": "capital trapezoid raised rim 1 0 0 face 2",
-          "indices": 36
-        },
-        {
-          "label": "capital trapezoid raised rim 1 0 0 face 3",
           "indices": 48
         },
         {
-          "label": "capital trapezoid raised rim 1 0 0 face 4",
+          "label": "capital upper trapezoid armor panel 1 0 face 4",
           "indices": 24
         },
         {
-          "label": "capital trapezoid raised rim 1 0 1 face 3",
+          "label": "capital upper trapezoid armor panel 1 0 face 5",
+          "indices": 48
+        },
+        {
+          "label": "capital trapezoid raised rim 1 0 0 face 3",
+          "indices": 36
+        },
+        {
+          "label": "capital trapezoid raised rim 1 0 0 face 4",
+          "indices": 36
+        },
+        {
+          "label": "capital trapezoid raised rim 1 0 0 face 5",
           "indices": 36
         },
         {
           "label": "capital trapezoid raised rim 1 0 1 face 4",
+          "indices": 24
+        },
+        {
+          "label": "capital trapezoid raised rim 1 0 1 face 5",
+          "indices": 48
+        },
+        {
+          "label": "capital trapezoid raised rim 1 0 2 face 3",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim 1 0 2 face 2",
+          "label": "capital trapezoid raised rim 1 0 2 face 5",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim 1 0 2 face 4",
-          "indices": 36
-        },
-        {
-          "label": "capital trapezoid raised rim 1 0 3 face 2",
-          "indices": 36
-        },
-        {
-          "label": "capital lower armor band 1 0 1.0 face 2",
+          "label": "capital trapezoid raised rim 1 0 3 face 3",
           "indices": 36
         },
         {
@@ -3902,7 +5463,7 @@
           "indices": 36
         },
         {
-          "label": "capital lower armor band 1 0 2.75 face 2",
+          "label": "capital lower armor band 1 0 1.0 face 4",
           "indices": 36
         },
         {
@@ -3910,43 +5471,47 @@
           "indices": 36
         },
         {
-          "label": "capital inset-slot separating armor 1 0 0 face 2",
-          "indices": 48
+          "label": "capital lower armor band 1 0 2.75 face 4",
+          "indices": 36
         },
         {
           "label": "capital inset-slot separating armor 1 0 0 face 3",
-          "indices": 24
-        },
-        {
-          "label": "capital inset-slot separating armor 1 0 2 face 3",
-          "indices": 36
-        },
-        {
-          "label": "capital inset-slot separating armor 1 0 4 face 3",
-          "indices": 36
-        },
-        {
-          "label": "capital upper trapezoid armor panel 1 1 face 4",
           "indices": 48
         },
         {
-          "label": "capital trapezoid raised rim 1 1 0 face 4",
+          "label": "capital inset-slot separating armor 1 0 0 face 4",
+          "indices": 24
+        },
+        {
+          "label": "capital inset-slot separating armor 1 0 2 face 4",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim 1 1 1 face 4",
+          "label": "capital inset-slot separating armor 1 0 4 face 4",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim 1 1 2 face 4",
+          "label": "capital upper trapezoid armor panel 1 1 face 5",
+          "indices": 48
+        },
+        {
+          "label": "capital trapezoid raised rim 1 1 0 face 5",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim 1 1 3 face 4",
+          "label": "capital trapezoid raised rim 1 1 1 face 5",
           "indices": 36
         },
         {
-          "label": "capital trapezoid raised rim 1 1 4 face 4",
+          "label": "capital trapezoid raised rim 1 1 2 face 5",
+          "indices": 36
+        },
+        {
+          "label": "capital trapezoid raised rim 1 1 3 face 5",
+          "indices": 36
+        },
+        {
+          "label": "capital trapezoid raised rim 1 1 4 face 5",
           "indices": 36
         },
         {
@@ -3954,7 +5519,7 @@
           "indices": 36
         },
         {
-          "label": "capital lower armor band 1 1 1.0 face 5",
+          "label": "capital lower armor band 1 1 1.0 face 6",
           "indices": 36
         },
         {
@@ -3962,7 +5527,7 @@
           "indices": 36
         },
         {
-          "label": "capital lower armor band 1 1 2.75 face 5",
+          "label": "capital lower armor band 1 1 2.75 face 6",
           "indices": 36
         },
         {
@@ -3970,7 +5535,7 @@
           "indices": 24
         },
         {
-          "label": "capital inset-slot separating armor 1 1 0 face 5",
+          "label": "capital inset-slot separating armor 1 1 0 face 6",
           "indices": 48
         },
         {
@@ -3999,15 +5564,15 @@
         },
         {
           "label": "capital moving pod closed equipment cell 0",
-          "indices": 72
+          "indices": 48
         },
         {
           "label": "capital moving pod closed equipment cell 1",
-          "indices": 48
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 2",
-          "indices": 48
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 3",
@@ -4018,7 +5583,7 @@
           "indices": 48
         },
         {
-          "label": "capital common elevating 3-gun pod",
+          "label": "capital common elevating 2-gun pod",
           "indices": 264
         },
         {
@@ -4039,11 +5604,11 @@
         },
         {
           "label": "capital moving circular pod bearing -1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover -1",
-          "indices": 156
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss -1",
@@ -4055,11 +5620,11 @@
         },
         {
           "label": "capital moving circular pod bearing 1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover 1",
-          "indices": 156
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss 1",
@@ -4078,7 +5643,7 @@
           "indices": 36
         },
         {
-          "label": "capital 3-gun common recoil receiver",
+          "label": "capital 2-gun common recoil receiver",
           "indices": 60
         },
         {
@@ -4098,14 +5663,6 @@
           "indices": 36
         },
         {
-          "label": "capital individual recoil slide 3",
-          "indices": 36
-        },
-        {
-          "label": "capital forward individual breech collar 3",
-          "indices": 36
-        },
-        {
           "label": "175TT turbo complete barrel 1",
           "indices": 1800
         },
@@ -4120,17 +5677,17 @@
       ],
       "barrelsPhysical": [
         {
-          "rootBandMaxRadiusM": 1.8152411161089825,
-          "tipBandMaxRadiusM": 0.9077320410880086,
+          "rootBandMaxRadiusM": 1.8153159641901384,
+          "tipBandMaxRadiusM": 0.9077309626226564,
           "root": [
             13.5,
             9.899999999999999,
-            -7.125
+            -3.8
           ],
           "muzzle": [
             39.75,
             9.899999999999999,
-            -7.125
+            -3.8
           ],
           "axis": [
             1,
@@ -4145,17 +5702,17 @@
           "muzzleRayErrorM": 0.0003692626953011313
         },
         {
-          "rootBandMaxRadiusM": 1.8152441585088217,
-          "tipBandMaxRadiusM": 0.907800767105974,
+          "rootBandMaxRadiusM": 1.8153159641901384,
+          "tipBandMaxRadiusM": 0.9077309626226564,
           "root": [
             13.5,
             9.899999999999999,
-            0
+            3.8
           ],
           "muzzle": [
             39.75,
             9.899999999999999,
-            0
+            3.8
           ],
           "axis": [
             1,
@@ -4170,17 +5727,17 @@
           "muzzleRayErrorM": 0.0003692626953011313
         },
         {
-          "rootBandMaxRadiusM": 1.8152411161089825,
-          "tipBandMaxRadiusM": 0.9077320410880086,
+          "rootBandMaxRadiusM": 1.8152256418810178,
+          "tipBandMaxRadiusM": 0.907800768054867,
           "root": [
             13.5,
             9.899999999999999,
-            7.125
+            0
           ],
           "muzzle": [
             39.75,
             9.899999999999999,
-            7.125
+            0
           ],
           "axis": [
             1,
@@ -4194,10 +5751,551 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.0003692626953011313
         }
+      ],
+      "baseGeometrySha256": "09930e3f33043ab63c81c2fd37f8de69d58993721c1566851eefe98d0330ff40",
+      "barrelGeometry": [
+        {
+          "root": [
+            13.5,
+            9.899999999999999,
+            -3.8
+          ],
+          "muzzle": [
+            39.75,
+            9.899999999999999,
+            -3.8
+          ],
+          "triangles": 600,
+          "geometrySha256": "8b6fcfea43afb76e0d86973f02404e1fa0d15d9ce8ef2abd7c579712588a6841",
+          "profileSha256": "1bb1af1d2245b2e5e3d34586cc0e52a87c8bb9a895aff53ec7cf15bbed18931c"
+        },
+        {
+          "root": [
+            13.5,
+            9.899999999999999,
+            3.8
+          ],
+          "muzzle": [
+            39.75,
+            9.899999999999999,
+            3.8
+          ],
+          "triangles": 600,
+          "geometrySha256": "823692d30c766687c1aebf19fd44d6f565dfe82ab213de6e611960314b567f09",
+          "profileSha256": "0e02115bef30ce89d1735c1d7e13692088e9527046194c0286f258493a3c9b0f"
+        },
+        {
+          "root": [
+            13.5,
+            9.899999999999999,
+            0
+          ],
+          "muzzle": [
+            39.75,
+            9.899999999999999,
+            0
+          ],
+          "triangles": 600,
+          "geometrySha256": "b7292048ffc71bef129ba9bedbe54d1999e512bca00fa3d26a67e828ea54e75e",
+          "profileSha256": "1a82378217867f6952ba36131b9936899ee138cd303bcddd5a78eab974938ad2"
+        }
       ]
     },
     {
+      "bearingContacts": [
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.35982370376586914,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        }
+      ],
+      "nativeGeometryContract": {
+        "size": [
+          60,
+          16.424999999999997,
+          45
+        ],
+        "c": [
+          9.75,
+          8.212499999999999,
+          0
+        ],
+        "mount": [
+          6,
+          0,
+          0
+        ],
+        "n": 6404,
+        "faces": 5000,
+        "indexBytes": 2,
+        "elevationPivot": [
+          16.5,
+          9.3,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            39.75,
+            9.899999999999999,
+            -8.55
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            -2.85
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            2.85
+          ],
+          [
+            39.75,
+            9.899999999999999,
+            8.55
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 4044,
+        "elevationIndexStart": 6036,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          10.499862659722567,
+          5.220098253339528,
+          -14.508331418037415
+        ],
+        "highM": [
+          23.819766998291016,
+          15.0600097104907,
+          14.508331418037415
+        ],
+        "sizeM": [
+          13.319904338568449,
+          9.839911457151171,
+          29.01666283607483
+        ],
+        "triangles": 588
+      },
+      "sideCaseFill": {
+        "componentLabels": [
+          "capital continuous side-gap armor -1",
+          "capital continuous side-gap armor 1"
+        ],
+        "meshRanges": [
+          {
+            "firstVertex": 588,
+            "vertices": 30,
+            "firstIndex": 588,
+            "indices": 48
+          },
+          {
+            "firstVertex": 618,
+            "vertices": 30,
+            "firstIndex": 636,
+            "indices": 48
+          }
+        ],
+        "boundsM": [
+          [
+            [
+              7.5,
+              0.18,
+              -18.18
+            ],
+            [
+              20.24372093023256,
+              12.899999999999999,
+              -14.52
+            ]
+          ],
+          [
+            [
+              7.5,
+              0.18,
+              14.52
+            ],
+            [
+              20.24372093023256,
+              12.899999999999999,
+              18.18
+            ]
+          ]
+        ],
+        "innerAbsZM": 14.52,
+        "originalCaseInnerAbsZM": 18.15,
+        "caseOverlapM": 0.03,
+        "minimumMovingClearanceM": 0.011999999999998678,
+        "socketRearXM": 7.5,
+        "socketFloorYM": 0.18,
+        "raySamples": [
+          {
+            "originM": [
+              12.75,
+              8.9,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              8.9,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.3,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.3,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.700000000000001,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.700000000000001,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              8.9,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              8.9,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.3,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.3,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.700000000000001,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.700000000000001,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              8.9,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              8.9,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.3,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.3,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.700000000000001,
+              -14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.700000000000001,
+              -14.52
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              8.9,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              8.9,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.3,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.3,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              12.75,
+              9.700000000000001,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.75,
+              9.700000000000001,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              8.9,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              8.9,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.3,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.3,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              12.25,
+              9.700000000000001,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              12.25,
+              9.700000000000001,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              8.9,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              8.9,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.3,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.3,
+              14.52
+            ]
+          },
+          {
+            "originM": [
+              11.75,
+              9.700000000000001,
+              14.511000000000001
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "expectedHitM": [
+              11.75,
+              9.700000000000001,
+              14.52
+            ]
+          }
+        ],
+        "addsCapacitorRoom": false,
+        "preservesOriginalChargingCells": true
+      },
       "frontArmorGeometry": {
+        "nonroomInterfaceLabelsExcludedFromArmorPlanes": [],
         "referenceFile": "assets/source/capital-turret-front-bevel-reference.json",
         "referenceSha256": "7959f56eda9e552cc96e371a0d764aa0cca60c528825a4148258dbf9602ff015",
         "imageFile": "assets/source/capital-turret-reference-10.jpg",
@@ -4237,329 +6335,329 @@
             "distanceM": 25.567034774436088
           }
         ],
-        "maximumPlaneViolationM": 0.00041637582970111,
+        "maximumPlaneViolationM": 0.0004041819567106586,
         "actualLowerFrontXM": 20.24990862607956,
         "actualUpperFrontXM": 10.125389121472836,
         "actualRoofRetreatM": 10.124519504606724,
-        "roofVertexSamples": 150
+        "roofVertexSamples": 190
       },
       "roofGeometry": {
-        "caseAndArmoredRoofTriangles": 208,
+        "caseAndArmoredRoofTriangles": 272,
         "roofDatumYM": 12.899999999999999,
         "probes": [
           {
             "x": -14.175,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -14.175,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -14.175,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -14.175,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -14.175,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -14.175,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -14.175,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -12.15,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -10.125,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -8.1,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -6.075000000000001,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -4.050000000000001,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": -10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": -6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": -3.4500000000000006,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": 0,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": 3.4499999999999993,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": 6.900000000000001,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           },
           {
             "x": -2.025000000000002,
             "z": 10.35,
             "hit": true,
-            "y": 12.899972453713417
+            "y": 12.899986034631727
           }
         ],
-        "minimumSurfaceYM": 12.899972453713417
+        "minimumSurfaceYM": 12.899986034631727
       },
       "podGeometry": {
-        "widthM": 33.74931335449219,
-        "fullAssemblyWidthM": 36.26945525407791,
+        "widthM": 27.000548243522644,
+        "fullAssemblyWidthM": 29.01666283607483,
         "caseWidthM": 45,
         "frontCaseWidthM": 44.25837725400925,
-        "declaredWidthM": 33.75,
+        "declaredWidthM": 27,
         "caseStyle": "forward-wide-naval-hexagon"
       },
       "kind": "quad175",
       "id": 5,
       "asset": "capital_quad175",
       "triangles": 5000,
-      "vertices": 6392,
+      "vertices": 6404,
       "size": [
         60,
-        16.5,
+        16.424999999999997,
         45
       ],
       "modelScale": 1,
@@ -4614,21 +6712,21 @@
           8.55
         ]
       ],
-      "elevationIndexStart": 5940,
+      "elevationIndexStart": 6036,
       "gunhouseElevates": false,
-      "roomVolumeM3": 12876.716158595853,
+      "roomVolumeM3": 11520.67214796858,
       "charge": {
         "required": 14000,
         "plannedVolume": 14000,
-        "housingVolume": 12876.716305850045,
-        "externalVolume": 12876.716305850045,
+        "housingVolume": 11520.672020351887,
+        "externalVolume": 11520.672020351887,
         "embeddedVolume": 0,
-        "externalUsed": 12876.716305850045,
+        "externalUsed": 11520.672020351887,
         "embeddedUsed": 0,
-        "housingUsed": 12876.716305850045,
-        "internalRequired": 1123.2836941499554,
-        "internalVolume": 1123.2836941499554,
-        "internalOccupiedVolume": 1123.2836941499554,
+        "housingUsed": 11520.672020351887,
+        "internalRequired": 2479.327979648113,
+        "internalVolume": 2479.327979648113,
+        "internalOccupiedVolume": 2479.327979648113,
         "volume": 14000,
         "ratio": 1,
         "capacityRatio": 1,
@@ -4673,6 +6771,14 @@
         {
           "label": "capital closed armored machinery roof 0",
           "indices": 36
+        },
+        {
+          "label": "capital continuous side-gap armor -1",
+          "indices": 48
+        },
+        {
+          "label": "capital continuous side-gap armor 1",
+          "indices": 48
         },
         {
           "label": "intrinsic capital yaw bearing race",
@@ -5156,15 +7262,15 @@
         },
         {
           "label": "capital moving pod closed equipment cell 0",
-          "indices": 72
+          "indices": 48
         },
         {
           "label": "capital moving pod closed equipment cell 1",
-          "indices": 48
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 2",
-          "indices": 48
+          "indices": 60
         },
         {
           "label": "capital moving pod closed equipment cell 3",
@@ -5196,11 +7302,11 @@
         },
         {
           "label": "capital moving circular pod bearing -1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover -1",
-          "indices": 156
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss -1",
@@ -5212,11 +7318,11 @@
         },
         {
           "label": "capital moving circular pod bearing 1",
-          "indices": 252
+          "indices": 228
         },
         {
           "label": "capital concentric pod bearing cover 1",
-          "indices": 156
+          "indices": 132
         },
         {
           "label": "capital recessed trunnion central drive boss 1",
@@ -5289,8 +7395,8 @@
       ],
       "barrelsPhysical": [
         {
-          "rootBandMaxRadiusM": 1.8152764965857875,
-          "tipBandMaxRadiusM": 0.9077459259899869,
+          "rootBandMaxRadiusM": 1.8152579802878497,
+          "tipBandMaxRadiusM": 0.9077459269389371,
           "root": [
             13.5,
             9.899999999999999,
@@ -5314,8 +7420,8 @@
           "muzzleRayErrorM": 0.0003540039062386313
         },
         {
-          "rootBandMaxRadiusM": 1.8151913945136964,
-          "tipBandMaxRadiusM": 0.9078462881472387,
+          "rootBandMaxRadiusM": 1.8152196466867503,
+          "tipBandMaxRadiusM": 0.9078441860090949,
           "root": [
             13.5,
             9.899999999999999,
@@ -5339,8 +7445,8 @@
           "muzzleRayErrorM": 0.0003540039062386313
         },
         {
-          "rootBandMaxRadiusM": 1.8151913945136964,
-          "tipBandMaxRadiusM": 0.9078462881472387,
+          "rootBandMaxRadiusM": 1.8152196466867503,
+          "tipBandMaxRadiusM": 0.9078441860090949,
           "root": [
             13.5,
             9.899999999999999,
@@ -5364,8 +7470,8 @@
           "muzzleRayErrorM": 0.0003540039062386313
         },
         {
-          "rootBandMaxRadiusM": 1.8152764965857875,
-          "tipBandMaxRadiusM": 0.9077459259899869,
+          "rootBandMaxRadiusM": 1.8152579802878497,
+          "tipBandMaxRadiusM": 0.9077459269389371,
           "root": [
             13.5,
             9.899999999999999,
@@ -5391,6 +7497,87 @@
       ]
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          44.5,
+          36,
+          36
+        ],
+        "c": [
+          4.25,
+          6,
+          0
+        ],
+        "mount": [
+          0,
+          0,
+          0
+        ],
+        "n": 3874,
+        "faces": 2608,
+        "indexBytes": 2,
+        "elevationPivot": [
+          0,
+          6,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            26.5,
+            9.42,
+            0
+          ],
+          [
+            26.5,
+            3.6060000000000003,
+            -3.42
+          ],
+          [
+            26.5,
+            3.6060000000000003,
+            3.42
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 0,
+        "elevationIndexStart": 0,
+        "sphereRadiusM": 18,
+        "sphereCenterM": [
+          0,
+          6,
+          0
+        ]
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          12.690006501972675,
+          -2.100165009498596,
+          -8.100165009498596
+        ],
+        "highM": [
+          17.459706783294678,
+          14.100165009498596,
+          8.100165009498596
+        ],
+        "sizeM": [
+          4.769700281322002,
+          16.200330018997192,
+          16.200330018997192
+        ],
+        "triangles": 408,
+        "receiverLipRadiusM": 6.9
+      },
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": null,
@@ -5611,9 +7798,96 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.000030517578125
         }
-      ]
+      ],
+      "geometryDataSha256": "c495e6159558afa19adb6403aeb0e2d1bc9b01105fbe4d5d697394bae5e993a7"
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          44.5,
+          36,
+          36
+        ],
+        "c": [
+          4.25,
+          6,
+          0
+        ],
+        "mount": [
+          0,
+          0,
+          0
+        ],
+        "n": 4632,
+        "faces": 4156,
+        "indexBytes": 2,
+        "elevationPivot": [
+          0,
+          6,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            26.5,
+            2.58,
+            -3.42
+          ],
+          [
+            26.5,
+            2.58,
+            3.42
+          ],
+          [
+            26.5,
+            9.42,
+            -3.42
+          ],
+          [
+            26.5,
+            9.42,
+            3.42
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 0,
+        "elevationIndexStart": 0,
+        "sphereRadiusM": 18,
+        "sphereCenterM": [
+          0,
+          6,
+          0
+        ]
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          12.690006501972675,
+          -2.100165009498596,
+          -8.100165009498596
+        ],
+        "highM": [
+          17.459706783294678,
+          14.100165009498596,
+          8.100165009498596
+        ],
+        "sizeM": [
+          4.769700281322002,
+          16.200330018997192,
+          16.200330018997192
+        ],
+        "triangles": 396,
+        "receiverLipRadiusM": 6.9
+      },
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": null,
@@ -5864,9 +8138,96 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.0002563476562613687
         }
-      ]
+      ],
+      "geometryDataSha256": "93dcf8f64d74cbcba958bb5cd4c5d754f46b58e1d95de909ed752d821e7350e2"
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          44.5,
+          36,
+          36
+        ],
+        "c": [
+          4.25,
+          6,
+          0
+        ],
+        "mount": [
+          0,
+          0,
+          0
+        ],
+        "n": 4016,
+        "faces": 2888,
+        "indexBytes": 2,
+        "elevationPivot": [
+          0,
+          6,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            26.5,
+            2.58,
+            -3.42
+          ],
+          [
+            26.5,
+            2.58,
+            3.42
+          ],
+          [
+            26.5,
+            9.42,
+            -3.42
+          ],
+          [
+            26.5,
+            9.42,
+            3.42
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 0,
+        "elevationIndexStart": 0,
+        "sphereRadiusM": 18,
+        "sphereCenterM": [
+          0,
+          6,
+          0
+        ]
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          12.690006501972675,
+          -2.100165009498596,
+          -8.100165009498596
+        ],
+        "highM": [
+          17.459706783294678,
+          14.100165009498596,
+          8.100165009498596
+        ],
+        "sizeM": [
+          4.769700281322002,
+          16.200330018997192,
+          16.200330018997192
+        ],
+        "triangles": 408,
+        "receiverLipRadiusM": 6.9
+      },
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": null,
@@ -6121,9 +8482,81 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.000030517578125
         }
-      ]
+      ],
+      "geometryDataSha256": "fdbde1a95d34e6a2d3913bfd175b30e5064b42092c9b6ce424830e1317d8bfca"
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          44.5,
+          36,
+          36
+        ],
+        "c": [
+          4.25,
+          6,
+          0
+        ],
+        "mount": [
+          0,
+          0,
+          0
+        ],
+        "n": 3726,
+        "faces": 2356,
+        "indexBytes": 2,
+        "elevationPivot": [
+          0,
+          6,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            26.5,
+            6,
+            0
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 0,
+        "elevationIndexStart": 0,
+        "sphereRadiusM": 18,
+        "sphereCenterM": [
+          0,
+          6,
+          0
+        ]
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          12.690006501972675,
+          -2.100165009498596,
+          -8.100165009498596
+        ],
+        "highM": [
+          17.459706783294678,
+          14.100165009498596,
+          8.100165009498596
+        ],
+        "sizeM": [
+          4.769700281322002,
+          16.200330018997192,
+          16.200330018997192
+        ],
+        "triangles": 396,
+        "receiverLipRadiusM": 6.9
+      },
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": null,
@@ -6272,10 +8705,132 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.00031738281245452526
         }
-      ]
+      ],
+      "geometryDataSha256": "a67948543d9077ea8f9249b23f1ea95a172e61741a5fa5d6a8bc2acf926a553e"
     },
     {
+      "bearingContacts": [
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.6746704503893852,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.6746704503893852,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle -1",
+          "wheel": "capital moving circular pod bearing -1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.6746704503893852,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 0,
+          "axialOverlapM": 0.6746704503893852,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 25,
+          "axialOverlapM": 0.6746704503893852,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        },
+        {
+          "axle": "capital fixed pod trunnion axle 1",
+          "wheel": "capital moving circular pod bearing 1",
+          "elevationDegrees": 55,
+          "axialOverlapM": 0.6746704503893852,
+          "samples": 32,
+          "insideBothActualMetalMeshes": 32
+        }
+      ],
+      "nativeGeometryContract": {
+        "size": [
+          90,
+          24.75,
+          67.5
+        ],
+        "c": [
+          14.625,
+          12.375,
+          0
+        ],
+        "mount": [
+          9,
+          0,
+          0
+        ],
+        "n": 5584,
+        "faces": 3696,
+        "indexBytes": 2,
+        "elevationPivot": [
+          24.75,
+          13.950000000000001,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            59.625,
+            14.85,
+            -5.699999999999999
+          ],
+          [
+            59.625,
+            14.85,
+            5.699999999999999
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 3876,
+        "elevationIndexStart": 5772,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": {
+        "lowM": [
+          13.50020601041615,
+          6.30004820600152,
+          -15.38969524204731
+        ],
+        "highM": [
+          38.47502821683884,
+          24.75,
+          15.38969524204731
+        ],
+        "sizeM": [
+          24.974822206422687,
+          18.44995179399848,
+          30.77939048409462
+        ],
+        "triangles": 572
+      },
       "frontArmorGeometry": {
+        "nonroomInterfaceLabelsExcludedFromArmorPlanes": [],
         "referenceFile": "assets/source/capital-turret-front-bevel-reference.json",
         "referenceSha256": "7959f56eda9e552cc96e371a0d764aa0cca60c528825a4148258dbf9602ff015",
         "imageFile": "assets/source/capital-turret-reference-10.jpg",
@@ -7358,9 +9913,94 @@
           "muzzleHit": true,
           "muzzleRayErrorM": 0.0005615234374545253
         }
-      ]
+      ],
+      "geometryDataSha256": "c3b1e175aba6be718a2b5f2893a9120751331e1bdba54465abe9eaff4c4c71ba"
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          40,
+          10.568947548408056,
+          39.999823093067505
+        ],
+        "c": [
+          0.00013715443522421822,
+          5.284473774204028,
+          0.0002826076252180343
+        ],
+        "mount": [
+          0,
+          0,
+          0
+        ],
+        "n": 1436,
+        "faces": 1104,
+        "indexBytes": 2,
+        "elevationPivot": [
+          -5.725309955373725,
+          3.8824738193985713,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            13.531846853513539,
+            8.406677515729262,
+            -10.79500627756052
+          ],
+          [
+            13.531846853513539,
+            8.406677515729262,
+            -8.908302786431427
+          ],
+          [
+            13.531846853513539,
+            8.406677515729262,
+            -7.0215992953023365
+          ],
+          [
+            13.531846853513539,
+            8.406677515729262,
+            -5.134590611114181
+          ],
+          [
+            13.531846853513539,
+            8.406838794914217,
+            5.135766212482745
+          ],
+          [
+            13.531846853513539,
+            8.406838794914217,
+            7.022774896670899
+          ],
+          [
+            13.531846853513539,
+            8.406838794914217,
+            8.909478387799991
+          ],
+          [
+            13.531846853513539,
+            8.406838794914217,
+            10.796181878929083
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 452,
+        "elevationIndexStart": 984,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": null,
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": null,
@@ -7766,6 +10406,65 @@
       ]
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          38.87965286330343,
+          9.997709107492678,
+          24
+        ],
+        "c": [
+          9.689826431651714,
+          4.998854553746339,
+          0
+        ],
+        "mount": [
+          3.8,
+          0,
+          0
+        ],
+        "n": 4902,
+        "faces": 4995,
+        "indexBytes": 2,
+        "elevationPivot": [
+          14,
+          6.25,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            29.129652863303427,
+            6.25,
+            -3
+          ],
+          [
+            29.129652863303427,
+            6.25,
+            0
+          ],
+          [
+            29.129652863303427,
+            6.25,
+            3
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 2520,
+        "elevationIndexStart": 5406,
+        "sphereRadiusM": null,
+        "sphereCenterM": null
+      },
+      "frontMechanismGeometry": null,
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": {
@@ -8212,6 +10911,74 @@
       ]
     },
     {
+      "bearingContacts": [],
+      "nativeGeometryContract": {
+        "size": [
+          23.907414336388186,
+          17.35872205671472,
+          17.358722056714715
+        ],
+        "c": [
+          3.2743461398367346,
+          2.893120342785786,
+          0
+        ],
+        "mount": [
+          0,
+          0,
+          0
+        ],
+        "n": 3368,
+        "faces": 2480,
+        "indexBytes": 2,
+        "elevationPivot": [
+          0,
+          2.893120342785786,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "barrelAxis": [
+          1,
+          0,
+          0
+        ],
+        "muzzlePoints": [
+          [
+            15.228053308030827,
+            1.5622849851043246,
+            -1.3308353576814616
+          ],
+          [
+            15.228053308030827,
+            1.5622849851043246,
+            1.3308353576814616
+          ],
+          [
+            15.228053308030827,
+            4.223955700467248,
+            -1.3308353576814616
+          ],
+          [
+            15.228053308030827,
+            4.223955700467248,
+            1.3308353576814616
+          ]
+        ],
+        "traversePivot": null,
+        "elevationVertexStart": 0,
+        "elevationIndexStart": 0,
+        "sphereRadiusM": 8.679361028357357,
+        "sphereCenterM": [
+          0,
+          2.893120342785786,
+          0
+        ]
+      },
+      "frontMechanismGeometry": null,
       "frontArmorGeometry": null,
       "roofGeometry": null,
       "podGeometry": null,
@@ -8437,7 +11204,7 @@
       "kind": "ion",
       "pixel": [
         665.4090615577865,
-        531.8319670923895
+        531.5074463852591
       ],
       "nativeCanvasClick": true
     },
@@ -8445,7 +11212,7 @@
       "kind": "stl",
       "pixel": [
         699.4545150013236,
-        514.3897401452325
+        514.065337574508
       ],
       "nativeCanvasClick": true
     },
@@ -8453,7 +11220,7 @@
       "kind": "triple175",
       "pixel": [
         699.4545343728333,
-        514.389735530529
+        514.0653920280075
       ],
       "nativeCanvasClick": true
     },
@@ -8461,7 +11228,7 @@
       "kind": "quad175",
       "pixel": [
         699.4545537443429,
-        514.3897899840287
+        514.0653874133042
       ],
       "nativeCanvasClick": true
     },
@@ -8837,23 +11604,280 @@
     "nativeCanvasSelection": true,
     "nativePitchInput": true
   },
+  "frontBaseRevision": {
+    "baselineCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+    "baselineReferenceSourceSha256": "969cff47275df460f43b79660b1f489c525d392914658628fb16e7c92271d7d2",
+    "reducedMounts": [
+      {
+        "kind": "ion",
+        "baselineAsset": "capital_twin175_ion",
+        "baseline": {
+          "lowM": [
+            10.6500183083117,
+            4.200032137334347,
+            -10.25979682803154
+          ],
+          "highM": [
+            27.299899220466614,
+            16.5,
+            10.25979682803154
+          ],
+          "sizeM": [
+            16.649880912154913,
+            12.299967862665653,
+            20.51959365606308
+          ],
+          "triangles": 758,
+          "socketHalfWidthM": 10.274999999999999
+        },
+        "current": {
+          "lowM": [
+            12.14974357187748,
+            5.220098253339528,
+            -8.207974657416344
+          ],
+          "highM": [
+            25.46964919567108,
+            15.0600097104907,
+            8.207974657416344
+          ],
+          "sizeM": [
+            13.319905623793602,
+            9.839911457151171,
+            16.415949314832687
+          ],
+          "triangles": 576
+        },
+        "ratios": [
+          0.8000000536982622,
+          0.7999948916141852,
+          0.8000133720962911
+        ]
+      },
+      {
+        "kind": "stl",
+        "baselineAsset": "capital_twin175",
+        "baseline": {
+          "lowM": [
+            9.000137340277433,
+            4.200032137334347,
+            -10.25979682803154
+          ],
+          "highM": [
+            25.65001881122589,
+            16.5,
+            10.25979682803154
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            20.51959365606308
+          ],
+          "triangles": 572,
+          "socketHalfWidthM": 10.274999999999999
+        },
+        "current": {
+          "lowM": [
+            10.499862659722567,
+            5.220098253339528,
+            -8.207974657416344
+          ],
+          "highM": [
+            23.819766998291016,
+            15.0600097104907,
+            8.207974657416344
+          ],
+          "sizeM": [
+            13.319904338568449,
+            9.839911457151171,
+            16.415949314832687
+          ],
+          "triangles": 540
+        },
+        "ratios": [
+          0.7999999496578808,
+          0.7999948916141852,
+          0.8000133720962911
+        ]
+      },
+      {
+        "kind": "triple175",
+        "baselineAsset": "capital_twin175",
+        "baseline": {
+          "lowM": [
+            9.000137340277433,
+            4.200032137334347,
+            -10.25979682803154
+          ],
+          "highM": [
+            25.65001881122589,
+            16.5,
+            10.25979682803154
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            20.51959365606308
+          ],
+          "triangles": 572,
+          "socketHalfWidthM": 10.274999999999999
+        },
+        "current": {
+          "lowM": [
+            10.499862659722567,
+            5.220098253339528,
+            -8.207974657416344
+          ],
+          "highM": [
+            23.819766998291016,
+            15.0600097104907,
+            8.207974657416344
+          ],
+          "sizeM": [
+            13.319904338568449,
+            9.839911457151171,
+            16.415949314832687
+          ],
+          "triangles": 540
+        },
+        "ratios": [
+          0.7999999496578808,
+          0.7999948916141852,
+          0.8000133720962911
+        ]
+      },
+      {
+        "kind": "quad175",
+        "baselineAsset": "capital_quad175",
+        "baseline": {
+          "lowM": [
+            9.000137340277433,
+            4.200032137334347,
+            -18.134727627038956
+          ],
+          "highM": [
+            25.65001881122589,
+            16.5,
+            18.134727627038956
+          ],
+          "sizeM": [
+            16.649881470948458,
+            12.299967862665653,
+            36.26945525407791
+          ],
+          "triangles": 620,
+          "socketHalfWidthM": 18.15
+        },
+        "current": {
+          "lowM": [
+            10.499862659722567,
+            5.220098253339528,
+            -14.508331418037415
+          ],
+          "highM": [
+            23.819766998291016,
+            15.0600097104907,
+            14.508331418037415
+          ],
+          "sizeM": [
+            13.319904338568449,
+            9.839911457151171,
+            29.01666283607483
+          ],
+          "triangles": 588
+        },
+        "ratios": [
+          0.7999999496578808,
+          0.7999948916141852,
+          0.800030290855068
+        ]
+      }
+    ],
+    "unchangedModels": [
+      {
+        "kind": "ball175TripleIon",
+        "asset": "capital_ball175_triple_ion",
+        "dataSha256": "c495e6159558afa19adb6403aeb0e2d1bc9b01105fbe4d5d697394bae5e993a7",
+        "archive": {
+          "sha256": "28ae0331a23f5167a109bb1ddc35f806129313cb702421a23c22bae860c3e1fb",
+          "unchangedFromPR46": true
+        }
+      },
+      {
+        "kind": "ball175Quad",
+        "asset": "capital_ball175_quad",
+        "dataSha256": "93dcf8f64d74cbcba958bb5cd4c5d754f46b58e1d95de909ed752d821e7350e2",
+        "archive": {
+          "sha256": "ae28ae1ce29af38254a0ff0a9adad70a0f4b278530233bb6b57b6643d1099381",
+          "unchangedFromPR46": true
+        }
+      },
+      {
+        "kind": "ball175QuadIon",
+        "asset": "capital_ball175_quad_ion",
+        "dataSha256": "fdbde1a95d34e6a2d3913bfd175b30e5064b42092c9b6ce424830e1317d8bfca",
+        "archive": {
+          "sha256": "1df31be3ac6d07fc6ab4b3971ecc75fc416f38c369511dbaa911407ed608a877",
+          "unchangedFromPR46": true
+        }
+      },
+      {
+        "kind": "ball720",
+        "asset": "capital_ball720_single",
+        "dataSha256": "a67948543d9077ea8f9249b23f1ea95a172e61741a5fa5d6a8bc2acf926a553e",
+        "archive": {
+          "sha256": "a8ceeb5a32243979c325ae752ed21360b71ccc7764e8e5fd7f9e74c477aa33c4",
+          "unchangedFromPR46": true
+        }
+      },
+      {
+        "kind": "utl",
+        "asset": "capital_twin720",
+        "dataSha256": "c3b1e175aba6be718a2b5f2893a9120751331e1bdba54465abe9eaff4c4c71ba",
+        "archive": {
+          "sha256": "4711fd965c0783c516bef00ffe2dfb3c57d2a8e65adddba0b74405de38c0e841",
+          "unchangedFromPR46": true
+        }
+      }
+    ],
+    "twinTriple": {
+      "sharedBaseSha256": "09930e3f33043ab63c81c2fd37f8de69d58993721c1566851eefe98d0330ff40",
+      "outerPairSha256": [
+        "8b6fcfea43afb76e0d86973f02404e1fa0d15d9ce8ef2abd7c579712588a6841",
+        "823692d30c766687c1aebf19fd44d6f565dfe82ab213de6e611960314b567f09"
+      ],
+      "centerGunRoot": [
+        13.5,
+        9.899999999999999,
+        0
+      ],
+      "centerGunMuzzle": [
+        39.75,
+        9.899999999999999,
+        0
+      ],
+      "addedGunTriangles": 600,
+      "twinTriangles": 3696,
+      "tripleTriangles": 4296
+    }
+  },
   "nativePalette": {
     "entries": {
       "ion": {
         "count": 1,
-        "label": "175TT 2連装重イオン砲対シールド 350TT・60×45×16.5 mIS重戦車の鋳造砲塔に似た、前後に長い楕円で潰れたお椀型の砲室。前へ張り出す砲基部と、付け根が太く先細の砲身を持つ。175TT系列と同じ基準寸法で、2門×175TT相当のイオン砲。 連射間隔 1秒。"
+        "label": "175TT 2連装重イオン砲対シールド 350TT・60×45×16.4 mIS重戦車の鋳造砲塔に似た、前後に長い楕円で潰れたお椀型の砲室。前へ張り出す砲基部と、付け根が太く先細の砲身を持つ。175TT系列と同じ基準寸法で、2門×175TT相当のイオン砲。 連射間隔 1秒。"
       },
       "stl": {
         "count": 1,
-        "label": "175TT 2連装重ターボレーザー350 TT・60×45×16.5 m70TT三連装を基にした角形砲室と、細く絞った前部砲基部を持つ。175TT三連装・四連装と同寸法で、2門×175TT。 連射間隔 1秒。"
+        "label": "175TT 2連装重ターボレーザー350 TT・60×45×16.4 m70TT三連装を基にした角形砲室と、細く絞った前部砲基部を持つ。175TT三連装・四連装と同寸法で、2門×175TT。 連射間隔 1秒。"
       },
       "triple175": {
         "count": 1,
-        "label": "175TT 3連装重ターボレーザー525 TT・60×45×16.5 m70TT三連装に基づく砲室を使い、175TT四連装と同寸法のまま、前部を狭めて3門を収める。3門×175TT。 連射間隔 1秒。"
+        "label": "175TT 3連装重ターボレーザー525 TT・60×45×16.4 m175TT連装と同じ砲室・砲基部を使い、外側2門の位置を保って中央に1門を追加した三連装。3門×175TT。 連射間隔 1秒。"
       },
       "quad175": {
         "count": 1,
-        "label": "175TT 4連装重ターボレーザー700 TT・60×45×16.5 m175TT連装・三連装と同寸法の砲室に4門を収める。幅広い前部砲基部と絞った装甲側面をつなぐ。4門×175TT。 連射間隔 1秒。"
+        "label": "175TT 4連装重ターボレーザー700 TT・60×45×16.4 m175TT連装・三連装と同寸法の砲室に4門を収める。幅広い前部砲基部と絞った装甲側面をつなぐ。4門×175TT。 連射間隔 1秒。"
       },
       "ball175TripleIon": {
         "count": 1,
@@ -8916,8 +11940,8 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.974973462346,
-          "externalVolume": 12126.974973462346,
+          "housingVolume": 11403.751372820536,
+          "externalVolume": 11403.751372820536,
           "embeddedVolume": 0,
           "externalUsed": 7000,
           "embeddedUsed": 0,
@@ -9285,7 +12309,7 @@
         ]
       },
       "saved": {
-        "saveId": "ship-a59ab3e2-109b-4b13-9e7e-ddd5daeb2cf9",
+        "saveId": "ship-042fc9ed-8e3f-4705-b33b-23dd655bb14b",
         "yaw": 37,
         "pitch": 55
       },
@@ -9613,14 +12637,14 @@
       "kind": "ion",
       "id": 2,
       "body": {
-        "indices": 6864,
-        "vertices": 5772,
+        "indices": 7248,
+        "vertices": 5984,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 5772
+          "143,150,155": 5984
         },
         "uvRange": [
           0.046142578125,
@@ -9630,14 +12654,14 @@
         ]
       },
       "moving": {
-        "indices": 3954,
-        "vertices": 1874,
+        "indices": 3408,
+        "vertices": 1400,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 1874
+          "143,150,155": 1400
         },
         "uvRange": [
           0.046142578125,
@@ -9651,14 +12675,14 @@
       "kind": "stl",
       "id": 3,
       "body": {
-        "indices": 5772,
-        "vertices": 3876,
+        "indices": 5868,
+        "vertices": 3936,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 3876
+          "143,150,155": 3936
         },
         "uvRange": [
           0.046142578125,
@@ -9668,14 +12692,14 @@
         ]
       },
       "moving": {
-        "indices": 5316,
-        "vertices": 1708,
+        "indices": 5220,
+        "vertices": 1660,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 1708
+          "143,150,155": 1660
         },
         "uvRange": [
           0.046142578125,
@@ -9689,14 +12713,14 @@
       "kind": "triple175",
       "id": 4,
       "body": {
-        "indices": 5748,
-        "vertices": 3852,
+        "indices": 5868,
+        "vertices": 3936,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 3852
+          "143,150,155": 3936
         },
         "uvRange": [
           0.046142578125,
@@ -9706,14 +12730,14 @@
         ]
       },
       "moving": {
-        "indices": 7188,
-        "vertices": 2058,
+        "indices": 7020,
+        "vertices": 1962,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 2058
+          "143,150,155": 1962
         },
         "uvRange": [
           0.046142578125,
@@ -9727,14 +12751,14 @@
       "kind": "quad175",
       "id": 5,
       "body": {
-        "indices": 5940,
-        "vertices": 3984,
+        "indices": 6036,
+        "vertices": 4044,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 3984
+          "143,150,155": 4044
         },
         "uvRange": [
           0.046142578125,
@@ -9744,14 +12768,14 @@
         ]
       },
       "moving": {
-        "indices": 9060,
-        "vertices": 2408,
+        "indices": 8964,
+        "vertices": 2360,
         "nonfinite": 0,
         "badNormal": 0,
         "zeroNormal": 0,
         "texture": "reference",
         "colors": {
-          "143,150,155": 2408
+          "143,150,155": 2360
         },
         "uvRange": [
           0.046142578125,
@@ -10069,10 +13093,10 @@
       "models": [
         {
           "kind": "ion",
-          "triangles": 3606,
+          "triangles": 3552,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10097,7 +13121,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10119,10 +13143,10 @@
         },
         {
           "kind": "triple175",
-          "triangles": 4312,
+          "triangles": 4296,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 3,
@@ -10130,17 +13154,17 @@
             [
               237.75,
               33.9,
-              -7.125
+              -3.8000000000000003
+            ],
+            [
+              237.75,
+              33.9,
+              3.8000000000000003
             ],
             [
               237.75,
               33.9,
               0
-            ],
-            [
-              237.75,
-              33.9,
-              7.125
             ]
           ],
           "effectiveElevationDegrees": 0,
@@ -10152,7 +13176,7 @@
           "triangles": 5000,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 4,
@@ -10268,14 +13292,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 115585,
+      "litPixels": 111532,
       "pixelCount": 1472000,
       "webglError": 0,
       "image": "capital-turret-angular-lineup.png",
       "artifact": {
         "committed": true,
         "path": "docs/images/capital-turret-angular-lineup.png",
-        "sha256": "5fa53f197d91c9ac76be444c5bbb17ad0eaf05cb5c08f5e7a8eb43247c41c9ea"
+        "sha256": "31b6bc7a16d8ec86534798f678a11ed0417e951a5413da44b02142fb72613d7a"
       }
     },
     {
@@ -10290,10 +13314,10 @@
       "models": [
         {
           "kind": "ion",
-          "triangles": 3606,
+          "triangles": 3552,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10318,7 +13342,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10340,10 +13364,10 @@
         },
         {
           "kind": "triple175",
-          "triangles": 4312,
+          "triangles": 4296,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 3,
@@ -10351,17 +13375,17 @@
             [
               237.75,
               33.9,
-              -7.125
+              -3.8000000000000003
+            ],
+            [
+              237.75,
+              33.9,
+              3.8000000000000003
             ],
             [
               237.75,
               33.9,
               0
-            ],
-            [
-              237.75,
-              33.9,
-              7.125
             ]
           ],
           "effectiveElevationDegrees": 0,
@@ -10373,7 +13397,7 @@
           "triangles": 5000,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 4,
@@ -10404,14 +13428,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 207065,
+      "litPixels": 199350,
       "pixelCount": 1472000,
       "webglError": 0,
       "image": "capital-turret-angular-top.png",
       "artifact": {
         "committed": true,
         "path": "docs/images/capital-turret-angular-top.png",
-        "sha256": "32fafcdfbda0dc165d06d39305a75c0f7a1a493b6b24e6a47826c55a2770e06e"
+        "sha256": "1770db4d56c34472f905ba4c57599291b8a2b67cdfd69c4ed1413660edfa53b7"
       }
     },
     {
@@ -10685,7 +13709,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10781,14 +13805,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 205692,
+      "litPixels": 204315,
       "pixelCount": 1472000,
       "webglError": 0,
       "image": "capital-turret-720-scale.png",
       "artifact": {
         "committed": true,
         "path": "docs/images/capital-turret-720-scale.png",
-        "sha256": "45ba9aaa12b13842419d53d21731825f12d4dbd67320bd190d024fdc051c13ff"
+        "sha256": "9148b4b22cc13d57c3336e65a3a377abdbe222bc03f0e29f3e7d1d1ac74b9cb8"
       }
     },
     {
@@ -10803,10 +13827,10 @@
       "models": [
         {
           "kind": "ion",
-          "triangles": 3606,
+          "triangles": 3552,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10827,14 +13851,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 139295,
+      "litPixels": 136171,
       "pixelCount": 951200,
       "webglError": 0,
       "image": "capital-turret-twin175-bowl.png",
       "artifact": {
         "committed": true,
         "path": "docs/images/capital-turret-twin175-bowl.png",
-        "sha256": "3ea3a9ef56b4337034a3f563fc0a2adcd1b99ea2894b5944e6cb2cbae4c0ea78"
+        "sha256": "925aa047107ba3a3214e152158f7861611af31dd838528abcd50a5547b752354"
       }
     },
     {
@@ -10852,7 +13876,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10873,14 +13897,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 41823,
+      "litPixels": 44807,
       "pixelCount": 951200,
       "webglError": 0,
       "image": "capital-turret-twin175-TL-front.png",
       "artifact": {
         "committed": false,
         "path": "/tmp/capital-turret-visuals/capital-turret-twin175-TL-front.png",
-        "sha256": "c79760ac78bcd38969e598aceb2f6c065f9bacfadc5611e9fa59a3b8e9bf74c1"
+        "sha256": "f884ffce80fda6f6c0944eb059dc7c875bbc555544e3c5e66bcbe93888305f16"
       }
     },
     {
@@ -10898,7 +13922,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10919,14 +13943,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 156414,
+      "litPixels": 152896,
       "pixelCount": 951200,
       "webglError": 0,
       "image": "capital-turret-twin175-TL-top.png",
       "artifact": {
         "committed": false,
         "path": "/tmp/capital-turret-visuals/capital-turret-twin175-TL-top.png",
-        "sha256": "85b3e05ab87382b8afb1e73cdcb38ad93c4408af52044fe9d6178b0999d37d26"
+        "sha256": "7de6814881979c85ad9e799d4380c956cc1146015fe3ee3200a62da7a33fc84e"
       }
     },
     {
@@ -10944,7 +13968,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -10965,14 +13989,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 74291,
+      "litPixels": 69805,
       "pixelCount": 951200,
       "webglError": 0,
       "image": "capital-turret-twin175-TL-side.png",
       "artifact": {
         "committed": false,
         "path": "/tmp/capital-turret-visuals/capital-turret-twin175-TL-side.png",
-        "sha256": "27e851e8aadcd1d3f18f952774e7b3bf3bfb626d769a6b39c6a1a9e92a736d49"
+        "sha256": "6e8fde82fd724125147f6aa762c27f14c7a67c0b25090d23e7919eec67e1d8c2"
       }
     },
     {
@@ -10990,7 +14014,7 @@
           "triangles": 5000,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 4,
@@ -11021,14 +14045,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 147427,
+      "litPixels": 144724,
       "pixelCount": 951200,
       "webglError": 0,
       "image": "capital-turret-quad175-pose.png",
       "artifact": {
         "committed": false,
         "path": "/tmp/capital-turret-visuals/capital-turret-quad175-pose.png",
-        "sha256": "2e0948f902f2584b5a0386b9a2f4369edebe0adac471d05f9b35eae5f6a67fbb"
+        "sha256": "437cdae3c3787993369ce868fbd908633949ff4c689a7bb0beb9670907c08c0b"
       }
     },
     {
@@ -11380,7 +14404,7 @@
       "artifact": {
         "committed": false,
         "path": "/tmp/capital-turret-visuals/capital-turret-ball-pose-25.png",
-        "sha256": "779a7a085afb56064616f8bf2057e6f5e34cd5fb4d4fd565b08b51601f3e9033"
+        "sha256": "fdad943f233b3b8d6d494ef0fb610aac85becadb47d075c847e327ff7e08bee7"
       }
     },
     {
@@ -11571,10 +14595,10 @@
       "models": [
         {
           "kind": "ion",
-          "triangles": 3606,
+          "triangles": 3552,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -11599,7 +14623,7 @@
           "triangles": 3696,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 2,
@@ -11621,10 +14645,10 @@
         },
         {
           "kind": "triple175",
-          "triangles": 4312,
+          "triangles": 4296,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 3,
@@ -11632,17 +14656,17 @@
             [
               227.34416091858841,
               52.68943089152968,
-              -7.125
+              -3.8000000000000003
+            ],
+            [
+              227.34416091858841,
+              52.68943089152968,
+              3.8000000000000003
             ],
             [
               227.34416091858841,
               52.68943089152968,
               0
-            ],
-            [
-              227.34416091858841,
-              52.68943089152968,
-              7.125
             ]
           ],
           "effectiveElevationDegrees": 55,
@@ -11654,7 +14678,7 @@
           "triangles": 5000,
           "size": [
             60,
-            16.5,
+            16.424999999999997,
             45
           ],
           "muzzleCount": 4,
@@ -11685,14 +14709,14 @@
           "bodyFixed": false
         }
       ],
-      "litPixels": 156027,
+      "litPixels": 156789,
       "pixelCount": 1472000,
       "webglError": 0,
       "image": "capital-turret-angular-pose-55.png",
       "artifact": {
         "committed": false,
         "path": "/tmp/capital-turret-visuals/capital-turret-angular-pose-55.png",
-        "sha256": "0355d9e981c15400071f5966f4bfc975c482dbe246305f240a2f61296a0af944"
+        "sha256": "28519109a8910fd2297f37bccfff34e925cee1436d6b5ed1771947b30748c389"
       }
     }
   ],
@@ -11715,11 +14739,11 @@
         "skinAsset": null,
         "caseStyle": "flattened-is-cast-bowl",
         "nativeCalibration": "capital-photo-family",
-        "triangles": 3606,
-        "drawnIndices": 10818,
+        "triangles": 3552,
+        "drawnIndices": 10656,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -11729,15 +14753,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 11568.99971424941,
-          "externalVolume": 9886.74549844861,
-          "embeddedVolume": 1682.2542158008,
+          "housingVolume": 10757.16176166579,
+          "externalVolume": 9074.914072856307,
+          "embeddedVolume": 1682.2476888094825,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1682.2542158008,
+          "internalOccupiedVolume": 1682.2476888094825,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -11765,7 +14789,7 @@
         "drawnIndices": 11088,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -11775,15 +14799,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.97497346235,
-          "externalVolume": 10579.899132952094,
-          "embeddedVolume": 1547.0758405102551,
+          "housingVolume": 11403.751372820532,
+          "externalVolume": 9856.681534901261,
+          "embeddedVolume": 1547.0698379192709,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1547.0758405102551,
+          "internalOccupiedVolume": 1547.0698379192709,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -11811,7 +14835,7 @@
         "drawnIndices": 11088,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -11821,15 +14845,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.97497346235,
-          "externalVolume": 10579.919071137905,
-          "embeddedVolume": 1547.055902324444,
+          "housingVolume": 11403.751372820532,
+          "externalVolume": 9856.700666069984,
+          "embeddedVolume": 1547.0507067505478,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1547.055902324444,
+          "internalOccupiedVolume": 1547.0507067505478,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -11857,7 +14881,7 @@
         "drawnIndices": 11088,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -11867,15 +14891,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.974973462347,
-          "externalVolume": 10579.937723144889,
-          "embeddedVolume": 1547.0372503174585,
+          "housingVolume": 11403.751372820538,
+          "externalVolume": 9856.718510881066,
+          "embeddedVolume": 1547.0328619394713,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1547.0372503174585,
+          "internalOccupiedVolume": 1547.0328619394713,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -11899,11 +14923,11 @@
         "skinAsset": null,
         "caseStyle": "flattened-is-cast-bowl",
         "nativeCalibration": "capital-photo-family",
-        "triangles": 3606,
-        "drawnIndices": 10818,
+        "triangles": 3552,
+        "drawnIndices": 10656,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -11913,15 +14937,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 11568.99971424941,
-          "externalVolume": 9886.747438803315,
-          "embeddedVolume": 1682.2522754460952,
+          "housingVolume": 10757.16176166579,
+          "externalVolume": 9074.916013300419,
+          "embeddedVolume": 1682.2457483653707,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1682.2522754460952,
+          "internalOccupiedVolume": 1682.2457483653707,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -11949,7 +14973,7 @@
         "drawnIndices": 11088,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -11959,15 +14983,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.97497346235,
-          "externalVolume": 10579.90288875997,
-          "embeddedVolume": 1547.0720847023786,
+          "housingVolume": 11403.751372820532,
+          "externalVolume": 9856.685290679336,
+          "embeddedVolume": 1547.0660821411966,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1547.0720847023786,
+          "internalOccupiedVolume": 1547.0660821411966,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -11995,7 +15019,7 @@
         "drawnIndices": 11088,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -12005,15 +15029,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.97497346235,
-          "externalVolume": 10579.917138189077,
-          "embeddedVolume": 1547.0578352732718,
+          "housingVolume": 11403.751372820532,
+          "externalVolume": 9856.69873304665,
+          "embeddedVolume": 1547.0526397738813,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1547.0578352732718,
+          "internalOccupiedVolume": 1547.0526397738813,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -12041,7 +15065,7 @@
         "drawnIndices": 11088,
         "size": [
           60,
-          16.5,
+          16.424999999999997,
           45
         ],
         "barrels": 2,
@@ -12051,15 +15075,15 @@
         "charge": {
           "required": 7000,
           "plannedVolume": 7000,
-          "housingVolume": 12126.974973462347,
-          "externalVolume": 10579.933389864862,
-          "embeddedVolume": 1547.0415835974854,
+          "housingVolume": 11403.751372820538,
+          "externalVolume": 9856.714177623391,
+          "embeddedVolume": 1547.0371951971465,
           "externalUsed": 7000,
           "embeddedUsed": 0,
           "housingUsed": 7000,
           "internalRequired": 0,
           "internalVolume": 0,
-          "internalOccupiedVolume": 1547.0415835974854,
+          "internalOccupiedVolume": 1547.0371951971465,
           "volume": 7000,
           "ratio": 1,
           "capacityRatio": 1,
@@ -12076,17 +15100,17 @@
     "sourceHullSkin": null,
     "webglError": 0,
     "nativeMenu": true,
-    "elapsedMs": 34281,
+    "elapsedMs": 36189,
     "images": [
       {
         "id": "isd-whole",
         "path": "docs/images/capital-turret-isd-whole.png",
-        "sha256": "051eaf5b86d4178a12e04bed394c18058552ffe6fb09945fa3f6d6c416bcd5bc"
+        "sha256": "0a172d89301e187ea37d22b2abf6099a10126b25850a4b401d5ce08d2a3ab3bc"
       },
       {
         "id": "isd-battery",
         "path": "docs/images/capital-turret-isd-battery.png",
-        "sha256": "086ea03c72d89162fc218ce2795357df938c82cd2aa3fb38e0a09b02c2866ac4"
+        "sha256": "44fc5a235898051b1699e5580493f00947636aa2f5882bf225da861170c48aa6"
       }
     ],
     "errors": [],
@@ -12102,6 +15126,8 @@
       "Native placement and canvas selection; exact per-gun physical muzzle surfaces",
       "Complete fixed/moving source geometry, valid packed GPU normals/UVs and reference material",
       "175TT common envelopes, common four-ball diameter and enlarged720TT twin",
+      "Exact decoded twin/triple shared base with unchanged outer pair and one complete center gun",
+      "Four angular175 front mechanisms reduced by20percent relative to PR46; all four balls and angular720 unchanged",
       "Complete twin front assembly≤half case width, corrected casing widths and actual closed armored roof surfaces",
       "Actual ion barrel mesh has a thick root narrowing toward the tip",
       "Three actual upper-front armor bevels, source annotation hash and temporary orthographic side/front/top views",

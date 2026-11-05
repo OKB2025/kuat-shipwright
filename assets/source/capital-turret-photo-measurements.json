@@ -148,7 +148,7 @@
   "dimensions": {
     "angular175SizeM": [
       60,
-      16.5,
+      16.425,
       45
     ],
     "angular175HouseLengthM": 40.5,
@@ -162,7 +162,6 @@
     ],
     "ballMuzzleXM": 26.5,
     "ballEmbeddedHeightFraction": 0.3333333333333333,
-    "twin720UniformScale": 1.5,
     "twin720SizeM": [
       90,
       24.75,
@@ -170,7 +169,19 @@
     ],
     "angular175PrototypeScale": 1.5,
     "ball175RootXM": 0.25,
-    "ball720RootXM": -12.875
+    "ball720RootXM": -12.875,
+    "angular175OriginalEnvelopeM": [
+      60,
+      16.5,
+      45
+    ],
+    "twin720ScaleFromOriginal175Envelope": 1.5,
+    "twin720Original175EnvelopeM": [
+      60,
+      16.5,
+      45
+    ],
+    "twin720PreservedFromCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb"
   },
   "tube175Design": {
     "fullLengthM": 26.25,
@@ -197,10 +208,10 @@
       ],
       "sizeM": [
         60,
-        16.5,
+        16.425,
         45
       ],
-      "constraint": "Same enlarged overall envelope. The ion twin has a flattened IS-tank cast-bowl house. The normal TL twin, triple and quad use angular70TT×3-derived houses; two/three-gun front pods are narrower than the four-gun pod."
+      "constraint": "Same outer case family. The normal triple uses exactly the twin TL case, cradle, drives and roof, retaining the outer two tubes and adding one center tube. All175 front mechanisms shrink0.8; the unchanged roof hardware sets the measured16.425m full height."
     },
     {
       "name": "ball",
@@ -216,7 +227,7 @@
         36
       ],
       "diameterM": 36,
-      "constraint": "Common sphere and muzzle plane; whole-body yaw/elevation, lower one third embedded."
+      "constraint": "Common sphere, front receiver, muzzle plane and conservative room reservation across four. All ball hardware is preserved from0ef37aa. Whole-body yaw/elevation and lower one third embedded."
     }
   ],
   "models": {
@@ -668,7 +679,7 @@
   },
   "interpretations": [
     "The user lists nine models. The175TT ION twin is the flattened IS-tank-like bowl; the normal175TT TL twin is angular and follows the new red technical detail reference.",
-    "The initial40x11x30 angular estimate and its globalphoto1 scale are explicitly superseded. Corrected175TT is60x16.5x45m, larger than the40m ISD octuple in both plan dimensions.",
+    "The initial40x11x30 angular estimate and its globalphoto1 scale are explicitly superseded. Original corrected175TT was60x16.5x45m, larger than the40m ISD octuple in both plan dimensions. Compact front hardware reduces the current actual height to16.425m.",
     "Photo2 mounted station pitch supplies the stronger angular calibration. Photo1 remains the source for model order, common ball diameter and the720/175 shape enlargement relationship.",
     "The red technical drawing(photo5) is an authoring/detail reference only and supplies no metre or pixel scale.",
     "Exhibition cylinders and the broad octagonal support below720TT twin are excluded from native turret envelopes."
@@ -788,22 +799,22 @@
     },
     "reason": "Ball diameter/envelope remains anchored independently to photo1. Larger corrected caliber profiles are seated deeper inside the common sphere instead of changing the four shared outer sizes."
   },
-  "supersedesMeasurementSha256": "969ade2e2a6167e17679e9182fdcf95a0af6365cadc871dd0c62579a816ca990",
+  "supersedesMeasurementSha256": "640d26af84bebb459745e4bbca1977bc2575f90d82c08913da6212fc6272a068",
   "podWidthDesign": {
     "caseWidth175M": 45,
     "ratiosByBarrelCount": {
-      "2": 0.4,
-      "3": 0.575,
-      "4": 0.75
+      "2": 0.32,
+      "3": 0.32,
+      "4": 0.6
     },
     "widths175M": {
-      "2": 18,
-      "3": 25.875,
-      "4": 33.75
+      "2": 14.4,
+      "3": 14.4,
+      "4": 27
     },
     "barrelRowSpans175M": {
       "2": 7.6,
-      "3": 14.25,
+      "3": 7.6,
       "4": 17.1
     },
     "reference": "photo8",
@@ -815,9 +826,14 @@
     ],
     "appliesToTwinKinds": [
       "stl",
+      "triple175",
       "ion"
     ],
-    "status": "Explicit user constraint: complete twin base is at most half the maximum house width. The wider0.60 twin/0.675 triple interpretations are superseded. Quad retains the70TT triple reference ratio; triple interpolates between narrow twin and quad."
+    "status": "Latest user revision: all175 front mechanisms are scaled0.8. The triple shares the complete twin model and retains its outer tube pair, with only one center tube added. Original half-house-width limit remains an upper bound; actual compact twin supports fit well inside it.",
+    "sharedBaseKinds": [
+      "stl",
+      "triple175"
+    ]
   },
   "ionDesign": {
     "references": [
@@ -825,7 +841,7 @@
       "photo6",
       "photo9"
     ],
-    "case175Twin": "Longitudinal flattened oval cast bowl with curved forward shoulders; narrow front mantlet advances relative to the angular TL twin. Same whole60×16.5×45m envelope.",
+    "case175Twin": "Longitudinal flattened oval cast bowl with curved forward shoulders; narrow front mantlet advances relative to the angular TL twin. Current whole60×16.425×45m envelope; the original16.5m height is retained only as the720 scaling reference.",
     "podForwardOffset175M": 1.65,
     "completePodMaximumWidthM": 22.5,
     "barrelStyle": "tapered-ion-tube",
@@ -854,5 +870,41 @@
     "machineryMountedAboveRoof": true,
     "centralOpenCavity": false,
     "status": "Explicit user correction. Earlier open-well interpretation is rejected. Internal recoil/equipment clearance remains reserved and is not free charging volume."
+  },
+  "frontBaseRevision": {
+    "baselineCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+    "source": "User requested the angular twin-based triple with one center barrel and smaller175TT gun bases; later explicitly excluded spherical175TT bases.",
+    "mechanismScale175": 0.8,
+    "bodyAndTubeScale": 1,
+    "angularTripleBaseKind": "stl",
+    "tripleRetainsOuterPair": true,
+    "tripleAddsCenterTubeZ": 0,
+    "affectedKinds": [
+      "ion",
+      "stl",
+      "triple175",
+      "quad175"
+    ],
+    "ballSphereAndMuzzlePlaneUnchanged": true,
+    "roomPolicy": "Reserve conservative angular mechanism space and keep it excluded from charging cells. Do not credit new interface supports.720 and all ball geometry, mechanisms and rooms are preserved.",
+    "status": "A20percent authoring adjustment, not a new image-derived metre calibration. Actual geometry, contact, bounds and unchanged720 models are checked by generators and independent tests.",
+    "unchangedKinds": [
+      "utl",
+      "ball175TripleIon",
+      "ball175Quad",
+      "ball175QuadIon",
+      "ball720"
+    ],
+    "ballHardwarePreservedFromCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+    "sideCaseFill": {
+      "source": "User requested structural filling on both sides of the reduced gun base.",
+      "fixedToCase": true,
+      "spanOriginalSocketSides": true,
+      "clipToOriginalBeveledOrOvalCase": true,
+      "maintainMovingEnvelopeClearance": true,
+      "addsCapacitorRoom": false,
+      "sharedByTwinAndTriple": true,
+      "excludesBallTurrets": true
+    }
   }
 }
