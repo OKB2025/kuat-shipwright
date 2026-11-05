@@ -20,7 +20,7 @@
 
 ## 砲身と駆動部
 
-元の小型両用砲 `pd_turret_small` の砲室・旋回機構・円形駆動部を保持する。左右に縦2門ずつ、外径0.34 mの平行な円筒砲身を配置し、段付きの根元と上下をつなぐ揺架を加える。砲口は内径0.23 m、くぼみ0.45 m。先端まで円形断面を保つ。
+元の小型両用砲 `pd_turret_small` の砲室・旋回機構・円形駆動部を保持する（v27 で元の `pd_turret_small` / `Turret-Small-1.fbx` は削除した。点防御砲を多数載せる艦で描画とワーカー転送が数倍に重くなったため。四連装は生成済みのメッシュをそのまま独立して保持し、生成スクリプト `build-arquitens-turret.py` も元データとともに削除した）。左右に縦2門ずつ、外径0.34 mの平行な円筒砲身を配置し、段付きの根元と上下をつなぐ揺架を加える。砲口は内径0.23 m、くぼみ0.45 m。先端まで円形断面を保つ。
 
 下段と上段を駆動部より上へ移し、砲身の根元を支持する枠をつなぐ。旧モデルの砲身を上下へ単純複製せず、写真に合わせた砲身・接続部を作る。標準寸法、1門500GT、4門合計2TT、質量2,250 t・乗員10名・基礎費用200,000を保持する。性能・費用・連射間隔はゲーム用仮定。
 
@@ -39,7 +39,6 @@ DBY-827は `refVen` の70TT×2で元の `ven_turret` の形状を保持し、ISD
 ## 再生成と検証
 
 ```sh
-python3 scripts/build-arquitens-turret.py --check
 python3 scripts/build-turret-family.py --check
 node --test tests/arquitens-turret.cjs tests/weapon-family-models.cjs \
   tests/authored-turret-motion.cjs tests/authored-turret-clearance.cjs \

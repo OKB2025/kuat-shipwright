@@ -5,7 +5,7 @@ const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),fit=k=>({id:1,k,p:[60,50,0],a
 function metalUV(g,label){for(let i=0;i<g.n;i++){const u=g.uv[i*2],v=g.uv[i*2+1];assert.ok(Number.isFinite(u)&&Number.isFinite(v)&&u>=0&&u<.5&&v>=0&&v<=1,label+' must sample the metal half of the fittings atlas; the right half contains dark windows');}}
 
 test('untextured fitting UVs stay in the metal atlas region without mutating source asset UVs',()=>{
- assert.deepEqual(plainKeys,['pd','quad500']);
+ assert.deepEqual(plainKeys,['quad500'],'the point-defense model was removed; quad500 keeps its own plain mesh');
  for(const k of plainKeys){const a=C.REFERENCE_ASSETS[C.FITS[k].asset],decoded=C.decodeReference(C.FITS[k].asset),raw=Array.from(decoded.uv),f=fit(k),mesh=G.meshFits({fits:[f]});assert.equal(mesh.ni,a.faces*3);metalUV(mesh,k);metalUV(G.meshFits({fits:[f]}),k+' cached');assert.deepEqual(Array.from(decoded.uv),raw,k+' source UVs remain immutable');}
 });
 

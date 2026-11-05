@@ -23388,7 +23388,10 @@ function fitSpec(f){f=migrateWeaponFit(f);const d=FITS[f.k],s=f.scale||1;if(s===
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 const REFERENCE_ASSETS=YardReferenceData.assets;
 // The supplied turret uses its authored turntable origin and floor as the mount.
-{const a=REFERENCE_ASSETS.pd_turret_small;Object.assign(FITS.pd,{asset:'pd_turret_small',fm:a.size[0],wm:a.size[2],hm:a.size[1],r:a.size[2]/2});}
+// The small dual-purpose turret is drawn procedurally. Its footprint keeps the bounds of the supplied model it
+// once used (9 x 3.149 x 5.730 m before calibration, swept radius 4.5 m), so placements and figures are unchanged.
+const PD_TURRET_SIZE=Object.freeze([9,3.1493375257895857,5.729853188053728]);
+Object.assign(FITS.pd,{fm:PD_TURRET_SIZE[0],wm:PD_TURRET_SIZE[2],hm:PD_TURRET_SIZE[1],r:PD_TURRET_SIZE[2]/2});
 {const a=REFERENCE_ASSETS.arq_turret_quad500;Object.assign(FITS.quad500,{asset:'arq_turret_quad500',fm:a.size[0],wm:a.size[2],hm:a.size[1],r:Math.max(a.size[0],a.size[2])/2});}
 // Per-model colour balance. The source models were textured separately, so
 // their average tones differ (warm turrets, dark engine bells). Each factor
@@ -24503,7 +24506,7 @@ FITS.casemateIon={...CASEMATE_BASE,key:'casemateIon',name:'連装ケースメイ
 FITS.casemateIonL={...CASEMATE_BASE,key:'casemateIonL',name:'連装ケースメイト軽イオン砲',short:'ケースメイト軽イオン',boltTT:.12,ion:.24,cycle:.5,power:.48*TT,fm:6,wm:5,hm:8,r:3,mass:300,crew:3,cost:50e3,aa:.8,desc:'壁に埋め込む連装の軽イオン砲（2門×120 GT 相当）。小型艦がシールドを剥ぐための速射砲。左右±65°・上下±20°、船体で遮蔽される方向は射撃不可。'};
 // Standard gun dimensions are calibrated to the actual rendered source models.
 // These measured local bounds avoid decoding meshes during Core initialization.
-const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"pd_turret_small":[9,3.1493375257895857,5.729853188053728],"isd_heavy_twin":REFERENCE_ASSETS.isd_heavy_twin.size.slice(),"isd_heavy_octuple":REFERENCE_ASSETS.isd_heavy_octuple.size.slice()};
+const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"isd_heavy_twin":REFERENCE_ASSETS.isd_heavy_twin.size.slice(),"isd_heavy_octuple":REFERENCE_ASSETS.isd_heavy_octuple.size.slice()};
 WEAPON_MODEL_SIZES.arq_turret_quad500=REFERENCE_ASSETS.arq_turret_quad500.size.slice();
 for(const key of TURRET_FAMILY_KEYS)WEAPON_MODEL_SIZES[FITS[key].asset]=REFERENCE_ASSETS[FITS[key].asset].size.slice();
 function weaponSizing(f){return FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.weaponSizing||null;}
@@ -24512,11 +24515,11 @@ function initializeWeaponSizing(){
  const dby=FITS.refVen,imperial=FITS.oct40,volume=a=>a.reduce((n,v)=>n*v,1),densityA=volume(WEAPON_MODEL_SIZES.ven_turret)/140,densityB=volume(REFERENCE_ASSETS.isd_heavy_twin.size)/imperial.tt;
  for(const d of Object.values(FITS)){
   const volleyTT=d.tt||d.ion||0;if(d.cat!=='w'||d.craft||d.fixed||d.msl||!d.barrels||!(volleyTT>0))continue;
-  const sourceSize=d.asset?WEAPON_MODEL_SIZES[d.asset]:[d.fm,d.hm,d.wm];if(!sourceSize)continue;
+  const sourceSize=d.asset?WEAPON_MODEL_SIZES[d.asset]:[d.fm,d.hm,d.wm];if(!sourceSize)continue;const sweep=d.key==='pd'?Math.max(PD_TURRET_SIZE[0],PD_TURRET_SIZE[2])/2:null;
   const sourceVolume=volume(sourceSize),anchorBlend=clamp((d.barrels-2)/6,0,1),calibration=d.nativeCalibration||(d.key==='quad500'?'user-supplied-arquitens-stl':null),targetVolume=calibration?sourceVolume:volleyTT*lerp(densityA,densityB,anchorBlend),factor=(calibration||['refVen','oct40'].includes(d.key))?1:Math.cbrt(targetVolume/sourceVolume);
   d.weaponSizing=Object.freeze({factor,sourceSize:Object.freeze(sourceSize.slice()),sourceVolume,targetVolume,barrels:d.barrels,volleyTT,anchorBlend,...(calibration?{calibration}:{})});
   d.fm=sourceSize[0]*factor;d.hm=sourceSize[1]*factor;d.wm=sourceSize[2]*factor;
-  d.r=(d.asset?Math.max(sourceSize[d.casemate?1:0],sourceSize[2])/2:d.r)*factor;
+  d.r=(d.asset?Math.max(sourceSize[d.casemate?1:0],sourceSize[2])/2:sweep??d.r)*factor;
  }
 }
 initializeWeaponSizing();
