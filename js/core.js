@@ -43,10 +43,12 @@ const len = (a) => Math.hypot(a[0], a[1], a[2]);
 const norm = (a) => { const l = len(a) || 1; return Math.abs(l-1)<1e-12?a.slice():[a[0] / l, a[1] / l, a[2] / l]; };
 
 // Retired catalogue entries remain readable in saves, never as duplicate weapons.
-const LEGACY_WEAPON_KINDS=Object.freeze({msl:'cmsl',refISD:'stl',refISDh:'oct40',refIon:'ion',refIonH:'ion',casemate40:'broadsideBattery',refSide:'twin40',xx9:'twin40',nk7:'quad40Ion',mtl:'quad200',htl:'refVen',ltl:'pd',casemateMid:'broadsideBattery',casemateLight:'broadsideBattery',casemateIon:'broadsideBattery',casemateIonL:'broadsideBattery'});
+const LEGACY_WEAPON_KINDS=Object.freeze({msl:'cmsl',refISD:'stl',refISDh:'oct40',refIon:'ion',refIonH:'ion',casemate40:'monCal34',refSide:'twin40',xx9:'twin40',nk7:'quad40Ion',mtl:'quad200',htl:'refVen',ltl:'pd',broadsideBattery:'monCal34',ionL:'monCal150Ion',casemateMid:'monCal34',casemateLight:'monCal34',casemateIon:'monCal150Ion',casemateIonL:'monCal150Ion'});
 const LEGACY_BROADSIDE_CALIBERS=Object.freeze({casemate40:'40TT',casemateMid:'40TT',casemateLight:'500GT',casemateIon:'40TT',casemateIonL:'200GT'});
 const BROADSIDE_BATTERY_CALIBERS=Object.freeze({'70TT':Object.freeze({boltTT:70,maxGuns:2,cycle:1}),'40TT':Object.freeze({boltTT:40,maxGuns:2,cycle:1}),'500GT':Object.freeze({boltTT:.5,maxGuns:6,cycle:.2}),'200GT':Object.freeze({boltTT:.2,maxGuns:6,cycle:.2})});
 const canonicalWeaponKind=k=>Object.hasOwn(LEGACY_WEAPON_KINDS,k)?LEGACY_WEAPON_KINDS[k]:k;
+const isRetiredBroadside=k=>k==='broadsideBattery'||Object.hasOwn(LEGACY_BROADSIDE_CALIBERS,k);
+function replacementBallKind(k,caliber){return k==='ionL'||k==='casemateIon'||k==='casemateIonL'?'monCal150Ion':isRetiredBroadside(k)&&caliber==='70TT'?'monCal80':canonicalWeaponKind(k);}
 function isBroadsideBattery(f){return canonicalWeaponKind(typeof f==='string'?f:f?.k)==='broadsideBattery';}
 function broadsideBatteryConfig(f={}){const caliber=Object.hasOwn(BROADSIDE_BATTERY_CALIBERS,f.batteryCaliber)?f.batteryCaliber:LEGACY_BROADSIDE_CALIBERS[f.k]||'40TT',d=BROADSIDE_BATTERY_CALIBERS[caliber],guns=clamp(Math.floor(Number.isFinite(f.batteryGuns)?f.batteryGuns:2),1,d.maxGuns);return {caliber,guns,maxGuns:d.maxGuns,boltTT:d.boltTT,volleyTT:d.boltTT*guns,cycle:d.cycle,power:d.boltTT*guns*TT/d.cycle};}
 function setBroadsideBattery(f,partial={}){const q=broadsideBatteryConfig({...f,batteryCaliber:partial.caliber??partial.batteryCaliber??f.batteryCaliber,batteryGuns:partial.guns??partial.batteryGuns??f.batteryGuns});f.batteryCaliber=q.caliber;f.batteryGuns=q.guns;return q;}
@@ -56,9 +58,9 @@ const retiredFamilySkin=f=>typeof f?.skinAsset==='string'&&(['refVen','htl','twi
 function weaponFitNeedsMigration(f){return !!f&&typeof f==='object'&&(canonicalWeaponKind(f.k)!==f.k||retiredFamilySkin(f)||retiredCapitalSkin(f)||(['stl','oct40','ion','utl'].includes(f.k)&&retiredWeaponSkin(f.skinAsset))||isBroadsideBattery(f)&&(f.batteryCaliber!==broadsideBatteryConfig(f).caliber||f.batteryGuns!==broadsideBatteryConfig(f).guns));}
 function migrateWeaponFit(f){
  if(!weaponFitNeedsMigration(f))return f;
- const previous=f.k,k=canonicalWeaponKind(previous),retiredSkin=retiredWeaponSkin(f.skinAsset)||retiredFamilySkin(f)||retiredCapitalSkin(f),sourcePose=previous!=='msl'&&(retiredSkin||k!==previous&&!f.skinAsset);
+ const previous=f.k,retiredBall=isRetiredBroadside(previous)||previous==='ionL',k=replacementBallKind(previous,f.batteryCaliber),retiredSkin=retiredBall||retiredWeaponSkin(f.skinAsset)||retiredFamilySkin(f)||retiredCapitalSkin(f),sourcePose=previous!=='msl'&&(retiredSkin||k!==previous&&!f.skinAsset);
  if(Object.isFrozen(f))f={...f};f.k=k;
- if(k==='broadsideBattery'){if(Object.hasOwn(LEGACY_BROADSIDE_CALIBERS,previous)){f.batteryCaliber=f.batteryCaliber||LEGACY_BROADSIDE_CALIBERS[previous];f.batteryLegacyHull=true;}setBroadsideBattery(f);delete f.skinAsset;}
+ if(retiredBall){for(const key of ['batteryCaliber','batteryGuns','batteryLegacyHull','wallMountInvalid','assetPitch'])delete f[key];if(f.n&&!f.tilt)f.tilt=norm(f.n);}
  if(previous==='msl'){if(f.mount!=='ext'&&!f.surfacePatch)f.legacyMissileMount='vls';delete f.mount;}
  if(retiredSkin)delete f.skinAsset;
  if(sourcePose){
@@ -73,10 +75,10 @@ function migrateWeaponSurfaces(value){
  if(!value||!Array.isArray(value.patches))return value;let changed=false;
  const patches=value.patches.map(p=>{
   if(!p||typeof p!=='object')return p;let out=p;
-  const weapon=canonicalWeaponKind(p.battery?.weapon);
-  if(weapon!==p.battery?.weapon){out={...out,battery:{...p.battery,weapon,...(weapon==='broadsideBattery'?{caliber:LEGACY_BROADSIDE_CALIBERS[p.battery?.weapon]||'40TT',guns:2,legacyHull:true}:{})}};changed=true;}
+  const weapon=replacementBallKind(p.battery?.weapon,p.battery?.caliber);
+  if(weapon!==p.battery?.weapon){const battery={...p.battery,weapon};if(isRetiredBroadside(p.battery?.weapon)){for(const key of ['caliber','guns','legacyHull'])delete battery[key];}out={...out,battery};changed=true;}
   const guns=p.aggregate?.guns;if(Array.isArray(guns)){
-   let migrated=false;const next=guns.map(r=>{if(!Array.isArray(r))return r;const f=migrateWeaponFit({k:r[1],batteryCaliber:r[21],batteryGuns:r[22],batteryLegacyHull:!!r[23]});if(f.k===r[1]&&(!isBroadsideBattery(f)||r[21]===f.batteryCaliber&&r[22]===f.batteryGuns))return r;const q=r.slice();q[1]=f.k;if(isBroadsideBattery(f)){q[21]=f.batteryCaliber;q[22]=f.batteryGuns;q[23]=!!f.batteryLegacyHull;}migrated=true;return q;});
+   let migrated=false;const next=guns.map(r=>{if(!Array.isArray(r))return r;const f=migrateWeaponFit({k:r[1],batteryCaliber:r[21],batteryGuns:r[22],batteryLegacyHull:!!r[23]});if(f.k===r[1]&&(!isBroadsideBattery(f)||r[21]===f.batteryCaliber&&r[22]===f.batteryGuns))return r;const q=r.slice();q[1]=f.k;if(isRetiredBroadside(r[1])){if(q.length>24)q.fill(null,21,24);else q.length=Math.min(q.length,21);}if(isBroadsideBattery(f)){q[21]=f.batteryCaliber;q[22]=f.batteryGuns;q[23]=!!f.batteryLegacyHull;}migrated=true;return q;});
    if(migrated||out!==p){out={...out,aggregate:{...p.aggregate,guns:next,signature:'',...(p.aggregate.manifestKey!=null?{manifestKey:''}:{})}};changed=true;}
   }
   return out;
@@ -206,11 +208,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 13,
- "modelSignature": "1svbe8",
+ "modelSignature": "rib8z2",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "gy9j72",
+   "signature": "11qd2bc",
    "build": 222030,
    "crew": 3000,
    "total": 225030,
@@ -1599,7 +1601,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 34684.08835924607
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -2160,7 +2162,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "zlphnv",
+   "signature": "ce6uxt",
    "build": 159054,
    "crew": 1000,
    "total": 160054,
@@ -3253,7 +3255,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48725.91692806988
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -3487,7 +3489,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "19eu6nm",
+   "signature": "1vx8tuk",
    "build": 200851,
    "crew": 2000,
    "total": 202851,
@@ -4685,7 +4687,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 30583.179666236283
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -5110,7 +5112,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "145o1u0",
+   "signature": "13wk0ee",
    "build": 210146,
    "crew": 0,
    "total": 210146,
@@ -6573,7 +6575,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 24162.16590077482
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -7163,7 +7165,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "r6lzsn",
+   "signature": "sxbdwd",
    "build": 109120,
    "crew": 1000,
    "total": 110120,
@@ -8272,7 +8274,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 42750.83655983128
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -8630,7 +8632,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "nm504j",
+   "signature": "1dk7opl",
    "build": 98082,
    "crew": 1000,
    "total": 99082,
@@ -9521,7 +9523,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 39955.65027241749
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -9771,7 +9773,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "11sa64s",
+   "signature": "31u3sa",
    "build": 137742,
    "crew": 1000,
    "total": 138742,
@@ -10807,7 +10809,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 24854.93226102362
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -11208,7 +11210,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "18ucw6k",
+   "signature": "8mddai",
    "build": 170459,
    "crew": 1000,
    "total": 171459,
@@ -12444,7 +12446,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48149.98712420482
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -13000,7 +13002,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "1co9uw1",
+   "signature": "940gr7",
    "build": 144544,
    "crew": 0,
    "total": 144544,
@@ -14165,7 +14167,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 7615.234092734888
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -14579,7 +14581,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "18avg97",
+   "signature": "1419i81",
    "build": 237213,
    "crew": 1000,
    "total": 238213,
@@ -15812,7 +15814,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 49609.76003371839
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -16437,7 +16439,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "9vd493",
+   "signature": "14ub4od",
    "build": 188341,
    "crew": 1000,
    "total": 189341,
@@ -17801,7 +17803,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 0
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -18272,7 +18274,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1nlx5e4",
+   "signature": "ovh31m",
    "build": 140315,
    "crew": 1000,
    "total": 141315,
@@ -19357,7 +19359,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 31932.91769019757
     },
-    "profileVersion": 12,
+    "profileVersion": 13,
     "heat": {
      "v": 1,
      "src": [
@@ -20472,7 +20474,7 @@ function fitCanRotate(f) { const d=FITS[canonicalWeaponKind(typeof f==='string'?
 // Spherical gunhouses aim as one body. Placement pitch changes the ball's
 // resting pose; the fitting normal still anchors its equipment behind the face.
 function isBallTurret(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)],a=REFERENCE_ASSETS[typeof f==='object'&&f?.skinAsset||d?.asset];return !!(d?.cat==='w'&&a?.gunhouseElevates&&a.sphereRadiusM>0&&Array.isArray(a.sphereCenterM||a.elevationPivot));}
-function ballTurretPitch(f){return isBallTurret(f)&&!isSurfaceBattery(f)&&Number.isFinite(f?.assetPitch)?clamp(f.assetPitch,-90,90):0;}
+function ballTurretPitch(f){return isBallTurret(f)&&(!isSurfaceBattery(f)||FITS[f.k]?.exposedSurfaceTurret)&&Number.isFinite(f?.assetPitch)?clamp(f.assetPitch,-90,90):0;}
 function fitHasPedestal(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||d.broadsideBattery||typeof f==='object'&&isSurfaceBattery(f)));}
 function weaponWallOnly(f){return !!FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.wallOnly;}
 function weaponMountAllowed(f,normal){if(!weaponWallOnly(f))return true;if(!Array.isArray(normal)||normal.length!==3||!normal.every(Number.isFinite)||len(normal)<1e-8)return false;const n=norm(normal);return isBroadsideBattery(f)?Math.abs(n[1])<.65:Math.abs(n[2])>=.65&&Math.abs(n[1])<=.35;}
@@ -20545,7 +20547,7 @@ function missileLauncherSpec(f){
 // footprint. Its exterior is a shallow wall embrasure, not a second turret.
 function surfaceBatteryGeometry(f){
  if(isBroadsideBattery(f))return broadsideBatteryGeometry(f);
- if(!isSurfaceBattery(f))return null;const d=fitSpec(f),wallPoint=(f.surfacePoint||f.p)?.slice();if(!wallPoint?.every(Number.isFinite))return null;
+ if(!isSurfaceBattery(f)||FITS[canonicalWeaponKind(f.k)]?.exposedSurfaceTurret)return null;const d=fitSpec(f),wallPoint=(f.surfacePoint||f.p)?.slice();if(!wallPoint?.every(Number.isFinite))return null;
  const normal=fitUp(f),armorOffset=Number.isFinite(f.surfaceArmorOffset)?clamp(f.surfaceArmorOffset,0,100):0,point=add(wallPoint,mul(normal,armorOffset)),fr=fitFrameOf(f);let u=norm(sub(fr.fw,mul(normal,dot(fr.fw,normal))));
  if((d.asset||!fitCanRotate(f))&&Number.isFinite(f.assetYaw)&&f.assetYaw){const a=f.assetYaw*Math.PI/180;u=norm(add(mul(u,Math.cos(a)),mul(fr.rt,Math.sin(a))));}
  if(isSurfaceVLS(f)){
@@ -22593,8 +22595,8 @@ function surfaceAggregateKey(ship){
 function surfaceTransformAggregate(a,point,vector){if(!a)return;for(const r of a.cells||[]){const fw=structFrame({surfaceNormal:r.slice(10,13),yaw:r[13]}).fw,c=point(r.slice(4,7)),n=norm(vector(r.slice(10,13))),f=vector(fw),base=structFrame({surfaceNormal:n}),p=point(r.slice(14,17));r.splice(4,3,...c);r.splice(10,3,...n);r[13]=Math.atan2(dot(f,base.rt),dot(f,base.fw))*180/Math.PI;r.splice(14,3,...p);}for(const r of a.aliases||[])r.splice(3,3,...point(r.slice(3,6)));for(const r of a.guns||[]){r.splice(2,3,...point(r.slice(2,5)));r.splice(6,3,...norm(vector(r.slice(6,9))));r.splice(9,3,...point(r.slice(9,12)));}a.signature='';}
 function surfaceEncodeCell(q){const V=partVolume(q),room=q.room||[q.d,q.d,q.d],n=q.surfaceNormal||[0,1,0],pt=q.surfacePoint||q.c,k=SURFACE_CELL_KINDS.indexOf(q.k),role=SURFACE_ROLES.indexOf(q.surfaceRole||'cooling');return [q.id,role,k,q.surfaceUnplaced?1:0,...q.c,...room,...n,q.yaw||0,...pt,...(q.surfaceFootprint||room.slice(0,2)),q.surfaceDepth||room[2],q.surfaceExposure??1,V,partBuildCost(q,V),partArea(q),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.05,3),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2),q.surfaceCell||'e0',Object.hasOwn(SENSOR_BANDS,q.band)?q.band:'multi',/通信/.test(q.label||'')&&!/センサー|標的|追跡|走査|索敵/.test(q.label||'')?0:1];}
 function surfaceDecodeCell(r,patch){return {id:r[0],k:SURFACE_CELL_KINDS[r[2]],c:r.slice(4,7),room:r.slice(7,10),d:Math.cbrt(r[7]*r[8]*r[9]),surfaceNormal:r.slice(10,13),yaw:r[13],surfacePoint:r.slice(14,17),surfaceFootprint:r.slice(17,19),surfaceDepth:r[19],surfaceExposure:r[20],surfaceUnplaced:r[3]!==0,surfacePatch:patch,surfaceRole:SURFACE_ROLES[r[1]],surfaceCell:r[26],band:r[27]||'multi',...(r[28]===0?{label:'通信'}:{})};}
-function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(f.n||AXES[f.a]||[0,1,0]),...(f.surfacePoint||f.p),...(f.surfaceFootprint||[d.fm,d.wm]),f.surfaceDepth||.2,f.surfaceArmorOffset||0,f.assetYaw||0,f.frameFlip?1:0,f.surfaceUnplaced?1:0,f.scale||1,f.surfaceCell||'w0',...(isBroadsideBattery(f)?[broadsideBatteryConfig(f).caliber,broadsideBatteryConfig(f).guns,!!f.batteryLegacyHull]:[])];}
-function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:canonicalWeaponKind(r[1]),p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18]};if(host)q.host=host.id;if(isBroadsideBattery(q)){setBroadsideBattery(q,{caliber:r[21],guns:r[22]});if(r[23])q.batteryLegacyHull=true;if(!q.batteryLegacyHull&&(!isShapePart(host)||host.plate||Math.abs(dot(q.n,structFrame(host).up))>=.65)){q.float=true;q.surfaceUnplaced=true;}}return normalizeFitMount(q);}
+function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(f.n||AXES[f.a]||[0,1,0]),...(f.surfacePoint||f.p),...(f.surfaceFootprint||[d.fm,d.wm]),f.surfaceDepth||.2,f.surfaceArmorOffset||0,f.assetYaw||0,f.frameFlip?1:0,f.surfaceUnplaced?1:0,f.scale||1,f.surfaceCell||'w0',...(isBroadsideBattery(f)?[broadsideBatteryConfig(f).caliber,broadsideBatteryConfig(f).guns,!!f.batteryLegacyHull]:d.exposedSurfaceTurret&&isBallTurret(f)&&f.assetPitch?[null,null,null,ballTurretPitch(f)]:[])];}
+function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:canonicalWeaponKind(r[1]),p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18],...(FITS[canonicalWeaponKind(r[1])]?.exposedSurfaceTurret&&Number.isFinite(r[24])?{assetPitch:r[24]}:{})};if(host)q.host=host.id;if(isBroadsideBattery(q)){setBroadsideBattery(q,{caliber:r[21],guns:r[22]});if(r[23])q.batteryLegacyHull=true;if(!q.batteryLegacyHull&&(!isShapePart(host)||host.plate||Math.abs(dot(q.n,structFrame(host).up))>=.65)){q.float=true;q.surfaceUnplaced=true;}}return normalizeFitMount(q);}
 function surfaceSync(ship){
  ship=adoptWeaponFits(ship);
  surfaceArmorOnly(ship);
@@ -23489,8 +23491,7 @@ const calibers={
  ion:{barrels:2,boltTT:175,cycle:1,evidence:'指定表 Ships!S35',source:STATS_SOURCE,desc:'2門×175 TT相当のイオン砲。'}
 };
 for(const [k,s] of Object.entries(calibers)){const d=FITS[k];Object.assign(d,s);if(k==='ion')d.ion=s.barrels*s.boltTT;else d.tt=s.barrels*s.boltTT;d.power=(d.tt||d.ion||0)*TT/s.cycle;d.rateEvidence='連射間隔はゲーム用仮定';}
-// v19 A light twin ion cannon for frigates and corvettes (the rebels strip shields with ion fire).
-FITS.ionL={...FITS.ion,key:'ionL',aa:.8,name:'軽イオン砲（連装）',short:'軽イオン砲',fm:9,wm:9,hm:6,r:(FITS.ion.r||10)*.4,barrels:2,boltTT:.12,ion:.24,cycle:.5,power:.24*TT/.5,mass:700,crew:4,cost:90e3,evidence:'ゲーム用仮定',desc:'2門×120 GT相当の軽イオン砲。小型艦がシールドを剥ぐための速射砲。'};
+// The former small ship ion cannon is a migration input only.
 FITS.oct40={...FITS.stl,key:'oct40',name:'8連装ターボレーザー',short:'8連装TL',barrels:8,boltTT:40,tt:320,cycle:1,power:320*TT,evidence:'作者明記（口径）',source:WEAPON_NOTES.secutor,desc:'8門×40 TT。八連装の重ターボレーザー。',fm:30,wm:30,hm:13,r:15};
 FITS.triple40={...FITS.htl,key:'triple40',name:'三連40 TTターボレーザー',short:'三連40 TT',barrels:3,boltTT:40,tt:120,power:120*TT,source:STATS_SOURCE,evidence:'指定表 Ships!S34–S35',desc:'3門×40 TT。ISDの9基27門の補助重砲を構成します。',fm:20,wm:20,hm:9,r:10};
 FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー',short:'四連200 GT',barrels:4,boltTT:.2,tt:.8,cycle:.2,power:.8*TT/.2,source:STATS_SOURCE,evidence:'指定表 Ships!S51',desc:'4門×200 GT。アクラメイターIの12基48門の中型砲。'};
@@ -23696,7 +23697,7 @@ function referenceFitPoint(f,v){
 // actual mesh. Mount/yaw and elevation pivots are separate mechanical points.
 const AUTHORED_TURRET_LIMITS=Object.freeze({lo:-10*Math.PI/180,hi:85*Math.PI/180});
 function authoredTurretGeometry(f){
- const d=FITS[canonicalWeaponKind(f?.k)];if(!d?.asset||d.fixed||d.casemate||isSurfaceBattery(f))return null;
+ const d=FITS[canonicalWeaponKind(f?.k)];if(!d?.asset||d.fixed||d.casemate||isSurfaceBattery(f)&&!d.exposedSurfaceTurret)return null;
  const id=f.skinAsset||d.asset,a=REFERENCE_ASSETS[id],vec=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite);
  if(!a||!vec(a.elevationPivot)||!vec(a.elevationAxis)||!vec(a.barrelAxis)||!Array.isArray(a.muzzlePoints)||!a.muzzlePoints.length||!a.muzzlePoints.every(vec))return null;
  const point=p=>referenceFitPoint(f,p.map((v,k)=>(v-a.c[k])/a.size[k])),zero=point([0,0,0]),direction=v=>norm(sub(point(v),zero));
@@ -23977,7 +23978,7 @@ function turretEnvelopeGeometry(ship,bounds){
 }
 function turretCompartmentSolids(f){
  const d=FITS[f?.k],a=d?.asset&&REFERENCE_ASSETS[f.skinAsset||d.asset],meta=a?.turretCompartment;
- if(!a||meta?.version!==1||meta.role!=='gunhouse'||!Array.isArray(meta.convexes)||isSurfaceBattery(f))return [];
+ if(!a||meta?.version!==1||meta.role!=='gunhouse'||!Array.isArray(meta.convexes)||isSurfaceBattery(f)&&!d.exposedSurfaceTurret)return [];
  let local=TURRET_COMPARTMENT_ASSETS.get(meta);
  if(!local){local=[];for(const q of meta.convexes){
    const V=q.verticesM,F=q.faces;if(!Array.isArray(V)||V.length<4||V.length>2048||!V.every(p=>Array.isArray(p)&&p.length===3&&p.every(v=>Number.isFinite(v)&&Math.abs(v)<=DESIGN_LIMITS.coordinate))||!Array.isArray(F)||F.length<4||F.length>4096)continue;
@@ -23994,7 +23995,7 @@ function turretCompartmentSolids(f){
 function turretCompartmentProjection(ship,f){
  if(!ship||!f)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
  const a=REFERENCE_ASSETS[f.skinAsset||FITS[f.k]?.asset],meta=a?.turretCompartment;
- if(!a||meta?.version!==1||meta.role!=='gunhouse'||!Array.isArray(meta.convexes)||isSurfaceBattery(f))return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
+ if(!a||meta?.version!==1||meta.role!=='gunhouse'||!Array.isArray(meta.convexes)||isSurfaceBattery(f)&&!FITS[f.k]?.exposedSurfaceTurret)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
  const geometryKey=turretGeometryKey(ship),pose=JSON.stringify([f.k,f.skinAsset,f.p,f.a,f.tilt,f.mountAxis,f.mountOffset,f.assetYaw,f.assetPitch,f.base,f.ped,f.scale]),old=TURRET_COMPARTMENT_SHIPS.get(ship);
  let state=old;if(!state||state.key!==geometryKey){state={key:geometryKey,byFit:new Map()};TURRET_COMPARTMENT_SHIPS.set(ship,state);}const known=state.byFit.get(pose);if(known)return known;
  // A cached projection already owns the transformed solids and planes. Check
@@ -24645,14 +24646,7 @@ for(const [key,asset]of [['stl','isd_heavy_twin'],['oct40','isd_heavy_octuple']]
  const a=REFERENCE_ASSETS[asset];Object.assign(FITS[key],{asset,fm:a.size[0],wm:a.size[2],hm:a.size[1],r:Math.max(a.size[0],a.size[2])/2});
 }
 Object.assign(FITS.oct40,{source:null,evidence:'ユーザー指定の口径・門数、ISDと兵装系列の参考画像',desc:TURRET_FAMILY_DESCRIPTIONS.oct40});
-// Casemate guns set into a wall: an armoured port flush with the plating, a
-// ball mantlet and twin barrels. The gun house and its charging gear sit inside
-// the hull; only the port and the barrels show. Short ranged (the broadside
-// band), they give the most fire for the power.
-// One flush broadside compartment replaces the old independent casemate guns.
-// Gun count and caliber alter the physical plant and firing specification,
-// never the fixed exterior window footprint.
-FITS.broadsideBattery={cat:'w',key:'broadsideBattery',broadsideBattery:true,casemate:true,wallOnly:true,housingFixed:true,barrels:2,boltTT:40,tt:80,ion:0,cycle:1,power:80*TT,fm:9,wm:7,hm:.35,r:4.5,mass:6300,crew:20,cost:520000,aa:.2,nativeCalibration:'broadside-battery',name:'側面砲列区画',short:'側面砲列区画',evidence:'口径・門数上限・外装形式はユーザー指定',desc:'構造物の側壁に貼り付ける黒い砲門。70TT・40TTは1区画2門まで、500GT・200GTは6門まで選択。砲身を外へ出さず、区画背面の船内に各砲の威力と門数に応じた給電・充電装置を実配置する。左右±65°・上下±20°。'};
+// Flush broadside windows were replaced by the Mon Calamari ball family.
 // Capital guns follow the common photographic scale of the ISD's 40 m octuple.
 // Barrel count changes the selected output and forward mechanism, not the native
 // house envelope. Reused stl/ion/utl keys keep saved fitting identities intact.
@@ -24673,10 +24667,33 @@ for(const [key,asset,name,short,barrels,boltTT,type,mass,crew,cost,desc]of CAPIT
  const ionGun=type==='ion',base=FITS[key]||(ionGun?FITS.ion:FITS.stl),volleyTT=barrels*boltTT;
  FITS[key]={...base,key,name,short,asset,barrels,boltTT,tt:ionGun?0:volleyTT,ion:ionGun?volleyTT:0,cycle:1,power:volleyTT*TT,fm:a.size[0],hm:a.size[1],wm:a.size[2],r:Math.max(a.size[0],a.size[2])/2,...(mass!=null?{mass,crew,cost}:{}),wallOnly:false,broadsideOnly:false,housingFixed:false,casemate:false,fixed:false,catalogHidden:false,nativeCalibration:'capital-photo-family',source:null,evidence:'ユーザー指定の口径・門数、ISD主砲配置と重砲系列の参考画像',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc};
 }
+// Diagram-scaled Mon Calamari balls, with whole-body traverse and elevation.
+// Bolt energy is independent of the native envelope measured from the drawings.
+const MON_CAL_TURRET_KEYS=Object.freeze(['monCalPD','monCal34','monCal80','monCal200','monCal200Triple','monCal150Ion']);
+const MON_CAL_TURRET_MODELS=[
+ ['monCalPD','moncal_pd_triple','20GT 3連装球状点防御レーザー','20GT 球状PD 3連装',3,.02,.2,350,3,30000,6,true,false],
+ ['monCal34','moncal_single34','34TT 単装球状ターボレーザー','34TT 単装球',1,34,1,1600,5,150000,.2,false,false],
+ ['monCal80','moncal_single80','80TT 単装球状ターボレーザー','80TT 単装球',1,80,1,2400,7,220000,.2,false,false],
+ ['monCal200','moncal_single200','200TT 単装球状ターボレーザー','200TT 単装球',1,200,1,4000,10,400000,.2,false,false],
+ ['monCal200Triple','moncal_triple200','200TT 3連装球状ターボレーザー','200TT 球3連装',3,200,1,12000,24,1100000,.2,false,false],
+ ['monCal150Ion','moncal_single150_ion','150TT 単装球状イオン砲','150TT イオン単装球',1,150,1,3800,9,380000,.2,false,true]
+];
+for(const [key,asset,name,short,barrels,boltTT,cycle,mass,crew,cost,aa,dualPurpose,ionGun]of MON_CAL_TURRET_MODELS){
+ const a=REFERENCE_ASSETS[asset],volleyTT=barrels*boltTT;
+ if(!a)throw new Error('モン・カラマリ砲の参照モデルがありません: '+asset);
+ FITS[key]={...FITS[ionGun?'ion':'pd'],key,asset,name,short,barrels,boltTT,tt:ionGun?0:volleyTT,ion:ionGun?volleyTT:0,cycle,power:volleyTT*TT/cycle,mass,crew,cost,aa,dualPurpose,fm:a.size[0],hm:a.size[1],wm:a.size[2],r:Math.max(a.size[0],a.size[2])/2,wallOnly:false,broadsideOnly:false,housingFixed:false,casemate:false,fixed:false,catalogHidden:false,nativeCalibration:'moncal-photo-family',exposedSurfaceTurret:true,source:null,evidence:'ユーザー提供のモン・カラマリ艦の武装配置図・口径・門数',rateEvidence:'PDの1門20GT・連射間隔・質量・乗員・費用はゲーム用仮定',desc:ionGun?'図の寸法に合わせた球状砲室の150TT単装イオン砲。球体と砲身が一体で旋回・俯仰し、船体内の充電装置から給電する。':dualPurpose?'図の寸法に合わせた小型球状砲塔に点防御レーザー3門を収める。球体全体が旋回・俯仰し、対艦射撃と艦載機・ミサイル迎撃を兼ねる。':`${boltTT}TT×${barrels}門。図の寸法に合わせた球状砲室と砲身が一体で旋回・俯仰し、下側約1/3を取付面へ埋め込む。`};
+}
+// The photographed PD has two side-mounted laser carriers and a central case.
+{
+ const a=REFERENCE_ASSETS.pd_twin_side_laser;
+ Object.assign(FITS.pd,{asset:'pd_twin_side_laser',name:'20GT 2連装点防御レーザー',short:'20GT 点防御2連装',nativeCalibration:'point-defense-photo',exposedSurfaceTurret:true,fm:a.size[0],hm:a.size[1],wm:a.size[2],r:Math.max(a.size[0],a.size[2])/2,source:null,evidence:'ユーザー提供の5枚目上段中央とオサーM参考画像',desc:'中央の機器ケースの左右に、円形の俯仰軸とレーザー砲身を1門ずつ取り付けた2連装PD。2門×20GT、0.2秒間隔。艦載機・ミサイル迎撃と対艦射撃を兼ねる。'});
+ const c=REFERENCE_ASSETS.cis_rapid_quad1;
+ FITS.quad1Rapid={...FITS.quad500,key:'quad1Rapid',asset:'cis_rapid_quad1',name:'CIS 1TT 4連装ラピッドファイア',short:'CIS 1TT 4連装速射砲',barrels:4,boltTT:1,tt:4,ion:0,cycle:.2,power:4*TT/.2,fm:c.size[0],hm:c.size[1],wm:c.size[2],r:Math.max(c.size[0],c.size[2])/2,mass:3200,crew:10,cost:300000,aa:.5,dualPurpose:false,nativeCalibration:'cis-photo-family',exposedSurfaceTurret:true,source:null,evidence:'ユーザー指定1TT×4・7枚目のCIS艦用4連装砲参考画像',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'500GT4連装と同等以上の寸法のCIS用速射砲。左右の大きな円形砲基部に上下2門ずつを持ち、砲身・揺架が一体で俯仰する。1門1TT、一斉射4TT、連射間隔0.2秒。'};
+}
 // Standard gun dimensions are calibrated to the actual rendered source models.
 // These measured local bounds avoid decoding meshes during Core initialization.
 const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"isd_heavy_twin":REFERENCE_ASSETS.isd_heavy_twin.size.slice(),"isd_heavy_octuple":REFERENCE_ASSETS.isd_heavy_octuple.size.slice()};
-for(const key of [...TURRET_FAMILY_KEYS,...LIGHT_TURRET_KEYS,...CAPITAL_TURRET_KEYS])WEAPON_MODEL_SIZES[FITS[key].asset]=REFERENCE_ASSETS[FITS[key].asset].size.slice();
+for(const key of [...TURRET_FAMILY_KEYS,...LIGHT_TURRET_KEYS,...CAPITAL_TURRET_KEYS,...MON_CAL_TURRET_KEYS,'pd','quad1Rapid'])WEAPON_MODEL_SIZES[FITS[key].asset]=REFERENCE_ASSETS[FITS[key].asset].size.slice();
 function weaponSizing(f){return FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.weaponSizing||null;}
 function weaponModelScale(f){return weaponSizing(f)?.factor??1;}
 function initializeWeaponSizing(){
@@ -27086,8 +27103,8 @@ registerShipExample({
 // and the large rounded head. The anhedral tail plane, fins, vanes, engine
 // pods, keel, dorsal ridge and turret blocks are ordinary structures
 // measured from the model.
-// v22 Mon Calamari batteries are recessed into the hull, so the 12 turbolasers and 16 light ion cannons
-// are casemates in the head's flanks (twin light casemates and twin light ion casemates), not turrets.
+// The retired twelve laser windows and sixteen light-ion windows are replaced
+// by native single-ball turrets, with separate charging plants inside the head.
 {
 const MC30C={"W":54.889,"H":30.0,"st":[[0.0,0.0364,0.03,0.5133,0.6,0.6,0.5,0.5],[0.05526,0.0364,0.03,0.5133,0.6,0.6,0.5,0.5],[0.05658,0.1115,0.2,0.3083,0.2076,0.2816,0.42,0.49],[0.075,0.1489,0.2667,0.3083,0.2239,0.2882,0.42,0.5],[0.11842,0.1704,0.3,0.3083,0.2751,0.3289,0.42,0.5],[0.12447,0.1138,0.2,0.3083,0.2683,0.3569,0.39,0.5],[0.12553,0.1305,0.2917,0.3375,0.98,0.6447,0.5,0.75],[0.23079,0.1497,0.3167,0.325,0.8193,0.7878,0.54,0.52],[0.26368,0.1734,0.35,0.3083,0.6738,0.7785,0.57,0.41],[0.27026,0.2448,0.3833,0.25,0.4708,0.6992,0.62,0.42],[0.31632,0.2448,0.3833,0.25,0.4708,0.6992,0.62,0.42],[0.32947,0.3368,0.475,0.2958,0.495,0.5112,0.37,0.39],[0.42816,0.4287,0.4333,0.35,0.4639,0.9017,0.64,0.39],[0.44395,0.4923,0.4333,0.35,0.4639,0.8629,0.18,0.57],[0.45184,0.6405,0.4333,0.35,0.3481,0.6503,0.09,0.56],[0.47158,0.7657,0.4333,0.35,0.3822,0.5665,0.1,0.33],[0.47553,0.8496,0.4333,0.35,0.3614,0.536,0.09,0.22],[0.47947,0.9066,0.4417,0.3542,0.2993,0.7865,0.02,0.2],[0.48342,0.9597,0.4667,0.3417,0.2804,0.9734,0.02,0.2],[0.48737,0.9882,0.525,0.3125,0.3032,0.98,0.02,0.2],[0.49132,1.0,0.6167,0.2667,0.313,0.969,0.2,0.2],[0.49526,1.0,0.6833,0.2333,0.3201,0.9647,0.23,0.25],[0.50316,1.0,0.6833,0.2333,0.3304,0.965,0.31,0.2],[0.51105,1.0,0.7333,0.2083,0.3348,0.9629,0.34,0.23],[0.66447,0.9867,0.925,0.0958,0.368,0.2448,0.3,0.38],[0.77632,0.9108,0.9167,0.0333,0.2913,0.2616,0.32,0.46],[0.92105,0.5885,0.675,0.0208,0.3583,0.278,0.24,0.44],[0.97368,0.3565,0.4583,0.0458,0.4059,0.3546,0.2,0.38],[0.99605,0.1463,0.1333,0.025,0.3221,0.1006,0.31,0.36],[1.0,0.0496,0.025,0.0208,0.3185,0.98,0.45,0.2]],"loft":{"engIn":[[168.67,8.8,14.49,11.1,16.79],[169.17,8.47,14.82,10.77,17.12],[174.67,8.31,14.98,10.61,17.28],[176.67,6.93,16.35,9.23,18.66],[190.67,6.99,16.3,9.29,18.6],[193.28,8.74,14.55,11.04,16.85]],"engOut":[[176.64,18.25,22.05,13.84,17.64],[178.14,18.04,22.26,13.62,17.85],[180.64,17.93,22.38,13.51,17.96],[181.64,17.15,23.15,12.74,18.74],[191.14,17.02,23.29,12.6,18.87],[193.01,18.21,22.09,13.8,17.68]],"keel":[[147.78,-3.15,3.15,14.82,19.32],[148.78,-4.13,4.13,13.84,19.32],[155.78,-4.48,4.48,12.73,19.32],[190.78,-4.48,4.48,9.02,19.32],[205.99,-4.48,4.48,9.02,19.32]],"ridge":[[193.12,-2.42,2.42,31.7,31.75],[194.12,-2.46,2.46,31.69,34.19],[200.12,-2.75,2.75,31.64,35.28],[208.12,-3.03,3.03,31.58,36.06],[248.12,-2.95,2.95,31.46,35.89],[265.12,-2.04,2.04,30.17,34.06],[268.69,-1.5,1.5,29.49,32.92]],"housing":[[21.42,-3.01,3.01,21.2,27.21],[22.42,-3.36,3.36,20.85,27.56],[27.42,-3.36,3.36,20.85,27.56],[29.92,-4.98,4.98,19.23,29.18],[44.42,-4.98,4.98,19.23,29.18],[47.42,-3.07,3.07,21.13,27.27]]}};
 const MC30C_GROUND=[{id:'ground-1',name:'同盟軍艦隊兵',kind:'troops',count:95}];
@@ -27211,26 +27228,42 @@ function mc30Build(opt={}){
  const {spread,range}=mc30MountKit(s,opt);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // Stations are spaced for the standard mounts (missile boxes 12 m, medium turbolasers
-  // 18 m, light ion cannons and point defence 9 m, tractor projectors 16 m).
+  // Preserve the independent missile, tractor and point-defence stations before
+  // packing the larger spherical replacements on the head's flanks.
   // Two heavy proton torpedo launchers with cells below the forward deck.
   spread('msl',2,'top','bow-torpedo',[300,314],[0]);
   // Six cluster bomb launchers in external boxes on the forward deck: two pairs, then two
   // on the centreline where the bow narrows.
   spread('msl',4,'top','cluster-bomb',[326,340],[7],{mount:'ext'});
   spread('msl',2,'top','cluster-bomb',[352,366],[0],{mount:'ext'});
-  // Former light-TL and light-ion casemates now share the fixed wall-window bay.
-  // Keep all twelve 500GT and sixteen 200GT bays on the head's flanks, clearing
-  // their real 9x7m boxes while their physical charging plants stay inside.
-  casemateRows(s,'casemateLight',12,[[.5,[200,300]],[.42,[200,300]],[.58,[200,300]]],12,{zone:'beam-tl',compactWindow:true});
-  casemateRows(s,'casemateIonL',16,[[.34,[200,368]],[.66,[200,368]],[.5,[260,368]]],12,{zone:'beam-ion',compactWindow:true});
   spread('trc',2,'bottom','bow-tractor',[330,348],[0]);
   // Full-size dual-purpose guns need charging space in the broad head: the narrow
   // spine, integrity plant and bow tips cannot contain their banks. Keep the ten
   // guns directly on existing dorsal blocks, shoulders and the forward underside.
-  spread('pd',4,'top','block-pd',[219.45,285],[5.5]);
-  spread('pd',4,'top','spine-pd',[198,232.85],[17]);
-  spread('pd',2,'bottom','bow-pd',[290,310],[0]);
+  spread('pd',4,'top','block-pd',[219.45,233,245,258,272,285,310,330],[5.5,9,12]);
+  spread('pd',4,'top','spine-pd',[198,232.85,250,270,290,310,330],[17,13,8]);
+  spread('pd',2,'bottom','bow-pd',[290,310,270,250,230,210],[0]);
+  // Pack the replacement single-ball mounts by their actual oriented bounds,
+  // after the existing launchers, projectors and PD retain their seats. The
+  // retired window-radius heuristic cannot size these moving spheres.
+  const freeBox=(b,q)=>[0,1,2].some(a=>b[a+3]+.5<=q[a]||q[a+3]+.5<=b[a]);
+  const headBalls=(kind,total,zone,ys,xs)=>{let got=0;
+   for(const y of ys)for(const x of xs){if(got>=total)break;const pair=[];
+    for(const sg of [1,-1]){
+     const h=rayEnv(s,[x,y,sg*500],[0,0,-sg],{structOnly:true});if(!h||h.part?.plate)break;
+     // Shallow anchors let the common allocator reshape banks into the free
+     // hull volume. The two port banks beside the forward machinery need a
+     // deeper anchor; full-size banks are retained for every gun.
+     const chargeDepth=kind==='monCal150Ion'&&sg<0&&x>=280&&x<=310?14:2;
+     const f={id:s.nextId+pair.length,k:kind,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,chargeDepth,batteryZone:zone+(sg>0?'-stbd':'-port')};mountFit(s,f);if(f.float)break;
+     const b=fitAABB(f);if(!s.fits.concat(pair).every(g=>freeBox(b,fitAABB(g))))break;pair.push(f);
+    }
+    if(pair.length===2){s.fits.push(...pair);s.nextId+=2;got+=2;}
+   }
+   if(got<total)throw new Error('MC30c球状砲座が不足しています: '+kind+' '+got+'/'+total);
+  };
+  headBalls('monCal150Ion',16,'beam-ion',[11,20,27,16,23],range(204,364,20));
+  headBalls('monCal34',12,'beam-tl',[25,19,12,29,7,23,16],range(200,368,12));
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  s.groundForces=normalizeGroundForces(MC30C_GROUND);
@@ -27241,7 +27274,7 @@ registerShipExample({
  key:'mc30c',name:'MC30cフリゲート',side:'反乱同盟',role:'雷撃フリゲート',length:380,
  title:'MC30c Frigate',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（MC30CFrigate.STL）',license:'不明（出典未記載）',
  credit:'MC30cフリゲートの形状は、ユーザーが提供した STL ファイル（MC30CFrigate.STL、作者・ライセンス表記なし）から実測した。',
- note:'380 m（正史）。ユーザー提供の STL ファイル（MC30CFrigate.STL、作者・ライセンス表記なし）の実測形状から、尾翼内の細い芯・後部機関ハウジング・背骨・大きな丸い頭部を1本の主船体として断面ごとに合わせ、下反角の尾翼と中央板、背鰭、尾翼下の放熱翼、主機関ポッド、腹部キール、背部稜線と4つの砲塔ブロックを構造物として組み直した。頭部の下の4つのポッドから出る主機関4基と後部ハウジングの機関1基、反応炉は中心線上に並べ、前後の偏向シールド発生器、ハイパードライブ（クラス1）。武装はモン・カラマリの艦らしく砲塔を立てず、頭部の舷側に埋め込んだケースメイトのターボレーザー12基（連装ケースメイト軽砲）と軽イオン砲16基（連装ケースメイト軽イオン砲、反乱同盟のドクトリンで増強）、前部甲板の VLS に重プロトン魚雷発射管2基、外置きのクラスター爆弾発射機6基、艦首下面のトラクター・ビーム2基、点防御10基（砲塔ブロック上など）。艦隊兵95名。居住区・兵員室は置かず、乗員と兵員は船内の空き容積に乗る。',
+ note:'380 m（正史）。ユーザー提供の STL ファイル（MC30CFrigate.STL、作者・ライセンス表記なし）の実測形状から、尾翼内の細い芯・後部機関ハウジング・背骨・大きな丸い頭部を1本の主船体として断面ごとに合わせ、下反角の尾翼と中央板、背鰭、尾翼下の放熱翼、主機関ポッド、腹部キール、背部稜線と4つの砲塔ブロックを構造物として組み直した。頭部の下の4つのポッドから出る主機関4基と後部ハウジングの機関1基、反応炉は中心線上に並べ、前後の偏向シールド発生器、ハイパードライブ（クラス1）。武装は頭部の舷側の34TT単装球状ターボレーザー12基と150TT単装球状イオン砲16基（廃止された砲列区画と小型イオン砲から置換）、前部甲板の VLS に重プロトン魚雷発射管2基、外置きのクラスター爆弾発射機6基、艦首下面のトラクター・ビーム2基、点防御10基（砲塔ブロック上など）。艦隊兵95名。居住区・兵員室は置かず、乗員と兵員は船内の空き容積に乗る。',
  groundForces:MC30C_GROUND,
  build:mc30Build
 });
@@ -27383,16 +27416,47 @@ registerShipExample({
 // the blisters, side lobes, dorsal ridge and dome, the tower and the engine
 // housings are ordinary structures measured from the model, asymmetric where
 // the original is.
-// v22 Armament (Wookieepedia, "Home One"): 29 Taim & Bak XV9 turbolaser cannons, 36 ArMek SW-7 ion
-// cannons, 6 Phylon Q7 tractor beam projectors. Mon Calamari batteries are recessed into the hull (the
-// Home One article's "recessed weapon batteries"), so the guns are casemates in the flanks, not turrets:
-// 29 twin casemate guns (casemateMid) and 36 twin ion casemates (casemateIon). The 24 point-defence
-// mounts are a game addition: the canon list has none.
+// Armament follows the user's annotated plan. Every coloured circle is one
+// spherical mount; PD circles are triple lasers. Matching stations are repeated
+// on the underside. The drawing is a placement reference, not a canon count.
+function monCalReferenceMounts(s,layout,projection){
+ const [bow,stern,centre,metresPerPixel]=projection,reach=Math.max(s.hull.L,s.hull.W,s.hull.H)*2;
+ for(const [kind,pixels] of Object.entries(layout))for(let i=0;i<pixels.length;i++){
+  const pixel=pixels[i],x=s.hull.L*(stern-pixel[0])/(stern-bow),z=(centre-pixel[1])*metresPerPixel,pair=[];
+  for(const a of [2,3]){
+   const up=AXES[a],cast=(xx,zz)=>rayEnv(s,add([xx,0,zz],mul(up,reach)),mul(up,-1),{maxT:reach*2,structOnly:true});
+   let hit=cast(x,z);
+   // The plan and the native model have slightly different outlines. Where a
+   // marked column falls beyond a wing edge, use the nearest existing surface;
+   // this never creates a support, changes the hull or drops a marked gun.
+   if(!hit)for(let radius=4;radius<=20&&!hit;radius+=4){let best=null;
+    for(let j=0;j<24;j++){const angle=j*Math.PI/12,h=cast(x+Math.cos(angle)*radius,z+Math.sin(angle)*radius);if(h&&!h.part?.plate&&(!best||Math.abs(h.p[0]-x)<Math.abs(best.p[0]-x)))best=h;}hit=best;
+   }
+   if(!hit||hit.part?.plate)throw new Error('モン・カラマリ砲座の取付面がありません: '+kind+' '+(i+1));
+   const f={id:s.nextId++,k:kind,p:hit.p.slice(),a,mountAxis:a,mountOffset:0,ped:0,base:0,low:0,float:false,
+    batteryZone:(a===2?'dorsal':'ventral')+'-moncal-'+kind+'-'+(i+1),referencePlan:pixel.slice()};
+   mountFit(s,f);if(f.float)throw new Error('モン・カラマリ砲座が船体から離れています: '+kind+' '+(i+1));s.fits.push(f);pair.push(f);
+  }
+  // The thin lobe tips cannot hold two opposing banks anchored at mid-depth.
+  // Reserve the full banks near their respective skins; the common allocator
+  // reshapes them into free internal volume without changing the marked seats.
+  if(kind==='monCal34'&&len(sub(pair[0].p,pair[1].p))<20)for(const f of pair)f.chargeDepth=2;
+  pair[0].vt=pair[1].id;pair[1].vt=pair[0].id;
+ }
+}
 {
 const HO={"W":254.0,"H":149.0,"st":[[0.0,0.002,0.0019,0.1232],[0.00326,0.1343,0.1389,0.1232],[0.00941,0.2453,0.3316,0.1232],[0.02326,0.371,0.517,0.1232],[0.04787,0.4802,0.6095,0.1232],[0.09864,0.643,0.7297,0.1232],[0.15249,0.7692,0.8416,0.1232],[0.27864,0.9528,0.9467,0.1232],[0.36172,0.9968,0.9807,0.1232],[0.51864,0.9482,0.9882,0.1232],[0.6571,0.8425,0.9344,0.1232],[0.7971,0.6261,0.7935,0.1232],[0.86633,0.5114,0.6398,0.1232],[0.88787,0.4692,0.5273,0.1232],[0.89249,0.4573,0.4303,0.1232],[0.96479,0.241,0.2542,0.1232],[0.98941,0.1276,0.1395,0.1232],[1.0,0.001,0.0011,0.1232]],"loft":{"ridge":[[84.31,-0.05,0.05,138.04,138.13],[96.32,-10.43,10.43,138.62,149.31],[156.38,-24.35,24.35,142.63,167.31],[288.51,-38.32,38.32,151.44,185.86],[388.62,-42.78,42.78,155.77,191.6],[592.83,-40.17,40.17,156.07,189.76],[652.89,-27.08,27.08,156.07,178.81],[676.91,-13.72,13.72,156.07,167.61],[682.92,-4.78,4.78,156.07,160.16],[684.92,-0.12,0.12,156.2,156.31]],"lobe":[[381.38,103.02,116.74,92.52,92.71],[385.56,103.02,123.41,85.89,99.35],[401.23,103.02,130.89,78.51,106.72],[440.94,103.02,138.28,71.23,114.01],[479.61,103.02,139.86,69.67,115.57],[484.83,103.02,136.73,69.67,115.57],[535.0,103.02,137.36,69.67,115.57],[540.22,103.02,139.86,69.67,115.57],[565.3,103.02,138.69,69.67,115.57],[572.62,103.02,136.73,69.67,115.57],[617.55,103.02,137.7,69.67,115.57],[621.73,103.02,139.77,69.76,115.48],[663.53,103.02,135.27,74.19,111.05],[686.53,103.02,126.98,82.37,102.87],[692.8,103.02,121.46,87.81,97.42],[694.89,103.02,116.75,92.5,92.73]],"lobeS2":[[439.14,114.72,128.51,92.47,92.76],[441.25,114.72,134.97,87.45,97.78],[448.28,114.72,141.8,82.22,103.02],[463.74,114.72,148.7,76.95,108.29],[489.04,114.72,151.56,74.76,110.48],[497.48,114.72,151.56,74.76,110.48],[498.88,114.72,148.83,74.76,110.48],[541.75,114.72,148.85,74.76,110.48],[543.86,114.72,151.56,74.76,110.48],[609.93,114.72,150.83,75.32,109.92],[633.12,114.72,145.26,79.57,105.67],[645.07,114.72,137.66,85.39,99.84],[648.58,114.72,132.96,89.04,96.2],[649.99,114.72,128.49,92.49,92.75]],"dome":[[382.13,-0.1,0.1,178.4,178.51],[387.42,-8.48,8.48,178.26,186.74],[408.6,-18.23,18.23,178.26,196.49],[459.27,-27.13,27.13,178.26,205.4],[547.76,-27.81,27.81,178.26,206.08],[583.31,-21.84,21.84,178.26,200.1],[602.22,-11.7,11.7,178.26,189.97],[606.75,-6.86,6.86,178.26,185.14],[609.02,-0.15,0.15,178.35,178.51]],"vP1":[[322.72,-52.34,-52.16,33.22,33.32],[327.34,-59.4,-45.59,26.8,35.19],[344.0,-67.31,-38.71,19.49,36.99],[385.65,-75.63,-32.53,12.09,38.62],[473.56,-78.82,-33.51,10.46,38.42],[552.23,-74.84,-41.04,15.62,36.52],[588.32,-67.36,-49.95,23.42,34.23],[596.65,-63.16,-54.38,27.47,33.02],[600.35,-58.97,-58.86,31.73,31.82]],"vS1":[[202.59,47.75,47.93,35.79,35.91],[207.22,41.02,54.74,29.19,37.92],[224.8,33.5,62.48,21.19,39.73],[266.44,26.57,69.56,13.08,40.68],[352.5,25.4,70.42,9.64,38.6],[430.23,30.64,64.62,12.89,34.77],[467.24,38.42,56.36,19.75,31.33],[476.5,42.96,51.66,23.97,29.65],[480.2,47.12,47.24,28.03,28.11]],"dFore":[[795.16,-0.06,0.06,143.29,143.4],[799.21,-4.66,4.66,143.18,150.9],[814.4,-9.41,9.41,143.18,159.04],[839.71,-13.35,13.35,143.18,165.83],[882.24,-16.45,16.45,143.18,171.15],[1040.19,-16.55,16.55,143.18,171.32],[1068.54,-13.7,13.7,143.18,166.43],[1085.75,-9.65,9.65,143.18,159.48],[1094.87,-5.42,5.42,143.18,152.25],[1096.89,-3.61,3.61,143.18,149.31],[1098.92,-0.09,0.09,143.25,143.41]],"vAft":[[150.9,-0.08,0.08,37.63,37.74],[155.53,-6.75,6.75,30.82,37.56],[174.69,-14.51,14.51,21.94,36.17],[222.27,-21.97,21.97,11.45,32.7],[296.94,-22.83,22.83,5.4,27.27],[329.98,-16.3,16.3,9.65,24.86],[343.85,-8.63,8.63,15.99,23.85],[347.16,-5.19,5.19,19.35,23.61],[349.14,-0.13,0.13,23.25,23.36]],"vFore":[[792.84,-0.13,0.13,23.16,23.28],[796.15,-7.0,7.0,17.05,23.54],[808.72,-14.84,14.84,10.19,24.15],[839.16,-22.12,22.12,4.52,25.63],[905.34,-22.92,22.92,6.8,28.84],[958.94,-16.85,16.85,15.13,31.44],[983.43,-8.46,8.46,24.3,32.63],[988.72,-4.39,4.39,28.27,32.89],[991.37,-0.08,0.08,32.75,32.85]],"vS2":[[527.06,43.0,43.19,23.01,23.12],[530.17,38.46,47.8,18.77,24.67],[541.96,33.41,53.01,13.85,26.35],[569.9,28.74,57.77,9.39,28.06],[628.25,27.95,58.35,9.19,28.82],[680.4,31.52,54.4,13.34,28.16],[704.61,36.67,48.91,18.77,26.76],[710.82,39.77,45.7,21.83,25.82],[713.3,42.63,42.75,24.75,24.83]],"dSide":[[517.26,62.01,62.14,157.66,157.75],[521.05,58.18,65.8,156.16,161.39],[541.89,52.61,70.61,154.21,166.65],[615.16,43.79,76.71,149.38,171.97],[651.16,42.28,76.45,148.09,172.01],[688.43,46.66,70.22,151.17,167.52],[701.69,50.22,64.77,152.57,162.74],[706.12,54.81,59.96,154.06,157.81],[706.75,56.49,56.9,155.09,155.38]],"aftLobe":[[202.65,74.42,112.51,57.63,95.74],[246.65,74.86,111.2,58.94,94.5],[269.15,75.68,107.45,62.83,90.87],[278.65,76.95,103.49,66.44,87.43],[285.85,93.66,97.14,70.74,78.37]],"vP2":[[723.4,-59.34,-59.18,31.73,31.83],[726.44,-62.94,-54.93,28.14,33.45],[741.0,-67.02,-48.69,23.38,35.69],[769.53,-68.44,-43.01,20.44,37.68],[841.77,-62.14,-37.63,22.43,39.19],[887.9,-53.51,-38.48,28.15,38.49],[902.46,-48.09,-41.62,32.6,37.25],[905.5,-44.36,-44.26,35.83,35.91]],"vMid":[[675.43,-5.46,5.46,6.39,7.07],[675.93,-16.65,16.65,6.37,13.25],[676.43,-21.17,21.17,5.89,20.12],[676.93,-22.89,22.89,5.88,26.99],[678.93,-23.47,23.47,5.82,28.31],[716.93,-18.94,18.94,7.65,25.55],[737.93,-10.5,10.5,14.46,24.02],[743.43,-5.38,5.38,19.2,23.62],[745.49,-0.13,0.13,23.25,23.36]],"foreSide":[[885.14,87.05,87.16,118.01,118.12],[888.14,84.53,89.56,115.69,120.75],[902.64,80.46,91.79,112.39,123.81],[930.14,75.45,91.63,108.9,125.19],[965.64,69.12,90.74,103.75,125.5],[985.14,67.78,88.04,103.28,123.74],[1006.14,68.38,82.79,105.52,119.92],[1014.64,69.59,78.31,107.56,116.23],[1017.52,72.36,72.91,110.96,111.43]],"aftSide2":[[214.86,84.67,118.14,76.1,109.61],[251.36,84.67,117.23,77.02,108.69],[278.36,84.67,113.71,80.53,105.18],[289.09,84.67,109.17,85.07,100.64]],"aftSide3":[[246.9,91.97,92.06,109.32,109.42],[250.51,90.48,94.94,107.46,111.98],[273.25,90.67,101.11,105.84,116.43],[334.73,94.6,111.84,104.27,121.75],[368.83,99.32,115.16,106.13,122.16],[391.56,104.21,115.0,109.69,120.63],[399.83,107.07,112.44,112.32,117.76],[401.89,109.41,109.64,114.71,114.95]],"dSide2":[[777.83,49.18,49.31,155.97,156.05],[781.33,45.26,52.67,154.42,159.44],[796.83,39.89,56.1,152.33,163.43],[830.83,34.18,57.35,149.9,165.89],[864.83,31.77,55.05,148.09,164.52],[893.33,30.12,52.99,146.22,162.12],[904.33,33.09,48.56,146.97,157.92],[908.83,36.62,44.11,148.17,153.57],[909.33,37.68,43.41,148.37,152.9],[910.08,39.77,40.19,149.46,149.78]],"vAft2":[[164.92,13.53,20.58,20.13,23.41],[165.42,4.47,24.32,19.85,35.29],[165.92,0.16,24.45,19.8,37.38],[166.92,-1.12,24.51,19.7,37.34],[204.92,0.4,25.42,17.37,34.57],[221.92,4.87,21.97,20.07,33.32],[228.92,9.35,17.97,23.63,32.81],[229.42,9.8,17.59,23.97,32.78],[230.42,11.69,15.63,28.55,32.7],[231.17,13.71,13.98,32.36,32.64]],"towerCap":[[444.43,-0.07,0.07,219.92,221.31],[445.93,-1.67,1.67,217.74,223.49],[453.93,-4.08,4.08,214.46,226.77],[463.43,-5.19,5.19,213.46,228.28],[474.43,-5.66,5.66,212.42,228.92],[481.93,-8.13,8.13,212.29,232.28],[501.93,-7.96,7.96,212.29,232.06],[507.93,-5.82,5.82,212.32,228.92],[512.93,-6.7,6.7,212.64,228.6],[522.93,-3.34,3.34,215.46,225.77],[525.93,-1.67,1.67,217.74,223.5],[526.89,-0.11,0.11,219.87,221.37]],"towerStem":[[481.92,-3.86,3.86,217.38,217.49],[490.92,-3.86,3.86,183.26,217.49],[500.42,-3.86,3.86,182.48,217.49],[509.79,-3.86,3.86,182.48,182.59]],"domeA":[[219.02,0.55,0.79,188.91,189.15],[220.02,-1.32,2.66,187.04,191.02],[224.02,-3.26,4.6,185.1,192.97],[255.02,-4.54,5.88,183.82,194.25],[258.02,-2.99,4.33,185.37,192.7],[259.02,-1.78,3.13,186.58,191.49],[259.81,0.51,0.84,188.87,189.2]],"eng1":[[39.76,45.45,68.26,57.77,80.58],[69.26,44.61,69.1,56.93,81.42],[69.76,42.41,71.3,54.73,83.62],[82.76,42.41,71.3,54.73,83.62],[84.26,41.26,72.45,53.58,84.77],[90.26,41.26,72.45,53.58,84.77],[91.76,42.41,71.3,54.73,83.62],[112.25,42.41,71.3,54.73,83.62]],"eng2":[[69.91,46.56,67.15,106.24,126.83],[70.41,42.41,71.3,102.09,130.98],[112.25,42.41,71.6,102.09,131.28]],"eng3":[[74.62,0.48,19.87,23.44,42.83],[104.12,1.75,18.59,24.72,41.55],[104.62,-1.36,21.7,21.6,44.67],[117.12,-1.36,21.7,21.6,44.67],[117.62,1.0,19.34,23.97,42.31],[170.5,1.0,19.34,23.97,42.31]],"eng4":[[137.76,90.35,105.5,63.51,78.66],[167.26,89.8,106.05,62.96,79.21],[167.76,88.34,107.52,61.5,80.68],[210.26,88.34,107.52,61.5,80.68]],"eng5":[[149.86,98.64,113.78,86.63,101.78],[179.36,98.08,114.34,86.08,102.33],[179.86,96.62,115.8,84.62,103.8],[222.35,96.62,115.8,84.62,103.8]],"engBr":[[186.27,89.52,104.6,92.26,92.98],[186.77,89.35,104.6,92.23,100.81],[187.27,89.18,104.6,92.2,105.46],[188.77,89.18,104.6,92.12,105.37],[189.27,89.18,109.88,75.0,105.34],[203.77,89.18,109.88,75.0,104.52],[204.27,89.22,116.69,80.82,104.69],[228.43,92.99,116.69,80.82,104.69]]},"rooms":[["service","航空整備・補給区画",[472,60,72],[79.4,35.4,31.4],1],["service","航空整備・補給区画 2",[438,56,40],[11.4,27.4,39.4],1],["cargo","貨物・物資庫",[715.93,60,54],[31.25,47.4,39.4]]]};
 const HO_AIR=[{id:'air-1',name:'Xウイング中隊（第1〜4）',type:'xwing',count:48},{id:'air-2',name:'Aウイング中隊（第5・6）',type:'awing',count:24},{id:'air-3',name:'Yウイング中隊（第7・8）',type:'ywing',count:24},{id:'air-4',name:'Bウイング中隊（第9・10）',type:'bwing',count:24}];
 const HO_GROUND=[{id:'ground-1',name:'同盟軍特殊部隊・艦隊兵',kind:'troops',count:1200}];
 const HO_HULL='#a3a9a6',HO_BLIS='#979e9c',HO_DARK='#626a6e',HO_ENG='#4f575c',HO_TOWER='#8b9294';
+// Pixel centres digitized from annotated image 3 (1280 x 587).
+// x=27 is the bow, x=1260 the stern; full native beam is 303.12 m.
+const HO_ARMAMENT={
+ monCalPD:[[74,306],[166,260],[259,219],[191,345],[347,319],[376,321],[428,379],[470,277],[499,278],[492,197],[628,179],[690,149],[819,143],[585,248],[638,245],[610,342],[657,341],[755,347],[786,344],[884,257],[909,256],[1040,238],[1129,223],[1081,316],[1113,365],[854,440],[699,442],[548,423]],
+ monCal80:[[343,184],[227,251],[230,338],[343,403],[800,186],[797,396]],
+ monCal34:[[292,231],[350,224],[546,213],[621,148],[688,207],[879,199],[967,203],[968,383],[879,391],[697,385],[543,377],[350,368],[287,353],[621,442]],
+ monCal150Ion:[[449,222],[450,368]]
+};
 // Shared by the Mon Calamari builders: weapon placement with charging plant checks.
 function hoMountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
@@ -27491,18 +27555,9 @@ function mc80HomeBuild(opt={}){
  pod('podAir',dome,[495,192,90],[0,0,-1]);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // v22 Canon armament (Wookieepedia, "Home One": 29 Taim & Bak XV9 turbolaser cannons, 36 ArMek SW-7 ion
-  // cannons, 6 Phylon Q7 tractor beam projectors). The ion batteries outnumber the turbolasers (Rebel
-  // doctrine: strip the shields, let the fighters finish). Mon Calamari batteries are recessed into the
-  // hull, not turreted, so both are casemates in the flanks: the turbolasers twin casemate guns along the
-  // waterline, the ion cannons twin ion casemates in rows above and below it.
-  casemateRows(s,'casemateMid',29,[[.5,[180,1180]],[.44,[200,1160]],[.56,[200,1160]]],70,{zone:'beam-tl'});
-  casemateRows(s,'casemateIon',36,[[.36,[180,1180]],[.64,[200,1180]],[.28,[200,1160]],[.72,[200,1160]]],110,{zone:'beam-ion'});
-  // Tractor beam projectors forward, ventral.
+  monCalReferenceMounts(s,HO_ARMAMENT,[27,1260,293,303.12/320]);
+  // Retain the separate tractor beam projectors.
   spread('trc',6,'bottom','bow-tractor',range(900,1250,24),[24,40,10,52]);
-  // Point defence screen (a game addition: the canon list has none).
-  spread('pd',12,'top','dorsal-pd',range(120,1260,28),[12,46,66,84,100,30]);
-  spread('pd',12,'bottom','ventral-pd',range(200,1260,28),[12,46,66,84,100,30]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  // Compartments packed into free space of the hull: crew decks, troops, cargo and aircraft servicing.
@@ -27516,7 +27571,7 @@ registerShipExample({
  title:'Star Wars: MC80 Home One Type Star Cruiser',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
  source:'https://sketchfab.com/3d-models/star-wars-mc80-home-one-type-star-cruiser-9b5e5e5192f64a7faad93a3bfd2efaf2',license:'CC-BY-4.0',
  credit:'This work is based on "Star Wars: MC80 Home One Type Star Cruiser" (https://sketchfab.com/3d-models/star-wars-mc80-home-one-type-star-cruiser-9b5e5e5192f64a7faad93a3bfd2efaf2) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'1,300 m（正史の MC80A ホーム・ワン型重スター・クルーザー）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状から、楕円断面の主船体と、舷側ローブ・背部稜線・背部ドーム・腹部ブリスターなどの構造物を組み直した（原型どおり左右非対称）。艦尾に3種10基の亜光速機関、両舷ローブに力場で閉じる発着格納庫と内側の格納甲板（120機・10個中隊）、三重強度の偏向シールド。反乱同盟のドクトリン（艦のイオン砲でシールドを剥ぎ、航空攻撃で仕留める）に合わせ、正史の武装（タイム&バック XV9 ターボレーザー29基・アーメク SW-7 イオン砲36基・フィロン Q7 トラクター・ビーム6基）どおり、イオン砲36基をターボレーザー29基より多く積む。モン・カラマリの艦らしく砲塔は立てず、どちらも舷側の船殻に埋め込んだケースメイト（ターボレーザーは連装ケースメイト中砲を喫水線に沿って、イオン砲は連装ケースメイト・イオン砲をその上下の列に）。トラクター・ビーム6基、点防御24基（正史の一覧にないゲーム上の追加）、背部ドームの航空指揮ポッド。乗員11,480名・兵員1,200名は船内の空き容積に乗る。',
+ note:'1,300 m。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状から主船体・ローブ・ブリスターを組み直した左右非対称の艦。10基の亜光速機関、120機用格納庫、三重強度の偏向シールドを持つ。武装はユーザー提供図の各丸印を球状ターレットとして配置し、腹面にも同じ種類・基数を搭載。背腹それぞれ3連装点防御28基、80TT単装6基、34TT単装14基、150TT単装イオン2基、計100基。トラクター・ビーム6基は保持。取付位置は図から船体の実面へ投影し、輪郭が異なる翼端付近は最寄りの船体面へ合わせた。',
  airWings:HO_AIR,groundForces:HO_GROUND,
  build:mc80HomeBuild
 });
@@ -27530,16 +27585,21 @@ registerShipExample({
 // spine runs aft over the open engine bay); the upper deck shell, the two
 // swept wings with their trailing claws, the blisters (asymmetric as on the
 // model) and the engine housings are ordinary structures.
-// v22 Armament as Legends gives the MC80 Liberty type (Wookieepedia, "MC80 Liberty type Star Cruiser";
-// West End Games' Rebel Alliance Sourcebook; https://www.theforce.net/SWTC/rpg/mcc.html): 48 Taim & Bak
-// XV9 turbolaser batteries, 20 ArMek SW-7 ion cannon batteries, 6 Phylon Q7 tractor beam projectors.
-// Mon Calamari batteries are recessed into the hull, so the guns are casemates in the flanks (twin
-// casemate guns and twin ion casemates), not turrets. The 24 point-defence mounts are a game addition.
+// The user plan replaces the old recessed battery counts with spherical
+// mounts on the dorsal face and matching numbers on the ventral face.
 {
 const LIB={"W":291.0,"H":77.0,"st":[[0.0,0.0962,0.1688,0.7013],[0.1,0.1649,0.2208,0.7013],[0.20833,0.2474,0.2597,0.6948],[0.22696,0.6762,0.8255,0.3323],[0.28196,0.8224,0.8936,0.3323],[0.34029,0.9278,0.9423,0.3323],[0.40529,0.9963,0.9786,0.3323],[0.48529,1.0,0.9963,0.3323],[0.56529,0.9497,0.9894,0.3323],[0.69863,0.7591,0.9178,0.3323],[0.87863,0.4269,0.6555,0.3323],[0.94363,0.3012,0.4655,0.3323],[0.97863,0.1896,0.2951,0.3323],[0.99363,0.0996,0.1573,0.3323],[0.99696,0.0703,0.1125,0.3323],[1.0,0.0011,0.0017,0.3323]],"loft":{"cap":[[0.0,-0.21,0.21,75.25,80.8],[3.5,-12.15,12.15,75.21,84.75],[17.51,-27.57,27.57,75.21,91.76],[56.02,-49.02,49.02,75.21,99.81],[136.54,-73.44,73.44,75.21,105.98],[269.58,-102.85,102.85,75.21,111.55],[273.08,-103.62,103.62,85.9,111.66],[378.11,-119.6,119.6,89.55,113.94],[560.17,-124.23,124.23,92.28,114.96],[675.7,-117.12,117.12,92.18,113.89],[840.25,-84.07,84.07,89.33,111.19],[994.3,-43.61,43.61,82.13,105.55],[1036.31,-21.99,21.99,80.16,98.02],[1046.81,-10.84,10.84,79.67,93.69],[1050.31,-0.19,0.19,79.51,87.26]],"aftDeck":[[46.85,-31.62,31.62,86.99,87.17],[47.66,-40.08,40.08,75.45,88.45],[59.92,-54.68,54.68,75.45,93.81],[94.24,-74.01,74.01,75.45,98.35],[205.35,-103.5,103.5,75.45,99.69],[256.83,-108.59,108.59,75.45,97.09],[265.82,-107.46,107.46,75.45,96.01],[273.17,-106.0,106.0,79.05,94.76],[288.69,-97.2,97.2,83.32,90.49],[291.96,-92.44,92.44,86.85,86.96]],"wing":[[66.79,228.72,230.47,55.03,71.82],[68.79,229.97,334.41,48.17,78.68],[78.79,236.39,903.02,47.17,79.68],[80.79,237.68,911.38,47.27,79.58],[94.79,246.67,912.48,48.12,78.73],[130.79,269.8,811.76,50.3,76.54],[158.79,287.78,758.56,52.0,74.84],[222.79,316.86,662.81,56.35,70.5],[258.79,320.93,588.34,58.02,68.82],[274.79,323.54,542.45,59.13,67.71],[276.79,325.64,428.9,60.82,66.02],[277.73,327.29,332.78,63.12,63.73]],"wingRoot":[[63.22,227.76,230.4,54.34,72.51],[65.22,228.61,283.4,46.73,80.12],[69.22,231.19,377.66,46.72,80.12],[71.22,232.47,384.34,46.82,80.02],[144.22,279.45,384.34,50.94,75.91],[145.22,280.07,283.65,54.92,71.93]],"wingTip":[[281.43,147.17,147.28,63.03,63.82],[287.93,146.97,156.91,52.81,74.04],[303.93,146.97,185.7,51.1,75.74],[317.43,146.97,219.83,51.12,75.73],[323.43,146.97,271.63,51.13,75.72],[338.93,146.97,276.24,51.15,75.7],[384.35,146.97,275.83,51.2,75.64]],"dCentre":[[598.39,-5.79,57.19,82.65,126.45],[849.58,1.23,50.17,82.65,124.67],[904.91,9.88,41.53,82.65,115.2],[925.94,18.63,32.77,82.65,105.47],[930.36,25.62,25.78,82.65,97.81]],"dPort":[[399.86,-40.49,-39.77,93.66,93.87],[402.7,-55.54,-24.72,93.6,102.34],[414.98,-75.23,-5.04,93.6,113.45],[443.34,-89.39,9.12,93.6,121.45],[546.38,-97.85,17.58,93.6,122.13],[653.19,-84.71,4.44,93.6,118.81],[675.88,-65.47,-14.8,93.6,107.96],[681.55,-53.13,-27.14,93.6,100.91],[683.44,-40.48,-39.79,93.67,93.87]],"dStbd":[[395.57,26.05,26.37,108.88,109.03],[398.92,17.04,35.38,108.8,117.01],[415.67,4.64,47.77,108.8,128.09],[453.64,-4.98,57.4,108.8,136.69],[570.88,-10.58,63.0,108.8,137.58],[682.55,-3.15,55.57,108.8,135.05],[716.05,7.94,44.47,108.8,125.14],[728.33,19.29,33.13,108.8,115.0],[730.57,26.05,26.36,108.88,109.03]],"vStbd":[[395.6,96.85,97.1,45.38,45.5],[399.2,89.21,104.75,40.08,47.51],[417.23,78.88,115.18,32.79,50.06],[456.88,70.8,123.34,27.1,52.07],[595.05,65.36,127.25,24.74,54.56],[711.6,72.21,120.1,28.66,51.28],[744.04,82.14,110.08,35.58,48.81],[753.66,90.32,101.84,41.32,46.76],[756.06,95.96,96.2,45.15,45.27]],"vAft":[[131.49,-0.16,0.16,32.14,32.29],[135.12,-8.47,8.47,24.78,32.38],[146.92,-17.14,17.14,17.03,32.38],[175.98,-25.5,25.5,9.57,32.38],[219.57,-26.25,26.38,8.01,32.38],[362.13,-18.73,19.42,9.15,32.38],[395.73,-10.26,10.95,8.96,32.38],[402.99,-6.04,6.74,9.18,32.38],[403.9,-5.54,6.24,11.7,32.37]],"vFore":[[799.05,-0.16,0.16,38.08,38.23],[802.82,-8.6,8.6,30.61,38.32],[818.85,-19.41,19.41,20.95,38.32],[855.62,-26.7,26.7,14.43,38.32],[952.73,-31.11,31.11,12.02,40.26],[1048.9,-23.75,23.75,17.07,38.32],[1073.42,-13.49,13.49,26.24,38.32],[1080.02,-6.04,6.04,32.9,38.32],[1081.9,-0.16,0.16,38.08,38.23]],"dAft":[[54.96,-0.16,0.16,96.51,96.66],[57.79,-7.77,7.77,96.42,103.39],[71.93,-18.24,18.24,96.42,112.75],[103.99,-26.39,26.39,96.42,120.03],[202.99,-31.11,31.11,94.48,122.73],[303.87,-23.73,23.73,96.42,117.65],[329.33,-13.22,13.22,96.42,108.26],[335.93,-5.85,5.85,96.42,101.68],[337.82,-0.16,0.16,96.51,96.66]],"vPort":[[498.65,-29.87,-29.68,32.7,32.8],[503.67,-37.18,-22.36,26.28,32.94],[526.25,-46.65,-12.89,17.82,32.94],[577.68,-53.29,-6.26,11.9,32.94],[699.36,-57.27,-2.27,9.68,34.65],[829.83,-50.83,-8.71,14.09,32.94],[863.7,-41.6,-17.94,22.33,32.94],[872.48,-35.04,-24.5,28.19,32.94],[874.99,-29.88,-29.67,32.7,32.81]],"dPort2":[[293.08,-49.38,-48.91,104.48,104.7],[295.9,-59.05,-39.23,104.42,113.29],[307.16,-70.95,-27.34,104.42,123.93],[331.79,-80.06,-18.23,104.42,132.07],[404.28,-85.52,-12.76,104.42,133.21],[471.14,-78.43,-19.86,104.42,130.61],[494.36,-67.2,-31.08,104.42,120.59],[502.81,-55.42,-42.87,104.42,110.05],[504.22,-49.37,-48.92,104.49,104.69]],"vPort2":[[360.55,-86.19,-86.0,43.1,43.2],[364.88,-92.52,-79.68,37.57,43.34],[384.36,-100.7,-71.5,30.26,43.34],[428.72,-106.43,-65.76,25.14,43.34],[533.67,-109.87,-62.33,23.23,44.82],[646.2,-104.31,-67.89,27.04,43.34],[675.41,-96.34,-75.86,34.16,43.34],[682.99,-90.66,-81.54,39.22,43.34],[685.15,-86.2,-85.99,43.1,43.21]],"vStbd2":[[715.57,30.17,30.36,38.24,38.4],[718.61,25.21,35.33,30.56,38.47],[728.95,20.1,40.43,22.41,38.47],[751.45,14.96,45.58,14.18,38.47],[784.89,12.76,47.77,10.65,38.47],[856.65,8.99,51.29,11.32,38.47],[879.15,13.51,46.77,17.15,38.47],[892.53,20.68,39.6,26.35,38.47],[896.18,24.38,35.91,31.11,38.47],[898.0,29.98,30.3,38.21,38.42]],"wBlis1":[[386.03,202.17,275.82,54.7,72.15],[498.24,202.17,274.78,54.74,72.1]],"dStbd2":[[213.24,52.3,52.49,102.05,102.17],[216.78,47.38,58.84,100.33,107.18],[235.34,41.63,68.73,98.18,114.34],[280.41,40.14,78.71,96.7,119.61],[443.01,61.65,90.06,99.58,116.42],[471.29,71.32,85.37,101.57,109.81],[476.59,75.31,81.93,102.68,106.42],[478.36,79.26,79.45,103.47,103.57]],"wBlis2":[[499.8,212.91,274.76,55.47,71.37],[547.8,212.91,272.43,55.52,71.33],[613.8,212.91,246.72,55.58,71.26],[626.8,212.91,240.24,55.6,71.25],[627.27,238.33,240.03,59.45,67.4]],"dFore":[[835.83,74.42,75.18,78.18,78.41],[836.42,69.85,76.1,78.09,80.71],[844.07,60.91,82.71,78.09,87.47],[869.96,49.29,84.66,78.09,93.52],[933.53,32.35,73.08,76.85,95.07],[991.2,24.45,55.5,78.09,91.61],[1008.86,29.41,44.03,78.09,84.31],[1011.8,33.26,39.42,78.09,80.55],[1012.39,34.16,34.85,78.18,78.39]],"wBlis3":[[628.25,195.25,239.13,54.48,72.37],[703.96,159.37,195.46,52.66,74.19],[790.08,118.51,140.8,50.58,76.26],[792.27,117.47,139.71,50.53,76.32],[792.82,136.39,139.46,55.99,70.86]],"wBlis4":[[305.65,163.58,163.78,58.09,58.19],[309.42,157.8,169.56,53.04,58.33],[323.77,151.24,176.11,47.18,58.33],[357.01,145.49,181.87,42.04,58.33],[478.62,145.01,182.35,41.62,58.33],[512.61,150.34,177.01,46.38,58.33],[526.96,156.67,170.68,52.04,58.33],[530.74,160.52,166.84,55.44,58.33],[532.25,163.57,163.78,58.09,58.2]],"dSide":[[445.28,111.21,111.36,89.69,89.83],[448.36,107.73,115.51,86.69,93.93],[459.12,104.19,119.94,83.65,98.32],[486.04,100.57,124.46,80.55,102.8],[521.41,99.86,125.71,79.7,103.6],[622.91,100.16,124.98,80.2,103.31],[655.98,103.36,120.98,82.94,99.35],[669.82,106.76,116.72,85.86,95.13],[673.67,108.47,114.61,87.33,93.04],[675.97,111.23,111.36,89.71,89.83]],"vKeel":[[210.45,-0.44,-0.3,16.73,16.93],[212.32,-3.14,2.13,9.61,16.98],[221.63,-6.72,5.71,5.19,16.98],[250.2,-10.49,9.48,0.93,16.98],[299.27,-13.41,14.07,0.7,16.98],[360.14,-13.0,13.69,0.95,16.98],[383.74,-8.8,9.5,4.44,16.98],[393.67,-4.23,4.92,8.28,16.98],[394.92,-3.41,4.07,9.07,16.98],[396.78,0.32,0.52,16.71,16.93]],"wBlis5":[[334.45,-184.16,-184.02,56.58,56.67],[338.08,-188.32,-179.87,53.04,56.86],[353.25,-193.07,-175.11,48.8,56.86],[390.24,-197.53,-170.65,44.81,56.86],[473.32,-198.14,-170.04,44.26,56.86],[500.0,-194.56,-173.62,47.47,56.86],[512.13,-189.55,-178.63,51.94,56.86],[515.17,-186.64,-181.54,54.51,56.86],[516.38,-184.2,-183.99,56.62,56.73]],"vRoot":[[267.76,43.56,80.57,27.68,47.59],[307.26,46.77,77.37,31.06,47.58],[329.76,52.86,71.27,37.49,47.58],[337.26,58.26,65.87,43.2,47.56],[339.22,61.97,62.16,47.41,47.52]],"wBlis6":[[298.36,259.31,259.52,63.08,63.27],[299.69,256.66,262.17,60.68,65.67],[306.33,253.23,265.61,57.61,68.75],[321.61,250.2,268.64,54.9,71.45],[338.21,249.97,268.87,54.74,71.61],[476.33,249.98,268.86,54.7,71.65],[489.61,252.71,266.12,57.15,69.21],[495.59,256.0,262.83,60.09,66.26],[496.92,257.77,261.07,61.69,64.66],[497.58,259.29,259.54,63.06,63.29]],"wBlis7":[[793.81,75.41,138.56,46.72,80.12],[840.81,76.09,118.67,46.72,80.12],[866.95,105.06,109.63,52.8,74.04]],"wBl8":[[310.44,-180.41,-180.23,70.37,70.47],[312.98,-184.02,-176.62,70.22,73.57],[322.62,-188.03,-172.62,70.22,77.15],[345.95,-191.73,-168.92,70.22,80.45],[400.72,-192.43,-168.22,70.22,81.08],[431.65,-190.95,-169.7,70.22,79.76],[453.97,-186.69,-173.96,70.22,75.95],[461.07,-182.72,-177.93,70.22,72.44],[462.59,-180.4,-180.25,70.39,70.48]],"vAftS":[[165.23,7.21,37.79,33.84,64.42],[280.46,7.21,37.79,33.84,64.42]],"wBl9":[[559.78,157.74,157.94,56.2,56.3],[562.28,153.85,161.82,52.84,56.44],[571.28,149.64,166.03,49.07,56.44],[593.28,145.67,170.01,45.53,56.44],[652.78,145.11,170.57,45.02,56.44],[677.28,148.19,167.48,47.78,56.44],[688.78,152.66,163.01,51.77,56.44],[691.78,155.34,160.34,54.14,56.44],[692.96,157.73,157.94,56.2,56.31]],"dAftS":[[287.96,102.2,102.38,80.15,80.3],[289.96,100.1,105.89,78.01,83.12],[301.96,98.14,112.24,75.19,87.52],[333.96,100.32,119.97,73.44,90.55],[395.96,110.57,128.14,74.37,89.64],[418.96,117.44,127.17,77.2,85.67],[424.46,120.48,124.94,79.19,82.86],[426.0,123.18,123.33,80.5,80.62]],"wBl10":[[351.58,204.53,204.78,69.64,69.76],[353.58,200.4,208.9,69.53,73.36],[361.58,195.57,213.73,69.53,77.68],[381.08,191.07,218.23,69.53,81.7],[420.08,190.67,218.64,69.53,82.06],[443.58,194.72,214.59,69.53,78.44],[453.58,199.43,209.87,69.53,74.23],[456.08,202.06,207.24,69.53,71.9],[457.24,204.54,204.76,69.65,69.76]],"wBl11":[[516.58,217.09,217.27,70.95,71.05],[518.58,214.11,220.25,70.8,73.58],[528.08,210.3,224.06,70.8,76.99],[551.08,207.28,227.08,70.8,79.68],[568.58,206.43,227.69,70.8,79.93],[601.58,204.91,228.49,70.8,79.75],[627.08,207.75,225.64,70.8,77.62],[639.08,211.81,221.59,70.8,74.57],[642.08,213.81,219.59,70.8,73.05],[643.62,216.61,216.79,70.97,71.06]],"wBl12":[[474.8,219.55,219.65,58.78,58.88],[476.8,217.72,221.49,55.67,58.99],[483.8,216.02,223.18,52.37,58.99],[497.3,214.47,224.74,49.32,58.99],[500.8,214.63,224.58,49.22,58.99],[507.3,213.88,225.32,48.18,58.99],[524.3,213.48,225.73,47.38,58.99],[532.8,213.9,225.73,47.8,58.99],[549.8,213.9,225.73,47.8,58.99],[550.3,213.9,225.3,47.8,58.99],[556.8,213.47,225.73,47.37,58.99],[588.3,213.65,225.55,47.72,58.99],[588.8,214.09,225.12,48.17,58.99],[592.3,213.83,225.38,48.06,58.99],[610.3,215.18,224.02,50.71,58.99],[619.3,216.87,222.34,54.0,58.99],[622.3,217.78,221.42,55.75,58.99],[624.06,219.55,219.65,58.78,58.88]],"vAftC":[[109.52,-10.42,10.42,50.62,71.47],[126.02,-10.42,10.42,50.62,71.47],[126.52,-9.05,9.05,51.99,70.1],[137.52,-9.05,9.05,51.99,70.1],[138.02,-10.42,10.42,50.62,71.47],[240.54,-10.42,10.42,50.62,71.47]],"wBl13":[[397.83,151.88,152.06,70.95,71.05],[399.83,148.9,155.03,70.8,73.58],[407.83,145.53,158.4,70.8,76.59],[427.33,142.4,161.53,70.8,79.39],[483.83,142.02,161.91,70.8,79.73],[509.33,144.54,159.4,70.8,77.48],[520.83,148.04,155.9,70.8,74.35],[523.33,149.51,154.42,70.8,73.04],[524.87,151.89,152.05,70.97,71.06]],"wBl14":[[543.81,-174.22,-174.04,70.98,71.07],[545.81,-177.18,-171.07,70.83,73.59],[553.81,-180.53,-167.72,70.83,76.59],[572.81,-183.59,-164.67,70.83,79.32],[619.31,-184.21,-164.05,70.83,79.87],[647.31,-182.55,-165.7,70.83,78.39],[663.31,-179.15,-169.1,70.83,75.36],[668.31,-176.3,-171.96,70.83,72.83],[669.68,-174.2,-174.05,70.99,71.08]],"wBl15":[[307.27,-144.76,-144.66,55.16,55.26],[309.27,-146.6,-142.83,52.05,55.38],[316.27,-148.29,-141.13,48.75,55.38],[329.77,-149.85,-139.58,45.7,55.38],[342.77,-150.57,-138.85,44.28,55.38],[344.27,-150.21,-139.21,44.57,55.38],[350.27,-150.74,-138.69,43.95,55.38],[402.27,-150.65,-138.77,44.13,55.38],[403.27,-150.18,-139.25,44.64,55.38],[409.77,-150.28,-139.15,44.86,55.38],[426.27,-148.71,-140.72,47.94,55.38],[432.77,-147.4,-142.03,50.49,55.38],[435.77,-146.35,-143.07,52.38,55.38],[437.36,-144.76,-144.66,55.16,55.27]],"wBl16":[[429.19,-221.08,-220.94,57.55,57.63],[431.69,-223.99,-218.04,55.12,57.82],[442.19,-227.27,-214.75,52.18,57.82],[467.69,-230.31,-211.71,49.47,57.82],[525.19,-230.63,-211.39,49.18,57.82],[542.69,-228.01,-214.02,51.53,57.82],[550.19,-224.71,-217.31,54.48,57.82],[551.69,-223.68,-218.34,55.41,57.82],[552.94,-221.12,-220.91,57.58,57.69]],"wBl17":[[471.35,181.38,181.5,71.96,72.04],[473.87,179.05,183.82,71.76,73.93],[484.6,176.37,186.51,71.76,76.33],[492.8,175.42,187.46,71.76,77.18],[494.06,175.74,187.14,71.76,76.84],[502.26,174.8,188.08,71.76,77.73],[514.88,174.49,188.39,71.76,78.01],[523.71,174.91,187.97,71.76,77.58],[548.95,174.91,187.97,71.76,77.58],[559.04,174.48,187.97,71.76,77.58],[610.78,174.48,188.39,71.76,78.02],[611.41,174.92,187.96,71.76,77.58],[619.61,174.64,188.24,71.76,77.88],[646.11,176.44,186.44,71.76,76.27],[657.46,178.95,183.93,71.76,74.03],[659.35,180.0,182.87,71.76,73.14],[660.62,181.38,181.5,71.98,72.06]],"wBl18":[[413.69,197.84,198.06,58.77,58.91],[415.19,195.13,200.77,55.58,58.99],[420.19,192.35,203.55,52.17,58.99],[431.19,189.59,206.31,48.76,58.99],[449.69,188.46,207.44,47.37,58.99],[480.69,188.73,207.17,47.7,58.99],[494.69,190.94,204.96,50.42,58.99],[501.69,193.87,202.03,54.02,58.99],[503.69,195.29,200.61,55.78,58.99],[504.88,197.83,198.06,58.76,58.91]],"vMidC":[[429.78,-1.25,-0.93,28.99,29.14],[430.78,-4.21,2.03,26.41,29.23],[435.78,-8.15,5.97,22.88,29.23],[447.78,-11.82,9.64,19.6,29.23],[463.78,-12.24,10.06,19.27,29.23],[528.78,-12.12,9.94,19.33,29.23],[540.78,-8.87,6.69,22.23,29.23],[545.78,-5.4,3.22,25.34,29.23],[547.28,-3.17,0.99,27.33,29.23],[547.93,-1.25,-0.93,28.99,29.14]],"dAftC":[[278.66,1.06,1.38,115.97,116.1],[279.66,-1.65,4.09,115.8,118.4],[280.66,-2.67,5.11,115.71,120.03],[286.66,-6.29,8.73,115.16,123.09],[296.16,-8.46,10.91,114.29,124.31],[363.16,-8.25,10.69,108.18,118.36],[374.16,-5.22,7.66,107.17,114.85],[378.66,-2.13,4.57,106.72,111.56],[379.16,-1.64,4.08,106.69,111.03],[379.75,0.79,1.65,106.67,107.85]],"wBl19":[[586.18,187.33,187.48,55.53,55.64],[588.18,184.9,189.91,52.79,55.76],[597.18,181.94,192.87,49.2,55.76],[618.18,179.64,195.17,46.41,55.76],[635.68,179.29,195.85,46.56,55.76],[663.18,177.43,198.64,46.25,55.76],[684.18,179.82,196.24,48.39,55.76],[694.68,183.73,192.34,51.88,55.76],[697.18,186.02,190.05,53.9,55.76],[698.13,187.93,188.14,55.53,55.63]],"wBl20":[[457.28,-223.7,-223.51,69.13,69.22],[458.78,-225.8,-221.41,68.98,70.98],[465.28,-228.35,-218.86,68.98,73.26],[480.78,-230.23,-216.98,68.98,74.94],[485.78,-229.95,-217.26,68.98,74.64],[492.78,-230.38,-216.83,68.98,75.07],[533.28,-230.38,-216.83,68.98,75.07],[534.28,-229.95,-217.26,68.98,74.64],[540.78,-230.38,-216.83,68.98,75.07],[562.28,-229.6,-217.61,68.98,74.37],[562.78,-229.13,-218.08,68.98,73.91],[566.78,-228.97,-218.23,68.98,73.82],[576.78,-226.32,-220.88,68.98,71.45],[578.78,-224.85,-222.36,68.98,70.18],[579.55,-223.69,-223.52,69.14,69.23]],"wFore":[[867.63,76.48,109.05,46.72,80.12],[912.13,77.12,93.95,46.73,80.12],[913.63,84.44,93.43,48.64,78.2],[914.63,89.29,93.08,52.83,74.02],[915.13,91.71,92.91,57.17,69.68],[915.36,92.6,92.84,61.35,65.5]],"wBl21":[[578.18,-190.19,-190.06,57.5,57.6],[580.18,-192.21,-188.04,54.98,57.73],[586.18,-194.03,-186.22,52.46,57.73],[595.68,-195.44,-184.81,50.49,57.73],[596.68,-195.1,-185.15,50.8,57.73],[603.18,-195.97,-184.28,49.76,57.73],[631.68,-196.25,-184.0,49.36,57.73],[632.18,-196.25,-184.42,49.79,57.73],[638.68,-196.25,-184.0,49.36,57.73],[665.18,-195.65,-184.61,50.21,57.73],[667.18,-195.07,-185.18,50.84,57.73],[671.18,-194.98,-185.27,51.13,57.73],[680.68,-192.9,-187.35,54.02,57.73],[683.18,-191.61,-188.64,55.71,57.73],[684.22,-190.2,-190.05,57.5,57.61]],"engC":[[109.52,-10.42,10.42,50.62,71.47],[126.02,-10.42,10.42,50.62,71.47],[126.52,-9.05,9.05,51.99,70.1],[137.52,-9.05,9.05,51.99,70.1],[138.02,-10.42,10.42,50.62,71.47],[240.54,-10.42,10.42,50.62,71.47]],"eng3":[[206.23,53.38,70.6,29.73,46.95],[236.73,52.81,71.16,29.16,47.52],[240.23,53.92,70.05,30.28,46.41],[260.73,53.38,70.6,29.73,46.95],[261.23,50.71,73.26,27.06,49.62],[268.73,52.12,71.85,28.48,48.2]],"eng4":[[213.25,38.45,55.67,38.67,55.89],[243.25,38.45,55.67,38.67,55.89],[244.25,37.51,56.61,37.72,56.83],[248.75,37.51,56.61,37.72,56.83],[249.75,38.45,55.67,38.67,55.89],[287.44,38.45,55.67,38.67,55.89]],"eng5":[[220.82,63.35,88.24,49.17,74.06],[267.56,65.29,90.18,49.17,74.06]]},"rooms":[["service","航空整備・補給区画",[610,44,68],[19.4,63.4,23.4],1],["service","航空整備・補給区画 2",[626,44,68],[11.4,63.4,23.4],1],["cargo","貨物・物資庫",[536.58,48,96],[32.55,47.4,31.4]]]};
 const LIB_AIR=[{id:'air-1',name:'Xウイング中隊',type:'xwing',count:12},{id:'air-2',name:'Yウイング中隊',type:'ywing',count:12},{id:'air-3',name:'Aウイング中隊',type:'awing',count:12}];
 const LIB_GROUND=[{id:'ground-1',name:'同盟軍艦隊兵',kind:'troops',count:1200}];
 const LIB_BLIS='#9aa19f',LIB_WING='#a7aca8',LIB_DECK='#b0b4af',LIB_ENG='#565e63';
+// Pixel centres digitized from annotated image 4 (1280 x 587).
+// The separate circles in each wing-tip PD cluster each denote a triple mount.
+const LIB_ARMAMENT={
+ monCalPD:[[98,300],[137,321],[184,239],[215,237],[269,276],[247,301],[325,249],[356,258],[352,307],[326,336],[506,197],[550,203],[518,256],[563,334],[535,373],[431,384],[650,91],[698,118],[854,45],[867,45],[880,45],[847,82],[824,191],[847,195],[879,194],[721,247],[725,314],[809,328],[886,245],[1087,251],[1205,254],[1167,333],[1046,315],[998,334],[1009,278],[823,389],[849,395],[876,396],[787,493],[730,531],[853,551],[869,549],[882,549],[648,504]],
+ monCal200Triple:[[804,45],[802,545]],
+ monCal200:[[551,114],[550,474]],
+ monCal150Ion:[[450,220],[451,368]]
+};
 // Shared by the Mon Calamari builders: weapon placement with charging plant checks.
 function libMountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
@@ -27631,19 +27691,9 @@ function mc80LibertyBuild(opt={}){
  const {spread,range}=libMountKit(s,opt);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // v22 Legends armament of the MC80 Liberty type (Wookieepedia, "MC80 Liberty type Star Cruiser"; West End
-  // Games' Rebel Alliance Sourcebook MC80 and the X-wing strategy guide's MC80a, collected on Curtis
-  // Saxton's https://www.theforce.net/SWTC/rpg/mcc.html: 48 Taim & Bak XV9 turbolaser batteries, 20 ArMek
-  // SW-7 ion cannon batteries, 6 Phylon Q7 tractor beam projectors). Mon Calamari batteries are recessed
-  // into the hull, so all are casemates in the flanks: the turbolasers twin casemate guns in rows at and
-  // about the waterline, the ion cannons twin ion casemates above and below them.
-  casemateRows(s,'casemateMid',48,[[.5,[250,1150]],[.4,[260,1140]],[.6,[260,1140]],[.32,[260,1140]]],40,{zone:'beam-tl'});
-  casemateRows(s,'casemateIon',20,[[.25,[300,1100]],[.75,[300,1100]],[.68,[300,1100]],[.18,[300,1100]]],80,{zone:'beam-ion'});
-  // Tractor beam projectors forward, ventral.
+  monCalReferenceMounts(s,LIB_ARMAMENT,[27,1260,293,555.46/547]);
+  // Retain the separate tractor beam projectors.
   spread('trc',6,'bottom','bow-tractor',range(900,1150,22),[20,36,50,8]);
-  // Point defence screen (a game addition: the canon list has none).
-  spread('pd',12,'top','dorsal-pd',range(260,1160,26),[10,50,90,140,180,220,255]);
-  spread('pd',12,'bottom','ventral-pd',range(260,1160,26),[10,50,90,140,180,220,255]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  // Compartments packed into free space of the hull: crew decks, troops, cargo and aircraft servicing.
@@ -27657,7 +27707,7 @@ registerShipExample({
  title:'Star Wars: MC80 Liberty',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
  source:'https://sketchfab.com/3d-models/star-wars-mc80-liberty-7cfe7d5cd8f44db9a0e6095b0f007472',license:'CC-BY-4.0',
  credit:'This work is based on "Star Wars: MC80 Liberty" (https://sketchfab.com/3d-models/star-wars-mc80-liberty-7cfe7d5cd8f44db9a0e6095b0f007472) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'1,200 m。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状から、楕円断面の主船体（開放式の機関区画の上を細い背骨が通る）、上甲板殻、後退翼と翼後端の爪、多数のブリスター（原型どおり左右非対称）を組み直した。艦尾の機関区画に3種9基の亜光速機関、主船体中央の腹部発着格納庫（3個中隊）、前後と中央の複数のシールド発生器。武装はレジェンズの MC80 リバティ型の一覧（タイム&バック XV9 ターボレーザー48基・アーメク SW-7 イオン砲20基・フィロン Q7 トラクター・ビーム6基）どおり、ターボレーザー48基・イオン砲20基、トラクター・ビーム6基。モン・カラマリの艦らしく砲塔は立てず、砲はすべて舷側の船殻に埋め込んだケースメイト（ターボレーザーは連装ケースメイト中砲、イオン砲は連装ケースメイト・イオン砲）。点防御24基は正史の一覧にないゲーム上の追加。乗員7,261名・兵員1,200名は船内の空き容積に乗る。',
+ note:'1,200 m。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状から主船体・上甲板殻・後退翼・ブリスターを組み直した艦。9基の亜光速機関、腹部の3個中隊用格納庫、複数のシールド発生器を持つ。武装はユーザー提供図の各丸印を球状ターレットとして配置し、腹面にも同じ種類・基数を搭載。背腹それぞれ3連装点防御44基、200TT三連装2基、200TT単装2基、150TT単装イオン2基、計100基。トラクター・ビーム6基は保持。取付位置は図から船体の実面へ投影し、輪郭が異なる翼端付近は最寄りの船体面へ合わせた。',
  airWings:LIB_AIR,groundForces:LIB_GROUND,
  build:mc80LibertyBuild
 });
@@ -29210,7 +29260,7 @@ const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
 function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
-const FLEET_PROFILE_VERSION=12;
+const FLEET_PROFILE_VERSION=13;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
@@ -32724,7 +32774,7 @@ return {BROADSIDE_BATTERY_CALIBERS,isBroadsideBattery,broadsideBatteryConfig,set
  isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
-  missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher, isSurfaceVLS, launcherPitch, launcherGeometry, missileLauncherSpec, migrateLegacyConcussionVLS,
+  missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher, isSurfaceVLS, launcherPitch, launcherGeometry, missileLauncherSpec, migrateLegacyConcussionVLS,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
