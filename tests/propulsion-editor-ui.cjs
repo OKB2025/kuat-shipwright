@@ -16,6 +16,7 @@ function setup(){
  function assignMirror(target,q){const id=target.id,tw=target.tw,vt=target.vt;Object.assign(target,q,{id});if(tw!=null)target.tw=tw;if(vt!=null)target.vt=vt;}
  `);
  function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
+ section('const requestedParts =','function editorRayEnv(');
  section('function xfFollowers(', '// Shapes as requested');section('function mutate(', 'function updateUndo(');
  section('// Engine edits share the same action', 'function v3PartEditor(');section('function pendingEngine(', 'function equipmentInfo(');
  run(`let focused=null;const scopeRoot=()=>null,current=()=>focused,Event=class{constructor(type,options){this.type=type;this.bubbles=options?.bubbles;}};`);section('function adjustFocused(', 'function activateFocused(');

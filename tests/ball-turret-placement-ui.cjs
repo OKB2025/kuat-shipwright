@@ -10,6 +10,7 @@ function setup(){
  let ship=C.newShip({L:600,W:400,H:160,plan:'rect',sec:'rect'},'Ball turret placement');ship.parts=[];ship.fits=[];ship.nextId=1;
  const st={tab:'arm',fit:'ball720',fitTool:'place',weaponMount:'auto',gunYaw:0,gunPitch:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none'},listeners={},undoStack=[],redoStack=[],outputs=new Map(),meshStore={},previews=[];
  let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,draws=0;
+ let S=null,prevS=null,editorPartsRevision=0;const view=null,eng={gen:0,adoptedGen:0,geoGen:0,statsGen:0,ready:false};
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',I18N=null;
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:s.startsWith('#out-')?(outputs.has(s)||outputs.set(s,{}),outputs.get(s)):null;
  const activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
@@ -22,9 +23,10 @@ function setup(){
  function install(k=st.fit,z=75,x=300,preview=false){st.fit=k;st.sel=null;const h=C.rayEnv(ship,[x,500,z],[0,-1,0],{structOnly:true});if(!h)throw Error('No surface');const hit={...h,kind:'hull'};if(preview){ghostFor(hit);previewPose=publicCopy(previewFit);}tapHit('fit',hit,false);if(!selItem())throw Error('Placement failed '+k);return selItem();}
  `,context);
  for(const [start,end]of [
+ ['function enginePending()','function engineStatus('],['const requestedParts =','function editorRayEnv('],['function previewHistory(','// Exterior view skips machinery'],
  ['function seg(','function silhouette('],['function baseFitEditor()','function partList('],
  ['function weaponYawControls(','function turretHeadingLines('],['function turretHeadingLines(','function chooseWeaponMount('],
- ['function bindReference(){','function packingInfoHTML('],['function snap()','function updateUndo('],
+ ['function bindReference(){','function packingInfoHTML('],['function snap(','function updateUndo('],
  ['function assignMirror(','const TEMPLATE_SKIP ='],['const TEMPLATE_SKIP =','function removeWithPreview('],
  ['function placeVerticalFits(','function bind()'],['function alignFitPoint(','function tapWant('],
  ['function tapHit(','// ---------- inspect ----------'],['function ghostFor(','function refreshOverlay('],

@@ -1977,7 +1977,7 @@ const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
 const CRAFT_WEAPONS = ['claser', 'claserH', 'cturret', 'ctorp', 'cmsl', 'cbomb', 'cpylon'];
-const craftDesign = () => !!ship && C.isCraft(ship);
+const craftDesign = () => !!ship && editorCraftDesign();
 const weaponKeys = () => [...new Set((craftDesign() ? [...CRAFT_WEAPONS,...WEAPONS] : [...WEAPONS,...CRAFT_WEAPONS]).map(k=>C.canonicalWeaponKind?.(k)||k))].filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden);
 const weaponReplacementKeys = f => {const keys=weaponKeys();return f&&C.FITS[f.k]&&!keys.includes(f.k)?[f.k,...keys]:keys;};
 const partOffered = k => !!C.PARTS[k]&&!['machinery','capacitor','vls'].includes(k);
@@ -2042,9 +2042,11 @@ function requestDraw() { dirty.draw = true; }
 // design is sent after input settles; the worker coalesces pending updates.
 const eng = {ready: false, gen: 0, sentGen: 0, geoGen: 0, adoptedGen: 0, statsGen: 0, profile: null, profileGen: -1, waiting: false, scheduled: false, what: new Set(), reset: true, fitOnGeometry: true, quiet: false, label: '', labelGen: 0, mode: 'none', ms: null};
 const meshStore = {geos: {}, glow: null, grid: null, ranges: null};
+let editorPartsRevision = 0;
 function touch(what) {   // geometry or design changed
   if (!ship) return;
   if(what==='hull')syncHullEditor(true);else if(what==='parts'||what==='all')syncHullEditor(false);
+  if (what !== 'fits') editorPartsRevision++;
   eng.gen++; meshStore.pendingSurfaceGeometry = null; eng.what.add(what || 'all');
   if (live.active) live.gen = eng.gen;
   kickEngine(); engineStatus(); dirty.overlay = true; dirty.draw = true;
@@ -2088,7 +2090,7 @@ function applyGeometry(msg) {
   if (msg.grid) { meshStore.grid = msg.grid; view?.setLines('grid', msg.grid); }
   if (msg.ranges !== undefined && msg.geos && Object.keys(msg.geos).length) meshStore.ranges = msg.ranges;
   if (msg.fitRanges) meshStore.fitRanges = msg.fitRanges;
-  if (msg.bounds) bounds = msg.bounds;
+  if (msg.bounds) { bounds = msg.bounds; meshStore.bounds = msg.bounds; }
   if (msg.dims) meshStore.dims = msg.dims;
   requestDraw();
 }
@@ -2127,7 +2129,8 @@ function adoptEngineState(msg) {
   }
   ship._client = true; ship._geoProxy = c.geoProxy;
   if (ship._cache) ship._lockedCache = ship._cache;
-  eng.adoptedGen = msg.gen;
+  eng.adoptedGen = msg.gen; editorPartsRevision++;
+  const geometryContext=currentEditorGeometryContext();ship._editorGeometryContext=geometryContext;for(const p of ship.parts){if(C.isHullStructure?.(p))hydrateEditorHull(p);p._editorGeometryContext=geometryContext;}
 }
 // A newer edit may touch only parts after an older hull rebuild. Keep the
 // older mesh fields until the current generation arrives, then upload their
@@ -2200,6 +2203,7 @@ function refreshDerivedPanel() {
 function engineHello(mode) {
   eng.mode = mode; eng.ready = true;
   YardEngineClient.on('geometry', onEngineGeometry);
+  YardEngineClient.on('authoringGeometry', onEngineAuthoringGeometry);
   YardEngineClient.on('surfaceGeometry', onEngineSurfaceGeometry);
   YardEngineClient.on('stats', onEngineStats);
   YardEngineClient.on('error', onEngineError);
@@ -2208,7 +2212,9 @@ function engineHello(mode) {
 // ---------- live preview ----------
 // An edited part or fitting is drawn at once from its requested shape, and its
 // stale copy in the engine's meshes is hidden, until the engine catches up.
-const live = {parts: [], fits: [], hide: {parts: new Set(), fits: new Set()}, gen: 0, queued: null, active: false};
+const live = {parts: [], fits: [], hide: {parts: new Set(), fits: new Set()}, gen: 0, queued: null, active: false, pending: false, pointerActive: false, inputUntil: 0};
+function previewInputBusy() { return !!dragSnap || live.pointerActive || (typeof performance !== 'undefined' ? performance.now() : Date.now()) < live.inputUntil; }
+function previewInput(on) { if(typeof on === 'boolean')live.pointerActive=on;live.inputUntil=(typeof performance !== 'undefined' ? performance.now() : Date.now())+120; }
 // Pointer/input events can arrive several times per frame. Keep only their
 // current objects and build one lightweight preview on the next drawn frame.
 function queuePreview(list, items) {
@@ -2217,10 +2223,11 @@ function queuePreview(list, items) {
   requestDraw();
 }
 function flushLivePreview() {
-  const queued = live.queued; if (!queued) return;
+  const queued = live.queued;
+  if (!queued && (!live.pending || previewInputBusy())) return;
   live.queued = null;
   if (st.foilView === 'stow') { foilPreview(true); return; }
-  showPreview(queued);
+  showPreview(queued || {});
 }
 function showPreview(list, items, removedIds) {
   if (!view || !ship) return;
@@ -2236,13 +2243,15 @@ function showPreview(list, items, removedIds) {
   live.parts = live.parts.filter(p => ship.parts.includes(p)); live.fits = live.fits.filter(f => ship.fits.includes(f));
   live.active = true; live.gen = eng.gen;
   try {
-    const g = Gfx.meshPreview(ship, live.parts, live.fits, {coded: st.coded});
+    const g = Gfx.meshPreview(ship, live.parts, live.fits, {coded: st.coded, requestedPart, canMeshPart: editorCanMeshPart, incremental: true, progressive: true, revision: eng.gen, budgetMs: 6, priorityParts: pending.parts || [], priorityFits: pending.fits || [], deferBackground: previewInputBusy()});
+    live.pending = !!g.pending;
     for (const k of ['preview', 'previewRef', 'previewFits', 'previewRefFits']) view.upload(k, g[k]);
-  } catch (e) { console.error(e); }
+  } catch (e) { live.pending = false; console.error(e); }
   requestDraw();
 }
 function clearPreview() {
-  live.queued = null; st.foilView = null;
+  live.queued = null; live.pending = false; st.foilView = null;
+  Gfx.clearPreviewCache?.(ship);
   if (!live.active) return;
   live.active = false; live.parts = []; live.fits = []; live.hide.parts.clear(); live.hide.fits.clear();
   if (view) for (const k of ['preview', 'previewRef', 'previewFits', 'previewRefFits']) if (view.meshes?.[k]) { if (view.kind === 'compat') delete view.meshes[k]; else view.meshes[k].count = 0; }
@@ -2250,7 +2259,7 @@ function clearPreview() {
 }
 function previewDraft() {
   if (!view || !ship) return;
-  bounds = C.shipBounds(ship, {simple: true});
+  bounds = editorDirectBounds();
   queuePreview('parts', ship.parts); queuePreview('fits', ship.fits);
   fitCamera(eng.keepCam);
 }
@@ -2495,7 +2504,7 @@ function setShip(s, opts) {
   eng.profile = null; eng.profileGen = -1;
   // Loading another design remains undoable. The engine starts from scratch.
   eng.designGen = eng.gen + 1; eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
-  meshStore.geos = {}; meshStore.ranges = null; meshStore.pendingGeometry = null; meshStore.pendingSurfaceGeometry = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
+  meshStore.geos = {}; meshStore.ranges = null; meshStore.bounds = null; meshStore.dims = null; meshStore.pendingGeometry = null; meshStore.pendingSurfaceGeometry = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
   if(!s._deferredPreparation){showBusyOverlay(opts?.busyText,true);touch('all');if(view)previewDraft();}
   else requestDraw();
   hideInspect(); updateName(); renderPanel(); if(!s._deferredPreparation)scheduleStats(0); updateUndo(); autosave();
@@ -2505,9 +2514,13 @@ function prepareDeferredDraft() {
   delete ship._deferredPreparation;
   touch('all');if(view)previewDraft();scheduleStats(0);
 }
-function snap() {
+function snap(portable=false) {
   if (!ship.saveId) ship.saveId = newSaveId();
-  return JSON.stringify({...C.serialize(ship), _historySaveId: ship.saveId});
+  if(portable)return JSON.stringify({...C.serialize(ship),_historySaveId:ship.saveId});
+  // History is the same public authoring state sent to the worker. Restoring
+  // it uses the normal loader; portable exports retain Core's serializer.
+  const state=C.publicJSON({...ship,format:'starship-yard',v:3});
+  return state.slice(0,-1)+',"_historySaveId":'+JSON.stringify(ship.saveId)+'}';
 }
 function newSaveId() {
   return 'ship-' + (globalThis.crypto?.randomUUID?.() || (Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)));
@@ -2583,36 +2596,144 @@ function sectionHit(o, d, clip) {
   return {t, p: q, n, kind: 'section'};
 }
 let enginePickCache=null;
-function requestedPart(p) { return {...p, _packing: undefined, _clip: undefined, _solidCutShip: undefined, _apertures: undefined, _pierced: undefined}; }
-function editorPickShip() { return enginePending() ? {...ship, _rayLock: undefined, parts: ship.parts.map(requestedPart)} : ship; }
+// Keep locally computed authoring geometry across pointer events and worker
+// replies. Transported hull caches have lost their getters; cloning those
+// caches for every ray used to rebuild a large hull on every mouse move.
+const requestedParts = {ship: null, records: new Map()};
+let editorMountCache = null;
+function editorPublicKey(v){return JSON.stringify(v,(k,x)=>k.startsWith('_')?undefined:x&&typeof x==='object'&&!Array.isArray(x)&&!ArrayBuffer.isView(x)?Object.fromEntries(Object.keys(x).sort().map(k=>[k,x[k]])):x);}
+function editorGeometryContext(s){const bays=new Set((s.hatches||[]).map(h=>h.bay));return editorPublicKey([s.hull,s.hullSkin,s.hullBands,s.reference,s.cuts,s.subs,s.trenches,s.solidCuts,s.hatches,(s.parts||[]).filter(p=>bays.has(p.id)),(s.fits||[]).filter(f=>C.isShipLauncher?.(f)&&f.launcherEmbedded!==false)]);}
+const editorContext={ship:null,gen:-1,revision:-1,key:''};
+function currentEditorGeometryContext(){if(editorContext.ship!==ship||editorContext.gen!==eng.gen||editorContext.revision!==editorPartsRevision){Object.assign(editorContext,{ship,gen:eng.gen,revision:editorPartsRevision,key:editorGeometryContext(ship)});}return editorContext.key;}
+function hydrateEditorHull(p){
+ const local=p?._hullShip;if(!C.isHullStructure?.(p)||!local)return false;
+ if(editorPublicKey(local.hull)!==editorPublicKey(p.hullProfile)||editorPublicKey(local._hullData)!==editorPublicKey(p.hullData))return false;
+ local.hull=local._hullProfile=p.hullProfile;local._hullData=p.hullData;
+ for(const k of ['cuts','trenches','solidCuts','subs','hatches'])Object.defineProperty(local,k,{enumerable:true,configurable:true,get:()=>p.hullData[k]||(p.hullData[k]=[]),set:v=>{p.hullData[k]=v;}});
+ for(const k of ['hullSkin','hullBands','paint','detail','reference'])Object.defineProperty(local,k,{enumerable:true,configurable:true,get:()=>p.hullData[k],set:v=>{if(v==null)delete p.hullData[k];else p.hullData[k]=v;}});
+ return !!local._cache?.geo;
+}
+function copyEditorHullCache(source,target){
+ const memo=new Map(),copy=v=>{if(!v||typeof v!=='object'||ArrayBuffer.isView(v))return v;let out=memo.get(v);if(out)return out;if(Object.prototype.toString.call(v)==='[object Map]'){out=new Map();memo.set(v,out);return out;}if(Object.prototype.toString.call(v)==='[object Set]'){out=new Set(v);memo.set(v,out);return out;}out=Array.isArray(v)?[]:{};memo.set(v,out);for(const k of Object.keys(v))if(typeof v[k]!=='function')out[k]=copy(v[k]);return out;};
+ const graph=copy({_hullShip:source._hullShip,_hullGeometry:source._hullGeometry,_solidGeometry:source._solidGeometry});Object.assign(target,graph);return hydrateEditorHull(target);
+}
+function requestedPart(p) {
+  if (requestedParts.ship !== ship) { requestedParts.ship = ship; requestedParts.records.clear(); editorMountCache = null; }
+  const pose = JSON.stringify([p.c,p.s,p.room,p.surfaceNormal,p.yaw,p.pitch,p.roll,p.d,p.length,p.nozzleLength,p.bodyLength,p.weaponBody?.s]);
+  let old = requestedParts.records.get(p.id);
+  if(old?.part===p)return p;
+  if (old && old.source === p && old.revision === editorPartsRevision && old.pose === pose && old.mesh === p.mesh && old.hullProfile === p.hullProfile && old.hullData === p.hullData && old.weaponBody === p.weaponBody && old.apertures===p._apertures) return old.part;
+  const key = editorPublicKey(p);
+  if (!old || old.key !== key) {
+    const authored = JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v)), part = old?.part || {...p,...authored};
+    // Preserve equal nested hull definitions: its warm local geometry refers
+    // to these objects. Also detach authored data from in-place editor edits.
+    for (const k of Object.keys(part)) if (k[0] !== '_' && !Object.hasOwn(authored,k)) delete part[k];
+    for (const [k,v] of Object.entries(authored)) if (JSON.stringify(part[k]) !== JSON.stringify(v)) part[k] = v;
+    for (const k of ['_packing','_clip']) delete part[k];
+    const needsGeometry=C.isShapePart?.(p)&&((ship.solidCuts?.length&&!p._solidGeometry)||(ship.hatches?.some(h=>!h.hullOwner)&&!p._apertures));
+    old = {...old,part,key,geometryContext:old?old.geometryContext:p._editorGeometryContext??(needsGeometry?null:currentEditorGeometryContext())}; requestedParts.records.set(p.id,old);
+  }
+  old.part._solidCutShip=ship;
+  if(p._apertures!==old.apertures)old.part._apertures=p._apertures;
+  // The local cache belongs to this detached authored profile. Repair the
+  // worker's plain getter values without replacing its shared geometry graph.
+  if(C.isHullStructure?.(p)&&p._hullShip&&old.part._hullShip===p._hullShip)copyEditorHullCache(p,old.part);
+  if(p._editorGeometryContext&&p._editorGeometryContext!==old.geometryContext){
+    for(const k of Object.keys(p))if(k[0]==='_'&&!['_packing','_clip','_hullShip','_hullGeometry','_solidCutShip'].includes(k))old.part[k]=p[k];
+    if(C.isHullStructure?.(p))copyEditorHullCache(p,old.part);
+    old.geometryContext=p._editorGeometryContext;
+  }
+  Object.assign(old,{source:p,revision:editorPartsRevision,pose,mesh:p.mesh,hullProfile:p.hullProfile,hullData:p.hullData,weaponBody:p.weaponBody,apertures:p._apertures});
+  return old.part;
+}
+function editorMountShip() {
+  if (!ship?._client) return ship;
+  if(!enginePending()&&eng.ready!==false&&!ship._deferredPreparation)return ship;
+  const parts = ship.parts.filter(editorCanMeshPart).map(requestedPart), old = editorMountCache;
+  if (old?.source === ship && old.gen === eng.gen && old.adopted === eng.adoptedGen && old.model.fits === ship.fits && old.model.hull === ship.hull && parts.length === old.model.parts.length && parts.every((p,i)=>p===old.model.parts[i])) return old.model;
+  const model = {...ship, _rayLock: undefined, parts};
+  editorMountCache = {source:ship,gen:eng.gen,adopted:eng.adoptedGen,model};
+  return model;
+}
+function editorOwnedHullReady(p){
+ const q=requestedPart(p),local=q._hullShip;
+ return requestedParts.records.get(p.id)?.geometryContext===currentEditorGeometryContext()&&!!local&&local._hullProfile===q.hullProfile&&local._hullData===q.hullData&&typeof Object.getOwnPropertyDescriptor(local,'cuts')?.get==='function'&&!!local._cache?.geo;
+}
+function editorCanMeshPart(p){
+ if(!ship?._client||!C.isHullStructure)return true;
+ if(C.isHullStructure(p))return editorOwnedHullReady(p);
+ if(C.isShapePart?.(p)){requestedPart(p);if(requestedParts.records.get(p.id)?.geometryContext!==currentEditorGeometryContext())return false;}
+ if((p.k==='engine'||p.k==='machinery'||p.room||p.k==='hangar')&&ship.parts.some(q=>C.isHullStructure(q)&&!editorOwnedHullReady(q)))return false;
+ return true;
+}
+function resolveEditorCacheReferences(c){
+ const ids={parts:new Map(ship.parts.map(p=>[p.id,p])),fits:new Map(ship.fits.map(f=>[f.id,f])),hatches:new Map((ship.hatches||[]).map(h=>[h.id,h]))},seen=new Set(),ref=v=>v.$r==='ship'?ship:ids[v.$r]?.get(v.id)||null;
+ const fix=v=>{if(!v||typeof v!=='object'||ArrayBuffer.isView(v)||seen.has(v))return;seen.add(v);if(Object.prototype.toString.call(v)==='[object Map]'){for(const[k,x]of v){if(x?.$r)v.set(k,ref(x));else fix(x);}return;}for(const k of Object.keys(v)){const x=v[k];if(x?.$r)v[k]=ref(x);else fix(x);}};fix(c);return c;
+}
+function onEngineAuthoringGeometry(msg){
+ if(!ship||msg.gen<(eng.designGen||0)||msg.gen>eng.gen||!msg.sourceState||!msg.caches)return false;
+ let src;try{src=JSON.parse(msg.sourceState);}catch(e){return false;}
+ const context=currentEditorGeometryContext();if(editorGeometryContext(src)!==context)return false;
+ const originals=new Map((src.parts||[]).map(p=>[p.id,p])),c=resolveEditorCacheReferences(msg.caches);
+ for(const p of ship.parts){const cache=c.items?.parts?.[p.id],source=originals.get(p.id);if(!cache||!source||editorPublicKey(source)!==editorPublicKey(p))continue;Object.assign(p,cache);p._solidCutShip=ship;if(C.isHullStructure?.(p)&&!hydrateEditorHull(p))continue;p._editorGeometryContext=context;const q=requestedPart(p);Object.assign(q,cache);delete q._packing;delete q._clip;q._solidCutShip=ship;if(C.isHullStructure?.(q)&&!copyEditorHullCache(p,q))continue;requestedParts.records.get(p.id).geometryContext=context;}
+ if(c.geoProxy){ship._geoProxy={...ship._geoProxy,...c.geoProxy};if(ship._editorGeometryContext!==context){delete ship._geoProxy.surfaces;delete ship._geoProxy.surfacePartitions;}ship._editorGeometryContext=context;}
+ editorMountCache=null;editorBounds.ship=null;editorCraft.ship=null;dirty.overlay=true;requestDraw();return true;
+}
+function editorPickShip() { return !eng.ready||enginePending()||ship?._deferredPreparation ? editorMountShip() : ship; }
+function placeEditorFit(k,p,n,ped,mirror,options) {
+  // Ordinary gun mounting needs the same exact warmed hull used by hovering.
+  // Command pods retain their separate compartment-validation path.
+  if(ship?._client&&ship.parts.some(q=>C.isHullStructure?.(q)&&!editorOwnedHullReady(q)))return {err:'形状を計算中…'};
+  const model = C.FITS[k]?.window ? ship : editorMountShip();
+  try { return C.placeFit(model,k,p,n,ped,mirror,options); }
+  finally { ship.nextId = Math.max(ship.nextId || 1,model.nextId || 1); }
+}
 function editorRayEnv(o, d, opts = {}) {
-  const model = editorPickShip();
+  let model = editorPickShip();
   if(model !== ship && opts.skipSet){const ids = new Set([...opts.skipSet].map(p => p.id));opts = {...opts, skipSet: new Set(model.parts.filter(p => ids.has(p.id)))};}
+  if(!opts.structOnly&&model?._client)model={...model,parts:model.parts.filter(p=>editorRayPartMayHit(p,o,d,opts.maxT))};
   const hit = C.rayEnv(model, o, d, opts);
   if(hit?.part && model !== ship)hit.part = ship.parts.find(p => p.id === hit.part.id) || hit.part;
   return hit;
 }
+const editorEngineBounds=new WeakMap();
+function editorRayPartMayHit(p,o,d,maxT){
+ if(p.k!=='engine')return true;
+ const appearance=C.engineAppearance?.(p)||p,key=editorPublicKey(appearance);let saved=editorEngineBounds.get(p);
+ if(saved?.key!==key){
+  const base=C.partAABB(p),asset=C.REFERENCE_ASSETS[appearance.skinAsset],points=[];
+  if(asset&&C.referenceEnginePoint){const limit=.50004,xs=[-limit,limit],source=C.sourceEngine?.(appearance),anchor=appearance.skinAnchor||asset.c;if(source&&asset.size[0]){const x=(source.nozzleLength/2-asset.c[0]+anchor[0])/asset.size[0];if(x>-limit&&x<limit)xs.push(x);}for(const x of xs)for(const y of [-limit,limit])for(const z of [-limit,limit])points.push(C.referenceEnginePoint(appearance,[x,y,z],asset));}
+  const bounds=base.slice();for(const q of points)for(let i=0;i<3;i++){bounds[i]=Math.min(bounds[i],q[i]);bounds[i+3]=Math.max(bounds[i+3],q[i]);}saved={key,bounds};editorEngineBounds.set(p,saved);
+ }
+ const b=saved.bounds;if(!b?.every(Number.isFinite)||o.every((v,i)=>v>=b[i]&&v<=b[i+3]))return true;
+ const h=C.rayAABB(o,d,b);return !!h&&(maxT==null||h.t<=maxT);
+}
 function enginePickParts(){
+ if(!eng.ready||enginePending()||ship?._deferredPreparation)return enginePickCache?.ship===ship?enginePickCache.parts:[];
  const key=eng.gen+':'+eng.geoGen+':'+eng.statsGen;
  if(enginePickCache?.ship===ship&&enginePickCache.key===key)return enginePickCache.parts;
  const parts=C.enginePaths(ship);enginePickCache={ship,key,parts};return parts;
 }
 function partHit(o, d, clip, filter) {
   let best = null;const nativeFits=new Set(ship.fits.map(f=>f.id));
-  const pending=enginePending(), parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)];
+  const pending=!eng.ready||enginePending()||!!ship._deferredPreparation, parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)];
   for (const pt of parts) {
+    if(pending&&!editorCanMeshPart(pt))continue;
+    if(!editorRayPartMayHit(pt,o,d))continue;
     if (filter && !filter(pt)) continue;
     const h = C.rayPart(o, d, pending ? requestedPart(pt) : pt);
     if (h && visibleAt(h.p, clip) && (!best || h.t < best.t)) { best = h; best.part = pt; best.kind = 'part'; }
   }
   return best;
 }
-function fitPickHit(o, d, f) {
-  return C.FITS[f.k]?.cat === 'w' ? Gfx.rayFit(o, d, f) : C.rayAABB(o, d, C.fitAABB(f));
+function fitPickHit(o, d, f, maxT) {
+  const h=C.FITS[f.k]?.cat === 'w' ? Gfx.rayFit(o,d,f,maxT) : C.rayAABB(o,d,C.fitAABB(f));
+  return h&&(maxT==null||h.t<maxT)?h:null;
 }
-function fitHit(o, d) {
+function fitHit(o, d, maxT) {
   let best = null;
-  for (const f of ship.fits) { const h = fitPickHit(o, d, f); if (h && (!best || h.t < best.t)) best = {t: h.t, fit: f, p: h.p}; }
+  for (const f of ship.fits) { const h = fitPickHit(o,d,f,best?.t??maxT); if (h && (!best || h.t < best.t)) best = {t: h.t, fit: f, p: h.p}; }
   return best;
 }
 function pick(px, py, want) {
@@ -2627,7 +2748,7 @@ function pickRay(o, d, want) {
   if (st.view === 'xray' && want.parts) h = partHit(o, d, null, (pt) => !C.isShapePart(pt)) || envHit(o, d, null, {structOnly: false,launcherCuts:true});
   else h = envHit(o, d, null,{launcherCuts:true});
   if(st.view!=='xray'&&want.parts){const exterior=partHit(o,d,null,p=>(p.transmission||p.drivetrain)&&p.entrySegments?.length);if(exterior&&(!h||exterior.t<h.t))h=exterior;}
-  if (want.fits) { const f = fitHit(o, d); if (f && (!h || f.t < h.t)) return {fit: f.fit, t: f.t, p: f.p}; }
+  if (want.fits) { const f = fitHit(o,d,h?.t); if (f && (!h || f.t < h.t)) return {fit: f.fit, t: f.t, p: f.p}; }
   return h;
 }
 
@@ -2712,24 +2833,28 @@ function ghostFor(hit) {
   if (!hit) return null;
   if (t === 'part' && !hit.fit && hit.kind !== undefined) {
     const pt = partPreview(hit);if(!pt)return null;
-    ls.part(pt, !C.isShapePart(pt)&&C.hardConflicts(ship,pt).length?ng:ok);
-    if (st.mirror && Math.abs(pt.c[2]) > 2) { const q = C.mirrorPart(pt,ship); ls.part(q, [95, 196, 138, 150]); }
-    if (st.vmirror) { const v = C.vmirrorPart(pt, ship); ls.part(v, [95, 196, 138, 120]); if (st.mirror && Math.abs(pt.c[2]) > 2) ls.part(C.mirrorPart(v, ship), [95, 196, 138, 90]); }
+    // Detailed compartment and conduit conflicts are worker results. A cyan
+    // draft is pending, not a claim that the new placement is valid.
+    const pending = !eng.ready || enginePending() || !!ship._deferredPreparation;
+    ls.part(pt, pending ? cy : !C.isShapePart(pt)&&C.hardConflicts(ship,pt).length?ng:ok);
+    const secondary=pending?cy:ok;
+    if (st.mirror && Math.abs(pt.c[2]) > 2) { const q = C.mirrorPart(pt,ship); ls.part(q, [...secondary.slice(0,3),150]); }
+    if (st.vmirror) { const v = C.vmirrorPart(pt, ship); ls.part(v, [...secondary.slice(0,3),120]); if (st.mirror && Math.abs(pt.c[2]) > 2) ls.part(C.mirrorPart(v, ship), [...secondary.slice(0,3),90]); }
   } else if (t === 'fit' && hit.p && !hit.fit && hit.kind !== 'section') {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
     const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
-    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(d.cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k),...(weaponLocalMount(hit)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
+    const f = C.mountFit(editorMountShip(), {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(d.cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k),...(weaponLocalMount(hit)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = !!weaponMountIssue(k,normal) || f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
     turretHeadingLines(ls,f,bad?ng:ok);
   } else if ((t === 'unfit' || t === 'adjust' || t === 'inspect') && hit.fit) {
     ls.box(C.fitAABB(hit.fit), t === 'unfit' ? ng : cy);
   } else if (t === 'select' && hit.part) {
-    ls.part(hit.part, cy);
+    if(editorCanMeshPart(hit.part))ls.part(enginePending()?requestedPart(hit.part):hit.part,cy);else ls.box(editorHullBox(hit.part),cy);
   } else if (t === 'edit' || t === 'unany') {
     const h = editHitItem(hit), col = t === 'unany' ? ng : cy; if (!h?.it) return null;
-    if (h.list === 'parts') ls.part(h.it, col); else ls.box(C.fitAABB(h.it), col);
+    if (h.list === 'parts') {if(editorCanMeshPart(h.it))ls.part(enginePending()?requestedPart(h.it):h.it,col);else ls.box(editorHullBox(h.it),col);} else ls.box(C.fitAABB(h.it), col);
   } else if (t === 'notch' && (hit.kind === 'hull' || C.isHullStructure?.(hit.part) || st.notchStructures && C.isShapePart(hit.part))) {
     ls.box(notchBox(hit), ng);
   } else return null;
@@ -2739,8 +2864,10 @@ function refreshOverlay() {
   if (!view || !ship) return;
   refreshSolidCutterOverlay();refreshVertexOverlay();
   const ls = Gfx.lineSet(), it = selItem(), cy = [105, 195, 220, 255];
+  const partOutline=ls.part.bind(ls);ls.part=(p,c)=>editorCanMeshPart(p)?partOutline(p,c):ls.box(editorHullBox(p),c);
+  if(live.active)for(const p of ship.parts)if(C.isHullStructure?.(p)&&!editorCanMeshPart(p))ls.box(editorHullBox(p),[105,195,220,120]);
   // While the engine recomputes, outline the part's requested shape, not its old merged cells.
-  const shape = (p) => p && (enginePending() ? {...p, _packing: undefined, _solidCutShip: undefined, _apertures: undefined, _pierced: undefined} : p);
+  const shape = (p) => p && (enginePending() ? requestedPart(p) : p);
   if (it && st.sel.list === 'parts' && (st.tab === 'mod'||st.tab==='bridge'&&st.bridgeMode==='body')) {
     ls.part(shape(it), cy); const tw = twinOfItem('parts', it); if (tw) ls.part(shape(tw), [105, 195, 220, 140]);
     const vt = it.vt != null ? ship.parts.find(q => q.id === it.vt) : null; if (vt) { ls.part(shape(vt), [105, 195, 220, 140]); const vtw = twinOfItem('parts', vt); if (vtw) ls.part(shape(vtw), [105, 195, 220, 100]); }
@@ -2749,7 +2876,7 @@ function refreshOverlay() {
   if (S?.ungrounded && fleet.mode === 'design') { const red = [255, 86, 76, 255], gp = new Set(S.ungrounded.parts), gf = new Set(S.ungrounded.fits); for (const p of ship.parts) if (gp.has(p.id)) ls.part(shape(p), red); for (const f of ship.fits) if (gf.has(f.id)) ls.box(C.fitAABB(f), red); }
   if (st.tab === 'edit') { const am = [240, 170, 70, 255], pr = st.sel; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), pr?.list === 'parts' && pr.id === p.id ? cy : am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), pr?.list === 'fits' && pr.id === f.id ? cy : am); xfPreviewLines(ls); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
-  if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]); }
+  if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);if(C.FITS[it.k]?.window){const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]);} }
   const base = ls.out();
   if (hoverLines) {
     const h = hoverLines.out(), pos = new Float32Array(base.pos.length + h.pos.length), col = new Uint8Array(base.col.length + h.col.length);
@@ -2811,8 +2938,8 @@ function tapHit(t, hit, add) {
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit();
       const issue=weaponMountIssue(k,weaponPlacementNormal(k,hit.n));if(issue){toast(issue);break;}let err = null, made = null;
-      const placed=mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k),...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k)}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
-      if (err) toast(err); else if (placed&&made) { showPreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
+      const placed=mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k),...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k)}, r = placeEditorFit(k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      if (err) toast(err); else if (placed&&made) { queuePreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
     case 'multi': multiToggle(hit); break;
@@ -2856,10 +2983,11 @@ function fitDetailHTML(f) {
   const d = C.FITS[f.k], sp = C.fitSpec(f) || d, ped = f.base + f.ped;
   let html = fitPedestalAllowed(f) ? `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}${f.tilt?` · 面に沿って ${Math.round(Math.acos(C.clamp(C.dot(f.tilt,C.AXES[f.a]),-1,1))*180/Math.PI)}° 傾斜`:''}</div>` : `<div class="ins-row">支持台なし・${esc(C.AXNAME[f.a])}</div>`;
   if (d.cat === 'w') {
-    const arc = (S && S.fitInfo[f.id]) || C.fireArcs(ship, f);
+    const arc = (typeof eng === 'undefined' || eng.statsGen === eng.gen) && S?.fitInfo?.[f.id];
     if (sp.tt||sp.ion) html += `<div class="ins-row">${sp.boltTT?`1発・1砲身 ${fTT(sp.boltTT)} × ${sp.barrels||1} 門 · `:''}一斉射 ${fTT(sp.tt||sp.ion)}・電力 ${fW(sp.power)}</div>`;
     const fd = S && S.feedInfo && S.feedInfo[f.id]; if (fd) html += `<div class="ins-row">配電路 ${ja(fd[0])} m³（${feedSrc(fd)} ${num(fd[1])} m）</div>`;
     if (Array.isArray(arc)) html += `<div class="arcs">${C.SECTORS.map((s, k) => `<span><i>${s.name}</i><em style="--w:${Math.round(arc[k] * 100)}%"></em><b>${Math.round(arc[k] * 100)}</b></span>`).join('')}</div><div class="ins-note">射界（%）：各方向へ撃てる割合</div>`;
+    else html += '<div class="ins-note">射界を計算中…</div>';
   } else {
     const vw = S && S.fitInfo[f.id];
     html += `<div class="ins-row">視界 ${vw != null ? fPct(vw) : '—'}・乗員 ${d.crew}名</div>`;
@@ -2893,8 +3021,8 @@ function stripFacts(t) {
   }
   if (t.list === 'parts') {
     if(t.it.transmission||t.it.drivetrain){const p=t.it;return {title:p.drivetrain?'機関動力伝達路':'推進配電路',id:null,tw:false,line:`${fLen(p.lengthM||0)} · ${fW(p.capacityW||0)} · ${num(C.partVolume(p),3)} m³`,detail:()=>partInfoHTML(p).replace(/^<b>[^<]*<\/b>/,'')};}
-    const p = t.it, V = C.partVolume(p), size = C.isShapePart(p) || p.room ? (p.room || p.s).map(v => num(v,3)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 3) + ' m' : fLen(p.d)}`;
-    const key = C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の定格入力 ${fW(C.resolveEngineSpec(p,ship).ratedInputW)}` : `推力 ${sci(C.nozzleThrust(p))} N` : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
+    const p = t.it, V = editorCanMeshPart(p)?C.partVolume(enginePending()?requestedPart(p):p):null, size = C.isShapePart(p) || p.room ? (p.room || p.s).map(v => num(v,3)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 3) + ' m' : fLen(p.d)}`;
+    const key = V===null?'計算中…':C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の定格入力 ${fW(C.resolveEngineSpec(p,ship).ratedInputW)}` : `推力 ${sci(C.nozzleThrust(p))} N` : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
     return {title: C.partLabel(p), id: p.id > 0 ? p.id : null, tw: p.tw != null || p.vt != null, line: size + ' · ' + key, detail: () => partInfoHTML(p).replace(/^<b>[^<]*<\/b>/, '')};
   }
   const x = t.p[0], sb = C.sectionBase(ship.hull, Math.max(0, Math.min(ship.hull.L, x)));
@@ -2915,7 +3043,8 @@ function renderSelStrip() {
   else info?.remove();
 }
 function partInfoHTML(pt) {
-  const d = C.PARTS[pt.k], V = C.partVolume(pt), inf = S && S.info[pt.id];
+  if(!editorCanMeshPart(pt))return `<b>${esc(C.partLabel(pt))}</b><div class="ins-row">${(pt.s||pt.room||[pt.d||0]).map(v=>num(v,3)).join('×')} m · 計算中…</div>`;
+  const d = C.PARTS[pt.k], V = C.partVolume(enginePending() ? requestedPart(pt) : pt), inf = S && S.info[pt.id];
   if(pt.transmission||pt.drivetrain){const route=(pt.drivetrain?driveForUI():transmissionForUI())?.routes.find(r=>r.id===pt.routeId);return `<b>${pt.drivetrain?'機関動力伝達路':'推進配電路'}</b><div class="ins-row">${esc(transmissionPortLabel(pt.from))} → ${esc(transmissionPortLabel(pt.to))} · ${pt.ok===false?'<span class="neg">経路不通</span>':'伝達経路あり'}</div><div class="ins-row">伝達容量 ${fW(pt.capacityW||0)} · 経路長 ${fLen(pt.lengthM||0)} · 直径 ${num(pt.d,3)} m</div>${!pt.drivetrain&&Number.isFinite(route?.efficiency)?`<div class="ins-row">電送効率 ${num(route.efficiency*100,4)}%（損失は配電路の熱になります）</div>`:''}<div class="ins-row">占有 ${num(V,3)} m³ · 質量 ${fMass(V*(d.dens||0))}</div>${pt.entrySegments?.length?`<div class="ins-row">外装ケーシング ${fLen(pt.entrySegments.reduce((n,s)=>n+s.l,0))}（経路の占有に含む）</div>`:''}`;}
   let h = `<b>${esc(C.partLabel(pt))}</b><div class="ins-row">${C.isShapePart(pt)||pt.room ? `${(pt.room||pt.s).map(v => num(v,3)).join('×')} m` : `${pt.k === 'hangar' ? '一辺' : '直径'} ${precisePartSize(pt) ? num(pt.d, 3) + ' m' : fLen(pt.d)}`}・体積 ${num(V,3)} m³</div>`;
   if (C.isReactor(pt)) h += `<div class="ins-row" data-reactor-output>発電出力（体積換算） ${reactorOutputText(pt)}</div>`;
@@ -3123,7 +3252,50 @@ function slider(id, label, v, min, max, step, out, numberStep=step,numberMax=max
 }
 // Metre sliders move in centimetres; direct entries keep finer measured dimensions.
 function metreSlider(id,label,v,min,max,out=fmtM(v)){return slider(id,label,Number(v.toFixed(6)),min,max,.01,out,'any');}
-function actualShipDimensions(){return S?.dims&&(typeof eng==='undefined'||eng.statsGen===eng.gen)?S.dims:C.shipDimensions(ship);}
+function actualShipDimensions(){
+ const known=knownEditorDimensions();if(known)return known;
+ // A restored draft is shown before its worker starts. Even 'simple' bounds
+ // would construct an uncached owned hull here and hold the loading screen.
+ if(ship?._deferredPreparation||typeof eng==='undefined'||!eng.ready||typeof view==='undefined'||!view)return editorDimensionHint();
+ const b=editorDirectBounds();return[b[3]-b[0],b[5]-b[2],b[4]-b[1]];
+}
+const editorBounds = {ship:null,gen:-1,revision:-1,value:null};
+const editorCraft={ship:null,key:'',value:false};
+function editorCraftDesign(){
+ const key=[eng.gen,eng.adoptedGen,eng.geoGen,eng.statsGen,editorPartsRevision,ship.shipClass].join(':');if(editorCraft.ship===ship&&editorCraft.key===key)return editorCraft.value;
+ const max=Math.max(...C.SHIP_CLASSES.filter(c=>c.craft).map(c=>c.max));let length;
+ for(const p of ship.parts)if(C.isHullStructure?.(p)&&editorOwnedHullReady(p)){const b=C.partAABB(requestedPart(p));if(b[3]-b[0]>max){length=max+1;break;}}
+ if(length==null){const b=editorDirectBounds();length=(b[3]-b[0])||ship.hull.L||0;}
+ Object.assign(editorCraft,{ship,key,value:!!C.shipClassFor(length,ship.shipClass).craft});return editorCraft.value;
+}
+function knownEditorDimensions(){
+ if(S?.dims&&(typeof eng==='undefined'||eng.statsGen===eng.gen))return S.dims;
+ if(typeof meshStore!=='undefined'&&meshStore.bounds?.length===6&&meshStore.bounds.every(Number.isFinite)&&typeof eng!=='undefined'&&eng.geoGen===eng.gen&&eng.geoGen>=(eng.designGen||0)){const b=meshStore.bounds;return[b[3]-b[0],b[5]-b[2],b[4]-b[1]];}
+ return null;
+}
+function editorDimensionHint(){
+ if(!ship)return[0,0,0];const plan=C.designEnvelope?.(ship)||ship.hull,meta=ship._deferredPreparation&&typeof draftMeta==='function'?draftMeta():null;
+ return[meta?.name===ship.name&&Number.isFinite(meta.L)&&meta.L>0?meta.L:plan.L||ship.hull.L||0,plan.W||ship.hull.W||0,plan.H||ship.hull.H||0];
+}
+function editorDirectBounds(){
+ if(editorBounds.ship!==ship||editorBounds.gen!==eng.gen||editorBounds.revision!==editorPartsRevision){editorBounds.ship=ship;editorBounds.gen=eng.gen;editorBounds.revision=editorPartsRevision;editorBounds.value=ship.parts.some(p=>C.isHullStructure?.(p)&&!editorOwnedHullReady(p))?editorAuthoredBounds():C.shipBounds(editorMountShip(),{simple:true});}
+ return editorBounds.value.slice();
+}
+function editorHullBox(p){const corners=[];for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1])corners.push(C.worldStruct(p,[x*p.s[0]/2,y*p.s[2]/2,z*p.s[1]/2]));return[0,1,2].map(i=>Math.min(...corners.map(q=>q[i]))).concat([0,1,2].map(i=>Math.max(...corners.map(q=>q[i]))));}
+function editorAuthoredBounds(){
+ const [L,W,H]=editorDimensionHint(),b=[0,0,-W/2,L,H,W/2],add=a=>{for(let i=0;i<3;i++){b[i]=Math.min(b[i],a[i]);b[i+3]=Math.max(b[i+3],a[i+3]);}};
+ for(const p of ship.parts){if(!p.c)continue;if(p.s||p.room)add(editorHullBox({...p,s:p.s||p.room}));else{const r=Math.max(p.d||0,p.length||0)/2;add(p.c.map(v=>v-r).concat(p.c.map(v=>v+r)));}}
+ for(const f of ship.fits){if(!f.p)continue;const d=C.FITS[f.k]||{},r=Math.max(d.r||0,d.hm||0)*(f.scale||1)+(f.base||0)+(f.ped||0);add(f.p.map(v=>v-r).concat(f.p.map(v=>v+r)));}return b;
+}
+function autosaveShipLength(){
+ const known=knownEditorDimensions();if(known)return known[0];
+ if(editorBounds.ship===ship&&editorBounds.gen===eng.gen&&editorBounds.revision===editorPartsRevision&&editorBounds.value)return editorBounds.value[3]-editorBounds.value[0];
+ if(S?.dims&&typeof eng!=='undefined'&&eng.statsGen>=(eng.designGen||0))return S.dims[0];
+ if(typeof meshStore!=='undefined'&&meshStore.bounds?.length===6&&typeof eng!=='undefined'&&eng.geoGen>=(eng.designGen||0))return meshStore.bounds[3]-meshStore.bounds[0];
+ // Saving must never start geometry or propulsion work. The next worker
+ // response refreshes this hint with measured dimensions.
+ return editorDimensionHint()[0];
+}
 function shapeDimensionSlider(id,label,v,axis){const limit=C.DESIGN_LIMITS.partSize,plan=C.designEnvelope(ship),extent=[plan.L,plan.W*1.6,plan.H*1.5][axis],max=Math.min(limit,Math.max(v,extent,axis===2?2:40));return slider(id,label,Number(v.toFixed(6)),.02,max,.01,fmtM(v),'any',limit);}
 function silhouette(hp) {
   const pts = [], n = 28;
@@ -3486,7 +3658,7 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
 };
 let saveT = 0;
-function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return; LS.set('yard.draft3', snap()); LS.set('yard.draft3.meta', JSON.stringify({name: ship.name, L: actualShipDimensions()[0], savedAt: Date.now()})); }, 1200); }
+function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return; LS.set('yard.draft3', snap(true)); LS.set('yard.draft3.meta', JSON.stringify({name: ship.name, L: autosaveShipLength(), savedAt: Date.now()})); }, 1200); }
 async function pack(obj) {
   const json = JSON.stringify(obj);
   if (typeof CompressionStream === 'function') {
@@ -3658,7 +3830,7 @@ function dragItemMove(px, py) {
   requestDraw();
 }
 // Seat a fitting at a point with a face normal: the mounting axis, tilt and surface follow the new place.
-function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,g.mountMode||st.weaponMount) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } }
+function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,g.mountMode||st.weaponMount) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(editorMountShip(), g); } catch (e) { g.float = true; } }
 function moveFitTo(f, p, n0) {
   const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k,n0,f.mountMode||st.weaponMount) : n0;
   const set = seatFit;
@@ -3681,6 +3853,7 @@ function attachControls(canvas) {
   let mode = null, start = null, last = null, pinch = null, moved = false;
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   canvas.addEventListener('pointerdown', e => {
+    previewInput(true);
     canvas.setPointerCapture(e.pointerId);
     ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
     if (trial.on || shot.on) {   // trial flights and screenshots: drag only looks around, pinch only zooms
@@ -3705,6 +3878,7 @@ function attachControls(canvas) {
   });
   canvas.addEventListener('pointermove', e => {
     if (!ptrs.has(e.pointerId)) { if (e.pointerType === 'mouse') onHover(e.clientX, e.clientY); return; }
+    previewInput(true);
     ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
     if (mode === 'pinch' && ptrs.size >= 2) {
       const [a, b] = [...ptrs.values()];
@@ -3727,6 +3901,7 @@ function attachControls(canvas) {
   const end = e => {
     if (!ptrs.has(e.pointerId)) return;
     ptrs.delete(e.pointerId);
+    if(!ptrs.size)previewInput(false);
     if(mode === 'cutter')cutterDragEnd(false);
     if(mode === 'verts')veDragEnd(false);
     if(mode === 'item')dragItemEnd(false);
@@ -3739,9 +3914,9 @@ function attachControls(canvas) {
     else if (ptrs.size === 1) { const p = [...ptrs.values()][0]; last = {x: p.x, y: p.y}; mode = 'rotate'; moved = true; }
   };
   canvas.addEventListener('pointerup', end);
-  canvas.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); if(mode==='cutter')cutterDragEnd(true); if(mode==='verts')veDragEnd(true); if(mode==='item'||mode==='itemPending')dragItemEnd(true); if (!ptrs.size) mode = null; });
+  canvas.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); if(mode==='cutter')cutterDragEnd(true); if(mode==='verts')veDragEnd(true); if(mode==='item'||mode==='itemPending')dragItemEnd(true); if (!ptrs.size) {mode = null;previewInput(false);} });
   canvas.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !ptrs.size) clearHover(); });
-  canvas.addEventListener('wheel', e => { e.preventDefault(); view.cam.r = Math.max(20, Math.min(400000, view.cam.r * (1 + Math.sign(e.deltaY) * Math.min(0.25, Math.abs(e.deltaY) * 0.0015)))); requestDraw(); }, {passive: false});
+  canvas.addEventListener('wheel', e => { previewInput(); e.preventDefault(); view.cam.r = Math.max(20, Math.min(400000, view.cam.r * (1 + Math.sign(e.deltaY) * Math.min(0.25, Math.abs(e.deltaY) * 0.0015)))); requestDraw(); }, {passive: false});
   function pan(dx, dy) {
     const m = view.matrices(), V = m.V, h = canvas.clientHeight || 1;
     const k = 2 * view.cam.r * Math.tan(view.cam.fov / 2) / h;
@@ -3758,7 +3933,7 @@ function assignMirror(target, q) {
   Object.assign(target, q, {id}); delete target.tw; delete target.vt;
   if (tw != null) target.tw = tw; if (vt != null) target.vt = vt;
 }
-function refreshFitSupport(f){if(C.isShipLauncher?.(f))C.mountFit(ship,f);else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')C.mountFit(ship,f);else C.normalizeFitMount(f);}
+function refreshFitSupport(f){if(C.isShipLauncher?.(f))C.mountFit(editorMountShip(),f);else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')C.mountFit(editorMountShip(),f);else C.normalizeFitMount(f);}
 function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;refreshFitSupport(to); }
 // Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
 // (tw: across the centreline, vt: top/bottom). Edits follow those links unless
@@ -3889,7 +4064,7 @@ function placeVerticalFits(f, k, ped, opts) {
     const n = g.n || C.AXES[g.a], p = C.vmirrorPoint(ship, g.p), n2 = [n[0], -n[1], n[2]];
     if (Math.abs(n[1]) < .2 && Math.abs(p[1] - g.p[1]) < Math.max(1, C.FITS[k].r)) continue;
     const mirroredOpts={...opts,...(g.mountMode==='top'?{mountMode:'bottom'}:g.mountMode==='bottom'?{mountMode:'top'}:{}),...(C.fitCanRotate(g)?{assetYaw:-(g.assetYaw||0)}:{})};
-    const r = C.placeFit(ship, k, p, n2, ped, false, mirroredOpts);
+    const r = placeEditorFit(k, p, n2, ped, false, mirroredOpts);
     if (r.err || !r.fit) continue;
     copyFitSettings(g, r.fit);if(C.isShipLauncher?.(g)){r.fit.launchYaw=-(g.launchYaw||0);refreshFitSupport(r.fit);} g.vt = r.fit.id; r.fit.vt = g.id; made.push(r.fit);
   }
@@ -4136,7 +4311,7 @@ function start(hot) {
     window.claude.hot.snapshot(() => ({design: ship ? C.serialize(ship) : null, ui: {tab: st.tab, part: st.part, partTool: st.partTool, mirror: st.mirror, view: st.view, coded: st.coded, fit: st.fit, bridge: st.bridge, bridgeMode:st.bridgeMode,bridgeEquipment:st.bridgeEquipment,equipmentId:st.equipmentId,group:st.group,ped: st.ped,batteryCaliber:st.batteryCaliber,batteryGuns:st.batteryGuns}}));
   }
   Store.init();
-  window.__yard = {veObject: () => veObject(), get ship() { return ship; }, get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
+  window.__yard = {veObject: () => veObject(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
@@ -5385,8 +5560,8 @@ function broadsidePlacementOptions(){return {};}
 function broadsideBatteryControls(){return '';}
 function changeBroadsideBattery(){return false;}
 function turretCompartmentHTML(f){
- const d=C.fitSpec(f),c=C.weaponChargeSpec(f),ready=!!S&&(typeof eng==='undefined'||eng.gen===eng.statsGen),q=ready&&S.chargeInfo?.[f.id]||C.turretCompartment?.(ship,f),cap=ready?C.weaponCapacitors(ship).find(p=>p.weaponId===f.id):null,depth=f.chargeDepth??(6*(f.scale||1)+4),pending=!!q?.allocationPending;
- const value=k=>q&&Number.isFinite(q[k])?num(q[k],1)+' m³':'—',row=(label,key,actual=false)=>`<div><dt>${label}</dt><dd data-turret-volume="${key}">${actual&&pending?'計算中…':value(key)}</dd></div>`,inside=(q?.internalRequired??c.targetVolume)>1e-6;
+ const d=C.fitSpec(f),c=C.weaponChargeSpec(f),ready=!!S&&(typeof eng==='undefined'||eng.gen===eng.statsGen),measured=ready&&S.chargeInfo?.[f.id],q=measured||{required:c.targetVolume,plannedVolume:c.targetVolume*C.clamp(f.chargeScale??1,.25,4)},cap=measured?ship._capacitors?.parts?.find(p=>p.weaponId===f.id):null,depth=f.chargeDepth??(6*(f.scale||1)+4),pending=!measured||!!measured.allocationPending;
+ const value=k=>q&&Number.isFinite(q[k])?num(q[k],1)+' m³':pending?'計算中…':'—',row=(label,key,actual=false)=>`<div><dt>${label}</dt><dd data-turret-volume="${key}">${actual&&pending?'計算中…':value(key)}</dd></div>`,inside=(q?.internalRequired??c.targetVolume)>1e-6;
  return `<div class="pgroup blueprint-card" data-turret-compartment><h4>砲室・充電装置</h4><p>${fTT(c.boltTT)} × ${c.barrels} 門 × ${c.salvos} 斉射分 = ${fTT(c.volleyTT*c.salvos)}</p><dl class="engineering-stats">${row('充電装置の必要容積','required')}${row('確保する装置容積','plannedVolume')}${row('砲室の容積','housingVolume')}${row('船外の砲室容積','externalVolume')}${row('船内に埋まる砲室容積','embeddedVolume')}${row('砲室内に確保した装置','housingUsed')}${row('船内に追加する装置容積','internalRequired')}${row('船内に追加した装置容積','internalVolume',true)}${row('船内で占有する総容積','internalOccupiedVolume',true)}${row('装置の合計容積','volume',true)}</dl><p>充電容量 ${pending?'計算中…':q?fPct(q.capacityRatio):'—'}${cap?' · 船内区画 '+cap.boxSize.map(v=>num(v,1)).join(' × ')+' m':''}</p><div class="sliders">${slider('chargeSalvos','蓄える斉射回数',c.salvos,1,20,1,c.salvos+' 回分')}${inside?slider('chargeDepth','装備面から内側への深さ',depth,1,180,1,fmtM(depth)):''}${slider('chargeScale','充電区画の容積',(f.chargeScale??1)*100,25,400,5,Math.round((f.chargeScale??1)*100)+'%')}</div>${cap?packingInfoHTML(cap):''}<p class="note">砲室全体を武装区画として使い、不足分だけ船内に装置を追加します。船体・構造物に埋まる砲室も船内の占有容積に含め、他の区画と重複利用しません。容量密度 ${num(C.CHARGE_TT_M3,2)} TT/m³。再充電の目安 ${ready&&S.rc?((d.cycle||1)/S.rc).toFixed(2)+' 秒':'給電なし'}。</p></div>`;
 }
 function weaponMountControls(){
@@ -5981,7 +6156,7 @@ function xfMessage(bad){const [k,v]=[...bad][0];return `${bad.size} 個は配置
 // an edited part leaves its pair, as in the item editor.
 function xfApply(rows,moved){
  for(const r of rows)C.patchItem(r.it,r.out);
- for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(ship,f);}catch(e){f.float=true;}
+ for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(editorMountShip(),f);}catch(e){f.float=true;}
  const done=new Set(rows.filter(r=>r.list==='parts').map(r=>r.it.id));
  for(const r of rows){if(r.list!=='parts')continue;const it=r.it,find=id=>ship.parts.find(q=>q.id===id);
   if(!st.mirror&&it.tw!=null){const t=find(it.tw);if(t){delete t.tw;}delete it.tw;}
@@ -6028,7 +6203,7 @@ function dragSelMove(D,r){
  const {rows,moved}=xfRows(D.drivers,D.units,()=>({pt:p=>C.add(p,dv),R:null}));D.rows=rows;D.moved=moved;
  for(const rw of rows)C.patchItem(rw.it,rw.out);
  for(const list of ['parts','fits'])queuePreview(list,rows.filter(r=>r.list===list).map(r=>r.it));
- for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(ship,f);}catch(e){f.float=true;}
+ for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(editorMountShip(),f);}catch(e){f.float=true;}
 }
 function dragSelEnd(D,cancel){
  if(!D.moving)return;
@@ -6057,7 +6232,7 @@ function editDuplicate(){
  if(check.size){sndUI('ui_error');toast(esc(xfMessage(check))+'。「刻み」を大きくするか、向きを変えてください');return;}
  const ok=mutate(`${made.parts.length+made.fits.length} 個を複製`,()=>{
   ship.parts.push(...made.parts);ship.fits.push(...made.fits);ship.nextId=next;
-  for(const f of made.fits)if(f.host!=null)try{C.mountFit(ship,f);}catch(e){f.float=true;}
+  for(const f of made.fits)if(f.host!=null)try{C.mountFit(editorMountShip(),f);}catch(e){f.float=true;}
   C.surfacePasteConfig(ship,src.surfaces,map,false,src.netLinks||[]);
   // Groups wholly inside the copy are copied; copies sit in the same group as their originals otherwise.
   const gs=edGroups(),inside=g=>{const L=edLeaves(g);return [...L.parts].every(x=>map.parts.has(x))&&[...L.fits].every(x=>map.fits.has(x));},gmap=new Map();

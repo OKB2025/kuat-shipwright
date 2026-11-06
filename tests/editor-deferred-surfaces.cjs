@@ -48,10 +48,12 @@ test('the opt-in first geometry arrives before face exposure and the second pack
  assert.ok(Number.isFinite(complete.surfaceMs));assert.equal(f.messages.some(m=>m.type==='stats'),false);
 });
 
-test('updates without the opt-in preserve the original geometry and statistics packet contract',async()=>{
+test('updates without deferred surfaces deliver authored picks before the full geometry and statistics',async()=>{
  const f=fixture();f.update(1);const first=await f.wait('geometry',1);await f.wait('stats',1);
  assert.ok(first.caches.geoProxy.surfaces.length>0);assert.equal(first.surfaceReport,undefined);
- assert.deepEqual(f.messages.map(m=>m.type),['geometry','stats']);
+ assert.deepEqual(f.messages.map(m=>m.type),['authoringGeometry','geometry','stats']);
+ const early=f.messages[0];assert.equal(early.sourceState,f.state);assert.ok(early.caches.items.parts[f.host.id]);assert.equal(early.caches.geoProxy.surfaces,undefined);
+ assert.ok(f.calls.findIndex(c=>c.kind==='packet'&&c.type==='authoringGeometry')<f.calls.findIndex(c=>c.kind==='faces'));
  assert.ok(f.calls.findIndex(c=>c.kind==='faces')<f.calls.findIndex(c=>c.kind==='packet'&&c.type==='geometry'));
 });
 

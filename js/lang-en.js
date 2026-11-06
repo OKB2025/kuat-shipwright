@@ -444,6 +444,7 @@ root.KS_EN={
   "射撃": "Fire",
   "射程": "Range",
   "射界": "Firing Arc",
+  "射界を計算中…": "Calculating firing arcs…",
   "射角": "Firing Angle",
   "照準": "Aim",
   "命中": "Hits",

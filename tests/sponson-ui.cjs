@@ -10,23 +10,24 @@ function setup(){
  let ship=C.newShip({L:240,W:200,H:140,assembly:true},'Platforms'),S=null,prevS=null;ship.parts=[];ship.fits=[];ship.nextId=1;
  const host=C.placePart(ship,'struct',[120,50,0],[200,160,100],{form:'box'},false),hit={kind:'part',part:host,p:[120,60,80],n:[0,0,1]};
  Object.assign(st,{group:'weapons',vmirror:false,alignment:'grid10',weaponMount:'auto',structForm:'box',structAngles:[0,0,0,0],structYaw:0,structOffsetX:0,structOffsetZ:0,structPlate:false,structLight:false});
- const listeners={},outputs=new Map(),undoStack=[],redoStack=[],toasts=[];let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,templateData=null;
+ const listeners={},outputs=new Map(),undoStack=[],redoStack=[],toasts=[],meshStore={};let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,templateData=null,editorPartsRevision=0;const view=null,eng={gen:0,adoptedGen:0,geoGen:0,statsGen:0,ready:false};
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},sheet={addEventListener:()=>{}},$=q=>q==='#panel'?panel:q==='#sheet'?sheet:q.startsWith('#out-')?(outputs.has(q)||outputs.set(q,{}),outputs.get(q)):null;
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',I18N=null;
  const activeEquipment=()=>st.equipmentId?{id:st.equipmentId}:null,activeTemplate=()=>templateData,isAeroKind=k=>k==='wing'||k==='solarPanel';
  const findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null;
- const sndEdit=()=>{},sndUI=()=>{},touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},updateHint=()=>{},showPreview=()=>{},refreshOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},reconcileSolidCutter=()=>{},toast=s=>toasts.push(s),requestDraw=()=>{},applyPedDefaults=()=>{},applyFitTemplate=()=>{},copyFitSettings=()=>{},turretHeadingLines=()=>{},fitPlacementPed=()=>st.ped;
+ const sndEdit=()=>{},sndUI=()=>{},touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},updateHint=()=>{},queuePreview=()=>{},showPreview=()=>{},refreshOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},reconcileSolidCutter=()=>{},toast=s=>toasts.push(s),requestDraw=()=>{},applyPedDefaults=()=>{},applyFitTemplate=()=>{},copyFitSettings=()=>{},turretHeadingLines=()=>{},fitPlacementPed=()=>st.ped;
  const Gfx={lineSet:()=>({parts:[],boxes:[],part(p,c){this.parts.push(p);},box(b,c){this.boxes.push(b);},seg(){}})};
  function click(data){const button={dataset:data};for(const f of listeners.click||[])f({target:{closest:()=>button}});}
  function input(id,value,min=0,max=1000){for(const f of listeners.input||[])f({target:{dataset:{sl:id},value:String(value),min:String(min),max:String(max)}});}
  `);
  for(const [start,end]of [
+ ['function enginePending()','function engineStatus('],['const requestedParts =','function editorRayEnv('],['function previewHistory(','// Exterior view skips machinery'],
  ['function seg(','function silhouette('],['function tool()','function updateHint('],
  ['function partPreview(','function notchBox('],['function ghostFor(','function refreshOverlay('],
- ['function isSponsonPlacement(','function baseRenderPanel('],['function snap()','function updateUndo('],
+ ['function isSponsonPlacement(','function baseRenderPanel('],['function snap(','function updateUndo('],
  ['function linkedItems(','function bind()'],['function alignFitPoint(','function tapWant('],
  ['function tapHit(','// ---------- inspect ----------'],['function bindEngineering(){','\nst.roomSize='],
- ['function weaponTiltMode(','function chooseWeaponMount(']
+ ['function shipLauncherPlacementOptions(','function shipLauncherTargets('],['function weaponTiltMode(','function chooseWeaponMount(']
  ])run(section(start,end));
  run('bindEngineering()');return run;
 }

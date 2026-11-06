@@ -7,7 +7,7 @@ function setup(){
  const cx=vm.createContext({console,C,Gfx:G}),run=code=>vm.runInContext(code,cx);
  run(`let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Weapon family UI'),S=null;ship.parts=[];ship.fits=[];ship.nextId=1;
  const st={tab:'arm',fit:'single40',fitTool:'place',weaponMount:'auto',gunYaw:0,launchPitch:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none',multi:{parts:new Set(),fits:new Set()}},notes=[],undoStack=[],redoStack=[],listeners={},meshStore={};
- let dragSnap=null,dragLabel='',lastOp='',hoverLines=null;
+ let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,prevS=null,editorPartsRevision=0;const eng={gen:0,adoptedGen:0,geoGen:0,statsGen:0,ready:false};
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',fTT=v=>v+' TT',fPct=v=>Math.round(v*100)+'%',I18N=null;
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:null,view=null,tool=()=> 'fit',activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,curFit=()=>st.fit,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
  const sndEdit=()=>{},sndUI=()=>{},touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},queuePreview=()=>{},showPreview=()=>{},refreshOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},reconcileSolidCutter=()=>{},requestDraw=()=>{},syncHud=()=>{};
@@ -16,9 +16,10 @@ function setup(){
  function install(k='single40',n=[0,1,0]){st.fit=k;st.sel=null;const h=hit(n);if(!h)throw Error('Missing mount face');tapHit('fit',{...h,kind:'hull'},false);return selItem();}
  `);
  for(const [start,end]of [
+  ['function enginePending()','function engineStatus('],['const requestedParts =','function editorRayEnv('],['function previewHistory(','// Exterior view skips machinery'],
   ['function seg(','function silhouette('],['const PART_KEYS =','const partOffered ='],['function baseFitEditor()','function partList('],
   ['function weaponYawControls(','function turretHeadingLines('],['function turretHeadingLines(','function aviationNumbers('],
-  ['function snap()','function updateUndo('],['function assignMirror(','const TEMPLATE_SKIP ='],['const TEMPLATE_SKIP =','function removeWithPreview('],
+  ['function snap(','function updateUndo('],['function assignMirror(','const TEMPLATE_SKIP ='],['const TEMPLATE_SKIP =','function removeWithPreview('],
   ['function placeVerticalFits(','function bind()'],['function alignFitPoint(','function tapWant('],['function tapHit(','// ---------- inspect ----------'],['function ghostFor(','function refreshOverlay('],['function bindReference(){','function packingInfoHTML('],['function paletteItems()','const palIcon='],['function fitPickHit(','function pick('],['function weaponSourcesHTML()','function bindReference(){']
  ])run(section(start,end));
  run('bindReference()');
@@ -69,7 +70,7 @@ test('ordinary guns place flush without automatic riser geometry while missile p
 
 function value(html,key){const match=html.match(new RegExp('data-turret-volume="'+key+'">([^<]+)'));assert.ok(match,key);return match[1];}
 test('the selected-gun card separates exterior and embedded housing from pending additional allocation',()=>{
- const run=setup();assert.equal(typeof C.turretCompartment,'function');run("install('single40');selItem().chargeScale=4;selItem().chargeSalvos=20;globalThis.ledger=C.turretCompartment(ship,selItem())");
+ const run=setup();assert.equal(typeof C.turretCompartment,'function');run("install('single40');selItem().chargeScale=4;selItem().chargeSalvos=20;globalThis.ledger=C.turretCompartment(ship,selItem());S={chargeInfo:{[selItem().id]:ledger}};eng.statsGen=eng.gen");
  const q=plain(run('ledger')),html=run('turretCompartmentHTML(selItem())');assert.ok(q.housingVolume>0);assert.ok(q.externalVolume>0);assert.ok(q.plannedVolume>q.required);assert.ok(q.internalRequired>0,'the requested reserve needs an additional internal bank');assert.equal(q.allocationPending,true);
  for(const key of ['required','plannedVolume','housingVolume','externalVolume','embeddedVolume','housingUsed','internalRequired'])assert.equal(value(html,key),q[key].toFixed(1)+' m³',key);
  for(const key of ['internalVolume','internalOccupiedVolume','volume'])assert.equal(value(html,key),'計算中…');assert.match(html,/0\.05 TT\/m³/);assert.doesNotMatch(html,/0\.08 TT\/m³/);
@@ -77,7 +78,7 @@ test('the selected-gun card separates exterior and embedded housing from pending
 });
 
 test('the selected-gun card reports actual stats allocation and hides an unnecessary internal depth control',()=>{
- const run=setup();run("install('single40');S=C.computeStats(ship);globalThis.ledger=S.chargeInfo[selItem().id]");const q=plain(run('ledger')),html=run('turretCompartmentHTML(selItem())');
+ const run=setup();run("install('single40');S=C.computeStats(ship);eng.statsGen=eng.gen;globalThis.ledger=S.chargeInfo[selItem().id]");const q=plain(run('ledger')),html=run('turretCompartmentHTML(selItem())');
  for(const key of ['required','housingUsed','internalRequired','internalVolume','internalOccupiedVolume','volume'])assert.equal(value(html,key),q[key].toFixed(1)+' m³',key);
  assert.equal(/data-sl="chargeDepth"/.test(html),q.internalRequired>1e-6);assert.ok(Math.abs(q.volume-q.housingUsed-q.internalVolume)<1e-6,'displayed external and internal values reconcile to the functional total');
  assert.ok(Math.abs(q.internalOccupiedVolume-q.embeddedVolume-q.internalVolume)<1e-6,'the embedded room remains physically reserved in addition to the extra bank');

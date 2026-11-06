@@ -19,6 +19,7 @@ function setup(){
  section('function fitCamera(','const CAMS =');
  section('// ---------- ship lifecycle & history ----------','// ---------- selection ----------');
  section('// ---------- selection ----------','// ---------- tools ----------');
+ section('function actualShipDimensions()','function shapeDimensionSlider(');
  section('function linkedItems(','// Vertical copies for parts');
  run(`
  const fixture=C.newShip({L:300,W:160,H:80,assembly:true},'Background edits');fixture.parts=[{id:1,k:'struct',form:'box',c:[50,10,-20],s:[20,20,20]},{id:2,k:'struct',form:'box',c:[120,10,20],s:[20,20,20]}];fixture.fits=[{id:3,k:'pd',p:[120,20,20],a:2,ped:0,base:0,low:0,float:false}];fixture.nextId=4;fixture.hatches=[];fixture.armor={hull:0,cit:0};

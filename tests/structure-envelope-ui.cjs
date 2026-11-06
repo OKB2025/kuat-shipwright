@@ -12,14 +12,17 @@ function setup(){
  run(`
  let ship=C.newShip({L:1600,W:800,H:300,plan:'rect',sec:'rect'},'Planned envelope UI'),S=null;
  ship.parts=[{id:1,k:'struct',c:[800,150,0],s:[100,120,80],form:'box',taper:0}];ship.fits=[];ship.nextId=2;
- const st={sel:{list:'parts',id:1},part:'struct',partTool:'select',group:'shape',structSize:[100,120,80],structForm:'box',structAngles:[0,0,0,0],structTaper:0,structPlate:false,structLight:false,structPlateT:1,structYaw:0,structOffsetX:0,structOffsetZ:0,structPitch:0,structRoll:0,surfaceMode:'horizontal',hullFollow:'keep',hullRatio:false,ve:{target:null},surfaceIds:[],surfaceDraft:{},surfaceFilter:'all',mirror:false,vmirror:false},I18N=null,fleet={mode:'design'},eng={gen:1,statsGen:1},listeners={},nodes=new Map(),messages=[],history=[];
+ const st={sel:{list:'parts',id:1},part:'struct',partTool:'select',group:'shape',structSize:[100,120,80],structForm:'box',structAngles:[0,0,0,0],structTaper:0,structPlate:false,structLight:false,structPlateT:1,structYaw:0,structOffsetX:0,structOffsetZ:0,structPitch:0,structRoll:0,surfaceMode:'horizontal',hullFollow:'keep',hullRatio:false,ve:{target:null},surfaceIds:[],surfaceDraft:{},surfaceFilter:'all',mirror:false,vmirror:false},I18N=null,fleet={mode:'design'},eng={gen:1,statsGen:1,adoptedGen:0,geoGen:0,ready:true},listeners={},nodes=new Map(),messages=[],history=[];
  const esc=String,num=(value,digits=0)=>Number(value).toFixed(digits),rgb=value=>value.join(','),fLen=value=>value+' m',fMass=value=>value+' t',fW=value=>value+' W',fPct=value=>Math.round(value*100)+'%',deg=value=>value+'°';
  const isAeroKind=k=>k==='wing'||k==='solarPanel',craftDesign=()=>C.isCraft(ship),activeEquipment=()=>null,selItem=()=>ship.parts.find(p=>p.id===st.sel?.id),twinOfItem=()=>null,partInfoHTML=()=>'',surfaceControls=()=>'<div data-orientation-controls></div>',sensorBandControls=()=>'',cockpitEquipmentHTML=()=>'',shipClassList=()=>C.SHIP_CLASSES,titleState={cls:'destroyer',hull:'wedge',L:1600,W:800,H:300,name:'Planned UI'},silhouette=()=>'';
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=selector=>selector==='#panel'?panel:nodes.get(selector)||null;
+ let editorPartsRevision=0;
  let renders=0,draws=0;const renderPanel=()=>renders++,requestDraw=()=>draws++,toast=message=>messages.push(message),syncHud=()=>{},refreshOverlay=()=>{},updateHint=()=>{},refitOnGeometry=()=>{};
  const view={setSurfaceSelection:()=>{},pickSurface:()=>null};
- function mutate(label,fn){const before=JSON.stringify(C.serialize(ship));fn();history.push({label,before});return true;}
+ function editHullDims(L,W,H){setHullDims(L,W,H);eng.gen++;editorPartsRevision++;} // The real dimension controls mark an edited generation.
+ function mutate(label,fn){const before=JSON.stringify(C.serialize(ship));fn();eng.gen++;editorPartsRevision++;history.push({label,before});return true;}
  `);
+ run(section('const requestedParts =','function enginePickParts('));
  for(const [start,end]of [
   ['function hullEditorPart()', '// ---------- ship lifecycle & history ----------'],
   ['function seg(','function silhouette('],['const fmtM =','function baseFitEditor('],
@@ -37,7 +40,7 @@ function setup(){
 
 test('shrinking a hull preserves planned placement and shape ranges and every existing outlier',()=>{
  const {run}=setup(),before=run('basePartEditor()'),partBefore=plain(run('ship.parts[0]')),plan=plain(run('C.designEnvelope(ship)'));
- run('setHullDims(160,80,30)');const after=run('basePartEditor()');
+ run('editHullDims(160,80,30)');const after=run('basePartEditor()');
  assert.deepEqual(plain(run('C.designEnvelope(ship)')),plan);assert.deepEqual(plain(run('ship.parts[0]')),partBefore);
  for(const id of ['ex','ey','ez','el','ew','eh'])for(const key of ['min','max'])assert.equal(input(after,id)[key],input(before,id)[key],`${id} ${key}`);
  run('ship.parts[0].c=[2200,-600,900];ship.parts[0].s=[2000,1500,1000]');const outliers=run('basePartEditor()');
@@ -48,7 +51,7 @@ test('shrinking a hull preserves planned placement and shape ranges and every ex
 
 test('room and fitting controls keep their intended working range after the hull is reduced',()=>{
  const {run}=setup();run("ship.parts=[{id:1,k:'command',c:[800,150,0],room:[120,80,40],d:40}];ship.fits=[{id:2,k:'pd',p:[800,300,0],a:2}]");
- const roomBefore=run('basePartEditor()'),fitBefore=run('fitPositionSliders(ship.fits[0])');run('setHullDims(160,80,30)');
+ const roomBefore=run('basePartEditor()'),fitBefore=run('fitPositionSliders(ship.fits[0])');run('editHullDims(160,80,30)');
  const roomAfter=run('basePartEditor()'),fitAfter=run('fitPositionSliders(ship.fits[0])');
  for(const id of ['room0','room1','room2'])assert.equal(input(roomAfter,id).max,input(roomBefore,id).max,id);
  for(const id of ['fitX','fitZ'])for(const key of ['min','max'])assert.equal(input(fitAfter,id)[key],input(fitBefore,id)[key],`${id} ${key}`);
@@ -57,11 +60,11 @@ test('room and fitting controls keep their intended working range after the hull
 test('hull dimensions can shrink below their class and grow beyond the initial plan without changing it',()=>{
  const {run}=setup();run("ship.shipClass='destroyer'");const originalPlan=plain(run('C.designEnvelope(ship)'));
  let html=run('hullDimsHTML()');assert.equal(+input(html,'L').min,60);assert.match(html,/船体長/);assert.match(html,/船体幅/);assert.match(html,/船体高/);
- run('setHullDims(160,80,30)');assert.equal(run('ship.hull.L'),160);html=run('hullDimsHTML()');assert.equal(+input(html,'L').min,60);
+ run('editHullDims(160,80,30)');assert.equal(run('ship.hull.L'),160);html=run('hullDimsHTML()');assert.equal(+input(html,'L').min,60);
  assert.equal(html.match(/data-design-envelope[\s\S]*?<dd>([^<]+)<\/dd>/)?.[1],'1600 m × 800 m × 300 m');
  assert.equal(html.match(/data-actual-dimensions[\s\S]*?<dd>([^<]+)<\/dd>/)?.[1],run('C.shipDimensions(ship).map(fLen).join(" × ")'));
  assert.notDeepEqual(plain(run('C.shipDimensions(ship)')),plain(run('[ship.hull.L,ship.hull.W,ship.hull.H]')),'an outlying structure contributes to the displayed assembled size');
- run('setHullDims(1700,850,350)');assert.equal(run('ship.hull.L'),1700);assert.equal(run('ship.hull.W'),850);assert.equal(run('ship.hull.H'),350);assert.deepEqual(plain(run('C.designEnvelope(ship)')),originalPlan);
+ run('editHullDims(1700,850,350)');assert.equal(run('ship.hull.L'),1700);assert.equal(run('ship.hull.W'),850);assert.equal(run('ship.hull.H'),350);assert.deepEqual(plain(run('C.designEnvelope(ship)')),originalPlan);
  const geometry=plain(run('ship.hull'));run("changeClass('cruiser')");assert.equal(run('ship.shipClass'),'cruiser');assert.deepEqual(plain(run('ship.hull')),geometry);assert.deepEqual(plain(run('C.designEnvelope(ship)')),originalPlan);
 });
 
@@ -70,9 +73,9 @@ test('the new-design screen explains that its initial dimensions describe the pl
  for(const [id,value]of [['tL',1600],['tW',800],['tH',300]])assert.equal(+input(html,id,'number').value,value);
 });
 
-test('fresh assembled-size statistics bypass geometry work and stale statistics use the geometry fallback',()=>{
- const {run}=setup(),result=plain(run(`(()=>{const original=C.shipDimensions;C.shipDimensions=()=>{throw Error('geometry queried')};S={dims:[1700,900,400]};try{const cached=actualShipDimensions(),html=hullDimsHTML();eng.gen++;let staleFallback=false;try{actualShipDimensions()}catch(error){staleFallback=error.message==='geometry queried'}return {cached,html,staleFallback};}finally{C.shipDimensions=original}})()`));
- assert.deepEqual(result.cached,[1700,900,400]);assert.match(result.html,/data-actual-dimensions[\s\S]*?1700 m × 900 m × 400 m/);assert.equal(result.staleFallback,true);
+test('fresh assembled-size statistics bypass geometry and pending figures use only direct bounds',()=>{
+ const {run}=setup(),result=plain(run(`(()=>{const original=C.shipDimensions,bounds=C.shipBounds;let direct=0;C.shipDimensions=()=>{throw Error('physical routing on UI')};C.shipBounds=(ship,options)=>{if(!options?.simple)throw Error('physical routing on UI');direct++;return bounds(ship,options)};S={dims:[1700,900,400]};try{const cached=actualShipDimensions(),html=hullDimsHTML();eng.gen++;const pending=actualShipDimensions();return {cached,html,pending,direct};}finally{C.shipDimensions=original;C.shipBounds=bounds}})()`));
+ assert.deepEqual(result.cached,[1700,900,400]);assert.match(result.html,/data-actual-dimensions[\s\S]*?1700 m × 900 m × 400 m/);assert.equal(result.direct,1);assert.deepEqual(result.pending,[1600,800,300]);
 });
 
 test('planned dimensions and ordinary structure armor controls translate fully into English',()=>{

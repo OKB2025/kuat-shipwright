@@ -30,7 +30,7 @@ function setup(){
   ['function hullEditorPart()', '// ---------- ship lifecycle & history ----------'],
   ['function seg(','function silhouette('],['function partCard(','function fitBtn('],['function basePartEditor()','function baseFitEditor('],
   ['function baseRenderPanel()','function sizeOut('],['function unalignedPartPreview(','function notchBox('],['const TEMPLATE_SKIP =','function applyFitTemplate('],
-  ['function wingControls(','function sensorBandControls('],['function bindWing(){','function heatHTML('],['function snap()','function updateUndo('],
+  ['function wingControls(','function sensorBandControls('],['function bindWing(){','function heatHTML('],['function snap(','function updateUndo('],
   ['function assignMirror(','function copyFitSettings('],['function editSel(','const PED_SHAPES'],
   ["  $('#panel').addEventListener('input', e => {if(blockedHullControl", "  $('#panel').addEventListener('change', e => {\n    const t = e.target;"]
  ])vm.runInContext(section(start,end),context);
