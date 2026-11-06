@@ -33831,6 +33831,22 @@ function physicalPropulsionNetwork(ship,mechanical=false){
    if(inputBody&&out.length>1){const P=out[out.length-1],f=frameAxis(sub(P,out[out.length-2]));if(!solidCapContains(inputBody,P)||!Array.from({length:32},(_,j)=>{const t=j*Math.PI/16;return add(P,add(mul(f.v,Math.cos(t)*r),mul(f.w,Math.sin(t)*r)));}).every(q=>solidCapContains(inputBody,q)))return null;}
    if(entrySegment)out.entrySegment=entrySegment;const pieces=[];for(let i=1;i<out.length;i++){const A=out[i-1],B=out[i],isEntry=!!entrySegment&&i===out.length-1,gaps=isEntry?[]:survey(A,B)||[],knots=[0,...gaps.flat(),1].filter((t,j,V)=>!j||t-V[j-1]>1e-9);for(let j=1;j<knots.length;j++){const lo=knots[j-1],hi=knots[j],a=add(A,mul(sub(B,A),lo)),b=add(A,mul(sub(B,A),hi)),gap=gaps.some(([x,y])=>(lo+hi)/2>x&&(lo+hi)/2<y);pieces.push({...segment(a,b,r),...(isEntry?{exteriorEntry:true,housing:true,hullContact:entrySegment.hullContact,engineId:entrySegment.engineId}:gap?{exteriorEntry:true,housing:true,structuralGap:true,hullContact:a.slice(),hullContacts:[a.slice(),b.slice()],gapLimitM:gapLimit,maxGapM:gapLimit,engineId:to.id,...(!mechanical?{anchorComponentIds:[supports(a,frameAxis(sub(b,a))),supports(b,frameAxis(sub(b,a)))]}:{})}:{})});}}out.routeSegments=pieces;return out;},capFits=P=>AXES.some(u=>clear(P,add(P,mul(u,Math.max(.001,r*.05)))));
   if(!capFits(a)||!capFits(b))return null;
+  // The Onager's outer main runs fan out near their common body, leaving
+  // the two auxiliary bodies between the actual shafts. A late turn beside
+  // the nozzles would leave both auxiliary engines outside that fan.
+  const fanOutlets=mechanical&&ship.reference==='onager'&&from.k==='engineCore'?ship.parts.filter(p=>p.k==='engine'&&p.machineryId===from.id):[],fanAxis=fanOutlets.length===3?norm(from.dir||[-1,0,0]):null;
+  if(fanAxis){
+   // Ownership and distance from the common body's axis identify the centre
+   // outlet. Cosmetic equipment names cannot change the physical route.
+   const offset=p=>{const d=sub(p.c,from.c);return len(sub(d,mul(fanAxis,dot(d,fanAxis))));},centre=fanOutlets.slice().sort((p,q)=>offset(p)-offset(q)||p.id-q.id)[0];
+   if(to.id!==centre.id){
+    const launch=add(a,mul(fanAxis,Math.max(r*2.2,from.d*.2))),guide=sub(b,mul(fanAxis,dot(sub(b,from.c),fanAxis)*.75));
+    // Rise or descend only when the real feed cables obstruct a level run.
+    // Every complete lead, bend and final contact retains the normal checks.
+    for(const offset of [0,3,-3,4,-4,2,-2,1,-1]){const path=[a,launch,add(guide,[0,offset*r,0]),b];if(path.slice(1).every((p,i)=>clear(path[i],p)))return finish(path);}
+    return null;
+   }
+  }
   if(clear(a,b))return finish([a,b]);
   // First try cheap doglegs at actual obstacle walls, preserving narrow spaces
   // that would disappear on a coarse grid on kilometre-long reference ships.
@@ -37280,20 +37296,20 @@ function shipRefitInternalCores(ship,nozzles,requestedByNozzle,externalBodies,ke
  try{
   const cores=[],hard=[...ship.parts.filter(p=>!isShapePart(p)&&!flexibleCompartment(ship,p)),...externalBodies,...turretIntrusions(ship),...weaponCapacitors(ship).filter(p=>!flexibleCompartment(ship,p)),...missileCells(ship).filter(p=>!flexibleCompartment(ship,p)),...commandCompartments(ship)],bounds=hard.map(partAABB),anchors=shipRefitAnchors(ship),reactors=ship.parts.filter(isReactor).sort((a,b)=>reactorPower(b)-reactorPower(a)||a.id-b.id);
   if(nozzles.length&&!reactors.length)throw new Error(ship.name+'：内蔵機関に接続する反応炉がありません');
-  const build=(group,local=false,preferredSource=null,role='')=>{
+  const build=(group,local=false,preferredSource=null,role='',placement=null)=>{
    const sourceWeight=new Map();for(const nozzle of group)if(reactors.some(r=>r.id===nozzle.reactor))sourceWeight.set(nozzle.reactor,(sourceWeight.get(nozzle.reactor)||0)+requestedByNozzle.get(nozzle.id));
    const reactor=preferredSource||reactors.slice().sort((a,b)=>(sourceWeight.get(b.id)||0)-(sourceWeight.get(a.id)||0)||reactorPower(b)-reactorPower(a)||a.id-b.id)[0],sourceBounds=partAABB(reactor);
    const requested=group.reduce((n,p)=>n+requestedByNozzle.get(p.id),0),dir=norm(group.reduce((n,p)=>add(n,p.dir||[-1,0,0]),[0,0,0])),axis=len(dir)>1e-6?dir:[-1,0,0],reach=sourceBounds?[0,1,2].reduce((n,i)=>n+Math.abs(axis[i])*(sourceBounds[i+3]-sourceBounds[i])/2,0):0;
    let placed=null;
-   for(const fraction of [1,.75,.5,.25,.125,.0625]){
+   for(const fraction of placement?.required?[1]:[1,.75,.5,.25,.125,.0625]){
     const inputW=requested*fraction,volume=inputW*1.3/MACHINERY_GRADES.advanced.allowedInputDensityWPerM3;
     for(const aspect of [1,2,.5,4,.25]){
-     const diameter=Math.max(.15,Math.cbrt(4*volume/(Math.PI*aspect)),3.2*Math.sqrt(inputW/(Math.PI*FEED_FLUX))),length=Math.max(.15,volume/(Math.PI*(diameter/2)**2)),gap=Math.max(.15,diameter*.04),outlet=group[0],frame=frameAxis(axis),delta=sub(outlet.c,reactor.c),radial=role?add(mul(frame.v,clamp(dot(delta,frame.v),-reactor.d*.36,reactor.d*.36)),mul(frame.w,clamp(dot(delta,frame.w),-reactor.d*.36,reactor.d*.36))):[0,0,0],preferred=local?sub(outlet.c,mul(axis,partDims(outlet).l/2+length/2+gap)):add(add(reactor.c,mul(axis,reach+length/2+gap)),radial),near=[];
-     for(const advance of [0,.2,.5,1,2])for(const lateral of [[0,0],[.6,0],[-.6,0],[0,.6],[0,-.6],[1.2,0],[-1.2,0]])near.push(add(add(preferred,mul(axis,(local?-1:1)*advance*diameter)),add(mul(frame.v,lateral[0]*diameter),mul(frame.w,lateral[1]*diameter))));
-     const candidates=[...near,...anchors.filter(c=>!local||len(sub(c,preferred))<=Math.max(outlet.d*2,length*2)).sort((a,b)=>len(sub(a,preferred))-len(sub(b,preferred))).slice(0,180)],candidate={id:-999999,k:'engineCore',c:preferred,d:diameter,length,dir:axis,autoFit:false};
+     const diameter=Math.max(.15,Math.cbrt(4*volume/(Math.PI*aspect)),3.2*Math.sqrt(inputW/(Math.PI*FEED_FLUX))),length=Math.max(.15,volume/(Math.PI*(diameter/2)**2)),gap=Math.max(.15,diameter*.04),outlet=group[0],center=mul(group.reduce((c,p)=>add(c,p.c),[0,0,0]),1/group.length),frame=frameAxis(axis),delta=sub(center,reactor.c),radial=role?add(mul(frame.v,clamp(dot(delta,frame.v),-reactor.d*.36,reactor.d*.36)),mul(frame.w,clamp(dot(delta,frame.w),-reactor.d*.36,reactor.d*.36))):[0,0,0],preferred=placement?.center({reactor,axis,reach,length,diameter,gap,center})||(local?sub(outlet.c,mul(axis,partDims(outlet).l/2+length/2+gap)):add(add(reactor.c,mul(axis,reach+length/2+gap)),radial)),near=[];
+     if(placement?.required)near.push(preferred);else for(const advance of [0,.2,.5,1,2])for(const lateral of [[0,0],[.6,0],[-.6,0],[0,.6],[0,-.6],[1.2,0],[-1.2,0]])near.push(add(add(preferred,mul(axis,(local?-1:1)*advance*diameter)),add(mul(frame.v,lateral[0]*diameter),mul(frame.w,lateral[1]*diameter))));
+     const candidates=placement?.required?near:[...near,...anchors.filter(c=>!local||len(sub(c,preferred))<=Math.max(outlet.d*2,length*2)).sort((a,b)=>len(sub(a,preferred))-len(sub(b,preferred))).slice(0,180)],candidate={id:-999999,k:'engineCore',c:preferred,d:diameter,length,dir:axis,autoFit:false};
      for(const c of candidates){
       // The engine is aft of the selected plant, including irregular hulls.
-      if((!local&&dot(sub(c,reactor.c),axis)<reach+length/2-.01)||!insideOriginalEnvelope(ship,c))continue;
+      if((!local&&!placement?.sideFeed&&dot(sub(c,reactor.c),axis)<reach+length/2-.01)||!insideOriginalEnvelope(ship,c))continue;
       candidate.c=c;const bb=partAABB(candidate);
       if(hard.some((q,i)=>boxesOverlap(bb,bounds[i],.01)&&overlapParts(candidate,q)))continue;
       if(!unclippedSurfSamples(candidate).concat(unclippedVolSamples(candidate),[c]).every(q=>insideOriginalEnvelope(ship,q)))continue;
@@ -37304,17 +37320,26 @@ function shipRefitInternalCores(ship,nozzles,requestedByNozzle,externalBodies,ke
     if(placed)break;
    }
    if(!placed){
+    if(placement?.required)throw new Error(ship.name+'：'+role+' の全入力容量を指定された機関位置に配置できません');
     if(group.length===1)throw new Error(ship.name+'：ノズル #'+group[0].id+' の内蔵機関を'+(local?'ノズル付近':'反応炉後方')+'に配置できません');
     const sorted=group.slice().sort((a,b)=>a.c[2]-b.c[2]||a.c[1]-b.c[1]||a.id-b.id),mid=Math.ceil(sorted.length/2);build(sorted.slice(0,mid),local,reactor,role);build(sorted.slice(mid),local,reactor,role);return;
    }
    cores.push(placed);hard.push(placed);bounds.push(partAABB(placed));
    for(const nozzle of group){nozzle.machineryId=placed.id;nozzle.nozzleShare=requestedByNozzle.get(nozzle.id);nozzle.busFeed=true;delete nozzle.propulsionMigration;}
+   return placed;
   };
-  if(key==='imperial'){
-   const primary=nozzles.filter(p=>/主イオン/.test(p.label||'')),main=reactors.find(p=>p.k==='gen')||reactors[0];
-   for(const p of primary)build([p],false,main,'主推進機関');
+  if(key==='imperial'||key==='onager'){
+   const primary=nozzles.filter(p=>(key==='onager'?/主機関/:/主イオン/).test(p.label||'')),main=reactors.find(p=>p.k==='gen')||reactors[0];
+   // One central main body supplies all three main outlets. Its rating and
+   // volume are the sum of those outlets' requests, counted once upstream.
+   const mainCore=primary.length?build(primary,false,main,'主推進機関',{required:true,center:({reactor,axis,reach,length,diameter,gap})=>add(reactor.c,mul(axis,reach+length/2+gap+diameter*.16))}):null;
    for(const side of [-1,1]){const group=nozzles.filter(p=>!primary.includes(p)&&(p.c[2]<0?-1:1)===side);if(!group.length)continue;
-    const center=mul(group.reduce((c,p)=>add(c,p.c),[0,0,0]),1/group.length),source=reactors.filter(r=>r!==main).sort((a,b)=>len(sub(a.c,center))-len(sub(b.c,center)))[0]||main;for(const p of group)build([p],false,source,'副推進機関');}
+    const center=mul(group.reduce((c,p)=>add(c,p.c),[0,0,0]),1/group.length),source=reactors.filter(r=>r!==main).sort((a,b)=>len(sub(a.c,center))-len(sub(b.c,center)))[0]||main;
+    // Auxiliary bodies sit between the main runs, independently of the main
+    // body: two small outlets per ISD side, one per Onager side. The Onager's
+    // long lateral reactor rooms feed these bodies from the side; actual
+    // solid clearance still decides whether their complete volume fits.
+    build(group,false,source,'副推進機関',{required:true,sideFeed:key==='onager',center:({axis})=>{const throat=mul(group.reduce((c,p)=>add(c,sub(p.c,mul(norm(p.dir||axis),partDims(p).l/2))),[0,0,0]),1/group.length);return mainCore?add(throat,mul(axis,dot(sub(mainCore.c,throat),axis)*.5)):throat;}});}
   }else{
    const central=[];for(const p of nozzles){const source=reactors.find(r=>r.id===p.reactor)||reactors[0],remote=key==='cr90'||len(sub(p.c,source.c))>Math.max(p.d*4,source.d*2);if(remote){const inletSources=reactors.filter(r=>dot(sub(r.c,p.c),p.dir||[-1,0,0])<=0),localSource=(inletSources.length?inletSources:reactors).slice().sort((a,b)=>len(sub(a.c,p.c))-len(sub(b.c,p.c))||a.id-b.id)[0];build([p],true,localSource);}else central.push(p);}
    if(central.length)build(central);

@@ -1,0 +1,4470 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "key": "imperial",
+  "scope": "Actual constructor blueprint opened through native saved-design Continue. Actual worker geometry/statistics, native core/shaft inspection, indexed rendered corrugation, and actual autosave/deserialization. No stock factory, replacement profile, geometry substitution, or artificial delay.",
+  "input": {
+    "file": "/tmp/kuat-shared-cc3a3dd5-imperial/blueprints/imperial.json",
+    "sha256": "7f8f58f680e3f0dc40c25356e8673a0cfb6df31111625ec1c2f0b109622e5942",
+    "name": "インペリアルI級｜重砲戦艦",
+    "parts": 91,
+    "fits": 51
+  },
+  "harness": {
+    "path": "scripts/browser-shared-main-engine.cjs",
+    "sha256": "4e98037c3fa4ff5b1262658e3b502db991689164f6f680d3043f65e98c7304cc",
+    "sha256After": "4e98037c3fa4ff5b1262658e3b502db991689164f6f680d3043f65e98c7304cc"
+  },
+  "sourceSha256": {
+    "index.html": "e3f063049b0093f1e884b4c1a2f908d64d9bdf8943014cb56dcfd27e10c1227b",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "3508b3e5c4de1df83bed1546ee0dde341d4a2cf781428531dc4eff8081c7301f",
+    "js/core.js": "cc3a3dd550ca76a7cb8051d94d3e06169d14334982f82aec30be1f53a6dcbcd0",
+    "js/gfx.js": "0891c0f0a14c8be8534c0ad88d667c8c3674ad9c653cbaded056925a6dc8b23e",
+    "js/app.js": "ee8e5f002690bae3245fefbf27db238be9792b20f7204ff55c4a95adfa5086b1",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "1ab1f191a182272b654124f7e1df7e5b4ec7c02ff875195dfa1a05c704acc1e0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "errors": [],
+  "consoleErrors": [
+    {
+      "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "location": {
+        "url": "http://127.0.0.1:8876/favicon.ico",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Access to XMLHttpRequest at 'https://cloudflareinsights.com/cdn-cgi/rum' from origin 'http://127.0.0.1:8876' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'http://127.0.0.1' that is not equal to the supplied origin.",
+      "location": {
+        "url": "http://127.0.0.1:8876/?splash=",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "location": {
+        "url": "http://127.0.0.1:8876/favicon.ico",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "screenshots": [
+    "docs/images/shared-main-engine-imperial-xray-top.png",
+    "docs/images/shared-main-engine-imperial-xray-bay.png",
+    "docs/images/shared-main-engine-imperial-core-selected.png",
+    "docs/images/shared-main-engine-imperial-shaft-selected.png",
+    "docs/images/shared-main-engine-imperial-bell-roots.png"
+  ],
+  "networkFailures": [
+    {
+      "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+      "error": "net::ERR_FAILED"
+    }
+  ],
+  "httpFailures": [],
+  "proof": {
+    "name": "インペリアルI級｜重砲戦艦",
+    "reference": "imperial",
+    "publicTopology": {
+      "reference": "imperial",
+      "name": "インペリアルI級｜重砲戦艦",
+      "parts": [
+        {
+          "id": 51,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            -233.6
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 52,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            0
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 53,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            233.6
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 54,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 170,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 55,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 170,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 56,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 171,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 57,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 171,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 169,
+          "k": "engineCore",
+          "c": [
+            330.65381109311136,
+            115,
+            0
+          ],
+          "d": 99.39179012267857,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主推進機関 1",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.6567791380396595e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 3.4538128794515576e+24,
+          "busFeed": true
+        },
+        {
+          "id": 170,
+          "k": "engineCore",
+          "c": [
+            218.7519055465557,
+            136.75,
+            -116.6
+          ],
+          "d": 28.461687234332985,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 64,
+          "label": "副推進機関 2",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.1785910283150934e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 2.8321683368096215e+23,
+          "busFeed": true
+        },
+        {
+          "id": 171,
+          "k": "engineCore",
+          "c": [
+            218.7519055465557,
+            136.75,
+            116.6
+          ],
+          "d": 28.461687234332985,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 75,
+          "label": "副推進機関 3",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.1785910283150934e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 2.8321683368096215e+23,
+          "busFeed": true
+        }
+      ],
+      "powerLinks": [
+        {
+          "kind": "power",
+          "from": "p48",
+          "to": "p169",
+          "cap": 3.4538128794515576e+24
+        },
+        {
+          "kind": "power",
+          "from": "p64",
+          "to": "p170",
+          "cap": 1.6631535939871483e+23
+        },
+        {
+          "kind": "power",
+          "from": "p59",
+          "to": "p170",
+          "cap": 1.1690147428224733e+23
+        },
+        {
+          "kind": "power",
+          "from": "p75",
+          "to": "p171",
+          "cap": 1.6631535939871483e+23
+        },
+        {
+          "kind": "power",
+          "from": "p59",
+          "to": "p171",
+          "cap": 1.1690147428224733e+23
+        }
+      ]
+    },
+    "cores": [
+      {
+        "id": 169,
+        "label": "主推進機関 1",
+        "c": [
+          330.65381109311136,
+          115,
+          0
+        ],
+        "d": 99.39179012267857,
+        "length": 14.93566176470588,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "reactorId": 48,
+        "volume": 115881.83845224069,
+        "ratedInputW": 2.6567791380396595e+24,
+        "maxInputW": 3.939982507376183e+24,
+        "valid": true,
+        "grounded": true,
+        "floating": false,
+        "overlap": false,
+        "outlets": [
+          51,
+          52,
+          53
+        ],
+        "ranges": [
+          {
+            "name": "interior",
+            "start": 26340,
+            "count": 2448,
+            "cpuIndices": 115608,
+            "gpuCount": 115608,
+            "indexBuffer": true
+          }
+        ]
+      },
+      {
+        "id": 170,
+        "label": "副推進機関 2",
+        "c": [
+          218.7519055465557,
+          136.75,
+          -116.6
+        ],
+        "d": 28.461687234332985,
+        "length": 14.93566176470588,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "reactorId": 64,
+        "volume": 9502.450918181741,
+        "ratedInputW": 2.1785910283150934e+23,
+        "maxInputW": 3.230833312181792e+23,
+        "valid": true,
+        "grounded": true,
+        "floating": false,
+        "overlap": false,
+        "outlets": [
+          54,
+          55
+        ],
+        "ranges": [
+          {
+            "name": "interior",
+            "start": 28788,
+            "count": 2448,
+            "cpuIndices": 115608,
+            "gpuCount": 115608,
+            "indexBuffer": true
+          }
+        ]
+      },
+      {
+        "id": 171,
+        "label": "副推進機関 3",
+        "c": [
+          218.7519055465557,
+          136.75,
+          116.6
+        ],
+        "d": 28.461687234332985,
+        "length": 14.93566176470588,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "reactorId": 75,
+        "volume": 9502.450918181741,
+        "ratedInputW": 2.1785910283150934e+23,
+        "maxInputW": 3.230833312181792e+23,
+        "valid": true,
+        "grounded": true,
+        "floating": false,
+        "overlap": false,
+        "outlets": [
+          56,
+          57
+        ],
+        "ranges": [
+          {
+            "name": "interior",
+            "start": 31236,
+            "count": 2448,
+            "cpuIndices": 115608,
+            "gpuCount": 115608,
+            "indexBuffer": true
+          }
+        ]
+      }
+    ],
+    "nozzles": [
+      {
+        "id": 51,
+        "label": "主イオン機関・ベル型ノズル",
+        "c": [
+          86,
+          136.8,
+          -233.6
+        ],
+        "d": 112,
+        "nozzleLength": 64,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 169,
+        "nozzleShare": 1.010251924968252e+24,
+        "nozzleShaftCapacityW": 4.827496935212219e+24,
+        "skinAsset": "isdh_engine_main",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 3199,
+        "renderedFaces": 3199,
+        "sourceVertices": 3711,
+        "renderedVertices": 3711,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 0,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 0,
+            "count": 9597,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      },
+      {
+        "id": 52,
+        "label": "主イオン機関・ベル型ノズル",
+        "c": [
+          86,
+          136.8,
+          0
+        ],
+        "d": 112,
+        "nozzleLength": 64,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 169,
+        "nozzleShare": 1.010251924968252e+24,
+        "nozzleShaftCapacityW": 4.827496935212219e+24,
+        "skinAsset": "isdh_engine_main",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 3199,
+        "renderedFaces": 3199,
+        "sourceVertices": 3711,
+        "renderedVertices": 3711,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 96,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 9597,
+            "count": 9597,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      },
+      {
+        "id": 53,
+        "label": "主イオン機関・ベル型ノズル",
+        "c": [
+          86,
+          136.8,
+          233.6
+        ],
+        "d": 112,
+        "nozzleLength": 64,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 169,
+        "nozzleShare": 1.010251924968252e+24,
+        "nozzleShaftCapacityW": 4.827496935212219e+24,
+        "skinAsset": "isdh_engine_main",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 3199,
+        "renderedFaces": 3199,
+        "sourceVertices": 3711,
+        "renderedVertices": 3711,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 192,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 19194,
+            "count": 9597,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      },
+      {
+        "id": 54,
+        "label": "上下二段の補助イオン機関",
+        "c": [
+          92.925,
+          92.9,
+          -116.6
+        ],
+        "d": 55.7,
+        "nozzleLength": 27.85,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 170,
+        "nozzleShare": 1.242628196992997e+23,
+        "nozzleShaftCapacityW": 1.1939780744998854e+24,
+        "skinAsset": "isdh_engine_aux",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 1600,
+        "renderedFaces": 1600,
+        "sourceVertices": 1651,
+        "renderedVertices": 1651,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 288,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 28791,
+            "count": 4800,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      },
+      {
+        "id": 55,
+        "label": "上下二段の補助イオン機関",
+        "c": [
+          92.925,
+          180.6,
+          -116.6
+        ],
+        "d": 55.7,
+        "nozzleLength": 27.85,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 170,
+        "nozzleShare": 1.242628196992997e+23,
+        "nozzleShaftCapacityW": 1.1939780744998854e+24,
+        "skinAsset": "isdh_engine_aux",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 1600,
+        "renderedFaces": 1600,
+        "sourceVertices": 1651,
+        "renderedVertices": 1651,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 384,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 33591,
+            "count": 4800,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      },
+      {
+        "id": 56,
+        "label": "上下二段の補助イオン機関",
+        "c": [
+          92.925,
+          92.9,
+          116.6
+        ],
+        "d": 55.7,
+        "nozzleLength": 27.85,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 171,
+        "nozzleShare": 1.242628196992997e+23,
+        "nozzleShaftCapacityW": 1.1939780744998854e+24,
+        "skinAsset": "isdh_engine_aux",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 1600,
+        "renderedFaces": 1600,
+        "sourceVertices": 1651,
+        "renderedVertices": 1651,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 480,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 38391,
+            "count": 4800,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      },
+      {
+        "id": 57,
+        "label": "上下二段の補助イオン機関",
+        "c": [
+          92.925,
+          180.6,
+          116.6
+        ],
+        "d": 55.7,
+        "nozzleLength": 27.85,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "machineryId": 171,
+        "nozzleShare": 1.242628196992997e+23,
+        "nozzleShaftCapacityW": 1.1939780744998854e+24,
+        "skinAsset": "isdh_engine_aux",
+        "vented": true,
+        "statsVent": true,
+        "sourceFaces": 1600,
+        "renderedFaces": 1600,
+        "sourceVertices": 1651,
+        "renderedVertices": 1651,
+        "ranges": [
+          {
+            "name": "nozzle",
+            "start": 576,
+            "count": 96,
+            "cpuIndices": 672,
+            "gpuCount": 672,
+            "indexBuffer": true
+          },
+          {
+            "name": "refEngine",
+            "start": 43191,
+            "count": 4800,
+            "cpuIndices": 47991,
+            "gpuCount": 47991,
+            "indexBuffer": true
+          }
+        ],
+        "implicitBodyRanges": []
+      }
+    ],
+    "reactors": [
+      {
+        "id": 48,
+        "k": "gen",
+        "label": "主動力発生炉（腹部球状装甲内）",
+        "c": [
+          433.5,
+          115,
+          0
+        ],
+        "d": 151,
+        "ranges": [
+          {
+            "name": "interior",
+            "start": 87000,
+            "count": 9408,
+            "cpuIndices": 115608,
+            "gpuCount": 115608,
+            "indexBuffer": true
+          }
+        ]
+      },
+      {
+        "id": 64,
+        "k": "aux",
+        "label": "副動力炉",
+        "c": [
+          253,
+          118,
+          -290
+        ],
+        "d": 36,
+        "ranges": [
+          {
+            "name": "interior",
+            "start": 6144,
+            "count": 4800,
+            "cpuIndices": 115608,
+            "gpuCount": 115608,
+            "indexBuffer": true
+          }
+        ]
+      },
+      {
+        "id": 75,
+        "k": "aux",
+        "label": "副動力炉",
+        "c": [
+          253,
+          118,
+          290
+        ],
+        "d": 36,
+        "ranges": [
+          {
+            "name": "interior",
+            "start": 15180,
+            "count": 4800,
+            "cpuIndices": 115608,
+            "gpuCount": 115608,
+            "indexBuffer": true
+          }
+        ]
+      }
+    ],
+    "mainNozzleIds": [
+      51,
+      52,
+      53
+    ],
+    "mainCoreId": 169,
+    "bodyCollisions": [],
+    "crossing": {
+      "scope": "Conservative finite-cylinder proximity survey with tight cylinder bounds. Shared-terminal exemptions require the full sampled cross-section (centre and 32 points on each of two radial rings) inside the actual retained solid; a centreline or large bounding sphere does not exempt external crossings.",
+      "crossings": []
+    },
+    "housings": {
+      "cores": [
+        {
+          "id": 169,
+          "vertices": 1920,
+          "outside": 0,
+          "shell": 672,
+          "rib": 960,
+          "shellFactor": 0.97,
+          "maxRadialExcessM": 0.000006089664655206661,
+          "colors": {
+            "198,203,208": 720,
+            "117,134,145": 1200
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 14.93566176470588,
+              "radius": 49.695895061339286,
+              "fullRadiusAxialStationsM": [
+                1.1201771317142857,
+                1.8669727860111607,
+                4.107298713745536,
+                4.854094368042411,
+                7.094450813354911,
+                7.841215950073661,
+                10.08157239538616,
+                10.828368049683036,
+                13.06869397741741,
+                13.815489631714286
+              ]
+            }
+          ]
+        },
+        {
+          "id": 170,
+          "vertices": 1920,
+          "outside": 0,
+          "shell": 672,
+          "rib": 960,
+          "shellFactor": 0.97,
+          "maxRadialExcessM": 0.000006602560151947046,
+          "colors": {
+            "198,203,208": 720,
+            "117,134,145": 1200
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 14.93566176470588,
+              "radius": 14.230843617166492,
+              "fullRadiusAxialStationsM": [
+                1.1201728302758056,
+                1.866953225783618,
+                4.107309671096118,
+                4.854090066603931,
+                7.094446511916431,
+                7.841226907424243,
+                10.08156809394768,
+                10.828348489455493,
+                13.068704934767993,
+                13.815485330275806
+              ]
+            }
+          ]
+        },
+        {
+          "id": 171,
+          "vertices": 1920,
+          "outside": 0,
+          "shell": 672,
+          "rib": 960,
+          "shellFactor": 0.97,
+          "maxRadialExcessM": 0.000006602560151947046,
+          "colors": {
+            "198,203,208": 720,
+            "117,134,145": 1200
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 14.93566176470588,
+              "radius": 14.230843617166492,
+              "fullRadiusAxialStationsM": [
+                1.1201728302758056,
+                1.866953225783618,
+                4.107309671096118,
+                4.854090066603931,
+                7.094446511916431,
+                7.841226907424243,
+                10.08156809394768,
+                10.828348489455493,
+                13.068704934767993,
+                13.815485330275806
+              ]
+            }
+          ]
+        }
+      ],
+      "shafts": [
+        {
+          "id": -8000000,
+          "vertices": 8800,
+          "outside": 0,
+          "shell": 4000,
+          "rib": 4640,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000014746673457466386,
+          "colors": {
+            "166,178,188": 2800,
+            "136,150,162": 4000,
+            "110,124,137": 2000
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 183.57490829629972,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0.0000012761662264715312,
+                5.154830068495786,
+                18.73217071082434,
+                21.972350497482093,
+                31.72038489910651,
+                34.96056543388795,
+                44.70860507237815,
+                47.94878261466485,
+                57.69681626816558,
+                60.93699680294702,
+                70.68503494518984,
+                73.9252154799713,
+                83.67324913347201,
+                86.91343116450082,
+                96.66147080299102,
+                99.90164834527772,
+                109.64968798376793,
+                112.88985954106515,
+                122.63789917955536,
+                125.87808569932626,
+                135.62611636033225,
+                138.86629689511372,
+                148.61433054861442,
+                151.8545140758906,
+                161.60254772939132,
+                164.8427312566675,
+                178.4200689065013,
+                183.57490443194402
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 50.91451882699293,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0.0000022704218070046522,
+                4.276813599264999,
+                17.387987406550852,
+                20.628166987712454,
+                30.28633109279947,
+                33.5265106739611,
+                46.63768987604353,
+                50.914511994479945
+              ]
+            },
+            {
+              "segment": 2,
+              "length": 59.53124788028475,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                8.64324182447973e-7,
+                5.00061793679504,
+                16.899425757412583,
+                20.00993261275508,
+                28.210361045519694,
+                31.320868010846816,
+                39.521299094782805,
+                42.631805950125305,
+                54.530614718639185,
+                59.53123965506093
+              ]
+            },
+            {
+              "segment": 3,
+              "length": 80,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0,
+                0.1459808349609375,
+                5.1548309326171875,
+                18.79833984375,
+                22.03851318359375,
+                31.85272216796875,
+                35.0928955078125,
+                44.9071044921875,
+                48.14727783203125,
+                57.96148681640625,
+                61.20166015625,
+                74.84516906738281,
+                80
+              ]
+            }
+          ]
+        },
+        {
+          "id": -8000001,
+          "vertices": 4560,
+          "outside": 0,
+          "shell": 2080,
+          "rib": 2400,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000004634242326773119,
+          "colors": {
+            "166,178,188": 1440,
+            "136,150,162": 2080,
+            "110,124,137": 1040
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 137.18598021075843,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0.000006089664680075657,
+                5.154821763492805,
+                19.350378404117805,
+                22.59058226153968,
+                32.956823716617805,
+                36.196997056461555,
+                46.56323851153968,
+                49.803442368961555,
+                60.16968382403968,
+                63.40985716388343,
+                73.77611387775062,
+                77.01630247638343,
+                87.38254393146156,
+                90.62273253009437,
+                100.98897398517249,
+                104.2291625838053,
+                114.59541929767249,
+                117.83559263751624,
+                132.03114927814124,
+                137.18598021075843
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 68,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0,
+                5.1548309326171875,
+                19.061935424804688,
+                22.302108764648438,
+                32.379913330078125,
+                35.620086669921875,
+                45.69789123535156,
+                48.93806457519531,
+                62.84516906738281,
+                68
+              ]
+            }
+          ]
+        },
+        {
+          "id": -8000002,
+          "vertices": 8800,
+          "outside": 0,
+          "shell": 4000,
+          "rib": 4640,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000014746673457466386,
+          "colors": {
+            "166,178,188": 2800,
+            "136,150,162": 4000,
+            "110,124,137": 2000
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 183.57490829629972,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0.0000012761662264715312,
+                5.154830068495786,
+                18.73217071082434,
+                21.972350497482093,
+                31.72038489910651,
+                34.96056543388795,
+                44.70860507237815,
+                47.94878261466485,
+                57.69681626816558,
+                60.93699680294702,
+                70.68503494518984,
+                73.9252154799713,
+                83.67324913347201,
+                86.91343116450082,
+                96.66147080299102,
+                99.90164834527772,
+                109.64968798376793,
+                112.88985954106515,
+                122.63789917955536,
+                125.87808569932626,
+                135.62611636033225,
+                138.86629689511372,
+                148.61433054861442,
+                151.8545140758906,
+                161.60254772939132,
+                164.8427312566675,
+                178.4200689065013,
+                183.57490443194402
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 50.91451882699293,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0.0000022704218070046522,
+                4.276813599264999,
+                17.387987406550852,
+                20.628166987712454,
+                30.28633109279947,
+                33.5265106739611,
+                46.63768987604353,
+                50.914511994479945
+              ]
+            },
+            {
+              "segment": 2,
+              "length": 59.53124788028475,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                8.64324182447973e-7,
+                5.00061793679504,
+                16.899425757412583,
+                20.00993261275508,
+                28.210361045519694,
+                31.320868010846816,
+                39.521299094782805,
+                42.631805950125305,
+                54.530614718639185,
+                59.53123965506093
+              ]
+            },
+            {
+              "segment": 3,
+              "length": 80,
+              "radius": 16.364546147007662,
+              "fullRadiusAxialStationsM": [
+                0,
+                0.1459808349609375,
+                5.1548309326171875,
+                18.79833984375,
+                22.03851318359375,
+                31.85272216796875,
+                35.0928955078125,
+                44.9071044921875,
+                48.14727783203125,
+                57.96148681640625,
+                61.20166015625,
+                74.84516906738281,
+                80
+              ]
+            }
+          ]
+        },
+        {
+          "id": -8000003,
+          "vertices": 7440,
+          "outside": 0,
+          "shell": 3520,
+          "rib": 3840,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000008807394502596821,
+          "colors": {
+            "166,178,188": 2160,
+            "136,150,162": 3520,
+            "110,124,137": 1760
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 71.94854397834574,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                9.352284058294913e-8,
+                1.8078773965920418,
+                6.784717006603542,
+                7.921102536406518,
+                11.55494509655804,
+                12.691326544113736,
+                16.325169541675812,
+                17.46155485928435,
+                21.095393844329816,
+                22.231779931880528,
+                25.865621710697077,
+                27.002004272119365,
+                30.635849468119957,
+                31.77223236207386,
+                35.40607466105331,
+                36.542456807191634,
+                40.176299106171086,
+                41.3126848595613,
+                44.94652719612559,
+                46.08290897621289,
+                49.71675153636442,
+                50.85313673363578,
+                54.486979731197856,
+                55.62336192656913,
+                59.25720447532785,
+                60.39358637168691,
+                64.02743190021911,
+                65.16381446164141,
+                70.14065362284954,
+                71.94853619339217
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 41.775000000000006,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                0,
+                1.8078765869140625,
+                6.5906982421875,
+                7.727081298828125,
+                11.166900634765625,
+                12.30328369140625,
+                15.74310302734375,
+                16.879486083984375,
+                20.319305419921875,
+                21.4556884765625,
+                24.8955078125,
+                26.031890869140625,
+                29.471710205078125,
+                30.60809326171875,
+                34.04791259765625,
+                35.184295654296875,
+                39.96711730957031
+              ]
+            }
+          ]
+        },
+        {
+          "id": -8000004,
+          "vertices": 7640,
+          "outside": 0,
+          "shell": 3520,
+          "rib": 4000,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000010132295829912152,
+          "colors": {
+            "166,178,188": 2360,
+            "136,150,162": 3520,
+            "110,124,137": 1760
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 59.79860313790943,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                0.0000013931274522871462,
+                1.807874085020995,
+                6.567261120673052,
+                7.703642456897021,
+                11.120029213021855,
+                12.256414867148553,
+                15.672796855218168,
+                16.8091789050863,
+                20.225566543825398,
+                21.361946547282614,
+                24.778334186021713,
+                25.914718243889986,
+                29.331101828218024,
+                30.46748856315531,
+                33.883873286306866,
+                35.020257369148275,
+                38.43664092850318,
+                39.57302095693353,
+                42.989407882028466,
+                44.125792653540906,
+                47.54217552422479,
+                48.67856145953387,
+                52.09494793447632,
+                53.23132910173018,
+                57.990713680200145,
+                59.79859556075585
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 8.542657591129917,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                1.3243285224007195e-7,
+                0.7175766385059162,
+                7.82506817774788,
+                8.542652207717095
+              ]
+            },
+            {
+              "segment": 2,
+              "length": 45.952500000000015,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                1.8078863525390716,
+                6.546396484375009,
+                7.682779541015634,
+                11.078302612304697,
+                12.214685668945322,
+                15.610208740234384,
+                16.74659179687501,
+                20.14209960937501,
+                21.278497924804697,
+                24.674005737304697,
+                25.810396423339853,
+                29.205911865234384,
+                30.34229492187501,
+                33.73781036376954,
+                34.8742010498047,
+                38.26971649169923,
+                39.40609954833985,
+                44.14461730957032
+              ]
+            }
+          ]
+        },
+        {
+          "id": -8000005,
+          "vertices": 7440,
+          "outside": 0,
+          "shell": 3520,
+          "rib": 3840,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000008807394502596821,
+          "colors": {
+            "166,178,188": 2160,
+            "136,150,162": 3520,
+            "110,124,137": 1760
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 71.94854397834574,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                9.352284058294913e-8,
+                1.8078773965920418,
+                6.784717006603542,
+                7.921102536406518,
+                11.55494509655804,
+                12.691326544113736,
+                16.325169541675812,
+                17.46155485928435,
+                21.095393844329816,
+                22.231779931880528,
+                25.865621710697077,
+                27.002004272119365,
+                30.635849468119957,
+                31.77223236207386,
+                35.40607466105331,
+                36.542456807191634,
+                40.176299106171086,
+                41.3126848595613,
+                44.94652719612559,
+                46.08290897621289,
+                49.71675153636442,
+                50.85313673363578,
+                54.486979731197856,
+                55.62336192656913,
+                59.25720447532785,
+                60.39358637168691,
+                64.02743190021911,
+                65.16381446164141,
+                70.14065362284954,
+                71.94853619339217
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 41.775000000000006,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                0,
+                1.8078765869140625,
+                6.5906982421875,
+                7.727081298828125,
+                11.166900634765625,
+                12.30328369140625,
+                15.74310302734375,
+                16.879486083984375,
+                20.319305419921875,
+                21.4556884765625,
+                24.8955078125,
+                26.031890869140625,
+                29.471710205078125,
+                30.60809326171875,
+                34.04791259765625,
+                35.184295654296875,
+                39.96711730957031
+              ]
+            }
+          ]
+        },
+        {
+          "id": -8000006,
+          "vertices": 7640,
+          "outside": 0,
+          "shell": 3520,
+          "rib": 4000,
+          "shellFactor": 0.92,
+          "maxRadialExcessM": 0.000010132295829912152,
+          "colors": {
+            "166,178,188": 2360,
+            "136,150,162": 3520,
+            "110,124,137": 1760
+          },
+          "ribStations": [
+            {
+              "segment": 0,
+              "length": 59.79860313790943,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                0.0000013931274522871462,
+                1.807874085020995,
+                6.567261120673052,
+                7.703642456897021,
+                11.120029213021855,
+                12.256414867148553,
+                15.672796855218168,
+                16.8091789050863,
+                20.225566543825398,
+                21.361946547282614,
+                24.778334186021713,
+                25.914718243889986,
+                29.331101828218024,
+                30.46748856315531,
+                33.883873286306866,
+                35.020257369148275,
+                38.43664092850318,
+                39.57302095693353,
+                42.989407882028466,
+                44.125792653540906,
+                47.54217552422479,
+                48.67856145953387,
+                52.09494793447632,
+                53.23132910173018,
+                57.990713680200145,
+                59.79859556075585
+              ]
+            },
+            {
+              "segment": 1,
+              "length": 8.542657591129917,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                1.3243285224007195e-7,
+                0.7175766385059162,
+                7.82506817774788,
+                8.542652207717095
+              ]
+            },
+            {
+              "segment": 2,
+              "length": 45.952500000000015,
+              "radius": 5.7393105385176915,
+              "fullRadiusAxialStationsM": [
+                1.8078863525390716,
+                6.546396484375009,
+                7.682779541015634,
+                11.078302612304697,
+                12.214685668945322,
+                15.610208740234384,
+                16.74659179687501,
+                20.14209960937501,
+                21.278497924804697,
+                24.674005737304697,
+                25.810396423339853,
+                29.205911865234384,
+                30.34229492187501,
+                33.73781036376954,
+                34.8742010498047,
+                38.26971649169923,
+                39.40609954833985,
+                44.14461730957032
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "auxiliaryGaps": [
+      {
+        "coreId": 170,
+        "side": -1,
+        "x": 218.7519055465557,
+        "z": -116.6,
+        "radius": 14.230843617166492,
+        "centralRouteId": "p169>p52",
+        "outerRouteId": "p169>p51",
+        "centralSlices": [
+          {
+            "z": 0,
+            "halfWidthZ": 16.364546147007662
+          }
+        ],
+        "outerSlices": [
+          {
+            "z": -225.63753064257207,
+            "halfWidthZ": 17.527829473387175
+          }
+        ],
+        "centrelineBetween": true,
+        "innerBodyMarginM": 86.00461023582584,
+        "outerBodyMarginM": 77.2788575520184,
+        "finiteAxisClearanceM": 50.30834870314804,
+        "finiteAxisClearanceScope": "Sufficient conservative separation of the complete auxiliary-axis capsule from every finite main-shaft segment.",
+        "mainRouteSolidCollisions": []
+      },
+      {
+        "coreId": 171,
+        "side": 1,
+        "x": 218.7519055465557,
+        "z": 116.6,
+        "radius": 14.230843617166492,
+        "centralRouteId": "p169>p52",
+        "outerRouteId": "p169>p53",
+        "centralSlices": [
+          {
+            "z": 0,
+            "halfWidthZ": 16.364546147007662
+          }
+        ],
+        "outerSlices": [
+          {
+            "z": 225.63753064257207,
+            "halfWidthZ": 17.527829473387175
+          }
+        ],
+        "centrelineBetween": true,
+        "innerBodyMarginM": 86.00461023582584,
+        "outerBodyMarginM": 77.2788575520184,
+        "finiteAxisClearanceM": 50.30834870314804,
+        "finiteAxisClearanceScope": "Sufficient conservative separation of the complete auxiliary-axis capsule from every finite main-shaft segment.",
+        "mainRouteSolidCollisions": []
+      }
+    ],
+    "wasteFraction": 0.05,
+    "feedLossPerM": 0.00001,
+    "drive": {
+      "flux": 1e+21,
+      "parts": 7,
+      "routes": [
+        {
+          "id": "p169>p51",
+          "coreId": 169,
+          "nozzleId": 51,
+          "from": "p169",
+          "to": "p51",
+          "partId": -8000000,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 16.364546147007662,
+          "area": 841.3133937125589,
+          "length": 374.0206750035774,
+          "volume": 314668.6034059218,
+          "capacityW": 8.413133937125588e+23,
+          "requestedCapacityW": 8.413133937125588e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              323.18598021075843,
+              118.0968096439607,
+              -33.184162056386214
+            ],
+            [
+              287.18397868734155,
+              118.0968096439607,
+              -213.1941696734705
+            ],
+            [
+              251.18197716392473,
+              154.09881116737756,
+              -213.1941696734705
+            ],
+            [
+              198,
+              136.8,
+              -233.6
+            ],
+            [
+              118,
+              136.8,
+              -233.6
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                323.18598021075843,
+                118.0968096439607,
+                -33.184162056386214
+              ],
+              "b": [
+                287.18397868734155,
+                118.0968096439607,
+                -213.1941696734705
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 183.57490829629972,
+              "u": [
+                -0.19611613513818416,
+                0,
+                -0.9805806756909201
+              ],
+              "v": [
+                -0.9805806756909201,
+                0,
+                0.19611613513818416
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ]
+            },
+            {
+              "a": [
+                287.18397868734155,
+                118.0968096439607,
+                -213.1941696734705
+              ],
+              "b": [
+                251.18197716392473,
+                154.09881116737756,
+                -213.1941696734705
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 50.91451882699293,
+              "u": [
+                -0.7071067811865471,
+                0.7071067811865479,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0.7071067811865479,
+                0.7071067811865471,
+                0
+              ]
+            },
+            {
+              "a": [
+                251.18197716392473,
+                154.09881116737756,
+                -213.1941696734705
+              ],
+              "b": [
+                198,
+                136.8,
+                -233.6
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 59.53124788028475,
+              "u": [
+                -0.8933455799695618,
+                -0.29058371499560787,
+                -0.3427751148029839
+              ],
+              "v": [
+                -0.35823302284872055,
+                0,
+                0.9336322088170844
+              ],
+              "w": [
+                -0.2712983156776235,
+                0.9568495725971514,
+                -0.10409668261348769
+              ]
+            },
+            {
+              "a": [
+                198,
+                136.8,
+                -233.6
+              ],
+              "b": [
+                118,
+                136.8,
+                -233.6
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 80,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                198,
+                136.8,
+                -233.6
+              ],
+              "engineId": 51
+            }
+          ],
+          "sourcePartIds": [
+            169,
+            51
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 35412,
+              "count": 10320,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 0,
+              "count": 2640,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p169>p52",
+          "coreId": 169,
+          "nozzleId": 52,
+          "from": "p169",
+          "to": "p52",
+          "partId": -8000001,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 16.364546147007662,
+          "area": 841.3133937125589,
+          "length": 205.18598021075843,
+          "volume": 172625.7133533511,
+          "capacityW": 8.413133937125588e+23,
+          "requestedCapacityW": 8.413133937125588e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              323.18598021075843,
+              136.8,
+              0
+            ],
+            [
+              186,
+              136.8,
+              0
+            ],
+            [
+              118,
+              136.8,
+              0
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                323.18598021075843,
+                136.8,
+                0
+              ],
+              "b": [
+                186,
+                136.8,
+                0
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 137.18598021075843,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ]
+            },
+            {
+              "a": [
+                186,
+                136.8,
+                0
+              ],
+              "b": [
+                118,
+                136.8,
+                0
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 68,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                186,
+                136.8,
+                0
+              ],
+              "engineId": 52
+            }
+          ],
+          "sourcePartIds": [
+            169,
+            52
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 45732,
+              "count": 4560,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 2640,
+              "count": 2160,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p169>p53",
+          "coreId": 169,
+          "nozzleId": 53,
+          "from": "p169",
+          "to": "p53",
+          "partId": -8000002,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 16.364546147007662,
+          "area": 841.3133937125589,
+          "length": 374.0206750035774,
+          "volume": 314668.6034059218,
+          "capacityW": 8.413133937125588e+23,
+          "requestedCapacityW": 8.413133937125588e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              323.18598021075843,
+              118.0968096439607,
+              33.184162056386214
+            ],
+            [
+              287.18397868734155,
+              118.0968096439607,
+              213.1941696734705
+            ],
+            [
+              251.18197716392473,
+              154.09881116737756,
+              213.1941696734705
+            ],
+            [
+              198,
+              136.8,
+              233.6
+            ],
+            [
+              118,
+              136.8,
+              233.6
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                323.18598021075843,
+                118.0968096439607,
+                33.184162056386214
+              ],
+              "b": [
+                287.18397868734155,
+                118.0968096439607,
+                213.1941696734705
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 183.57490829629972,
+              "u": [
+                -0.19611613513818416,
+                0,
+                0.9805806756909201
+              ],
+              "v": [
+                0.9805806756909201,
+                0,
+                0.19611613513818416
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ]
+            },
+            {
+              "a": [
+                287.18397868734155,
+                118.0968096439607,
+                213.1941696734705
+              ],
+              "b": [
+                251.18197716392473,
+                154.09881116737756,
+                213.1941696734705
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 50.91451882699293,
+              "u": [
+                -0.7071067811865471,
+                0.7071067811865479,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0.7071067811865479,
+                0.7071067811865471,
+                0
+              ]
+            },
+            {
+              "a": [
+                251.18197716392473,
+                154.09881116737756,
+                213.1941696734705
+              ],
+              "b": [
+                198,
+                136.8,
+                233.6
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 59.53124788028475,
+              "u": [
+                -0.8933455799695618,
+                -0.29058371499560787,
+                0.3427751148029839
+              ],
+              "v": [
+                0.35823302284872055,
+                0,
+                0.9336322088170844
+              ],
+              "w": [
+                -0.2712983156776235,
+                0.9568495725971514,
+                0.10409668261348769
+              ]
+            },
+            {
+              "a": [
+                198,
+                136.8,
+                233.6
+              ],
+              "b": [
+                118,
+                136.8,
+                233.6
+              ],
+              "r0": 16.364546147007662,
+              "r1": 16.364546147007662,
+              "l": 80,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                198,
+                136.8,
+                233.6
+              ],
+              "engineId": 53
+            }
+          ],
+          "sourcePartIds": [
+            169,
+            53
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 50292,
+              "count": 10320,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 4800,
+              "count": 2640,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p170>p54",
+          "coreId": 170,
+          "nozzleId": 54,
+          "from": "p170",
+          "to": "p54",
+          "partId": -8000003,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 5.7393105385176915,
+          "area": 103.48307384496694,
+          "length": 113.72354397834575,
+          "volume": 11768.461899422498,
+          "capacityW": 1.0348307384496692e+23,
+          "requestedCapacityW": 1.0348307384496692e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              211.28407466420276,
+              128.2614669213512,
+              -116.6
+            ],
+            [
+              148.625,
+              92.9,
+              -116.6
+            ],
+            [
+              106.85,
+              92.9,
+              -116.6
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                211.28407466420276,
+                128.2614669213512,
+                -116.6
+              ],
+              "b": [
+                148.625,
+                92.9,
+                -116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 71.94854397834574,
+              "u": [
+                -0.8708873202918628,
+                -0.49148273149202143,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                -0.49148273149202143,
+                0.8708873202918628,
+                0
+              ]
+            },
+            {
+              "a": [
+                148.625,
+                92.9,
+                -116.6
+              ],
+              "b": [
+                106.85,
+                92.9,
+                -116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 41.775000000000006,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                148.625,
+                92.9,
+                -116.6
+              ],
+              "engineId": 54
+            }
+          ],
+          "sourcePartIds": [
+            170,
+            54
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 60612,
+              "count": 6960,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 7440,
+              "count": 4080,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p170>p55",
+          "coreId": 170,
+          "nozzleId": 55,
+          "from": "p170",
+          "to": "p55",
+          "partId": -8000004,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 5.7393105385176915,
+          "area": 103.48307384496694,
+          "length": 114.29376072903936,
+          "volume": 11827.469681542163,
+          "capacityW": 1.0348307384496692e+23,
+          "requestedCapacityW": 1.0348307384496692e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              211.28407466420276,
+              145.2385330786488,
+              -116.6
+            ],
+            [
+              152.8025,
+              180.6,
+              -116.6
+            ],
+            [
+              106.85,
+              180.6,
+              -116.6
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                211.28407466420276,
+                145.2385330786488,
+                -116.6
+              ],
+              "b": [
+                160.11269683302535,
+                176.1798166348311,
+                -116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 59.79860313790943,
+              "u": [
+                -0.8557286482623073,
+                0.5174248549723567,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0.5174248549723567,
+                0.8557286482623073,
+                0
+              ]
+            },
+            {
+              "a": [
+                160.11269683302535,
+                176.1798166348311,
+                -116.6
+              ],
+              "b": [
+                152.8025,
+                180.6,
+                -116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 8.542657591129917,
+              "u": [
+                -0.8557286482623075,
+                0.5174248549723564,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0.5174248549723564,
+                0.8557286482623075,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "structuralGap": true,
+              "hullContact": [
+                160.11269683302535,
+                176.1798166348311,
+                -116.6
+              ],
+              "hullContacts": [
+                [
+                  160.11269683302535,
+                  176.1798166348311,
+                  -116.6
+                ],
+                [
+                  152.8025,
+                  180.6,
+                  -116.6
+                ]
+              ],
+              "gapLimitM": 22.957242154070766,
+              "maxGapM": 22.957242154070766,
+              "engineId": 55
+            },
+            {
+              "a": [
+                152.8025,
+                180.6,
+                -116.6
+              ],
+              "b": [
+                106.85,
+                180.6,
+                -116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 45.952500000000015,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                152.8025,
+                180.6,
+                -116.6
+              ],
+              "engineId": 55
+            }
+          ],
+          "sourcePartIds": [
+            170,
+            55
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 67572,
+              "count": 6000,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 11520,
+              "count": 5280,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p171>p56",
+          "coreId": 171,
+          "nozzleId": 56,
+          "from": "p171",
+          "to": "p56",
+          "partId": -8000005,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 5.7393105385176915,
+          "area": 103.48307384496694,
+          "length": 113.72354397834575,
+          "volume": 11768.461899422498,
+          "capacityW": 1.0348307384496692e+23,
+          "requestedCapacityW": 1.0348307384496692e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              211.28407466420276,
+              128.2614669213512,
+              116.6
+            ],
+            [
+              148.625,
+              92.9,
+              116.6
+            ],
+            [
+              106.85,
+              92.9,
+              116.6
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                211.28407466420276,
+                128.2614669213512,
+                116.6
+              ],
+              "b": [
+                148.625,
+                92.9,
+                116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 71.94854397834574,
+              "u": [
+                -0.8708873202918628,
+                -0.49148273149202143,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                -0.49148273149202143,
+                0.8708873202918628,
+                0
+              ]
+            },
+            {
+              "a": [
+                148.625,
+                92.9,
+                116.6
+              ],
+              "b": [
+                106.85,
+                92.9,
+                116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 41.775000000000006,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                148.625,
+                92.9,
+                116.6
+              ],
+              "engineId": 56
+            }
+          ],
+          "sourcePartIds": [
+            171,
+            56
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 73572,
+              "count": 6960,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 16800,
+              "count": 4080,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p171>p57",
+          "coreId": 171,
+          "nozzleId": 57,
+          "from": "p171",
+          "to": "p57",
+          "partId": -8000006,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 5.7393105385176915,
+          "area": 103.48307384496694,
+          "length": 114.29376072903936,
+          "volume": 11827.469681542163,
+          "capacityW": 1.0348307384496692e+23,
+          "requestedCapacityW": 1.0348307384496692e+23,
+          "efficiency": 1,
+          "path": [
+            [
+              211.28407466420276,
+              145.2385330786488,
+              116.6
+            ],
+            [
+              152.8025,
+              180.6,
+              116.6
+            ],
+            [
+              106.85,
+              180.6,
+              116.6
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                211.28407466420276,
+                145.2385330786488,
+                116.6
+              ],
+              "b": [
+                160.11269683302535,
+                176.1798166348311,
+                116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 59.79860313790943,
+              "u": [
+                -0.8557286482623073,
+                0.5174248549723567,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0.5174248549723567,
+                0.8557286482623073,
+                0
+              ]
+            },
+            {
+              "a": [
+                160.11269683302535,
+                176.1798166348311,
+                116.6
+              ],
+              "b": [
+                152.8025,
+                180.6,
+                116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 8.542657591129917,
+              "u": [
+                -0.8557286482623075,
+                0.5174248549723564,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0.5174248549723564,
+                0.8557286482623075,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "structuralGap": true,
+              "hullContact": [
+                160.11269683302535,
+                176.1798166348311,
+                116.6
+              ],
+              "hullContacts": [
+                [
+                  160.11269683302535,
+                  176.1798166348311,
+                  116.6
+                ],
+                [
+                  152.8025,
+                  180.6,
+                  116.6
+                ]
+              ],
+              "gapLimitM": 22.957242154070766,
+              "maxGapM": 22.957242154070766,
+              "engineId": 57
+            },
+            {
+              "a": [
+                152.8025,
+                180.6,
+                116.6
+              ],
+              "b": [
+                106.85,
+                180.6,
+                116.6
+              ],
+              "r0": 5.7393105385176915,
+              "r1": 5.7393105385176915,
+              "l": 45.952500000000015,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ],
+              "exteriorEntry": true,
+              "housing": true,
+              "hullContact": [
+                152.8025,
+                180.6,
+                116.6
+              ],
+              "engineId": 57
+            }
+          ],
+          "sourcePartIds": [
+            171,
+            57
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 80532,
+              "count": 6000,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            },
+            {
+              "name": "engine",
+              "start": 20880,
+              "count": 5280,
+              "cpuIndices": 26160,
+              "gpuCount": 26160,
+              "indexBuffer": true
+            }
+          ]
+        }
+      ]
+    },
+    "feed": {
+      "flux": 1e+21,
+      "parts": 5,
+      "routes": [
+        {
+          "id": "p48>p169",
+          "from": "p48",
+          "to": "p169",
+          "partId": -6000000,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 29.0805616356506,
+          "area": 2656.7791380396598,
+          "length": 19.878358024535714,
+          "volume": 52812.40689806975,
+          "capacityW": 2.6567791380396595e+24,
+          "requestedCapacityW": 2.6567791380396595e+24,
+          "efficiency": 0.9998012361759014,
+          "path": [
+            [
+              358,
+              115,
+              0
+            ],
+            [
+              338.1216419754643,
+              115,
+              0
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                358,
+                115,
+                0
+              ],
+              "b": [
+                338.1216419754643,
+                115,
+                0
+              ],
+              "r0": 29.0805616356506,
+              "r1": 29.0805616356506,
+              "l": 19.878358024535714,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ]
+            }
+          ],
+          "sourcePartIds": [
+            48,
+            169
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 34068,
+              "count": 192,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p64>p170",
+          "from": "p64",
+          "to": "p170",
+          "partId": -6000001,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 7.275975750428334,
+          "area": 166.31535939871486,
+          "length": 151.59932644205296,
+          "volume": 25213.296461813134,
+          "capacityW": 1.6631535939871483e+23,
+          "requestedCapacityW": 1.6631535939871483e+23,
+          "efficiency": 0.9984851552729034,
+          "path": [
+            [
+              249.53167343034636,
+              119.89882456874818,
+              -272.43967038821665
+            ],
+            [
+              226.21973642890862,
+              136.0026407052871,
+              -123.51157875750488
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                249.53167343034636,
+                119.89882456874818,
+                -272.43967038821665
+              ],
+              "b": [
+                226.21973642890862,
+                136.0026407052871,
+                -123.51157875750488
+              ],
+              "r0": 7.275975750428334,
+              "r1": 7.275975750428334,
+              "l": 151.59932644205296,
+              "u": [
+                -0.15377335472759143,
+                0.10622617207138056,
+                0.982379639316127
+              ],
+              "v": [
+                0.9879695774434062,
+                0,
+                0.15464835610602978
+              ],
+              "w": [
+                0.016427702886275257,
+                0.9943419936656912,
+                -0.10494822633479241
+              ]
+            }
+          ],
+          "sourcePartIds": [
+            64,
+            170
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 34260,
+              "count": 192,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p59>p170",
+          "from": "p59",
+          "to": "p170",
+          "partId": -6000002,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 6.100073358042465,
+          "area": 116.9014742822473,
+          "length": 195.00164068387627,
+          "volume": 22795.979283402194,
+          "capacityW": 1.1690147428224733e+23,
+          "requestedCapacityW": 1.1690147428224733e+23,
+          "efficiency": 0.9980518836399133,
+          "path": [
+            [
+              280.1618474148041,
+              230.0525122739479,
+              -0.21807054879253587
+            ],
+            [
+              278.6200733580425,
+              230.0525122739479,
+              -0.21807054879253587
+            ],
+            [
+              278.6200733580425,
+              142.27996235271212,
+              -110.64347704086622
+            ],
+            [
+              226.21973642890862,
+              142.27996235271212,
+              -110.64347704086622
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                280.1618474148041,
+                230.0525122739479,
+                -0.21807054879253587
+              ],
+              "b": [
+                278.6200733580425,
+                230.0525122739479,
+                -0.21807054879253587
+              ],
+              "r0": 6.100073358042465,
+              "r1": 6.100073358042465,
+              "l": 1.5417740567615965,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ]
+            },
+            {
+              "a": [
+                278.6200733580425,
+                230.0525122739479,
+                -0.21807054879253587
+              ],
+              "b": [
+                278.6200733580425,
+                142.27996235271212,
+                -110.64347704086622
+              ],
+              "r0": 6.100073358042465,
+              "r1": 6.100073358042465,
+              "l": 141.05952969798082,
+              "u": [
+                0,
+                -0.6222376475319569,
+                -0.7828284039263627
+              ],
+              "v": [
+                -1,
+                0,
+                0
+              ],
+              "w": [
+                0,
+                0.7828284039263627,
+                -0.6222376475319569
+              ]
+            },
+            {
+              "a": [
+                278.6200733580425,
+                142.27996235271212,
+                -110.64347704086622
+              ],
+              "b": [
+                226.21973642890862,
+                142.27996235271212,
+                -110.64347704086622
+              ],
+              "r0": 6.100073358042465,
+              "r1": 6.100073358042465,
+              "l": 52.40033692913386,
+              "u": [
+                -1,
+                0,
+                0
+              ],
+              "v": [
+                0,
+                0,
+                1
+              ],
+              "w": [
+                0,
+                1,
+                0
+              ]
+            }
+          ],
+          "sourcePartIds": [
+            59,
+            170
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 34452,
+              "count": 576,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p75>p171",
+          "from": "p75",
+          "to": "p171",
+          "partId": -6000003,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 7.275975750428334,
+          "area": 166.31535939871486,
+          "length": 151.59932644205296,
+          "volume": 25213.296461813134,
+          "capacityW": 1.6631535939871483e+23,
+          "requestedCapacityW": 1.6631535939871483e+23,
+          "efficiency": 0.9984851552729034,
+          "path": [
+            [
+              249.53167343034636,
+              119.89882456874818,
+              272.43967038821665
+            ],
+            [
+              226.21973642890862,
+              136.0026407052871,
+              123.51157875750488
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                249.53167343034636,
+                119.89882456874818,
+                272.43967038821665
+              ],
+              "b": [
+                226.21973642890862,
+                136.0026407052871,
+                123.51157875750488
+              ],
+              "r0": 7.275975750428334,
+              "r1": 7.275975750428334,
+              "l": 151.59932644205296,
+              "u": [
+                -0.15377335472759143,
+                0.10622617207138056,
+                -0.982379639316127
+              ],
+              "v": [
+                -0.9879695774434062,
+                0,
+                0.15464835610602978
+              ],
+              "w": [
+                0.016427702886275257,
+                0.9943419936656912,
+                0.10494822633479241
+              ]
+            }
+          ],
+          "sourcePartIds": [
+            75,
+            171
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 35028,
+              "count": 192,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            }
+          ]
+        },
+        {
+          "id": "p59>p171",
+          "from": "p59",
+          "to": "p171",
+          "partId": -6000004,
+          "ok": true,
+          "valid": true,
+          "limited": false,
+          "reason": null,
+          "inside": true,
+          "clear": true,
+          "radius": 6.100073358042465,
+          "area": 116.9014742822473,
+          "length": 148.21650724714215,
+          "volume": 17326.72821015631,
+          "capacityW": 1.1690147428224733e+23,
+          "requestedCapacityW": 1.1690147428224733e+23,
+          "efficiency": 0.9985189327917073,
+          "path": [
+            [
+              285.43587355902423,
+              240.43587355902423,
+              16.691365733093775
+            ],
+            [
+              226.21973642890862,
+              142.27996235271212,
+              110.64347704086622
+            ]
+          ],
+          "segments": [
+            {
+              "a": [
+                285.43587355902423,
+                240.43587355902423,
+                16.691365733093775
+              ],
+              "b": [
+                226.21973642890862,
+                142.27996235271212,
+                110.64347704086622
+              ],
+              "r0": 6.100073358042465,
+              "r1": 6.100073358042465,
+              "l": 148.21650724714215,
+              "u": [
+                -0.399524575433263,
+                -0.6622468241182004,
+                0.6338842619676155
+              ],
+              "v": [
+                0.8459846687383605,
+                0,
+                0.5332072207497254
+              ],
+              "w": [
+                -0.3531147885383978,
+                0.7492857558671174,
+                0.5602506601246671
+              ]
+            }
+          ],
+          "sourcePartIds": [
+            59,
+            171
+          ],
+          "ranges": [
+            {
+              "name": "interior",
+              "start": 35220,
+              "count": 192,
+              "cpuIndices": 115608,
+              "gpuCount": 115608,
+              "indexBuffer": true
+            }
+          ]
+        }
+      ]
+    },
+    "ungrounded": {
+      "parts": [],
+      "fits": []
+    },
+    "stats": {
+      "accelG": 0,
+      "coreRate": 1,
+      "engineShaftVolume": 849154.7833271238,
+      "engineShaftMass": 467035.1308299182,
+      "engineShaftCost": 849154.7833271238,
+      "engineShaftLength": 1409.2619396326836,
+      "engineShaftCount": 7,
+      "engineShaftBroken": 0,
+      "engineTransmissionVolume": 143361.70731525452,
+      "engineTransmissionMass": 78848.93902338999,
+      "engineTransmissionCost": 143361.70731525452,
+      "engineTransmissionLength": 666.29515883966,
+      "engineTransmissionCount": 5,
+      "engineTransmissionBroken": 0
+    },
+    "superweapons": {
+      "parts": [],
+      "combat": {
+        "name": "超重合成ビーム",
+        "E": 125000,
+        "share": 0.6,
+        "tMin": 45,
+        "range": 200000,
+        "cone": 0,
+        "beamT": 10,
+        "over": {
+          "floor": 0.3,
+          "T": 60
+        },
+        "pulseShield": 2.5,
+        "secRef": 29000,
+        "pulseK": 1.5,
+        "pulseFall": 0.3
+      }
+    },
+    "generation": {
+      "gen": 1,
+      "adopted": 1,
+      "geo": 1,
+      "stats": 1
+    },
+    "renderer": {
+      "kind": "webgl",
+      "vendor": "WebKit",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    "webglError": 0
+  },
+  "importComparison": {
+    "archivedRecords": 10,
+    "authoredFieldsMatch": true,
+    "insertedDefaultFields": [],
+    "scope": "Every explicitly archived public core/nozzle field and power circuit must survive. Additional parser/runtime defaults are recorded separately rather than mislabeled as physics changes."
+  },
+  "inspections": [
+    {
+      "x": 820.0000224664284,
+      "y": 467.2130142731539,
+      "id": 169,
+      "kind": "core",
+      "title": "主推進機関 1",
+      "text": "直径 99.392 m・体積 115,881.838 m³\n定格入力\n2.7×10²⁴ W\n定格推力\n1.3×10¹⁵ N\n機関への実入力\n0 W\nノズルへ出す動力\n0 W\n推進廃熱\n0 W\n持続運転能力\n未判定（熱平衡未解決）\n給電経路の容量不足\n給電不足\n接続炉 #48\n船体内 100%・表面の露出 0%",
+      "trusted": {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "cv",
+        "time": 85224.90000000596
+      },
+      "screenshot": "/workspace/kuat-shipwright/docs/images/shared-main-engine-imperial-core-selected.png"
+    },
+    {
+      "x": 903.6902852951424,
+      "y": 466.8793478301224,
+      "id": -8000000,
+      "routeId": "p169>p51",
+      "kind": "shaft",
+      "title": "機関動力伝達路",
+      "text": "主推進機関 1 #169 → 主イオン機関・ベル型ノズル #51 · 伝達経路あり\n伝達容量 8.4×10²³ W · 経路長 374.021 m · 直径 32.729 m\n占有 314,668.603 m³ · 質量 17万 t\n外装ケーシング 80 m（経路の占有に含む）",
+      "trusted": {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "cv",
+        "time": 99251.79999999702
+      },
+      "screenshot": "/workspace/kuat-shipwright/docs/images/shared-main-engine-imperial-shaft-selected.png"
+    }
+  ],
+  "persistence": {
+    "scope": "Actual autosave after the trusted Continue event is reloaded through the production deserializer, without another factory construction.",
+    "savedBytes": 198922,
+    "meta": {
+      "name": "インペリアルI級｜重砲戦艦",
+      "L": 1599.6507203876972,
+      "savedAt": 1793977628496
+    },
+    "nativeContinueAt": 1793977599687,
+    "changedFromInjectedSeed": true,
+    "current": {
+      "reference": "imperial",
+      "name": "インペリアルI級｜重砲戦艦",
+      "parts": [
+        {
+          "id": 51,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            -233.6
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 52,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            0
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 53,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            233.6
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 54,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 170,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 55,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 170,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 56,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 171,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 57,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 171,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 169,
+          "k": "engineCore",
+          "c": [
+            330.65381109311136,
+            115,
+            0
+          ],
+          "d": 99.39179012267857,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主推進機関 1",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.6567791380396595e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 3.4538128794515576e+24,
+          "busFeed": true
+        },
+        {
+          "id": 170,
+          "k": "engineCore",
+          "c": [
+            218.7519055465557,
+            136.75,
+            -116.6
+          ],
+          "d": 28.461687234332985,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 64,
+          "label": "副推進機関 2",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.1785910283150934e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 2.8321683368096215e+23,
+          "busFeed": true
+        },
+        {
+          "id": 171,
+          "k": "engineCore",
+          "c": [
+            218.7519055465557,
+            136.75,
+            116.6
+          ],
+          "d": 28.461687234332985,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 75,
+          "label": "副推進機関 3",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.1785910283150934e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 2.8321683368096215e+23,
+          "busFeed": true
+        }
+      ],
+      "powerLinks": [
+        {
+          "kind": "power",
+          "from": "p48",
+          "to": "p169",
+          "cap": 3.4538128794515576e+24
+        },
+        {
+          "kind": "power",
+          "from": "p64",
+          "to": "p170",
+          "cap": 1.6631535939871483e+23
+        },
+        {
+          "kind": "power",
+          "from": "p59",
+          "to": "p170",
+          "cap": 1.1690147428224733e+23
+        },
+        {
+          "kind": "power",
+          "from": "p75",
+          "to": "p171",
+          "cap": 1.6631535939871483e+23
+        },
+        {
+          "kind": "power",
+          "from": "p59",
+          "to": "p171",
+          "cap": 1.1690147428224733e+23
+        }
+      ]
+    },
+    "loaded": {
+      "reference": "imperial",
+      "name": "インペリアルI級｜重砲戦艦",
+      "parts": [
+        {
+          "id": 51,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            -233.6
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 52,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            0
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 53,
+          "k": "engine",
+          "c": [
+            86,
+            136.8,
+            233.6
+          ],
+          "d": 112,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主イオン機関・ベル型ノズル",
+          "nozzleLength": 64,
+          "skinAsset": "isdh_engine_main",
+          "skinAnchor": [
+            45.22955505583701,
+            109.003,
+            0
+          ],
+          "skinDiameter": 94.8,
+          "bodyLength": 168,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.010251924968252e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 112,
+          "machineryRadiusM": 33.6,
+          "machineryOffsetM": 32,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 169,
+          "nozzleShare": 1.010251924968252e+24,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 54,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 170,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 55,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 170,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 56,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 171,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 57,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "上下二段の補助イオン機関",
+          "nozzleLength": 27.85,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 1.242628196992997e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "machineryId": 171,
+          "nozzleShare": 1.242628196992997e+23,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        {
+          "id": 169,
+          "k": "engineCore",
+          "c": [
+            330.65381109311136,
+            115,
+            0
+          ],
+          "d": 99.39179012267857,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 48,
+          "label": "主推進機関 1",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.6567791380396595e+24,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 3.4538128794515576e+24,
+          "busFeed": true
+        },
+        {
+          "id": 170,
+          "k": "engineCore",
+          "c": [
+            218.7519055465557,
+            136.75,
+            -116.6
+          ],
+          "d": 28.461687234332985,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 64,
+          "label": "副推進機関 2",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.1785910283150934e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 2.8321683368096215e+23,
+          "busFeed": true
+        },
+        {
+          "id": 171,
+          "k": "engineCore",
+          "c": [
+            218.7519055465557,
+            136.75,
+            116.6
+          ],
+          "d": 28.461687234332985,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "reactor": 75,
+          "label": "副推進機関 3",
+          "length": 14.93566176470588,
+          "autoFit": false,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 2.1785910283150934e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "legacyCoolingInputW": 0,
+          "feedCapacityW": 2.8321683368096215e+23,
+          "busFeed": true
+        }
+      ],
+      "powerLinks": [
+        {
+          "kind": "power",
+          "from": "p48",
+          "to": "p169",
+          "cap": 3.4538128794515576e+24
+        },
+        {
+          "kind": "power",
+          "from": "p64",
+          "to": "p170",
+          "cap": 1.6631535939871483e+23
+        },
+        {
+          "kind": "power",
+          "from": "p59",
+          "to": "p170",
+          "cap": 1.1690147428224733e+23
+        },
+        {
+          "kind": "power",
+          "from": "p75",
+          "to": "p171",
+          "cap": 1.6631535939871483e+23
+        },
+        {
+          "kind": "power",
+          "from": "p59",
+          "to": "p171",
+          "cap": 1.1690147428224733e+23
+        }
+      ]
+    },
+    "archiveComparison": {
+      "archivedRecords": 10,
+      "authoredFieldsMatch": true,
+      "insertedDefaultFields": [],
+      "scope": "Every explicitly archived public core/nozzle field and power circuit must survive. Additional parser/runtime defaults are recorded separately rather than mislabeled as physics changes."
+    }
+  },
+  "final": {
+    "worker": [
+      {
+        "type": "ready",
+        "time": 4729.79999999702
+      },
+      {
+        "type": "authoringGeometry",
+        "gen": 1,
+        "time": 15366.09999999404
+      },
+      {
+        "type": "geometry",
+        "gen": 1,
+        "time": 41488
+      },
+      {
+        "type": "surfaceGeometry",
+        "gen": 1,
+        "time": 45505.90000000596
+      },
+      {
+        "type": "stats",
+        "gen": 1,
+        "time": 52732
+      }
+    ],
+    "native": [
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 12804.79999999702
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 12804.90000000596
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 13010.40000000596
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 13010.5
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 13535.40000000596
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 13535.40000000596
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "titleDraft",
+        "time": 13974
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "titleDraft",
+        "time": 13974.20000000298
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 53631.5
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 53631.5
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 71980
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 71980.09999999404
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 81395
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 81395
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 84145.29999999702
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 84145.29999999702
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "cv",
+        "time": 85224.90000000596
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "cv",
+        "time": 85283.70000000298
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 88993.29999999702
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 88993.40000000596
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "cv",
+        "time": 99251.79999999702
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "cv",
+        "time": 99293.09999999404
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "target": "",
+        "time": 101178.70000000298
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "target": "",
+        "time": 101178.79999999702
+      }
+    ],
+    "webglError": 0,
+    "generation": {
+      "gen": 1,
+      "adopted": 1,
+      "stats": 1
+    }
+  },
+  "servedSourceSha256": {
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "index.html": "e3f063049b0093f1e884b4c1a2f908d64d9bdf8943014cb56dcfd27e10c1227b",
+    "js/gfx.js": "0891c0f0a14c8be8534c0ad88d667c8c3674ad9c653cbaded056925a6dc8b23e",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/fleet.js": "3508b3e5c4de1df83bed1546ee0dde341d4a2cf781428531dc4eff8081c7301f",
+    "js/app.js": "ee8e5f002690bae3245fefbf27db238be9792b20f7204ff55c4a95adfa5086b1",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/core.js": "cc3a3dd550ca76a7cb8051d94d3e06169d14334982f82aec30be1f53a6dcbcd0",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
+  },
+  "diskOnlySources": [
+    "js/worker.js",
+    "js/lang-en.js"
+  ],
+  "sourceSha256After": {
+    "index.html": "e3f063049b0093f1e884b4c1a2f908d64d9bdf8943014cb56dcfd27e10c1227b",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "3508b3e5c4de1df83bed1546ee0dde341d4a2cf781428531dc4eff8081c7301f",
+    "js/core.js": "cc3a3dd550ca76a7cb8051d94d3e06169d14334982f82aec30be1f53a6dcbcd0",
+    "js/gfx.js": "0891c0f0a14c8be8534c0ad88d667c8c3674ad9c653cbaded056925a6dc8b23e",
+    "js/app.js": "ee8e5f002690bae3245fefbf27db238be9792b20f7204ff55c4a95adfa5086b1",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "1ab1f191a182272b654124f7e1df7e5b4ec7c02ff875195dfa1a05c704acc1e0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "expectedEnvironmentNetworkNoise": [
+    {
+      "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+      "error": "net::ERR_FAILED"
+    }
+  ],
+  "runtimeConsoleErrors": [],
+  "sourceStable": true,
+  "completedAt": "2026-11-06T15:08:09.233Z"
+}

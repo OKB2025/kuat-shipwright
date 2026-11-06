@@ -8,6 +8,11 @@ function publicBlueprint(value,where='$'){
  if(Array.isArray(value))value.forEach((item,i)=>publicBlueprint(item,where+'['+i+']'));
  else if(value&&typeof value==='object')for(const [key,item]of Object.entries(value)){if(key.startsWith('_')||forbidden.has(key))throw Error('Cached physics in public blueprint: '+where+'.'+key);publicBlueprint(item,where+'.'+key);}
 }
+function verificationKeys(C,plan){
+ const all=Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort();if(plan.keys==null)return all;
+ if(!Array.isArray(plan.keys)||!plan.keys.length||plan.keys.some(key=>typeof key!=='string'||!all.includes(key))||new Set(plan.keys).size!==plan.keys.length)throw Error('Invalid explicitly scoped stock model keys');
+ return plan.keys.slice().sort();
+}
 function shard(root,group,sources){
  const audit=read(path.resolve(root,group.audit)),patch=read(path.resolve(root,group.patch));
  if(!audit.complete||!audit.sourceValidated||!same(audit.sourceSha256,sources)||!same(patch.sourceSha256,sources))throw Error('Incomplete or stale generation proof: '+group.audit);
@@ -48,9 +53,9 @@ function finalize(root,plan){
    models.set(key,row);
   }
  }
- const keys=Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort();if(!same([...models.keys()].sort(),keys))throw Error('Missing final stock models');G.mergePatches(data,patches,C,sources);
+ const keys=verificationKeys(C,plan),available=Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort();if(!same([...models.keys()].sort(),keys))throw Error('Missing final stock models');G.mergePatches(data,patches,C,sources);
  const saved=[...models.values()].filter(row=>row.generation.method==='saved-blueprint-replay'),fresh=[...models.values()].filter(row=>row.generation.method==='fresh-factory');
- const report=A.summarize({source:'current-mixed-factory-and-saved-blueprint-verification',baselineCommit:patches[0].baselineSha,sourceSha256:sources,generatedAt:new Date().toISOString(),modelVersion:C.PROPULSION_MODEL_VERSION,profileVersion:C.FLEET_PROFILE_VERSION,allKeys:keys,availableKeys:keys,verification:A.verification,sourceValidated:true,generationMethods:{savedBlueprintReplays:saved.length,currentFactoryBuilds:fresh.length,freshFactoryKeys:fresh.map(row=>row.key),scope:plan.scope},models:keys.map(key=>models.get(key))});
+ const report=A.summarize({source:'current-mixed-factory-and-saved-blueprint-verification',baselineCommit:patches[0].baselineSha,sourceSha256:sources,generatedAt:new Date().toISOString(),modelVersion:C.PROPULSION_MODEL_VERSION,profileVersion:C.FLEET_PROFILE_VERSION,allKeys:keys,availableKeys:available,verificationScope:{kind:keys.length===available.length?'all-stock-models':'selected-stock-models',keys,unverifiedKeys:available.filter(key=>!keys.includes(key))},verification:A.verification,sourceValidated:true,generationMethods:{savedBlueprintReplays:saved.length,currentFactoryBuilds:fresh.length,freshFactoryKeys:fresh.map(row=>row.key),scope:plan.scope},models:keys.map(key=>models.get(key))});
  for(const key of ['buildFailures','unavailableEngines','understaffed','belowFleetMinCrew','zeroCrewUnusable','zeroCrewUsableDespiteRequirement','powerConservationFailures','changedOriginalPlants','incompleteCapacitors','nonStrictCooling','implicitCoolingSinks','invalidRealCoolerPower','strictThermalFailures','movedOriginalEngineOutlets','electricalFeedConservationFailures','sharedEngineInputFailures','runtimeElectricalHeatFailures','coreEnergyFailures','brokenThermalRoutes','engineBodyIntersections'])if(report.summary[key]?.length)failures.push({scope:key,failures:report.summary[key]});
  for(const network of ['engineTransmission','engineDrivetrain'])for(const key of ['invalidRoutes','disconnectedEngines','geometrySurveyFailures','conduitCrossings','combinedConduitCrossings','ledgerFailures','externalEntryFailures','terminalContactFailures','statsLedgerFailures','unboundPhysicalParts'])if(report.summary[network]?.[key]?.length)failures.push({scope:network+'.'+key,failures:report.summary[network][key]});
  if(report.summary.propulsionArchitecture?.failures?.length)failures.push({scope:'propulsionArchitecture',failures:report.summary.propulsionArchitecture.failures});
@@ -65,4 +70,4 @@ function main(args=process.argv.slice(2)){
  if(args[0]==='--archive-fresh'){const manifest=archiveFresh(root,plan.group,plan.directory);console.log(JSON.stringify({directory:plan.directory,keys:Object.keys(manifest.models),sourceSha256:manifest.factorySourceSha256}));return manifest;}
  const report=finalize(root,plan),destination=path.resolve(root,report.physicalVerification.passed?plan.report:plan.failedReport);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.writeFileSync(destination,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({destination,models:report.models.length,passed:report.physicalVerification.passed,generationMethods:report.generationMethods,failures:report.physicalVerification.failures}));if(!report.physicalVerification.passed)process.exitCode=1;return report;
 }
-module.exports={archiveFresh,finalize,publicBlueprint};if(require.main===module)try{main();}catch(error){console.error(error.stack||error);process.exitCode=1;}
+module.exports={archiveFresh,finalize,publicBlueprint,verificationKeys};if(require.main===module)try{main();}catch(error){console.error(error.stack||error);process.exitCode=1;}

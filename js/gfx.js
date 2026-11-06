@@ -1980,7 +1980,7 @@ function meshOnePart(out,p,ship,opt,glow){
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
     if(p._clip&&k!=='hangar'){triangleMesh(out.interior,p._clip.tris,color,36);return;}
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
-    if(k==='machinery'){machineryMesh(out,p,ship,color);return;}
+    if(k==='machinery'){machineryMesh(out,p,ship,color,opt);return;}
     if(k==='engineCore'){engineCoreMesh(out.interior,p,color);return;}
     if(k==='sensor'){sensorShell(out.struct,p,color);return;}
     // v21 A cockpit shows as tinted canopy glass where it stands out of the hull; an astromech as its dome.
@@ -1993,12 +1993,26 @@ function meshOnePart(out,p,ship,opt,glow){
     axisFrustum(C.isInternal(p)?out.interior:out.hyper,a,b,m.rad,m.rad,color,true);
 
 }
+// Pressure housings follow the paid route's exact flat-ended cylinders.
+// Recess the shell between ribs; flanges reach, but never exceed, its radius.
+// Segment-local collars also join bends without an oversized spherical elbow.
+function driveHousingMesh(g,s,palette){
+ const length=C.len(C.sub(s.b,s.a)),radius=Math.max(s.r0,s.r1);if(!(length>1e-8)||!Number.isFinite(length)||!(radius>0)||!Number.isFinite(radius))return;
+ const end=Math.min(.12,radius*.45/length),bands=length>radius*2.5?Math.max(1,Math.min(24,Math.floor(length/(radius*.85))-1)):0,stations=[[0,1],[end*.7,1],[end,.92]];
+ for(let i=0;i<bands;i++){const center=end+(1-2*end)*(i+1)/(bands+1),half=Math.min((1-2*end)/(4*(bands+1)),radius*.18/length);stations.push([center-half,.92],[center-half*.55,1],[center+half*.55,1],[center+half,.92]);}
+ stations.push([1-end,.92],[1-end*.7,1],[1,1]);const u=C.mul(C.sub(s.b,s.a),1/length);
+ for(let i=1;i<stations.length;i++){const [lo,r0]=stations[i-1],[hi,r1]=stations[i];if(hi-lo<1e-10)continue;const a=C.add(s.a,C.mul(u,length*lo)),b=C.add(s.a,C.mul(u,length*hi)),color=r0===1&&r1===1?palette.ring:r0===.92&&r1===.92?palette.shell:palette.shoulder;
+  axisFrustum(g,a,b,C.lerp(s.r0,s.r1,lo)*r0,C.lerp(s.r0,s.r1,hi)*r1,color,[i===1,i===stations.length-1],false,20);
+ }
+}
 // The body and its connectors use the occupied segments themselves. Keep ribs
 // inside that envelope so inspection, picking and dimension edits agree.
-function machineryMesh(out,p,ship,color){
- // A transmission run is its own occupied part, separate from the ribbed
- // drive body. Keep the rendered radius equal to the physical route radius.
- if(p.transmission||p.drivetrain){for(const s of p.segments||[p.seg])if(s?.l>0){const external=s.exteriorEntry===true,target=external?out.engine:out.interior,tone=p.ok===false?[240,91,85]:external?[155,165,170]:p.drivetrain?[218,162,72]:[107,177,198];axisFrustum(target,s.a,s.b,s.r0,s.r1,tone,true,false,16);}return;}
+function machineryMesh(out,p,ship,color,opt={}){
+ if(p.transmission||p.drivetrain){for(const s of p.segments||[p.seg])if(s?.l>0){
+  const external=s.exteriorEntry===true,target=external?out.engine:out.interior,diagnostic=p.ok===false?[240,91,85]:opt.coded?(p.drivetrain?[218,162,72]:[107,177,198]):null;
+  if(p.drivetrain)driveHousingMesh(target,s,diagnostic?{shell:diagnostic,ring:diagnostic,shoulder:diagnostic}:{shell:[110,124,137],ring:[166,178,188],shoulder:[136,150,162]});
+  else axisFrustum(target,s.a,s.b,s.r0,s.r1,diagnostic||(external?[155,165,170]:[125,137,148]),true,false,16);
+ }return;}
  const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine,segments=p.segments||[p.seg],body=p.machinerySegment||segments.at(-1);
  for(const s of segments)if(s!==body)axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);
  if(!body||body.l<=0)return;
