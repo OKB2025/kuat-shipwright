@@ -7,7 +7,7 @@ function setup(){
  const context=vm.createContext({console,C});vm.runInContext(`
  let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Turret orientation');ship.parts=[];ship.fits=[];ship.nextId=1;
  const st={tab:'arm',fit:'refVen',fitTool:'place',weaponMount:'auto',gunYaw:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none'},listeners={},undoStack=[],redoStack=[],outputs=new Map(),meshStore={};
- let dragSnap=null,dragLabel='',lastOp='',hoverLines=null;
+ let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,S=null,prevS=null,editorPartsRevision=0;const view=null,eng={gen:0,adoptedGen:0,geoGen:0,statsGen:0,ready:false};
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',I18N=null;
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:s.startsWith('#out-')?(outputs.has(s)||outputs.set(s,{}),outputs.get(s)):null;
  const activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
@@ -17,9 +17,10 @@ function setup(){
  function install(k=st.fit,z=60,x=250){st.fit=k;st.sel=null;const h=C.rayEnv(ship,[x,500,z],[0,-1,0],{structOnly:true});if(!h)throw Error('No surface');tapHit('fit',{...h,kind:'hull'},false);if(!selItem())throw Error('Placement failed '+k);return selItem();}
  `,context);
  for(const [start,end]of [
+ ['function enginePending()','function engineStatus('],['const requestedParts =','function editorRayEnv('],['function previewHistory(','// Exterior view skips machinery'],
  ['function seg(','function silhouette('],['function baseFitEditor()','function partList('],
  ['function weaponYawControls(','function turretHeadingLines('],['function weaponTiltMode(','function chooseWeaponMount('],
- ['function bindReference(){','function packingInfoHTML('],['function snap()','function updateUndo('],
+ ['function bindReference(){','function packingInfoHTML('],['function snap(','function updateUndo('],
  ['function assignMirror(','const TEMPLATE_SKIP ='],['const TEMPLATE_SKIP =','function removeWithPreview('],
  ['function placeVerticalFits(','function bind()'],['function alignFitPoint(','function tapWant('],
  ['function tapHit(','// ---------- inspect ----------']

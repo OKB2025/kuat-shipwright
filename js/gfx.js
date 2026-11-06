@@ -657,7 +657,7 @@ function craftWeaponMesh(g,f){
   for(let i=0;i<n;i++){const z=zs[i]??0,y=h+rd*.55;cyl(g,M,o,-rl*.07,y,z,rd*.5,rd*.5,rl*.86,0,od.ion?R:FC.glass,10);cyl(g,M,o,rl*.43,y,z,rd*.5,rd*.08,rl*.14,0,od.ion?FC.glass:R,10);}}
 }
 function meshFits(ship, filter, ranges, only, paintSource=false) {
-  const g = new Geo(paintSource?64:8192), body = FC.body;
+  const g = new Geo(paintSource?64:only?.length===1?128:8192), body = FC.body;
   const one = (f) => {
     if (!paintSource && !f.float && !FIT_SKIP_PED?.has(f.id)) turretSupportMesh(g, C.turretSupportGeometry?.(f));
     if(f.k==='broadsideBattery'){if(!FIT_SKIP_BODY?.has(f.id))broadsideBatteryMesh(g,f);return;}
@@ -797,19 +797,51 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
 // Selection follows the exact visible weapon mesh, including its own broad
 // bounds. Empty space in a ring or between barrels is not selectable. A small
 // LRU invalidates immediately after a pose or load edit.
-const FIT_RAY_CACHE=new Map(),FIT_RAY_BOUNDS=new WeakMap();
+const FIT_RAY_CACHE=new Map(),FIT_RAY_BOUNDS=new WeakMap(),FIT_RAY_SOURCES=new WeakMap();
+function fitRayColdBounds(f){
+ const b=C.fitAABB(f),s=C.fitSpec(f);
+ if(C.FITS[f.k].asset&&C.REFERENCE_ASSETS[f.skinAsset||s.asset]){
+  // The reference box already contains the complete articulated asset and
+  // automatic foundation. Only its separate manual pedestal needs a union.
+  const ph=fitPedestalHeight(f);
+  if(!s.casemate&&(f.mountSupport||!f.localMount&&f.mountAxis==null)&&ph>.3&&C.fitHasPedestal(f)){
+   const fr=C.fitFrameOf(f),o=C.fitOrigin(f),r=s.r*.72*(f.pedSize||1)*1.45;
+   for(const x of [-r,r])for(const y of [-ph,0])for(const z of [-r,r])for(let a=0;a<3;a++){const v=o[a]+fr.fw[a]*x+fr.up[a]*y+fr.rt[a]*z;b[a]=Math.min(b[a],v);b[a+3]=Math.max(b[a+3],v);}
+  }
+  const eps=Math.max(.01,...b.map(v=>Math.abs(v)*1e-7));return b.map((v,i)=>v+(i<3?-eps:eps));
+ }
+ const pad=Math.max(.1,(s.fm||0)+(s.wm||0)+(s.hm||0),f.width||0,f.height||0,2*(s.r||0)*Math.max(1,Math.abs(f.pedSize||1)))+Math.abs((f.base||0)+(f.ped||0))+Math.abs(f.low||0);
+ return b.map((v,i)=>v+(i<3?-pad:pad));
+}
+function fitRayAssetMeshes(f,model){
+ const spec=C.FITS[f.k],id=f.skinAsset||spec.asset,a=C.REFERENCE_ASSETS[id];if(!spec.asset||!a||embeddedSurfaceFit(f))return null;
+ // Picking needs indexed positions, never render normals, UVs or paint. Keep
+ // the renderer's exact float positions and all separate support triangles.
+ const body=FIT_SKIP_BODY,ped=FIT_SKIP_PED;let support;
+ try{FIT_SKIP_BODY=new Set([f.id]);FIT_SKIP_PED=null;support=meshFits(model,null,null,[f]);}finally{FIT_SKIP_BODY=body;FIT_SKIP_PED=ped;}
+ if(f.float)return [support];const raw=C.decodeReference(id);if(!raw)return [support];
+ const point=plainFitAsset(f)||familyReferenceAsset(f)?fitReferenceTransform(f):v=>C.referenceFitPoint(f,v),pos=new Float32Array(raw.pos.length);
+ for(let i=0;i<pos.length;i+=3)pos.set(point([raw.pos[i],raw.pos[i+1],raw.pos[i+2]]),i);
+ return [support,{pos,idx:raw.idx,ni:raw.idx.length}];
+}
 // Core's box ray query reports entry surfaces; inside origins still need the exact mesh test.
 const fitRayStartsInside=(o,b)=>o.every((v,a)=>v>=b[a]&&v<=b[a+3]);
-function rayFit(o,d,f){
- if(!f||!C.FITS[f.k])return null;
- const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!fitRayStartsInside(o,known.bounds)&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
- if(!item||item.key!==key){const model={fits:[f],parts:[],paint:'imperial'},skipBody=FIT_SKIP_BODY,skipPed=FIT_SKIP_PED;let meshes;
-  try{FIT_SKIP_BODY=FIT_SKIP_PED=null;meshes=[meshFits(model,null,null,[f]),meshReferenceFits(model,null,[f])];}finally{FIT_SKIP_BODY=skipBody;FIT_SKIP_PED=skipPed;}
+function rayFit(o,d,f,maxT){
+ if(!f||!C.FITS[f.k]||maxT!=null&&maxT<=1e-6)return null;
+ const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v);let known=FIT_RAY_BOUNDS.get(f);
+ // Most pointer rays miss most weapons. Do not construct every visible mesh
+ // merely to discover its bounds on the first hover over a large design.
+ if(known?.key!==key){known={key,bounds:fitRayColdBounds(f)};FIT_RAY_BOUNDS.set(f,known);}
+ if(!fitRayStartsInside(o,known.bounds)){const h=C.rayAABB(o,d,known.bounds);if(!h||maxT!=null&&h.t>=maxT)return null;}let item=FIT_RAY_CACHE.get(f);
+ if(!item||item.key!==key){const model={fits:[f],parts:[],paint:'imperial'},source=FIT_RAY_SOURCES.get(f),skipBody=FIT_SKIP_BODY,skipPed=FIT_SKIP_PED;let meshes;
+  if(source?.key===key)meshes=source.meshes;else{
+   try{FIT_SKIP_BODY=FIT_SKIP_PED=null;meshes=fitRayAssetMeshes(f,model)||[meshFits(model,null,null,[f]),meshReferenceFits(model,null,[f])];}finally{FIT_SKIP_BODY=skipBody;FIT_SKIP_PED=skipPed;}
+  }
   const T=new Float32Array(meshes.reduce((n,g)=>n+g.ni*3,0)),bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let cursor=0;
   for(const g of meshes)for(let i=0;i<g.ni;i++){const k=g.idx[i]*3;for(let a=0;a<3;a++){const v=g.pos[k+a];T[cursor++]=v;bounds[a]=Math.min(bounds[a],v);bounds[a+3]=Math.max(bounds[a+3],v);}}
   item={key,T,bounds};FIT_RAY_BOUNDS.set(f,{key,bounds});FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);while(FIT_RAY_CACHE.size>48)FIT_RAY_CACHE.delete(FIT_RAY_CACHE.keys().next().value);
  }else{FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);}
- if(!item.T.length||!fitRayStartsInside(o,item.bounds)&&!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
+ if(!item.T.length)return null;if(!fitRayStartsInside(o,item.bounds)){const h=C.rayAABB(o,d,item.bounds);if(!h||maxT!=null&&h.t>=maxT)return null;}return C.rayTris(item.T,o,d,maxT);
 }
 
 // ---------- WebGL ----------
@@ -1338,6 +1370,8 @@ class Renderer {
     const gl = this.gl;
     let m = this.meshes[name];
     if (!m) m = this.meshes[name] = {pos: gl.createBuffer(), nor: gl.createBuffer(), uv: gl.createBuffer(), col: gl.createBuffer(), idx: gl.createBuffer(), count: 0};
+    if(geo.previewToken&&(this.u32||geo.n<65536)){uploadPreviewGeo(this,m,geo);return;}
+    delete m.previewToken;delete m.previewRevision;
     // v20.2 A version and a box per mesh: the shadow map is redrawn only when a caster changes.
     m.ver = (m.ver || 0) + 1; { const P = geo.pos, b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]; for (let i = 0; i < geo.n * 3; i += 3) for (let k = 0; k < 3; k++) { const v = P[i + k]; if (v < b[k]) b[k] = v; if (v > b[k + 3]) b[k + 3] = v; } m.bb = geo.n ? b : null; }
     m.flat = !this.u32 && geo.n >= 65536;
@@ -1923,7 +1957,7 @@ function meshOnePart(out,p,ship,opt,glow){
     if(C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled&&C.hullStructureGeometry(ship,p).referenceSkin)return;
     // Drag previews use the requested envelope only; full skin cuts and CSG
     // belong to the asynchronous engine build, never to a pointer event.
-    if(opt.preview&&C.isShapePart(p)&&p.form!=='reference'){const q={...p,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};hullTriangleMesh(out.struct,C.structTriangles(q),opt.coded?d.col:p.paint?hex(p.paint):k==='solarPanel'?[35,43,57]:STRUCT_PAINT,36,k==='solarPanel'?254:251);return;}
+    if(opt.preview&&C.isShapePart(p)&&p.form!=='reference'){hullTriangleMesh(out.struct,C.structTriangles(p),opt.coded?d.col:p.paint?hex(p.paint):k==='solarPanel'?[35,43,57]:STRUCT_PAINT,36,k==='solarPanel'?254:251);return;}
     // The common part is the actual inward equipment volume, retained in the
     // diagnostic view. Its exterior is the footprint-bound surface kit below.
     if(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch&&!p.surfaceUnplaced){roomMesh(ship,p,out.interior,color);return;}
@@ -2743,10 +2777,17 @@ function familyReferenceAsset(f){const id=f.skinAsset||C.FITS[f.k]?.asset,a=C.RE
 function sharedProceduralTurret(f){return ['pd','ionL','cturret'].includes(f.k)&&!C.FITS[f.k]?.asset;}
 // The supplied FBX has no texture atlas. Keep its indexed normals and geometry,
 // but render it with the ordinary fitting metal in the editor and fleet alike.
+// A fitting's reference transform is affine for its complete static pose.
+// Resolve the frame, archive levelling and pitch once instead of rebuilding
+// those vectors and trigonometric terms for every decoded vertex.
+function fitReferenceTransform(f){
+ const origin=C.referenceFitPoint(f,[0,0,0]),x=C.sub(C.referenceFitPoint(f,[1,0,0]),origin),y=C.sub(C.referenceFitPoint(f,[0,1,0]),origin),z=C.sub(C.referenceFitPoint(f,[0,0,1]),origin);
+ return v=>[origin[0]+v[0]*x[0]+v[1]*y[0]+v[2]*z[0],origin[1]+v[0]*x[1]+v[1]*y[1]+v[2]*z[1],origin[2]+v[0]*x[2]+v[1]*y[2]+v[2]*z[2]];
+}
 const PLAIN_FIT_CACHE=new WeakMap();
 function appendPlainFit(g,f){
  const key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=PLAIN_FIT_CACHE.get(f);
- if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,FC.body);
+ if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,fitReferenceTransform(f),null,FC.body);
   // These models have no fitting atlas. Keep their UVs within its metal panel,
   // so triangle interiors cannot sample the separate dark window band.
   for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=UV_WHITE[0]+C.clamp(mesh.uv[i*2],0,1)*(UV_WHITE[2]-UV_WHITE[0]);mesh.uv[i*2+1]=UV_WHITE[1]+C.clamp(mesh.uv[i*2+1],0,1)*(UV_WHITE[3]-UV_WHITE[1]);}
@@ -2768,20 +2809,20 @@ function appendProceduralTurret(g,f){const key=JSON.stringify([f,C.fitSpec(f)],(
 }
 function appendFamilyReference(g,f){
  const a=familyReferenceAsset(f),id=f.skinAsset||C.FITS[f.k].asset,key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=FAMILY_REFERENCE_CACHE.get(f);
- if(!item||item.key!==key){const mesh=new Geo(a.n),raw=C.decodeReference(id);appendReference(mesh,id,v=>C.referenceFitPoint(f,v));applyTurretPaint(mesh);
+ if(!item||item.key!==key){const mesh=new Geo(a.n),raw=C.decodeReference(id),point=fitReferenceTransform(f);appendReference(mesh,id,point);applyTurretPaint(mesh);
   for(const part of a.components||[]){if(part.normalMode!=='sphere'||!Array.isArray(part.normalCenterM)||part.normalCenterM.length!==3||!part.normalCenterM.every(Number.isFinite))continue;
-   const c=part.normalCenterM.map((v,k)=>(v-a.c[k])/a.size[k]),center=C.referenceFitPoint(f,c),up=C.norm(C.sub(C.referenceFitPoint(f,[c[0],c[1]+1/a.size[1],c[2]]),center)),eps=Math.max(.002,(a.maxQuantizationErrorM||0)*3);
+   const c=part.normalCenterM.map((v,k)=>(v-a.c[k])/a.size[k]),center=point(c),up=C.norm(C.sub(point([c[0],c[1]+1/a.size[1],c[2]]),center)),eps=Math.max(.002,(a.maxQuantizationErrorM||0)*3);
    for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){const v=Array.from(raw.pos.subarray(i*3,i*3+3)),n0=Array.from(mesh.nor.subarray(i*3,i*3+3));
     // The cap has its own duplicated vertices: preserve its hard lower rim,
     // while the coincident vertices on the curved dome receive radial normals.
     if(Number.isFinite(part.floorYM)&&Math.abs(v[1]*a.size[1]+a.c[1]-part.floorYM)<=eps&&C.dot(n0,up)<-63.5)continue;
-    const n=C.norm(C.sub(C.referenceFitPoint(f,v),center));for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;}}
+    const n=C.norm(C.sub(point(v),center));for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;}}
   for(const part of a.components||[]){if(part.normalMode!=='ellipsoid'||!Array.isArray(part.normalCenterM)||!Array.isArray(part.normalRadiiM)||part.normalCenterM.length!==3||part.normalRadiiM.length!==3||!part.normalCenterM.every(Number.isFinite)||!part.normalRadiiM.every(v=>Number.isFinite(v)&&v>0))continue;
-   const c=part.normalCenterM,worldCenter=C.referenceFitPoint(f,c.map((v,k)=>(v-a.c[k])/a.size[k]));
+   const c=part.normalCenterM,worldCenter=point(c.map((v,k)=>(v-a.c[k])/a.size[k]));
    // A flattened cast shell follows the ellipsoid gradient. Only explicitly
    // marked curved faces are smoothed; armor cuts and socket caps stay sharp.
    for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){
-    const gradient=c.map((v,k)=>(raw.pos[i*3+k]*a.size[k]+a.c[k]-v)/(part.normalRadiiM[k]**2)),tip=c.map((v,k)=>(v+gradient[k]-a.c[k])/a.size[k]),n=C.norm(C.sub(C.referenceFitPoint(f,tip),worldCenter));
+    const gradient=c.map((v,k)=>(raw.pos[i*3+k]*a.size[k]+a.c[k]-v)/(part.normalRadiiM[k]**2)),tip=c.map((v,k)=>(v+gradient[k]-a.c[k])/a.size[k]),n=C.norm(C.sub(point(tip),worldCenter));
     for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;
    }}
   item={key,mesh};FAMILY_REFERENCE_CACHE.set(f,item);}
@@ -2791,6 +2832,18 @@ function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[],sh
  const a=C.REFERENCE_ASSETS[id],d=C.decodeReference(id);if(!a||!d)return;if(!a.plainMetal)color=refTone(id,color);
  const pos=new Float32Array(d.pos.length),nor=new Float32Array(d.pos.length),indices=[];
  for(let i=0;i<d.pos.length;i+=3)pos.set(point([d.pos[i],d.pos[i+1],d.pos[i+2]],a),i);
+ // The common uncut reference keeps every source index. Accumulate the
+ // same area-weighted normals directly in the packed arrays; allocating
+ // three point arrays and two vector arrays per triangle dominates dense
+ // capital-ship previews.
+ if(!filter&&!cuts.length&&!skinPatches.length&&!launcherRecessHost(ship,host)){
+  for(let i=0;i<d.idx.length;i+=3){const a=d.idx[i]*3,b=d.idx[i+1]*3,c=d.idx[i+2]*3,ux=pos[b]-pos[a],uy=pos[b+1]-pos[a+1],uz=pos[b+2]-pos[a+2],vx=pos[c]-pos[a],vy=pos[c+1]-pos[a+1],vz=pos[c+2]-pos[a+2],nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;
+   nor[a]+=nx;nor[a+1]+=ny;nor[a+2]+=nz;nor[b]+=nx;nor[b+1]+=ny;nor[b+2]+=nz;nor[c]+=nx;nor[c+1]+=ny;nor[c+2]+=nz;
+  }
+  g.room(a.n,d.idx.length);const base=g.n;
+  for(let i=0;i<a.n;i++){const k=i*3,nx=nor[k],ny=nor[k+1],nz=nor[k+2],length=Math.hypot(nx,ny,nz)||1,unit=Math.abs(length-1)<1e-12;g.v(pos[k],pos[k+1],pos[k+2],unit?nx:nx/length,unit?ny:ny/length,unit?nz:nz/length,d.uv[i*2],d.uv[i*2+1],color,255);}
+  for(let i=0;i<d.idx.length;i+=3)g.tri(base+d.idx[i],base+d.idx[i+1],base+d.idx[i+2]);return;
+ }
  for(let i=0;i<d.idx.length;i+=3){const ids=[d.idx[i],d.idx[i+1],d.idx[i+2]];
   if(filter&&!filter(ids.map(k=>[d.pos[k*3],d.pos[k*3+1],d.pos[k*3+2]]),a))continue;
   indices.push(...ids);const [A,B,D]=ids.map(k=>Array.from(pos.subarray(k*3,k*3+3))),n=C.cross(C.sub(B,A),C.sub(D,A));for(const k of ids)for(let j=0;j<3;j++)nor[k*3+j]+=n[j];
@@ -2835,12 +2888,27 @@ function meshReferenceFits(ship,ranges,only){
 }
 // Live preview of edited parts and fittings, built in the editor from their
 // requested shapes while the engine recomputes clipped, merged geometry.
-function meshPreview(ship,parts,fits,opt={}){
+const PREVIEW_SHIPS=new WeakMap(),PREVIEW_PARTS=new WeakMap();
+const previewKey=value=>JSON.stringify(value,(k,v)=>k.startsWith('_')?undefined:v);
+// The editor supplies the same authored proxy used by pending picking. The
+// fallback also retains the local hull cache instead of cloning it per frame.
+function previewRequestedPart(p){
+ const key=previewKey(p),old=PREVIEW_PARTS.get(p);if(old?.key===key)return old.part;
+ const part={...p,_packing:undefined,_clip:undefined,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};PREVIEW_PARTS.set(p,{key,part});return part;
+}
+function compactPreviewGeo(g){const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<g.n*3;i++){const a=i%3;bounds[a]=Math.min(bounds[a],g.pos[i]);bounds[a+3]=Math.max(bounds[a+3],g.pos[i]);}return {n:g.n,ni:g.ni,pos:g.pos.slice(0,g.n*3),nor:g.nor.slice(0,g.n*3),uv:g.uv.slice(0,g.n*2),col:g.col.slice(0,g.n*4),idx:g.idx.slice(0,g.ni),bounds:g.n?bounds:null};}
+function compactPreviewMeshes(value){const out={glow:value.glow};for(const k of ['preview','previewRef','previewFits','previewRefFits'])out[k]=compactPreviewGeo(value[k]);return out;}
+function previewFitBounds(f,key,meshes){
+ if(FIT_SKIP_BODY?.has(f.id)||FIT_SKIP_PED?.has(f.id))return;
+ const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(const g of [meshes.previewFits,meshes.previewRefFits])for(let i=0;i<g.n*3;i++){const a=i%3;bounds[a]=Math.min(bounds[a],g.pos[i]);bounds[a+3]=Math.max(bounds[a+3],g.pos[i]);}
+ if(bounds.every(Number.isFinite)){FIT_RAY_BOUNDS.set(f,{key,bounds});FIT_RAY_SOURCES.set(f,{key,meshes:[meshes.previewFits,meshes.previewRefFits]});}
+}
+function buildPreviewMeshes(ship,parts,fits,opt={}){
  const g=new Geo(2048),out={struct:g,plate:g,gen:g,shield:g,hyper:g,interior:g,engine:g,plant:g,nozzle:g,hangar:g},glow=[];
  // Requested internal envelopes can extend outside the ship. Keep their editor
  // outlines until the engine returns the clipped solid, in every view mode.
  // Surface-role volumes are diagnostic too, even when backed by an adapter.
- const plain=parts.filter(p=>(p.k==='engineCore'||!C.isInternal(p))&&!(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch)).map(p=>({...p,_packing:undefined,_clip:undefined}));
+ const plain=parts.filter(p=>(p.k==='engineCore'||!C.isInternal(p))&&!(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch)).map(p=>(opt.requestedPart||previewRequestedPart)(p));
  for(const p of plain)meshOnePart(out,p,ship,{coded:!!opt.coded,preview:true},glow);
  const engines=new Set(plain.filter(p=>p.k==='engine').map(p=>p.id));
  if(engines.size){const replacements=new Map(plain.map(p=>[p.id,p])),model={...ship,parts:ship.parts.map(p=>replacements.get(p.id)||p)};for(const p of plain)if(!model.parts.some(q=>q.id===p.id))model.parts.push(p);for(const p of C.engineMachineryPaths(model))if(engines.has(p.nozzle))meshOnePart(out,p,model,{coded:!!opt.coded,preview:true},glow);}
@@ -2849,6 +2917,64 @@ function meshPreview(ship,parts,fits,opt={}){
  const fitG=fits.length?meshFits(ship,null,null,fits):new Geo(16),refFitG=fits.length?meshReferenceFits(ship,null,fits):new Geo(16);
  return {preview:g,previewRef:refG,previewFits:fitG,previewRefFits:refFitG,glow};
 }
+// Keep the unchanged draft on screen while adding only the newly edited
+// geometry. Initial large designs must not be triangulated again per gun.
+const PREVIEW_GROUPS=['preview','previewRef','previewFits','previewRefFits'];
+function previewRanges(ranges){const out=[];for(const [start,count]of ranges.sort((a,b)=>a[0]-b[0])){if(!count)continue;const last=out[out.length-1];if(last&&last[0]+last[1]>=start)last[1]=Math.max(last[1],start+count-last[0]);else out.push([start,count]);}return out;}
+function uploadPreviewGeo(renderer,m,g){
+ const gl=renderer.gl,count=g.previewActiveIndices===0?0:g.ni;
+ if(m.previewToken===g.previewToken&&m.previewRevision===g.previewRevision){if(m.count!==count){m.count=count;m.ver=(m.ver||0)+1;}return;}
+ const full=m.previewToken!==g.previewToken||m.previewCap!==g.cap||m.previewIcap!==g.icap||m.previewRevision!==g.previewFromRevision;
+ for(const [key,width]of [['pos',3],['nor',3],['uv',2],['col',4]]){const source=g[key];if(!full&&!g.previewVertices.length)continue;gl.bindBuffer(gl.ARRAY_BUFFER,m[key]);if(full)gl.bufferData(gl.ARRAY_BUFFER,source,gl.DYNAMIC_DRAW);else for(const [start,length]of g.previewVertices)gl.bufferSubData(gl.ARRAY_BUFFER,start*width*source.BYTES_PER_ELEMENT,source.subarray(start*width,(start+length)*width));}
+ if(full||g.previewIndices.length){gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,m.idx);if(full)gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,renderer.u32?g.idx:Uint16Array.from(g.idx),gl.DYNAMIC_DRAW);else for(const [start,length]of g.previewIndices)gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER,start*(renderer.u32?4:2),renderer.u32?g.idx.subarray(start,start+length):Uint16Array.from(g.idx.subarray(start,start+length)));}
+ m.flat=false;m.type=renderer.u32?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT;m.count=count;m.bb=g.previewBounds;m.ver=(m.ver||0)+1;m.previewToken=g.previewToken;m.previewRevision=g.previewRevision;m.previewCap=g.cap;m.previewIcap=g.icap;
+}
+function incrementalPreviewMeshes(cache,entries,glow){
+ let state=cache.incremental;
+ // A finished full draft followed by one edited gun must not keep millions
+ // of obsolete degenerate indices in the small overlay.
+ if(state&&state.size>32&&entries.length<state.size/4)state=null;
+ if(!state){state={groups:{},blocks:{},size:0};for(const name of PREVIEW_GROUPS){const g=new Geo(64);g.previewToken={};g.previewRevision=0;g.previewFromRevision=-1;g.previewVertices=[];g.previewIndices=[];g.previewBounds=null;g.previewActiveIndices=0;state.groups[name]=g;state.blocks[name]=new Map();}cache.incremental=state;}
+ state.size=entries.length;
+ for(const name of PREVIEW_GROUPS){const g=state.groups[name],blocks=state.blocks[name],seen=new Set(),vertices=[],indices=[],retire=b=>{g.idx.fill(b.base,b.first,b.first+b.count);indices.push([b.first,b.count]);b.active=false;};
+  for(const entry of entries){const chunk=entry.value[name];if(!chunk.ni)continue;seen.add(entry.token);let block=blocks.get(entry.token);if(block?.active&&block.geo===chunk)continue;
+   if(!block||block.n!==chunk.n||block.count!==chunk.ni){if(block?.active)retire(block);block={base:g.n,first:g.ni,n:chunk.n,count:chunk.ni};appendGeo(g,chunk);blocks.set(entry.token,block);}else{for(const [key,width]of [['pos',3],['nor',3],['uv',2],['col',4]])g[key].set(chunk[key],block.base*width);for(let i=0;i<chunk.ni;i++)g.idx[block.first+i]=block.base+chunk.idx[i];}
+   block.geo=chunk;block.active=true;vertices.push([block.base,chunk.n]);indices.push([block.first,chunk.ni]);
+  }
+  for(const [token,block]of blocks)if(block.active&&!seen.has(token))retire(block);
+  if(vertices.length||indices.length){g.previewFromRevision=g.previewRevision;g.previewRevision++;g.previewVertices=previewRanges(vertices);g.previewIndices=previewRanges(indices);const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let active=0;for(const block of blocks.values())if(block.active){active+=block.count;const b=block.geo.bounds;if(b)for(let a=0;a<3;a++){bounds[a]=Math.min(bounds[a],b[a]);bounds[a+3]=Math.max(bounds[a+3],b[a+3]);}}g.previewActiveIndices=active;g.previewBounds=active?bounds:null;}
+ }
+ return {...state.groups,glow};
+}
+function clearPreviewCache(ship){
+ for(const f of ship?.fits||[])FIT_RAY_SOURCES.delete(f);PREVIEW_SHIPS.delete(ship);
+}
+// Keep unchanged draft chunks and GPU buffers while the worker builds. New
+// or edited items take priority; the remaining initial draft fills while idle.
+function meshPreview(ship,parts,fits,opt={}){
+ let cache=PREVIEW_SHIPS.get(ship);if(!cache){cache={parts:new Map(),fits:new Map(),visible:new Map(),contextVersion:0,environmentVersion:0};PREVIEW_SHIPS.set(ship,cache);}
+ const revision=opt.progressive&&Number.isFinite(opt.revision)?opt.revision:null,stamp=revision==null?null:revision+':'+!!opt.coded+':'+parts.length+':'+fits.length;
+ let plan=stamp!=null&&cache.plan?.stamp===stamp?cache.plan:null;
+ if(!plan){const context=previewKey([ship.paint,ship.detail,ship.reference,ship.hullSkin,ship.hatches,ship.armor]);if(cache.context!==context){cache.context=context;cache.contextVersion++;}
+  const engineParts=parts.filter(p=>p.k==='engine'),needsEnvironment=engineParts.length||parts.some(p=>p.room||p.k==='machinery');
+  if(needsEnvironment){const key=previewKey([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,ship.parts]);if(cache.environment!==key){cache.environment=key;cache.environmentVersion++;}}
+  const tasks=[],add=(token,key,store,id,build,after,sourceParts)=>tasks.push({token,key,store,id,build,after,sourceParts});
+  for(const p of parts)if(p.k!=='engine'){const id=p.id??p,key=previewKey([p,!!opt.coded,cache.contextVersion,p.room||p.k==='machinery'?cache.environmentVersion:0]);add(p.id==null?p:'p'+id,key,cache.parts,id,()=>buildPreviewMeshes(ship,[p],[],opt),null,[p]);}
+  if(engineParts.length){const key=previewKey([engineParts,!!opt.coded,cache.contextVersion,cache.environmentVersion]);add('engines',key,cache.parts,'engines',()=>buildPreviewMeshes(ship,engineParts,[],opt),null,engineParts);}
+  for(const f of fits){const geometryKey=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),key=geometryKey+':'+cache.contextVersion+':'+!!FIT_SKIP_BODY?.has(f.id)+':'+!!FIT_SKIP_PED?.has(f.id),id=f.id??f;add(f.id==null?f:'f'+id,key,cache.fits,id,()=>buildPreviewMeshes(ship,[],[f],opt),value=>previewFitBounds(f,geometryKey,value));}
+  const current=new Map(tasks.map(task=>[task.token,task]));for(const [token,value]of cache.visible)if(current.get(token)?.key!==value.key)cache.visible.delete(token);
+  const partIds=new Set(ship.parts.map(p=>p.id??p)),fitIds=new Set(ship.fits.map(f=>f.id??f));for(const id of cache.parts.keys())if(id!=='engines'&&!partIds.has(id))cache.parts.delete(id);for(const id of cache.fits.keys())if(!fitIds.has(id))cache.fits.delete(id);
+  plan={stamp,tasks,current};cache.plan=plan;
+ }
+ const urgentParts=opt.priorityParts||[],urgentFits=opt.priorityFits||[],urgent=new Set();
+ if(urgentParts.length+urgentFits.length<=8){for(const p of urgentParts)urgent.add(p.k==='engine'?'engines':p.id==null?p:'p'+p.id);for(const f of urgentFits)urgent.add(f.id==null?f:'f'+f.id);}
+ const clock=()=>typeof performance!=='undefined'?performance.now():Date.now(),deadline=clock()+Math.max(0,opt.budgetMs??6),tasks=plan.tasks.filter(task=>!cache.visible.has(task.token)).sort((a,b)=>Number(urgent.has(b.token))-Number(urgent.has(a.token)));let processed=0;
+ for(const task of tasks){const priority=urgent.has(task.token);if(opt.progressive&&!priority&&(opt.deferBackground||processed>=8||processed>0&&clock()>=deadline))continue;let item=task.store.get(task.id);if(item?.key!==task.key){if(task.sourceParts&&opt.canMeshPart&&!task.sourceParts.every(opt.canMeshPart))continue;item={key:task.key,value:compactPreviewMeshes(task.build())};task.store.set(task.id,item);if(task.after)task.after(item.value);}cache.visible.set(task.token,{token:task.token,key:task.key,value:item.value});processed++;}
+ const entries=plan.tasks.map(task=>cache.visible.get(task.token)).filter(Boolean),glow=[];for(const entry of entries)if(entry.value.glow?.length)for(const n of entry.value.glow)glow.push(n);
+ let result;if(opt.incremental)result=incrementalPreviewMeshes(cache,entries,glow);else{const groups={};for(const k of PREVIEW_GROUPS)groups[k]=new Geo(64);for(const entry of entries)for(const k of PREVIEW_GROUPS)if(entry.value[k].ni)appendGeo(groups[k],entry.value[k]);result={...groups,glow};}
+ if(opt.progressive)result.pending=entries.length<plan.tasks.length;return result;
+}
+
 function meshReferenceHatches(ship,owned=false){
  const g=new Geo(16);
  for(const h of ship.hatches){if(!h.skinAsset||h._doorDetached||h.hullOwner&&!owned)continue;const bay=ship.parts.find(p=>p.id===h.bay)||(owned?{c:h.skinBayAnchor||[0,0,0]}:null);if(!bay)continue;const delta=C.sub(bay.c,h.skinBayAnchor||bay.c),open=h.open??0,side=h.face==='port'?-1:1,spec=C.slidingHatchSpec(ship,h),mid=spec?(spec.b[spec.slideAxis]+spec.b[spec.slideAxis+3])/2:0;
@@ -3119,7 +3245,7 @@ class CompatRenderer {
   this.kind='compat';this.disposed=false;this.meshes={};this.lines={};this.points={};this.fleetCache=new Map();
   this.off=[0,0,0];this.cam={th:.85,ph:1.05,r:1500,target:[0,0,0],fov:.72};this.frames=0;
  }
- upload(name,g){this.meshes[name]={geo:g,count:g.ni};}
+ upload(name,g){this.meshes[name]={geo:g,count:g.previewActiveIndices===0?0:g.ni};}
  setLines(name,data){this.lines[name]=data;}
  setPoints(name,pos,col,size){this.points[name]={pos,col,size};}
  setGlow(list,rgb){const c=rgb||[110,185,255],pos=[],col=[],size=[];for(let i=0;i<list.length;i+=4){pos.push(...list.slice(i,i+3));col.push(c[0],c[1],c[2],150);size.push(list[i+3]);}this.setPoints('glow',pos,col,size);}
@@ -3215,6 +3341,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
+return {meshPreview, clearPreviewCache, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
 })();
 

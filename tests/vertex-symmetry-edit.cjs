@@ -3,10 +3,11 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),plain=x=>JSON.parse(JSON.stringify(x)),run=s=>vm.runInContext(s,cx);
 function section(a,b){const i=app.indexOf(a),j=app.indexOf(b,i+a.length);assert.ok(i>=0&&j>i,a);return app.slice(i,j);}
-vm.runInContext(`const C=Core,undoStack=[],redoStack=[],st={ve:{mirror:false},sel:null};let ship,S=null,prevS=null,lastOp='',dragSnap=null,dragLabel='';
+vm.runInContext(`const C=Core,undoStack=[],redoStack=[],st={ve:{mirror:false},sel:null},view=null;let ship,S=null,prevS=null,lastOp='',dragSnap=null,dragLabel='';
 function touch(){}function scheduleStats(){}function updateUndo(){}function autosave(){}function sndEdit(){}function sndUI(){}function toast(){}function esc(x){return x;}
 function reconcileSolidCutter(){}function hideInspect(){}function updateName(){}function renderPanel(){}function findSel(s){return ship[s.list].find(p=>p.id===s.id);}`,cx);
-vm.runInContext(section('function snap()','function updateUndo()'),cx);
+vm.runInContext(section('function snap(','function updateUndo()'),cx);
+vm.runInContext(section('function previewHistory(','// Exterior view skips'),cx);
 vm.runInContext(section('function veCommit(','function veUndoLocal('),cx);
 
 function four(tilted=false){
@@ -52,11 +53,13 @@ test('internally symmetric user-part children retain their placed mirror-plane o
  const restored=C.deserialize(plain(C.serialize(target)));assert.equal(restored.parts.length,4);checkPeers(restored,before,1);
 });
 
-test('following the four meshes keeps surface configuration, generated cell identity and independent foil pivots',()=>{
+test('following the four meshes keeps face armor configuration and independent foil pivots',()=>{
  const s=four();s.hull.assembly=true;assert.equal(C.enableSurfaceMode(s,true).ok,true);const patch=C.surfacePatches(s).find(p=>p.host==='p1'&&p.face==='top');assert.ok(patch);
- assert.equal(C.setSurfaceConfig(s,patch.id,{armor:{material:'dense',thickness:.1},equipment:{kind:'hdis',count:1,depth:1},style:{seed:17}}).ok,true);
- const config=plain(s.surfaces),settings=o=>{const copy=plain(o);for(const p of copy.patches)delete p.boundArea;return copy;},devices=s.parts.filter(p=>p.surfacePatch).map(p=>({id:p.id,patch:p.surfacePatch,cell:p.surfaceCell})),hinges=s.parts.filter(p=>p.id<=4).map(p=>plain(p.wing));assert.equal(devices.length,1);
- reset(s);assert.equal(edit(),true);C.surfaceSync(s);assert.deepEqual(settings(s.surfaces),settings(config));assert.ok(s.surfaces.patches.some((p,i)=>Math.abs(p.boundArea-config.patches[i].boundArea)>1e-4),'the changed physical face area is recomputed');assert.deepEqual(s.parts.filter(p=>p.surfacePatch).map(p=>({id:p.id,patch:p.surfacePatch,cell:p.surfaceCell})),devices);
+ assert.equal(C.setSurfaceConfig(s,patch.id,{armor:{material:'dense',thickness:.1}}).ok,true);
+ // Face settings now describe armor only. Physical areas come from the
+ // current mesh, while the saved configuration survives vertex editing.
+ const config=plain(s.surfaces),settings=o=>{const copy=plain(o);for(const p of copy.patches)delete p.boundArea;return copy;},areas=new Map(C.surfacePatches(s).map(p=>[p.id,p.area])),hinges=s.parts.filter(p=>p.id<=4).map(p=>plain(p.wing));assert.equal(s.parts.filter(p=>p.surfacePatch).length,0);
+ reset(s);assert.equal(edit(),true);C.surfaceSync(s);assert.deepEqual(settings(s.surfaces),settings(config));assert.ok(C.surfacePatches(s).some(p=>Math.abs(p.area-areas.get(p.id))>1e-4),'the changed physical face area is recomputed');assert.equal(s.parts.filter(p=>p.surfacePatch).length,0);
  assert.deepEqual(s.parts.filter(p=>p.id<=4).map(p=>plain(p.wing)),hinges);assert.equal(run('undoStack.length'),1);
 });
 

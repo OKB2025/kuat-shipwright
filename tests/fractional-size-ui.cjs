@@ -21,8 +21,9 @@ function setup(){const context=vm.createContext({console,C});vm.runInContext(`
  `,context);
  for(const [start,end]of [
  ['const fLen =','const fMass ='],['function slider(','function silhouette('],['const fmtM =','function baseFitEditor('],['function partSizeRange(','function paletteParts('],
+ ['function hullEditorPart()','function syncHullEditor('],
  ['function setHullDims(','// Length, beam and depth:'],['function syncHullInputs(','function hullDimsHTML('],['function coordinateControls(','const BODY_ROLES='],
- ['function snap()','function restore('],['function beginDrag(','function undo('],['function partEditor()','function bindRealism('],
+ ['function snap(','function restore('],['function beginDrag(','function undo('],['function partEditor()','function bindRealism('],
  ["  $('#panel').addEventListener('input', e => {if(blockedHullControl", "  $('#panel').addEventListener('change', e => {\n    const t = e.target;"]
  ])vm.runInContext(section(start,end),context);
  vm.runInContext(`function edit(id,value,min=-60000,max=60000){const t={dataset:{sl:id},value:String(value),min:String(min),max:String(max)},sibling={value:null};controls.set(id,[t,sibling]);for(const fn of listeners.input)fn({target:t});for(const fn of listeners.change)fn({target:t});return {sibling:sibling.value,out:outputs.get('#out-'+id)?.textContent};}`,context);

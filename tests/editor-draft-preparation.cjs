@@ -27,7 +27,7 @@ function setup(){
  `);
  const section=(start,end)=>{const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));};
  section('const eng = {','function enginePending()');
- section('function setShip(s, opts)','function snap()');
+ section('function setShip(s, opts)','function snap(');
  section('function titleStatus()','function renderTitle()');
  section('function renderTitle()','// New hulls use');
  section('async function voyPatrol(source)','function waitStats()');

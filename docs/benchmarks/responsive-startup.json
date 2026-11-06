@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "harnessSha256": "a8046daef101e8990c2bc93005f7df1814644ccfc327bfe78c9855b1d2775c10",
+  "harnessUnchanged": true,
+  "servedSourceSha256": {
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
+    "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
+    "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "inputLimitMs": 1500,
+  "scope": "Actual authenticated savedMandator318parts535fits; native?splash start, nativeContinue, nativecamera input before awaiting expensive engineering. No debugsetShip, fakeprofile or freshfactory build. Chromium CPU4x is diagnostic, not physical-device timing.",
+  "url": "http://127.0.0.1:8876/?splash",
+  "cpuThrottle": 4,
+  "sourceSha256": {
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
+    "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
+    "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "sourceSha256After": {
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
+    "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
+    "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "sourceStable": true,
+  "elapsedMs": 25672,
+  "marks": [
+    {
+      "name": "domReady",
+      "timeMs": 454
+    },
+    {
+      "name": "splashReady",
+      "timeMs": 10865
+    },
+    {
+      "name": "nativeSplashStart",
+      "timeMs": 14315
+    },
+    {
+      "name": "nativeContinue",
+      "timeMs": 17489
+    },
+    {
+      "name": "draftOpened",
+      "timeMs": 17774
+    },
+    {
+      "name": "nativePendingPan",
+      "timeMs": 18899
+    },
+    {
+      "name": "authoringGeometryReceived",
+      "timeMs": 20443
+    },
+    {
+      "name": "nativeEarlyCachePan",
+      "timeMs": 21544
+    },
+    {
+      "name": "nativeAfterAutosavePan",
+      "timeMs": 24016
+    }
+  ],
+  "preContinue": {
+    "name": "\u30de\u30f3\u30c7\u30a4\u30bf\u30fcII\u7d1a\u30b9\u30bf\u30fc\u30fb\u30c9\u30ec\u30c3\u30c9\u30ce\u30fc\u30c8",
+    "parts": 318,
+    "fits": 535,
+    "deferred": true,
+    "gen": 0,
+    "mode": "worker",
+    "preSelectionUpdateCount": 0
+  },
+  "pan": {
+    "camera": "{\"th\":0.85,\"ph\":1.02,\"r\":13843.15760964393,\"target\":[0,0,0],\"fov\":0.72,\"ortho\":false}",
+    "pending": true,
+    "statsPending": true,
+    "parts": 318,
+    "fits": 535,
+    "cameraChanged": true,
+    "elapsedMs": 850,
+    "observed": {
+      "events": [
+        {
+          "trusted": true,
+          "pending": true,
+          "cameraChanged": true,
+          "time": 18695.5
+        },
+        {
+          "trusted": true,
+          "pending": true,
+          "cameraChanged": true,
+          "time": 18709.79999999702
+        },
+        {
+          "trusted": true,
+          "pending": true,
+          "cameraChanged": true,
+          "time": 18740.40000000596
+        },
+        {
+          "trusted": true,
+          "pending": true,
+          "cameraChanged": true,
+          "time": 18779
+        },
+        {
+          "trusted": true,
+          "pending": true,
+          "cameraChanged": true,
+          "time": 18835.5
+        },
+        {
+          "trusted": true,
+          "pending": true,
+          "cameraChanged": true,
+          "time": 18867.5
+        }
+      ],
+      "parts": 318,
+      "fits": 535
+    }
+  },
+  "warmPan": {
+    "elapsedMs": 1065,
+    "cameraChanged": true,
+    "afterAutosaveMs": 1167
+  },
+  "failure": null,
+  "errors": [],
+  "warnings": [
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "Access to XMLHttpRequest at 'https://cloudflareinsights.com/cdn-cgi/rum' from origin 'http://127.0.0.1:8876' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'http://127.0.0.1' that is not equal to the supplied origin.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 404 (File not found)"
+  ],
+  "state": {
+    "engine": {
+      "ready": true,
+      "mode": "worker",
+      "gen": 1,
+      "geoGen": 0,
+      "adoptedGen": 0,
+      "statsGen": 0
+    },
+    "stages": [
+      {
+        "label": "3D\u30e2\u30c7\u30eb\u7d20\u6750\u3092\u8aad\u307f\u8fbc\u307f\u4e2d\u2026",
+        "percent": "0%",
+        "time": 447.6000000089407
+      },
+      {
+        "label": "\u8a2d\u8a08\u8a08\u7b97\u3092\u6e96\u5099\u4e2d\u2026",
+        "percent": "88%",
+        "time": 4144.5
+      },
+      {
+        "label": "\u8a2d\u8a08\u753b\u9762\u3092\u6e96\u5099\u4e2d\u2026",
+        "percent": "88%",
+        "time": 5236.9000000059605
+      },
+      {
+        "label": "\u6e96\u5099\u5b8c\u4e86",
+        "percent": "100%",
+        "time": 10820
+      }
+    ],
+    "scripts": [
+      {
+        "name": "data/reference.js",
+        "size": 17871345,
+        "started": 3406.2000000029802,
+        "loaded": 3810.7999999970198
+      },
+      {
+        "name": "data/textures.js",
+        "size": 561583,
+        "started": 3803.2000000029802,
+        "loaded": 3848.4000000059605
+      },
+      {
+        "name": "data/imperial2.js",
+        "size": 182573,
+        "started": 3846.2000000029802,
+        "loaded": 3872.1000000089407
+      },
+      {
+        "name": "data/fleet.js",
+        "size": 4319170,
+        "started": 3870,
+        "loaded": 4145.70000000298
+      },
+      {
+        "name": "js/core.js",
+        "size": 3261076,
+        "started": 4169.5,
+        "loaded": 4700
+      },
+      {
+        "name": "js/gfx.js",
+        "size": 326963,
+        "started": 4697,
+        "loaded": 4742.100000008941
+      },
+      {
+        "name": "js/engine.js",
+        "size": 37180,
+        "started": 4739.9000000059605,
+        "loaded": 4753
+      },
+      {
+        "name": "js/app.js",
+        "size": 1705711,
+        "started": 5314.100000008941,
+        "loaded": 10820.29999999702
+      }
+    ],
+    "workers": [
+      {
+        "type": "created",
+        "time": 3676
+      },
+      {
+        "direction": "received",
+        "type": "ready",
+        "time": 4310.5
+      },
+      {
+        "direction": "sent",
+        "type": "update",
+        "gen": 1,
+        "time": 17698.5
+      },
+      {
+        "direction": "received",
+        "type": "authoringGeometry",
+        "gen": 1,
+        "time": 19918.90000000596
+      }
+    ],
+    "long": [
+      {
+        "start": 411.90000000596046,
+        "duration": 215
+      },
+      {
+        "start": 710.7000000029802,
+        "duration": 174
+      },
+      {
+        "start": 1145.5,
+        "duration": 51
+      },
+      {
+        "start": 1213.7999999970198,
+        "duration": 90
+      },
+      {
+        "start": 2933.2999999970198,
+        "duration": 87
+      },
+      {
+        "start": 3099.7000000029802,
+        "duration": 315
+      },
+      {
+        "start": 3542.2000000029802,
+        "duration": 156
+      },
+      {
+        "start": 3719.4000000059605,
+        "duration": 92
+      },
+      {
+        "start": 4010.2000000029802,
+        "duration": 135
+      },
+      {
+        "start": 4334.9000000059605,
+        "duration": 365
+      },
+      {
+        "start": 5379.29999999702,
+        "duration": 5441
+      },
+      {
+        "start": 10824.10000000894,
+        "duration": 525
+      },
+      {
+        "start": 11412.40000000596,
+        "duration": 387
+      },
+      {
+        "start": 11807.20000000298,
+        "duration": 84
+      },
+      {
+        "start": 11891.90000000596,
+        "duration": 905
+      },
+      {
+        "start": 12860.90000000596,
+        "duration": 249
+      },
+      {
+        "start": 13809.29999999702,
+        "duration": 455
+      },
+      {
+        "start": 14735.20000000298,
+        "duration": 111
+      },
+      {
+        "start": 14965.29999999702,
+        "duration": 76
+      },
+      {
+        "start": 17414.20000000298,
+        "duration": 69
+      },
+      {
+        "start": 17486,
+        "duration": 124
+      },
+      {
+        "start": 17610.40000000596,
+        "duration": 93
+      },
+      {
+        "start": 17843.79999999702,
+        "duration": 54
+      },
+      {
+        "start": 18051.90000000596,
+        "duration": 607
+      },
+      {
+        "start": 19802.40000000596,
+        "duration": 50
+      },
+      {
+        "start": 19916.10000000894,
+        "duration": 245
+      },
+      {
+        "start": 20162.60000000894,
+        "duration": 276
+      },
+      {
+        "start": 20455.10000000894,
+        "duration": 335
+      },
+      {
+        "start": 21103.90000000596,
+        "duration": 55
+      },
+      {
+        "start": 22193.29999999702,
+        "duration": 50
+      },
+      {
+        "start": 22887.70000000298,
+        "duration": 276
+      },
+      {
+        "start": 24287.40000000596,
+        "duration": 70
+      }
+    ],
+    "clicks": [
+      {
+        "type": "splashStart",
+        "trusted": true,
+        "time": 14219.5,
+        "handled": 14259,
+        "handlerMs": 39.5
+      },
+      {
+        "type": "continue",
+        "trusted": true,
+        "time": 17417.79999999702,
+        "handled": 17454,
+        "handlerMs": 36.20000000298023
+      }
+    ],
+    "cameraEvents": [
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 18695.5
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 18709.79999999702
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 18740.40000000596
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 18779
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 18835.5
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 18867.5
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 20959.29999999702
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 20989.10000000894
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 21106.60000000894
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 21253.5
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 21355.70000000298
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 21476.90000000596
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 23263.70000000298
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 23386.20000000298
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 23539.79999999702
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 23678.20000000298
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 23839.40000000596
+      },
+      {
+        "trusted": true,
+        "pending": true,
+        "cameraChanged": true,
+        "time": 23998.29999999702
+      }
+    ],
+    "glError": 0
+  },
+  "rawBlueprintSha256": "2282ed4832b07d5a4dc433b802d6d85bd13316bd596427077d4a2eb49b7932b6",
+  "screenshot": "docs/images/responsive-startup-mandator.png",
+  "date": "2026-11-06T13:39:32.265Z"
+}

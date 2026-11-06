@@ -1,0 +1,327 @@
+Additional upstream checks after integrating main b35b78e.
+Core, data and capital-turret-core.cjs are byte-identical to that main.
+Four pre-existing capital-turret-core expectations fail (100kt and retired surface equipment); no related editor regression failed.
+The optional named-example full factory recalculation was stopped before any case result; no result was counted.
+
+Command: node --test tests/authoring-geometry-engine.cjs tests/ball-turret-placement-ui.cjs tests/capital-turret-core.cjs tests/catalog-max-performance-ui.cjs tests/editor-background-edits.cjs tests/editor-built-state-reuse.cjs tests/editor-deferred-surfaces.cjs tests/editor-draft-preparation.cjs tests/editor-fit-picking-performance.cjs tests/editor-interaction-performance.cjs tests/editor-pending-placement.cjs tests/editor-preview-incremental.cjs tests/fractional-size-ui.cjs tests/load-sizes.cjs tests/missile-launcher-ui.cjs tests/propulsion-editor-ui.cjs tests/reference-transform-performance.cjs tests/runtime-foils-rays.cjs tests/ship-launcher-render.cjs tests/ship-launcher-ui.cjs tests/source-delivery.cjs tests/sponson-ui.cjs tests/structure-envelope-ui.cjs tests/superweapon-body-geometry.cjs tests/surface-manual-runtime.cjs tests/turret-rotation-ui.cjs tests/venator-side70.cjs tests/vertex-symmetry-edit.cjs tests/weapon-family-ui.cjs tests/weapon-pedestal-ui.cjs tests/weapon-picking-inside-bounds.cjs tests/wing-planform-ui.cjs
+
+✔ the exact owned hull is delivered before engineering and surface surveys (1161.053089ms)
+✔ a newer edit can use the early hull and skips obsolete engineering without losing hull dirtiness (458.560503ms)
+✔ plain gun changes reuse the authored hull; a moved hull gets a fresh packet (889.953476ms)
+✔ authoring packets omit engineering, packed rooms and exposure caches (250.877101ms)
+✔ native placement and selected controls expose horizontal and vertical ball angles only for full balls (12.903123ms)
+✔ real preview and placement handlers use identical clamped angles, muzzles and unchanged mount normals (125.282748ms)
+✔ a native pitch drag produces one Undo and retains pose through Redo and blueprint loading (104.48713ms)
+✔ left-right and top-bottom copies retain relative pitch and reflect yaw in placement and live editing (71.546086ms)
+✔ copy into placement preserves pitch while templates cannot override a later chosen angle (43.969743ms)
+✔ stale pitch controls cannot rotate nonballs or surface ports and weapon replacement clears the ball pose (62.969446ms)
+✔ rigid group rotations preserve aimed ball directions including pitch, mirrored followers and the fixed mounting normal (128.51085ms)
+✖ nine capital entries use physical native models and exact per-barrel gun or ion energies (2.989911ms)
+✔ barrel counts share the corrected photographic size anchors and the ion twin owns the cast bowl (11.354662ms)
+✔ all capital joints and exact muzzle positions follow six mounting axes and a sloped surface (8.397669ms)
+✔ old capital source skins migrate to the new normal model without changing fitting identity or pose (0.663874ms)
+✔ capital gunhouses reserve real closed volume and no more stored energy than physically allocated (525.352058ms)
+✔ the ISD uses six 175 TT twins and the aft ion pair at the existing eight battery stations (79.803939ms)
+✖ saved profile9 surface guns recompile their old physical footprint once under the new model catalog (9.021502ms)
+✖ real profile10 saved designs rebuild the compact triple room, surface cache and embarked profile once (2.893375ms)
+✔ ball placement pitch rotates the complete spherical body about its fixed center before yaw on every mount frame (2604.287154ms)
+✔ placed ball pitch survives mirrored copies, save/load and reusable parent templates while unsupported pitch is cleared (10.06663ms)
+✔ changing ball pitch invalidates real gunhouse and charging caches without tilting its internal charging equipment (269.895381ms)
+✖ pitched native ball guns carry their physical joint, energy, electrical demand and heat owner into the fleet profile (599.417286ms)
+✔ underpowered COMBAT propulsion stays stopped while catalogue acceleration uses the installed engineering maximum (2159.571114ms)
+✔ maximum shield capacity and every valid mounted barrel volley are independent of charge and operating allocation (1618.855165ms)
+✔ header, basic specifications, editor facts and reference card consistently show MAX while the operating section remains actual (1545.689058ms)
+✔ catalogue acceleration respects both rated and structural limits and the explanatory labels translate (1515.709196ms)
+✔ catalogue radar durability is independent of actual COMBAT thrust (1458.7335ms)
+✔ the first shape build displays a selectable draft and a nonblocking progress indicator (488.561074ms)
+✔ pending picking follows moved source parts instead of their old clipped geometry (147.604926ms)
+✔ delete, undo, redo and another move update immediately while an earlier request is running (267.422967ms)
+✔ consecutive edits dispatch the latest source state and retain all changed geometry flags (142.863718ms)
+✔ Continue displays the deferred draft before any geometry response (206.779546ms)
+✔ history property ordering alone cannot trigger a full preview rebuild (186.638133ms)
+✔ selection deletion hides fitted weapons immediately as well as structural parts (176.358426ms)
+✔ a newly built example keeps its warmed worker state when the editor assigns a save identity (8087.843533ms)
+✔ removing editor identity from worker state does not suppress derivation after a real design change (8821.454025ms)
+✔ the opt-in first geometry arrives before face exposure and the second packet contains full pick data and host references (540.270597ms)
+✔ updates without deferred surfaces deliver authored picks before the full geometry and statistics (395.28358ms)
+✔ a configured armor face retains identical public design, surface ledger, statistics and profile after deferred completion (424.019743ms)
+✔ an edit queued after the first geometry skips the obsolete surface survey and statistics (270.138943ms)
+✔ inline delivery yields its first mesh and accepts a following edit before surveying obsolete faces (99.149527ms)
+✔ an unselected startup draft keeps its authored design and Continue action without preparing it (4.74195ms)
+✔ explicit Continue starts the deferred draft once and dispatches the selected authored design (3.373421ms)
+✔ a normal new design replaces an unselected draft even when the startup engine kick is queued (1.800152ms)
+✔ ordinary and direct hot-editor setShip calls still start preparation immediately (1.87862ms)
+✔ starting patrol with the current deferred draft prepares it before awaiting figures (2.258845ms)
+✔ failed example and saved-design loads return to the menu and preserve the deferred draft (2.630717ms)
+✔ a cold centerline hover over the actual535 Mandator guns does not decode nearby missed assets (1036.508554ms)
+✔ cold reference picking keeps every exact rendered triangle without generating render materials (1540.830141ms)
+✔ picking reuses a matching progressive preview without transforming its gun a second time (206.787597ms)
+✔ an opaque nearer surface rejects a cold fitting before decoding and exact hits obey the same limit (152.954179ms)
+✔ a stray asset override on a procedural fitting never replaces its actual rendered body (117.076645ms)
+✔ clearing a completed draft releases its pick sources while exact selection remains available (168.083107ms)
+✔ rapid drag events update one preview per frame and dispatch only the released design (5.17098ms)
+✔ a frame previews both parts and fittings, and cancellation discards unrendered edits (1.709415ms)
+✔ a worker completion during a drag performs no upload, state adoption or statistics rendering (1.455241ms)
+✔ deferred hull and hatch meshes survive a newer part-only update (1.165402ms)
+✔ a response from a previous design cannot seed deferred meshes for the newly loaded design (0.87284ms)
+✔ a fast current worker response clears a queued preview before it can cover the final mesh (0.838908ms)
+✔ a same-generation worker response waits until release and then requests fresh derived caches (1.031971ms)
+✔ a completed surface packet survives an unchanged drag and is adopted on release without another survey or mesh upload (1.791469ms)
+✔ a retained surface packet from before a real edit cannot replace the newer design after dragging (1.163339ms)
+✔ loading another design releases a retained surface snapshot from the previous design (1.558106ms)
+✔ a deferred real Mandator draft and autosave metadata never start geometry or propulsion (308.518461ms)
+✔ requested owned-hull geometry stays warm through fit edits and equivalent worker object replacement (1806.762763ms)
+✔ cold authored dimensions are cached and saving never asks for physical bounds (174.06453ms)
+✔ cold Mandator bounds and picking stay coarse until exact worker caches hydrate without rebuilding the hull (2716.549955ms)
+✔ ordinary and mirrored placement use the same authored parts and commit the shared fit IDs (1838.752565ms)
+✔ ready mounting preserves authored cuts and early hatch packets keep open and closed roofs exact (155.456403ms)
+✔ selecting an unprepared owned hull displays pending volume without compiling it (130.631233ms)
+✔ engine hover broadphase skips remote skins and encloses rotated exact engine vertices (308.402576ms)
+✔ fitting picking passes the nearest exact obstruction and fitting distance before building another gun (144.842919ms)
+✔ palette classification reuses exact hull evidence and small-craft extent changes match Core (1514.871342ms)
+✔ early exact geometry replaces the cached coarse dimensions and catalogue class without another edit (161.599487ms)
+✔ fast history keeps portable restoration parity for the archive, surfaces, groups and embedded launchers (1883.007775ms)
+✔ pending turret information uses static requirements and never solves clipping, capacitors or firing arcs (130.933462ms)
+✔ pending generic hover and route inspection never start engineering and mark mirrored drafts pending (170.19264ms)
+✔ progressive draft filling yields to input while urgent edits keep the newest geometry (2.011561ms)
+✔ a cold missed ray over the actual535 Mandator fittings never constructs their visible meshes (757.38706ms)
+✔ adding a gun keeps existing preview geometry without rebuilding unchanged parts or turrets (187.458549ms)
+✔ the same cleared authored hull proxy is used for preview geometry and subsequent picking (611.900898ms)
+✔ preview caches follow moves, deletion, restoration and private aircraft-store changes (180.013299ms)
+✔ conservative cold bounds retain exact barrel, pedestal, pod and angled launcher picking through pose edits (400.789519ms)
+✔ incremental previews reuse blocks for30moves and upload only dirty ranges for each view (1036.709816ms)
+✔ shrinking a full draft to one edited fitting compacts its overlay and compat hides removed geometry (387.030748ms)
+✔ progressive draft filling yields between chunks and pauses background work for immediate new edits (194.959162ms)
+✔ a cold owned hull and its dependent engine wait for worker authoring geometry while other draft items remain usable (634.569778ms)
+✔ a measured thin structure retains fractional sizes and coordinates in editable controls (24.420417ms)
+✔ fractional edits use the normal undo transaction and survive blueprint serialization (10.359475ms)
+✔ sub-metre generic equipment keeps the same value in its size input and saved design (5.301747ms)
+✔ typed hull dimensions retain finer values when sibling controls are refreshed (4.864876ms)
+✔ coordinate placement preserves the exact signed decimal entries (2.325577ms)
+✔ generic cylinder lengths can be edited below one metre (2.867175ms)
+✔ the loading bar sizes match the shipped files (2.308201ms)
+✔ ships and aircraft offer one compact concussion launcher, with native pitch controls (6.486138ms)
+✔ placement and carried settings preserve launch pitch while a new placement can use another angle (119.619442ms)
+✔ pitch editing follows linked mirrors and groups a drag into one Undo transaction (119.283815ms)
+✔ bulk angle changes affect selected compact launchers and leave other fittings alone (32.777093ms)
+✔ invalid and stale angle inputs cannot alter unrelated or surface-only equipment (30.773954ms)
+✔ gamepad focus nudges the same native number field and completes the normal edit transaction (38.514931ms)
+✔ all native angle-control text and the VLS choice translate to English (49.791141ms)
+✔ the compact launcher palette displays its real firing cycle and shared six-round store (19.887032ms)
+✔ engine editor exposes independent machinery and fixed profiles with honest unresolved endurance (431.956261ms)
+✔ nozzle-only edits preserve each machine rating and geometry through Undo and Redo (154.901704ms)
+✔ one batch rating action edits selected machines and symmetry followers in one Undo step (142.216492ms)
+✔ a density overflow rejects a complete batch before mutating any engine (126.634742ms)
+✔ appearance edits preserve unequal machinery and editing an independent body updates its linked nozzle (171.658522ms)
+✔ a linked nozzle opens its real body editor and the body reactor selector uses the bound action and Undo (198.87266ms)
+✔ shared outlet connection batches resolve mirrored owner and reactor IDs once and reject broken owners atomically (156.41659ms)
+✔ the bound selector connects a real body and disconnects its nozzle without creating another machine (325.720928ms)
+✔ machinery linking maps mirrored real bodies atomically and rejects nozzles or missing bodies as sources (156.004456ms)
+✔ pending generic and model engines preserve rated machinery across appearance edits and placement previews (144.020956ms)
+✔ an external integrated engine cannot be rebound to an independent core through a mixed selection (124.250832ms)
+✔ engine diagnostics and full editor strings translate to English (158.168169ms)
+✔ independent core, nozzle and electrical/shaft panels translate their user-facing text (197.585858ms)
+✔ external units keep their body at the nozzle throat while appearance changes preserve one integrated unit (258.146371ms)
+✔ an independent nozzle selection strip resolves the connected body without duplicating its thrust (132.622064ms)
+✔ gamepad nudges unrestricted precision number fields through the same validated action and Undo (124.498296ms)
+✔ worker statistics refresh shows performance without repeating the 系統 propulsion card (132.931457ms)
+✔ external cylinder shape survives saved machinery snapshots and repeated palette edits (183.623079ms)
+✔ batched reference transforms preserve every authored vertex, face and curved normal across full poses (769.499452ms)
+✔ a new720TT fitting resolves its static transform once instead of once per vertex (3.078082ms)
+✔ runtime clearance switches from blocked to clear when an authored wing folds away from the ray (13.902823ms)
+✔ posed roots use the custom pivot, and matching posed fit objects rebuild origins, normals and bounds (3.249501ms)
+✔ carried cylinders and boxes rotate their physical axes with the runtime foil (3.282801ms)
+✔ fully deployed, absent and malformed fractions reuse the exact base context; known numeric fractions clamp (1.704476ms)
+✔ pose cache reuses identical deployment states and bounds memory to three private contexts (8.141695ms)
+✔ invalid or stale fit IDs and ray directions fail closed without accepting design data from the caller (2.444144ms)
+✔ ship cells are exactly twice the compact pod size and repeat a bounded open housing (7.843434ms)
+✔ yawed and pitched external housing and supports stay inside the physical selectable bounds (172.67714ms)
+✔ every repeated cell mouth is open in the rendered and picked mesh (7.173041ms)
+✔ embedded cells cut the actual structure mesh while mount-seat rays retain the original face (35.230819ms)
+✔ reference skin clipping preserves source UVs around the same physical opening (3.417961ms)
+✔ production structure holes move and close after embedding is disabled, inactive, or deleted (26.420853ms)
+✔ ship launcher palette and controls expose real grid dimensions separately from compact pods (8.127875ms)
+✔ native placement, carried settings and save/load preserve grid and independent pose (130.494285ms)
+✔ editing a mirrored grid and heading is one undoable native drag (76.770754ms)
+✔ bulk grid controls leave compact aircraft launchers untouched and reject invalid inputs (31.860697ms)
+✔ embedded placement uses the chosen structure normal even with a top-placement mode (2.644429ms)
+✔ ship grid controls and palette copy translate to English (56.62318ms)
+✔ native world-ray picking sees the rear housing through an open embedded mouth (18.013318ms)
+✔ revalidation replaces stale cached gfx and the worker executes the exact page source snapshot (20.166431ms)
+✔ unchanged sources retain their identity; a renderer edit changes both thread identities (24.932683ms)
+✔ stale or missing progress sizes cannot disable revalidation or source identity (11.252037ms)
+✔ startup paints the current loading stage before the core and app scripts execute (7.495879ms)
+✔ Worker unavailable retains the verified page snapshot for inline rendering (8.529476ms)
+✔ Worker refused retains the verified page snapshot for inline rendering (8.497188ms)
+✔ inline requested retains the verified page snapshot for inline rendering (8.571144ms)
+✔ fetch unavailable uses cache-busted HTTP scripts, inline rendering, and no disk identity (9.021977ms)
+✔ blob scripts refused uses cache-busted HTTP scripts, inline rendering, and no disk identity (8.193514ms)
+✔ one fetch failed uses cache-busted HTTP scripts, inline rendering, and no disk identity (7.372523ms)
+✔ later blob script refused uses cache-busted HTTP scripts, inline rendering, and no disk identity (6.668298ms)
+✔ file:// loading uses unchanged relative script paths without network fetch or disk caching (6.80171ms)
+✔ missing crypto keeps identical main/worker rendering but disables persistent identity (8.064329ms)
+✔ weapon shortcuts select the wall-deck tool and return to point-defense placement without stale import or grid settings (7.467141ms)
+✔ platform size controls affect both preview and placement, while normal structures retain their own settings (6.891009ms)
+✔ actual wall clicks create editable left-right and vertical pairs in one Undo transaction and survive Redo (9.416068ms)
+✔ horizontal faces and internal compartment hits cannot place a wall platform or consume Undo (3.180159ms)
+✔ point-defense ghost and committed placement both use the clicked sponson deck below higher structures (10.854673ms)
+✔ shrinking a hull preserves planned placement and shape ranges and every existing outlier (22.725513ms)
+✔ room and fitting controls keep their intended working range after the hull is reduced (5.298492ms)
+✔ hull dimensions can shrink below their class and grow beyond the initial plan without changing it (58.467689ms)
+✔ the new-design screen explains that its initial dimensions describe the planned finished craft (2.894036ms)
+✔ fresh assembled-size statistics bypass geometry and pending figures use only direct bounds (3.40545ms)
+✔ planned dimensions and ordinary structure armor controls translate fully into English (71.01418ms)
+✔ ordinary structures retain their skin and shape controls and expose only six armor-thickness values (11.730808ms)
+✔ legacy equipment faces appear as zero armor without machinery editing or persistent equipment (324.751702ms)
+✔ paid cannon volume and picking follow both solids while the intervening gap stays empty (9.275525ms)
+✔ a muzzle stays on the barrel when the paid machinery grows off to one side (2.032243ms)
+✔ serialization retains machinery solids, the muzzle, orientation, paid mass and cost (39.365986ms)
+✔ both mirrors preserve the exact reflected machinery and muzzle at arbitrary orientation (2.88361ms)
+✔ rotational arrays carry the complete chamber and separate muzzle around axis 0 (12.735057ms)
+✔ rotational arrays carry the complete chamber and separate muzzle around axis 1 (8.383397ms)
+✔ rotational arrays carry the complete chamber and separate muzzle around axis 2 (7.094377ms)
+✔ the rendered chamber uses the same triangles as collision and selectable bounds (4.071537ms)
+✔ new placement mirrors the complete paid chamber and rejects invalid bodies before changing the design (2.715145ms)
+✔ separate chamber components cannot cancel one another through opposite face winding (0.801151ms)
+✔ legacy fixed cylinders keep their original physical volume and muzzle (0.35661ms)
+✔ turret firing-line tests preserve empty gaps and block the actual wing machinery (3.241552ms)
+✔ surface exposure follows the two actual chamber footprints and refreshes when their dimensions change (6.218043ms)
+✔ selection and ghost outlines trace the same machinery corners as the rendered solids (2.773233ms)
+✔ manual charging uses the same input/output/loss boundary as common combat (6.050639ms)
+✔ full manual cell banks draw no fictitious charge power or weapon heat (2.054757ms)
+✔ a direct pilot cannot recharge or thrust during a common-grid trip (1.12402ms)
+✔ manual blackout preserves three-axis inertia instead of applying powered lateral damping (1.724247ms)
+✔ jump start and an existing manual spool both wait for restored electrical power (0.693068ms)
+✔ practice ion pulses share finite geometric energy in distance order across several targets (4.785787ms)
+✔ a partially charged practice pulse consumes the common superweapon store exactly once (0.7998ms)
+✔ a practice beam records emitted energy separately from safely released unused charge (0.419494ms)
+✔ every rotatable procedural and reference turret exposes the same precise placement and selected controls (11.569925ms)
+✔ actual placement keeps the requested yaw for procedural, craft and reference turret families (109.676101ms)
+✔ selected yaw drags use one Undo transaction and survive Redo and blueprint loading (85.536935ms)
+✔ initial and edited left-right and vertical mirror turrets carry reflected yaw and can be edited individually (42.733728ms)
+✔ copying a rotated turret into placement keeps its angle and permits a different new angle (54.888676ms)
+✔ unsupported fixed weapons and wall mounts do not gain yaw edits through stale controls (5.01936ms)
+✔ the actual rotation controls and placement guidance translate fully in English (50.227718ms)
+✔ the restored side weapon has its own 70 TT-per-barrel identity without upgrading old 40 TT inventory (1.940414ms)
+✔ all archived source vertices, oriented triangles and UVs survive the rigid side-gun wrapper (7.919685ms)
+✔ real port and starboard placement keeps the full source housing while its two barrels articulate within the side limits (262.130532ms)
+✔ moving a mesh vertex from any of four linked structures updates all reflected world geometry exactly once (41.371137ms)
+✔ the four-way edit is one real Undo/Redo operation and all geometry and hinges survive public save/load (15.972652ms)
+✔ internally symmetric user-part children retain their placed mirror-plane offsets during a vertex edit (12.294029ms)
+✔ following the four meshes keeps face armor configuration and independent foil pivots (23.070646ms)
+✔ self links, duplicate peers and cyclic malformed symmetry links cannot modify the source twice or expand traversal (1.544836ms)
+✔ a rejected collapsed-face edit changes no sibling and consumes no Undo step (1.228538ms)
+✔ all nine photo families appear once in order, with twenty-nine physical barrels and no retired catalog entries (10.417542ms)
+✔ the real weapon-source table renders all nine families and legacy saved aliases normalize without dropping fittings (9.173462ms)
+✔ legacy htl saves join DBY-827 without losing identity, placement, aim, editing or picking (189.506427ms)
+✔ actual wall-only placement rejects deck and bow taps before creating an Undo transaction (171.023696ms)
+✔ wall-only placement previews reject the same normal and mount controls retain the chosen side gun (9.857866ms)
+✔ ordinary guns place flush without automatic riser geometry while missile pitch retains its explicit support (383.987792ms)
+✔ the selected-gun card separates exterior and embedded housing from pending additional allocation (50.861518ms)
+✔ the selected-gun card reports actual stats allocation and hides an unnecessary internal depth control (401.183919ms)
+✔ new weapon placement starts at zero lift, and fixed or missile mounts never expose lift controls (164.743889ms)
+✔ stale controls cannot lift fixed and missile weapons or seed lifted placement settings (95.70377ms)
+✔ template and linked mirror edits strip unsupported supports while explicit articulated turret supports retain Undo (36.791543ms)
+✔ bulk clipboard paste normalizes old fixed supports and preserves explicit articulated supports (37.786197ms)
+✔ weapon picking and both drag gates require visible geometry rather than an empty region of a padded box (91.514779ms)
+✔ accurate native bounds contain an extremal visible muzzle while both drag gates accept its actual geometry (79.721416ms)
+✔ flush mounting guidance translates without Japanese fragments (42.72152ms)
+✔ upright slope placements preserve their automatic bases through mirrored placement, dragging and reuse (43.086481ms)
+✔ a ray from empty space inside native gun bounds can pick a visible barrel on cold and cached paths (128.525659ms)
+✔ inside-bounds empty rays remain unselectable until they hit a real triangle (29.170388ms)
+✔ new wings on a 4 m hull accept measured 12 m, 25 m and 120 m dimensions through the real numeric inputs (15.524695ms)
+✔ selected wing dimensions exceed the hull and retain fractional sizes through Undo, Redo, save and placement copy (10.118089ms)
+✔ the new-wing tip gauge moves fore and aft while retaining the root, size and cooling area (4.66229ms)
+✔ a tip drag is one Undo transaction and mirrors geometry and its chosen tip side (7.465799ms)
+✔ forward, swept, delta and double-delta presets work before and after placement as physical airfoil parts (5.498113ms)
+✔ choosing the opposite tip persists into presets, placement copies and mirrored wings without affecting solar panels (5.434798ms)
+ℹ tests 230
+ℹ suites 0
+ℹ pass 226
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25466.042317
+
+✖ failing tests:
+
+test at tests/capital-turret-core.cjs:23:1
+✖ nine capital entries use physical native models and exact per-barrel gun or ion energies (2.989911ms)
+  AssertionError [ERR_ASSERTION]: 1e-7 != 0.02
+      at near (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:4:101)
+      at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:33:39)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/capital-turret-core.cjs:103:1
+✖ saved profile9 surface guns recompile their old physical footprint once under the new model catalog (9.021502ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 1
+
+      at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:106:91)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/capital-turret-core.cjs:111:1
+✖ real profile10 saved designs rebuild the compact triple room, surface cache and embarked profile once (2.893375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 1
+
+      at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:117:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/capital-turret-core.cjs:162:1
+✖ pitched native ball guns carry their physical joint, energy, electrical demand and heat owner into the fleet profile (599.417286ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(cleaned?.surface)
+
+      at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:168:73)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
