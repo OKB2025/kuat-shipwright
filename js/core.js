@@ -32696,7 +32696,11 @@ function surfaceExposeTriangle(points,plane,sections,out,keepInside=false){
   const put=(low,high)=>{if(high.y-low.y<=eps*.1)return;const world=(X,edge)=>add(origin,add(mul(u,X),mul(v,solidSegmentY(edge,X)))),poly=[world(a,low.edge),world(b,low.edge),world(b,high.edge),world(a,high.edge)];triangulateFan(poly,result);};let cursor=lo;if(keepInside){for(const q of union)put(q.lo.y>lo.y?q.lo:lo,q.hi.y<hi.y?q.hi:hi);continue;}
   for(const q of union){if(q.hi.y<=cursor.y+eps*.1)continue;if(q.lo.y>=hi.y-eps*.1)break;removed=true;if(q.lo.y>cursor.y+eps*.1)put(cursor,q.lo.y<hi.y?q.lo:hi);if(q.hi.y>cursor.y)cursor=q.hi;if(cursor.y>=hi.y-eps*.1)break;}
   if(cursor.y<hi.y-eps*.1)put(cursor,hi);
- }if(keepInside)out.push(...result);else if(removed)out.push(...result);else out.push(...points[0],...points[1],...points[2]);
+ }
+ // Clipped faces can contain millions of coordinates. Spreading them into a
+ // single push call exceeds engine argument limits, even without recursion.
+ if(keepInside||removed){for(let i=0;i<result.length;i++)out.push(result[i]);}
+ else out.push(...points[0],...points[1],...points[2]);
 }
 function surfaceExposedTriangles(T,host,meshes){
  if(!T.length)return [];const out=[],planes=new Map(),probe=1e-6,bounds=solidMeshBounds(T),candidates=meshes.filter(m=>m.part!==host&&[0,1,2].every(i=>m.b[i]<=bounds[i+3]+probe&&m.b[i+3]>=bounds[i]-probe));if(!candidates.length)return T;

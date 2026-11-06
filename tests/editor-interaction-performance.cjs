@@ -5,6 +5,7 @@ function setup(){
  run(`let ship={parts:[{id:1,c:[0,0,0]}],fits:[{id:2,p:[0,0,0]}]},S=null,prevS=null,view={uploads:[],meshes:{},upload(k,g){this.uploads.push({k,g});},setGlow(){},setLines(){}},bounds=[],lastOp='',dragSnap=null,dragLabel='';
  const dirty={draw:false,overlay:false},st={coded:false,tab:'mod',foilView:null},fleet={mode:'design'},undoStack=[],redoStack=[],posts=[],previews=[];
  let serializations=0,overlays=0,saves=0;
+ const document={activeElement:null},syncHullEditor=()=>{},selItem=()=>null,armMode=()=>false;
  const C={publicJSON:s=>{serializations++;return JSON.stringify(s);}},$=()=>null,requestDraw=()=>dirty.draw=true,refreshOverlay=()=>overlays++,scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>saves++,snap=()=>JSON.stringify(ship),YardEngineClient={post:msg=>posts.push(msg)},Gfx={meshPreview:(s,parts,fits)=>{const g={parts:parts.map(p=>({id:p.id,c:p.c.slice()})),fits:fits.map(f=>({id:f.id,p:f.p.slice()}))};previews.push(g);return {preview:g};}};
  `);
  const section=(start,end)=>{const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));};
