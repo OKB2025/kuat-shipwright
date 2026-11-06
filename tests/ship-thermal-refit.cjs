@@ -106,7 +106,7 @@ test('a cooling-dominated hotel load reaches a bounded state and conserves its e
  u.order={...u.order,power:'balanced'};u.maneuver=1;C.heatInit(u);u.ht.t=0;u.ht.last=0;
  let previous=0,lastGain=0,minThermal=1;
  for(let i=0;i<240;i++){
-  const r=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:p.grid.Dw,shields:p.grid.Ds},.5,'balanced');near(r.propulsion.outputRatio,1);
+  const r=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:p.grid.Dw,shields:p.grid.Ds},.5,'balanced');assert.ok(r.propulsion.outputRatio>0&&r.propulsion.outputRatio<=1,'cooling and propulsion share the actual finite plant');for(const source of r.propulsion.power.sources)assert.ok(source.drawW<=source.availableW*(1+1e-12),'cooling cannot spend an engine source twice');near(r.propulsion.wasteHeatW,r.propulsion.actualInputW*C.PROPULSION.wasteFraction,1e-12);
   C.heatTick({time:(i+1)*.5,ev(){}},u,.5);minThermal=Math.min(minThermal,...u.ht.lm);
   if(i===219)previous=hotel.reduce((n,{i})=>n+u.ht.st[i],0);
   if(i===239)lastGain=hotel.reduce((n,{i})=>n+u.ht.st[i],0)-previous;

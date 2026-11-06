@@ -1,0 +1,428 @@
+{
+  "source": "User-provided STL attachments",
+  "catalogKeys": [
+    "quad500MT",
+    "twin500MT",
+    "single500MT",
+    "single6MT",
+    "twin6MT",
+    "sphyrnaTwin500MT"
+  ],
+  "scaleCalibration": {
+    "cr90": {
+      "lengthM": 150,
+      "sourceLength": 15758.427734375,
+      "metresPerSourceUnit": 0.009518716113587533,
+      "sourceFilename": "3-CR90_Corvette_Standard.STL",
+      "sourceSha256": "a9f7b02f9089420a372154f61edf6b26037a33008499acba69274bba4ff4a5ad"
+    },
+    "sphyrna": {
+      "lengthM": 116.7,
+      "sourceLength": 108.9567756652832,
+      "metresPerSourceUnit": 1.0710669372091561,
+      "sourceFilename": "6-HammerheadClassCorvette-2.STL",
+      "sourceSha256": "51721654608a79efa8a78ac9e4c0ac3ce601a6e6369087db965f576a33ed6a25"
+    }
+  },
+  "assets": {
+    "cr90_light_quad500mt": {
+      "catalogKind": "quad500MT",
+      "sourceFilename": "2-CR90_Corvette_Phoenix_BigTurretQuad.STL",
+      "sourceSha256": "a924d9dc977e340103aa3b513ceb4bb5379d765ad54b168624cbd8d616d518fa",
+      "sourceScaleMPerUnit": 0.009518716113587533,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ],
+        "mountPointSource": [
+          0.6396331787109375,
+          -4451.737060546875,
+          975.4887084960938
+        ],
+        "elevationPivotSource": [
+          0.6396331787109375,
+          -4451.737060546875,
+          1158.1079711914062
+        ]
+      },
+      "size": [
+        9.935713033018667,
+        4.46239258909698,
+        4.565028157211264
+      ],
+      "faces": 354,
+      "barrels": 4,
+      "boltTT": 0.0005,
+      "volleyTT": 0.002,
+      "muzzlePoints": [
+        [
+          7.401594230022006,
+          1.767719235676842,
+          0.7039825573671517
+        ],
+        [
+          7.401594230022006,
+          2.599902171333172,
+          0.7039825573671517
+        ],
+        [
+          7.401594230022006,
+          1.767719235676842,
+          -0.7193789383416798
+        ],
+        [
+          7.401594230022006,
+          2.599902171333172,
+          -0.7193789383416798
+        ]
+      ],
+      "maxQuantizationErrorM": 8.766425066464092e-05
+    },
+    "cr90_light_twin500mt": {
+      "catalogKind": "twin500MT",
+      "sourceFilename": "5-CR90_Corvette_Standard_BigTurret.STL",
+      "sourceSha256": "4ce776b277c34152818a8b09a770f65aef67e4f6e854b2bcfbd5ee170d62bce6",
+      "sourceScaleMPerUnit": 0.009518716113587533,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ],
+        "mountPointSource": [
+          0.6476669311523438,
+          -4499.44677734375,
+          983.3418579101562
+        ],
+        "elevationPivotSource": [
+          0.6476669311523438,
+          -4499.44677734375,
+          1167.6771240234375
+        ]
+      },
+      "size": [
+        10.029073604587822,
+        4.50432513635127,
+        4.607924689433296
+      ],
+      "faces": 218,
+      "barrels": 2,
+      "boltTT": 0.0005,
+      "volleyTT": 0.001,
+      "muzzlePoints": [
+        [
+          7.471127800538278,
+          2.476768886998091,
+          0.724475262667143
+        ],
+        [
+          7.471127800538278,
+          2.476768886998091,
+          -0.7122618149572587
+        ]
+      ],
+      "maxQuantizationErrorM": 8.770260240749111e-05
+    },
+    "cr90_heavy_single6mt": {
+      "catalogKind": "single6MT",
+      "sourceFilename": "1-CR90_Corvette_Standard_SmallTurret.STL",
+      "sourceSha256": "151581f6b36f13de5439156858a39fae6c39b073ac9330eccd5430f58cb484b4",
+      "sourceScaleMPerUnit": 0.009518716113587533,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            -1,
+            0
+          ]
+        ],
+        "mountPointSource": [
+          1097.0673828125,
+          -2028.1897583007812,
+          641.781494140625
+        ],
+        "elevationPivotSource": [
+          1146.436767578125,
+          -2028.1897583007812,
+          767.7443542480469
+        ]
+      },
+      "size": [
+        4.491683672489238,
+        2.243118219231649,
+        1.2375946061848107
+      ],
+      "faces": 224,
+      "barrels": 1,
+      "boltTT": 6e-06,
+      "volleyTT": 6e-06,
+      "muzzlePoints": [
+        [
+          3.4646221051111663,
+          1.5316502539563712,
+          0.03194614519884263
+        ]
+      ],
+      "maxQuantizationErrorM": 3.70783581812195e-05
+    },
+    "cr90_light_single500mt": {
+      "catalogKind": "single500MT",
+      "sourceFilename": "4-CR90_Corvette_Phoenix_SideTurret.STL",
+      "sourceSha256": "7c289db8bc609df8ab3f0e3d5ba275fbb0beddddbfd6fcf9bdc4f63ec06b8ee2",
+      "sourceScaleMPerUnit": 0.009518716113587533,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "mountPointSource": [
+          3184.43310546875,
+          2028.49169921875,
+          2.3667755126953125
+        ],
+        "elevationPivotSource": [
+          3426.1259765625,
+          1830.7005615234375,
+          2.3543777465820312
+        ]
+      },
+      "size": [
+        15.016082586636738,
+        3.533630473029375,
+        1.4030165762615863
+      ],
+      "faces": 190,
+      "barrels": 1,
+      "boltTT": 0.0005,
+      "volleyTT": 0.0005,
+      "muzzlePoints": [
+        [
+          11.985317333916685,
+          2.350809152840463,
+          9.531642836825285e-07
+        ]
+      ],
+      "maxQuantizationErrorM": 0.00011405042412957195
+    },
+    "sphyrna_light_twin500mt": {
+      "catalogKind": "sphyrnaTwin500MT",
+      "sourceFilename": "7-HammerheadClassCorvette_Turret.STL",
+      "sourceSha256": "3e897fe75a0fec7aabe1c747d5f7bb1ecb653940c746dfea8b4b82ce6e826df0",
+      "sourceScaleMPerUnit": 1.0710669372091561,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ],
+        "mountPointSource": [
+          0.0,
+          31.438050270080566,
+          17.323772430419922
+        ],
+        "elevationPivotSource": [
+          0,
+          29.31097984313965,
+          17.941804885864258
+        ]
+      },
+      "size": [
+        9.782184461965947,
+        1.3214833383019928,
+        3.577667614796604
+      ],
+      "faces": 294,
+      "barrels": 2,
+      "boltTT": 0.0005,
+      "volleyTT": 0.001,
+      "muzzlePoints": [
+        [
+          7.382523879762758,
+          0.6619531076995899,
+          1.1338680813841482
+        ],
+        [
+          7.382523879762758,
+          0.6619531076995899,
+          -1.1338680813841482
+        ]
+      ],
+      "maxQuantizationErrorM": 4.357704881517477e-05
+    },
+    "sphyrna_heavy_twin6mt": {
+      "catalogKind": "twin6MT",
+      "sourceFilename": "6-HammerheadClassCorvette-2.STL",
+      "sourceSha256": "51721654608a79efa8a78ac9e4c0ac3ce601a6e6369087db965f576a33ed6a25",
+      "sourceScaleMPerUnit": 1.0710669372091561,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "mountPointSource": [
+          -5.6450395584106445,
+          -31.782641410827637,
+          4.82861053943634
+        ],
+        "elevationPivotSource": [
+          -6.014347791671753,
+          -31.782641410827637,
+          4.82861053943634
+        ]
+      },
+      "size": [
+        8.69672326503775,
+        0.8959063040648069,
+        2.6912319307679877
+      ],
+      "faces": 238,
+      "barrels": 2,
+      "boltTT": 6e-06,
+      "volleyTT": 1.2e-05,
+      "muzzlePoints": [
+        [
+          5.8455617829616,
+          0.6090371961057847,
+          0.4054617661869036
+        ],
+        [
+          6.8951864621504555,
+          0.6090371961057847,
+          -0.3507386558982423
+        ]
+      ],
+      "maxQuantizationErrorM": 6.187679336491503e-05
+    },
+    "sphyrna_heavy_twin6mt_stbd": {
+      "catalogKind": "twin6MT",
+      "sourceFilename": "6-HammerheadClassCorvette-2.STL",
+      "sourceSha256": "51721654608a79efa8a78ac9e4c0ac3ce601a6e6369087db965f576a33ed6a25",
+      "sourceScaleMPerUnit": 1.0710669372091561,
+      "sourceFrame": {
+        "rotationRows": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "mountPointSource": [
+          5.6450395584106445,
+          -31.782641410827637,
+          4.82861053943634
+        ],
+        "elevationPivotSource": [
+          6.014347791671753,
+          -31.782641410827637,
+          4.82861053943634
+        ]
+      },
+      "size": [
+        8.69672326503775,
+        0.8959063040648069,
+        2.6912319307679877
+      ],
+      "faces": 236,
+      "barrels": 2,
+      "boltTT": 6e-06,
+      "volleyTT": 1.2e-05,
+      "muzzlePoints": [
+        [
+          5.8455617829616,
+          0.6090371961057847,
+          -0.4054617661869036
+        ],
+        [
+          6.8951864621504555,
+          0.6090371961057847,
+          0.3507386558982423
+        ]
+      ],
+      "maxQuantizationErrorM": 6.187679336491503e-05
+    }
+  }
+}

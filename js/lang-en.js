@@ -9768,4 +9768,174 @@ Object.assign(root.KS_EN.messages,{
 'セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。':'Cell counts change the physical width, height, ammunition, mass and cost. An embedded launcher fits into a structure and fires through its open front. External supports follow its launch direction.',
 'セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。':'Cell counts and mounting apply to the selected ship launchers. Linked launchers mirror the heading.'
 });
+Object.assign(root.KS_EN.messages,{
+'推進動力の伝達経路':'Engine Power Transmission',
+'物理経路':'Physical Routes',
+'伝達経路':'Transmission Routes',
+'伝達経路の占有':'Transmission Volume',
+'伝達経路の質量':'Transmission Mass',
+'総経路長':'Total Routed Length',
+'引込伝達容量':'Incoming Transmission Capacity',
+'経路長（共用幹線を含む）':'Routed Length (Including Shared Trunks)',
+'経路の占有（共用幹線を含む）':'Route Volume (Including Shared Trunks)',
+'経路ごとの伝達容量':'Capacity of Each Route',
+'経路不通':'Route Blocked',
+'伝達経路あり':'Physical Route Connected',
+'伝達経路を点検':'Check Transmission Route',
+'機関への伝達経路がありません。':'No transmission route reaches this engine.',
+'推進動力の伝達経路が不通です':'Engine Power Transmission Route Blocked',
+'推進動力の伝達容量不足':'Engine Power Transmission Capacity Insufficient',
+'炉 → 配電・内部機関 → ノズル':'Reactor → Distribution and Machinery → Nozzle',
+'保存された配電接続と伝達容量を使って給電します。':'Power follows the saved electrical connections and their finite capacities.',
+'内部機関と動力の伝達経路を自動で配置し、占有容積と質量を計上します。':'Machinery and physical power-transmission routes are placed automatically, with their volume and mass included.',
+'外装ケーシング':'External Casing',
+'外装ケーシング {0}（経路の占有に含む）':'External Casing {0} (Included in Route Volume)',
+'伝達容量 {0} · 経路長 {1} · 直径 {2} m':'Transmission Capacity {0} · Routed Length {1} · Diameter {2} m',
+'占有 {0} m³ · 質量 {1}':'Occupied Volume {0} m³ · Mass {1}',
+'うち外装ケーシング':'External Casing Included',
+'経路の占有に含む':'Included in Route Volume',
+'反応炉から配電区画を経由して内部機関まで、伝達容量に応じた太さの経路を船内に確保します。共用幹線は艦全体で一度だけ計上します。水色の管が伝達経路です。船体と機関の間に張り出す接続部は金属ケーシングで覆い、その容積・質量も計上します。空間を確保できない経路からは給電できません。':'Physical routes run inside the ship from the reactor through distribution compartments to the machinery, with cross-sections sized for their transmission capacity. Shared trunks are counted once for the whole ship. Cyan tubes show these routes. Connections projecting between the hull and machinery have a metal casing whose volume and mass are included. A route that cannot fit cannot deliver power.'
+});
+Object.assign(root.KS_EN.messages,{
+'内蔵推進機関':'Internal Propulsion Machinery',
+'外部機関の本体とノズルが離れています':'The external machinery body is detached from its nozzle',
+'内蔵推進機関 {0}':'Internal Propulsion Machinery {0}',
+'{0} → 内蔵推進機関 #{1}':'{0} → Internal Propulsion Machinery #{1}',
+'接続機関の定格入力 {0}':'Connected Machinery Rated Input {0}',
+'{0} m・独立ノズル':'{0} m / Independent Nozzle',
+'内蔵機関用ノズル':'Internal Machinery Nozzle',
+'推進配電区画':'Propulsion Distribution Compartment',
+'反応炉から機関への伝達路を分岐する配電区画。実寸の接続面と有限容量の配線を持ち、発電や蓄電は行いません。':'A distribution compartment branching the reactor feed to propulsion machinery, with physical connection faces and finite cable capacity. It does not generate or store power.',
+'反応炉の電力を受け取り、独立した動力伝達路を通じて一つ以上のノズルを駆動する内蔵機関。入力容量は実寸と機関等級で決まります。':'Internal machinery receiving reactor power and driving one or more nozzles through independent transmission shafts. Its physical dimensions and machinery grade determine input capacity.',
+'推進配電路':'Propulsion Electrical Feed',
+'機関動力伝達路':'Machinery Power Transmission',
+'独立ノズル':'Independent Nozzle',
+'機関本体とノズルを接続する':'Connect Machinery and Nozzles',
+'反応炉 → 配電 → 内部機関':'Reactor → Distribution → Internal Machinery',
+'内部機関 → ノズル':'Internal Machinery → Nozzles',
+'機関本体を編集':'Edit Machinery Body',
+'動力伝達路':'Power Transmission Shafts',
+'動力伝達路は未接続です。':'No power-transmission shaft is connected.',
+'接続されたノズルはありません。':'No nozzles are connected.',
+'不通 {0}':'Blocked {0}',
+'容量制限 {0}':'Capacity Limited {0}',
+'ノズルへの伝達容量':'Transmission Capacity to Nozzles',
+'動力伝達路の長さ':'Shaft Length',
+'動力伝達路の占有':'Shaft Volume',
+'動力伝達路の質量':'Shaft Mass',
+'機関からノズルへの動力伝達路':'Power Transmission from Machinery to Nozzles',
+'機関からノズルへの動力伝達路が不通です':'Machinery-to-Nozzle Transmission Blocked',
+'機関からノズルへの伝達容量不足':'Machinery-to-Nozzle Capacity Insufficient',
+'接続機関の定格入力':'Connected Machinery Rated Input',
+'機関への実入力':'Actual Machinery Input',
+'ノズルへ出す動力':'Power Delivered to Nozzles',
+'ノズルへの動力':'Nozzle Drive Power',
+'配電路の損失熱':'Electrical Feed Loss Heat',
+'配電路を点検':'Check Electrical Feed',
+'動力未接続':'Drive Disconnected',
+'未接続':'Disconnected',
+'機関・推進経路の占有':'Machinery and Propulsion Route Volume',
+'独立した内部機関へ接続するノズル':'Nozzle connected to independent internal machinery',
+'内部機関は独立した部品として船内に配置し、複数のノズルへ動力を分配できます。ノズルを動かしても機関本体の位置は変わりません。':'Place internal machinery as an independent component inside the ship, then distribute its output to multiple nozzles. Moving a nozzle does not move the machinery body.',
+'外部機関は機関本体とノズルが一体です。':'External machinery integrates the body and nozzle as one unit.',
+'ノズルの位置・向きは機関本体から独立しています。撤去しても機関本体は残ります。':'Nozzle positions and directions are independent of the machinery body. Removing a nozzle leaves the machinery body in place.',
+'本体の位置・寸法・向きはノズルと別に編集できます。本体を撤去すると、接続していたノズルは未接続になります。':'Edit the machinery position, dimensions and direction independently of its nozzles. Removing the body leaves its nozzles disconnected.',
+'反応炉 → 配電路 → 機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。':'Reactor → electrical feed → machinery body → transmission shafts → nozzles. Internal machinery is placed independently and can drive multiple nozzles. External machinery integrates its body and nozzle.',
+'水色の配電路は、反応炉から配電区画を経由して機関本体へ電力を送ります。太さは伝達容量に応じて決まり、長くなるほど電送損失と発熱が増えます。共用幹線は一度だけ計上します。機関からノズルへの動力伝達路は別に配置します。':'Cyan electrical feeds carry power from the reactor through distribution compartments to the machinery. Their capacity determines their cross-section; greater length increases electrical loss and heat. Shared trunks are counted once. Separate shafts carry machinery output to the nozzles.',
+'琥珀色の管は、機関本体から各ノズルへ動力を運ぶ経路です。ノズルごとの向き・伝達容量・損傷を個別に扱い、全ノズルへ出す動力は機関の出力以下に制限します。':'Amber shafts carry power from the machinery body to each nozzle. Each nozzle has its own direction, transmission capacity and damage state; their total output cannot exceed the machinery output.',
+'電送効率 {0}%（損失は配電路の熱になります）':'Electrical Efficiency {0}% (Loss Becomes Feed Heat)',
+'機関未接続のノズル #{0}':'Nozzle #{0}: Machinery Disconnected',
+'内部機関 #{0} → ノズル #{1}':'Machinery #{0} → Nozzle #{1}'
+});
+Object.assign(root.KS_EN.terms,{'本':'Runs','推進配電区画':'Propulsion Distribution Compartment','内蔵推進機関':'Internal Propulsion Machinery','副推進機関':'Auxiliary Propulsion Engine','ノズル直結推進機関':'Nozzle-Coupled Propulsion Machinery'});
+Object.assign(root.KS_EN.terms,{
+ "500MT4連装軽ターボレーザー": "Quad 500 MT Light Turbolaser",
+ "500MT2連装軽ターボレーザー": "Twin 500 MT Light Turbolaser",
+ "500MT単装軽ターボレーザー": "Single 500 MT Light Turbolaser",
+ "6MT単装重レーザー砲": "Single 6 MT Heavy Laser Cannon",
+ "6MT2連装重レーザー砲": "Twin 6 MT Heavy Laser Cannon",
+ "スフィルナ型500MT2連装軽ターボレーザー": "Sphyrna Twin 500 MT Light Turbolaser",
+ "500MT4連装": "Quad 500 MT",
+ "500MT2連装": "Twin 500 MT",
+ "500MT単装": "Single 500 MT",
+ "6MT単装": "Single 6 MT",
+ "6MT2連装": "Twin 6 MT",
+ "スフィルナ級コルベット": "Sphyrna-class Corvette",
+ "スフィルナ型": "Sphyrna",
+ "500MT系列と6MT重レーザー砲は添付STLの砲塔本体を使います。威力は1砲身あたりの値です。": "The 500 MT family and 6 MT heavy laser cannons use the supplied STL turret bodies. Ratings are per barrel.",
+ "TT = テラトンTNT相当のエネルギー。1 TT = 4.184×10²¹ J。1 GT = 1000 MT、1 TT = 1000 GT、1 PT = 1000 TT。1発・1砲身、砲塔の一斉射、毎秒の出力を区別します。指定表とFractalspongeの設計上の数値を採用し、全作品共通の公式値とは扱いません。": "TT is energy in teratons of TNT equivalent. 1 TT = 4.184×10²¹ J. 1 GT = 1,000 MT, 1 TT = 1,000 GT, and 1 PT = 1,000 TT. Per-shot and per-barrel energy, a turret volley, and output per second are distinct. Values follow the supplied table and Fractalsponge’s design figures, rather than a universal value across all works."
+});
+Object.assign(root.KS_EN.terms,{'参照モデル構造物':'Reference Model Structure'});
+Object.assign(root.KS_EN.messages,{
+ "500MT 4連装軽ターボレーザー": "Quad 500 MT Light Turbolaser",
+ "500 MT（0.0005 TT）の軽ターボレーザー4門。一斉射2 GT。提供されたCR90フェニックス型STLの4本の砲身と砲室を、その船体に合わせた実寸で使用する。": "Four light turbolaser barrels, each rated at 500 MT (0.0005 TT), for a 2 GT volley. Uses the four native barrels and housing from the supplied CR90 Phoenix STL at the ship’s scale.",
+ "500MT 軽TL4連装": "Quad 500 MT Light TL",
+ "500MT 2連装軽ターボレーザー（CR90型）": "Twin 500 MT Light Turbolaser (CR90)",
+ "500 MT（0.0005 TT）の軽ターボレーザー2門。一斉射1 GT。提供されたCR90標準型STLの左右2本の砲身と砲室を使用する。": "Two light turbolaser barrels, each rated at 500 MT (0.0005 TT), for a 1 GT volley. Uses the native side-by-side barrels and housing from the supplied standard CR90 STL.",
+ "500MT 軽TL2連装": "Twin 500 MT Light TL",
+ "500MT 単装軽ターボレーザー": "Single 500 MT Light Turbolaser",
+ "1門500 MT（0.0005 TT）の軽ターボレーザー。提供されたCR90フェニックス型の長砲身の舷側単装STLを使用する。": "A single light turbolaser rated at 500 MT (0.0005 TT). Uses the long-barrel side mount from the supplied CR90 Phoenix STL.",
+ "500MT 単装軽TL": "Single 500 MT Light TL",
+ "6MT 単装重レーザー砲": "Single 6 MT Heavy Laser Cannon",
+ "1門6 MT（0.000006 TT）の重レーザー砲。提供されたCR90標準型の小型単装STLを、その船体と同じ縮尺で使用する。": "A heavy laser cannon rated at 6 MT (0.000006 TT) per shot. Uses the small single-barrel turret from the supplied standard CR90 STL at the ship’s scale.",
+ "6MT 単装重レーザー": "Single 6 MT Heavy Laser",
+ "6MT 2連装重レーザー砲": "Twin 6 MT Heavy Laser Cannon",
+ "6 MT（0.000006 TT）の重レーザー砲2門。一斉射12 MT。提供されたスフィルナ型船体の艦首側面にある上下2本の砲身と砲架を独立した装備として使用する。": "Two heavy laser barrels, each rated at 6 MT (0.000006 TT), for a 12 MT volley. Uses the vertically paired bow-side barrels and mount from the supplied Sphyrna hull as independent equipment.",
+ "6MT 重レーザー2連装": "Twin 6 MT Heavy Laser",
+ "500MT 2連装軽ターボレーザー（スフィルナ型）": "Twin 500 MT Light Turbolaser (Sphyrna)",
+ "500 MT（0.0005 TT）の軽ターボレーザー2門。一斉射1 GT。提供されたスフィルナ型STLの低い砲室と左右2本の砲身を使用する。": "Two light turbolaser barrels, each rated at 500 MT (0.0005 TT), for a 1 GT volley. Uses the low housing and side-by-side barrels from the supplied Sphyrna STL.",
+ "口径・門数はユーザー指定、形状は提供されたCR90・スフィルナ型STL": "Caliber and barrel count specified by the user; geometry from supplied CR90 and Sphyrna STLs",
+ "連射間隔・対空値・質量・乗員・費用はゲーム用仮定": "Reload time, antiaircraft capability, mass, crew and cost are game assumptions",
+ "1発・1砲身 {0} · 一斉射 {1}": "Per Shot and Barrel {0} · Volley {1}",
+ "1発・1砲身 {0} × {1} 門 · 一斉射 {2}・電力 {3}": "Per Shot and Barrel {0} × {1} Barrels · Volley {2} / Power {3}",
+ "1発・1砲身 {0} × {1} 門 · {2} / 一斉射": "Per Shot and Barrel {0} × {1} Barrels · {2} / Volley",
+ "1発・1砲身": "Per Shot and Barrel",
+ "参照モデル構造物": "Reference Model Structure",
+ "TT = テラトンTNT相当のエネルギー。1 TT = 4.184×10²¹ J。1 MT = 1000 kt、1 GT = 1000 MT、1 TT = 1000 GT、1 PT = 1000 TT。1発・1砲身、砲塔の一斉射、毎秒の出力を区別します。指定表とFractalspongeの設計上の数値を採用し、全作品共通の公式値とは扱いません。": "TT is energy in teratons of TNT equivalent. 1 TT = 4.184×10²¹ J. 1 MT = 1,000 kt, 1 GT = 1,000 MT, 1 TT = 1,000 GT, and 1 PT = 1,000 TT. Per-shot and per-barrel energy, a turret volley, and output per second are distinct. Values follow the supplied table and Fractalsponge’s design figures rather than a universal value across all works.",
+ "写真に基づく40TT・70TT・175TT・720TT系列、200GT・500GT系列と球形砲塔は、それぞれの基準寸法を使います。175TTの2・3・4連装は共通外形、ボール型4種も共通外形です。ISDの8連装とDBY-827は元モデルの形状と基準寸法を使い、砲塔ごとのポリゴン上限に合わせて分割数を調整します。500GTの4連装は添付STLの砲塔本体を使います。ほかの通常砲は従来の出力比による寸法換算を使います。点防御は中央ケースの左右にレーザーを備えた2連装で、1門100 kt・合計200 ktです。モン・カラマリ艦用の球状砲塔は配置図の寸法を使い、球体全体が旋回・俯仰します。球状PDは3門×100 kt。CIS用の1TT 4連装速射砲は500GT 4連装と同等以上の寸法です。": "The photo-based 40, 70, 175 and 720 TT families, 200 and 500 GT families, and spherical turrets each use their baseline physical dimensions. Twin, triple and quad 175 TT mounts share a housing; the four ball variants also share a housing. The ISD octuple and DBY-827 use their original model dimensions, with mesh subdivisions adjusted to each turret’s polygon limit. The 500 GT quad uses the supplied STL housing. Other conventional guns retain output-based sizing. Point defense uses a central case with one laser on each side: 100 kt per barrel, 200 kt per volley. Mon Calamari spherical turrets use the placement diagram’s dimensions and rotate and elevate as complete spheres. Spherical PD has three 100 kt barrels. The CIS quad 1 TT rapid-fire mount is at least as large as the quad 500 GT mount.",
+ "航空機用レーザー砲は1発・1砲身2 ktで、小型旋回砲塔は2門の一斉射で4 ktです。専用PDは1発・1砲身100 ktです。写真系列の40 TT・70 TTと球形4連装イオン砲はユーザー指定。175 TTとアクラメイターの200 GTは指定表を参照。連射間隔、命中率・射程・損傷効果はゲーム用仮定です。給電が不足すると連続火力が低下します。": "Aircraft laser cannons fire 2 kt per barrel per shot; the twin compact turret fires 4 kt per volley. Dedicated PD fires 100 kt per barrel per shot. The photo-family 40 and 70 TT weapons and spherical quad ion cannon follow the user’s specifications; 175 TT and Acclamator 200 GT ratings follow the supplied table. Reload time, accuracy, range and damage effects are game assumptions. Insufficient power reduces sustained fire."
+});
+Object.assign(root.KS_EN.messages,{
+ "100kt 2連装点防御レーザー": "Twin 100 kt Point-Defense Laser",
+ "100kt 3連装球状点防御レーザー": "Triple 100 kt Spherical Point-Defense Laser",
+ "中央の機器ケースの左右に、円形の俯仰軸とレーザー砲身を1門ずつ取り付けた2連装PD。各砲身が1発100 kt、一斉射200 kt、0.2秒間隔。艦載機・ミサイル迎撃と対艦射撃を兼ねる。": "Twin PD with one laser barrel and circular elevation mount on each side of a central case. Each barrel fires 100 kt per shot, for a 200 kt volley every 0.2 seconds. Engages aircraft, missiles and ships.",
+ "機首方向に固定した戦闘機用レーザー砲。1門1発2 kt（0.000000002 TT）。": "A forward-fixed fighter laser cannon firing 2 kt (0.000000002 TT) per barrel per shot.",
+ "重戦闘機・ガンシップ用のレーザー砲。1門1発2 kt（0.000000002 TT）。": "A laser cannon for heavy fighters and gunships, firing 2 kt (0.000000002 TT) per barrel per shot.",
+ "後部銃座・上部砲塔などの小型連装レーザー砲塔。2門が各1発2 kt、一斉射4 kt。": "A compact twin laser turret for rear or dorsal positions. Each barrel fires 2 kt per shot, for a 4 kt volley.",
+ "ユーザー指定：航空機レーザーは1門1発2 kt": "User specification: aircraft lasers fire 2 kt per barrel per shot"
+});
+Object.assign(root.KS_EN.messages,{'100kt 点防御2連装':'Twin 100 kt PD','100kt 球状PD 3連装':'Triple 100 kt Spherical PD','航空機用イオン砲は廃止されています':'Aircraft ion cannons have been removed.'});
+Object.assign(root.KS_EN.messages,{'70TT×2 舷側':'70 TT Twin Side Mount'});
+
+
+Object.assign(root.KS_EN.messages,{
+ '最大加速':'Maximum Acceleration',
+ 'カタログ最大性能。各装置を個別に最大出力で使用した値です。同時運転時は給電・伝達・冷却の制限を受けます。':'Maximum catalog specifications for each device operated independently. Simultaneous operation is subject to power, transmission and cooling limits.',
+ '定格推力・構造強度・慣性制御の上限':'Limited by rated thrust, structural strength and inertial control',
+ 'シールド強度（最大）':'Maximum Shield Strength',
+ '運転状態（選択中の条件）':'Operating State (Selected Conditions)',
+ '実加速':'Actual Acceleration',
+ 'シールド実出力':'Actual Shield Output',
+ '艦のカタログ最大性能':'Maximum Ship Specifications',
+ '運転時の兵装充電':'Operating Weapon Charge',
+ '口径・門数はユーザー指定。形状は既存のヴェネター舷側砲モデル':'Caliber and barrel count specified by the user; geometry from the existing Venator side mount.',
+ '連射間隔・旋回限界・対空値・質量・乗員・費用はゲーム用仮定':'Firing cycle, traverse limits, anti-air capability, mass, crew and cost are gameplay assumptions.',
+ '旧ヴェネター舷側砲の完全な砲室・円形砲基部・砲身2門を使用する。1発・1砲身70 TT、一斉射140 TT。舷側の固定砲室を残して砲身が左右±65度・上下±20度に動く。左右の舷側面に配置できる。':'Uses the complete original Venator side gun housing, circular base and two barrels. Each barrel fires 70 TT per shot, for a 140 TT volley. The housing stays fixed while the barrels traverse ±65° and elevate ±20°. Mounts on either side of a ship.'
+});
+Object.assign(root.KS_EN.terms,{'運転時の兵装充電':'Operating Weapon Charge','蓄積':'Capacity'});
+Object.assign(root.KS_EN.messages,{
+ '船体構造物':'Hull Structure',
+ '最初の船体も配置済みの構造物です。位置・大きさ・回転はほかの構造物と同じ操作で変更できます。内部区画はそれぞれの位置を保ちます。':'The initial hull is a placed structure. Move, resize and rotate it with the same controls as other structures. Internal equipment keeps its own position.',
+ '1つの面の頂点をすべて選んで押し出す':'Select every vertex of one face to extrude it',
+ '1つの面の頂点をすべて選んでください':'Select every vertex of one face.'
+});
+Object.assign(root.KS_EN.messages,{'辺を追加':'Add Edge','辺を削除':'Remove Edge','同じ面の2頂点を結んで面を分割':'Connect two vertices on one face to split it','共有する辺を外して隣の面と結合':'Remove a shared edge and merge its adjacent faces','辺を削除して面を結合':'Merge Faces by Removing an Edge','辺を追加して面を分割':'Split a Face by Adding an Edge'});
+Object.assign(root.KS_EN.messages,{
+ '連続配置':'Repeat Placement','間隔':'Spacing','配置方式':'Placement Pattern','1つずつ配置':'Place Individually','回転対称配置':'Rotational Symmetry','2点間に等間隔配置':'Even Spacing Between Two Points','配置数（最初の1つを含む）':'Count (Including the First Item)','回転軸':'Rotation Axis','回転の中心':'Rotation Center','始点':'Start Point','終点':'End Point','面から選ぶ':'Pick on a Surface','両端を含む':'Including Both Endpoints',
+ '次に置く部品を同じ設定でまとめて配置します。向き・接続を引き継ぎ、1回で元に戻せます。左右・上下対称とは切り替えて使います。':'Place the next component as a group with the same settings and connections. Undo removes the whole group. Use this instead of left/right or top/bottom mirroring.',
+ '連続配置の基準点を面の上で選んでください（数値でも指定できます）':'Pick the repeat-placement reference point on a surface, or enter its coordinates.',
+ '連続配置を準備中です':'Repeat placement is being prepared.','連続配置できません':'The repeated placement could not be completed.',
+ '異なる2つの頂点を選んでください':'Select two different vertices.','この2頂点はすでに辺でつながっています':'These vertices already share an edge.','同じ面にある2つの頂点を選んでください':'Select two vertices on the same face.','平面の面にだけ辺を追加できます':'Edges can only be added to planar faces.','面の外に出る辺は追加できません':'The new edge must stay inside the face.','2つの面で共有された辺を選んでください':'Select an edge shared by two faces.','同じ平面の2つの面だけを結合できます':'Only two coplanar faces can be merged.','役割の異なる面の境界は削除できません':'A boundary between faces with different roles cannot be removed.','穴や分岐ができる辺は削除できません':'Removing this edge would create a hole or branch.','この辺の変更では立体が閉じなくなります':'This edge edit would open the solid.','外形を保てない辺の変更です':'This edge edit would change the outer shape.'
+});
+Object.assign(root.KS_EN.terms,{'連続配置':'Repeat Placement','間隔':'Spacing','回転対称':'Rotational Symmetry','直線':'Line','回転の中心':'Rotation Center','始点':'Start Point','終点':'End Point','両端を含む':'Including Both Endpoints'});
 })(typeof window==="undefined"?globalThis:window);

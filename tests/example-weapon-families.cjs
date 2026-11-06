@@ -58,12 +58,17 @@ test('Lucrehulk rapid quads use the full CIS model and the LH-3210 freighter rem
  for(const f of guns){const d=C.fitSpec(f);assert.equal(d.barrels,4);assert.equal(d.tt,4);assert.ok(d.fm>=C.fitSpec({k:'quad500'}).fm);assert.equal(f.float,false);assert.ok(guns.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<.01&&Math.abs(g.p[2]+f.p[2])<.01),'mirrored equatorial rapid battery');}
  const cargo=ship('lh3210');assert.equal(cargo.fits.filter(f=>C.FITS[f.k]?.cat==='w'&&f.k!=='trc').length,0);assert.equal(cargo.fits.filter(f=>f.k==='trc').length,6);
 });
-test('Corellian and Imperial Dreadnaught examples retain conventional guns and independent twin PD',()=>{
- const cr=ship('cr90');for(const [k,n] of Object.entries({single200:2,twin200:2,pd:4}))assert.equal(cr.fits.filter(f=>f.k===k).length,n,k);
+test('CR90 native light/heavy guns and Dreadnaught conventional guns retain their distinct rosters',()=>{
+ const cr=ship('cr90');for(const [k,n] of Object.entries({twin500MT:2,single6MT:4}))assert.equal(cr.fits.filter(f=>f.k===k).length,n,k);
+ const native=cr.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(native.length,6);assert.ok(native.every(f=>['twin500MT','single6MT'].includes(f.k)));for(const f of native)assert.equal(C.fitSpec(f).boltTT,f.k==='twin500MT'?.0005:.000006);
  const dn=ship('dreadnaught');assert.equal(dn.fits.filter(f=>f.k==='twin200').length,10);assert.equal(dn.fits.filter(f=>f.k==='quad200').length,20);assert.equal(dn.fits.filter(f=>f.k==='pd').length,10);
  for(const s of [cr,dn]){assert.equal(s.fits.filter(f=>f.k.startsWith('monCal')||f.k.startsWith('casemate')).length,0);assert.equal(s.fits.filter(f=>f.float).length,0);}
 });
 
 test('GR-75 carries exactly two conventional laser turrets',()=>{
  const s=ship('gr75'),guns=s.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(guns.length,2);assert.ok(guns.every(f=>f.k==='pd'&&!f.float));assert.ok(guns.some(f=>f.p[2]>0)&&guns.some(f=>f.p[2]<0));
+});
+
+test('Sphyrna uses two native bow twin heavy lasers and one aft twin light turbolaser',()=>{
+ const s=ship('hammerhead'),guns=s.fits.filter(f=>C.FITS[f.k]?.cat==='w'),bow=guns.filter(f=>f.k==='twin6MT'),aft=guns.filter(f=>f.k==='sphyrnaTwin500MT');assert.equal(s.name,'スフィルナ級コルベット');assert.equal(guns.length,3);assert.equal(bow.length,2);assert.equal(aft.length,1);assert.ok(bow.some(f=>f.p[2]<0)&&bow.some(f=>f.p[2]>0));assert.ok(bow.every(f=>f.p[0]>aft[0].p[0]));for(const f of bow){assert.equal(C.fitSpec(f).barrels,2);assert.equal(C.fitSpec(f).boltTT,.000006);}assert.equal(C.fitSpec(aft[0]).barrels,2);assert.equal(C.fitSpec(aft[0]).boltTT,.0005);assert.ok(guns.every(f=>f.float===false));
 });

@@ -27,7 +27,7 @@ def module(name, file):
 F = module('moncal_mesh_helpers', 'build-turret-family.py')
 B = module('moncal_clip_helpers', 'build-capital-ball-turrets.py')
 VARIANTS = [
-    ('moncal_pd_triple', 'monCalPD', 'モン・カラマリ 3連装点防御', .02, 3, 3.6, False),
+    ('moncal_pd_triple', 'monCalPD', 'モン・カラマリ 100kt三連装点防御', 1e-7, 3, 3.6, False),
     ('moncal_single34', 'monCal34', 'モン・カラマリ 34TT単装球形砲', 34, 1, 6, False),
     ('moncal_single80', 'monCal80', 'モン・カラマリ 80TT単装球形砲', 80, 1, 8, False),
     ('moncal_single200', 'monCal200', 'モン・カラマリ 200TT単装球形砲', 200, 1, 10, False),
@@ -74,7 +74,7 @@ def ball(key, kind, title, output, guns, diameter, ion):
                         'analyticCapVolumeFraction':7/27},
         jointLimits={'yaw':None,'lo':-math.pi/2,'hi':math.pi/2},
         dimensionEvidence='Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale',
-        assumption='PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings')
+        assumption='Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings')
     a['turretCompartment'].update(grossHousingVolumeM3=gross['volumeM3'],conservative=True,
         excludes=['forward gun/receiver/drive reserve','barrels','display stand'])
     return a
@@ -104,7 +104,7 @@ def twin_pd():
         row['componentRole']='moving-complete-barrel';barrels.append(row)
         rail=m.box([-1,3,z-.36],[.95,3.12,z+.36],'side laser top rail '+str(sg))
         rail['componentRole']='moving-top-rail'
-    return F.finish(m,'pd','20GT 2連装側面レーザー点防御砲',.02,pivot,barrels,split,drives,1,
+    return F.finish(m,'pd','100kt 2連装側面レーザー点防御砲',1e-7,pivot,barrels,split,drives,1,
         source='User-provided turret photograph (upper middle) and Osa-M structural reference; parametric reconstruction',
         nativeCalibration='point-defense-photo',materialReference='isd_heavy_octuple',
         weaponRole='point-defense',jointLimits={'yaw':None,'lo':-10*math.pi/180,'hi':85*math.pi/180},

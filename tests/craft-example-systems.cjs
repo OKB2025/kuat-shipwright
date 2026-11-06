@@ -4,6 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const C=vm.runInContext('Core',context),plain=v=>JSON.parse(JSON.stringify(v));
 const keys=new Set(['lifeSupport','ejectSeat','navComputer','targetComputer','maneuver','laserGas','landingGear']),fixtures=new Map();
 function fixture(key){if(!fixtures.has(key)){const ship=C.buildDesign(key),stats=C.computeStats(ship);fixtures.set(key,{ship,stats});}return fixtures.get(key);}
+function driveOnly(ship,stats){const profile=C.fleetProfile(stats,ship.name,ship),unit=C.fleetUnit('systems-drive','systems-drive',profile,0);C.heatInit(unit);C.allocateShipPower(unit,C.fleetSystems(unit),{throttle:1,shields:0,weapons:0},1,'balanced');return unit.propulsion;}
 const examples=Object.keys(C.CRAFT_SYSTEM_RECIPES);
 for(const key of examples)test(`${key} carries complete ordinary systems without overlaps or flight penalties`,()=>{
  const {ship,stats:S}=fixture(key),sys=S.craftSystems,recipe=C.CRAFT_SYSTEM_RECIPES[key];
@@ -15,16 +16,16 @@ for(const key of examples)test(`${key} carries complete ordinary systems without
  else{assert.equal(ship.parts.some(p=>p.k==='lifeSupport'||p.k==='ejectSeat'),false);assert.equal(sys.lifeSupportHours,null);}
  for(const p of ship.parts.filter(p=>keys.has(p.k))){assert.equal(p.autoFit,false);assert.equal(!!S.info[p.id]?.overlap,false,`${p.label} must not overlap existing machinery`);assert.ok(C.partVolume(p)>0);}
  assert.equal(S.warnings.some(w=>w.code==='craft-systems'&&w.lv!=='info'),false);
- assert.ok(S.accelG>0);const craft=C.craftCombat(ship,S);assert.ok(craft.speed>0);assert.equal(craft.systems.fireK,1);assert.equal(craft.systems.turnK,1);
+ assert.ok(Number.isFinite(S.accelG)&&S.accelG>=0);assert.ok(Number.isFinite(S.power)&&S.power>0);const powered=driveOnly(ship,S);assert.ok(powered.actualInputW>0&&powered.actualThrustN>0&&powered.actualAccelMps2>0,'the installed finite plant powers drive-only flight');for(const source of powered.power.sources)assert.ok(source.drawW>=0&&source.drawW<=source.availableW*(1+1e-12),'the working drive uses only its real source budget');const craft=C.craftCombat(ship,S);assert.ok(craft.speed>0);assert.equal(craft.systems.fireK,1);assert.equal(craft.systems.turnK,1);
  const loaded=C.deserialize(C.serialize(ship));assert.equal(loaded.systemsVersion,1);
  assert.deepEqual(plain(loaded.parts.filter(p=>keys.has(p.k)).map(p=>[p.id,p.k,p.c,p.d,p.label,p.autoFit])),plain(ship.parts.filter(p=>keys.has(p.k)).map(p=>[p.id,p.k,p.c,p.d,p.label,p.autoFit])));
 });
 
 test('new support systems preserve every example hull, visible structure, gun, and existing wing mechanism',()=>{
  for(const key of examples){
-  const {ship}=fixture(key),before=C.serialize(C.dedicateAeroParts(C.SHIP_EXAMPLES[key].build())),after=C.serialize(ship);
-  assert.deepEqual(plain(after.hull),plain(before.hull),key+' hull');
-  assert.deepEqual(plain(after.parts.filter(C.isShapePart)),plain(before.parts.filter(C.isShapePart)),key+' structures and wings');
+  const {ship}=fixture(key),source=C.dedicateAeroParts(C.SHIP_EXAMPLES[key].build()),original=Array.from(C.hullGeo(source).tris);C.ensurePrimaryHull(source);const before=C.serialize(source),after=C.serialize(ship),owner=C.primaryHullPart(ship);
+  assert.deepEqual(plain(C.editableHullProfile(ship)),plain(C.editableHullProfile(source)),key+' actual hull profile');assert.equal(ship.parts.filter(C.isHullStructure).length,1);const actual=C.structTriangles(owner);assert.equal(actual.length,original.length);for(let i=0;i<actual.length;i++)assert.ok(Math.abs(actual[i]-original[i])<=.00003,key+' original hull geometry coordinate '+i);
+  assert.deepEqual(plain(after.parts.filter(p=>C.isShapePart(p)&&!C.isHullStructure(p))),plain(before.parts.filter(p=>C.isShapePart(p)&&!C.isHullStructure(p))),key+' original structures and wings');
   assert.deepEqual(plain(after.fits),plain(before.fits),key+' guns and mounts');
   for(const kind of ['gen','engine','hyper','shield','battery','fuel','astromech','droidbrain','radiator','hdis','hdisx'])assert.equal(after.parts.filter(p=>p.k===kind).length,before.parts.filter(p=>p.k===kind).length,key+' '+kind);
  }

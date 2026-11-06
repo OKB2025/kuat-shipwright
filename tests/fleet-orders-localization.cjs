@@ -5,7 +5,7 @@ const run=code=>vm.runInContext(code,context),jp=/[\u3040-\u30ff\u3400-\u9fff]/;
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 function translated(source){const out=context.KSI18n.t(source);assert.doesNotMatch(out,jp,source+' => '+out);return out;}
 function translatedHTML(html){for(const text of html.split(/<[^>]*>/))if(text.trim())translated(text);for(const m of html.matchAll(/(?:aria-label|title|placeholder)="([^"]*)"/g))translated(m[1]);}
-run(`const C=Core,R=Rts,num=v=>String(v),esc=String,ja=String,rgb=v=>v.join(','),fLen=v=>v+' m',fMass=v=>v+' t',fW=v=>v+' W',fTT=v=>v+' TT',fG=v=>v+' G',fPct=v=>v+'%',fCr=v=>v+' cr';
+run(`const C=Core,R=Rts,num=v=>String(v),esc=String,ja=String,sci=String,rgb=v=>v.join(','),fLen=v=>v+' m',fMass=v=>v+' t',fW=v=>v+' W',fTT=v=>v+' TT',fG=v=>v+' G',fPct=v=>v+'%',fCr=v=>v+' cr';
  const radar=()=>'',bar=()=>'',inspectionHTML=()=>'',craftCombatHTML=()=>'',craftSystemsHTML=()=>'',bandRatesHTML=()=>'',skinFacesHTML=()=>'';
  const voySquadTypeOptions=()=>'<option>X-wing</option>',voySqLoadHTML=()=>'',voyCraftPriceHTML=()=>'',voySquadFitHTML=()=>'';
  const voy={sel:{wing:'wing-a'},cmd:null,tac:{sys:0},w:{units:new Map(),groups:new Map([['ga',{id:'ga',side:0,sys:0,units:[],order:{type:'auto'},formation:'line'}],['gb',{id:'gb',side:0,sys:0,units:[],order:{type:'auto'},formation:'wedge'}]])}};
@@ -25,9 +25,9 @@ test('the actual design statistics show the same simultaneous engagement capacit
  assert.match(translated('航空機4機の小隊、またはミサイル8発の斉射で1枠'),/4 craft.*8 missiles/);
 });
 
-test('design performance distinguishes planned maximum from the selected operating acceleration',()=>{
- run('const planningStats={...after,propulsion:{accelerationLimitMps2:3700*C.G0},accelG:1295};');
- const html=run('specHTML(planningStats)'),row=html.match(/<div><dt>計画最大加速<\/dt>[\s\S]*?<\/div>/);assert.ok(row);assert.match(row[0],/3700 G/);assert.match(row[0],/実加速 1295 G/);assert.doesNotMatch(row[0],/MGLT/);translatedHTML(row[0]);
+test('basic catalogue performance shows its maximum separately from selected operating acceleration',()=>{
+ run('const planningStats={...after,propulsion:{ratedAccelMps2:4000*C.G0,accelerationLimitMps2:3700*C.G0},accelG:1295};');
+ const html=run('specHTML(planningStats)'),row=html.match(/<div><dt>最大加速<\/dt>[\s\S]*?<\/div>/),operating=html.match(/data-operating-specs>[\s\S]*?<\/dl>/);assert.ok(row);assert.match(row[0],/3700 G/);assert.doesNotMatch(row[0],/実加速|1295 G|MGLT/);assert.match(operating[0],/実加速<\/dt><dd>1295 G/);translatedHTML(row[0]);translatedHTML(operating[0]);
  assert.equal(run('designAccelerationG({...after,propulsion:{accelerationLimitMps2:0},accelG:1295})'),0);
 });
 

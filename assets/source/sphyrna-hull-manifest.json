@@ -1,0 +1,141 @@
+{
+  "source_filename": "6-HammerheadClassCorvette-2.STL",
+  "stored_source": "assets/source/sphyrna-hull.stl",
+  "source_sha256": "51721654608a79efa8a78ac9e4c0ac3ce601a6e6369087db965f576a33ed6a25",
+  "source_header": "STLEXP Object01",
+  "author": null,
+  "license": null,
+  "length_m": 116.7,
+  "uniform_scale": 1.0710669372091561,
+  "axis_mapping": [
+    "(source_y_max - source_y) * scale",
+    "(source_z - source_z_min) * scale",
+    "-source_x * scale"
+  ],
+  "source_bounds": [
+    [
+      -15.101383209228516,
+      -48.10793685913086,
+      -15.68941879272461
+    ],
+    [
+      15.101383209228516,
+      60.848838806152344,
+      29.10802459716797
+    ]
+  ],
+  "source_triangles": 5708,
+  "source_unique_vertices": 2933,
+  "welded_source_vertices": 2914,
+  "welding_tolerance_m": 1.0710669372091562e-06,
+  "source_components": 45,
+  "detached_weapons": [
+    {
+      "name": "rear-twin-turbolaser",
+      "faces": 294,
+      "lo": [
+        -1.671,
+        24.545,
+        17.323
+      ],
+      "hi": [
+        1.671,
+        33.679,
+        18.558
+      ],
+      "source_components": 3,
+      "game_bounds_m": [
+        [
+          29.101262278710045,
+          35.35933714986507,
+          -1.7888338766443745
+        ],
+        [
+          38.88344728640761,
+          36.68082060806066,
+          1.7888338766443745
+        ]
+      ]
+    },
+    {
+      "name": "bow-port-twin-laser",
+      "faces": 238,
+      "lo": [
+        -6.482,
+        -38.221,
+        3.572
+      ],
+      "hi": [
+        -5.644,
+        -30.1,
+        6.086
+      ],
+      "source_components": 3,
+      "game_bounds_m": [
+        [
+          97.41297863460771,
+          20.630566589234974,
+          6.046215703223175
+        ],
+        [
+          106.10970263652698,
+          23.321798995017616,
+          6.942121424588082
+        ]
+      ]
+    },
+    {
+      "name": "bow-starboard-twin-laser",
+      "faces": 236,
+      "lo": [
+        5.644,
+        -38.221,
+        3.572
+      ],
+      "hi": [
+        6.482,
+        -30.1,
+        6.086
+      ],
+      "source_components": 3,
+      "game_bounds_m": [
+        [
+          97.41297863460771,
+          20.630566589234974,
+          -6.942121424588082
+        ],
+        [
+          106.10970263652698,
+          23.321798995017616,
+          -6.046215703223175
+        ]
+      ]
+    }
+  ],
+  "asset_key": "sphyrna_hull",
+  "asset_center_m": [
+    58.35,
+    23.9905302432064,
+    0.0
+  ],
+  "asset_size_m": [
+    116.7,
+    47.9810604864128,
+    32.34918452306032
+  ],
+  "render_vertices": 5317,
+  "render_triangles": 4940,
+  "render_smoothing_angle_degrees": 30,
+  "packed_sha256": "8925eaaf84554ab8b223e21482b16e41b9d1685b2f26c602b39bddd2239ac62c",
+  "collision_voxel_size_m": 0.2,
+  "collision_union_triangles": 690188,
+  "collision_triangles": 8000,
+  "collision_nonmanifold_edges": 0,
+  "collision_bounds_clamped_to_source": true,
+  "notes": [
+    "Original source triangle detail retained; only separately mounted native weapon groups are detached.",
+    "Collision mesh is a separate closed union of the hull source components.",
+    "The mesh supplies hull geometry only; finite plant, cooling, machinery, feeds and nozzles remain independent installed equipment.",
+    "The supplied file contains no author or license metadata."
+  ]
+}

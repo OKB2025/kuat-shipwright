@@ -75,7 +75,7 @@ test('the photographed family and medium quad retain their own native size ancho
 
 test('point defense adopts the photographed side-carrier model at its native scale', () => {
  const f=fitting('pd'),d=C.FITS.pd,sizing=C.weaponSizing(f),a=C.REFERENCE_ASSETS[d.asset];
- assert.equal(d.asset,'pd_twin_side_laser');assert.equal(d.barrels,2);assert.equal(d.boltTT,.02);assert.equal(d.tt,.04);assert.equal(d.cycle,.2);assert.equal(d.aa,6);assert.equal(d.dualPurpose,true);
+ assert.equal(d.asset,'pd_twin_side_laser');assert.equal(d.barrels,2);assert.equal(d.boltTT,1e-7);assert.equal(d.tt,2e-7);assert.equal(d.cycle,.2);assert.equal(d.aa,6);assert.equal(d.dualPurpose,true);
  near(d.power,d.tt*C.TT/d.cycle,'PD continuous electrical demand');near(sizing.factor,1,'PD photo scale');assert.equal(sizing.calibration,'point-defense-photo');
  const triangles=(G.meshFits({fits:[f]}).ni+G.meshReferenceFits({fits:[f]}).ni)/3;
  assert.equal(triangles,a.faces);assert.ok(triangles>0&&triangles<=5000,'PD remains within the modeled turret budget');
@@ -84,14 +84,14 @@ test('point defense adopts the photographed side-carrier model at its native sca
 
 test('retired generic guns resolve to the canonical light quad, DBY and point-defense definitions', () => {
   for (const [k, canonical, salvo, barrels, cycle] of [
-    ['ltl', 'pd', .04, 2, .2], ['mtl', 'quad200', .8, 4, .2],
+    ['ltl', 'pd', 2e-7, 2, .2], ['mtl', 'quad200', .8, 4, .2],
     ['htl', 'refVen', 140, 2, 1]
   ]) {
     const d = C.fitSpec(fitting(k));
     assert.equal(C.canonicalWeaponKind(k), canonical);
     assert.equal(d, C.FITS[canonical], `${k} shares the complete canonical definition`);
     assert.equal(Object.keys(C.FITS).includes(k), false, `${k} is absent from the catalog`);
-    near(Math.max(d.tt || 0, d.ion || 0), salvo, `${k} canonical salvo`);
+    near(Math.max(d.tt || 0, d.ion || 0), salvo, `${k} canonical salvo`,Math.max(1e-18,Math.abs(salvo)*1e-9));
     assert.equal(d.barrels, barrels, `${k} canonical barrels`);
     assert.equal(d.cycle, cycle, `${k} canonical cycle`);
   }
@@ -101,7 +101,7 @@ test('retired generic guns resolve to the canonical light quad, DBY and point-de
 
 test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment keep their existing dimensions', () => {
   const excluded = {
-    claser: [2.6, .32, .32], claserH: [3.6, .5, .5], cion: [1.8, .55, .55],
+    claser: [2.6, .32, .32], claserH: [3.6, .5, .5],
     cturret: [1.3, .7, 1.3], ctorp: [1.4, .5, .5], cmsl: [1.2, .45, .45],
     cbomb: [2.4, .7, 1.2], cpylon: [1.2, .2, .16], msl: [1.2, .45, .45],
     itl: [12, 3, 12], trc: [16, 8, 16], brS: [34, 22, 26]

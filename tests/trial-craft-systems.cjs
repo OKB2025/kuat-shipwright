@@ -9,7 +9,7 @@ const trial={},toast=text=>notices.push(text),autosave=()=>autosaves++;
 const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
 const trialAim=()=>({point:[10000,0,0],lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialThreats=()=>[],trialLimits=()=>({lo:-Math.PI/2,hi:Math.PI/2,yaw:Math.PI}),trialBarrel=t=>t.fw.slice(),trialPowerStep=()=>{},trialSalvoPlan=()=>salvo,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'';
 function makeTurret(k='claser'){
- const d=C.FITS[k];return {k,power:d.power,cycle:.5,charge:1,barrels:1,rateRad:1,r:1,yaw:0,el:0,origin:[0,0,0],axis:[0,1,0],fw:[1,0,0],e2:[0,0,1],clear:true,clearDir:[1,0,0],reload:0,ion:k==='cion',pilot:!!d.craft};
+ const d=C.FITS[k];return {k,power:d.power,cycle:d.cycle||.5,charge:1,barrels:d.barrels||1,rateRad:1,r:1,yaw:0,el:0,origin:[0,0,0],axis:[0,1,0],fw:[1,0,0],e2:[0,0,1],clear:true,clearDir:[1,0,0],reload:0,ion:!!d.ion,pilot:!!(d.craft&&d.fixed)};
 }
 function reset(overrides={}){
  notices.length=0;undoStack.length=0;autosaves=0;salvo=null;
@@ -24,7 +24,7 @@ section('const tv=', 'function trialRot(');
 section('const trialCol=', 'const trialWrap=');
 run(app.match(/const trialWrap=.*?;/)[0]);
 section('function trialCraftSystemsSpec()', 'function trialReset()');
-section('const TRIAL_PILOT_REFERENCE_CYCLE=', 'function trialTurretState(');
+section('const TRIAL_PILOT_CYCLE=', 'function trialTurretState(');
 section('function trialShotGeometry(', '// Missiles leave');
 section('function trialDurText(', 'function trialHyperUpdate(');
 section('function trialRateBase(', 'function trialMaxRates(');
@@ -37,17 +37,17 @@ test('only actual qualifying laser shots consume their weighted reload-cycle sha
  run('trial.turrets[0].clear=true;trial.energy.E=0;fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);assert.equal(run('trial.gun.shots'),0);
  run('trial.energy.E=1e20;trial.turrets[0].pilot=false;salvo=new Set();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
  run('salvo=null;trial.turrets[0].pilot=true;trial.turrets[0].reload=10;trialGunnery(.1);');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
- run('fire();');near(run('trial.systemsRuntime.gasSeconds'),.75);assert.equal(run('trial.gun.shots'),1);
- run('trial.turrets[0].power=C.FITS.claser.power*2;fire();');near(run('trial.systemsRuntime.gasSeconds'),.25);
- run('reset({laserGasSeconds:.1});fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),1);run('fire();');assert.equal(run('trial.gun.shots'),1);
+ run('fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')/2);assert.equal(run('trial.gun.shots'),1);
+ run('trial.turrets=[makeTurret("cturret")];fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')*1.5);assert.equal(run('trial.gun.shots'),3);
+ run('reset({laserGasSeconds:C.FITS.claser.cycle*.99/2});fire();');assert.equal(run('trial.gun.shots'),0);near(run('trial.systemsRuntime.gasSeconds'),run('C.FITS.claser.cycle')*.99/2);run('reset({laserGasSeconds:C.FITS.claser.cycle/2});fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),1);run('fire();');assert.equal(run('trial.gun.shots'),1);
 });
 
 test('empty gas blocks craft lasers until reset while ion and ship batteries retain fire',()=>{
- run('reset();for(let i=0;i<4;i++)fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),4);
+ run('reset({laserGasSeconds:C.FITS.claser.cycle*2});for(let i=0;i<4;i++)fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),4);
  run('trialCraftSystemsStep(100);fire();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),4);
  assert.equal(run('notices.filter(s=>s.includes("レーザーガス")).length'),1);
- run('trial.turrets=[makeTurret("cion"),makeTurret("htl")];fire();');assert.equal(run('trial.gun.shots'),6);assert.equal(run('trial.systemsRuntime.gasSeconds'),0);
- run('trial.turrets=[makeTurret()];trialCraftSystemsReset();fire();');assert.equal(run('trial.gun.shots'),7);near(run('trial.systemsRuntime.gasSeconds'),.75);
+ run('trial.turrets=[makeTurret("ion"),makeTurret("refVen")];fire();');assert.equal(run('trial.gun.shots'),4+run('C.FITS.ion.barrels+C.FITS.refVen.barrels'));assert.equal(run('trial.systemsRuntime.gasSeconds'),0);
+ run('trial.turrets=[makeTurret()];trialCraftSystemsReset();fire();');assert.equal(run('trial.gun.shots'),5+run('C.FITS.ion.barrels+C.FITS.refVen.barrels'));near(run('trial.systemsRuntime.gasSeconds'),run('C.FITS.claser.cycle')*1.5);
 });
 
 test('zero-time frames cannot fire, consume life support, or spend gas',()=>{

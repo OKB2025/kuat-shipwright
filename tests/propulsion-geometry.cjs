@@ -10,45 +10,32 @@ function sourceEngine(asset){const source=C.sourceEngine({skinAsset:asset}),styl
 function geometry(g){return plain({pos:Array.from(g.pos.subarray(0,g.n*3)),nor:Array.from(g.nor.subarray(0,g.n*3)),uv:Array.from(g.uv.subarray(0,g.n*2)),col:Array.from(g.col.subarray(0,g.n*4)),idx:Array.from(g.idx.subarray(0,g.ni))});}
 function rangeMesh(mesh,rows){const indices=rows.filter(([name])=>name===mesh.name).flatMap(([,start,count])=>Array.from(mesh.geo.idx.subarray(start,start+count)));return indices.map(k=>({p:Array.from(mesh.geo.pos.subarray(k*3,k*3+3)),n:Array.from(mesh.geo.nor.subarray(k*3,k*3+3),v=>v/127)}));}
 
-test('source bell edits leave independently positioned turbine vertices fixed',()=>{
+test('actual machinery dimensions and ratings never deform the complete authored casing or bell root',()=>{
  for(const assetId of ['isdh_engine_main','isdh_engine_aux','ven_inner_port']){
-  const p=sourceEngine(assetId),appearance=C.engineAppearance(p),source=C.sourceEngine(appearance),asset=C.REFERENCE_ASSETS[assetId],d=C.decodeReference(assetId),original=C.engineSkinMesh(p),body=[],bell=[],legacy={...p};
-  for(const key of ['machineryLengthM','machineryRadiusM','machineryOffsetM'])delete legacy[key];
-  assert.deepEqual(Array.from(original.pos),Array.from(C.engineSkinMesh(legacy).pos),'migrated default dimensions preserve '+assetId+' authored source geometry');
-  for(let i=0;i<d.pos.length;i+=3){const x=d.pos[i]*asset.size[0]+asset.c[0]-p.skinAnchor[0];(x>source.nozzleLength/2+.001?body:bell).push(i);}
-  assert.ok(body.length&&bell.length,assetId+' must exercise both source regions');
-  p.d*=1.65;p.nozzleLength*=1.4;
-  const nozzleEdit=C.engineSkinMesh(p);assert.notEqual(nozzleEdit,original);
-  for(const i of body)vector(Array.from(nozzleEdit.pos.subarray(i,i+3)),Array.from(original.pos.subarray(i,i+3)),assetId+' fixed machinery');
-  assert.ok(bell.some(i=>Array.from(nozzleEdit.pos.subarray(i,i+3)).some((v,k)=>Math.abs(v-original.pos[i+k])>.01)),'the requested bell edit still changes the nozzle');
-  const bellPoint=Array.from(d.pos.subarray(bell[0],bell[0]+3)),fixedBell=C.referenceEnginePoint(C.engineAppearance(p),bellPoint,asset),oldOffset=p.machineryOffsetM;
-  p.machineryLengthM*=1.25;p.machineryRadiusM*=.7;p.machineryOffsetM+=11;
-  const bodyEdit=C.engineSkinMesh(p);assert.notEqual(bodyEdit,nozzleEdit,'absolute machinery edits invalidate the source mesh');
-  vector(C.referenceEnginePoint(C.engineAppearance(p),bellPoint,asset),fixedBell,assetId+' preserved bell');
-  const forward=C.mul(C.norm(p.dir),-1),i=body[0],before=C.sub(Array.from(nozzleEdit.pos.subarray(i,i+3)),p.c),after=C.sub(Array.from(bodyEdit.pos.subarray(i,i+3)),p.c),axial=C.dot(before,forward);
-  near(C.dot(after,forward),p.machineryOffsetM+(axial-oldOffset)*1.25,assetId+' independent body length');
-  near(C.len(C.sub(after,C.mul(forward,C.dot(after,forward)))),C.len(C.sub(before,C.mul(forward,axial)))*.7,assetId+' independent body radius');
+  const p=sourceEngine(assetId),before=C.engineSkinMesh(p),decoded=C.decodeReference(assetId),ship=fixture(p),body=plain(C.engineMachineryPaths(ship)[0].machinerySegment),spec=C.resolveEngineSpec(p,ship);
+  assert.equal(before.idx.length,decoded.idx.length,assetId+' retains every source face');assert.equal(before.pos.length,decoded.pos.length,assetId+' retains the source root vertices');
+  p.machineryLengthM*=1.25;p.machineryRadiusM*=1.1;p.ratedInputW*=.8;const after=C.engineSkinMesh(p),edited=C.resolveEngineSpec(p,ship),physical=C.engineMachineryPaths(ship)[0].machinerySegment;
+  assert.deepEqual(Array.from(after.pos),Array.from(before.pos),assetId+' casing is independent of actual machinery');assert.deepEqual(Array.from(after.idx),Array.from(before.idx));near(physical.l,body.l*1.25);near(physical.r1,body.r1*1.1);assert.ok(edited.effectiveMachineryVolumeM3>spec.effectiveMachineryVolumeM3);assert.equal(edited.ratedInputW,spec.ratedInputW*.8);
+  p.d*=1.2;p.nozzleLength*=1.1;assert.notDeepEqual(Array.from(C.engineSkinMesh(p).pos),Array.from(before.pos),'authored nozzle sizing still changes its appearance');
  }
- const generic=engine({d:94.8}),bell=Array.from(C.engineSkinMesh(generic).pos);generic.machineryLengthM*=2;generic.machineryRadiusM*=2;generic.machineryOffsetM+=100;
- assert.deepEqual(Array.from(C.engineSkinMesh(generic).pos),bell,'generic bell-only skins stay unchanged when machinery is edited');
 });
 
-test('a source nozzle sharing another engine machinery draws only its own bell',()=>{
- const owner=sourceEngine('isdh_engine_main'),p=sourceEngine('isdh_engine_main');p.id=3;p.c=[40,70,120];p.machineryId=owner.id;
- const ship=fixture(owner,p),mesh=C.engineSkinMesh(p),forward=C.mul(C.norm(p.dir),-1);
- assert.equal(C.enginePaths(ship).length,1,'the shared plant occupies physical volume once');
- for(let i=0;i<mesh.pos.length;i+=3){const axial=C.dot(C.sub(Array.from(mesh.pos.subarray(i,i+3)),p.c),forward);assert.ok(axial<=p.nozzleLength/2+.0002,'a shared outlet cannot draw another turbine body');}
- const first=mesh;p.machineryId=p.id;assert.notEqual(C.engineSkinMesh(p),first,'changing machinery ownership invalidates the skin cache');
+test('a source nozzle bound to one real machine preserves its complete visible root without duplicating the machine',()=>{
+ for(const asset of ['isdh_engine_main','isdh_engine_aux']){
+  const owner=sourceEngine(asset),p=sourceEngine(asset);p.id=3;p.c=[40,70,120];const complete=C.engineSkinMesh(p);p.machineryId=owner.id;const ship=fixture(owner,p),mesh=C.engineSkinMesh(p),decoded=C.decodeReference(asset),forward=C.mul(C.norm(p.dir),-1);
+  assert.equal(C.engineMachineryPaths(ship).length,1,'one real owner occupies machinery once');assert.equal(mesh.idx.length,decoded.idx.length);assert.deepEqual(Array.from(mesh.pos),Array.from(complete.pos));let root=0;for(let i=0;i<mesh.pos.length;i+=3)if(C.dot(C.sub(Array.from(mesh.pos.subarray(i,i+3)),p.c),forward)>p.nozzleLength/2+.001)root++;assert.ok(root>0,'owner binding retains source root vertices behind the throat');
+  p.machineryId=p.id;assert.deepEqual(Array.from(C.engineSkinMesh(p).pos),Array.from(mesh.pos),'owner metadata cannot alter the authored casing');
+ }
 });
 
 test('generated machinery body dimensions and position survive nozzle edits and reactor moves',()=>{
- const p=engine(),reactor={id:2,k:'gen',c:[180,70,-20],d:20},ship=fixture(p,reactor);p.reactor=2;
+ const p=engine(),reactor={id:2,k:'gen',c:[180,70,-20],d:20},ship=C.newShip({L:600,W:200,H:200,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Independent body and physical feed');ship.parts=[p,reactor];ship.fits=[];p.reactor=2;
  const first=C.enginePaths(ship)[0],body=plain(first.machinerySegment),volume=C.resolveEngineSpec(p,ship).effectiveMachineryVolumeM3;
  assert.ok(body,'a derived path identifies its physical machinery body');near(body.l,p.machineryLengthM);near(body.r1,p.machineryRadiusM);
  vector(body.b,C.sub(p.c,C.mul(C.norm(p.dir),p.machineryOffsetM)),'independent offset');
  p.d*=2;p.nozzleLength*=1.7;assert.deepEqual(plain(C.enginePaths(ship)[0].machinerySegment),body,'nozzle dimensions cannot resize or translate machinery');
- const feedLength=C.enginePaths(ship)[0].connectionSegments.reduce((n,s)=>n+s.l,0);reactor.c=[380,110,50];
- const moved=C.enginePaths(ship)[0];assert.deepEqual(plain(moved.machinerySegment),body);assert.notEqual(moved.connectionSegments.reduce((n,s)=>n+s.l,0),feedLength);near(C.resolveEngineSpec(p,ship).effectiveMachineryVolumeM3,volume,'feed length cannot create machinery volume');
+ const feedLength=C.engineTransmission(ship).length;assert.ok(feedLength>0);reactor.c=[380,110,50];
+ const moved=C.enginePaths(ship)[0];assert.deepEqual(plain(moved.machinerySegment),body);assert.ok(C.engineTransmission(ship).length>feedLength);near(C.resolveEngineSpec(p,ship).effectiveMachineryVolumeM3,volume,'feed length cannot create machinery volume');
  ship.parts=[p];assert.deepEqual(plain(C.enginePaths(ship)[0].machinerySegment),body,'an unconnected installed body remains physical');
 });
 

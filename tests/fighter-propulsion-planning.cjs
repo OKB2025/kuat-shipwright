@@ -58,6 +58,48 @@ test('live propulsion retains its planning limits across throttle and power chan
   }
 });
 
+test('a real architecture-two engine and paid feed retain planning limits while actual watts, force and heat follow the allocation', () => {
+  const rated = 1e18, wattsPerNewton = 2e9;
+  const ship = C.newShip({L: 300, W: 160, H: 120, sec: 'rect', plan: 'rect', bowW: 1, bowH: 1, stern: 1}, 'Independent planning limits');
+  ship.parts = [
+    {id: 1, k: 'gen', c: [200, 60, 0], d: 20},
+    {id: 2, k: 'engineCore', c: [180, 60, 0], d: 8, length: 12, dir: [-1, 0, 0], reactor: 1, busFeed: true,
+      propulsionModelVersion: 1, ratedInputW: rated, driveProfileId: 'standard', machineryGradeId: 'standard', legacyCoolingInputW: 0},
+    ...[-30, 30].map((z, i) => ({id: 3 + i, k: 'engine', c: [5, 60, z], d: 10, nozzleLength: 10, dir: [-1, 0, 0], machineryId: 2, propulsionModelVersion: 1})),
+  ];
+  ship.nextId = 5;
+  ship.links = [{kind: 'power', from: 'p1', to: 'p2', cap: rated}];
+  const stats = C.computeStats(ship), descriptor = C.propulsionProfile(ship, stats), fleet = C.fleetProfile(stats, ship.name, ship);
+  const feed = C.engineTransmission(ship).routes.find(r => r.from === 'p1' && r.to === 'p2');
+  assert.equal(descriptor.architectureVersion, 2);
+  assert.equal(descriptor.cores.length, 1);
+  assert.equal(descriptor.engines.length, 2);
+  assert.ok(descriptor.cores[0].valid && descriptor.cores[0].connected && feed.ok);
+  assert.ok(C.reactorPower(ship.parts[0]) >= rated);
+  assert.ok(C.engineDriveRoutes(ship).routes.every(r => r.ok));
+  assert.ok(C.engineTransmission(ship).volume > 0, 'the electrical feed is installed physical hardware');
+  const efficiency = Math.exp(-1e-5 * feed.length), structural = descriptor.ratedAccelMps2 * .6;
+  const profile = {...descriptor, structuralAccelerationLimitMps2: structural, inertialFactor: .5, accelerationLimitMps2: structural * .5};
+  const original = JSON.stringify(profile);
+  for (const [throttle, available] of [[1, rated], [.25, rated], [0, rated], [1, 0], [1, rated * .25]]) {
+    const result = C.solveShipPropulsion(profile, {throttle, sources: [{id: 'p1', domain: 'main', powerW: available}], links: fleet.grid.powerPaths});
+    const input = Math.min(throttle * rated, available * efficiency), thrust = input / wattsPerNewton;
+    assert.equal(result.version, 2);
+    near(result.ratedAccelMps2, descriptor.ratedAccelMps2);
+    near(result.accelerationLimitMps2, structural * .5);
+    near(result.structuralAccelerationLimitMps2, structural);
+    near(result.inertialFactor, .5);
+    near(result.actualInputW, input);
+    near(result.actualThrustN, thrust);
+    near(result.wasteHeatW, input * .05);
+    near(result.actualAccelMps2, Math.min(thrust / descriptor.massKg, structural) * .5);
+    near(result.power.draw, input / efficiency);
+    near(result.power.feedLossW, result.power.draw - input);
+    assert.ok(result.power.draw <= available * (1 + 1e-12));
+  }
+  assert.equal(JSON.stringify(profile), original, 'live operation never rewrites the design planning limits');
+});
+
 test('stock fighter summaries and fleet profiles use the same planned acceleration', () => {
   for (const key of Object.keys(C.CRAFT_SYSTEM_RECIPES)) {
     const ship = C.buildDesign(key), stats = C.computeStats(ship);

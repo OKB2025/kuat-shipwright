@@ -51,7 +51,7 @@ test('source-local conversion heat integrates the same joules across thermal sub
  const fine=run(.25),coarse=run(2);near(fine[0],16);near(fine[1],0);near(fine[2],20);for(let i=0;i<fine.length;i++)near(coarse[i],fine[i]);
 });
 test('a vented shared outlet retains one machinery heat source when its owner nozzle is blocked',()=>{
- const s=C.newShip({L:40,W:24,H:20},'Shared source heat');s.parts=[{id:1,k:'gen',c:[30,10,0],d:4},{id:2,k:'engine',c:[10,10,0],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:1,dir:[-1,0,0]},{id:3,k:'engine',c:[-.5,10,6],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:0,machineryId:2,dir:[-1,0,0]}];s.nextId=4;C.migrateLegacyPropulsion(s);const rating=s.parts[1].ratedInputW;s.links=[{kind:'power',from:'p1',to:'p2',cap:rating}];
+ const s=C.newShip({L:40,W:24,H:20,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Shared source heat');s.parts=[{id:1,k:'gen',c:[30,10,0],d:4},{id:2,k:'engine',c:[10,10,0],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:1,dir:[-1,0,0]},{id:3,k:'engine',c:[-.5,10,6],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:0,machineryId:2,dir:[-1,0,0]}];s.nextId=4;C.migrateLegacyPropulsion(s);const rating=s.parts[1].ratedInputW;s.links=[{kind:'power',from:'p1',to:'p2',cap:rating}];
  const S=C.computeStats(s),p=C.fleetProfile(S,s.name,s),u=C.fleetUnit('shared-source','shared-source',p,0);C.heatInit(u);u.ht.t=0;
  const engineSources=p.heat.src.filter(s=>s.k==='engine');assert.equal(engineSources.length,1);assert.equal(engineSources[0].id,'p2');assert.equal(S.info[2].vent,false);assert.equal(S.info[3].vent,true);C.allocateShipPower(u,C.fleetSystems(u),{throttle:1},1,'balanced');assert.ok(u.propulsion.actualInputW>0);
  const input=u.propulsion.actualInputW,accrued=u.ht.engineE.reduce((a,b)=>a+b,0)+u.ht.e.engine;near(accrued,.05*input);
@@ -59,7 +59,7 @@ test('a vented shared outlet retains one machinery heat source when its owner no
 });
 
 test('inertial support scales the current force after thermal input reduction exactly once',()=>{
- const s=C.newShip({L:40,W:24,H:20},'Inertial force');s.parts=[{id:1,k:'gen',c:[30,10,0],d:4},{id:2,k:'engine',c:[-.5,10,0],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:1,dir:[-1,0,0]}];s.nextId=3;
+ const s=C.newShip({L:40,W:24,H:20,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Inertial force');s.parts=[{id:1,k:'gen',c:[30,10,0],d:4},{id:2,k:'engine',c:[-.5,10,0],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:1,dir:[-1,0,0]}];s.nextId=3;
  assert.ok(C.updateEngineSpec(s.parts[1],{ratedInputW:1e18,machineryGradeId:'dense'},s).ok);const p=C.propulsionProfile(s,{mass:1000,aStruct:1000,inertialSupport:500}),states={2:{thermalLimit:.25}};
  const actual=C.solveShipPropulsion(p,{throttle:1,states,sources:[{id:'supply',domain:p.engines[0].domain,powerW:1e18}]});
  near(p.ratedAccelMps2,500);near(p.accelerationLimitMps2,250);near(actual.freeAccelerationMps2,125);near(actual.actualAccelMps2,62.5);
