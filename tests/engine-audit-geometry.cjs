@@ -28,6 +28,13 @@ test('active machinery audit catches thin physical cylinder and reactor intersec
  ship.parts[1].c[2]=5;assert.equal(engineBodyIntersectionEvidence(C,ship).deviceIntersections.length,0,'a reactor may touch the body without overlapping it');
 });
 
+test('explicit shared engine cores participate in the exact body and reactor intersection audit',()=>{
+ const ship=C.newShip({L:80,W:30,H:30},'Explicit shared body intersection'),core=(id,z)=>({id,k:'engineCore',c:[20,15,z],d:6,length:10,dir:[-1,0,0],ratedInputW:1e18,driveProfileId:'standard',machineryGradeId:'advanced'});
+ ship.parts=[core(1,0),core(2,5.999)];let evidence=engineBodyIntersectionEvidence(C,ship);assert.equal(evidence.explicitCoreCount,2);assert.equal(evidence.bodyIntersections.length,1);assert.ok(Math.abs(evidence.bodyIntersections[0].penetrationM-.001)<1e-9);for(const p of ship.parts)assert.equal(C.inPart(p,evidence.bodyIntersections[0].pointM),true);
+ ship.parts[1].c[2]=6;assert.equal(engineBodyIntersectionEvidence(C,ship).bodyIntersections.length,0);
+ ship.parts=[core(1,0),{id:3,k:'gen',c:[20,15,4.999],d:4}];evidence=engineBodyIntersectionEvidence(C,ship);assert.equal(evidence.deviceIntersections.length,1);assert.equal(evidence.deviceIntersections[0].bodyPartId,1);ship.parts[1].c[2]=5;assert.equal(engineBodyIntersectionEvidence(C,ship).deviceIntersections.length,0);
+});
+
 function exteriorEngine(inputW=3.258845612783181e25){
  const ship=C.newShip({L:2000,W:1200,H:800,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1,bowFree:true,stations:[[0,1,1],[1,1,1]]},'Finite exterior engine contact');
  ship.parts=[{id:1,k:'gen',c:[1000,400,0],d:765.2607082711081},{id:2,k:'engine',c:[-200,400,0],d:210.5088,nozzleLength:105.2544,dir:[-1,0,0],reactor:1,busFeed:true,propulsionModelVersion:1,ratedInputW:inputW,driveProfileId:'standard',machineryGradeId:'advanced',machineryLengthM:121.37048989277311,machineryRadiusM:67.362816,machineryOffsetM:52.6272,legacyCoolingInputW:0}];
