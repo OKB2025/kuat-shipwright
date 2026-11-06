@@ -4,17 +4,17 @@
   "harnessSha256": "a8046daef101e8990c2bc93005f7df1814644ccfc327bfe78c9855b1d2775c10",
   "harnessUnchanged": true,
   "servedSourceSha256": {
-    "index.html": "9b82bac2f58b3829f481c91fa6b20cd16342b30b10600ef71148ca9226b4035c",
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
-    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
     "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
     "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
     "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
     "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
-    "js/lang-en.js": "f8fd787aa8fcabc2d5fe15cdc1ece84f00208d38c917d5d86bb5a7141985dfdd",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc",
     "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
   },
   "inputLimitMs": 1500,
@@ -22,71 +22,71 @@
   "url": "http://127.0.0.1:8876/?splash",
   "cpuThrottle": 4,
   "sourceSha256": {
-    "index.html": "9b82bac2f58b3829f481c91fa6b20cd16342b30b10600ef71148ca9226b4035c",
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
-    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
     "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
     "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
     "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
     "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
-    "js/lang-en.js": "f8fd787aa8fcabc2d5fe15cdc1ece84f00208d38c917d5d86bb5a7141985dfdd",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc",
     "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
   },
   "sourceSha256After": {
-    "index.html": "9b82bac2f58b3829f481c91fa6b20cd16342b30b10600ef71148ca9226b4035c",
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
-    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
     "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
     "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
     "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
     "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
-    "js/lang-en.js": "f8fd787aa8fcabc2d5fe15cdc1ece84f00208d38c917d5d86bb5a7141985dfdd",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc",
     "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
   },
   "sourceStable": true,
-  "elapsedMs": 24168,
+  "elapsedMs": 25672,
   "marks": [
     {
       "name": "domReady",
-      "timeMs": 484
+      "timeMs": 454
     },
     {
       "name": "splashReady",
-      "timeMs": 10425
+      "timeMs": 10865
     },
     {
       "name": "nativeSplashStart",
-      "timeMs": 13884
+      "timeMs": 14315
     },
     {
       "name": "nativeContinue",
-      "timeMs": 16385
+      "timeMs": 17489
     },
     {
       "name": "draftOpened",
-      "timeMs": 16770
+      "timeMs": 17774
     },
     {
       "name": "nativePendingPan",
-      "timeMs": 17863
+      "timeMs": 18899
     },
     {
       "name": "authoringGeometryReceived",
-      "timeMs": 19298
+      "timeMs": 20443
     },
     {
       "name": "nativeEarlyCachePan",
-      "timeMs": 20391
+      "timeMs": 21544
     },
     {
       "name": "nativeAfterAutosavePan",
-      "timeMs": 22739
+      "timeMs": 24016
     }
   ],
   "preContinue": {
@@ -105,44 +105,44 @@
     "parts": 318,
     "fits": 535,
     "cameraChanged": true,
-    "elapsedMs": 811,
+    "elapsedMs": 850,
     "observed": {
       "events": [
         {
           "trusted": true,
           "pending": true,
           "cameraChanged": true,
-          "time": 17649.20000000298
+          "time": 18695.5
         },
         {
           "trusted": true,
           "pending": true,
           "cameraChanged": true,
-          "time": 17689.10000000894
+          "time": 18709.79999999702
         },
         {
           "trusted": true,
           "pending": true,
           "cameraChanged": true,
-          "time": 17742.60000000894
+          "time": 18740.40000000596
         },
         {
           "trusted": true,
           "pending": true,
           "cameraChanged": true,
-          "time": 17769.5
+          "time": 18779
         },
         {
           "trusted": true,
           "pending": true,
           "cameraChanged": true,
-          "time": 17814.20000000298
+          "time": 18835.5
         },
         {
           "trusted": true,
           "pending": true,
           "cameraChanged": true,
-          "time": 17835.5
+          "time": 18867.5
         }
       ],
       "parts": 318,
@@ -150,9 +150,9 @@
     }
   },
   "warmPan": {
-    "elapsedMs": 1083,
+    "elapsedMs": 1065,
     "cameraChanged": true,
-    "afterAutosaveMs": 1045
+    "afterAutosaveMs": 1167
   },
   "failure": null,
   "errors": [],
@@ -175,237 +175,241 @@
       {
         "label": "3D\u30e2\u30c7\u30eb\u7d20\u6750\u3092\u8aad\u307f\u8fbc\u307f\u4e2d\u2026",
         "percent": "0%",
-        "time": 472.79999999701977
+        "time": 447.6000000089407
       },
       {
         "label": "\u8a2d\u8a08\u8a08\u7b97\u3092\u6e96\u5099\u4e2d\u2026",
         "percent": "88%",
-        "time": 3579.5
+        "time": 4144.5
       },
       {
         "label": "\u8a2d\u8a08\u753b\u9762\u3092\u6e96\u5099\u4e2d\u2026",
         "percent": "88%",
-        "time": 4838.70000000298
+        "time": 5236.9000000059605
       },
       {
         "label": "\u6e96\u5099\u5b8c\u4e86",
         "percent": "100%",
-        "time": 10358.79999999702
+        "time": 10820
       }
     ],
     "scripts": [
       {
         "name": "data/reference.js",
         "size": 17871345,
-        "started": 1401.4000000059605,
-        "loaded": 3161.7999999970198
+        "started": 3406.2000000029802,
+        "loaded": 3810.7999999970198
       },
       {
         "name": "data/textures.js",
         "size": 561583,
-        "started": 3158.2999999970198,
-        "loaded": 3219.1000000089407
+        "started": 3803.2000000029802,
+        "loaded": 3848.4000000059605
       },
       {
         "name": "data/imperial2.js",
         "size": 182573,
-        "started": 3218.6000000089407,
-        "loaded": 3235.2999999970198
+        "started": 3846.2000000029802,
+        "loaded": 3872.1000000089407
       },
       {
         "name": "data/fleet.js",
-        "size": 4379526,
-        "started": 3230.7000000029802,
-        "loaded": 3579.6000000089407
+        "size": 4319170,
+        "started": 3870,
+        "loaded": 4145.70000000298
       },
       {
         "name": "js/core.js",
-        "size": 3255792,
-        "started": 3869.1000000089407,
-        "loaded": 4275.20000000298
+        "size": 3261076,
+        "started": 4169.5,
+        "loaded": 4700
       },
       {
         "name": "js/gfx.js",
         "size": 326963,
-        "started": 4274.79999999702,
-        "loaded": 4319.70000000298
+        "started": 4697,
+        "loaded": 4742.100000008941
       },
       {
         "name": "js/engine.js",
         "size": 37180,
-        "started": 4316.5,
-        "loaded": 4323.79999999702
+        "started": 4739.9000000059605,
+        "loaded": 4753
       },
       {
         "name": "js/app.js",
         "size": 1705711,
-        "started": 5176.29999999702,
-        "loaded": 10359.20000000298
+        "started": 5314.100000008941,
+        "loaded": 10820.29999999702
       }
     ],
     "workers": [
       {
         "type": "created",
-        "time": 3338.7999999970198
+        "time": 3676
       },
       {
         "direction": "received",
         "type": "ready",
-        "time": 3874.1000000089407
+        "time": 4310.5
       },
       {
         "direction": "sent",
         "type": "update",
         "gen": 1,
-        "time": 16627.10000000894
+        "time": 17698.5
       },
       {
         "direction": "received",
         "type": "authoringGeometry",
         "gen": 1,
-        "time": 18848.10000000894
+        "time": 19918.90000000596
       }
     ],
     "long": [
       {
-        "start": 421.70000000298023,
-        "duration": 232
+        "start": 411.90000000596046,
+        "duration": 215
       },
       {
-        "start": 744.2999999970198,
-        "duration": 176
+        "start": 710.7000000029802,
+        "duration": 174
       },
       {
-        "start": 1001,
-        "duration": 100
+        "start": 1145.5,
+        "duration": 51
       },
       {
-        "start": 1113.2999999970198,
-        "duration": 295
+        "start": 1213.7999999970198,
+        "duration": 90
       },
       {
-        "start": 1551.7999999970198,
-        "duration": 58
-      },
-      {
-        "start": 2722.4000000059605,
-        "duration": 199
-      },
-      {
-        "start": 2954.5,
+        "start": 2933.2999999970198,
         "duration": 87
       },
       {
-        "start": 3261.2999999970198,
-        "duration": 77
+        "start": 3099.7000000029802,
+        "duration": 315
       },
       {
-        "start": 3493.6000000089407,
-        "duration": 86
+        "start": 3542.2000000029802,
+        "duration": 156
       },
       {
-        "start": 3972.5,
-        "duration": 302
-      },
-      {
-        "start": 5241,
-        "duration": 5121
-      },
-      {
-        "start": 10389,
-        "duration": 397
-      },
-      {
-        "start": 10833.20000000298,
-        "duration": 375
-      },
-      {
-        "start": 11209.79999999702,
-        "duration": 86
-      },
-      {
-        "start": 11296.79999999702,
-        "duration": 794
-      },
-      {
-        "start": 12155.79999999702,
-        "duration": 200
-      },
-      {
-        "start": 13175.29999999702,
-        "duration": 639
-      },
-      {
-        "start": 14261.60000000894,
-        "duration": 77
-      },
-      {
-        "start": 14440.10000000894,
+        "start": 3719.4000000059605,
         "duration": 92
       },
       {
-        "start": 14544.90000000596,
-        "duration": 104
+        "start": 4010.2000000029802,
+        "duration": 135
       },
       {
-        "start": 14818.79999999702,
-        "duration": 71
+        "start": 4334.9000000059605,
+        "duration": 365
       },
       {
-        "start": 16308.90000000596,
-        "duration": 67
+        "start": 5379.29999999702,
+        "duration": 5441
       },
       {
-        "start": 16376.60000000894,
-        "duration": 144
+        "start": 10824.10000000894,
+        "duration": 525
       },
       {
-        "start": 16521.29999999702,
-        "duration": 112
+        "start": 11412.40000000596,
+        "duration": 387
       },
       {
-        "start": 16640.29999999702,
-        "duration": 85
+        "start": 11807.20000000298,
+        "duration": 84
       },
       {
-        "start": 17060.10000000894,
-        "duration": 572
+        "start": 11891.90000000596,
+        "duration": 905
       },
       {
-        "start": 18684.40000000596,
-        "duration": 59
+        "start": 12860.90000000596,
+        "duration": 249
       },
       {
-        "start": 18815.60000000894,
-        "duration": 214
+        "start": 13809.29999999702,
+        "duration": 455
       },
       {
-        "start": 19030.29999999702,
-        "duration": 259
+        "start": 14735.20000000298,
+        "duration": 111
       },
       {
-        "start": 19336.20000000298,
-        "duration": 331
+        "start": 14965.29999999702,
+        "duration": 76
       },
       {
-        "start": 21719.90000000596,
-        "duration": 241
+        "start": 17414.20000000298,
+        "duration": 69
+      },
+      {
+        "start": 17486,
+        "duration": 124
+      },
+      {
+        "start": 17610.40000000596,
+        "duration": 93
+      },
+      {
+        "start": 17843.79999999702,
+        "duration": 54
+      },
+      {
+        "start": 18051.90000000596,
+        "duration": 607
+      },
+      {
+        "start": 19802.40000000596,
+        "duration": 50
+      },
+      {
+        "start": 19916.10000000894,
+        "duration": 245
+      },
+      {
+        "start": 20162.60000000894,
+        "duration": 276
+      },
+      {
+        "start": 20455.10000000894,
+        "duration": 335
+      },
+      {
+        "start": 21103.90000000596,
+        "duration": 55
+      },
+      {
+        "start": 22193.29999999702,
+        "duration": 50
+      },
+      {
+        "start": 22887.70000000298,
+        "duration": 276
+      },
+      {
+        "start": 24287.40000000596,
+        "duration": 70
       }
     ],
     "clicks": [
       {
         "type": "splashStart",
         "trusted": true,
-        "time": 13760.70000000298,
-        "handled": 13778.70000000298,
-        "handlerMs": 18
+        "time": 14219.5,
+        "handled": 14259,
+        "handlerMs": 39.5
       },
       {
         "type": "continue",
         "trusted": true,
-        "time": 16313,
-        "handled": 16350.40000000596,
-        "handlerMs": 37.400000005960464
+        "time": 17417.79999999702,
+        "handled": 17454,
+        "handlerMs": 36.20000000298023
       }
     ],
     "cameraEvents": [
@@ -413,114 +417,114 @@
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 17649.20000000298
+        "time": 18695.5
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 17689.10000000894
+        "time": 18709.79999999702
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 17742.60000000894
+        "time": 18740.40000000596
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 17769.5
+        "time": 18779
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 17814.20000000298
+        "time": 18835.5
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 17835.5
+        "time": 18867.5
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 19713.10000000894
+        "time": 20959.29999999702
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 19836.40000000596
+        "time": 20989.10000000894
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 19954.90000000596
+        "time": 21106.60000000894
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 20117.90000000596
+        "time": 21253.5
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 20236.29999999702
+        "time": 21355.70000000298
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 20350.90000000596
+        "time": 21476.90000000596
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 21984.5
+        "time": 23263.70000000298
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 22160.5
+        "time": 23386.20000000298
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 22285.79999999702
+        "time": 23539.79999999702
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 22432.40000000596
+        "time": 23678.20000000298
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 22567
+        "time": 23839.40000000596
       },
       {
         "trusted": true,
         "pending": true,
         "cameraChanged": true,
-        "time": 22690.29999999702
+        "time": 23998.29999999702
       }
     ],
     "glError": 0
   },
   "rawBlueprintSha256": "2282ed4832b07d5a4dc433b802d6d85bd13316bd596427077d4a2eb49b7932b6",
   "screenshot": "docs/images/responsive-startup-mandator.png",
-  "date": "2026-11-06T13:16:24.974Z"
+  "date": "2026-11-06T13:39:32.265Z"
 }

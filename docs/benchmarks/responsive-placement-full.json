@@ -31,17 +31,17 @@
     "sha256After": "c0297d68706a42945fb7069cda5df7a14a98579c291125c66925ac756b990d8b"
   },
   "sourceSha256": {
-    "index.html": "9b82bac2f58b3829f481c91fa6b20cd16342b30b10600ef71148ca9226b4035c",
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
     "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
     "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
-    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
     "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
     "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
     "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
-    "js/lang-en.js": "f8fd787aa8fcabc2d5fe15cdc1ece84f00208d38c917d5d86bb5a7141985dfdd"
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc"
   },
   "errors": [],
   "consoleErrors": [
@@ -106,7 +106,7 @@
         ]
       },
       "before": {
-        "t": 7682.70000000298,
+        "t": 7478.20000000298,
         "pixel": [
           819.9999202483507,
           529.499996015111
@@ -117,12 +117,12 @@
         "adopted": 0,
         "stats": 0,
         "fits": 529,
-        "uploadCount": 68
+        "uploadCount": 60
       },
-      "hoverRoundtripMs": 236,
-      "clickDispatchRoundtripMs": 337,
+      "hoverRoundtripMs": 880,
+      "clickDispatchRoundtripMs": 696,
       "after": {
-        "t": 8409.09999999404,
+        "t": 9388.20000000298,
         "gen": 2,
         "adopted": 0,
         "stats": 0,
@@ -158,66 +158,66 @@
         "uploads": [
           {
             "name": "preview",
-            "vertices": 68712,
-            "indices": 68712,
-            "t": 7920,
+            "vertices": 61164,
+            "indices": 61164,
+            "t": 9152.59999999404,
             "phase": "placement-0"
           },
           {
             "name": "previewRef",
             "vertices": 0,
             "indices": 0,
-            "t": 7920,
+            "t": 9152.59999999404,
             "phase": "placement-0"
           },
           {
             "name": "previewFits",
             "vertices": 0,
             "indices": 0,
-            "t": 7920,
-            "phase": "placement-0"
-          },
-          {
-            "name": "previewRefFits",
-            "vertices": 0,
-            "indices": 0,
-            "t": 7920,
-            "phase": "placement-0"
-          },
-          {
-            "name": "preview",
-            "vertices": 68712,
-            "indices": 68712,
-            "t": 8307.5,
-            "phase": "placement-0"
-          },
-          {
-            "name": "previewRef",
-            "vertices": 0,
-            "indices": 0,
-            "t": 8307.5,
-            "phase": "placement-0"
-          },
-          {
-            "name": "previewFits",
-            "vertices": 0,
-            "indices": 0,
-            "t": 8307.5,
+            "t": 9152.59999999404,
             "phase": "placement-0"
           },
           {
             "name": "previewRefFits",
             "vertices": 11168,
             "indices": 22176,
-            "t": 8307.5,
+            "t": 9152.59999999404,
+            "phase": "placement-0"
+          },
+          {
+            "name": "preview",
+            "vertices": 65712,
+            "indices": 65712,
+            "t": 9368.40000000596,
+            "phase": "placement-0"
+          },
+          {
+            "name": "previewRef",
+            "vertices": 0,
+            "indices": 0,
+            "t": 9368.5,
+            "phase": "placement-0"
+          },
+          {
+            "name": "previewFits",
+            "vertices": 0,
+            "indices": 0,
+            "t": 9368.5,
+            "phase": "placement-0"
+          },
+          {
+            "name": "previewRefFits",
+            "vertices": 11168,
+            "indices": 22176,
+            "t": 9368.5,
             "phase": "placement-0"
           }
         ],
         "nativeBeforeHandler": {
           "type": "pointerup",
-          "t": 8004.5,
-          "eventTimeStamp": 7940.399999991059,
-          "estimatedInputQueueDelayMs": 64.1000000089407,
+          "t": 8478.40000000596,
+          "eventTimeStamp": 8367.5,
+          "estimatedInputQueueDelayMs": 110.90000000596046,
           "phase": "placement-0",
           "button": 0,
           "x": 819.9999389648438,
@@ -231,7 +231,7 @@
           }
         }
       },
-      "clickAndReadMs": 493,
+      "clickAndReadMs": 1029,
       "expectedFits": 531,
       "calculationBeforeNativeHandler": {
         "geometryPending": true,
@@ -245,33 +245,33 @@
       ],
       "mirrorScope": "Real mirror mounts seat independently on the authored asymmetric surface; raw height and sub-centimetre tangential seating deltas stay visible, not normalized.",
       "afterAutosaveWindow": {
-        "t": 10042.5,
+        "t": 11003.5,
         "gen": 2,
         "stats": 0,
         "gaps": [
           {
-            "t": 6141.79999999702,
-            "duration": 331.70000000298023
+            "t": 4930,
+            "duration": 690.2999999970198
           },
           {
-            "t": 7388.79999999702,
-            "duration": 105.40000000596046
+            "t": 6130.20000000298,
+            "duration": 351.20000000298023
           },
           {
-            "t": 7500.5999999940395,
-            "duration": 164.20000000298023
+            "t": 7237.79999999702,
+            "duration": 226.1000000089407
           },
           {
-            "t": 7692.79999999702,
-            "duration": 228.09999999403954
+            "t": 7666.0999999940395,
+            "duration": 1515.300000011921
           },
           {
-            "t": 7939.20000000298,
-            "duration": 471.3999999910593
+            "t": 9181.40000000596,
+            "duration": 275.29999999701977
           },
           {
-            "t": 9372.70000000298,
-            "duration": 118.79999999701977
+            "t": 10149.29999999702,
+            "duration": 122.6000000089407
           }
         ]
       }
@@ -288,7 +288,7 @@
         ]
       },
       "before": {
-        "t": 10048.29999999702,
+        "t": 11010.29999999702,
         "pixel": [
           820.0000062584877,
           529.499997480267
@@ -301,10 +301,10 @@
         "fits": 531,
         "uploadCount": 88
       },
-      "hoverRoundtripMs": 468,
-      "clickDispatchRoundtripMs": 548,
+      "hoverRoundtripMs": 352,
+      "clickDispatchRoundtripMs": 581,
       "after": {
-        "t": 11075.70000000298,
+        "t": 11986.79999999702,
         "gen": 3,
         "adopted": 0,
         "stats": 0,
@@ -340,66 +340,66 @@
         "uploads": [
           {
             "name": "preview",
-            "vertices": 73524,
-            "indices": 73524,
-            "t": 9340.5,
+            "vertices": 70836,
+            "indices": 70836,
+            "t": 10583.79999999702,
             "phase": "placement-0"
           },
           {
             "name": "previewRef",
             "vertices": 0,
             "indices": 0,
-            "t": 9340.59999999404,
+            "t": 10583.90000000596,
             "phase": "placement-0"
           },
           {
             "name": "previewFits",
             "vertices": 0,
             "indices": 0,
-            "t": 9340.59999999404,
+            "t": 10583.90000000596,
             "phase": "placement-0"
           },
           {
             "name": "previewRefFits",
             "vertices": 11168,
             "indices": 22176,
-            "t": 9340.59999999404,
+            "t": 10583.90000000596,
             "phase": "placement-0"
           },
           {
             "name": "preview",
-            "vertices": 74232,
-            "indices": 74232,
-            "t": 10517.20000000298,
+            "vertices": 72492,
+            "indices": 72492,
+            "t": 11389.90000000596,
             "phase": "placement-1"
           },
           {
             "name": "previewRef",
             "vertices": 0,
             "indices": 0,
-            "t": 10517.20000000298,
+            "t": 11390,
             "phase": "placement-1"
           },
           {
             "name": "previewFits",
             "vertices": 0,
             "indices": 0,
-            "t": 10517.20000000298,
+            "t": 11390,
             "phase": "placement-1"
           },
           {
             "name": "previewRefFits",
             "vertices": 11168,
             "indices": 22176,
-            "t": 10517.20000000298,
+            "t": 11390,
             "phase": "placement-1"
           }
         ],
         "nativeBeforeHandler": {
           "type": "pointerup",
-          "t": 10643.29999999702,
-          "eventTimeStamp": 10517.89999999106,
-          "estimatedInputQueueDelayMs": 125.40000000596046,
+          "t": 11562.5,
+          "eventTimeStamp": 11389.90000000596,
+          "estimatedInputQueueDelayMs": 172.59999999403954,
           "phase": "placement-1",
           "button": 0,
           "x": 820,
@@ -413,7 +413,7 @@
           }
         }
       },
-      "clickAndReadMs": 563,
+      "clickAndReadMs": 601,
       "expectedFits": 533,
       "calculationBeforeNativeHandler": {
         "geometryPending": true,
@@ -439,7 +439,7 @@
         ]
       },
       "before": {
-        "t": 11081.89999999106,
+        "t": 11997.09999999404,
         "pixel": [
           820.0000187754631,
           529.5000016001811
@@ -452,10 +452,10 @@
         "fits": 533,
         "uploadCount": 92
       },
-      "hoverRoundtripMs": 164,
-      "clickDispatchRoundtripMs": 603,
+      "hoverRoundtripMs": 168,
+      "clickDispatchRoundtripMs": 648,
       "after": {
-        "t": 11869.70000000298,
+        "t": 12844.90000000596,
         "gen": 4,
         "adopted": 0,
         "stats": 0,
@@ -491,66 +491,66 @@
         "uploads": [
           {
             "name": "preview",
-            "vertices": 74232,
-            "indices": 74232,
-            "t": 10517.20000000298,
+            "vertices": 72492,
+            "indices": 72492,
+            "t": 11389.90000000596,
             "phase": "placement-1"
           },
           {
             "name": "previewRef",
             "vertices": 0,
             "indices": 0,
-            "t": 10517.20000000298,
+            "t": 11390,
             "phase": "placement-1"
           },
           {
             "name": "previewFits",
             "vertices": 0,
             "indices": 0,
-            "t": 10517.20000000298,
+            "t": 11390,
             "phase": "placement-1"
           },
           {
             "name": "previewRefFits",
             "vertices": 11168,
             "indices": 22176,
-            "t": 10517.20000000298,
+            "t": 11390,
             "phase": "placement-1"
           },
           {
             "name": "preview",
-            "vertices": 74232,
-            "indices": 74232,
-            "t": 11313.39999999106,
+            "vertices": 72492,
+            "indices": 72492,
+            "t": 12266.5,
             "phase": "placement-2"
           },
           {
             "name": "previewRef",
             "vertices": 0,
             "indices": 0,
-            "t": 11313.39999999106,
+            "t": 12266.5,
             "phase": "placement-2"
           },
           {
             "name": "previewFits",
             "vertices": 0,
             "indices": 0,
-            "t": 11313.39999999106,
+            "t": 12266.5,
             "phase": "placement-2"
           },
           {
             "name": "previewRefFits",
             "vertices": 22336,
             "indices": 44352,
-            "t": 11313.39999999106,
+            "t": 12266.59999999404,
             "phase": "placement-2"
           }
         ],
         "nativeBeforeHandler": {
           "type": "pointerup",
-          "t": 11488.09999999404,
-          "eventTimeStamp": 11247.79999999702,
-          "estimatedInputQueueDelayMs": 240.29999999701977,
+          "t": 12435.79999999702,
+          "eventTimeStamp": 12173.90000000596,
+          "estimatedInputQueueDelayMs": 261.8999999910593,
           "phase": "placement-2",
           "button": 0,
           "x": 820,
@@ -559,12 +559,12 @@
             "gen": 3,
             "adopted": 0,
             "stats": 0,
-            "sent": 2,
+            "sent": 3,
             "waiting": true
           }
         }
       },
-      "clickAndReadMs": 625,
+      "clickAndReadMs": 679,
       "expectedFits": 535,
       "calculationBeforeNativeHandler": {
         "geometryPending": true,
@@ -581,7 +581,7 @@
     {
       "kind": "native-orbit",
       "before": {
-        "t": 11890,
+        "t": 12855.29999999702,
         "theta": -1.5707963267948966,
         "phi": 0.0001,
         "gen": 4,
@@ -593,9 +593,9 @@
           529.5
         ]
       },
-      "roundtripMs": 12236,
+      "roundtripMs": 14643,
       "after": {
-        "t": 24128.59999999404,
+        "t": 27506,
         "theta": -0.6707963267948968,
         "phi": 0.0006,
         "gen": 4,
@@ -604,9 +604,9 @@
         "fits": 535,
         "nativeBeforeHandler": {
           "type": "pointerdown",
-          "t": 13342.89999999106,
-          "eventTimeStamp": 13213.59999999404,
-          "estimatedInputQueueDelayMs": 129.29999999701977,
+          "t": 12971.79999999702,
+          "eventTimeStamp": 12915.20000000298,
+          "estimatedInputQueueDelayMs": 56.599999994039536,
           "phase": "orbit",
           "button": 0,
           "x": 820,
@@ -615,7 +615,7 @@
             "gen": 4,
             "adopted": 0,
             "stats": 0,
-            "sent": 4,
+            "sent": 3,
             "waiting": true
           }
         }
@@ -691,12 +691,12 @@
   "workerMode": "worker",
   "init": {
     "scope": "Diagnostic programmatic archive seed, including deserialize/setShip and synchronous setup/render scheduling before presentation. This is separate from the native saved-design Continue path.",
-    "started": 5162.70000000298,
-    "ended": 5419.79999999702,
-    "duration": 257.09999999403954,
-    "deserializeMs": 170.29999999701977,
-    "setShipMs": 38.599999994039536,
-    "setupUiMs": 48.20000000298023,
+    "started": 5088.9000000059605,
+    "ended": 5359.79999999702,
+    "duration": 270.8999999910593,
+    "deserializeMs": 180.19999998807907,
+    "setShipMs": 41.70000000298023,
+    "setupUiMs": 49,
     "parts": 318,
     "fits": 529,
     "gen": 1
@@ -707,7 +707,7 @@
     "template": null
   },
   "authoringReady": {
-    "t": 7673,
+    "t": 7472,
     "ready": true,
     "gen": 1,
     "adopted": 0,
@@ -719,11 +719,11 @@
       {
         "type": "authoringGeometry",
         "gen": 1,
-        "prepareMs": 1827.3999999910593,
-        "t": 7494
+        "prepareMs": 1693.699999988079,
+        "t": 7316.5
       }
     ],
-    "waitAfterPaletteMs": 1121
+    "waitAfterPaletteMs": 922
   },
   "final": {
     "parts": 318,
@@ -747,1236 +747,1216 @@
       "meta": {
         "name": "マンデイターII級スター・ドレッドノート",
         "L": 8000,
-        "savedAt": 1793970920676
+        "savedAt": 1793972394865
       },
       "draftBytes": 1191242,
-      "draftSha256": "dbdb733c7927d93e53ffc08912a3d81e9bfe0abeba43e2e16f80f20830b68dfc"
+      "draftSha256": "93ca20118d222a77f3ed3448e5a01d947d3852d08f0842dfdeceef7b536c3015"
     },
     "long": [
       {
-        "t": 68.29999999701977,
+        "t": 101.79999999701977,
+        "duration": 104
+      },
+      {
+        "t": 635.4000000059605,
+        "duration": 135
+      },
+      {
+        "t": 2745.2999999970198,
+        "duration": 71
+      },
+      {
+        "t": 3132.0999999940395,
+        "duration": 343
+      },
+      {
+        "t": 3499.2000000029802,
+        "duration": 427
+      },
+      {
+        "t": 3933.0999999940395,
+        "duration": 297
+      },
+      {
+        "t": 4935.70000000298,
+        "duration": 460
+      },
+      {
+        "t": 5398.0999999940395,
+        "duration": 85
+      },
+      {
+        "t": 6142.9000000059605,
+        "duration": 303
+      },
+      {
+        "t": 6547.79999999702,
+        "duration": 56
+      },
+      {
+        "t": 7243.79999999702,
+        "duration": 72
+      },
+      {
+        "t": 7316.5999999940395,
+        "duration": 147
+      },
+      {
+        "t": 7672.20000000298,
+        "duration": 704
+      },
+      {
+        "t": 8376.59999999404,
+        "duration": 680
+      },
+      {
+        "t": 9059.90000000596,
+        "duration": 116
+      },
+      {
+        "t": 9183,
+        "duration": 73
+      },
+      {
+        "t": 9262.09999999404,
+        "duration": 83
+      },
+      {
+        "t": 10149.29999999702,
+        "duration": 122
+      },
+      {
+        "t": 11290.59999999404,
         "duration": 100
       },
       {
-        "t": 573.5999999940395,
-        "duration": 132
+        "t": 11391.20000000298,
+        "duration": 577
       },
       {
-        "t": 1043.2999999970198,
-        "duration": 200
+        "t": 12073.40000000596,
+        "duration": 210
       },
       {
-        "t": 2695.0999999940395,
-        "duration": 75
+        "t": 12284.40000000596,
+        "duration": 533
       },
       {
-        "t": 3030,
-        "duration": 328
+        "t": 12864.40000000596,
+        "duration": 105
       },
       {
-        "t": 3378.2999999970198,
-        "duration": 403
+        "t": 13050,
+        "duration": 113
       },
       {
-        "t": 3786.7999999970198,
-        "duration": 286
-      },
-      {
-        "t": 5021.899999991059,
-        "duration": 429
-      },
-      {
-        "t": 5454,
-        "duration": 61
-      },
-      {
-        "t": 5809.79999999702,
-        "duration": 53
-      },
-      {
-        "t": 6154.79999999702,
-        "duration": 293
-      },
-      {
-        "t": 6488.70000000298,
-        "duration": 51
-      },
-      {
-        "t": 6573.399999991059,
-        "duration": 51
-      },
-      {
-        "t": 7395.5,
-        "duration": 98
-      },
-      {
-        "t": 7550.0999999940395,
-        "duration": 114
-      },
-      {
-        "t": 7693.5,
-        "duration": 227
-      },
-      {
-        "t": 7940.5,
-        "duration": 310
-      },
-      {
-        "t": 8251.09999999404,
-        "duration": 66
-      },
-      {
-        "t": 8317.5,
-        "duration": 53
-      },
-      {
-        "t": 9376.79999999702,
-        "duration": 114
-      },
-      {
-        "t": 10462.09999999404,
-        "duration": 59
-      },
-      {
-        "t": 10522.20000000298,
-        "duration": 541
-      },
-      {
-        "t": 11108.89999999106,
-        "duration": 248
-      },
-      {
-        "t": 11357.79999999702,
-        "duration": 491
-      },
-      {
-        "t": 11899.29999999702,
-        "duration": 57
-      },
-      {
-        "t": 12972.70000000298,
-        "duration": 125
-      },
-      {
-        "t": 13122.29999999702,
-        "duration": 220
+        "t": 13956.29999999702,
+        "duration": 126
       }
     ],
     "gaps": [
       {
-        "t": 56.70000000298023,
-        "duration": 112.29999999701977
+        "t": 98.09999999403954,
+        "duration": 109.1000000089407
       },
       {
-        "t": 401.8999999910593,
-        "duration": 97.70000000298023
+        "t": 450.40000000596046,
+        "duration": 119.59999999403954
       },
       {
-        "t": 561,
-        "duration": 149.79999999701977
+        "t": 635.4000000059605,
+        "duration": 143.69999998807907
       },
       {
-        "t": 716.7999999970198,
-        "duration": 527.2999999970198
+        "t": 779.0999999940395,
+        "duration": 348.6000000089407
       },
       {
-        "t": 1244.0999999940395,
-        "duration": 938.2999999970198
+        "t": 1127.7000000029802,
+        "duration": 1078.5999999940395
       },
       {
-        "t": 2684.8999999910593,
-        "duration": 86.40000000596046
+        "t": 3122.0999999940395,
+        "duration": 1109.5
       },
       {
-        "t": 3020.7000000029802,
-        "duration": 1057.3999999910593
+        "t": 4930,
+        "duration": 690.2999999970198
       },
       {
-        "t": 4078.0999999940395,
-        "duration": 296.70000000298023
+        "t": 6130.20000000298,
+        "duration": 351.20000000298023
       },
       {
-        "t": 5020.899999991059,
-        "duration": 556.5
+        "t": 7237.79999999702,
+        "duration": 226.1000000089407
       },
       {
-        "t": 5809.79999999702,
-        "duration": 85
+        "t": 7666.0999999940395,
+        "duration": 1515.300000011921
       },
       {
-        "t": 6141.79999999702,
-        "duration": 331.70000000298023
+        "t": 9181.40000000596,
+        "duration": 275.29999999701977
       },
       {
-        "t": 7388.79999999702,
-        "duration": 105.40000000596046
+        "t": 10149.29999999702,
+        "duration": 122.6000000089407
       },
       {
-        "t": 7500.5999999940395,
-        "duration": 164.20000000298023
+        "t": 11282,
+        "duration": 753.5
       },
       {
-        "t": 7692.79999999702,
-        "duration": 228.09999999403954
+        "t": 12035.5,
+        "duration": 1002.7999999970198
       },
       {
-        "t": 7939.20000000298,
-        "duration": 471.3999999910593
+        "t": 13038.29999999702,
+        "duration": 125.70000000298023
       },
       {
-        "t": 9372.70000000298,
-        "duration": 118.79999999701977
-      },
-      {
-        "t": 10460.79999999702,
-        "duration": 1438.5
-      },
-      {
-        "t": 12972.70000000298,
-        "duration": 125.8999999910593
-      },
-      {
-        "t": 13116.79999999702,
-        "duration": 276.79999999701977
+        "t": 13955.90000000596,
+        "duration": 127.19999998807907
       }
     ],
     "animationGaps": [
       {
-        "t": 44.7,
-        "duration": 250
+        "t": 98.7,
+        "duration": 233.3
       },
       {
-        "t": 344.7,
-        "duration": 1633.3
+        "t": 382,
+        "duration": 1616.6
       },
       {
-        "t": 1978,
-        "duration": 166.5999999999999
+        "t": 1998.6,
+        "duration": 200
       },
       {
-        "t": 2178,
-        "duration": 366.6999999999998
+        "t": 2215.3,
+        "duration": 383.2999999999997
       },
       {
-        "t": 2594.6,
-        "duration": 383.4000000000001
+        "t": 2648.6,
+        "duration": 416.7000000000003
       },
       {
-        "t": 3044.6,
-        "duration": 333.3000000000002
+        "t": 3131.9,
+        "duration": 366.5999999999999
       },
       {
-        "t": 3377.9,
-        "duration": 400
+        "t": 3498.5,
+        "duration": 433.3000000000002
       },
       {
-        "t": 3777.9,
-        "duration": 283.2999999999997
+        "t": 3931.8,
+        "duration": 283.39999999999964
       },
       {
-        "t": 4061.2,
+        "t": 4265.2,
+        "duration": 166.69999999999982
+      },
+      {
+        "t": 4948.5,
+        "duration": 533.3000000000002
+      },
+      {
+        "t": 5481.8,
         "duration": 300
       },
       {
-        "t": 4394.5,
-        "duration": 150.10000000000036
+        "t": 5881.8,
+        "duration": 150
       },
       {
-        "t": 5027.8,
-        "duration": 483.3000000000002
-      },
-      {
-        "t": 5511.1,
-        "duration": 233.39999999999964
-      },
-      {
-        "t": 5861.1,
-        "duration": 166.69999999999982
-      },
-      {
-        "t": 6027.8,
-        "duration": 83.30000000000018
-      },
-      {
-        "t": 6111.1,
-        "duration": 100.09999999999945
-      },
-      {
-        "t": 6211.2,
-        "duration": 249.90000000000055
-      },
-      {
-        "t": 6461.1,
+        "t": 6081.8,
         "duration": 116.69999999999982
       },
       {
-        "t": 6577.8,
+        "t": 6198.5,
+        "duration": 266.60000000000036
+      },
+      {
+        "t": 6465.1,
+        "duration": 116.69999999999982
+      },
+      {
+        "t": 6581.8,
         "duration": 100
       },
       {
-        "t": 6677.8,
-        "duration": 166.69999999999982
+        "t": 6681.8,
+        "duration": 200
       },
       {
-        "t": 6844.5,
-        "duration": 166.60000000000036
+        "t": 6881.8,
+        "duration": 116.59999999999945
       },
       {
-        "t": 7011.1,
-        "duration": 116.69999999999982
+        "t": 6998.4,
+        "duration": 150
       },
       {
-        "t": 7144.4,
+        "t": 7148.4,
         "duration": 133.40000000000055
       },
       {
-        "t": 7277.8,
-        "duration": 233.30000000000018
+        "t": 7281.8,
+        "duration": 183.30000000000018
       },
       {
-        "t": 7511.1,
-        "duration": 166.59999999999945
+        "t": 7465.1,
+        "duration": 200
       },
       {
-        "t": 7677.7,
-        "duration": 316.6999999999998
+        "t": 7665.1,
+        "duration": 799.8999999999996
       },
       {
-        "t": 7994.4,
-        "duration": 683.3000000000011
+        "t": 8465,
+        "duration": 716.6000000000004
       },
       {
-        "t": 8677.7,
-        "duration": 600
+        "t": 9181.6,
+        "duration": 650.1000000000004
       },
       {
-        "t": 9311,
-        "duration": 1150
+        "t": 9865,
+        "duration": 716.6000000000004
       },
       {
-        "t": 10461,
-        "duration": 633.2999999999993
+        "t": 10581.6,
+        "duration": 700
       },
       {
-        "t": 11094.3,
-        "duration": 2016.5
+        "t": 11281.6,
+        "duration": 783.2999999999993
       },
       {
-        "t": 13110.8,
-        "duration": 2016.7000000000007
+        "t": 12064.9,
+        "duration": 783.3000000000011
       },
       {
-        "t": 15160.8,
-        "duration": 1833.2999999999993
+        "t": 12848.2,
+        "duration": 2049.8999999999996
       },
       {
-        "t": 16994.1,
-        "duration": 3649.800000000003
+        "t": 14898.1,
+        "duration": 2283.199999999999
       },
       {
-        "t": 20643.9,
-        "duration": 1699.8999999999978
+        "t": 17181.3,
+        "duration": 2016.6000000000022
       },
       {
-        "t": 22343.8,
-        "duration": 1766.6000000000022
+        "t": 19197.9,
+        "duration": 2149.899999999998
+      },
+      {
+        "t": 21347.8,
+        "duration": 4099.9000000000015
+      },
+      {
+        "t": 25447.7,
+        "duration": 2033.2000000000007
       }
     ],
-    "animationFrames": 83,
+    "animationFrames": 84,
     "eventTimingSupported": true,
     "eventTiming": [
       {
         "name": "pointerover",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.0999999940395,
-        "processingEnd": 6155.0999999940395,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.7999999970197678,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "mouseover",
-        "startTime": 6153.29999999702,
-        "duration": 536,
-        "processingStart": 6155.20000000298,
-        "processingEnd": 6155.20000000298,
+        "startTime": 6141.79999999702,
+        "duration": 552,
+        "processingStart": 6142.4000000059605,
+        "processingEnd": 6142.4000000059605,
         "interactionId": 0,
-        "inputDelayMs": 1.9000000059604645,
+        "inputDelayMs": 0.6000000089406967,
         "processingMs": 0
       },
       {
         "name": "pointerdown",
-        "startTime": 6153.5,
-        "duration": 536,
-        "processingStart": 6157.0999999940395,
-        "processingEnd": 6385.5,
-        "interactionId": 4859,
-        "inputDelayMs": 3.5999999940395355,
-        "processingMs": 228.40000000596046
+        "startTime": 6142.0999999940395,
+        "duration": 544,
+        "processingStart": 6143.0999999940395,
+        "processingEnd": 6384.9000000059605,
+        "interactionId": 6690,
+        "inputDelayMs": 1,
+        "processingMs": 241.80000001192093
       },
       {
         "name": "mousedown",
-        "startTime": 6153.5,
-        "duration": 536,
-        "processingStart": 6385.5,
-        "processingEnd": 6385.5999999940395,
+        "startTime": 6142.0999999940395,
+        "duration": 544,
+        "processingStart": 6384.9000000059605,
+        "processingEnd": 6385.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 232,
-        "processingMs": 0.09999999403953552
+        "inputDelayMs": 242.80000001192093,
+        "processingMs": 0.19999998807907104
       },
       {
         "name": "pointerup",
-        "startTime": 6153.70000000298,
-        "duration": 536,
-        "processingStart": 6386,
-        "processingEnd": 6386.20000000298,
-        "interactionId": 4859,
-        "inputDelayMs": 232.29999999701977,
-        "processingMs": 0.20000000298023224
+        "startTime": 6142.0999999940395,
+        "duration": 544,
+        "processingStart": 6386.20000000298,
+        "processingEnd": 6386.5,
+        "interactionId": 6690,
+        "inputDelayMs": 244.1000000089407,
+        "processingMs": 0.29999999701976776
       },
       {
         "name": "mouseup",
-        "startTime": 6153.70000000298,
-        "duration": 536,
-        "processingStart": 6386.20000000298,
-        "processingEnd": 6386.20000000298,
+        "startTime": 6142.0999999940395,
+        "duration": 544,
+        "processingStart": 6386.5,
+        "processingEnd": 6386.5,
         "interactionId": 0,
-        "inputDelayMs": 232.5,
+        "inputDelayMs": 244.40000000596046,
         "processingMs": 0
       },
       {
         "name": "click",
-        "startTime": 6153.70000000298,
-        "duration": 536,
-        "processingStart": 6386.29999999702,
-        "processingEnd": 6420.5999999940395,
-        "interactionId": 4859,
-        "inputDelayMs": 232.59999999403954,
-        "processingMs": 34.29999999701977
+        "startTime": 6142.0999999940395,
+        "duration": 544,
+        "processingStart": 6386.5,
+        "processingEnd": 6416.9000000059605,
+        "interactionId": 6690,
+        "inputDelayMs": 244.40000000596046,
+        "processingMs": 30.400000005960464
       },
       {
         "name": "pointerover",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6448.899999991059,
-        "processingEnd": 6449,
+        "processingStart": 6447,
+        "processingEnd": 6447.0999999940395,
+        "interactionId": 0,
+        "inputDelayMs": 0.09999999403953552,
+        "processingMs": 0.09999999403953552
+      },
+      {
+        "name": "pointerenter",
+        "startTime": 6446.9000000059605,
+        "duration": 240,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
         "inputDelayMs": 0.19999998807907104,
-        "processingMs": 0.10000000894069672
-      },
-      {
-        "name": "pointerenter",
-        "startTime": 6448.70000000298,
-        "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
-        "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "mouseover",
-        "startTime": 6448.70000000298,
+        "startTime": 6446.9000000059605,
         "duration": 240,
-        "processingStart": 6449,
-        "processingEnd": 6449,
+        "processingStart": 6447.0999999940395,
+        "processingEnd": 6447.0999999940395,
         "interactionId": 0,
-        "inputDelayMs": 0.29999999701976776,
+        "inputDelayMs": 0.19999998807907104,
         "processingMs": 0
       },
       {
         "name": "pointerout",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "pointerleave",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "pointerleave",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "pointerover",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "mouseout",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "mouseover",
-        "startTime": 6478.5999999940395,
-        "duration": 368,
-        "processingStart": 6479.20000000298,
-        "processingEnd": 6479.20000000298,
+        "startTime": 6470.5,
+        "duration": 416,
+        "processingStart": 6471,
+        "processingEnd": 6471,
         "interactionId": 0,
-        "inputDelayMs": 0.6000000089406967,
+        "inputDelayMs": 0.5,
         "processingMs": 0
       },
       {
         "name": "pointerout",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.0999999940395,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.399999991059303,
-        "processingMs": 0.10000000894069672
-      },
-      {
-        "name": "pointerleave",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
-        "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerleave",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerleave",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerleave",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerleave",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
+        "processingMs": 0
+      },
+      {
+        "name": "pointerleave",
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
+        "interactionId": 0,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerover",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerenter",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "mouseout",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "mouseover",
-        "startTime": 7686.70000000298,
-        "duration": 1000,
-        "processingStart": 7694.20000000298,
-        "processingEnd": 7694.20000000298,
+        "startTime": 7486.5,
+        "duration": 1704,
+        "processingStart": 7672.5999999940395,
+        "processingEnd": 7672.5999999940395,
         "interactionId": 0,
-        "inputDelayMs": 7.5,
+        "inputDelayMs": 186.09999999403954,
         "processingMs": 0
       },
       {
         "name": "pointerdown",
-        "startTime": 7940.29999999702,
-        "duration": 1384,
-        "processingStart": 8002,
-        "processingEnd": 8003.29999999702,
-        "interactionId": 4866,
-        "inputDelayMs": 61.70000000298023,
+        "startTime": 8367.29999999702,
+        "duration": 1504,
+        "processingStart": 8476.90000000596,
+        "processingEnd": 8478.20000000298,
+        "interactionId": 6697,
+        "inputDelayMs": 109.6000000089407,
         "processingMs": 1.2999999970197678
       },
       {
         "name": "mousedown",
-        "startTime": 7940.29999999702,
-        "duration": 1384,
-        "processingStart": 8003.29999999702,
-        "processingEnd": 8003.399999991059,
+        "startTime": 8367.29999999702,
+        "duration": 1504,
+        "processingStart": 8478.20000000298,
+        "processingEnd": 8478.20000000298,
         "interactionId": 0,
-        "inputDelayMs": 63,
-        "processingMs": 0.09999999403953552
+        "inputDelayMs": 110.90000000596046,
+        "processingMs": 0
       },
       {
         "name": "gotpointercapture",
-        "startTime": 7940.399999991059,
-        "duration": 1384,
-        "processingStart": 8003.79999999702,
-        "processingEnd": 8003.79999999702,
+        "startTime": 8367.5,
+        "duration": 1504,
+        "processingStart": 8478.40000000596,
+        "processingEnd": 8478.40000000596,
         "interactionId": 0,
-        "inputDelayMs": 63.400000005960464,
+        "inputDelayMs": 110.90000000596046,
         "processingMs": 0
       },
       {
         "name": "pointerup",
-        "startTime": 7940.399999991059,
-        "duration": 1384,
-        "processingStart": 8003.899999991059,
-        "processingEnd": 8209.20000000298,
-        "interactionId": 4866,
-        "inputDelayMs": 63.5,
-        "processingMs": 205.30000001192093
+        "startTime": 8367.5,
+        "duration": 1504,
+        "processingStart": 8478.40000000596,
+        "processingEnd": 8989.59999999404,
+        "interactionId": 6697,
+        "inputDelayMs": 110.90000000596046,
+        "processingMs": 511.19999998807907
       },
       {
         "name": "mouseup",
-        "startTime": 7940.399999991059,
-        "duration": 1384,
-        "processingStart": 8209.29999999702,
-        "processingEnd": 8209.29999999702,
+        "startTime": 8367.5,
+        "duration": 1504,
+        "processingStart": 8989.59999999404,
+        "processingEnd": 8989.59999999404,
         "interactionId": 0,
-        "inputDelayMs": 268.90000000596046,
+        "inputDelayMs": 622.0999999940395,
         "processingMs": 0
       },
       {
         "name": "lostpointercapture",
-        "startTime": 7940.399999991059,
-        "duration": 1384,
-        "processingStart": 8250.39999999106,
-        "processingEnd": 8250.39999999106,
+        "startTime": 8367.5,
+        "duration": 1504,
+        "processingStart": 9056.5,
+        "processingEnd": 9056.5,
         "interactionId": 0,
-        "inputDelayMs": 310,
+        "inputDelayMs": 689,
         "processingMs": 0
       },
       {
         "name": "click",
-        "startTime": 7940.399999991059,
-        "duration": 1384,
-        "processingStart": 8250.39999999106,
-        "processingEnd": 8250.79999999702,
-        "interactionId": 4866,
-        "inputDelayMs": 310,
+        "startTime": 8367.5,
+        "duration": 1504,
+        "processingStart": 9056.5,
+        "processingEnd": 9056.90000000596,
+        "interactionId": 6697,
+        "inputDelayMs": 689,
         "processingMs": 0.4000000059604645
       },
       {
         "name": "pointerdown",
-        "startTime": 10517.70000000298,
-        "duration": 4624,
-        "processingStart": 10643.09999999404,
-        "processingEnd": 10643.20000000298,
-        "interactionId": 4873,
-        "inputDelayMs": 125.3999999910593,
-        "processingMs": 0.10000000894069672
-      },
-      {
-        "name": "mousedown",
-        "startTime": 10517.70000000298,
-        "duration": 4624,
-        "processingStart": 10643.20000000298,
-        "processingEnd": 10643.20000000298,
-        "interactionId": 0,
-        "inputDelayMs": 125.5,
-        "processingMs": 0
-      },
-      {
-        "name": "gotpointercapture",
-        "startTime": 10517.89999999106,
-        "duration": 4624,
-        "processingStart": 10643.29999999702,
-        "processingEnd": 10643.29999999702,
-        "interactionId": 0,
-        "inputDelayMs": 125.40000000596046,
-        "processingMs": 0
-      },
-      {
-        "name": "pointerup",
-        "startTime": 10517.89999999106,
-        "duration": 4624,
-        "processingStart": 10643.29999999702,
-        "processingEnd": 11019,
-        "interactionId": 4873,
-        "inputDelayMs": 125.40000000596046,
-        "processingMs": 375.70000000298023
-      },
-      {
-        "name": "mouseup",
-        "startTime": 10517.89999999106,
-        "duration": 4624,
-        "processingStart": 11019,
-        "processingEnd": 11019,
-        "interactionId": 0,
-        "inputDelayMs": 501.1000000089407,
-        "processingMs": 0
-      },
-      {
-        "name": "lostpointercapture",
-        "startTime": 10517.89999999106,
-        "duration": 4624,
-        "processingStart": 11063.29999999702,
-        "processingEnd": 11063.29999999702,
-        "interactionId": 0,
-        "inputDelayMs": 545.4000000059605,
-        "processingMs": 0
-      },
-      {
-        "name": "click",
-        "startTime": 10517.89999999106,
-        "duration": 4624,
-        "processingStart": 11063.29999999702,
-        "processingEnd": 11063.59999999404,
-        "interactionId": 4873,
-        "inputDelayMs": 545.4000000059605,
-        "processingMs": 0.29999999701976776
-      },
-      {
-        "name": "pointerdown",
-        "startTime": 11247.70000000298,
-        "duration": 5752,
-        "processingStart": 11487.39999999106,
-        "processingEnd": 11487.59999999404,
-        "interactionId": 4880,
-        "inputDelayMs": 239.69999998807907,
+        "startTime": 11389.70000000298,
+        "duration": 5800,
+        "processingStart": 11562.09999999404,
+        "processingEnd": 11562.29999999702,
+        "interactionId": 6704,
+        "inputDelayMs": 172.3999999910593,
         "processingMs": 0.20000000298023224
       },
       {
         "name": "mousedown",
-        "startTime": 11247.70000000298,
-        "duration": 5752,
-        "processingStart": 11487.59999999404,
-        "processingEnd": 11487.70000000298,
+        "startTime": 11389.70000000298,
+        "duration": 5800,
+        "processingStart": 11562.29999999702,
+        "processingEnd": 11562.29999999702,
         "interactionId": 0,
-        "inputDelayMs": 239.8999999910593,
-        "processingMs": 0.10000000894069672
+        "inputDelayMs": 172.59999999403954,
+        "processingMs": 0
       },
       {
         "name": "gotpointercapture",
-        "startTime": 11247.79999999702,
-        "duration": 5752,
-        "processingStart": 11488,
-        "processingEnd": 11488.09999999404,
+        "startTime": 11389.90000000596,
+        "duration": 5800,
+        "processingStart": 11562.5,
+        "processingEnd": 11562.5,
         "interactionId": 0,
-        "inputDelayMs": 240.20000000298023,
-        "processingMs": 0.09999999403953552
+        "inputDelayMs": 172.59999999403954,
+        "processingMs": 0
       },
       {
         "name": "pointerup",
-        "startTime": 11247.79999999702,
-        "duration": 5752,
-        "processingStart": 11488.09999999404,
-        "processingEnd": 11807,
-        "interactionId": 4880,
-        "inputDelayMs": 240.29999999701977,
-        "processingMs": 318.90000000596046
+        "startTime": 11389.90000000596,
+        "duration": 5800,
+        "processingStart": 11562.5,
+        "processingEnd": 11943.29999999702,
+        "interactionId": 6704,
+        "inputDelayMs": 172.59999999403954,
+        "processingMs": 380.79999999701977
       },
       {
         "name": "mouseup",
-        "startTime": 11247.79999999702,
-        "duration": 5752,
-        "processingStart": 11807,
-        "processingEnd": 11807,
+        "startTime": 11389.90000000596,
+        "duration": 5800,
+        "processingStart": 11943.29999999702,
+        "processingEnd": 11943.29999999702,
         "interactionId": 0,
-        "inputDelayMs": 559.2000000029802,
+        "inputDelayMs": 553.3999999910593,
         "processingMs": 0
       },
       {
         "name": "lostpointercapture",
-        "startTime": 11247.79999999702,
-        "duration": 5752,
-        "processingStart": 11848.5,
-        "processingEnd": 11848.59999999404,
+        "startTime": 11389.90000000596,
+        "duration": 5800,
+        "processingStart": 11966.79999999702,
+        "processingEnd": 11966.79999999702,
         "interactionId": 0,
-        "inputDelayMs": 600.7000000029802,
-        "processingMs": 0.09999999403953552
+        "inputDelayMs": 576.8999999910593,
+        "processingMs": 0
       },
       {
         "name": "click",
-        "startTime": 11247.79999999702,
-        "duration": 5752,
-        "processingStart": 11848.59999999404,
-        "processingEnd": 11848.70000000298,
-        "interactionId": 4880,
-        "inputDelayMs": 600.7999999970198,
+        "startTime": 11389.90000000596,
+        "duration": 5800,
+        "processingStart": 11966.79999999702,
+        "processingEnd": 11967.29999999702,
+        "interactionId": 6704,
+        "inputDelayMs": 576.8999999910593,
+        "processingMs": 0.5
+      },
+      {
+        "name": "pointerdown",
+        "startTime": 12173.79999999702,
+        "duration": 7032,
+        "processingStart": 12435.20000000298,
+        "processingEnd": 12435.5,
+        "interactionId": 6711,
+        "inputDelayMs": 261.40000000596046,
+        "processingMs": 0.29999999701976776
+      },
+      {
+        "name": "mousedown",
+        "startTime": 12173.79999999702,
+        "duration": 7032,
+        "processingStart": 12435.5,
+        "processingEnd": 12435.5,
+        "interactionId": 0,
+        "inputDelayMs": 261.70000000298023,
+        "processingMs": 0
+      },
+      {
+        "name": "gotpointercapture",
+        "startTime": 12173.90000000596,
+        "duration": 7032,
+        "processingStart": 12435.79999999702,
+        "processingEnd": 12435.79999999702,
+        "interactionId": 0,
+        "inputDelayMs": 261.8999999910593,
+        "processingMs": 0
+      },
+      {
+        "name": "pointerup",
+        "startTime": 12173.90000000596,
+        "duration": 7032,
+        "processingStart": 12435.79999999702,
+        "processingEnd": 12795.59999999404,
+        "interactionId": 6711,
+        "inputDelayMs": 261.8999999910593,
+        "processingMs": 359.79999999701977
+      },
+      {
+        "name": "mouseup",
+        "startTime": 12173.90000000596,
+        "duration": 7032,
+        "processingStart": 12795.59999999404,
+        "processingEnd": 12795.70000000298,
+        "interactionId": 0,
+        "inputDelayMs": 621.6999999880791,
         "processingMs": 0.10000000894069672
+      },
+      {
+        "name": "lostpointercapture",
+        "startTime": 12173.90000000596,
+        "duration": 7032,
+        "processingStart": 12818,
+        "processingEnd": 12818,
+        "interactionId": 0,
+        "inputDelayMs": 644.0999999940395,
+        "processingMs": 0
+      },
+      {
+        "name": "click",
+        "startTime": 12173.90000000596,
+        "duration": 7032,
+        "processingStart": 12818,
+        "processingEnd": 12818.09999999404,
+        "interactionId": 6711,
+        "inputDelayMs": 644.0999999940395,
+        "processingMs": 0.09999999403953552
       }
     ],
     "events": [
       {
         "type": "pointermove",
+        "duration": 0,
+        "t": 6142.70000000298,
+        "trusted": true,
+        "phase": "initial"
+      },
+      {
+        "type": "pointerdown",
+        "duration": 241.70000000298023,
+        "t": 6384.9000000059605,
+        "trusted": true,
+        "phase": "initial"
+      },
+      {
+        "type": "pointerup",
+        "duration": 0.09999999403953552,
+        "t": 6386.5,
+        "trusted": true,
+        "phase": "initial"
+      },
+      {
+        "type": "click",
+        "duration": 30.400000005960464,
+        "t": 6416.9000000059605,
+        "trusted": true,
+        "phase": "initial"
+      },
+      {
+        "type": "pointermove",
+        "duration": 692.7000000029802,
+        "t": 8365.29999999702,
+        "trusted": true,
+        "phase": "placement-0"
+      },
+      {
+        "type": "pointermove",
+        "duration": 99.8999999910593,
+        "t": 8476.59999999404,
+        "trusted": true,
+        "phase": "placement-0"
+      },
+      {
+        "type": "pointerdown",
+        "duration": 1.2999999970197678,
+        "t": 8478.20000000298,
+        "trusted": true,
+        "phase": "placement-0"
+      },
+      {
+        "type": "pointerup",
+        "duration": 511.19999998807907,
+        "t": 8989.59999999404,
+        "trusted": true,
+        "phase": "placement-0"
+      },
+      {
+        "type": "click",
         "duration": 0.30000001192092896,
-        "t": 6156.70000000298,
-        "trusted": true,
-        "phase": "initial"
-      },
-      {
-        "type": "pointerdown",
-        "duration": 228.29999999701977,
-        "t": 6385.5,
-        "trusted": true,
-        "phase": "initial"
-      },
-      {
-        "type": "pointerup",
-        "duration": 0,
-        "t": 6386.20000000298,
-        "trusted": true,
-        "phase": "initial"
-      },
-      {
-        "type": "click",
-        "duration": 34.29999999701977,
-        "t": 6420.5999999940395,
-        "trusted": true,
-        "phase": "initial"
-      },
-      {
-        "type": "pointermove",
-        "duration": 223.40000000596046,
-        "t": 7917.70000000298,
+        "t": 9056.90000000596,
         "trusted": true,
         "phase": "placement-0"
       },
       {
         "type": "pointermove",
-        "duration": 59,
-        "t": 8000,
-        "trusted": true,
-        "phase": "placement-0"
-      },
-      {
-        "type": "pointerdown",
-        "duration": 1.2000000029802322,
-        "t": 8003.29999999702,
-        "trusted": true,
-        "phase": "placement-0"
-      },
-      {
-        "type": "pointerup",
-        "duration": 204.70000000298023,
-        "t": 8209.20000000298,
-        "trusted": true,
-        "phase": "placement-0"
-      },
-      {
-        "type": "click",
-        "duration": 0.20000000298023224,
-        "t": 8250.79999999702,
-        "trusted": true,
-        "phase": "placement-0"
-      },
-      {
-        "type": "pointermove",
-        "duration": 53.5,
-        "t": 10515.89999999106,
+        "duration": 92.8999999910593,
+        "t": 11383.79999999702,
         "trusted": true,
         "phase": "placement-1"
       },
       {
         "type": "pointermove",
-        "duration": 120.29999999701977,
-        "t": 10642.70000000298,
+        "duration": 170.19999998807907,
+        "t": 11561.70000000298,
         "trusted": true,
         "phase": "placement-1"
-      },
-      {
-        "type": "pointerdown",
-        "duration": 0.10000000894069672,
-        "t": 10643.20000000298,
-        "trusted": true,
-        "phase": "placement-1"
-      },
-      {
-        "type": "pointerup",
-        "duration": 375.70000000298023,
-        "t": 11019,
-        "trusted": true,
-        "phase": "placement-1"
-      },
-      {
-        "type": "click",
-        "duration": 0.20000000298023224,
-        "t": 11063.59999999404,
-        "trusted": true,
-        "phase": "placement-1"
-      },
-      {
-        "type": "pointermove",
-        "duration": 136.79999999701977,
-        "t": 11246.20000000298,
-        "trusted": true,
-        "phase": "placement-2"
-      },
-      {
-        "type": "pointermove",
-        "duration": 128.5,
-        "t": 11487,
-        "trusted": true,
-        "phase": "placement-2"
       },
       {
         "type": "pointerdown",
         "duration": 0.20000000298023224,
-        "t": 11487.59999999404,
+        "t": 11562.29999999702,
+        "trusted": true,
+        "phase": "placement-1"
+      },
+      {
+        "type": "pointerup",
+        "duration": 380.79999999701977,
+        "t": 11943.29999999702,
+        "trusted": true,
+        "phase": "placement-1"
+      },
+      {
+        "type": "click",
+        "duration": 0.09999999403953552,
+        "t": 11967.29999999702,
+        "trusted": true,
+        "phase": "placement-1"
+      },
+      {
+        "type": "pointermove",
+        "duration": 96.70000000298023,
+        "t": 12170.29999999702,
+        "trusted": true,
+        "phase": "placement-2"
+      },
+      {
+        "type": "pointermove",
+        "duration": 126.90000000596046,
+        "t": 12411.40000000596,
+        "trusted": true,
+        "phase": "placement-2"
+      },
+      {
+        "type": "pointerdown",
+        "duration": 0.29999999701976776,
+        "t": 12435.5,
         "trusted": true,
         "phase": "placement-2"
       },
       {
         "type": "pointerup",
-        "duration": 318.90000000596046,
-        "t": 11807,
+        "duration": 359.79999999701977,
+        "t": 12795.59999999404,
         "trusted": true,
         "phase": "placement-2"
       },
       {
         "type": "click",
-        "duration": 0.10000000894069672,
-        "t": 11848.70000000298,
+        "duration": 0.09999999403953552,
+        "t": 12818.09999999404,
         "trusted": true,
         "phase": "placement-2"
       },
       {
         "type": "pointermove",
-        "duration": 89.1000000089407,
-        "t": 13212,
+        "duration": 38.70000000298023,
+        "t": 12903.70000000298,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "pointerdown",
-        "duration": 0.10000000894069672,
-        "t": 13343,
+        "duration": 0.20000000298023224,
+        "t": 12972,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "pointermove",
-        "duration": 0.5,
-        "t": 15141,
+        "duration": 0.6000000089406967,
+        "t": 14902.40000000596,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "pointermove",
-        "duration": 0.5999999940395355,
-        "t": 15170.59999999404,
+        "duration": 0.19999998807907104,
+        "t": 17189.59999999404,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "pointermove",
-        "duration": 0.10000000894069672,
-        "t": 17002.20000000298,
-        "trusted": true,
-        "phase": "orbit"
-      },
-      {
-        "type": "pointermove",
-        "duration": 0,
-        "t": 20646.29999999702,
-        "trusted": true,
-        "phase": "orbit"
-      },
-      {
-        "type": "pointermove",
-        "duration": 0,
-        "t": 22346,
+        "duration": 0.09999999403953552,
+        "t": 19208.5,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "pointermove",
         "duration": 0.10000000894069672,
-        "t": 24116.70000000298,
+        "t": 21358.20000000298,
+        "trusted": true,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "duration": 0.19999998807907104,
+        "t": 25454.09999999404,
+        "trusted": true,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "duration": 0.09999999403953552,
+        "t": 27490,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "pointerup",
         "duration": 0.09999999403953552,
-        "t": 24125.09999999404,
+        "t": 27498.09999999404,
         "trusted": true,
         "phase": "orbit"
       },
       {
         "type": "click",
         "duration": 0.20000000298023224,
-        "t": 24125.29999999702,
+        "t": 27498.5,
         "trusted": true,
         "phase": "orbit"
       }
@@ -1984,9 +1964,9 @@
     "native": [
       {
         "type": "pointermove",
-        "t": 6156.5,
-        "eventTimeStamp": 6153.29999999702,
-        "estimatedInputQueueDelayMs": 3.2000000029802322,
+        "t": 6142.5999999940395,
+        "eventTimeStamp": 6141.79999999702,
+        "estimatedInputQueueDelayMs": 0.7999999970197678,
         "phase": "initial",
         "button": -1,
         "x": 169,
@@ -2001,9 +1981,9 @@
       },
       {
         "type": "pointerdown",
-        "t": 6157.20000000298,
-        "eventTimeStamp": 6153.5,
-        "estimatedInputQueueDelayMs": 3.7000000029802322,
+        "t": 6143.0999999940395,
+        "eventTimeStamp": 6142.0999999940395,
+        "estimatedInputQueueDelayMs": 1,
         "phase": "initial",
         "button": 0,
         "x": 169,
@@ -2018,9 +1998,9 @@
       },
       {
         "type": "pointerup",
-        "t": 6386.20000000298,
-        "eventTimeStamp": 6153.70000000298,
-        "estimatedInputQueueDelayMs": 232.5,
+        "t": 6386.4000000059605,
+        "eventTimeStamp": 6142.0999999940395,
+        "estimatedInputQueueDelayMs": 244.30000001192093,
         "phase": "initial",
         "button": 0,
         "x": 169,
@@ -2035,9 +2015,9 @@
       },
       {
         "type": "click",
-        "t": 6386.29999999702,
-        "eventTimeStamp": 6153.70000000298,
-        "estimatedInputQueueDelayMs": 232.69999998807907,
+        "t": 6386.5,
+        "eventTimeStamp": 6142.0999999940395,
+        "estimatedInputQueueDelayMs": 244.40000000596046,
         "phase": "initial",
         "button": 0,
         "x": 169,
@@ -2052,9 +2032,9 @@
       },
       {
         "type": "pointermove",
-        "t": 7694.29999999702,
-        "eventTimeStamp": 7686.70000000298,
-        "estimatedInputQueueDelayMs": 7.5999999940395355,
+        "t": 7675.70000000298,
+        "eventTimeStamp": 7486.5,
+        "estimatedInputQueueDelayMs": 189.20000000298023,
         "phase": "placement-0",
         "button": -1,
         "x": 819.9999389648438,
@@ -2069,9 +2049,9 @@
       },
       {
         "type": "pointermove",
-        "t": 7941,
-        "eventTimeStamp": 7940.0999999940395,
-        "estimatedInputQueueDelayMs": 0.9000000059604645,
+        "t": 8376.70000000298,
+        "eventTimeStamp": 8367.09999999404,
+        "estimatedInputQueueDelayMs": 9.600000008940697,
         "phase": "placement-0",
         "button": -1,
         "x": 819.9999389648438,
@@ -2086,9 +2066,9 @@
       },
       {
         "type": "pointerdown",
-        "t": 8002.0999999940395,
-        "eventTimeStamp": 7940.29999999702,
-        "estimatedInputQueueDelayMs": 61.79999999701977,
+        "t": 8476.90000000596,
+        "eventTimeStamp": 8367.29999999702,
+        "estimatedInputQueueDelayMs": 109.6000000089407,
         "phase": "placement-0",
         "button": 0,
         "x": 819.9999389648438,
@@ -2103,9 +2083,9 @@
       },
       {
         "type": "pointerup",
-        "t": 8004.5,
-        "eventTimeStamp": 7940.399999991059,
-        "estimatedInputQueueDelayMs": 64.1000000089407,
+        "t": 8478.40000000596,
+        "eventTimeStamp": 8367.5,
+        "estimatedInputQueueDelayMs": 110.90000000596046,
         "phase": "placement-0",
         "button": 0,
         "x": 819.9999389648438,
@@ -2120,9 +2100,9 @@
       },
       {
         "type": "click",
-        "t": 8250.70000000298,
-        "eventTimeStamp": 7940.399999991059,
-        "estimatedInputQueueDelayMs": 310.30000001192093,
+        "t": 9056.70000000298,
+        "eventTimeStamp": 8367.5,
+        "estimatedInputQueueDelayMs": 689.2000000029802,
         "phase": "placement-0",
         "button": 0,
         "x": 819,
@@ -2137,9 +2117,9 @@
       },
       {
         "type": "pointermove",
-        "t": 10462.39999999106,
-        "eventTimeStamp": 10049.09999999404,
-        "estimatedInputQueueDelayMs": 413.29999999701977,
+        "t": 11290.90000000596,
+        "eventTimeStamp": 11041.79999999702,
+        "estimatedInputQueueDelayMs": 249.1000000089407,
         "phase": "placement-1",
         "button": -1,
         "x": 820,
@@ -2154,9 +2134,9 @@
       },
       {
         "type": "pointermove",
-        "t": 10522.29999999702,
-        "eventTimeStamp": 10517.29999999702,
-        "estimatedInputQueueDelayMs": 5,
+        "t": 11391.40000000596,
+        "eventTimeStamp": 11389.59999999404,
+        "estimatedInputQueueDelayMs": 1.800000011920929,
         "phase": "placement-1",
         "button": -1,
         "x": 820,
@@ -2171,9 +2151,9 @@
       },
       {
         "type": "pointerdown",
-        "t": 10643.09999999404,
-        "eventTimeStamp": 10517.70000000298,
-        "estimatedInputQueueDelayMs": 125.3999999910593,
+        "t": 11562.09999999404,
+        "eventTimeStamp": 11389.70000000298,
+        "estimatedInputQueueDelayMs": 172.3999999910593,
         "phase": "placement-1",
         "button": 0,
         "x": 820,
@@ -2188,9 +2168,9 @@
       },
       {
         "type": "pointerup",
-        "t": 10643.29999999702,
-        "eventTimeStamp": 10517.89999999106,
-        "estimatedInputQueueDelayMs": 125.40000000596046,
+        "t": 11562.5,
+        "eventTimeStamp": 11389.90000000596,
+        "estimatedInputQueueDelayMs": 172.59999999403954,
         "phase": "placement-1",
         "button": 0,
         "x": 820,
@@ -2205,9 +2185,9 @@
       },
       {
         "type": "click",
-        "t": 11063.39999999106,
-        "eventTimeStamp": 10517.89999999106,
-        "estimatedInputQueueDelayMs": 545.5,
+        "t": 11967.20000000298,
+        "eventTimeStamp": 11389.90000000596,
+        "estimatedInputQueueDelayMs": 577.2999999970198,
         "phase": "placement-1",
         "button": 0,
         "x": 820,
@@ -2222,9 +2202,9 @@
       },
       {
         "type": "pointermove",
-        "t": 11109.29999999702,
-        "eventTimeStamp": 11083,
-        "estimatedInputQueueDelayMs": 26.299999997019768,
+        "t": 12073.59999999404,
+        "eventTimeStamp": 12003.09999999404,
+        "estimatedInputQueueDelayMs": 70.5,
         "phase": "placement-2",
         "button": -1,
         "x": 820,
@@ -2233,15 +2213,15 @@
           "gen": 3,
           "adopted": 0,
           "stats": 0,
-          "sent": 2,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "pointermove",
-        "t": 11358.39999999106,
-        "eventTimeStamp": 11247.59999999404,
-        "estimatedInputQueueDelayMs": 110.79999999701977,
+        "t": 12284.5,
+        "eventTimeStamp": 12173.59999999404,
+        "estimatedInputQueueDelayMs": 110.90000000596046,
         "phase": "placement-2",
         "button": -1,
         "x": 820,
@@ -2250,15 +2230,15 @@
           "gen": 3,
           "adopted": 0,
           "stats": 0,
-          "sent": 2,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "pointerdown",
-        "t": 11487.39999999106,
-        "eventTimeStamp": 11247.70000000298,
-        "estimatedInputQueueDelayMs": 239.69999998807907,
+        "t": 12435.29999999702,
+        "eventTimeStamp": 12173.79999999702,
+        "estimatedInputQueueDelayMs": 261.5,
         "phase": "placement-2",
         "button": 0,
         "x": 820,
@@ -2267,15 +2247,15 @@
           "gen": 3,
           "adopted": 0,
           "stats": 0,
-          "sent": 2,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "pointerup",
-        "t": 11488.09999999404,
-        "eventTimeStamp": 11247.79999999702,
-        "estimatedInputQueueDelayMs": 240.29999999701977,
+        "t": 12435.79999999702,
+        "eventTimeStamp": 12173.90000000596,
+        "estimatedInputQueueDelayMs": 261.8999999910593,
         "phase": "placement-2",
         "button": 0,
         "x": 820,
@@ -2284,15 +2264,15 @@
           "gen": 3,
           "adopted": 0,
           "stats": 0,
-          "sent": 2,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "click",
-        "t": 11848.59999999404,
-        "eventTimeStamp": 11247.79999999702,
-        "estimatedInputQueueDelayMs": 600.7999999970198,
+        "t": 12818,
+        "eventTimeStamp": 12173.90000000596,
+        "estimatedInputQueueDelayMs": 644.0999999940395,
         "phase": "placement-2",
         "button": 0,
         "x": 820,
@@ -2301,15 +2281,15 @@
           "gen": 4,
           "adopted": 0,
           "stats": 0,
-          "sent": 2,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "pointermove",
-        "t": 13122.89999999106,
-        "eventTimeStamp": 11892.29999999702,
-        "estimatedInputQueueDelayMs": 1230.7000000029802,
+        "t": 12865,
+        "eventTimeStamp": 12856.90000000596,
+        "estimatedInputQueueDelayMs": 8.099999994039536,
         "phase": "orbit",
         "button": -1,
         "x": 820,
@@ -2318,15 +2298,15 @@
           "gen": 4,
           "adopted": 0,
           "stats": 0,
-          "sent": 4,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "pointerdown",
-        "t": 13342.89999999106,
-        "eventTimeStamp": 13213.59999999404,
-        "estimatedInputQueueDelayMs": 129.29999999701977,
+        "t": 12971.79999999702,
+        "eventTimeStamp": 12915.20000000298,
+        "estimatedInputQueueDelayMs": 56.599999994039536,
         "phase": "orbit",
         "button": 0,
         "x": 820,
@@ -2335,15 +2315,15 @@
           "gen": 4,
           "adopted": 0,
           "stats": 0,
-          "sent": 4,
+          "sent": 3,
           "waiting": true
         }
       },
       {
         "type": "pointermove",
-        "t": 15140.5,
-        "eventTimeStamp": 13373,
-        "estimatedInputQueueDelayMs": 1767.5,
+        "t": 14901.79999999702,
+        "eventTimeStamp": 12976.09999999404,
+        "estimatedInputQueueDelayMs": 1925.7000000029802,
         "phase": "orbit",
         "button": -1,
         "x": 836.6666870117188,
@@ -2358,9 +2338,9 @@
       },
       {
         "type": "pointermove",
-        "t": 15170,
-        "eventTimeStamp": 15161.39999999106,
-        "estimatedInputQueueDelayMs": 8.600000008940697,
+        "t": 17189.40000000596,
+        "eventTimeStamp": 14909.70000000298,
+        "estimatedInputQueueDelayMs": 2279.7000000029802,
         "phase": "orbit",
         "button": -1,
         "x": 853.3333129882812,
@@ -2375,9 +2355,9 @@
       },
       {
         "type": "pointermove",
-        "t": 17002.09999999404,
-        "eventTimeStamp": 15175.5,
-        "estimatedInputQueueDelayMs": 1826.5999999940395,
+        "t": 19208.40000000596,
+        "eventTimeStamp": 17198,
+        "estimatedInputQueueDelayMs": 2010.4000000059605,
         "phase": "orbit",
         "button": -1,
         "x": 870,
@@ -2392,9 +2372,9 @@
       },
       {
         "type": "pointermove",
-        "t": 20646.29999999702,
-        "eventTimeStamp": 17012.5,
-        "estimatedInputQueueDelayMs": 3633.7999999970198,
+        "t": 21358.09999999404,
+        "eventTimeStamp": 19215.90000000596,
+        "estimatedInputQueueDelayMs": 2142.199999988079,
         "phase": "orbit",
         "button": -1,
         "x": 886.6666870117188,
@@ -2409,9 +2389,9 @@
       },
       {
         "type": "pointermove",
-        "t": 22346,
-        "eventTimeStamp": 20654.20000000298,
-        "estimatedInputQueueDelayMs": 1691.7999999970198,
+        "t": 25454,
+        "eventTimeStamp": 21372.59999999404,
+        "estimatedInputQueueDelayMs": 4081.4000000059605,
         "phase": "orbit",
         "button": -1,
         "x": 903.3333129882812,
@@ -2426,9 +2406,9 @@
       },
       {
         "type": "pointermove",
-        "t": 24116.59999999404,
-        "eventTimeStamp": 22349.79999999702,
-        "estimatedInputQueueDelayMs": 1766.7999999970198,
+        "t": 27489.90000000596,
+        "eventTimeStamp": 25463.20000000298,
+        "estimatedInputQueueDelayMs": 2026.7000000029802,
         "phase": "orbit",
         "button": -1,
         "x": 920,
@@ -2443,9 +2423,9 @@
       },
       {
         "type": "pointerup",
-        "t": 24125,
-        "eventTimeStamp": 24124.59999999404,
-        "estimatedInputQueueDelayMs": 0.4000000059604645,
+        "t": 27498,
+        "eventTimeStamp": 27497.70000000298,
+        "estimatedInputQueueDelayMs": 0.29999999701976776,
         "phase": "orbit",
         "button": 0,
         "x": 920,
@@ -2460,9 +2440,9 @@
       },
       {
         "type": "click",
-        "t": 24125.09999999404,
-        "eventTimeStamp": 24124.59999999404,
-        "estimatedInputQueueDelayMs": 0.5,
+        "t": 27498.29999999702,
+        "eventTimeStamp": 27497.70000000298,
+        "estimatedInputQueueDelayMs": 0.5999999940395355,
         "phase": "orbit",
         "button": 0,
         "x": 920,
@@ -2481,700 +2461,700 @@
         "name": "preview",
         "vertices": 2016,
         "indices": 2016,
-        "t": 5483.5,
+        "t": 5429.5999999940395,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 5483.70000000298,
+        "t": 5429.9000000059605,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5483.79999999702,
+        "t": 5429.9000000059605,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5483.79999999702,
+        "t": 5430,
         "phase": "initial"
       },
       {
         "name": "preview",
         "vertices": 2592,
         "indices": 2592,
-        "t": 5581.20000000298,
+        "t": 5592.9000000059605,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 5581.5999999940395,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5581.5999999940395,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5581.5999999940395,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "name": "preview",
         "vertices": 3252,
         "indices": 3252,
-        "t": 5760.79999999702,
+        "t": 5799.9000000059605,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 5760.899999991059,
+        "t": 5800,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5760.899999991059,
+        "t": 5800,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5760.899999991059,
+        "t": 5800,
         "phase": "initial"
       },
       {
         "name": "preview",
         "vertices": 4836,
         "indices": 4836,
-        "t": 5817,
+        "t": 5846.70000000298,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 5817.20000000298,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5817.20000000298,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5817.20000000298,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 8628,
-        "indices": 8628,
-        "t": 5897.899999991059,
+        "vertices": 8424,
+        "indices": 8424,
+        "t": 5904.5999999940395,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 5898.20000000298,
+        "t": 5905,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5898.20000000298,
+        "t": 5905,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 5898.20000000298,
+        "t": 5905,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 11688,
-        "indices": 11688,
-        "t": 6039.79999999702,
+        "vertices": 10260,
+        "indices": 10260,
+        "t": 6042.70000000298,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6040,
+        "t": 6042.79999999702,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6040,
+        "t": 6042.79999999702,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6040,
+        "t": 6042.79999999702,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 14832,
-        "indices": 14832,
-        "t": 6124.399999991059,
+        "vertices": 13392,
+        "indices": 13392,
+        "t": 6106.20000000298,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6125,
+        "t": 6106.5999999940395,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6125,
+        "t": 6106.5999999940395,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6125,
+        "t": 6106.5999999940395,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 18156,
-        "indices": 18156,
-        "t": 6452.20000000298,
+        "vertices": 16824,
+        "indices": 16824,
+        "t": 6451.4000000059605,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6452.29999999702,
+        "t": 6451.5,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6452.29999999702,
+        "t": 6451.5,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6452.29999999702,
+        "t": 6451.5,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 18804,
-        "indices": 18804,
-        "t": 6481.0999999940395,
+        "vertices": 18576,
+        "indices": 18576,
+        "t": 6476.0999999940395,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6481.20000000298,
+        "t": 6476.20000000298,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6481.20000000298,
+        "t": 6476.20000000298,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6481.20000000298,
+        "t": 6476.20000000298,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 19668,
-        "indices": 19668,
-        "t": 6626.20000000298,
+        "vertices": 19500,
+        "indices": 19500,
+        "t": 6610,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6626.29999999702,
+        "t": 6610,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6626.29999999702,
+        "t": 6610,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6626.29999999702,
+        "t": 6610,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 24048,
-        "indices": 24048,
-        "t": 6694.29999999702,
+        "vertices": 22680,
+        "indices": 22680,
+        "t": 6697.70000000298,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6694.399999991059,
+        "t": 6697.79999999702,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6694.399999991059,
+        "t": 6697.79999999702,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6694.399999991059,
+        "t": 6697.79999999702,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 25620,
-        "indices": 25620,
-        "t": 6849.899999991059,
+        "vertices": 25404,
+        "indices": 25404,
+        "t": 6895.9000000059605,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 6850.20000000298,
+        "t": 6896.70000000298,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6850.20000000298,
+        "t": 6896.70000000298,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 6850.20000000298,
+        "t": 6896.70000000298,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 26196,
-        "indices": 26196,
-        "t": 7016.5999999940395,
+        "vertices": 25764,
+        "indices": 25764,
+        "t": 7017.20000000298,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 7016.5999999940395,
+        "t": 7017.29999999702,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7016.5999999940395,
+        "t": 7017.29999999702,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7016.5999999940395,
+        "t": 7017.29999999702,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 28104,
-        "indices": 28104,
-        "t": 7141.5999999940395,
+        "vertices": 26844,
+        "indices": 26844,
+        "t": 7158.5,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 7141.70000000298,
+        "t": 7158.5999999940395,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7141.70000000298,
+        "t": 7158.5999999940395,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7141.70000000298,
+        "t": 7158.5999999940395,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 30888,
-        "indices": 30888,
-        "t": 7166,
+        "vertices": 59580,
+        "indices": 59580,
+        "t": 7460.9000000059605,
         "phase": "initial"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 7166,
+        "t": 7462.20000000298,
         "phase": "initial"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7166,
+        "t": 7462.20000000298,
         "phase": "initial"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7166,
+        "t": 7462.20000000298,
         "phase": "initial"
       },
       {
         "name": "preview",
-        "vertices": 33900,
-        "indices": 33900,
-        "t": 7282.5999999940395,
-        "phase": "initial"
-      },
-      {
-        "name": "previewRef",
-        "vertices": 0,
-        "indices": 0,
-        "t": 7282.70000000298,
-        "phase": "initial"
-      },
-      {
-        "name": "previewFits",
-        "vertices": 0,
-        "indices": 0,
-        "t": 7282.70000000298,
-        "phase": "initial"
-      },
-      {
-        "name": "previewRefFits",
-        "vertices": 0,
-        "indices": 0,
-        "t": 7282.70000000298,
-        "phase": "initial"
-      },
-      {
-        "name": "preview",
-        "vertices": 66636,
-        "indices": 66636,
-        "t": 7658.5999999940395,
-        "phase": "initial"
-      },
-      {
-        "name": "previewRef",
-        "vertices": 0,
-        "indices": 0,
-        "t": 7660,
-        "phase": "initial"
-      },
-      {
-        "name": "previewFits",
-        "vertices": 0,
-        "indices": 0,
-        "t": 7660,
-        "phase": "initial"
-      },
-      {
-        "name": "previewRefFits",
-        "vertices": 0,
-        "indices": 0,
-        "t": 7660,
-        "phase": "initial"
-      },
-      {
-        "name": "preview",
-        "vertices": 68712,
-        "indices": 68712,
-        "t": 7920,
+        "vertices": 60396,
+        "indices": 60396,
+        "t": 7488.20000000298,
         "phase": "placement-0"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 7920,
+        "t": 7488.20000000298,
         "phase": "placement-0"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7920,
+        "t": 7488.20000000298,
         "phase": "placement-0"
       },
       {
         "name": "previewRefFits",
         "vertices": 0,
         "indices": 0,
-        "t": 7920,
+        "t": 7488.20000000298,
         "phase": "placement-0"
       },
       {
         "name": "preview",
-        "vertices": 68712,
-        "indices": 68712,
-        "t": 8307.5,
+        "vertices": 61164,
+        "indices": 61164,
+        "t": 8375.29999999702,
         "phase": "placement-0"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 8307.5,
+        "t": 8375.40000000596,
         "phase": "placement-0"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 8307.5,
+        "t": 8375.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRefFits",
+        "vertices": 0,
+        "indices": 0,
+        "t": 8375.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "name": "preview",
+        "vertices": 61164,
+        "indices": 61164,
+        "t": 9152.59999999404,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRef",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9152.59999999404,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewFits",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9152.59999999404,
         "phase": "placement-0"
       },
       {
         "name": "previewRefFits",
         "vertices": 11168,
         "indices": 22176,
-        "t": 8307.5,
+        "t": 9152.59999999404,
+        "phase": "placement-0"
+      },
+      {
+        "name": "preview",
+        "vertices": 65712,
+        "indices": 65712,
+        "t": 9368.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRef",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9368.5,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewFits",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9368.5,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRefFits",
+        "vertices": 11168,
+        "indices": 22176,
+        "t": 9368.5,
+        "phase": "placement-0"
+      },
+      {
+        "name": "preview",
+        "vertices": 67344,
+        "indices": 67344,
+        "t": 9845.59999999404,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRef",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewFits",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRefFits",
+        "vertices": 11168,
+        "indices": 22176,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "name": "preview",
+        "vertices": 68712,
+        "indices": 68712,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRef",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewFits",
+        "vertices": 0,
+        "indices": 0,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "name": "previewRefFits",
+        "vertices": 11168,
+        "indices": 22176,
+        "t": 9881.40000000596,
         "phase": "placement-0"
       },
       {
         "name": "preview",
         "vertices": 70836,
         "indices": 70836,
-        "t": 8693.20000000298,
+        "t": 10583.79999999702,
         "phase": "placement-0"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 8693.20000000298,
+        "t": 10583.90000000596,
         "phase": "placement-0"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 8693.20000000298,
+        "t": 10583.90000000596,
         "phase": "placement-0"
       },
       {
         "name": "previewRefFits",
         "vertices": 11168,
         "indices": 22176,
-        "t": 8693.20000000298,
+        "t": 10583.90000000596,
         "phase": "placement-0"
       },
       {
         "name": "preview",
         "vertices": 72492,
         "indices": 72492,
-        "t": 9293.20000000298,
-        "phase": "placement-0"
-      },
-      {
-        "name": "previewRef",
-        "vertices": 0,
-        "indices": 0,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
-      },
-      {
-        "name": "previewFits",
-        "vertices": 0,
-        "indices": 0,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
-      },
-      {
-        "name": "previewRefFits",
-        "vertices": 11168,
-        "indices": 22176,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
-      },
-      {
-        "name": "preview",
-        "vertices": 73524,
-        "indices": 73524,
-        "t": 9340.5,
-        "phase": "placement-0"
-      },
-      {
-        "name": "previewRef",
-        "vertices": 0,
-        "indices": 0,
-        "t": 9340.59999999404,
-        "phase": "placement-0"
-      },
-      {
-        "name": "previewFits",
-        "vertices": 0,
-        "indices": 0,
-        "t": 9340.59999999404,
-        "phase": "placement-0"
-      },
-      {
-        "name": "previewRefFits",
-        "vertices": 11168,
-        "indices": 22176,
-        "t": 9340.59999999404,
-        "phase": "placement-0"
-      },
-      {
-        "name": "preview",
-        "vertices": 74232,
-        "indices": 74232,
-        "t": 10517.20000000298,
+        "t": 11389.90000000596,
         "phase": "placement-1"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 10517.20000000298,
+        "t": 11390,
         "phase": "placement-1"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 10517.20000000298,
+        "t": 11390,
         "phase": "placement-1"
       },
       {
         "name": "previewRefFits",
         "vertices": 11168,
         "indices": 22176,
-        "t": 10517.20000000298,
+        "t": 11390,
         "phase": "placement-1"
       },
       {
         "name": "preview",
-        "vertices": 74232,
-        "indices": 74232,
-        "t": 11313.39999999106,
+        "vertices": 72492,
+        "indices": 72492,
+        "t": 12266.5,
         "phase": "placement-2"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 11313.39999999106,
+        "t": 12266.5,
         "phase": "placement-2"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 11313.39999999106,
+        "t": 12266.5,
         "phase": "placement-2"
       },
       {
         "name": "previewRefFits",
         "vertices": 22336,
         "indices": 44352,
-        "t": 11313.39999999106,
+        "t": 12266.59999999404,
         "phase": "placement-2"
       },
       {
         "name": "preview",
-        "vertices": 74328,
-        "indices": 74328,
-        "t": 13296.79999999702,
+        "vertices": 72924,
+        "indices": 72924,
+        "t": 12956,
         "phase": "orbit"
       },
       {
         "name": "previewRef",
         "vertices": 0,
         "indices": 0,
-        "t": 13296.79999999702,
+        "t": 12956.09999999404,
         "phase": "orbit"
       },
       {
         "name": "previewFits",
         "vertices": 0,
         "indices": 0,
-        "t": 13296.79999999702,
+        "t": 12956.09999999404,
         "phase": "orbit"
       },
       {
         "name": "previewRefFits",
         "vertices": 33504,
         "indices": 66528,
-        "t": 13296.79999999702,
+        "t": 12956.09999999404,
         "phase": "orbit"
       }
     ],
@@ -3194,6 +3174,13 @@
         "phase": "placement-0"
       },
       {
+        "gen": 3,
+        "bytes": 1190821,
+        "parts": 318,
+        "fits": 533,
+        "phase": "placement-2"
+      },
+      {
         "gen": 4,
         "bytes": 1191156,
         "parts": 318,
@@ -3205,29 +3192,29 @@
       {
         "type": "authoringGeometry",
         "gen": 1,
-        "prepareMs": 1827.3999999910593,
-        "t": 7494
+        "prepareMs": 1693.699999988079,
+        "t": 7316.5
       }
     ],
     "bufferUpdateSummary": {
       "count": 85,
-      "bytes": 942648,
+      "bytes": 870108,
       "byPhase": {
         "initial": {
-          "count": 55,
-          "bytes": 704196
+          "count": 45,
+          "bytes": 456444
         },
         "placement-0": {
-          "count": 20,
-          "bytes": 213528
+          "count": 30,
+          "bytes": 348936
         },
         "placement-1": {
           "count": 5,
-          "bytes": 21948
+          "bytes": 51336
         },
         "orbit": {
           "count": 5,
-          "bytes": 2976
+          "bytes": 13392
         }
       }
     },
@@ -3236,403 +3223,403 @@
         "target": 34962,
         "offset": 24192,
         "bytes": 6912,
-        "t": 5581.399999991059,
+        "t": 5593.20000000298,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 6048,
         "bytes": 1728,
-        "t": 5581.5,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 16128,
         "bytes": 4608,
-        "t": 5581.5,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 8064,
         "bytes": 2304,
-        "t": 5581.5,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "target": 34963,
         "offset": 8064,
         "bytes": 2304,
-        "t": 5581.5,
+        "t": 5593.29999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 39024,
         "bytes": 19008,
-        "t": 5817.0999999940395,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 9756,
         "bytes": 4752,
-        "t": 5817.0999999940395,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 26016,
         "bytes": 12672,
-        "t": 5817.0999999940395,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
         "offset": 13008,
         "bytes": 6336,
-        "t": 5817.20000000298,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "target": 34963,
         "offset": 13008,
         "bytes": 6336,
-        "t": 5817.20000000298,
+        "t": 5846.79999999702,
         "phase": "initial"
       },
       {
         "target": 34962,
-        "offset": 103536,
-        "bytes": 36720,
-        "t": 6039.79999999702,
+        "offset": 101088,
+        "bytes": 22032,
+        "t": 6042.70000000298,
         "phase": "initial"
       },
       {
         "target": 34962,
-        "offset": 25884,
-        "bytes": 9180,
-        "t": 6039.899999991059,
+        "offset": 25272,
+        "bytes": 5508,
+        "t": 6042.79999999702,
         "phase": "initial"
+      },
+      {
+        "target": 34962,
+        "offset": 197136,
+        "bytes": 4896,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 525696,
+        "bytes": 13056,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 262848,
+        "bytes": 6528,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34963,
+        "offset": 262848,
+        "bytes": 6528,
+        "t": 9845.70000000298,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 808128,
+        "bytes": 16416,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 202032,
+        "bytes": 4104,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 538752,
+        "bytes": 10944,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 269376,
+        "bytes": 5472,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34963,
+        "offset": 269376,
+        "bytes": 5472,
+        "t": 9881.40000000596,
+        "phase": "placement-0"
+      },
+      {
+        "target": 34962,
+        "offset": 824544,
+        "bytes": 25488,
+        "t": 10583.79999999702,
+        "phase": "placement-0"
       },
       {
         "target": 34962,
         "offset": 206136,
         "bytes": 6372,
-        "t": 8693.20000000298,
+        "t": 10583.79999999702,
         "phase": "placement-0"
       },
       {
         "target": 34962,
         "offset": 549696,
         "bytes": 16992,
-        "t": 8693.20000000298,
+        "t": 10583.90000000596,
         "phase": "placement-0"
       },
       {
         "target": 34962,
         "offset": 274848,
         "bytes": 8496,
-        "t": 8693.20000000298,
+        "t": 10583.90000000596,
         "phase": "placement-0"
       },
       {
         "target": 34963,
         "offset": 274848,
         "bytes": 8496,
-        "t": 8693.20000000298,
+        "t": 10583.90000000596,
         "phase": "placement-0"
       },
       {
         "target": 34962,
         "offset": 850032,
         "bytes": 19872,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
+        "t": 11389.90000000596,
+        "phase": "placement-1"
       },
       {
         "target": 34962,
         "offset": 212508,
         "bytes": 4968,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
+        "t": 11389.90000000596,
+        "phase": "placement-1"
       },
       {
         "target": 34962,
         "offset": 566688,
         "bytes": 13248,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
+        "t": 11390,
+        "phase": "placement-1"
       },
       {
         "target": 34962,
         "offset": 283344,
         "bytes": 6624,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
+        "t": 11390,
+        "phase": "placement-1"
       },
       {
         "target": 34963,
         "offset": 283344,
         "bytes": 6624,
-        "t": 9293.29999999702,
-        "phase": "placement-0"
+        "t": 11390,
+        "phase": "placement-1"
       },
       {
         "target": 34962,
         "offset": 869904,
-        "bytes": 12384,
-        "t": 9340.5,
-        "phase": "placement-0"
+        "bytes": 5184,
+        "t": 12956,
+        "phase": "orbit"
       },
       {
         "target": 34962,
         "offset": 217476,
-        "bytes": 3096,
-        "t": 9340.5,
-        "phase": "placement-0"
+        "bytes": 1296,
+        "t": 12956,
+        "phase": "orbit"
       },
       {
         "target": 34962,
         "offset": 579936,
-        "bytes": 8256,
-        "t": 9340.59999999404,
-        "phase": "placement-0"
+        "bytes": 3456,
+        "t": 12956,
+        "phase": "orbit"
       },
       {
         "target": 34962,
         "offset": 289968,
-        "bytes": 4128,
-        "t": 9340.59999999404,
-        "phase": "placement-0"
+        "bytes": 1728,
+        "t": 12956.09999999404,
+        "phase": "orbit"
       },
       {
         "target": 34963,
         "offset": 289968,
-        "bytes": 4128,
-        "t": 9340.59999999404,
-        "phase": "placement-0"
-      },
-      {
-        "target": 34962,
-        "offset": 882288,
-        "bytes": 8496,
-        "t": 10517.20000000298,
-        "phase": "placement-1"
-      },
-      {
-        "target": 34962,
-        "offset": 220572,
-        "bytes": 2124,
-        "t": 10517.20000000298,
-        "phase": "placement-1"
-      },
-      {
-        "target": 34962,
-        "offset": 588192,
-        "bytes": 5664,
-        "t": 10517.20000000298,
-        "phase": "placement-1"
-      },
-      {
-        "target": 34962,
-        "offset": 294096,
-        "bytes": 2832,
-        "t": 10517.20000000298,
-        "phase": "placement-1"
-      },
-      {
-        "target": 34963,
-        "offset": 294096,
-        "bytes": 2832,
-        "t": 10517.20000000298,
-        "phase": "placement-1"
-      },
-      {
-        "target": 34962,
-        "offset": 890784,
-        "bytes": 1152,
-        "t": 13296.79999999702,
-        "phase": "orbit"
-      },
-      {
-        "target": 34962,
-        "offset": 222696,
-        "bytes": 288,
-        "t": 13296.79999999702,
-        "phase": "orbit"
-      },
-      {
-        "target": 34962,
-        "offset": 593856,
-        "bytes": 768,
-        "t": 13296.79999999702,
-        "phase": "orbit"
-      },
-      {
-        "target": 34962,
-        "offset": 296928,
-        "bytes": 384,
-        "t": 13296.79999999702,
-        "phase": "orbit"
-      },
-      {
-        "target": 34963,
-        "offset": 296928,
-        "bytes": 384,
-        "t": 13296.79999999702,
+        "bytes": 1728,
+        "t": 12956.09999999404,
         "phase": "orbit"
       }
     ],
     "drawCpuSummary": {
       "count": 31,
-      "maxMs": 27.599999994039536,
+      "maxMs": 31.899999991059303,
       "byPhase": {
         "initial": {
-          "count": 17,
-          "totalMs": 104.29999999701977,
-          "maxMs": 27.599999994039536
+          "count": 15,
+          "totalMs": 73.90000003576279,
+          "maxMs": 31.899999991059303
         },
         "placement-0": {
-          "count": 5,
-          "totalMs": 11.099999979138374,
-          "maxMs": 4.5999999940395355
+          "count": 7,
+          "totalMs": 4.799999967217445,
+          "maxMs": 1.5999999940395355
         },
         "placement-1": {
           "count": 1,
-          "totalMs": 4.399999991059303,
-          "maxMs": 4.399999991059303
+          "totalMs": 0.5999999940395355,
+          "maxMs": 0.5999999940395355
         },
         "placement-2": {
           "count": 1,
-          "totalMs": 25.200000002980232,
-          "maxMs": 25.200000002980232
+          "totalMs": 0.9000000059604645,
+          "maxMs": 0.9000000059604645
         },
         "orbit": {
           "count": 7,
-          "totalMs": 29.80000001192093,
-          "maxMs": 16.200000002980232
+          "totalMs": 4.399999991059303,
+          "maxMs": 1.2000000029802322
         }
       }
     },
     "drawCpuSamples": [
       {
-        "t": 5484.29999999702,
-        "duration": 19.299999997019768,
+        "t": 5432.20000000298,
+        "duration": 31.899999991059303,
         "phase": "initial"
       },
       {
-        "t": 5581.5999999940395,
-        "duration": 12.100000008940697,
+        "t": 5593.4000000059605,
+        "duration": 15.199999988079071,
         "phase": "initial"
       },
       {
-        "t": 5761,
-        "duration": 26.799999997019768,
+        "t": 5800.0999999940395,
+        "duration": 0.6000000089406967,
         "phase": "initial"
       },
       {
-        "t": 5817.20000000298,
-        "duration": 27.599999994039536,
+        "t": 5846.79999999702,
+        "duration": 0.4000000059604645,
         "phase": "initial"
       },
       {
-        "t": 5898.20000000298,
+        "t": 5905.0999999940395,
+        "duration": 0.6000000089406967,
+        "phase": "initial"
+      },
+      {
+        "t": 6042.79999999702,
         "duration": 0.5,
         "phase": "initial"
       },
       {
-        "t": 6040,
+        "t": 9845.70000000298,
+        "duration": 0.5999999940395355,
+        "phase": "placement-0"
+      },
+      {
+        "t": 9881.40000000596,
+        "duration": 0.699999988079071,
+        "phase": "placement-0"
+      },
+      {
+        "t": 10583.90000000596,
         "duration": 0.5,
-        "phase": "initial"
-      },
-      {
-        "t": 8693.20000000298,
-        "duration": 4.5999999940395355,
         "phase": "placement-0"
       },
       {
-        "t": 9293.29999999702,
-        "duration": 3.5,
-        "phase": "placement-0"
-      },
-      {
-        "t": 9340.70000000298,
-        "duration": 2.0999999940395355,
-        "phase": "placement-0"
-      },
-      {
-        "t": 10517.20000000298,
-        "duration": 4.399999991059303,
+        "t": 11390,
+        "duration": 0.5999999940395355,
         "phase": "placement-1"
       },
       {
-        "t": 11314,
-        "duration": 25.200000002980232,
+        "t": 12267,
+        "duration": 0.9000000059604645,
         "phase": "placement-2"
       },
       {
-        "t": 13301.59999999404,
-        "duration": 0.6000000089406967,
+        "t": 12956.70000000298,
+        "duration": 0.5999999940395355,
         "phase": "orbit"
       },
       {
-        "t": 15141.79999999702,
-        "duration": 16.200000002980232,
-        "phase": "orbit"
-      },
-      {
-        "t": 15170.79999999702,
-        "duration": 0.7000000029802322,
-        "phase": "orbit"
-      },
-      {
-        "t": 17002.5,
-        "duration": 6.899999991059303,
-        "phase": "orbit"
-      },
-      {
-        "t": 20646.5,
-        "duration": 0.5,
-        "phase": "orbit"
-      },
-      {
-        "t": 22346.39999999106,
+        "t": 14903,
         "duration": 0.4000000059604645,
         "phase": "orbit"
       },
       {
-        "t": 24117,
-        "duration": 4.5,
+        "t": 17189.90000000596,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 19208.79999999702,
+        "duration": 0.7999999970197678,
+        "phase": "orbit"
+      },
+      {
+        "t": 21358.59999999404,
+        "duration": 1.2000000029802322,
+        "phase": "orbit"
+      },
+      {
+        "t": 25454.40000000596,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 27490.40000000596,
+        "duration": 0.3999999910593033,
         "phase": "orbit"
       }
     ]
   },
   "servedSources": {
-    "index.html": "9b82bac2f58b3829f481c91fa6b20cd16342b30b10600ef71148ca9226b4035c",
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
     "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
     "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
     "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
     "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
     "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
-    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
-    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
   },
   "sourceSha256After": {
-    "index.html": "9b82bac2f58b3829f481c91fa6b20cd16342b30b10600ef71148ca9226b4035c",
+    "index.html": "4b3e4413176eb7cf515914ffd98f9506fc07a54d0e3b185e162e186e978a872b",
     "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
     "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
-    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7",
     "js/app.js": "f843c2a79076e8b394344f8d00c1ae6e85f96adcab2abffdc16547b92839d706",
     "js/gfx.js": "f917f1b2bf59687b6a2a2a7eefe0dec8deaed8990d69e1ce6cc928332e2ae1bb",
     "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
-    "js/lang-en.js": "f8fd787aa8fcabc2d5fe15cdc1ece84f00208d38c917d5d86bb5a7141985dfdd"
+    "data/fleet.js": "37f5c48196b0efa8ffa9d03a25583524658a76ddd1894d036515188383e8b94c",
+    "js/lang-en.js": "0a1287af086a7d3a3f306becfb636d2e5de8415e0b820f9b4f549934aedc49bc"
   },
   "sourceStable": true,
   "expectedEnvironmentNetworkNoise": [
@@ -3644,129 +3631,149 @@
   "runtimeConsoleErrors": [],
   "cameraFramingScope": "The real camera is framed manually for each archived station; the one-shot first-geometry fit is disabled after this deliberate framing, not the worker or its geometry/stats delivery.",
   "interactionWindow": {
-    "start": 7682.70000000298,
-    "end": 24128.59999999404
+    "start": 7478.20000000298,
+    "end": 27506
   },
   "interactionLongTasks": [
     {
-      "t": 7693.5,
-      "duration": 227
+      "t": 7672.20000000298,
+      "duration": 704
     },
     {
-      "t": 7940.5,
-      "duration": 310
+      "t": 8376.59999999404,
+      "duration": 680
     },
     {
-      "t": 8251.09999999404,
-      "duration": 66
+      "t": 9059.90000000596,
+      "duration": 116
     },
     {
-      "t": 8317.5,
-      "duration": 53
+      "t": 9183,
+      "duration": 73
     },
     {
-      "t": 9376.79999999702,
-      "duration": 114
+      "t": 9262.09999999404,
+      "duration": 83
     },
     {
-      "t": 10462.09999999404,
-      "duration": 59
+      "t": 10149.29999999702,
+      "duration": 122
     },
     {
-      "t": 10522.20000000298,
-      "duration": 541
+      "t": 11290.59999999404,
+      "duration": 100
     },
     {
-      "t": 11108.89999999106,
-      "duration": 248
+      "t": 11391.20000000298,
+      "duration": 577
     },
     {
-      "t": 11357.79999999702,
-      "duration": 491
+      "t": 12073.40000000596,
+      "duration": 210
     },
     {
-      "t": 11899.29999999702,
-      "duration": 57
+      "t": 12284.40000000596,
+      "duration": 533
     },
     {
-      "t": 12972.70000000298,
-      "duration": 125
+      "t": 12864.40000000596,
+      "duration": 105
     },
     {
-      "t": 13122.29999999702,
-      "duration": 220
+      "t": 13050,
+      "duration": 113
+    },
+    {
+      "t": 13956.29999999702,
+      "duration": 126
     }
   ],
   "interactionTimerGaps": [
     {
-      "t": 7692.79999999702,
-      "duration": 228.09999999403954
+      "t": 7666.0999999940395,
+      "duration": 1515.300000011921
     },
     {
-      "t": 7939.20000000298,
-      "duration": 471.3999999910593
+      "t": 9181.40000000596,
+      "duration": 275.29999999701977
     },
     {
-      "t": 9372.70000000298,
-      "duration": 118.79999999701977
+      "t": 10149.29999999702,
+      "duration": 122.6000000089407
     },
     {
-      "t": 10460.79999999702,
-      "duration": 1438.5
+      "t": 11282,
+      "duration": 753.5
     },
     {
-      "t": 12972.70000000298,
-      "duration": 125.8999999910593
+      "t": 12035.5,
+      "duration": 1002.7999999970198
     },
     {
-      "t": 13116.79999999702,
-      "duration": 276.79999999701977
+      "t": 13038.29999999702,
+      "duration": 125.70000000298023
+    },
+    {
+      "t": 13955.90000000596,
+      "duration": 127.19999998807907
     }
   ],
   "interactionAnimationGaps": [
     {
-      "t": 7677.7,
-      "duration": 316.6999999999998
+      "t": 7465.1,
+      "duration": 200
     },
     {
-      "t": 7994.4,
-      "duration": 683.3000000000011
+      "t": 7665.1,
+      "duration": 799.8999999999996
     },
     {
-      "t": 8677.7,
-      "duration": 600
+      "t": 8465,
+      "duration": 716.6000000000004
     },
     {
-      "t": 9311,
-      "duration": 1150
+      "t": 9181.6,
+      "duration": 650.1000000000004
     },
     {
-      "t": 10461,
-      "duration": 633.2999999999993
+      "t": 9865,
+      "duration": 716.6000000000004
     },
     {
-      "t": 11094.3,
-      "duration": 2016.5
+      "t": 10581.6,
+      "duration": 700
     },
     {
-      "t": 13110.8,
-      "duration": 2016.7000000000007
+      "t": 11281.6,
+      "duration": 783.2999999999993
     },
     {
-      "t": 15160.8,
-      "duration": 1833.2999999999993
+      "t": 12064.9,
+      "duration": 783.3000000000011
     },
     {
-      "t": 16994.1,
-      "duration": 3649.800000000003
+      "t": 12848.2,
+      "duration": 2049.8999999999996
     },
     {
-      "t": 20643.9,
-      "duration": 1699.8999999999978
+      "t": 14898.1,
+      "duration": 2283.199999999999
     },
     {
-      "t": 22343.8,
-      "duration": 1766.6000000000022
+      "t": 17181.3,
+      "duration": 2016.6000000000022
+    },
+    {
+      "t": 19197.9,
+      "duration": 2149.899999999998
+    },
+    {
+      "t": 21347.8,
+      "duration": 4099.9000000000015
+    },
+    {
+      "t": 25447.7,
+      "duration": 2033.2000000000007
     }
   ],
   "measurementInterpretation": {
@@ -3777,5 +3784,5 @@
     "protocolRoundtrips": "Playwright mouse roundtrips and the multi-step gesture wait for browser/CDP/compositor acknowledgements. They are not a direct main-thread stall or FPS measurement.",
     "animation": "RAF gaps describe headless presentation scheduling, including software GPU/compositor work. Compare them with timer gaps, Long Tasks and event processing; do not interpret RAF alone as JS blocking."
   },
-  "completedAt": "2026-11-06T13:15:33.645Z"
+  "completedAt": "2026-11-06T13:40:10.747Z"
 }
