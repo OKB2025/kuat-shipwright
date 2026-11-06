@@ -10,7 +10,7 @@ function setup(){
  const toast=()=>{},trialAim=()=>({point:[10000,0,0],lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialThreats=()=>[],trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'';
  const trialThreatDown=q=>{q.alive=false;downs++;};
  function reset(key='claser',cycle=null){
-  Object.assign(trial,{on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e6,cap:1e6},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+  Object.assign(trial,{on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e-5,cap:1e-5},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
   const ship=C.newShip({L:12,W:8,H:4,assembly:true});ship.parts=[];ship.fits=[{id:1,k:key,p:[0,0,0],a:2,ped:0,base:0,low:0,float:false}];
   const t=trialTurretState(G.fleetGeometry(ship,{trial:true}).turrets[0]);if(cycle!=null)t.cycle=cycle;t.clear=true;t.clearDir=t.fw.slice();t.charge=1;trial.turrets=[t];trialCraftSystemsReset();
  }
@@ -29,20 +29,20 @@ function setup(){
 }
 const near=(a,b,eps=1e-6)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
 
-test('actual rapid pilot bolts preserve fighter and missile survival odds per second across the three fixed gun types',()=>{
+test('actual 2 kt pulses retain their per-shot fighter and missile hit probabilities at different cadences',()=>{
  const run=setup();
- for(const [key,cycle,seconds]of [['claser',.5,6],['claserH',.7,6.3],['cion',.8,8.8]]){
+ for(const [key,cycle,seconds]of [['claser',.5,6],['claserH',.7,6.3]]){
   run(`reset('${key}');var fast=emitted(${seconds});var fastP=observedProbability(fast[0]),fastMissileP=observedProbability(fast[0],'missile')`);
-  const count=run('fast.length');assert.ok(count>seconds/cycle*3,key+' should emit a stream');assert.ok(run('fast.every(b=>Number.isFinite(b.hitScale)&&b.hitScale>0&&b.hitScale<1)'),key+' rapid bolts need a finite exposure');
+  const count=run('fast.length');assert.ok(count>seconds/cycle*3,key+' should emit a stream');assert.ok(run('fast.every(b=>b.hitScale===1&&Math.abs(b.tt-2e-9)<1e-20)'),key+' pulses retain complete physical shot energy');
   run(`reset('${key}',${cycle});var slow=emitted(${seconds});var slowP=observedProbability(slow[0]),slowMissileP=observedProbability(slow[0],'missile')`);
-  for(const suffix of ['P','MissileP'])near(run(`fast.length*Math.log1p(-fast${suffix})`),run(`slow.length*Math.log1p(-slow${suffix})`),1e-5);
+  for(const suffix of ['P','MissileP']){near(run(`fast${suffix}`),run(`slow${suffix}`),1e-8);assert.ok(run(`fast.length*Math.log1p(-fast${suffix})<slow.length*Math.log1p(-slow${suffix})`),'more complete physical shots produce more chances to hit');}
  }
 });
 
 test('practice-target hit weight scales with the emitted pulse energy rather than the new bolt count',()=>{
- const run=setup();for(const [key,cycle,seconds]of [['claser',.5,6],['claserH',.7,6.3],['cion',.8,8.8]]){
+ const run=setup();for(const [key,cycle,seconds]of [['claser',.5,6],['claserH',.7,6.3]]){
   run(`reset('${key}');var fast=emitted(${seconds});var fastWeight=fast.reduce((n,b)=>n+b.weight,0);reset('${key}',${cycle});var slow=emitted(${seconds});var slowWeight=slow.reduce((n,b)=>n+b.weight,0)`);
-  near(run('fastWeight'),run('slowWeight'));near(run('fastWeight')/seconds,2/cycle);assert.ok(run('fast.length>slow.length'));
+  near(run('fastWeight'),run('fast.length')*2);near(run('slowWeight'),run('slow.length')*2);near(run('fastWeight/slowWeight'),run('fast.length/slow.length'));assert.ok(run('fast.length>slow.length'));
  }
 });
 

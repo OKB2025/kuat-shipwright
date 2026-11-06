@@ -27,7 +27,7 @@ const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 test('weapon roles keep explicit dual-purpose guns, pure defence and existing craft/ion roles distinct',()=>{
  assert.deepEqual(plain(C.weaponRoles({tt:5,aa:6,dualPurpose:true})),{pointDefense:true,dualPurpose:true,purePointDefense:false});
  assert.deepEqual(plain(C.weaponRoles({tt:2e-6,aa:6})),{pointDefense:true,dualPurpose:false,purePointDefense:true});
- for(const spec of [C.FITS.quad200,C.FITS.cion,{tt:5,aa:6,dualPurpose:true,ion:1},{tt:5,aa:6,dualPurpose:true,msl:1}])assert.equal(C.weaponRoles(spec).pointDefense,false);
+ for(const spec of [C.FITS.quad200,C.FITS.ion,{tt:5,aa:6,dualPurpose:true,ion:1},{tt:5,aa:6,dualPurpose:true,msl:1}])assert.equal(C.weaponRoles(spec).pointDefense,false);
 });
 
 test('the real small dual-purpose gun fires at ships and switches to automatic missile/craft interception',()=>{
@@ -103,10 +103,10 @@ function tacticalFixture(){
 const tacticalStep=f=>C.fleetTick(f.b,.25,{collide:false}),gunFrom=(shots,id)=>shots.filter(s=>s.from===id).reduce((n,s)=>n+(s.gun||0),0);
 
 test('the real tactical fleet clock assigns the battery to missile defence and restores ship fire afterward',()=>{
- const f=tacticalFixture();f.e.p.msl=80;
+ const f=tacticalFixture();f.e.p.msl=80;f.e.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},{k:'launcher',fit:2,port:'f2',domain:'main',name:'One finite ship missile cell',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]}];f.e.mods=[1,1];f.e.ammo=[0,6];f.e.p.grid.fixed=1e15;f.e.p.grid.fixedLoads=[{id:'f2',port:'f2',domain:'main',weight:1e15}];
  const shots=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(shots,f.u.id),0,'interception cannot reuse these barrels for ship fire');
- const missile=shots.find(s=>s.from===f.e.id);assert.ok(missile?.msl>0&&missile.msl<1,'reserved AA must reduce the actual incoming missile salvo');
- f.e.p.msl=0;const resumed=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(resumed,f.u.id)>0,'the battery returns to anti-ship fire without a threat');
+ const missile=shots.find(s=>s.from===f.e.id);assert.equal(f.e.ammo[1],5,'one real missile leaves the finite six-round cell');assert.equal(missile?.launches?.length,1);assert.equal(missile.launches[0].n,1);assert.equal(missile.launches[0].tt,25);assert.ok(missile.msl>0&&missile.msl<25,'reserved AA reduces the one-shot 25 TT physical missile energy');
+ f.e.p.msl=0;f.e.ammo[1]=0;f.e.mods[1]=0;const resumed=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(resumed,f.u.id)>0,'the battery returns to anti-ship fire without a threat');
 });
 
 test('the real tactical fleet clock assigns the battery to aircraft defence and restores ship fire afterward',()=>{

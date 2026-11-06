@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "status": "READ_ONLY_DIAGNOSTIC",
+  "scope": "The five existing stock TIE attack/return test failures; no controller or test assertions were changed. This is an immutable working-tree snapshot, not a claim of a full repository test pass.",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "36eda442eea53461a629ff532abb2746e6c1ac7f18a1f8ab51aee29c98f2a753",
+    "js/core.js": "8b1cf485a81cc60aa56c0f617edd2b5333e47154ababddd32ae3cb23c7709f7a"
+  },
+  "immutableRuntimeSnapshot": true,
+  "sourceSnapshotStableDuringProbe": true,
+  "baseline": {
+    "baselineCommit": "4cb1fc63789e5b5f105f7332e995bede0915ceec",
+    "sourceSha256": {
+      "js/core.js": "e6ae9edba2eb13c80c32c0b84ee058ebf290fa0783d9e5437af01681dfae31e5",
+      "data/reference.js": "ab4c2477593dc90d7db474381854d8a6ec6202fd5790fd33520e023f83e1fd8a",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "data/fleet.js": "5018aa46ff7425aa5630439d8640634257ba1cc615ebfa29ed8fef229e657ba4"
+    },
+    "scope": "The five unchanged stock TIE movement/return cases; the separately powered custom-fighter branch is not selected.",
+    "tests": 5,
+    "pass": 0,
+    "fail": 5,
+    "failureNames": [
+      "a natural bow attack shoots while moving, passes the hull and returns after a finite gun-only sortie",
+      "above and below attack runs leave along the hull on their original safe side",
+      "an attack that misses its firing window still clears the target and returns",
+      "an explicit recall stops firing and docks through the carrier mouth",
+      "a fighter initially facing exactly away turns around without a zero heading or zero-speed deadlock"
+    ],
+    "logSha256": "c7aa11d327f815e11fc1c16bf0076b5ff36fcdd8d628a18301b4bcda1e369c09",
+    "reproduction": {
+      "environment": {
+        "KS_TEST_ROOT": "Path to an unchanged export of baselineCommit"
+      },
+      "nodeArguments": [
+        "--test",
+        "--test-name-pattern=natural bow|above and below|misses its firing|explicit recall|initially facing",
+        "tests/fighter-attack-runs.cjs"
+      ]
+    }
+  },
+  "fixture": "tests/fighter-attack-runs.cjs",
+  "method": {
+    "stepSeconds": 0.25,
+    "nominalCraftSpeedMps": 2000,
+    "unchangedFixtureHelpers": true,
+    "profileInspectionDoesNotResolveOrMutateCraftProfiles": true,
+    "scriptSha256": {
+      "kuat-fighter-attack-current-probe.cjs": "2dd3b84c094c8554eed9e3ff92f0cb01ee517fe284e27e29db1d6b80b9f6a7a4",
+      "kuat-fighter-attack-extended-probe.cjs": "a10950689767b828cee1e2bfcbb368118614ec852297c9f852052fb533ee309d"
+    },
+    "probeArtifactsArchived": false,
+    "probeCommandProvenance": "Each named temporary probe was run with Node, capturing stdout and stderr. The probes were not added to the repository; their SHA-256 digests identify the exact diagnostic scripts."
+  },
+  "poweredStockAircraft": {
+    "ratedAccelG": 4099.999993691636,
+    "massKg": 10335.389980757607,
+    "nominalPowerW": 3088413887674337000,
+    "engineRatedInputW": 831115526390556400,
+    "actualEngineInputW": 831107692512117800,
+    "actualThrustN": 415553846.2560589,
+    "tacticalAccelerationMps2": 80.41377190986225,
+    "stoppingDistanceAtNominalSpeedM": 24871.361615045847,
+    "tacticalScale": 0.002,
+    "finding": "The real stock craft has a positive, nearly fully supplied engine. These movement failures are not evidence of a missing plant, zero thrust, or concurrent output being artificially prevented."
+  },
+  "failures": [
+    {
+      "name": "a natural bow attack shoots while moving, passes the hull and returns after a finite gun-only sortie",
+      "cause": "The test expects return within110s; the actual finite-acceleration flight revisits its fixed approach waypoint and makes slow velocity reversals.",
+      "testDeadlineSeconds": 110,
+      "actualReturnSeconds": 126.25,
+      "actualDockSeconds": 269.5,
+      "shotsObservedAtOriginalDeadline": 5,
+      "stateAtDeadline": "out",
+      "enginePositive": true
+    },
+    {
+      "name": "above and below attack runs leave along the hull on their original safe side",
+      "cause": "The fixture initializes a2000m/s vertical approach about13km from the target. Its24.9km braking distance exceeds that height; the existing waypoint/controller overshoots and later egress crosses the requested side.",
+      "entryDistanceM": 12953.639999771118,
+      "brakingDistanceM": 24871.361615045847,
+      "egressSamples": {
+        "above": [
+          {
+            "t": 45.25,
+            "x": 6426.961143114717,
+            "y": -12995.789315286933,
+            "speed": 1158.9669812949978
+          },
+          {
+            "t": 50.25,
+            "x": 2022.2880072474127,
+            "y": -7759.977343215856,
+            "speed": 1557.9283487536256
+          },
+          {
+            "t": 55.25,
+            "x": -3918.2127353043493,
+            "y": -1231.6935675852587,
+            "speed": 1949.816980558729
+          }
+        ],
+        "below": [
+          {
+            "t": 45.25,
+            "x": 6426.961143114717,
+            "y": 12995.789315286933,
+            "speed": 1158.9669812949978
+          },
+          {
+            "t": 50.25,
+            "x": 2022.2880072474127,
+            "y": 7759.977343215856,
+            "speed": 1557.9283487536256
+          },
+          {
+            "t": 55.25,
+            "x": -3918.2127353043493,
+            "y": 1231.6935675852587,
+            "speed": 1949.816980558729
+          }
+        ]
+      },
+      "enginePositive": true
+    },
+    {
+      "name": "an attack that misses its firing window still clears the target and returns",
+      "cause": "The test replaces R.CRAFT.tie_ln with a spread clone before its lazy power profile is resolved. The clone is not in BUILTIN_CRAFT, so craftPowerOf returnsnull and it drifts without thrust; this is a stale fixture identity assumption.",
+      "craftPlantPresent": false,
+      "driftSpeedMps": 2000,
+      "stateAtDeadline": "out"
+    },
+    {
+      "name": "an explicit recall stops firing and docks through the carrier mouth",
+      "cause": "Recall works and docking finishes, but the current controller chases the gate at nominal speed without anticipatory stopping-distance planning, exceeding the old deadline.",
+      "recallOrderSeconds": 7,
+      "testTotalDeadlineSeconds": 127,
+      "actualDockSeconds": 155.75,
+      "enginePositive": true
+    },
+    {
+      "name": "a fighter initially facing exactly away turns around without a zero heading or zero-speed deadlock",
+      "cause": "An initially antiparallel velocity must change with finite acceleration. The old steering controller flips attitude rapidly and brakes/reverses velocity through a low speed, violating the test minimum-speed assumption.",
+      "testMinimumSpeedMps": 100,
+      "actualMinimumSpeedMps": 32.69700912057312,
+      "headingRemainsFinite": true,
+      "enginePositive": true
+    }
+  ],
+  "conclusion": "Four failures expose old high-speed AI timing/steering assumptions under finite acceleration; one uses an unpowered cloned craft fixture. Stock aircraft can attack, return and dock, but the old short deadlines and high-speed safe-side/no-slowdown guarantees do not hold. Controller redesign was not undertaken and assertions were not weakened.",
+  "historicalWorkingTreeDiagnostic": true,
+  "sourceRelation": "Measured at the recorded working-tree source hashes before the final frozen-source regression run. These timings are diagnostic evidence, not assertions rerun against the final sources.",
+  "originalDiagnosticSha256": "c73391a9ed52c968294dbd744e21ae6c4665a7e069e6acc52d1cae11cf59d315"
+}

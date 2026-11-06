@@ -34,7 +34,7 @@ const exactRosters = {
   venator: {refVen: 8, twin40: 2, single200: 10, pd: 28},
   nebulonb: {twin200: 3, pd: 5},
   acclamator: {quad200: 12, pd: 12},
-  mandator2: {utl: 194, stl: 81, ion: 28, pd: 250},
+  mandator2: {utl: 203, stl: 44, ion: 28, pd: 250},
   mc80home: {monCalPD: 56, monCal80: 12, monCal34: 28, monCal150Ion: 4},
   mc80liberty: {monCalPD: 88, monCal200Triple: 4, monCal200: 4, monCal150Ion: 4},
   munificent: {munBow: 1, munTwin: 18, pd: 58},
@@ -93,9 +93,9 @@ if (key === 'mandator2') {
   close(trace.specifications.shieldCapacityJ,7.7e27,'Mandator physical shield storage');
   close(trace.specifications.shieldDissipationW,184034,'Mandator literal W dissipation');
   close(trace.specifications.profileShieldDissipationW,184034,'Mandator runtime dissipation');
-  close(trace.specifications.allGunVolleyTT,317520,'Mandator all guns including ion and PD');
-  close(trace.specifications.profileAllGunVolleyTT,317520,'Mandator runtime nominal all-gun salvo');
-  assert.equal(trace.weapons.length,553,'Mandator553 physical gun mounts');
+  close(trace.specifications.allGunVolleyTT,317520.00005,'Mandator 317520 TT main/ion salvo plus 100kt PD');
+  close(trace.specifications.profileAllGunVolleyTT,317520.00005,'Mandator runtime nominal all-gun salvo');
+  assert.equal(trace.weapons.length,525,'Mandator525 physical gun mounts');
 }
 if (key === 'munificent') {
   assert.ok(trace.weapons.every(w => ['munBow','munTwin','pd'].includes(w.kind)), 'Munificent curated native models');

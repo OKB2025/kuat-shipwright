@@ -1573,6 +1573,8 @@ class Renderer {
     gl.enable(gl.DEPTH_TEST);this.drawLines('cutter',m,1);this.clip=cutterClip;
     gl.disable(gl.DEPTH_TEST); this.drawLines('ghost', m, 0.35);
     gl.enable(gl.DEPTH_TEST); this.drawLines('ghost', m, 1);
+    gl.disable(gl.DEPTH_TEST); this.drawLines('placement-repeat', m, 0.45);
+    gl.enable(gl.DEPTH_TEST); this.drawLines('placement-repeat', m, 1);
     // PLAN-013 vertex handles: always visible, brighter where unoccluded.
     gl.disable(gl.DEPTH_TEST); this.drawLines('verts', m, 0.55);
     gl.enable(gl.DEPTH_TEST); this.drawLines('verts', m, 1);
@@ -1824,6 +1826,8 @@ function lineSet() {
       if(skin){const f=C.frameAxis(skin.u),e0=C.add(pt.c,C.mul(skin.u,skin.t0)),e1=C.add(pt.c,C.mul(skin.u,skin.t1)),r=skin.rad*1.02;for(const e of [e0,e1])this.circle(e,f.v,f.w,r,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const q=C.add(C.mul(f.v,Math.cos(a)*r),C.mul(f.w,Math.sin(a)*r));this.seg(C.add(e0,q),C.add(e1,q),c);}return;}
       if(sh==='cyl'||sh==='engine'){const m=C.partDims(pt),f=C.frameAxis(pt.dir||[1,0,0]);for(const sg of [-1,1])this.circle(C.add(pt.c,C.mul(f.u,sg*m.l/2)),f.v,f.w,m.rad,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const r=C.add(C.mul(f.v,Math.cos(a)*m.rad),C.mul(f.w,Math.sin(a)*m.rad));this.seg(C.add(C.sub(pt.c,C.mul(f.u,m.l/2)),r),C.add(C.add(pt.c,C.mul(f.u,m.l/2)),r),c);}return;}
       if(pt.k==='solarPanel'){const H=C.foilHandles(pt);this.poly(H.points,H.edges,c);return;}
+      if(pt.form==='mesh'&&pt.mesh?.f){const scale=[pt.s[0],pt.s[2],pt.s[1]],point=i=>C.worldStruct(pt,pt.mesh.v[i].map((v,k)=>v*scale[k])),seen=new Set();for(const face of pt.mesh.f)for(let i=0;i<face.length;i++){const a=face[i],b=face[(i+1)%face.length],key=Math.min(a,b)+','+Math.max(a,b);if(seen.has(key))continue;seen.add(key);this.seg(point(a),point(b),c);}return;}
+      if(C.isHullStructure?.(pt)){const local=C.hullStructureShip(null,pt),g=C.hullGeo(local),world=q=>C.hullWorldPoint(pt,q),rows=pt.hullProfile.stations||[[0],[1]];for(const row of rows){const x=row[0]*pt.s[0],section=C.sampleSection(local,x);for(let i=0;i<section.Z.length;i++)this.seg(world([x,section.Y[i],section.Z[i]]),world([x,section.Y[(i+1)%section.Z.length],section.Z[(i+1)%section.Z.length]]),c);}for(let j=0;j<g.N;j+=Math.max(1,Math.floor(g.N/8)))for(let i=1;i<g.xs.length;i++)this.seg(world([g.xs[i-1],g.secs[i-1].Y[j],g.secs[i-1].Z[j]]),world([g.xs[i],g.secs[i].Y[j],g.secs[i].Z[j]]),c);return;}
       if(C.isShapePart(pt)||pt.room){const T=C.structTriangles(pt.room?C.roomShape(pt):pt);for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),d=Array.from(T.slice(i+6,i+9));this.seg(a,b,c);this.seg(b,d,c);this.seg(d,a,c);}return;}
       this.box(C.partAABB(pt), c);
     },
@@ -1915,6 +1919,7 @@ function v3MeshParts(ship,opt){
 function meshOnePart(out,p,ship,opt,glow){
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
     if(p.surfacePatch&&p.surfaceUnplaced)return;
+    if(C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled&&C.hullStructureGeometry(ship,p).referenceSkin)return;
     // Drag previews use the requested envelope only; full skin cuts and CSG
     // belong to the asynchronous engine build, never to a pointer event.
     if(opt.preview&&C.isShapePart(p)&&p.form!=='reference'){const q={...p,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};hullTriangleMesh(out.struct,C.structTriangles(q),opt.coded?d.col:p.paint?hex(p.paint):k==='solarPanel'?[35,43,57]:STRUCT_PAINT,36,k==='solarPanel'?254:251);return;}
@@ -1935,11 +1940,12 @@ function meshOnePart(out,p,ship,opt,glow){
     if(isStructuralPart(p)&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
     if(isStructuralPart(p)&&p.plate){hullTriangleMesh(out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
-    if(isStructuralPart(p)){hullTriangleMesh(out.struct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
+    if(isStructuralPart(p)){let T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));if(C.isHullStructure?.(p))T=renderHullTriangles(ship,T,p);hullTriangleMesh(out.struct,T,p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct,T);if(p.stripes&&p.form==='shell')shellStripes(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
     if(p._clip&&k!=='hangar'){triangleMesh(out.interior,p._clip.tris,color,36);return;}
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
     if(k==='machinery'){machineryMesh(out,p,ship,color);return;}
+    if(k==='engineCore'){engineCoreMesh(out.interior,p,color);return;}
     if(k==='sensor'){sensorShell(out.struct,p,color);return;}
     // v21 A cockpit shows as tinted canopy glass where it stands out of the hull; an astromech as its dome.
     if(k==='cockpit'){sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
@@ -1954,26 +1960,44 @@ function meshOnePart(out,p,ship,opt,glow){
 // The body and its connectors use the occupied segments themselves. Keep ribs
 // inside that envelope so inspection, picking and dimension edits agree.
 function machineryMesh(out,p,ship,color){
+ // A transmission run is its own occupied part, separate from the ribbed
+ // drive body. Keep the rendered radius equal to the physical route radius.
+ if(p.transmission||p.drivetrain){for(const s of p.segments||[p.seg])if(s?.l>0){const external=s.exteriorEntry===true,target=external?out.engine:out.interior,tone=p.ok===false?[240,91,85]:external?[155,165,170]:p.drivetrain?[218,162,72]:[107,177,198];axisFrustum(target,s.a,s.b,s.r0,s.r1,tone,true,false,16);}return;}
  const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine,segments=p.segments||[p.seg],body=p.machinerySegment||segments.at(-1);
  for(const s of segments)if(s!==body)axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);
  if(!body||body.l<=0)return;
  const half=Math.min(1.2,body.r1*.3,body.l*.025)/body.l,bands=Array.from({length:5},(_,i)=>[(i+.6)/5-half,(i+.6)/5+half]),ts=[0,...bands.flat(),1];
  for(let i=0;i<ts.length-1;i++){const lo=ts[i],hi=ts[i+1],a=C.add(body.a,C.mul(body.u,body.l*lo)),b=C.add(body.a,C.mul(body.u,body.l*hi));axisFrustum(target,a,b,C.lerp(body.r0,body.r1,lo),C.lerp(body.r0,body.r1,hi),i%2?[120,132,142]:color,[i===0,i===ts.length-2]);}
 }
+// Independent machinery uses its own position and cylinder, regardless of how
+// many outlets are connected. The collars stay within its occupied envelope.
+function engineCoreMesh(target,p,color){
+ const m=C.partDims(p),u=C.norm(p.dir||[1,0,0]);if(!(m.l>0)||!Number.isFinite(m.l)||m.l>C.DESIGN_LIMITS.engineLength||!(m.rad>0)||!Number.isFinite(m.rad)||m.rad>C.DESIGN_LIMITS.engineDiameter||!p.c?.every(v=>Number.isFinite(v)&&Math.abs(v)<=C.DESIGN_LIMITS.coordinate)||!u.every(Number.isFinite)||C.len(u)<.99)return;
+ const a=C.sub(p.c,C.mul(u,m.l/2)),half=Math.min(m.l*.025,m.rad*.18)/m.l,ts=[0,...Array.from({length:5},(_,i)=>[(i+.5)/5-half,(i+.5)/5+half]).flat(),1];
+ for(let i=0;i+1<ts.length;i++){const lo=ts[i],hi=ts[i+1],rib=i%2===1,r=m.rad*(rib?1:.97);axisFrustum(target,C.add(a,C.mul(u,m.l*lo)),C.add(a,C.mul(u,m.l*hi)),r,r,rib?[117,134,145]:color,[i===0||rib,i===ts.length-2||rib],false,24);}
+}
 // Index ranges per part let the editor hide a part while it previews an edit.
 function geoMarks(out){const m={};for(const k in out)m[k]=out[k].ni;return m;}
 function markRanges(ranges,id,before,out){for(const k in out){const n=out[k].ni-(before[k]||0);if(n>0)(ranges[id]||(ranges[id]=[])).push([k,before[k]||0,n]);}}
 
+function hullBayCapFilter(ship,owner=null){
+ const local=owner?C.hullStructureShip(ship,owner):ship,caps=[];
+ for(const h of local.hatches||[]){if(!h.portal)continue;const handle=owner?ship.hatches.find(q=>q.hullOwner===owner.id&&q.hullHatch===h.id):h,bay=ship.parts.find(p=>p.id===handle?.bay&&p.k==='hangar'),b=bay&&C.openingBounds(local,h);if(b)caps.push({h,b,bay});}
+ if(!caps.length)return null;
+ const point=q=>owner?C.hullLocalPoint(owner,q):q,world=q=>owner?C.hullWorldPoint(owner,q):q;
+ return tri=>{const q=[point(Array.from(tri.slice(0,3))),point(Array.from(tri.slice(3,6))),point(Array.from(tri.slice(6,9)))],p=[0,1,2].map(a=>(q[0][a]+q[1][a]+q[2][a])/3);return caps.some(({h,b,bay})=>{const axis=C.hatchAxes(h).axis,plane=b[axis+(h.n[axis]>0?0:3)];return q.every(v=>Math.abs(v[axis]-plane)<.001)&&p.every((v,a)=>v>=b[a]-.001&&v<=b[a+3]+.001)&&C.inPart(bay,world(C.add(p,C.mul(h.n,.05))))&&C.inPart(bay,world(C.sub(p,C.mul(h.n,.05))));});};
+}
+function renderHullTriangles(ship,T,owner=null){const skip=hullBayCapFilter(ship,owner);if(!skip)return T;const out=[];for(let i=0;i<T.length;i+=9){const tri=T.subarray(i,i+9);if(!skip(tri))for(const v of tri)out.push(v);}return out.length===T.length?T:Float32Array.from(out);}
 function meshHull(ship){
   if(ship.hullSkin?.enabled||ship.hull.assembly)return new Geo(16);
   const equipment=equipmentSkinPatches(ship,'hull');if(!equipment.length&&!launcherRecessHost(ship,'hull')&&!ship.solidCuts?.length&&!ship.trenches?.some(t=>t.mode==='split')&&!ship.hull.stations?.length&&!ship.hatches.some(h=>h.portal)&&ship.hull.sec!=='warship')return v3MeshHull(ship);
-  const bayCaps=ship.hatches.filter(h=>h.portal&&h.bay).map(h=>({h,b:C.openingBounds(ship,h),bay:ship.parts.find(p=>p.id===h.bay&&p.k==='hangar')})).filter(q=>q.b&&q.bay);
+  const skipBayCap=hullBayCapFilter(ship);
   const T=equipmentSkinTriangles(ship,'hull',C.hullGeo(ship).tris),g=new Geo(T.length/3+100),openings=ship.hatches.map(h=>C.openingBounds(ship,h)).filter(Boolean),paint=ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:[189,193,192];
   for(let i=0;i<T.length;i+=9){const tri=T.slice(i,i+9),p=[(T[i]+T[i+3]+T[i+6])/3,(T[i+1]+T[i+4]+T[i+7])/3,(T[i+2]+T[i+5]+T[i+8])/3],n=C.norm(C.cross(C.sub(Array.from(tri.slice(3,6)),Array.from(tri.slice(0,3))),C.sub(Array.from(tri.slice(6)),Array.from(tri.slice(0,3)))));
     // Core closes the aperture at its sill for the material/volume model.
     // In the rendered ship that cap lies inside the real bay: its clipped
     // ceiling/walls below already close the room, so the extra sheet hides it.
-    if(bayCaps.some(({h,b,bay})=>{const axis=C.hatchAxes(h).axis,sign=h.n[axis],plane=b[axis+(sign>0?0:3)];return [0,3,6].every(j=>Math.abs(tri[j+axis]-plane)<.001)&&p.every((v,a)=>v>=b[a]-.001&&v<=b[a+3]+.001)&&C.inPart(bay,C.add(p,C.mul(h.n,.05)))&&C.inPart(bay,C.sub(p,C.mul(h.n,.05)));}))continue;
+    if(skipBayCap?.(tri))continue;
     let color=paint;
     if(openings.some(b=>p.every((v,a)=>v>=b[a]-.1&&v<=b[a+3]+.1)&&[0,1,2].some(a=>[b[a],b[a+3]].some(v=>Math.abs(T[i+a]-v)<.1&&Math.abs(T[i+3+a]-v)<.1&&Math.abs(T[i+6+a]-v)<.1))))color=[48,60,67];
     hullTriangleMesh(g,tri,color,42);
@@ -1990,9 +2014,15 @@ function meshHull(ship){
 }
 function roomMesh(ship,p,g,col){
   let T=p._clip?.tris||C.structTriangles(C.roomShape(p));for(const h of ship.hatches.filter(h=>h.bay===p.id)){const b=C.openingBounds(ship,h);if(b)T=C.subtractBoxMesh(T,b);}
-  triangleMesh(g,T,col,36);
+  let front=T,back=T;
+  if(ship.hatches.some(h=>h.bay===p.id&&h.hullOwner)){
+    // The clipped room and its owning hull share aperture walls. Retain the
+    // room's inward face while the hull supplies the coincident outer face.
+    const a=[],b=[];for(let i=0;i<T.length;i+=9){const tri=T.subarray(i,i+9),q=[Array.from(tri.slice(0,3)),Array.from(tri.slice(3,6)),Array.from(tri.slice(6,9))],n=C.norm(C.cross(C.sub(q[1],q[0]),C.sub(q[2],q[0]))),at=[0,1,2].map(k=>(q[0][k]+q[1][k]+q[2][k])/3),plus=C.inHull(ship,C.add(at,C.mul(n,.025))),minus=C.inHull(ship,C.sub(at,C.mul(n,.025)));if(plus||!minus)for(const v of tri)a.push(v);if(minus||!plus)for(const v of tri)b.push(v);}front=Float32Array.from(a);back=Float32Array.from(b);
+  }
+  triangleMesh(g,front,col,36);
   // Interior surfaces remain visible through a mouth, with a deck beneath the opening.
-  const rev=Float32Array.from(T);for(let i=0;i<rev.length;i+=9)for(let j=0;j<3;j++){const a=rev[i+3+j];rev[i+3+j]=rev[i+6+j];rev[i+6+j]=a;}triangleMesh(g,rev,col.map(v=>Math.round(v*.52)),36);
+  const rev=Float32Array.from(back);for(let i=0;i<rev.length;i+=9)for(let j=0;j<3;j++){const a=rev[i+3+j];rev[i+3+j]=rev[i+6+j];rev[i+6+j]=a;}triangleMesh(g,rev,col.map(v=>Math.round(v*.52)),36);
 }
 // Surface visuals read the installed design. Detail quality changes only the
 // decorative pass; armour and equipment ports are always derived from the same
@@ -2792,7 +2822,7 @@ function meshReferenceParts(ship,ranges,only,opt={}){
   const size=p.skinSize||a.size,scale=p.d/Math.max(...size),r=(p.yaw||0)*Math.PI/180;
   appendReference(refStruct,p.skinAsset,v=>{const x=v[0]*size[0]*scale,z=v[2]*size[2]*scale;return C.add(p.c,[x*Math.cos(r)-z*Math.sin(r),v[1]*size[1]*scale,x*Math.sin(r)+z*Math.cos(r)]);});
  };
- for(const p of only||ship.parts){const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a||isStructuralPart(p)&&a.plainMetal)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
+ for(const p of only||ship.parts){if(C.isHullStructure?.(p)){const data=p.hullData?.hullSkin?.enabled?C.hullStructureGeometry(ship,p).referenceSkin:null;if(data){const before=geoMarks(out);indexedReference(refStruct,data,refTone(data.asset||p.hullData.hullSkin.asset));if(ranges)markRanges(ranges,p.id,before,out);}continue;}const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a||isStructuralPart(p)&&a.plainMetal)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
@@ -2808,22 +2838,23 @@ function meshPreview(ship,parts,fits,opt={}){
  // Requested internal envelopes can extend outside the ship. Keep their editor
  // outlines until the engine returns the clipped solid, in every view mode.
  // Surface-role volumes are diagnostic too, even when backed by an adapter.
- const plain=parts.filter(p=>!C.isInternal(p)&&!(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch)).map(p=>({...p,_packing:undefined,_clip:undefined}));
+ const plain=parts.filter(p=>(p.k==='engineCore'||!C.isInternal(p))&&!(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch)).map(p=>({...p,_packing:undefined,_clip:undefined}));
  for(const p of plain)meshOnePart(out,p,ship,{coded:!!opt.coded,preview:true},glow);
  const engines=new Set(plain.filter(p=>p.k==='engine').map(p=>p.id));
- if(engines.size){const replacements=new Map(plain.map(p=>[p.id,p])),model={...ship,parts:ship.parts.map(p=>replacements.get(p.id)||p)};for(const p of plain)if(!model.parts.some(q=>q.id===p.id))model.parts.push(p);for(const p of C.enginePaths(model))if(engines.has(p.nozzle))meshOnePart(out,p,model,{coded:!!opt.coded,preview:true},glow);}
+ if(engines.size){const replacements=new Map(plain.map(p=>[p.id,p])),model={...ship,parts:ship.parts.map(p=>replacements.get(p.id)||p)};for(const p of plain)if(!model.parts.some(q=>q.id===p.id))model.parts.push(p);for(const p of C.engineMachineryPaths(model))if(engines.has(p.nozzle))meshOnePart(out,p,model,{coded:!!opt.coded,preview:true},glow);}
  if(opt.coded)for(let i=3;i<g.n*4;i+=4)if(g.col[i]===251)g.col[i]=255;
  const ref=meshReferenceParts(ship,null,plain,{preview:true}),refG=new Geo(64);for(const k of ['refStruct','refEngine','refPlant'])if(ref[k].ni)appendGeo(refG,ref[k]);
  const fitG=fits.length?meshFits(ship,null,null,fits):new Geo(16),refFitG=fits.length?meshReferenceFits(ship,null,fits):new Geo(16);
  return {preview:g,previewRef:refG,previewFits:fitG,previewRefFits:refFitG,glow};
 }
-function meshReferenceHatches(ship){
+function meshReferenceHatches(ship,owned=false){
  const g=new Geo(16);
- for(const h of ship.hatches){if(!h.skinAsset||h._doorDetached)continue;const bay=ship.parts.find(p=>p.id===h.bay);if(!bay)continue;const delta=C.sub(bay.c,h.skinBayAnchor||bay.c),open=h.open??0,side=h.face==='port'?-1:1,spec=C.slidingHatchSpec(ship,h),mid=spec?(spec.b[spec.slideAxis]+spec.b[spec.slideAxis+3])/2:0;
+ for(const h of ship.hatches){if(!h.skinAsset||h._doorDetached||h.hullOwner&&!owned)continue;const bay=ship.parts.find(p=>p.id===h.bay)||(owned?{c:h.skinBayAnchor||[0,0,0]}:null);if(!bay)continue;const delta=C.sub(bay.c,h.skinBayAnchor||bay.c),open=h.open??0,side=h.face==='port'?-1:1,spec=C.slidingHatchSpec(ship,h),mid=spec?(spec.b[spec.slideAxis]+spec.b[spec.slideAxis+3])/2:0;
   appendReference(g,h.skinAsset,(v,a)=>{const p=v.map((n,i)=>n*a.size[i]+a.c[i]+delta[i]);if(spec)p[spec.slideAxis]+=Math.sign(p[spec.slideAxis]-mid)*spec.travel*open;else if(h.face==='top'||h.face==='bottom')p[2]+=Math.sign(p[2]-delta[2])*a.size[2]*.52*open;else p[0]-=a.size[0]*open;return p;},(v,a)=>(!['port','stbd'].includes(h.face)||v.reduce((s,q)=>s+q[2],0)*side>0)&&(!h._slideSide||!spec||h._slideSide*(v.reduce((s,q)=>s+q[spec.slideAxis]*a.size[spec.slideAxis]+a.c[spec.slideAxis]+delta[spec.slideAxis],0)/3-mid)>=0));
  }
  // Ventral approach bay belongs to the hull skin; its doors are independently operated.
  if(!ship._referenceDoorOnly&&ship.hullSkin?.enabled&&ship.reference==='venator')appendReference(g,'ven_bay',(v,a)=>v.map((n,i)=>n*a.size[i]+a.c[i]));
+ if(!owned)for(const p of ship.parts.filter(q=>C.isHullStructure?.(q))){const part=meshReferenceHatches(C.hullStructureShip(ship,p),true),origin=C.hullWorldPoint(p,[0,0,0]);for(let i=0;i<part.n;i++){const point=C.hullWorldPoint(p,Array.from(part.pos.subarray(i*3,i*3+3))),normal=C.norm(C.sub(C.hullWorldPoint(p,Array.from(part.nor.subarray(i*3,i*3+3),v=>v/127)),origin));part.pos.set(point,i*3);part.nor.set(normal.map(v=>v*127),i*3);}if(p.hullMirrorZ)for(let i=0;i<part.ni;i+=3)[part.idx[i+1],part.idx[i+2]]=[part.idx[i+2],part.idx[i+1]];appendGeo(g,part);}
  return g;
 }
 
@@ -3142,7 +3173,7 @@ class CompatRenderer {
    this.rasterMesh(this.meshes.cutter?.geo,'cutter',.28,null);
   }
   ctx.putImageData(image,0,0);
-  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots']:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','cutter','verts','surfaces'])this.paintLines(name,name==='grid'||name==='fleetGrid'||name==='surfaces');
+  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots']:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','placement-repeat','cutter','verts','surfaces'])this.paintLines(name,name==='grid'||name==='fleetGrid'||name==='surfaces');
   delete this._frame;this.frames++;this._lastDrawOptions=opt;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){

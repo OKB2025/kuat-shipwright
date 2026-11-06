@@ -7,6 +7,7 @@ function setup(){
  let ship=C.newShip({L:100,W:80,H:40,plan:'rect',sec:'rect'},'Engine UI'),S=null,dragSnap=null,dragLabel='',lastOp='',renders=0;
  ship.parts=[];ship.fits=[];ship.nextId=4;
  function engine(id,z){const p={id,k:'engine',c:[20,20,z],d:1,nozzleLength:.32,dir:[-1,0,0],reactor:0};const r=C.updateEngineSpec(p,{ratedInputW:1e18,machineryDiameterM:2,machineryLengthM:2});if(!r.ok)throw Error(r.issues);return p;}
+ function core(id,z,reactor=0){return {id,k:'engineCore',c:[35,20,z],d:2,length:2,dir:[-1,0,0],reactor,propulsionModelVersion:1,ratedInputW:1e18,driveProfileId:'standard',machineryGradeId:'standard',legacyCoolingInputW:0};}
  ship.parts=[engine(1,10),engine(2,-10),engine(3,25)];ship.parts[0].tw=2;ship.parts[1].tw=1;
  const selItem=()=>ship.parts.find(p=>p.id===st.sel?.id),multiItems=()=>({parts:ship.parts.filter(p=>st.multi.parts.has(p.id)),fits:[]}),activeEquipment=()=>st.equipmentId?C.EQUIPMENT[st.equipmentId]:null;
  const esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;'),num=(v,d=0)=>Number(v).toFixed(d),sci=v=>String(v),fW=v=>v+' W',fCr=v=>v+' cr',fmtM=v=>v+' m',fLen=v=>v+' m',deg=v=>v+'°',slider=()=>'';
@@ -41,45 +42,42 @@ test('a density overflow rejects a complete batch before mutating any engine',()
  const run=setup();run('ship.parts[2].ratedInputW=1e15;ship.parts[2].machineryLengthM=.1;ship.parts[2].machineryRadiusM=.1');const before=run('snap()');
  assert.equal(run('engineSpecAction("ratedInputW",1.1e18)'),false);assert.equal(run('snap()'),before);assert.equal(run('undoStack.length'),0);assert.match(run('messages.at(-1)'),/入力密度/);
 });
-test('appearance edits preserve unequal mirrored machinery and shared-nozzle specification edits reach its owner once',()=>{
+test('appearance edits preserve unequal machinery and editing an independent body updates its linked nozzle',()=>{
  const run=setup();run('ship.parts[1].ratedInputW=8e17;ship.parts[1].machineryLengthM=3');const before=plain(run('ship.parts.map(engineSpecSnapshot)'));
  assert.equal(run('engineSpecAction("d",2)'),true);assert.deepEqual(plain(run('ship.parts.map(engineSpecSnapshot)')),before);
- run('ship.parts[2].machineryId=1;st.multi.parts=new Set([3]);st.sel={list:"parts",id:3}');assert.equal(run('engineSpecAction("ratedInputW",1.1e18)'),true);
- assert.equal(run('ship.parts[0].ratedInputW'),1.1e18);assert.equal(run('C.resolveEngineSpec(ship.parts[2],ship).ratedInputW'),1.1e18);assert.equal(run('ship.parts[2].ratedInputW'),1e18);
+ run('ship.parts.push(core(4,25));ship.nextId=5;ship.parts[2].machineryId=4;st.multi.parts=new Set([4]);st.sel={list:"parts",id:4}');assert.equal(run('engineSpecAction("ratedInputW",1.1e18)'),true);
+ assert.equal(run('ship.parts.find(p=>p.id===4).ratedInputW'),1.1e18);assert.equal(run('C.resolveEngineSpec(ship.parts[2],ship).ratedInputW'),1.1e18);assert.equal(run('ship.parts[2].ratedInputW'),1e18);assert.equal(run('ship.parts[0].ratedInputW'),1e18);
 });
-test('a shared outlet reactor selector displays and edits its machinery owner through the bound action and Undo',()=>{
- const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[50,20,15],d:5},{id:5,k:'aux',c:[60,20,15],d:3});ship.nextId=6;ship.parts[0].reactor=4;ship.parts[2].machineryId=1;ship.parts[2].reactor=0;st.multi.parts=new Set([3]);st.sel={list:'parts',id:3};`);
- assert.match(run('engineControls(selItem(),true)'),/<option value="4" selected>/);assert.doesNotMatch(run('engineControls(selItem(),true)'),/<option value="0" selected>/);
+test('a linked nozzle opens its real body editor and the body reactor selector uses the bound action and Undo',()=>{
+ const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[50,20,15],d:5},{id:5,k:'aux',c:[60,20,15],d:3},core(7,25,4));ship.nextId=8;ship.parts[2].machineryId=7;ship.parts[2].reactor=0;st.multi.parts=new Set([3]);st.sel={list:'parts',id:3};`);
+ assert.match(run('engineControls(selItem(),true)'),/data-goto="7"/);assert.doesNotMatch(run('engineControls(selItem(),true)'),/data-engine-field="ratedInputW"/);assert.doesNotMatch(run('engineControls(selItem(),true)'),/data-reactor="selected"/);run(`st.multi.parts=new Set([7]);st.sel={list:'parts',id:7};`);assert.match(run('engineControls(selItem(),true)'),/<option value="4" selected>/);assert.doesNotMatch(run('engineControls(selItem(),true)'),/<option value="0" selected>/);
  const a=app.indexOf("  $('#panel').addEventListener('change',e=>{\n    const t=e.target;if(!t.dataset.reactor)return;"),b=app.indexOf("  $('#panel').addEventListener('input',e=>{",a);assert.ok(a>=0&&b>a);
  run(`let reactorRouteChange;(()=>{const $=()=>({addEventListener:(type,fn)=>reactorRouteChange=fn});${app.slice(a,b)}})();reactorRouteChange({target:{dataset:{reactor:'selected',engineRoute:'1'},value:'5'}});`);
- assert.equal(run('ship.parts[0].reactor'),5);assert.equal(run('ship.parts[2].reactor'),0);assert.equal(run('C.resolveEngineSpec(selItem(),ship).reactorId'),5);assert.equal(run('undoStack.length'),1);
- assert.match(run('engineControls(selItem(),true)'),/<option value="5" selected>/);run('undo()');assert.equal(run('ship.parts[0].reactor'),4);run('redo()');assert.equal(run('ship.parts[0].reactor'),5);
- run(`reactorRouteChange({target:{dataset:{reactor:'selected',engineRoute:'1'},value:'auto'}})`);assert.equal(run('Object.hasOwn(ship.parts[0],"reactor")'),false);assert.equal(run('ship.parts[2].reactor'),0);
+ assert.equal(run('ship.parts.find(p=>p.id===7).reactor'),5);assert.equal(run('ship.parts[2].reactor'),0);assert.equal(run('C.resolveEngineSpec(selItem(),ship).reactorId'),5);assert.equal(run('undoStack.length'),1);
+ assert.match(run('engineControls(selItem(),true)'),/<option value="5" selected>/);run('undo()');assert.equal(run('ship.parts.find(p=>p.id===7).reactor'),4);run('redo()');assert.equal(run('ship.parts.find(p=>p.id===7).reactor'),5);
+ run(`reactorRouteChange({target:{dataset:{reactor:'selected',engineRoute:'1'},value:'auto'}})`);assert.equal(run('Object.hasOwn(ship.parts.find(p=>p.id===7),"reactor")'),false);assert.equal(run('ship.parts[2].reactor'),0);
 });
 test('shared outlet connection batches resolve mirrored owner and reactor IDs once and reject broken owners atomically',()=>{
- const run=setup();run(`ship.parts[2].machineryId=1;ship.parts[2].tw=6;const other=engine(6,-25);other.machineryId=2;other.tw=3;ship.parts.push(other,{id:4,k:'gen',c:[50,20,15],d:5,tw:5},{id:5,k:'gen',c:[50,20,-15],d:5,tw:4});ship.nextId=7;st.multi.parts=new Set([3,6]);st.sel={list:'parts',id:3};`);
- assert.equal(run('engineConnectionAction("4")'),true);assert.deepEqual(plain(run('ship.parts.filter(p=>p.id===1||p.id===2).map(p=>p.reactor)')),[4,5]);assert.deepEqual(plain(run('ship.parts.filter(p=>p.id===3||p.id===6).map(p=>p.reactor)')),[0,0]);assert.equal(run('undoStack.length'),1);
+ const run=setup();run(`ship.parts[2].machineryId=7;ship.parts[2].tw=6;const other=engine(6,-25);other.machineryId=8;other.tw=3;const left=core(7,10),right=core(8,-10);left.tw=8;right.tw=7;ship.parts.push(other,{id:4,k:'gen',c:[50,20,15],d:5,tw:5},{id:5,k:'gen',c:[50,20,-15],d:5,tw:4},left,right);ship.nextId=9;st.multi.parts=new Set([3,6]);st.sel={list:'parts',id:3};`);
+ assert.equal(run('engineConnectionAction("4")'),true);assert.deepEqual(plain(run('ship.parts.filter(p=>p.id===7||p.id===8).map(p=>p.reactor)')),[4,5]);assert.deepEqual(plain(run('ship.parts.filter(p=>p.id===3||p.id===6).map(p=>p.reactor)')),[0,0]);assert.equal(run('undoStack.length'),1);
  run('undo();ship.parts.find(p=>p.id===6).machineryId=999');const before=run('snap()');assert.equal(run('engineConnectionAction("4")'),false);assert.equal(run('snap()'),before);assert.equal(run('undoStack.length'),0);assert.match(run('messages.at(-1)'),/共有機関/);
 });
-test('the bound machinery selector links and restores dedicated machinery without losing saved specifications or duplicating input',()=>{
- const run=setup();run(`st.mirror=false;st.multi.parts=new Set([3]);st.sel={list:'parts',id:3};ship.parts[2].ratedInputW=8e17;`);const stored=plain(run('({...engineSpecSnapshot(selItem()),d:selItem().d,nozzleLength:selItem().nozzleLength,dir:selItem().dir,c:selItem().c})'));
+test('the bound selector connects a real body and disconnects its nozzle without creating another machine',()=>{
+ const run=setup();run(`ship.parts.push(core(4,25));ship.nextId=5;st.mirror=false;st.multi.parts=new Set([3]);st.sel={list:'parts',id:3};ship.parts[2].ratedInputW=8e17;`);const stored=plain(run('({...engineSpecSnapshot(selItem()),d:selItem().d,nozzleLength:selItem().nozzleLength,dir:selItem().dir,c:selItem().c})'));
  assert.match(run('engineMachineryControls(selItem())'),/<option value="self" selected>/);
  const a=app.indexOf("  $('#panel').addEventListener('change',e=>{const t=e.target;if('engineMachinery'in t.dataset)"),b=app.indexOf('\n',a);assert.ok(a>=0&&b>a);
- run(`let machineryChange;(()=>{const $=()=>({addEventListener:(type,fn)=>machineryChange=fn});${app.slice(a,b)}})();machineryChange({target:{dataset:{engineMachinery:''},value:'1'}});`);
- assert.equal(run('selItem().machineryId'),1);assert.equal(run('C.resolveEngineSpec(selItem(),ship).ratedInputW'),1e18);assert.equal(run('selItem().ratedInputW'),8e17);assert.equal(run('undoStack.length'),1);assert.match(run('engineMachineryControls(selItem())'),/<option value="1" selected>/);
+ run(`let machineryChange;(()=>{const $=()=>({addEventListener:(type,fn)=>machineryChange=fn});${app.slice(a,b)}})();machineryChange({target:{dataset:{engineMachinery:''},value:'4'}});`);
+ assert.equal(run('selItem().machineryId'),4);assert.equal(run('C.resolveEngineSpec(selItem(),ship).ratedInputW'),1e18);assert.equal(run('selItem().ratedInputW'),8e17);assert.equal(run('undoStack.length'),1);assert.match(run('engineMachineryControls(selItem())'),/<option value="4" selected>/);assert.doesNotMatch(run('engineMachineryControls(selItem())'),/<option value="self"/);assert.match(run('engineControls(selItem(),true)'),/data-goto="4"/);assert.doesNotMatch(run('engineControls(selItem(),true)'),/data-engine-field="ratedInputW"/);
  assert.deepEqual(plain(run('({...engineSpecSnapshot(selItem()),d:selItem().d,nozzleLength:selItem().nozzleLength,dir:selItem().dir,c:selItem().c})')),stored);
- run(`const requests=C.buildPropulsionRequests([C.resolveEngineSpec(ship.parts[0],ship),C.resolveEngineSpec(selItem(),ship)],{},1);const supplied=Object.fromEntries(requests.map(r=>[r.id,r.requestedInputW]));const shared=C.resolvePropulsion(requests,supplied,1e6);`);assert.equal(run('shared.totalActualInputW'),1e18);assert.equal(run('shared.totalThrustN'),5e8);
- run('undo()');assert.equal(run('selItem().machineryId'),undefined);run('redo()');assert.equal(run('selItem().machineryId'),1);run(`machineryChange({target:{dataset:{engineMachinery:''},value:'self'}})`);
- assert.equal(run('selItem().machineryId'),undefined);assert.equal(run('C.resolveEngineSpec(selItem(),ship).ratedInputW'),8e17);assert.deepEqual(plain(run('({...engineSpecSnapshot(selItem()),d:selItem().d,nozzleLength:selItem().nozzleLength,dir:selItem().dir,c:selItem().c})')),stored);
+ run('undo()');assert.equal(run('selItem().machineryId'),undefined);run('redo()');assert.equal(run('selItem().machineryId'),4);run(`machineryChange({target:{dataset:{engineMachinery:''},value:'0'}})`);
+ assert.equal(run('selItem().machineryId'),0);assert.equal(run('C.resolveEngineSpec(selItem(),ship).valid'),false);assert.equal(run('ship.parts.filter(p=>p.k==="engineCore").length'),1);assert.equal(run('ship.parts.find(p=>p.id===4).ratedInputW'),1e18);assert.deepEqual(plain(run('({...engineSpecSnapshot(selItem()),d:selItem().d,nozzleLength:selItem().nozzleLength,dir:selItem().dir,c:selItem().c})')),stored);run('undo()');assert.equal(run('selItem().machineryId'),4);assert.equal(run('C.resolveEngineSpec(selItem(),ship).valid'),true);
  for(const value of ['接続する内部機関','このノズル専用の内部機関','内部機関 #1'])assert.doesNotMatch(run('KSI18n.t('+JSON.stringify(value)+')'),/[\u3040-\u30ff\u3400-\u9fff]/);
 });
-test('machinery linking maps mirrored owners atomically and rejects chains, cycles and owners with unretargeted consumers',()=>{
- const run=setup();run(`ship.parts[2].tw=6;const outlet=engine(6,-25);outlet.tw=3;ship.parts.push(outlet);ship.nextId=7;st.multi.parts=new Set([3,6]);st.sel={list:'parts',id:3};`);
- assert.equal(run('engineMachineryAction("1")'),true);assert.deepEqual(plain(run('ship.parts.filter(p=>p.id===3||p.id===6).map(p=>p.machineryId)')),[1,2]);assert.equal(run('undoStack.length'),1);assert.doesNotMatch(run('engineMachineryControls(selItem())'),/<option value="6"/);
- run('st.mirror=false;st.multi.parts=new Set([1]);st.sel={list:"parts",id:1}');let before=run('snap()');assert.equal(run('engineMachineryAction("2")'),false);assert.equal(run('snap()'),before);assert.match(run('messages.at(-1)'),/先に接続し直して/);assert.equal(run('undoStack.length'),1);
- run('st.mirror=true;st.multi.parts=new Set([1,2]);st.sel={list:"parts",id:2}');before=run('snap()');assert.equal(run('engineMachineryAction("1")'),false);assert.equal(run('snap()'),before);assert.match(run('messages.at(-1)'),/循環接続/);
- run('st.mirror=false;st.multi.parts=new Set([1]);st.sel={list:"parts",id:1}');before=run('snap()');assert.equal(run('engineMachineryAction("3")'),false);assert.equal(run('engineMachineryAction("999")'),false);assert.equal(run('snap()'),before);
- run('st.multi.parts=new Set([1,3])');assert.equal(run('engineMachineryAction("2")'),true);assert.equal(run('ship.parts[0].machineryId'),2);assert.equal(run('ship.parts[2].machineryId'),2);assert.equal(run('engineConnectionOwner(ship.parts[2]).id'),2);
+test('machinery linking maps mirrored real bodies atomically and rejects nozzles or missing bodies as sources',()=>{
+ const run=setup();run(`ship.parts[2].tw=6;const outlet=engine(6,-25);outlet.tw=3;const left=core(7,10),right=core(8,-10);left.tw=8;right.tw=7;ship.parts.push(outlet,left,right);ship.nextId=9;st.multi.parts=new Set([3,6]);st.sel={list:'parts',id:3};`);
+ assert.equal(run('engineMachineryAction("7")'),true);assert.deepEqual(plain(run('ship.parts.filter(p=>p.id===3||p.id===6).map(p=>p.machineryId)')),[7,8]);assert.equal(run('undoStack.length'),1);assert.doesNotMatch(run('engineMachineryControls(selItem())'),/<option value="6"/);assert.doesNotMatch(run('engineMachineryControls(selItem())'),/<option value="1"/);assert.equal(run('engineConnectionOwner(ship.parts[2]).id'),7);
+ let before=run('snap()');for(const id of [1,3,999]){assert.equal(run('engineMachineryAction('+id+')'),false);assert.equal(run('snap()'),before);}assert.equal(run('undoStack.length'),1);
+ run('undo();ship.parts=ship.parts.filter(p=>p.id!==8)');before=run('snap()');assert.equal(run('engineMachineryAction("7")'),false);assert.equal(run('snap()'),before);assert.equal(run('undoStack.length'),0);
  for(const code of ['machinery-owner-in-use','machinery-connection-cycle'])assert.doesNotMatch(run('KSI18n.t(engineReasonText('+JSON.stringify(code)+'))'),/[\u3040-\u30ff\u3400-\u9fff]/);
 });
 test('pending generic and model engines preserve rated machinery across appearance edits and placement previews',()=>{
@@ -88,11 +86,41 @@ test('pending generic and model engines preserve rated machinery across appearan
  run('st.equipmentId="internalTurbine"');const model=plain(run('engineSpecSnapshot(pendingEngine(activeEquipment()))'));
  assert.equal(run('engineSpecAction("d",60,true)'),true);assert.deepEqual(plain(run('engineSpecSnapshot(pendingEngine(activeEquipment()))')),model);assert.equal(run('undoStack.length'),0);
 });
+test('an external integrated engine cannot be rebound to an independent core through a mixed selection',()=>{
+ const run=setup();run(`ship.parts[0].equipmentId='exposedTurbine';ship.parts.push(core(4,25));ship.nextId=5;st.multi.parts=new Set([1,3]);st.sel={list:'parts',id:1};`);const before=run('snap()');
+ assert.equal(run('engineMachineryAction("4")'),false);assert.equal(run('snap()'),before);assert.equal(run('undoStack.length'),0);assert.match(run('messages.at(-1)'),/外部機関.*一体/);
+});
 test('engine diagnostics and full editor strings translate to English',()=>{
  const run=setup();run('C.propulsionPreview=(ship,stats)=>stats.propulsion;S={propulsion:{engines:[{id:1,actualInputW:0,actualThrustN:0,wasteHeatW:0,reasons:["overheat","unconnected"]}]}}');
  const html=run('engineSpecControls(selItem())');const text=[...html.matchAll(/>([^<>]+)</g)].map(m=>m[1]).filter(s=>s.trim());
  for(const value of text){const result=run('KSI18n.t('+JSON.stringify(value)+')');assert.doesNotMatch(result,/[\u3040-\u30ff\u3400-\u9fff]/,value);}
  assert.match(run('enginePerformance(selItem())'),/局所過熱/);assert.equal(run('KSI18n.t(engineReasonText("overheat"))'),'Local Overheating');
+});
+test('independent core, nozzle and electrical/shaft panels translate their user-facing text',()=>{
+ const run=setup();run(`const fMass=v=>v+' t',ja=v=>String(v);ship.parts.push(core(4,25,5),{id:5,k:'gen',c:[70,20,25],d:4},{id:6,k:'powerBus',c:[55,20,25],d:2,room:[2,2,2]});ship.nextId=7;ship.links=[{kind:'power',from:'p5',to:'p6',cap:1e18},{kind:'power',from:'p6',to:'p4',cap:1e18}];ship.parts[2].machineryId=4;st.mirror=false;st.multi.parts=new Set([4]);st.sel={list:'parts',id:4};`);
+ const untranslated=[];
+ for(const expression of ['engineControls(ship.parts.find(p=>p.id===4),true)','engineControls(ship.parts.find(p=>p.id===3),true)','engineTransmissionSystemsHTML()','engineDriveSystemsHTML()']){
+  const html=run(expression),text=[...html.matchAll(/>([^<>]+)</g)].map(m=>m[1]).filter(s=>s.trim());
+  for(const value of text)if(/[\u3040-\u30ff\u3400-\u9fff]/.test(run('KSI18n.t('+JSON.stringify(value)+')')))untranslated.push(value);
+ }
+ assert.deepEqual(untranslated,[]);
+ for(const label of ['副推進機関 4','ノズル直結推進機関 1'])assert.doesNotMatch(run('KSI18n.t('+JSON.stringify(label)+')'),/[\u3040-\u30ff\u3400-\u9fff]/);
+ assert.doesNotMatch(run('KSI18n.t(engineReasonText("external-engine-sharing"))'),/[\u3040-\u30ff\u3400-\u9fff]/);
+});
+test('external units keep their body at the nozzle throat while appearance changes preserve one integrated unit',()=>{
+ const run=setup();run(`st.tab='mod';st.part='engine';st.equipmentId='exposedTurbine';st.mirror=false;st.multi.parts.clear();st.sel=null;`);
+ assert.equal(run(`pendingEngine(C.EQUIPMENT.exposedTurbine).machineryOffsetM===pendingEngine(C.EQUIPMENT.exposedTurbine).nozzleLength/2`),true);
+ const html=run(`engineSpecControls(pendingEngine(C.EQUIPMENT.exposedTurbine),true)`);assert.doesNotMatch(html,/data-engine-field="machineryOffsetM"/);assert.match(html,/data-engine-field="machineryLengthM"/);assert.match(html,/外部機関は機関本体とノズルが一体/);
+ assert.equal(run(`engineSpecAction('nozzleLength',.8,true)`),true);assert.equal(run(`pendingEngine(C.EQUIPMENT.exposedTurbine).machineryOffsetM`),.4);
+ run(`st.equipmentId=null;st.sel={list:'parts',id:3};st.multi.parts=new Set([3]);ship.parts[2].equipmentId='exposedTurbine';ship.parts[2].machineryOffsetM=ship.parts[2].nozzleLength/2;const before=ship.parts[2].c.slice();`);
+ assert.equal(run(`engineSpecAction('nozzleLength',.8)`),true);assert.equal(run(`ship.parts[2].machineryOffsetM`),.4);assert.deepEqual(plain(run('ship.parts[2].c')),plain(run('before')));assert.equal(run(`C.resolveEngineSpec(ship.parts[2],ship).issues.includes('external-engine-detached')`),false);
+ assert.doesNotMatch(run('KSI18n.t(engineReasonText("external-engine-detached"))'),/[\u3040-\u30ff\u3400-\u9fff]/);
+});
+test('an independent nozzle selection strip resolves the connected body without duplicating its thrust',()=>{
+ const run=setup();run(`ship.parts.push(core(4,25));ship.parts[2].machineryId=4;const precisePartSize=()=>false;`);
+ const start=app.indexOf('function stripFacts('),end=app.indexOf('function renderSelStrip(',start);run(app.slice(start,end));
+ const facts=run(`stripFacts({list:'parts',it:ship.parts[2]}).line`);
+ assert.match(facts,/接続機関の定格入力 1000000000000000000 W/);assert.doesNotMatch(facts,/推力/);
 });
 test('gamepad nudges unrestricted precision number fields through the same validated action and Undo',()=>{
  const run=setup();run(`const events=[];focused={tagName:'INPUT',type:'number',step:'any',min:'0',max:'1.5e18',value:'1e18',dataset:{engineStep:'1e16'},stepUp(){throw Error('step any');},dispatchEvent(e){events.push(e.type);if(e.type==='change')engineSpecAction('ratedInputW',this.value);}};`);
@@ -104,4 +132,9 @@ test('worker statistics refresh shows performance without repeating the 系統 p
  // The propulsion diagnosis lives in 系統 only; 性能 carries the summary, the carry section and (in the tab) the warnings.
  for(const html of [run('main.innerHTML'),run('side.innerHTML')]){assert.doesNotMatch(html,/propulsion-preview/);assert.match(html,/spec-carry/);}
  assert.match(run('main.innerHTML'),/with warnings/);assert.doesNotMatch(run('side.innerHTML'),/with warnings/,'the sidebar leaves the warnings to the 点検 bar');
+});
+
+test('external cylinder shape survives saved machinery snapshots and repeated palette edits',()=>{
+ const run=setup();run(`st.equipmentId='exposedTurbine';st.multi.parts.clear();st.sel=null;const body=pendingEngine(activeEquipment());body.machineryShape='cylinder';body.machineryLengthM=20;body.machineryRadiusM=4;body.ratedInputW=1e18;st.engineSizes.exposedTurbine={...engineSpecSnapshot(body),d:body.d,engineLength:body.engineLength,nozzleLength:body.nozzleLength};`);
+ assert.equal(run('engineSpecSnapshot(pendingEngine(activeEquipment())).machineryShape'),'cylinder');const volume=run('C.resolveEngineSpec(pendingEngine(activeEquipment()),ship).effectiveMachineryVolumeM3');assert.equal(run('engineSpecAction("d",12,true)'),true);assert.equal(run('st.engineSizes.exposedTurbine.machineryShape'),'cylinder');assert.equal(run('C.resolveEngineSpec(pendingEngine(activeEquipment()),ship).effectiveMachineryVolumeM3'),volume);
 });

@@ -1,0 +1,1844 @@
+{
+  "schemaVersion": 1,
+  "kind": "serialized-ship-blueprint-source-snapshots",
+  "runtimeLoaded": false,
+  "description": "V12 fresh factory serialized geometry and equipment, before the final terminal-contact and save-fidelity corrections. Replay rebuilds all current statistics, power, heat, routing and combat profiles; these archives contain no cached engineering results. Factory evidence is descriptive provenance for original source power and nozzle positions only. Executor V12 routing failed the final audit and must be recalculated rather than trusted.",
+  "factoryBaselineCommit": "4cb1fc63789e5b5f105f7332e995bede0915ceec",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "js/core.js": "7bc4167cae112ae764acb7cfa700e9d720a7e86f891e8fd558f2b9b1559f132e"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "models": {
+    "acclamator": {
+      "file": "acclamator.json.gz",
+      "sha256": "554eb1dbd5ade373dd7c4d31a50c637b0e2dc7912a72d58efc0104e123d09d84",
+      "gzipSha256": "684f514a310bc60500ab36324537b341fd0f6c5ba52c783c4d0e20e37feed7b8",
+      "canonicalSha256": "c416d135925babfb00a96f2c7baa5ad3b35d679233baf148cf21add2f71b3e93",
+      "uncompressedBytes": 62973,
+      "compressedBytes": 11524,
+      "partCount": 61,
+      "fitCount": 28,
+      "factoryEvidence": {
+        "baselinePowerW": 2e+23,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 16,
+            "p": [
+              92.39999999999999,
+              22.4,
+              35.2
+            ]
+          },
+          {
+            "id": 17,
+            "p": [
+              92.39999999999999,
+              22.4,
+              -35.2
+            ]
+          },
+          {
+            "id": 19,
+            "p": [
+              118.39999999999999,
+              17.7,
+              58.7
+            ]
+          },
+          {
+            "id": 21,
+            "p": [
+              118.39999999999999,
+              17.7,
+              -58.7
+            ]
+          }
+        ]
+      }
+    },
+    "arquitens": {
+      "file": "arquitens.json.gz",
+      "sha256": "1ff756d92ae4f97b7d6c9353e596963b16cbe9b5dba3b311200aa66948c80834",
+      "gzipSha256": "df6ed1aa99a64f7792bdb18da27b977f375f783ac82f0442ce81072631b6e1e2",
+      "canonicalSha256": "ae4bb533f7d1bd9894a5732450dd00d6f16b7c67d1fee6e74fa8166b2d822bcc",
+      "uncompressedBytes": 62983,
+      "compressedBytes": 10261,
+      "partCount": 147,
+      "fitCount": 17,
+      "factoryEvidence": {
+        "baselinePowerW": 2.374271804e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 78,
+            "p": [
+              -0.5999999999999996,
+              21.8,
+              0.55796
+            ]
+          },
+          {
+            "id": 80,
+            "p": [
+              -0.5999999999999996,
+              21.8,
+              55.432
+            ]
+          },
+          {
+            "id": 82,
+            "p": [
+              -0.5999999999999996,
+              21.8,
+              -55.432
+            ]
+          }
+        ]
+      }
+    },
+    "cr90": {
+      "file": "cr90.json.gz",
+      "sha256": "967f47f07d44a959ee6039a357bdd7e6fae0507f333eded659972fb97d0f22f9",
+      "gzipSha256": "03ad87db83bfe0a39873be62c3ec12e389e45ec9976e3293be6f6589c78bb7c4",
+      "canonicalSha256": "48c7d84b6f2b1ee54c00c212d1147bd4655d43118ded4fcbb4dd8f468e68072f",
+      "uncompressedBytes": 29952,
+      "compressedBytes": 4551,
+      "partCount": 49,
+      "fitCount": 6,
+      "factoryEvidence": {
+        "baselinePowerW": 1.27517999e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 11,
+            "p": [
+              0,
+              24.132904549,
+              -17.966906077
+            ]
+          },
+          {
+            "id": 12,
+            "p": [
+              0,
+              24.132904549,
+              -6.004070641
+            ]
+          },
+          {
+            "id": 13,
+            "p": [
+              0,
+              24.132904549,
+              6.004084151
+            ]
+          },
+          {
+            "id": 14,
+            "p": [
+              0,
+              24.132904549,
+              17.966923509
+            ]
+          },
+          {
+            "id": 15,
+            "p": [
+              0,
+              14.618322371,
+              -12.02502561
+            ]
+          },
+          {
+            "id": 16,
+            "p": [
+              0,
+              14.618322371,
+              12.025027645
+            ]
+          },
+          {
+            "id": 17,
+            "p": [
+              0,
+              14.618306104,
+              1.0458e-05
+            ]
+          },
+          {
+            "id": 18,
+            "p": [
+              0,
+              5.103739612,
+              -17.966906077
+            ]
+          },
+          {
+            "id": 19,
+            "p": [
+              0,
+              5.103739612,
+              -6.004070641
+            ]
+          },
+          {
+            "id": 20,
+            "p": [
+              0,
+              5.103739612,
+              6.004084151
+            ]
+          },
+          {
+            "id": 21,
+            "p": [
+              0,
+              5.103739612,
+              17.966923509
+            ]
+          }
+        ]
+      }
+    },
+    "dreadnaught": {
+      "file": "dreadnaught.json.gz",
+      "sha256": "527e37bc8025bc6273488d8ae94560cb5e6f1e8d322b51f097d9b1e7f728ddc5",
+      "gzipSha256": "c048e4b2791122fdbb639a641bfb1b067f9beba0596249fbed6d0aab5b277fab",
+      "canonicalSha256": "bba6ec3bbe0706ab7f8fe35c3ea39359b5de7cf3b8aa4e74c1d6b9c6d1e83abe",
+      "uncompressedBytes": 273880,
+      "compressedBytes": 50262,
+      "partCount": 71,
+      "fitCount": 40,
+      "factoryEvidence": {
+        "baselinePowerW": 3.325807442e+23,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 31,
+            "p": [
+              -1,
+              45.75,
+              10.4
+            ]
+          },
+          {
+            "id": 32,
+            "p": [
+              -1,
+              45.75,
+              -10.4
+            ]
+          },
+          {
+            "id": 33,
+            "p": [
+              -1,
+              45.75,
+              29.1
+            ]
+          },
+          {
+            "id": 34,
+            "p": [
+              -1,
+              45.75,
+              -29.1
+            ]
+          },
+          {
+            "id": 35,
+            "p": [
+              9.7,
+              71.2,
+              8.9
+            ]
+          },
+          {
+            "id": 36,
+            "p": [
+              9.7,
+              71.2,
+              -8.9
+            ]
+          },
+          {
+            "id": 37,
+            "p": [
+              9.7,
+              71.2,
+              24.7
+            ]
+          },
+          {
+            "id": 38,
+            "p": [
+              9.7,
+              71.2,
+              -24.7
+            ]
+          },
+          {
+            "id": 39,
+            "p": [
+              15.7,
+              22.7,
+              9.4
+            ]
+          },
+          {
+            "id": 40,
+            "p": [
+              15.7,
+              22.7,
+              -9.4
+            ]
+          },
+          {
+            "id": 41,
+            "p": [
+              15.7,
+              22.7,
+              26.1
+            ]
+          },
+          {
+            "id": 42,
+            "p": [
+              15.7,
+              22.7,
+              -26.1
+            ]
+          }
+        ]
+      }
+    },
+    "executor": {
+      "file": "executor.json.gz",
+      "sha256": "0fcf4d759f074899583fa0b8afe9dccad148b7f9a25dbad29b72aa60df9cdf09",
+      "gzipSha256": "9ccde5db80ee1ae64f35254d12212d74be7c7153c0f9f454e1ebf1d6255dffa6",
+      "canonicalSha256": "cb119b74669666b11f09234cafac6ed829f7565a032f14cad4b5c50f37b39209",
+      "uncompressedBytes": 4666958,
+      "compressedBytes": 741876,
+      "partCount": 319,
+      "fitCount": 2226,
+      "factoryEvidence": {
+        "baselinePowerW": 2e+27,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 274,
+            "p": [
+              2708.758,
+              340.5295,
+              0
+            ]
+          },
+          {
+            "id": 275,
+            "p": [
+              2940.937,
+              348.269,
+              -386.96549999999996
+            ]
+          },
+          {
+            "id": 276,
+            "p": [
+              2940.937,
+              348.269,
+              386.96549999999996
+            ]
+          },
+          {
+            "id": 277,
+            "p": [
+              4101.833,
+              332.79,
+              -773.931
+            ]
+          },
+          {
+            "id": 278,
+            "p": [
+              4101.833,
+              332.79,
+              773.931
+            ]
+          },
+          {
+            "id": 279,
+            "p": [
+              4334.012,
+              363.7475,
+              -1044.8065000000001
+            ]
+          },
+          {
+            "id": 280,
+            "p": [
+              4334.012,
+              363.7475,
+              1044.8065000000001
+            ]
+          },
+          {
+            "id": 281,
+            "p": [
+              5185.337,
+              162.5255,
+              -1276.9859999999999
+            ]
+          },
+          {
+            "id": 282,
+            "p": [
+              5185.337,
+              162.5255,
+              1276.9859999999999
+            ]
+          },
+          {
+            "id": 283,
+            "p": [
+              5224.033,
+              185.7435,
+              -1509.165
+            ]
+          },
+          {
+            "id": 284,
+            "p": [
+              5224.033,
+              185.7435,
+              1509.165
+            ]
+          },
+          {
+            "id": 285,
+            "p": [
+              5262.729,
+              201.222,
+              -1741.344
+            ]
+          },
+          {
+            "id": 286,
+            "p": [
+              5262.729,
+              201.222,
+              1741.344
+            ]
+          }
+        ]
+      }
+    },
+    "gozanti": {
+      "file": "gozanti.json.gz",
+      "sha256": "4803992d66f343ac5e6da3fc2c7f4866a9a9e8d55439e1c69a1de0f8b17ce835",
+      "gzipSha256": "e843ea7cc5849e8fc1081c3e35291328c31045b0ec314e82018bbef7b8e5ed0e",
+      "canonicalSha256": "64e79e14379f81c10d54ef0ef248bce5dea7294acc10abe7a8fc633a0255a808",
+      "uncompressedBytes": 26446,
+      "compressedBytes": 4936,
+      "partCount": 51,
+      "fitCount": 2,
+      "factoryEvidence": {
+        "baselinePowerW": 1.070270137e+21,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 35,
+            "p": [
+              13.399999999999999,
+              3.65,
+              -9.7
+            ]
+          },
+          {
+            "id": 36,
+            "p": [
+              13.399999999999999,
+              3.65,
+              9.7
+            ]
+          }
+        ]
+      }
+    },
+    "gr75": {
+      "file": "gr75.json.gz",
+      "sha256": "ef6f9bac81fa8820f1a2ade487016cb8916ac22f39a369ac4a85b4c31daaf74f",
+      "gzipSha256": "0be01ad25c3aa3b41097ad98f150b6afd20e7bb78af1f4a5594087fbb9c98006",
+      "canonicalSha256": "ac60005616827e65b06004e5efdf0badbd1439a5301d86108e33c9d1c943e361",
+      "uncompressedBytes": 104986,
+      "compressedBytes": 20832,
+      "partCount": 79,
+      "fitCount": 2,
+      "factoryEvidence": {
+        "baselinePowerW": 4.207611764e+21,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 52,
+            "p": [
+              8,
+              3.7,
+              0
+            ]
+          },
+          {
+            "id": 54,
+            "p": [
+              11,
+              4.5,
+              -4.4
+            ]
+          },
+          {
+            "id": 56,
+            "p": [
+              11,
+              4.5,
+              4.4
+            ]
+          }
+        ]
+      }
+    },
+    "hammerhead": {
+      "file": "hammerhead.json.gz",
+      "sha256": "898b5a66ac2f02fb91bbc19078d15dced295ab48493d546e1bad2da4623ee280",
+      "gzipSha256": "4213d26332e2d28673e569a2d63fff8697fa01c3f3bd2e2f6499402fb2eb8e57",
+      "canonicalSha256": "08c79d04f3e4adc30cfc056b7dc5a3f08c13c2a933b0d0bf171e8a3f39c54b58",
+      "uncompressedBytes": 7778,
+      "compressedBytes": 2433,
+      "partCount": 21,
+      "fitCount": 3,
+      "factoryEvidence": {
+        "baselinePowerW": 7.524291479e+21,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 3,
+            "p": [
+              0,
+              23.15,
+              10.27
+            ]
+          },
+          {
+            "id": 4,
+            "p": [
+              0,
+              23.15,
+              -10.27
+            ]
+          },
+          {
+            "id": 5,
+            "p": [
+              0,
+              6.6,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    "heraklon": {
+      "file": "heraklon.json.gz",
+      "sha256": "619166621934b5c348277b97091acb126b7248a60e0a1ebd06a253b6fd2b1190",
+      "gzipSha256": "abd11028869126a010a3288e98961900c477ffa1b54927027e5bbc5bdbc5f239",
+      "canonicalSha256": "0991c85d88f74d22e2860fac9cabcc9a6c029a7fa47189538f3c90d3403caa56",
+      "uncompressedBytes": 24975,
+      "compressedBytes": 5553,
+      "partCount": 51,
+      "fitCount": 0,
+      "factoryEvidence": {
+        "baselinePowerW": 3.165241283e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 22,
+            "p": [
+              -0.5,
+              16.5,
+              12
+            ]
+          },
+          {
+            "id": 23,
+            "p": [
+              -0.5,
+              16.5,
+              -12
+            ]
+          },
+          {
+            "id": 24,
+            "p": [
+              -0.5,
+              18.3,
+              21.5
+            ]
+          },
+          {
+            "id": 25,
+            "p": [
+              -0.5,
+              18.3,
+              -21.5
+            ]
+          },
+          {
+            "id": 26,
+            "p": [
+              -0.5,
+              20,
+              30.5
+            ]
+          },
+          {
+            "id": 27,
+            "p": [
+              -0.5,
+              20,
+              -30.5
+            ]
+          },
+          {
+            "id": 28,
+            "p": [
+              -0.5,
+              21.5,
+              38.2
+            ]
+          },
+          {
+            "id": 29,
+            "p": [
+              -0.5,
+              21.5,
+              -38.2
+            ]
+          }
+        ]
+      }
+    },
+    "imperial": {
+      "file": "imperial.json.gz",
+      "sha256": "50b21eab4a63d4a1946e04b5f3a6cce50135056518674e801a3f229bb803b498",
+      "gzipSha256": "386b111f36411feb1c2de2dbe16ec8cd23534e5d90061c549f40e4d366b602cb",
+      "canonicalSha256": "a321eb8d2e644f27e48fda412c5ee8739b1d85f775a17a3a92c28c2ef898495e",
+      "uncompressedBytes": 159097,
+      "compressedBytes": 32427,
+      "partCount": 71,
+      "fitCount": 50,
+      "factoryEvidence": {
+        "baselinePowerW": 1e+25,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 20,
+            "p": [
+              19,
+              109.003,
+              -213.65
+            ]
+          },
+          {
+            "id": 21,
+            "p": [
+              19,
+              109.003,
+              0
+            ]
+          },
+          {
+            "id": 22,
+            "p": [
+              19,
+              109.003,
+              213.65
+            ]
+          },
+          {
+            "id": 23,
+            "p": [
+              31.9,
+              76.367,
+              -109.639
+            ]
+          },
+          {
+            "id": 24,
+            "p": [
+              31.9,
+              141.633,
+              -109.639
+            ]
+          },
+          {
+            "id": 25,
+            "p": [
+              31.9,
+              76.367,
+              109.639
+            ]
+          },
+          {
+            "id": 26,
+            "p": [
+              31.9,
+              141.633,
+              109.639
+            ]
+          }
+        ]
+      }
+    },
+    "lh3210": {
+      "file": "lh3210.json.gz",
+      "sha256": "1f113c2cc7f2f581aba44fa72d5cd661e207cc9548ef16f558583688c2ffed30",
+      "gzipSha256": "5105c96ffda7fc7d5f599b4f73fe2e39330dcad076310361a59106cb9f3f9e65",
+      "canonicalSha256": "5ba2fd0409cd37fc1713ca894d6489766252e2d2b358699d410cc8c3b987d344",
+      "uncompressedBytes": 52846,
+      "compressedBytes": 10435,
+      "partCount": 93,
+      "fitCount": 8,
+      "factoryEvidence": {
+        "baselinePowerW": 5e+25,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 55,
+            "p": [
+              -1289.3,
+              409,
+              -311
+            ]
+          },
+          {
+            "id": 56,
+            "p": [
+              -1289.3,
+              409,
+              0
+            ]
+          },
+          {
+            "id": 57,
+            "p": [
+              -1289.3,
+              409,
+              311
+            ]
+          }
+        ]
+      }
+    },
+    "lucrehulk": {
+      "file": "lucrehulk.json.gz",
+      "sha256": "996b9fbb1b58cdde7117822792af8b05d0d37052d830d7894a485739a9b57c0c",
+      "gzipSha256": "94b79e85ceec49e89cf80f20d1ba2a018df30b19df47a605c50401e395e1ceff",
+      "canonicalSha256": "c3b43b135acd816b22d4cced43371ece2030bdb2dabc555a9c387582dc641ac0",
+      "uncompressedBytes": 168903,
+      "compressedBytes": 26405,
+      "partCount": 93,
+      "fitCount": 54,
+      "factoryEvidence": {
+        "baselinePowerW": 5e+25,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 55,
+            "p": [
+              -1289.3,
+              409,
+              -311
+            ]
+          },
+          {
+            "id": 56,
+            "p": [
+              -1289.3,
+              409,
+              0
+            ]
+          },
+          {
+            "id": 57,
+            "p": [
+              -1289.3,
+              409,
+              311
+            ]
+          }
+        ]
+      }
+    },
+    "mandator2": {
+      "file": "mandator2.json.gz",
+      "sha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+      "gzipSha256": "0065e8a0898879d4da36f08617a77b22112092d3ce63e8bb38f870a3493129ed",
+      "canonicalSha256": "ff9de13766c6d9be092df276fdcd171367a22f3d752695eb547e9fc1b62c73f2",
+      "uncompressedBytes": 1214949,
+      "compressedBytes": 203069,
+      "partCount": 318,
+      "fitCount": 535,
+      "factoryEvidence": {
+        "baselinePowerW": 7.699999983e+26,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 269,
+            "p": [
+              272,
+              300.6,
+              0
+            ]
+          },
+          {
+            "id": 270,
+            "p": [
+              470,
+              356.4,
+              -354.7
+            ]
+          },
+          {
+            "id": 271,
+            "p": [
+              470,
+              356.4,
+              354.7
+            ]
+          },
+          {
+            "id": 272,
+            "p": [
+              771,
+              369.4,
+              -786.4
+            ]
+          },
+          {
+            "id": 273,
+            "p": [
+              771,
+              369.4,
+              786.4
+            ]
+          },
+          {
+            "id": 274,
+            "p": [
+              844,
+              367.4,
+              -1000.5
+            ]
+          },
+          {
+            "id": 275,
+            "p": [
+              844,
+              367.4,
+              1000.5
+            ]
+          },
+          {
+            "id": 276,
+            "p": [
+              900,
+              132,
+              -95.3
+            ]
+          },
+          {
+            "id": 277,
+            "p": [
+              900,
+              132,
+              95.3
+            ]
+          },
+          {
+            "id": 278,
+            "p": [
+              976,
+              135.8,
+              -262.9
+            ]
+          },
+          {
+            "id": 279,
+            "p": [
+              976,
+              135.8,
+              262.9
+            ]
+          }
+        ]
+      }
+    },
+    "mc30c": {
+      "file": "mc30c.json.gz",
+      "sha256": "222606ad156dc67a05a32ca7a8409b1ec02b4c412ffd517e4849802a4e691868",
+      "gzipSha256": "2cf10db82210a1c0f3d65af644b5396cac0db261deee7c249b1a2127d172ee27",
+      "canonicalSha256": "0253f99bc520f7cb9c2cc87840cae079eb5d4b6900662050472447e82f00ea81",
+      "uncompressedBytes": 143610,
+      "compressedBytes": 23697,
+      "partCount": 119,
+      "fitCount": 36,
+      "factoryEvidence": {
+        "baselinePowerW": 4.966745319e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 88,
+            "p": [
+              168.66999999999996,
+              13.95,
+              11.65
+            ]
+          },
+          {
+            "id": 89,
+            "p": [
+              168.66999999999996,
+              13.95,
+              -11.65
+            ]
+          },
+          {
+            "id": 90,
+            "p": [
+              176.64,
+              15.75,
+              20.15
+            ]
+          },
+          {
+            "id": 91,
+            "p": [
+              176.64,
+              15.75,
+              -20.15
+            ]
+          },
+          {
+            "id": 92,
+            "p": [
+              21.42000000000001,
+              24.2,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    "mc75": {
+      "file": "mc75.json.gz",
+      "sha256": "ab21aae6f39781665cb9d35f0da591ddd606706da23d5d3061a89a522748da4c",
+      "gzipSha256": "04525b58d0e118f035d2c8e79150517a439edb6a17596059b28d7d71eec0ae0a",
+      "canonicalSha256": "0436003bc8300ef93b182ebc53c023ec0d84836aaa0b87e0de8a4edc22fbf65e",
+      "uncompressedBytes": 166837,
+      "compressedBytes": 21749,
+      "partCount": 64,
+      "fitCount": 66,
+      "factoryEvidence": {
+        "baselinePowerW": 2.372696474e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 12,
+            "p": [
+              -0.5,
+              305,
+              11.5
+            ]
+          },
+          {
+            "id": 13,
+            "p": [
+              -0.5,
+              305,
+              -11.5
+            ]
+          },
+          {
+            "id": 14,
+            "p": [
+              -0.5,
+              305,
+              38.2
+            ]
+          },
+          {
+            "id": 15,
+            "p": [
+              -0.5,
+              305,
+              -38.2
+            ]
+          },
+          {
+            "id": 16,
+            "p": [
+              -0.5,
+              298.4,
+              25.4
+            ]
+          },
+          {
+            "id": 17,
+            "p": [
+              -0.5,
+              298.4,
+              -25.4
+            ]
+          },
+          {
+            "id": 18,
+            "p": [
+              -0.5,
+              312.4,
+              25.4
+            ]
+          },
+          {
+            "id": 19,
+            "p": [
+              -0.5,
+              312.4,
+              -25.4
+            ]
+          },
+          {
+            "id": 20,
+            "p": [
+              -0.5,
+              301.5,
+              52.5
+            ]
+          },
+          {
+            "id": 21,
+            "p": [
+              -0.5,
+              301.5,
+              -52.5
+            ]
+          },
+          {
+            "id": 22,
+            "p": [
+              -0.5,
+              312.5,
+              52.5
+            ]
+          },
+          {
+            "id": 23,
+            "p": [
+              -0.5,
+              312.5,
+              -52.5
+            ]
+          }
+        ]
+      }
+    },
+    "mc80home": {
+      "file": "mc80home.json.gz",
+      "sha256": "7aa1d1fc9355e884d1da6640d9d403894b033bf2457ab339539fe0e09cb9321a",
+      "gzipSha256": "95ca72da645a2a94f76508cf9b6a96f7b6db0d4941b8d3d077ec39fd71c68117",
+      "canonicalSha256": "d8fe3f708c042dc82ff8d1b022699c94db29dcc2662bae244195cd40d2f7a724",
+      "uncompressedBytes": 235735,
+      "compressedBytes": 32526,
+      "partCount": 105,
+      "fitCount": 107,
+      "factoryEvidence": {
+        "baselinePowerW": 4.746029113e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 48,
+            "p": [
+              40.69999999999999,
+              69.2,
+              56.9
+            ]
+          },
+          {
+            "id": 49,
+            "p": [
+              40.69999999999999,
+              69.2,
+              -56.9
+            ]
+          },
+          {
+            "id": 50,
+            "p": [
+              70,
+              116.5,
+              56.9
+            ]
+          },
+          {
+            "id": 51,
+            "p": [
+              70,
+              116.5,
+              -56.9
+            ]
+          },
+          {
+            "id": 52,
+            "p": [
+              73.6,
+              33.1,
+              10.2
+            ]
+          },
+          {
+            "id": 53,
+            "p": [
+              73.6,
+              33.1,
+              -10.2
+            ]
+          },
+          {
+            "id": 54,
+            "p": [
+              136.8,
+              71.1,
+              97.9
+            ]
+          },
+          {
+            "id": 55,
+            "p": [
+              136.8,
+              71.1,
+              -97.9
+            ]
+          },
+          {
+            "id": 56,
+            "p": [
+              148.89999999999998,
+              94.2,
+              106.2
+            ]
+          },
+          {
+            "id": 57,
+            "p": [
+              148.89999999999998,
+              94.2,
+              -106.2
+            ]
+          }
+        ]
+      }
+    },
+    "mc80liberty": {
+      "file": "mc80liberty.json.gz",
+      "sha256": "dfc8144ff37cc4ccd13b6225214d228442f3c68a38ef65f6a0df5f1a8c2ae7f8",
+      "gzipSha256": "e15363f6bc169f6bbb34c8b341e163b6e3044a83771eeb69a62781a5c01ca01d",
+      "canonicalSha256": "e32fceb5ab6d05851881e1fff43812b3a8b3a9651f500c9dc00165112c839ed0",
+      "uncompressedBytes": 186062,
+      "compressedBytes": 32879,
+      "partCount": 119,
+      "fitCount": 106,
+      "factoryEvidence": {
+        "baselinePowerW": 2.568108685e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 74,
+            "p": [
+              108.5,
+              61,
+              0
+            ]
+          },
+          {
+            "id": 75,
+            "p": [
+              164,
+              49.1,
+              22.5
+            ]
+          },
+          {
+            "id": 76,
+            "p": [
+              164,
+              49.1,
+              -22.5
+            ]
+          },
+          {
+            "id": 77,
+            "p": [
+              205,
+              38.3,
+              62
+            ]
+          },
+          {
+            "id": 78,
+            "p": [
+              205,
+              38.3,
+              -62
+            ]
+          },
+          {
+            "id": 79,
+            "p": [
+              212,
+              47.3,
+              47.1
+            ]
+          },
+          {
+            "id": 80,
+            "p": [
+              212,
+              47.3,
+              -47.1
+            ]
+          },
+          {
+            "id": 81,
+            "p": [
+              219.5,
+              61.6,
+              75.8
+            ]
+          },
+          {
+            "id": 82,
+            "p": [
+              219.5,
+              61.6,
+              -75.8
+            ]
+          }
+        ]
+      }
+    },
+    "munificent": {
+      "file": "munificent.json.gz",
+      "sha256": "80b267042a4ef5193af02449211b1508426e84da630c971be8a8e2725b4afd35",
+      "gzipSha256": "649e2c1b5806c7b222e06cbba13a35636e08b0a4a2396486d5028901f2d6b57d",
+      "canonicalSha256": "5628cf8d5ae6269f9b29cf62dd1ce60b302aded8ee60a9cb5f9b6c03d19c950d",
+      "uncompressedBytes": 436164,
+      "compressedBytes": 60340,
+      "partCount": 267,
+      "fitCount": 79,
+      "factoryEvidence": {
+        "baselinePowerW": 1.582382628e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 48,
+            "p": [
+              82,
+              123,
+              0
+            ]
+          },
+          {
+            "id": 49,
+            "p": [
+              82,
+              99,
+              29.708
+            ]
+          },
+          {
+            "id": 50,
+            "p": [
+              82,
+              99,
+              -29.708
+            ]
+          },
+          {
+            "id": 51,
+            "p": [
+              82,
+              74,
+              12.732
+            ]
+          },
+          {
+            "id": 52,
+            "p": [
+              82,
+              74,
+              -12.732
+            ]
+          },
+          {
+            "id": 53,
+            "p": [
+              82,
+              58,
+              7.427
+            ]
+          },
+          {
+            "id": 54,
+            "p": [
+              82,
+              58,
+              -7.427
+            ]
+          }
+        ]
+      }
+    },
+    "nebulonb": {
+      "file": "nebulonb.json.gz",
+      "sha256": "d9928e3b3a46c5e4275f5832d47b70927bb1c293b0c480520be2b8594f51048b",
+      "gzipSha256": "6577edb3db277b01d989e615eb36406f67f5d0a0736cfb889edd2e2de49625c8",
+      "canonicalSha256": "8518639c3af90b97f6f5ac63f5e352a15d9acea5454a1122265bb6fb31594aae",
+      "uncompressedBytes": 71661,
+      "compressedBytes": 15110,
+      "partCount": 73,
+      "fitCount": 10,
+      "factoryEvidence": {
+        "baselinePowerW": 3.790663462e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 46,
+            "p": [
+              0,
+              99.6,
+              -22
+            ]
+          },
+          {
+            "id": 47,
+            "p": [
+              0,
+              99.6,
+              22
+            ]
+          },
+          {
+            "id": 48,
+            "p": [
+              0,
+              99.6,
+              -9.6
+            ]
+          },
+          {
+            "id": 49,
+            "p": [
+              0,
+              99.6,
+              9.6
+            ]
+          },
+          {
+            "id": 50,
+            "p": [
+              0,
+              78.8,
+              -14.6
+            ]
+          },
+          {
+            "id": 51,
+            "p": [
+              0,
+              78.8,
+              14.6
+            ]
+          },
+          {
+            "id": 52,
+            "p": [
+              0,
+              68,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    "onager": {
+      "file": "onager.json.gz",
+      "sha256": "f8acad816eb55427a248d7bb6fb5c6d30ebe639e98763826fb4f70a59f03e655",
+      "gzipSha256": "2dd4e6fe69109e9e63a6e9e2b705b72a70bf89371ecaba639f4364e2b5f464ca",
+      "canonicalSha256": "f72671fbdd70a4146714ccc9a696e9c02decd9a353ee4d2beb5a3999c20a6aca",
+      "uncompressedBytes": 227300,
+      "compressedBytes": 34616,
+      "partCount": 261,
+      "fitCount": 50,
+      "factoryEvidence": {
+        "baselinePowerW": 2.350998326e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 39,
+            "p": [
+              4.399999999999977,
+              65.4,
+              0
+            ]
+          },
+          {
+            "id": 40,
+            "p": [
+              46,
+              65.4,
+              62
+            ]
+          },
+          {
+            "id": 41,
+            "p": [
+              46,
+              65.4,
+              -62
+            ]
+          },
+          {
+            "id": 42,
+            "p": [
+              55.69999999999999,
+              65.4,
+              108
+            ]
+          },
+          {
+            "id": 43,
+            "p": [
+              55.69999999999999,
+              65.4,
+              -108
+            ]
+          }
+        ]
+      }
+    },
+    "providence": {
+      "file": "providence.json.gz",
+      "sha256": "ecf229ef1e8484f2c621bb3513a076fda9479ac20510a70b77d762eb60b46caa",
+      "gzipSha256": "65644a508a333188355a2d2e5751683be7a6f716722c0d7a44fc27b2bc1c8da1",
+      "canonicalSha256": "d0369fa26885d6e9d03e2425accae1df94f32534b36cb601e615780cbb27d258",
+      "uncompressedBytes": 343819,
+      "compressedBytes": 61051,
+      "partCount": 87,
+      "fitCount": 113,
+      "factoryEvidence": {
+        "baselinePowerW": 3.399137065e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 28,
+            "p": [
+              10.299999999999999,
+              113.4944,
+              0
+            ]
+          },
+          {
+            "id": 29,
+            "p": [
+              18.6,
+              104.1216,
+              43.35
+            ]
+          },
+          {
+            "id": 30,
+            "p": [
+              18.6,
+              104.1216,
+              -43.35
+            ]
+          }
+        ]
+      }
+    },
+    "providenceDn": {
+      "file": "providenceDn.json.gz",
+      "sha256": "7456dc23bd573f5a8f4e3a776b33a202f5232226495f4c5e1d27d0247b91d597",
+      "gzipSha256": "c6e4b51f9d5cc498758061e2110ea534bf28f788772d927f7e45b1aaf71377ba",
+      "canonicalSha256": "4017e6708ce337f9beee846c6d81a0b4cdac02d319f93994891640edae760505",
+      "uncompressedBytes": 290034,
+      "compressedBytes": 49896,
+      "partCount": 89,
+      "fitCount": 119,
+      "factoryEvidence": {
+        "baselinePowerW": 2.724374008e+25,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 28,
+            "p": [
+              20.612780330882348,
+              227.12962485294113,
+              0
+            ]
+          },
+          {
+            "id": 29,
+            "p": [
+              37.22307904411764,
+              208.37239499999998,
+              86.75378906249999
+            ]
+          },
+          {
+            "id": 30,
+            "p": [
+              37.22307904411764,
+              208.37239499999998,
+              -86.75378906249999
+            ]
+          }
+        ]
+      }
+    },
+    "recusant": {
+      "file": "recusant.json.gz",
+      "sha256": "85316ad7d687439110b294eadeaf1c77eff610486f0179975078d1e79d21550a",
+      "gzipSha256": "83e39e879698aa4589ed3a9e532eaa5e1b83eba3b3f27ab70a6aa081cd505490",
+      "canonicalSha256": "35988b3df56059f92297ec069055e09b38e3d3b08f5b4ca1fdb903156a124f19",
+      "uncompressedBytes": 273449,
+      "compressedBytes": 43638,
+      "partCount": 154,
+      "fitCount": 76,
+      "factoryEvidence": {
+        "baselinePowerW": 2.056411737e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 20,
+            "p": [
+              58,
+              69,
+              0
+            ]
+          },
+          {
+            "id": 21,
+            "p": [
+              100,
+              35,
+              56.181000000000004
+            ]
+          },
+          {
+            "id": 22,
+            "p": [
+              100,
+              35,
+              -56.181000000000004
+            ]
+          }
+        ]
+      }
+    },
+    "recusantDn": {
+      "file": "recusantDn.json.gz",
+      "sha256": "c7fe4d4e0a094b730c4e0c0cdf43c5ddb11293351eb78a2b7db09d99d63e0ab4",
+      "gzipSha256": "c7b570585c501c4af35accb739c3199df644cbde78844ee0d630989371442ff2",
+      "canonicalSha256": "14a728791bf2e0ee1ef290290919f618e89a1937cc4cf53f5914f6161eeba186",
+      "uncompressedBytes": 548733,
+      "compressedBytes": 82352,
+      "partCount": 102,
+      "fitCount": 147,
+      "factoryEvidence": {
+        "baselinePowerW": 1.645116818e+25,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 20,
+            "p": [
+              116,
+              138,
+              0
+            ]
+          },
+          {
+            "id": 21,
+            "p": [
+              200,
+              70,
+              112.36200000000001
+            ]
+          },
+          {
+            "id": 22,
+            "p": [
+              200,
+              70,
+              -112.36200000000001
+            ]
+          }
+        ]
+      }
+    },
+    "reptransport": {
+      "file": "reptransport.json.gz",
+      "sha256": "e6ab6b1099b24a9dd3787dd1b91fb9a0c568de29b96b13d1aac09f168671db2c",
+      "gzipSha256": "d39a168977fe3c229d54ac62a18910692c2fdee8db8f4f3739ad5fdd79bdb0b2",
+      "canonicalSha256": "ab1fcf687e2022b12075a39dc84d8f2cd6a07cce2a1e9e1070fa600e2ceb9f31",
+      "uncompressedBytes": 133657,
+      "compressedBytes": 29923,
+      "partCount": 25,
+      "fitCount": 1,
+      "factoryEvidence": {
+        "baselinePowerW": 2.277535027e+21,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 11,
+            "p": [
+              0.3500000000000001,
+              8.55,
+              3.6
+            ]
+          },
+          {
+            "id": 12,
+            "p": [
+              0.3500000000000001,
+              8.55,
+              -3.6
+            ]
+          }
+        ]
+      }
+    },
+    "subjugator": {
+      "file": "subjugator.json.gz",
+      "sha256": "de91487ecc2bbec160e973c2ce8b4bbe848c24be553c05e81b58e785328d12c5",
+      "gzipSha256": "f80087357d98f53362211b4af912a68b58207a54ebfebd394a18f57c3f2924b0",
+      "canonicalSha256": "c815a57e9f1d274f8e445dcb87dbffdb931ce2332c4f39ddb3fdec759598b56d",
+      "uncompressedBytes": 1944077,
+      "compressedBytes": 233849,
+      "partCount": 113,
+      "fitCount": 1153,
+      "factoryEvidence": {
+        "baselinePowerW": 1.103463889e+26,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 59,
+            "p": [
+              321.68999999999994,
+              324.14,
+              130.41
+            ]
+          },
+          {
+            "id": 60,
+            "p": [
+              321.68999999999994,
+              324.14,
+              -130.41
+            ]
+          },
+          {
+            "id": 61,
+            "p": [
+              330.38,
+              289.36,
+              60.86
+            ]
+          },
+          {
+            "id": 62,
+            "p": [
+              330.38,
+              289.36,
+              -60.86
+            ]
+          },
+          {
+            "id": 63,
+            "p": [
+              417.31999999999994,
+              237.2,
+              139.11
+            ]
+          },
+          {
+            "id": 64,
+            "p": [
+              417.31999999999994,
+              237.2,
+              -139.11
+            ]
+          },
+          {
+            "id": 65,
+            "p": [
+              512.96,
+              202.42,
+              208.66
+            ]
+          },
+          {
+            "id": 66,
+            "p": [
+              512.96,
+              202.42,
+              -208.66
+            ]
+          },
+          {
+            "id": 67,
+            "p": [
+              587.75,
+              211.12,
+              52.17
+            ]
+          },
+          {
+            "id": 68,
+            "p": [
+              587.75,
+              211.12,
+              -52.17
+            ]
+          },
+          {
+            "id": 69,
+            "p": [
+              608.6,
+              167.64,
+              147.8
+            ]
+          },
+          {
+            "id": 70,
+            "p": [
+              608.6,
+              167.64,
+              -147.8
+            ]
+          },
+          {
+            "id": 71,
+            "p": [
+              617.29,
+              132.87,
+              43.47
+            ]
+          },
+          {
+            "id": 72,
+            "p": [
+              617.29,
+              132.87,
+              -43.47
+            ]
+          }
+        ]
+      }
+    },
+    "venator": {
+      "file": "venator.json.gz",
+      "sha256": "b97bfed0499aa325f4274ce1b0e4615fe50591a6d91db0146bd9abd92fda1181",
+      "gzipSha256": "4916b0e692a369eebcb8757ab1d2fc25c7973191661d3b3a315afd92c03e8a6a",
+      "canonicalSha256": "68696291bde2599183d76b336fad0ed7642976bf6c349531df3cd4d5fe6bd621",
+      "uncompressedBytes": 277296,
+      "compressedBytes": 48334,
+      "partCount": 269,
+      "fitCount": 59,
+      "factoryEvidence": {
+        "baselinePowerW": 3.6e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 21,
+            "p": [
+              41,
+              42,
+              -54
+            ]
+          },
+          {
+            "id": 22,
+            "p": [
+              100,
+              50,
+              -106
+            ]
+          },
+          {
+            "id": 23,
+            "p": [
+              159,
+              87,
+              -41
+            ]
+          },
+          {
+            "id": 24,
+            "p": [
+              184,
+              71,
+              -74
+            ]
+          },
+          {
+            "id": 37,
+            "p": [
+              41,
+              42,
+              54
+            ]
+          },
+          {
+            "id": 38,
+            "p": [
+              100,
+              50,
+              106
+            ]
+          },
+          {
+            "id": 39,
+            "p": [
+              159,
+              87,
+              41
+            ]
+          },
+          {
+            "id": 40,
+            "p": [
+              184,
+              71,
+              74
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

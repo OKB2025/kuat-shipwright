@@ -43,8 +43,8 @@ test('forward fixed guns do not create sideways or rearward streams, while a rea
 
 test('explicitly unarmed craft emit no lasers and empty gas suppresses laser mounts while keeping ion guns',()=>{
  const run=setup();run('craft.fireArcs=[];for(let i=0;i<60;i++)df(1/60)');assert.equal(run('trial.cbolts.length'),0);
- run("craft.systems={managed:true,laserGunShare:.5,laserAaShare:.5};craft.fireArcs=['claser','claserH','cturret','cion','htl','refVen'].map(k=>({fixed:true,dir:[1,0,0],up:[0,1,0],pos:[0,0,0],k,gun:.5,aa:.5}))");
- assert.deepEqual(plain(run("craftVisualGuns(q,craft,'aa',{laserGas:0}).map(g=>g.k)")),['cion','htl','refVen']);
+ run("craft.systems={managed:true,laserGunShare:.5,laserAaShare:.5};craft.fireArcs=['claser','claserH','cturret','ion','htl','refVen'].map(k=>({fixed:true,dir:[1,0,0],up:[0,1,0],pos:[0,0,0],k,gun:.5,aa:.5}))");
+ assert.deepEqual(plain(run("craftVisualGuns(q,craft,'aa',{laserGas:0}).map(g=>g.k)")),['ion','htl','refVen']);
 });
 
 test('pausing freezes streams and clocks and resuming cannot release a saved backlog',()=>{

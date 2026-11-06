@@ -9,10 +9,18 @@ const C=vm.runInContext('Core',context),near=(a,b,tol=1e-7)=>assert.ok(Number.is
 let built;
 function mandator(){if(!built){const ship=C.buildDesign('mandator2'),stats=C.shipRefitMeasure(ship);built={ship,stats};}return built;}
 
+test('Mandator declared battery reaches the requested main/ion salvo with the current PD calibration',()=>{
+ const ref=C.SHIP_REFERENCE.mandator2,counts=ref.batteryCounts;assert.deepEqual(JSON.parse(JSON.stringify(counts)),{utl:203,stl:44,ion:28,pd:250});
+ const volley=k=>{const d=C.fitSpec({k});return (d.tt||0)+(d.ion||0);},mainAndIon=['utl','stl','ion'].reduce((n,k)=>n+counts[k]*volley(k),0),pd=counts.pd*volley('pd');
+ near(mainAndIon,317520,1e-12);near(mainAndIon,ref.mainIonVolleyTT,1e-12);near(pd,.00005,1e-12);near(pd,ref.pointDefenseVolleyTT,1e-12);near(C.fitSpec({k:'pd'}).boltTT,1e-7,1e-15);assert.equal(C.fitSpec({k:'pd'}).barrels,2);
+});
+
 test('Mandator II derives its requested output, shield storage and exact complete salvo from physical equipment',()=>{
  const {ship,stats}=mandator(),counts=Object.fromEntries(['utl','stl','ion','pd'].map(k=>[k,ship.fits.filter(f=>f.k===k).length]));
- assert.deepEqual(counts,{utl:194,stl:81,ion:28,pd:250});
- const volley=ship.fits.filter(f=>C.FITS[f.k]?.cat==='w'&&!C.FITS[f.k].msl).reduce((n,f)=>n+(C.fitSpec(f).tt||0)+(C.fitSpec(f).ion||0),0);near(volley,317520,1e-12);near(stats.allGunVolleyTT,317520,1e-12);
+ assert.deepEqual(counts,{utl:203,stl:44,ion:28,pd:250});
+ const salvo=f=>(C.fitSpec(f).tt||0)+(C.fitSpec(f).ion||0),mainAndIon=ship.fits.filter(f=>['utl','stl','ion'].includes(f.k)).reduce((n,f)=>n+salvo(f),0),pd=ship.fits.filter(f=>f.k==='pd').reduce((n,f)=>n+salvo(f),0),volley=ship.fits.filter(f=>C.FITS[f.k]?.cat==='w'&&!C.FITS[f.k].msl).reduce((n,f)=>n+salvo(f),0);
+ near(mainAndIon,317520,1e-12);near(pd,.00005,1e-12);near(volley,317520.00005,1e-12);near(stats.allGunVolleyTT,317520.00005,1e-12);
+ for(const f of ship.fits.filter(f=>f.k==='pd')){near(C.fitSpec(f).boltTT,1e-7,1e-15);assert.equal(C.fitSpec(f).barrels,2);}
  near(stats.power,7.7e26);near(stats.shieldCapacity,7.7e27);near(stats.shieldDissipationW,184034,1e-12);
  const reactors=ship.parts.filter(C.isReactor);assert.equal(reactors.length,2);assert.equal(reactors.find(p=>p.k==='gen').d,420);assert.ok(reactors.find(p=>p.k==='aux').room,'additional output occupies a real internal auxiliary room');
  for(const reactor of reactors)near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY,1e-12);

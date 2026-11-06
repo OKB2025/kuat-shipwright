@@ -145,7 +145,7 @@
   },
   "assets": {
     "moncal_pd_triple": {
-      "title": "モン・カラマリ 3連装点防御",
+      "title": "モン・カラマリ 100kt三連装点防御",
       "kind": "fit",
       "plainMetal": true,
       "source": "User-provided annotated Mon Calamari ship drawings; parametric reconstruction",
@@ -197,8 +197,8 @@
         ]
       ],
       "barrels": 3,
-      "boltTT": 0.02,
-      "volleyTT": 0.06,
+      "boltTT": 1e-07,
+      "volleyTT": 3e-07,
       "barrelCenters": [
         {
           "label": "complete spherical gun 1",
@@ -6327,7 +6327,7 @@
         "hi": 1.5707963267948966
       },
       "dimensionEvidence": "Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale",
-      "assumption": "PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings"
+      "assumption": "Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings"
     },
     "moncal_single34": {
       "title": "モン・カラマリ 34TT単装球形砲",
@@ -12374,7 +12374,7 @@
         "hi": 1.5707963267948966
       },
       "dimensionEvidence": "Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale",
-      "assumption": "PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings"
+      "assumption": "Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings"
     },
     "moncal_single80": {
       "title": "モン・カラマリ 80TT単装球形砲",
@@ -18421,7 +18421,7 @@
         "hi": 1.5707963267948966
       },
       "dimensionEvidence": "Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale",
-      "assumption": "PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings"
+      "assumption": "Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings"
     },
     "moncal_single200": {
       "title": "モン・カラマリ 200TT単装球形砲",
@@ -24468,7 +24468,7 @@
         "hi": 1.5707963267948966
       },
       "dimensionEvidence": "Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale",
-      "assumption": "PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings"
+      "assumption": "Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings"
     },
     "moncal_triple200": {
       "title": "モン・カラマリ 200TT三連装球形砲",
@@ -30653,7 +30653,7 @@
         "hi": 1.5707963267948966
       },
       "dimensionEvidence": "Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale",
-      "assumption": "PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings"
+      "assumption": "Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings"
     },
     "moncal_single150_ion": {
       "title": "モン・カラマリ 150TT単装球形イオン砲",
@@ -36796,10 +36796,10 @@
         "hi": 1.5707963267948966
       },
       "dimensionEvidence": "Estimated from annotated ship drawings at 1300m Home One / 1200m Liberty scale",
-      "assumption": "PD bolt energy retains the existing 20GT setting; physical ball sizes estimated from drawings"
+      "assumption": "Dedicated PD fires 100 kt per barrel per shot as specified by the user; physical ball sizes estimated from drawings"
     },
     "pd_twin_side_laser": {
-      "title": "20GT 2連装側面レーザー点防御砲",
+      "title": "100kt 2連装側面レーザー点防御砲",
       "kind": "fit",
       "plainMetal": true,
       "source": "User-provided turret photograph (upper middle) and Osa-M structural reference; parametric reconstruction",
@@ -36851,8 +36851,8 @@
         ]
       ],
       "barrels": 2,
-      "boltTT": 0.02,
-      "volleyTT": 0.04,
+      "boltTT": 1e-07,
+      "volleyTT": 2e-07,
       "barrelCenters": [
         {
           "label": "complete side laser barrel -1",

@@ -25,7 +25,7 @@ test('a design without a surface ledger still has strict heat and no hidden high
 });
 test('version-one cached networks retain real sinks and finite links while removing integral and automatic sinks',()=>{
  const p=oldProfile(),before=plain(p.heat),H=C.heatProfile(p);
- assert.equal(H.v,2);assert.equal(H.mode,'strict');assert.deepEqual(plain(H.dis.map(d=>d.k)),['hdis']);
+ assert.equal(H.v,3);assert.equal(H.mode,'strict');assert.deepEqual(plain(H.dis.map(d=>d.k)),['hdis']);
  assert.deepEqual(plain(H.ln),[{s:1,d:0,cap:100,sec:-1}]);assert.equal(H.dis[0].m,2);assert.equal(H.dis[0].power,20);assert.deepEqual(plain(p.heat),before,'migration does not rewrite the saved snapshot');
  const alias=oldProfile();alias.heat.links=alias.heat.ln;delete alias.heat.ln;assert.equal(C.heatProfile(alias).src,alias.heat.src,'older path spellings preserve source groups and their local heat state');assert.equal(C.heatProfile(alias).ln.length,1);
  const unrated=oldProfile();delete unrated.heat.dis[2].power;near(C.heatProfile(unrated).dis[0].power,100*C.HEAT.disPowerK.hdis,'missing old input rating uses the physical catalog coefficient');
@@ -44,10 +44,10 @@ test('removing real cooling or cutting its power cannot revive cached compatibil
  }
 });
 test('a current-numbered cached network cannot smuggle integral sinks or unbound dissipators into runtime',()=>{
- const p=oldProfile({cooler:false});p.heat.v=2;p.heat.mode='strict';p.heat.dis.push({k:'hdis',cap:1e30,power:0,m:-1,g:'high'});p.heat.ln.push({s:1,d:2,cap:1e30});
+ const p=oldProfile({cooler:false});p.heat.v=3;p.heat.mode='strict';p.heat.dis.push({k:'hdis',cap:1e30,power:0,m:-1,g:'high'});p.heat.ln.push({s:1,d:2,cap:1e30});
  const H=C.heatProfile(p);assert.equal(H.dis.length,0);assert.equal(H.ln.length,0);
 });
 test('table-only old profiles get no automatic high-grade cooling even for superweapons',()=>{
  const p=oldProfile({cooler:false});delete p.heat;p.modules=p.modules.filter(m=>m.k!=='dissipator');p.sw=[{k:'sbeam',r:1,mod:-1,Pshare:1,chargeT:10}];
- const H=C.heatProfile(p);assert.equal(H.v,2);assert.equal(H.mode,'strict');assert.ok(H.src.some(s=>s.k==='sw'));assert.ok(H.dis.every(d=>d.k==='skin'));assert.ok(H.ln.every(l=>H.src[l.s].g==='low'));
+ const H=C.heatProfile(p);assert.equal(H.v,3);assert.equal(H.mode,'strict');assert.ok(H.src.some(s=>s.k==='sw'));assert.ok(H.dis.every(d=>d.k==='skin'));assert.ok(H.ln.every(l=>H.src[l.s].g==='low'));
 });

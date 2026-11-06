@@ -1,0 +1,347 @@
+{
+  "schemaVersion": 1,
+  "state": "PASS",
+  "scope": "Selected feature regressions; this is not a claim that every repository test passes.",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "architecture": "x64"
+  },
+  "selectedFileCount": 88,
+  "workers": 2,
+  "startedAt": "2026-11-06T08:41:38.629Z",
+  "finishedAt": "2026-11-06T08:52:53.852Z",
+  "elapsedMs": 675223,
+  "sourceStable": true,
+  "counts": {
+    "tests": 682,
+    "pass": 682,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "runs": [
+    {
+      "name": "Selected 88-file feature regression set",
+      "files": [
+        "tests/named-example-armament.cjs",
+        "tests/example-weapon-families.cjs",
+        "tests/example-point-defense-stations.cjs",
+        "tests/recusant-munificent-guns.cjs",
+        "tests/ship-systems-refit.cjs",
+        "tests/weapon-feed-manual-capacity.cjs",
+        "tests/ship-thermal-refit.cjs",
+        "tests/ship-runtime-refresh.cjs",
+        "tests/ship-engineering-pass.cjs",
+        "tests/empty-surface-ledger.cjs",
+        "tests/saved-link-limit.cjs",
+        "tests/fighter-interiors.cjs",
+        "tests/fighter-propulsion-planning.cjs",
+        "tests/internal-component-bounds.cjs",
+        "tests/craft-cost-parity.cjs",
+        "tests/turret-slope-support-core.cjs",
+        "tests/turret-slope-support-render.cjs",
+        "tests/fleet-profile-refresh.cjs",
+        "tests/connected-power-residual.cjs",
+        "tests/propulsion-model.cjs",
+        "tests/propulsion-power-heat.cjs",
+        "tests/propulsion-source-heat.cjs",
+        "tests/propulsion-geometry.cjs",
+        "tests/propulsion-surface-power.cjs",
+        "tests/thermal-strict-only.cjs",
+        "tests/direct-thermal-wing-core.cjs",
+        "tests/craft-example-systems.cjs",
+        "tests/gunnery-accuracy.cjs",
+        "tests/capital-turret-trial.cjs",
+        "tests/fleet-gun-projectiles.cjs",
+        "tests/i18n-lazy-catalog.cjs",
+        "tests/surface-systems-localization.cjs",
+        "tests/missile-launcher-clearance.cjs",
+        "tests/missile-launcher-geometry.cjs",
+        "tests/missile-launcher-migration.cjs",
+        "tests/missile-launcher-orphan.cjs",
+        "tests/missile-launcher-range.cjs",
+        "tests/missile-launcher-runtime.cjs",
+        "tests/missile-launcher-trial.cjs",
+        "tests/missile-launcher-ui.cjs",
+        "tests/ship-launcher-core.cjs",
+        "tests/ship-launcher-render.cjs",
+        "tests/ship-launcher-ui.cjs",
+        "tests/engine-core-transmission.cjs",
+        "tests/engine-core-snapshot.cjs",
+        "tests/engine-core-render.cjs",
+        "tests/electrical-transmission-loss.cjs",
+        "tests/electrical-feed-heat.cjs",
+        "tests/engine-transmission.cjs",
+        "tests/propulsion-editor-ui.cjs",
+        "tests/propulsion-copy-ui.cjs",
+        "tests/engine-edit-scheduling.cjs",
+        "tests/lossy-cooling-reservation.cjs",
+        "tests/engine-audit-geometry.cjs",
+        "tests/engine-electrical-seams.cjs",
+        "tests/propulsion-motion.cjs",
+        "tests/engine-source-pole.cjs",
+        "tests/dual-purpose-weapons.cjs",
+        "tests/fighter-laser-arcs.cjs",
+        "tests/fighter-laser-visuals.cjs",
+        "tests/fighter-pilot-damage.cjs",
+        "tests/fighter-pilot-guns.cjs",
+        "tests/ion-barrel-style.cjs",
+        "tests/ship-example-catalog.cjs",
+        "tests/trial-craft-systems.cjs",
+        "tests/turret-shared-paint.cjs",
+        "tests/weapon-flush-bounds-core.cjs",
+        "tests/weapon-output-sizing.cjs",
+        "tests/weapon-pedestal-ui.cjs",
+        "tests/aircraft-ion-retirement.cjs",
+        "tests/corvette-stl-provenance.cjs",
+        "tests/cturret-aa-trial.cjs",
+        "tests/fighter-shot-energy.cjs",
+        "tests/heavy-laser-aa-trial.cjs",
+        "tests/small-weapons-ui.cjs",
+        "tests/weapon-shot-calibration.cjs",
+        "tests/load-sizes.cjs",
+        "tests/fighter-weapon-funding.cjs",
+        "tests/venator-side70.cjs",
+        "tests/engine-body-shape.cjs",
+        "tests/catalog-max-performance-ui.cjs",
+        "tests/fleet-orders-localization.cjs",
+        "tests/hull-structure.cjs",
+        "tests/primitive-editable-topology.cjs",
+        "tests/vertex-polygon-ui.cjs",
+        "tests/structure-copy-placement.cjs",
+        "tests/ship-example-blueprint-sources.cjs",
+        "tests/hull-bay-render.cjs"
+      ],
+      "nodeArguments": [
+        "--test",
+        "--test-concurrency=2",
+        "--test-reporter=tap"
+      ],
+      "elapsedMs": 673494,
+      "exitCode": 0,
+      "signal": null,
+      "counts": {
+        "tests": 677,
+        "pass": 677,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "tap": {
+        "sha256": "57fb50a8730e38de0f1d648ba998bce8ee9a9437d905ea1557715caf4622f492",
+        "bytes": 169685
+      }
+    },
+    {
+      "name": "Mandator requested main/ion and calibrated PD battery plus finite shield processing",
+      "files": [
+        "tests/mandator-example-refit.cjs"
+      ],
+      "nodeArguments": [
+        "--test",
+        "--test-concurrency=2",
+        "--test-reporter=tap",
+        "--test-name-pattern=Mandator declared battery|explicit finite shield dissipation|shield processing follows"
+      ],
+      "elapsedMs": 499,
+      "exitCode": 0,
+      "signal": null,
+      "counts": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "tap": {
+        "sha256": "edae12630dbfe74dd4a7c48f6063086bd650e9bf1259b696c8519ef82038899e",
+        "bytes": 881
+      }
+    },
+    {
+      "name": "Finite powered custom attack and typed zero-source attack",
+      "files": [
+        "tests/fighter-attack-runs.cjs"
+      ],
+      "nodeArguments": [
+        "--test",
+        "--test-concurrency=2",
+        "--test-reporter=tap",
+        "--test-name-pattern=user-designed fighter|unpowered typed fighter"
+      ],
+      "elapsedMs": 1126,
+      "exitCode": 0,
+      "signal": null,
+      "counts": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "tap": {
+        "sha256": "e67018b25140b6b898d471d83dcd3b93c41315d07a01278f8aa14dd9ba218af4",
+        "bytes": 604
+      }
+    }
+  ],
+  "sourceVerification": {
+    "algorithm": "SHA-256",
+    "manifestEncoding": "UTF-8 JSON object with repository-relative keys sorted lexicographically by UTF-16 code units",
+    "coveredRepositoryInputs": 258,
+    "manifestSha256": "945f6609968fb0c8a418a6c4e92cc662fdd46466991bc003727d3689b5610c81",
+    "manifestSha256After": "945f6609968fb0c8a418a6c4e92cc662fdd46466991bc003727d3689b5610c81",
+    "enumeratedTrees": [
+      "js",
+      "data",
+      "assets/source",
+      "scripts",
+      "tests/helpers"
+    ],
+    "additionalInputs": "Selected tests, the separately selected Mandator and fighter attack files, index.html, and the final ship example audit.",
+    "changedRepositoryInputs": [],
+    "criticalSha256": {
+      "js/core.js": "2421016520b2a2eee5f0d000d52cf5ade8c5399d3e0c8470857356abc490f230",
+      "js/app.js": "8a9862f36d02f47219eccc25e5846b59576662e67926c6ca27f21d4a5ae3b155",
+      "js/gfx.js": "7e657919f925c7c9928e65aa61b8896d3c5c726fa581caaf6024790c82e01dea",
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+      "index.html": "a4fe467a14ed8da8c1d8b1e49353654d1e699089312842401af80c99326d40c3",
+      "docs/benchmarks/ship-examples-after.json": "ff0931f5e12a4180f0139bbe910bace442c2d578ef47b289385037b260e08a93",
+      "scripts/update-ship-examples.cjs": "97c40b39084ba48c06875da4d39abbba09116e2769b9b91afe1e6839bcbb77da",
+      "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2",
+      "scripts/audit-ship-examples.cjs": "95fa7c6b7222a7a0a315fc9a59bbf3bd5d0466ec0e8026d49d37e71ac7a180ea",
+      "scripts/audit-engine-transmission.cjs": "b0bf02b5d99583ac99c63fd5e071b166a42d9c6db8651080a3ac019355f3c02b",
+      "assets/source/ship-example-blueprints/manifest.json": "5a6c37e355f5d0d97ef3618cbb9323336600ea991b56b69f3d248a50bd9bb195",
+      "assets/source/current-factory-blueprints/manifest.json": "18841fb0fadca19f3d43379497fe064cb8e235ecf24217fa181bd2646cf0b107"
+    },
+    "harnessSha256": {
+      "kuat-fighter-attack-baseline-evidence.json": "ce33d1305e9fb9c797da565c8eac7b8a8bcae60b249188756e8a348f36db84cc",
+      "kuat-v12-run-guarded.cjs": "4c9bd842ee56fc2b7ac153716103b280e22ae354e6e2319b4667ea0b4bb8356e",
+      "kuat-v12-test-files.json": "f64df06da7ade7ba3212d69fa1041eb08b8d9a469edecce92035685799794ac8"
+    },
+    "harnessSha256After": {
+      "kuat-fighter-attack-baseline-evidence.json": "ce33d1305e9fb9c797da565c8eac7b8a8bcae60b249188756e8a348f36db84cc",
+      "kuat-v12-run-guarded.cjs": "4c9bd842ee56fc2b7ac153716103b280e22ae354e6e2319b4667ea0b4bb8356e",
+      "kuat-v12-test-files.json": "f64df06da7ade7ba3212d69fa1041eb08b8d9a469edecce92035685799794ac8"
+    }
+  },
+  "knownBaseline": {
+    "baselineCommit": "4cb1fc63789e5b5f105f7332e995bede0915ceec",
+    "scope": "The five unchanged stock TIE movement/return cases; the separately powered custom-fighter branch is not selected.",
+    "counts": {
+      "tests": 5,
+      "pass": 0,
+      "fail": 5
+    },
+    "failureNames": [
+      "a natural bow attack shoots while moving, passes the hull and returns after a finite gun-only sortie",
+      "above and below attack runs leave along the hull on their original safe side",
+      "an attack that misses its firing window still clears the target and returns",
+      "an explicit recall stops firing and docks through the carrier mouth",
+      "a fighter initially facing exactly away turns around without a zero heading or zero-speed deadlock"
+    ],
+    "sourceSha256": {
+      "js/core.js": "e6ae9edba2eb13c80c32c0b84ee058ebf290fa0783d9e5437af01681dfae31e5",
+      "data/reference.js": "ab4c2477593dc90d7db474381854d8a6ec6202fd5790fd33520e023f83e1fd8a",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "data/fleet.js": "5018aa46ff7425aa5630439d8640634257ba1cc615ebfa29ed8fef229e657ba4"
+    },
+    "logSha256": "c7aa11d327f815e11fc1c16bf0076b5ff36fcdd8d628a18301b4bcda1e369c09",
+    "reproduction": {
+      "environment": {
+        "KS_TEST_ROOT": "Path to an unchanged export of baselineCommit"
+      },
+      "nodeArguments": [
+        "--test",
+        "--test-name-pattern=natural bow|above and below|misses its firing|explicit recall|initially facing",
+        "tests/fighter-attack-runs.cjs"
+      ]
+    },
+    "exclusionReason": "These five unchanged stock TIE movement/return failures also reproduce at the baseline commit and are excluded from the passing selection; this report does not claim every repository test passes.",
+    "diagnostic": {
+      "file": "docs/benchmarks/fighter-attack-motion-diagnostic.json",
+      "sha256": "3ae59274fe40dbc8f2a94eb83d19d01b83821328e6eb2d394911922ceda42713",
+      "historicalWorkingTreeDiagnostic": true,
+      "sourceSha256": {
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/fleet.js": "36eda442eea53461a629ff532abb2746e6c1ac7f18a1f8ab51aee29c98f2a753",
+        "js/core.js": "8b1cf485a81cc60aa56c0f617edd2b5333e47154ababddd32ae3cb23c7709f7a"
+      },
+      "scope": "The five existing stock TIE attack/return test failures; no controller or test assertions were changed. This is an immutable working-tree snapshot, not a claim of a full repository test pass."
+    },
+    "currentRuntimeVerification": {
+      "scope": "Full unchanged fighter attack test file on the final frozen Core, generated fleet and loader inputs; known baseline failures are reported separately from the selected passing regression set.",
+      "nodeArguments": [
+        "--test",
+        "--test-reporter=tap",
+        "tests/fighter-attack-runs.cjs"
+      ],
+      "sourceStable": true,
+      "sourceSha256": {
+        "js/core.js": "2421016520b2a2eee5f0d000d52cf5ade8c5399d3e0c8470857356abc490f230",
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+        "index.html": "a4fe467a14ed8da8c1d8b1e49353654d1e699089312842401af80c99326d40c3",
+        "tests/fighter-attack-runs.cjs": "47e3bdaa34177fa1e5ea924160e48813d417d6797ffb234601ef624f3bdae727"
+      },
+      "counts": {
+        "tests": 8,
+        "pass": 3,
+        "fail": 5,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "remainingFailureNames": [
+        "a natural bow attack shoots while moving, passes the hull and returns after a finite gun-only sortie",
+        "above and below attack runs leave along the hull on their original safe side",
+        "an attack that misses its firing window still clears the target and returns",
+        "an explicit recall stops firing and docks through the carrier mouth",
+        "a fighter initially facing exactly away turns around without a zero heading or zero-speed deadlock"
+      ],
+      "tapSha256": "72b73e6863c64e59a34abee28d2fc14fa930dae0235004226ad8acdc3b760514",
+      "elapsedMs": 3680,
+      "sameFiveBaselineFailuresRemain": true
+    }
+  },
+  "postRunFormattingVerification": {
+    "scope": "After the complete guarded run, remove exactly one extra trailing newline from each of two test files so staged diff checks pass. No executable test tokens or runtime inputs changed. Original guarded hashes/counts remain recorded above; the final two files were rerun separately.",
+    "changes": [
+      {
+        "file": "tests/engine-body-shape.cjs",
+        "beforeSha256": "4c1ca08f48a3afacff5ceba0d0ce316dd91da8983d05cc4dd082d52e7835b1ce",
+        "afterSha256": "ef314d5f8af15fb7a29d444346d401b4cff9c53535788cebc9ec5cb576808914",
+        "removedTrailingNewlines": 1,
+        "onlyTrailingBlankLinesChanged": true
+      },
+      {
+        "file": "tests/engine-source-pole.cjs",
+        "beforeSha256": "eab73a337509647ec0543bcbfb51caa371b73f02dfb9d94383abd80e00ffb265",
+        "afterSha256": "84f60c8894af0515eaaa8bf71311b67166b0482a8b6098e7e1c22baa61a2715e",
+        "removedTrailingNewlines": 1,
+        "onlyTrailingBlankLinesChanged": true
+      }
+    ],
+    "runtimeInputsUnchanged": true,
+    "rerun": {
+      "nodeArguments": [
+        "--test",
+        "--test-reporter=tap",
+        "tests/engine-body-shape.cjs",
+        "tests/engine-source-pole.cjs"
+      ],
+      "counts": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "tapSha256": "2263ba4cd02f3ddd646c82b2f342c9eb55036ceec1d604915c81fdc5a8a8fdfa"
+    }
+  }
+}

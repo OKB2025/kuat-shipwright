@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..'));
 function runtime(){const cx=vm.createContext({console});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});return vm.runInContext('({C:Core,R:Rts,D:YardFleetData.designs})',cx);}
 function fixture(approach='bow',craft='tie_ln'){
- const {C,R,D}=runtime();if(craft==='custom')craft=R.registerDesignCraft({name:'User fighter',dims:[9,7,3],craft:{role:'fighter',speed:1600,aa:1,gun:10,strike:10,armor:1,crew:1,mass:7,cost:10000,stations:[],load:[],fireArcs:[{fixed:true,dir:[1,0,0],up:[0,1,0],pos:[2,0,0],k:'claser',gun:1,aa:1,cycle:.1}]}});
+ const {C,R,D}=runtime();if(craft==='custom'||craft==='custom-unpowered'){const powered=craft==='custom',power=powered?JSON.parse(JSON.stringify(C.CRAFT_PRICE_CATALOG.entries.tie_ln.powerProfile)):null;if(powered)assert.ok(power.grid.P>0&&power.propulsion.massKg>0&&power.propulsion.engines.length>0,'the designed aircraft carries the measured finite stock plant rather than a numeric movement fallback');craft=R.registerDesignCraft({name:powered?'User fighter':'Unpowered typed fighter',dims:[9,7,3],craft:{role:'fighter',speed:1600,speedMode:'ship',aa:1,gun:10,strike:10,armor:1,crew:1,mass:power?power.propulsion.massKg/1000:7,...(power?{accelG:power.propulsion.ratedAccelMps2/C.G0,powerProfile:power}:{}),cost:10000,stations:[],load:[],fireArcs:[{fixed:true,dir:[1,0,0],up:[0,1,0],pos:[2,0,0],k:'claser',gun:1,aa:1,cycle:.1}]}});}
  const designs=['mc80home','imperial'].map(k=>JSON.parse(JSON.stringify(D[k]))),w=R.createWorld({mode:'test',sensors:false,region:'kuat',seed:13,designs,sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mc80home',air:[{craft,n:4}]}],[{design:'imperial',air:[]}]]});
  const home=[...w.units.values()].find(u=>u.side===0),target=[...w.units.values()].find(u=>u.side===1),wing=[...w.wings.values()].find(x=>x.side===0),s=w.squads.get(wing.squads[0]);
  target.sys=home.sys;w.groups.get(target.group).sys=home.sys;target.pos=[0,0,0];target.yaw=0;home.pos=[-22000,0,-12000];home.yaw=0;
@@ -51,4 +51,8 @@ test('a user-designed fighter follows a moving target through a stern pass and s
 test('loss of the target ends the attack and loss of its carrier does not strand a hovering attacker',()=>{
  const targetLost=fixture();advance(targetLost,4);targetLost.target.dead=true;advance(targetLost,2);assert.notEqual(targetLost.s.state,'out');assert.ok(!(targetLost.s.strafeT>targetLost.w.time));
  const carrierLost=fixture();advance(carrierLost,4);carrierLost.home.dead=true;advance(carrierLost,2);assert.equal(carrierLost.s.state,'lost');assert.equal(carrierLost.s.n,0);
+});
+
+test('an unpowered typed fighter cannot fire during an otherwise valid attack window',()=>{
+ const f=fixture('bow','custom-unpowered');let window=false;advance(f,20,()=>{if(f.C.len(f.C.sub(f.s.pos,f.target.pos))<Math.max(3000,f.target.p.len*.6+2200)&&f.R.squadFireArc(f.s,f.target)>0)window=true;});assert.ok(window,'the drifting aircraft actually reaches a bearing firing window');assert.equal(f.s.weaponPowerK,0);assert.equal(f.s.dmg||0,0);assert.equal(f.w.craftRuns?.some(r=>r.sq===f.s.id&&r.ord?.length===0)||false,false,'missing source power cannot emit a typed laser run');
 });

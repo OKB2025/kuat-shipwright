@@ -39,7 +39,7 @@ function noPedestal(f){assert.equal(f.ped,0);assert.equal(f.base,0);assert.equal
 test('new weapon placement starts at zero lift, and fixed or missile mounts never expose lift controls',()=>{
  const run=setup();assert.equal(run('st.ped'),0,'read the actual default state, rather than a test-supplied default');
  assert.match(run('fitPedestalControls()'),/data-sl="ped"[^>]*value="0"/);
- for(const k of ['claser','claserH','cion','ctorp','cmsl','msl']){
+ for(const k of ['claser','claserH','ctorp','cmsl','msl']){
   assert.ok(C.FITS[k],k);
   run(`st.fit=${JSON.stringify(k)}`);assert.match(run('fitPedestalControls()'),/取付面に直接/);assert.doesNotMatch(run('fitPedestalControls()'),/data-(sl="ped|pedshape)/);
   run('st.ped=12;st.pedShape="trap";st.pedSize=2;install()');noPedestal(plain(run('selItem()')));

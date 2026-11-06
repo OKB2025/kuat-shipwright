@@ -240,14 +240,22 @@ test('a blueprint owns cached engine ratings and machinery dimensions', () => {
   const clean=C.cleanCraftPowerProfile(p,C.serialize(ship)),engine=clean.propulsion.engines[0];
   assert.equal(engine.ratedInputW,1e18);
   assert.equal(engine.machineryLengthM,2);assert.equal(engine.machineryRadiusM,1);
-  assert.equal(clean.propulsion.ratedAccelMps2,500);
+  const actualMassKg=C.computeStats(C.deserialize(plain(C.serialize(ship)))).mass*1000;
+  assert.equal(clean.propulsion.massKg,Math.max(p.propulsion.massKg,actualMassKg));
+  assert.equal(clean.propulsion.ratedAccelMps2,(1e18/2e9)/clean.propulsion.massKg);
   assert.equal(engine.available,false,'an old cached source cannot power a blueprint without its reactor');
   const offline=C.fleetUnit('cached-offline','cached-offline',clean);
   C.allocateShipPower(offline,C.fleetSystems(offline),{throttle:1},.25);
   assert.equal(offline.propulsion.actualInputW,0);
   ship.parts[0].feedCapacityW=2e17;
+  assert.equal(C.cleanCraftPowerProfile(p,C.serialize(ship)).propulsion.engines[0].pathCapacityW,0,'a saved limit cannot create a circuit without its reactor');
+  Object.assign(ship.hull,{sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1});
+  Object.assign(ship.parts[0],{c:[.5,4,0],reactor:1,busFeed:true});
+  ship.parts.push({id:1,k:'gen',c:[25,4,0],d:2});
+  ship.links=[{kind:'power',from:'p1',to:'p2',cap:1e18}];
   const limited=C.cleanCraftPowerProfile(p,C.serialize(ship));
-  assert.equal(limited.propulsion.engines[0].pathCapacityW,2e17,'the saved blueprint owns its finite feed limit');
+  const route=C.engineTransmission(ship).routes.find(r=>r.to==='p2'),receivedLimit=2e17*Math.exp(-1e-5*route.length);
+  assert.ok(Math.abs(limited.propulsion.engines[0].pathCapacityW-receivedLimit)<=receivedLimit*1e-12,'the saved blueprint owns its finite received feed limit after actual conductor loss');
 });
 
 test('aircraft shields and guns share the current finite plant with propulsion', () => {
@@ -264,12 +272,15 @@ test('aircraft shields and guns share the current finite plant with propulsion',
 
 test('aircraft foil deployment controls the connected local cooling capacity', () => {
   const p=profile();p.foils=[{id:1,n:'foil',T:1,sec:-1,jam:0}];
-  const H=plain(C.heatProfile(p));H.dis=[{id:'foil',n:'foil',k:'dissipator',g:'high',cap:1e17,m:-1,sec:-1,src:-1,fo:0,cs:.1}];
+  // Strict cooling needs a real, powered device even when its exposure follows a foil.
+  const coolingW=1e17*C.HEAT.disPowerK.hdis;p.modules.push({k:'dissipator',part:3,port:'p3',name:'Foil cooler',share:1,size:1,domain:'main',powerConnected:true});
+  p.grid.fixed=p.grid.cooling=coolingW;p.grid.powerPaths=[{from:'p1',to:'p2',cap:1e18,ok:true},{from:'p1',to:'p3',cap:coolingW,ok:true}];
+  const H=plain(C.heatProfile(p));H.dis=[{id:'p3',n:'foil',k:'hdis',g:'high',cap:1e17,power:coolingW,m:2,sec:-1,src:-1,fo:0,cs:.1}];
   H.ln=H.src.map((_,s)=>({s,d:0,cap:1e17,sec:-1}));p.heat=H;
   for(const foil of [0,1]){
     const key='motionFoil'+foil;R.CRAFT[key]={name:key,role:'fighter',speed:1000,powerProfile:plain(p)};
     const s={id:key,craft:key,side:0,h:[1,0,0],pos:[0,0,0],vel:[0,0,0],foil};
-    R.squadPropulsion(s,1,0);C.heatTick(null,s.drive,.25,.25);
+    R.squadPropulsion(s,1,0);C.allocateShipPower(s.drive,C.fleetSystems(s.drive),{throttle:1,shields:0,weapons:0},.25,'balanced');C.heatTick(null,s.drive,.25,.25);
     assert.equal(s.drive.fo.d[0],foil);assert.equal(s.drive.ht.cap,foil?1e17:1e16);
   }
   assert.equal(C.cleanCraftPowerProfile(p).foils.length,1);

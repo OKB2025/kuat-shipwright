@@ -3,7 +3,7 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),con
 for(const p of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,p),'utf8'),context,{filename:p});
 const {C,R}=vm.runInContext('({C:Core,R:Rts})',context),plain=v=>JSON.parse(JSON.stringify(v));
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
-function custom(arcs){const snapshot={name:'Directional craft',dims:[12,9,3],craft:{role:'fighter',speed:2000,aa:1,strike:20,gun:20,armor:1,crew:1,fireArcs:arcs}};return R.registerDesignCraft(snapshot);}
+function custom(arcs){const snapshot={name:'Directional craft',dims:[12,9,3],craft:{role:'fighter',speed:2000,accelG:3700,aa:1,strike:20,gun:20,armor:1,crew:1,fireArcs:arcs}};return R.registerDesignCraft(snapshot);}
 const fixed=(dir,gun=1,aa=gun)=>({fixed:true,dir,up:[0,1,0],gun,aa,cycle:.12});
 
 test('stock and legacy fighter batteries only fire within the forward barrel cone',()=>{
@@ -63,7 +63,7 @@ test('a live custom aircraft carries its actual fitted barrel directions into an
 });
 
 test('an exhausted forward laser cannot borrow an aft ion cannon share of damage',()=>{
- const key=custom([{...fixed([1,0,0],.75,.8),k:'claser'},{...fixed([-1,0,0],.25,.2),k:'cion'}]),craft=R.CRAFT[key];craft.systems={managed:true,laserUnits:1,laserGunShare:.6,laserAaShare:.8};
+ const key=custom([{...fixed([1,0,0],.75,.8),k:'claser'},{...fixed([-1,0,0],.25,.2),k:'ion'}]),craft=R.CRAFT[key];craft.systems={managed:true,laserUnits:1,laserGunShare:.6,laserAaShare:.8};
  const s={craft:key,pos:[0,0,0],h:[1,0,0],laserGas:0};
  for(const mode of ['gun','aa']){near(R.squadFireArc(s,[1000,0,0],mode),0);near(R.squadFireArc(s,[-1000,0,0],mode),1);near(R.squadFireArc(s,[-1000,0,0],mode)*R.squadLaserK(s,mode),mode==='aa'?.2:.4);}
  s.laserGas=2;near(R.squadFireArc(s,[1000,0,0]),.75);near(R.squadFireArc(s,[-1000,0,0]),.25);

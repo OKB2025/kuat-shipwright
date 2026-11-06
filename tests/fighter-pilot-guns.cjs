@@ -8,7 +8,7 @@ const C=Core,G=Gfx,TT_J=C.TT,trial={},notices=[],sounds=[];
 Math.random=()=>.5;
 let aimPoint=[10000,0,0],salvo=null;
 const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
-const toast=s=>notices.push(s),trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialThreats=()=>[],trialPowerStep=()=>{},trialSalvoPlan=()=>salvo,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],sndAt=(...a)=>sounds.push(a),sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'';
+const toast=s=>notices.push(s),trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialPowerStep=()=>{},trialSalvoPlan=()=>salvo,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],sndAt=(...a)=>sounds.push(a),sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'';
 function makeFit(k='claser',extra={}){return {id:1,k,p:[0,0,0],a:2,ped:0,base:0,low:0,float:false,...extra};}
 function stateFromFit(f){
  const ship=C.newShip({L:12,W:8,H:4,assembly:true});ship.parts=[];ship.fits=[f];
@@ -17,14 +17,15 @@ function stateFromFit(f){
 }
 function reset(k='claser',extra={}){
  notices.length=0;sounds.length=0;aimPoint=[10000,0,0];salvo=null;
- Object.assign(trial,{on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+ Object.assign(trial,{on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],emitted:[],seenBolts:new WeakSet(),missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  trial.turrets=[stateFromFit(makeFit(k,extra))];trialCraftSystemsReset();
 }
-function advance(duration,dt=.001){for(let i=0;i<Math.round(duration/dt);i++)trialGunnery(dt);}
+function advance(duration,dt=.001){for(let i=0;i<Math.round(duration/dt);i++){trialGunnery(dt);for(const b of trial.bolts)if(!trial.seenBolts.has(b)){trial.seenBolts.add(b);trial.emitted.push(b);}}}
 `);
 section('const tv=','function trialProfile(');
 section('const TRIAL_PILOT_CYCLE=','// opts.design');
-section('const trialBarrel=','function trialAim(');
+section('function authoredTurretPose(','function trialAim(');
+section('const TRIAL_PD=','// Small craft and missiles a pilot');
 section('function trialCraftSystemsSpec()','function trialReset()');
 section('function trialShotGeometry(','// Missiles leave');
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`),vector=(a,b)=>a.forEach((x,i)=>near(x,b[i]));
@@ -46,17 +47,17 @@ test('side-mounted and sloped fixed guns use the model frame instead of an assum
  }
 });
 
-test('rapid pilot pulses conserve sustained energy and gas instead of multiplying weapon power',()=>{
- run('reset();const energy0=trial.energy.E;advance(6);const fast={shots:trial.gun.shots,energy:energy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,cycle:trial.turrets[0].cycle,power:trial.turrets[0].power,costK:trial.turrets[0].costK}');
+test('each pilot pulse retains its 2 kt shot energy and gas cost when the firing cadence changes',()=>{
+ run('reset();trial.energy.E=1e-5;const energy0=trial.energy.E;advance(6);const fast={shots:trial.gun.shots,energy:energy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,cycle:trial.turrets[0].cycle,power:trial.turrets[0].power,costK:trial.turrets[0].costK,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0),hitScales:trial.emitted.map(b=>b.hitScale)}');
  const fast=plain(run('fast'));assert.ok(fast.cycle>=.08&&fast.cycle<=.18);assert.ok(fast.shots>=40,'rapid stream needs at least forty pulses in six seconds');
- near(fast.energy,fast.shots*fast.power*fast.cycle*fast.costK/Number(run('TT_J')),Math.max(1e-8,fast.energy*1e-10));near(fast.gas,fast.shots*fast.cycle,1e-8);
- run('reset();trial.turrets[0].cycle=.6;const slowEnergy0=trial.energy.E;advance(6);const slow={shots:trial.gun.shots,energy:slowEnergy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds}');
- const slow=plain(run('slow'));assert.ok(fast.shots>=slow.shots*4);assert.ok(Math.abs(fast.energy/slow.energy-1)<.08);assert.ok(Math.abs(fast.gas/slow.gas-1)<.08);
+ near(fast.energy,fast.shots*2e-9*fast.costK,fast.energy*1e-9);near(fast.boltEnergy,fast.shots*2e-9,fast.boltEnergy*1e-10);assert.ok(fast.hitScales.every(k=>k===1),'physical shots are not diluted by a former reference cycle');near(fast.gas,fast.shots*Number(run('C.FITS.claser.cycle')),1e-8);
+ run('reset();trial.energy.E=1e-5;trial.turrets[0].cycle=.6;const slowEnergy0=trial.energy.E;advance(6);const slow={shots:trial.gun.shots,energy:slowEnergy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0)}');
+ const slow=plain(run('slow'));assert.ok(fast.shots>=slow.shots*4);near(slow.energy,slow.shots*2e-9*fast.costK,slow.energy*1e-9);near(slow.boltEnergy,slow.shots*2e-9,slow.boltEnergy*1e-10);near(slow.gas,slow.shots*Number(run('C.FITS.claser.cycle')),1e-8);near(fast.energy/slow.energy,fast.shots/slow.shots,1e-7);near(fast.gas/slow.gas,fast.shots/slow.shots,1e-7);
 });
 
 test('normal and coarse frame steps keep the pulse stream steady without saving up idle shots',()=>{
  const samples=[];
- for(const dt of [.016,.04,.1]){context.dt=dt;run('reset();advance(8,dt)');samples.push(plain(run('({shots:trial.gun.shots,energy:1000-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds})')));}
+ for(const dt of [.016,.04,.1]){context.dt=dt;run('reset();trial.energy.E=1e-5;advance(8,dt)');samples.push(plain(run('({shots:trial.gun.shots,energy:1e-5-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds})')));}
  for(const sample of samples){assert.ok(sample.shots>=60);assert.ok(Math.abs(sample.shots-samples[0].shots)<=1);assert.ok(Math.abs(sample.energy/samples[0].energy-1)<.03);assert.ok(Math.abs(sample.gas/samples[0].gas-1)<.03);}
  run('reset();advance(1,.04);trial.fire=false;advance(10,.1);const idleCount=trial.gun.shots;trial.fire=true;trialGunnery(.1)');assert.ok(run('trial.gun.shots-idleCount')<=1,'releasing the trigger must not accumulate firing debt');
  run('reset();trial.energy.E=0;advance(10,.1);trial.energy.E=1000;trialGunnery(.04)');assert.ok(run('trial.gun.shots')<=1,'power starvation must not accumulate a backlog of pulses');
@@ -69,8 +70,19 @@ test('several fixed guns stagger their pulses and the pilot trigger does not wai
 });
 
 test('all pilot weapon types share short cycles while a rotating turret still tracks the reticle',()=>{
- for(const k of ['claser','claserH','cion']){context.key=k;run('reset(key)');assert.equal(run('trial.turrets[0].pilot'),true);assert.equal(run('trial.turrets[0].cycle'),run('C.CRAFT_FIRE.cycles[key]'));assert.ok(run('trial.turrets[0].cycle')<=.22);assert.deepEqual(plain(run('trialLimits(trial.turrets[0])')),{yaw:0,lo:0,hi:0});}
+ for(const k of ['claser','claserH']){context.key=k;run('reset(key)');assert.equal(run('trial.turrets[0].pilot'),true);assert.equal(run('trial.turrets[0].cycle'),run('C.CRAFT_FIRE.cycles[key]'));assert.ok(run('trial.turrets[0].cycle')<=.22);assert.deepEqual(plain(run('trialLimits(trial.turrets[0])')),{yaw:0,lo:0,hi:0});}
  run('reset("htl");trial.turrets[0].rateRad=20;aimPoint=[10000,0,10000];trialGunnery(.1)');assert.equal(run('trial.turrets[0].pilot'),false);assert.ok(Math.abs(run('trial.turrets[0].yaw'))>.5);
+});
+
+test('actual aircraft model barrels and tiny affordability limits preserve complete physical shots',()=>{
+ for(const [k,n]of [['claser',1],['claserH',1],['cturret',2]]){context.key=k;run('reset(key)');assert.equal(run('trial.turrets[0].barrels'),n);near(run('trialShotEnergyTT(trial.turrets[0])'),n*2e-9,1e-20);}
+ run('reset();trial.turrets[0].reload=0;trial.energy.E=2e-9*trial.turrets[0].costK*.99;const insufficient=trial.energy.E;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.energy.E'),run('insufficient'));
+ run('reset();trial.turrets[0].reload=0;trial.energy.E=2e-9*trial.turrets[0].costK;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),1);near(run('trial.bolts[0].tt'),2e-9,1e-20);assert.equal(run('trial.bolts[0].hitScale'),1);near(run('trial.energy.E'),0,1e-20);
+ run('reset("cturret");trial.energy.E=1e-5;trial.turrets[0].reload=0;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),2);assert.equal(run('trial.bolts.length'),2);for(const bolt of plain(run('trial.bolts')))near(bolt.tt,2e-9,1e-20);near(run('tv.len(tv.sub(trial.bolts[0].pos,trial.bolts[1].pos))'),Number(run('C.FITS.cturret.wm'))*.28,1e-6);
+});
+
+test('a physical laser pulse requires its complete gas budget and preserves an insufficient remainder',()=>{
+ for(const k of ['claser','claserH'])for(const fraction of [0,.99,1]){context.key=k;context.fraction=fraction;run('reset(key);trial.turrets[0].reload=0;trial.fixtureGasNeed=trialCraftGasNeed(trial.turrets[0]);trial.systemsRuntime.gasSeconds=trial.fixtureGasNeed*fraction;trial.fixtureGasBefore=trial.systemsRuntime.gasSeconds;trialGunnery(.016)');assert.ok(run('trial.fixtureGasNeed')>0);assert.equal(run('trial.gun.shots'),fraction===1?1:0,`${k}: gas fraction ${fraction}`);near(run('trial.systemsRuntime.gasSeconds'),fraction===1?0:run('trial.fixtureGasBefore'),1e-12);}
 });
 
 test('blocked barrels, empty gas, power shortage and zero-time paused steps do not emit pilot pulses',()=>{
