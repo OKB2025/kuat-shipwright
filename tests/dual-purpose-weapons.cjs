@@ -27,7 +27,9 @@ const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 test('weapon roles keep explicit dual-purpose guns, pure defence and existing craft/ion roles distinct',()=>{
  assert.deepEqual(plain(C.weaponRoles({tt:5,aa:6,dualPurpose:true})),{pointDefense:true,dualPurpose:true,purePointDefense:false});
  assert.deepEqual(plain(C.weaponRoles({tt:2e-6,aa:6})),{pointDefense:true,dualPurpose:false,purePointDefense:true});
- for(const spec of [C.FITS.quad200,C.FITS.ion,{tt:5,aa:6,dualPurpose:true,ion:1},{tt:5,aa:6,dualPurpose:true,msl:1}])assert.equal(C.weaponRoles(spec).pointDefense,false);
+ for(const spec of [C.FITS.ion,{tt:5,aa:6,dualPurpose:true,ion:1},{tt:5,aa:6,dualPurpose:true,msl:1}])assert.equal(C.weaponRoles(spec).pointDefense,false);
+ // v28 Every turning turbolaser is dual-purpose; its anti-air rating comes from traverse speed and fire rate.
+ assert.equal(C.weaponRoles(C.FITS.quad200).dualPurpose,true);assert.ok(C.FITS.quad200.aa>C.FITS.stl.aa,'a fast, rapid-fire turret out-tracks a slow heavy one');
 });
 
 test('the real small dual-purpose gun fires at ships and switches to automatic missile/craft interception',()=>{
