@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-factory-serialized-ship-blueprint",
+  "runtimeLoaded": false,
+  "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
+  "factoryBaselineCommit": "f835f69d7c6cdc6216cd1e567381df501c65bae6",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "factoryGeneration": {
+    "method": "fresh-factory",
+    "script": "scripts/update-ship-examples.cjs",
+    "key": "onager",
+    "auditSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+    },
+    "profileVersion": 17,
+    "costVersion": 16,
+    "costSignature": "1fg3q73"
+  },
+  "models": {
+    "onager": {
+      "file": "onager.json.gz",
+      "sha256": "abe19cf0ed4ccd6829cbba0bf140f441711fe3c2d5c144ddb0d84e712f96beb5",
+      "gzipSha256": "c85801f6a6de016397d682f04d82d06e1d9276b25d00b1c48f81acd480018569",
+      "canonicalSha256": "742fdbe3ec82cc7329565a8b25ed7343ed95dfb7b5f033cd4650fa0019713493",
+      "uncompressedBytes": 807674,
+      "compressedBytes": 190540,
+      "partCount": 77,
+      "fitCount": 54,
+      "factoryEvidence": {
+        "baselinePowerW": 3.600000034e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 41,
+            "p": [
+              4.399999999999977,
+              65.4,
+              0
+            ]
+          },
+          {
+            "id": 42,
+            "p": [
+              46,
+              65.4,
+              62
+            ]
+          },
+          {
+            "id": 43,
+            "p": [
+              46,
+              65.4,
+              -62
+            ]
+          },
+          {
+            "id": 44,
+            "p": [
+              55.69999999999999,
+              65.4,
+              108
+            ]
+          },
+          {
+            "id": 45,
+            "p": [
+              55.69999999999999,
+              65.4,
+              -108
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

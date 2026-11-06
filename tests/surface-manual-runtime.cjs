@@ -14,7 +14,7 @@ function fixture(surface=false){
 }
 `);
 function extract(name){const a=app.indexOf('function '+name+'('),b=app.indexOf('\n}',a)+2;assert.ok(a>=0&&b>a,name);run(app.slice(a,b));}
-for(const name of ['trialSystemsUnit','trialPowerFactor','trialPowerStep','trialStep','trialJump','trialJumpStep','trialIonPracticeStep'])extract(name);
+for(const name of ['trialSystemsUnit','trialPowerFactor','trialPropulsionMotion','trialPowerStep','trialStep','trialJump','trialJumpStep','trialIonPracticeStep'])extract(name);
 for(const line of app.split('\n'))if(line.startsWith('function trialSwSoloEnergy(')||line.startsWith('function trialSwSoloBeamEnergy('))run(line);
 
 test('manual charging uses the same input/output/loss boundary as common combat',()=>{
@@ -28,7 +28,7 @@ test('full manual cell banks draw no fictitious charge power or weapon heat',()=
 });
 
 test('a direct pilot cannot recharge or thrust during a common-grid trip',()=>{
- const r=run(`(()=>{const u=fixture(),before=trial.energy.E;C.ionOverload(u,1000,{moduleIndex:1});trialPowerStep(.25,TT_J);return {before,after:trial.energy.E,eng:trial.engF,P:trial.power.P,shield:u.shF,black:C.powerStatus(u).blackout};})()`);
+ const r=run(`(()=>{const u=fixture(),before=trial.energy.E;C.ionOverload(u,1000,{moduleIndex:1});trialPowerStep(.25,TT_J);return {before,after:trial.energy.E,eng:trial.engF,P:trial.power.P,shield:trial.power.got.shields,black:C.powerStatus(u).blackout};})()`);
  assert.equal(r.black,true);assert.equal(r.after,r.before);assert.equal(r.eng,0);assert.equal(r.P,0);assert.equal(r.shield,0);
 });
 

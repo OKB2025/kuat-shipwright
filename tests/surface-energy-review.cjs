@@ -82,12 +82,12 @@ test('an in-flight ion pulse is isolated during preview and survives the committ
  const next=C.fleetCommit(f.b);assert.equal(f.b.ionBolts[0].x,x);assert.ok(next.ionBolts[0].x>x,'the next preview continues the same physical pulse');
 });
 
-test('destroyed charging equipment stops its intact surface gun without counting the gun as destroyed',()=>{
- const s=C.newShip({L:240,W:120,H:60,plan:'rect',sec:'rect'},'Charging dependency');s.parts=[{id:1,k:'gen',c:[120,25,0],d:20}];s.fits=[];s.nextId=2;C.enableSurfaceMode(s,true);
- const patch=C.surfacePatches(s).find(p=>p.host==='hull'&&p.face==='top'&&p.id.split(':')[2]==='0');assert.equal(C.setSurfaceConfig(s,patch.id,{battery:{weapon:'xx9',count:1}}).ok,true);
- const stats=C.computeStats(s),p=C.fleetProfile(stats,s.name,s),u=C.fleetUnit('charged','charged',p),mount=p.surface.mounts.find(m=>m.patch===patch.id),capacitor=p.modules.findIndex(m=>m.k==='capacitor'&&m.link===mount.module);
- assert.ok(mount&&capacitor>=0,'the actual generated heavy mount must own real charging equipment');assert.equal(C.surfaceBatteryStatus(u).rows.find(r=>r.id===patch.id).operable,1);const opening=C.surfaceMountEnergy(u,mount.id);assert.ok(opening>0);
- u.mods[capacitor]=0;const row=C.surfaceBatteryStatus(u).rows.find(r=>r.id===patch.id);assert.equal(row.installed,1);assert.equal(row.surviving,1);assert.equal(row.operable,0);assert.equal(row.fireable,0);assert.ok(row.causes.length,'the lost charging dependency must have an explicit cause');
- C.surfaceManualCharge(u,0,.25);assert.equal(C.surfaceMountEnergy(u,mount.id),0);near(u.surfaceReleasedTT,opening,'destroyed storage releases its remaining energy');near(u.ht.e.weapon,opening*C.TT,'the release enters the existing weapon heat store');const heat=u.ht.e.weapon;
- C.surfaceManualCharge(u,0,.25);near(u.ht.e.weapon,heat,'the same destroyed bank must not release energy twice');near(u.surfaceReleasedTT,opening,'one physical release');
+test('destroying an internal charging bank preserves its intact native gunhouse and releases only excess storage once',()=>{
+ const s=C.newShip({L:240,W:120,H:60,plan:'rect',sec:'rect'},'Native charging dependency');s.parts=[{id:1,k:'gen',c:[30,15,0],d:20}];s.fits=[];s.nextId=2;C.enableSurfaceMode(s,true);
+ const placed=C.placeFit(s,'twin40',[140,60,0],[0,1,0],0,false,{chargeSalvos:20});assert.ok(placed.fit,placed.err);const gun=placed.fit;gun.chargeSalvos=20;
+ const stats=C.computeStats(s),p=C.fleetProfile(stats,s.name,s),u=C.fleetUnit('charged','charged',p),mount=p.surface.mounts.find(m=>m.id===gun.id),capacitor=p.modules.findIndex(m=>m.k==='capacitor'&&m.link===mount.module);
+ assert.ok(mount&&capacitor>=0,'the actual native turret must own a real additional charging bank');assert.ok(mount.housingCapacity>=mount.boltTT,'the intact real gunhouse can store at least one shot');const opening=C.surfaceMountEnergy(u,mount.id);assert.ok(opening>mount.housingCapacity,'the extra internal bank holds actual additional stored energy');assert.equal(u.mods[mount.module],1);
+ u.mods[capacitor]=0;C.surfaceManualCharge(u,0,.25);const remaining=C.surfaceMountEnergy(u,mount.id),released=opening-remaining;near(remaining,mount.housingCapacity,'the undamaged housing keeps its actual capacity');assert.equal(u.mods[mount.module],1,'the native gun survives destruction of its separate storage');near(u.surfaceReleasedTT,released,'only the lost storage energy is released');near(u.ht.e.weapon,released*C.TT,'the release enters the existing weapon heat store');const heat=u.ht.e.weapon;
+ const fired=C.surfaceSpend(u,mount.id,mount.boltTT);assert.equal(fired.ok,true,'the intact gun remains operable using its paid gunhouse energy');near(C.surfaceMountEnergy(u,mount.id),remaining-mount.boltTT,'the surviving housing pays for the actual shot');near(opening,released+fired.spent+C.surfaceMountEnergy(u,mount.id),'no energy is created or discarded');
+ C.surfaceManualCharge(u,0,.25);near(u.ht.e.weapon,heat,'the same destroyed bank must not release energy twice');near(u.surfaceReleasedTT,released,'one physical release');near(C.surfaceMountEnergy(u,mount.id),remaining-fired.spent,'there is no free recharge');
 });

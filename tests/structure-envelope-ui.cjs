@@ -21,6 +21,7 @@ function setup(){
  function mutate(label,fn){const before=JSON.stringify(C.serialize(ship));fn();history.push({label,before});return true;}
  `);
  for(const [start,end]of [
+  ['function hullEditorPart()', '// ---------- ship lifecycle & history ----------'],
   ['function seg(','function silhouette('],['const fmtM =','function baseFitEditor('],
   ['const HULL_FOLLOW =','// Length, beam and depth:'],['function hullDimsHTML(','// v22.3 The hull\'s sections:'],
   ['function partCard(','function isAeroKind('],['function unalignedPartPreview(','function notchBox('],

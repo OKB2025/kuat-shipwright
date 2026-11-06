@@ -9,6 +9,7 @@ function setup(){
  let ship=C.newShip({L:4,W:2,H:1,assembly:true},'Small hull and large wings');ship.parts=[];ship.nextId=1;
  const st={tab:'mod',part:'wing',group:'power',partTool:'place',sel:null,mirror:false,vmirror:false,surfaceMode:'horizontal',ve:{target:null},size:{},sizeCraft:{}},listeners={},undoStack=[],redoStack=[],controls=new Map(),outputs=new Map();
  let dragSnap=null,dragLabel='',lastOp='';
+ const view=null; // This editor-control fixture intentionally has no renderer.
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,rgb=v=>v.join(','),fmtM=v=>v+' m',fPct=v=>Math.round(v*100)+'%',fW=v=>v+' W',fMass=v=>v+' t',deg=v=>v+'°';
  const activeEquipment=()=>null,craftDesign=()=>C.isCraft(ship),findSel=s=>ship[s.list]?.find(p=>p.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
  const panel={innerHTML:'',addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:s.startsWith('#out-')?(outputs.has(s)||outputs.set(s,{}),outputs.get(s)):null,$$=s=>controls.get(s.match(/data-sl="([^"]+)"/)?.[1])||[];
@@ -24,7 +25,9 @@ function setup(){
  function installPreview(){const p=unalignedPartPreview({p:[2,1,8],n:[0,1,0],kind:'section'}),made=C.placePart(ship,p.k,p.c,p.s,p,st.mirror);st.sel={list:'parts',id:made.id};return made;}
  function rootEdge(p){const side=C.wingTipSide(p),z=(side===1?Math.min:Math.max)(...p.outline.map(q=>q[1]));return p.outline.filter(q=>Math.abs(q[1]-z)<1e-8).map(q=>q.slice());}
  `,context);
+ vm.runInContext(app.match(/const meshStore = \{[^\n]+;/)[0],context);
  for(const [start,end]of [
+  ['function hullEditorPart()', '// ---------- ship lifecycle & history ----------'],
   ['function seg(','function silhouette('],['function partCard(','function fitBtn('],['function basePartEditor()','function baseFitEditor('],
   ['function baseRenderPanel()','function sizeOut('],['function unalignedPartPreview(','function notchBox('],['const TEMPLATE_SKIP =','function applyFitTemplate('],
   ['function wingControls(','function sensorBandControls('],['function bindWing(){','function heatHTML('],['function snap()','function updateUndo('],

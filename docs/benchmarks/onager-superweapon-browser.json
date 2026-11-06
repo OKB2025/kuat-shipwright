@@ -1,0 +1,440 @@
+{
+  "scope": "Controlled tiny 100 m box and explicit two-superweapon profile. Real App boot, trialStart, native key/button dispatch and WebGL beam. This does not validate the stock Onager factory or production catalogue.",
+  "status": "PASS",
+  "sourceSha256": {
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+    "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+    "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+  },
+  "sourceSha256After": {
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+    "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+    "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+  },
+  "sourceStable": true,
+  "date": "2026-11-06T10:55:06.752Z",
+  "elapsedMs": 92319,
+  "errors": [],
+  "nativeEvents": [
+    {
+      "type": "keydown",
+      "code": "KeyN",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyB",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "code": "menu",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "code": "swselect:1",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "code": "menu",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "code": "swfire:1",
+      "trusted": true
+    }
+  ],
+  "firstNativeEventElapsedSeconds": 0,
+  "nativeEventElapsedSeconds": 0.05000000000000071,
+  "fixture": {
+    "requestRestored": true,
+    "parts": 1,
+    "fits": 0,
+    "profileWeapons": [
+      {
+        "id": 10,
+        "Emax": 125000,
+        "axis": [
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "id": 11,
+        "Emax": 125000,
+        "axis": [
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "beamSeconds": 10,
+    "profileAcceleration": 100,
+    "profileMaxSpeed": 1000,
+    "glRenderer": "WebKit WebGL"
+  },
+  "selection": {
+    "selected": 0,
+    "paused": true,
+    "states": [
+      {
+        "st": "ready",
+        "c": 1,
+        "t": 0
+      },
+      {
+        "st": "ready",
+        "c": 1,
+        "t": 0
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 1.046e+27,
+      "emittedJ": 0,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": true
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": []
+  },
+  "singleFire": {
+    "selected": 0,
+    "paused": true,
+    "states": [
+      {
+        "st": "beam",
+        "c": 0,
+        "t": 10
+      },
+      {
+        "st": "ready",
+        "c": 1,
+        "t": 0
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 1.046e+27,
+      "emittedJ": 0,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": true
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": [
+      {
+        "i": 0,
+        "mode": "beam",
+        "distance": 200000
+      }
+    ]
+  },
+  "targetDeath": {
+    "selected": 0,
+    "paused": true,
+    "states": [
+      {
+        "st": "beam",
+        "c": 0,
+        "t": 9.5
+      },
+      {
+        "st": "ready",
+        "c": 1,
+        "t": 0
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 1.0198499999999999e+27,
+      "emittedJ": 2.615e+25,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": false
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": [
+      {
+        "i": 0,
+        "mode": "beam",
+        "distance": 960
+      }
+    ]
+  },
+  "nativeSelector": {
+    "selected": 1,
+    "paused": true,
+    "states": [
+      {
+        "st": "beam",
+        "c": 0,
+        "t": 9.2
+      },
+      {
+        "st": "ready",
+        "c": 1,
+        "t": 0
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 1.0041599999999999e+27,
+      "emittedJ": 4.184e+25,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": false
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": []
+  },
+  "firstComplete": {
+    "selected": 1,
+    "paused": false,
+    "states": [
+      {
+        "st": "cool",
+        "c": 0,
+        "t": 60
+      },
+      {
+        "st": "ready",
+        "c": 1,
+        "t": 0
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 5.23e+26,
+      "emittedJ": 5.2300000000000003e+26,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": false
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": [
+      {
+        "i": 0,
+        "mode": "beam",
+        "distance": 200000
+      }
+    ]
+  },
+  "directSecondFire": {
+    "selected": 1,
+    "paused": true,
+    "states": [
+      {
+        "st": "cool",
+        "c": 0,
+        "t": 59.95
+      },
+      {
+        "st": "beam",
+        "c": 0,
+        "t": 9.95
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 5.20385e+26,
+      "emittedJ": 5.25615e+26,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": false
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": []
+  },
+  "bothComplete": {
+    "selected": 1,
+    "paused": true,
+    "states": [
+      {
+        "st": "cool",
+        "c": 0,
+        "t": 50
+      },
+      {
+        "st": "cool",
+        "c": 0,
+        "t": 60
+      }
+    ],
+    "ledger": {
+      "scope": "superweapon",
+      "initialJ": 1.046e+27,
+      "inputJ": 0,
+      "lossJ": 0,
+      "storedJ": 0,
+      "emittedJ": 1.0459999999999986e+27,
+      "releasedJ": 0
+    },
+    "targets": [
+      {
+        "id": "on-axis",
+        "alive": false
+      },
+      {
+        "id": "off-axis",
+        "alive": true
+      }
+    ],
+    "fx": [
+      {
+        "i": 1,
+        "mode": "beam",
+        "distance": 200000
+      }
+    ]
+  },
+  "render": {
+    "count": 633,
+    "error": 0,
+    "maxAxisOffset": 0,
+    "minX": 0,
+    "maxX": 200000,
+    "range": 200000,
+    "paused": true
+  },
+  "continuity": {
+    "lines": [
+      0,
+      0,
+      -20,
+      200000,
+      0,
+      -20
+    ],
+    "colors": [
+      255,
+      226,
+      205,
+      255,
+      255,
+      226,
+      205,
+      255
+    ],
+    "positive": {
+      "samples": 252,
+      "warmSamples": 252,
+      "coverage": 1,
+      "maxMissingRun": 0,
+      "lineVertices": 2,
+      "drawSuppressed": false,
+      "glError": 0,
+      "framebufferStart": [
+        451.9021486271943,
+        190.25805497243448
+      ],
+      "framebufferEnd": [
+        657.8144194272274,
+        332.5062893953614
+      ]
+    },
+    "negative": {
+      "samples": 252,
+      "warmSamples": 12,
+      "coverage": 0.047619047619047616,
+      "maxMissingRun": 121,
+      "lineVertices": 2,
+      "drawSuppressed": true,
+      "glError": 0,
+      "framebufferStart": [
+        451.9021486271943,
+        190.25805497243448
+      ],
+      "framebufferEnd": [
+        657.8144194272274,
+        332.5062893953614
+      ]
+    },
+    "restored": {
+      "samples": 252,
+      "warmSamples": 252,
+      "coverage": 1,
+      "maxMissingRun": 0,
+      "lineVertices": 2,
+      "drawSuppressed": false,
+      "glError": 0,
+      "framebufferStart": [
+        451.9021486271943,
+        190.25805497243448
+      ],
+      "framebufferEnd": [
+        657.8144194272274,
+        332.5062893953614
+      ]
+    }
+  },
+  "screenshot": "onager-superweapon-browser.png"
+}
