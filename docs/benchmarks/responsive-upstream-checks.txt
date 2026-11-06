@@ -266,9 +266,9 @@ test at tests/capital-turret-core.cjs:23:1
 test at tests/capital-turret-core.cjs:103:1
 ✖ saved profile9 surface guns recompile their old physical footprint once under the new model catalog (9.021502ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   0 !== 1
-  
+
       at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:106:91)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -287,9 +287,9 @@ test at tests/capital-turret-core.cjs:103:1
 test at tests/capital-turret-core.cjs:111:1
 ✖ real profile10 saved designs rebuild the compact triple room, surface cache and embarked profile once (2.893375ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   0 !== 1
-  
+
       at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:117:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -308,9 +308,9 @@ test at tests/capital-turret-core.cjs:111:1
 test at tests/capital-turret-core.cjs:162:1
 ✖ pitched native ball guns carry their physical joint, energy, electrical demand and heat owner into the fleet profile (599.417286ms)
   AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
-  
+
     assert.ok(cleaned?.surface)
-  
+
       at TestContext.<anonymous> (/workspace/kuat-shipwright/tests/capital-turret-core.cjs:168:73)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
