@@ -1818,6 +1818,7 @@ function lineSet() {
       for (let k = 0; k <= n; k++) { const a = k / n * Math.PI * 2, p = [cen[0] + (u[0] * Math.cos(a) + v[0] * Math.sin(a)) * r, cen[1] + (u[1] * Math.cos(a) + v[1] * Math.sin(a)) * r, cen[2] + (u[2] * Math.cos(a) + v[2] * Math.sin(a)) * r]; if (prev) this.seg(prev, p, c); prev = p; }
     },
     part(pt, c) {
+      const weaponBody=C.superweaponShape?.(pt);if(weaponBody){this.part(weaponBody,c);return;}
       if(pt._packing){for(const b of pt._packing.boxes)this.box(b,c);return;}
       const sh = C.PARTS[pt.k].shape;
       if(pt.k==='machinery'){for(const s of pt.segments||[pt.seg]){for(const [end,r] of [[s.a,s.r0],[s.b,s.r1]])this.circle(end,s.v,s.w,r,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const r=C.add(C.mul(s.v,Math.cos(a)),C.mul(s.w,Math.sin(a)));this.seg(C.add(s.a,C.mul(r,s.r0)),C.add(s.b,C.mul(r,s.r1)),c);}}return;}
@@ -1941,6 +1942,7 @@ function meshOnePart(out,p,ship,opt,glow){
     if(k==='sensor'&&p.skinAsset)return;
     if(isStructuralPart(p)&&p.plate){hullTriangleMesh(out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
     if(isStructuralPart(p)){let T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));if(C.isHullStructure?.(p))T=renderHullTriangles(ship,T,p);hullTriangleMesh(out.struct,T,p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct,T);if(p.stripes&&p.form==='shell')shellStripes(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
+    const weaponBody=C.superweaponBodyTriangles?.(p);if(weaponBody){triangleMesh(out.hyper,weaponBody,color,36);return;}
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
     if(p._clip&&k!=='hangar'){triangleMesh(out.interior,p._clip.tris,color,36);return;}
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
@@ -3087,7 +3089,7 @@ Renderer.prototype.drawFleet=function(m,opt){
   for(const group of [{glow:a.glow},...(a.foils||[]).map(f=>({glow:f.glow,T:foilTransform(f,u.foils?.[f.id])}))]){const aft=mat3Point(R,group.T?group.T.direction([-1,0,0]):[-1,0,0]);for(let i=0;i<(group.glow||[]).length;i+=4){const p=group.glow.slice(i,i+3),q=group.T?group.T.point(p):p,x=q[0]-a.center[0],y=q[1]-a.center[1],z=q[2]-a.center[2],px=u.pos[0]+R[0]*x+R[3]*y+R[6]*z,py=u.pos[1]+R[1]*x+R[4]*y+R[7]*z,pz=u.pos[2]+R[2]*x+R[5]*y+R[8]*z,sz=group.glow[i+3];
    gp.push(px,py,pz);gc.push(rgb[0],rgb[1],rgb[2],al);gs.push(sz*sk);
    if(pl>0)for(let j=1;j<=4;j++){const d=sz*j*(.8+2.4*pl);gp.push(px+aft[0]*d,py+aft[1]*d,pz+aft[2]*d);gc.push(rgb[0],rgb[1],rgb[2],Math.round(235*pl*(1-.18*j)));gs.push(sz*sk*(1-.17*j));}}}}
- this.setPoints('fleetGlow',new Float32Array(gp),new Uint8Array(gc),new Float32Array(gs));gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
+ this.setPoints('fleetGlow',new Float32Array(gp),new Uint8Array(gc),new Float32Array(gs));gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);this.drawLines('trialBeams',m,1);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
  gl.depthMask(true);
 };
 
@@ -3173,7 +3175,7 @@ class CompatRenderer {
    this.rasterMesh(this.meshes.cutter?.geo,'cutter',.28,null);
   }
   ctx.putImageData(image,0,0);
-  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots']:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','placement-repeat','cutter','verts','surfaces'])this.paintLines(name,name==='grid'||name==='fleetGrid'||name==='surfaces');
+  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots',...(opt.planet||opt.hyper||opt.sky?['trialBeams']:[])]:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','placement-repeat','cutter','verts','surfaces'])this.paintLines(name,name==='grid'||name==='fleetGrid'||name==='surfaces'||name==='trialBeams');
   delete this._frame;this.frames++;this._lastDrawOptions=opt;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){

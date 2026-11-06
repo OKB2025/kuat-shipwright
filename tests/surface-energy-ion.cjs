@@ -76,10 +76,11 @@ test('pulse traversal is ordered by distance and never duplicates a finite shot 
  C.ionBoltsStep([a],units.slice().reverse(),4,ctx);C.ionBoltsStep([b],units,4,ctx);assert.deepEqual(plain(a.log),plain(b.log));assert.deepEqual(plain(a.log.map(h=>h.id)),['t1','t2','t3']);assert.ok(a.log.reduce((n,h)=>n+h.E,0)<=a.E0);close(a.E0,a.E+a.log.reduce((n,h)=>n+h.E,0));
 });
 
-function coolingFixture(stored=0){
- const u=unit();u.p.grid={P:1000,fixed:10,cooling:10,De:0,Ds:0,Dw:0,domains:[{id:'main',P:1000,sources:[{moduleIndex:0,P:1000}],modules:[0]}]};u.p.wCap=0;u.energy=0;
+function coolingFixture(stored=0,physical=true){
+ const u=unit(),coolerIndex=physical?u.p.modules.length:-1;if(physical){u.p.modules.push({k:'dissipator',part:7,size:1,share:1,domain:'main',powerConnected:true});u.mods.push(1);}
+ u.p.grid={P:1000,fixed:10,cooling:10,De:0,Ds:0,Dw:0,domains:[{id:'main',P:1000,sources:[{moduleIndex:0,P:1000}],modules:[0,...(physical?[coolerIndex]:[])]}]};u.p.wCap=0;u.energy=0;
  const source=(k,m)=>({k,n:k,g:k==='hotel'?'low':'high',sh:1,st:1000,m,pc:[],sec:-1,sw:-1,gen:-1});
- u.p.heat={v:1,src:[source('hotel',[]),source('reactor',[0])],dis:[{n:'Powered cooler',k:'hdis',g:'high',cap:1000,power:10,m:-1,sec:-1,src:-1}],ln:[{s:0,d:0,cap:1000,sec:-1},{s:1,d:0,cap:1000,sec:-1}]};
+ u.p.heat={v:1,src:[source('hotel',[]),source('reactor',[0])],dis:[{n:'Powered cooler',k:'hdis',g:'high',cap:500,power:10,m:coolerIndex,sec:-1,src:-1}],ln:[{s:0,d:0,cap:1000,sec:-1},{s:1,d:0,cap:1000,sec:-1}]};
  C.heatInit(u);u.ht.t=0;u.ht.last=0;u.ht.st[0]=stored;return u;
 }
 
@@ -92,4 +93,9 @@ test('a cold cooler starts from reserved power and conserves processed heat, act
  const u=coolingFixture(100);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);C.heatTick({...ctx,time:1},u,1);const c=u.ht.cooling;
  assert.ok(u.ht.emit>0,'zero previous electric draw must not deadlock startup');assert.ok(c.inputJ>0&&c.inputJ<c.reservedJ);close(c.inputJ,c.heatJ);close(100+c.heatJ+c.reactorWasteJ,u.ht.st.reduce((a,v)=>a+v,0)+c.handledJ);close(c.lastDraw,c.inputJ);close(u.pw.cooling,c.inputJ);
  const off=coolingFixture(100);off.p.grid.P=0;C.fleetPowerStep(off,C.fleetSystems(off),null,0,1);C.heatTick({...ctx,time:1},off,1);assert.equal(off.ht.emit,0);assert.equal(off.ht.cooling.inputJ,0);close(off.ht.st[0],100);
+});
+
+// A power reservation is not itself an installed cooling device.
+test('strict startup rejects a cooler record without its actual dissipator module',()=>{
+ const u=coolingFixture(100,false);assert.equal(C.heatProfile(u.p).dis.length,0);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);C.heatTick({...ctx,time:1},u,1);assert.equal(u.pw.coolingReserved,0);assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling?.inputJ||0,0);close(u.ht.st[0],100);
 });

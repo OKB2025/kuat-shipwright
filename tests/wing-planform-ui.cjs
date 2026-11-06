@@ -24,7 +24,9 @@ function setup(){
  function installPreview(){const p=unalignedPartPreview({p:[2,1,8],n:[0,1,0],kind:'section'}),made=C.placePart(ship,p.k,p.c,p.s,p,st.mirror);st.sel={list:'parts',id:made.id};return made;}
  function rootEdge(p){const side=C.wingTipSide(p),z=(side===1?Math.min:Math.max)(...p.outline.map(q=>q[1]));return p.outline.filter(q=>Math.abs(q[1]-z)<1e-8).map(q=>q.slice());}
  `,context);
+ vm.runInContext(app.match(/const meshStore = \{[^\n]+;/)[0],context);
  for(const [start,end]of [
+  ['function hullEditorPart()', '// ---------- ship lifecycle & history ----------'],
   ['function seg(','function silhouette('],['function partCard(','function fitBtn('],['function basePartEditor()','function baseFitEditor('],
   ['function baseRenderPanel()','function sizeOut('],['function unalignedPartPreview(','function notchBox('],['const TEMPLATE_SKIP =','function applyFitTemplate('],
   ['function wingControls(','function sensorBandControls('],['function bindWing(){','function heatHTML('],['function snap()','function updateUndo('],

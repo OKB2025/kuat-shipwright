@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "Actual final fresh Onager public blueprint loaded through production App setShip/deserialization and worker statistics/geometry. No stock constructor rerun, geometry/profile interception or render substitution. Screenshots use native normal/xray controls. Separate controlled firing proof covers trusted single-emitter firing and continuous-beam framebuffer. Single-weapon highlight uses the exposed editor selection API for actual part46; it does not modify the design.",
+  "loadingMs": 29226,
+  "measured": {
+    "name": "オナガー級スター・デストロイヤー",
+    "reference": "onager",
+    "parts": 77,
+    "fits": 54,
+    "roster": {
+      "triple40": 8,
+      "quad200": 16,
+      "pd": 30
+    },
+    "guns": [
+      {
+        "id": 46,
+        "volumeM3": 4462607.394240993,
+        "bounds": [
+          594.4000244140625,
+          32.150997161865234,
+          -384,
+          1260.199951171875,
+          102.15647888183594,
+          -4.34999942779541
+        ],
+        "muzzle": [
+          1260.1999999999998,
+          64.9,
+          -23.45
+        ],
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "triangles": 7764,
+        "drawRanges": [
+          [
+            "hyper",
+            0,
+            23292
+          ]
+        ],
+        "open": true
+      },
+      {
+        "id": 47,
+        "volumeM3": 4462607.394240999,
+        "bounds": [
+          594.4000244140625,
+          32.150997161865234,
+          4.34999942779541,
+          1260.199951171875,
+          102.15647888183594,
+          384
+        ],
+        "muzzle": [
+          1260.1999999999998,
+          64.9,
+          23.45
+        ],
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "triangles": 7764,
+        "drawRanges": [
+          [
+            "hyper",
+            23292,
+            23292
+          ]
+        ],
+        "open": true
+      }
+    ],
+    "superweapons": [
+      {
+        "id": 46,
+        "k": "sbeam",
+        "Emax": 125000,
+        "chargeTimeS": 842.6465404887184
+      },
+      {
+        "id": 47,
+        "k": "sbeam",
+        "Emax": 125000,
+        "chargeTimeS": 842.6465404887184
+      }
+    ],
+    "workerProfile": {
+      "profileVersion": 17,
+      "sw": [
+        {
+          "id": 46,
+          "Emax": 125000,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "mz": [
+            616.1999999999998,
+            -32.099999999999994,
+            -23.45
+          ]
+        },
+        {
+          "id": 47,
+          "Emax": 125000,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "mz": [
+            616.1999999999998,
+            -32.099999999999994,
+            23.45
+          ]
+        }
+      ]
+    },
+    "cachedProfile": {
+      "profileVersion": 17,
+      "sw": [
+        {
+          "id": 46,
+          "Emax": 125000,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "mz": [
+            616.1999999999998,
+            -32.099999999999994,
+            -23.45
+          ]
+        },
+        {
+          "id": 47,
+          "Emax": 125000,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "mz": [
+            616.1999999999998,
+            -32.099999999999994,
+            23.45
+          ]
+        }
+      ]
+    },
+    "powerNominal": 3.6000000337627544e+24,
+    "operatingPowerW": 3.6000000337627544e+24,
+    "shieldCapacityJ": 3.5999999999999997e+25,
+    "catalogText": "超兵器（照射全体）\n125 PT × 2\n合計 250 PT / 10 秒間照射 · 砲軸固定",
+    "catalogNormalText": "一斉射（通常砲・公称）\n973 TT\n通常砲の主射界 859 TT",
+    "renderer": "WebKit WebGL",
+    "webglError": 0,
+    "generation": {
+      "design": 1,
+      "geometry": 1,
+      "stats": 1,
+      "adopted": 1
+    }
+  },
+  "catalogueVerified": true,
+  "selectedMachinery": {
+    "selectedId": 46,
+    "label": "左舷125 PT超重合成ターボレーザー",
+    "outlineVertices": 22944
+  },
+  "finalView": {
+    "view": "xray",
+    "webglError": 0,
+    "bodyMeshIndices": 46584,
+    "canvasWidth": 960,
+    "canvasHeight": 941,
+    "pageWidth": 1600,
+    "viewportWidth": 1600
+  },
+  "sourceGuardScope": [
+    "index.html",
+    "data/reference.js",
+    "data/imperial2.js",
+    "data/fleet.js",
+    "js/core.js",
+    "js/gfx.js",
+    "js/app.js",
+    "js/engine.js",
+    "js/lang-en.js"
+  ],
+  "bootEnvironmentOnly": [],
+  "errors": [],
+  "screenshots": [
+    "onager-exterior.png",
+    "onager-dorsal.png",
+    "onager-machinery.png",
+    "onager-machinery-selected.png"
+  ],
+  "sourceSha256": {
+    "index.html": "3537f73cfe3bffb94c61139255e699742e27ed9a812bcf029f9071055e534853",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
+    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+    "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+    "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+  },
+  "sourceSha256After": {
+    "index.html": "3537f73cfe3bffb94c61139255e699742e27ed9a812bcf029f9071055e534853",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
+    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+    "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+    "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+  },
+  "sourceStable": true,
+  "blueprintSha256": "abe19cf0ed4ccd6829cbba0bf140f441711fe3c2d5c144ddb0d84e712f96beb5",
+  "archive": {
+    "path": "assets/source/onager-factory-blueprints/onager.json.gz",
+    "rawSha256": "abe19cf0ed4ccd6829cbba0bf140f441711fe3c2d5c144ddb0d84e712f96beb5",
+    "gzipSha256": "c85801f6a6de016397d682f04d82d06e1d9276b25d00b1c48f81acd480018569",
+    "factorySourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+    },
+    "canonicalSha256": "742fdbe3ec82cc7329565a8b25ed7343ed95dfb7b5f033cd4650fa0019713493"
+  },
+  "elapsedMs": 33072,
+  "date": "2026-11-06T10:46:01.103Z"
+}

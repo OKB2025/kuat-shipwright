@@ -1,0 +1,1424 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "Selected Onager, superweapon, geometry, energy, cache and catalogue regressions. This is not a claim that every repository test passes.",
+  "generatedAt": "2026-11-06T10:49:41.806Z",
+  "modelSourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+  },
+  "additionalRuntimeSourceSha256": {
+    "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+    "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+    "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+  },
+  "phases": [
+    {
+      "phase": "prefreeze",
+      "sourceStable": true,
+      "startedAt": "2026-11-06T10:20:29.076Z",
+      "finishedAt": "2026-11-06T10:25:25.391Z",
+      "elapsedMs": 296315,
+      "workers": 2,
+      "counts": {
+        "tests": 233,
+        "pass": 233,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "inputsSha256": {
+        "data/bgm_colossus.js": "2aa840b0d601647bee660f2d366e23fdee6154db19314a817f8bc18bc2c673ce",
+        "data/bgm_drift.js": "7c06a0193adf60ed69a96da1317c95782cb0631489514db1b14d20843bfc1b54",
+        "data/bgm_front.js": "d0493559c9a62165309f708920f3849ab1534e8ebadfe839efb42f982de0337d",
+        "data/bgm_gilded.js": "cfcd6bddbd4f75cc55c99c2c92e7ac2d682e6c30e4526ea7e0a49292c0222923",
+        "data/bgm_heavens.js": "422ddb25e90082957ff9d9959017ecea7093f4e8064265934f860e267ba4e7e3",
+        "data/bgm_launch.js": "4eb123f3b939e1a09e1b9d8d7faba85189268b6c4e54b7a40e3603a56e0774a9",
+        "data/bgm_meridian.js": "6cd3080ecadf5f9025c1aa17cc9404ded0a5dc701ee5e0f2059e52a47143bf68",
+        "data/bgm_periphery.js": "f354c7d61921efe778ce2db5d61b65697dc75430e2f9b072e3d1fa9bf4be470c",
+        "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
+        "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
+        "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
+        "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+        "js/app.js": "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
+        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+        "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+        "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97",
+        "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+        "scripts/analyze-arquitens-reference.py": "1b0cda995df3e11a02d8956eaa5c619659264d3fcef9b68cf1d33d20123a716f",
+        "scripts/audit-engine-transmission.cjs": "b0bf02b5d99583ac99c63fd5e071b166a42d9c6db8651080a3ac019355f3c02b",
+        "scripts/audit-ship-examples.cjs": "87a4eec7cec79458d6c758eae228880a9009d46ac9f8a3effa4633dec517dc99",
+        "scripts/benchmark-capital-example-opening.cjs": "95ca8d721d3b47f48f24951e2b6f88010d9ec7cf1cda9be8180958ac089340e6",
+        "scripts/benchmark-equipment-allocation.cjs": "d48e135c71bf5ed7411d579cbd41a3e67404549937d80829fbde3196f7d19906",
+        "scripts/benchmark-fighter-interiors.cjs": "bbadffd4ff2fb49ec2a96040eaba3d13008c8aaf76c71ec5df84f4e82c86e272",
+        "scripts/benchmark-geometry-copy.cjs": "a3361defc7b94afdc5046e4018aaa6d9060329815813b894e2e43b69904ce39c",
+        "scripts/benchmark-propulsion.cjs": "4a101ae49e5d6791859fa1afc8dcc09e36a09e23500ed015e458eb723b85b5da",
+        "scripts/benchmark-sensors.cjs": "0300a98d2f0d0b399fa2699508835a6aa824151dec5cbc5954c60942ff960b52",
+        "scripts/benchmark-surface-systems.cjs": "b3fb267a22e9dfc7e3b85ed1b3a134d695032366812b9f67608a5f1263f80762",
+        "scripts/benchmark-thin-decks.cjs": "c9f355582020804217394e31bac01d76c1f2662c37c2b3490ff10be14437ff76",
+        "scripts/browser-arquitens.cjs": "53bdd47d7bbb60de8214f259bb996ba063fddfdde593da030fa85b412f4b179a",
+        "scripts/browser-capital-turret-family.cjs": "93866dd8826028badc1763e5376e789a779f7dab03aa20cd5915a7244c060bb1",
+        "scripts/browser-design-envelope.cjs": "f56d60d0b3c4cb4821d5c8d9c73c73a61c0a2bb1b76fb4325e6e56cd551b1fce",
+        "scripts/browser-editor-startup-profile.cjs": "e9841590a763a117506d14231582514a60883b0e1ed4294575c0e3e03bb9537b",
+        "scripts/browser-editor-workflows.cjs": "0024531494615c2bcb85cf994b55290e7acf5f496c8be1e440bc915848911f89",
+        "scripts/browser-engine-core.cjs": "d90f94fa2049f6451f2e10e67f640d51bb35c80fd41d3ceec40a675b7ffc01dd",
+        "scripts/browser-helpers/hull-editor.cjs": "39cdf40681da6113803660e898b96417b07743c956764f54fe4d9afb6794e967",
+        "scripts/browser-helpers/polygon-editor.cjs": "dc0f8c35da3962d3a211ba91b292d888e7fca97aacc22d71a42bbb9baf598bc4",
+        "scripts/browser-helpers/repeat-placement.cjs": "b267eeeec8f93870c4f5e3d76ddbbfdf617a93fa84d186670566a6c19cd76528",
+        "scripts/browser-light-turret-family.cjs": "c36e30ad1f1bc56b931354a8c91cb9025f35d79a4cf5683120708f2e0d0929e6",
+        "scripts/browser-missile-launcher.cjs": "82103e16a40be0e4db42e056f0a9733fbb900d7ed5447f1350a4be5a2fc13d13",
+        "scripts/browser-moncal-weapons.cjs": "af9e9ab50985838ed8d5feefeb834299ce764f4ecdfda2035961a17a35ef93c4",
+        "scripts/browser-propulsion.cjs": "2e74faff937d98d248140b30f95abf8b408ede42d0755cca6023fe64c915c026",
+        "scripts/browser-ship-examples.cjs": "0c449543bc0016a851e787729d68fa0d95a6556ee2c54011ca7c5b50f175b894",
+        "scripts/browser-ship-launcher.cjs": "4e81b9fc311df7be1bd7868b91b829d85ea8f13afe2ea099989158e0a3f99192",
+        "scripts/browser-slope-fighter.cjs": "0197dc5856a9e2c30d8a64962ee402319a2fa5cc3649b7b660e4cd1b75754030",
+        "scripts/browser-triple70-mount.cjs": "2375392ed6d4a6d16c50258a4a0fb74984bd04648850acc5c6c5e126dc396ebd",
+        "scripts/browser-turret-comparison.cjs": "ce21f208dbc59f69eb7a9bfa6c228044badd9e47f8f6fe6e78304fb7e1d1944d",
+        "scripts/browser-turret-polygon-budgets.cjs": "0fa7b988d3ca558fd74e16f7b173752da244123cf9ddd0e45d148c8ca90c1660",
+        "scripts/browser-weapon-family.cjs": "3858bf2b1fe8adacfc2ffb20783131cad5befcb60ce793422b666d4d579753d3",
+        "scripts/build-capital-ball-turrets.py": "12a118a9c60099057beeb77837cb9fa957b15ae2eedbaf7a95b38e715234b952",
+        "scripts/build-capital-turret-family.py": "8a5f0eca8cbf8a499ffb64b5e254a6286da8c8f6a0daa086b14cb5cbc4672cf9",
+        "scripts/build-cis-rapid-turret.py": "45ab44afe5dde7319c20f681e9a699b722be2ca03f0af520504715dedcde7913",
+        "scripts/build-corvette-weapons.py": "541d952bd25a1d27304d26d5b41bf87ff28ee212c0482996372a4d4c39c11667",
+        "scripts/build-isd-heavy-turrets.py": "0ac161828b249e932d51086e8b01221b2471ae0b9ac39000198749242e264d9f",
+        "scripts/build-light-quad500.py": "347b163027f4e6ee35538ff1908756f400852e0e4c812fee55f93ccbd45a8ccf",
+        "scripts/build-light-turret-family.py": "e3a8a41be84a69612606d5d90c715736848f16c9188339d8c40e641434925f55",
+        "scripts/build-moncal-turrets.py": "0a16fd16fb2f2fc6c08d2a3a34bba22e4f22a42f68128e337425516fded10274",
+        "scripts/build-munificent-guns.py": "2f400521abfee60f218be92a7e9eae963e1a73fce981426b1cf35430dcc0f9b0",
+        "scripts/build-recusant-guns.py": "bc5aef67532bc44b30cfdfd2e437312cf28cbc5098ee69cd89394f702c2de5eb",
+        "scripts/build-turret-family.py": "62c6d8b13138e2679c1fd05f014537c764431f4f0c48fc653a2d113b07bae2b3",
+        "scripts/build-twin40-turret.py": "73cf8b5376a334491f8b7a87f6d470cf6dde1d1dc15b100d4ead75c0f0dd3504",
+        "scripts/build-venator-side70.py": "b5509e55ef76a776b6e52ad4edda61f2f0866baaa02e906e8da9e6f77271f372",
+        "scripts/capture-example-figures.cjs": "31e34e48f9dc237812162283160019e61a3fead009d412fa50d8f39647452ac5",
+        "scripts/capture-legacy-propulsion.cjs": "22cda54644187b7a82dd8044c3dc14f72796c0d9347c0a7f1881e75d82d59fdb",
+        "scripts/compare-arquitens-fidelity.cjs": "9d70971c16d3dba1cb697ec6b077b8d1297a838fa903e0dc2e75283ba3092909",
+        "scripts/compare-propulsion.cjs": "dcd65a35ab14819245ace94a6eb140cfa341665c1d42f5b48b99c789daed14e8",
+        "scripts/export-arquitens-example.cjs": "93143f389d33cb41932e1cf80e6c9fc6d5a3f0e8f0dc8626af2b33e8ce838919",
+        "scripts/finalize-ship-example-audit.cjs": "523c58d135e6dbb9546348ee00ce29507ba07fd2a3844d69a902cba7ee283d6f",
+        "scripts/find-bgm-loops.py": "c5832f76b48984011ca44c3c3d8d9c0c86bf5f214a35699ce02bb3536eedb7ef",
+        "scripts/import-arquitens.py": "f6a5a643cac60f4e8a3013e12d223bc5e9f153310e6147691b062a498d3501af",
+        "scripts/import-cr90.py": "6db776cd942de5c3c63368bfceffb17ef3eb5718af9e689b197941e7947cb10c",
+        "scripts/import-sphyrna.py": "92825dea6ce4e5fc102ea390644e6d3aa03a52aafa7aa2ab71b5982b5677a171",
+        "scripts/pack-bgm.py": "d99cc56f3525b7d08c2aa6c26af9681fde6fc9f779ca79342bee97dac7d67346",
+        "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2",
+        "scripts/turret_compartment_metadata.py": "cdcd3ac34cf57e3619c3d0ff81bf56d4fe6427bb4581578dae0e340fc02f1e68",
+        "scripts/turret_source_simplify.py": "f941e5b3fce563ebcddd97373a24b88d8ae8f252bcda32edca8d5994569047f5",
+        "scripts/update-craft-costs.cjs": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9",
+        "scripts/update-light-turret-profiles.cjs": "f19cffe4c5bcc4a559f9c7ec947d7fe28cdbdfc21e6e21e622acdaaf9b5d056b",
+        "scripts/update-ship-examples.cjs": "97c40b39084ba48c06875da4d39abbba09116e2769b9b91afe1e6839bcbb77da",
+        "tests/dedicated-aero-ui.cjs": "26eafee24630e71f603fe77939980fe5e470206dc91f14f17cef4d265964ab15",
+        "tests/engine-audit-geometry.cjs": "efee6c62c439156a37ddefd30b403d294d0215f23d65ba36406e1d242d64b185",
+        "tests/engine-body-shape.cjs": "ef314d5f8af15fb7a29d444346d401b4cff9c53535788cebc9ec5cb576808914",
+        "tests/example-weapon-families.cjs": "ef825040ed8ea650de18f37914c87b1aeb86ac567f215d732cdfb0d94486da3a",
+        "tests/fleet-profile-refresh.cjs": "5b6c49f25c9313a1fe244f5fb3a0a7b9c5ad6dd59d08f300069dd1036c80ad00",
+        "tests/geometry-copy-performance.cjs": "fedba534881fdae54818aba414ce77b74cb6e5095506807c136f295f601e1d52",
+        "tests/hud-localization.cjs": "f6e29e420fa233a002c0df080866b9cfd21371adc29be243f87b56211cf72835",
+        "tests/named-example-armament.cjs": "a3ee4b4aef5018bab4145bcab0276e5723b62a2579ec62faf72fb21aa0b219fc",
+        "tests/onager-fixed-axis-runtime.cjs": "7e2243d2f719badffae8d0a71276de6224baa428dd86f5e0a77aecfb6fd4f60a",
+        "tests/onager-layout.cjs": "164a79a3aa62332cc1ac29dd39ff72adc3e666c0170c2a05e6c86f06bca50991",
+        "tests/sensor-presentation.cjs": "474ace9e79b29780236986667816a0a316e199fca17ee43831db23b76ddea614",
+        "tests/ship-runtime-refresh.cjs": "fd61706511ad54fc61cb78a562db19de8a0752cab9996a0e6a421e67feebd4bb",
+        "tests/ship-systems-refit.cjs": "ab75d52cfadba4c2d5bd1cac82ffccdb03874279f26bb41e67cbabd4499b10f0",
+        "tests/ship-thermal-refit.cjs": "3b7958333a70d1ec1727339ed53558c0806f9a84503f2b16c3c78629e4ddb7db",
+        "tests/structure-copy-placement.cjs": "8b6d53cdd6b4beea70f88bb1352299ae0768558b3974cd3796e050b8c290914a",
+        "tests/structure-envelope-ui.cjs": "318fd7f411a17453459f56e6894b7693370a7ffa37cf6d51ad7fa7bee92a52a8",
+        "tests/superweapon-body-geometry.cjs": "4d76a2cf3c4c4d381e76405fe1cfd305f7a60d3fe4593124c4948d4750e67c7c",
+        "tests/superweapon-unit-controls.cjs": "1a01b4216ba977ad86ca978a00459de093cfd4c36f645928f9c12179a4e0354b",
+        "tests/surface-energy-ion.cjs": "62754ef4827c9c17535bc23ec8197976759adc18791944bc0f3eae9e0e6fe7ac",
+        "tests/surface-energy-review.cjs": "d3124c201ab4db98733c0a7b2ad4aafaa6c12429c97b5f5522f20bba0bfdac27",
+        "tests/surface-manual-runtime.cjs": "57f3bf2724f58eceb81dbc8a5fbad67987c4b685c56dfdc68c31d61f04d9aba3",
+        "tests/surface-systems-localization.cjs": "d545de636a26f443726947a308e9ea9d9acd04f64f163a20afdddc72d7979682",
+        "tests/thermal-strict-only.cjs": "1fb746638be497136574d3bfd2d738e29d89bf48298ec0bedc5adebbda6e4c70",
+        "tests/weapon-shot-calibration.cjs": "56527bb899b2b86c900a0366dd2ef67f36414153c45916df96dff8b6bc160397",
+        "tests/wing-planform-ui.cjs": "02d79109b72fd8d03afd8d2a02424646b056c798e6756d96cda7d784b095c857"
+      },
+      "commands": [
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/surface-energy-review.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 10,
+            "pass": 10,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 5333
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/surface-energy-ion.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 15,
+            "pass": 15,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 6057
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/surface-manual-runtime.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 8,
+            "pass": 8,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1597
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/thermal-strict-only.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2930
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/ship-thermal-refit.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 14922
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/hud-localization.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1729
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/surface-systems-localization.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 3,
+            "pass": 3,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1282
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/sensor-presentation.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1281
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/structure-envelope-ui.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 8,
+            "pass": 8,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2258
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/wing-planform-ui.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1624
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/dedicated-aero-ui.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1650
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/ship-systems-refit.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 34581
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/fleet-profile-refresh.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 14,
+            "pass": 14,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 298
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/ship-runtime-refresh.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 909
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/weapon-shot-calibration.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2744
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/example-weapon-families.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 15,
+            "pass": 15,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 62396
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/engine-body-shape.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 6891
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/engine-audit-geometry.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 4512
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/structure-copy-placement.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 21,
+            "pass": 21,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 5128
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/geometry-copy-performance.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 3,
+            "pass": 3,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 7042
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/onager-fixed-axis-runtime.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 925
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/onager-layout.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 22284
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/superweapon-body-geometry.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 14,
+            "pass": 14,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 987
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/superweapon-unit-controls.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 885
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/named-example-armament.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 4,
+            "pass": 4,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 248725
+        }
+      ]
+    },
+    {
+      "phase": "cache",
+      "sourceStable": true,
+      "startedAt": "2026-11-06T10:20:28.989Z",
+      "finishedAt": "2026-11-06T10:25:40.492Z",
+      "elapsedMs": 311503,
+      "workers": 1,
+      "counts": {
+        "tests": 40,
+        "pass": 40,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "inputsSha256": {
+        "data/bgm_colossus.js": "2aa840b0d601647bee660f2d366e23fdee6154db19314a817f8bc18bc2c673ce",
+        "data/bgm_drift.js": "7c06a0193adf60ed69a96da1317c95782cb0631489514db1b14d20843bfc1b54",
+        "data/bgm_front.js": "d0493559c9a62165309f708920f3849ab1534e8ebadfe839efb42f982de0337d",
+        "data/bgm_gilded.js": "cfcd6bddbd4f75cc55c99c2c92e7ac2d682e6c30e4526ea7e0a49292c0222923",
+        "data/bgm_heavens.js": "422ddb25e90082957ff9d9959017ecea7093f4e8064265934f860e267ba4e7e3",
+        "data/bgm_launch.js": "4eb123f3b939e1a09e1b9d8d7faba85189268b6c4e54b7a40e3603a56e0774a9",
+        "data/bgm_meridian.js": "6cd3080ecadf5f9025c1aa17cc9404ded0a5dc701ee5e0f2059e52a47143bf68",
+        "data/bgm_periphery.js": "f354c7d61921efe778ce2db5d61b65697dc75430e2f9b072e3d1fa9bf4be470c",
+        "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
+        "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
+        "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
+        "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+        "js/app.js": "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
+        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+        "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+        "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97",
+        "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+        "scripts/analyze-arquitens-reference.py": "1b0cda995df3e11a02d8956eaa5c619659264d3fcef9b68cf1d33d20123a716f",
+        "scripts/audit-engine-transmission.cjs": "b0bf02b5d99583ac99c63fd5e071b166a42d9c6db8651080a3ac019355f3c02b",
+        "scripts/audit-ship-examples.cjs": "87a4eec7cec79458d6c758eae228880a9009d46ac9f8a3effa4633dec517dc99",
+        "scripts/benchmark-capital-example-opening.cjs": "95ca8d721d3b47f48f24951e2b6f88010d9ec7cf1cda9be8180958ac089340e6",
+        "scripts/benchmark-equipment-allocation.cjs": "d48e135c71bf5ed7411d579cbd41a3e67404549937d80829fbde3196f7d19906",
+        "scripts/benchmark-fighter-interiors.cjs": "bbadffd4ff2fb49ec2a96040eaba3d13008c8aaf76c71ec5df84f4e82c86e272",
+        "scripts/benchmark-geometry-copy.cjs": "a3361defc7b94afdc5046e4018aaa6d9060329815813b894e2e43b69904ce39c",
+        "scripts/benchmark-propulsion.cjs": "4a101ae49e5d6791859fa1afc8dcc09e36a09e23500ed015e458eb723b85b5da",
+        "scripts/benchmark-sensors.cjs": "0300a98d2f0d0b399fa2699508835a6aa824151dec5cbc5954c60942ff960b52",
+        "scripts/benchmark-surface-systems.cjs": "b3fb267a22e9dfc7e3b85ed1b3a134d695032366812b9f67608a5f1263f80762",
+        "scripts/benchmark-thin-decks.cjs": "c9f355582020804217394e31bac01d76c1f2662c37c2b3490ff10be14437ff76",
+        "scripts/browser-arquitens.cjs": "53bdd47d7bbb60de8214f259bb996ba063fddfdde593da030fa85b412f4b179a",
+        "scripts/browser-capital-turret-family.cjs": "93866dd8826028badc1763e5376e789a779f7dab03aa20cd5915a7244c060bb1",
+        "scripts/browser-design-envelope.cjs": "f56d60d0b3c4cb4821d5c8d9c73c73a61c0a2bb1b76fb4325e6e56cd551b1fce",
+        "scripts/browser-editor-startup-profile.cjs": "e9841590a763a117506d14231582514a60883b0e1ed4294575c0e3e03bb9537b",
+        "scripts/browser-editor-workflows.cjs": "0024531494615c2bcb85cf994b55290e7acf5f496c8be1e440bc915848911f89",
+        "scripts/browser-engine-core.cjs": "d90f94fa2049f6451f2e10e67f640d51bb35c80fd41d3ceec40a675b7ffc01dd",
+        "scripts/browser-helpers/hull-editor.cjs": "39cdf40681da6113803660e898b96417b07743c956764f54fe4d9afb6794e967",
+        "scripts/browser-helpers/polygon-editor.cjs": "dc0f8c35da3962d3a211ba91b292d888e7fca97aacc22d71a42bbb9baf598bc4",
+        "scripts/browser-helpers/repeat-placement.cjs": "b267eeeec8f93870c4f5e3d76ddbbfdf617a93fa84d186670566a6c19cd76528",
+        "scripts/browser-light-turret-family.cjs": "c36e30ad1f1bc56b931354a8c91cb9025f35d79a4cf5683120708f2e0d0929e6",
+        "scripts/browser-missile-launcher.cjs": "82103e16a40be0e4db42e056f0a9733fbb900d7ed5447f1350a4be5a2fc13d13",
+        "scripts/browser-moncal-weapons.cjs": "af9e9ab50985838ed8d5feefeb834299ce764f4ecdfda2035961a17a35ef93c4",
+        "scripts/browser-propulsion.cjs": "2e74faff937d98d248140b30f95abf8b408ede42d0755cca6023fe64c915c026",
+        "scripts/browser-ship-examples.cjs": "0c449543bc0016a851e787729d68fa0d95a6556ee2c54011ca7c5b50f175b894",
+        "scripts/browser-ship-launcher.cjs": "4e81b9fc311df7be1bd7868b91b829d85ea8f13afe2ea099989158e0a3f99192",
+        "scripts/browser-slope-fighter.cjs": "0197dc5856a9e2c30d8a64962ee402319a2fa5cc3649b7b660e4cd1b75754030",
+        "scripts/browser-triple70-mount.cjs": "2375392ed6d4a6d16c50258a4a0fb74984bd04648850acc5c6c5e126dc396ebd",
+        "scripts/browser-turret-comparison.cjs": "ce21f208dbc59f69eb7a9bfa6c228044badd9e47f8f6fe6e78304fb7e1d1944d",
+        "scripts/browser-turret-polygon-budgets.cjs": "0fa7b988d3ca558fd74e16f7b173752da244123cf9ddd0e45d148c8ca90c1660",
+        "scripts/browser-weapon-family.cjs": "3858bf2b1fe8adacfc2ffb20783131cad5befcb60ce793422b666d4d579753d3",
+        "scripts/build-capital-ball-turrets.py": "12a118a9c60099057beeb77837cb9fa957b15ae2eedbaf7a95b38e715234b952",
+        "scripts/build-capital-turret-family.py": "8a5f0eca8cbf8a499ffb64b5e254a6286da8c8f6a0daa086b14cb5cbc4672cf9",
+        "scripts/build-cis-rapid-turret.py": "45ab44afe5dde7319c20f681e9a699b722be2ca03f0af520504715dedcde7913",
+        "scripts/build-corvette-weapons.py": "541d952bd25a1d27304d26d5b41bf87ff28ee212c0482996372a4d4c39c11667",
+        "scripts/build-isd-heavy-turrets.py": "0ac161828b249e932d51086e8b01221b2471ae0b9ac39000198749242e264d9f",
+        "scripts/build-light-quad500.py": "347b163027f4e6ee35538ff1908756f400852e0e4c812fee55f93ccbd45a8ccf",
+        "scripts/build-light-turret-family.py": "e3a8a41be84a69612606d5d90c715736848f16c9188339d8c40e641434925f55",
+        "scripts/build-moncal-turrets.py": "0a16fd16fb2f2fc6c08d2a3a34bba22e4f22a42f68128e337425516fded10274",
+        "scripts/build-munificent-guns.py": "2f400521abfee60f218be92a7e9eae963e1a73fce981426b1cf35430dcc0f9b0",
+        "scripts/build-recusant-guns.py": "bc5aef67532bc44b30cfdfd2e437312cf28cbc5098ee69cd89394f702c2de5eb",
+        "scripts/build-turret-family.py": "62c6d8b13138e2679c1fd05f014537c764431f4f0c48fc653a2d113b07bae2b3",
+        "scripts/build-twin40-turret.py": "73cf8b5376a334491f8b7a87f6d470cf6dde1d1dc15b100d4ead75c0f0dd3504",
+        "scripts/build-venator-side70.py": "b5509e55ef76a776b6e52ad4edda61f2f0866baaa02e906e8da9e6f77271f372",
+        "scripts/capture-example-figures.cjs": "31e34e48f9dc237812162283160019e61a3fead009d412fa50d8f39647452ac5",
+        "scripts/capture-legacy-propulsion.cjs": "22cda54644187b7a82dd8044c3dc14f72796c0d9347c0a7f1881e75d82d59fdb",
+        "scripts/compare-arquitens-fidelity.cjs": "9d70971c16d3dba1cb697ec6b077b8d1297a838fa903e0dc2e75283ba3092909",
+        "scripts/compare-propulsion.cjs": "dcd65a35ab14819245ace94a6eb140cfa341665c1d42f5b48b99c789daed14e8",
+        "scripts/export-arquitens-example.cjs": "93143f389d33cb41932e1cf80e6c9fc6d5a3f0e8f0dc8626af2b33e8ce838919",
+        "scripts/finalize-ship-example-audit.cjs": "523c58d135e6dbb9546348ee00ce29507ba07fd2a3844d69a902cba7ee283d6f",
+        "scripts/find-bgm-loops.py": "c5832f76b48984011ca44c3c3d8d9c0c86bf5f214a35699ce02bb3536eedb7ef",
+        "scripts/import-arquitens.py": "f6a5a643cac60f4e8a3013e12d223bc5e9f153310e6147691b062a498d3501af",
+        "scripts/import-cr90.py": "6db776cd942de5c3c63368bfceffb17ef3eb5718af9e689b197941e7947cb10c",
+        "scripts/import-sphyrna.py": "92825dea6ce4e5fc102ea390644e6d3aa03a52aafa7aa2ab71b5982b5677a171",
+        "scripts/pack-bgm.py": "d99cc56f3525b7d08c2aa6c26af9681fde6fc9f779ca79342bee97dac7d67346",
+        "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2",
+        "scripts/turret_compartment_metadata.py": "cdcd3ac34cf57e3619c3d0ff81bf56d4fe6427bb4581578dae0e340fc02f1e68",
+        "scripts/turret_source_simplify.py": "f941e5b3fce563ebcddd97373a24b88d8ae8f252bcda32edca8d5994569047f5",
+        "scripts/update-craft-costs.cjs": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9",
+        "scripts/update-light-turret-profiles.cjs": "f19cffe4c5bcc4a559f9c7ec947d7fe28cdbdfc21e6e21e622acdaaf9b5d056b",
+        "scripts/update-ship-examples.cjs": "97c40b39084ba48c06875da4d39abbba09116e2769b9b91afe1e6839bcbb77da",
+        "tests/craft-cost-parity.cjs": "6fe674d8810901384eb61dabd66e1b0f5ecc0180e45e25941b4367a093beac5c",
+        "tests/craft-example-systems.cjs": "463786d65f6c0435d4d050cbb164d0f9ba96d46935207c152fd89402fcee9430",
+        "tests/craft-price-refresh.cjs": "4bfe9c3d0b96a6d08462ac4287730030a49d2a0abc5c7c24cc65125b7ab84cd9"
+      },
+      "commands": [
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/craft-cost-parity.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 21,
+            "pass": 21,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 182472
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/craft-price-refresh.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 4,
+            "pass": 4,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 127
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/craft-example-systems.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 15,
+            "pass": 15,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 128829
+        }
+      ]
+    },
+    {
+      "phase": "privacy",
+      "sourceStable": true,
+      "startedAt": "2026-11-06T10:46:07.987Z",
+      "finishedAt": "2026-11-06T10:46:08.796Z",
+      "elapsedMs": 809,
+      "workers": 2,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "inputsSha256": {
+        "data/bgm_colossus.js": "2aa840b0d601647bee660f2d366e23fdee6154db19314a817f8bc18bc2c673ce",
+        "data/bgm_drift.js": "7c06a0193adf60ed69a96da1317c95782cb0631489514db1b14d20843bfc1b54",
+        "data/bgm_front.js": "d0493559c9a62165309f708920f3849ab1534e8ebadfe839efb42f982de0337d",
+        "data/bgm_gilded.js": "cfcd6bddbd4f75cc55c99c2c92e7ac2d682e6c30e4526ea7e0a49292c0222923",
+        "data/bgm_heavens.js": "422ddb25e90082957ff9d9959017ecea7093f4e8064265934f860e267ba4e7e3",
+        "data/bgm_launch.js": "4eb123f3b939e1a09e1b9d8d7faba85189268b6c4e54b7a40e3603a56e0774a9",
+        "data/bgm_meridian.js": "6cd3080ecadf5f9025c1aa17cc9404ded0a5dc701ee5e0f2059e52a47143bf68",
+        "data/bgm_periphery.js": "f354c7d61921efe778ce2db5d61b65697dc75430e2f9b072e3d1fa9bf4be470c",
+        "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
+        "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
+        "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
+        "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+        "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+        "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+        "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97",
+        "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+        "scripts/analyze-arquitens-reference.py": "1b0cda995df3e11a02d8956eaa5c619659264d3fcef9b68cf1d33d20123a716f",
+        "scripts/audit-engine-transmission.cjs": "b0bf02b5d99583ac99c63fd5e071b166a42d9c6db8651080a3ac019355f3c02b",
+        "scripts/audit-ship-examples.cjs": "87a4eec7cec79458d6c758eae228880a9009d46ac9f8a3effa4633dec517dc99",
+        "scripts/benchmark-capital-example-opening.cjs": "95ca8d721d3b47f48f24951e2b6f88010d9ec7cf1cda9be8180958ac089340e6",
+        "scripts/benchmark-equipment-allocation.cjs": "d48e135c71bf5ed7411d579cbd41a3e67404549937d80829fbde3196f7d19906",
+        "scripts/benchmark-fighter-interiors.cjs": "bbadffd4ff2fb49ec2a96040eaba3d13008c8aaf76c71ec5df84f4e82c86e272",
+        "scripts/benchmark-geometry-copy.cjs": "a3361defc7b94afdc5046e4018aaa6d9060329815813b894e2e43b69904ce39c",
+        "scripts/benchmark-propulsion.cjs": "4a101ae49e5d6791859fa1afc8dcc09e36a09e23500ed015e458eb723b85b5da",
+        "scripts/benchmark-sensors.cjs": "0300a98d2f0d0b399fa2699508835a6aa824151dec5cbc5954c60942ff960b52",
+        "scripts/benchmark-surface-systems.cjs": "b3fb267a22e9dfc7e3b85ed1b3a134d695032366812b9f67608a5f1263f80762",
+        "scripts/benchmark-thin-decks.cjs": "c9f355582020804217394e31bac01d76c1f2662c37c2b3490ff10be14437ff76",
+        "scripts/browser-arquitens.cjs": "53bdd47d7bbb60de8214f259bb996ba063fddfdde593da030fa85b412f4b179a",
+        "scripts/browser-capital-turret-family.cjs": "93866dd8826028badc1763e5376e789a779f7dab03aa20cd5915a7244c060bb1",
+        "scripts/browser-design-envelope.cjs": "f56d60d0b3c4cb4821d5c8d9c73c73a61c0a2bb1b76fb4325e6e56cd551b1fce",
+        "scripts/browser-editor-startup-profile.cjs": "e9841590a763a117506d14231582514a60883b0e1ed4294575c0e3e03bb9537b",
+        "scripts/browser-editor-workflows.cjs": "0024531494615c2bcb85cf994b55290e7acf5f496c8be1e440bc915848911f89",
+        "scripts/browser-engine-core.cjs": "d90f94fa2049f6451f2e10e67f640d51bb35c80fd41d3ceec40a675b7ffc01dd",
+        "scripts/browser-helpers/hull-editor.cjs": "39cdf40681da6113803660e898b96417b07743c956764f54fe4d9afb6794e967",
+        "scripts/browser-helpers/polygon-editor.cjs": "dc0f8c35da3962d3a211ba91b292d888e7fca97aacc22d71a42bbb9baf598bc4",
+        "scripts/browser-helpers/repeat-placement.cjs": "b267eeeec8f93870c4f5e3d76ddbbfdf617a93fa84d186670566a6c19cd76528",
+        "scripts/browser-light-turret-family.cjs": "c36e30ad1f1bc56b931354a8c91cb9025f35d79a4cf5683120708f2e0d0929e6",
+        "scripts/browser-missile-launcher.cjs": "82103e16a40be0e4db42e056f0a9733fbb900d7ed5447f1350a4be5a2fc13d13",
+        "scripts/browser-moncal-weapons.cjs": "af9e9ab50985838ed8d5feefeb834299ce764f4ecdfda2035961a17a35ef93c4",
+        "scripts/browser-propulsion.cjs": "2e74faff937d98d248140b30f95abf8b408ede42d0755cca6023fe64c915c026",
+        "scripts/browser-ship-examples.cjs": "0c449543bc0016a851e787729d68fa0d95a6556ee2c54011ca7c5b50f175b894",
+        "scripts/browser-ship-launcher.cjs": "4e81b9fc311df7be1bd7868b91b829d85ea8f13afe2ea099989158e0a3f99192",
+        "scripts/browser-slope-fighter.cjs": "0197dc5856a9e2c30d8a64962ee402319a2fa5cc3649b7b660e4cd1b75754030",
+        "scripts/browser-triple70-mount.cjs": "2375392ed6d4a6d16c50258a4a0fb74984bd04648850acc5c6c5e126dc396ebd",
+        "scripts/browser-turret-comparison.cjs": "ce21f208dbc59f69eb7a9bfa6c228044badd9e47f8f6fe6e78304fb7e1d1944d",
+        "scripts/browser-turret-polygon-budgets.cjs": "0fa7b988d3ca558fd74e16f7b173752da244123cf9ddd0e45d148c8ca90c1660",
+        "scripts/browser-weapon-family.cjs": "3858bf2b1fe8adacfc2ffb20783131cad5befcb60ce793422b666d4d579753d3",
+        "scripts/build-capital-ball-turrets.py": "12a118a9c60099057beeb77837cb9fa957b15ae2eedbaf7a95b38e715234b952",
+        "scripts/build-capital-turret-family.py": "8a5f0eca8cbf8a499ffb64b5e254a6286da8c8f6a0daa086b14cb5cbc4672cf9",
+        "scripts/build-cis-rapid-turret.py": "45ab44afe5dde7319c20f681e9a699b722be2ca03f0af520504715dedcde7913",
+        "scripts/build-corvette-weapons.py": "541d952bd25a1d27304d26d5b41bf87ff28ee212c0482996372a4d4c39c11667",
+        "scripts/build-isd-heavy-turrets.py": "0ac161828b249e932d51086e8b01221b2471ae0b9ac39000198749242e264d9f",
+        "scripts/build-light-quad500.py": "347b163027f4e6ee35538ff1908756f400852e0e4c812fee55f93ccbd45a8ccf",
+        "scripts/build-light-turret-family.py": "e3a8a41be84a69612606d5d90c715736848f16c9188339d8c40e641434925f55",
+        "scripts/build-moncal-turrets.py": "0a16fd16fb2f2fc6c08d2a3a34bba22e4f22a42f68128e337425516fded10274",
+        "scripts/build-munificent-guns.py": "2f400521abfee60f218be92a7e9eae963e1a73fce981426b1cf35430dcc0f9b0",
+        "scripts/build-recusant-guns.py": "bc5aef67532bc44b30cfdfd2e437312cf28cbc5098ee69cd89394f702c2de5eb",
+        "scripts/build-turret-family.py": "62c6d8b13138e2679c1fd05f014537c764431f4f0c48fc653a2d113b07bae2b3",
+        "scripts/build-twin40-turret.py": "73cf8b5376a334491f8b7a87f6d470cf6dde1d1dc15b100d4ead75c0f0dd3504",
+        "scripts/build-venator-side70.py": "b5509e55ef76a776b6e52ad4edda61f2f0866baaa02e906e8da9e6f77271f372",
+        "scripts/capture-example-figures.cjs": "31e34e48f9dc237812162283160019e61a3fead009d412fa50d8f39647452ac5",
+        "scripts/capture-legacy-propulsion.cjs": "22cda54644187b7a82dd8044c3dc14f72796c0d9347c0a7f1881e75d82d59fdb",
+        "scripts/compare-arquitens-fidelity.cjs": "9d70971c16d3dba1cb697ec6b077b8d1297a838fa903e0dc2e75283ba3092909",
+        "scripts/compare-propulsion.cjs": "dcd65a35ab14819245ace94a6eb140cfa341665c1d42f5b48b99c789daed14e8",
+        "scripts/export-arquitens-example.cjs": "93143f389d33cb41932e1cf80e6c9fc6d5a3f0e8f0dc8626af2b33e8ce838919",
+        "scripts/finalize-ship-example-audit.cjs": "523c58d135e6dbb9546348ee00ce29507ba07fd2a3844d69a902cba7ee283d6f",
+        "scripts/find-bgm-loops.py": "c5832f76b48984011ca44c3c3d8d9c0c86bf5f214a35699ce02bb3536eedb7ef",
+        "scripts/import-arquitens.py": "f6a5a643cac60f4e8a3013e12d223bc5e9f153310e6147691b062a498d3501af",
+        "scripts/import-cr90.py": "6db776cd942de5c3c63368bfceffb17ef3eb5718af9e689b197941e7947cb10c",
+        "scripts/import-sphyrna.py": "92825dea6ce4e5fc102ea390644e6d3aa03a52aafa7aa2ab71b5982b5677a171",
+        "scripts/pack-bgm.py": "d99cc56f3525b7d08c2aa6c26af9681fde6fc9f779ca79342bee97dac7d67346",
+        "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2",
+        "scripts/turret_compartment_metadata.py": "cdcd3ac34cf57e3619c3d0ff81bf56d4fe6427bb4581578dae0e340fc02f1e68",
+        "scripts/turret_source_simplify.py": "f941e5b3fce563ebcddd97373a24b88d8ae8f252bcda32edca8d5994569047f5",
+        "scripts/update-craft-costs.cjs": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9",
+        "scripts/update-light-turret-profiles.cjs": "f19cffe4c5bcc4a559f9c7ec947d7fe28cdbdfc21e6e21e622acdaaf9b5d056b",
+        "scripts/update-ship-examples.cjs": "97c40b39084ba48c06875da4d39abbba09116e2769b9b91afe1e6839bcbb77da",
+        "tests/sensor-presentation.cjs": "91448b67675844e5a24e694c67b3bed832f7278406d90ed8e47a7e37fb940d32",
+        "tests/superweapon-unit-controls.cjs": "1a01b4216ba977ad86ca978a00459de093cfd4c36f645928f9c12179a4e0354b"
+      },
+      "commands": [
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/sensor-presentation.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 614
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/superweapon-unit-controls.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 743
+        }
+      ]
+    },
+    {
+      "phase": "catalog",
+      "validationMethod": "authenticated-composite",
+      "components": [
+        {
+          "file": "kuat-onager-catalog-initial-regressions.json",
+          "sha256": "a49d2f12d5c3a5a92cea1c4b2984f1416f1d6836a5b1436a1a033af8bec5fa21",
+          "originalCounts": {
+            "tests": 21,
+            "pass": 20,
+            "fail": 1,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "retainedFiles": [
+            "tests/ship-example-catalog.cjs",
+            "tests/load-sizes.cjs",
+            "tests/ship-example-blueprint-sources.cjs"
+          ]
+        },
+        {
+          "file": "kuat-onager-catalog-repair-regressions.json",
+          "sha256": "574d9f5f0b6f4b53c06122f64ad342e679200e973b3c6e237379bbf48abf98e3",
+          "counts": {
+            "tests": 3,
+            "pass": 3,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "replacedFiles": [
+            "tests/onager-generated-profile.cjs"
+          ]
+        }
+      ],
+      "scope": "The3unchanged passing catalogue files retain their original guarded runs; only the generated-profile test file was corrected to observe the initialized energy ledger and rerun. Runtime/data/script hashes match exactly across both components and all retained/replaced test source hashes match the current files.",
+      "sourceStable": true,
+      "startedAt": "2026-11-06T10:46:08.027Z",
+      "finishedAt": "2026-11-06T10:48:19.599Z",
+      "elapsedMs": 2770,
+      "workers": 2,
+      "counts": {
+        "tests": 21,
+        "pass": 21,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "inputsSha256": {
+        "assets/source/arquitens-manifest.json": "c2ba86ce8362f7fe41904efdea7b4de441faf954086895fc6d02a67334c124f6",
+        "assets/source/arquitens-turret-manifest.json": "4bff3b0870bdb7ffe195b4ff6e0ace8ae821fdd81857eeb6be1c7222deda6ed0",
+        "assets/source/arquitens.stl": "e0c6b655ffe0690dd5ddc835f17fa5caf57e671760307576b20c75792ee8f108",
+        "assets/source/arquitens_turret.stl": "60dc892a254bdd779658f1263acca9628030962146386fc03173e1efa57a06aa",
+        "assets/source/capital-ball-turret-manifest.json": "91358aa44b4a4421c3c22ec88c0eae1ceae5211b806bd23dde19a636ad2033a8",
+        "assets/source/capital-turret-family-manifest.json": "4a08c15709d0bc0504a6e2ff5b893b1ce5578697c2fe2ea9130b0e20d550b0a2",
+        "assets/source/capital-turret-front-bevel-reference.json": "7959f56eda9e552cc96e371a0d764aa0cca60c528825a4148258dbf9602ff015",
+        "assets/source/capital-turret-photo-measurements.json": "c4dc3a337d2c84ef4c5923d12a7939a2c0fb67adfd5592b2d492f416eb88963d",
+        "assets/source/capital-turret-reference-1.jpg": "e0ccd15a9bfaa1cf005922f4ee9d920a6c5be5255c4c7057863fdd973c928ee0",
+        "assets/source/capital-turret-reference-10.jpg": "910f0b3950c7858303f25d73982deb2dbd4428afc53b7589b7ee12f06810a790",
+        "assets/source/capital-turret-reference-2.jpg": "9bfbb01ae0914477869aa19bca517ad1f9197d88fe21b6459a4a3953e33779ee",
+        "assets/source/capital-turret-reference-3.jpg": "ec323dc0c01272d2f3e04c8acc3c6b8dae13c78d2193b8a510f0bbc4389d5073",
+        "assets/source/capital-turret-reference-4.jpg": "a0c0aa186c3b4bd5166cd3b161845bdca6b5e9fc083bbac558567654ed4b77d3",
+        "assets/source/capital-turret-reference-5.jpg": "06b9c3b7e9231ee892eb802056c879a62d7fd776cc44438af53a3dc43a7f1670",
+        "assets/source/capital-turret-reference-6.jpg": "faee9873c8f941c91939017731e77313dbe517056a54720e757655eb7bd374ed",
+        "assets/source/capital-turret-reference-7.jpg": "ecf960097b5a0a627c6eb7f5e0d9266cc577f800f2a44b3ce5ad63203f110f28",
+        "assets/source/capital-turret-reference-8.jpg": "5d092abf239b61090fb552cc5fd9239cd94443dae7c515b65ee89b7100b05853",
+        "assets/source/capital-turret-reference-9.jpg": "b0e1413fd94df547265da4a6f942e969600dce727d68b5754a24ddfe438e1596",
+        "assets/source/cis-rapid-turret-manifest.json": "c5d020aadd3ec01d5bae2f6b0e1b8444814d3b4d6b930fb623d5e8aab9a30273",
+        "assets/source/corvette-weapons/1-CR90_Corvette_Standard_SmallTurret.STL": "151581f6b36f13de5439156858a39fae6c39b073ac9330eccd5430f58cb484b4",
+        "assets/source/corvette-weapons/2-CR90_Corvette_Phoenix_BigTurretQuad.STL": "a924d9dc977e340103aa3b513ceb4bb5379d765ad54b168624cbd8d616d518fa",
+        "assets/source/corvette-weapons/4-CR90_Corvette_Phoenix_SideTurret.STL": "7c289db8bc609df8ab3f0e3d5ba275fbb0beddddbfd6fcf9bdc4f63ec06b8ee2",
+        "assets/source/corvette-weapons/5-CR90_Corvette_Standard_BigTurret.STL": "4ce776b277c34152818a8b09a770f65aef67e4f6e854b2bcfbd5ee170d62bce6",
+        "assets/source/corvette-weapons/6-HammerheadClassCorvette-2.STL": "51721654608a79efa8a78ac9e4c0ac3ce601a6e6369087db965f576a33ed6a25",
+        "assets/source/corvette-weapons/7-HammerheadClassCorvette_Turret.STL": "3e897fe75a0fec7aabe1c747d5f7bb1ecb653940c746dfea8b4b82ce6e826df0",
+        "assets/source/corvette-weapons/manifest.json": "396961506c2ec8bd5f54e0f89b7d29422479f88edeff6a20f75de809ea4a4f9c",
+        "assets/source/cr90/cr90-corvette-standard.stl.gz": "55e9729d33a8eeae82cd86bb75051ba56e1c9c34a6194bbd5bdebb3effc32753",
+        "assets/source/cr90/hull-manifest.json": "ce10b57275182022fd5a5f5697ad6a085e4a94f5b2c153a486e0cfe0b7bbc203",
+        "assets/source/current-factory-blueprints/executor.json.gz": "7cac81d31c8a72b01e1de831d6d45824984882618cc450181a993923998c6555",
+        "assets/source/current-factory-blueprints/manifest.json": "18841fb0fadca19f3d43379497fe064cb8e235ecf24217fa181bd2646cf0b107",
+        "assets/source/isd-heavy-octuple-original.json": "35314355cfee9e7eb9050973e8700a44aae529b0882d317d0433c74566e37307",
+        "assets/source/light-quad500-manifest.json": "d24c8b5637b9bb04c2f2acd906b2a8ce10325ae65af86885cd2baaf527910d00",
+        "assets/source/light-turret-family-manifest.json": "b99b574d260fe9a45f0ca34eba3fcee22966966daa882bb4c09a9905d60b1c0c",
+        "assets/source/light-turret-photo-measurements.json": "e3f486b47fc4ce3d91ae3eabd18507d1f003bfd87149cf49416bc117e2450afa",
+        "assets/source/moncal-turret-manifest.json": "acf53596869bf60fa37e5e6645597616829cb276afbb49c1d7590a4518c412fb",
+        "assets/source/onager-factory-blueprints/manifest.json": "90328662fa4d3faf4950ef3985271167dec4684789dae3dd8de6c56efe0c78e0",
+        "assets/source/onager-factory-blueprints/onager.json.gz": "c85801f6a6de016397d682f04d82d06e1d9276b25d00b1c48f81acd480018569",
+        "assets/source/recusant-s3e2/license.txt": "3120142bc37352b4f7e89e66fd7b6deb953da8539a033ed99b7c9811a3250352",
+        "assets/source/recusant-s3e2/scene.bin": "8358336a0b1cb7d73a62e96d09ad74e7112d6e0cb67a9aa040570ae52af123cd",
+        "assets/source/recusant-s3e2/scene.gltf": "7c052125fc4101a40dab877a7624a926a87f696e031304998baa172c887ee156",
+        "assets/source/ship-example-blueprints/acclamator.json.gz": "684f514a310bc60500ab36324537b341fd0f6c5ba52c783c4d0e20e37feed7b8",
+        "assets/source/ship-example-blueprints/arquitens.json.gz": "df6ed1aa99a64f7792bdb18da27b977f375f783ac82f0442ce81072631b6e1e2",
+        "assets/source/ship-example-blueprints/cr90.json.gz": "03ad87db83bfe0a39873be62c3ec12e389e45ec9976e3293be6f6589c78bb7c4",
+        "assets/source/ship-example-blueprints/dreadnaught.json.gz": "c048e4b2791122fdbb639a641bfb1b067f9beba0596249fbed6d0aab5b277fab",
+        "assets/source/ship-example-blueprints/executor.json.gz": "9ccde5db80ee1ae64f35254d12212d74be7c7153c0f9f454e1ebf1d6255dffa6",
+        "assets/source/ship-example-blueprints/gozanti.json.gz": "e843ea7cc5849e8fc1081c3e35291328c31045b0ec314e82018bbef7b8e5ed0e",
+        "assets/source/ship-example-blueprints/gr75.json.gz": "0be01ad25c3aa3b41097ad98f150b6afd20e7bb78af1f4a5594087fbb9c98006",
+        "assets/source/ship-example-blueprints/hammerhead.json.gz": "4213d26332e2d28673e569a2d63fff8697fa01c3f3bd2e2f6499402fb2eb8e57",
+        "assets/source/ship-example-blueprints/heraklon.json.gz": "abd11028869126a010a3288e98961900c477ffa1b54927027e5bbc5bdbc5f239",
+        "assets/source/ship-example-blueprints/imperial.json.gz": "386b111f36411feb1c2de2dbe16ec8cd23534e5d90061c549f40e4d366b602cb",
+        "assets/source/ship-example-blueprints/lh3210.json.gz": "5105c96ffda7fc7d5f599b4f73fe2e39330dcad076310361a59106cb9f3f9e65",
+        "assets/source/ship-example-blueprints/lucrehulk.json.gz": "94b79e85ceec49e89cf80f20d1ba2a018df30b19df47a605c50401e395e1ceff",
+        "assets/source/ship-example-blueprints/mandator2.json.gz": "0065e8a0898879d4da36f08617a77b22112092d3ce63e8bb38f870a3493129ed",
+        "assets/source/ship-example-blueprints/manifest.json": "5a6c37e355f5d0d97ef3618cbb9323336600ea991b56b69f3d248a50bd9bb195",
+        "assets/source/ship-example-blueprints/mc30c.json.gz": "2cf10db82210a1c0f3d65af644b5396cac0db261deee7c249b1a2127d172ee27",
+        "assets/source/ship-example-blueprints/mc75.json.gz": "04525b58d0e118f035d2c8e79150517a439edb6a17596059b28d7d71eec0ae0a",
+        "assets/source/ship-example-blueprints/mc80home.json.gz": "95ca72da645a2a94f76508cf9b6a96f7b6db0d4941b8d3d077ec39fd71c68117",
+        "assets/source/ship-example-blueprints/mc80liberty.json.gz": "e15363f6bc169f6bbb34c8b341e163b6e3044a83771eeb69a62781a5c01ca01d",
+        "assets/source/ship-example-blueprints/munificent.json.gz": "649e2c1b5806c7b222e06cbba13a35636e08b0a4a2396486d5028901f2d6b57d",
+        "assets/source/ship-example-blueprints/nebulonb.json.gz": "6577edb3db277b01d989e615eb36406f67f5d0a0736cfb889edd2e2de49625c8",
+        "assets/source/ship-example-blueprints/onager.json.gz": "2dd4e6fe69109e9e63a6e9e2b705b72a70bf89371ecaba639f4364e2b5f464ca",
+        "assets/source/ship-example-blueprints/providence.json.gz": "65644a508a333188355a2d2e5751683be7a6f716722c0d7a44fc27b2bc1c8da1",
+        "assets/source/ship-example-blueprints/providenceDn.json.gz": "c6e4b51f9d5cc498758061e2110ea534bf28f788772d927f7e45b1aaf71377ba",
+        "assets/source/ship-example-blueprints/recusant.json.gz": "83e39e879698aa4589ed3a9e532eaa5e1b83eba3b3f27ab70a6aa081cd505490",
+        "assets/source/ship-example-blueprints/recusantDn.json.gz": "c7b570585c501c4af35accb739c3199df644cbde78844ee0d630989371442ff2",
+        "assets/source/ship-example-blueprints/reptransport.json.gz": "d39a168977fe3c229d54ac62a18910692c2fdee8db8f4f3739ad5fdd79bdb0b2",
+        "assets/source/ship-example-blueprints/subjugator.json.gz": "f80087357d98f53362211b4af912a68b58207a54ebfebd394a18f57c3f2924b0",
+        "assets/source/ship-example-blueprints/venator.json.gz": "4916b0e692a369eebcb8757ab1d2fc25c7973191661d3b3a315afd92c03e8a6a",
+        "assets/source/sphyrna-hull-manifest.json": "7025597f80b2f4f6e522d7e78487c04df083fb4c2cad5fc95fa23fa047226190",
+        "assets/source/sphyrna-hull.stl": "51721654608a79efa8a78ac9e4c0ac3ce601a6e6369087db965f576a33ed6a25",
+        "assets/source/turret-family-anchor-compartments.json": "25cdc92cd3258ce26b2895d16c64c653bbaee12bc29615dbb6d598f3087b9d8b",
+        "assets/source/turret-family-manifest.json": "275f27e1e3d8668597aadad1fc750506941234ebbc039f0937431841ea12a04f",
+        "assets/source/turret-legacy-compartments.json": "0467fb6b8a211bdcc0019874a3e33deefeeeafccb417773590432d45204f962b",
+        "assets/source/turret-photo-measurements.json": "de537caef4b4c57d51201b543f89bde43fd49b7fc2aaebb2fa176dd22e4d6205",
+        "assets/source/twin40-turret-manifest.json": "242fde21846085bdb225f242bc248807c814914b55c2c1978b07d11580ff6a6b",
+        "assets/source/venator-side70-manifest.json": "51a84864004a2387e022414e4a57c10707561d1f50b3e33b94753f85b6425efe",
+        "data/bgm_colossus.js": "2aa840b0d601647bee660f2d366e23fdee6154db19314a817f8bc18bc2c673ce",
+        "data/bgm_drift.js": "7c06a0193adf60ed69a96da1317c95782cb0631489514db1b14d20843bfc1b54",
+        "data/bgm_front.js": "d0493559c9a62165309f708920f3849ab1534e8ebadfe839efb42f982de0337d",
+        "data/bgm_gilded.js": "cfcd6bddbd4f75cc55c99c2c92e7ac2d682e6c30e4526ea7e0a49292c0222923",
+        "data/bgm_heavens.js": "422ddb25e90082957ff9d9959017ecea7093f4e8064265934f860e267ba4e7e3",
+        "data/bgm_launch.js": "4eb123f3b939e1a09e1b9d8d7faba85189268b6c4e54b7a40e3603a56e0774a9",
+        "data/bgm_meridian.js": "6cd3080ecadf5f9025c1aa17cc9404ded0a5dc701ee5e0f2059e52a47143bf68",
+        "data/bgm_periphery.js": "f354c7d61921efe778ce2db5d61b65697dc75430e2f9b072e3d1fa9bf4be470c",
+        "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
+        "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
+        "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
+        "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+        "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+        "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+        "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97",
+        "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+        "scripts/analyze-arquitens-reference.py": "1b0cda995df3e11a02d8956eaa5c619659264d3fcef9b68cf1d33d20123a716f",
+        "scripts/audit-engine-transmission.cjs": "b0bf02b5d99583ac99c63fd5e071b166a42d9c6db8651080a3ac019355f3c02b",
+        "scripts/audit-ship-examples.cjs": "87a4eec7cec79458d6c758eae228880a9009d46ac9f8a3effa4633dec517dc99",
+        "scripts/benchmark-capital-example-opening.cjs": "95ca8d721d3b47f48f24951e2b6f88010d9ec7cf1cda9be8180958ac089340e6",
+        "scripts/benchmark-equipment-allocation.cjs": "d48e135c71bf5ed7411d579cbd41a3e67404549937d80829fbde3196f7d19906",
+        "scripts/benchmark-fighter-interiors.cjs": "bbadffd4ff2fb49ec2a96040eaba3d13008c8aaf76c71ec5df84f4e82c86e272",
+        "scripts/benchmark-geometry-copy.cjs": "a3361defc7b94afdc5046e4018aaa6d9060329815813b894e2e43b69904ce39c",
+        "scripts/benchmark-propulsion.cjs": "4a101ae49e5d6791859fa1afc8dcc09e36a09e23500ed015e458eb723b85b5da",
+        "scripts/benchmark-sensors.cjs": "0300a98d2f0d0b399fa2699508835a6aa824151dec5cbc5954c60942ff960b52",
+        "scripts/benchmark-surface-systems.cjs": "b3fb267a22e9dfc7e3b85ed1b3a134d695032366812b9f67608a5f1263f80762",
+        "scripts/benchmark-thin-decks.cjs": "c9f355582020804217394e31bac01d76c1f2662c37c2b3490ff10be14437ff76",
+        "scripts/browser-arquitens.cjs": "53bdd47d7bbb60de8214f259bb996ba063fddfdde593da030fa85b412f4b179a",
+        "scripts/browser-capital-turret-family.cjs": "93866dd8826028badc1763e5376e789a779f7dab03aa20cd5915a7244c060bb1",
+        "scripts/browser-design-envelope.cjs": "f56d60d0b3c4cb4821d5c8d9c73c73a61c0a2bb1b76fb4325e6e56cd551b1fce",
+        "scripts/browser-editor-startup-profile.cjs": "e9841590a763a117506d14231582514a60883b0e1ed4294575c0e3e03bb9537b",
+        "scripts/browser-editor-workflows.cjs": "0024531494615c2bcb85cf994b55290e7acf5f496c8be1e440bc915848911f89",
+        "scripts/browser-engine-core.cjs": "d90f94fa2049f6451f2e10e67f640d51bb35c80fd41d3ceec40a675b7ffc01dd",
+        "scripts/browser-helpers/hull-editor.cjs": "39cdf40681da6113803660e898b96417b07743c956764f54fe4d9afb6794e967",
+        "scripts/browser-helpers/polygon-editor.cjs": "dc0f8c35da3962d3a211ba91b292d888e7fca97aacc22d71a42bbb9baf598bc4",
+        "scripts/browser-helpers/repeat-placement.cjs": "b267eeeec8f93870c4f5e3d76ddbbfdf617a93fa84d186670566a6c19cd76528",
+        "scripts/browser-light-turret-family.cjs": "c36e30ad1f1bc56b931354a8c91cb9025f35d79a4cf5683120708f2e0d0929e6",
+        "scripts/browser-missile-launcher.cjs": "82103e16a40be0e4db42e056f0a9733fbb900d7ed5447f1350a4be5a2fc13d13",
+        "scripts/browser-moncal-weapons.cjs": "af9e9ab50985838ed8d5feefeb834299ce764f4ecdfda2035961a17a35ef93c4",
+        "scripts/browser-propulsion.cjs": "2e74faff937d98d248140b30f95abf8b408ede42d0755cca6023fe64c915c026",
+        "scripts/browser-ship-examples.cjs": "0c449543bc0016a851e787729d68fa0d95a6556ee2c54011ca7c5b50f175b894",
+        "scripts/browser-ship-launcher.cjs": "4e81b9fc311df7be1bd7868b91b829d85ea8f13afe2ea099989158e0a3f99192",
+        "scripts/browser-slope-fighter.cjs": "0197dc5856a9e2c30d8a64962ee402319a2fa5cc3649b7b660e4cd1b75754030",
+        "scripts/browser-triple70-mount.cjs": "2375392ed6d4a6d16c50258a4a0fb74984bd04648850acc5c6c5e126dc396ebd",
+        "scripts/browser-turret-comparison.cjs": "ce21f208dbc59f69eb7a9bfa6c228044badd9e47f8f6fe6e78304fb7e1d1944d",
+        "scripts/browser-turret-polygon-budgets.cjs": "0fa7b988d3ca558fd74e16f7b173752da244123cf9ddd0e45d148c8ca90c1660",
+        "scripts/browser-weapon-family.cjs": "3858bf2b1fe8adacfc2ffb20783131cad5befcb60ce793422b666d4d579753d3",
+        "scripts/build-capital-ball-turrets.py": "12a118a9c60099057beeb77837cb9fa957b15ae2eedbaf7a95b38e715234b952",
+        "scripts/build-capital-turret-family.py": "8a5f0eca8cbf8a499ffb64b5e254a6286da8c8f6a0daa086b14cb5cbc4672cf9",
+        "scripts/build-cis-rapid-turret.py": "45ab44afe5dde7319c20f681e9a699b722be2ca03f0af520504715dedcde7913",
+        "scripts/build-corvette-weapons.py": "541d952bd25a1d27304d26d5b41bf87ff28ee212c0482996372a4d4c39c11667",
+        "scripts/build-isd-heavy-turrets.py": "0ac161828b249e932d51086e8b01221b2471ae0b9ac39000198749242e264d9f",
+        "scripts/build-light-quad500.py": "347b163027f4e6ee35538ff1908756f400852e0e4c812fee55f93ccbd45a8ccf",
+        "scripts/build-light-turret-family.py": "e3a8a41be84a69612606d5d90c715736848f16c9188339d8c40e641434925f55",
+        "scripts/build-moncal-turrets.py": "0a16fd16fb2f2fc6c08d2a3a34bba22e4f22a42f68128e337425516fded10274",
+        "scripts/build-munificent-guns.py": "2f400521abfee60f218be92a7e9eae963e1a73fce981426b1cf35430dcc0f9b0",
+        "scripts/build-recusant-guns.py": "bc5aef67532bc44b30cfdfd2e437312cf28cbc5098ee69cd89394f702c2de5eb",
+        "scripts/build-turret-family.py": "62c6d8b13138e2679c1fd05f014537c764431f4f0c48fc653a2d113b07bae2b3",
+        "scripts/build-twin40-turret.py": "73cf8b5376a334491f8b7a87f6d470cf6dde1d1dc15b100d4ead75c0f0dd3504",
+        "scripts/build-venator-side70.py": "b5509e55ef76a776b6e52ad4edda61f2f0866baaa02e906e8da9e6f77271f372",
+        "scripts/capture-example-figures.cjs": "31e34e48f9dc237812162283160019e61a3fead009d412fa50d8f39647452ac5",
+        "scripts/capture-legacy-propulsion.cjs": "22cda54644187b7a82dd8044c3dc14f72796c0d9347c0a7f1881e75d82d59fdb",
+        "scripts/compare-arquitens-fidelity.cjs": "9d70971c16d3dba1cb697ec6b077b8d1297a838fa903e0dc2e75283ba3092909",
+        "scripts/compare-propulsion.cjs": "dcd65a35ab14819245ace94a6eb140cfa341665c1d42f5b48b99c789daed14e8",
+        "scripts/export-arquitens-example.cjs": "93143f389d33cb41932e1cf80e6c9fc6d5a3f0e8f0dc8626af2b33e8ce838919",
+        "scripts/finalize-ship-example-audit.cjs": "523c58d135e6dbb9546348ee00ce29507ba07fd2a3844d69a902cba7ee283d6f",
+        "scripts/find-bgm-loops.py": "c5832f76b48984011ca44c3c3d8d9c0c86bf5f214a35699ce02bb3536eedb7ef",
+        "scripts/import-arquitens.py": "f6a5a643cac60f4e8a3013e12d223bc5e9f153310e6147691b062a498d3501af",
+        "scripts/import-cr90.py": "6db776cd942de5c3c63368bfceffb17ef3eb5718af9e689b197941e7947cb10c",
+        "scripts/import-sphyrna.py": "92825dea6ce4e5fc102ea390644e6d3aa03a52aafa7aa2ab71b5982b5677a171",
+        "scripts/pack-bgm.py": "d99cc56f3525b7d08c2aa6c26af9681fde6fc9f779ca79342bee97dac7d67346",
+        "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2",
+        "scripts/turret_compartment_metadata.py": "cdcd3ac34cf57e3619c3d0ff81bf56d4fe6427bb4581578dae0e340fc02f1e68",
+        "scripts/turret_source_simplify.py": "f941e5b3fce563ebcddd97373a24b88d8ae8f252bcda32edca8d5994569047f5",
+        "scripts/update-craft-costs.cjs": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9",
+        "scripts/update-light-turret-profiles.cjs": "f19cffe4c5bcc4a559f9c7ec947d7fe28cdbdfc21e6e21e622acdaaf9b5d056b",
+        "scripts/update-ship-examples.cjs": "97c40b39084ba48c06875da4d39abbba09116e2769b9b91afe1e6839bcbb77da",
+        "tests/load-sizes.cjs": "7cddf0bdd43503d43e5f14e5d63884315288721ecc60ecf05a38ed55d98162eb",
+        "tests/onager-generated-profile.cjs": "f129592f764071d2b958ed577062ff1cf96ec60fee87b946fd093761f9a4c796",
+        "tests/ship-example-blueprint-sources.cjs": "d2d8e50ab3e11086e21a2a62827b8c6a9545af97f44868370039b3d05f53b67e",
+        "tests/ship-example-catalog.cjs": "0ba261fd8d78e9d3d5b99dc0faebdc694617f4ede8fba469ed840c882ce0e8a5"
+      },
+      "commands": [
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/ship-example-catalog.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1294
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/load-sizes.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 1,
+            "pass": 1,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 110
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/ship-example-blueprint-sources.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 11,
+            "pass": 11,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1598
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/onager-generated-profile.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 3,
+            "pass": 3,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 594
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "tests": 313,
+    "pass": 313,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "knownBaselineFailures": {
+    "scope": "Run separately and excluded from the selected passing count. Current runs use the same final model source hashes as this report.",
+    "sourceStable": true,
+    "currentSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+    },
+    "baselineSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+      "js/core.js": "2421016520b2a2eee5f0d000d52cf5ade8c5399d3e0c8470857356abc490f230",
+      "js/app.js": "8a9862f36d02f47219eccc25e5846b59576662e67926c6ca27f21d4a5ae3b155",
+      "js/gfx.js": "7e657919f925c7c9928e65aa61b8896d3c5c726fa581caaf6024790c82e01dea",
+      "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+      "js/lang-en.js": "b923c1204810e82e1ff8b58c5f604a601e8e76fac1a65a11744963adcc7f6553",
+      "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+    },
+    "tests": 5,
+    "pass": 1,
+    "fail": 4,
+    "cases": [
+      {
+        "file": "tests/surface-engine-geometry.cjs",
+        "baselineCommit": "74760db1c437c9db3f82bee484b871c260a25bc4",
+        "testSourceSha256": "2199b75503699b5bf6a521069516759c04255cb44a17c40323f3da066d23b655",
+        "baseline": {
+          "tests": 3,
+          "pass": 0,
+          "fail": 3
+        },
+        "current": {
+          "tests": 3,
+          "pass": 0,
+          "fail": 3
+        },
+        "unchangedFailingTests": [
+          "live geometry updates replace and restore hull skin after equipment Apply, Undo and Redo",
+          "moving a structure across an equipment hull face refreshes the live exposed-skin mask",
+          "the background operation returns an automatic equipment plan without changing the caller design"
+        ],
+        "reason": "These assertions require the retired surface equipment allocation/recess model. They fail identically on untouched74760db and the current runtime; their assertions were not changed."
+      },
+      {
+        "file": "tests/surface-exposure-engine.cjs",
+        "baselineCommit": "74760db1c437c9db3f82bee484b871c260a25bc4",
+        "testSourceSha256": "a6f2a276300fe1f21b741373b60859b437551460a96d67e5972744a576119d78",
+        "baseline": {
+          "tests": 2,
+          "pass": 1,
+          "fail": 1
+        },
+        "current": {
+          "tests": 2,
+          "pass": 1,
+          "fail": 1
+        },
+        "unchangedFailingTests": [
+          "worker geometry and capacity follow the exposed part when a covering structure moves and Undo reloads it"
+        ],
+        "reason": "These assertions require the retired surface equipment allocation/recess model. They fail identically on untouched74760db and the current runtime; their assertions were not changed."
+      }
+    ]
+  },
+  "repairedFixtures": {
+    "scope": "Only stale test extraction/state and invalid synthetic hardware were repaired. Existing startup and conservation assertions remain; the dissipator fixture adds an explicit no-unpaid-cooler rejection case.",
+    "files": [
+      {
+        "file": "tests/hud-localization.cjs",
+        "beforeSha256": "699abb679f202b0735313e7b59c3c473344b314f30299ea053a43896b2d7877b",
+        "afterSha256": "f6e29e420fa233a002c0df080866b9cfd21371adc29be243f87b56211cf72835"
+      },
+      {
+        "file": "tests/structure-envelope-ui.cjs",
+        "beforeSha256": "e6f389307b5a54c0701d5c94b14055014b6c094698322f1327262a00580a0f71",
+        "afterSha256": "318fd7f411a17453459f56e6894b7693370a7ffa37cf6d51ad7fa7bee92a52a8"
+      },
+      {
+        "file": "tests/surface-manual-runtime.cjs",
+        "beforeSha256": "4f05f10ff7f143bcda53d7f5651ecb56a03613ca30b472402ff01680825334c2",
+        "afterSha256": "57f3bf2724f58eceb81dbc8a5fbad67987c4b685c56dfdc68c31d61f04d9aba3"
+      },
+      {
+        "file": "tests/surface-energy-ion.cjs",
+        "beforeSha256": "a38228f311016ba59b237addc05ec282f8cbc4639903b00b508905870f213bcc",
+        "afterSha256": "62754ef4827c9c17535bc23ec8197976759adc18791944bc0f3eae9e0e6fe7ac"
+      },
+      {
+        "file": "tests/wing-planform-ui.cjs",
+        "beforeSha256": "98e04c0811bcda36fd97c89437a78630bd7fdc6a47630c5e53cbbf043c74fd74",
+        "afterSha256": "02d79109b72fd8d03afd8d2a02424646b056c798e6756d96cda7d784b095c857"
+      },
+      {
+        "file": "tests/sensor-presentation.cjs",
+        "beforeSha256": "c7b321c1da0e2b00542fcedbd6a718226468448101685de2285cd3cd6ad2818e",
+        "afterSha256": "91448b67675844e5a24e694c67b3bed832f7278406d90ed8e47a7e37fb940d32"
+      },
+      {
+        "file": "tests/surface-energy-review.cjs",
+        "beforeSha256": "3fd90b5903eb6f7adfe93f96d5cb6f39652b1a0377587c59d5c16c1addb47a8b",
+        "afterSha256": "d3124c201ab4db98733c0a7b2ad4aafaa6c12429c97b5f5522f20bba0bfdac27"
+      }
+    ],
+    "originalUiBaseline": {
+      "tests": 23,
+      "pass": 15,
+      "fail": 8
+    },
+    "repairedUiOnBaseline": {
+      "tests": 23,
+      "pass": 23,
+      "fail": 0
+    },
+    "originalEnergyBaseline": {
+      "tests": 14,
+      "pass": 12,
+      "fail": 2
+    },
+    "repairedEnergyOnBaseline": {
+      "tests": 15,
+      "pass": 15,
+      "fail": 0
+    },
+    "originalAdditionalBaseline": {
+      "tests": 22,
+      "pass": 16,
+      "fail": 6
+    },
+    "repairedWingAndNativeStorageOnBaseline": {
+      "tests": 16,
+      "pass": 16,
+      "fail": 0
+    },
+    "sensorFixtureChange": "The new fixed-axis renderer uses a complete installed superweapon descriptor and finite actual axis segment. Its current fixture carries index, muzzle, origin, axis, distance and endpoint; source and hidden-contact privacy assertions remain and include moving the hidden true position far away."
+  },
+  "catalogueGeneration": {
+    "audit": "docs/benchmarks/ship-examples-after.json",
+    "onagerArchive": "assets/source/onager-factory-blueprints/manifest.json",
+    "methods": {
+      "currentFactoryOnager": 1,
+      "savedHistoricalLayouts": 25,
+      "savedPR51ExecutorLayout": 1
+    }
+  },
+  "executionCounts": {
+    "tests": 313,
+    "pass": 313,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "uniqueTestCases": 295,
+  "countScope": "Execution totals include repeated affected tests across explicitly versioned phases. Unique cases are identified by file and TAP subtest title.",
+  "phaseVersionScope": {
+    "scope": "Execution counts aggregate explicitly versioned phases. Earlier233selected and40cache tests retain the actual App hash they exercised. A subsequent narrow tactical source-visibility fix leaves Core/Gfx/data and physical generation unchanged; the privacy and catalogue phases exercise the updated App. This is not a claim that the entire selected suite was rerun on the updated App.",
+    "appSha256": [
+      "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
+      "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76"
+    ],
+    "currentAppSha256": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76"
+  },
+  "actualFactoryAcceptance": {
+    "passed": true,
+    "failures": [],
+    "sourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+    },
+    "actualBlueprintSha256": "742fdbe3ec82cc7329565a8b25ed7343ed95dfb7b5f033cd4650fa0019713493",
+    "scope": "One actual fresh Onager constructor, engineering profile and full physical audit; this is not the final27-model proof.",
+    "metrics": {
+      "massT": 17468691.49,
+      "ratedG": 860.0466667,
+      "driveOnlyG": 858.6077983,
+      "overlapIds": [],
+      "superweapons": [
+        {
+          "index": 0,
+          "id": 46,
+          "kind": "sbeam",
+          "energyTT": 125000,
+          "beamDurationS": 10,
+          "chargingInputW": 7.052994978e+23,
+          "chargeTimeS": 842.6465405,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "muzzleM": [
+            616.1999999999998,
+            -32.099999999999994,
+            -23.45
+          ],
+          "machineryVolumeM3": 4462607.394,
+          "machineryBoundsM": [
+            594.4000244140625,
+            32.150997161865234,
+            -384,
+            1260.199951171875,
+            102.15647888183594,
+            -4.34999942779541
+          ]
+        },
+        {
+          "index": 1,
+          "id": 47,
+          "kind": "sbeam",
+          "energyTT": 125000,
+          "beamDurationS": 10,
+          "chargingInputW": 7.052994978e+23,
+          "chargeTimeS": 842.6465405,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "muzzleM": [
+            616.1999999999998,
+            -32.099999999999994,
+            23.45
+          ],
+          "machineryVolumeM3": 4462607.394,
+          "machineryBoundsM": [
+            594.4000244140625,
+            32.150997161865234,
+            4.34999942779541,
+            1260.199951171875,
+            102.15647888183594,
+            384
+          ]
+        }
+      ],
+      "shield": {
+        "capacityJ": 3.6e+25,
+        "designAbsorptionW": 2.141150297e+23,
+        "maintenanceInputW": 2.141150297e+23,
+        "dissipationW": null
+      },
+      "partsByKind": {
+        "struct": 32,
+        "gen": 1,
+        "aux": 2,
+        "engine": 5,
+        "sbeam": 2,
+        "hyper": 2,
+        "inertial": 2,
+        "fuel": 2,
+        "pump": 2,
+        "integrity": 2,
+        "shield": 2,
+        "command": 2,
+        "sensor": 1,
+        "cargo": 2,
+        "hangar": 2,
+        "service": 2,
+        "engineCore": 5,
+        "battery": 1,
+        "hdis": 8
+      },
+      "weaponCounts": {
+        "triple40": 8,
+        "quad200": 16,
+        "pd": 30
+      }
+    }
+  }
+}

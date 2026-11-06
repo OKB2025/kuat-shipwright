@@ -9938,4 +9938,38 @@ Object.assign(root.KS_EN.messages,{
  '異なる2つの頂点を選んでください':'Select two different vertices.','この2頂点はすでに辺でつながっています':'These vertices already share an edge.','同じ面にある2つの頂点を選んでください':'Select two vertices on the same face.','平面の面にだけ辺を追加できます':'Edges can only be added to planar faces.','面の外に出る辺は追加できません':'The new edge must stay inside the face.','2つの面で共有された辺を選んでください':'Select an edge shared by two faces.','同じ平面の2つの面だけを結合できます':'Only two coplanar faces can be merged.','役割の異なる面の境界は削除できません':'A boundary between faces with different roles cannot be removed.','穴や分岐ができる辺は削除できません':'Removing this edge would create a hole or branch.','この辺の変更では立体が閉じなくなります':'This edge edit would open the solid.','外形を保てない辺の変更です':'This edge edit would change the outer shape.'
 });
 Object.assign(root.KS_EN.terms,{'連続配置':'Repeat Placement','間隔':'Spacing','回転対称':'Rotational Symmetry','直線':'Line','回転の中心':'Rotation Center','始点':'Start Point','終点':'End Point','両端を含む':'Including Both Endpoints'});
+Object.assign(root.KS_EN.messages,{"全長1,288 m。ユーザー提供のSTLを基にした外形（幅776 m・高さ191 m）を維持し、指定図に合わせて左右の艦首腕部と横翼の内部を超重合成ターボレーザーの機関でほぼ占有する構成に変更。主砲は各125 PTの2門、同時照射で合計250 PT。各砲口から砲軸上に10秒間照射し、船体を旋回して照準する。通常兵装は40 TT三連装8基、200 GT四連装16基、2連装点防御30基。主反応炉と艦尾の補助反応炉2基の合計出力はヴェネター級と同じ3.60×10²⁴ W。主砲2門は直径95 mの主反応炉から充電し、厳格運転での同時充電は約14分。偏向シールドの蓄積量3.60×10²⁵ Jと定格出力もヴェネター級相当。格納庫・物資庫・補給設備は主砲機関の後方へ移設。":"Length 1,288 m. Preserves the user-provided STL exterior (776 m wide and 191 m high). Following the reference drawing, machinery for the ultra-heavy composite turbolasers occupies nearly all of both forward fork arms and their cross wings. Two main cannons each emit 125 PT, totaling 250 PT when fired together. Each emits along its fixed muzzle axis for ten seconds; aim by turning the ship. Conventional armament: eight triple 40 TT turrets, sixteen quadruple 200 GT turrets and thirty twin point-defense mounts. The main reactor and two aft auxiliary reactors produce a combined 3.60×10²⁴ W, matching the Venator class. Both main cannons charge from the 95 m diameter main reactor, taking about fourteen minutes together under strict operation. Deflector shield capacity is 3.60×10²⁵ J, with Venator-equivalent rated output. Hangars, stores and support facilities are located aft of the main cannon machinery."});
+// Fixed-axis superweapons and individual emitter controls.
+Object.assign(root.KS_EN.messages,{
+ '10秒間、砲軸の延長線上へ照射します。照準補正は行わず、艦そのものを目標へ向けて発射します。':'Emits for ten seconds along the cannon axis. Aim by turning the ship; the beam has no aim correction.',
+ '1門の最大射出エネルギー':'Maximum Energy per Cannon',
+ '全門同時射撃':'All Cannons Fired Together',
+ '（{0} 秒間照射）':'({0} s emission)',
+ '{0}（{1} 門）':'{0} ({1} cannons)',
+ '砲軸の延長線上。艦を向けて照準し、照準補正は行わない':'Straight along the cannon axis. Aim by turning the ship; there is no aim correction.',
+ '砲軸固定':'Fixed Cannon Axis',
+ '発射する超兵器を選択':'Select Superweapon Cannons',
+ '発射する砲を選択':'Select Cannons',
+ '全門':'All Cannons',
+ '左砲':'Port Cannon',
+ '右砲':'Starboard Cannon',
+ '超兵器：{0}':'Superweapon: {0}',
+ '射軸の方向へ発射':'Firing Along the Cannon Axis',
+ '超兵器を個別に操作':'Individual Superweapon Controls',
+ '全門を選択':'Select All Cannons',
+ '{0}を選択':'Select {0}',
+ '{0}を発射':'Fire {0}',
+ 'この砲を発射':'Fire This Cannon',
+ '自動発射を許可':'Allow Automatic Fire',
+ 'この砲を待機':'Hold This Cannon',
+ '全門を自由発射':'Allow All Cannons to Fire',
+ '全門を発射待機':'Hold All Cannons',
+ '全門を発射':'Fire All Cannons',
+ '各砲を個別に発射できます。合成ビームは砲軸上へ10秒間照射するため、艦そのものを向けて照準します。イオン砲はそれぞれの舷側射界を使います。給電炉の過負荷は共有します。':'Each cannon can fire independently. Composite beams emit along their fixed axis for ten seconds, so aim by turning the ship. Ion cannons use their own side arcs. Cannons sharing a reactor also share its overload.',
+ '一斉射（通常砲・公称）':'Nominal Conventional Gun Volley',
+ '超兵器（照射全体）':'Superweapon Energy (Full Emission)',
+ '合計 {0} / {1} 秒間照射':'Total {0} / {1} s emission',
+ '秒間照射':'s emission'
+});
+Object.assign(root.KS_EN.terms,{'全門':'All Cannons','左砲':'Port Cannon','右砲':'Starboard Cannon','砲軸固定':'Fixed Cannon Axis','発射する砲を選択':'Select Cannons','秒間照射':'s emission'});
 })(typeof window==="undefined"?globalThis:window);

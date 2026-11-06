@@ -44,9 +44,34 @@ test('tactical drawing shows a coasting uncertainty ring and no hidden hull or s
 test('recent beam and expanding-ring events cannot expose a coasting source or target true position',()=>{
  for(const [mode,from,to]of [['pulse','foe','own'],['beam','own','foe'],['ring','foe','own']]){
   const f=fixture(),calls=[],ctx=new Proxy({measureText:s=>({width:String(s).length*6})},{get:(o,k)=>k in o?o[k]:(...args)=>calls.push({k,args})});
-  f.cx.ctx=ctx;f.cx.voyLabeler=()=>Object.assign(()=>{}, {block(){}});f.w.time=.1;f.w.swShots=[{sys:7,from,t:0,k:mode==='ring'?'hion':'sbeam',mode,to:[to]}];
+  const source=f.w.units.get(from),weapon={id:99,k:mode==='beam'?'sbeam':'hion',axis:[1,0,0],mz:[0,0,0]};source.p={...source.p,sw:[weapon]};source.sw=[{st:'ready',c:1}];
+  const origin=plain(C.swMuzzle(source,weapon)),axis=plain(C.swAxis(source,weapon)),distance=1000;
+  f.cx.ctx=ctx;f.cx.voyLabeler=()=>Object.assign(()=>{}, {block(){}});f.w.time=.1;f.w.swShots=[{sys:7,from,t:0,i:0,k:weapon.k,mode,to:[to],origin,axis,distance,end:plain(C.add(origin,C.mul(axis,distance)))}];
   vm.runInContext(cut('function voyTacSwArcs(','function voyDrawTac(')+cut('function voyDrawTac(','// ---------- the top bar ----------'),f.cx);
-  f.run('voyDrawTac(ctx,1000,700)');for(const c of calls)for(const n of c.args)if(typeof n==='number')assert.ok(Number.isFinite(n)&&Math.abs(n)<10000,`${mode} ${c.k}: ${c.args}`);
+  const drawingBound=mode==='beam'?1000+C.swRange(source,weapon)/f.voy.tac.mpp:10000;
+  f.run('voyDrawTac(ctx,1000,700)');for(const c of calls)for(const n of c.args)if(typeof n==='number')assert.ok(Number.isFinite(n)&&Math.abs(n)<drawingBound,`${mode} ${c.k}: ${c.args}`);
   assert.ok(calls.some(c=>['moveTo','lineTo','arc'].includes(c.k)&&c.args[0]===600&&c.args[1]===550));
+  if(mode==='beam'){assert.ok(calls.some(c=>c.k==='lineTo'&&c.args[0]===600&&c.args[1]===350),'the actual1000m axis segment is drawn without homing toward a hidden contact');f.foe.pos=[1e12,1e12,-1e12];calls.length=0;f.run('voyDrawTac(ctx,1000,700)');assert.ok(calls.some(c=>c.k==='lineTo'&&c.args[0]===600&&c.args[1]===350),'a hidden true-position change cannot redirect the recorded beam');for(const c of calls)for(const n of c.args)if(typeof n==='number')assert.ok(Number.isFinite(n)&&Math.abs(n)<drawingBound,'hidden positions must not affect drawing beyond the legitimate fixed rangeguide');}
+ }
+});
+
+test('fixed-axis events reveal real ray coordinates only for an observed or owned source',()=>{
+ for(const state of ['coasting','unknown-contact','unknown-source','observed','own']){
+  const f=fixture(),calls=[],ctx=new Proxy({measureText:s=>({width:String(s).length*6})},{get:(o,k)=>k in o?o[k]:(...args)=>calls.push({k,args,style:o.strokeStyle,width:o.lineWidth})});
+  const source=state==='own'?f.own:f.foe,weapon={id:99,k:'sbeam',aim:'bow',axis:[.6,0,.8],mz:[50,0,-20]};source.p={...source.p,sw:[weapon]};source.sw=[{st:'beam',c:0}];
+  const origin=plain(C.swMuzzle(source,weapon)),axis=plain(C.swAxis(source,weapon)),end=plain(C.add(origin,C.mul(axis,1000)));
+  if(state==='observed'){f.contact.observed=true;f.contact.cap=6;}
+  if(state==='unknown-contact')f.w.sides[0].tc.delete('foe');
+  f.cx.ctx=ctx;f.cx.voyLabeler=()=>Object.assign(()=>{}, {block(){}});f.w.time=.1;f.w.swShots=[{sys:7,from:state==='unknown-source'?'absent-source':source.id,t:0,i:0,k:'sbeam',mode:'beam',to:['own'],origin,axis,distance:1000,end}];
+  vm.runInContext(cut('function voyTacSwArcs(','function voyDrawTac(')+cut('function voyDrawTac(','// ---------- the top bar ----------'),f.cx);
+  f.run('voyDrawTac(ctx,1000,700)');const beam=calls.filter(c=>['moveTo','lineTo'].includes(c.k)&&c.width===4&&/^rgba\(255,120,90,/.test(c.style||''));
+  if(state==='observed'||state==='own'){
+   assert.deepEqual(beam.map(c=>c.k),['moveTo','lineTo'],state+' retains the real beam');
+   const project=p=>[500+p[0]/10,350+p[2]/10];assert.deepEqual(beam.map(c=>c.args),[project(origin),project(end)],state+' uses the actual recorded muzzle and axis');
+  }else{
+   assert.deepEqual(beam,[],state+' suppresses the ray instead of moving it to the retained estimate');
+   for(const c of calls)for(const n of c.args)if(typeof n==='number')assert.ok(Number.isFinite(n)&&Math.abs(n)<10000,state+' hidden beam geometry must not enter any canvas operation');
+   if(state==='coasting')assert.ok(calls.some(c=>c.k==='arc'&&c.args[0]===600&&c.args[1]===550),'the coasting source keeps only its retained uncertainty ring');
+  }
  }
 });

@@ -26,7 +26,7 @@ vm.runInContext(`const C=Core, T=s=>KSI18n.t(s), esc=s=>String(s), num=s=>String
 vm.runInContext(app.match(/const TRIAL_TELEGRAPH=.*?;/)[0],c);
 section('const GUN_MODES=', 'const trial=');
 section('function trialWhere()', '// Flagship status');
-section('function trialHudHTML()', 'function trialBindHud(');
+section('function trialMissileHudState()', 'function trialBindHud(');
 section('function trialHyperText(', 'function trialHyperUpdate(');
 section('function statusFlagsHTML(', 'function trialSelfUpdate(');
 section('function patrolMarks(', 'function patrolHud(');
