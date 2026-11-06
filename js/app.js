@@ -2039,7 +2039,7 @@ function requestDraw() { dirty.draw = true; }
 // ---------- background engine ----------
 // Geometry, compartment clipping, mounts and performance run in the engine
 // (a worker when available). Edits only record what changed; the newest
-// design is sent whenever the engine is free, so dragging never queues work.
+// design is sent after input settles; the worker coalesces pending updates.
 const eng = {ready: false, gen: 0, sentGen: 0, geoGen: 0, adoptedGen: 0, statsGen: 0, profile: null, profileGen: -1, waiting: false, scheduled: false, what: new Set(), reset: true, fitOnGeometry: true, quiet: false, label: '', labelGen: 0, mode: 'none', ms: null};
 const meshStore = {geos: {}, glow: null, grid: null, ranges: null};
 function touch(what) {   // geometry or design changed
@@ -2050,7 +2050,7 @@ function touch(what) {   // geometry or design changed
   kickEngine(); engineStatus(); dirty.overlay = true; dirty.draw = true;
 }
 function kickEngine() {
-  if (!eng.ready || eng.waiting || eng.scheduled || dragSnap) return;
+  if (!eng.ready || eng.scheduled || dragSnap) return;
   // A completion deferred before the first drag sample still needs its
   // derived caches adopted after release, even when the value did not change.
   if (meshStore.pendingGeometry && eng.sentGen === eng.gen) { eng.what.add('all'); eng.sentGen = eng.gen - 1; }
@@ -2059,7 +2059,7 @@ function kickEngine() {
 }
 function sendEngineUpdate() {
   eng.scheduled = false;
-  if (!eng.ready || eng.waiting || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
+  if (!eng.ready || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
   const msg = {type: 'update', gen: eng.gen, reset: eng.reset, state: engineShipState(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true}};
   eng.what.clear(); eng.reset = false;
@@ -2231,7 +2231,8 @@ function showPreview(list, items, removedIds) {
   // Circuits await the worker's route update. Reuse its module IDs to hide the
   // old hardware while editing, without solving routes on a pointer frame.
   if(pending.parts?.length)for(const m of eng.profile?.modules||[])if((m.k==='conduit'||m.k==='drivetrain'||m.routeId!=null)&&m.part!=null)live.hide.parts.add(m.part);
-  for (const id of removedIds || []) live.hide[list].add(id);
+  const removed = typeof list === 'string' ? {[list]: removedIds} : removedIds;
+  for (const kind of ['parts', 'fits']) for (const id of removed?.[kind] || []) live.hide[kind].add(id);
   live.parts = live.parts.filter(p => ship.parts.includes(p)); live.fits = live.fits.filter(f => ship.fits.includes(f));
   live.active = true; live.gen = eng.gen;
   try {
@@ -2246,6 +2247,27 @@ function clearPreview() {
   live.active = false; live.parts = []; live.fits = []; live.hide.parts.clear(); live.hide.fits.clear();
   if (view) for (const k of ['preview', 'previewRef', 'previewFits', 'previewRefFits']) if (view.meshes?.[k]) { if (view.kind === 'compat') delete view.meshes[k]; else view.meshes[k].count = 0; }
   requestDraw();
+}
+function previewDraft() {
+  if (!view || !ship) return;
+  bounds = C.shipBounds(ship, {simple: true});
+  queuePreview('parts', ship.parts); queuePreview('fits', ship.fits);
+  fitCamera(eng.keepCam);
+}
+// History edits also need immediate previews: a deleted or moved object must
+// not keep its old appearance while the worker finishes an earlier generation.
+function previewHistory(before) {
+  if (!view || !ship) return;
+  const pending = {}, removed = {};
+  // Loading an undo snapshot can reorder properties without changing a part.
+  const key = q => JSON.stringify(JSON.parse(C.publicJSON(q)), (k,v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map(k => [k,v[k]])) : v);
+  for (const kind of ['parts', 'fits']) {
+    const old = new Map(before[kind].map(q => [q.id, key(q)])), ids = new Set(ship[kind].map(q => q.id));
+    pending[kind] = ship[kind].filter(q => old.get(q.id) !== key(q));
+    removed[kind] = before[kind].filter(q => !ids.has(q.id)).map(q => q.id);
+  }
+  if(!pending.parts.length && !pending.fits.length && !removed.parts.length && !removed.fits.length)return;
+  showPreview(pending, null, removed);
 }
 // Exterior view skips machinery the performance pass found fully enclosed by
 // the hull and structures. Bays behind hatches, model skins and anything not
@@ -2270,7 +2292,7 @@ function liveHidden() {
   return out;
 }
 let busyT = 0;
-function showBusyOverlay(text) { const el = $('#busy'); if (!el || titleVisible()) return; $('#busyText').textContent = text || '設計を展開中…'; clearTimeout(busyT); busyT = setTimeout(() => { el.hidden = false; }, 120); }
+function showBusyOverlay(text, background = false) { const el = $('#busy'); if (!el || titleVisible()) return; el.classList.toggle('background', background); $('#busyText').textContent = text || '設計を展開中…'; clearTimeout(busyT); busyT = setTimeout(() => { el.hidden = false; }, 120); }
 function hideBusyOverlay() { clearTimeout(busyT); const el = $('#busy'); if (el) el.hidden = true; }
 // ---------- loading screen (v17) ----------
 // Every change of scene — a flight, a battle, the 3D view of a fleet battle —
@@ -2440,7 +2462,7 @@ function loop(now=performance.now()) {
 function fitCamera(keepAngles) {
   if(fleet.mode!=='design'){fleetFit();return;}
   if(!view)return;
-  if (!ship._geoProxy) { eng.fitOnGeometry = true; eng.keepCam = keepAngles; return; }
+  if (!ship._geoProxy) { eng.fitOnGeometry = true; eng.keepCam = keepAngles; }
   const b = bounds, c = [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, 0];
   view.off = [-c[0], -c[1], -c[2]];
   const size = Math.max(b[3] - b[0], (b[5] - b[2]) * 1.2, (b[4] - b[1]) * 2) + 4;
@@ -2474,14 +2496,14 @@ function setShip(s, opts) {
   // Loading another design remains undoable. The engine starts from scratch.
   eng.designGen = eng.gen + 1; eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
   meshStore.geos = {}; meshStore.ranges = null; meshStore.pendingGeometry = null; meshStore.pendingSurfaceGeometry = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
-  if(!s._deferredPreparation){showBusyOverlay(opts?.busyText);touch('all');}
+  if(!s._deferredPreparation){showBusyOverlay(opts?.busyText,true);touch('all');if(view)previewDraft();}
   else requestDraw();
   hideInspect(); updateName(); renderPanel(); if(!s._deferredPreparation)scheduleStats(0); updateUndo(); autosave();
 }
 function prepareDeferredDraft() {
   if(!ship?._deferredPreparation)return;
   delete ship._deferredPreparation;
-  touch('all');scheduleStats(0);
+  touch('all');if(view)previewDraft();scheduleStats(0);
 }
 function snap() {
   if (!ship.saveId) ship.saveId = newSaveId();
@@ -2492,13 +2514,14 @@ function newSaveId() {
 }
 function restore(json) {
   // Undo keeps the editor's objects (and their caches) and patches the design.
+  const before = view ? JSON.parse(C.publicJSON(ship)) : null;
   const state = JSON.parse(json), s = C.deserialize(state), src = JSON.parse(C.publicJSON(s));
   src.saveId = state._historySaveId || newSaveId();
   if (src.saveId !== ship.saveId) { S = null; prevS = null; }
   const nameChanged = ship.name !== src.name;
   C.patchShip(ship, src); ship._client = true; reconcileSolidCutter();
   const sel = st.sel; st.sel = sel && findSel(sel) ? sel : null; st.hatchA = null;
-  touch('all'); hideInspect(); if (nameChanged) updateName(); renderPanel(); scheduleStats(60); updateUndo(); autosave();
+  touch('all'); if(before)previewHistory(before); hideInspect(); if (nameChanged) updateName(); renderPanel(); scheduleStats(60); updateUndo(); autosave();
 }
 function mutate(label, fn, what, opts) {
   const before = snap();
@@ -2540,7 +2563,7 @@ function visibleAt(p, clip) { return !clip || (p[0] <= clip[0] + 0.01 && p[1] <=
 function envHit(o, d, clip, opts) {
   let oo = o.slice(), acc = 0;
   for (let k = 0; k < 12; k++) {
-    const h = C.rayEnv(ship, oo, d, opts);
+    const h = editorRayEnv(oo, d, opts);
     if (!h) return null;
     h.t += acc;
     if (visibleAt(h.p, clip)) return h;
@@ -2560,6 +2583,15 @@ function sectionHit(o, d, clip) {
   return {t, p: q, n, kind: 'section'};
 }
 let enginePickCache=null;
+function requestedPart(p) { return {...p, _packing: undefined, _clip: undefined, _solidCutShip: undefined, _apertures: undefined, _pierced: undefined}; }
+function editorPickShip() { return enginePending() ? {...ship, _rayLock: undefined, parts: ship.parts.map(requestedPart)} : ship; }
+function editorRayEnv(o, d, opts = {}) {
+  const model = editorPickShip();
+  if(model !== ship && opts.skipSet){const ids = new Set([...opts.skipSet].map(p => p.id));opts = {...opts, skipSet: new Set(model.parts.filter(p => ids.has(p.id)))};}
+  const hit = C.rayEnv(model, o, d, opts);
+  if(hit?.part && model !== ship)hit.part = ship.parts.find(p => p.id === hit.part.id) || hit.part;
+  return hit;
+}
 function enginePickParts(){
  const key=eng.gen+':'+eng.geoGen+':'+eng.statsGen;
  if(enginePickCache?.ship===ship&&enginePickCache.key===key)return enginePickCache.parts;
@@ -2567,9 +2599,10 @@ function enginePickParts(){
 }
 function partHit(o, d, clip, filter) {
   let best = null;const nativeFits=new Set(ship.fits.map(f=>f.id));
-  for (const pt of [...ship.parts,...enginePickParts(),...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)]) {
+  const pending=enginePending(), parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)];
+  for (const pt of parts) {
     if (filter && !filter(pt)) continue;
-    const h = C.rayPart(o, d, pt);
+    const h = C.rayPart(o, d, pending ? requestedPart(pt) : pt);
     if (h && visibleAt(h.p, clip) && (!best || h.t < best.t)) { best = h; best.part = pt; best.kind = 'part'; }
   }
   return best;
@@ -2583,13 +2616,13 @@ function fitHit(o, d) {
   return best;
 }
 function pick(px, py, want) {
-  if (!view || !ship || !ship._geoProxy) return null;
+  if (!view || !ship) return null;
   const r = view.ray(px, py); if (!r) return null;
   return pickRay(r.o, r.d, want);
 }
 // The same hit test along a world ray (the tutorial taps through it).
 function pickRay(o, d, want) {
-  if (!ship || !ship._geoProxy) return null;
+  if (!ship) return null;
   let h = null;
   if (st.view === 'xray' && want.parts) h = partHit(o, d, null, (pt) => !C.isShapePart(pt)) || envHit(o, d, null, {structOnly: false,launcherCuts:true});
   else h = envHit(o, d, null,{launcherCuts:true});
@@ -3586,7 +3619,7 @@ function dragItemStart(px, py) {
     let h;
     if (list === 'fits' && C.FITS[q.k]?.cat === 'w') h = fitPickHit(r.o, r.d, q);
     else {
-      const b = (list === 'parts' ? C.partAABB(q) : C.fitAABB(q)).slice(), pad = Math.max(2, .06 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2]));
+      const b = (list === 'parts' ? C.partAABB(enginePending()?requestedPart(q):q) : C.fitAABB(q)).slice(), pad = Math.max(2, .06 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2]));
       for (let k = 0; k < 3; k++) { b[k] -= pad; b[k + 3] += pad; }
       h = C.rayAABB(r.o, r.d, b);
     }
@@ -3599,10 +3632,10 @@ function dragItemStart(px, py) {
   itemDrag = D; return true;
 }
 function dragSupportY(c, skip) {
-  const top = Math.max(ship.hull.H * 4, 2000), h = C.rayEnv(ship, [c[0], c[1] + top, c[2]], [0, -1, 0], {skipSet: skip});
+  const top = Math.max(ship.hull.H * 4, 2000), h = editorRayEnv([c[0], c[1] + top, c[2]], [0, -1, 0], {skipSet: skip});
   if (!h) return null;
   // Look under the item itself, not on something stacked above it.
-  if (h.p[1] > c[1] + 1) { const below = C.rayEnv(ship, [c[0], c[1], c[2]], [0, -1, 0], {skipSet: skip}); return below ? below.p[1] : null; }
+  if (h.p[1] > c[1] + 1) { const below = editorRayEnv([c[0], c[1], c[2]], [0, -1, 0], {skipSet: skip}); return below ? below.p[1] : null; }
   return h.p[1];
 }
 function dragItemMove(px, py) {
@@ -3618,7 +3651,7 @@ function dragItemMove(px, py) {
     editSel(it => { it.c = c; });
   } else {
     const f = ship.fits.find(q => q.id === D.id); if (!f) return;
-    const h = C.rayEnv(ship, r.o, r.d, {structOnly: true}); if (!h) return;
+    const h = editorRayEnv(r.o, r.d, {structOnly: true}); if (!h) return;
     moveFitTo(f, h.p, h.n);
   }
   const now = performance.now(); if (now - itemDragTouch > 90) { itemDragTouch = now; touch(D.list); scheduleStats(400); }
@@ -4160,7 +4193,7 @@ function hideTitle() {
   const t = $('#title'); if (!t) return;
   t.hidden = true; document.body.classList.remove('title-open', 'title-ship');
   if (titleCam.base && view) { titleCam.base = null; fitCamera(false); }
-  if (ship && !ship._geoProxy) showBusyOverlay('設計を展開中…');
+  if (ship && !ship._geoProxy) showBusyOverlay('設計を展開中…',true);
   requestDraw(); renderSpecTargets();
 }
 function draftMeta() { try { return JSON.parse(LS.get('yard.draft3.meta') || 'null'); } catch (e) { return null; } }
@@ -6044,7 +6077,7 @@ function editDelete(){
  const ids={parts:new Set(),fits:new Set()};for(const d of drivers)for(const q of [d.it,...d.fol.map(f=>f.it)])ids[d.list].add(q.id);
  if(mutate(`${ids.parts.size+ids.fits.size} 個を撤去`,()=>{for(const id of ids.fits)C.removeItem(ship,'fits',id,false);for(const id of ids.parts)C.removeItem(ship,'parts',id,false);
    for(const l of ['parts','fits'])for(const q of ship[l]){if(ids[l].has(q.tw))delete q.tw;if(ids[l].has(q.vt))delete q.vt;}for(const f of ship.fits)if(f.host!=null&&ids.parts.has(f.host))delete f.host;edPrune();},'all'))
-  showPreview('parts',[],[...ids.parts]);
+  showPreview({parts:[],fits:[]},null,{parts:[...ids.parts],fits:[...ids.fits]});
  selClear();xfReset();
 }
 // UI-007 Ctrl+G: the selected objects become one group (inside their common group, if they share one).

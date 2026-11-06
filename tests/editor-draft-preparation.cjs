@@ -14,7 +14,8 @@ function setup(){
  const C={publicJSON:s=>JSON.stringify(s,(key,value)=>key.startsWith('_')?undefined:value),shipClassFor:()=>({name:'駆逐艦'})};
  const YardEngineClient={post:message=>posts.push(message)};
  const clearPreview=()=>{},resetSolidCutter=()=>{},hideInspect=()=>{},updateName=()=>{},renderPanel=()=>{},updateUndo=()=>{},autosave=()=>{},engineStatus=()=>{};
- const requestDraw=()=>{draws++;dirty.draw=true;},scheduleStats=delay=>statsRequests.push(delay),showBusyOverlay=text=>busyRequests.push(text);
+ const syncHullEditor=()=>{},previewDraft=()=>{},actualShipDimensions=()=>[ship.hull.L,ship.hull.W,ship.hull.H];
+ const requestDraw=()=>{draws++;dirty.draw=true;},scheduleStats=delay=>statsRequests.push(delay),showBusyOverlay=(text,background)=>busyRequests.push({text,background});
  const newSaveId=()=> 'save-'+(++saveSerial),snap=()=>C.publicJSON(ship),fleetSetMode=mode=>fleet.mode=mode,toast=()=>{};
  const nodes={status:{textContent:''},menu:{},panel:{},continue:{disabled:true},draft:{textContent:''}};
  const $=selector=>({'#titleStatus':nodes.status,'#titleMenu':nodes.menu,'#titlePanel':nodes.panel,'#titleMenu [data-title="continue"]':nodes.continue,'#titleDraft':nodes.draft}[selector]||null),$$=()=>[];
@@ -75,6 +76,7 @@ test('ordinary and direct hot-editor setShip calls still start preparation immed
  assert.equal(run('ship._deferredPreparation'),undefined);assert.equal(run('posts.length'),1);assert.equal(run('eng.gen'),1);
  assert.equal(run('JSON.parse(posts[0].state).name'),'Direct editor');assert.deepEqual(plain(run('statsRequests')),[0]);
  assert.equal(run('busyRequests.length'),1);assert.equal(run('view.meshes.hull.count'),0);
+ assert.equal(run('busyRequests[0].background'),true,'draft geometry cannot block editor input');
 });
 
 test('starting patrol with the current deferred draft prepares it before awaiting figures',async()=>{
