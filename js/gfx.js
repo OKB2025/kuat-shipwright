@@ -992,7 +992,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform float uPix;uniform float uKind;uniform vec3 uAxis;uniform vec2 uRing;uniform vec4 uLook;varying vec2 vP;
+uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform float uPix;uniform float uKind;uniform vec3 uAxis;uniform vec2 uRing;uniform vec4 uLook;uniform vec4 uStar;uniform vec3 uStarCol;uniform sampler2D uCorDay;uniform sampler2D uCorAux;uniform float uCorOn;varying vec2 vP;
 float h3(vec3 p){p=fract(p*0.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
 float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
@@ -1005,6 +1005,15 @@ float blocks(vec3 q,vec3 n,float cell,float foot){vec3 id=floor(q/cell);float li
  vec3 g=(0.5-abs(fract(q/cell)-0.5))*cell/sqrt(max(vec3(1e-4),1.0-n*n));float d=min(min(g.x,g.y),g.z),gap=smoothstep(cell*0.035,cell*0.075,d);
  return mix(0.2,lit*mix(0.5,1.0,gap),1.0-smoothstep(cell*0.3,cell*1.2,foot));}
 // Coruscant: city blocks, arterial lanes and lit streets over the whole globe.
+// The supplied Coruscant surface: equirectangular about the planet's axis, sampled with the seam kept off the
+// texture's wrap (derivatives pick the continuous longitude where they are available).
+void corTex(vec3 n,out vec3 day,out vec3 aux){
+ vec3 a=normalize(uAxis),e1=normalize(abs(a.y)<0.99?cross(a,vec3(0.0,1.0,0.0)):cross(a,vec3(1.0,0.0,0.0))),e2=cross(a,e1);
+ float u=atan(dot(n,e2),dot(n,e1))/6.2831853+0.5,v=0.5-asin(clamp(dot(n,a),-1.0,1.0))/3.14159265;
+#ifdef PDERIV
+ float u2=fract(u+0.5)-0.5;if(fwidth(u2)<fwidth(u))u=u2;
+#endif
+ day=texture2D(uCorDay,vec2(u,v)).rgb;aux=texture2D(uCorAux,vec2(u,v)).rgb;}
 vec3 coruscant(vec3 n,float view,float foot,float sun,float day,float night){
  vec3 q=n*uR;
  mat3 R1=mat3(0.819,0.0,0.574,0.0,1.0,0.0,-0.574,0.0,0.819),R2=mat3(0.966,0.0,-0.259,0.0,1.0,0.0,0.259,0.0,0.966);
@@ -1019,6 +1028,13 @@ vec3 coruscant(vec3 n,float view,float foot,float sun,float day,float night){
  vec3 lightc=warm*lit;
  vec3 dayc=mix(vec3(0.30,0.31,0.33),vec3(0.56,0.54,0.50),0.35*b1+0.35*b2+0.3*b3)*(0.8+0.3*region);
  dayc*=1.0-0.45*arter-0.25*street;
+ if(uCorOn>0.5){vec3 td,ta;corTex(n,td,ta);
+  // From orbit the supplied surface shows; close in, the city grid keeps its own detail, tinted by it.
+  float near=1.0-smoothstep(1500.0,9000.0,foot);vec3 tl=vec3(1.0,0.66,0.32)*ta.r*1.7;
+  vec3 texc=td*(0.05+1.05*max(0.0,sun))*day+tl*night+tl*0.05*day;
+  vec3 proc=dayc*(0.05+1.05*max(0.0,sun))*day*(0.5+1.4*dot(td,vec3(0.333)))+lightc*night*0.95*(0.25+2.5*ta.r);
+  vec3 col=mix(texc,proc,near*0.7);
+  vec3 cc=vec3(0.86,0.85,0.83)*(0.04+1.0*max(0.0,sun))*(0.15+0.85*day);return mix(col,cc,ta.g*0.85);}
  return dayc*(0.05+1.05*max(0.0,sun))*day+lightc*night*0.95+lightc*0.08*day;}
 // Kuat: oceans, green and ochre continents, ice caps and cloud bands; the
 // shipyard cities light the coasts at night.
@@ -1123,7 +1139,14 @@ void main(){
  vec3 o=(uEye-uPC)/uR;float B=dot(o,rd),Cc=dot(o,o)-1.0,h=B*B-Cc;
  bool hit=h>=0.0&&B<=0.0;float tp=hit?-B-sqrt(h):1e9;
  vec4 base;
- if(!hit){float limb=B>0.0?length(o):sqrt(max(0.0,dot(o,o)-B*B));vec3 cp=B>0.0?o:o-rd*B;float glow=exp(-max(0.0,limb-1.0)*110.0)*smoothstep(-0.35,0.35,dot(normalize(cp),uSun)+0.2);
+ if(!hit){float limb=B>0.0?length(o):sqrt(max(0.0,dot(o,o)-B*B));
+  // A system star seen as a disc (the red dwarf Anza at Abregado): uStar = its direction and the cosine of its
+  // angular radius, uStarCol its colour. Its surface churns in slow cells and darkens toward the limb.
+  if(uStar.w>0.0){float sd=dot(rd,uStar.xyz),a0=acos(clamp(uStar.w,-1.0,1.0)),a=acos(clamp(sd,-1.0,1.0));
+   if(a<a0){vec3 t=normalize(cross(uStar.xyz,abs(uStar.y)<0.9?vec3(0,1,0):vec3(1,0,0))),b2=cross(uStar.xyz,t);vec2 q=vec2(dot(rd,t),dot(rd,b2))/max(1e-4,sin(a0));float mu=sqrt(max(0.0,1.0-dot(q,q)));
+    vec3 sp=vec3(q*2.4,mu*2.4);float f1=fbm(sp*1.1+vec3(1.7)),f2=fbm(sp*2.6+vec3(f1*2.2,f1,0.4)),f3=fbm(sp*6.0+vec3(f2*2.5));
+    vec3 sc=uStarCol*mix(0.42,1.0,smoothstep(0.25,0.8,f2))*(0.62+0.45*f1+0.2*f3)*pow(mu,0.45);gl_FragColor=vec4(1.0-exp(-sc*1.7),1.0);return;}
+   float g=exp(-(a-a0)/max(1e-3,a0*0.32));gl_FragColor=vec4(uStarCol*g*0.9,g*0.8);return;}vec3 cp=B>0.0?o:o-rd*B;float glow=exp(-max(0.0,limb-1.0)*110.0)*smoothstep(-0.35,0.35,dot(normalize(cp),uSun)+0.2);
   float sd=dot(rd,uSun),disc=smoothstep(0.99990,0.99996,sd)*3.0+pow(max(0.0,sd),900.0)*0.6+pow(max(0.0,sd),60.0)*0.12;
   vec3 air=airCol();glow*=airK();
   vec3 c=air*glow+vec3(1.0,0.86,0.66)*glow*pow(max(0.0,sd),6.0)+vec3(1.0,0.95,0.86)*disc;base=vec4(c,clamp(max(glow*0.9,disc),0.0,1.0));}
@@ -1351,6 +1374,8 @@ class Renderer {
     for (const k in T) this.tex[k] = {a: tex(T[k].a, k !== 'fits' && k !== 'nozzle'), e: tex(T[k].e, k !== 'fits' && k !== 'nozzle')};
     this.tex.reference={...this.tex.hull};
     if(typeof Image!=='undefined')for(const [kind,src] of [['a',YardReferenceData.atlas],['e',YardReferenceData.mask]]){const img=new Image();img.onload=()=>{if(this.disposed||gl.isContextLost())return;let source=img;const max=Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));if(img.width>max){source=document.createElement('canvas');source.width=source.height=max;source.getContext('2d').drawImage(img,0,0,max,max);}this.tex.reference[kind]=tex(source,false);this.onTextureReady?.();};img.src=src;}
+    // The supplied Coruscant surface (data/coruscant.js), when that file is loaded; the procedural city stays otherwise.
+    this.corTex={};if(typeof Image!=='undefined'&&typeof YardReferenceData!=='undefined'&&YardReferenceData.coruscant)for(const kind of ['day','aux']){const img=new Image();img.onload=()=>{if(this.disposed||gl.isContextLost())return;let source=img;const max=Math.min(4096,gl.getParameter(gl.MAX_TEXTURE_SIZE));if(img.width>max){source=document.createElement('canvas');source.width=max;source.height=max/2;source.getContext('2d').drawImage(img,0,0,max,max/2);}this.corTex[kind]=tex(source,true);this.onTextureReady?.();};img.src=YardReferenceData.coruscant[kind];}
     this.bgBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     this.meshes = {}; this.lines = {}; this.points = {};
     this.off = [0, 0, 0];
@@ -1696,7 +1721,7 @@ class Renderer {
     const gl = this.gl;
     // v22 a program per kind of world, compiled the first time that kind is drawn
     const pk = Math.max(0, Math.min(9, Math.round(planet.kind || 0)));this.pplanets = this.pplanets || {};
-    if (this.pplanets[pk] === undefined) { try { this.pplanets[pk] = compile(gl, VS_BG, '#define PK ' + pk + '\n' + FS_PLANET); } catch (e) { console.error(e); this.pplanets[pk] = null; } }
+    if (this.pplanets[pk] === undefined) { try { this.pplanets[pk] = compile(gl, VS_BG, (this.armorDerivatives ? '#extension GL_OES_standard_derivatives : enable\n#define PDERIV\n' : '') + '#define PK ' + pk + '\n' + FS_PLANET); } catch (e) { console.error(e); this.pplanets[pk] = null; } }
     const p = this.pplanets[pk]; if (!p) return;
     const inv = M4.inv(m.VP); if (!inv) return;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -1704,6 +1729,10 @@ class Renderer {
     gl.uniformMatrix4fv(p.u.uInv, false, inv); gl.uniform3fv(p.u.uEye, m.eye); gl.uniform3fv(p.u.uPC, planet.center); gl.uniform1f(p.u.uR, planet.radius);
     gl.uniform3fv(p.u.uSun, planet.sun); gl.uniform1f(p.u.uPix, 2 * Math.tan(this.cam.fov / 2) / Math.max(1, this.canvas.height));
     gl.uniform1f(p.u.uKind, planet.kind || 0); gl.uniform3fv(p.u.uAxis, planet.axis || [0, 1, 0]); gl.uniform2fv(p.u.uRing, planet.ring || [0, 0]); if (p.u.uLook) gl.uniform4fv(p.u.uLook, planet.look || [0, 0, 0, 0]);
+    const cor = pk === 0 && this.corTex?.day && this.corTex?.aux;
+    if (p.u.uCorOn) gl.uniform1f(p.u.uCorOn, cor ? 1 : 0);
+    if (cor) { gl.activeTexture(gl.TEXTURE6); gl.bindTexture(gl.TEXTURE_2D, this.corTex.day); gl.activeTexture(gl.TEXTURE7); gl.bindTexture(gl.TEXTURE_2D, this.corTex.aux); gl.activeTexture(gl.TEXTURE0); gl.uniform1i(p.u.uCorDay, 6); gl.uniform1i(p.u.uCorAux, 7); }
+    if (p.u.uStar) gl.uniform4fv(p.u.uStar, planet.star ? [...planet.star.dir, Math.cos(planet.star.ang)] : [0, 0, 0, 0]); if (p.u.uStarCol) gl.uniform3fv(p.u.uStarCol, planet.star?.color || [0, 0, 0]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(p.a.aP); gl.vertexAttribPointer(p.a.aP, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(p.a.aP);
   }

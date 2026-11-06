@@ -7475,11 +7475,11 @@ function trialCommand(cmd){
 // systems keep their planets and suns; the others take their sun from their name.
 const SYSTEMS={};
 for(const g of Galaxy.SYSTEMS){const v=g.v,ring=v.ring||null,alt=v.alt||Math.round(C.clamp(v.r*.027,120000,190000)),h=Galaxy.hash(g.key),az=(h%3600)/3600*Math.PI*2,el=.36+((h>>>12)%100)/100*.18;
- SYSTEMS[g.key]={key:g.key,name:g.name,note:g.note,short:g.short,region:g.region,planet:{radius:v.r,kind:v.k,axis:(v.axis||(ring?[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0]:[0,0,1])).slice(),ring,ringName:v.ringName||null,look:v.look||null},altitude:alt,floor:v.fl||Math.round(alt*.28),sun:(v.sun||[Math.cos(az),el,Math.sin(az)]).slice(),map:g.at};}
+ SYSTEMS[g.key]={key:g.key,name:g.name,note:g.note,short:g.short,region:g.region,planet:{radius:v.r,kind:v.k,axis:(v.axis||(ring?[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0]:[0,0,1])).slice(),ring,ringName:v.ringName||null,look:v.look||null},altitude:alt,floor:v.fl||Math.round(alt*.28),sun:(v.sun||[Math.cos(az),el,Math.sin(az)]).slice(),map:g.at,star:v.star?{name:v.star.name,kind:v.star.kind,ang:v.star.ang,color:v.star.color.slice()}:null};}
 for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s.planet.axis)||1;s.planet.axis=s.planet.axis.map(x=>x/l);}
 for(const s of Object.values(SYSTEMS)){const l=Math.hypot(...s.sun);s.sun=s.sun.map(x=>x/l);}
 const trialSys=()=>SYSTEMS[trial.sysKey]||SYSTEMS.coruscant;
-const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring,look:s.planet.look||null};};
+const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring,look:s.planet.look||null,star:s.star?{dir:s.sun,ang:s.star.ang,color:s.star.color}:null};};
 function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};}
 
 // ---------- hyperspace ----------
