@@ -2,28 +2,87 @@
   "schemaVersion": 1,
   "status": "PASS",
   "scope": "Selected Onager, superweapon, geometry, energy, cache and catalogue regressions. This is not a claim that every repository test passes.",
-  "generatedAt": "2026-11-06T10:49:41.806Z",
+  "generatedAt": "2026-11-06T11:16:50.565Z",
   "modelSourceSha256": {
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
   },
   "additionalRuntimeSourceSha256": {
-    "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
     "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
     "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
   },
   "phases": [
     {
       "phase": "prefreeze",
+      "validationMethod": "authenticated-composite",
+      "components": [
+        {
+          "file": "kuat-onager-prefreeze-merged-initial-regressions.json",
+          "sha256": "777add8229c1f59ea5de4473b6303150f1dc2a0e6f5cf8b4bebcc33b47ca9c08",
+          "originalCounts": {
+            "tests": 260,
+            "pass": 258,
+            "fail": 2,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "retainedFiles": [
+            "tests/surface-energy-ion.cjs",
+            "tests/surface-energy-review.cjs",
+            "tests/surface-manual-runtime.cjs",
+            "tests/thermal-strict-only.cjs",
+            "tests/ship-thermal-refit.cjs",
+            "tests/ship-systems-refit.cjs",
+            "tests/hud-localization.cjs",
+            "tests/surface-systems-localization.cjs",
+            "tests/sensor-presentation.cjs",
+            "tests/structure-envelope-ui.cjs",
+            "tests/dedicated-aero-ui.cjs",
+            "tests/example-weapon-families.cjs",
+            "tests/fleet-profile-refresh.cjs",
+            "tests/ship-runtime-refresh.cjs",
+            "tests/weapon-shot-calibration.cjs",
+            "tests/named-example-armament.cjs",
+            "tests/editor-background-edits.cjs",
+            "tests/editor-draft-preparation.cjs",
+            "tests/editor-interaction-performance.cjs",
+            "tests/surface-exposure-large-results.cjs",
+            "tests/engine-body-shape.cjs",
+            "tests/engine-audit-geometry.cjs",
+            "tests/structure-copy-placement.cjs",
+            "tests/geometry-copy-performance.cjs",
+            "tests/onager-fixed-axis-runtime.cjs",
+            "tests/onager-layout.cjs",
+            "tests/superweapon-body-geometry.cjs",
+            "tests/superweapon-unit-controls.cjs"
+          ]
+        },
+        {
+          "file": "kuat-onager-wing-repair-regressions.json",
+          "sha256": "77e924983621f1c37d16b3fe9c2e3fbd201800e493ab49dc062254991e91184a",
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "replacedFiles": [
+            "tests/wing-planform-ui.cjs"
+          ]
+        }
+      ],
+      "scope": "The28unchanged passing files retain their original guarded runs; only the headless wing fixture was given its missing view=null binding and its6tests rerun. Runtime/data/script hashes match exactly across both components and all retained/replaced test source hashes match the current files.",
       "sourceStable": true,
-      "startedAt": "2026-11-06T10:20:29.076Z",
-      "finishedAt": "2026-11-06T10:25:25.391Z",
-      "elapsedMs": 296315,
-      "workers": 2,
+      "startedAt": "2026-11-06T10:53:41.251Z",
+      "finishedAt": "2026-11-06T11:01:48.157Z",
+      "elapsedMs": 368012,
+      "workers": 1,
       "counts": {
-        "tests": 233,
-        "pass": 233,
+        "tests": 260,
+        "pass": 260,
         "fail": 0,
         "cancelled": 0,
         "skipped": 0
@@ -40,12 +99,12 @@
         "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
         "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
         "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
-        "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+        "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
         "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
         "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
         "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
-        "js/app.js": "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
-        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+        "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
         "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
         "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
         "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
@@ -113,6 +172,9 @@
         "scripts/update-light-turret-profiles.cjs": "f19cffe4c5bcc4a559f9c7ec947d7fe28cdbdfc21e6e21e622acdaaf9b5d056b",
         "scripts/update-ship-examples.cjs": "97c40b39084ba48c06875da4d39abbba09116e2769b9b91afe1e6839bcbb77da",
         "tests/dedicated-aero-ui.cjs": "26eafee24630e71f603fe77939980fe5e470206dc91f14f17cef4d265964ab15",
+        "tests/editor-background-edits.cjs": "78c00437c0bd442414d651537469d425652c6f3fee88e69fb76d7f1a3ea4a1d5",
+        "tests/editor-draft-preparation.cjs": "165128653bc9757ea8214e65992043557f8bf1feb3a69d2791a3278bb26f86ae",
+        "tests/editor-interaction-performance.cjs": "4c9c01f30eb6aa4b11886af0d9664976869b6a8d0e88c8a65c2ad81a10a56389",
         "tests/engine-audit-geometry.cjs": "efee6c62c439156a37ddefd30b403d294d0215f23d65ba36406e1d242d64b185",
         "tests/engine-body-shape.cjs": "ef314d5f8af15fb7a29d444346d401b4cff9c53535788cebc9ec5cb576808914",
         "tests/example-weapon-families.cjs": "ef825040ed8ea650de18f37914c87b1aeb86ac567f215d732cdfb0d94486da3a",
@@ -122,7 +184,7 @@
         "tests/named-example-armament.cjs": "a3ee4b4aef5018bab4145bcab0276e5723b62a2579ec62faf72fb21aa0b219fc",
         "tests/onager-fixed-axis-runtime.cjs": "7e2243d2f719badffae8d0a71276de6224baa428dd86f5e0a77aecfb6fd4f60a",
         "tests/onager-layout.cjs": "164a79a3aa62332cc1ac29dd39ff72adc3e666c0170c2a05e6c86f06bca50991",
-        "tests/sensor-presentation.cjs": "474ace9e79b29780236986667816a0a316e199fca17ee43831db23b76ddea614",
+        "tests/sensor-presentation.cjs": "91448b67675844e5a24e694c67b3bed832f7278406d90ed8e47a7e37fb940d32",
         "tests/ship-runtime-refresh.cjs": "fd61706511ad54fc61cb78a562db19de8a0752cab9996a0e6a421e67feebd4bb",
         "tests/ship-systems-refit.cjs": "ab75d52cfadba4c2d5bd1cac82ffccdb03874279f26bb41e67cbabd4499b10f0",
         "tests/ship-thermal-refit.cjs": "3b7958333a70d1ec1727339ed53558c0806f9a84503f2b16c3c78629e4ddb7db",
@@ -132,30 +194,14 @@
         "tests/superweapon-unit-controls.cjs": "1a01b4216ba977ad86ca978a00459de093cfd4c36f645928f9c12179a4e0354b",
         "tests/surface-energy-ion.cjs": "62754ef4827c9c17535bc23ec8197976759adc18791944bc0f3eae9e0e6fe7ac",
         "tests/surface-energy-review.cjs": "d3124c201ab4db98733c0a7b2ad4aafaa6c12429c97b5f5522f20bba0bfdac27",
+        "tests/surface-exposure-large-results.cjs": "c030b27f618c7737b322d21c25e6ed7b6c0d39f2b8bf37ef27440863794e4bcb",
         "tests/surface-manual-runtime.cjs": "57f3bf2724f58eceb81dbc8a5fbad67987c4b685c56dfdc68c31d61f04d9aba3",
         "tests/surface-systems-localization.cjs": "d545de636a26f443726947a308e9ea9d9acd04f64f163a20afdddc72d7979682",
         "tests/thermal-strict-only.cjs": "1fb746638be497136574d3bfd2d738e29d89bf48298ec0bedc5adebbda6e4c70",
         "tests/weapon-shot-calibration.cjs": "56527bb899b2b86c900a0366dd2ef67f36414153c45916df96dff8b6bc160397",
-        "tests/wing-planform-ui.cjs": "02d79109b72fd8d03afd8d2a02424646b056c798e6756d96cda7d784b095c857"
+        "tests/wing-planform-ui.cjs": "03632e18beb1dc8669eecba855ae3d945f09e0e21c39641bddb1e1747a875a84"
       },
       "commands": [
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/surface-energy-review.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 10,
-            "pass": 10,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 5333
-        },
         {
           "command": [
             "node",
@@ -171,7 +217,24 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 6057
+          "elapsedMs": 7081
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/surface-energy-review.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 10,
+            "pass": 10,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 4485
         },
         {
           "command": [
@@ -188,7 +251,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 1597
+          "elapsedMs": 1306
         },
         {
           "command": [
@@ -205,7 +268,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 2930
+          "elapsedMs": 1933
         },
         {
           "command": [
@@ -222,109 +285,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 14922
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/hud-localization.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 7,
-            "pass": 7,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 1729
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/surface-systems-localization.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 3,
-            "pass": 3,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 1282
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/sensor-presentation.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 6,
-            "pass": 6,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 1281
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/structure-envelope-ui.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 8,
-            "pass": 8,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 2258
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/wing-planform-ui.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 6,
-            "pass": 6,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 1624
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/dedicated-aero-ui.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 12,
-            "pass": 12,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 1650
+          "elapsedMs": 11288
         },
         {
           "command": [
@@ -341,58 +302,92 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 34581
+          "elapsedMs": 34233
         },
         {
           "command": [
             "node",
             "--test",
             "--test-reporter=tap",
-            "tests/fleet-profile-refresh.cjs"
+            "tests/hud-localization.cjs"
           ],
           "exitCode": 0,
           "counts": {
-            "tests": 14,
-            "pass": 14,
+            "tests": 7,
+            "pass": 7,
             "fail": 0,
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 298
+          "elapsedMs": 1485
         },
         {
           "command": [
             "node",
             "--test",
             "--test-reporter=tap",
-            "tests/ship-runtime-refresh.cjs"
+            "tests/surface-systems-localization.cjs"
           ],
           "exitCode": 0,
           "counts": {
-            "tests": 9,
-            "pass": 9,
+            "tests": 3,
+            "pass": 3,
             "fail": 0,
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 909
+          "elapsedMs": 1518
         },
         {
           "command": [
             "node",
             "--test",
             "--test-reporter=tap",
-            "tests/weapon-shot-calibration.cjs"
+            "tests/sensor-presentation.cjs"
           ],
           "exitCode": 0,
           "counts": {
-            "tests": 9,
-            "pass": 9,
+            "tests": 7,
+            "pass": 7,
             "fail": 0,
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 2744
+          "elapsedMs": 1004
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/structure-envelope-ui.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 8,
+            "pass": 8,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2627
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/dedicated-aero-ui.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2000
         },
         {
           "command": [
@@ -409,116 +404,14 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 62396
+          "elapsedMs": 51594
         },
         {
           "command": [
             "node",
             "--test",
             "--test-reporter=tap",
-            "tests/engine-body-shape.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 7,
-            "pass": 7,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 6891
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/engine-audit-geometry.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 12,
-            "pass": 12,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 4512
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/structure-copy-placement.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 21,
-            "pass": 21,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 5128
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/geometry-copy-performance.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 3,
-            "pass": 3,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 7042
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/onager-fixed-axis-runtime.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 12,
-            "pass": 12,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 925
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/onager-layout.cjs"
-          ],
-          "exitCode": 0,
-          "counts": {
-            "tests": 6,
-            "pass": 6,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "elapsedMs": 22284
-        },
-        {
-          "command": [
-            "node",
-            "--test",
-            "--test-reporter=tap",
-            "tests/superweapon-body-geometry.cjs"
+            "tests/fleet-profile-refresh.cjs"
           ],
           "exitCode": 0,
           "counts": {
@@ -528,24 +421,41 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 987
+          "elapsedMs": 163
         },
         {
           "command": [
             "node",
             "--test",
             "--test-reporter=tap",
-            "tests/superweapon-unit-controls.cjs"
+            "tests/ship-runtime-refresh.cjs"
           ],
           "exitCode": 0,
           "counts": {
-            "tests": 12,
-            "pass": 12,
+            "tests": 9,
+            "pass": 9,
             "fail": 0,
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 885
+          "elapsedMs": 688
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/weapon-shot-calibration.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2390
         },
         {
           "command": [
@@ -562,16 +472,237 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 248725
+          "elapsedMs": 210313
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/editor-background-edits.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 1586
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/editor-draft-preparation.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 146
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/editor-interaction-performance.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 10,
+            "pass": 10,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 127
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/surface-exposure-large-results.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 3,
+            "pass": 3,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 866
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/engine-body-shape.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 4806
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/engine-audit-geometry.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 3240
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/structure-copy-placement.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 21,
+            "pass": 21,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 2835
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/geometry-copy-performance.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 3,
+            "pass": 3,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 4136
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/onager-fixed-axis-runtime.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 605
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/onager-layout.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 12558
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/superweapon-body-geometry.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 14,
+            "pass": 14,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 704
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/superweapon-unit-controls.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 12,
+            "pass": 12,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 642
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "--test-reporter=tap",
+            "tests/wing-planform-ui.cjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "elapsedMs": 580
         }
       ]
     },
     {
       "phase": "cache",
       "sourceStable": true,
-      "startedAt": "2026-11-06T10:20:28.989Z",
-      "finishedAt": "2026-11-06T10:25:40.492Z",
-      "elapsedMs": 311503,
+      "startedAt": "2026-11-06T10:53:41.255Z",
+      "finishedAt": "2026-11-06T10:58:40.446Z",
+      "elapsedMs": 299191,
       "workers": 1,
       "counts": {
         "tests": 40,
@@ -592,12 +723,12 @@
         "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
         "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
         "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
-        "data/fleet.js": "e00458e485d5d61c54f727ccc42d7276d8243860a2d5e334544bb53d8fdab804",
+        "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
         "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
         "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
         "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
-        "js/app.js": "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
-        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+        "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
         "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
         "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
         "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
@@ -684,7 +815,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 182472
+          "elapsedMs": 178020
         },
         {
           "command": [
@@ -701,7 +832,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 127
+          "elapsedMs": 117
         },
         {
           "command": [
@@ -718,17 +849,17 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 128829
+          "elapsedMs": 120977
         }
       ]
     },
     {
       "phase": "privacy",
       "sourceStable": true,
-      "startedAt": "2026-11-06T10:46:07.987Z",
-      "finishedAt": "2026-11-06T10:46:08.796Z",
-      "elapsedMs": 809,
-      "workers": 2,
+      "startedAt": "2026-11-06T10:53:41.229Z",
+      "finishedAt": "2026-11-06T10:53:44.941Z",
+      "elapsedMs": 3712,
+      "workers": 1,
       "counts": {
         "tests": 19,
         "pass": 19,
@@ -752,8 +883,8 @@
         "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
         "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
         "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
-        "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
-        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+        "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
         "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
         "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
         "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
@@ -839,7 +970,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 614
+          "elapsedMs": 1520
         },
         {
           "command": [
@@ -856,50 +987,16 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 743
+          "elapsedMs": 1915
         }
       ]
     },
     {
       "phase": "catalog",
-      "validationMethod": "authenticated-composite",
-      "components": [
-        {
-          "file": "kuat-onager-catalog-initial-regressions.json",
-          "sha256": "a49d2f12d5c3a5a92cea1c4b2984f1416f1d6836a5b1436a1a033af8bec5fa21",
-          "originalCounts": {
-            "tests": 21,
-            "pass": 20,
-            "fail": 1,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "retainedFiles": [
-            "tests/ship-example-catalog.cjs",
-            "tests/load-sizes.cjs",
-            "tests/ship-example-blueprint-sources.cjs"
-          ]
-        },
-        {
-          "file": "kuat-onager-catalog-repair-regressions.json",
-          "sha256": "574d9f5f0b6f4b53c06122f64ad342e679200e973b3c6e237379bbf48abf98e3",
-          "counts": {
-            "tests": 3,
-            "pass": 3,
-            "fail": 0,
-            "cancelled": 0,
-            "skipped": 0
-          },
-          "replacedFiles": [
-            "tests/onager-generated-profile.cjs"
-          ]
-        }
-      ],
-      "scope": "The3unchanged passing catalogue files retain their original guarded runs; only the generated-profile test file was corrected to observe the initialized energy ledger and rerun. Runtime/data/script hashes match exactly across both components and all retained/replaced test source hashes match the current files.",
       "sourceStable": true,
-      "startedAt": "2026-11-06T10:46:08.027Z",
-      "finishedAt": "2026-11-06T10:48:19.599Z",
-      "elapsedMs": 2770,
+      "startedAt": "2026-11-06T11:14:21.098Z",
+      "finishedAt": "2026-11-06T11:14:23.330Z",
+      "elapsedMs": 2232,
       "workers": 2,
       "counts": {
         "tests": 21,
@@ -944,7 +1041,7 @@
         "assets/source/light-turret-family-manifest.json": "b99b574d260fe9a45f0ca34eba3fcee22966966daa882bb4c09a9905d60b1c0c",
         "assets/source/light-turret-photo-measurements.json": "e3f486b47fc4ce3d91ae3eabd18507d1f003bfd87149cf49416bc117e2450afa",
         "assets/source/moncal-turret-manifest.json": "acf53596869bf60fa37e5e6645597616829cb276afbb49c1d7590a4518c412fb",
-        "assets/source/onager-factory-blueprints/manifest.json": "90328662fa4d3faf4950ef3985271167dec4684789dae3dd8de6c56efe0c78e0",
+        "assets/source/onager-factory-blueprints/manifest.json": "658d6098ae65c3c15eea36e8c80253b102d5e59a1c142e02cf2c44fe1b00abc7",
         "assets/source/onager-factory-blueprints/onager.json.gz": "c85801f6a6de016397d682f04d82d06e1d9276b25d00b1c48f81acd480018569",
         "assets/source/recusant-s3e2/license.txt": "3120142bc37352b4f7e89e66fd7b6deb953da8539a033ed99b7c9811a3250352",
         "assets/source/recusant-s3e2/scene.bin": "8358336a0b1cb7d73a62e96d09ad74e7112d6e0cb67a9aa040570ae52af123cd",
@@ -996,12 +1093,12 @@
         "data/bgm_sovereign.js": "2edb9a459fc9a377440fb54eaed9cf87216466009beb4133f014d76fea65d9f4",
         "data/bgm_starlight.js": "4f4fdb8fdfff5794520f9ae28d679c886a5cb6aec0497cc87ac399ae0c0f3102",
         "data/bgm_vanguard.js": "2dcbcbb066a1ac366b8cc9ff1fd118e7ddec469599e43fac19d397472a92999a",
-        "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
+        "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
         "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
         "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
         "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
-        "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
-        "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+        "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+        "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
         "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
         "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
         "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
@@ -1089,7 +1186,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 1294
+          "elapsedMs": 1285
         },
         {
           "command": [
@@ -1123,7 +1220,7 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 1598
+          "elapsedMs": 1563
         },
         {
           "command": [
@@ -1140,14 +1237,14 @@
             "cancelled": 0,
             "skipped": 0
           },
-          "elapsedMs": 594
+          "elapsedMs": 735
         }
       ]
     }
   ],
   "counts": {
-    "tests": 313,
-    "pass": 313,
+    "tests": 340,
+    "pass": 340,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0
@@ -1158,7 +1255,7 @@
     "currentSourceSha256": {
       "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
       "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+      "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
     },
     "baselineSourceSha256": {
       "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -1243,7 +1340,7 @@
       {
         "file": "tests/wing-planform-ui.cjs",
         "beforeSha256": "98e04c0811bcda36fd97c89437a78630bd7fdc6a47630c5e53cbbf043c74fd74",
-        "afterSha256": "02d79109b72fd8d03afd8d2a02424646b056c798e6756d96cda7d784b095c857"
+        "afterSha256": "03632e18beb1dc8669eecba855ae3d945f09e0e21c39641bddb1e1747a875a84"
       },
       {
         "file": "tests/sensor-presentation.cjs",
@@ -1298,29 +1395,21 @@
     }
   },
   "executionCounts": {
-    "tests": 313,
-    "pass": 313,
+    "tests": 340,
+    "pass": 340,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0
   },
-  "uniqueTestCases": 295,
+  "uniqueTestCases": 321,
   "countScope": "Execution totals include repeated affected tests across explicitly versioned phases. Unique cases are identified by file and TAP subtest title.",
-  "phaseVersionScope": {
-    "scope": "Execution counts aggregate explicitly versioned phases. Earlier233selected and40cache tests retain the actual App hash they exercised. A subsequent narrow tactical source-visibility fix leaves Core/Gfx/data and physical generation unchanged; the privacy and catalogue phases exercise the updated App. This is not a claim that the entire selected suite was rerun on the updated App.",
-    "appSha256": [
-      "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
-      "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76"
-    ],
-    "currentAppSha256": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76"
-  },
   "actualFactoryAcceptance": {
     "passed": true,
     "failures": [],
     "sourceSha256": {
       "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
       "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+      "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
     },
     "actualBlueprintSha256": "742fdbe3ec82cc7329565a8b25ed7343ed95dfb7b5f033cd4650fa0019713493",
     "scope": "One actual fresh Onager constructor, engineering profile and full physical audit; this is not the final27-model proof.",
@@ -1420,5 +1509,55 @@
         "pd": 30
       }
     }
-  }
+  },
+  "publishedArtifactsSha256": {
+    "index.html": "99940c9019a744fd22442df821d515ce6f80841d2192b57d27ab3065eea5dc04",
+    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
+    "docs/benchmarks/ship-examples-after.json": "f4b19eaf626308537abf5740eabb5d18633bfa268a8562af0e6a4b5f9db74f50",
+    "assets/source/ship-example-blueprints/manifest.json": "5a6c37e355f5d0d97ef3618cbb9323336600ea991b56b69f3d248a50bd9bb195",
+    "assets/source/current-factory-blueprints/manifest.json": "18841fb0fadca19f3d43379497fe064cb8e235ecf24217fa181bd2646cf0b107",
+    "assets/source/onager-factory-blueprints/manifest.json": "658d6098ae65c3c15eea36e8c80253b102d5e59a1c142e02cf2c44fe1b00abc7",
+    "docs/benchmarks/onager-actual-browser.json": "c8caaf10b22caa4e1d9cd7083ec8e82e77d2550a119cc6ee1e005f78d6a59699",
+    "docs/benchmarks/onager-superweapon-browser.json": "3f71680d56ff68b5f6e4583bdfa5c7aa463fa9f67f063e335616ee0bc1df8662",
+    "docs/benchmarks/onager-exterior.png": "66a3c5733a954652da16ee00647da25b8721de632520b1e66cf3e3e5302f17f4",
+    "docs/benchmarks/onager-dorsal.png": "6b34bbad9c9eba1d3aa16cad262ea8459dc5dd99b2d1f49d099789874112b40a",
+    "docs/benchmarks/onager-machinery.png": "51dce65e905ca28041ac5b1b06cb1c6ee7facae70e834e8c9924da24fd4d73c5",
+    "docs/benchmarks/onager-machinery-selected.png": "fa62d0fc3aaff74235749b50cb01080f9ba95c9c9b6b69bcc83558dd2f45aad1",
+    "docs/benchmarks/onager-background-moved.png": "408033b23d25f8dce301677c71339d2c2f66e703311395c76d12d0289176fde2",
+    "docs/benchmarks/onager-superweapon-browser.png": "82081e3a81fa16a308eb408057f58a37bed76f23e472a7b659be2df7643533f5"
+  },
+  "browserChecks": [
+    {
+      "artifact": "docs/benchmarks/onager-actual-browser.json",
+      "status": "PASS",
+      "sha256": "c8caaf10b22caa4e1d9cd7083ec8e82e77d2550a119cc6ee1e005f78d6a59699",
+      "sourceStable": true,
+      "sourceSha256": {
+        "index.html": "99940c9019a744fd22442df821d515ce6f80841d2192b57d27ab3065eea5dc04",
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+        "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
+        "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+        "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+        "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+      },
+      "scope": "Actual final fresh Onager public blueprint loaded through production App setShip/deserialization and worker statistics/geometry. No stock constructor rerun, geometry/profile interception or render substitution. Screenshots use native normal/xray controls. Separate controlled firing proof covers trusted single-emitter firing and continuous-beam framebuffer. On the merged main runtime, the initial App draft includes the owned hull structure; factory archive and App draft counts are recorded separately. Native input moves actual gun46 by1m while pending, native Undo restores it, and actual stale worker replies cannot reapply the moved pose. Read-only message/upload observers never substitute geometry or profiles. A single-weapon highlight uses the exposed editor selection API without changing the design."
+    },
+    {
+      "artifact": "docs/benchmarks/onager-superweapon-browser.json",
+      "status": "PASS",
+      "sha256": "3f71680d56ff68b5f6e4583bdfa5c7aa463fa9f67f063e335616ee0bc1df8662",
+      "sourceStable": true,
+      "sourceSha256": {
+        "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+        "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
+        "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
+        "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
+      },
+      "scope": "Controlled tiny 100 m box and explicit two-superweapon profile. Real App boot, trialStart, native key/button dispatch and WebGL beam. This does not validate the stock Onager factory or production catalogue."
+    }
+  ],
+  "finalizedAt": "2026-11-06T11:32:47.360279+00:00"
 }

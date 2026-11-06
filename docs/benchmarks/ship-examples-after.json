@@ -1,12 +1,12 @@
 {
   "source": "current-mixed-factory-and-saved-blueprint-verification",
-  "baselineCommit": "74760db1c437c9db3f82bee484b871c260a25bc4",
+  "baselineCommit": "f835f69d7c6cdc6216cd1e567381df501c65bae6",
   "sourceSha256": {
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
   },
-  "generatedAt": "2026-11-06T10:42:37.638Z",
+  "generatedAt": "2026-11-06T11:14:00.594Z",
   "modelVersion": 1,
   "profileVersion": 17,
   "allKeys": [
@@ -107,7 +107,7 @@
         "armament": "12×4×200 GT + 24 PD HLC"
       },
       "timingSeconds": {
-        "profileAndRuntime": 1.354
+        "profileAndRuntime": 1.325
       },
       "massT": 1764039.808,
       "dimensionsM": [
@@ -3382,7 +3382,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -3403,7 +3403,7 @@
       "reference": "arquitens",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 4.563
+        "profileAndRuntime": 3.225
       },
       "massT": 418827.5887,
       "dimensionsM": [
@@ -6462,7 +6462,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -6483,7 +6483,7 @@
       "reference": "cr90",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 103.769
+        "profileAndRuntime": 101.076
       },
       "massT": 42171.56238,
       "dimensionsM": [
@@ -13467,7 +13467,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -13488,7 +13488,7 @@
       "reference": "dreadnaught",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 36.99
+        "profileAndRuntime": 33.126
       },
       "massT": 1466422.768,
       "dimensionsM": [
@@ -19539,7 +19539,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -19573,7 +19573,7 @@
         "armament": "指定表は未記載。作例は正史の一覧（連装重ターボレーザー750・連装軽ターボレーザー1,000・連装戦艦級イオン砲100・突撃震盪ミサイル発射機125・四連レーザー砲250）"
       },
       "timingSeconds": {
-        "profileAndRuntime": 19.543
+        "profileAndRuntime": 18.732
       },
       "massT": 7521465180,
       "dimensionsM": [
@@ -71634,7 +71634,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -71655,7 +71655,7 @@
       "reference": "gozanti",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 1.989
+        "profileAndRuntime": 1.34
       },
       "massT": 5220.726012,
       "dimensionsM": [
@@ -73532,7 +73532,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -73553,7 +73553,7 @@
       "reference": "gr75",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 0.356
+        "profileAndRuntime": 0.235
       },
       "massT": 14149.56175,
       "dimensionsM": [
@@ -75908,7 +75908,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -75929,7 +75929,7 @@
       "reference": "hammerhead",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 0.098
+        "profileAndRuntime": 0.065
       },
       "massT": 33356.26916,
       "dimensionsM": [
@@ -77664,7 +77664,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -77685,7 +77685,7 @@
       "reference": "heraklon",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 2.504
+        "profileAndRuntime": 1.556
       },
       "massT": 257159.548,
       "dimensionsM": [
@@ -82331,7 +82331,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -82364,7 +82364,7 @@
         "armament": "12×175 TT + 4×175 TT ion + 8×70 TT + 27×40 TT"
       },
       "timingSeconds": {
-        "profileAndRuntime": 43.103
+        "profileAndRuntime": 26.787
       },
       "massT": 35712368.95,
       "dimensionsM": [
@@ -87798,7 +87798,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -87829,7 +87829,7 @@
         "armament": "未記載（作例の兵装・搭載数はゲーム用仮設定）"
       },
       "timingSeconds": {
-        "profileAndRuntime": 0.373
+        "profileAndRuntime": 0.381
       },
       "massT": 295764756.2,
       "dimensionsM": [
@@ -90390,7 +90390,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -90421,7 +90421,7 @@
         "armament": "未記載（作例の兵装・搭載数はゲーム用仮設定）"
       },
       "timingSeconds": {
-        "profileAndRuntime": 0.486
+        "profileAndRuntime": 0.452
       },
       "massT": 279253347.7,
       "dimensionsM": [
@@ -93400,7 +93400,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -93436,7 +93436,7 @@
         "armament": "203×2×720 TT + 44×2×175 TT + 28×2×175 TT ion = 317520 TT; 250×2×100 kt PD adds 0.00005 TT"
       },
       "timingSeconds": {
-        "profileAndRuntime": 13.345
+        "profileAndRuntime": 10.925
       },
       "massT": 1505691645,
       "dimensionsM": [
@@ -104790,7 +104790,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -104811,7 +104811,7 @@
       "reference": "mc30c",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 12.974
+        "profileAndRuntime": 13.903
       },
       "massT": 175935.6922,
       "dimensionsM": [
@@ -108387,7 +108387,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -108408,7 +108408,7 @@
       "reference": "mc75",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 3.832
+        "profileAndRuntime": 3.164
       },
       "massT": 7061264.958,
       "dimensionsM": [
@@ -115737,7 +115737,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -115758,7 +115758,7 @@
       "reference": "mc80home",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 2.026
+        "profileAndRuntime": 2.448
       },
       "massT": 10485439.92,
       "dimensionsM": [
@@ -122827,7 +122827,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -122848,7 +122848,7 @@
       "reference": "mc80liberty",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 12.086
+        "profileAndRuntime": 11.199
       },
       "massT": 9712403.86,
       "dimensionsM": [
@@ -129093,7 +129093,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -129114,7 +129114,7 @@
       "reference": "munificent",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 21.867
+        "profileAndRuntime": 18.519
       },
       "massT": 5402283.073,
       "dimensionsM": [
@@ -134055,7 +134055,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -134076,7 +134076,7 @@
       "reference": "nebulonb",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 0.473
+        "profileAndRuntime": 0.548
       },
       "massT": 219159.4919,
       "dimensionsM": [
@@ -136936,7 +136936,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -136957,7 +136957,7 @@
       "reference": "onager",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 2.846
+        "profileAndRuntime": 4.784
       },
       "massT": 17468691.49,
       "dimensionsM": [
@@ -140936,7 +140936,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "outputArchive": "assets/source/onager-factory-blueprints/onager.json.gz",
         "outputRawSha256": "abe19cf0ed4ccd6829cbba0bf140f441711fe3c2d5c144ddb0d84e712f96beb5",
@@ -140951,7 +140951,7 @@
       "reference": "providence",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 13.524
+        "profileAndRuntime": 13.35
       },
       "massT": 7653009.05,
       "dimensionsM": [
@@ -144129,7 +144129,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -144150,7 +144150,7 @@
       "reference": "providenceDn",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 15.043
+        "profileAndRuntime": 13.891
       },
       "massT": 66126475.46,
       "dimensionsM": [
@@ -147335,7 +147335,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -147356,7 +147356,7 @@
       "reference": "recusant",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 0.313
+        "profileAndRuntime": 0.322
       },
       "massT": 4417225.986,
       "dimensionsM": [
@@ -150467,7 +150467,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -150488,7 +150488,7 @@
       "reference": "recusantDn",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 0.558
+        "profileAndRuntime": 0.545
       },
       "massT": 38051202.9,
       "dimensionsM": [
@@ -154245,7 +154245,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -154266,7 +154266,7 @@
       "reference": "reptransport",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 0.078
+        "profileAndRuntime": 0.075
       },
       "massT": 7409.095366,
       "dimensionsM": [
@@ -155736,7 +155736,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -155757,7 +155757,7 @@
       "reference": "subjugator",
       "referenceTarget": {},
       "timingSeconds": {
-        "profileAndRuntime": 771.211
+        "profileAndRuntime": 719.553
       },
       "massT": 378363017.3,
       "dimensionsM": [
@@ -174624,7 +174624,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -174658,7 +174658,7 @@
         "armament": "16×70 TT + 2×2×40 TT"
       },
       "timingSeconds": {
-        "profileAndRuntime": 3.058
+        "profileAndRuntime": 3.545
       },
       "massT": 10430300.12,
       "dimensionsM": [
@@ -183864,7 +183864,7 @@
         "runtimeSourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         },
         "inputFactorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
@@ -184294,11 +184294,11 @@
     "manifests": [
       {
         "path": "assets/source/onager-factory-blueprints/manifest.json",
-        "sha256": "90328662fa4d3faf4950ef3985271167dec4684789dae3dd8de6c56efe0c78e0",
+        "sha256": "658d6098ae65c3c15eea36e8c80253b102d5e59a1c142e02cf2c44fe1b00abc7",
         "factorySourceSha256": {
           "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
           "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-          "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
         }
       },
       {

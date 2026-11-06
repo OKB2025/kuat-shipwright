@@ -9,6 +9,7 @@ function setup(){
  let ship=C.newShip({L:4,W:2,H:1,assembly:true},'Small hull and large wings');ship.parts=[];ship.nextId=1;
  const st={tab:'mod',part:'wing',group:'power',partTool:'place',sel:null,mirror:false,vmirror:false,surfaceMode:'horizontal',ve:{target:null},size:{},sizeCraft:{}},listeners={},undoStack=[],redoStack=[],controls=new Map(),outputs=new Map();
  let dragSnap=null,dragLabel='',lastOp='';
+ const view=null; // This editor-control fixture intentionally has no renderer.
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,rgb=v=>v.join(','),fmtM=v=>v+' m',fPct=v=>Math.round(v*100)+'%',fW=v=>v+' W',fMass=v=>v+' t',deg=v=>v+'°';
  const activeEquipment=()=>null,craftDesign=()=>C.isCraft(ship),findSel=s=>ship[s.list]?.find(p=>p.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
  const panel={innerHTML:'',addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:s.startsWith('#out-')?(outputs.has(s)||outputs.set(s,{}),outputs.get(s)):null,$$=s=>controls.get(s.match(/data-sl="([^"]+)"/)?.[1])||[];

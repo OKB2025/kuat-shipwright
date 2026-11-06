@@ -1,8 +1,898 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "scope": "Actual final fresh Onager public blueprint loaded through production App setShip/deserialization and worker statistics/geometry. No stock constructor rerun, geometry/profile interception or render substitution. Screenshots use native normal/xray controls. Separate controlled firing proof covers trusted single-emitter firing and continuous-beam framebuffer. Single-weapon highlight uses the exposed editor selection API for actual part46; it does not modify the design.",
-  "loadingMs": 29226,
+  "scope": "Actual final fresh Onager public blueprint loaded through production App setShip/deserialization and worker statistics/geometry. No stock constructor rerun, geometry/profile interception or render substitution. Screenshots use native normal/xray controls. Separate controlled firing proof covers trusted single-emitter firing and continuous-beam framebuffer. On the merged main runtime, the initial App draft includes the owned hull structure; factory archive and App draft counts are recorded separately. Native input moves actual gun46 by1m while pending, native Undo restores it, and actual stale worker replies cannot reapply the moved pose. Read-only message/upload observers never substitute geometry or profiles. A single-weapon highlight uses the exposed editor selection API without changing the design.",
+  "background": {
+    "initial": {
+      "gen": 1,
+      "adopted": 0,
+      "stats": 0,
+      "preview": 121707,
+      "c": [
+        927.3,
+        64.9,
+        -23.45
+      ],
+      "muzzle": [
+        1260.1999999999998,
+        64.9,
+        -23.45
+      ],
+      "hasBody": true,
+      "hasMuzzle": true
+    },
+    "afterFill": {
+      "c": [
+        928.3,
+        64.9,
+        -23.45
+      ],
+      "gen": 2,
+      "adopted": 0,
+      "previews": [
+        {
+          "gen": 1,
+          "count": 121707,
+          "aggregateStripMaxX": 1288,
+          "movedTipVertices": 0,
+          "originalTipVertices": 400
+        },
+        {
+          "gen": 2,
+          "count": 121707,
+          "aggregateStripMaxX": 1288,
+          "movedTipVertices": 282,
+          "originalTipVertices": 118
+        }
+      ],
+      "posts": [
+        {
+          "gen": 1,
+          "x": 927.3,
+          "body": true,
+          "muzzle": true
+        }
+      ]
+    },
+    "afterTab": {
+      "c": [
+        928.3,
+        64.9,
+        -23.45
+      ],
+      "gen": 2,
+      "adopted": 0,
+      "previews": [
+        {
+          "gen": 1,
+          "count": 121707,
+          "aggregateStripMaxX": 1288,
+          "movedTipVertices": 0,
+          "originalTipVertices": 400
+        },
+        {
+          "gen": 2,
+          "count": 121707,
+          "aggregateStripMaxX": 1288,
+          "movedTipVertices": 282,
+          "originalTipVertices": 118
+        }
+      ],
+      "posts": [
+        {
+          "gen": 1,
+          "x": 927.3,
+          "body": true,
+          "muzzle": true
+        },
+        {
+          "gen": 2,
+          "x": 928.3,
+          "body": true,
+          "muzzle": true
+        }
+      ]
+    },
+    "moved": {
+      "gen": 2,
+      "adopted": 0,
+      "stats": 0,
+      "c": [
+        928.3,
+        64.9,
+        -23.45
+      ],
+      "muzzle": [
+        1261.1999999999998,
+        64.9,
+        -23.45
+      ],
+      "volume": 4462607.394240993,
+      "bodyUnchanged": true,
+      "muzzleUnchanged": true,
+      "previewCount": 121707,
+      "preview": {
+        "gen": 2,
+        "count": 121707,
+        "aggregateStripMaxX": 1288,
+        "movedTipVertices": 282,
+        "originalTipVertices": 118
+      },
+      "requestedPickAtNewBarrelTip": 46,
+      "originalBarrelTipX": 1260.2,
+      "expectedNewBarrelTipX": 1261.2
+    },
+    "beforeUndo": {
+      "gen": 2,
+      "adopted": 2,
+      "geometry": 2,
+      "stats": 0,
+      "camera": {
+        "ortho": true,
+        "ph": 0.0006,
+        "th": 1.5707963267948966
+      }
+    },
+    "undoImmediate": {
+      "gen": 3,
+      "adopted": 2,
+      "stats": 0,
+      "c": [
+        927.3,
+        64.9,
+        -23.45
+      ],
+      "muzzle": [
+        1260.1999999999998,
+        64.9,
+        -23.45
+      ],
+      "bodyUnchanged": true,
+      "muzzleUnchanged": true,
+      "pickAtMovedTip": 139,
+      "previewCount": 23292
+    },
+    "final": {
+      "gen": 3,
+      "adopted": 3,
+      "geometry": 3,
+      "stats": 3,
+      "c": [
+        927.3,
+        64.9,
+        -23.45
+      ],
+      "muzzle": [
+        1260.1999999999998,
+        64.9,
+        -23.45
+      ],
+      "bodyUnchanged": true,
+      "muzzleUnchanged": true,
+      "canonicalOriginal": false,
+      "events": [
+        {
+          "type": "geometry",
+          "gen": 1,
+          "currentGen": 2,
+          "adopted": 0,
+          "phase": "move",
+          "x": 928.3,
+          "hasBody": true,
+          "hasMuzzle": true
+        },
+        {
+          "type": "geometry",
+          "gen": 2,
+          "currentGen": 2,
+          "adopted": 2,
+          "phase": "move",
+          "x": 928.3,
+          "hasBody": true,
+          "hasMuzzle": true
+        },
+        {
+          "type": "surfaceGeometry",
+          "gen": 2,
+          "currentGen": 3,
+          "adopted": 2,
+          "phase": "undo",
+          "x": 927.3,
+          "hasBody": true,
+          "hasMuzzle": true
+        },
+        {
+          "type": "geometry",
+          "gen": 3,
+          "currentGen": 3,
+          "adopted": 3,
+          "phase": "undo",
+          "x": 927.3,
+          "hasBody": true,
+          "hasMuzzle": true
+        },
+        {
+          "type": "surfaceGeometry",
+          "gen": 3,
+          "currentGen": 3,
+          "adopted": 3,
+          "phase": "undo",
+          "x": 927.3,
+          "hasBody": true,
+          "hasMuzzle": true
+        },
+        {
+          "type": "stats",
+          "gen": 3,
+          "currentGen": 3,
+          "adopted": 3,
+          "phase": "undo",
+          "x": 927.3,
+          "hasBody": true,
+          "hasMuzzle": true
+        }
+      ],
+      "nativeEvents": [
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": false
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": false
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": false,
+          "pick": "parts:46"
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": false
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": false
+        },
+        {
+          "type": "input",
+          "trusted": true,
+          "sl": "ex",
+          "undo": false
+        },
+        {
+          "type": "change",
+          "trusted": true,
+          "sl": "ex",
+          "undo": false
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": false
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "undo": true
+        }
+      ],
+      "postMessages": [
+        {
+          "gen": 1,
+          "x": 927.3,
+          "body": true,
+          "muzzle": true
+        },
+        {
+          "gen": 2,
+          "x": 928.3,
+          "body": true,
+          "muzzle": true
+        },
+        {
+          "gen": 3,
+          "x": 927.3,
+          "body": true,
+          "muzzle": true
+        }
+      ],
+      "previews": [
+        {
+          "gen": 1,
+          "count": 121707,
+          "aggregateStripMaxX": 1288,
+          "movedTipVertices": 0,
+          "originalTipVertices": 400
+        },
+        {
+          "gen": 2,
+          "count": 121707,
+          "aggregateStripMaxX": 1288,
+          "movedTipVertices": 282,
+          "originalTipVertices": 118
+        },
+        {
+          "gen": 3,
+          "count": 23292,
+          "aggregateStripMaxX": 1260.199951171875,
+          "movedTipVertices": 0,
+          "originalTipVertices": 282
+        }
+      ],
+      "profile": [
+        {
+          "id": 46,
+          "Emax": 125000,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "mz": [
+            616.1999999999998,
+            -32.099999999999994,
+            -23.45
+          ]
+        },
+        {
+          "id": 47,
+          "Emax": 125000,
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "mz": [
+            616.1999999999998,
+            -32.099999999999994,
+            23.45
+          ]
+        }
+      ],
+      "webglError": 0,
+      "rawInputComparison": {
+        "exact": false,
+        "relativeTolerance": 1e-12,
+        "numericDifferences": 572,
+        "nonNumericDifferences": 54,
+        "maximumRelativeDifference": 2.2737367544323206e-13,
+        "examples": [
+          {
+            "path": "$.fits[0].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[1].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[2].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[3].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[4].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[5].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[6].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[7].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[8].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[9].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[10].float",
+            "after": false
+          },
+          {
+            "path": "$.fits[11].float",
+            "after": false
+          }
+        ],
+        "withinTolerance": false
+      },
+      "normalizedCanonicalOriginal": false,
+      "partsExactlyEqual": true,
+      "explicitFloatDefaultProof": [
+        {
+          "fitId": 71,
+          "kind": "triple40",
+          "path": "$.fits[0].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 72,
+          "kind": "triple40",
+          "path": "$.fits[1].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 73,
+          "kind": "triple40",
+          "path": "$.fits[2].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 74,
+          "kind": "triple40",
+          "path": "$.fits[3].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 75,
+          "kind": "triple40",
+          "path": "$.fits[4].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 76,
+          "kind": "triple40",
+          "path": "$.fits[5].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 77,
+          "kind": "triple40",
+          "path": "$.fits[6].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 78,
+          "kind": "triple40",
+          "path": "$.fits[7].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 79,
+          "kind": "quad200",
+          "path": "$.fits[8].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 80,
+          "kind": "quad200",
+          "path": "$.fits[9].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 81,
+          "kind": "quad200",
+          "path": "$.fits[10].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 82,
+          "kind": "quad200",
+          "path": "$.fits[11].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 83,
+          "kind": "quad200",
+          "path": "$.fits[12].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 84,
+          "kind": "quad200",
+          "path": "$.fits[13].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 85,
+          "kind": "quad200",
+          "path": "$.fits[14].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 86,
+          "kind": "quad200",
+          "path": "$.fits[15].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 87,
+          "kind": "quad200",
+          "path": "$.fits[16].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 88,
+          "kind": "quad200",
+          "path": "$.fits[17].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 89,
+          "kind": "quad200",
+          "path": "$.fits[18].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 90,
+          "kind": "quad200",
+          "path": "$.fits[19].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 91,
+          "kind": "quad200",
+          "path": "$.fits[20].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 92,
+          "kind": "quad200",
+          "path": "$.fits[21].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 93,
+          "kind": "quad200",
+          "path": "$.fits[22].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 94,
+          "kind": "quad200",
+          "path": "$.fits[23].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 95,
+          "kind": "pd",
+          "path": "$.fits[24].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 96,
+          "kind": "pd",
+          "path": "$.fits[25].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 97,
+          "kind": "pd",
+          "path": "$.fits[26].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 98,
+          "kind": "pd",
+          "path": "$.fits[27].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 99,
+          "kind": "pd",
+          "path": "$.fits[28].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 100,
+          "kind": "pd",
+          "path": "$.fits[29].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 101,
+          "kind": "pd",
+          "path": "$.fits[30].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 102,
+          "kind": "pd",
+          "path": "$.fits[31].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 103,
+          "kind": "pd",
+          "path": "$.fits[32].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 104,
+          "kind": "pd",
+          "path": "$.fits[33].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 105,
+          "kind": "pd",
+          "path": "$.fits[34].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 106,
+          "kind": "pd",
+          "path": "$.fits[35].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 107,
+          "kind": "pd",
+          "path": "$.fits[36].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 108,
+          "kind": "pd",
+          "path": "$.fits[37].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 109,
+          "kind": "pd",
+          "path": "$.fits[38].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 110,
+          "kind": "pd",
+          "path": "$.fits[39].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 111,
+          "kind": "pd",
+          "path": "$.fits[40].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 112,
+          "kind": "pd",
+          "path": "$.fits[41].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 113,
+          "kind": "pd",
+          "path": "$.fits[42].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 114,
+          "kind": "pd",
+          "path": "$.fits[43].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 115,
+          "kind": "pd",
+          "path": "$.fits[44].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 116,
+          "kind": "pd",
+          "path": "$.fits[45].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 117,
+          "kind": "pd",
+          "path": "$.fits[46].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 118,
+          "kind": "pd",
+          "path": "$.fits[47].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 119,
+          "kind": "pd",
+          "path": "$.fits[48].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 120,
+          "kind": "pd",
+          "path": "$.fits[49].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 121,
+          "kind": "pd",
+          "path": "$.fits[50].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 122,
+          "kind": "pd",
+          "path": "$.fits[51].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 123,
+          "kind": "pd",
+          "path": "$.fits[52].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        },
+        {
+          "fitId": 124,
+          "kind": "pd",
+          "path": "$.fits[53].float",
+          "before": "absent",
+          "after": false,
+          "actualMountedFloat": false
+        }
+      ],
+      "inputEquivalence": {
+        "rawComparison": {
+          "exact": false,
+          "relativeTolerance": 1e-12,
+          "numericDifferences": 572,
+          "nonNumericDifferences": 0,
+          "maximumRelativeDifference": 2.2737367544323206e-13,
+          "examples": [],
+          "withinTolerance": true
+        },
+        "acceptedEquivalentNormalizations": [],
+        "remainingComparison": {
+          "exact": false,
+          "relativeTolerance": 1e-12,
+          "numericDifferences": 572,
+          "nonNumericDifferences": 0,
+          "maximumRelativeDifference": 2.2737367544323206e-13,
+          "examples": [],
+          "withinTolerance": true
+        },
+        "physicalInputEquivalent": true,
+        "scope": "The raw serialized comparison stays visible. A second comparison at the same 1e-12 tolerance excludes only individually proven control defaults, geometry-neutral room diameter, an unused assembly guide label/default, an existing tilt alias, bounded Float32-identical support roundoff, or an exact-world support coordinate rebase. No authored hardware, pose, room, source or rating changes are accepted."
+      },
+      "rawInputScope": "Initial App draft to native Undo after actual worker remount. The raw comparison remains visible; only individually computed absent-to-false mount status is normalized in this browser harness. Generic archived factory/replay contracts and runtime are unchanged.",
+      "staleReplyVerification": {
+        "source": "current-browser-run",
+        "events": [
+          {
+            "type": "surfaceGeometry",
+            "gen": 2,
+            "currentGen": 3,
+            "adopted": 2,
+            "phase": "undo",
+            "x": 927.3,
+            "hasBody": true,
+            "hasMuzzle": true
+          }
+        ]
+      }
+    },
+    "movedScreenshot": "onager-background-moved.png"
+  },
+  "loadingMs": 52321,
   "measured": {
     "name": "オナガー級スター・デストロイヤー",
     "reference": "onager",
@@ -124,6 +1014,11 @@
         }
       ]
     },
+    "cachedModelSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+    },
     "cachedProfile": {
       "profileVersion": 17,
       "sw": [
@@ -165,10 +1060,10 @@
     "renderer": "WebKit WebGL",
     "webglError": 0,
     "generation": {
-      "design": 1,
-      "geometry": 1,
-      "stats": 1,
-      "adopted": 1
+      "design": 3,
+      "geometry": 3,
+      "stats": 3,
+      "adopted": 3
     }
   },
   "catalogueVerified": true,
@@ -206,24 +1101,24 @@
     "onager-machinery-selected.png"
   ],
   "sourceSha256": {
-    "index.html": "3537f73cfe3bffb94c61139255e699742e27ed9a812bcf029f9071055e534853",
+    "index.html": "99940c9019a744fd22442df821d515ce6f80841d2192b57d27ab3065eea5dc04",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
     "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
-    "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
     "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
     "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
   },
   "sourceSha256After": {
-    "index.html": "3537f73cfe3bffb94c61139255e699742e27ed9a812bcf029f9071055e534853",
+    "index.html": "99940c9019a744fd22442df821d515ce6f80841d2192b57d27ab3065eea5dc04",
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "data/fleet.js": "4fba154079a51c4883048b46e8253323c4a5285d7b3909ffc6752a0d237ec876",
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
+    "data/fleet.js": "eb374e7b14711a6fe4d906876d2a9e935f959616b9503fd73ead10fe1fcc1ef4",
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
     "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
-    "js/app.js": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
     "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
     "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
   },
@@ -236,10 +1131,12 @@
     "factorySourceSha256": {
       "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
       "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+      "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
     },
     "canonicalSha256": "742fdbe3ec82cc7329565a8b25ed7343ed95dfb7b5f033cd4650fa0019713493"
   },
-  "elapsedMs": 33072,
-  "date": "2026-11-06T10:46:01.103Z"
+  "elapsedMs": 55372,
+  "date": "2026-11-06T11:31:07.277Z",
+  "factoryPartCount": 77,
+  "appDraftPartCount": 77
 }

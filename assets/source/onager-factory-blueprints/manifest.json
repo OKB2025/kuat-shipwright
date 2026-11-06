@@ -3,11 +3,11 @@
   "kind": "current-factory-serialized-ship-blueprint",
   "runtimeLoaded": false,
   "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
-  "factoryBaselineCommit": "74760db1c437c9db3f82bee484b871c260a25bc4",
+  "factoryBaselineCommit": "f835f69d7c6cdc6216cd1e567381df501c65bae6",
   "factorySourceSha256": {
     "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
     "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
   },
   "compression": {
     "format": "gzip",
@@ -22,7 +22,7 @@
     "auditSourceSha256": {
       "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
       "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
-      "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3"
+      "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
     },
     "profileVersion": 17,
     "costVersion": 16,

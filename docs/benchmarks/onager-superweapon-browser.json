@@ -2,20 +2,20 @@
   "scope": "Controlled tiny 100 m box and explicit two-superweapon profile. Real App boot, trialStart, native key/button dispatch and WebGL beam. This does not validate the stock Onager factory or production catalogue.",
   "status": "PASS",
   "sourceSha256": {
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
-    "js/app.js": "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
     "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
     "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
   },
   "sourceSha256After": {
-    "js/core.js": "a382fddeba6948814e489a28df9e72db8a19c83a7dd1845cb52587a253fc34a3",
-    "js/app.js": "8d4576fae18b5f422ce529c375b8d9bb8d1958a196c00e53ab0a23254622921b",
+    "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26",
+    "js/app.js": "dc8b02bfa7c31ac8222b01bb2015925d5cd9a7f80f54e55e7626e73f965b00a0",
     "js/gfx.js": "f4cb82c61eab0e5f02b5f90bf6460169794b4cae5bb47dce874b414f2a758eaf",
     "js/lang-en.js": "87d38136c230e981fd313e255e7200bf151fcdd009714e0a6a6919ab53d19a97"
   },
   "sourceStable": true,
-  "date": "2026-11-06T10:21:06.650Z",
-  "elapsedMs": 75432,
+  "date": "2026-11-06T10:55:06.752Z",
+  "elapsedMs": 92319,
   "errors": [],
   "nativeEvents": [
     {
@@ -436,9 +436,5 @@
       ]
     }
   },
-  "screenshot": "onager-superweapon-browser.png",
-  "laterAppPrivacyFix": {
-    "latestAppSha256": "cc9edb9b4dbe253fc615bae57d2ba0b55e53ffa6448a643f15215a7de42fba76",
-    "scope": "A later one-line tactical source-visibility gate suppresses actual fixed-beam coordinates from an unobserved source. The original controlled native piloting proof retains the exact App8d4576fa hash it exercised; the updated tactical privacy behavior is covered by the separately recorded19-test guard. No original browser source hashes were relabelled."
-  }
+  "screenshot": "onager-superweapon-browser.png"
 }
