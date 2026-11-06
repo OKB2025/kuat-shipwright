@@ -46,14 +46,12 @@ const overlapSig = (info) => info ? Object.keys(info).filter(k => info[k] && inf
 // Caches travel to the editor with references to ship objects replaced by
 // markers, so the editor can re-point them at its own objects.
 const SHIP_SKIP = new Set(['_portalGeoFlat', '_lockedCache', '_building', '_aviationSyncing', '_clipEnvelope', '_geoProxy', '_client', '_armoredMaterial', '_armoredClosed']);
-const AUTHORING_SHIP_CACHES = new Set(['_cache', '_portalGeo', '_solidHull', '_referenceHull']);
 function packCaches(s, options) {
   const refs = new Map([[s, {$r: 'ship'}]]);
   for (const l of ['parts', 'fits', 'hatches']) for (const it of s[l]) refs.set(it, {$r: l, id: it.id});
   const memo = new Map();
   const conv = (v, key) => {
     if (key === 'geoFlat' || key === 'exposedTriangles') return undefined;
-    if (options?.authoring && key === '_lockedCache') return undefined;
     if (v === null || typeof v !== 'object') return typeof v === 'function' ? undefined : v;
     // Native compartment caches can refer back to the common simulation view.
     // On the editor side that reference must resolve to the source design.
@@ -61,11 +59,6 @@ function packCaches(s, options) {
     const r = refs.get(v); if (r) return r;
     if (ArrayBuffer.isView(v) || v instanceof ArrayBuffer) return v;
     let o = memo.get(v); if (o) return o;
-    if (options?.authoring && key === '_cache') {
-      o = {key: v.key, sec: new Map(), geo: null, hf: null, hfKey: ''}; memo.set(v, o);
-      o.geo = conv(v.geo);
-      return o;
-    }
     if (v instanceof Map) { o = new Map(); memo.set(v, o); if (key === 'sec') return o; for (const [k, x] of v) o.set(k, conv(x)); return o; }
     if (v instanceof Set) { o = new Set(); memo.set(v, o); for (const x of v) o.add(conv(x)); return o; }
     if (Array.isArray(v)) { o = new Array(v.length); memo.set(v, o); for (let i = 0; i < v.length; i++) o[i] = conv(v[i]); return o; }
@@ -74,9 +67,8 @@ function packCaches(s, options) {
     return o;
   };
   const out = {ship: {}, items: {parts: {}, fits: {}, hatches: {}}};
-  for (const k of Object.keys(s)) if (k[0] === '_' && !SHIP_SKIP.has(k) && (!options?.authoring || AUTHORING_SHIP_CACHES.has(k))) out.ship[k] = conv(s[k], k);
+  for (const k of Object.keys(s)) if (k[0] === '_' && !SHIP_SKIP.has(k)) out.ship[k] = conv(s[k], k);
   for (const l of ['parts', 'fits', 'hatches']) for (const it of s[l]) {
-    if (options?.authoring && (l !== 'parts' || !C.isShapePart(it))) continue;
     let o = null;
     for (const k of Object.keys(it)) if (k[0] === '_') { (o || (o = {}))[k] = conv(it[k], k); }
     if (o) out.items[l][it.id] = o;
@@ -86,41 +78,11 @@ function packCaches(s, options) {
   // Face picking and outlines use the same completed exposure survey as the
   // mesh. Keep it in the worker snapshot so pointer events never clip all the
   // ship's faces again. Configurations remain the editor's current settings.
-  if (!options?.authoring && !options?.deferSurfaces) {
+  if (!options?.deferSurfaces) {
     out.geoProxy.surfaces = C.surfacePatches(s).map(({config, exposedTriangles, ...p}) => ({...conv(p), exposedTriangles: conv(exposedTriangles)}));
     out.geoProxy.surfacePartitions = JSON.stringify(s.surfaces?.partitions || null);
   }
   return out;
-}
-
-// Exact authored pick geometry is useful before rooms, machinery routes and
-// weapon mounts have been derived. In particular an owned hull's apertures
-// can take seconds to compile: never leave that first compilation to a
-// pointer event on the interface thread. Plain gun edits keep this geometry.
-let authoringKey = null;
-function authoringGeometryKey(s) {
-  return JSON.stringify([s.hull, s.parts, s.cuts, s.subs, s.trenches, s.solidCuts, s.hatches,
-    s.fits.filter(f => C.isShipLauncher(f) && C.shipLauncherConfig(f).embedded),
-    s.hullSkin, s.hullBands, s.reference], (k, v) => k[0] === '_' ? undefined : v);
-}
-function authoringGeometry(job) {
-  const key = authoringGeometryKey(ship);
-  if (key === authoringKey) return false;
-  const started = now();
-  // Aviation contacts can query structure solids while the hull is compiled.
-  // Give those queries the authored global cuts on the first update too.
-  for (const p of ship.parts) if (C.isShapePart(p)) p._solidCutShip = ship;
-  C.hullGeo(ship);
-  C.referenceHullGeometry(ship);
-  for (const p of ship.parts) if (C.isShapePart(p)) {
-    C.structTriangles(p);
-  }
-  // This also builds the hull BVH, without surveying surfaces or routes.
-  C.rayEnv(ship, [ship.hull.L / 2, 1e7, 0], [0, -1, 0], {structOnly: true});
-  const caches = packCaches(ship, {authoring: true, deferSurfaces: true});
-  authoringKey = key;
-  post({type: 'authoringGeometry', gen: job.gen, sourceState: job.state, caches, prepareMs: now() - started});
-  return true;
 }
 
 // ---------- mesh pipeline (mirrors the editor's former render loop) ----------
@@ -157,7 +119,7 @@ let settledState = null;
 function applyState(job) {
   shipGen++;
   if (job.reset || !ship) {
-    if (!(ship && C.publicJSON(ship) === job.state)) { ship = JSON.parse(job.state); hullKey = ''; authoringKey = null; lastInfo = null; lastOverlap = ''; settledState = null; }
+    if (!(ship && C.publicJSON(ship) === job.state)) { ship = JSON.parse(job.state); hullKey = ''; lastInfo = null; lastOverlap = ''; settledState = null; }
   } else { C.patchShip(ship, JSON.parse(job.state)); settledState = null; }
 }
 function deriveState(job) {
@@ -186,7 +148,6 @@ function finishGeometry(job, out, options) {
   out.state = C.publicJSON(ship);
   if(ship.surfaces&&!options?.deferSurfaces)out.surfaceReport=surfaceReportOut(C.surfaceReport(ship));
   out.caches = packCaches(ship, options);
-  authoringKey = authoringGeometryKey(ship);
   out.packMs = now() - t0;
 }
 
@@ -207,16 +168,6 @@ async function handleUpdate(job) {
   const t0 = now();
   applyState(job);
   if (job.view) view = job.view;
-  if (authoringGeometry(job)) {
-    await yieldGeometry();
-    const next = queue.find(j => j.type === 'update');
-    if (next) {
-      // The early mesh may already be useful to a newer plain-gun edit. Keep
-      // all dirty flags when skipping the expensive obsolete engineering pass.
-      next.what = Array.from(new Set([...(job.reset ? ['all'] : job.what || []), ...(next.what || [])]));
-      return;
-    }
-  }
   const d = deriveState(job);
   const any = Object.values(d.flags).some(Boolean);
   const deferSurfaces = job.view?.deferSurfaces === true;

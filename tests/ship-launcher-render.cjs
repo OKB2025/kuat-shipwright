@@ -1,5 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
-const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js']){let source=fs.readFileSync(path.join(root,f),'utf8');if(f==='js/gfx.js')source=source.replace('return {meshPreview,','return {launcherReferenceSkin,meshPreview,');vm.runInContext(source,cx,{filename:f});}
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js']){let source=fs.readFileSync(path.join(root,f),'utf8');if(f==='js/gfx.js')source=source.replace('return {meshPreview, rayFit,','return {launcherReferenceSkin,meshPreview, rayFit,');vm.runInContext(source,cx,{filename:f});}
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),fit=patch=>({id:1,k:'shipMsl',p:[13,7,-23],a:2,ped:0,base:0,low:0,float:false,...patch});
 function vertices(g){return Array.from(g.idx.subarray(0,g.ni)).map(k=>Array.from(g.pos.subarray(k*3,k*3+3)));}
 test('ship cells are exactly twice the compact pod size and repeat a bounded open housing',()=>{

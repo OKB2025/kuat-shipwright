@@ -52,6 +52,6 @@ test('native world-ray picking sees the rear housing through an open embedded mo
  const source=fs.readFileSync(path.join(root,'js/gfx.js'),'utf8');vm.runInContext(source,gfx);const G=vm.runInContext('Gfx',gfx);
  run('globalThis.__shipUiTestGfx=null;');
  // The fixture exposes only its evaluator; bind a read-only ray bridge via C.
- C.__shipUiRayFit=G.rayFit;run("const Gfx={rayFit:(o,d,f)=>C.__shipUiRayFit(o,d,f)};");const picking=app.slice(app.indexOf('function visibleAt('),app.indexOf('// ---------- tools ----------',app.indexOf('function visibleAt('))),helpersStart=picking.indexOf('const requestedParts ='),helpersEnd=picking.indexOf('function editorRayEnv(');run(picking.slice(0,helpersStart)+picking.slice(helpersEnd));
+ C.__shipUiRayFit=G.rayFit;run("const Gfx={rayFit:(o,d,f)=>C.__shipUiRayFit(o,d,f)};");run(app.slice(app.indexOf('function visibleAt('),app.indexOf('// ---------- tools ----------',app.indexOf('function visibleAt('))));
  const hit=run("(()=>{const q=C.launcherGeometry(f),o=C.add(q.muzzles[0],C.mul(q.axis,2));return pickRay(o,C.mul(q.axis,-1),{parts:false,fits:true});})()");assert.ok(hit.fit);assert.equal(hit.fit.k,'shipMsl');assert.ok(hit.t>4,'picking passes the mouth and reaches the real rear housing');delete C.__shipUiRayFit;
 });

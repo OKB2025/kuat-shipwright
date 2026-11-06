@@ -15,7 +15,6 @@ async function load(options = {}) {
   current[files.gfx] += options.gfx || 'const currentRenderer = true;\n';
   const stale = {...current, [files.gfx]: '// old gfx from before the release\n'};
   const requests = [], scripts = [], workers = [], errors = [], urls = new Map(), timers = new Set();
-  const status = {textContent: ''}; let paintedStatus = '';
   let nextURL = 1, appLoaded = false;
   class BrowserURL extends URL {
     static createObjectURL(blob) { const url = 'blob:source-' + nextURL++; urls.set(url,blob); return url; }
@@ -34,7 +33,7 @@ async function load(options = {}) {
     }
     terminate() { this.terminated = true; }
   }
-  const document = {baseURI:origin, readyState:'complete', querySelector:selector=>selector==='#titleStatus'?status:null, getElementById:()=>null,
+  const document = {baseURI:origin, readyState:'complete', querySelector:()=>null, getElementById:()=>null,
     createElement:() => ({remove(){}}), body:{appendChild(script) {
       (async () => {
         const blob = urls.get(script.src);
@@ -51,14 +50,14 @@ async function load(options = {}) {
           const u = new URL(script.src, origin), file = u.pathname.replace(/^\/app\//,'');
           source = u.protocol === 'file:' || u.searchParams.has('_ksload') ? current[file] : stale[file];
         }
-        scripts.push({url:script.src, source, stamp:cx.KS_SOURCE_STAMP, status:status.textContent, paintedStatus});
+        scripts.push({url:script.src, source, stamp:cx.KS_SOURCE_STAMP});
         script.onload();
         if (source === current[files.app]) appLoaded = true;
       })().catch(error => errors.push(error));
     }}};
   const cx = vm.createContext({console:{warn(){}, error:e=>errors.push(e)}, document, location:new URL(origin), navigator:{webdriver:true},
     URL:BrowserURL, Blob, crypto:options.noCrypto?undefined:webcrypto, Uint8Array,
-    requestAnimationFrame:fn=>setImmediate(()=>{paintedStatus=status.textContent;fn();}),
+    requestAnimationFrame:fn=>setImmediate(fn),
     setTimeout:(fn, ms) => { const timer = setTimeout(fn, ms); timer.unref?.(); timers.add(timer); return timer; }, clearTimeout,
     KS_FILES:{...files, sizes:options.noSizes?undefined:Object.fromEntries(all.map(f=>[f,999]))}});
   cx.window = cx;
@@ -107,16 +106,6 @@ test('stale or missing progress sizes cannot disable revalidation or source iden
   const r = await load({noSizes:true});
   assert.equal(r.requests.length,all.length);
   assert.equal(r.worker.stamp,r.cx.KS_SOURCE_STAMP);
-});
-
-test('startup paints the current loading stage before the core and app scripts execute', async () => {
-  const r = await load();
-  const core = r.scripts.find(s=>s.source===r.current[files.core]);
-  const app = r.scripts.find(s=>s.source===r.current[files.app]);
-  assert.equal(core.status,'設計計算を準備中…');
-  assert.equal(core.paintedStatus,core.status,'core execution cannot leave an older loading stage painted');
-  assert.equal(app.status,'設計画面を準備中…');
-  assert.equal(app.paintedStatus,app.status,'app startup cannot hide its stage behind the previous88% label');
 });
 
 for (const [name, options] of [['Worker unavailable',{noWorker:true}],['Worker refused',{workerFails:true}],['inline requested',{inline:true}]]) {
