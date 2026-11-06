@@ -17,10 +17,11 @@ function verify(key,expected){
 }
 test('ISD has six 175 TT twins, two ion twins, paired quad broadsides, nine triples and twin PD',()=>{
  const {ship}=verify('imperial',{ion:2,stl:6,triple40:9,quad70Side:2,pd:20}),broadside=ship.fits.filter(f=>f.k==='quad70Side');assert.deepEqual(Array.from(broadside,f=>f.a).sort(),[4,5]);near(broadside[0].p[0],broadside[1].p[0]);near(broadside[0].p[2],-broadside[1].p[2]);
- const heavy=ship.fits.filter(f=>f.k==='stl'||f.k==='ion');for(let i=0;i<4;i++)assert.equal(heavy.filter(f=>Math.abs(f.p[0]-(281.76+62.36*i))<.1).length,2,'all eight surveyed heavy wells remain in use');
+ const heavy=ship.fits.filter(f=>f.k==='stl'||f.k==='ion');for(const x of [292.8,353.9,414.9,477.7])assert.equal(heavy.filter(f=>Math.abs(f.p[0]-x)<.1).length,2,'all eight surveyed heavy wells remain in use');
 });
-test('Venator preserves eight DBY twins and two medium twins with charged trench singles and distributed PD',()=>{
- const {ship,guns,banks}=verify('venator',{refVen:8,twin40:2,single200:10,pd:28}),singles=guns.filter(f=>f.k==='single200');
+test('Venator preserves eight DBY twins, mounts the two 70TT×2 side guns and charged trench singles, and distributes PD',()=>{
+ const {ship,guns,banks}=verify('venator',{refVen:8,venSide70:2,single200:10,pd:28}),singles=guns.filter(f=>f.k==='single200'),side=guns.filter(f=>f.k==='venSide70');
+ assert.deepEqual(Array.from(side,f=>f.a).sort(),[4,5]);for(const f of side){near(f.p[0],763,1e-6);assert.ok(f.batteryZone.endsWith('-trench'));}near(side[0].p[2],-side[1].p[2]);
  for(const x of [620,710,850,940,1030]){const pair=singles.filter(f=>Math.abs(f.p[0]-x)<1e-5);assert.equal(pair.length,2);assert.deepEqual(Array.from(pair,f=>f.a).sort(),[4,5]);near(pair[0].p[2],-pair[1].p[2]);assert.ok(pair.every(f=>f.batteryZone.endsWith('-trench')&&f.localMount));}
  for(const f of singles){const bank=banks.find(p=>p.weaponId===f.id);assert.ok(bank);for(const room of ship.parts.filter(p=>p.room&&['hangar','service'].includes(p.k)))assert.equal(C.overlapParts(bank,room),false,'aviation decks reserve the real trench charging unit');}
  assert.ok(ship.fits.some(f=>f.k==='pd'&&f.a===2));assert.ok(ship.fits.some(f=>f.k==='pd'&&f.a===3));

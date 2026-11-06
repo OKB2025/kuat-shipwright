@@ -93,7 +93,7 @@ test('the ISD uses six 175 TT twins and the aft ion pair at the existing eight b
  C.placePart(s,'struct',[800,-50,0],[1600,1000,100],{form:'box'},false);C.attachReferenceSkin(s);
  const guns=s.fits.filter(f=>f.k==='stl'||f.k==='ion');assert.equal(guns.length,8);assert.equal(guns.filter(f=>f.k==='stl').length,6);assert.equal(guns.filter(f=>f.k==='ion').length,2);assert.equal(s.fits.some(f=>f.k==='oct40'),false);
  assert.equal(new Set(guns.map(f=>f.id)).size,8);
- for(let i=0;i<4;i++)for(const sign of [-1,1]){const f=guns.find(f=>Math.abs(f.p[0]-(281.76+62.36*i))<1e-5&&Math.abs(f.p[2]-sign*215.58)<1e-5);assert.ok(f,'existing station '+i+'/'+sign);assert.equal(f.k,i===0?'ion':'stl');assert.equal(f.float,false);near(C.fitSpec(f).boltTT,175);}
+ for(let i=0;i<4;i++)for(const sign of [-1,1]){const f=guns.find(f=>Math.abs(f.p[0]-[292.8,353.9,414.9,477.7][i])<1e-5&&Math.abs(f.p[2]-sign*255.7)<1e-5);assert.ok(f,'existing station '+i+'/'+sign);assert.equal(f.k,i===0?'ion':'stl');assert.equal(f.float,false);near(C.fitSpec(f).boltTT,175);}
 });
 
 // Captured from the real profile9 Core at e7308e2096ed21f882f36f09268e47c9a589a15d.

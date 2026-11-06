@@ -33991,7 +33991,7 @@ function completeReferenceArmament(ship){
   // Six 175 TT twins and two ion twins already occupy the measured eight
   // wells. The secondary battery is nine 40 TT triples, plus a 70 TT quad
   // on each trench wall. No retired gun decks or spherical ion batteries.
-  for(const x of [772,802,832])gun('triple40',x,0,false,'ridge-medium');
+  for(const x of [752,780,845])gun('triple40',x,0,false,'ridge-medium');
   for(const [x,z] of [[650,82],[930,105],[1160,58]])for(const sg of [-1,1])gun('triple40',x,sg*z,false,'forward-medium');
   if(trenchBattery(ship,[700],'quad70Side',{chargeDepth:14}).length!==2)throw new Error('ISDの左右舷側重砲座が不足しています');
   for(const x of [260,420,570,860,1040,1240])for(const sg of [-1,1])hull('pd',x,sg*.84,false,'dorsal-defence');
@@ -34003,8 +34003,10 @@ function completeReferenceArmament(ship){
  if(key==='acclamator')gunsDeck(ship,'pd',[.16,.36,.58],[.88],null,false,0);
  if(key==='venator'||key==='acclamator')for(const x of key==='venator'?[250,285]:[445,545])for(const z of key==='venator'?[-150,150]:[-50,50])gun('msl',x,z);
  if(key==='venator'){
-  // Eight DBY-827 70 TT twins and the two 40 TT twins keep the source
-  // stations. Small 200 GT singles line the trench, between the deck guns.
+  // Eight DBY-827 70 TT twins keep the source deck stations. The two trench
+  // guns at the model's side-gun station are the 70TT×2 side mounts (user,
+  // 2026-11-06). Small 200 GT singles line the trench, between them.
+  if(trenchBattery(ship,[763],'venSide70',{chargeDepth:14}).length!==2)throw new Error('ヴェネターの舷側70TT砲座が不足しています');
   const singles=trenchBattery(ship,[620,710,850,940,1030],'single200',{chargeDepth:6});
   if(singles.length!==10)throw new Error('ヴェネターのトレンチ砲座が不足しています');
   // Reserve each actual bank's solid in the aviation decks. Splitting the
@@ -34015,7 +34017,7 @@ function completeReferenceArmament(ship){
   for(const f of singles){const bank=banks.get(f.id);if(!bank)continue;const raw=partAABB(bank),b=raw.map((v,i)=>v+(i<3?-.15:.15)),next=[];
    for(const p of ship.parts){if(!p.room||!['hangar','service'].includes(p.k)||ship.hatches.some(h=>h.bay===p.id)||!boxesOverlap(partAABB(p),b)){next.push(p);continue;}
     const [L,W,H]=p.room,poly=(p.outline||[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]]).map(([x,z])=>[p.c[0]+x*L,p.c[2]+z*W]),y0=p.c[1]-H/2,y1=p.c[1]+H/2,lo=Math.max(y0,b[1]),hi=Math.min(y1,b[4]),pieces=[];
-    const put=(poly,low,high)=>{if(poly.length<3||high-low<1e-6)return;const area=Math.abs(poly.reduce((n,q,i)=>{const r=poly[(i+1)%poly.length];return n+q[0]*r[1]-r[0]*q[1];},0))/2;if(area<1e-6)return;const q=Object.fromEntries(Object.entries(p).filter(([k])=>!k.startsWith('_')));q.id=pieces.length?ship.nextId++:p.id;q.c=[p.c[0],(low+high)/2,p.c[2]];q.room=[L,W,high-low];q.outline=poly.map(([x,z])=>[(x-p.c[0])/L,(z-p.c[2])/W]);q.label=p.label+'・砲充電区画を避けた甲板';pieces.push(q);};
+    const put=(poly,low,high)=>{if(poly.length<3||high-low<1)return;const area=Math.abs(poly.reduce((n,q,i)=>{const r=poly[(i+1)%poly.length];return n+q[0]*r[1]-r[0]*q[1];},0))/2;if(area<1e-6)return;const q=Object.fromEntries(Object.entries(p).filter(([k])=>!k.startsWith('_')));q.id=pieces.length?ship.nextId++:p.id;q.c=[p.c[0],(low+high)/2,p.c[2]];q.room=[L,W,high-low];q.outline=poly.map(([x,z])=>[(x-p.c[0])/L,(z-p.c[2])/W]);q.label=p.label+'・砲充電区画を避けた甲板';pieces.push(q);};
     put(poly,y0,lo);put(poly,hi,y1);
     put(clip(poly,0,b[0],true),lo,hi);put(clip(poly,0,b[3],false),lo,hi);
     const middle=clip(clip(poly,0,b[0],false),0,b[3],true);put(clip(middle,1,b[2],true),lo,hi);put(clip(middle,1,b[5],false),lo,hi);
@@ -34063,9 +34065,9 @@ function sizeReferenceReactors(ship){
 // solved against each complete layout, including the device's own mass and
 // hull clipping. Normal editing never retunes a drive or overrides its class.
 const PRESET_HYPERDRIVE_DIMENSIONS={
- imperial:[42.04170881567254,110],
+ imperial:[45.42997002441935,110],
  imperial2:[39.67677084288428,110],
- venator:[20.667587239856722,160],
+ venator:[26.52895689010949,160],
  executor:[216.5562479155547,650]
 };
 function sizeReferenceMachinery(ship){
@@ -34197,17 +34199,17 @@ function attachReferenceSkin(ship){
  delete ship.hullSkin;
  ship.fits=ship.fits.filter(f=>FITS[f.k].cat!=='w'||f.k==='pd');
  ship._building=true;
- if(!ven){ship.parts=ship.parts.filter(p=>!['sensor','scanner'].includes(p.k)&&!['中央通信マスト','通信アレイ横桁'].includes(p.label));for(const id of ['isdh_sensor_port','isdh_sensor_stbd','isdh_mast']){const a=REFERENCE_ASSETS[id],p=placePart(ship,'sensor',a.c,Math.max(...a.size),{label:a.title,skinAsset:id});p.skinSize=a.size.slice();}}
+ if(!ven){ship.parts=ship.parts.filter(p=>!['sensor','scanner'].includes(p.k)&&!['中央通信マスト','通信アレイ横桁'].includes(p.label));for(const id of ['isd_sensor_port','isd_sensor_stbd','isd_mast']){const a=REFERENCE_ASSETS[id],p=placePart(ship,'sensor',a.c,Math.max(...a.size),{label:a.title,skinAsset:id});p.skinSize=a.size.slice();}}
  attachReferenceBridges(ship);
  // One independently selectable skin follows each real nozzle, including its barrel.
  const engines=ship.parts.filter(p=>p.k==='engine');
  for(const e of engines){let asset;if(ven){const sg=e.c[2]<0?'port':'stbd',z=Math.abs(e.c[2]);asset='ven_'+(e.d>40?(z<80?'inner':'outer'):z<55?'upper':'aux')+'_'+sg;}else{const src=LEGACY_ENGINES[e.d>70?'isdhMain':'isdhAux'];asset=src.assets[0];e.skinAsset=asset;e.skinAnchor=src.anchor.slice();e.skinDiameter=src.d;continue;}e.skinAsset=asset;e.skinAnchor=e.c.slice();e.skinDiameter=e.d;if(ven)e.bodyRadius=.36;}
- // Reuse the eight existing ISD battery wells at their original stations. The
+ // The eight ISD battery wells are measured from LarsH's model (its turret centres). The
  // reference close-up's leftmost/aft pair is ion; the other six are 175 TT twins.
  // Photo orientation is calibrated against the bow-right whole-ship reference.
- if(!ven)for(let i=0;i<4;i++)for(const sg of [-1,1]){const x=281.76+62.36*i,z=sg*215.58,h=rayEnv(ship,[x,900,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の主砲座がありません');const r=placeFit(ship,i===0?'ion':'stl',h.p,h.n,0,false);if(!r.fit)throw new Error('作例の主砲座: '+r.err);}
+ if(!ven)for(let i=0;i<4;i++)for(const sg of [-1,1]){const x=[292.8,353.9,414.9,477.7][i],z=sg*255.7,h=rayEnv(ship,[x,900,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の主砲座がありません');const r=placeFit(ship,i===0?'ion':'stl',h.p,h.n,0,false);if(!r.fit)throw new Error('作例の主砲座: '+r.err);}
  // Preserve every source turret, including its individual pose and mount height.
- const idsGun=ven?Array.from({length:8},(_,i)=>prefix+'_turret_'+i):[];if(ven)idsGun.push('ven_side_port','ven_side_stbd');
+ const idsGun=ven?Array.from({length:8},(_,i)=>prefix+'_turret_'+i):[];
  for(const id of idsGun){const a=REFERENCE_ASSETS[id];if(!a)continue;const type=ven?(id.includes('side')?'twin40':'refVen'):(a.c[0]>450?'ion':'stl'),p=[a.c[0],a.c[1]-a.size[1]/2,a.c[2]],mountAxis=id.includes('side')?(a.c[2]<0?5:4):2,up=AXES[mountAxis],h=rayEnv(ship,add(p,mul(up,1200)),mul(up,-1),{structOnly:true});
   ship.fits.push({id:ship.nextId++,k:type,p:p.slice(),a:2,ped:0,base:0,low:0,float:false,skinAsset:id,assetYaw:0,mountAxis,mountOffset:h?dot(sub(p,h.p),up):0});
  }
@@ -34345,8 +34347,8 @@ function clipReferenceBox(d,b){
 
 function attachReferenceBridges(ship){
  const ven=ship.reference==='venator',labels=ven?['航空指揮所の長形外殻','航行艦橋の長形外殻']:['横長指揮艦橋の装甲外殻'];
- for(const p of ship.parts.filter(p=>labels.includes(p.label))){const id=ven?(p.c[2]<0?'ven_bridge_port':'ven_bridge_stbd'):'isdh_bridge',a=REFERENCE_ASSETS[id];p.c=a.c.slice();p.s=[a.size[0],a.size[2],a.size[1]];p.form='reference';p.skinAsset=id;p.label=a.title;delete p.loft;delete p.angles;delete p.paint;
-  for(const f of ship.fits.filter(f=>f.host===p.id)){const z=ven?p.c[2]:30,h=rayPart([p.c[0]+p.s[0],ven?234:368,z],[-1,0,0],p);if(h){f.p=h.p;f.n=h.n;delete f.host;delete f.local;delete f.localNormal;mountFit(ship,f);}}
+ for(const p of ship.parts.filter(p=>labels.includes(p.label))){const id=ven?(p.c[2]<0?'ven_bridge_port':'ven_bridge_stbd'):'isd_bridge',a=REFERENCE_ASSETS[id];p.c=a.c.slice();p.s=[a.size[0],a.size[2],a.size[1]];p.form='reference';p.skinAsset=id;p.label=a.title;delete p.loft;delete p.angles;delete p.paint;
+  for(const f of ship.fits.filter(f=>f.host===p.id)){const z=ven?p.c[2]:30,h=rayPart([p.c[0]+p.s[0],ven?234:430,z],[-1,0,0],p);if(h){f.p=h.p;f.n=h.n;delete f.host;delete f.local;delete f.localNormal;mountFit(ship,f);}}
  }
  const extra=ven?['指揮所屋上レール','前部通信架台','屋上機器筐体','傾斜通信・走査アレイ']:['艦橋の庇・上部装甲','艦橋の下部装甲縁','標的追跡アレイの支持架台','艦橋上の長形機器'];
  ship.parts=ship.parts.filter(p=>!extra.includes(p.label));
@@ -34734,10 +34736,10 @@ function refitReferenceInterior(ship){
     if(role==='service'){
      // Three editable deck slices preserve the maintenance space around the
      // side-turret capacitor; only its middle-height footprint needs a notch.
-     room('service',label+'航空整備甲板・下層',[cx,26,sg*mid],[x1-x0,w,38],{outline});
-     room('service',label+'航空整備甲板・上層',[cx,85,sg*mid],[x1-x0,w,52],{outline});
-     const notch=[[x0,ia],[x1,ib],[x1,300],[770,300],[770,100],[756,100],[756,300],[x0,300]].map(([x,z])=>[(x-cx)/(x1-x0),sg*(z-mid)/w]);
-     room('service',label+'航空整備甲板・舷側充電装置の周囲',[cx,52,sg*mid],[x1-x0,w,14],{outline:notch});
+     room('service',label+'航空整備甲板・下層',[cx,29,sg*mid],[x1-x0,w,44],{outline});
+     room('service',label+'航空整備甲板・上層',[cx,90,sg*mid],[x1-x0,w,42],{outline});
+     const notch=[[x0,ia],[x1,ib],[x1,300],[774,300],[774,100],[752,100],[752,300],[x0,300]].map(([x,z])=>[(x-cx)/(x1-x0),sg*(z-mid)/w]);
+     room('service',label+'航空整備甲板・舷側充電装置の周囲',[cx,60,sg*mid],[x1-x0,w,18],{outline:notch});
     }else room('hangar',label+'前部航空格納甲板 '+(i+1),[cx,59,sg*mid],[x1-x0,w,104],{outline,airRole:'storage'});
    }
   }
@@ -34753,10 +34755,10 @@ function refitReferenceInterior(ship){
   for(const p of ship.parts.filter(p=>p.k==='hangar'))p.airRole='mixed';
   // The ISD-I's forward hull narrows quickly: hangar decks flank the ventral
   // bay inboard of the side trench, with the corps quartered above the bay.
-  room('hangar','中央航空機移送路',[742.9,97,0],[89.8,112,32],{airRole:'flight'});
+  room('hangar','中央航空機移送路',[727.1,97,0],[89.8,112,32],{airRole:'flight'});
   for(const sg of [-1,1]){
-   room('hangar',(sg<0?'左舷':'右舷')+'航空機格納庫',[850,113,sg*124],[180,54,26],{airRole:'storage'});
-   room('hangar','主ベイ・格納庫連絡甲板',[850,100,sg*92.3],[180,8.6,16],{airRole:'flight'});
+   room('hangar',(sg<0?'左舷':'右舷')+'航空機格納庫',[850,113,sg*106.6],[180,54,26],{airRole:'storage'});
+   room('hangar','主ベイ・格納庫連絡甲板',[850,100,sg*75.3],[180,8.6,16],{airRole:'flight'});
    room('service','航空機整備・補給区画',[985,112,sg*110],[80,40,22]);
    part('inertial','城郭内の分散慣性制御器',[330,185,sg*150],34,{length:160});
    room('integrity','上段構造維持フィールド幹線',[850,112,sg*162],[170,16,16]);
@@ -34766,8 +34768,8 @@ function refitReferenceInterior(ship){
   // garrison base with its 484 support staff live in the free volume; the base
   // itself is stowed knocked down.
   room('cargo','プレハブ駐屯基地（分解収納）',[700,125,110],[97,20,15]);
-  const bridge=ship.parts.find(p=>p.skinAsset==='isdh_bridge');
-  if(bridge){const hit=rayPart([bridge.c[0]+bridge.s[0],366,80],[-1,0,0],bridge);if(hit){const r=placeFit(ship,'podAir',hit.p,hit.n,0,false);if(r.fit){r.fit.width=12;r.fit.height=4.8;}}}
+  const bridge=ship.parts.find(p=>p.skinAsset==='isd_bridge');
+  if(bridge){const hit=rayPart([bridge.c[0]+bridge.s[0],410,80],[-1,0,0],bridge);if(hit){const r=placeFit(ship,'podAir',hit.p,hit.n,0,false);if(r.fit){r.fit.width=12;r.fit.height=4.8;}}}
  }else{
   for(const p of ship.parts){if(p.k==='shield')p.d=33;if(p.k==='service')setRoomSize(p,[110,28,16]);}
   for(const sg of [-1,1])part('inertial','分散慣性制御設備',[225,109,sg*68],24,{length:40});
@@ -35064,9 +35066,12 @@ function migrateAviation(ship,source){
 // Authored compartment layouts. Every visible form is an editable hull, structure, room or fitting.
 function referenceDesign(key){
   const ven=key==='venator',acc=key==='acclamator';
-  const h=ven?{L:1137,W:548,H:110,chineHeight:.60,belt:.28,bowFree:true,stations:[[0,0.071,0.015,0.01,0.5],[0.035,0.076,0.74,0.02,0.65],[0.181,0.106,0.96,0.018,0.6],[0.206,1,0.9745,0.00091,0,0.18,0.249,0.5098],[0.251,1,0.9845,0.0059,0,0.18,0.251,0.5115],[0.378,0.857836,0.814545,-0.012727,0.3],[0.44,0.788433,0.774545,-0.012727,0.32],[0.519,0.7,0.774545,0.007273,0.24],[0.5277,0.69261,0.95075,0.05354,0.0,0.0,0.25566,0.52196],[0.54793,0.66895,0.925,0.06023,0.0,0.0,0.26162,0.51987],[0.55145,0.63513,0.95606,0.0619,0.0,0.0,0.24567,0.51555],[0.56376,0.62263,0.90711,0.06642,0.0,0.0,0.29614,0.51677],[0.56728,0.64632,0.89452,0.07099,0.0,0.0,0.27208,0.51288],[0.58223,0.62883,0.88185,0.07638,0.0,0.0,0.27441,0.51037],[0.58399,0.59774,0.91887,0.07942,0.0,0.0,0.25623,0.50446],[0.60246,0.58214,0.84758,0.08148,0.0,0.0,0.31291,0.50974],[0.60598,0.60239,0.83489,0.08533,0.0,0.0,0.30171,0.50585],[0.635,0.56293,0.79707,0.09509,0.0,0.0,0.30993,0.49856],[0.6394,0.53143,0.82338,0.09085,0.0,0.0,0.293,0.50907],[0.71064,0.45005,0.70866,0.09822,0.0,0.0,0.33809,0.52071],[0.71856,0.46247,0.65647,0.09556,0.0,0.0,0.37165,0.52763],[0.7423,0.43842,0.62945,0.10438,0.0,0.0,0.39466,0.5234],[0.81003,0.36444,0.57773,0.12886,0.0,0.0,0.42308,0.50893],[0.87335,0.28734,0.51039,0.14223,0.0,0.0,0.47782,0.50653],[0.99472,0.14377,0.38028,0.17666,0.0,0.0,0.65777,0.48409],[0.99824,0.12029,0.37209,0.17968,0.0,0.0,0.72458,0.47761],[1.0,0.10855,0.36799,0.18119,0.0,0.0,0.75799,0.47436]]}:acc?{L:752,W:460,H:116,stations:[[0,.15,.45],[.07,.60,.64],[.19,1,1],[.30,.87,.94],[.62,.48,.63],[.92,.12,.24],[1,.018,.14]]}:{L:1600,W:868.4,H:213.4,start:10.6/1600,chineHeight:.493,keelWidth:0,bowFree:true,stations:[[0.0,0.005,0.95178,0.01145,0,0,0.9824],[0.00675,0.005,0.95178,0.01145,0,0,0.9824],[0.01981,0.19198,0.9628,0.01312,0,0,0.8047],[0.02981,0.33754,0.95384,0.01328,0,0,0.6835],[0.04419,0.54678,0.94098,0.0135,0,0,0.5054],[0.07531,1.0,0.91312,0.01399,0,0,0.1052],[0.42681,0.61492,0.59856,0.01943,0,0,0.1565],[0.42981,0.57255,0.59603,0.0194,0,0,0.2034],[0.43569,0.5661,0.59109,0.01933,0,0,0.2039],[0.445,0.59489,0.58326,0.01922,0,0,0.1573],[0.58869,0.43759,0.46407,0.01675,0,0,0.1994],[0.59381,0.39291,0.45984,0.01665,0,0,0.2652],[0.71262,0.26278,0.36186,0.01432,0,0,0.3346],[0.71756,0.29664,0.35779,0.01422,0,0,0.2573],[0.87169,0.1285,0.22816,0.01253,0,0,0.4022],[0.95419,0.03851,0.15871,0.01167,0,0,0.5787],[0.9843,0.0051,0.13277,0.01167,0,0,0.6929],[0.98531,0.005,0.13216,0.01167,0,0,0.8345],[1.0,0.005,0.1282,0.01167,0,0,0.8595]]};
-  // Venator: aft stations keep the earlier fit; the forward hull from x≈600 m
-  // is measured from A308 Digital's model (taller bow, own side-band height).
+  const h=ven?{L:1137,W:716.14,H:114,start:0.205805,chineHeight:.5,belt:.24,keelWidth:0,bowFree:true,stations:[[0.2058,0.81623,1.0,0.0,0,0,0.23596,0.52588],[0.26385,0.7644,0.99483,0.00258,0,0,0.23719,0.52341],[0.3518,0.68587,0.987,0.0065,0,0,0.23907,0.51963],[0.43975,0.60734,0.97917,0.01042,0,0,0.24099,0.51579],[0.46878,0.58142,0.97658,0.01171,0,0,0.24162,0.51451],[0.50132,0.55237,0.95439,0.00351,0,0,0.24724,0.52344],[0.57168,0.48954,0.85584,0.01068,0,0,0.27571,0.51776],[0.61566,0.45028,0.79424,0.01516,0,0,0.29709,0.51349],[0.70361,0.37174,0.67105,0.02412,0,0,0.35163,0.50261],[0.79156,0.29321,0.57287,0.02058,0,0,0.4119,0.50924],[0.83553,0.25394,0.52378,0.01881,0,0,0.45051,0.51349],[0.87951,0.21468,0.47469,0.01704,0,0,0.4971,0.51861],[0.92348,0.17541,0.42559,0.01527,0,0,0.55444,0.52492],[0.96746,0.13615,0.3765,0.0135,0,0,0.62673,0.53287],[1.0,0.10709,0.34018,0.01219,0,0,0.69366,0.54023]]}:acc?{L:752,W:460,H:116,stations:[[0,.15,.45],[.07,.60,.64],[.19,1,1],[.30,.87,.94],[.62,.48,.63],[.92,.12,.24],[1,.018,.14]]}:{L:1600,W:1183.6,H:268,chineHeight:.5,keelWidth:0,bowFree:true,stations:[[0,1,1,0.00746,0,0,0.14552,0.5],[0.0625,0.93854,0.94664,0.00746,0,0,0.15286,0.5],[0.125,0.87709,0.89328,0.00746,0,0,0.16107,0.5],[0.1875,0.81563,0.83993,0.00746,0,0,0.17032,0.5],[0.25,0.75417,0.78657,0.00746,0,0,0.18083,0.5],[0.3125,0.69272,0.73321,0.00746,0,0,0.19288,0.5],[0.375,0.63126,0.67985,0.00746,0,0,0.20681,0.5],[0.4375,0.5698,0.62649,0.00746,0,0,0.22311,0.5],[0.5,0.50835,0.57313,0.00746,0,0,0.24245,0.5],[0.5625,0.44689,0.51978,0.00746,0,0,0.26576,0.5],[0.625,0.38543,0.46642,0.00746,0,0,0.2944,0.5],[0.6875,0.32398,0.41306,0.00746,0,0,0.33044,0.5],[0.75,0.26252,0.3597,0.00746,0,0,0.37718,0.5],[0.8125,0.20106,0.30634,0.00746,0,0,0.44019,0.5],[0.875,0.13961,0.25299,0.00746,0,0,0.52979,0.5],[0.90625,0.10888,0.22631,0.00746,0,0,0.59044,0.5],[0.9375,0.07815,0.19963,0.00746,0,0,0.66729,0.5],[0.96875,0.04742,0.17295,0.00746,0,0,0.76785,0.5],[1,0.01669,0.14627,0.00746,0,0,0.9051,0.5]]};
+  // Venator: measured from A308 Digital's model (CC BY 4.0; docs/imperial-venator-rebuild.md). One wedge,
+  // hw = 358.07 − 0.2812·x, from the stern wall to the bow; the side belt keeps y 46.5–73.4 m throughout and the
+  // plating runs straight from it to the centre line. The centre top holds 114 m to x = 533 m, then falls 0.06 m
+  // a metre; the keel line rises to 3 m at x = 570 m, then 0.080 and 0.052 m a metre (knee at x = 800 m). The wing
+  // tips, the waist and the side notches are cut out of the wedge.
   const s=newShip({...h,plan:'wedge',sec:'warship',bowW:.02,bowH:.2,stern:1,deckWidth:ven?.26:acc?.48:.12,belt:ven?.28:.15},ven?'ヴェネター級｜双塔キャリア':acc?'アクラメイター級｜強襲揚陸艦':'インペリアルI級｜重砲戦艦');
   if(!ven&&!acc){s.hull.deckWidth=0;for(const row of s.hull.stations)row[4]=0;}
   s.paint=ven?'republic':'neutral';s.detail=1;s.reference=key;s.armor=ven?{hull:.45,cit:.45}:acc?{hull:.3,cit:.35}:{hull:.6,cit:.45};s.shieldTarget=1;s._building=true;
@@ -35076,7 +35081,9 @@ function referenceDesign(key){
   const pod=(cap,k,width=16)=>{const hit=rayPart([cap.c[0]+cap.s[0],cap.c[1],cap.c[2]],[-1,0,0],cap);if(hit){const r=placeFit(s,k,hit.p,hit.n,0,false);if(r.fit){r.fit.width=width;r.fit.height=Math.round(width*4)/10;}}};
   const engine=(r,label,x,y,z,d,bl)=>part('engine',label,[x,y,z],d,{reactor:r.id,dir:[-1,0,0],bodyLength:bl,bodyRadius:.5});
   if(ven){
-    s.cuts.push({id:s.nextId++,type:'planTrapezoid',side:'both',from:.251,to:.519,innerFrom:.378,innerTo:.440,remainingWidth:.493});
+    for(const cut of [{"type":"planTrapezoid","side":"both","from":0.195251,"to":0.265611,"innerFrom":0.205893,"innerTo":0.255057,"remainingWidth":0.761583},{"type":"planTrapezoid","side":"both","from":0.256816,"to":0.518909,"innerFrom":0.381706,"innerTo":0.453826,"remainingWidth":0.346301}])s.cuts.push({id:s.nextId++,...cut});
+    // The flat stern wall between the engine nacelles, and the four notches in the forward side lips.
+    for(const cut of [{"shape":"box","c":[217,100,0],"s":[66,292,240],"rotation":[0,0,0],"mirror":false},{"shape":"box","c":[636.66,60,202.88],"s":[18.07,60,60],"rotation":[0,5.08,0],"mirror":true},{"shape":"box","c":[677.24,60,192.42],"s":[24.07,60,60],"rotation":[0,4.289,0],"mirror":true},{"shape":"box","c":[748.43,60,173.07],"s":[37.16,60,60],"rotation":[0,14.335,0],"mirror":true},{"shape":"box","c":[803.12,60,156.98],"s":[33.24,60,60],"rotation":[0,15.709,0],"mirror":true}])s.solidCuts.push({id:s.nextId++,structures:false,...cut});
     const loft=(name,c,sz,rows,opt={})=>structure(name,c,sz,{form:'loft',loft:rows,corner:.07,...opt});
     // Command tower measured from A308 Digital's model: a raised base with the
     // turret sponsons, a raked central spine, the main block and its wide foot,
@@ -35094,6 +35101,9 @@ function referenceDesign(key){
       loft(z<0?'航空指揮塔':'航行指揮塔',[348,204.75,z],[108,8.8,49.5],[[0,1,.93,0],[.11,1,.98,0],[.778,1,1,0],[.889,1,.7,0],[1,1,.05,0]],{corner:.1});
       loft(z<0?'航空指揮所の長形外殻':'航行艦橋の長形外殻',[355,238,z*1.075],[148,28,28],[[0,1,1,0],[1,1,1,0]],{corner:.1});
     }
+    // The tail boom behind the stern wall: a narrow spine with a V-shaped end
+    // that carries the long hyperdrive between the engine nacelles.
+    loft('尾部ブーム',[117,57.5,0],[232,59.4,105],[[0,.677,.52,.45],[.073,.68,.617,.486],[.164,.70,.886,.242],[.211,.71,.889,.114],[.358,.75,.924,.09],[.884,.96,.987,0],[1,1,1,0]],{corner:.08});
     const r=part('gen','主反応炉（双塔基部）',[350,80,0],100);
     for(const sg of [-1,1]){
       const inner=engine(r,'主機関・長い内舷ノズル',53,42,sg*54,48,176);inner.nozzleLength=24;
@@ -35150,46 +35160,76 @@ function referenceDesign(key){
     gunsDeck(s,'quad200',[.20,.30,.42,.54,.66,.78],[.74],null,false,0);
     gunsDeck(s,'pd',[.25,.48,.68],[.88],null,false,0);
   }else{
-    // Measured from Heataker's ISD-I. Every terrace roof lies in the hull's
-    // own plane family y = A − 0.0578·x − 0.191·|z|: the decks step down toward
-    // the bow and the sides with the plating, and each wall drops into the hull.
+    // Measured from LarsH's ISD-I ("Imperial I-class Star Destroyer", CC BY 4.0;
+    // docs/imperial-venator-rebuild.md). The hull is one straight wedge: its edge
+    // runs at hw = 591.8 − 0.3637·x, its plating lies in the planes
+    // y = 270 − 0.0715·x − 0.1935·|z| (top) and y = 2 + 0.0715·x + 0.1935·|z|
+    // (bottom), and the side belt keeps one height (y 116.5–155.5) to the bow.
+    // The stations only carry that wedge. The stern chevron, the stern groove and
+    // the side notches are carved out of it, and every deck tier is a structure.
     const hullTop=(x,z)=>{const b=sectionBase(s.hull,clamp(x,0,s.hull.L)),hw=Math.max(1e-6,b.hw);return b.ytop-(b.ytop-b.poly[3][1])*Math.min(1,Math.abs(z)/hw);};
     const hullBottom=(x,z)=>{const b=sectionBase(s.hull,clamp(x,0,s.hull.L)),hw=Math.max(1e-6,b.hw);return b.ybot+(b.poly[2][1]-b.ybot)*Math.min(1,Math.abs(z)/hw);};
     const probe=(pts,f)=>{let m=-Infinity;for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];for(const u of [0,.25,.5,.75])m=Math.max(m,f(lerp(a[0],b[0],u),lerp(a[1],b[1],u)));}return m;};
     // An outline slab whose top (or, below the hull, bottom) face is the plane
-    // A ∓ sx·x ∓ sz·|z|. Its depth reaches `sink` metres past the plating.
-    const slab=(label,pts,{A,sx=.0578,sz=.191,below=false,sink=8,skin='service',cz=0}={})=>{
-      const xs=pts.map(p=>p[0]),x0=Math.min(...xs),x1=Math.max(...xs),L=x1-x0,cx=(x0+x1)/2,w=2*Math.max(...pts.map(p=>Math.abs(p[1]-cz)));
+    // A ∓ sx·x ∓ sz·|z|, centred on the ship's axis so a slab on one side keeps
+    // the plating's sideways fall. Its depth reaches `sink` metres past the plating.
+    const slab=(label,pts,{A,sx=.0715,sz=.1935,below=false,sink=8,skin='service'}={})=>{
+      const xs=pts.map(p=>p[0]),x0=Math.min(...xs),x1=Math.max(...xs),L=x1-x0,cx=(x0+x1)/2,w=2*Math.max(...pts.map(p=>Math.abs(p[1])));
       const face=(x,z)=>below?A+sx*x+sz*Math.abs(z):A-sx*x-sz*Math.abs(z),gap=probe(pts,(x,z)=>below?hullBottom(x,z)-face(x,z):face(x,z)-hullTop(x,z)),H=Math.max(4,gap)+sink;
-      return structure(label,[cx,below?A+sx*cx+H/2:A-sx*cx-H/2,cz],[L,w,H],{form:'outline',outline:pts.map(([x,z])=>[(x-cx)/L,(z-cz)/w]),deckSlope:(below?1:-1)*Math.atan(sx)*180/Math.PI,ridge:(below?-1:1)*sz*w/2,skin,corner:0,taper:0});};
+      return structure(label,[cx,below?A+sx*cx+H/2:A-sx*cx-H/2,0],[L,w,H],{form:'outline',outline:pts.map(([x,z])=>[(x-cx)/L,z/w]),deckSlope:(below?1:-1)*Math.atan(sx)*180/Math.PI,ridge:(below?-1:1)*sz*w/2,skin,corner:0,taper:0});};
     const roof=(label,A,pts,opt={})=>slab(label,pts,{A,...opt});
-    roof('上部城郭 第2甲板群',262.39,[[42.9,-25.8],[79.5,-174],[479.7,-174],[492.2,-153.7],[617.7,-153.7],[619.4,0],[617.7,153.7],[492.2,153.7],[479.7,174],[79.5,174],[42.9,25.8]]);
-    roof('上部城郭 第1甲板群',296.31,[[66.6,0],[93.6,-109],[503.5,-109],[504.7,0],[503.5,109],[93.6,109]]);
-    roof('上部城郭 第1甲板の前端区画',281.64,[[501.7,-94.9],[591.6,-94.9],[592.6,0],[591.6,94.9],[501.7,94.9],[502.8,0]]);
-    roof('上部城郭の舷側段',251,[[109.5,-187],[497.9,-187],[497.9,187],[109.5,187]]);
-    roof('艦尾舷側の台座甲板',244.27,[[97,-166.1],[113.9,-234.7],[243.9,-234.7],[244.7,-166.1],[244.7,166.1],[243.9,234.7],[113.9,234.7],[97,166.1]]);
-    roof('前部城郭',240.52,[[613.2,-141.5],[751.4,-106.1],[780.6,0],[751.4,106.1],[613.2,141.5]]);
-    // The raised battery decks carry the eight heavy mounts in their wells.
-    roof('重砲塔甲板',222.16,[[191.5,-164.4],[235.8,-356.3],[518.6,-277.7],[535.5,-164.4],[535.5,164.4],[518.6,277.7],[235.8,356.3],[191.5,164.4]],{sx:.0581,sz:.1994,skin:'armor',sink:6});
-    roof('前部甲板の装甲板',217.33,[[931.4,0],[938.3,-92],[973,-85.4],[978,-78.5],[989.3,-76.3],[994.3,-81.4],[1054.6,-69.9],[1059.6,-62.9],[1092.6,-56.6],[1097.6,-61.7],[1137.3,-54.1],[1144.5,0],[1137.3,54.1],[1097.6,61.7],[1092.6,56.6],[1059.6,62.9],[1054.6,69.9],[994.3,81.4],[989.3,76.3],[978,78.5],[973,85.4],[938.3,92]],{sink:5,skin:'armor'});
-    const ridgeBlock=structure('前部甲板の中央稜線区画',[811,167.4,0],[122.2,19.2,25.2],{form:'loft',loft:[[0,1,1,0],[.83,1,1,0],[1,1,.06,0]],corner:.08,skin:'armor'});pod(ridgeBlock,'podHangar',10);
-    // Ventral keel armour, side blisters and the reactor bulb.
-    slab('腹部竜骨装甲板',[[434.8,-43.3],[469.8,-87.7],[564.6,-87.6],[596.7,-43.2],[596.8,-48.1],[625.6,-48.1],[696,-67.3],[695.9,-62.4],[703.4,-54.6],[730.6,-60.8],[738.2,-74],[776.2,-84.4],[780.1,-89.2],[780.1,89.2],[776.2,84.4],[738.2,74],[730.6,60.8],[703.4,54.6],[695.9,62.4],[696,67.3],[625.6,48.1],[596.8,48.1],[596.7,43.2],[564.6,87.6],[469.8,87.7],[434.8,43.3],[326.3,43.5],[80.1,139],[72.3,143.7],[60,93.9],[99.3,78.6],[99.3,-78.6],[60,-93.9],[72.3,-143.7],[80.1,-139],[326.3,-43.5]],{A:-2.87,sx:.0615,sz:.2245,below:true,sink:7,skin:'armor'});
-    for(const sg of [-1,1])slab('舷側下面の張出し',[[242.4,sg*314],[337.5,sg*287.6],[337.5,sg*321.1],[242.4,sg*347.5]],{A:77.86,sx:0,sz:0,below:true,skin:'armor',cz:sg*317.55});
-    // The visible ventral bulb is the armored envelope of this actual power plant.
-    structure('腹部主炉の球状装甲殻',[515.6,92.3,0],[184.7,184.6,184.6],{form:'ellipsoid',skin:'armor'});
-    const r=part('gen','主動力発生炉（腹部球状装甲内）',[515.6,85,0],ISD_PLANT.main);
-    // Command tower: a raked neck carrying the hammerhead bridge.
-    structure('艦橋支持塔',[123.4,293.85,0],[219.6,64.2,181.5],{form:'loft',loft:[[0,1,.1427,0],[.1835,.9,1,0],[.7391,.9,1,0],[1,1,.1427,0]],wallInset:.2,corner:.05,skin:'armor'});
-    structure('横長指揮艦橋の装甲外殻',[151.6,363.6,0],[144.3,288.3,62.2],{corner:.09,skin:'service'});
-    // The stern is a V-groove under the plating overhangs: its walls lean back
-    // from the engine line (x≈130, y≈110) to the chevron edge, so the bells
-    // stand clear of the hull as on the model.
-    for(const [y,rot] of [[177.5,0],[42.5,180]])s.solidCuts.push({id:s.nextId++,shape:'wedge',c:[60,y,0],s:[140,760,135],rotation:[rot,0,0],mirror:false,structures:false});
-    // Bells sit in the chevron stern; the internal engine law sets nozzle and body.
-    const em=LEGACY_ENGINES.isdhMain,ea=LEGACY_ENGINES.isdhAux;
-    for(const z of [-213.65,0,213.65]){const e=engine(r,'主イオン機関・ベル型ノズル',em.anchor[0],em.anchor[1],z,em.d,engineBaseline('internal',em.d,'body'));e.nozzleLength=em.nozzleLength;}
-    for(const z of [-109.639,109.639])for(const y of [76.367,141.633]){const e=engine(r,'上下二段の補助イオン機関',ea.anchor[0],y,z,ea.d,engineBaseline('internal',ea.d,'body'));e.nozzleLength=ea.nozzleLength;}
+    // A starboard half outline from the aft centre to the fore centre, closed
+    // through its mirror; side() puts a one-side outline on either side.
+    const sym=half=>half.concat(half.slice(1,-1).reverse().map(([x,z])=>[x,-z])),side=(pts,sg)=>pts.map(([x,z])=>[x,sg*z]);
+    // Carving: the stern chevron, the groove that holds the engines under the
+    // plating overhangs, and the stepped notches in the side lips.
+    for(const cut of [
+      {"shape":"box","c":[-99.0,250,324.5],"s":[672.79,400,600],"rotation":[0,-70.913,0],"mirror":true},
+      {"shape":"poly","c":[86.84,202.53,309.5],"s":[253.69,621.0,127.05],"verts":[[-0.5,-0.5,-0.5],[0.3946,-0.5,-0.5],[0.5,-0.5,0.4064],[-0.5,0.5,-0.5],[-0.1321,0.4475,-0.5],[-0.5,-0.5,0.5],[-0.5,-0.4458,0.5],[-0.1202,-0.5,0.5]],"rotation":[0,0,0],"mirror":true},
+      {"shape":"poly","c":[87.57,72.47,309.5],"s":[255.14,621.0,133.05],"verts":[[-0.5,0.5,-0.5],[0.3895,0.5,-0.5],[0.5,0.5,0.4555],[-0.5,-0.5,-0.5],[-0.1625,-0.4537,-0.5],[-0.5,0.5,0.5],[-0.5,0.4031,0.5],[0.2066,0.5,0.5]],"rotation":[0,0,0],"mirror":true},
+      {"shape":"box","c":[685.25,140,361.7],"s":[31.92,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1007.75,140,249.9],"s":[54.27,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1009.25,140,246.36],"s":[8.51,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1019.25,140,239.72],"s":[12.77,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1029.25,140,239.78],"s":[8.51,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1036.25,140,242.84],"s":[6.38,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1043.25,140,231.99],"s":[8.51,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1053.25,140,231.15],"s":[12.77,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1093.25,140,214.81],"s":[72.36,60,120],"rotation":[0,19.986,0],"mirror":true},
+      {"shape":"box","c":[1136.75,140,202.69],"s":[20.22,60,120],"rotation":[0,19.986,0],"mirror":true}
+    ])s.solidCuts.push({id:s.nextId++,structures:false,...cut});
+    // The terraced superstructure: each roof is a level of the plating plane
+    // family, stacked so every tier keeps its own measured outline.
+    roof('上部城郭 第1甲板群',313,sym([[80,0],[80,30],[117,179],[143,180],[143,212],[155,210],[267,210],[279,219],[335,219],[340,216],[406,216],[413,223],[518,223],[529,212],[527,174],[627,174],[628,128],[718,107],[744,0]]));
+    roof('上部城郭 第2甲板群',338,sym([[79,0],[79,29],[117,179],[491,179],[496,174],[627,174],[627,0]]));
+    roof('上部城郭 第3甲板群・前部',364,sym([[133,0],[133,28],[157,137],[207,136],[209,141],[309,141],[311,136],[502,136],[503,117],[594,117],[599,0]]));
+    roof('上部城郭 第3甲板群',377,sym([[133,0],[133,28],[157,137],[207,136],[209,141],[309,141],[311,136],[502,136],[507,0]]));
+    for(const sg of [-1,1]){
+      roof('城郭後部の舷側段',300,side([[132,180],[138,239],[271,239],[279,219],[279,180]],sg));
+      roof('城郭前縁の段',285.3,side([[521,221],[524,227],[587,209],[594,175],[527,175]],sg));
+      // The heavy battery deck; the eight turrets stand in the gaps of its inner rail.
+      roof('重砲塔甲板',272.3,side([[224,235],[224,241],[264,397],[267,402],[510,313],[541,235]],sg),{skin:'armor',sink:6});
+      for(const [x0,x1] of [[225,277],[310,338],[371,399],[432,461],[494,537]])roof('重砲塔甲板の内側縁',277,side([[x0,245],[x0+(x0===225?6:0),266],[x1-(x1===537?8:0),266],[x1,245]],sg),{skin:'armor',sink:6});
+      roof('前部甲板の装甲板',278.4,side([[596,25],[596,288],[883,185],[883,25]],sg),{skin:'armor',sink:5});
+      roof('前部甲板の副装甲板',281.9,side([[683,139],[683,200],[718,192],[719,211],[812,187],[812,143]],sg),{skin:'armor',sink:5});
+    }
+    const ridgeBlock=roof('前部甲板の中央稜線',285.3,[[740,-18],[745,0],[740,18],[814,18],[818,14],[818,-14],[814,-18]],{skin:'armor',sink:5});pod(ridgeBlock,'podHangar',10);
+    roof('艦首中央の縦通装甲 1',278.4,[[965,-90],[965,90],[982,88],[985,82],[1013,79],[1014,84],[1066,79],[1067,74],[1073,72],[1090,71],[1091,76],[1115,73],[1115,-73],[1091,-76],[1090,-71],[1068,-73],[1066,-79],[1014,-84],[1013,-79],[985,-82],[982,-88]],{skin:'armor',sink:5});
+    roof('艦首中央の縦通装甲 2',278.4,[[1122,-73],[1122,73],[1296,45],[1296,-45]],{skin:'armor',sink:5});
+    roof('艦首中央の縦通装甲 3',278.4,[[1304,-36],[1304,36],[1405,10],[1405,-10]],{skin:'armor',sink:5});
+    // Ventral keel armour, the side pads and the forward blister.
+    slab('腹部竜骨装甲板',sym([[104,0],[104,103],[88,111],[98,134],[276,31],[367,31],[394,72],[472,71],[498,36],[540,36],[603,55],[614,49],[642,56],[647,67],[736,89],[749,73],[747,46],[740,38],[740,0]]),{A:-7.5,sz:.205,below:true,sink:7,skin:'armor'});
+    for(const sg of [-1,1])slab('舷側下面の張出し',side([[544,214],[544,298],[607,272],[601,214]],sg),{A:-4,below:true,skin:'armor'});
+    slab('前部腹部の張出し',[[970,-87],[970,-28],[1043,-27],[1042,28],[970,28],[970,87],[1006,78],[1009,71],[1048,60],[1060,64],[1106,51],[1114,29],[1090,28],[1090,-28],[1114,-29],[1106,-51],[1060,-64],[1048,-60],[1009,-71],[1006,-78]],{A:-4,below:true,sink:6,skin:'armor'});
+    // The ventral dome is the armored envelope of the main power plant.
+    structure('腹部主炉の球状装甲殻',[433.5,39,0],[117,124,64],{form:'ellipsoid',skin:'armor'});
+    const r=part('gen','主動力発生炉（腹部球状装甲内）',[433.5,115,0],ISD_PLANT.main);
+    // Command tower: the raked support wall, with the model's own bridge on top.
+    structure('艦橋支持塔',[142.5,351,0],[257,61.2,202],{form:'loft',loft:[[0,1,.2475,0],[.4436,1,1,0],[.708,1,.9752,0],[.957,1,.955,0],[1,1,.955,0]],wallInset:.225,corner:.05,skin:'armor'});
+    structure('横長指揮艦橋の装甲外殻',[244.9,431,0],[149.4,285.2,90.9],{corner:.09,skin:'service'});
+    // Bells in the stern groove at the model's nozzle mouths; the internal engine
+    // law sets nozzle and body.
+    for(const [d,mouth,list] of [[112,54,[[136.8,-233.6],[136.8,0],[136.8,233.6]]],[55.7,79,[[92.9,-116.6],[180.6,-116.6],[92.9,116.6],[180.6,116.6]]]]){const nl=engineBaseline('internal',d,'nozzleLength');for(const [y,z] of list){const e=engine(r,d>70?'主イオン機関・ベル型ノズル':'上下二段の補助イオン機関',mouth+nl/2,y,z,d,engineBaseline('internal',d,'body'));e.nozzleLength=nl;}}
     part('hyper','主ハイパードライブ',[150,250,0],42,{length:110});
     part('aux','予備機関反応炉',[290,245,0],ISD_PLANT.backup);
     part('inertial','主慣性制御設備',[240,200,0],30,{length:65});
@@ -35200,15 +35240,24 @@ function referenceDesign(key){
       part('aux','副動力炉',[253,118,z*290],ISD_PLANT.auxiliary);
       room('battery','砲塔パワーセル・弾庫',[375,133,z*205],[170,26,26]);
       room('firecontrol','重砲旋回・射撃管制機構',[360,130,z*245],[60,20,22]);
-      room('cargo','液体・原材料貯蔵庫',[1230,108,z*45],[130,24,18],{foreWidth:.5});
+      room('cargo','液体・原材料貯蔵庫',[1230,125,z*45],[130,24,18],{foreWidth:.5});
       room('integrity','舷側構造・動力幹線',[650,118,z*200],[200,18,20],{foreWidth:.85});
-      part('localShield','前部補助防御発生器',[1320,110,z*28],16);
+      part('localShield','前部補助防御発生器',[1320,125,z*28],16);
+      // The larger hull's own compensators and field conduits, inside the main hull.
+      part('inertial','船体中央の慣性補償設備',[560,155,z*110],34,{length:160});
+      room('integrity','中央構造維持フィールド幹線',[480,190,z*60],[150,20,20]);
     }
-    const bay=room('hangar','主腹部ドッキング・航空機発着ベイ',[882.7,82,0],[188.8,175,60]);openBay(s,bay,'bottom');
-    const small=room('hangar','前方シャトル格納庫',[1073.5,82,0],[53.2,70,40]);openBay(s,small,'bottom','ray');
+    const bay=room('hangar','主腹部ドッキング・航空機発着ベイ',[856.5,97,0],[169,142,70]);openBay(s,bay,'bottom');
+    const small=room('hangar','前方シャトル格納庫',[1065.5,92,0],[53,64,40]);openBay(s,small,'bottom','ray');
     gunsDeck(s,'pd',[.14,.24,.36,.47,.58,.69,.81],[.84],null,false,0);
   }
-  s.trenches.push(ven||acc?{id:s.nextId++,side:'both',from:ven?.207:.15,to:.94,level:ven?.60:.51,height:ven?18:10,depth:ven?8:11,taper:true,...(ven?{chine:true}:{})}:{id:s.nextId++,side:'both',from:.0669,to:.985,level:.493,height:19.6,depth:16,taper:false});
+  if(acc)s.trenches.push({id:s.nextId++,side:'both',from:.15,to:.94,level:.51,height:10,depth:11,taper:true});
+  // The Venator's side trench, measured on the model: its depth steps down toward the bow, and on the waist's
+  // slanted faces it is the taller recess between the lips.
+  else if(ven)for(const [from,to,depth,height] of [[234,292,6.7,20],[292,434,6,33],[516,590,12,32],[590,850,11.5,20],[850,1000,9,20],[1000,1137,6,20]])s.trenches.push({id:s.nextId++,side:'both',from:from/1137,to:to/1137,level:.5,height,depth,taper:false,chine:true});
+  // The ISD side trench runs at the belt centre. Inside the two side notches its floor stays at
+  // the measured depth from the uncut edge, so it keeps its own depth below the notched lips.
+  else for(const [from,to,depth] of [[216,1584,13.8],[650,698,26.7],[962,1138,24.5]])s.trenches.push({id:s.nextId++,side:'both',from:from/1600,to:to/1600,level:.5,height:29.5,depth,taper:false,chine:true});
   if(acc)for(const p of s.parts.filter(p=>p.room))fitRoomToEnvelope(s,p);
   delete s._building;remount(s);attachReferenceSkin(s);refitReferenceInterior(s);completeReferenceArmament(s);adoptEquipment(s,true);
   if(ven)for(const hatch of s.hatches)if(hatch.portal){hatch.motion='slide';hatch.open=0;}
@@ -35478,8 +35527,10 @@ function executorDesign(){
 // ray in from the beam at height y. Mounts that would land on armour plating
 // or float are left out.
 function trenchBattery(s,xs,k='casemateMid',opt={}){
- const c=s.trenches[opt.trench||0],out=[];if(!c)return out;
+ const out=[];
+ // A hull with several trench spans uses the one that covers each station.
  for(const x of xs)for(const sg of [-1,1]){
+  const c=opt.trench!=null?s.trenches[opt.trench]:s.trenches.find(t=>t.mode!=='split'&&x>=t.from*s.hull.L&&x<=t.to*s.hull.L)||s.trenches[0];if(!c)return out;
   const b=sectionBase(s.hull,x);if(!(b.hw>0))continue;const y=c.chine&&b.edge!=null?b.edge:b.ybot+b.h*c.level,dep=Math.min(b.hw*.8,c.depth*(c.taper?b.pw:1)),z=sg*(b.hw-dep),up=[0,0,sg];
   const h=rayEnv(s,add([x,y,z],mul(up,3)),mul(up,-1),{maxT:6,structOnly:true});if(!h)continue;
   const f={id:s.nextId++,k,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,scale:opt.scale||1,chargeDepth:opt.chargeDepth||18,batteryZone:sg<0?'port-trench':'stbd-trench'};
