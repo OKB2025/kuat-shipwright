@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "method": "verified-exact-source-reconstruction",
+  "notAnOriginalCapturedCopy": true,
+  "output": "/tmp/kuat-craft-generator-physics-954aab3a.js",
+  "sha256": "954aab3a447c51cd2b7e2fa552ba0b09c5d4b51bcbb2a671f55605570e6a47af",
+  "expectedActualGenerationCoreSha256": "954aab3a447c51cd2b7e2fa552ba0b09c5d4b51bcbb2a671f55605570e6a47af",
+  "currentCoreSha256": "498f002afb33034a821c1916144f6d02d8d1349b04f1ac21356c533451989e3c",
+  "currentCorePath": "js/core.js",
+  "oldGeneratedBlockSource": {
+    "gitObject": "e911d67675cc656bea8eb26164f1581ec200d82a",
+    "commit": "dea37454176717f52b4bd45752401c0757b8df3c",
+    "path": "js/core.js",
+    "method": "git show HEAD:js/core.js"
+  },
+  "operation": "Replace only the generated CRAFT_PRICE_CATALOG block in final Core with the prior block from HEAD. Exact SHA-256 comparison verifies byte identity with the source used by the actual 12-craft generation. Runtime Core was never modified and no factory was rerun."
+}

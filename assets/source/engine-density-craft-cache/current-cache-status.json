@@ -1,0 +1,395 @@
+[
+  {
+    "type": "arc170",
+    "profileVersion": 18,
+    "price": 233835,
+    "fireArcs": 4,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 30,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 41.14816244345542,
+        "loss": 0.6841133755688434,
+        "issues": []
+      },
+      {
+        "id": 31,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 41.14816244345542,
+        "loss": 0.6841133755688434,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "awing",
+    "profileVersion": 18,
+    "price": 160914,
+    "fireArcs": 2,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 15,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 22.656833233920878,
+        "loss": 0.5438923575081451,
+        "issues": []
+      },
+      {
+        "id": 16,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 22.656833233920878,
+        "loss": 0.5438923575081451,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "btlb",
+    "profileVersion": 18,
+    "price": 207192,
+    "fireArcs": 3,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 13,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 10.948505273832657,
+        "loss": 0.3655776865564925,
+        "issues": []
+      },
+      {
+        "id": 14,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 10.948505273832657,
+        "loss": 0.3655776865564925,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "hyena",
+    "profileVersion": 18,
+    "price": 186072,
+    "fireArcs": 4,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 19,
+        "valid": true,
+        "available": true,
+        "grade": "dense",
+        "density": 9.589614783054596,
+        "loss": 0.3354230148192999,
+        "issues": []
+      },
+      {
+        "id": 20,
+        "valid": true,
+        "available": true,
+        "grade": "dense",
+        "density": 9.589614783054596,
+        "loss": 0.3354230148192999,
+        "issues": []
+      },
+      {
+        "id": 21,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 15.156226337704728,
+        "loss": 0.44373246001634314,
+        "issues": []
+      },
+      {
+        "id": 22,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 15.156226337704728,
+        "loss": 0.44373246001634314,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "tie_in",
+    "profileVersion": 18,
+    "price": 100333,
+    "fireArcs": 4,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 33,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 12.530503939055835,
+        "loss": 0.3974089333705415,
+        "issues": []
+      },
+      {
+        "id": 34,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 12.530503939055835,
+        "loss": 0.3974089333705415,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "tie_ln",
+    "profileVersion": 18,
+    "price": 85416,
+    "fireArcs": 2,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 44,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 14.694846752645617,
+        "loss": 0.4361155538269905,
+        "issues": []
+      },
+      {
+        "id": 45,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 14.694846752645617,
+        "loss": 0.4361155538269905,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "tie_sa",
+    "profileVersion": 18,
+    "price": 135203,
+    "fireArcs": 2,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 38,
+        "valid": true,
+        "available": true,
+        "grade": "dense",
+        "density": 9.984737656573957,
+        "loss": 0.3444825954569005,
+        "issues": []
+      },
+      {
+        "id": 39,
+        "valid": true,
+        "available": true,
+        "grade": "dense",
+        "density": 9.984737656573957,
+        "loss": 0.3444825954569005,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "v19",
+    "profileVersion": 18,
+    "price": 140679,
+    "fireArcs": 2,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 19,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 27.23887288936342,
+        "loss": 0.5890903300030337,
+        "issues": []
+      },
+      {
+        "id": 20,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 27.23887288936342,
+        "loss": 0.5890903300030337,
+        "issues": []
+      },
+      {
+        "id": 21,
+        "valid": true,
+        "available": true,
+        "grade": "dense",
+        "density": 9.219310824092231,
+        "loss": 0.3267021962925206,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "vulture",
+    "profileVersion": 18,
+    "price": 121700,
+    "fireArcs": 4,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 17,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 52.654759307360784,
+        "loss": 0.7348396647527611,
+        "issues": []
+      },
+      {
+        "id": 18,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 52.654759307360784,
+        "loss": 0.7348396647527611,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "vwing",
+    "profileVersion": 18,
+    "price": 247670,
+    "fireArcs": 2,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 20,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 24.032689674335696,
+        "loss": 0.5584751930732458,
+        "issues": []
+      },
+      {
+        "id": 21,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 39.99502806558034,
+        "loss": 0.6779389615870828,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "xwing",
+    "profileVersion": 18,
+    "price": 182065,
+    "fireArcs": 4,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 31,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 41.42803931218933,
+        "loss": 0.6855764274951845,
+        "issues": []
+      },
+      {
+        "id": 32,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 41.42803931218933,
+        "loss": 0.6855764274951845,
+        "issues": []
+      },
+      {
+        "id": 33,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 41.42803931218933,
+        "loss": 0.6855764274951845,
+        "issues": []
+      },
+      {
+        "id": 34,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 41.42803931218933,
+        "loss": 0.6855764274951845,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  },
+  {
+    "type": "z95",
+    "profileVersion": 18,
+    "price": 135729,
+    "fireArcs": 2,
+    "cacheCurrent": true,
+    "cores": [
+      {
+        "id": 23,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 32.244791872719546,
+        "loss": 0.6292306143580075,
+        "issues": []
+      },
+      {
+        "id": 24,
+        "valid": true,
+        "available": true,
+        "grade": "advanced",
+        "density": 32.244791872719546,
+        "loss": 0.6292306143580075,
+        "issues": []
+      }
+    ],
+    "strict": "strict",
+    "invalidArcs": 0
+  }
+]

@@ -2713,12 +2713,13 @@ function enginePickParts(){
  if(!eng.ready||enginePending()||ship?._deferredPreparation)return enginePickCache?.ship===ship?enginePickCache.parts:[];
  const key=eng.gen+':'+eng.geoGen+':'+eng.statsGen;
  if(enginePickCache?.ship===ship&&enginePickCache.key===key)return enginePickCache.parts;
- const parts=C.enginePaths(ship);enginePickCache={ship,key,parts};return parts;
+ const parts=C.enginePaths(ship).filter(p=>!Gfx.isHiddenEngineFeed(p));enginePickCache={ship,key,parts};return parts;
 }
 function partHit(o, d, clip, filter) {
   let best = null;const nativeFits=new Set(ship.fits.map(f=>f.id));
   const pending=!eng.ready||enginePending()||!!ship._deferredPreparation, parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)];
   for (const pt of parts) {
+    if(Gfx.isHiddenEngineFeed(pt))continue;
     if(pending&&!editorCanMeshPart(pt))continue;
     if(!editorRayPartMayHit(pt,o,d))continue;
     if (filter && !filter(pt)) continue;
@@ -4325,11 +4326,13 @@ function start(hot) {
 
 // ---------- title screen ----------
 // The examples are listed by class, size and purpose only.
-const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・近距離砲戦', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送', arquitens: '護衛・哨戒', hammerhead: '護衛・武装輸送・体当たり', onager: '長距離砲撃・攻城（超兵器）', subjugator: 'ハイパーイオン砲で艦隊を無力化・撃滅'};
+const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', imperial2: '艦隊主力・重砲撃戦', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・近距離砲戦', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送', arquitens: '護衛・哨戒', hammerhead: '護衛・武装輸送・体当たり', onager: '長距離砲撃・攻城（超兵器）', subjugator: 'ハイパーイオン砲で艦隊を無力化・撃滅'};
 const EXAMPLES = [
-  {key: 'venator', name: 'ヴェネター級', len: 1137, side: '銀河共和国'},
-  {key: 'imperial', name: 'インペリアル級', len: 1600, side: '銀河帝国'},
-  {key: 'executor', name: 'エグゼクター級', len: 19000, side: '銀河帝国'},
+  ...[
+    {key: 'venator', name: 'ヴェネター級', len: 1137, side: '銀河共和国'},
+    {key: 'imperial', name: 'インペリアルI級', len: 1600, side: '銀河帝国'},
+    {key: 'executor', name: 'エグゼクター級', len: 19000, side: '銀河帝国'},
+  ].filter(e => !Object.hasOwn(C.SHIP_EXAMPLES, e.key)),
   // Ships measured from attached models (src/ships/*.js).
   ...Object.values(C.SHIP_EXAMPLES).map(d => ({key: d.key, name: d.name, len: d.length, role: d.role, side: d.side, craft: !!d.craft})),
 ].map(e => ({...e, purpose: EXAMPLE_PURPOSE[e.key] || e.role || ''}));
@@ -4629,7 +4632,7 @@ function pendingGenericEngine(){
 }
 function pendingEngineCore(){
  const d=pSize('engineCore'),p={id:-1,k:'engineCore',c:[0,0,0],dir:st.engineDir.slice(),d,length:d*2,propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:0,...(st.engineCoreSpec||{}),reactor:st.reactor};
- if(!st.engineCoreSpec){p.ratedInputW=C.partVolume(p)*C.MACHINERY_GRADES.standard.allowedInputDensityWPerM3*.5;st.engineCoreSpec={...engineSpecSnapshot(p),length:p.length};}
+ if(!st.engineCoreSpec){p.ratedInputW=C.partVolume(p)*C.PROPULSION.referenceInputDensity;st.engineCoreSpec={...engineSpecSnapshot(p),length:p.length};}
  return p;
 }
 function engineSelectionDrivers(){
@@ -4737,8 +4740,8 @@ function engineSpecControls(p,fresh=false,multiple=false){
  return `<div class="pgroup blueprint-card" id="engine-spec-editor"><h4>${multiple?'選択した機関の一括仕様':'機関の定格・内部機構'}</h4>${multiple?'<p class="note">表示値は先頭の機関です。変更した項目を選択中の全機関と対称部品へ適用します。</p>':''}
  ${input('ratedInputW','定格入力（W）',spec.ratedInputW,0,spec.maxRatedInputW)}${select('driveProfileId','推進プロファイル',spec.driveProfileId,profiles)}${select('machineryGradeId','内部機関の仕様',spec.machineryGradeId,grades)}
  ${input('machineryDiameterM','内部機関の直径（m）',spec.machineryDiameterM,.01,C.DESIGN_LIMITS.engineDiameter)}${input('machineryLengthM','内部機関の長さ（m）',spec.machineryLengthM,.01,C.DESIGN_LIMITS.engineLength)}${core?'':external?'<p class="note">外部機関は機関本体とノズルが一体です。</p>':input('machineryOffsetM','ノズルから機関までの距離（m）',p.machineryOffsetM??0,0,C.DESIGN_LIMITS.engineLength)}
- <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力密度</dt><dd>${sci(spec.inputDensityWPerM3)} W/m³</dd></div><div><dt>容積・仕様による入力上限</dt><dd>${fW(spec.maxRatedInputW)}</dd></div><div><dt>入力から推力への係数（固定）</dt><dd>${sci(spec.wattsPerNewton)} W/N</dd></div><div><dt>定格・高密度化の追加費用</dt><dd>${fCr(spec.cost)}</dd></div></dl>
- <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">定格は電力の受入上限です。実推力は実給電で決まり、推進廃熱は実入力の5%です。内部機関と給電・散逸設備は別に確保します。密度・費用はゲーム用の暫定係数です。</p></div>
+ <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力密度</dt><dd>${sci(spec.inputDensityWPerM3)} W/m³</dd></div><div><dt>容積・仕様による入力上限</dt><dd>${fW(spec.maxRatedInputW)}</dd></div><div><dt>入力から推力への係数（密度を反映）</dt><dd>${sci(spec.wattsPerNewton)} W/N</dd></div><div><dt>定格・高密度化の追加費用</dt><dd>${fCr(spec.cost)}</dd></div></dl>
+ <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">通常定格は機関容積から計算します。同じ容積で定格入力を上げるほど廃熱率が増えます。実推力と廃熱は実給電で決まり、持続出力は翼などの放熱面・排熱設備と熱輸送路に制限されます。密度・費用はゲーム用の暫定係数です。</p></div>
  ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法・定格入力を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
 }
 function propulsionFiguresHTML(side=false){
@@ -5325,7 +5328,7 @@ function referenceAircraftSettingHTML(r){
  const a=aviationNumbers();return `<p class="note" data-aircraft-setting>現在の航空隊：<b>${num(a.wings.length)} 個飛行隊・指定 ${num(a.requestedCount)} 機</b>。使用 ${aviationSize(a.usedSize)} / 格納容量 ${aviationSize(a.capacity)} サイズ。</p>`;
 }
 function referencePanel(panel){
- if(C.DREADNOUGHT_EXAMPLES[ship.reference]&&['hull','systems'].includes(st.tab)){const r=C.DREADNOUGHT_EXAMPLES[ship.reference];panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(r.name)}の作例</h4><p>全長 ${fLen(r.length)} · ${esc(examplePurpose(ship.reference))}</p><p class="note"><a href="${r.source}" target="_blank" rel="noopener">参照モデル · ${esc(r.author)}</a> / CC BY 4.0</p></div>`);}
+ if(!Object.hasOwn(C.SHIP_EXAMPLES,ship.reference)&&C.DREADNOUGHT_EXAMPLES[ship.reference]&&['hull','systems'].includes(st.tab)){const r=C.DREADNOUGHT_EXAMPLES[ship.reference];panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(r.name)}の作例</h4><p>全長 ${fLen(r.length)} · ${esc(examplePurpose(ship.reference))}</p><p class="note"><a href="${r.source}" target="_blank" rel="noopener">参照モデル · ${esc(r.author)}</a> / CC BY 4.0</p></div>`);}
 
  if(C.SEPARATIST_EXAMPLES[ship.reference]&&['hull','systems'].includes(st.tab)){const r=C.SEPARATIST_EXAMPLES[ship.reference];panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(r.name)}の作例</h4><p>全長 ${fLen(r.length)} · ${esc(examplePurpose(ship.reference, r.role))}</p><p class="note"><a href="${r.source}" target="_blank" rel="noopener">参照モデル · ${esc(r.author)}</a> / ${r.license}</p></div>`);}
  if(st.tab==='systems'&&S)panel.insertAdjacentHTML('beforeend',`<div class="pgroup blueprint-card"><h4>主砲ごとの充電装置</h4><p>武装充電装置 ${S.chargingCount} 基 · 船内占有 ${ja(S.chargingOccupiedVolume??S.chargingVolume)} m³ · 追加装置 ${ja(S.chargingVolume)} m³</p><p class="note">砲室を武装区画として使い、不足分だけ船内に装置を追加します。船体に埋まる砲室も武装が占有し、他の区画と重複利用しません。兵装用電力 ${fW(S.weaponBudget)}。</p><button class="btn" data-internal>充電装置を透視する</button></div>`);
@@ -5426,8 +5429,8 @@ function equipmentCard(id){
 function pendingEngine(d){const p={id:-1,c:[0,0,0],dir:(st.engineDir||[-1,0,0]).slice(),...C.equipmentOptions(d.id),...st.engineSizes[d.id],...(d.engineStyle==='internal'?{machineryId:st.newEngineCoreId??0}:{})};C.enforceEquipment(p);if(d.engineStyle==='exposed'){p.machineryOffsetM=(p.nozzleLength??C.partDims(p).l)/2;C.updateEngineSpec(p,{},ship);}if(d.engineStyle==='internal'){p.machineryId=st.newEngineCoreId??0;for(const key of ENGINE_SPEC_FIELDS)if(key!=='propulsionModelVersion')delete p[key];p.propulsionModelVersion=C.PROPULSION_MODEL_VERSION||1;}if(!st.engineSizes[d.id])st.engineSizes[d.id]={...engineSpecSnapshot(p),d:p.d,engineLength:p.engineLength,nozzleLength:p.nozzleLength};return p;}
 function enginePerformance(p){
  const spec=C.resolveEngineSpec(p,ship),preview=p.id>0?propulsionPreviewForUI():null,core=p.k==='engineCore',shared=!core&&engineConnectionOwner(p)?.k==='engineCore',actual=(core?preview?.cores:preview?.engines)?.find(e=>(e.id??e.nozzleId)===p.id),reasons=[...new Set([...(spec.reasons||[]),...(actual?.reasons||[])].map(engineReasonText).filter(Boolean))];
- const row=(label,value)=>`<div><dt>${label}</dt><dd>${value}</dd></div>`;
- return `<dl class="engineering-stats" data-engine-performance>${row(shared?'接続機関の定格入力':'定格入力',fW(spec.ratedInputW))}${shared?'':row('定格推力',sci(spec.ratedThrustN)+' N')}${row(core?'機関への実入力':'推進への実入力',actual?fW(actual.actualInputW):'未判定')}${Number.isFinite(actual?.shaftPowerW)?row(core?'ノズルへ出す動力':'ノズルへの動力',fW(actual.shaftPowerW)):''}${core?'':row('実推力',actual?sci(actual.actualThrustN)+' N':'未判定')}${row('推進廃熱',actual?fW(actual.wasteHeatW):'未判定')}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${reasons.length?`<ul class="ilist neg" data-engine-reasons>${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
+ const row=(label,value)=>`<div><dt>${label}</dt><dd>${value}</dd></div>`,finite=(value,format)=>Number.isFinite(value)?format(value):'未判定';
+ return `<dl class="engineering-stats" data-engine-performance>${row('通常定格入力（機関容積）',finite(spec.normalInputW,fW))}${row(shared?'接続機関の定格入力':'定格入力',fW(spec.ratedInputW))}${row('通常定格に対する入力倍率',finite(spec.densityFactor,v=>'×'+num(v,2)))}${row('定格時の廃熱率',finite(spec.wasteFraction,v=>num(v*100,2)+'%'))}${row('定格時の推進廃熱',finite(spec.ratedWasteHeatW,fW))}${shared?'':row('定格推力',sci(spec.ratedThrustN)+' N')}${row(core?'機関への実入力':'推進への実入力',actual?fW(actual.actualInputW):'未判定')}${Number.isFinite(actual?.shaftPowerW)?row(core?'ノズルへ出す動力':'ノズルへの動力',fW(actual.shaftPowerW)):''}${core?'':row('実推力',actual?sci(actual.actualThrustN)+' N':'未判定')}${row('推進廃熱',actual?fW(actual.wasteHeatW):'未判定')}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${reasons.length?`<ul class="ilist neg" data-engine-reasons>${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
 }
 function equipmentInfo(d,p){
  if(d.k==='engine'){
@@ -9872,14 +9875,19 @@ const voy = {open: false, screen: null, setup: null, w: null, speed: 1, last: 0,
 // prepared by the engine (the same request also builds their 3D models).
 function voyExampleDesigns() {
  const out = [];
- for (const d of Object.values(YardFleetData?.designs || {})) out.push({key: d.key, name: d.name, faction: d.faction || R.SIDE_OF[d.side] || 'empire', side: d.side, cls: d.cls, p: C.emptyDesignProfile(d.p), info: d.info, loadPreset: {air:d.air||[],ground:d.ground||[]}, src: 'example'});
+ for (const d of Object.values(YardFleetData?.designs || {})) out.push({key: d.key, name: d.name, faction: d.faction || R.SIDE_OF[d.side] || 'empire', side: d.side, cls: d.cls, p: C.emptyDesignProfile(d.p), info: d.info, model: d.model, loadPreset: {air:d.air||[],ground:d.ground||[]}, src: 'example'});
  return out.sort((a, b) => (a.faction > b.faction) - (a.faction < b.faction) || b.info.len - a.info.len);
 }
 function voyDesign(key) { const d = voy.designs.get(key);if (d) return d;const m = /^([A-Za-z0-9_]+)#(republic|neutral|dark|cis)$/.exec(key || '');if (!m) return null;const b = voy.designs.get(m[1]);return b ? voyRegister({...b, key, base: b.key, paint: m[2], faction: Object.entries(VOY_PAINT[b.key] || {}).find(([, p]) => p === m[2])?.[0] || b.faction}) : null; }
 function voyRegister(d) { voy.designs.set(d.key, d); return d; }
 // The examples are entered once (saved designs prepared first must not keep them out: FACTION-001 prepares those early).
 function voyEnsureExamples() { if (voy.exReady) return; for (const d of voyExampleDesigns()) if (!voy.designs.has(d.key)) voyRegister(d); voy.exReady = true; }
-function voyProfileStale(d) { return d?.src==='example'&&(d.p?.catalogOnly===true||!!C.FLEET_PROFILE_VERSION&&d.p?.profileVersion!==C.FLEET_PROFILE_VERSION); }
+function voyProfileStale(d) { return d?.src==='example'&&(d.p?.catalogOnly===true||voyCostStale(d)); }
+const VOY_COST_SIGNATURE=C.costModelSignature?.();
+function voyCostStale(d) {
+ if(d?.src!=='example')return false;
+ return !!C.FLEET_PROFILE_VERSION&&d.p?.profileVersion!==C.FLEET_PROFILE_VERSION||VOY_COST_SIGNATURE!=null&&(d.model?.profileVersion!==C.FLEET_PROFILE_VERSION||d.model?.costVersion!==C.COST_MODEL?.version||d.model?.costSignature!==VOY_COST_SIGNATURE);
+}
 async function voyPrepare(source) {
  // source: 'current' | 'save:<id>' | example key
  const previous=voy.designs.get(source);
@@ -9895,7 +9903,7 @@ async function voyPrepare(source) {
   }
   // (a design of a made faction this device does not know serves every faction, as 全陣営 does)
   const df = C.DESIGN_FACTIONS[a.design?.faction] && a.design.faction !== 'any' ? a.design.faction : null, sv = /^save:(.+)-\d+$/.exec(a.key);
-  const example=previous?.src==='example',d = {...(example?previous:{}),key: a.key, name: p.name || S.name || '設計艦', faction: example?previous.faction:df || voy.setup?.own || 'empire', anyFaction: example?false:!df, side: example?previous.side:'自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), loadPreset: example?previous.loadPreset:source==='current'||source.startsWith('save:')?null:C.builtinComplement(source), src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example', ...(sv ? {saveId: sv[1], craft: !!(a.design && C.isCraft(a.design))} : {})};
+  const example=previous?.src==='example',d = {...(example?previous:{}),key: a.key, name: p.name || S.name || '設計艦', faction: example?previous.faction:df || voy.setup?.own || 'empire', anyFaction: example?false:!df, side: example?previous.side:'自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), model: {profileVersion:p.profileVersion,costVersion:C.COST_MODEL?.version,costSignature:VOY_COST_SIGNATURE}, loadPreset: example?previous.loadPreset:source==='current'||source.startsWith('save:')?null:C.builtinComplement(source), src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example', ...(sv ? {saveId: sv[1], craft: !!(a.design && C.isCraft(a.design))} : {})};
   voy.designs.set(source, d);voy.designs.set(a.key, d);return d;
  })();
  voy.pending.set(source, job);try { return await job; } finally { voy.pending.delete(source); }
@@ -10237,8 +10245,10 @@ function voySideOb(s, i) { if (voy.msn || !i) return !voy.msn && s.ownOb ? s.own
 const voyEdOb = s => voySideOb(s, voyEdSide(s));
 const voySideSel = (s, i) => i ? s.foeSel : s.sel;
 // PLAN-002 costs, from the one cost service (R.shipCost → C.designCost) for every side.
-const voyCostOf = sh => R.shipCost(sh, voyShipDesign);
-const voyFleetCost = ships => R.fleetCost(ships, voyShipDesign);
+function voyCostPending(rows) { return rows.some(sh=>[sh,...(sh.carried||[])].some(r=>voyCostStale(voyShipDesign(r)))); }
+const voyCostOf = sh => ({...R.shipCost(sh, voyShipDesign),pending:voyCostPending([sh])});
+const voyFleetCost = ships => ({...R.fleetCost(ships, voyShipDesign),pending:voyCostPending(ships)});
+function voyCostText(c) { return fCr(c.total)+(c.pending?'（再計算待ち・旧計算参考）':''); }
 // The sector of the chosen area and seed (its systems are the deployment choices).
 function voySector(s) { const k = `${s.region}|${s.seed}`; if (voy.sector?.k !== k) voy.sector = {k, S: R.makeSector(s.region, s.seed)}; return voy.sector.S; }
 // lean: leave out a generated enemy fleet (it is made again from the seed and the player's fleet; a big generated navy
@@ -10358,8 +10368,8 @@ function voyRenderSetup() {
  if (voy.msn && tab !== 'faction') msDecorateEditor();
 }
 // Both sides' costs of what sails, and whether each is over the scenario's limit (when it is on).
-function voyCostCheck(s) { if (voy.msn) return []; return [voySortieShips(s), voyFoeTgs(s).flatMap(t => t.ships)].map(ships => { const c = voyFleetCost(ships); return {...c, over: !!(s.costLimit?.on && s.costLimit.value > 0 && c.total > s.costLimit.value)}; }); }
-function voyCostLine(c) { return `<p class="vs-sub ob-cost"><span>費用 ${fCr(c.total)}</span>${c.air || c.carried ? `<small>${[`艦艇 ${fCr(c.ships)}`, c.air ? `艦載機 ${fCr(c.air)}` : '', c.carried ? `搭載艦 ${fCr(c.carried)}` : ''].filter(Boolean).join(' · ')}</small>` : ''}</p>`; }
+function voyCostCheck(s) { if (voy.msn) return []; return [voySortieShips(s), voyFoeTgs(s).flatMap(t => t.ships)].map(ships => { const c = voyFleetCost(ships); return {...c, over: !!(!c.pending && s.costLimit?.on && s.costLimit.value > 0 && c.total > s.costLimit.value)}; }); }
+function voyCostLine(c) { return `<p class="vs-sub ob-cost"><span>費用 ${voyCostText(c)}</span>${c.air || c.carried ? `<small>${[`艦艇 ${fCr(c.ships)}`, c.air ? `艦載機 ${fCr(c.air)}` : '', c.carried ? `搭載艦 ${fCr(c.carried)}` : ''].filter(Boolean).join(' · ')}</small>` : ''}</p>`; }
 // The two sides of the editor (not in a mission, whose enemy is met on the map).
 function voySideSwitchHTML(s) { return voy.msn ? '' : `<div class="seg ob-sides" role="group" aria-label="編成する側">${[0, 1].map(i => `<button type="button" data-voy="side:${i}" aria-pressed="${voyEdSide(s) === i}">${i ? '敵軍' : '自軍'}<small>${esc(R.FACTIONS[i ? s.foe : s.own].name)}</small></button>`).join('')}</div>`; }
 function voyOrbatHTML(s, ob) {
@@ -10381,15 +10391,15 @@ function voyFleetLibHTML(s) {
 }
 function voyCtgHTML(s, ob, c) {
  const ships = c.tgs.flatMap(t => t.ships), t = voyShipsTotals(ships), cost = voyFleetCost(ships);
- return `<section class="voy-card voy-wide ob-ctg" data-ctg="${c.id}"><div class="voy-card-head"><input class="ob-name ob-ctgname" data-obname="ctg" value="${esc(voyDisplayName(c))}" aria-label="合同任務群の名前" maxlength="48"><span class="vs-sub">${c.tgs.length} 個任務群 · ${ships.length} 隻 · 乗員 ${num(t.people)} 名 · 費用 ${fCr(cost.total)}</span><div class="vs-acts"><button type="button" class="btn sm" data-ob="tgadd">任務群を追加</button><button type="button" class="btn sm ghost" data-ob="ctgdel" aria-label="この合同任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="ctgdup" title="同じ編成・同じ搭載の合同任務群を追加">この合同任務群を複製</button></div></div>
+ return `<section class="voy-card voy-wide ob-ctg" data-ctg="${c.id}"><div class="voy-card-head"><input class="ob-name ob-ctgname" data-obname="ctg" value="${esc(voyDisplayName(c))}" aria-label="合同任務群の名前" maxlength="48"><span class="vs-sub">${c.tgs.length} 個任務群 · ${ships.length} 隻 · 乗員 ${num(t.people)} 名 · 費用 ${voyCostText(cost)}</span><div class="vs-acts"><button type="button" class="btn sm" data-ob="tgadd">任務群を追加</button><button type="button" class="btn sm ghost" data-ob="ctgdel" aria-label="この合同任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="ctgdup" title="同じ編成・同じ搭載の合同任務群を追加">この合同任務群を複製</button></div></div>
   <label class="ob-form">合同任務群全体の陣形<select data-obctgform aria-label="合同任務群全体の陣形"><option value="" ${!c.formation?'selected':''}>任務群ごとに独立</option>${Object.entries(R.FORMATIONS).map(([k,n])=>`<option value="${k}" ${c.formation===k?'selected':''}>${esc(n)}</option>`).join('')}</select></label><p class="note">各任務群の内部陣形を保ったまま、任務群同士を並べます。</p>
   <div class="ob-tgs">${c.tgs.map(tg => voyTgHTML(s, ob, tg)).join('') || '<p class="muted">任務群がありません。</p>'}</div></section>`;
 }
 function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
- return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">役割<select data-obrole><option value="" ${tg.role ? '' : 'selected'}>未指定</option>${Object.entries(R.TF_ROLES).map(([k, v]) => `<option value="${k}" ${tg.role === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><small class="ob-tgcost">費用 ${fCr(voyFleetCost(tg.ships).total)}</small><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
+ return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">役割<select data-obrole><option value="" ${tg.role ? '' : 'selected'}>未指定</option>${Object.entries(R.TF_ROLES).map(([k, v]) => `<option value="${k}" ${tg.role === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><small class="ob-tgcost">費用 ${voyCostText(voyFleetCost(tg.ships))}</small><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
   <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
-   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${d.src === 'example' ? esc(voyShort(d.name)) : `<span data-l10n-skip>${esc(voyShort(d.name))}</span>`} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)} · 費用 ${fCr(voyCostOf(sh).total)}` : '準備中…'}</small>
+   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${d.src === 'example' ? esc(voyShort(d.name)) : `<span data-l10n-skip>${esc(voyShort(d.name))}</span>`} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)} · 費用 ${voyCostText(voyCostOf(sh))}` : '準備中…'}</small>
     <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${R.factionBase(voyEdFac(voy.setup)) === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voyEdFac(voy.setup)) ? '未乗艦' : '—'}</b></button>
     <label class="ob-move">所属<select data-obmove>${tgs.map(x => `<option value="${x.id}" ${x.id === tg.id ? 'selected' : ''} ${x.id !== tg.id && x.ships.length >= TG_MAX ? 'disabled' : ''} translate="no">${esc(voyDisplayName(x))}</option>`).join('')}</select></label>
     <span class="ob-ord">${i ? `<button type="button" class="btn sm ghost" data-ob="lead" title="任務群の先頭（旗艦）にする">旗艦に</button>` : ''}<button type="button" class="btn sm ghost" data-ob="shipdel" aria-label="艦を外す">×</button><button type="button" class="btn sm ghost" data-ob="shipdup" title="同じ艦級・同じ搭載の艦を、この任務群にもう1隻">この艦級を複製</button></span></li>`; }).join('') || '<li class="muted">艦がありません</li>'}</ul>
@@ -10403,13 +10413,13 @@ function voySortieHTML(s, ob) {
    <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('／'))}）。${voyHistHTML(s.region)}航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。${manual ? '敵（AI）は「艦隊編成」の敵軍で手編成した艦隊です。' : `敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。`}</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
   <section class="voy-card"><h3>編成枠</h3>
    <div class="vbal"><span>推定戦力比</span><b>自軍 1 : 敵 ${a ? (r > 0 && r < .01 ? '0.01未満' : r.toFixed(2)) : '—'}</b><small>${esc(word)}（敵は${esc(R.FACTIONS[s.foe].name)}の艦 ${foe.length} 隻）${s.foeMode === 'match' && a && r < .85 ? `。${esc(R.FACTIONS[s.foe].name)}は出せる限りの艦（片軍 ${VOY_SHIP_CAP} 隻まで）でも自軍に届きません` : ''}</small></div>
-   <div class="vbal"><span>費用</span><b>自軍 ${fCr(costs[0]?.total || 0)} · 敵軍 ${fCr(costs[1]?.total || 0)}</b><small>${s.costLimit.on && s.costLimit.value > 0 ? `上限 ${fCr(s.costLimit.value)}（シナリオで設定）` : 'コスト上限なし（シナリオで設定できます）'}</small></div>${costs.map((c, i) => c.over ? `<p class="note bad">${i ? '敵軍' : '自軍'}の費用 ${fCr(c.total)} が上限 ${fCr(s.costLimit.value)} を超えています。</p>` : '').join('')}
+   <div class="vbal"><span>費用</span><b>自軍 ${voyCostText(costs[0]||{total:0})} · 敵軍 ${voyCostText(costs[1]||{total:0})}</b><small>${s.costLimit.on && s.costLimit.value > 0 ? `上限 ${fCr(s.costLimit.value)}（シナリオで設定）` : 'コスト上限なし（シナリオで設定できます）'}</small></div>${costs.map((c, i) => c.over ? `<p class="note bad">${i ? '敵軍' : '自軍'}の費用 ${voyCostText(c)} が上限 ${fCr(s.costLimit.value)} を超えています。</p>` : '').join('')}
    ${voyBar('総乗員数（乗組員・操縦士・陸戦隊）', t.people, cap.people)}${voyBar('資材（補給品・予備品）', t.supply, cap.supply, x => num(Math.round(x)) + ' t')}
    <p class="note">艦数の上限はありません。枠は乗員数と資材だけです（計算の都合で一度に出せるのは片軍 ${VOY_SHIP_CAP} 隻まで）。出撃させる任務群を下で選びます。</p>${ships.some(sh => !voyShipDesign(sh)) ? `<p class="note bad">設計を準備できない艦 ${ships.filter(sh => !voyShipDesign(sh)).length} 隻は出撃しません${voy.pending.size ? '（準備中）' : ''}。</p>` : ''}${ships.length > VOY_SHIP_CAP ? `<p class="note bad">${ships.length} 隻は多すぎます。任務群を減らしてください。</p>` : ''}</section>
   <section class="voy-card voy-wide"><div class="voy-card-head"><h3>出撃させる任務群</h3><div class="vs-acts"><button type="button" class="btn sm ghost" data-voy="selall">すべて選ぶ</button><button type="button" class="btn sm ghost" data-voy="tab:orbat">編成を変える</button></div></div>
    ${ob.ctgs.map(c => `<div class="ob-pick"><label class="ob-pick-ctg"><input type="checkbox" data-pickctg="${c.id}" ${c.tgs.every(x => s.sel[x.id] !== false) ? 'checked' : ''}><b>${voyNameHTML(c)}</b></label><div class="ob-pick-tgs">${c.tgs.map(x => { const tt = voyShipsTotals(x.ships); return `<label class="ob-pick-tg"><input type="checkbox" data-picktg="${x.id}" ${s.sel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 乗員 ${num(tt.people)} · ${x.ships.slice(0, 4).map(voyNameHTML).join(' · ')}${x.ships.length > 4 ? ' ほか' : ''}</small></span></label>`; }).join('')}</div></div>`).join('') || '<p class="muted">編成がありません。「艦隊編成」で作ってください。</p>'}</section>
   ${manual ? `<section class="voy-card voy-wide"><div class="voy-card-head"><h3>出撃させる敵の任務群</h3><div class="vs-acts"><button type="button" class="btn sm ghost" data-voy="foeselall">すべて選ぶ</button><button type="button" class="btn sm ghost" data-voy="foeedit">敵軍を編成する</button></div></div>
-   ${voySideOb(s, 1).ctgs.map(c => `<div class="ob-pick"><div class="ob-pick-tgs">${c.tgs.map(x => `<label class="ob-pick-tg"><input type="checkbox" data-pickfoe="${x.id}" ${s.foeSel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 費用 ${fCr(voyFleetCost(x.ships).total)}</small></span></label>`).join('')}</div></div>`).join('') || '<p class="muted">敵軍の編成がありません。「艦隊編成」の敵軍で作ってください。</p>'}</section>` : ''}`;
+   ${voySideOb(s, 1).ctgs.map(c => `<div class="ob-pick"><div class="ob-pick-tgs">${c.tgs.map(x => `<label class="ob-pick-tg"><input type="checkbox" data-pickfoe="${x.id}" ${s.foeSel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 費用 ${voyCostText(voyFleetCost(x.ships))}</small></span></label>`).join('')}</div></div>`).join('') || '<p class="muted">敵軍の編成がありません。「艦隊編成」の敵軍で作ってください。</p>'}</section>` : ''}`;
 }
 // ---- SBOX the scenario tab: AI, deployment, victory conditions, cost limit, seed, save/load and JSON ----
 const VOY_BREAK = [[.25, '戦闘力が25%を下回った側の負け（標準）'], [.5, '戦闘力が半分を下回った側の負け'], [.1, '戦闘力が10%を下回った側の負け'], [0, '全艦が戦闘不能になるまで']];
@@ -10430,7 +10440,7 @@ function voyScenarioHTML(s) {
   <section class="voy-card"><h3>勝利条件</h3><div class="voy-row"><label>撃破判定<select data-scvic="breakAt">${VOY_BREAK.map(([v, t]) => `<option value="${v}" ${Math.abs(s.victory.breakAt - v) < 1e-9 ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><label>制限時間<select data-scvic="timeLimit">${VOY_TIME.map(([v, t]) => `<option value="${v}" ${s.victory.timeLimit === v ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label></div>
    <p class="note">撃破判定を下回るか、戦える艦がなくなった側の負けです。制限時間に達したときは、開始時の戦闘力をより多く残した側の判定勝ちになります（差が5%以内なら引き分け）。</p></section>
   <section class="voy-card"><h3>コスト上限</h3><div class="voy-row"><label class="sc-check"><input type="checkbox" data-sccost="on" ${lim.on ? 'checked' : ''}>上限を設ける</label><label>上限（億 cr）<input type="number" data-sccost="value" min="0" step="0.5" value="${lim.value ? +(lim.value / 1e8).toFixed(2) : ''}" ${lim.on ? '' : 'disabled'}></label></div>
-   <p class="vs-sub">自軍 ${fCr(costs[0]?.total || 0)} · 敵軍 ${fCr(costs[1]?.total || 0)}</p><p class="note">両軍とも出撃させる艦の費用（艦・艦載機・搭載艦）がこの上限以内でないと出撃できません。サンドボックスでは既定で上限なしです。</p></section>
+   <p class="vs-sub">自軍 ${voyCostText(costs[0]||{total:0})} · 敵軍 ${voyCostText(costs[1]||{total:0})}</p><p class="note">両軍とも出撃させる艦の費用（艦・艦載機・搭載艦）がこの上限以内でないと出撃できません。サンドボックスでは既定で上限なしです。</p></section>
   <section class="voy-card"><h3>乱数シード</h3><div class="voy-row"><label>シード<input type="number" data-scseed min="0" max="2147483646" value="${s.seed}"></label><label class="sc-check"><input type="checkbox" data-scfix ${s.seedFixed ? 'checked' : ''}>固定する</label><button type="button" class="btn sm ghost" data-voy="scnewseed">新しいシード</button></div>
    <p class="note">シードは宙域の星系配置と戦闘の偶然を決めます。固定しないときは、出撃のたびに新しいシードになります。</p></section>`;
 }
@@ -10583,7 +10593,7 @@ function voyShipCostHTML(e) {
  const c = voyCostOf(e);if (!c.ready) return '';
  const parts = c.detailed ? Object.entries(c.by).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<li><span>${esc(C.COST_CATS[k] || k)}</span><b>${fCr(v)}</b></li>`) : [`<li><span>建造費</span><b>${fCr(c.build)}</b></li>`, `<li><span>乗員</span><b>${fCr(c.crew)}</b></li>`];
  if (c.air) parts.push(`<li><span>艦載機</span><b>${fCr(c.air)}</b></li>`);if (c.carried) parts.push(`<li><span>搭載艦</span><b>${fCr(c.carried)}</b></li>`);
- return `<details class="vo-costs"><summary>費用 ${fCr(c.total)}</summary><ul class="vo-costby">${parts.join('')}</ul><p class="note">費用は設計から計算した建造費（船体・装甲・動力・推進・武装などの部品ごとの単価の合計）に、乗員の育成費 1名 ${fCr(C.COST_K.crew)} と艦載機・搭載艦を加えたものです（仮の算式・調整可能）。</p></details>`;
+ return `<details class="vo-costs"><summary>費用 ${voyCostText(c)}</summary><ul class="vo-costby">${parts.join('')}</ul><p class="note">費用は設計から計算した建造費（船体・装甲・動力・推進・武装などの部品ごとの単価の合計）に、乗員の育成費 1名 ${fCr(C.COST_K.crew)} と艦載機・搭載艦を加えたものです（仮の算式・調整可能）。</p></details>`;
 }
 // v22 A squadron's stores (搭載): お任せ is the craft's canon loadout (R.CRAFT[k].load, C.CRAFT_LOADOUT); the presets fill
 // every station that takes one kind, or carry another canon load (a Y-wing's ion torpedoes at Scarif); each station's
@@ -10919,8 +10929,17 @@ function voyBattleOrbat(ob, tgs, faction) { return R.battleOrbat(ob, tgs.map(t =
 // SBOX The custom battle is its scenario: R.scenarioWorld builds the same world the headless tests do.
 async function voyStartBattle() {
  if(voyCraftPricesBlocked()){toast('機体の価格を更新中です');return;}
- const s = voy.setup, sc = voyScenarioOf(s),rows=sc.sides.flatMap(sd=>sd.fleet.ctgs.flatMap(c=>c.tgs.filter(t=>sd.sel?.[t.id]!==false).flatMap(t=>t.ships))),required=[...new Set([...voyProfileKeys(rows),...voyConvoyProfileKeys(sc.sides)])];
- if(voyProfilesStale(required)&&!await voyRequireProfiles(required)||voy.setup!==s)return;
+ const s = voy.setup;let sc=voyScenarioOf(s);
+ // Refresh only the ships that will sail. A changed friendly profile can also
+ // change the automatically generated enemy, so resolve its final roster too.
+ for(;;){
+  const rows=sc.sides.flatMap(sd=>sd.fleet.ctgs.flatMap(c=>c.tgs.filter(t=>sd.sel?.[t.id]!==false).flatMap(t=>t.ships))),required=[...new Set([...voyProfileKeys(rows),...voyConvoyProfileKeys(sc.sides)])];
+  if(!voyProfilesStale(required))break;
+  if(!await voyRequireProfiles(required)||voy.setup!==s)return;
+  sc=voyScenarioOf(s);
+ }
+ if(voy.setup!==s)return;
+ if(R.scenarioCosts(sc,voyShipDesign).some(c=>c.over)){toast('再計算した艦隊費用が上限を超えています。編成を変更してください');voyRenderSetup();return;}
  const designs = [...new Set(voy.designs.values())].filter(d=>!d.p?.catalogOnly).map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
  voy.w = R.scenarioWorld(sc, designs, voyShipDesign, {formations: voyFormStore()});voy.w.onHit = voyOnHit;
  // v26 with the supply ships and escorts the sides' convoys may bring in (their models are warmed with the fleet's)

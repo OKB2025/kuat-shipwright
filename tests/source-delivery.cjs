@@ -6,12 +6,14 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const boot = html.slice(html.lastIndexOf('<script>\n/*'), html.lastIndexOf('</script>\n\n<!-- Cloudflare')).replace(/^<script>\n/, '');
 const files = {data:['data/reference.js','data/textures.js','data/imperial2.js','data/fleet.js'], core:'js/core.js', gfx:'js/gfx.js', engine:'js/engine.js', app:'js/app.js', worker:'js/worker.js'};
 const all = [...files.data, files.core, files.gfx, files.engine, files.app];
-const engineFiles = [files.data[0], files.data[2], files.core, files.gfx, files.engine];
+const engineFiles = ['data/reference.js', 'data/imperial2.js', files.core, files.gfx, files.engine];
 const digest = sources => createHash('sha256').update(Buffer.concat(sources.map(s => createHash('sha256').update(s).digest()))).digest('hex').slice(0,20);
 const tick = () => new Promise(resolve => setImmediate(resolve));
 async function load(options = {}) {
+  const configuredFiles = {...files, data:options.dataOrder || files.data};
+  const configuredAll = [...configuredFiles.data, files.core, files.gfx, files.engine, files.app];
   const origin = options.file ? 'file:///app/index.html' : 'https://example.test/app/index.html' + (options.inline?'?inline':'');
-  const current = Object.fromEntries(all.map(f => [f, '// ' + f + ' current\n']));
+  const current = Object.fromEntries(configuredAll.map(f => [f, '// ' + f + ' current\n']));
   current[files.gfx] += options.gfx || 'const currentRenderer = true;\n';
   const stale = {...current, [files.gfx]: '// old gfx from before the release\n'};
   const requests = [], scripts = [], workers = [], errors = [], urls = new Map(), timers = new Set();
@@ -60,7 +62,7 @@ async function load(options = {}) {
     URL:BrowserURL, Blob, crypto:options.noCrypto?undefined:webcrypto, Uint8Array,
     requestAnimationFrame:fn=>setImmediate(()=>{paintedStatus=status.textContent;fn();}),
     setTimeout:(fn, ms) => { const timer = setTimeout(fn, ms); timer.unref?.(); timers.add(timer); return timer; }, clearTimeout,
-    KS_FILES:{...files, sizes:options.noSizes?undefined:Object.fromEntries(all.map(f=>[f,999]))}});
+    KS_FILES:{...configuredFiles, sizes:options.noSizes?undefined:Object.fromEntries(configuredAll.map(f=>[f,999]))}});
   cx.window = cx;
   if (!options.noWorker) cx.Worker = FakeWorker;
   if (!options.noFetch) cx.fetch = async (url, init = {}) => {
@@ -95,6 +97,19 @@ test('revalidation replaces stale cached gfx and the worker executes the exact p
   assert.equal(r.cx.KS_SOURCE_STAMP,r.worker.stamp);
   assert.equal(r.scripts.find(s=>s.source===r.current[files.engine]).stamp,r.worker.stamp,'identity is available before engine execution');
 });
+
+const publishedData = JSON.parse(html.match(/window\.KS_FILES=(\{[^\n]+\});/)[1]).data;
+for (const [name, dataOrder] of [['published planet-texture order', publishedData], ['reordered data dependencies', [...publishedData].reverse()]]) {
+  test(name+' keeps both ship-design dependencies in the worker snapshot', async () => {
+    const r = await load({dataOrder});
+    assert.deepEqual(r.scripts.map(s=>s.source),[...dataOrder, files.core, files.gfx, files.engine, files.app].map(f=>r.current[f]));
+    assert.ok(r.worker, 'visual data cannot force the engine to fall back to the interface thread');
+    const prefix = `self.__ksWorker=true;self.KS_SOURCE_STAMP=${JSON.stringify(r.cx.KS_SOURCE_STAMP)};\n`;
+    assert.equal(r.worker.source,prefix+engineFiles.map(f=>r.current[f]+'\n').join(''));
+    assert.equal(r.worker.stamp,digest(engineFiles.map(f=>r.current[f])));
+    assert.equal(r.worker.stamp,r.cx.KS_SOURCE_STAMP);
+  });
+}
 
 test('unchanged sources retain their identity; a renderer edit changes both thread identities', async () => {
   const a = await load(), b = await load(), c = await load({gfx:'const changedRenderer = true;\n'});

@@ -1,0 +1,42 @@
+{
+  "method": "actual-all-editable-craft-factories",
+  "constructorCount": 12,
+  "generationSourceSha256": "954aab3a447c51cd2b7e2fa552ba0b09c5d4b51bcbb2a671f55605570e6a47af",
+  "finalCoreSha256": "498f002afb33034a821c1916144f6d02d8d1349b04f1ac21356c533451989e3c",
+  "sourceReconstruction": "source-reconstruction.json",
+  "sourceNote": "The physics source was reconstructed by replacing only the generated cache block, and its full raw SHA matches the hash recorded before actual generation. This is not represented as an original-time source capture.",
+  "dataSourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626"
+  },
+  "files": {
+    "current-cache-status.json": {
+      "bytes": 8321,
+      "sha256": "7888f3a02148d44c49b64489e6f61ec3e9c4cab632d5f66279e718aea85a6a87"
+    },
+    "generated-cache.cjs": {
+      "bytes": 666615,
+      "sha256": "5f60192466d2081a0b58994502e36637879f462aeb3af40103ed458d74587a22"
+    },
+    "generation.json": {
+      "bytes": 13320,
+      "sha256": "cf1cca26cfd7de562c5c4b4ea741ca21f7c137c8f25976183cf76fe8b7e59abd"
+    },
+    "generation.log": {
+      "bytes": 585,
+      "sha256": "3ef8329935174bda4d759a10f9f5d71eae46aecc9cd90c4e7c5a0ccbc666a483"
+    },
+    "generator.cjs": {
+      "bytes": 3220,
+      "sha256": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9"
+    },
+    "physics-before-cache.js.gz": {
+      "bytes": 949407,
+      "sha256": "bec99523ed2d1504b2d36b7da81dc931a8b0495b9cfe0ab98094e6f971994706"
+    },
+    "source-reconstruction.json": {
+      "bytes": 990,
+      "sha256": "5dda4ec9143c7cf5c1f19322f48128f539d4c5bfc73c1fbb48c639a359b24e3b"
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-factory-serialized-ship-blueprint",
+  "runtimeLoaded": false,
+  "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
+  "factoryBaselineCommit": "dea37454176717f52b4bd45752401c0757b8df3c",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "498f002afb33034a821c1916144f6d02d8d1349b04f1ac21356c533451989e3c"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "factoryGeneration": {
+    "method": "fresh-factory",
+    "script": "scripts/update-ship-examples.cjs",
+    "key": "imperial2",
+    "auditSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+      "js/core.js": "498f002afb33034a821c1916144f6d02d8d1349b04f1ac21356c533451989e3c"
+    },
+    "profileVersion": 18,
+    "costVersion": 16,
+    "costSignature": "g1w0fx",
+    "refreshOrchestration": {
+      "script": "scripts/refresh-imperial-layouts.cjs",
+      "constructorCalls": 1,
+      "files": [
+        {
+          "file": "refresh-generation.cjs",
+          "sha256": "75295441cad57e9245c2819cdb6b6f77a5f5cbc291f9170727f8fcdb77b34184"
+        },
+        {
+          "file": "refresh-auditor.cjs",
+          "sha256": "61c740d5a3a0a00bc54d4e5be586ccb23f046cafa12903aefe098cc7391c161a"
+        },
+        {
+          "file": "refresh-finalizer.cjs",
+          "sha256": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d"
+        },
+        {
+          "file": "refresh-catalogue.cjs",
+          "sha256": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6"
+        }
+      ]
+    }
+  },
+  "models": {
+    "imperial2": {
+      "file": "imperial2.json.gz",
+      "sha256": "6a7b825581e4634400d5df28e14321d6f4e5c1653e2ce893d9cdfb28ba48eea0",
+      "gzipSha256": "ae780e3fddb704a8ed392f2d522691a9c54554ff1465e8cf3c22c690ce326d0a",
+      "canonicalSha256": "a21c090e64e15ca40aa94929bd2fe10bf535c7b77b1f8e23b194978af2326168",
+      "uncompressedBytes": 404984,
+      "compressedBytes": 39104,
+      "partCount": 89,
+      "fitCount": 51,
+      "factoryEvidence": {
+        "baselinePowerW": 1e+25,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 51,
+            "p": [
+              54,
+              136.8,
+              -233.6
+            ]
+          },
+          {
+            "id": 52,
+            "p": [
+              54,
+              136.8,
+              0
+            ]
+          },
+          {
+            "id": 53,
+            "p": [
+              54,
+              136.8,
+              233.6
+            ]
+          },
+          {
+            "id": 54,
+            "p": [
+              79,
+              92.9,
+              -116.6
+            ]
+          },
+          {
+            "id": 55,
+            "p": [
+              79,
+              180.6,
+              -116.6
+            ]
+          },
+          {
+            "id": 56,
+            "p": [
+              79,
+              92.9,
+              116.6
+            ]
+          },
+          {
+            "id": 57,
+            "p": [
+              79,
+              180.6,
+              116.6
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

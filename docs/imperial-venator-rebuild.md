@@ -1,5 +1,7 @@
 # Imperial I and Venator examples, rebuilt on the supplied models
 
+The Imperial I layout was subsequently updated from the user's Imperial II blueprint, and Imperial II was added as a separate example. See [the current Imperial I/II layout](imperial-i-ii-user-layout.md). The measurements and checks below record the earlier model rebuild.
+
 Both examples were rebuilt on 2026-11-06 from the models the user supplied:
 
 - **Imperial I:** "Imperial I-class Star Destroyer" by LarsH, CC BY 4.0, measured at a length of 1,600 m.

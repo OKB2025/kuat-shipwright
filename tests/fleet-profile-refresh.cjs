@@ -5,7 +5,7 @@ function setup(realAsset=false){
  const cx=vm.createContext({console:{warn(){}}}),run=code=>vm.runInContext(code,cx);
  run(`const requests=[],replies=[],messages=[],worlds=[],titles=[];let busy=0,hidden=0,rendered=0,advanced=0;
  const C={FLEET_PROFILE_VERSION:2,emptyDesignProfile:p=>({...p}),DESIGN_FACTIONS:{empire:1},builtinComplement:key=>({air:[],ground:[]})};
- const R={designInfo:(s,p)=>({len:p.len,version:p.profileVersion}),FACTIONS:{empire:{name:'Empire'}},defaultAir:()=>[],makeSector:()=>({})};
+ const R={scenarioCosts:()=>[],designInfo:(s,p)=>({len:p.len,version:p.profileVersion}),FACTIONS:{empire:{name:'Empire'}},defaultAir:()=>[],makeSector:()=>({})};
  const voy={designs:new Map(),pending:new Map(),setup:{own:'empire',foe:'empire',seedFixed:true},screen:'setup',ops:{},sel:{}},voyDesign=key=>voy.designs.get(key),voyShipDesign=sh=>voyDesign(sh.key)||voyDesign(sh.src);
  const fleet={assets:new Map()},view={fleetCache:new Map(),loadFleet(key,geometry){if(!this.fleetCache.has(key))this.fleetCache.set(key,geometry);return this.fleetCache.get(key);}},Rts={CRAFT:{}};
  ${realAsset?'const YardEngineClient={request:(type,payload)=>{requests.push(payload.key);return new Promise((resolve,reject)=>replies.push({key:payload.key,payload,resolve,reject}));}};':'const fleetAsset=key=>{requests.push(key);return new Promise((resolve,reject)=>replies.push({key,resolve,reject}));};'}

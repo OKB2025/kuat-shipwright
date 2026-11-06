@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "provenance": "user-supplied-editable-ship-layout",
+  "originalFilename": "インペリアルII級｜重砲戦艦.json",
+  "sourceFile": "imperial-ii-upload.json",
+  "sourceBytes": 169496,
+  "sourceSha256": "914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b",
+  "sourceFormat": "starship-yard",
+  "sourceVersion": 3,
+  "sourceName": "インペリアルII級｜重砲戦艦",
+  "sourceReference": "imperial",
+  "sourceIntegrity": "The original uploaded file is preserved byte-for-byte. Runtime examples clone the parsed source; system refits do not rewrite this archive.",
+  "runtimeData": {
+    "file": "data/imperial2.js",
+    "declaration": "IMPERIAL_USER_LAYOUT",
+    "schema": "raw version-3 ship object",
+    "parsedSourceSha256": "914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b",
+    "preservedAssetPrefixBytes": 182573,
+    "preservedAssetPrefixSha256": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b"
+  },
+  "inventory": {
+    "file": "layout-inventory.json",
+    "sha256": "5c442fd437ebbced65684c3642658ac40d01603f092227d65baadad8e414da2f"
+  },
+  "expectedSourceLayout": {
+    "structuralRecords": 26,
+    "fits": 51,
+    "mainBattery": {
+      "kind": "oct40",
+      "count": 8,
+      "ids": [
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114
+      ]
+    },
+    "mediumBattery": {
+      "kind": "triple40",
+      "count": 9
+    },
+    "sideBattery": {
+      "kind": "quad70Side",
+      "count": 2
+    },
+    "pointDefense": {
+      "kind": "pd",
+      "count": 20
+    },
+    "tractorBeams": {
+      "kind": "trc",
+      "count": 10
+    }
+  },
+  "imperialIMapping": {
+    "ion": [
+      107,
+      108
+    ],
+    "stl": [
+      109,
+      110,
+      111,
+      112,
+      113,
+      114
+    ],
+    "perBarrelTT": 175,
+    "barrels": 2
+  },
+  "derivedStateNote": "Seven historical engine bodies and stale connections to removed weapon IDs are not the current system-layout authority. Both current examples rebuild shared machinery and their real power/strict-heat connections while retaining the supplied structural and gun poses."
+}
