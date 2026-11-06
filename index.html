@@ -473,6 +473,7 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
 .engine-status.geo::before { background: var(--accent); }
 .statstrip.stale b, .spec.stale .kv dd, .spec.stale .spec-cls { opacity: .55; transition: opacity .2s; }
 .busy { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: var(--busy-veil); }
+.busy.background { inset: auto 12px 72px auto; pointer-events: none; background: transparent; }
 .busy-card { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 10px; font-size: 13px; }
 .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-2); border-top-color: var(--accent); animation: ks-spin .8s linear infinite; }
 @keyframes ks-spin { to { transform: rotate(360deg); } }
@@ -1615,7 +1616,7 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 <script>/* The English catalog (~0.9 MB) is loaded only when the page starts in English (same rule as js/i18n.js); a Japanese start goes on without it, and switching language fetches it then. */
 window.KS_EN_SRC="js/lang-en.js?v=b923c12048";(function(){var l;try{l=localStorage.getItem("yard.language")}catch(e){}if(l==="en"||l!=="ja"&&!/^ja\b/i.test(navigator.language||"ja"))document.write('<script src="'+window.KS_EN_SRC+'"><\/script>');})();</script>
 <script src="js/i18n.js?v=4b3c56c2bb"></script>
-<script>window.KS_FILES={"data":["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],"core":"js/core.js","gfx":"js/gfx.js","engine":"js/engine.js","app":"js/app.js","worker":"js/worker.js","sizes":{"data/reference.js":17871345,"data/textures.js":561583,"data/imperial2.js":182573,"data/fleet.js":4448186,"js/core.js":3240140,"js/gfx.js":312290,"js/engine.js":34673,"js/app.js":1680594}};</script>
+<script>window.KS_FILES={"data":["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],"core":"js/core.js","gfx":"js/gfx.js","engine":"js/engine.js","app":"js/app.js","worker":"js/worker.js","sizes":{"data/reference.js":17871345,"data/textures.js":561583,"data/imperial2.js":182573,"data/fleet.js":4448186,"js/core.js":3240305,"js/gfx.js":312290,"js/engine.js":34673,"js/app.js":1682882}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
