@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "Full production page, actual worker startup and native touch with compatibility click suppressed and a never-settling interrupted AudioContext. The real archived draft stays deferred; no Continue, ship construction or replacement physics. Chromium is not a physical Safari verification.",
+  "head": "260f7ff266ae933878dee0f59259b908e6ca42fa",
+  "harnessSha256": "3839476bdf21cb5fc6e8c3ff40266266ef7e6d4ba730b98601f4cf0036719197",
+  "sourceSha256": {
+    "index.html": "ab6b050871e1c0b0ca6703119c6777a5f6987a4bc7c3a5e21971c98284c25639",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "3508b3e5c4de1df83bed1546ee0dde341d4a2cf781428531dc4eff8081c7301f",
+    "js/core.js": "370b0a3ad10b4ac8e82d17b93854b1ac9ca3a7482594b1d16f1f06961af5bf44",
+    "js/gfx.js": "74065ffa2ee592de8dca7f83a5444a262a8a314e9680cb624ffc872d602893cb",
+    "js/app.js": "63fa907413ee76c9e399fc62720f894db564b86f24f6462dc39c06ae458e8364",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "d52178ad2655371a2532bd5f00a2c2bac8f716203a7b2d57aa9bf8b74dec33f5"
+  },
+  "servedSourceSha256": {
+    "index.html": "ab6b050871e1c0b0ca6703119c6777a5f6987a4bc7c3a5e21971c98284c25639",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "3508b3e5c4de1df83bed1546ee0dde341d4a2cf781428531dc4eff8081c7301f",
+    "js/core.js": "370b0a3ad10b4ac8e82d17b93854b1ac9ca3a7482594b1d16f1f06961af5bf44",
+    "js/gfx.js": "74065ffa2ee592de8dca7f83a5444a262a8a314e9680cb624ffc872d602893cb",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/app.js": "63fa907413ee76c9e399fc62720f894db564b86f24f6462dc39c06ae458e8364"
+  },
+  "sourceSha256After": {
+    "index.html": "ab6b050871e1c0b0ca6703119c6777a5f6987a4bc7c3a5e21971c98284c25639",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "3508b3e5c4de1df83bed1546ee0dde341d4a2cf781428531dc4eff8081c7301f",
+    "js/core.js": "370b0a3ad10b4ac8e82d17b93854b1ac9ca3a7482594b1d16f1f06961af5bf44",
+    "js/gfx.js": "74065ffa2ee592de8dca7f83a5444a262a8a314e9680cb624ffc872d602893cb",
+    "js/app.js": "63fa907413ee76c9e399fc62720f894db564b86f24f6462dc39c06ae458e8364",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "d52178ad2655371a2532bd5f00a2c2bac8f716203a7b2d57aa9bf8b74dec33f5"
+  },
+  "sourceStable": true,
+  "before": {
+    "mode": "worker",
+    "gen": 0,
+    "parts": 91,
+    "fits": 51,
+    "deferred": true
+  },
+  "after": {
+    "mode": "worker",
+    "gen": 0,
+    "deferred": true,
+    "locked": false,
+    "titleVisible": true,
+    "events": [
+      {
+        "type": "pointerup",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "trusted": true
+      }
+    ],
+    "resumeCalls": 4
+  },
+  "elapsedMs": 321,
+  "archiveInput": {
+    "file": "assets/source/imperial-shared-core-factory-blueprints/imperial.json.gz",
+    "gzipSha256": "118a4432e025559937b4bcbd00507d14c1a260fe09e09bfe49f16b72fecfc8f7",
+    "uncompressedSha256": "7f8f58f680e3f0dc40c25356e8673a0cfb6df31111625ec1c2f0b109622e5942",
+    "parts": 91,
+    "fits": 51
+  },
+  "storedDraftBeforeAndAfterTapSha256": "8e8e1a6fef90c422b141c507d7cee001409a4b3c413e2d65526dfbd880e5e333",
+  "note": "Existing production startup canonically serializes the archived JSON before the gesture. Touch entry preserves that saved value and every part/fitting count; no private draft bytes are included.",
+  "errors": [],
+  "completedAt": "2026-11-06T17:37:16.847Z"
+}
