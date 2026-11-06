@@ -30,10 +30,20 @@ test('moving the independent core preserves the actual nozzle bell meshes',()=>{
  const after=G.meshParts(ship,{coded:false});for(const n of nozzles){assert.ok(n.geometry.length>0);assert.deepEqual(trianglesForPart(after,n.id),n.geometry);assert.deepEqual(plain(ship.parts.find(p=>p.id===n.id).c),n.c);}
 });
 
-test('normal propulsion hardware uses metal housings while coded view distinguishes the two physical networks',()=>{
- const ship=fixture(),mesh=G.meshParts(ship,{coded:false}),coded=G.meshParts(ship,{coded:true}),electrical=C.engineTransmission(ship),drive=C.engineDriveRoutes(ship);
- assert.ok(electrical.parts.length>0&&drive.parts.length===2);for(const p of electrical.parts){assert.ok(hasColor(mesh,p.id,[125,137,148]),'the electrical feed has its own metal conductor');assert.ok(hasColor(coded,p.id,[107,177,198]),'coded view identifies electrical feeds');assert.equal(hasColor(mesh,p.id,[107,177,198]),false);}
- for(const p of drive.parts){assert.ok(hasColor(mesh,p.id,[110,124,137]),'a continuous steel pressure shell follows the drive');assert.ok(hasColor(mesh,p.id,[166,178,188]),'physical ribs and terminal flanges have a separate metal finish');assert.ok(hasColor(coded,p.id,[218,162,72]),'coded view identifies mechanical transmission');assert.equal(hasColor(mesh,p.id,[218,162,72]),false);assert.ok((mesh.ranges[p.id]||[]).length>0);}
+test('only machinery-to-nozzle housings are drawn; power feeds retain their physical circuits',()=>{
+ const ship=fixture(),electrical=C.engineTransmission(ship),drive=C.engineDriveRoutes(ship),physical=()=>C.publicJSON({electrical,drive}),before=physical(),authored=C.publicJSON(ship.parts),mesh=G.meshParts(ship,{coded:false}),coded=G.meshParts(ship,{coded:true});
+ assert.ok(electrical.parts.length>0&&drive.parts.length===2);for(const p of electrical.parts){assert.equal(G.isHiddenEngineFeed(p),true);for(const m of [mesh,coded]){assert.equal(trianglesForPart(m,p.id).length,0,'electrical feeds contribute no visible vertices or indices');assert.equal(m.ranges[p.id],undefined,'no selectable GPU range is allocated to an invisible feed');}}
+ for(const p of drive.parts){assert.equal(G.isHiddenEngineFeed(p),false);assert.ok(hasColor(mesh,p.id,[110,124,137]),'a continuous steel pressure shell follows the drive');assert.ok(hasColor(mesh,p.id,[166,178,188]),'physical ribs and terminal flanges have a separate metal finish');assert.ok(hasColor(coded,p.id,[218,162,72]),'coded view identifies mechanical transmission');assert.equal(hasColor(mesh,p.id,[218,162,72]),false);assert.ok((mesh.ranges[p.id]||[]).length>0);}
+ assert.equal(physical(),before,'drawing preserves capacity, efficiency, losses, mass, cost and occupied route geometry');assert.equal(C.publicJSON(ship.parts),authored);
+});
+
+test('electrical feeds stay invisible in exterior entries, diagnostic warnings, outlines and cached previews',()=>{
+ const ship=fixture(),electrical=C.engineTransmission(ship),drive=C.engineDriveRoutes(ship),feed=electrical.parts[0],hidden={...feed,ok:false,segments:feed.segments.map(s=>({...s,exteriorEntry:true,housing:true}))},paths=C.enginePaths,physical=C.publicJSON(electrical);
+ try{C.enginePaths=()=>[hidden,...drive.parts];for(const coded of [false,true]){const mesh=G.meshParts(ship,{coded,info:{[hidden.id]:{overlap:true}}});assert.equal(mesh.ranges[hidden.id],undefined,'neither engine nor interior layers expose an electrical exterior entry');for(const p of drive.parts)assert.ok(mesh.ranges[p.id]?.length);}}
+ finally{C.enginePaths=paths;}
+ const hiddenLines=G.lineSet();hiddenLines.part(hidden,[255,0,0,255]);assert.equal(hiddenLines.out().pos.length,0,'an old inspection or warning cannot redraw the invisible circuit');const shaftLines=G.lineSet();shaftLines.part(drive.parts[0],[255,255,255,255]);assert.ok(shaftLines.out().pos.length>0,'mechanical path outlines remain available');
+ for(const coded of [false,true]){const preview=G.meshPreview(ship,[hidden],[],{coded,incremental:true,progressive:true,revision:1});for(const name of ['preview','previewRef','previewFits','previewRefFits'])assert.equal(preview[name].ni,0,'electrical feeds have no cached preview geometry');assert.equal(preview.pending,false);}
+ assert.equal(C.publicJSON(electrical),physical,'visibility never deletes or rewrites the electrical network');
 });
 
 test('core and nozzle live previews do not solve either complete route network',()=>{

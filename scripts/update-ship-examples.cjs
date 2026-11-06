@@ -52,17 +52,20 @@ function generateEntryFromShip(C,R,key,ship,previous,sources,options={}){
  return entry;
 }
 function createPatch(C,entries,sources,baselineSha){return {schemaVersion:1,baselineSha,sourceSha256:sources,profileVersion:C.FLEET_PROFILE_VERSION,costVersion:C.COST_MODEL.version,costSignature:C.costModelSignature(),entries:Object.fromEntries(Object.entries(entries).map(([key,entry])=>[key,compactCatalogEntry(entry)]))};}
-function mergePatches(data,patches,C,sources){
- const entries={};
+function mergePatches(data,patches,C,sources,options={}){
+ const additions=options.allowNewKeys??[];
+ if(!Array.isArray(additions)||new Set(additions).size!==additions.length||additions.some(key=>typeof key!=='string'||data.designs[key]||!C.DESIGNS[key]||!Array.from(C.SHIP_SYSTEM_REFIT_KEYS||[]).includes(key)||C.SHIP_EXAMPLES[key]?.craft||key.startsWith('craft_')))throw new Error('Invalid explicitly approved catalogue additions');
+ const allowed=new Set(additions),entries={};
  for(const patch of patches){
   if(patch.schemaVersion!==1||patch.profileVersion!==C.FLEET_PROFILE_VERSION||patch.costVersion!==C.COST_MODEL.version||patch.costSignature!==C.costModelSignature()||stable(patch.sourceSha256)!==stable(sources))throw new Error('Fleet patch was generated from different model sources');
   for(const [key,entry]of Object.entries(patch.entries||{})){
-   if(!data.designs[key]||!C.DESIGNS[key]||key.startsWith('craft_'))throw new Error('Unknown fleet patch entry: '+key);
+   if((!data.designs[key]&&!allowed.has(key))||!C.DESIGNS[key]||key.startsWith('craft_'))throw new Error('Unknown fleet patch entry: '+key);
    if(entry.key!==key||entry.p?.profileVersion!==C.FLEET_PROFILE_VERSION||entry.model?.profileVersion!==C.FLEET_PROFILE_VERSION||entry.model?.costVersion!==C.COST_MODEL.version||entry.model?.costSignature!==C.costModelSignature()||stable(entry.model?.sourceSha256)!==stable(sources))throw new Error('Inconsistent fleet patch entry: '+key);
    const compact=compactCatalogEntry(entry);if(entries[key]&&stable(entries[key])!==stable(compact))throw new Error('Conflicting fleet patch entries: '+key);
    entries[key]=compact;
   }
  }
+ for(const key of additions)if(!entries[key])throw new Error('Approved catalogue addition has no generated entry: '+key);
  return {...plain(data),designs:{...plain(data.designs),...plain(entries)}};
 }
 function parseArgs(args){

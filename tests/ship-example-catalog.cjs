@@ -1,21 +1,21 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{test}=require('node:test');
 const {loadRuntime,exampleKeys,sourceHashes,stable}=require('../scripts/update-ship-examples.cjs'),crypto=require('node:crypto');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),plain=value=>JSON.parse(JSON.stringify(value));
-const fingerprint=value=>crypto.createHash('sha256').update(stable(value)).digest('hex'),scopedReport=()=>JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/shared-engine-core-refit.json'),'utf8'));
+const fingerprint=value=>crypto.createHash('sha256').update(stable(value)).digest('hex'),scopedReport=()=>JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/imperial-i-ii-layout-refit.json'),'utf8'));
 test('stock rows retain their declared generating sources and require a worker profile before sailing',()=>{
  const {C,data}=loadRuntime(root),keys=exampleKeys(C,data),sources=sourceHashes(root);
- const refreshed=scopedReport();assert.deepEqual(refreshed.sourceSha256,sources);assert.deepEqual(refreshed.allKeys,['imperial','onager']);assert.equal(refreshed.verificationScope.kind,'selected-stock-models');assert.equal(refreshed.verificationScope.unverifiedKeys.length,25);
+ const refreshed=scopedReport();assert.deepEqual(refreshed.sourceSha256,sources);assert.deepEqual(refreshed.allKeys,['imperial','imperial2']);assert.equal(refreshed.verificationScope.kind,'selected-stock-models');assert.equal(refreshed.verificationScope.unverifiedKeys.length,26);assert.equal(keys.length,28);
  assert.deepEqual(keys,Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort());
  for(const key of keys){
   const entry=data.designs[key],p=entry.p,model=entry.model;
-  assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION,key+' current fleet model');
   assert.equal(p.catalogOnly,true,key+' metadata must require a complete worker profile before sailing');
   assert.equal(p.surface,undefined,key+' large physical surface meshes stay out of the catalogue');
   assert.ok(JSON.stringify(p).length<8*1024*1024,key+' bounded catalogue engineering metadata');
-  assert.equal(model?.costVersion,C.COST_MODEL.version,key+' current cost model');
-  assert.equal(model?.costSignature,C.costModelSignature(),key+' current engineering price coefficients');
-  if(['imperial','onager'].includes(key))assert.deepEqual(plain(model?.sourceSha256),sources,key+' exact fresh generating sources');
-  else{const control=refreshed.controls.catalogue[key];assert.ok(control,key+' independently recorded unchanged row');assert.equal(fingerprint(entry),control.sha256,key+' entire unselected catalogue row is unchanged');assert.deepEqual(plain(model?.sourceSha256),control.sourceSha256,key+' original generating sources are retained');}
+  if(['imperial','imperial2'].includes(key)){
+   assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION,key+' current freshly generated fleet model');assert.equal(model?.profileVersion,C.FLEET_PROFILE_VERSION,key+' current generation metadata');assert.equal(model?.costVersion,C.COST_MODEL.version,key+' current cost model');assert.equal(model?.costSignature,C.costModelSignature(),key+' current engineering price coefficients');assert.deepEqual(plain(model?.sourceSha256),sources,key+' exact fresh generating sources');
+  }else{
+   const control=refreshed.controls.catalogue[key];assert.ok(control,key+' independently recorded unchanged row');assert.equal(fingerprint(entry),control.sha256,key+' entire unselected catalogue row, including its original cost signature, is unchanged');assert.deepEqual(plain(model?.sourceSha256),control.sourceSha256,key+' original generating sources are retained');assert.equal(p.profileVersion,17,key+' authenticated historical fleet schema remains17');assert.equal(model?.profileVersion,17,key+' historical generation metadata remains17');
+  }
   assert.match(model.blueprintSha256,/^[a-f0-9]{64}$/);
   assert.ok(Number.isFinite(entry.info.mass)&&entry.info.mass>0,key+' finite physical mass');
   assert.ok(Math.abs(p.propulsion.massKg-entry.info.mass*1000)<=entry.info.mass*1e-5,key+' catalogue mass matches its propulsion ledger');
@@ -32,22 +32,42 @@ test('stock rows retain their declared generating sources and require a worker p
  }
 });
 
-test('the ISD catalogue binds three main outlets to one body and each vertical auxiliary pair to its own body',()=>{
- const {data}=loadRuntime(root),p=data.designs.imperial.p,model=p.propulsion,cores=new Map((model.cores||[]).map(core=>[core.id,core])),main=model.engines.filter(outlet=>/主イオン機関/.test(p.modules[outlet.moduleIndex]?.name||'')),aux=model.engines.filter(outlet=>/補助イオン機関/.test(p.modules[outlet.moduleIndex]?.name||''));
+test('both ISD catalogues bind three main outlets to one body and each vertical auxiliary pair to its own body',()=>{
+ const {data}=loadRuntime(root);for(const key of ['imperial','imperial2']){const p=data.designs[key].p,model=p.propulsion,cores=new Map((model.cores||[]).map(core=>[core.id,core])),main=model.engines.filter(outlet=>/主イオン機関/.test(p.modules[outlet.moduleIndex]?.name||'')),aux=model.engines.filter(outlet=>/補助イオン機関/.test(p.modules[outlet.moduleIndex]?.name||''));
  assert.equal(model.architectureVersion,2);assert.equal(main.length,3);assert.equal(aux.length,4);const owner=outlet=>outlet.coreId??outlet.machineryId;
  for(const outlet of [...main,...aux]){const core=cores.get(owner(outlet));assert.ok(core&&core.id>0,'each nozzle has its own explicit body reference');assert.equal(core.entityKind,'engineCore');assert.notEqual(core.id,outlet.id,'an internal nozzle cannot become its own implicit body');}
  assert.equal(new Set(main.map(owner)).size,1,'the three main nozzles share one real engine');const auxiliaryOwners=new Set(aux.map(owner));assert.equal(auxiliaryOwners.size,2,'each vertical auxiliary pair shares one real engine');assert.equal(cores.size,3);for(const id of auxiliaryOwners)assert.equal(aux.filter(outlet=>owner(outlet)===id).length,2);assert.ok(main.every(outlet=>!auxiliaryOwners.has(owner(outlet))),'main and auxiliary engines cannot share one physical body');
+ }
 });
 
 test('the two scoped fresh archives and figure digests match the complete physical audit',()=>{
  const report=scopedReport(),{data}=loadRuntime(root),figures=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/example-figures.json')));
- assert.equal(report.complete,true);assert.equal(report.physicalVerification.passed,true);assert.equal(report.portableVerification.verified,true);assert.equal(report.orchestration.constructorCalls,2);assert.equal(report.generationMethods.currentFactoryBuilds,2);assert.equal(report.generationMethods.savedBlueprintReplays,0);assert.equal(Object.keys(report.controls.catalogue).length,25);
- for(const key of ['imperial','onager']){
-  const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/'+key+'-shared-core-factory-blueprints/manifest.json'))),proof=report.propulsionEvidence[key],row=report.models.find(row=>row.key===key),stage=report.orchestration.stages.find(stage=>stage.key===key);
+ assert.equal(report.complete,true);assert.equal(report.physicalVerification.passed,true);assert.equal(report.portableVerification.verified,true);assert.equal(report.orchestration.constructorCalls,2);assert.equal(report.generationMethods.currentFactoryBuilds,2);assert.equal(report.generationMethods.savedBlueprintReplays,0);assert.equal(Object.keys(report.controls.catalogue).length,26);assert.equal(Object.keys(report.controls.figures).length,38);assert.deepEqual(report.catalogueAdditions,['imperial2']);
+ for(const key of ['imperial','imperial2']){
+  const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/'+key+'-user-layout-factory-blueprints/manifest.json'))),proof=report.propulsionEvidence[key],row=report.models.find(row=>row.key===key),stage=report.orchestration.stages.find(stage=>stage.key===key);
   assert.deepEqual(Object.keys(manifest.models),[key]);assert.equal(manifest.factoryGeneration.method,'fresh-factory');assert.deepEqual(manifest.factorySourceSha256,report.sourceSha256);assert.equal(manifest.models[key].canonicalSha256,data.designs[key].model.blueprintSha256);assert.equal(report.figureDigestSha256[key],fingerprint(figures.ships[key]));assert.equal(stage.constructorCalls,1);for(const field of ['scriptSha256','auditorSha256','constructorBlueprintSha256','finalBlueprintSha256'])assert.match(stage[field],/^[a-f0-9]{64}$/);
-  for(const field of ['expectedOwnerGroups','allShaftsAtRequestedCapacity','allOutletsFlow','sourcePayloadPreserved','referencePayloadValid','allAuxiliariesBetweenMainPaths'])assert.equal(proof[field],true,key+' '+field);assert.equal(proof.shafts.length,key==='imperial'?7:5);assert.ok(proof.shafts.every(row=>row.valid&&!row.limited&&row.capacitySatisfied));assert.ok(proof.outletFlows.every(row=>row.actualThrustN>0));assert.equal(row.plant.baselinePowerPreserved,true);assert.equal(row.plant.addedReactorCount,0);assert.equal(row.thermal.mode,'strict');assert.equal(row.engineBodies.explicitCoreCount,3);assert.deepEqual(row.engineBodies.bodyIntersections,[]);assert.deepEqual(row.engineBodies.deviceIntersections,[]);
+  for(const field of ['expectedOwnerGroups','allShaftsAtRequestedCapacity','allOutletsFlow','sourcePayloadPreserved','referencePayloadValid','allAuxiliariesBetweenMainPaths'])assert.equal(proof[field],true,key+' '+field);assert.equal(proof.shafts.length,7);assert.ok(proof.shafts.every(row=>row.valid&&!row.limited&&row.capacitySatisfied));assert.ok(proof.outletFlows.every(row=>row.actualThrustN>0));assert.equal(row.plant.baselinePowerPreserved,true);assert.equal(row.plant.addedReactorCount,0);assert.equal(row.thermal.mode,'strict');assert.equal(row.engineBodies.explicitCoreCount,3);assert.deepEqual(row.engineBodies.bodyIntersections,[]);assert.deepEqual(row.engineBodies.deviceIntersections,[]);assert.deepEqual(row.overlapIds,[]);
+  for(const phase of ['initialLayoutEvidence','layoutEvidence'])for(const field of ['structuralLayoutPreserved','allFittingPosesPreserved','weaponKindsCorrect','nozzleAppearancePreserved'])assert.equal(report[phase][key][field],true,key+' '+phase+' '+field);
+  assert.deepEqual(report.occupiedGeometry[key].ungrounded,{parts:[],fits:[]});
  }
  for(const [key,hash]of Object.entries(report.controls.figures))assert.equal(fingerprint(figures.ships[key]),hash,key+' unselected figure digest is unchanged');
+});
+
+test('the new I and II catalogue rows use their own main batteries and retain the uploaded supporting armament',()=>{
+ const {C,data}=loadRuntime(root),report=scopedReport(),common={triple40:9,quad70Side:2,pd:20,trc:10,podAir:1,podHangar:1};
+ assert.deepEqual(report.models.find(row=>row.key==='imperial').weaponCounts,{...common,stl:6,ion:2});assert.deepEqual(report.models.find(row=>row.key==='imperial2').weaponCounts,{...common,oct40:8});for(const kind of ['stl','ion']){assert.equal(C.FITS[kind].barrels,2);assert.equal(C.FITS[kind].boltTT,175);}assert.notEqual(data.designs.imperial.model.blueprintSha256,data.designs.imperial2.model.blueprintSha256);assert.equal(data.designs.imperial.faction,'empire');assert.equal(data.designs.imperial2.faction,'empire');
+});
+
+test('final I and II archives preserve complete source array shapes rather than only matching source prefixes',()=>{
+ const {readBlueprint}=require('../scripts/replay-ship-examples.cjs'),source=JSON.parse(fs.readFileSync(path.join(root,'assets/source/imperial-ii-user-layout/imperial-ii-upload.json'))),layoutFields=['hull','cuts','trenches','solidCuts','subs','hatches','armor'],derivedFitFields=new Set(['k','base','low','slope','mountSupport','float','chargeDepth','batteryZone']);
+ const arrays=(actual,expected,label)=>{if(Array.isArray(expected)){assert.ok(Array.isArray(actual),label+' remains an array');assert.equal(actual.length,expected.length,label+' complete array length');for(let i=0;i<expected.length;i++)arrays(actual[i],expected[i],label+'['+i+']');}else if(expected&&typeof expected==='object'){assert.ok(actual&&typeof actual==='object',label+' remains an object');for(const field of Object.keys(expected))arrays(actual[field],expected[field],label+'.'+field);}};
+ for(const key of ['imperial','imperial2']){const directory=path.join(root,'assets/source/'+key+'-user-layout-factory-blueprints'),manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json'))),{blueprint}=readBlueprint(directory,key,manifest);for(const field of layoutFields)arrays(blueprint[field],source[field],key+'.'+field);for(const part of source.parts.filter(p=>p.k==='struct'))arrays(blueprint.parts.find(p=>p.id===part.id),part,key+'.structure'+part.id);assert.equal(blueprint.fits.length,51);for(const fit of source.fits){const actual=blueprint.fits.find(p=>p.id===fit.id);for(const field of Object.keys(fit).filter(field=>!derivedFitFields.has(field)))arrays(actual[field],fit[field],key+'.fit'+fit.id+'.'+field);}}
+ assert.throws(()=>arrays([1,2,3,4],[1,2,3],'negative-extra-point'),/complete array length/);
+});
+
+test('the previous shared-core archives remain historical evidence and still authenticate retained Onager metadata',()=>{
+ const report=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/shared-engine-core-refit.json'))),{data}=loadRuntime(root);assert.deepEqual(report.allKeys,['imperial','onager']);assert.equal(report.generationMethods.currentFactoryBuilds,2);assert.equal(report.physicalVerification.passed,true);
+ for(const key of ['imperial','onager']){const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/'+key+'-shared-core-factory-blueprints/manifest.json'))),row=report.models.find(row=>row.key===key);assert.deepEqual(manifest.factorySourceSha256,report.sourceSha256);assert.equal(manifest.models[key].canonicalSha256,row.generation.outputCanonicalSha256);if(key==='onager')assert.equal(manifest.models[key].canonicalSha256,data.designs[key].model.blueprintSha256);}
 });
 
 test('the Onager catalogue has one three-outlet main body and two independent auxiliary bodies',()=>{

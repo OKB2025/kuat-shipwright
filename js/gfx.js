@@ -1867,6 +1867,9 @@ Renderer.prototype.shadowFleet = function (list) {
 };
 
 // ---------- line helpers ----------
+// Electrical feeds remain physical circuits, like the other equipment's power
+// links. Only the separate machinery-to-nozzle drive housings are displayed.
+function isHiddenEngineFeed(p){return !!(p?.k==='machinery'&&p.transmission&&!p.drivetrain);}
 function lineSet() {
   const pos = [], col = [];
   return {
@@ -1881,6 +1884,7 @@ function lineSet() {
       for (let k = 0; k <= n; k++) { const a = k / n * Math.PI * 2, p = [cen[0] + (u[0] * Math.cos(a) + v[0] * Math.sin(a)) * r, cen[1] + (u[1] * Math.cos(a) + v[1] * Math.sin(a)) * r, cen[2] + (u[2] * Math.cos(a) + v[2] * Math.sin(a)) * r]; if (prev) this.seg(prev, p, c); prev = p; }
     },
     part(pt, c) {
+      if(isHiddenEngineFeed(pt))return;
       const weaponBody=C.superweaponShape?.(pt);if(weaponBody){this.part(weaponBody,c);return;}
       if(pt._packing){for(const b of pt._packing.boxes)this.box(b,c);return;}
       const sh = C.PARTS[pt.k].shape;
@@ -1941,7 +1945,7 @@ function shipBounds(ship) {
   const rb=C.referenceHullGeometry(ship)?.bounds;if(rb)for(let k=0;k<3;k++){b[k]=Math.min(b[k],rb[k]);b[k+3]=Math.max(b[k+3],rb[k+3]);}
   // Frame the displayed bells; Core's saved-skin bounds also serve physical statistics.
   for (const pt of ship.parts) { const a = (pt.k==='engine'&&C.engineSkinMesh(pt)?.b)||C.refPartBounds(pt)||C.partAABB(pt); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
-  for(const pt of C.enginePaths(ship)){const a=C.partAABB(pt);for(let k=0;k<3;k++){b[k]=Math.min(b[k],a[k]);b[k+3]=Math.max(b[k+3],a[k+3]);}}
+  for(const pt of C.enginePaths(ship)){if(isHiddenEngineFeed(pt))continue;const a=C.partAABB(pt);for(let k=0;k<3;k++){b[k]=Math.min(b[k],a[k]);b[k+3]=Math.max(b[k+3],a[k+3]);}}
   for (const f of surfaceRenderFits(ship)) { const a = C.fitAABB(f); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
   if(ship.surfaces?.patches?.length&&typeof C.surfacePatches==='function')for(const p of C.surfacePatches(ship)){const t=p.config?.armor?.thickness||0;if(!p.exposed||!(t>0)||!ship.surfaces.patches.some(q=>q.id===p.id))continue;const T=surfaceTriangles(p);for(let i=0;i<T.length;i+=3)for(let a=0;a<3;a++){const v=T[i+a]+p.normal[a]*t;b[a]=Math.min(b[a],v);b[a+3]=Math.max(b[a+3],v);}}
   if (!isFinite(b[1])) { b[1] = 0; b[4] = ship.hull.H; b[2] = -ship.hull.W / 2; b[5] = ship.hull.W / 2; }
@@ -1981,6 +1985,7 @@ function v3MeshParts(ship,opt){
 }
 // One part into the group meshes (shared by the full build and the live preview).
 function meshOnePart(out,p,ship,opt,glow){
+    if(isHiddenEngineFeed(p))return;
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
     if(p.surfacePatch&&p.surfaceUnplaced)return;
     if(C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled&&C.hullStructureGeometry(ship,p).referenceSkin)return;
@@ -2995,6 +3000,7 @@ function clearPreviewCache(ship){
 // Keep unchanged draft chunks and GPU buffers while the worker builds. New
 // or edited items take priority; the remaining initial draft fills while idle.
 function meshPreview(ship,parts,fits,opt={}){
+ parts=parts.filter(p=>!isHiddenEngineFeed(p));
  let cache=PREVIEW_SHIPS.get(ship);if(!cache){cache={parts:new Map(),fits:new Map(),visible:new Map(),contextVersion:0,environmentVersion:0};PREVIEW_SHIPS.set(ship,cache);}
  const revision=opt.progressive&&Number.isFinite(opt.revision)?opt.revision:null,stamp=revision==null?null:revision+':'+!!opt.coded+':'+parts.length+':'+fits.length;
  let plan=stamp!=null&&cache.plan?.stamp===stamp?cache.plan:null;
@@ -3384,6 +3390,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, clearPreviewCache, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
+return {meshPreview, clearPreviewCache, isHiddenEngineFeed, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
 })();
 

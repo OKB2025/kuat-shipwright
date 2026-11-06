@@ -25,7 +25,7 @@ function setup(){
 test('engine editor exposes independent machinery and fixed profiles with honest unresolved endurance',()=>{
  const run=setup(),html=run('engineSpecControls(selItem())');
  for(const field of ['ratedInputW','driveProfileId','machineryGradeId','machineryDiameterM','machineryLengthM','machineryOffsetM','d','nozzleLength'])assert.match(html,new RegExp('data-engine-field="'+field+'"'));
- assert.doesNotMatch(html,/data-engine-field="wattsPerNewton"/);assert.match(html,/入力から推力への係数（固定）/);assert.match(html,/未判定（熱平衡未解決）/);
+ assert.doesNotMatch(html,/data-engine-field="wattsPerNewton"/);assert.match(html,/入力から推力への係数（密度を反映）/);assert.match(html,/未判定（熱平衡未解決）/);
  assert.doesNotMatch(html,/<option value="legacy/);assert.match(html,/data-engine-field="ratedInputW"[^>]*max="/);
 });
 test('nozzle-only edits preserve each machine rating and geometry through Undo and Redo',()=>{
@@ -86,6 +86,13 @@ test('pending generic and model engines preserve rated machinery across appearan
  assert.equal(run('pendingGenericEngine().d'),2);assert.equal(run('engineSpecAction("nozzleLength",.8,true)'),true);assert.deepEqual(plain(run('engineSpecSnapshot(pendingGenericEngine())')),generic);
  run('st.equipmentId="internalTurbine"');const model=plain(run('engineSpecSnapshot(pendingEngine(activeEquipment()))'));
  assert.equal(run('engineSpecAction("d",60,true)'),true);assert.deepEqual(plain(run('engineSpecSnapshot(pendingEngine(activeEquipment()))')),model);assert.equal(run('undoStack.length'),0);
+});
+test('new engine previews use normal volume rating and display the cost of raising density',()=>{
+ const run=setup();run(`st.multi.parts.clear();st.sel=null;st.part='engineCore';const fresh=pendingEngineCore();`);
+ assert.equal(run('fresh.ratedInputW'),run('C.partVolume(fresh)*C.PROPULSION.referenceInputDensity'));
+ run(`st.equipmentId='exposedTurbine';const exposed=pendingEngine(activeEquipment()),normal=C.resolveEngineSpec(exposed,ship);`);assert.equal(run('normal.densityFactor'),1);
+ run(`C.updateEngineSpec(fresh,{machineryGradeId:'advanced',ratedInputW:fresh.ratedInputW*4},ship);const over=C.resolveEngineSpec(fresh,ship);`);
+ const html=run('engineSpecControls(fresh,true)');assert.match(html,/通常定格入力（機関容積）/);assert.match(html,/通常定格に対する入力倍率<\/dt><dd>×4.00/);assert.match(html,/定格時の廃熱率<\/dt><dd>17.39%/);assert.match(html,/定格時の推進廃熱/);assert.match(html,/翼などの放熱面/);assert.doesNotMatch(html,/廃熱は実入力の5%|NaN|Infinity/);
 });
 test('an external integrated engine cannot be rebound to an independent core through a mixed selection',()=>{
  const run=setup();run(`ship.parts[0].equipmentId='exposedTurbine';ship.parts.push(core(4,25));ship.nextId=5;st.multi.parts=new Set([1,3]);st.sel={list:'parts',id:1};`);const before=run('snap()');

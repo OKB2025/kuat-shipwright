@@ -1,0 +1,3372 @@
+{
+  "schemaVersion": 1,
+  "sourceFile": "imperial-ii-upload.json",
+  "sourceSha256": "914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b",
+  "format": "starship-yard",
+  "version": 3,
+  "sourceName": "インペリアルII級｜重砲戦艦",
+  "sourceReference": "imperial",
+  "sourceCounts": {
+    "parts": 85,
+    "structures": 26,
+    "engineCores": 7,
+    "nozzles": 7,
+    "fits": 51,
+    "hatches": 2,
+    "links": 232,
+    "partKinds": {
+      "aux": 3,
+      "battery": 2,
+      "cargo": 3,
+      "engine": 7,
+      "engineCore": 7,
+      "firecontrol": 2,
+      "fuel": 2,
+      "gen": 1,
+      "hangar": 7,
+      "hdis": 2,
+      "hyper": 1,
+      "inertial": 5,
+      "integrity": 6,
+      "localShield": 2,
+      "pump": 2,
+      "sensor": 3,
+      "service": 2,
+      "shield": 2,
+      "struct": 26
+    },
+    "fitKinds": {
+      "oct40": 8,
+      "pd": 20,
+      "podAir": 1,
+      "podHangar": 1,
+      "quad70Side": 2,
+      "trc": 10,
+      "triple40": 9
+    },
+    "linkKinds": {
+      "heat": 128,
+      "power": 104
+    }
+  },
+  "sourcePublicLayout": {
+    "hull": {
+      "plan": "wedge",
+      "sec": "warship",
+      "L": 1600,
+      "W": 1183.6,
+      "H": 268,
+      "bowW": 0.01669,
+      "bowH": 0.14627,
+      "stern": 1,
+      "stations": [
+        [
+          0,
+          1,
+          1,
+          0.00746,
+          0,
+          0,
+          0.14552,
+          0.5
+        ],
+        [
+          0.0625,
+          0.93854,
+          0.94664,
+          0.00746,
+          0,
+          0,
+          0.15286,
+          0.5
+        ],
+        [
+          0.125,
+          0.87709,
+          0.89328,
+          0.00746,
+          0,
+          0,
+          0.16107,
+          0.5
+        ],
+        [
+          0.1875,
+          0.81563,
+          0.83993,
+          0.00746,
+          0,
+          0,
+          0.17032,
+          0.5
+        ],
+        [
+          0.25,
+          0.75417,
+          0.78657,
+          0.00746,
+          0,
+          0,
+          0.18083,
+          0.5
+        ],
+        [
+          0.3125,
+          0.69272,
+          0.73321,
+          0.00746,
+          0,
+          0,
+          0.19288,
+          0.5
+        ],
+        [
+          0.375,
+          0.63126,
+          0.67985,
+          0.00746,
+          0,
+          0,
+          0.20681,
+          0.5
+        ],
+        [
+          0.4375,
+          0.5698,
+          0.62649,
+          0.00746,
+          0,
+          0,
+          0.22311,
+          0.5
+        ],
+        [
+          0.5,
+          0.50835,
+          0.57313,
+          0.00746,
+          0,
+          0,
+          0.24245,
+          0.5
+        ],
+        [
+          0.5625,
+          0.44689,
+          0.51978,
+          0.00746,
+          0,
+          0,
+          0.26576,
+          0.5
+        ],
+        [
+          0.625,
+          0.38543,
+          0.46642,
+          0.00746,
+          0,
+          0,
+          0.2944,
+          0.5
+        ],
+        [
+          0.6875,
+          0.32398,
+          0.41306,
+          0.00746,
+          0,
+          0,
+          0.33044,
+          0.5
+        ],
+        [
+          0.75,
+          0.26252,
+          0.3597,
+          0.00746,
+          0,
+          0,
+          0.37718,
+          0.5
+        ],
+        [
+          0.8125,
+          0.20106,
+          0.30634,
+          0.00746,
+          0,
+          0,
+          0.44019,
+          0.5
+        ],
+        [
+          0.875,
+          0.13961,
+          0.25299,
+          0.00746,
+          0,
+          0,
+          0.52979,
+          0.5
+        ],
+        [
+          0.90625,
+          0.10888,
+          0.22631,
+          0.00746,
+          0,
+          0,
+          0.59044,
+          0.5
+        ],
+        [
+          0.9375,
+          0.07815,
+          0.19963,
+          0.00746,
+          0,
+          0,
+          0.66729,
+          0.5
+        ],
+        [
+          0.96875,
+          0.04742,
+          0.17295,
+          0.00746,
+          0,
+          0,
+          0.76785,
+          0.5
+        ],
+        [
+          1,
+          0.01669,
+          0.14627,
+          0.00746,
+          0,
+          0,
+          0.9051,
+          0.5
+        ]
+      ],
+      "assembly": true,
+      "bowFree": true,
+      "deckWidth": 0,
+      "belt": 0.15,
+      "chineHeight": 0.5,
+      "keelWidth": 0,
+      "name": "楔形"
+    },
+    "cuts": [],
+    "trenches": [],
+    "solidCuts": [],
+    "subs": [],
+    "hatches": [
+      {
+        "id": 84,
+        "k": "open",
+        "a": [
+          842.75,
+          61.96000000000001,
+          0
+        ],
+        "b": [
+          939,
+          61.96000000000001,
+          0
+        ],
+        "n": [
+          0,
+          -1,
+          0
+        ],
+        "w": 120.7,
+        "hullOwner": 178,
+        "hullHatch": 84,
+        "portal": true,
+        "face": "bottom",
+        "surface": true,
+        "open": 1,
+        "aperture": 0.85,
+        "bay": 83
+      },
+      {
+        "id": 86,
+        "k": "ray",
+        "a": [
+          1063.4020833333334,
+          71.96,
+          0
+        ],
+        "b": [
+          1090.675,
+          71.96,
+          0
+        ],
+        "n": [
+          0,
+          -1,
+          0
+        ],
+        "w": 54.4,
+        "hullOwner": 178,
+        "hullHatch": 86,
+        "portal": true,
+        "face": "bottom",
+        "surface": true,
+        "open": 1,
+        "aperture": 0.85,
+        "bay": 85
+      }
+    ],
+    "designEnvelope": {
+      "L": 1600,
+      "W": 1183.6,
+      "H": 268
+    }
+  },
+  "structures": [
+    {
+      "id": 178,
+      "k": "struct",
+      "label": "船体構造物",
+      "c": [
+        800,
+        134,
+        0
+      ],
+      "s": [
+        1600,
+        1183.6,
+        268
+      ],
+      "form": "hull",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "primaryHull": true,
+      "outlinePoints": 0,
+      "loftStations": 0,
+      "publicRecordSha256": "070ca8390e3545bb1311c491484014ff1f626ffd40a7e48717af6a3d16c0db45"
+    },
+    {
+      "id": 14,
+      "k": "struct",
+      "label": "上部城郭 第1甲板群",
+      "c": [
+        412,
+        258.04141720000007,
+        0
+      ],
+      "s": [
+        664,
+        446,
+        51.00116559999998
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 43.1505,
+      "skin": "service",
+      "outlinePoints": 36,
+      "loftStations": 0,
+      "publicRecordSha256": "9e87b280962f40c083585bca90b6d7a30003802a72902804c58c7d76281c0a35"
+    },
+    {
+      "id": 15,
+      "k": "struct",
+      "label": "上部城郭 第2甲板群",
+      "c": [
+        353,
+        274.7600452,
+        0
+      ],
+      "s": [
+        548,
+        358,
+        76.0009096
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 34.6365,
+      "skin": "service",
+      "outlinePoints": 12,
+      "loftStations": 0,
+      "publicRecordSha256": "66234c81b016bde49122bb44275cf20e8e71b853d6bc295bbe744a2bab48a1c1"
+    },
+    {
+      "id": 16,
+      "k": "struct",
+      "label": "上部城郭 第3甲板群・前部",
+      "c": [
+        366,
+        286.83048040000006,
+        0
+      ],
+      "s": [
+        466,
+        282,
+        102.00103919999998
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 27.2835,
+      "skin": "service",
+      "outlinePoints": 20,
+      "loftStations": 0,
+      "publicRecordSha256": "488f37edf37c66a31e2159e680ffa135646097970c937c7ee326b5322980d746"
+    },
+    {
+      "id": 17,
+      "k": "struct",
+      "label": "上部城郭 第3甲板群",
+      "c": [
+        320,
+        296.61948040000004,
+        0
+      ],
+      "s": [
+        374,
+        282,
+        115.00103919999998
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 27.2835,
+      "skin": "service",
+      "outlinePoints": 16,
+      "loftStations": 0,
+      "publicRecordSha256": "3ab883152fb89e40f31ce41d02f23bb8a3d873876939c18fdac2f6087647eee5"
+    },
+    {
+      "id": 18,
+      "k": "struct",
+      "label": "城郭後部の舷側段",
+      "c": [
+        205.5,
+        266.310082381244,
+        0
+      ],
+      "s": [
+        147,
+        478,
+        37.993335237511985
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 46.246500000000005,
+      "skin": "service",
+      "outlinePoints": 5,
+      "loftStations": 0,
+      "publicRecordSha256": "8cf4a3440dc2bd95e9055175bdc3ab07cc3f5f86b4973634bbbf415d3f594629"
+    },
+    {
+      "id": 19,
+      "k": "struct",
+      "label": "城郭前縁の段",
+      "c": [
+        557.5,
+        233.79617724504462,
+        0
+      ],
+      "s": [
+        73,
+        454,
+        23.28514550991082
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 43.9245,
+      "skin": "service",
+      "outlinePoints": 5,
+      "loftStations": 0,
+      "publicRecordSha256": "16e337d31eca94ddb78e344870b4762b8e6363b9bb8d134c75186e693bd336db"
+    },
+    {
+      "id": 20,
+      "k": "struct",
+      "label": "重砲塔甲板",
+      "c": [
+        382.5,
+        239.95125000000002,
+        0
+      ],
+      "s": [
+        317,
+        804,
+        10
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 77.787,
+      "skin": "armor",
+      "outlinePoints": 6,
+      "loftStations": 0,
+      "publicRecordSha256": "21228c183138e66ddd1a94c2c020156e94efd3d111d2f7d7ef9f954fffe18ea3"
+    },
+    {
+      "id": 26,
+      "k": "struct",
+      "label": "前部甲板の装甲板",
+      "c": [
+        739.5,
+        218.82640721512755,
+        0
+      ],
+      "s": [
+        287,
+        576,
+        13.398685569744885
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 55.728,
+      "skin": "armor",
+      "outlinePoints": 4,
+      "loftStations": 0,
+      "publicRecordSha256": "fe0763a38b5ab39873eb047e3d012fa0880c12a0b4f725c9ed2acf1b4b44d740"
+    },
+    {
+      "id": 27,
+      "k": "struct",
+      "label": "前部甲板の副装甲板",
+      "c": [
+        747.5,
+        220.0121556165036,
+        0
+      ],
+      "s": [
+        129,
+        422,
+        16.88318876699276
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 40.8285,
+      "skin": "armor",
+      "outlinePoints": 6,
+      "loftStations": 0,
+      "publicRecordSha256": "3d19b10a6d20fff0a988e77f2b7dc83e2758f5e9b750f1978e4644dda12d854f"
+    },
+    {
+      "id": 28,
+      "k": "struct",
+      "label": "城郭後部の舷側段",
+      "c": [
+        205.5,
+        266.310082381244,
+        0
+      ],
+      "s": [
+        147,
+        478,
+        37.993335237511985
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 46.246500000000005,
+      "skin": "service",
+      "outlinePoints": 5,
+      "loftStations": 0,
+      "publicRecordSha256": "65ddbe560cfc4b0978d324fe16a4796711627b8fa14160f5a087a28aad137249"
+    },
+    {
+      "id": 29,
+      "k": "struct",
+      "label": "城郭前縁の段",
+      "c": [
+        557.5,
+        233.79617724504462,
+        0
+      ],
+      "s": [
+        73,
+        454,
+        23.28514550991082
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 43.9245,
+      "skin": "service",
+      "outlinePoints": 5,
+      "loftStations": 0,
+      "publicRecordSha256": "e330107b59210d6bec46e378dfe2ec2689d60e5ccd86801e0941207de38f0e8c"
+    },
+    {
+      "id": 30,
+      "k": "struct",
+      "label": "重砲塔甲板",
+      "c": [
+        382.5,
+        239.95125000000002,
+        0
+      ],
+      "s": [
+        317,
+        804,
+        10
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 77.787,
+      "skin": "armor",
+      "outlinePoints": 6,
+      "loftStations": 0,
+      "publicRecordSha256": "e803e92b477bbae0efc0095a64fa3a4febdfc795f5b32548b168055a450457e7"
+    },
+    {
+      "id": 36,
+      "k": "struct",
+      "label": "前部甲板の装甲板",
+      "c": [
+        739.5,
+        218.82640721512755,
+        0
+      ],
+      "s": [
+        287,
+        576,
+        13.398685569744885
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 55.728,
+      "skin": "armor",
+      "outlinePoints": 4,
+      "loftStations": 0,
+      "publicRecordSha256": "234d8858b2d24652145e6b33f17e8ec5265b3b13cf84f75daea423a94b8dd840"
+    },
+    {
+      "id": 37,
+      "k": "struct",
+      "label": "前部甲板の副装甲板",
+      "c": [
+        747.5,
+        220.0121556165036,
+        0
+      ],
+      "s": [
+        129,
+        422,
+        16.88318876699276
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 40.8285,
+      "skin": "armor",
+      "outlinePoints": 6,
+      "loftStations": 0,
+      "publicRecordSha256": "b37e74c04e7ae30105feb20f602da64268555d03c81a9c485d699e6d4f56a97f"
+    },
+    {
+      "id": 38,
+      "k": "struct",
+      "label": "前部甲板の中央稜線",
+      "c": [
+        779,
+        219.450916,
+        0
+      ],
+      "s": [
+        78,
+        36,
+        20.30116800000002
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 3.483,
+      "skin": "armor",
+      "outlinePoints": 7,
+      "loftStations": 0,
+      "publicRecordSha256": "035ec8b69f2f8f76ef0c2ab86af691d20ebb887b630bacf8087ad5cb8cbb0394"
+    },
+    {
+      "id": 40,
+      "k": "struct",
+      "label": "艦首中央の縦通装甲 1",
+      "c": [
+        1040,
+        197.33964199999997,
+        0
+      ],
+      "s": [
+        150,
+        180,
+        13.400715999999989
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 17.415,
+      "skin": "armor",
+      "outlinePoints": 21,
+      "loftStations": 0,
+      "publicRecordSha256": "a32883d564f4ba58dac721b2c68383ee2b29429d0da3051dada7a832f65caf63"
+    },
+    {
+      "id": 41,
+      "k": "struct",
+      "label": "艦首中央の縦通装甲 2",
+      "c": [
+        1209,
+        185.2559248,
+        0
+      ],
+      "s": [
+        174,
+        146,
+        13.401150400000006
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 14.1255,
+      "skin": "armor",
+      "outlinePoints": 4,
+      "loftStations": 0,
+      "publicRecordSha256": "90cbe35d0f0f1c4221faae4855d2adcc0ed19c89f1b3ee963ee8ee56a7c739fb"
+    },
+    {
+      "id": 42,
+      "k": "struct",
+      "label": "艦首中央の縦通装甲 3",
+      "c": [
+        1354.5,
+        174.852692,
+        0
+      ],
+      "s": [
+        101,
+        72,
+        13.401116000000002
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": -4.08968854058438,
+      "ridge": 6.966,
+      "skin": "armor",
+      "outlinePoints": 4,
+      "loftStations": 0,
+      "publicRecordSha256": "e242d58bf0d9c3254b3242b48dd83ee761cb6aa82edaa3988481c54edb5e25c8"
+    },
+    {
+      "id": 43,
+      "k": "struct",
+      "label": "腹部竜骨装甲板",
+      "c": [
+        418.5,
+        30.672608,
+        0
+      ],
+      "s": [
+        661,
+        268,
+        16.499716000000006
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": 4.08968854058438,
+      "ridge": -27.47,
+      "skin": "armor",
+      "outlinePoints": 36,
+      "loftStations": 0,
+      "publicRecordSha256": "44652c03b3ae9d9ac0fb18847a5d324b2ac9630007956d51217053678a001c9e"
+    },
+    {
+      "id": 44,
+      "k": "struct",
+      "label": "舷側下面の張出し",
+      "c": [
+        575.5,
+        44.13953844071378,
+        0
+      ],
+      "s": [
+        63,
+        596,
+        13.982576881427562
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": 4.08968854058438,
+      "ridge": -57.663000000000004,
+      "skin": "armor",
+      "outlinePoints": 4,
+      "loftStations": 0,
+      "publicRecordSha256": "802d3c1f383240e5aa4b4c2ba77c3f1c1e878115f30e3f261509e91335e5fa74"
+    },
+    {
+      "id": 45,
+      "k": "struct",
+      "label": "舷側下面の張出し",
+      "c": [
+        575.5,
+        44.13953844071378,
+        0
+      ],
+      "s": [
+        63,
+        596,
+        13.982576881427562
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": 4.08968854058438,
+      "ridge": -57.663000000000004,
+      "skin": "armor",
+      "outlinePoints": 4,
+      "loftStations": 0,
+      "publicRecordSha256": "aba3f07310d2312409a7216721a8a69f657a90cd06bf6dd5abc95fcd158a885a"
+    },
+    {
+      "id": 46,
+      "k": "struct",
+      "label": "前部腹部の張出し",
+      "c": [
+        1042,
+        76.50260800000001,
+        0
+      ],
+      "s": [
+        144,
+        174,
+        11.999216000000004
+      ],
+      "form": "outline",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0,
+      "deckSlope": 4.08968854058438,
+      "ridge": -16.834500000000002,
+      "skin": "armor",
+      "outlinePoints": 20,
+      "loftStations": 0,
+      "publicRecordSha256": "526f101fcfd1568812c1ffec067382ab79721c1ea55118c80c522135bc02be7f"
+    },
+    {
+      "id": 47,
+      "k": "struct",
+      "label": "腹部主炉の球状装甲殻",
+      "c": [
+        433.5,
+        39,
+        0
+      ],
+      "s": [
+        117,
+        124,
+        64
+      ],
+      "form": "ellipsoid",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0.14,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0.12,
+      "skin": "armor",
+      "outlinePoints": 0,
+      "loftStations": 0,
+      "publicRecordSha256": "b5bb5d5959b45113a1871ead9897332e4866861c8e957fef3f1e14b8d26cdda3"
+    },
+    {
+      "id": 49,
+      "k": "struct",
+      "label": "艦橋支持塔",
+      "c": [
+        142.5,
+        351,
+        0
+      ],
+      "s": [
+        257,
+        61.2,
+        202
+      ],
+      "form": "loft",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0.14,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0.05,
+      "skin": "armor",
+      "outlinePoints": 0,
+      "loftStations": 5,
+      "publicRecordSha256": "2f2b34a765376dacd6841a6087d73fc8d9d6f5cd7f19b56e823e3823a387841c"
+    },
+    {
+      "id": 50,
+      "k": "struct",
+      "label": "インペリアル級 艦橋本体",
+      "c": [
+        244.854808,
+        430.982393,
+        0
+      ],
+      "s": [
+        149.356031,
+        285.180807,
+        90.916789
+      ],
+      "form": "reference",
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "taper": 0.14,
+      "offsetX": 0,
+      "offsetZ": 0,
+      "corner": 0.09,
+      "skin": "service",
+      "outlinePoints": 0,
+      "loftStations": 0,
+      "publicRecordSha256": "58b877886a9f3cf2292f2c850ccff351a2de7a3b3071fbe18b8ec1c61cb1ec4c"
+    }
+  ],
+  "fits": [
+    {
+      "id": 39,
+      "k": "podHangar",
+      "p": [
+        818,
+        219.450916,
+        0
+      ],
+      "a": 0,
+      "n": [
+        1,
+        0,
+        0
+      ],
+      "host": 38,
+      "local": [
+        0.5,
+        0,
+        0
+      ],
+      "localNormal": [
+        78,
+        0,
+        0
+      ],
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "3f5065b1c0be3baefc6f3d70467b644b9a5124f8d808af994b2b2b2ddb999236"
+    },
+    {
+      "id": 107,
+      "k": "oct40",
+      "p": [
+        292.8,
+        201.88684818421643,
+        -255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108068448027084,
+      "low": -4.108099142402084,
+      "slope": 8.216167590429169,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "5c081120f5c48c9c473f77e023963bd8a2f08fbb039f3e7fdd769436ed98222e"
+    },
+    {
+      "id": 108,
+      "k": "oct40",
+      "p": [
+        292.8,
+        201.8868448805497,
+        255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108197634724367,
+      "low": -4.108090755107308,
+      "slope": 8.216288389831675,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "bef2d708ccfdc3a86921bbfc02044d92629132c6c10735cae926025481ed8278"
+    },
+    {
+      "id": 109,
+      "k": "oct40",
+      "p": [
+        353.9,
+        197.5181980005009,
+        -255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108069243480481,
+      "low": -4.108099142402208,
+      "slope": 8.216168385882689,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "055a1ce02d153683ea5c2ddd225bce6a3fbe780452bf6fd0f41c8536275bfda3"
+    },
+    {
+      "id": 110,
+      "k": "oct40",
+      "p": [
+        353.9,
+        197.51819553389123,
+        255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108197593120676,
+      "low": -4.10809043868312,
+      "slope": 8.216288031803796,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "7da4382d56780fa2d6046227ea5944cb9e07c38f5ed8737e9a543ac865c94c9d"
+    },
+    {
+      "id": 111,
+      "k": "oct40",
+      "p": [
+        414.9,
+        193.15669781708584,
+        -255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108070037632171,
+      "low": -4.108099142402155,
+      "slope": 8.216169180034326,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "a932e457f962e97ce6063603c13c59414d0370c82574256b445538616e6d8cad"
+    },
+    {
+      "id": 112,
+      "k": "oct40",
+      "p": [
+        414.9,
+        193.1566961446283,
+        255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108197593120235,
+      "low": -4.108090370384999,
+      "slope": 8.216287963505234,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "ebe2ba035b95857cca6dc9834d0e63793db10e865124d27a6d4d2f18e7392162"
+    },
+    {
+      "id": 113,
+      "k": "oct40",
+      "p": [
+        477.7,
+        188.6664976282591,
+        -255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108070795965732,
+      "low": -4.108100636978155,
+      "slope": 8.216171432943888,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "703072980818b78eca3b34e1bb8d36935aa4587d757a65035854bcb2555c87a3"
+    },
+    {
+      "id": 114,
+      "k": "oct40",
+      "p": [
+        477.7,
+        188.66649677338637,
+        255.7
+      ],
+      "a": 2,
+      "assetYaw": 0,
+      "ped": 0,
+      "base": 4.108197593120557,
+      "low": -4.108090370384677,
+      "slope": 8.216287963505234,
+      "float": false,
+      "chargeDepth": 14,
+      "publicRecordSha256": "f23e24ab0d55f4934ec9b94631ff023c33fc3b672feab850847708ecfb8503aa"
+    },
+    {
+      "id": 127,
+      "k": "podAir",
+      "p": [
+        306.98659946209705,
+        410,
+        79.99999999999999
+      ],
+      "a": 0,
+      "n": [
+        0.9950834752527847,
+        -0.09903965681212501,
+        -0.00015380954772033526
+      ],
+      "host": 50,
+      "local": [
+        0.4159978746495818,
+        -0.23078678020623894,
+        0.2805237871425197
+      ],
+      "localNormal": [
+        148.62171837744265,
+        -9.004367581020382,
+        -0.043863530943190225
+      ],
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "a5c971954eae8696c0c2d0274e4f69ae1844af0620488f02670d1c27c687fbb0"
+    },
+    {
+      "id": 128,
+      "k": "triple40",
+      "p": [
+        756,
+        231.24600315093994,
+        0
+      ],
+      "a": 2,
+      "n": [
+        0,
+        1,
+        0
+      ],
+      "mountMode": "top",
+      "ped": 6.5,
+      "base": 0.7864980697631836,
+      "low": -14.84860810659601,
+      "slope": 15.635106176359194,
+      "float": false,
+      "batteryZone": "ridge-medium",
+      "chargeDepth": 14,
+      "publicRecordSha256": "9a2c9d04f5898189155da5eb4121db30815b1b1665fe11b4d381000babcb77b8"
+    },
+    {
+      "id": 129,
+      "k": "triple40",
+      "p": [
+        783,
+        229.31550736860845,
+        0
+      ],
+      "a": 2,
+      "n": [
+        0,
+        1,
+        0
+      ],
+      "mountMode": "top",
+      "ped": 2,
+      "pedSize": 1.05,
+      "base": 0.8849974632110837,
+      "low": -2.5425209332162724,
+      "slope": 3.427518396427356,
+      "float": false,
+      "batteryZone": "ridge-medium",
+      "chargeDepth": 14,
+      "publicRecordSha256": "b4b431837dfa4177e633ef216cc3080eee2407b26fe68391eda99df321ba903f"
+    },
+    {
+      "id": 130,
+      "k": "triple40",
+      "p": [
+        810,
+        227.3850044557903,
+        0
+      ],
+      "a": 2,
+      "n": [
+        0,
+        1,
+        0
+      ],
+      "mountMode": "top",
+      "ped": 0,
+      "base": 0.45046561960940806,
+      "low": -1.2986270690647288,
+      "slope": 1.749092688674137,
+      "float": false,
+      "batteryZone": "ridge-medium",
+      "chargeDepth": 14,
+      "publicRecordSha256": "acfe0ca52de002ec6fb5ddc07519bfde247a8966b2bc1f5310c129011d45a879"
+    },
+    {
+      "id": 139,
+      "k": "pd",
+      "p": [
+        260,
+        170.61696130157588,
+        -417.6804619679999
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        -0.3375,
+        0.13663045261782047,
+        -0.35288987999999993
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48431466594057937,
+      "low": -0.4843205703114762,
+      "slope": 0.9686352362520556,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "4f888c8abb25a28cad55dc30c16e886c32b5c7f10339c7b2f45829c8840e6508"
+    },
+    {
+      "id": 140,
+      "k": "pd",
+      "p": [
+        260,
+        170.61698372603087,
+        417.6804619679999
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        -0.3375,
+        0.13663053629115995,
+        0.35288987999999993
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48429805821897776,
+      "low": -0.4843039624215184,
+      "slope": 0.9686020206404962,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "7864e993dacb2a4d695282b9f705b38d8e72d15fbb991dd84f1383ecd95cae21"
+    },
+    {
+      "id": 141,
+      "k": "pd",
+      "p": [
+        420,
+        168.63711480074699,
+        -368.7974505599999
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        -0.2375,
+        0.12924296567442906,
+        -0.31158959999999997
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48375069096859175,
+      "low": -0.48375653748184155,
+      "slope": 0.9675072284504334,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "1c78f6e1e7cdfdeace91414837f0aceb93701f3bbe285710445121695862b0bd"
+    },
+    {
+      "id": 142,
+      "k": "pd",
+      "p": [
+        420,
+        168.63699658455562,
+        368.7974505599999
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        -0.2375,
+        0.12924252456923738,
+        0.31158959999999997
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48384984591109415,
+      "low": -0.483855693433655,
+      "slope": 0.9677055393447491,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "87638f1bef66a47570a495279cc807267f3fc2ffa49ae355cface628601698a8"
+    },
+    {
+      "id": 143,
+      "k": "pd",
+      "p": [
+        570,
+        166.78885836172458,
+        -322.97267217599995
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        -0.14375,
+        0.12234648642434715,
+        -0.27287315999999995
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.4842272164894681,
+      "low": -0.4842331252384044,
+      "slope": 0.9684603417278725,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "6b4621c9b8f7451fab767977a712d7351a67da30f0925c742c0a24e5f3bc8d0e"
+    },
+    {
+      "id": 144,
+      "k": "pd",
+      "p": [
+        570,
+        166.78888855786727,
+        322.97267217599995
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        -0.14375,
+        0.12234659909651965,
+        0.27287315999999995
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48419829523424823,
+      "low": -0.48420420368884565,
+      "slope": 0.9684024989230939,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "1b566e3619988dbf9dee15de3a5186c7f98731f8a91a36af8399721025372ac0"
+    },
+    {
+      "id": 145,
+      "k": "pd",
+      "p": [
+        860,
+        163.21788606308155,
+        -234.37538308799995
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        0.0375,
+        0.10902196292194438,
+        -0.19801908
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48401602908691305,
+      "low": -0.4840386364575252,
+      "slope": 0.9680546655444382,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "3be4b58d4888278498265beb3137e0b036160778ef77cc5842b7b09b68e9c4b4"
+    },
+    {
+      "id": 146,
+      "k": "pd",
+      "p": [
+        860,
+        163.2179382480499,
+        234.37538308799995
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        0.0375,
+        0.10902215764197726,
+        0.19801908
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.4839805346850368,
+      "low": -0.48396976022144206,
+      "slope": 0.9679502949064789,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "b29b6d4ca67cb0ee7cb743a1761f800bcb5b54a114d1eeca9ad3703fbced4ede"
+    },
+    {
+      "id": 147,
+      "k": "pd",
+      "p": [
+        1040,
+        161.00950233954882,
+        -179.38286519999994
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        0.15,
+        0.10078172514757021,
+        -0.15155699999999997
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48287631495358596,
+      "low": -0.48278146178523057,
+      "slope": 0.9656577767388166,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "87253939dcbb72dc8c7944800c8be87c49920c6f9970c4d7f190c2b3948b4e31"
+    },
+    {
+      "id": 148,
+      "k": "pd",
+      "p": [
+        1040,
+        161.0093636150209,
+        179.38286519999994
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        0.15,
+        0.10078120751873301,
+        0.15155699999999997
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.4829144734443137,
+      "low": -0.48302068455320357,
+      "slope": 0.9659351579975173,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "50cd8b0eb0795bec16485d168c73f8706e7662ade77afb7cb210e09440f11b0a"
+    },
+    {
+      "id": 149,
+      "k": "pd",
+      "p": [
+        1240,
+        158.57300085301404,
+        -118.28084083199997
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        0.275,
+        0.09169030169034918,
+        -0.09993311999999999
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.4813083716273249,
+      "low": -0.48091041969451576,
+      "slope": 0.9622187913218407,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "7969ecd8344476158699577510ea84f08dde9f87eb8e11291fae797fa1aa2bd4"
+    },
+    {
+      "id": 150,
+      "k": "pd",
+      "p": [
+        1240,
+        158.57275084596995,
+        118.28084083199997
+      ],
+      "a": 2,
+      "mountMode": "top",
+      "host": 178,
+      "local": [
+        0.275,
+        0.09168936882824608,
+        0.09993311999999999
+      ],
+      "localNormal": [
+        0,
+        268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.4811546377261365,
+      "low": -0.4815642657542566,
+      "slope": 0.9627189034803931,
+      "float": false,
+      "batteryZone": "dorsal-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "f3b731f057d4bca4f06284407c2f945f468f30ce939d4a7e6472ff2a1fed09df"
+    },
+    {
+      "id": 151,
+      "k": "pd",
+      "p": [
+        430,
+        84.95511495181518,
+        -269.95294326
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        -0.23125,
+        -0.18300330241860008,
+        -0.22807785
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48408152612145483,
+      "low": -0.4840874102202862,
+      "slope": 0.968168936341741,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "1d92198b97d43e224e12359f418c1a0b7605e425fb8a82ea8f16f9fba24e187c"
+    },
+    {
+      "id": 152,
+      "k": "pd",
+      "p": [
+        430,
+        84.95487288668573,
+        269.95294326
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        -0.23125,
+        -0.18300420564669503,
+        0.22807785
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48404637193605,
+      "low": -0.4840522520431069,
+      "slope": 0.9680986239791569,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "efb95e5e9e7656805e7f55043b4cfdbdc7312ba1f3dfb5eeff287e3f9d3676ea"
+    },
+    {
+      "id": 153,
+      "k": "pd",
+      "p": [
+        660,
+        91.35514778751212,
+        -218.088999744
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        -0.0875,
+        -0.15912258288241746,
+        -0.18425904
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48416205997516504,
+      "low": -0.4841679682948393,
+      "slope": 0.9683300282700044,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "e4efd6c58fa8a332589e1daa5d9e2ad662e5d9e40691cb1d5f6b6d375a69bf26"
+    },
+    {
+      "id": 154,
+      "k": "pd",
+      "p": [
+        660,
+        91.35540342302374,
+        218.088999744
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        -0.0875,
+        -0.1591216290185681,
+        0.18425904
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48412451286199887,
+      "low": -0.4841304208711058,
+      "slope": 0.9682549337331047,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "6eaa2cdd4ca1a077e414fb4c7c429a55b79953ecd3f96970c4536fba06a6fca5"
+    },
+    {
+      "id": 155,
+      "k": "pd",
+      "p": [
+        1170,
+        105.5346156713772,
+        -103.087985528
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.23125,
+        -0.10621412062918957,
+        -0.08709698
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.4832495369537983,
+      "low": -0.4832554649810057,
+      "slope": 0.966505001934804,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "baabfe6dc8f5b74989d20d58b6cdfedc5f0be17f9d4735feefd92b0e9cd623f8"
+    },
+    {
+      "id": 156,
+      "k": "pd",
+      "p": [
+        1170,
+        105.5350991253481,
+        103.087985528
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.23125,
+        -0.10621231669646232,
+        0.08709698
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48317932679807274,
+      "low": -0.4831852468520204,
+      "slope": 0.9663645736500932,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "1deea2a90cb182ef3874961e1385781744ff7658ef17f9a8741170cf3ac16710"
+    },
+    {
+      "id": 157,
+      "k": "pd",
+      "p": [
+        1330,
+        109.95448526106293,
+        -67.00803449999998
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.33125,
+        -0.08972206992140698,
+        -0.05661374999999999
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.48023337791516313,
+      "low": -0.4795842359686243,
+      "slope": 0.9598176138837875,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "38bf32436423eebeb76069ac2d5c14157053b5277e60c4441630fa3f682aac8a"
+    },
+    {
+      "id": 158,
+      "k": "pd",
+      "p": [
+        1330,
+        109.95267485273507,
+        67.00803449999998
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.33125,
+        -0.08972882517636167,
+        0.05661374999999999
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 0.479970459295469,
+      "low": -0.47997623479838647,
+      "slope": 0.9599466940938555,
+      "float": false,
+      "batteryZone": "ventral-defence",
+      "chargeDepth": 14,
+      "publicRecordSha256": "19db3403052e367b340deef12f37d5dcceae608efaf41466348781708a0ff366"
+    },
+    {
+      "id": 159,
+      "k": "trc",
+      "p": [
+        1380,
+        102.96909480308841,
+        -12
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.3625,
+        -0.11578695968996862,
+        -0.01013856032443393
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1730765114122716,
+      "low": -1.1775293917486978,
+      "slope": 2.3506059031609694,
+      "float": false,
+      "batteryZone": "bow-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "9a3738d15a72ecb5bd2f74aea2c2c54de577df12db3449202d30a283309de213"
+    },
+    {
+      "id": 160,
+      "k": "trc",
+      "p": [
+        1380,
+        102.97252597908209,
+        12
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.3625,
+        -0.1157741567944698,
+        0.01013856032443393
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1740995492681483,
+      "low": -1.177428124497001,
+      "slope": 2.3515276737651494,
+      "float": false,
+      "batteryZone": "bow-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "2a1bea62c02f85e066c4416ca28d1d9af98b62c1da81a9a3b82135975025a70b"
+    },
+    {
+      "id": 161,
+      "k": "trc",
+      "p": [
+        1420,
+        105.83632742529062,
+        -12
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.3875,
+        -0.10508833050264695,
+        -0.01013856032443393
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1748183137769659,
+      "low": -1.176395510543471,
+      "slope": 2.351213824320437,
+      "float": false,
+      "batteryZone": "bow-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "fdf2d2d1740e7f9890ecdda5272afd5a906fb065c5db282c3eaa9f317a34a97c"
+    },
+    {
+      "id": 162,
+      "k": "trc",
+      "p": [
+        1420,
+        105.83587227488033,
+        12
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.3875,
+        -0.1050900288250734,
+        0.01013856032443393
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1772804261138299,
+      "low": -1.1752734641874902,
+      "slope": 2.35255389030132,
+      "float": false,
+      "batteryZone": "bow-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "8d07521142b33ecad60a675c6940df94b4e949ff0b56f75632b84f82389194e2"
+    },
+    {
+      "id": 163,
+      "k": "trc",
+      "p": [
+        1460,
+        108.69674351757067,
+        -12
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.4125,
+        -0.09441513612846766,
+        -0.01013856032443393
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.173960314653475,
+      "low": -1.175913957279933,
+      "slope": 2.349874271933408,
+      "float": false,
+      "batteryZone": "bow-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "9199c4aaa251e3d4ea14ed20693dfaab0b50bc593e18d9df09a0def1da9d1069"
+    },
+    {
+      "id": 164,
+      "k": "trc",
+      "p": [
+        1460,
+        108.69418094123421,
+        12
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.4125,
+        -0.09442469798046937,
+        0.01013856032443393
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1757094253804672,
+      "low": -1.1750155972943603,
+      "slope": 2.3507250226748275,
+      "float": false,
+      "batteryZone": "bow-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "1dde93fadc46bbf07ae0855fbaed33eeb1b1950926e28f5f6be5f8af3c1b7d17"
+    },
+    {
+      "id": 165,
+      "k": "trc",
+      "p": [
+        800,
+        79.31230246077439,
+        -104
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0,
+        -0.20405857290755824,
+        -0.08786752281176073
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1830381287326408,
+      "low": -1.1818920773211707,
+      "slope": 2.3649302060538115,
+      "float": false,
+      "batteryZone": "hangar-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "0dac682c33c1e98b45ab038988ba6fd798b4396bbe81587042946c44d19c0a32"
+    },
+    {
+      "id": 166,
+      "k": "trc",
+      "p": [
+        800,
+        79.31230246077439,
+        104
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0,
+        -0.20405857290755994,
+        0.08786752281176073
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1828806635043645,
+      "low": -1.1815683162132433,
+      "slope": 2.364448979717608,
+      "float": false,
+      "batteryZone": "hangar-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "339e7d202d035ce54a1a4000efdb77c4d49936b09d9901ec4687ad9e7a28ee40"
+    },
+    {
+      "id": 167,
+      "k": "trc",
+      "p": [
+        965,
+        91.08484139620123,
+        -104
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.103125,
+        -0.16013118882014468,
+        -0.08786752281176073
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.181553145379935,
+      "low": -1.1816328295661098,
+      "slope": 2.363185974946045,
+      "float": false,
+      "batteryZone": "hangar-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "4717215dcc07263f711f1b065882e7263905ca5dd2f57001c18da6075702ab00"
+    },
+    {
+      "id": 168,
+      "k": "trc",
+      "p": [
+        965,
+        91.0851160524544,
+        104
+      ],
+      "a": 3,
+      "mountMode": "bottom",
+      "host": 178,
+      "local": [
+        0.103125,
+        -0.1601301639833808,
+        0.08786752281176073
+      ],
+      "localNormal": [
+        0,
+        -268,
+        0
+      ],
+      "ped": 0,
+      "base": 1.1817059282269775,
+      "low": -1.1817059282259328,
+      "slope": 2.3634118564529105,
+      "float": false,
+      "batteryZone": "hangar-tractor",
+      "chargeDepth": 14,
+      "publicRecordSha256": "df905eaee79bd4bc4efc4365d246b9ed129d342a64c10edcdea1211c1801c791"
+    },
+    {
+      "id": 179,
+      "k": "triple40",
+      "p": [
+        1559.9359388939238,
+        116.9805398008134,
+        18.216048469770783
+      ],
+      "a": 3,
+      "n": [
+        0.0655173189638173,
+        -0.9800040041919051,
+        0.18788196476411967
+      ],
+      "tilt": [
+        0.0655173189638173,
+        -0.9800040041919051,
+        0.18788196476411967
+      ],
+      "tw": 180,
+      "assetYaw": 0,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "1a285f51b598e09158e71d06965c7fcf834abfc3cd8b93b9e0b29cfff09fbe22"
+    },
+    {
+      "id": 180,
+      "k": "triple40",
+      "p": [
+        1559.9353457722436,
+        116.98941167821704,
+        -18.21434759329418
+      ],
+      "a": 3,
+      "n": [
+        0.0655173189638173,
+        -0.9800040041919051,
+        -0.18788196476411967
+      ],
+      "tilt": [
+        0.0655173189638173,
+        -0.9800040041919051,
+        -0.18788196476411967
+      ],
+      "tw": 179,
+      "assetYaw": 0,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "8c8b0ec55a3ff457631eba55eb66492f954cc0e4be5a6e1f60542c745f65273b"
+    },
+    {
+      "id": 181,
+      "k": "triple40",
+      "p": [
+        849.947273270921,
+        78.42809349493746,
+        -81.02972018316638
+      ],
+      "a": 3,
+      "n": [
+        0.06994473057613305,
+        -0.9794331081755654,
+        -0.189257816943405
+      ],
+      "tilt": [
+        0.06994473057613305,
+        -0.9794331081755654,
+        -0.189257816943405
+      ],
+      "tw": 182,
+      "assetYaw": 0,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "0242137df35e9d1eeb794ccc753a9673e57f253d5822bae53f815cab93049951"
+    },
+    {
+      "id": 182,
+      "k": "triple40",
+      "p": [
+        849.9472734154795,
+        78.42809147069147,
+        81.02972057431538
+      ],
+      "a": 3,
+      "n": [
+        0.06994473057613305,
+        -0.9794331081755654,
+        0.189257816943405
+      ],
+      "tilt": [
+        0.06994473057613305,
+        -0.9794331081755654,
+        0.189257816943405
+      ],
+      "tw": 181,
+      "assetYaw": 0,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "efacfc932608723d8216ac81eda0c5af8d96d57b864852cfb21f653090a62b4e"
+    },
+    {
+      "id": 183,
+      "k": "triple40",
+      "p": [
+        953.5539719715555,
+        80.17974045553638,
+        -51.782687181236895
+      ],
+      "a": 3,
+      "n": [
+        0.07004680054190193,
+        -0.9794415422479226,
+        -0.18917640194499427
+      ],
+      "tilt": [
+        0.07004680054190193,
+        -0.9794415422479226,
+        -0.18917640194499427
+      ],
+      "tw": 184,
+      "assetYaw": 0,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "ca2637a84ebc8d86e3201b6fd8d85d39e464c481b9b9bb86ad7b945fe06348ad"
+    },
+    {
+      "id": 184,
+      "k": "triple40",
+      "p": [
+        953.5539685711817,
+        80.17978800185301,
+        51.78267799779837
+      ],
+      "a": 3,
+      "n": [
+        0.07004680054190193,
+        -0.9794415422479226,
+        0.18917640194499427
+      ],
+      "tilt": [
+        0.07004680054190193,
+        -0.9794415422479226,
+        0.18917640194499427
+      ],
+      "tw": 183,
+      "assetYaw": 0,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "publicRecordSha256": "8baaf40a892459570eececb2883067f098a8a795aa65e93cfe4d47c88aa8465d"
+    },
+    {
+      "id": 185,
+      "k": "quad70Side",
+      "p": [
+        657.5089814854626,
+        135.606028079079,
+        -338.8624858872522
+      ],
+      "a": 5,
+      "n": [
+        0.34181303974213395,
+        0,
+        -0.9397679744821283
+      ],
+      "tw": 186,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "localMount": true,
+      "publicRecordSha256": "ce01c9ad3d7986de4c158d33c7dc16bc24a662b7285b4a8ff8a3affc7166ed8f"
+    },
+    {
+      "id": 186,
+      "k": "quad70Side",
+      "p": [
+        657.5089814854626,
+        135.606028079079,
+        338.8624858872522
+      ],
+      "a": 4,
+      "n": [
+        0.34181303974213395,
+        0,
+        0.9397679744821283
+      ],
+      "tw": 185,
+      "mountMode": "auto",
+      "ped": 1,
+      "base": 0,
+      "low": 0,
+      "slope": 0,
+      "float": false,
+      "localMount": true,
+      "publicRecordSha256": "932364deb1a79763e531ee9509bfdf93f80242bd7b220537ca59c954aaca487e"
+    }
+  ],
+  "imperialIMainBatteryMapping": [
+    {
+      "id": 107,
+      "sourceKind": "oct40",
+      "imperialIKind": "ion",
+      "p": [
+        292.8,
+        201.88684818421643,
+        -255.7
+      ],
+      "side": -1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 108,
+      "sourceKind": "oct40",
+      "imperialIKind": "ion",
+      "p": [
+        292.8,
+        201.8868448805497,
+        255.7
+      ],
+      "side": 1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 109,
+      "sourceKind": "oct40",
+      "imperialIKind": "stl",
+      "p": [
+        353.9,
+        197.5181980005009,
+        -255.7
+      ],
+      "side": -1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 110,
+      "sourceKind": "oct40",
+      "imperialIKind": "stl",
+      "p": [
+        353.9,
+        197.51819553389123,
+        255.7
+      ],
+      "side": 1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 111,
+      "sourceKind": "oct40",
+      "imperialIKind": "stl",
+      "p": [
+        414.9,
+        193.15669781708584,
+        -255.7
+      ],
+      "side": -1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 112,
+      "sourceKind": "oct40",
+      "imperialIKind": "stl",
+      "p": [
+        414.9,
+        193.1566961446283,
+        255.7
+      ],
+      "side": 1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 113,
+      "sourceKind": "oct40",
+      "imperialIKind": "stl",
+      "p": [
+        477.7,
+        188.6664976282591,
+        -255.7
+      ],
+      "side": -1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    },
+    {
+      "id": 114,
+      "sourceKind": "oct40",
+      "imperialIKind": "stl",
+      "p": [
+        477.7,
+        188.66649677338637,
+        255.7
+      ],
+      "side": 1,
+      "barrels": 2,
+      "energyPerBarrelTT": 175
+    }
+  ],
+  "derivedSystems": {
+    "sourceEngineCoreIds": [
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175
+    ],
+    "sourceNozzleIds": [
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57
+    ],
+    "danglingLinks": [
+      {
+        "kind": "heat",
+        "from": "f131",
+        "to": "p176",
+        "cap": 1.2028998414872291e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f131",
+        "to": "p177",
+        "cap": 1.2029001585127705e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f132",
+        "to": "p176",
+        "cap": 1.2028998414872291e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f132",
+        "to": "p177",
+        "cap": 1.2029001585127705e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f133",
+        "to": "p176",
+        "cap": 1.2028998414872291e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f133",
+        "to": "p177",
+        "cap": 1.2029001585127705e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f134",
+        "to": "p176",
+        "cap": 1.2028998414872291e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f134",
+        "to": "p177",
+        "cap": 1.2029001585127705e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f135",
+        "to": "p176",
+        "cap": 1.2028998414872291e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f135",
+        "to": "p177",
+        "cap": 1.2029001585127705e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f136",
+        "to": "p176",
+        "cap": 1.2028998414872291e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f136",
+        "to": "p177",
+        "cap": 1.2029001585127705e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f137",
+        "to": "p176",
+        "cap": 2.806766296803535e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f137",
+        "to": "p177",
+        "cap": 2.806767036529798e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f138",
+        "to": "p176",
+        "cap": 2.806766296803535e+23
+      },
+      {
+        "kind": "heat",
+        "from": "f138",
+        "to": "p177",
+        "cap": 2.806767036529798e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f131",
+        "cap": 3.6918283497644484e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f132",
+        "cap": 3.6918283497644484e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f133",
+        "cap": 3.6918283497644484e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f134",
+        "cap": 3.6918283497644484e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f135",
+        "cap": 3.6918283497644484e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f136",
+        "cap": 3.6918283497644484e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f137",
+        "cap": 8.61426614945038e+23
+      },
+      {
+        "kind": "power",
+        "from": "p65",
+        "to": "f138",
+        "cap": 8.61426614945038e+23
+      }
+    ],
+    "newGunIdsWithNoSourcePowerOrHeatLink": [
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186
+    ],
+    "contract": "The uploaded engine-owner and power/heat graph is historical input. Current factory examples preserve the supplied structural layout and weapon poses while rebuilding real shared machinery and complete power/strict-heat connectivity."
+  },
+  "comparison": {
+    "archive": "assets/source/imperial-shared-core-factory-blueprints/imperial.json.gz",
+    "archiveSha256": "118a4432e025559937b4bcbd00507d14c1a260fe09e09bfe49f16b72fecfc8f7",
+    "publicBlueprintSha256": "305a348fe4b87959b1fd4cf55da7ed8518c0a93ac428ab1b76c3058c66fb1d71",
+    "repositoryCommit": "61e10e7b0a545380988ca0c3bd13e7d06b010193",
+    "sameSourceHull": true,
+    "sameCutsAndSubstructures": true,
+    "sameArmorAndSurfaces": true,
+    "sourceHullOwnerId": 178,
+    "baselineHullOwnerId": 174,
+    "hullOwnerOnlyIdChanged": true,
+    "removedInnerDeckEdgeStructures": [
+      {
+        "id": 21,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          251,
+          252.5606002904597,
+          0
+        ],
+        "s": [
+          52,
+          532,
+          12.985799419080593
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 22,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          324,
+          247.34070571622794,
+          0
+        ],
+        "s": [
+          28,
+          532,
+          12.986588567544118
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 23,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          385,
+          242.97847108007852,
+          0
+        ],
+        "s": [
+          28,
+          532,
+          12.98805783984298
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 24,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          446.5,
+          238.5868219516639,
+          0
+        ],
+        "s": [
+          29,
+          532,
+          12.976856096672236
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 25,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          515.5,
+          233.65056242691278,
+          0
+        ],
+        "s": [
+          43,
+          532,
+          12.982375146174434
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 31,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          251,
+          252.5606002904597,
+          0
+        ],
+        "s": [
+          52,
+          532,
+          12.985799419080593
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 32,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          324,
+          247.34070571622794,
+          0
+        ],
+        "s": [
+          28,
+          532,
+          12.986588567544118
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 33,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          385,
+          242.97847108007852,
+          0
+        ],
+        "s": [
+          28,
+          532,
+          12.98805783984298
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 34,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          446.5,
+          238.5868219516639,
+          0
+        ],
+        "s": [
+          29,
+          532,
+          12.976856096672236
+        ],
+        "form": "outline"
+      },
+      {
+        "id": 35,
+        "label": "重砲塔甲板の内側縁",
+        "c": [
+          515.5,
+          233.65056242691278,
+          0
+        ],
+        "s": [
+          43,
+          532,
+          12.982375146174434
+        ],
+        "form": "outline"
+      }
+    ],
+    "unchangedOtherStructuralIds": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      26,
+      27,
+      28,
+      29,
+      30,
+      36,
+      37,
+      38,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      49,
+      50
+    ],
+    "gunCountUnchanged": true,
+    "triple40Count": {
+      "baseline": 9,
+      "source": 9
+    },
+    "replacedDorsalTriple40": [
+      {
+        "id": 131,
+        "k": "triple40",
+        "p": [
+          650,
+          250.65799511167552,
+          -82
+        ],
+        "a": 2,
+        "mountMode": "top",
+        "ped": 0,
+        "base": 1.2986262912588442,
+        "low": -1.2986253568435004,
+        "slope": 2.5972516481023447,
+        "float": false,
+        "batteryZone": "forward-medium",
+        "chargeDepth": 14
+      },
+      {
+        "id": 132,
+        "k": "triple40",
+        "p": [
+          650,
+          250.65799511167552,
+          82
+        ],
+        "a": 2,
+        "mountMode": "top",
+        "ped": 0,
+        "base": 1.2986269846595277,
+        "low": -1.298624663442817,
+        "slope": 2.5972516481023447,
+        "float": false,
+        "batteryZone": "forward-medium",
+        "chargeDepth": 14
+      },
+      {
+        "id": 133,
+        "k": "triple40",
+        "p": [
+          930,
+          183.21964486367278,
+          -105
+        ],
+        "a": 2,
+        "mountMode": "top",
+        "host": 174,
+        "local": [
+          0.08125,
+          0.18365539128236114,
+          -0.0887124028387969
+        ],
+        "localNormal": [
+          0,
+          268,
+          0
+        ],
+        "ped": 0,
+        "base": 1.295909421140561,
+        "low": -1.2959084955241502,
+        "slope": 2.591817916664711,
+        "float": false,
+        "batteryZone": "forward-medium",
+        "chargeDepth": 14
+      },
+      {
+        "id": 134,
+        "k": "triple40",
+        "p": [
+          930,
+          183.21891808401188,
+          105
+        ],
+        "a": 2,
+        "mountMode": "top",
+        "host": 174,
+        "local": [
+          0.08125,
+          0.18365267941795307,
+          0.0887124028387969
+        ],
+        "localNormal": [
+          0,
+          268,
+          0
+        ],
+        "ped": 0,
+        "base": 1.2962605308173218,
+        "low": -1.295920506181856,
+        "slope": 2.592181036999178,
+        "float": false,
+        "batteryZone": "forward-medium",
+        "chargeDepth": 14
+      },
+      {
+        "id": 135,
+        "k": "triple40",
+        "p": [
+          1160,
+          184.23699733690228,
+          -58
+        ],
+        "a": 2,
+        "mountMode": "top",
+        "ped": 0,
+        "base": 1.2986282999658392,
+        "low": -1.298624266895607,
+        "slope": 2.597252566861446,
+        "float": false,
+        "batteryZone": "forward-medium",
+        "chargeDepth": 14
+      },
+      {
+        "id": 136,
+        "k": "triple40",
+        "p": [
+          1160,
+          184.23699993697528,
+          58
+        ],
+        "a": 2,
+        "mountMode": "top",
+        "ped": 0,
+        "base": 1.2986277114995024,
+        "low": -1.2986253902831473,
+        "slope": 2.5972531017826497,
+        "float": false,
+        "batteryZone": "forward-medium",
+        "chargeDepth": 14
+      }
+    ],
+    "replacementVentralTriple40": [
+      {
+        "id": 179,
+        "k": "triple40",
+        "p": [
+          1559.9359388939238,
+          116.9805398008134,
+          18.216048469770783
+        ],
+        "a": 3,
+        "n": [
+          0.0655173189638173,
+          -0.9800040041919051,
+          0.18788196476411967
+        ],
+        "tilt": [
+          0.0655173189638173,
+          -0.9800040041919051,
+          0.18788196476411967
+        ],
+        "tw": 180,
+        "assetYaw": 0,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false
+      },
+      {
+        "id": 180,
+        "k": "triple40",
+        "p": [
+          1559.9353457722436,
+          116.98941167821704,
+          -18.21434759329418
+        ],
+        "a": 3,
+        "n": [
+          0.0655173189638173,
+          -0.9800040041919051,
+          -0.18788196476411967
+        ],
+        "tilt": [
+          0.0655173189638173,
+          -0.9800040041919051,
+          -0.18788196476411967
+        ],
+        "tw": 179,
+        "assetYaw": 0,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false
+      },
+      {
+        "id": 181,
+        "k": "triple40",
+        "p": [
+          849.947273270921,
+          78.42809349493746,
+          -81.02972018316638
+        ],
+        "a": 3,
+        "n": [
+          0.06994473057613305,
+          -0.9794331081755654,
+          -0.189257816943405
+        ],
+        "tilt": [
+          0.06994473057613305,
+          -0.9794331081755654,
+          -0.189257816943405
+        ],
+        "tw": 182,
+        "assetYaw": 0,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false
+      },
+      {
+        "id": 182,
+        "k": "triple40",
+        "p": [
+          849.9472734154795,
+          78.42809147069147,
+          81.02972057431538
+        ],
+        "a": 3,
+        "n": [
+          0.06994473057613305,
+          -0.9794331081755654,
+          0.189257816943405
+        ],
+        "tilt": [
+          0.06994473057613305,
+          -0.9794331081755654,
+          0.189257816943405
+        ],
+        "tw": 181,
+        "assetYaw": 0,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false
+      },
+      {
+        "id": 183,
+        "k": "triple40",
+        "p": [
+          953.5539719715555,
+          80.17974045553638,
+          -51.782687181236895
+        ],
+        "a": 3,
+        "n": [
+          0.07004680054190193,
+          -0.9794415422479226,
+          -0.18917640194499427
+        ],
+        "tilt": [
+          0.07004680054190193,
+          -0.9794415422479226,
+          -0.18917640194499427
+        ],
+        "tw": 184,
+        "assetYaw": 0,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false
+      },
+      {
+        "id": 184,
+        "k": "triple40",
+        "p": [
+          953.5539685711817,
+          80.17978800185301,
+          51.78267799779837
+        ],
+        "a": 3,
+        "n": [
+          0.07004680054190193,
+          -0.9794415422479226,
+          0.18917640194499427
+        ],
+        "tilt": [
+          0.07004680054190193,
+          -0.9794415422479226,
+          0.18917640194499427
+        ],
+        "tw": 183,
+        "assetYaw": 0,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false
+      }
+    ],
+    "oldSideQuad70": [
+      {
+        "id": 137,
+        "k": "quad70Side",
+        "p": [
+          700,
+          135.99928,
+          -323.40765380859375
+        ],
+        "a": 5,
+        "host": 174,
+        "local": [
+          -0.0625,
+          0.007459999999999995,
+          -0.27324066729350605
+        ],
+        "localNormal": [
+          0,
+          0,
+          -1183.6
+        ],
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false,
+        "localMount": true,
+        "batteryZone": "port-trench",
+        "chargeDepth": 14
+      },
+      {
+        "id": 138,
+        "k": "quad70Side",
+        "p": [
+          700,
+          135.99928,
+          323.40765380859375
+        ],
+        "a": 4,
+        "host": 174,
+        "local": [
+          -0.0625,
+          0.007459999999999995,
+          0.27324066729350605
+        ],
+        "localNormal": [
+          0,
+          0,
+          1183.6
+        ],
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false,
+        "localMount": true,
+        "batteryZone": "stbd-trench",
+        "chargeDepth": 14
+      }
+    ],
+    "replacementSideQuad70": [
+      {
+        "id": 185,
+        "k": "quad70Side",
+        "p": [
+          657.5089814854626,
+          135.606028079079,
+          -338.8624858872522
+        ],
+        "a": 5,
+        "n": [
+          0.34181303974213395,
+          0,
+          -0.9397679744821283
+        ],
+        "tw": 186,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false,
+        "localMount": true
+      },
+      {
+        "id": 186,
+        "k": "quad70Side",
+        "p": [
+          657.5089814854626,
+          135.606028079079,
+          338.8624858872522
+        ],
+        "a": 4,
+        "n": [
+          0.34181303974213395,
+          0,
+          0.9397679744821283
+        ],
+        "tw": 185,
+        "mountMode": "auto",
+        "ped": 1,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "float": false,
+        "localMount": true
+      }
+    ],
+    "unchangedReactorsAndShields": true
+  }
+}
