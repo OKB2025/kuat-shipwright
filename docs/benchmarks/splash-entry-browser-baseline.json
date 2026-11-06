@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "status": "FAIL",
+  "scope": "Chromium native touch with Safari-shaped interrupted/pending audio. Uses the exact production splash block and audio implementation in a minimal fixture, without loading Core or parsing/changing any saved draft. This does not claim a physical Safari or real Safari BFCache test.",
+  "sourceSha256": {
+    "index.html": "f9f16b7a99d699ec90d50254d1f144a4d910c9a5de50032098a9fd7600e18a2f",
+    "js/app.js": "63fa907413ee76c9e399fc62720f894db564b86f24f6462dc39c06ae458e8364",
+    "splashBlock": "746310d8dee6e30ff0930a9c9c6f34a3c959745cb488a8d259d946045851f40b",
+    "audioBlock": "9327cca9c1087f7dbc1868c27863d580690176d801da7b591410ee2420741bbb"
+  },
+  "harnessSha256": "2151f88bcc4fecf9db9695b6c9882d3bffa205177a18d214dcae2a6cf3cb29fe",
+  "cases": [
+    {
+      "name": "native-touch",
+      "status": "PASS",
+      "failure": null,
+      "elapsedMs": 171,
+      "suppressClick": false,
+      "audioMode": "pending",
+      "draftBytes": 200044,
+      "draftSha256": "810676a33ca2fe05531279789f283697e72753d76619d9aad0ae9152babff349",
+      "savedDraftPreserved": true,
+      "savedAudioPreferencesPreserved": true,
+      "events": [
+        {
+          "type": "pointerup",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 357.79999999701977
+        },
+        {
+          "type": "touchend",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 357.79999999701977
+        },
+        {
+          "type": "click",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 359.79999999701977
+        }
+      ],
+      "resumeCalls": 5,
+      "audioState": "interrupted",
+      "splashRetained": false,
+      "bodyLocked": false,
+      "errors": [],
+      "rejections": []
+    },
+    {
+      "name": "native-touch-without-compatibility-click",
+      "status": "FAIL",
+      "failure": "Trusted touch did not dismiss the ready splash without a compatibility click",
+      "elapsedMs": 1600,
+      "suppressClick": true,
+      "audioMode": "pending",
+      "draftBytes": 250050,
+      "draftSha256": "6cb5fad95f1e8256243e56cb4fe034872bd11a1cc6698b201f310b49cc2bef9f",
+      "savedDraftPreserved": true,
+      "savedAudioPreferencesPreserved": true,
+      "events": [
+        {
+          "type": "pointerup",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 305.29999999701977
+        },
+        {
+          "type": "touchend",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 305.40000000596046
+        }
+      ],
+      "resumeCalls": 3,
+      "audioState": "interrupted",
+      "splashRetained": true,
+      "bodyLocked": true,
+      "errors": [],
+      "rejections": []
+    },
+    {
+      "name": "throwing-audio-keeps-corrupt-draft",
+      "status": "FAIL",
+      "failure": "Trusted touch did not dismiss the ready splash without a compatibility click",
+      "elapsedMs": 1596,
+      "suppressClick": true,
+      "audioMode": "throw",
+      "draftBytes": 48,
+      "draftSha256": "d93a37d727c041ac4d7af6b7dbce2d1a78aa85ffe51dd7d6c06c5afb0090d4fd",
+      "savedDraftPreserved": true,
+      "savedAudioPreferencesPreserved": true,
+      "events": [
+        {
+          "type": "pointerup",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 299.80000001192093
+        },
+        {
+          "type": "touchend",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 299.90000000596046
+        }
+      ],
+      "resumeCalls": 3,
+      "audioState": "interrupted",
+      "splashRetained": true,
+      "bodyLocked": true,
+      "errors": [],
+      "rejections": []
+    },
+    {
+      "name": "rejected-audio-keeps-draft",
+      "status": "FAIL",
+      "failure": "Trusted touch did not dismiss the ready splash without a compatibility click",
+      "elapsedMs": 1586,
+      "suppressClick": true,
+      "audioMode": "reject",
+      "draftBytes": 28,
+      "draftSha256": "a5875b3cb94243c067c19ec70321c87e324978f29f782f5276b294af33c78918",
+      "savedDraftPreserved": true,
+      "savedAudioPreferencesPreserved": true,
+      "events": [
+        {
+          "type": "pointerup",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 281.3999999910593
+        },
+        {
+          "type": "touchend",
+          "trusted": true,
+          "target": "splash-start",
+          "time": 281.5
+        }
+      ],
+      "resumeCalls": 3,
+      "audioState": "interrupted",
+      "splashRetained": true,
+      "bodyLocked": true,
+      "errors": [],
+      "rejections": []
+    }
+  ],
+  "completedAt": "2026-11-06T17:29:10.804Z"
+}
