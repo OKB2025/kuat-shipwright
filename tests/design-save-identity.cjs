@@ -73,3 +73,14 @@ test('imported identity metadata is discarded before entering the editor',()=>{
  const r=setup();r("load('A','id-A');const imported=C.deserialize({...C.serialize(ship),saveId:'id-A',_historySaveId:'id-A'});setShip(imported);");
  assert.notEqual(r('ship.saveId'),'id-A');assert.equal(typeof r('ship.saveId'),'string');
 });
+
+test('saving prepares both mesh variants for the captured design after an editor switch',async()=>{
+ const r=setup();r("const prepared=[];const YardEngineClient={request:(type,payload)=>{prepared.push({type,payload});return Promise.resolve({});}};load('A','id-A');delayPack=true;const pending=saveCurrent();load('B','id-B');releasePack();");await r('pending');
+ const prepared=plain(r('prepared'));assert.equal(prepared.length,2);assert.deepEqual(prepared.map(x=>x.payload.trial),[false,true]);
+ for(const x of prepared){assert.equal(x.type,'fleet');assert.equal(x.payload.design.name,'A');assert.equal(x.payload.prepareOnly,true);}assert.equal(r('ship.name'),'B');
+});
+
+test('failed cache preparation does not turn a successful blueprint save into an error',async()=>{
+ const r=setup();r("const YardEngineClient={request:()=>Promise.reject(Error('cache unavailable'))};load('A','id-A');");await r('saveCurrent()');await Promise.resolve();
+ assert.equal(r("records.get('id-A').name"),'A');assert.equal(r('savingCurrent'),false);assert.ok(r('notices').some(s=>s.includes('保存しました')));
+});

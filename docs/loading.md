@@ -1,4 +1,4 @@
-# Loading paths (v13 LOAD)
+# Loading paths and completed ship cache
 
 Where the time goes when a design is opened, flown or shown in a fleet battle, and what is cached.
 
@@ -13,13 +13,26 @@ Where the time goes when a design is opened, flown or shown in a fleet battle, a
 
 ## What is cached
 - **Disk cache of builds** (`js/engine.js`, IndexedDB `ks-built`): per example key (`k:imperial`, `k:imperial#cis`)
-  or serialized-design hash (`d:…`): the public state after build and mounting, the figures, the fleet profile and the
-  serialized design. Meshes are kept as well when making them took ≥ 1.5 s on that device. Every record is stamped
-  with a SHA-256 of the engine's sources (reference and model data, core, gfx, engine) read back from the HTTP
-  cache, so any code or data change drops old records. Limits (provisional): builds 120 records / 60 MB, meshes
-  24 / 200 MB, least recently used first. No IndexedDB / file:// / blob worker: off, everything built as before.
-- A record from disk is re-derived with `syncCompartments` only (its state is already mounted); figures are taken
-  from the record. `ship._rayLock` makes `remount` reuse the hull mesh and structure triangles for all its rays.
+  or serialized-design hash (`d:…`): the settled public state, native machinery/shape caches, complete statistics,
+  display/catalogue projections, fleet combat profile and serialized blueprint. Canonical blueprint aliases reuse
+  the original record, including its meshes. An exact input/serialized-blueprint check rejects hash collisions.
+- **Completed meshes**: every generated fleet and piloted model is saved, including its typed vertex/index buffers,
+  bounds, doors, S-foils, turrets and launcher metadata. There is no generation-time threshold or quarter-budget
+  per-model exclusion. A warm fleet request reads the figures and completed model; it does not call
+  `syncCompartments`, `remount`, `computeStats`, `fleetProfile` or `fleetGeometry`. A piloted request restores its
+  native shape graph for turret-ray queries without re-deriving compartments.
+- **Commit before transfer**: a build record, aliases and newly generated mesh are committed in one IndexedDB
+  transaction before the Worker transfers mesh buffers or resolves the request. The stored copy therefore survives
+  buffer detachment and an immediate subsequent visit. Storage failures return the ordinary completed ship with
+  `cacheSaved:false`; they do not turn a successful blueprint save into an error.
+- **Validity and budgets**: each record uses the SHA-256 identity of the exact startup source snapshot (reference
+  and model data, core, gfx, engine). Updated calculation/render sources invalidate obsolete records. Budgets are
+  120 build records / 256 MB and 64 model records / 512 MB, least recently used first. Estimates include native
+  cache graphs and unique typed-array buffers. A full cache or browser eviction can require another build. Without
+  IndexedDB or a verified source stamp the engine follows the ordinary build path.
+- **Save preparation**: saving an editable blueprint queues background preparation of both fleet and piloted
+  models for that captured blueprint, even if the editor switches designs meanwhile. Preparation does not replace
+  the active trial's turret-ray context. It is skipped when persistent caching is unavailable.
 - **Lite models**: a fleet battle's units carry the examples' precomputed profiles (`data/fleet.js`), so their 3D
   models are requested with `lite:true` and the engine skips the figures; a later caller that needs them asks with
   `statsOnly`. A flown battle ship that is an example starts with the precomputed profile, its figures follow.
@@ -27,4 +40,12 @@ Where the time goes when a design is opened, flown or shown in a fleet battle, a
 - **Warm-up**: the fleet-battle setup screen prepares its sortie's models, the mission patrol panel its flagship (with
   figures) and escorts, one at a time and only while that screen is open; `fleetAsset` shares requests in flight.
 
-Tests: `tests/load-cache.cjs`, `tests/example-figures-regression.cjs`.
+Tests: `tests/prepared-ship-cache.cjs`, `tests/design-save-identity.cjs`, `tests/load-cache.cjs`,
+`tests/editor-worker-snapshots.cjs`, `tests/fleet-profile-refresh.cjs`, `tests/worker-geometry-bounds.cjs`.
+
+Browser verification: `scripts/browser-prepared-ship-cache.cjs` uses an actual browser Worker, native IndexedDB,
+both actual model variants and transferred buffers across a page reload. It compares complete statistics/combat
+profiles and SHA-256 hashes of every mesh buffer; it does not replace storage or calculation APIs. Results are in
+`docs/benchmarks/prepared-ship-cache-browser.json`. On the small structural fixture in Chromium 131, initial fleet
+preparation took 293.3 ms and the reload took 33.2 ms in the Worker. These are fixture measurements, not capital-ship
+timings. Save-button capture/preparation behavior is covered separately by `tests/design-save-identity.cjs`.

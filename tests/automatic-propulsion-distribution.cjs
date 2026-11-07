@@ -5,8 +5,23 @@ test('old junction parts and their obsolete links migrate to a derived direct fe
 test('automatic wiring respects explicit disconnection and isolated domains',()=>{const s=design();s.parts[1].reactor=0;assert.equal(C.engineTransmission(s).routes.length,0);delete s.parts[1].reactor;s.parts[1].powerIsolation=true;assert.equal(C.engineTransmission(s).routes.length,0);});
 
 
-test('automatic power feeds are internal wiring rather than blocking editable compartments',()=>{const s=design();s.parts.push({id:4,k:'cargo',c:[100,60,0],d:20,room:[20,20,20],autoFit:false});const net=C.engineTransmission(s),r=net.routes[0];assert.equal(r.ok,true);assert.equal(r.model,'automatic-internal-distribution');assert.equal(r.distributedWiring,true);assert.ok(net.parts.every(p=>p.distributedWiring));assert.equal(C.allOccupied(s).some(p=>p.distributedWiring),false);assert.ok(net.volume>0&&net.massTonnes>0&&net.cost>0);near(r.efficiency,Math.exp(-1e-5*r.length));assert.equal(s.parts.some(p=>p.transmission||p.k==='powerBus'),false);});
+test('automatic power feeds use source distance without blocking or consuming compartment volume',()=>{
+ const s=design();s.parts.push({id:4,k:'cargo',c:[100,60,0],d:20,room:[20,20,20],autoFit:false});
+ const net=C.engineTransmission(s),r=net.routes[0];assert.equal(r.ok,true);assert.equal(r.model,'source-distance');
+ assert.equal(net.parts.length,0);near(net.volume,0);near(net.massTonnes,0);near(net.cost,0);
+ assert.equal(r.path,undefined);assert.equal(r.segments,undefined);near(r.efficiency,Math.exp(-1e-5*r.length));
+ assert.equal(C.allOccupied(s).some(p=>p.transmission||p.distributedWiring),false);
+ assert.equal(s.parts.some(p=>p.transmission||p.k==='powerBus'),false);
+});
 
 
 test('a dangling authored feed cannot suppress the valid automatic reactor connection',()=>{const s=design();s.links=[{kind:'power',from:'p999',to:'p3',cap:1e18}];const net=C.engineTransmission(s);assert.equal(net.routes.length,1);assert.equal(net.routes[0].from,'p1');assert.equal(net.routes[0].automatic,true);assert.equal(net.routes[0].ok,true);});
-test('an explicit staged electrical circuit remains finite internal wiring and retains its authored capacities',()=>{const s=design();s.parts.push({id:4,k:'battery',c:[100,60,0],d:4,room:[4,4,4],autoFit:false});s.links=[{kind:'power',from:'p1',to:'p4',cap:8e17},{kind:'power',from:'p4',to:'p3',cap:6e17}];const net=C.engineTransmission(s);assert.equal(net.routes.length,2);assert.ok(net.routes.every(r=>r.distributedWiring&&r.ok&&!r.automatic));assert.ok(net.routes.every(r=>r.capacityW<=6e17));assert.ok(net.routes.every(r=>r.efficiency===Math.exp(-1e-5*r.length)));assert.equal(C.allOccupied(s).some(p=>p.distributedWiring),false);});
+test('an explicit staged electrical circuit retains its authored capacities in the distance ledger',()=>{
+ const s=design();s.parts.push({id:4,k:'battery',c:[100,60,0],d:4,room:[4,4,4],autoFit:false});
+ s.links=[{kind:'power',from:'p1',to:'p4',cap:8e17},{kind:'power',from:'p4',to:'p3',cap:6e17}];
+ const net=C.engineTransmission(s);assert.equal(net.routes.length,2);
+ assert.ok(net.routes.every(r=>r.model==='source-distance'&&r.ok&&!r.automatic));
+ for(const r of net.routes){const link=s.links.find(l=>l.from===r.from&&l.to===r.to);near(r.authoredCapacityW,link.cap);assert.ok(r.capacityW<=6e17);near(r.efficiency,Math.exp(-1e-5*r.length));}
+ assert.equal(net.parts.length,0);near(net.volume,0);near(net.massTonnes,0);near(net.cost,0);
+ assert.equal(C.allOccupied(s).some(p=>p.transmission||p.distributedWiring),false);
+});
