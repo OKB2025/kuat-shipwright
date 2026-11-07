@@ -1,0 +1,718 @@
+{
+  "method": "read-only-native-source-stage-reproduction-no-current-factory",
+  "runtimePublicHashesAllReproduced": true,
+  "onlyUnsavedUndefinedExtras": true,
+  "rows": [
+    {
+      "id": 1,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 4,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 7,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 9,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 12,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 14,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 31,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 33,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 35,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 41,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 43,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 45,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 47,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 49,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 66,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 68,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 70,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 72,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    },
+    {
+      "id": 74,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": [
+        {
+          "field": "angles",
+          "type": "undefined",
+          "isUndefined": true
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "runtimeHashReproduced": true,
+      "extraPublicFields": []
+    }
+  ]
+}

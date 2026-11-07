@@ -2047,7 +2047,7 @@ function touch(what) {   // geometry or design changed
   if (!ship) return;
   if(what==='hull')syncHullEditor(true);else if(what==='parts'||what==='all')syncHullEditor(false);
   if (what !== 'fits') editorPartsRevision++;
-  eng.gen++; meshStore.pendingSurfaceGeometry = null; eng.what.add(what || 'all');
+  eng.gen++; meshStore.pendingSurfaceGeometry = null;meshStore.pendingStatsGeometry=null; eng.what.add(what || 'all');
   if (live.active) live.gen = eng.gen;
   kickEngine(); engineStatus(); dirty.overlay = true; dirty.draw = true;
 }
@@ -2071,7 +2071,7 @@ function engineShipState(s) { return C.publicJSON({...s, saveId: undefined}); }
 function enginePending() { return eng.adoptedGen < eng.gen; }
 function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
-  const geo = eng.geoGen < eng.gen, stats = eng.statsGen < eng.gen;
+  const geo = eng.geoGen < eng.gen || !!eng.uploading, stats = eng.statsGen < eng.gen;
   el.hidden = !(geo || stats) || fleet.mode !== 'design';
   el.textContent = !eng.ready ? '設計エンジンを起動中…' : geo ? '形状を計算中…' : '性能を計算中…';
   el.classList.toggle('geo', geo);
@@ -2085,14 +2085,29 @@ function uploadStored() {
   if (meshStore.grid) view.setLines('grid', meshStore.grid);
 }
 function applyGeometry(msg) {
-  for (const [k, g] of Object.entries(msg.geos || {})) { if (!g) continue; meshStore.geos[k] = g; if (view) view.upload(k, g); }
-  if (msg.glow) { meshStore.glow = msg.glow; view?.setGlow(msg.glow, C.engineGlowRGB(ship?.engineGlow)); }
-  if (msg.grid) { meshStore.grid = msg.grid; view?.setLines('grid', msg.grid); }
-  if (msg.ranges !== undefined && msg.geos && Object.keys(msg.geos).length) meshStore.ranges = msg.ranges;
-  if (msg.fitRanges) meshStore.fitRanges = msg.fitRanges;
-  if (msg.bounds) { bounds = msg.bounds; meshStore.bounds = msg.bounds; }
-  if (msg.dims) meshStore.dims = msg.dims;
-  requestDraw();
+  const source=ship,entries=Object.entries(msg.geos||{}).filter(([,g])=>g),clock=()=>typeof performance!=='undefined'?performance.now():Date.now();
+  const large=entries.length>8||entries.reduce((n,[,g])=>n+(g.pos?.byteLength||0)+(g.idx?.byteLength||0),0)>2e6;
+  let index=0,settled=false;if(large)eng.uploading=(eng.uploading||0)+1;
+  const settle=ok=>{if(!settled){settled=true;if(large)eng.uploading=Math.max(0,(eng.uploading||0)-1);engineStatus();}return ok;};
+  const valid=()=>ship===source&&(msg.gen==null||msg.gen===eng.gen);
+  const finish=()=>{
+    if(!valid())return settle(false);
+    if(msg.glow){meshStore.glow=msg.glow;view?.setGlow(msg.glow,C.engineGlowRGB(ship?.engineGlow));}
+    if(msg.grid){meshStore.grid=msg.grid;view?.setLines('grid',msg.grid);}
+    if(msg.ranges!==undefined&&entries.length)meshStore.ranges=msg.ranges;
+    if(msg.fitRanges)meshStore.fitRanges=msg.fitRanges;
+    if(msg.bounds){bounds=msg.bounds;meshStore.bounds=msg.bounds;}
+    if(msg.dims)meshStore.dims=msg.dims;
+    requestDraw();return settle(true);
+  };
+  const upload=()=>{
+    if(!valid())return settle(false);
+    const began=clock();
+    do{const[k,g]=entries[index++]||[];if(g){meshStore.geos[k]=g;if(view)view.upload(k,g);}}while(index<entries.length&&(!large||clock()-began<6));
+    if(index<entries.length)return new Promise(resolve=>setTimeout(()=>resolve(upload()),0));
+    return finish();
+  };
+  return upload();
 }
 // While the engine rebuilds a resized hull, the old hull mesh is stretched to
 // the new length, beam and depth so the change is visible at once.
@@ -2106,31 +2121,65 @@ function liveScale() {
 // Derived state from the engine (mounts, bay openings, clipped and merged rooms)
 // is adopted only when the design has not changed since the request.
 function adoptEngineState(msg) {
-  const src = JSON.parse(msg.state);
-  C.patchShip(ship, src, ['parts', 'fits', 'hatches', 'surfaces']);
-  if (Number.isFinite(src.nextId)) ship.nextId = Math.max(ship.nextId, src.nextId);
-  const c = msg.caches; if (!c) return;
-  const ids = {parts: new Map(ship.parts.map(p => [p.id, p])), fits: new Map(ship.fits.map(f => [f.id, f])), hatches: new Map(ship.hatches.map(h => [h.id, h]))};
-  const seen = new Set();
-  const ref = (v) => v.$r === 'ship' ? ship : (ids[v.$r]?.get(v.id) || null);
-  const fix = (v) => {
-    if (!v || typeof v !== 'object' || ArrayBuffer.isView(v) || seen.has(v)) return;
-    seen.add(v);
-    if (v instanceof Map) { for (const [k, x] of v) { if (x && x.$r) v.set(k, ref(x)); else fix(x); } return; }
-    if (Array.isArray(v)) { for (let i = 0; i < v.length; i++) { const x = v[i]; if (x && x.$r) v[i] = ref(x); else fix(x); } return; }
-    for (const k of Object.keys(v)) { const x = v[k]; if (x && typeof x === 'object' && x.$r) v[k] = ref(x); else fix(x); }
-  };
-  fix(c);
-  for (const k of Object.keys(ship)) if (k[0] === '_' && !['_client'].includes(k)) delete ship[k];
-  Object.assign(ship, c.ship);
-  for (const l of ['parts', 'fits', 'hatches']) for (const it of ship[l]) {
-    for (const k of Object.keys(it)) if (k[0] === '_') delete it[k];
-    const x = c.items[l][it.id]; if (x) Object.assign(it, x);
+  const source=ship,serial=adoptEngineState.serial=(adoptEngineState.serial||0)+1,clock=()=>typeof performance!=='undefined'?performance.now():Date.now(),started=clock(),src=JSON.parse(msg.state),c=msg.caches;
+  if(!c)return false;
+  const valid=()=>ship===source&&eng.gen===msg.gen&&!dragSnap&&serial===adoptEngineState.serial;
+  const lists={},patches=[],ids={};
+  // Prepare public changes against existing identities without changing the
+  // live design. Input can advance the generation between preparation slices.
+  for(const list of ['parts','fits','hatches']){
+    const old=new Map((source[list]||[]).map(it=>[it.id,it]));
+    lists[list]=(src[list]||[]).map(it=>{const current=old.get(it.id);if(!current)return it;if(C.publicJSON(current)!==C.publicJSON(it))patches.push({current,next:it});return current;});
+    ids[list]=new Map(lists[list].map(it=>[it.id,it]));
   }
-  ship._client = true; ship._geoProxy = c.geoProxy;
-  if (ship._cache) ship._lockedCache = ship._cache;
-  eng.adoptedGen = msg.gen; editorPartsRevision++;
-  const geometryContext=currentEditorGeometryContext();ship._editorGeometryContext=geometryContext;for(const p of ship.parts){if(C.isHullStructure?.(p))hydrateEditorHull(p);p._editorGeometryContext=geometryContext;}
+  const surfaceChanged=Object.hasOwn(src,'surfaces')&&C.publicJSON(source.surfaces)!==C.publicJSON(src.surfaces),publicPrepared=clock();
+  const seen=new Set([source,...Object.values(ids).flatMap(index=>[...index.values()])]),frames=[];
+  const ref=v=>v.$r==='ship'?source:(ids[v.$r]?.get(v.id)||null);
+  const visit=v=>{
+    if(!v||typeof v!=='object'||ArrayBuffer.isView(v)||v instanceof ArrayBuffer||seen.has(v))return;
+    seen.add(v);
+    if(Array.isArray(v)&&v.every(x=>!x||typeof x!=='object'))return;
+    frames.push({v,iterator:v instanceof Map?v.entries():null,keys:Array.isArray(v)?null:Object.keys(v),i:0});
+  };
+  visit(c);let slices=0,largestSliceMs=0;
+  const commit=()=>{
+    if(!valid())return false;
+    const began=clock();
+    for(const {current,next}of patches){for(const k of Object.keys(current))if(k[0]!=='_')delete current[k];for(const[k,v]of Object.entries(next))if(k[0]!=='_')current[k]=v;}
+    for(const list of Object.keys(lists))source[list]=lists[list];
+    if(surfaceChanged)source.surfaces=src.surfaces;
+    if(Number.isFinite(src.nextId))source.nextId=Math.max(source.nextId,src.nextId);
+    for(const k of Object.keys(source))if(k[0]==='_'&&k!=='_client')delete source[k];
+    Object.assign(source,c.ship);source._editorSnapshot=c.editor||null;source._editorSnapshotGen=msg.gen;
+    for(const list of ['parts','fits','hatches'])for(const it of source[list]){for(const k of Object.keys(it))if(k[0]==='_')delete it[k];const x=c.items[list][it.id];if(x)Object.assign(it,x);}
+    source._client=true;source._geoProxy=c.geoProxy;if(source._cache)source._lockedCache=source._cache;
+    eng.adoptedGen=msg.gen;editorPartsRevision++;
+    const geometryContext=currentEditorGeometryContext();source._editorGeometryContext=geometryContext;for(const p of source.parts){if(C.isHullStructure?.(p))hydrateEditorHull(p);p._editorGeometryContext=geometryContext;}
+    const ended=clock();(eng.clientAdoptions||(eng.clientAdoptions=[])).push({gen:msg.gen,publicPreparationMs:publicPrepared-started,referenceSlices:slices,largestReferenceSliceMs:largestSliceMs,commitMs:ended-began,totalMs:ended-started});if(eng.clientAdoptions.length>8)eng.clientAdoptions.shift();
+    return true;
+  };
+  const prepare=()=>{
+    if(!valid())return false;
+    const began=clock();let steps=0;
+    while(frames.length){
+      const frame=frames[frames.length-1],v=frame.v;let key,value;
+      if(frame.iterator){const next=frame.iterator.next();if(next.done){frames.pop();continue;}[key,value]=next.value;}
+      else if(Array.isArray(v)){if(frame.i>=v.length){frames.pop();continue;}key=frame.i++;value=v[key];}
+      else{if(frame.i>=frame.keys.length){frames.pop();continue;}key=frame.keys[frame.i++];value=v[key];}
+      if(value&&typeof value==='object'&&value.$r){if(frame.iterator)v.set(key,ref(value));else v[key]=ref(value);}else visit(value);
+      if(++steps%256===0&&clock()-began>=6){slices++;largestSliceMs=Math.max(largestSliceMs,clock()-began);return new Promise(resolve=>setTimeout(()=>resolve(prepare()),0));}
+    }
+    slices++;largestSliceMs=Math.max(largestSliceMs,clock()-began);return commit();
+  };
+  return prepare();
+}
+function finishEngineAdoption(msg,applied){
+  if(!applied||!ship||msg.gen!==eng.gen||eng.adoptedGen!==msg.gen)return;
+  if(st.foilView==='stow')foilPreview(true);
+  if(eng.fitOnGeometry){eng.fitOnGeometry=false;fitCamera(eng.keepCam);}
+  hideBusyOverlay();refreshOverlay();renderPanelInfo();updateAviationUI();refreshDerivedPanel();autosave();
+  if(titleVisible()){titleStatus();titleShipView();}
+  engineStatus();
 }
 // A newer edit may touch only parts after an older hull rebuild. Keep the
 // older mesh fields until the current generation arrives, then upload their
@@ -2142,33 +2191,32 @@ function retainGeometry(msg) {
   for (const key of ['glow', 'grid', 'ranges', 'fitRanges', 'bounds', 'dims']) if (msg[key] !== undefined) pending[key] = msg[key];
 }
 function onEngineGeometry(msg) {
-  eng.waiting = false;
-  if (msg.gen < eng.gen || dragSnap) retainGeometry(msg);
-  else if (msg.gen === eng.gen && meshStore.pendingGeometry) {
-    const pending = meshStore.pendingGeometry; meshStore.pendingGeometry = null;
-    msg = {...pending, ...msg, geos: {...pending.geos, ...msg.geos}};
-  }
-  if (!dragSnap && msg.gen === eng.gen && msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if ((live.active || live.queued) && st.foilView !== 'stow') clearPreview(); }
-  if (!dragSnap && msg.gen === eng.gen && msg.state) {
-    adoptEngineState(msg);
-    if (st.foilView === 'stow') foilPreview(true);
-    if (eng.fitOnGeometry) { eng.fitOnGeometry = false; fitCamera(eng.keepCam); }
-    hideBusyOverlay();
-    refreshOverlay(); renderPanelInfo(); updateAviationUI(); refreshDerivedPanel(); autosave();
-    if (titleVisible()) { titleStatus(); titleShipView(); }
-  }
-  if (eng.gen > eng.sentGen) kickEngine();
-  engineStatus();
+  eng.waiting=false;
+  if(msg.gen<eng.gen||dragSnap)retainGeometry(msg);
+  else if(msg.gen===eng.gen&&meshStore.pendingGeometry){const pending=meshStore.pendingGeometry;meshStore.pendingGeometry=null;msg={...pending,...msg,geos:{...pending.geos,...msg.geos}};}
+  const ready=applied=>{
+    if(!applied||dragSnap||msg.gen!==eng.gen){retainGeometry(msg);return;}
+    eng.geoGen=msg.gen;eng.ms=msg.totalMs;
+    if((live.active||live.queued)&&st.foilView!=='stow')clearPreview();
+    const statsGeometry=meshStore.pendingStatsGeometry;if(statsGeometry?.gen===msg.gen){meshStore.pendingStatsGeometry=null;applyGeometry(statsGeometry);}
+    const surfaces=meshStore.pendingSurfaceGeometry;if(surfaces?.gen===msg.gen)meshStore.pendingSurfaceGeometry=null;
+    const state=surfaces?.gen===msg.gen?surfaces:msg;
+    if(state.state){const adopted=adoptEngineState(state),finish=ok=>{if(!ok&&dragSnap&&msg.gen===eng.gen)retainGeometry(msg);finishEngineAdoption(state,ok);};if(adopted&&typeof adopted.then==='function')return adopted.then(finish);finish(adopted);}
+    engineStatus();
+  };
+  let completion;
+  if(!dragSnap&&msg.gen===eng.gen&&msg.gen>=eng.geoGen){const applied=applyGeometry(msg);completion=applied&&typeof applied.then==='function'?applied.then(ready):ready(applied);}
+  if(eng.gen>eng.sentGen)kickEngine();engineStatus();return completion;
 }
 function onEngineSurfaceGeometry(msg) {
-  if (!ship || msg.gen !== eng.gen || msg.gen !== eng.geoGen) return;
-  if (dragSnap) { meshStore.pendingSurfaceGeometry = msg; return; }
-  adoptEngineState(msg);
-  refreshDerivedPanel();
+  if(!ship||msg.gen!==eng.gen)return;
+  if(dragSnap||msg.gen!==eng.geoGen){meshStore.pendingSurfaceGeometry=msg;return;}
+  const completesGeometry=eng.adoptedGen<msg.gen,adopted=adoptEngineState(msg),finish=applied=>{if(!applied&&dragSnap&&msg.gen===eng.gen)meshStore.pendingSurfaceGeometry=msg;if(completesGeometry)finishEngineAdoption(msg,applied);else if(applied){refreshDerivedPanel();engineStatus();}};
+  if(adopted&&typeof adopted.then==='function')return adopted.then(finish);return finish(adopted);
 }
 function onEngineStats(msg) {
   if (dragSnap || msg.gen < eng.gen) return;
-  if (msg.geos && msg.gen >= eng.geoGen) applyGeometry(msg);
+  if(msg.geos&&msg.gen>=eng.geoGen){if(msg.gen>eng.geoGen)meshStore.pendingStatsGeometry=msg;else applyGeometry(msg);}
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
@@ -2444,6 +2492,15 @@ function paintPlan(g,W,H,R){
  g.fillStyle='rgba(240,160,58,.95)';g.font='600 12px ui-monospace, monospace';g.textAlign='center';g.fillText('1,600 m',W*.49,H*.885);
 }
 
+// Expensive shadow-map passes wait for an idle, current design. Camera input
+// and background updates keep the same meshes with ordinary lighting.
+function syncEditorShadowBudget(){
+  if(!view)return;
+  const defer=!eng.ready||eng.geoGen<eng.gen||eng.statsGen<eng.gen||!!eng.uploading||previewInputBusy();
+  if(defer&&view._editorShadowDeferred!==true){view._editorShadowPreference=view.noShadow;view._editorShadowDeferred=true;view.noShadow=true;dirty.draw=true;}
+  else if(!defer&&view._editorShadowDeferred===true){view.noShadow=view._editorShadowPreference;delete view._editorShadowPreference;view._editorShadowDeferred=false;dirty.draw=true;}
+}
+
 function loop(now=performance.now()) {
   renderHealth.loops=(renderHealth.loops||0)+1;
   if(document.hidden){requestAnimationFrame(loop);return;}
@@ -2454,7 +2511,7 @@ function loop(now=performance.now()) {
   if(voy.open){try{voyLoop(now);}catch(e){console.error(e);}requestAnimationFrame(loop);return;}
   if(fleet.mode!=='design'){try{if(!renderHealth.lost&&!renderRetryTimer)fleetLoop(now);}catch(e){renderingFailed(e);}requestAnimationFrame(loop);return;}
   if (view && ship && !renderHealth.lost && !renderRetryTimer) {
-    view.onTextureReady=requestDraw;
+    view.onTextureReady=requestDraw;syncEditorShadowBudget();
     try {
       flushLivePreview();
       if (dirty.overlay) { dirty.overlay = false; refreshOverlay(); }
@@ -2709,15 +2766,16 @@ function editorRayPartMayHit(p,o,d,maxT){
  const b=saved.bounds;if(!b?.every(Number.isFinite)||o.every((v,i)=>v>=b[i]&&v<=b[i+3]))return true;
  const h=C.rayAABB(o,d,b);return !!h&&(maxT==null||h.t<=maxT);
 }
+function editorSnapshotForUI(){return ship?._editorSnapshot&&ship._editorSnapshotGen===eng.gen&&eng.adoptedGen===eng.gen?ship._editorSnapshot:null;}
+function editorCommandCompartments(){return editorSnapshotForUI()?.commands||[];}
 function enginePickParts(){
- if(!eng.ready||enginePending()||ship?._deferredPreparation)return enginePickCache?.ship===ship?enginePickCache.parts:[];
- const key=eng.gen+':'+eng.geoGen+':'+eng.statsGen;
- if(enginePickCache?.ship===ship&&enginePickCache.key===key)return enginePickCache.parts;
- const parts=C.enginePaths(ship).filter(p=>!Gfx.isHiddenEngineFeed(p));enginePickCache={ship,key,parts};return parts;
+ const snapshot=editorSnapshotForUI();if(!snapshot)return [];
+ if(enginePickCache?.ship===ship&&enginePickCache.snapshot===snapshot)return enginePickCache.parts;
+ const parts=(snapshot.engineParts||[]).filter(p=>!Gfx.isHiddenEngineFeed(p));enginePickCache={ship,snapshot,parts};return parts;
 }
 function partHit(o, d, clip, filter) {
   let best = null;const nativeFits=new Set(ship.fits.map(f=>f.id));
-  const pending=!eng.ready||enginePending()||!!ship._deferredPreparation, parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)];
+  const pending=!eng.ready||enginePending()||!!ship._deferredPreparation, snapshot=editorSnapshotForUI(),parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...(snapshot?.commands||[]),...(snapshot?.capacitors||[]).filter(p=>nativeFits.has(p.weaponId)),...(snapshot?.missileCells||[])];
   for (const pt of parts) {
     if(Gfx.isHiddenEngineFeed(pt))continue;
     if(pending&&!editorCanMeshPart(pt))continue;
@@ -2745,9 +2803,12 @@ function pick(px, py, want) {
 // The same hit test along a world ray (the tutorial taps through it).
 function pickRay(o, d, want) {
   if (!ship) return null;
+  // Preserve launcher recesses when present; native-only ships can reuse the
+  // worker's BVH instead of flattening every structure into a triangle ray.
+  const launcherCuts=ship.fits.some(f=>C.isShipLauncher?.(f)&&f.launcherEmbedded!==false);
   let h = null;
-  if (st.view === 'xray' && want.parts) h = partHit(o, d, null, (pt) => !C.isShapePart(pt)) || envHit(o, d, null, {structOnly: false,launcherCuts:true});
-  else h = envHit(o, d, null,{launcherCuts:true});
+  if (st.view === 'xray' && want.parts) h = partHit(o, d, null, (pt) => !C.isShapePart(pt)) || envHit(o, d, null, {structOnly: false,launcherCuts});
+  else h = envHit(o, d, null,{launcherCuts});
   if(st.view!=='xray'&&want.parts){const exterior=partHit(o,d,null,p=>(p.transmission||p.drivetrain)&&p.entrySegments?.length);if(exterior&&(!h||exterior.t<h.t))h=exterior;}
   if (want.fits) { const f = fitHit(o,d,h?.t); if (f && (!h || f.t < h.t)) return {fit: f.fit, t: f.t, p: f.p}; }
   return h;
@@ -2877,7 +2938,7 @@ function refreshOverlay() {
   if (S?.ungrounded && fleet.mode === 'design') { const red = [255, 86, 76, 255], gp = new Set(S.ungrounded.parts), gf = new Set(S.ungrounded.fits); for (const p of ship.parts) if (gp.has(p.id)) ls.part(shape(p), red); for (const f of ship.fits) if (gf.has(f.id)) ls.box(C.fitAABB(f), red); }
   if (st.tab === 'edit') { const am = [240, 170, 70, 255], pr = st.sel; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), pr?.list === 'parts' && pr.id === p.id ? cy : am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), pr?.list === 'fits' && pr.id === f.id ? cy : am); xfPreviewLines(ls); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
-  if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);if(C.FITS[it.k]?.window){const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]);} }
+  if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);if(C.FITS[it.k]?.window){const room=editorCommandCompartments().find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]);} }
   const base = ls.out();
   if (hoverLines) {
     const h = hoverLines.out(), pos = new Float32Array(base.pos.length + h.pos.length), col = new Uint8Array(base.col.length + h.col.length);
@@ -2886,15 +2947,19 @@ function refreshOverlay() {
   } else view.setLines('ghost', base);
   requestDraw();
 }
-function onHover(px, py) {
-  if(fleet.mode!=='design'||trial.on)return;
-  if (!ship || !view) return;
-  const t = tool();
-  if(t === 'solid') return;
-  hoverLines = ghostFor(pick(px, py, {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'edit' || t === 'unany', fits: t === 'unfit' || t === 'adjust' || t === 'inspect' || t === 'fit' || t === 'multi' || t === 'edit' || t === 'unany'}));
-  refreshOverlay();
+let queuedHover=null,hoverTimer=0;
+function cancelQueuedHover(){clearTimeout(hoverTimer);hoverTimer=0;queuedHover=null;}
+function onHover(px,py){
+  if(fleet.mode!=='design'||trial.on||!ship||!view)return;
+  const t=tool();if(t==='solid')return;
+  const request=queuedHover={px,py,source:ship,gen:eng.gen,tool:t};clearTimeout(hoverTimer);
+  hoverTimer=setTimeout(()=>{
+    hoverTimer=0;if(queuedHover!==request)return;queuedHover=null;
+    if(ship!==request.source||eng.gen!==request.gen||tool()!==request.tool||live.pointerActive||dragSnap)return;
+    hoverLines=ghostFor(pick(px,py,{parts:['select','multi','unpart','edit','unany'].includes(t),fits:['unfit','adjust','inspect','fit','multi','edit','unany'].includes(t)}));refreshOverlay();
+  },80);
 }
-function clearHover() { hoverLines = null; refreshOverlay(); }
+function clearHover(){cancelQueuedHover();hoverLines=null;refreshOverlay();}
 
 function onTap(px, py, add) {
   if(trial.on)return;
@@ -3124,7 +3189,7 @@ function designAccelerationG(S){const rated=S?.propulsion?.ratedAccelMps2??S?.ra
 // Basic specifications describe installed equipment at its independent rating.
 // The original worker statistics remain the source for actual operating loads.
 function catalogStats(stats,design=ship){
- if(!stats)return stats;const work=design&&C.surfaceWorkingShip?C.surfaceWorkingShip(design):design,parts=work?.parts||[],fits=work?.fits||[],shields=parts.filter(p=>['shield','localShield'].includes(p.k)&&!p.surfaceUnplaced),weapons=fits.filter(f=>C.FITS[f.k]?.cat==='w'&&!f.float&&!f.surfaceUnplaced).map(f=>({fit:f,spec:C.fitSpec(f)})),power=Number.isFinite(stats.powerNominal)?stats.powerNominal:parts.length?parts.reduce((n,p)=>n+(C.isReactor(p)?C.reactorPower(p):0)+(C.solarPower?.(p)||0),0):stats.power||0,shieldP=parts.length?shields.reduce((n,p)=>n+C.partVolume(p)*C.K.shieldW,0):stats.shieldP||0,shieldCapacity=parts.length?shields.reduce((n,p)=>n+C.shieldLoad(p),0):stats.shieldCapacity||0,alpha=[0,0,0,0,0,0],bandRate=Object.fromEntries(Object.keys(C.GUN_BANDS).map(k=>[k,[0,0,0,0,0,0]]));
+ if(!stats)return stats;if(stats.catalogue)return {...stats,...stats.catalogue};const work=design&&C.surfaceWorkingShip?C.surfaceWorkingShip(design):design,parts=work?.parts||[],fits=work?.fits||[],shields=parts.filter(p=>['shield','localShield'].includes(p.k)&&!p.surfaceUnplaced),weapons=fits.filter(f=>C.FITS[f.k]?.cat==='w'&&!f.float&&!f.surfaceUnplaced).map(f=>({fit:f,spec:C.fitSpec(f)})),power=Number.isFinite(stats.powerNominal)?stats.powerNominal:parts.length?parts.reduce((n,p)=>n+(C.isReactor(p)?C.reactorPower(p):0)+(C.solarPower?.(p)||0),0):stats.power||0,shieldP=parts.length?shields.reduce((n,p)=>n+C.partVolume(p)*C.K.shieldW,0):stats.shieldP||0,shieldCapacity=parts.length?shields.reduce((n,p)=>n+C.shieldLoad(p),0):stats.shieldCapacity||0,alpha=[0,0,0,0,0,0],bandRate=Object.fromEntries(Object.keys(C.GUN_BANDS).map(k=>[k,[0,0,0,0,0,0]]));
  let alphaTot=0,ionTot=0,heavyAlpha=0;for(const{fit,spec}of weapons){if(spec.msl)continue;const tt=spec.tt||0,ion=spec.ion||0,arc=stats.fitInfo?.[fit.id]||[0,0,0,0,0,0],band=bandRate[C.fitBand(spec)];alphaTot+=tt;ionTot+=ion;if(Math.max(tt,ion)>=10)heavyAlpha+=Math.max(tt,ion);for(let k=0;k<6;k++){alpha[k]+=tt*(arc[k]||0);if(band)band[k]+=tt*(arc[k]||0)/(spec.cycle||C.K.cycle);}}
  const mounted=Array.isArray(work?.fits),a=mounted?alpha:stats.alpha||alpha,total=mounted?alphaTot:stats.alphaTot||0,best=Math.max(...a),rated=stats.propulsion?.ratedAccelMps2??stats.ratedAccelMps2;
  return {...stats,power,xISD:power/C.ISD_W,accelG:designAccelerationG(stats),aThrust:Number.isFinite(rated)?Math.max(0,rated):stats.aThrust,thrustG:Number.isFinite(rated)?Math.max(0,rated)/C.G0:stats.thrustG,shieldP,shieldPct:stats.area>0?shieldP/stats.area/C.K.shieldStd:0,shieldCapacity,alpha:a,alphaTot:total,alphaBest:best,alphaMean:a.reduce((n,v)=>n+v,0)/6,ionTot:mounted?ionTot:stats.ionTot||0,allGunVolleyTT:mounted?alphaTot+ionTot:stats.allGunVolleyTT??total+(stats.ionTot||0),heavyAlpha:mounted?heavyAlpha:stats.heavyAlpha,arcEff:total>0?best/total:0,bandRate:mounted?bandRate:stats.bandRate};
@@ -3200,7 +3265,8 @@ function craftStoresHTML(c){
 // v21 A craft's figures as a carrier's complement in the voyage (the same scale as the craft types there).
 function craftCombatHTML(S){
  const c=C.craftCombat(ship,S,{summaryOnly:true});if(!c)return '';const row=(k,v,n)=>`<div><dt>${k}</dt><dd>${v}<small>${n}</small></dd></div>`;
- return `<h4>艦載機としての性能（航行）</h4><dl class="kv">${row('速度',`${num(c.speed)} m/s`,`約 ${num(Math.round(c.speed/20))} MGLT・加速 ${fG(c.accelG)} から`)}${row('空戦',c.aa,`機首の砲と機動性${c.shield?'・シールド':''}${c.role==='bomber'?'（爆撃機は空戦が苦手）':''}`)}${row('対艦',num(c.strike),`1回目の攻撃航過（砲 ${num(c.gun)}・お任せの搭載）`)}${row('耐久',c.armor,`質量 ${fMass(S.mass)}${c.shield?'・シールドあり':''}`)}${row('役割',esc(S.cls.role),`格納サイズ ${num(c.size,1)}`)}</dl><p class="note">速度は MGLT（公式の亜光速性能）1 につき 20 m/s（インペリアル級 60 MGLT＝1,200 m/s）。比較：Xウイング（100 MGLT）速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln（100 MGLT）2,000・1.0・10・0.6、Aウイング（120 MGLT）2,400。母艦の「編成」→「航空」で「設計した機体・小型艦」からこの設計を選ぶと、航行ではこの性能で出撃します。</p>${craftStoresHTML(c)}`;
+ const ref=c.speedReference,published=ref?.status==='published',basis=published?'公表された最高速度':'設計から計算した速度（仮定）',source=published&&/^https:\/\//.test(ref.source||'')?` <a href="${esc(ref.source)}" target="_blank" rel="noopener noreferrer">速度の資料</a>`:'';
+ return `<h4>艦載機としての性能（航行）</h4><dl class="kv">${row('速度',`${num(c.speed)} m/s`,`約 ${num(Math.round(c.speed/C.MGLT.ms))} MGLT・${basis}`)}${row('加速',fG(c.accelG),'速度とは別に計算')}${row('空戦',c.aa,`機首の砲と機動性${c.shield?'・シールド':''}${c.role==='bomber'?'（爆撃機は空戦が苦手）':''}`)}${row('対艦',num(c.strike),`1回目の攻撃航過（砲 ${num(c.gun)}・お任せの搭載）`)}${row('耐久',c.armor,`質量 ${fMass(S.mass)}${c.shield?'・シールドあり':''}`)}${row('役割',esc(S.cls.role),`格納サイズ ${num(c.size,1)}`)}</dl><p class="note">公表されたMGLTがある艦種はその値を使い、資料のない設計は計算値（仮定）を使います。1 MGLT＝20 m/s はゲーム内の換算です。${source}</p><p class="note">母艦の「編成」→「航空」で「設計した機体・小型艦」からこの設計を選ぶと、航行ではこの性能で出撃します。</p>${craftStoresHTML(c)}`;
 }
 const CRAFT_SYSTEM_KEYS=['lifeSupport','ejectSeat','navComputer','targetComputer','maneuver','laserGas','landingGear'];
 function craftSystemsHTML(stats){
@@ -3854,7 +3920,7 @@ function attachControls(canvas) {
   let mode = null, start = null, last = null, pinch = null, moved = false;
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   canvas.addEventListener('pointerdown', e => {
-    previewInput(true);
+    cancelQueuedHover();previewInput(true);
     canvas.setPointerCapture(e.pointerId);
     ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
     if (trial.on || shot.on) {   // trial flights and screenshots: drag only looks around, pinch only zooms
@@ -3917,7 +3983,7 @@ function attachControls(canvas) {
   canvas.addEventListener('pointerup', end);
   canvas.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); if(mode==='cutter')cutterDragEnd(true); if(mode==='verts')veDragEnd(true); if(mode==='item'||mode==='itemPending')dragItemEnd(true); if (!ptrs.size) {mode = null;previewInput(false);} });
   canvas.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !ptrs.size) clearHover(); });
-  canvas.addEventListener('wheel', e => { previewInput(); e.preventDefault(); view.cam.r = Math.max(20, Math.min(400000, view.cam.r * (1 + Math.sign(e.deltaY) * Math.min(0.25, Math.abs(e.deltaY) * 0.0015)))); requestDraw(); }, {passive: false});
+  canvas.addEventListener('wheel', e => { cancelQueuedHover();previewInput(); e.preventDefault(); view.cam.r = Math.max(20, Math.min(400000, view.cam.r * (1 + Math.sign(e.deltaY) * Math.min(0.25, Math.abs(e.deltaY) * 0.0015)))); requestDraw(); }, {passive: false});
   function pan(dx, dy) {
     const m = view.matrices(), V = m.V, h = canvas.clientHeight || 1;
     const k = 2 * view.cam.r * Math.tan(view.cam.fov / 2) / h;
@@ -4725,13 +4791,20 @@ function engineSpecAction(field,value,fresh=false){
  else mutate('機関の仕様を変更',()=>{for(const p of targets){apply(p);C.enforceEquipment(p);}queuePreview('parts',targets);},'parts');
  renderPanel();return true;
 }
-let propulsionUICache=null;
+let propulsionUICache=null,propulsionUIPending=null;
 function propulsionPreviewForUI(){
- if(!S||enginePending())return null;
+ if(!S||enginePending()||eng.statsGen!==eng.gen)return null;
  const preset=['cruise','combat','max'].includes(st.heatPreset)?st.heatPreset:'combat';
+ if(S.propulsion?.preset===preset)return S.propulsion;
  if(propulsionUICache?.ship===ship&&propulsionUICache.stats===S&&propulsionUICache.preset===preset)return propulsionUICache.value;
- const value=C.propulsionPreview?C.propulsionPreview(ship,S,preset):S.propulsion;
- propulsionUICache={ship,stats:S,preset,value};return value;
+ if(propulsionUIPending?.ship!==ship||propulsionUIPending.stats!==S||propulsionUIPending.preset!==preset){
+  const request=propulsionUIPending={ship,stats:S,preset,gen:eng.gen};
+  YardEngineClient.request('propulsionPreview',{gen:request.gen,preset}).then(msg=>{
+   if(propulsionUIPending!==request||ship!==request.ship||S!==request.stats||eng.gen!==request.gen||eng.statsGen!==request.gen||(st.heatPreset||'combat')!==preset||msg.gen!==request.gen)return;
+   if(msg.preview){propulsionUICache={ship,stats:S,preset,value:msg.preview};refreshDerivedPanel();renderSpecTargets();}
+  }).catch(e=>console.warn('propulsion preview unavailable',e.message)).finally(()=>{if(propulsionUIPending===request)propulsionUIPending=null;});
+ }
+ return null;
 }
 function engineSpecControls(p,fresh=false,multiple=false){
  const spec=C.resolveEngineSpec(p,ship),profiles=C.PROPULSION_PROFILES||C.DRIVE_PROFILES,grades=C.MACHINERY_GRADES,core=p.k==='engineCore',external=C.equipmentSpec(p)?.engineStyle==='exposed';
@@ -4756,22 +4829,11 @@ function transmissionPortLabel(port){
  const match=/^p(\d+)$/.exec(String(port||'')),p=match&&ship.parts.find(p=>p.id===Number(match[1]));
  return p?`${C.partLabel(p)} #${p.id}`:String(port||'');
 }
-let transmissionUICache=null;
-let driveUICache=null;
-function transmissionForUI(){
- if(!C.engineTransmission)return null;
- const generation=typeof eng==='object'&&eng?eng.gen+':'+eng.geoGen+':'+eng.statsGen:null;
- if(generation!=null&&transmissionUICache?.ship===ship&&transmissionUICache.generation===generation)return transmissionUICache.network;
- const network=C.engineTransmission(ship);transmissionUICache={ship,generation,network};return network;
-}
-function driveForUI(){
- if(!C.engineDriveRoutes)return null;
- const generation=typeof eng==='object'&&eng?eng.gen+':'+eng.geoGen+':'+eng.statsGen:null;
- if(generation!=null&&driveUICache?.ship===ship&&driveUICache.generation===generation)return driveUICache.network;
- const network=C.engineDriveRoutes(ship);driveUICache={ship,generation,network};return network;
-}
+function transmissionForUI(){return editorSnapshotForUI()?.transmission||null;}
+function driveForUI(){return editorSnapshotForUI()?.drive||null;}
+
 function engineDriveHTML(p){
- const network=driveForUI(),routes=(network?.routes||[]).filter(r=>p.k==='engineCore'?r.coreId===p.id:r.nozzleId===p.id);
+ const network=driveForUI();if(!network)return '<p class="note">計算中…</p>';const routes=(network?.routes||[]).filter(r=>p.k==='engineCore'?r.coreId===p.id:r.nozzleId===p.id);
  if(!routes.length)return '<p class="note">動力伝達路は未接続です。</p>';
  const capacity=routes.reduce((n,r)=>n+(r.ok?r.capacityW:0),0),volume=routes.reduce((n,r)=>n+r.volume,0),length=routes.reduce((n,r)=>n+r.length,0),broken=routes.filter(r=>!r.ok).length;
  return `<dl class="engineering-stats" data-engine-drive><div><dt>動力伝達路</dt><dd>${num(routes.length)} 本${broken?` · <span class="neg">不通 ${num(broken)}</span>`:''}</dd></div><div><dt>ノズルへの伝達容量</dt><dd>${fW(capacity)}</dd></div><div><dt>動力伝達路の長さ</dt><dd>${fLen(length)}</dd></div><div><dt>動力伝達路の占有</dt><dd>${num(volume,3)} m³</dd></div></dl>`;
@@ -4789,6 +4851,7 @@ function transmissionRoutesForEngine(p){
  return [...routes];
 }
 function engineTransmissionHTML(p){
+ if(!transmissionForUI())return '<p class="note">計算中…</p>';
  const routes=transmissionRoutesForEngine(p);if(!routes.length)return '<p class="note neg">機関への伝達経路がありません。</p>';
  const length=routes.reduce((n,r)=>n+(r.ok?r.length:0),0),volume=routes.reduce((n,r)=>n+(r.ok?r.volume:0),0),direct=routes.filter(r=>r.to==='p'+(engineConnectionOwner(p)||p).id&&r.ok).reduce((n,r)=>n+r.capacityW,0),broken=routes.filter(r=>!r.ok).length,connected=transmissionForUI()?.engines?.[p.id]?.connected,limited=routes.filter(r=>r.limited).length;
  return `<dl class="engineering-stats" data-engine-transmission><div><dt>伝達経路</dt><dd>${num(routes.length)} 本${broken?` · <span class="neg">不通 ${num(broken)}</span>`:''}${connected===false?' · <span class="neg">給電未接続</span>':''}${limited?` · <span class="neg">容量制限 ${num(limited)}</span>`:''}</dd></div><div><dt>引込伝達容量</dt><dd>${fW(direct)}</dd></div><div><dt>経路長（共用幹線を含む）</dt><dd>${fLen(length)}</dd></div><div><dt>経路の占有（共用幹線を含む）</dt><dd>${num(volume,3)} m³</dd></div></dl>`;
@@ -8820,8 +8883,8 @@ function bindPlanCuts(){
 st.alignment='none';st.showHabitation=false;
 function alignmentControls(selected=false){return `<div class="pgroup"><h4>${selected?'中心線・中心面へ整列':'配置位置を揃える'}</h4>${seg(selected?'alignselected':'placementalign',Object.entries(C.ALIGNMENTS).filter(([k])=>!selected||k!=='none'),selected?'':st.alignment)}<p class="note">基準は基本船体の寸法。中心線は上下中心面と左右中心面の交線です。${selected?'左右対を中心線へ移すと1個にまとめます。':'選択した座標だけ固定し、残りはタップした位置に合わせます。'}</p></div>`;}
 function replacementControls(p){const keys=C.replacementOptions(p);return keys.length?`<div class="pgroup"><h4>同じ形状の設備へ交換</h4><label>交換先<select data-replacement>${keys.map(k=>`<option value="${k}" ${k===p.k?'selected':''}>${esc(C.PARTS[k].name)}</option>`).join('')}</select></label><p class="note">位置・寸法・輪郭を維持して用途を交換します。${C.isReactor(p)?'主炉と補助炉は、同じ実体積なら同じ発電出力です。補助炉は船体外の部分を除いて計算します。':'性能は交換先の設備と寸法に従います。'}航空区画を別用途にすると、付随する開口も撤去します。元に戻す操作に対応。</p></div>`:'';}
-function commandControls(f){const p=C.commandCompartments(ship).find(p=>p.windowId===f.id),inf=S?.commandInfo?.[f.id];return `<div class="pgroup blueprint-card" id="command-editor"><h4>${esc(C.COMMAND_ROLES[C.FITS[f.k].role])}区画</h4><label><input type="checkbox" data-command-enabled ${f.commandEnabled!==false?'checked':''}> ポッドの背後に指揮区画を確保</label><div class="sliders">${slider('commandDepth','壁から船内への奥行き',f.commandDepth??12,2,200,1,fmtM(f.commandDepth??12))}${slider('commandHeight','指揮室の高さ',f.commandHeight??Math.max(8,(f.height||4)+3),2,80,1,fmtM(f.commandHeight??Math.max(8,(f.height||4)+3)))}</div><p>占有 ${ja(p?C.partVolume(p):0)} m³ · 稼働 ${fPct(inf?.ratio||0)}</p><p class="note">幅はポッドの直径に連動。外殻内に切取り、機関・主砲充電装置との干渉も点検します。指揮能力はこの区画の有効容積に応じます。</p><button class="btn" data-command-view="${f.id}">指揮区画を透視</button>${f.host?`<button class="btn" data-layout-part="${f.host}">艦橋の構造を編集</button>`:''}</div>`;}
-function derivedRoomsHTML(host){const commands=C.commandCompartments(ship).filter(p=>host==null||p.host===host);return `<div class="pgroup"><h4>艦橋に付随する指揮区画</h4>${commands.map(p=>`<button class="engine-row" data-command-view="${p.windowId}"><span>${esc(p.label)} #${p.windowId}</span><b>${ja(C.partVolume(p))} m³</b></button>`).join('')||'<p class="note">艦橋ポッド・航空指揮所窓を構造の壁面に配置すると、背後に指揮区画を確保します。無窓式指揮室は「指揮・艦橋 → 指揮区画」から配置できます。</p>'}</div>`;}
+function commandControls(f){const p=editorCommandCompartments().find(p=>p.windowId===f.id),inf=S?.commandInfo?.[f.id];return `<div class="pgroup blueprint-card" id="command-editor"><h4>${esc(C.COMMAND_ROLES[C.FITS[f.k].role])}区画</h4><label><input type="checkbox" data-command-enabled ${f.commandEnabled!==false?'checked':''}> ポッドの背後に指揮区画を確保</label><div class="sliders">${slider('commandDepth','壁から船内への奥行き',f.commandDepth??12,2,200,1,fmtM(f.commandDepth??12))}${slider('commandHeight','指揮室の高さ',f.commandHeight??Math.max(8,(f.height||4)+3),2,80,1,fmtM(f.commandHeight??Math.max(8,(f.height||4)+3)))}</div><p>占有 ${ja(p?C.partVolume(p):0)} m³ · 稼働 ${fPct(inf?.ratio||0)}</p><p class="note">幅はポッドの直径に連動。外殻内に切取り、機関・主砲充電装置との干渉も点検します。指揮能力はこの区画の有効容積に応じます。</p><button class="btn" data-command-view="${f.id}">指揮区画を透視</button>${f.host?`<button class="btn" data-layout-part="${f.host}">艦橋の構造を編集</button>`:''}</div>`;}
+function derivedRoomsHTML(host){const commands=editorCommandCompartments().filter(p=>host==null||p.host===host);return `<div class="pgroup"><h4>艦橋に付随する指揮区画</h4>${commands.map(p=>`<button class="engine-row" data-command-view="${p.windowId}"><span>${esc(p.label)} #${p.windowId}</span><b>${ja(C.partVolume(p))} m³</b></button>`).join('')||'<p class="note">艦橋ポッド・航空指揮所窓を構造の壁面に配置すると、背後に指揮区画を確保します。無窓式指揮室は「指揮・艦橋 → 指揮区画」から配置できます。</p>'}</div>`;}
 function feedSrc(fd,short=false){const c=fd?.[2]||0;return c>.999?(short?'セル':'パワーセルから'):c<.001?(short?'炉':'炉から'):(short?'セル+炉':`セル ${Math.round(c*100)}%・炉 ${Math.round((1-c)*100)}% · 平均`);}
 function feedTop(n=5){const info=S?.feedInfo||{};return Object.entries(info).map(([id,fd])=>({f:ship.fits.find(f=>f.id===+id),fd,v:fd[0],l:fd[1]})).filter(r=>r.f&&r.v>0).sort((a,b)=>b.v-a.v).slice(0,n);}
 function habitationHTML(){const K=S?.personVolume||0,F=S?.autoHabitationVolume||0,V=S?.feedVolume||0,H=S?.habitableVolume??F,top=feedTop(5),short=(S?.habit??1)<1,cells=S?.feedCellCount||0;
@@ -9875,7 +9938,7 @@ const voy = {open: false, screen: null, setup: null, w: null, speed: 1, last: 0,
 // prepared by the engine (the same request also builds their 3D models).
 function voyExampleDesigns() {
  const out = [];
- for (const d of Object.values(YardFleetData?.designs || {})) out.push({key: d.key, name: d.name, faction: d.faction || R.SIDE_OF[d.side] || 'empire', side: d.side, cls: d.cls, p: C.emptyDesignProfile(d.p), info: d.info, model: d.model, loadPreset: {air:d.air||[],ground:d.ground||[]}, src: 'example'});
+ for (const d of Object.values(YardFleetData?.designs || {})) out.push({key: d.key, name: d.name, faction: d.faction || R.SIDE_OF[d.side] || 'empire', side: d.side, cls: d.cls, p: C.emptyDesignProfile(C.referenceSpeedProfile(d.p,d.key)), info: d.info, model: d.model, loadPreset: {air:d.air||[],ground:d.ground||[]}, src: 'example'});
  return out.sort((a, b) => (a.faction > b.faction) - (a.faction < b.faction) || b.info.len - a.info.len);
 }
 function voyDesign(key) { const d = voy.designs.get(key);if (d) return d;const m = /^([A-Za-z0-9_]+)#(republic|neutral|dark|cis)$/.exec(key || '');if (!m) return null;const b = voy.designs.get(m[1]);return b ? voyRegister({...b, key, base: b.key, paint: m[2], faction: Object.entries(VOY_PAINT[b.key] || {}).find(([, p]) => p === m[2])?.[0] || b.faction}) : null; }

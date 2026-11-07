@@ -1,0 +1,8 @@
+{
+  "phase": "starting-final-actual-craft-cache",
+  "startedAtUtc": "2026-11-07T00:48:50.909312+00:00",
+  "coreBeforeGenerationSha256": "728fc1a13057badf097548fdb9465dcb63dbb2e4fa76b323db377ce04dd08867",
+  "generatorSha256": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9",
+  "observerSha256": "0691c2ace5600915a57b8e72e1e1d5c000394b7ce97e2ab89037cfaa72c069c1",
+  "physicalSourceNote": "The generating Core includes the final ordinary engine law, finite terminal contacts, reference-surface parity correction, published MGLT copy overlays, and all nine factory engine targets. The observer records unchanged public native results; it does not replace calculations or build extra factories."
+}

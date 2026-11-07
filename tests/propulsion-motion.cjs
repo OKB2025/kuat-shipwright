@@ -14,6 +14,7 @@ function profile() {
   const engine = {id: 2, machineryId: 2, ratedInputW: 1e18,
     wattsPerNewton: 2e9, ratedThrustN: 5e8, driveProfileId: 'standard',
     machineryGradeId: 'standard', machineryLengthM: 2, machineryRadiusM: 1,
+    effectiveMachineryVolumeM3: 2 * Math.PI * (.78 * .78 + .78 + 1) / 3,
     moduleIndex: 1, powerNode: 'p2', heatNode: 'p2', domain: 'main',
     direction: [1, 0, 0], valid: true, available: true, connected: true,
     outletAvailable: true, pathCapacityW: 1e18};

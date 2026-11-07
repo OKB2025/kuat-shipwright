@@ -1,0 +1,534 @@
+{
+  "schemaVersion": 1,
+  "method": "actual-all-12-editable-craft-factories",
+  "phase": "complete-intermediate-geometry-cache",
+  "generationSourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "9d7c2ac97fcb68873d5a8e9ea73e7708e9753598baeaac8b07635d8b6cfe1783"
+  },
+  "preGenerationCore": {
+    "file": "core-before-generation.js.gz",
+    "uncompressedSha256": "9d7c2ac97fcb68873d5a8e9ea73e7708e9753598baeaac8b07635d8b6cfe1783",
+    "compressedSha256": "231b2a6cf86f359bb09270b17520410a3f29bb0af8cb8fb031c64b2f8bf288f6"
+  },
+  "generator": {
+    "file": "generator.cjs",
+    "sourceFile": "scripts/update-craft-costs.cjs",
+    "sha256": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9"
+  },
+  "observer": {
+    "file": "observer.cjs",
+    "sha256": "0691c2ace5600915a57b8e72e1e1d5c000394b7ce97e2ab89037cfaa72c069c1",
+    "method": "Calls the actual native methods and records their returned warnings/metadata without replacing results."
+  },
+  "command": "KS_CRAFT_PROOF_DIR=assets/source/imperial-2300g-craft-cache node --require ./assets/source/imperial-2300g-craft-cache/observer.cjs scripts/update-craft-costs.cjs --output assets/source/imperial-2300g-craft-cache/generated-craft-block.cjs --progress",
+  "startedAt": "2026-11-06T23:52:04.444Z",
+  "purpose": "Actual strict-connection geometry cache; later user-requested canonical speed changes will be handled separately, without relabelling this generating source.",
+  "completedAt": "2026-11-06T23:53:00.793Z",
+  "elapsedMs": 56317,
+  "count": 12,
+  "nativeCalls": {
+    "build": 12,
+    "stats": 12,
+    "powerProfile": 12,
+    "fireArcs": 12
+  },
+  "modelVersion": 16,
+  "modelSignature": "g1w0fx",
+  "generatedBlock": {
+    "file": "generated-craft-block.cjs",
+    "sha256": "8c9ab506a8602feca30de8736985923d79612cba6f0c4cc2eb1d4331c514ff23"
+  },
+  "journal": {
+    "file": "actual-generation-journal.json",
+    "sha256": "a5a4568fee179062dc893f93ea91a52c66608fd44aa41dd1fbbd17dfd9379b21"
+  },
+  "log": {
+    "file": "generation.log",
+    "sha256": "5bdbe1c78403f140af1fbdcf9ce66df371b57867a30c9146be629bcb44c65644"
+  },
+  "coreAtInsertionSha256": "9d7c2ac97fcb68873d5a8e9ea73e7708e9753598baeaac8b07635d8b6cfe1783",
+  "coreAfterInsertionSha256": "ae168c7c9fd5d2a00f8acbf8100819b9810b44a98fb7f78c473524b08c3d0520",
+  "entries": {
+    "arc170": {
+      "reference": "craft_arc170",
+      "total": 233835,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "awing": {
+      "reference": "craft_awing",
+      "total": 160914,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "warn",
+          "text": "ジェネレーターの表面の 2% が露出しています。構造物で覆うか集中防御で守れます。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 14
+            },
+            {
+              "part": "struct"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "btlb": {
+      "reference": "craft_btlb",
+      "total": 207192,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 3,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "hyena": {
+      "reference": "craft_hyena",
+      "total": 186072,
+      "profileVersion": 18,
+      "coreCount": 4,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "tie_in": {
+      "reference": "craft_tie_in",
+      "total": 100333,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 31
+            }
+          ]
+        }
+      ]
+    },
+    "tie_ln": {
+      "reference": "craft_tie_ln",
+      "total": 85416,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 42
+            }
+          ]
+        }
+      ]
+    },
+    "tie_sa": {
+      "reference": "craft_tie_sa",
+      "total": 135203,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 35
+            }
+          ]
+        }
+      ]
+    },
+    "v19": {
+      "reference": "craft_v19",
+      "total": 140679,
+      "profileVersion": 18,
+      "coreCount": 3,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "vulture": {
+      "reference": "craft_vulture",
+      "total": 121700,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "vwing": {
+      "reference": "craft_vwing",
+      "total": 247670,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "xwing": {
+      "reference": "craft_xwing",
+      "total": 182065,
+      "profileVersion": 18,
+      "coreCount": 4,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "warn",
+          "text": "シールドが目標強度の 88% です。発生器の容量と給電を確認してください。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 30
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 2,
+          "text": "Sフォイル #2 が 0° で 右舷下翼（Sフォイル） #16 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 3,
+          "text": "Sフォイル #3 が 0° で 右舷下翼（Sフォイル） #17 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 3
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 16,
+          "text": "Sフォイル #16 が 0° で 右舷上翼（Sフォイル） #2 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 16
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 17,
+          "text": "Sフォイル #17 が 0° で 右舷上翼（Sフォイル） #3 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 17
+            }
+          ]
+        }
+      ]
+    },
+    "z95": {
+      "reference": "craft_z95",
+      "total": 135729,
+      "profileVersion": 18,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

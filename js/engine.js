@@ -31,6 +31,9 @@ function waitForStats(ms) {
 function geoOut(g, transfer) {
   if (!g) return null;
   const o = {n: g.n, ni: g.ni, pos: g.pos.slice(0, g.n * 3), nor: g.nor.slice(0, g.n * 3), uv: g.uv.slice(0, g.n * 2), col: g.col.slice(0, g.n * 4), idx: g.idx.slice(0, g.ni)};
+  const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
+  for(let i=0;i<o.n*3;i+=3)for(let a=0;a<3;a++){const v=o.pos[i+a];if(v<bounds[a])bounds[a]=v;if(v>bounds[a+3])bounds[a+3]=v;}
+  o.bounds=o.n?bounds:null;o.boundsVertexCount=o.n;
   if (transfer) transfer.push(o.pos.buffer, o.nor.buffer, o.uv.buffer, o.col.buffer, o.idx.buffer);
   return o;
 }
@@ -41,6 +44,17 @@ function surfaceReportOut(report){
  if(!report)return null;
  return {...report,patches:(report.patches||[]).map(p=>{const {triangles,exposedTriangles,polygon,cells,...row}=p;if(row.config){const {aggregate,...config}=row.config;row.config=config;}return row;})};
 }
+// Display projections are prepared with the worker's current derived caches.
+// The interface receives values, never another physics job in a render callback.
+function catalogueAccelerationG(S){const rated=S?.propulsion?.ratedAccelMps2??S?.ratedAccelMps2,limit=S?.propulsion?.accelerationLimitMps2??S?.maximumAccelMps2,a=Number.isFinite(rated)&&Number.isFinite(limit)?Math.min(rated,limit):Number.isFinite(limit)?limit:rated;return Number.isFinite(a)?Math.max(0,a)/C.G0:Math.max(0,S?.accelG||0);}
+function catalogueValues(stats,design){
+ if(!stats)return stats;const work=design&&C.surfaceWorkingShip?C.surfaceWorkingShip(design):design,parts=work?.parts||[],fits=work?.fits||[],shields=parts.filter(p=>['shield','localShield'].includes(p.k)&&!p.surfaceUnplaced),weapons=fits.filter(f=>C.FITS[f.k]?.cat==='w'&&!f.float&&!f.surfaceUnplaced).map(f=>({fit:f,spec:C.fitSpec(f)})),power=Number.isFinite(stats.powerNominal)?stats.powerNominal:parts.length?parts.reduce((n,p)=>n+(C.isReactor(p)?C.reactorPower(p):0)+(C.solarPower?.(p)||0),0):stats.power||0,shieldP=parts.length?shields.reduce((n,p)=>n+C.partVolume(p)*C.K.shieldW,0):stats.shieldP||0,shieldCapacity=parts.length?shields.reduce((n,p)=>n+C.shieldLoad(p),0):stats.shieldCapacity||0,alpha=[0,0,0,0,0,0],bandRate=Object.fromEntries(Object.keys(C.GUN_BANDS).map(k=>[k,[0,0,0,0,0,0]]));
+ let alphaTot=0,ionTot=0,heavyAlpha=0;for(const{fit,spec}of weapons){if(spec.msl)continue;const tt=spec.tt||0,ion=spec.ion||0,arc=stats.fitInfo?.[fit.id]||[0,0,0,0,0,0],band=bandRate[C.fitBand(spec)];alphaTot+=tt;ionTot+=ion;if(Math.max(tt,ion)>=10)heavyAlpha+=Math.max(tt,ion);for(let k=0;k<6;k++){alpha[k]+=tt*(arc[k]||0);if(band)band[k]+=tt*(arc[k]||0)/(spec.cycle||C.K.cycle);}}
+ const mounted=Array.isArray(work?.fits),a=mounted?alpha:stats.alpha||alpha,total=mounted?alphaTot:stats.alphaTot||0,best=Math.max(...a),rated=stats.propulsion?.ratedAccelMps2??stats.ratedAccelMps2;
+ return {power,xISD:power/C.ISD_W,accelG:catalogueAccelerationG(stats),aThrust:Number.isFinite(rated)?Math.max(0,rated):stats.aThrust,thrustG:Number.isFinite(rated)?Math.max(0,rated)/C.G0:stats.thrustG,shieldP,shieldPct:stats.area>0?shieldP/stats.area/C.K.shieldStd:0,shieldCapacity,alpha:a,alphaTot:total,alphaBest:best,alphaMean:a.reduce((n,v)=>n+v,0)/6,ionTot:mounted?ionTot:stats.ionTot||0,allGunVolleyTT:mounted?alphaTot+ionTot:stats.allGunVolleyTT??total+(stats.ionTot||0),heavyAlpha:mounted?heavyAlpha:stats.heavyAlpha,arcEff:total>0?best/total:0,bandRate:mounted?bandRate:stats.bandRate};
+}
+function statsOut(S,design){return {...S,...(S.surface?{surface:surfaceReportOut(S.surface)}:{}),catalogue:catalogueValues(S,design)};}
+
 const overlapSig = (info) => info ? Object.keys(info).filter(k => info[k] && info[k].overlap).sort().join(',') : '';
 
 // Caches travel to the editor with references to ship objects replaced by
@@ -89,6 +103,9 @@ function packCaches(s, options) {
   if (!options?.authoring && !options?.deferSurfaces) {
     out.geoProxy.surfaces = C.surfacePatches(s).map(({config, exposedTriangles, ...p}) => ({...conv(p), exposedTriangles: conv(exposedTriangles)}));
     out.geoProxy.surfacePartitions = JSON.stringify(s.surfaces?.partitions || null);
+  }
+  if(!options?.authoring){
+    out.editor=conv({engineParts:C.enginePaths(s),commands:C.commandCompartments(s),capacitors:C.weaponCapacitors(s),missileCells:C.missileCells(s),transmission:C.engineTransmission(s),drive:C.engineDriveRoutes(s)});
   }
   return out;
 }
@@ -249,7 +266,7 @@ async function handleUpdate(job) {
   lastInfo = S.info;
   const profile = C.fleetProfile(S, ship.name, ship);
   lastStats = {S, profile, gen: shipGen};
-  const msg = {type: 'stats', gen: job.gen, stats: S.surface?{...S,surface:surfaceReportOut(S.surface)}:S, profile, statsMs: now() - t1};
+  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), profile, statsMs: now() - t1};
   const transfer = [];
   if (overlapSig(S.info) !== lastOverlap) {
     const m = meshPartsRanged(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation});
@@ -330,6 +347,12 @@ async function diskTrim(db) {
     for (const m of keep) { const u = used[m.geo ? 'g' : 'r']; u[0]++; u[1] += m.size || 0; if (m.geo ? u[0] > DISK.GEO_MAX || u[1] > DISK.GEO_BYTES : u[0] > DISK.MAX || u[1] > DISK.BYTES) drop.push(m.id); }
     if (drop.length) await idbRun(db, 'readwrite', (rec, meta) => { for (const id of drop) { rec.delete(id); meta.delete(id); } });
   } finally { trimming = false; }
+}
+
+function handlePropulsionPreview(job){
+ const valid=ship&&lastStats&&job.gen===shipGen&&job.gen===lastStats.gen&&['cruise','combat','max'].includes(job.preset);
+ const preview=valid?(lastStats.S.propulsion?.preset===job.preset?lastStats.S.propulsion:C.propulsionPreview(ship,lastStats.S,job.preset)):null;
+ post({type:'propulsionPreview',id:job.id,gen:job.gen,preset:job.preset,preview});
 }
 
 async function handleBuild(job) {
@@ -451,7 +474,8 @@ async function fleetJob(job) {
   const lite = !!job.lite && !rec.surfaces;
   if (!lite && !rec.stats) { const d = recShip(rec); rec.stats = C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
   const {stats, profile, serial} = rec;
-  if (job.statsOnly) post({type: 'fleet', id: job.id, stats, profile, design: serial, ms: now() - t0, src});
+  const displayStats=!lite&&stats?(rec.displayStats||(rec.displayStats=statsOut(stats,recShip(rec)))):null;
+  if (job.statsOnly) post({type: 'fleet', id: job.id, stats:displayStats, profile, design: serial, ms: now() - t0, src});
   else {
     // Meshes that took long to make come from the disk cache (see above); others are made again.
     const transfer = [], gid = 'g|' + dkey + (job.trial ? '|t' : '|m');
@@ -464,7 +488,7 @@ async function fleetJob(job) {
       const gms = now() - tg;
       if (gms >= DISK.GEO_MS) { const size = geoBytes(geometry); if (size < DISK.GEO_BYTES / 4) diskPut({id: gid, geometry, size, ms: Math.round(gms)}); }
     }
-    post({type: 'fleet', id: job.id, stats: lite ? null : stats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored}, transfer);
+    post({type: 'fleet', id: job.id, stats: displayStats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored}, transfer);
   }
   // After the reply, so the loading screen does not wait for them: the trial keeps its ship here so turret rays can
   // be tested against it (ray requests queue behind this and answer once it is ready), and the build goes to disk.
@@ -497,6 +521,7 @@ async function pump() {
         else if (job.type === 'build') await handleBuild(job);
         else if (job.type === 'fleet') await handleFleet(job);
         else if (job.type === 'craftPrice') handleCraftPrice(job);
+        else if (job.type === 'propulsionPreview') handlePropulsionPreview(job);
         else if (job.type === 'trialRays') handleTrialRays(job);
         else if (job.type === 'trialEnd') trialHold = null;
         else if (job.type === 'op') handleOp(job);

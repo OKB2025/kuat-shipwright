@@ -1,0 +1,7173 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "variant": "fixed",
+  "fixture": "imperial",
+  "harnessSha256": "4a0e33acd327e6028bad256195d7c3bf6142b49881d6a57561777611cbba2493",
+  "scope": "Authenticated existing saved design, real worker and native mirrored-gun placement, followed by actual mouse orbit, wheel zoom and trusted two-touch pinch during background geometry/statistics. Passive method timing preserves all returns; no synthetic delays, worker results or design replacement. Headless Chromium/SwiftShader is not a physical Safari/mobile performance measurement.",
+  "input": {
+    "archive": "assets/source/imperial-user-layout-factory-blueprints/imperial.json.gz",
+    "sha256": "533e5f13adf9a347a1173d8e44b72ba80eb09ca4c3612d7ed3f10ac26345b00f",
+    "parts": 89,
+    "fits": 49
+  },
+  "sourceSha256": {
+    "index.html": "7424818c2bd81bacd885c6b2869a900b8e37f9699ca55689d131e1039d2be3c3",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "934e7ed2dca12e34e561b4db154998472937ccd32c9c3274ca21248601b5d958",
+    "js/core.js": "b8f9bd586d8f3c861491a0b334ba6d41af267e13cb1a439dc35d84efd8a8773f",
+    "js/gfx.js": "59f99cde1955e6686dde706bf8ebe488aa63f72b437b899596f33a10dd3d5e80",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/app.js": "b55c73523fd06041f3a3bc5cf4c26cc971fab3a1567c25f1e2a37167b5c4cc6e",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "2acd915a5f18854c4c3fe0821db699abf48efd8d6002f7fbd8eef511189bf5a2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "operations": [
+    {
+      "kind": "orbit",
+      "roundtripMs": 1606,
+      "before": {
+        "time": 12796.79999999702,
+        "theta": -1.5707963267948966,
+        "phi": 0.0001,
+        "r": 950,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 14427.5,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 950,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1303,
+      "before": {
+        "time": 14462.29999999702,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 950,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 15769.79999999702,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 1078.25,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 1756,
+      "before": {
+        "time": 15806.29999999702,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 1078.25,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 17564.70000000298,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 1458,
+      "before": {
+        "time": 17602.29999999702,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 19065.40000000596,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1204,
+      "before": {
+        "time": 19099.90000000596,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 20309.59999999404,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 611.906875,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 1885,
+      "before": {
+        "time": 20342,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 611.906875,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 22227.70000000298,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 1452,
+      "before": {
+        "time": 22262.29999999702,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 23714.40000000596,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 2145,
+      "before": {
+        "time": 23749,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 25901.09999999404,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 347.2571515625,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 3278,
+      "before": {
+        "time": 25942.29999999702,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 347.2571515625,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 29225.29999999702,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 2395,
+      "before": {
+        "time": 29258,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 31660.40000000596,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1925,
+      "before": {
+        "time": 31700.20000000298,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 33630.5,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 197.06843351171875,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 1752,
+      "before": {
+        "time": 33664,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 197.06843351171875,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 35414.40000000596,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 3115,
+      "before": {
+        "time": 35450.29999999702,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 38565.20000000298,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1699,
+      "before": {
+        "time": 38598.20000000298,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 40297.40000000596,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 111.83633601790038,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 4000,
+      "before": {
+        "time": 40346.5,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 111.83633601790038,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 44361.09999999404,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 7707,
+      "before": {
+        "time": 44406.40000000596,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 52113.29999999702,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 4261,
+      "before": {
+        "time": 52154.70000000298,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 56419.20000000298,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 63.46712069015847,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 6836,
+      "before": {
+        "time": 56455.29999999702,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 63.46712069015847,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 63293.40000000596,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 31.733560345079233,
+        "target": [
+          -384.1012452002502,
+          -69.44015918291416,
+          -251.65535320806688
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "stats-pending-burst",
+      "before": {
+        "time": 63331.29999999702,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 31.733560345079233,
+        "target": [
+          -384.1012452002502,
+          -69.44015918291416,
+          -251.65535320806688
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 63414.90000000596,
+        "theta": 3.4692036732051035,
+        "phi": 0.0006,
+        "r": 20,
+        "target": [
+          -384.08102347814935,
+          -69.44015918291416,
+          -251.7148537501379
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "roundtripMs": 86,
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 5934,
+      "before": {
+        "time": 63420.70000000298,
+        "theta": 3.4692036732051035,
+        "phi": 0.0006,
+        "r": 20,
+        "target": [
+          -384.08102347814935,
+          -69.44015918291416,
+          -251.7148537501379
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 69378.29999999702,
+        "theta": 3.4692036732051035,
+        "phi": 0.0006,
+        "r": 22.7,
+        "target": [
+          -384.08102347814935,
+          -69.44015918291416,
+          -251.7148537501379
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 9735,
+      "before": {
+        "time": 69412.79999999702,
+        "theta": 3.4692036732051035,
+        "phi": 0.0006,
+        "r": 22.7,
+        "target": [
+          -384.08102347814935,
+          -69.44015918291416,
+          -251.7148537501379
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 79148.20000000298,
+        "theta": 3.4692036732051035,
+        "phi": 0.0006,
+        "r": 20,
+        "target": [
+          -384.08102347814935,
+          -69.44015918291416,
+          -251.7148537501379
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    }
+  ],
+  "errors": [],
+  "seed": {
+    "ms": 355.3999999910593,
+    "gen": 1
+  },
+  "placement": {
+    "gen": 2,
+    "fits": 51,
+    "last": [
+      {
+        "id": 198,
+        "k": "stl",
+        "p": [
+          414.9000244140626,
+          193.15669718766958,
+          -255.6999942315826
+        ],
+        "tw": 199
+      },
+      {
+        "id": 199,
+        "k": "stl",
+        "p": [
+          414.9000242993628,
+          193.1566955834769,
+          255.69999392117143
+        ],
+        "tw": 198
+      }
+    ]
+  },
+  "pendingBurst": {
+    "kind": "stats-pending-burst",
+    "before": {
+      "time": 63331.29999999702,
+      "theta": 2.7492036732051033,
+      "phi": 0.0006,
+      "r": 31.733560345079233,
+      "target": [
+        -384.1012452002502,
+        -69.44015918291416,
+        -251.65535320806688
+      ],
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "xy": [
+        736,
+        647.6999999999999
+      ]
+    },
+    "after": {
+      "time": 63414.90000000596,
+      "theta": 3.4692036732051035,
+      "phi": 0.0006,
+      "r": 20,
+      "target": [
+        -384.08102347814935,
+        -69.44015918291416,
+        -251.7148537501379
+      ],
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "xy": [
+        736,
+        647.6999999999999
+      ]
+    },
+    "roundtripMs": 86,
+    "changed": true
+  },
+  "final": {
+    "gen": 2,
+    "geo": 2,
+    "stats": 2,
+    "adopted": 2,
+    "clientAdoptions": [
+      {
+        "gen": 2,
+        "publicPreparationMs": 19.700000002980232,
+        "referenceSlices": 1,
+        "largestReferenceSliceMs": 3.3999999910593033,
+        "commitMs": 1.9000000059604645,
+        "totalMs": 25.400000005960464
+      },
+      {
+        "gen": 2,
+        "publicPreparationMs": 19.5,
+        "referenceSlices": 3,
+        "largestReferenceSliceMs": 11.399999991059303,
+        "commitMs": 1.2000000029802322,
+        "totalMs": 43.70000000298023
+      }
+    ],
+    "fits": 51,
+    "last": [
+      {
+        "id": 198,
+        "k": "stl",
+        "p": [
+          414.9000244140626,
+          193.15669718766958,
+          -255.6999942315826
+        ],
+        "tw": 199
+      },
+      {
+        "id": 199,
+        "k": "stl",
+        "p": [
+          414.9000242993628,
+          193.1566955834769,
+          255.69999392117143
+        ],
+        "tw": 198
+      }
+    ],
+    "calls": [
+      {
+        "name": "rayEnv",
+        "t": 12383,
+        "duration": 47,
+        "phase": "placement",
+        "gen": 1
+      },
+      {
+        "name": "rayEnv",
+        "t": 14859.29999999702,
+        "duration": 1.2999999970197678,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 19514.59999999404,
+        "duration": 1.2000000029802322,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 24229.79999999702,
+        "duration": 0.7999999970197678,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 32754.79999999702,
+        "duration": 1.1000000089406967,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 39432.29999999702,
+        "duration": 1.1000000089406967,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 53642.20000000298,
+        "duration": 4.700000002980232,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 65545.79999999702,
+        "duration": 123.40000000596046,
+        "phase": "wheel",
+        "gen": 2
+      }
+    ],
+    "events": [
+      {
+        "type": "pointermove",
+        "eventId": 0,
+        "radius": 1500,
+        "theta": 0.85,
+        "pointerType": "mouse",
+        "time": 9684.29999999702,
+        "trusted": true,
+        "gen": 0,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "boot"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 0,
+        "processingMs": 0.09999999403953552,
+        "radius": 1500,
+        "theta": 0.85,
+        "pointerType": "mouse",
+        "phase": "boot",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 2,
+        "radius": 1500,
+        "theta": 0.85,
+        "pointerType": "mouse",
+        "time": 9684.79999999702,
+        "trusted": true,
+        "gen": 0,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "boot"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 2,
+        "processingMs": 145.1000000089407,
+        "radius": 1500,
+        "theta": 0.85,
+        "pointerType": "mouse",
+        "phase": "boot",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 4,
+        "radius": 1500,
+        "theta": 0.85,
+        "pointerType": "mouse",
+        "time": 9830.90000000596,
+        "trusted": true,
+        "gen": 0,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "boot"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 4,
+        "processingMs": 0.20000000298023224,
+        "radius": 1500,
+        "theta": 0.85,
+        "pointerType": "mouse",
+        "phase": "boot",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 6,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "time": 12378.5,
+        "trusted": true,
+        "gen": 1,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "placement"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 6,
+        "processingMs": 0.4000000059604645,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "phase": "placement",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 8,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "time": 12379,
+        "trusted": true,
+        "gen": 1,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "placement"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 8,
+        "processingMs": 0.5999999940395355,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "phase": "placement",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 10,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "time": 12379.79999999702,
+        "trusted": true,
+        "gen": 1,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "placement"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 10,
+        "processingMs": 254.70000000298023,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "phase": "placement",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 12,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "time": 13180.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 12,
+        "processingMs": 0.10000000894069672,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 14,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "time": 13198.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 14,
+        "processingMs": 0.19999998807907104,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 16,
+        "radius": 950,
+        "theta": -1.5707963267948966,
+        "pointerType": "mouse",
+        "time": 13241.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 16,
+        "processingMs": 0.5999999940395355,
+        "radius": 950,
+        "theta": -1.3907963267948966,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 18,
+        "radius": 950,
+        "theta": -1.3907963267948966,
+        "pointerType": "mouse",
+        "time": 13618.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 18,
+        "processingMs": 0.5,
+        "radius": 950,
+        "theta": -1.2107963267948967,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 20,
+        "radius": 950,
+        "theta": -1.2107963267948967,
+        "pointerType": "mouse",
+        "time": 14044.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 20,
+        "processingMs": 0,
+        "radius": 950,
+        "theta": -1.0307963267948967,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 22,
+        "radius": 950,
+        "theta": -1.0307963267948967,
+        "pointerType": "mouse",
+        "time": 14418.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 22,
+        "processingMs": 0.09999999403953552,
+        "radius": 950,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 24,
+        "radius": 950,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "time": 14426.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 24,
+        "processingMs": 0,
+        "radius": 950,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 26,
+        "radius": 950,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "time": 14773.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 26,
+        "processingMs": 0.10000000894069672,
+        "radius": 950,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 28,
+        "radius": 950,
+        "theta": -0.8507963267948968,
+        "time": 15764.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 28,
+        "processingMs": 0.10000000894069672,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 30,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "time": 16630.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 30,
+        "processingMs": 0.20000000298023224,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 32,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "time": 16630.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 32,
+        "processingMs": 0.10000000894069672,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 34,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "time": 16631,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 34,
+        "processingMs": 0.29999999701976776,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 36,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "time": 16631.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 36,
+        "processingMs": 0.20000000298023224,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 38,
+        "radius": 1078.25,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "time": 17227.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 38,
+        "processingMs": 0.29999999701976776,
+        "radius": 718.8333333333334,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 40,
+        "radius": 718.8333333333334,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "time": 17227.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 40,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 42,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "time": 17227.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 42,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 44,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "time": 17564,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 44,
+        "processingMs": 0.09999999403953552,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 46,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "time": 17564.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 46,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 48,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "time": 17564.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 48,
+        "processingMs": 0.20000000298023224,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 50,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "time": 17564.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 50,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 52,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "time": 17867.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 52,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 54,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "time": 17901.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 54,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 56,
+        "radius": 539.125,
+        "theta": -0.8507963267948968,
+        "pointerType": "mouse",
+        "time": 17917.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 56,
+        "processingMs": 0.30000001192092896,
+        "radius": 539.125,
+        "theta": -0.6707963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 58,
+        "radius": 539.125,
+        "theta": -0.6707963267948969,
+        "pointerType": "mouse",
+        "time": 18238.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 58,
+        "processingMs": 0.10000000894069672,
+        "radius": 539.125,
+        "theta": -0.4907963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 60,
+        "radius": 539.125,
+        "theta": -0.4907963267948969,
+        "pointerType": "mouse",
+        "time": 18650.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 60,
+        "processingMs": 2.1000000089406967,
+        "radius": 539.125,
+        "theta": -0.3107963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 62,
+        "radius": 539.125,
+        "theta": -0.3107963267948969,
+        "pointerType": "mouse",
+        "time": 19059.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 62,
+        "processingMs": 0.09999999403953552,
+        "radius": 539.125,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 64,
+        "radius": 539.125,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "time": 19064.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 64,
+        "processingMs": 0,
+        "radius": 539.125,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 66,
+        "radius": 539.125,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "time": 19425.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 66,
+        "processingMs": 0.10000000894069672,
+        "radius": 539.125,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 68,
+        "radius": 539.125,
+        "theta": -0.1307963267948969,
+        "time": 20307.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 68,
+        "processingMs": 0.09999999403953552,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 70,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "time": 21104.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 70,
+        "processingMs": 0.20000000298023224,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 72,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "time": 21104.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 72,
+        "processingMs": 0.09999999403953552,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 74,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "time": 21104.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 74,
+        "processingMs": 0.4000000059604645,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 76,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "time": 21105,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 76,
+        "processingMs": 0,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 78,
+        "radius": 611.906875,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "time": 21860.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 78,
+        "processingMs": 0.19999998807907104,
+        "radius": 407.9379166666667,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 80,
+        "radius": 407.9379166666667,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "time": 21860.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 80,
+        "processingMs": 0,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 82,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "time": 21860.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 82,
+        "processingMs": 0,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 84,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "time": 22226.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 84,
+        "processingMs": 0,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 86,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "time": 22226.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 86,
+        "processingMs": 0,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 88,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "time": 22226.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 88,
+        "processingMs": 0.29999999701976776,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 90,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "time": 22226.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 90,
+        "processingMs": 0.10000000894069672,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 92,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "time": 22440.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 92,
+        "processingMs": 0.20000000298023224,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 94,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "time": 22462.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 94,
+        "processingMs": 0.19999998807907104,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 96,
+        "radius": 305.9534375,
+        "theta": -0.1307963267948969,
+        "pointerType": "mouse",
+        "time": 22706.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 96,
+        "processingMs": 0.30000001192092896,
+        "radius": 305.9534375,
+        "theta": 0.049203673205103104,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 98,
+        "radius": 305.9534375,
+        "theta": 0.049203673205103104,
+        "pointerType": "mouse",
+        "time": 22964.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 98,
+        "processingMs": 0,
+        "radius": 305.9534375,
+        "theta": 0.2292036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 100,
+        "radius": 305.9534375,
+        "theta": 0.2292036732051031,
+        "pointerType": "mouse",
+        "time": 23437.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 100,
+        "processingMs": 0.09999999403953552,
+        "radius": 305.9534375,
+        "theta": 0.4092036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 102,
+        "radius": 305.9534375,
+        "theta": 0.4092036732051031,
+        "pointerType": "mouse",
+        "time": 23701.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 102,
+        "processingMs": 0,
+        "radius": 305.9534375,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 104,
+        "radius": 305.9534375,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "time": 23709.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 104,
+        "processingMs": 0.20000000298023224,
+        "radius": 305.9534375,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 106,
+        "radius": 305.9534375,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "time": 24145.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 106,
+        "processingMs": 0.10000000894069672,
+        "radius": 305.9534375,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 108,
+        "radius": 305.9534375,
+        "theta": 0.5892036732051031,
+        "time": 25895.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 108,
+        "processingMs": 0.19999998807907104,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 110,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "time": 27664.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 110,
+        "processingMs": 0.20000000298023224,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 112,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "time": 27665,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 112,
+        "processingMs": 0,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 114,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "time": 27665.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 114,
+        "processingMs": 0.4000000059604645,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 116,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "time": 27665.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 116,
+        "processingMs": 0,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 118,
+        "radius": 347.2571515625,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "time": 28724.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 118,
+        "processingMs": 0.20000000298023224,
+        "radius": 231.5047677083333,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 120,
+        "radius": 231.5047677083333,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "time": 28724.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 120,
+        "processingMs": 0,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 122,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "time": 28724.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 122,
+        "processingMs": 0,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 124,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "time": 29217.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 124,
+        "processingMs": 0.20000000298023224,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 126,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "time": 29217.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 126,
+        "processingMs": 0,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 128,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "time": 29217.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 128,
+        "processingMs": 0.4000000059604645,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 130,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "time": 29217.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 130,
+        "processingMs": 0,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 132,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "time": 30046.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 132,
+        "processingMs": 0.20000000298023224,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 134,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "time": 30053.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 134,
+        "processingMs": 0.20000000298023224,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 136,
+        "radius": 173.62857578125,
+        "theta": 0.5892036732051031,
+        "pointerType": "mouse",
+        "time": 30061.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 136,
+        "processingMs": 1,
+        "radius": 173.62857578125,
+        "theta": 0.7692036732051031,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 138,
+        "radius": 173.62857578125,
+        "theta": 0.7692036732051031,
+        "pointerType": "mouse",
+        "time": 30853.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 138,
+        "processingMs": 0.10000000894069672,
+        "radius": 173.62857578125,
+        "theta": 0.949203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 140,
+        "radius": 173.62857578125,
+        "theta": 0.949203673205103,
+        "pointerType": "mouse",
+        "time": 31096.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 140,
+        "processingMs": 0.09999999403953552,
+        "radius": 173.62857578125,
+        "theta": 1.129203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 142,
+        "radius": 173.62857578125,
+        "theta": 1.129203673205103,
+        "pointerType": "mouse",
+        "time": 31634.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 142,
+        "processingMs": 0.09999999403953552,
+        "radius": 173.62857578125,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 144,
+        "radius": 173.62857578125,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "time": 31658.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 144,
+        "processingMs": 0.10000000894069672,
+        "radius": 173.62857578125,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 146,
+        "radius": 173.62857578125,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "time": 32669.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 146,
+        "processingMs": 0.09999999403953552,
+        "radius": 173.62857578125,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 148,
+        "radius": 173.62857578125,
+        "theta": 1.309203673205103,
+        "time": 33627.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 148,
+        "processingMs": 0.09999999403953552,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 150,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "time": 34197.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 150,
+        "processingMs": 0.29999999701976776,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 152,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "time": 34197.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 152,
+        "processingMs": 0,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 154,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "time": 34197.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 154,
+        "processingMs": 0.30000001192092896,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 156,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "time": 34197.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 156,
+        "processingMs": 0,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 158,
+        "radius": 197.06843351171875,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "time": 34801.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 158,
+        "processingMs": 0.20000000298023224,
+        "radius": 131.37895567447916,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 160,
+        "radius": 131.37895567447916,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "time": 34801.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 160,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 162,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "time": 34801.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 162,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 164,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "time": 35398.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 164,
+        "processingMs": 0.09999999403953552,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 166,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "time": 35398.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 166,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 168,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "time": 35398.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 168,
+        "processingMs": 0.30000001192092896,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 170,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "time": 35399,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 170,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 172,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "time": 36209.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 172,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 174,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "time": 36214.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 174,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 176,
+        "radius": 98.53421675585936,
+        "theta": 1.309203673205103,
+        "pointerType": "mouse",
+        "time": 36224.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 176,
+        "processingMs": 0.3999999910593033,
+        "radius": 98.53421675585936,
+        "theta": 1.4892036732051028,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 178,
+        "radius": 98.53421675585936,
+        "theta": 1.4892036732051028,
+        "pointerType": "mouse",
+        "time": 37035.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 178,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.6692036732051028,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 180,
+        "radius": 98.53421675585936,
+        "theta": 1.6692036732051028,
+        "pointerType": "mouse",
+        "time": 37801.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 180,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 1.8492036732051027,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 182,
+        "radius": 98.53421675585936,
+        "theta": 1.8492036732051027,
+        "pointerType": "mouse",
+        "time": 38554.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 182,
+        "processingMs": 0.10000000894069672,
+        "radius": 98.53421675585936,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 184,
+        "radius": 98.53421675585936,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "time": 38563.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 184,
+        "processingMs": 0.10000000894069672,
+        "radius": 98.53421675585936,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 186,
+        "radius": 98.53421675585936,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "time": 39344.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 186,
+        "processingMs": 0,
+        "radius": 98.53421675585936,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 188,
+        "radius": 98.53421675585936,
+        "theta": 2.0292036732051026,
+        "time": 40275.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 188,
+        "processingMs": 0.30000001192092896,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 190,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "time": 41221.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 190,
+        "processingMs": 0.09999999403953552,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 192,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "time": 41222,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 192,
+        "processingMs": 0,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 194,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "time": 41222.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 194,
+        "processingMs": 0.20000000298023224,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 196,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "time": 41222.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 196,
+        "processingMs": 0,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 198,
+        "radius": 111.83633601790038,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "time": 42754.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 198,
+        "processingMs": 0.4000000059604645,
+        "radius": 74.55755734526691,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 200,
+        "radius": 74.55755734526691,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "time": 42755.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 200,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 202,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "time": 42755.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 202,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 204,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "time": 44356.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 204,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 206,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "time": 44356.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 206,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 208,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "time": 44356.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 208,
+        "processingMs": 0.20000000298023224,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 210,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "time": 44356.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 210,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 212,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "time": 45948.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 212,
+        "processingMs": 0.10000000894069672,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 214,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "time": 45957.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 214,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 216,
+        "radius": 55.91816800895019,
+        "theta": 2.0292036732051026,
+        "pointerType": "mouse",
+        "time": 48956.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 216,
+        "processingMs": 0.29999999701976776,
+        "radius": 55.91816800895019,
+        "theta": 2.209203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 218,
+        "radius": 55.91816800895019,
+        "theta": 2.209203673205103,
+        "pointerType": "mouse",
+        "time": 48967.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 218,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.389203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 220,
+        "radius": 55.91816800895019,
+        "theta": 2.389203673205103,
+        "pointerType": "mouse",
+        "time": 50461.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 220,
+        "processingMs": 0.09999999403953552,
+        "radius": 55.91816800895019,
+        "theta": 2.569203673205103,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 222,
+        "radius": 55.91816800895019,
+        "theta": 2.569203673205103,
+        "pointerType": "mouse",
+        "time": 52099.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 222,
+        "processingMs": 0.20000000298023224,
+        "radius": 55.91816800895019,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 224,
+        "radius": 55.91816800895019,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "time": 52111.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 224,
+        "processingMs": 0.09999999403953552,
+        "radius": 55.91816800895019,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 226,
+        "radius": 55.91816800895019,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "time": 53561.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 226,
+        "processingMs": 0,
+        "radius": 55.91816800895019,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 228,
+        "radius": 55.91816800895019,
+        "theta": 2.7492036732051033,
+        "time": 56415.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 228,
+        "processingMs": 0,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 230,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "time": 57714.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 230,
+        "processingMs": 0,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 232,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "time": 57714.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 232,
+        "processingMs": 0,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 234,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "time": 57714.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 234,
+        "processingMs": 0.30000001192092896,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 236,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "time": 57714.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 236,
+        "processingMs": 0,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 238,
+        "radius": 63.46712069015847,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "time": 57738.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 238,
+        "processingMs": 0.09999999403953552,
+        "radius": 42.31141379343898,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 240,
+        "radius": 42.31141379343898,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "time": 57738.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 240,
+        "processingMs": 0,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 242,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "time": 57738.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 242,
+        "processingMs": 0,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 244,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "time": 63292.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 244,
+        "processingMs": 0.10000000894069672,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 246,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "time": 63292.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 246,
+        "processingMs": 0,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 248,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "time": 63292.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 248,
+        "processingMs": 0.4000000059604645,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 250,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "time": 63293.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 250,
+        "processingMs": 0.09999999403953552,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 252,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "time": 63335.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 252,
+        "processingMs": 0.10000000894069672,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 254,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "time": 63335.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 254,
+        "processingMs": 0,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 256,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "time": 63336.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 256,
+        "processingMs": 0.4000000059604645,
+        "radius": 31.733560345079233,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 258,
+        "radius": 31.733560345079233,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 63336.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 258,
+        "processingMs": 0,
+        "radius": 31.733560345079233,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 260,
+        "radius": 31.733560345079233,
+        "theta": 3.4692036732051035,
+        "time": 63395.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "wheel",
+        "eventId": 260,
+        "processingMs": 0,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 262,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63396.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 262,
+        "processingMs": 0.800000011920929,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 264,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "time": 63396.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 264,
+        "processingMs": 0,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 266,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63397,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 266,
+        "processingMs": 0.5,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 268,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "time": 63397.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 268,
+        "processingMs": 0,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 270,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63397.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 270,
+        "processingMs": 0.09999999403953552,
+        "radius": 24.01172732777662,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 272,
+        "radius": 24.01172732777662,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63397.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 272,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 274,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 63397.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 274,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 276,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63402.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 276,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 278,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 63402.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "touchend",
+        "eventId": 278,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 280,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63402.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 280,
+        "processingMs": 11.900000005960464,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 282,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 63414.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "type": "touchend",
+        "eventId": 282,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 284,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 65462,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 284,
+        "processingMs": 0.20000000298023224,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "eventId": 286,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 69368.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "eventId": 286,
+        "processingMs": 0.10000000894069672,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 288,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 71262.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 288,
+        "processingMs": 0.09999999403953552,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 290,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "time": 71263,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 290,
+        "processingMs": 0,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 292,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 71263.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 292,
+        "processingMs": 0.5999999940395355,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "eventId": 294,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "time": 71263.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "eventId": 294,
+        "processingMs": 0,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 296,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 79046.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 296,
+        "processingMs": 0.20000000298023224,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 298,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 79046.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 298,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "eventId": 300,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 79046.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "eventId": 300,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 302,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 79145.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 302,
+        "processingMs": 0.10000000894069672,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 304,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 79145.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 304,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 306,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 79147.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 306,
+        "processingMs": 0.5,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "eventId": 308,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 79148,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "eventId": 308,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 310,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 79225.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 310,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 312,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 79225.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "eventId": 312,
+        "processingMs": 0.29999999701976776,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "eventId": 314,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 79227,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "eventId": 314,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 316,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 81396.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "ready-hover"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 316,
+        "processingMs": 0.10000000894069672,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "ready-hover",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "eventId": 318,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "time": 83157.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "ready-hover"
+      },
+      {
+        "type": "pointermove",
+        "eventId": 318,
+        "processingMs": 0.20000000298023224,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "ready-hover",
+        "trusted": true
+      }
+    ],
+    "workers": [
+      {
+        "type": "authoringGeometry",
+        "gen": 1,
+        "t": 12079.90000000596
+      },
+      {
+        "type": "geometry",
+        "gen": 1,
+        "t": 38451.79999999702
+      },
+      {
+        "type": "geometry",
+        "gen": 2,
+        "t": 58948.79999999702
+      },
+      {
+        "type": "surfaceGeometry",
+        "gen": 2,
+        "t": 64212.20000000298
+      },
+      {
+        "type": "stats",
+        "gen": 2,
+        "t": 75997.20000000298
+      }
+    ],
+    "long": [
+      {
+        "start": 264.90000000596046,
+        "duration": 51,
+        "phase": "boot"
+      },
+      {
+        "start": 479.09999999403954,
+        "duration": 96,
+        "phase": "boot"
+      },
+      {
+        "start": 3409.2000000029802,
+        "duration": 72,
+        "phase": "boot"
+      },
+      {
+        "start": 4333.29999999702,
+        "duration": 3207,
+        "phase": "boot"
+      },
+      {
+        "start": 7601.20000000298,
+        "duration": 99,
+        "phase": "boot"
+      },
+      {
+        "start": 7709.79999999702,
+        "duration": 262,
+        "phase": "boot"
+      },
+      {
+        "start": 7976.9000000059605,
+        "duration": 770,
+        "phase": "boot"
+      },
+      {
+        "start": 8748.29999999702,
+        "duration": 831,
+        "phase": "boot"
+      },
+      {
+        "start": 9684.59999999404,
+        "duration": 150,
+        "phase": "boot"
+      },
+      {
+        "start": 10110.09999999404,
+        "duration": 416,
+        "phase": "seed"
+      },
+      {
+        "start": 10527.5,
+        "duration": 295,
+        "phase": "seed"
+      },
+      {
+        "start": 11243.70000000298,
+        "duration": 121,
+        "phase": "seed"
+      },
+      {
+        "start": 11879.5,
+        "duration": 51,
+        "phase": "seed"
+      },
+      {
+        "start": 12214.20000000298,
+        "duration": 152,
+        "phase": "seed"
+      },
+      {
+        "start": 12378.20000000298,
+        "duration": 273,
+        "phase": "placement"
+      },
+      {
+        "start": 12652.09999999404,
+        "duration": 98,
+        "phase": "placement"
+      },
+      {
+        "start": 14858.09999999404,
+        "duration": 56,
+        "phase": "wheel"
+      },
+      {
+        "start": 16212,
+        "duration": 407,
+        "phase": "touch"
+      },
+      {
+        "start": 58936.59999999404,
+        "duration": 80,
+        "phase": "touch"
+      },
+      {
+        "start": 59017.40000000596,
+        "duration": 2196,
+        "phase": "touch"
+      },
+      {
+        "start": 61214.20000000298,
+        "duration": 2041,
+        "phase": "touch"
+      },
+      {
+        "start": 64010.70000000298,
+        "duration": 227,
+        "phase": "wheel"
+      },
+      {
+        "start": 64250.29999999702,
+        "duration": 118,
+        "phase": "wheel"
+      },
+      {
+        "start": 65542.20000000298,
+        "duration": 134,
+        "phase": "wheel"
+      },
+      {
+        "start": 75852.70000000298,
+        "duration": 580,
+        "phase": "touch"
+      },
+      {
+        "start": 76765.20000000298,
+        "duration": 54,
+        "phase": "touch"
+      },
+      {
+        "start": 81395.59999999404,
+        "duration": 1761,
+        "phase": "ready-hover"
+      }
+    ],
+    "uploads": [
+      {
+        "name": "cutter",
+        "t": 10452.70000000298,
+        "duration": 0.20000000298023224,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 10547.09999999404,
+        "duration": 0.4000000059604645,
+        "vertices": 1152,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 10547.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 10547.5,
+        "duration": 0.09999999403953552,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 10547.59999999404,
+        "duration": 0.10000000894069672,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11021.90000000596,
+        "duration": 0.29999999701976776,
+        "vertices": 1968,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11022.20000000298,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11022.20000000298,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11022.20000000298,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11107.90000000596,
+        "duration": 0.09999999403953552,
+        "vertices": 11181,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11108,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11108,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11108,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11360.29999999702,
+        "duration": 0.20000000298023224,
+        "vertices": 11517,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11360.5,
+        "duration": 0,
+        "vertices": 7740,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11360.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11360.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11448.40000000596,
+        "duration": 0.09999999403953552,
+        "vertices": 13239,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11448.5,
+        "duration": 0,
+        "vertices": 7740,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11448.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11448.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11548.5,
+        "duration": 0,
+        "vertices": 14961,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11548.5,
+        "duration": 3.9000000059604645,
+        "vertices": 10591,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11552.40000000596,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11552.40000000596,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11658.29999999702,
+        "duration": 0,
+        "vertices": 14961,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11658.29999999702,
+        "duration": 0,
+        "vertices": 13440,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11658.29999999702,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11658.29999999702,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11727.20000000298,
+        "duration": 0.29999999701976776,
+        "vertices": 16881,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11727.5,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11727.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11727.5,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11823.29999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 20721,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11823.40000000596,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11823.40000000596,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11823.40000000596,
+        "duration": 0,
+        "vertices": 680,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 11930.09999999404,
+        "duration": 0,
+        "vertices": 20721,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 11930.09999999404,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 11930.09999999404,
+        "duration": 0.10000000894069672,
+        "vertices": 594,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 11930.20000000298,
+        "duration": 0,
+        "vertices": 8064,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 12036.40000000596,
+        "duration": 0,
+        "vertices": 20721,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 12036.40000000596,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 12036.40000000596,
+        "duration": 0.09999999403953552,
+        "vertices": 1188,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 12036.5,
+        "duration": 0.09999999403953552,
+        "vertices": 15448,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 12064.29999999702,
+        "duration": 0,
+        "vertices": 20721,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 12064.29999999702,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 12064.29999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 12064.40000000596,
+        "duration": 0.29999999701976776,
+        "vertices": 21044,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 12365.20000000298,
+        "duration": 0.5,
+        "vertices": 53394,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRef",
+        "t": 12365.70000000298,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewFits",
+        "t": 12365.70000000298,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 12365.70000000298,
+        "duration": 0,
+        "vertices": 21044,
+        "workerBounds": false,
+        "phase": "seed"
+      },
+      {
+        "name": "preview",
+        "t": 12725.90000000596,
+        "duration": 0,
+        "vertices": 53394,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "previewRef",
+        "t": 12725.90000000596,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "previewFits",
+        "t": 12726,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 12726,
+        "duration": 0.5,
+        "vertices": 32236,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "preview",
+        "t": 12774.40000000596,
+        "duration": 0,
+        "vertices": 53394,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "previewRef",
+        "t": 12774.40000000596,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "previewFits",
+        "t": 12774.40000000596,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 12774.40000000596,
+        "duration": 0,
+        "vertices": 32236,
+        "workerBounds": false,
+        "phase": "placement"
+      },
+      {
+        "name": "preview",
+        "t": 13181.29999999702,
+        "duration": 0,
+        "vertices": 53394,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewRef",
+        "t": 13181.29999999702,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewFits",
+        "t": 13181.29999999702,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 13181.29999999702,
+        "duration": 0,
+        "vertices": 32236,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "preview",
+        "t": 14773.90000000596,
+        "duration": 0,
+        "vertices": 53394,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 14773.90000000596,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 14773.90000000596,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 14773.90000000596,
+        "duration": 0,
+        "vertices": 32236,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 15518.59999999404,
+        "duration": 0,
+        "vertices": 53394,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 15518.59999999404,
+        "duration": 0,
+        "vertices": 16307,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 15518.59999999404,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 15518.59999999404,
+        "duration": 0,
+        "vertices": 32236,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 16612.79999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRef",
+        "t": 16612.90000000596,
+        "duration": 0.3999999910593033,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewFits",
+        "t": 16613.29999999702,
+        "duration": 0,
+        "vertices": 1434,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 16613.29999999702,
+        "duration": 0,
+        "vertices": 32236,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "preview",
+        "t": 16627.79999999702,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRef",
+        "t": 16627.79999999702,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewFits",
+        "t": 16627.79999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 2136,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 16627.90000000596,
+        "duration": 0,
+        "vertices": 49024,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "preview",
+        "t": 17900.20000000298,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewRef",
+        "t": 17900.20000000298,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewFits",
+        "t": 17900.20000000298,
+        "duration": 0,
+        "vertices": 2786,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 17900.20000000298,
+        "duration": 0.09999999403953552,
+        "vertices": 53063,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "preview",
+        "t": 19437.59999999404,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 19437.59999999404,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 19437.59999999404,
+        "duration": 0.10000000894069672,
+        "vertices": 3967,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 19437.70000000298,
+        "duration": 0.09999999403953552,
+        "vertices": 59781,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 19910.59999999404,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 19910.59999999404,
+        "duration": 0.10000000894069672,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 19910.70000000298,
+        "duration": 0,
+        "vertices": 5815,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 19910.70000000298,
+        "duration": 1.0999999940395355,
+        "vertices": 66661,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 20207.40000000596,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 20207.40000000596,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 20207.40000000596,
+        "duration": 0.09999999403953552,
+        "vertices": 6277,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 20207.5,
+        "duration": 0,
+        "vertices": 68381,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 20698.09999999404,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRef",
+        "t": 20698.09999999404,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewFits",
+        "t": 20698.09999999404,
+        "duration": 0.20000000298023224,
+        "vertices": 9229,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 20698.29999999702,
+        "duration": 0,
+        "vertices": 78701,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "preview",
+        "t": 22456.40000000596,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewRef",
+        "t": 22456.40000000596,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewFits",
+        "t": 22456.40000000596,
+        "duration": 0,
+        "vertices": 11647,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 22456.40000000596,
+        "duration": 0.09999999403953552,
+        "vertices": 87301,
+        "workerBounds": false,
+        "phase": "orbit"
+      },
+      {
+        "name": "preview",
+        "t": 24157,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 24157,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 24157,
+        "duration": 0.20000000298023224,
+        "vertices": 13567,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 24157.20000000298,
+        "duration": 6.799999997019768,
+        "vertices": 94181,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 25247.90000000596,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 25247.90000000596,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 25247.90000000596,
+        "duration": 0.29999999701976776,
+        "vertices": 22559,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 25248.20000000298,
+        "duration": 0,
+        "vertices": 94181,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 25270.40000000596,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRef",
+        "t": 25270.40000000596,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewFits",
+        "t": 25270.40000000596,
+        "duration": 0,
+        "vertices": 25347,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 25270.40000000596,
+        "duration": 0.19999998807907104,
+        "vertices": 104258,
+        "workerBounds": false,
+        "phase": "wheel"
+      },
+      {
+        "name": "preview",
+        "t": 26676.90000000596,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRef",
+        "t": 26676.90000000596,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewFits",
+        "t": 26676.90000000596,
+        "duration": 0.3999999910593033,
+        "vertices": 25947,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 26677.29999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 114335,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "preview",
+        "t": 27660.20000000298,
+        "duration": 0,
+        "vertices": 53632,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRef",
+        "t": 27660.20000000298,
+        "duration": 0,
+        "vertices": 34044,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewFits",
+        "t": 27660.20000000298,
+        "duration": 0,
+        "vertices": 25947,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "previewRefFits",
+        "t": 27660.20000000298,
+        "duration": 0.09999999403953552,
+        "vertices": 121951,
+        "workerBounds": false,
+        "phase": "touch"
+      },
+      {
+        "name": "hull",
+        "t": 58949.29999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "refHull",
+        "t": 58949.40000000596,
+        "duration": 0.09999999403953552,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "struct",
+        "t": 58949.5,
+        "duration": 0.5,
+        "vertices": 144549,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "plate",
+        "t": 58950,
+        "duration": 0.09999999403953552,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "gen",
+        "t": 58950.09999999404,
+        "duration": 0.10000000894069672,
+        "vertices": 1653,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "shield",
+        "t": 58950.20000000298,
+        "duration": 0.09999999403953552,
+        "vertices": 3444,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "hyper",
+        "t": 58950.29999999702,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "interior",
+        "t": 58950.29999999702,
+        "duration": 0.4000000059604645,
+        "vertices": 108727,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "engine",
+        "t": 58950.70000000298,
+        "duration": 0.09999999403953552,
+        "vertices": 41080,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "plant",
+        "t": 58950.79999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "nozzle",
+        "t": 58950.90000000596,
+        "duration": 0,
+        "vertices": 238,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "hangar",
+        "t": 58950.90000000596,
+        "duration": 65.79999999701977,
+        "vertices": 240207,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "refStruct",
+        "t": 59017.5,
+        "duration": 0.4000000059604645,
+        "vertices": 20699,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "refEngine",
+        "t": 59017.90000000596,
+        "duration": 0.3999999910593033,
+        "vertices": 17737,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "refPlant",
+        "t": 59018.29999999702,
+        "duration": 0.10000000894069672,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "surfaceArmor",
+        "t": 59018.40000000596,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "surfaceDevices",
+        "t": 59018.40000000596,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "surfaceDetail",
+        "t": 59018.40000000596,
+        "duration": 0,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "hatchOpen",
+        "t": 59018.40000000596,
+        "duration": 2.0999999940395355,
+        "vertices": 72,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "hatchRay",
+        "t": 59020.5,
+        "duration": 0.09999999403953552,
+        "vertices": 112,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "refHatches",
+        "t": 59020.59999999404,
+        "duration": 0.10000000894069672,
+        "vertices": 0,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "fits",
+        "t": 59020.70000000298,
+        "duration": 0.29999999701976776,
+        "vertices": 25947,
+        "workerBounds": true,
+        "phase": "touch"
+      },
+      {
+        "name": "refFits",
+        "t": 59021,
+        "duration": 2115.4000000059605,
+        "vertices": 121951,
+        "workerBounds": true,
+        "phase": "touch"
+      }
+    ],
+    "draws": [
+      {
+        "t": 10548.29999999702,
+        "duration": 262.20000000298023,
+        "phase": "seed"
+      },
+      {
+        "t": 11022.20000000298,
+        "duration": 0.29999999701976776,
+        "phase": "seed"
+      },
+      {
+        "t": 11108.09999999404,
+        "duration": 0.6000000089406967,
+        "phase": "seed"
+      },
+      {
+        "t": 11360.59999999404,
+        "duration": 3.9000000059604645,
+        "phase": "seed"
+      },
+      {
+        "t": 11448.5,
+        "duration": 0.5999999940395355,
+        "phase": "seed"
+      },
+      {
+        "t": 11552.40000000596,
+        "duration": 0.5999999940395355,
+        "phase": "seed"
+      },
+      {
+        "t": 11658.29999999702,
+        "duration": 1,
+        "phase": "seed"
+      },
+      {
+        "t": 11727.5,
+        "duration": 0.5,
+        "phase": "seed"
+      },
+      {
+        "t": 11823.5,
+        "duration": 2.4000000059604645,
+        "phase": "seed"
+      },
+      {
+        "t": 11930.20000000298,
+        "duration": 0.5999999940395355,
+        "phase": "seed"
+      },
+      {
+        "t": 12036.70000000298,
+        "duration": 0.29999999701976776,
+        "phase": "seed"
+      },
+      {
+        "t": 12064.70000000298,
+        "duration": 0.3999999910593033,
+        "phase": "seed"
+      },
+      {
+        "t": 12365.90000000596,
+        "duration": 0.3999999910593033,
+        "phase": "seed"
+      },
+      {
+        "t": 12727.20000000298,
+        "duration": 0.5999999940395355,
+        "phase": "placement"
+      },
+      {
+        "t": 12774.40000000596,
+        "duration": 0.3999999910593033,
+        "phase": "placement"
+      },
+      {
+        "t": 13181.29999999702,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 13242.40000000596,
+        "duration": 1.699999988079071,
+        "phase": "orbit"
+      },
+      {
+        "t": 13618.5,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 14044.59999999404,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 14419.20000000298,
+        "duration": 0.29999999701976776,
+        "phase": "orbit"
+      },
+      {
+        "t": 14773.90000000596,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 15518.59999999404,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 15764.79999999702,
+        "duration": 0.4000000059604645,
+        "phase": "wheel"
+      },
+      {
+        "t": 16613.40000000596,
+        "duration": 0.3999999910593033,
+        "phase": "touch"
+      },
+      {
+        "t": 16628,
+        "duration": 0.7999999970197678,
+        "phase": "touch"
+      },
+      {
+        "t": 16908.40000000596,
+        "duration": 0.3999999910593033,
+        "phase": "touch"
+      },
+      {
+        "t": 17227.70000000298,
+        "duration": 0.3999999910593033,
+        "phase": "touch"
+      },
+      {
+        "t": 17900.29999999702,
+        "duration": 0.6000000089406967,
+        "phase": "orbit"
+      },
+      {
+        "t": 17917.70000000298,
+        "duration": 2,
+        "phase": "orbit"
+      },
+      {
+        "t": 18238.5,
+        "duration": 1.5999999940395355,
+        "phase": "orbit"
+      },
+      {
+        "t": 18652.90000000596,
+        "duration": 0.29999999701976776,
+        "phase": "orbit"
+      },
+      {
+        "t": 19059.59999999404,
+        "duration": 0.6000000089406967,
+        "phase": "orbit"
+      },
+      {
+        "t": 19437.79999999702,
+        "duration": 4.4000000059604645,
+        "phase": "wheel"
+      },
+      {
+        "t": 19911.79999999702,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 20207.5,
+        "duration": 0.29999999701976776,
+        "phase": "wheel"
+      },
+      {
+        "t": 20307.90000000596,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 20698.29999999702,
+        "duration": 0.5,
+        "phase": "touch"
+      },
+      {
+        "t": 21105.09999999404,
+        "duration": 0.6000000089406967,
+        "phase": "touch"
+      },
+      {
+        "t": 21863.09999999404,
+        "duration": 0.4000000059604645,
+        "phase": "touch"
+      },
+      {
+        "t": 22456.5,
+        "duration": 0.5999999940395355,
+        "phase": "orbit"
+      },
+      {
+        "t": 22706.59999999404,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 22965.29999999702,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 23438,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 23702,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 24164,
+        "duration": 0.4000000059604645,
+        "phase": "wheel"
+      },
+      {
+        "t": 25248.20000000298,
+        "duration": 0.5999999940395355,
+        "phase": "wheel"
+      },
+      {
+        "t": 25270.59999999404,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 25896.20000000298,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 26677.40000000596,
+        "duration": 0.29999999701976776,
+        "phase": "touch"
+      },
+      {
+        "t": 27660.29999999702,
+        "duration": 0.9000000059604645,
+        "phase": "touch"
+      },
+      {
+        "t": 27667.20000000298,
+        "duration": 0.20000000298023224,
+        "phase": "touch"
+      },
+      {
+        "t": 28725.09999999404,
+        "duration": 0.5,
+        "phase": "touch"
+      },
+      {
+        "t": 30046.90000000596,
+        "duration": 0.3999999910593033,
+        "phase": "orbit"
+      },
+      {
+        "t": 30063,
+        "duration": 0.29999999701976776,
+        "phase": "orbit"
+      },
+      {
+        "t": 30854.09999999404,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 31097.29999999702,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 31634.79999999702,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 33602.40000000596,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 33627.70000000298,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 34766.40000000596,
+        "duration": 0.5999999940395355,
+        "phase": "touch"
+      },
+      {
+        "t": 34801.70000000298,
+        "duration": 0.5,
+        "phase": "touch"
+      },
+      {
+        "t": 36210,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 36225,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 37035.40000000596,
+        "duration": 0.3999999910593033,
+        "phase": "orbit"
+      },
+      {
+        "t": 37801.70000000298,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 38555.09999999404,
+        "duration": 0.800000011920929,
+        "phase": "orbit"
+      },
+      {
+        "t": 40258.5,
+        "duration": 2.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 40275.59999999404,
+        "duration": 0.7000000029802322,
+        "phase": "wheel"
+      },
+      {
+        "t": 41467.20000000298,
+        "duration": 0.5999999940395355,
+        "phase": "touch"
+      },
+      {
+        "t": 42755.29999999702,
+        "duration": 0.29999999701976776,
+        "phase": "touch"
+      },
+      {
+        "t": 44352,
+        "duration": 0.4000000059604645,
+        "phase": "touch"
+      },
+      {
+        "t": 44367.5,
+        "duration": 0.4000000059604645,
+        "phase": "touch"
+      },
+      {
+        "t": 45948.59999999404,
+        "duration": 0.4000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 48957.70000000298,
+        "duration": 0.29999999701976776,
+        "phase": "orbit"
+      },
+      {
+        "t": 48968.09999999404,
+        "duration": 0.6000000089406967,
+        "phase": "orbit"
+      },
+      {
+        "t": 50461.79999999702,
+        "duration": 0.9000000059604645,
+        "phase": "orbit"
+      },
+      {
+        "t": 52100.20000000298,
+        "duration": 0.5,
+        "phase": "orbit"
+      },
+      {
+        "t": 54938.79999999702,
+        "duration": 0.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 56415.70000000298,
+        "duration": 2.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 57726.20000000298,
+        "duration": 0.5,
+        "phase": "touch"
+      },
+      {
+        "t": 57738.79999999702,
+        "duration": 0.20000000298023224,
+        "phase": "touch"
+      },
+      {
+        "t": 61221.20000000298,
+        "duration": 2017.5,
+        "phase": "touch"
+      },
+      {
+        "t": 63289.09999999404,
+        "duration": 0.4000000059604645,
+        "phase": "touch"
+      },
+      {
+        "t": 63338.40000000596,
+        "duration": 0.5999999940395355,
+        "phase": "stats-pending-burst"
+      },
+      {
+        "t": 65462.5,
+        "duration": 2.5,
+        "phase": "wheel"
+      },
+      {
+        "t": 67405.79999999702,
+        "duration": 0.7000000029802322,
+        "phase": "wheel"
+      },
+      {
+        "t": 69368.40000000596,
+        "duration": 3.2999999970197678,
+        "phase": "wheel"
+      },
+      {
+        "t": 71253.40000000596,
+        "duration": 1,
+        "phase": "touch"
+      },
+      {
+        "t": 76458.29999999702,
+        "duration": 0.5,
+        "phase": "touch"
+      },
+      {
+        "t": 79055.20000000298,
+        "duration": 0.3999999910593033,
+        "phase": "touch"
+      },
+      {
+        "t": 79213.20000000298,
+        "duration": 0.29999999701976776,
+        "phase": "touch"
+      },
+      {
+        "t": 81397.20000000298,
+        "duration": 1750.5,
+        "phase": "ready-hover"
+      },
+      {
+        "t": 83158.09999999404,
+        "duration": 0.4000000059604645,
+        "phase": "ready-hover"
+      }
+    ],
+    "phase": "ready-hover"
+  },
+  "statsPendingEvents": [
+    {
+      "type": "pointerup",
+      "eventId": 244,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "pointerType": "touch",
+      "time": 63292.59999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "touchend",
+      "eventId": 246,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "time": 63292.79999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "pointerup",
+      "eventId": 248,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "pointerType": "touch",
+      "time": 63292.79999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "touchend",
+      "eventId": 250,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "time": 63293.29999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "pointermove",
+      "eventId": 252,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "pointerType": "mouse",
+      "time": 63335.09999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointerdown",
+      "eventId": 254,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "pointerType": "mouse",
+      "time": 63335.5,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointermove",
+      "eventId": 256,
+      "radius": 31.733560345079233,
+      "theta": 2.7492036732051033,
+      "pointerType": "mouse",
+      "time": 63336.09999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointerup",
+      "eventId": 258,
+      "radius": 31.733560345079233,
+      "theta": 3.4692036732051035,
+      "pointerType": "mouse",
+      "time": 63336.5,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "wheel",
+      "eventId": 260,
+      "radius": 31.733560345079233,
+      "theta": 3.4692036732051035,
+      "time": 63395.79999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointerdown",
+      "eventId": 262,
+      "radius": 36.01759099166493,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 63396.09999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "touchstart",
+      "eventId": 264,
+      "radius": 36.01759099166493,
+      "theta": 3.4692036732051035,
+      "time": 63396.90000000596,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointerdown",
+      "eventId": 266,
+      "radius": 36.01759099166493,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 63397,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "touchstart",
+      "eventId": 268,
+      "radius": 36.01759099166493,
+      "theta": 3.4692036732051035,
+      "time": 63397.5,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointermove",
+      "eventId": 270,
+      "radius": 36.01759099166493,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 63397.59999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointermove",
+      "eventId": 272,
+      "radius": 24.01172732777662,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 63397.70000000298,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "touchmove",
+      "eventId": 274,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "time": 63397.70000000298,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointerup",
+      "eventId": 276,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 63402.09999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "touchend",
+      "eventId": 278,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "time": 63402.29999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointerup",
+      "eventId": 280,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 63402.29999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "touchend",
+      "eventId": 282,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "time": 63414.29999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "stats-pending-burst"
+    },
+    {
+      "type": "pointermove",
+      "eventId": 284,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "pointerType": "mouse",
+      "time": 65462,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "wheel"
+    },
+    {
+      "type": "wheel",
+      "eventId": 286,
+      "radius": 20,
+      "theta": 3.4692036732051035,
+      "time": 69368.09999999404,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "wheel"
+    },
+    {
+      "type": "pointerdown",
+      "eventId": 288,
+      "radius": 22.7,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 71262.90000000596,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "touchstart",
+      "eventId": 290,
+      "radius": 22.7,
+      "theta": 3.4692036732051035,
+      "time": 71263,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "pointerdown",
+      "eventId": 292,
+      "radius": 22.7,
+      "theta": 3.4692036732051035,
+      "pointerType": "touch",
+      "time": 71263.20000000298,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "touchstart",
+      "eventId": 294,
+      "radius": 22.7,
+      "theta": 3.4692036732051035,
+      "time": 71263.79999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    }
+  ],
+  "pendingCameraChanges": [
+    {
+      "event": {
+        "type": "pointermove",
+        "eventId": 256,
+        "radius": 31.733560345079233,
+        "theta": 2.7492036732051033,
+        "pointerType": "mouse",
+        "time": 63336.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      "after": {
+        "type": "pointermove",
+        "eventId": 256,
+        "processingMs": 0.4000000059604645,
+        "radius": 31.733560345079233,
+        "theta": 3.4692036732051035,
+        "pointerType": "mouse",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      }
+    },
+    {
+      "event": {
+        "type": "wheel",
+        "eventId": 260,
+        "radius": 31.733560345079233,
+        "theta": 3.4692036732051035,
+        "time": 63395.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      "after": {
+        "type": "wheel",
+        "eventId": 260,
+        "processingMs": 0,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "phase": "stats-pending-burst",
+        "trusted": true
+      }
+    },
+    {
+      "event": {
+        "type": "pointermove",
+        "eventId": 270,
+        "radius": 36.01759099166493,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63397.59999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      "after": {
+        "type": "pointermove",
+        "eventId": 270,
+        "processingMs": 0.09999999403953552,
+        "radius": 24.01172732777662,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      }
+    },
+    {
+      "event": {
+        "type": "pointermove",
+        "eventId": 272,
+        "radius": 24.01172732777662,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "time": 63397.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "stats-pending-burst"
+      },
+      "after": {
+        "type": "pointermove",
+        "eventId": 272,
+        "processingMs": 0,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "pointerType": "touch",
+        "phase": "stats-pending-burst",
+        "trusted": true
+      }
+    },
+    {
+      "event": {
+        "type": "wheel",
+        "eventId": 286,
+        "radius": 20,
+        "theta": 3.4692036732051035,
+        "time": 69368.09999999404,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "wheel"
+      },
+      "after": {
+        "type": "wheel",
+        "eventId": 286,
+        "processingMs": 0.10000000894069672,
+        "radius": 22.7,
+        "theta": 3.4692036732051035,
+        "phase": "wheel",
+        "trusted": true
+      }
+    }
+  ],
+  "maxInputRoundtripMs": 9735,
+  "mainPhysicsCalls": [],
+  "slowMainCalls": [
+    {
+      "name": "rayEnv",
+      "t": 65545.79999999702,
+      "duration": 123.40000000596046,
+      "phase": "wheel",
+      "gen": 2
+    }
+  ],
+  "sourceStable": true,
+  "maximumCanvasHandlerMs": 11.900000005960464
+}

@@ -167,13 +167,16 @@ test('a fighter design without propulsion stays at zero speed when saved and nor
   assert.equal(C.cleanDesignCraft(snapshot).craft.speed, 0);
 
   // Explicit zero acceleration overrides an obsolete speed floor even in
-  // older snapshots without a blueprint. Records without acceleration keep
-  // their legacy speed because their propulsion has not been reconstructed.
+  // older snapshots without a blueprint. Records with neither acceleration
+  // nor a reconstructed propulsion profile keep their legacy speed.
   const saved = {name: ship.name, dims: craft.dims,
     craft: {...craft, speed: 500, speedLoaded: 500}};
   assert.equal(C.cleanDesignCraft(saved).craft.speed, 0);
   delete saved.craft.accelG;
   saved.craft.speed = 1800;
+  assert.equal(C.cleanDesignCraft(saved).craft.speed, 0,
+    'a retained physical profile still proves the aircraft has no propulsion');
+  delete saved.craft.powerProfile;
   assert.equal(C.cleanDesignCraft(saved).craft.speed, 1800);
 });
 

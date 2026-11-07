@@ -1,0 +1,2855 @@
+{
+  "schemaVersion": 1,
+  "key": "arquitens",
+  "method": "fresh-factory",
+  "outputPlan": {
+    "preset": "engine-targets",
+    "keys": [
+      "imperial",
+      "imperial2",
+      "arquitens",
+      "cr90",
+      "hammerhead",
+      "mc80home",
+      "mc80liberty",
+      "mc75",
+      "mc30c"
+    ],
+    "report": "docs/benchmarks/example-engine-acceleration-refit.json",
+    "archiveTags": {
+      "imperial": "2300g",
+      "imperial2": "2300g",
+      "arquitens": "1800g",
+      "cr90": "2100g",
+      "hammerhead": "2500g",
+      "mc80home": "2100g",
+      "mc80liberty": "2100g",
+      "mc75": "2100g",
+      "mc30c": "2100g"
+    },
+    "targetsG": {
+      "imperial": 2300,
+      "imperial2": 2300,
+      "arquitens": 1800,
+      "cr90": 2100,
+      "hammerhead": 2500,
+      "mc80home": 2100,
+      "mc80liberty": 2100,
+      "mc75": 2100,
+      "mc30c": 2100
+    },
+    "plantPowerW": {
+      "imperial": 1e+25,
+      "imperial2": 1e+25,
+      "arquitens": 2.374271804e+22,
+      "cr90": 1.277054338601343e+22,
+      "hammerhead": 7.524291479e+21,
+      "mc80home": 4.746029113e+24,
+      "mc80liberty": 2.568108685e+24,
+      "mc75": 2.372696474e+24,
+      "mc30c": 4.966745319e+22
+    },
+    "targetG": null,
+    "toleranceG": 0.2,
+    "ordinaryThrustNPerM3": 170000000,
+    "correctImperialSeam": true,
+    "requireReferenceSpeeds": true
+  },
+  "baselineCommit": "bfa371ee1786952199176c4187008723a863af5c",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+  },
+  "orchestrationScriptSha256": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c",
+  "auditScriptSha256": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+  "scriptSha256": {
+    "scripts/refresh-imperial-layouts.cjs": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c",
+    "scripts/audit-ship-examples.cjs": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+    "scripts/finalize-ship-example-audit.cjs": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d",
+    "scripts/update-ship-examples.cjs": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6",
+    "scripts/arquitens-engine-evidence.cjs": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce",
+    "scripts/stock-engine-source-evidence.cjs": "37f89837559922fbbe2bf3301d579df0530b73804dddbbc12ba8b2447fdbc9d1",
+    "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2"
+  },
+  "sourceLayout": {
+    "sourceKind": "authenticated-historical-reference",
+    "archive": "assets/source/ship-example-blueprints",
+    "sourceArchive": "assets/source/ship-example-blueprints/arquitens.json.gz",
+    "manifestSha256": "5a6c37e355f5d0d97ef3618cbb9323336600ea991b56b69f3d248a50bd9bb195",
+    "sourceSha256": "1ff756d92ae4f97b7d6c9353e596963b16cbe9b5dba3b311200aa66948c80834",
+    "inventorySha256": null,
+    "expectedSourceBlueprintSha256": "ae4bb533f7d1bd9894a5732450dd00d6f16b7c67d1fee6e74fa8166b2d822bcc",
+    "expectedTransforms": []
+  },
+  "additions": [],
+  "controls": {
+    "catalogue": {
+      "venator": {
+        "sha256": "c887c5349f939364f593056f4b4839ad20b9392f8784bc347732715ad979492e",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7"
+        }
+      },
+      "reptransport": {
+        "sha256": "869f0d4ee43a4dfd7dc23329519a5b9086f1249b273dd9ffca6f214f4c373803",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "heraklon": {
+        "sha256": "99c5d4dacffcb985181ebbee04f328406cbf08607bd0f1299350fbb3f252c7ee",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "dreadnaught": {
+        "sha256": "a458ee5ab1956d4e40b00cb3879887abea41a435f6f53921b9e62973d9c136dc",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "executor": {
+        "sha256": "9330ccf334e4098fdd57677ad42df2fc1ec121d84a3a837fb6c265b4417e8341",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "nebulonb": {
+        "sha256": "f2138fab758d41b7b16314de564f8e21f73bf2c53ab4a3666490bfcc8f81c7d5",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "gr75": {
+        "sha256": "4e16049944b782dfecef3055e5fbdc9232825f5521b939acdd096685f59242fb",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "gozanti": {
+        "sha256": "a3732ce81bfde5cdb12d6547e636a35665809e077fccde0867bbeab18cb96c46",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "providence": {
+        "sha256": "b7f50d9f502037721dcef36a87b3858d830e986515a66fbea2158081df22e4ce",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "munificent": {
+        "sha256": "ca7fdf20299aab67d900bea8d2f36008b931f757121f8dcf5057a5f095cd7a0c",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "recusant": {
+        "sha256": "8d95e4737213862b850f093baab2c7b86198bd19ee5793a86ec5d410789fdb81",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "lucrehulk": {
+        "sha256": "cfb0fdab5cfc1539cb17de2d91bb7ee8d7fadbca006c4e143f2575531d25f5cd",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "providenceDn": {
+        "sha256": "5f6739a89591434e8982b7596bec8e23c2c399ee8fb421d9cd8b86a9d9b0fce8",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "recusantDn": {
+        "sha256": "5b9046b0b2f105c28d31b6ee76f1a6871d047267bad6d796ffac49edb85cf6af",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "mandator2": {
+        "sha256": "942eaef0a71e809f4d023af65a832fd57a99e5e50c0ec10572c3b7095a9e05d0",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "acclamator": {
+        "sha256": "e3378dc7e7ebf307c766675984f1537b478d2814cd8db5857327c4a5d2b61f83",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "onager": {
+        "sha256": "3db962885c29800842836b55d98b56726b058e333f548bd8469f10f3f7ef7ca1",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "cc3a3dd550ca76a7cb8051d94d3e06169d14334982f82aec30be1f53a6dcbcd0"
+        }
+      },
+      "subjugator": {
+        "sha256": "c1c830976e6b8b50965d905444a8c25621ec783734d14d4252666bfc1039c894",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "lh3210": {
+        "sha256": "01cf646d6dd5f5795986056c6da8460d4fb539204db444335a99690c96a515b5",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      }
+    },
+    "figures": {
+      "acclamator": "9f4e48b996fdbf97f7bbf5d3958d1d4ffb0660b25d827e86dc0b34d2819db5de",
+      "craft_arc170": "c00a0b199bda58825c621b54b2db50fb4e40439928159a7d80e8bfc5fbf4bff5",
+      "craft_awing": "3838d06d7a60cfa15be63cb568404eeeab58970b3d02162bedbb0811dc79c6eb",
+      "craft_btlb": "335258608b021893827aebe2124c52e5a520c0c3870f2ac3d6b2da50ef5d158e",
+      "craft_hyena": "d5bed4811a45548161fef8d10062a311cd81d69fe40868d352069f7f8f0ec626",
+      "craft_tie_in": "8c03afc030c30a233023114d21d8df14ca0ffd46094dfe2a372d80e5182271ef",
+      "craft_tie_ln": "2ca1a984ca6899cb6deaeac4c31e015ff14896db32ea7cd4a317e08ffecb3507",
+      "craft_tie_sa": "d5eedf2633faecc3b6e89bb45cde01dbf571df6b9d42a49ee6159cb6fefe4ae5",
+      "craft_v19": "bb9a239fbb3b030754feccfe3bc2069308b68bd6b3a6969ac05fce83d8754e09",
+      "craft_vulture": "7471e318de64ac8f348bda196430e545aaf8569d59fb386a167370fda7a74de1",
+      "craft_vwing": "33ac2a851faf7917c4c813f1082e2b727cf0f9f3222f4ab829603fcbc5204af9",
+      "craft_xwing": "f472aafed25fbed53d42825268e997c204f0acf5f59fc4d923aebc2f48b76df2",
+      "craft_z95": "3323f0a59b24ec563855b2b8494656f058b7f2de137a20d7cd14963506335201",
+      "dreadnaught": "107e0b66226508b03278eaba394af4082645594997d51e39d75ceed93a9f38de",
+      "executor": "e7922098d924963e7d16ace79b3979b457a0bcc9e74a9cb82df10d80031ab52b",
+      "gozanti": "6d9dc0454105565fc231a0faf7f4025e18e8bf6c14307bd728b9f9b557a8f2f2",
+      "gr75": "c6fff2715e714629411e1f0b6a1936f5bb712227da7bfd760ac0f96bd9b69a3e",
+      "heraklon": "6b152774cada77d441e74c3691c6c3f20f61c03007a8ea7eef0dd3c1b9de6074",
+      "lh3210": "6c3c6657e74918819c4a3ad476f75075c507cb1898f6312c277a55711693a42a",
+      "lucrehulk": "b0a8bf05f31f7acc2e761a6eb4acfccf98ba236bf01e48d9ba9f47f8ef94667c",
+      "mandator2": "e886cbe4c0b4ceee7916e4daae02a7ee20f63c56194a90584cc1534f0bb260af",
+      "munificent": "451422df126fcd2141fcba38dd7c1ab9b66a3b34f140b939d4ac274f30d362bb",
+      "nebulonb": "065288a076cf4ac3d9c4142967439670a065e3f61c771d8d16286ceb492febb2",
+      "onager": "982224d9af6baf53adb03e5f9c3f02374479619cd529511caa3ad1fc165f53cf",
+      "providence": "a6046b31872c62d1505559e6e900a89deffaadcdf7b084be1a5984e014b85f8b",
+      "providenceDn": "a8654c96f6458210db855353adffbccc4b2122e5499d1f24046a108c19d56875",
+      "recusant": "aa28eaf840c23967391405bb7e8d4bff70a72ece3feb44d30176d3dd0865147b",
+      "recusantDn": "7c46cab20c27a005ac2baf5c7ae6924c6f34284c8ae52935d43503c94993c4d6",
+      "reptransport": "c59008bdd680458189f6e836abe11c7278979482c7e568e4300975cf88a3a80e",
+      "subjugator": "1897b93a47fcf859781d4642e3e5229f45b74f09f069c553f2842cfa88e75dc0",
+      "venator": "9b2cdbf31b1e7210d593953b65c3d0e9ee186abc40a08f246f2834a03ddab9b1"
+    }
+  },
+  "constructorCalls": 1,
+  "phase": "audited-ready-for-publication",
+  "startedAt": "2026-11-07T01:11:17.378Z",
+  "elapsedMs": 34170,
+  "constructorBlueprintSha256": "6f7d665b34b4c5c3a76c6ff523c25d212afbb2a1b2a9de42c467d18055a79f86",
+  "calibration": {
+    "version": 1,
+    "key": "arquitens",
+    "basis": "ordinary engine volume enlarged to 1800 G against finished physical mass",
+    "targetAccelG": 1800,
+    "referenceTargetG": 1800,
+    "fitLimited": false,
+    "baselineRatedThrustN": 4732898195892.928,
+    "engineIds": [
+      112,
+      113,
+      114
+    ],
+    "reactorIds": [
+      76,
+      77,
+      79,
+      81
+    ],
+    "addedReactors": [],
+    "reconfiguredReactors": [],
+    "addedInertial": [
+      115,
+      116,
+      167,
+      168,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      169,
+      170
+    ],
+    "addedIntegrity": [
+      117,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      118,
+      201,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      245,
+      246,
+      247,
+      248,
+      249,
+      250,
+      251,
+      252,
+      253,
+      202,
+      203,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260,
+      261,
+      262,
+      263,
+      264,
+      265,
+      266,
+      267,
+      268,
+      269,
+      270,
+      271,
+      272,
+      273,
+      274,
+      275,
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285,
+      286,
+      287,
+      288,
+      289,
+      290,
+      291,
+      292,
+      293,
+      294,
+      295,
+      296,
+      297,
+      298,
+      299,
+      300,
+      301,
+      204
+    ],
+    "addedPumps": [],
+    "powerBusPartId": 162,
+    "baselinePowerW": 2.3742718040613077e+22,
+    "installedPowerW": 2.3742718040613077e+22,
+    "requestedEngineInputW": 1.5672929189429621e+22,
+    "installedEngineInputW": 1.5672929189429621e+22,
+    "engineRatingShortfallW": 0,
+    "attainableAccelG": 1800.0052367869007,
+    "fullWeaponInputW": 2.4981338329599987e+23,
+    "availableWeaponInputW": 3.2201290252469668e+22,
+    "weaponBusBudgetW": 3.2201290252469664e+22,
+    "weaponBranchInputW": 3.2201290252469668e+22,
+    "originalEngineOutlets": [
+      {
+        "id": 78,
+        "p": [
+          -0.5999999999999996,
+          21.8,
+          0.55796
+        ]
+      },
+      {
+        "id": 80,
+        "p": [
+          -0.5999999999999996,
+          21.8,
+          55.432
+        ]
+      },
+      {
+        "id": 82,
+        "p": [
+          -0.5999999999999996,
+          21.8,
+          -55.432
+        ]
+      }
+    ],
+    "thermal": {
+      "key": "arquitens",
+      "requestedCapacityW": 1.197608798092963e+22,
+      "capacityW": 1.1976079885261129e+22,
+      "coolingPowerW": 179641198278916930000,
+      "requestedVolumeM3": 1143.4095280960005,
+      "installedVolumeM3": 1143.4095280960005,
+      "addedParts": [],
+      "margin": 1.15,
+      "sourcePowerW": 2.3742718040613077e+22,
+      "requestedInput": {
+        "engines": 1.5672929189429621e+22,
+        "weapons": 2.4981338329599987e+23,
+        "shields": 4.014471476427913e+22,
+        "fixed": 858873806109726600000,
+        "superweapons": 0
+      },
+      "operatingPresets": {
+        "cruise": {
+          "mode": "cruise",
+          "generatedW": 4.840260218341467e+21,
+          "inputW": 1.899417443249046e+22,
+          "enginesW": 9.403757513657772e+21,
+          "weaponsW": 0,
+          "shieldsW": 8.55190179302651e+21,
+          "fixedW": 1.0385151258061789e+21,
+          "superweaponW": 0,
+          "feedHeatW": 6219701644827824000,
+          "coolingReservationW": 179641319696452300000
+        },
+        "combat": {
+          "mode": "weapons",
+          "generatedW": 9.041352222487985e+21,
+          "inputW": 2.8491261648735694e+22,
+          "enginesW": 0,
+          "weaponsW": 2.7452746522929513e+22,
+          "shieldsW": 0,
+          "fixedW": 1.0385151258061789e+21,
+          "superweaponW": 0,
+          "feedHeatW": 0,
+          "coolingReservationW": 179641319696452300000
+        },
+        "hold": {
+          "mode": "weapons",
+          "generatedW": 9.041352222487985e+21,
+          "inputW": 2.8491261648735694e+22,
+          "enginesW": 0,
+          "weaponsW": 2.7452746522929513e+22,
+          "shieldsW": 0,
+          "fixedW": 1.0385151258061789e+21,
+          "superweaponW": 0,
+          "feedHeatW": 0,
+          "coolingReservationW": 179641319696452300000
+        },
+        "defend": {
+          "mode": "shields",
+          "generatedW": 1.0413989548634461e+22,
+          "inputW": 2.8491261648735694e+22,
+          "enginesW": 0,
+          "weaponsW": 0,
+          "shieldsW": 2.7452746522929513e+22,
+          "fixedW": 1.0385151258061789e+21,
+          "superweaponW": 0,
+          "feedHeatW": 0,
+          "coolingReservationW": 179641319696452300000
+        },
+        "evade": {
+          "mode": "balanced",
+          "generatedW": 8.799484721872771e+21,
+          "inputW": 2.3742718040613077e+22,
+          "enginesW": 0,
+          "weaponsW": 0,
+          "shieldsW": 2.2704202914806897e+22,
+          "fixedW": 1.0385151258061789e+21,
+          "superweaponW": 0,
+          "feedHeatW": 0,
+          "coolingReservationW": 179641319696452300000
+        }
+      },
+      "envelope": {
+        "weaponFactor": 1.25,
+        "shieldFactor": 1.5,
+        "reactorFactor": 1.4,
+        "electricalFeedLossBoundW": 6219701644827824000
+      },
+      "capacityRatio": 0.9999993240139422
+    },
+    "engineCoreIds": [
+      112,
+      113,
+      114
+    ],
+    "targetSource": "user",
+    "engineVolumeCalibration": [
+      {
+        "iteration": 0,
+        "massT": 443964.14108851453,
+        "engineIds": [
+          112,
+          113,
+          114
+        ],
+        "engineVolumeM3": 46135.760739522484,
+        "engineLengthsM": [
+          22.5,
+          22.5,
+          22.5
+        ],
+        "ratedAccelG": 1801.4326850134455
+      },
+      {
+        "iteration": 1,
+        "massT": 443942.7777587891,
+        "engineIds": [
+          112,
+          113,
+          114
+        ],
+        "engineVolumeM3": 46099.068821001325,
+        "engineLengthsM": [
+          22.48210567781927,
+          22.48210567781927,
+          22.48210567781927
+        ],
+        "ratedAccelG": 1800.086619256878
+      },
+      {
+        "iteration": 2,
+        "massT": 443941.48618825595,
+        "engineIds": [
+          112,
+          113,
+          114
+        ],
+        "engineVolumeM3": 46096.85055714595,
+        "engineLengthsM": [
+          22.48102385027495,
+          22.48102385027495,
+          22.48102385027495
+        ],
+        "ratedAccelG": 1800.0052367869007
+      }
+    ],
+    "nozzleIds": [
+      78,
+      80,
+      82
+    ]
+  },
+  "initialLayoutEvidence": {
+    "scope": "The authenticated historical native design retains all 75 structures, all 17 fitting poses and kinds, and all three authored bell appearances. Only false shell/float defaults, an independently frame-equivalent normal alias and relative numeric roundoff of 1e-12 are accepted. New machinery and internal engineering remain independent of these exterior guards.",
+    "sourceArchive": "assets/source/ship-example-blueprints/arquitens.json.gz",
+    "sourceSha256": "1ff756d92ae4f97b7d6c9353e596963b16cbe9b5dba3b311200aa66948c80834",
+    "inventorySha256": null,
+    "relativeTolerance": 1e-12,
+    "uniqueParts": true,
+    "uniqueFits": true,
+    "structures": [
+      {
+        "id": 1,
+        "sourceSha256": "acf856cc8f38e6a3e284614928e94394415bb575552fcaccbdffe573e8c57140",
+        "actualSha256": "2ffad0df18a576349b484ae0fb8df1f114719572e187ff96b746b8a11047c751",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 2,
+        "sourceSha256": "df4e239dd6b5e6e5a88785eac8b36e9a7a4f32b77aa3c0838b1471c74c4d3fe4",
+        "actualSha256": "b04f2ee71ca02d51ef6ac6c31068f69f1b907aa31094529c91a9ef718616e275",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 3,
+        "sourceSha256": "94f2ef377c95f075724cbf772248f25ba6b58845ef2aee14a688e3ca9ee6b05e",
+        "actualSha256": "94f2ef377c95f075724cbf772248f25ba6b58845ef2aee14a688e3ca9ee6b05e",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 4,
+        "sourceSha256": "e6bfb45f2c5faba6570b7cbb24ec81422b61caf0bb5668c7bf2c46c41ebd4d6e",
+        "actualSha256": "eaf5a67d9ee0865850d72c435214d51684be5a8218f3a21be7df8c9fc56451c7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 5,
+        "sourceSha256": "d67011666bf06366d61dbe8caaa0647d47e32ad03c8c9514252cf4e70a711f2e",
+        "actualSha256": "c6ca063139f4331d0f725e50c02617dc8ab2be120a266b8a6829acc45fc34aa7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 6,
+        "sourceSha256": "083bef04f51e8ae7cd485cf29e08aa38d64f1028ee7f81e7af34837b2c780507",
+        "actualSha256": "083bef04f51e8ae7cd485cf29e08aa38d64f1028ee7f81e7af34837b2c780507",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 7,
+        "sourceSha256": "fff5be022c142c062e06fc534090ca0e77f01967e1b88312d8d76e74663af8d4",
+        "actualSha256": "aaa6e9a7621ce24487809d9a5ed7bf710732c472d80d91ef9e21802d3d950f1d",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 8,
+        "sourceSha256": "ed2dc7f088a64d959443d2adb9639b2550f2b692c3ee1dd5c79100d054aaf230",
+        "actualSha256": "ed2dc7f088a64d959443d2adb9639b2550f2b692c3ee1dd5c79100d054aaf230",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 9,
+        "sourceSha256": "4d247a4e468283b01f895399ea57884c222cb2df33d47d690516239443c9f2e8",
+        "actualSha256": "fa14e6236c74b1ba7a72ead850ca9a02e9e6fa927f5e0eedaeb6a1cd298b1b4d",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 10,
+        "sourceSha256": "86660c26dc2df0a786537bfbba63935924f5342d03b8e4949a25f2049a448781",
+        "actualSha256": "d29a2963ee39127bf291d1c464e22de2715538b705bb87224ce71ec6fc10dae1",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 11,
+        "sourceSha256": "a1f4e135dc72ccd79be64e2ad3b958be18632986ada25e2e0e6c9b74f7835d11",
+        "actualSha256": "a1f4e135dc72ccd79be64e2ad3b958be18632986ada25e2e0e6c9b74f7835d11",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 12,
+        "sourceSha256": "ba537c7a43faa114d7ac4aadeaec527ca2c86dd8fb9c2bd6342f0a6e3e7c14af",
+        "actualSha256": "87347efc74983dcf579b1e011bfcbd189f5631ad29430f9dbfc838f62b22d788",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 13,
+        "sourceSha256": "bbf245a840a5c64797abcf42a4fcdd642a2ed5d4ae0f358270d8649eef3f5d3d",
+        "actualSha256": "bbf245a840a5c64797abcf42a4fcdd642a2ed5d4ae0f358270d8649eef3f5d3d",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 14,
+        "sourceSha256": "38b938e00697a4ec00a35ea9e6a7e5bb92abb3ab899410821ad978fef01475c0",
+        "actualSha256": "0c0c397e64a2000a5f2952efe50eaadcfc4fdda20e0575713517012d4d112723",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 15,
+        "sourceSha256": "6202333f63736de2cead88f3a5f19d3c297149344b4f4f5acc667a11cfaaa0ea",
+        "actualSha256": "f7cef21760821077e99df63b85570b4fb568e22a46828eba467c6fc0b86485ae",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 16,
+        "sourceSha256": "6cb61f5477bd0d45b4d2a8a314805e00042ba2fa0834ecc88a4bd2fa61273293",
+        "actualSha256": "0f670bb9d1680b4e4875a3768cd493ecdfd07a3ad2dc0346139eca4a2c6b3cad",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 17,
+        "sourceSha256": "40ffc1db26ef41b0ded6ff7662e6d43cf41c3841db3a578d12025595f7c0c7d8",
+        "actualSha256": "e9979c86a32410750d15c8e1b010ff3a2f9fbed03559ae5262998ecb9fc6d5e0",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 18,
+        "sourceSha256": "8ce6dad2bc4915c133c0a131eba33984038136e208a24f30e39885e45251dcd3",
+        "actualSha256": "4c9eb13abe1ae5d402b8d8ddaa810d86a42e9da7b99cc6e621bc59034da6e003",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 19,
+        "sourceSha256": "f37a6be45c792c8ea21370664cd0704fb11a49015e0316f2826f2c1da69e138e",
+        "actualSha256": "1182b29c71c97260d8c01a3b00894cd0888f4ce1c47cb1200dace9db82bd19bb",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 20,
+        "sourceSha256": "8f619eb6f4bf5d1f7be711dba6a312f80128e373e67fe407481064d7d40cc4dc",
+        "actualSha256": "f23e57d61f7ff094d1f2c0a1de8f75d498224584396ad39df3d91352dd0c076e",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 21,
+        "sourceSha256": "dda6c7cd27a7a3ece8bbba8c63c0c0b3088b80cb5f6d2fc544573a80c0ac456e",
+        "actualSha256": "18b728c92ea8002e12436c4543025b45fdf93b5dc6e4d4b669fbe8f9d1f99567",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 22,
+        "sourceSha256": "fb883ec0021ba527fb7005fb10f4317fff76672eb59a23dde66e722aa77e369f",
+        "actualSha256": "6da45c1a5c578cf5ab55553b1c4c1a4be79f86ad8ef1c59d6891ed1587985aae",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 23,
+        "sourceSha256": "6e55117dbe59ea027d7b031ba9ffa642f4570b7ceb15835ec219121ccd7d5fb1",
+        "actualSha256": "a62437a9b5978be05e63c4bbdd9ff84760fb9dbdfd0435abb7f05d68643533e2",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 24,
+        "sourceSha256": "ace21b06253252a313584f3dfb8a9cfa90890884bdaa674e5f33c8bb7d5b819c",
+        "actualSha256": "24cefc3d4642a479de6d35e4f90274578b741a6bfc6c853ab9cb8b1978ef5c1e",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 25,
+        "sourceSha256": "fd644c9aa3b8b8bb30f5a91eee53b873d59770b34655c1eb04087eeff0a55c6a",
+        "actualSha256": "9d32668becfaf69118d19002a0a165b7c3031d5271236a7b6e2caea6eefff474",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 26,
+        "sourceSha256": "1fce4b67e4eaa915daf5da0f23c685133350169fb592722e50cc3323c32b7367",
+        "actualSha256": "04c946fc12438bd449b0bdb0b265246e79197c6c028899d9e4052a87c240a552",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 27,
+        "sourceSha256": "75329a3b733b1cfa3eb74923f7f14b1b017051f7bfd669318146c29bb25ade33",
+        "actualSha256": "728be090ef982d988ccfb114f174260fdf027d1674e484768cdd62a4a0348d57",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 28,
+        "sourceSha256": "37c58d1d33ecedd5bfb1c803b68033450c5d0ccea1dc84c0efbaf488e9116deb",
+        "actualSha256": "30bf50f1724b276563113282a048e34dd10b057670cb6486ff890332020d302e",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 29,
+        "sourceSha256": "ce9aa96c977a650b3bb47b2fee5d4e1f2bd1ee22c57b3d4137880be271d7ffcf",
+        "actualSha256": "7514a39840d8cbffda2be948550be1e2ac420877a46d16668b62df9ab6c63cdf",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 30,
+        "sourceSha256": "dbbdfd79e160826c4d715e6ccc0c98bee53d726ea9a7c5403b1cdb843b072195",
+        "actualSha256": "dbbdfd79e160826c4d715e6ccc0c98bee53d726ea9a7c5403b1cdb843b072195",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 31,
+        "sourceSha256": "b15b4b1d92139e5273d2db60db11dceb498c3a43eee524ded67ad7452f01ef23",
+        "actualSha256": "2685abeadd9eed778cc0f1afec1659bd06ad0eb7c4f4f8d3a0cdb6dd5f0563f9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 32,
+        "sourceSha256": "ca8b8f8acc56256b6b5dd014d51896c3d41137b1d71c0f9b731dcc534c216c0f",
+        "actualSha256": "ca8b8f8acc56256b6b5dd014d51896c3d41137b1d71c0f9b731dcc534c216c0f",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 33,
+        "sourceSha256": "6234d7d408019039c2dee9cd5a2adfe9287f7b35b4a610448e0bdef715db029d",
+        "actualSha256": "937b5bb86e78c083a752671d4e650104b76b78ba69343fae0c46baea084c666d",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 34,
+        "sourceSha256": "5ca2fed6d05975ee0eab14893d9ca2f3070f15afce78407e78cdb49bb5be5252",
+        "actualSha256": "5ca2fed6d05975ee0eab14893d9ca2f3070f15afce78407e78cdb49bb5be5252",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 35,
+        "sourceSha256": "be2a2349b18c1c5e423a224a2397f454b584be86a5596c717677401db8a851ab",
+        "actualSha256": "a3b988530217089602947c4a7d55c183810021ceab42575fe0c88cf151f4c6f5",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 36,
+        "sourceSha256": "70350222a3c8d08cd8b74a95745b958b0550a9b15dbff45d12efeffc0c3b8ca2",
+        "actualSha256": "204ad386455f0a84ad9b36d2d81bcf6ff1e00a027957e86355c26fed3387f8b1",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 37,
+        "sourceSha256": "d123d25d9f8e0fa53d806f71962be40db36f1e5270ae1a254a049ef929f26a5d",
+        "actualSha256": "cfa8e7a604cd895ff218c5ef4501dc887c339b3be32b55031df75d1baeb8e98c",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 38,
+        "sourceSha256": "391df915571139ecaa571c5617f8e1e453027a297a3f40797ac9a44e5c742db6",
+        "actualSha256": "a4a66ac4bd79601116f81f5c31e92de0969af4ef7ba44d0f3657b11da100d168",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 39,
+        "sourceSha256": "45df8fed771d898c962105fbc0737d61e8d41cee80d95105a2cba4f3622e6b70",
+        "actualSha256": "f2ec22bff36cd2dd85702712cb878ded025b3a94c65fae73dc71d001bfc70dbf",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 40,
+        "sourceSha256": "c6e2698e6534d46bbcef1fb134212f225d729800ba67bd2806519edc0de65600",
+        "actualSha256": "c6e2698e6534d46bbcef1fb134212f225d729800ba67bd2806519edc0de65600",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 41,
+        "sourceSha256": "1359156f0f82a93c0ce0b1d0f209a2a77f855ecf92baddbef6f763bdcc5ad7a1",
+        "actualSha256": "3e07f8e953fb521ae8a8485d31b8d6c721786c32a6e50ef6ab38e396913d90f7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 42,
+        "sourceSha256": "709068e1bf8f4b955460857716679272a75b52fc8cbd4493671e6d2e84100711",
+        "actualSha256": "709068e1bf8f4b955460857716679272a75b52fc8cbd4493671e6d2e84100711",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 43,
+        "sourceSha256": "e2079dbf3c2e65a1d10c9351b7f87d821a6ca3026a496de4f29227ed97724787",
+        "actualSha256": "761eff105604ea81287a57790a9f05719a5b7dc065662a78161d4a7ea6a203c4",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 44,
+        "sourceSha256": "b045a3cd59b97a88198955974166a88702dd97088b2592abbcd1e2ae00c4c7ef",
+        "actualSha256": "b045a3cd59b97a88198955974166a88702dd97088b2592abbcd1e2ae00c4c7ef",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 45,
+        "sourceSha256": "2be5a1f72a70176869c73bf42b44d4e83645cba3944a40dcef5199855ab640ab",
+        "actualSha256": "8feb1c097e6078e5860e6cdb39fbd53f557f836d799b8a692dffd62c70e40e31",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 46,
+        "sourceSha256": "bc0e51b79b09cd25467c46e4156e7dc089eb33e304784c4657039d008337e30f",
+        "actualSha256": "bc0e51b79b09cd25467c46e4156e7dc089eb33e304784c4657039d008337e30f",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 47,
+        "sourceSha256": "be8cf7089fae34403f07dc794356a6b64feac70ef3f138a790cc5adcd349ac49",
+        "actualSha256": "ee2fa69ba52526e04f868c52afa4c3f631d835c9f5171c2c724d5bcb88e9e3ce",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 48,
+        "sourceSha256": "edeb065fc628209d99e9668fe38a30d67ad83fc5da9183564c4d9628ea8cd9c6",
+        "actualSha256": "edeb065fc628209d99e9668fe38a30d67ad83fc5da9183564c4d9628ea8cd9c6",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 49,
+        "sourceSha256": "f113651c2a4da033ddf0138cc700a29b97e6dc1a9f8d4a8fc367139877b445b5",
+        "actualSha256": "bd8a6ef692a9650f6dd5431bbb3307edc339ae5a6dee5fc79f5a4488f09dfbc7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 50,
+        "sourceSha256": "eade954ab09d74cee0a626d3bf4bb4e95e485acfc401cd15ede6980681b1875f",
+        "actualSha256": "0b2265a64e0c349d1b3078e8b7942719fb627503537ae9d3289f7f6e06109b8c",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 51,
+        "sourceSha256": "b923cec77285a08e8618de72c81bb110239650385ff3f3ce82079fc82feb8322",
+        "actualSha256": "ea9ee0aa1db45090477d27d2e17194e732663093b3caed64eca68e19526675b9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 52,
+        "sourceSha256": "5a71b238d00cd6d59a76ccb250662764c43c79bb922a28b9c5915e6216877dbd",
+        "actualSha256": "9a113fc4e54725e24568676aa23aa2fcdabec3a8a7ee161d8b070d334e056a5f",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 53,
+        "sourceSha256": "05bfda59fcfeef4d55ef255fe680ba1d1fe4e8de343d961891d3d3975361655f",
+        "actualSha256": "bac06339c66c12b8605e3969b9c013dd8673b0ef8fbe4ee5b35eb4e037128374",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 54,
+        "sourceSha256": "cabf395618ff7fbfe8e70b9cde6a438e2d978c57feacd2c0aac652767c4739c5",
+        "actualSha256": "808abbb5216bdb5dc54d81a18372a9e8d738eb04bcae663cdea4590277249b28",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 55,
+        "sourceSha256": "ec17fdec60e421c68ca4aa73d74029f8dab0da3145e5f67c0827c6b388d8d5ea",
+        "actualSha256": "03f8bf2d976e131b6ce3efce8d2bd793f77243fa31b82b78d39e8078968d1d7b",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 56,
+        "sourceSha256": "3c9026d73cdd84f564d04ab001c46a0d48d5c120aa4d29b25717a30da4886345",
+        "actualSha256": "aa038636cf9176d22a2e862db4cfca485c04aa4ede13b72966a797771dce80ff",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 57,
+        "sourceSha256": "a1d3daf1160cd0a85db91ff50a3b8beda055190bc9b4342dbd610eb1a691f4c6",
+        "actualSha256": "cb377b7fc3979691ecaf174179878a49dc35151f1929e297172d95182495a000",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 58,
+        "sourceSha256": "bd43ccd7876ad212c2749fc3c4a0c6f1c345c9a83e55a0e53dd400dd6fdb12f2",
+        "actualSha256": "d4282e25b6cb6524ca69d4ac926110e916cb0e1944b95b8ac76fb673fbc9aec9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 59,
+        "sourceSha256": "42795915611f806dabd77c935fd59aefa1d0855621e5aa47a8174f3741be9e08",
+        "actualSha256": "be4614cee4b3a137c6e9fae6b20254b47d7778a8c2d8be1455c474d6386f0d10",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 60,
+        "sourceSha256": "28fac03a36166d565adf1025658799ffcab8b59745361d413937ea28956afee8",
+        "actualSha256": "0f29d2dda3a49aa3696eb6c37c138cf87c1fa7506202b3e00178f8a4b68f0779",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 61,
+        "sourceSha256": "b92df53b2c934f6c65621734d5dae8a64d329d44074304fa7d50a4bbdd3f40c1",
+        "actualSha256": "0619381ed11b2f354681ea54656c441a2e666ce3559e022b539e058b2e6d97c4",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 62,
+        "sourceSha256": "7e56cdf45277e553eb25baa12b977f4e8a4c4cf90d031d2ec2fddf0958b8806a",
+        "actualSha256": "d18edd5ccbd1bf17dbb89de5b0c106adf2b1fdd5f2ef73ff1b11bee710378aed",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 63,
+        "sourceSha256": "9176dc7e315354fcb8ce3c3a13fe6c21e13f3f650769c1a8dbf98bdeb08d9ffa",
+        "actualSha256": "b4b788cd6cc373d8fd4ebb53d444722056cd9ca5d5fbcfe9ec8e0f0654e9c05f",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 64,
+        "sourceSha256": "6ac48cb84c758222c46a998c318d411f8ed6c2a3dc87ee88b1a77d5c64886214",
+        "actualSha256": "d5011f13eea28830af128cd0ef6fda255e5900cc4842f96173608d5d1b9bdef9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 65,
+        "sourceSha256": "9bdf2bc2b6b328d9ae1f214ba1d8e50fffaacf679c6aa7662e4726c81dd5c028",
+        "actualSha256": "9bdf2bc2b6b328d9ae1f214ba1d8e50fffaacf679c6aa7662e4726c81dd5c028",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 66,
+        "sourceSha256": "b8f68fc0a229bdba740c8e604d678a52934447013516997e870f471ac0a082db",
+        "actualSha256": "3e095f141b96c3b7335c935163417b97a6a59d585d6bcca559cc9fa1fa4dd614",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 67,
+        "sourceSha256": "94f6c35284b40b111586b80d1cebad1af51fe464e273a00facf13e126e486f68",
+        "actualSha256": "94f6c35284b40b111586b80d1cebad1af51fe464e273a00facf13e126e486f68",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 68,
+        "sourceSha256": "1b5b648cc37df49173b744c461e701b275fa69ca224afbc69e6fbbc20cf05be0",
+        "actualSha256": "a82bd104d2506ab4025737e23e2014bd432013383e13a80b456169210459ec39",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 69,
+        "sourceSha256": "b5a845d88b398002b5f228c0bc085ad8192989b94d527c431d98a70b61eebfa7",
+        "actualSha256": "b5a845d88b398002b5f228c0bc085ad8192989b94d527c431d98a70b61eebfa7",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 70,
+        "sourceSha256": "5126fe73bcc32c7d30414fe9571c21b31221944c4b0e0387ba7b51d6ea428db8",
+        "actualSha256": "2abb5a26d02667463b474d6a10ac74ee0f281f864627058605a4449bd3fc2b33",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 71,
+        "sourceSha256": "96a80cc094ffab5518c1d7ea117b2ed11de5ef84ffe5204986ffdf204f1c6908",
+        "actualSha256": "96a80cc094ffab5518c1d7ea117b2ed11de5ef84ffe5204986ffdf204f1c6908",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 72,
+        "sourceSha256": "77347efb0c2343ab87896f00fbc70adaa714cd8c453c69e91c3ff86cf2bfc4e8",
+        "actualSha256": "3e6d38332a0a4e876ee66b6e5a5133995337bf162dc15398ad54532feb8c0c64",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 73,
+        "sourceSha256": "ee7157a9ff4738606869e956cacdc100aa8d4b2328bd1b480bb7aeeff68e9742",
+        "actualSha256": "ee7157a9ff4738606869e956cacdc100aa8d4b2328bd1b480bb7aeeff68e9742",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 74,
+        "sourceSha256": "9a915a7bfa9d031ee4d03a71bf48aeb3dbb04a2d1c24c97138ca74f9563e3487",
+        "actualSha256": "58f36dbcef0c928dcfb0a29a9f6ad0f692993fa66d2069d2d15e55e202310641",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 75,
+        "sourceSha256": "d32e9f5abccb0e12117fa42235b8db3844afe5a6d761c0c81954d6b16363411f",
+        "actualSha256": "d32e9f5abccb0e12117fa42235b8db3844afe5a6d761c0c81954d6b16363411f",
+        "unchanged": true,
+        "matchesExpected": true
+      }
+    ],
+    "fits": [
+      {
+        "id": 95,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "1bd174581aaa613f2834d5baeccd3202248d8fcb696e5b00eed2d870eb6de9fb",
+        "actualPoseSha256": "1bd174581aaa613f2834d5baeccd3202248d8fcb696e5b00eed2d870eb6de9fb",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 96,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "ba4f06b3e1f44c0acfbaf262d7a481682dc6fb9d2aeeda1a34843d7bfd8ec916",
+        "actualPoseSha256": "ba4f06b3e1f44c0acfbaf262d7a481682dc6fb9d2aeeda1a34843d7bfd8ec916",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 97,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "b46bace6c1c83db39efe6ec72640a5b9834c84fd968e17394ec228970ef84dc9",
+        "actualPoseSha256": "b46bace6c1c83db39efe6ec72640a5b9834c84fd968e17394ec228970ef84dc9",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 98,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "0dfe3e0f81d34cb28e8de178e746d5b84c6bf7d06e746f44557df255ea12081e",
+        "actualPoseSha256": "0dfe3e0f81d34cb28e8de178e746d5b84c6bf7d06e746f44557df255ea12081e",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 99,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "6ac18c16d28e2cfaea6d89287c16298786087ff52c05216e3d6da3d8b2f3de50",
+        "actualPoseSha256": "c561897c6e8cffffc6285987c92b8a2736ea12c83290a05866a2bbd699637bdf",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 100,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "33273f29907d07f0b0885760711bd26d76ed98436584502a756e9bf7090983a4",
+        "actualPoseSha256": "33273f29907d07f0b0885760711bd26d76ed98436584502a756e9bf7090983a4",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 101,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "2b3f7a397ddcec459ed1b6f6ea69b52a936f0e761f038679d37a473f1bc45be1",
+        "actualPoseSha256": "2b3f7a397ddcec459ed1b6f6ea69b52a936f0e761f038679d37a473f1bc45be1",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 102,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "696633e73874bd36055e0ec94d89e4f41b3f7eab09a75e70caab567694f2e06e",
+        "actualPoseSha256": "696633e73874bd36055e0ec94d89e4f41b3f7eab09a75e70caab567694f2e06e",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 103,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "8234ae7b9702d1b0953bcf26443b05e9fe1f9fe40183dae308e389ba1bed14f2",
+        "actualPoseSha256": "18b7d17899c3f5e5d43fed4d87de3fa3872d34db3f4c11d011a897b4ab3f9df8",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 104,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "be47efe5d5706c882f8ddfb8f3c7deb6dde6127d3569baab07bbba40e280c6be",
+        "actualPoseSha256": "981ad9da90203dcdce649d04a1f8f8719ee26dd2a03829e4960aaf7941d918cb",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 105,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "7990cb6480fbff9bdce8b0badce12e662d9aa4b142d23c0bcc4db60a3e48effc",
+        "actualPoseSha256": "7990cb6480fbff9bdce8b0badce12e662d9aa4b142d23c0bcc4db60a3e48effc",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 106,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "abc14b7fd2f1837c4e555b3b56cd674820e1f85dfae3996a8fc190e49874dbf8",
+        "actualPoseSha256": "abc14b7fd2f1837c4e555b3b56cd674820e1f85dfae3996a8fc190e49874dbf8",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 107,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "97247768f5d263565ad7193a47987dbce246f8ee131daaebcf98c86303a1a1b4",
+        "actualPoseSha256": "97247768f5d263565ad7193a47987dbce246f8ee131daaebcf98c86303a1a1b4",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 108,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "d9f9c516ad723fdd494702af68504b1e37ea654da8a04750c22194805cb7c3fd",
+        "actualPoseSha256": "d9f9c516ad723fdd494702af68504b1e37ea654da8a04750c22194805cb7c3fd",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 109,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "72fa1908d40e367e88c5923ab0a8c55ff5602f9233875daabb9d67ea81aeab81",
+        "actualPoseSha256": "72fa1908d40e367e88c5923ab0a8c55ff5602f9233875daabb9d67ea81aeab81",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 110,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "be8dea12e40a3f6f277658cdb5dfdcf669bce1c72edbfbd6f0c025b677056920",
+        "actualPoseSha256": "be8dea12e40a3f6f277658cdb5dfdcf669bce1c72edbfbd6f0c025b677056920",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 111,
+        "sourceKind": "trc",
+        "expectedKind": "trc",
+        "actualKind": "trc",
+        "sourcePoseSha256": "e5f4a63e40960bfbefdf5b842512e5893c6b0466e18ff01d0b9d3c49bca91813",
+        "actualPoseSha256": "e5f4a63e40960bfbefdf5b842512e5893c6b0466e18ff01d0b9d3c49bca91813",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      }
+    ],
+    "nozzles": [
+      {
+        "id": 78,
+        "unchanged": true,
+        "sourceAppearanceSha256": "235a48736f5f0db5b64fb76bed1345e6c62375ef10a832d76b72563d830103db",
+        "actualAppearanceSha256": "235a48736f5f0db5b64fb76bed1345e6c62375ef10a832d76b72563d830103db"
+      },
+      {
+        "id": 80,
+        "unchanged": true,
+        "sourceAppearanceSha256": "74c72dab6c9b283cd0924e27dcf812940ef99c125e144844049965da90569d1a",
+        "actualAppearanceSha256": "74c72dab6c9b283cd0924e27dcf812940ef99c125e144844049965da90569d1a"
+      },
+      {
+        "id": 82,
+        "unchanged": true,
+        "sourceAppearanceSha256": "91d88836c80e405661c05cda11c9a2c97f2dcccd5b948b15b4606f6503f3c5cd",
+        "actualAppearanceSha256": "91d88836c80e405661c05cda11c9a2c97f2dcccd5b948b15b4606f6503f3c5cd"
+      }
+    ],
+    "publicLayout": [
+      {
+        "field": "cuts",
+        "unchanged": true
+      },
+      {
+        "field": "trenches",
+        "unchanged": true
+      },
+      {
+        "field": "solidCuts",
+        "unchanged": true
+      },
+      {
+        "field": "subs",
+        "unchanged": true
+      },
+      {
+        "field": "hatches",
+        "unchanged": true
+      },
+      {
+        "field": "armor",
+        "unchanged": true
+      }
+    ],
+    "structuralLayoutPreserved": false,
+    "allFittingPosesPreserved": true,
+    "weaponKindsCorrect": true,
+    "nozzleAppearancePreserved": true,
+    "passed": false
+  },
+  "propulsionEvidence": {
+    "scope": "Independent authenticated source geometry plus explicitly declared source transformations versus the same fresh factory result: expected nozzle mouths, apertures and roles, conserved source plant and shield capacity, and superweapon energy/axis/duration.",
+    "coreCount": 3,
+    "nozzleCount": 3,
+    "expectedNozzleGroups": [
+      1,
+      1,
+      1
+    ],
+    "groups": [
+      {
+        "id": 112,
+        "positionM": [
+          26.5,
+          21.8,
+          0.55796
+        ],
+        "ratedInputW": 5.224309729809874e+21,
+        "nozzleIds": [
+          78
+        ]
+      },
+      {
+        "id": 113,
+        "positionM": [
+          26.5,
+          21.8,
+          55.432
+        ],
+        "ratedInputW": 5.224309729809874e+21,
+        "nozzleIds": [
+          80
+        ]
+      },
+      {
+        "id": 114,
+        "positionM": [
+          26.5,
+          21.8,
+          -55.432
+        ],
+        "ratedInputW": 5.224309729809874e+21,
+        "nozzleIds": [
+          82
+        ]
+      }
+    ],
+    "shafts": [
+      {
+        "id": "p112>p78",
+        "nozzleId": 78,
+        "valid": true,
+        "limited": false,
+        "requestedCapacityW": 4.96309424331938e+21,
+        "capacityW": 4.96309424331938e+21,
+        "capacitySatisfied": true
+      },
+      {
+        "id": "p113>p80",
+        "nozzleId": 80,
+        "valid": true,
+        "limited": false,
+        "requestedCapacityW": 4.96309424331938e+21,
+        "capacityW": 4.96309424331938e+21,
+        "capacitySatisfied": true
+      },
+      {
+        "id": "p114>p82",
+        "nozzleId": 82,
+        "valid": true,
+        "limited": false,
+        "requestedCapacityW": 4.96309424331938e+21,
+        "capacityW": 4.96309424331938e+21,
+        "capacitySatisfied": true
+      }
+    ],
+    "outletFlows": [
+      {
+        "id": 78,
+        "coreId": 112,
+        "actualInputW": 5.224309729809874e+21,
+        "shaftReceivedW": 4.96309424331938e+21,
+        "actualThrustN": 2612154864904.9365,
+        "positive": true
+      },
+      {
+        "id": 80,
+        "coreId": 113,
+        "actualInputW": 5.224309729809874e+21,
+        "shaftReceivedW": 4.96309424331938e+21,
+        "actualThrustN": 2612154864904.9365,
+        "positive": true
+      },
+      {
+        "id": 82,
+        "coreId": 114,
+        "actualInputW": 5.224309729809874e+21,
+        "shaftReceivedW": 4.96309424331938e+21,
+        "actualThrustN": 2612154864904.9365,
+        "positive": true
+      }
+    ],
+    "allShaftsAtRequestedCapacity": true,
+    "allOutletsFlow": true,
+    "auxiliaryBetween": {
+      "required": false,
+      "scope": "The Imperial auxiliary-between-shafts test does not apply to this stock example."
+    },
+    "allAuxiliariesBetweenMainPaths": null,
+    "podPlacement": {
+      "scope": "Every complete paid cylindrical engine is independently sampled against its own unchanged native round-loft nacelle: seven axial sections, each centre and two circular rings of 96 points. No hull union, nozzle or another pod can stand in for its containing bulge.",
+      "expectedNozzlePodPairs": [
+        [
+          78,
+          49
+        ],
+        [
+          80,
+          54
+        ],
+        [
+          82,
+          59
+        ]
+      ],
+      "rows": [
+        {
+          "nozzleId": 78,
+          "podId": 49,
+          "coreId": 112,
+          "positionM": [
+            26.5,
+            21.8,
+            0.55796
+          ],
+          "diameterM": 29.5,
+          "lengthM": 22.48102385027495,
+          "axis": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleIds": [
+            78
+          ],
+          "independentOwner": true,
+          "bodyInsidePod": true,
+          "sampledPoints": 1351,
+          "outsideSamples": 0,
+          "outsideExamples": []
+        },
+        {
+          "nozzleId": 80,
+          "podId": 54,
+          "coreId": 113,
+          "positionM": [
+            26.5,
+            21.8,
+            55.432
+          ],
+          "diameterM": 29.5,
+          "lengthM": 22.48102385027495,
+          "axis": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleIds": [
+            80
+          ],
+          "independentOwner": true,
+          "bodyInsidePod": true,
+          "sampledPoints": 1351,
+          "outsideSamples": 0,
+          "outsideExamples": []
+        },
+        {
+          "nozzleId": 82,
+          "podId": 59,
+          "coreId": 114,
+          "positionM": [
+            26.5,
+            21.8,
+            -55.432
+          ],
+          "diameterM": 29.5,
+          "lengthM": 22.48102385027495,
+          "axis": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleIds": [
+            82
+          ],
+          "independentOwner": true,
+          "bodyInsidePod": true,
+          "sampledPoints": 1351,
+          "outsideSamples": 0,
+          "outsideExamples": []
+        }
+      ],
+      "independentNozzleOwners": true,
+      "allBodiesInsidePods": true,
+      "passed": true
+    },
+    "allBodiesInsidePods": true,
+    "independentNozzleOwners": true,
+    "expectedOwnerGroups": true,
+    "sourcePayloadPreserved": true,
+    "referencePayloadValid": true,
+    "source": {
+      "reactorPowerW": 2.3742718040613077e+22,
+      "shieldEnergyJ": 6.888496962571036e+23,
+      "outlets": [
+        {
+          "id": 78,
+          "label": "中央推進ポッドのイオン・ドライブ",
+          "d": 18.95,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "mouthM": [
+            -0.5999999999999996,
+            21.8,
+            0.55796
+          ]
+        },
+        {
+          "id": 80,
+          "label": "右舷推進ポッドのイオン・ドライブ",
+          "d": 18.95,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "mouthM": [
+            -0.5999999999999996,
+            21.8,
+            55.432
+          ]
+        },
+        {
+          "id": 82,
+          "label": "左舷推進ポッドのイオン・ドライブ",
+          "d": 18.95,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "mouthM": [
+            -0.5999999999999996,
+            21.8,
+            -55.432
+          ]
+        }
+      ],
+      "superweapons": []
+    },
+    "actual": {
+      "reactorPowerW": 2.3742718040613077e+22,
+      "shieldEnergyJ": 6.888496962571036e+23,
+      "outlets": [
+        {
+          "id": 78,
+          "label": "中央推進ポッドのイオン・ドライブ",
+          "d": 18.95,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "mouthM": [
+            -0.5999999999999996,
+            21.8,
+            0.55796
+          ]
+        },
+        {
+          "id": 80,
+          "label": "右舷推進ポッドのイオン・ドライブ",
+          "d": 18.95,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "mouthM": [
+            -0.5999999999999996,
+            21.8,
+            55.432
+          ]
+        },
+        {
+          "id": 82,
+          "label": "左舷推進ポッドのイオン・ドライブ",
+          "d": 18.95,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "mouthM": [
+            -0.5999999999999996,
+            21.8,
+            -55.432
+          ]
+        }
+      ],
+      "superweapons": []
+    }
+  },
+  "layoutEvidence": {
+    "scope": "The authenticated historical native design retains all 75 structures, all 17 fitting poses and kinds, and all three authored bell appearances. Only false shell/float defaults, an independently frame-equivalent normal alias and relative numeric roundoff of 1e-12 are accepted. New machinery and internal engineering remain independent of these exterior guards.",
+    "sourceArchive": "assets/source/ship-example-blueprints/arquitens.json.gz",
+    "sourceSha256": "1ff756d92ae4f97b7d6c9353e596963b16cbe9b5dba3b311200aa66948c80834",
+    "inventorySha256": null,
+    "relativeTolerance": 1e-12,
+    "uniqueParts": true,
+    "uniqueFits": true,
+    "structures": [
+      {
+        "id": 1,
+        "sourceSha256": "acf856cc8f38e6a3e284614928e94394415bb575552fcaccbdffe573e8c57140",
+        "actualSha256": "2ffad0df18a576349b484ae0fb8df1f114719572e187ff96b746b8a11047c751",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 2,
+        "sourceSha256": "df4e239dd6b5e6e5a88785eac8b36e9a7a4f32b77aa3c0838b1471c74c4d3fe4",
+        "actualSha256": "b04f2ee71ca02d51ef6ac6c31068f69f1b907aa31094529c91a9ef718616e275",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 3,
+        "sourceSha256": "94f2ef377c95f075724cbf772248f25ba6b58845ef2aee14a688e3ca9ee6b05e",
+        "actualSha256": "94f2ef377c95f075724cbf772248f25ba6b58845ef2aee14a688e3ca9ee6b05e",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 4,
+        "sourceSha256": "e6bfb45f2c5faba6570b7cbb24ec81422b61caf0bb5668c7bf2c46c41ebd4d6e",
+        "actualSha256": "eaf5a67d9ee0865850d72c435214d51684be5a8218f3a21be7df8c9fc56451c7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 5,
+        "sourceSha256": "d67011666bf06366d61dbe8caaa0647d47e32ad03c8c9514252cf4e70a711f2e",
+        "actualSha256": "c6ca063139f4331d0f725e50c02617dc8ab2be120a266b8a6829acc45fc34aa7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 6,
+        "sourceSha256": "083bef04f51e8ae7cd485cf29e08aa38d64f1028ee7f81e7af34837b2c780507",
+        "actualSha256": "083bef04f51e8ae7cd485cf29e08aa38d64f1028ee7f81e7af34837b2c780507",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 7,
+        "sourceSha256": "fff5be022c142c062e06fc534090ca0e77f01967e1b88312d8d76e74663af8d4",
+        "actualSha256": "aaa6e9a7621ce24487809d9a5ed7bf710732c472d80d91ef9e21802d3d950f1d",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 8,
+        "sourceSha256": "ed2dc7f088a64d959443d2adb9639b2550f2b692c3ee1dd5c79100d054aaf230",
+        "actualSha256": "ed2dc7f088a64d959443d2adb9639b2550f2b692c3ee1dd5c79100d054aaf230",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 9,
+        "sourceSha256": "4d247a4e468283b01f895399ea57884c222cb2df33d47d690516239443c9f2e8",
+        "actualSha256": "fa14e6236c74b1ba7a72ead850ca9a02e9e6fa927f5e0eedaeb6a1cd298b1b4d",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 10,
+        "sourceSha256": "86660c26dc2df0a786537bfbba63935924f5342d03b8e4949a25f2049a448781",
+        "actualSha256": "d29a2963ee39127bf291d1c464e22de2715538b705bb87224ce71ec6fc10dae1",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 11,
+        "sourceSha256": "a1f4e135dc72ccd79be64e2ad3b958be18632986ada25e2e0e6c9b74f7835d11",
+        "actualSha256": "a1f4e135dc72ccd79be64e2ad3b958be18632986ada25e2e0e6c9b74f7835d11",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 12,
+        "sourceSha256": "ba537c7a43faa114d7ac4aadeaec527ca2c86dd8fb9c2bd6342f0a6e3e7c14af",
+        "actualSha256": "87347efc74983dcf579b1e011bfcbd189f5631ad29430f9dbfc838f62b22d788",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 13,
+        "sourceSha256": "bbf245a840a5c64797abcf42a4fcdd642a2ed5d4ae0f358270d8649eef3f5d3d",
+        "actualSha256": "bbf245a840a5c64797abcf42a4fcdd642a2ed5d4ae0f358270d8649eef3f5d3d",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 14,
+        "sourceSha256": "38b938e00697a4ec00a35ea9e6a7e5bb92abb3ab899410821ad978fef01475c0",
+        "actualSha256": "0c0c397e64a2000a5f2952efe50eaadcfc4fdda20e0575713517012d4d112723",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 15,
+        "sourceSha256": "6202333f63736de2cead88f3a5f19d3c297149344b4f4f5acc667a11cfaaa0ea",
+        "actualSha256": "f7cef21760821077e99df63b85570b4fb568e22a46828eba467c6fc0b86485ae",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 16,
+        "sourceSha256": "6cb61f5477bd0d45b4d2a8a314805e00042ba2fa0834ecc88a4bd2fa61273293",
+        "actualSha256": "0f670bb9d1680b4e4875a3768cd493ecdfd07a3ad2dc0346139eca4a2c6b3cad",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 17,
+        "sourceSha256": "40ffc1db26ef41b0ded6ff7662e6d43cf41c3841db3a578d12025595f7c0c7d8",
+        "actualSha256": "e9979c86a32410750d15c8e1b010ff3a2f9fbed03559ae5262998ecb9fc6d5e0",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 18,
+        "sourceSha256": "8ce6dad2bc4915c133c0a131eba33984038136e208a24f30e39885e45251dcd3",
+        "actualSha256": "4c9eb13abe1ae5d402b8d8ddaa810d86a42e9da7b99cc6e621bc59034da6e003",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 19,
+        "sourceSha256": "f37a6be45c792c8ea21370664cd0704fb11a49015e0316f2826f2c1da69e138e",
+        "actualSha256": "1182b29c71c97260d8c01a3b00894cd0888f4ce1c47cb1200dace9db82bd19bb",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 20,
+        "sourceSha256": "8f619eb6f4bf5d1f7be711dba6a312f80128e373e67fe407481064d7d40cc4dc",
+        "actualSha256": "f23e57d61f7ff094d1f2c0a1de8f75d498224584396ad39df3d91352dd0c076e",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 21,
+        "sourceSha256": "dda6c7cd27a7a3ece8bbba8c63c0c0b3088b80cb5f6d2fc544573a80c0ac456e",
+        "actualSha256": "18b728c92ea8002e12436c4543025b45fdf93b5dc6e4d4b669fbe8f9d1f99567",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 22,
+        "sourceSha256": "fb883ec0021ba527fb7005fb10f4317fff76672eb59a23dde66e722aa77e369f",
+        "actualSha256": "6da45c1a5c578cf5ab55553b1c4c1a4be79f86ad8ef1c59d6891ed1587985aae",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 23,
+        "sourceSha256": "6e55117dbe59ea027d7b031ba9ffa642f4570b7ceb15835ec219121ccd7d5fb1",
+        "actualSha256": "a62437a9b5978be05e63c4bbdd9ff84760fb9dbdfd0435abb7f05d68643533e2",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 24,
+        "sourceSha256": "ace21b06253252a313584f3dfb8a9cfa90890884bdaa674e5f33c8bb7d5b819c",
+        "actualSha256": "24cefc3d4642a479de6d35e4f90274578b741a6bfc6c853ab9cb8b1978ef5c1e",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 25,
+        "sourceSha256": "fd644c9aa3b8b8bb30f5a91eee53b873d59770b34655c1eb04087eeff0a55c6a",
+        "actualSha256": "9d32668becfaf69118d19002a0a165b7c3031d5271236a7b6e2caea6eefff474",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 26,
+        "sourceSha256": "1fce4b67e4eaa915daf5da0f23c685133350169fb592722e50cc3323c32b7367",
+        "actualSha256": "04c946fc12438bd449b0bdb0b265246e79197c6c028899d9e4052a87c240a552",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 27,
+        "sourceSha256": "75329a3b733b1cfa3eb74923f7f14b1b017051f7bfd669318146c29bb25ade33",
+        "actualSha256": "728be090ef982d988ccfb114f174260fdf027d1674e484768cdd62a4a0348d57",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 28,
+        "sourceSha256": "37c58d1d33ecedd5bfb1c803b68033450c5d0ccea1dc84c0efbaf488e9116deb",
+        "actualSha256": "30bf50f1724b276563113282a048e34dd10b057670cb6486ff890332020d302e",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 29,
+        "sourceSha256": "ce9aa96c977a650b3bb47b2fee5d4e1f2bd1ee22c57b3d4137880be271d7ffcf",
+        "actualSha256": "7514a39840d8cbffda2be948550be1e2ac420877a46d16668b62df9ab6c63cdf",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 30,
+        "sourceSha256": "dbbdfd79e160826c4d715e6ccc0c98bee53d726ea9a7c5403b1cdb843b072195",
+        "actualSha256": "dbbdfd79e160826c4d715e6ccc0c98bee53d726ea9a7c5403b1cdb843b072195",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 31,
+        "sourceSha256": "b15b4b1d92139e5273d2db60db11dceb498c3a43eee524ded67ad7452f01ef23",
+        "actualSha256": "2685abeadd9eed778cc0f1afec1659bd06ad0eb7c4f4f8d3a0cdb6dd5f0563f9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 32,
+        "sourceSha256": "ca8b8f8acc56256b6b5dd014d51896c3d41137b1d71c0f9b731dcc534c216c0f",
+        "actualSha256": "ca8b8f8acc56256b6b5dd014d51896c3d41137b1d71c0f9b731dcc534c216c0f",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 33,
+        "sourceSha256": "6234d7d408019039c2dee9cd5a2adfe9287f7b35b4a610448e0bdef715db029d",
+        "actualSha256": "937b5bb86e78c083a752671d4e650104b76b78ba69343fae0c46baea084c666d",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 34,
+        "sourceSha256": "5ca2fed6d05975ee0eab14893d9ca2f3070f15afce78407e78cdb49bb5be5252",
+        "actualSha256": "5ca2fed6d05975ee0eab14893d9ca2f3070f15afce78407e78cdb49bb5be5252",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 35,
+        "sourceSha256": "be2a2349b18c1c5e423a224a2397f454b584be86a5596c717677401db8a851ab",
+        "actualSha256": "a3b988530217089602947c4a7d55c183810021ceab42575fe0c88cf151f4c6f5",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 36,
+        "sourceSha256": "70350222a3c8d08cd8b74a95745b958b0550a9b15dbff45d12efeffc0c3b8ca2",
+        "actualSha256": "204ad386455f0a84ad9b36d2d81bcf6ff1e00a027957e86355c26fed3387f8b1",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 37,
+        "sourceSha256": "d123d25d9f8e0fa53d806f71962be40db36f1e5270ae1a254a049ef929f26a5d",
+        "actualSha256": "cfa8e7a604cd895ff218c5ef4501dc887c339b3be32b55031df75d1baeb8e98c",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 38,
+        "sourceSha256": "391df915571139ecaa571c5617f8e1e453027a297a3f40797ac9a44e5c742db6",
+        "actualSha256": "a4a66ac4bd79601116f81f5c31e92de0969af4ef7ba44d0f3657b11da100d168",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 39,
+        "sourceSha256": "45df8fed771d898c962105fbc0737d61e8d41cee80d95105a2cba4f3622e6b70",
+        "actualSha256": "f2ec22bff36cd2dd85702712cb878ded025b3a94c65fae73dc71d001bfc70dbf",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 40,
+        "sourceSha256": "c6e2698e6534d46bbcef1fb134212f225d729800ba67bd2806519edc0de65600",
+        "actualSha256": "c6e2698e6534d46bbcef1fb134212f225d729800ba67bd2806519edc0de65600",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 41,
+        "sourceSha256": "1359156f0f82a93c0ce0b1d0f209a2a77f855ecf92baddbef6f763bdcc5ad7a1",
+        "actualSha256": "3e07f8e953fb521ae8a8485d31b8d6c721786c32a6e50ef6ab38e396913d90f7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 42,
+        "sourceSha256": "709068e1bf8f4b955460857716679272a75b52fc8cbd4493671e6d2e84100711",
+        "actualSha256": "709068e1bf8f4b955460857716679272a75b52fc8cbd4493671e6d2e84100711",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 43,
+        "sourceSha256": "e2079dbf3c2e65a1d10c9351b7f87d821a6ca3026a496de4f29227ed97724787",
+        "actualSha256": "761eff105604ea81287a57790a9f05719a5b7dc065662a78161d4a7ea6a203c4",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 44,
+        "sourceSha256": "b045a3cd59b97a88198955974166a88702dd97088b2592abbcd1e2ae00c4c7ef",
+        "actualSha256": "b045a3cd59b97a88198955974166a88702dd97088b2592abbcd1e2ae00c4c7ef",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 45,
+        "sourceSha256": "2be5a1f72a70176869c73bf42b44d4e83645cba3944a40dcef5199855ab640ab",
+        "actualSha256": "8feb1c097e6078e5860e6cdb39fbd53f557f836d799b8a692dffd62c70e40e31",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 46,
+        "sourceSha256": "bc0e51b79b09cd25467c46e4156e7dc089eb33e304784c4657039d008337e30f",
+        "actualSha256": "bc0e51b79b09cd25467c46e4156e7dc089eb33e304784c4657039d008337e30f",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 47,
+        "sourceSha256": "be8cf7089fae34403f07dc794356a6b64feac70ef3f138a790cc5adcd349ac49",
+        "actualSha256": "ee2fa69ba52526e04f868c52afa4c3f631d835c9f5171c2c724d5bcb88e9e3ce",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 48,
+        "sourceSha256": "edeb065fc628209d99e9668fe38a30d67ad83fc5da9183564c4d9628ea8cd9c6",
+        "actualSha256": "edeb065fc628209d99e9668fe38a30d67ad83fc5da9183564c4d9628ea8cd9c6",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 49,
+        "sourceSha256": "f113651c2a4da033ddf0138cc700a29b97e6dc1a9f8d4a8fc367139877b445b5",
+        "actualSha256": "bd8a6ef692a9650f6dd5431bbb3307edc339ae5a6dee5fc79f5a4488f09dfbc7",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 50,
+        "sourceSha256": "eade954ab09d74cee0a626d3bf4bb4e95e485acfc401cd15ede6980681b1875f",
+        "actualSha256": "0b2265a64e0c349d1b3078e8b7942719fb627503537ae9d3289f7f6e06109b8c",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 51,
+        "sourceSha256": "b923cec77285a08e8618de72c81bb110239650385ff3f3ce82079fc82feb8322",
+        "actualSha256": "ea9ee0aa1db45090477d27d2e17194e732663093b3caed64eca68e19526675b9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 52,
+        "sourceSha256": "5a71b238d00cd6d59a76ccb250662764c43c79bb922a28b9c5915e6216877dbd",
+        "actualSha256": "9a113fc4e54725e24568676aa23aa2fcdabec3a8a7ee161d8b070d334e056a5f",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 53,
+        "sourceSha256": "05bfda59fcfeef4d55ef255fe680ba1d1fe4e8de343d961891d3d3975361655f",
+        "actualSha256": "bac06339c66c12b8605e3969b9c013dd8673b0ef8fbe4ee5b35eb4e037128374",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 54,
+        "sourceSha256": "cabf395618ff7fbfe8e70b9cde6a438e2d978c57feacd2c0aac652767c4739c5",
+        "actualSha256": "808abbb5216bdb5dc54d81a18372a9e8d738eb04bcae663cdea4590277249b28",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 55,
+        "sourceSha256": "ec17fdec60e421c68ca4aa73d74029f8dab0da3145e5f67c0827c6b388d8d5ea",
+        "actualSha256": "03f8bf2d976e131b6ce3efce8d2bd793f77243fa31b82b78d39e8078968d1d7b",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 56,
+        "sourceSha256": "3c9026d73cdd84f564d04ab001c46a0d48d5c120aa4d29b25717a30da4886345",
+        "actualSha256": "aa038636cf9176d22a2e862db4cfca485c04aa4ede13b72966a797771dce80ff",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 57,
+        "sourceSha256": "a1d3daf1160cd0a85db91ff50a3b8beda055190bc9b4342dbd610eb1a691f4c6",
+        "actualSha256": "cb377b7fc3979691ecaf174179878a49dc35151f1929e297172d95182495a000",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 58,
+        "sourceSha256": "bd43ccd7876ad212c2749fc3c4a0c6f1c345c9a83e55a0e53dd400dd6fdb12f2",
+        "actualSha256": "d4282e25b6cb6524ca69d4ac926110e916cb0e1944b95b8ac76fb673fbc9aec9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 59,
+        "sourceSha256": "42795915611f806dabd77c935fd59aefa1d0855621e5aa47a8174f3741be9e08",
+        "actualSha256": "be4614cee4b3a137c6e9fae6b20254b47d7778a8c2d8be1455c474d6386f0d10",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 60,
+        "sourceSha256": "28fac03a36166d565adf1025658799ffcab8b59745361d413937ea28956afee8",
+        "actualSha256": "0f29d2dda3a49aa3696eb6c37c138cf87c1fa7506202b3e00178f8a4b68f0779",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 61,
+        "sourceSha256": "b92df53b2c934f6c65621734d5dae8a64d329d44074304fa7d50a4bbdd3f40c1",
+        "actualSha256": "0619381ed11b2f354681ea54656c441a2e666ce3559e022b539e058b2e6d97c4",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 62,
+        "sourceSha256": "7e56cdf45277e553eb25baa12b977f4e8a4c4cf90d031d2ec2fddf0958b8806a",
+        "actualSha256": "d18edd5ccbd1bf17dbb89de5b0c106adf2b1fdd5f2ef73ff1b11bee710378aed",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 63,
+        "sourceSha256": "9176dc7e315354fcb8ce3c3a13fe6c21e13f3f650769c1a8dbf98bdeb08d9ffa",
+        "actualSha256": "b4b788cd6cc373d8fd4ebb53d444722056cd9ca5d5fbcfe9ec8e0f0654e9c05f",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 64,
+        "sourceSha256": "6ac48cb84c758222c46a998c318d411f8ed6c2a3dc87ee88b1a77d5c64886214",
+        "actualSha256": "d5011f13eea28830af128cd0ef6fda255e5900cc4842f96173608d5d1b9bdef9",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 65,
+        "sourceSha256": "9bdf2bc2b6b328d9ae1f214ba1d8e50fffaacf679c6aa7662e4726c81dd5c028",
+        "actualSha256": "9bdf2bc2b6b328d9ae1f214ba1d8e50fffaacf679c6aa7662e4726c81dd5c028",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 66,
+        "sourceSha256": "b8f68fc0a229bdba740c8e604d678a52934447013516997e870f471ac0a082db",
+        "actualSha256": "3e095f141b96c3b7335c935163417b97a6a59d585d6bcca559cc9fa1fa4dd614",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 67,
+        "sourceSha256": "94f6c35284b40b111586b80d1cebad1af51fe464e273a00facf13e126e486f68",
+        "actualSha256": "94f6c35284b40b111586b80d1cebad1af51fe464e273a00facf13e126e486f68",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 68,
+        "sourceSha256": "1b5b648cc37df49173b744c461e701b275fa69ca224afbc69e6fbbc20cf05be0",
+        "actualSha256": "a82bd104d2506ab4025737e23e2014bd432013383e13a80b456169210459ec39",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 69,
+        "sourceSha256": "b5a845d88b398002b5f228c0bc085ad8192989b94d527c431d98a70b61eebfa7",
+        "actualSha256": "b5a845d88b398002b5f228c0bc085ad8192989b94d527c431d98a70b61eebfa7",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 70,
+        "sourceSha256": "5126fe73bcc32c7d30414fe9571c21b31221944c4b0e0387ba7b51d6ea428db8",
+        "actualSha256": "2abb5a26d02667463b474d6a10ac74ee0f281f864627058605a4449bd3fc2b33",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 71,
+        "sourceSha256": "96a80cc094ffab5518c1d7ea117b2ed11de5ef84ffe5204986ffdf204f1c6908",
+        "actualSha256": "96a80cc094ffab5518c1d7ea117b2ed11de5ef84ffe5204986ffdf204f1c6908",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 72,
+        "sourceSha256": "77347efb0c2343ab87896f00fbc70adaa714cd8c453c69e91c3ff86cf2bfc4e8",
+        "actualSha256": "3e6d38332a0a4e876ee66b6e5a5133995337bf162dc15398ad54532feb8c0c64",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 73,
+        "sourceSha256": "ee7157a9ff4738606869e956cacdc100aa8d4b2328bd1b480bb7aeeff68e9742",
+        "actualSha256": "ee7157a9ff4738606869e956cacdc100aa8d4b2328bd1b480bb7aeeff68e9742",
+        "unchanged": true,
+        "matchesExpected": true
+      },
+      {
+        "id": 74,
+        "sourceSha256": "9a915a7bfa9d031ee4d03a71bf48aeb3dbb04a2d1c24c97138ca74f9563e3487",
+        "actualSha256": "58f36dbcef0c928dcfb0a29a9f6ad0f692993fa66d2069d2d15e55e202310641",
+        "unchanged": false,
+        "matchesExpected": false
+      },
+      {
+        "id": 75,
+        "sourceSha256": "d32e9f5abccb0e12117fa42235b8db3844afe5a6d761c0c81954d6b16363411f",
+        "actualSha256": "d32e9f5abccb0e12117fa42235b8db3844afe5a6d761c0c81954d6b16363411f",
+        "unchanged": true,
+        "matchesExpected": true
+      }
+    ],
+    "fits": [
+      {
+        "id": 95,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "1bd174581aaa613f2834d5baeccd3202248d8fcb696e5b00eed2d870eb6de9fb",
+        "actualPoseSha256": "1bd174581aaa613f2834d5baeccd3202248d8fcb696e5b00eed2d870eb6de9fb",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 96,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "ba4f06b3e1f44c0acfbaf262d7a481682dc6fb9d2aeeda1a34843d7bfd8ec916",
+        "actualPoseSha256": "ba4f06b3e1f44c0acfbaf262d7a481682dc6fb9d2aeeda1a34843d7bfd8ec916",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 97,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "b46bace6c1c83db39efe6ec72640a5b9834c84fd968e17394ec228970ef84dc9",
+        "actualPoseSha256": "b46bace6c1c83db39efe6ec72640a5b9834c84fd968e17394ec228970ef84dc9",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 98,
+        "sourceKind": "quad500",
+        "expectedKind": "quad500",
+        "actualKind": "quad500",
+        "sourcePoseSha256": "0dfe3e0f81d34cb28e8de178e746d5b84c6bf7d06e746f44557df255ea12081e",
+        "actualPoseSha256": "0dfe3e0f81d34cb28e8de178e746d5b84c6bf7d06e746f44557df255ea12081e",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 99,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "6ac18c16d28e2cfaea6d89287c16298786087ff52c05216e3d6da3d8b2f3de50",
+        "actualPoseSha256": "6ac18c16d28e2cfaea6d89287c16298786087ff52c05216e3d6da3d8b2f3de50",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 100,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "33273f29907d07f0b0885760711bd26d76ed98436584502a756e9bf7090983a4",
+        "actualPoseSha256": "33273f29907d07f0b0885760711bd26d76ed98436584502a756e9bf7090983a4",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 101,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "2b3f7a397ddcec459ed1b6f6ea69b52a936f0e761f038679d37a473f1bc45be1",
+        "actualPoseSha256": "2b3f7a397ddcec459ed1b6f6ea69b52a936f0e761f038679d37a473f1bc45be1",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 102,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "696633e73874bd36055e0ec94d89e4f41b3f7eab09a75e70caab567694f2e06e",
+        "actualPoseSha256": "696633e73874bd36055e0ec94d89e4f41b3f7eab09a75e70caab567694f2e06e",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 103,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "8234ae7b9702d1b0953bcf26443b05e9fe1f9fe40183dae308e389ba1bed14f2",
+        "actualPoseSha256": "8234ae7b9702d1b0953bcf26443b05e9fe1f9fe40183dae308e389ba1bed14f2",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 104,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "be47efe5d5706c882f8ddfb8f3c7deb6dde6127d3569baab07bbba40e280c6be",
+        "actualPoseSha256": "be47efe5d5706c882f8ddfb8f3c7deb6dde6127d3569baab07bbba40e280c6be",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 105,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "7990cb6480fbff9bdce8b0badce12e662d9aa4b142d23c0bcc4db60a3e48effc",
+        "actualPoseSha256": "7990cb6480fbff9bdce8b0badce12e662d9aa4b142d23c0bcc4db60a3e48effc",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 106,
+        "sourceKind": "pd",
+        "expectedKind": "pd",
+        "actualKind": "pd",
+        "sourcePoseSha256": "abc14b7fd2f1837c4e555b3b56cd674820e1f85dfae3996a8fc190e49874dbf8",
+        "actualPoseSha256": "abc14b7fd2f1837c4e555b3b56cd674820e1f85dfae3996a8fc190e49874dbf8",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 107,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "97247768f5d263565ad7193a47987dbce246f8ee131daaebcf98c86303a1a1b4",
+        "actualPoseSha256": "97247768f5d263565ad7193a47987dbce246f8ee131daaebcf98c86303a1a1b4",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 108,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "d9f9c516ad723fdd494702af68504b1e37ea654da8a04750c22194805cb7c3fd",
+        "actualPoseSha256": "d9f9c516ad723fdd494702af68504b1e37ea654da8a04750c22194805cb7c3fd",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 109,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "72fa1908d40e367e88c5923ab0a8c55ff5602f9233875daabb9d67ea81aeab81",
+        "actualPoseSha256": "72fa1908d40e367e88c5923ab0a8c55ff5602f9233875daabb9d67ea81aeab81",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 110,
+        "sourceKind": "shipMsl",
+        "expectedKind": "shipMsl",
+        "actualKind": "shipMsl",
+        "sourcePoseSha256": "be8dea12e40a3f6f277658cdb5dfdcf669bce1c72edbfbd6f0c025b677056920",
+        "actualPoseSha256": "be8dea12e40a3f6f277658cdb5dfdcf669bce1c72edbfbd6f0c025b677056920",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      },
+      {
+        "id": 111,
+        "sourceKind": "trc",
+        "expectedKind": "trc",
+        "actualKind": "trc",
+        "sourcePoseSha256": "e5f4a63e40960bfbefdf5b842512e5893c6b0466e18ff01d0b9d3c49bca91813",
+        "actualPoseSha256": "e5f4a63e40960bfbefdf5b842512e5893c6b0466e18ff01d0b9d3c49bca91813",
+        "acceptedEquivalentNormalizations": [],
+        "worldFrameEquivalent": true,
+        "worldBoundsEquivalent": true,
+        "poseUnchanged": true,
+        "kindCorrect": true
+      }
+    ],
+    "nozzles": [
+      {
+        "id": 78,
+        "unchanged": true,
+        "sourceAppearanceSha256": "235a48736f5f0db5b64fb76bed1345e6c62375ef10a832d76b72563d830103db",
+        "actualAppearanceSha256": "235a48736f5f0db5b64fb76bed1345e6c62375ef10a832d76b72563d830103db"
+      },
+      {
+        "id": 80,
+        "unchanged": true,
+        "sourceAppearanceSha256": "74c72dab6c9b283cd0924e27dcf812940ef99c125e144844049965da90569d1a",
+        "actualAppearanceSha256": "74c72dab6c9b283cd0924e27dcf812940ef99c125e144844049965da90569d1a"
+      },
+      {
+        "id": 82,
+        "unchanged": true,
+        "sourceAppearanceSha256": "91d88836c80e405661c05cda11c9a2c97f2dcccd5b948b15b4606f6503f3c5cd",
+        "actualAppearanceSha256": "91d88836c80e405661c05cda11c9a2c97f2dcccd5b948b15b4606f6503f3c5cd"
+      }
+    ],
+    "publicLayout": [
+      {
+        "field": "cuts",
+        "unchanged": true
+      },
+      {
+        "field": "trenches",
+        "unchanged": true
+      },
+      {
+        "field": "solidCuts",
+        "unchanged": true
+      },
+      {
+        "field": "subs",
+        "unchanged": true
+      },
+      {
+        "field": "hatches",
+        "unchanged": true
+      },
+      {
+        "field": "armor",
+        "unchanged": true
+      }
+    ],
+    "structuralLayoutPreserved": false,
+    "allFittingPosesPreserved": true,
+    "weaponKindsCorrect": true,
+    "nozzleAppearancePreserved": true,
+    "passed": false
+  },
+  "accelerationEvidence": {
+    "required": true,
+    "scope": "The requested catalogue maximum comes from actual body volume at the unchanged ordinary force law, actual engineering mass, structural limit and inertial support. No density boost or separate display-only cap is accepted.",
+    "targetG": 1800,
+    "toleranceG": 0.2,
+    "statsG": 1800.0052367869007,
+    "profileG": 1800.0052367869007,
+    "physicalRatedG": 1800.0052367869007,
+    "physicalLimitG": 1800.0052367869007,
+    "massKg": 443941486.18825597,
+    "physicalThrustN": 7836464594714.811,
+    "ordinaryThrustNPerM3": 170000000,
+    "plantW": 2.3742718040613077e+22,
+    "expectedPlantW": 2.374271804e+22,
+    "owners": [
+      {
+        "id": 112,
+        "kind": "engineCore",
+        "physicalVolumeM3": 15365.616852381982,
+        "normalInputW": 5.224309729809874e+21,
+        "ratedInputW": 5.224309729809874e+21,
+        "declaredNormalInputW": 5.224309729809874e+21,
+        "densityFactor": 1,
+        "grade": "standard",
+        "drive": "standard",
+        "efficiency": 0.95,
+        "wasteFraction": 0.050000000000000044,
+        "ratedThrustN": 2612154864904.937,
+        "ordinaryThrustN": 2612154864904.937,
+        "ordinary": true
+      },
+      {
+        "id": 113,
+        "kind": "engineCore",
+        "physicalVolumeM3": 15365.616852381982,
+        "normalInputW": 5.224309729809874e+21,
+        "ratedInputW": 5.224309729809874e+21,
+        "declaredNormalInputW": 5.224309729809874e+21,
+        "densityFactor": 1,
+        "grade": "standard",
+        "drive": "standard",
+        "efficiency": 0.95,
+        "wasteFraction": 0.050000000000000044,
+        "ratedThrustN": 2612154864904.937,
+        "ordinaryThrustN": 2612154864904.937,
+        "ordinary": true
+      },
+      {
+        "id": 114,
+        "kind": "engineCore",
+        "physicalVolumeM3": 15365.616852381982,
+        "normalInputW": 5.224309729809874e+21,
+        "ratedInputW": 5.224309729809874e+21,
+        "declaredNormalInputW": 5.224309729809874e+21,
+        "densityFactor": 1,
+        "grade": "standard",
+        "drive": "standard",
+        "efficiency": 0.95,
+        "wasteFraction": 0.050000000000000044,
+        "ratedThrustN": 2612154864904.937,
+        "ordinaryThrustN": 2612154864904.937,
+        "ordinary": true
+      }
+    ],
+    "gates": {
+      "ordinaryLawUnchanged": true,
+      "ordinaryBodies": true,
+      "physicalRatingConsistent": true,
+      "physicalLimitConsistent": true,
+      "targetMet": true,
+      "originalPlantPreserved": true
+    },
+    "passed": true
+  },
+  "speedEvidence": {
+    "required": true,
+    "key": "arquitens",
+    "scope": "Independent published MGLT literals from docs/reference-sublight-speeds.md must match the actual fresh profile. Unpublished Arquitens and MC30c remain explicitly assumed; speed overlays preserve the actual thrust, acceleration, power, heat and armament ledgers.",
+    "expectedStatus": "assumed",
+    "expectedMGLT": null,
+    "actualMGLT": 59.9,
+    "actualMaxSpeedMps": 1197.231408749433,
+    "battleMetresPerSecondPerMGLT": 20,
+    "reference": {
+      "version": 1,
+      "key": "arquitens",
+      "status": "assumed",
+      "mglt": null,
+      "model": null,
+      "scope": null,
+      "continuity": null,
+      "source": null
+    },
+    "profileReference": {
+      "version": 1,
+      "key": "arquitens",
+      "status": "assumed",
+      "mglt": null,
+      "model": null,
+      "scope": null,
+      "continuity": null,
+      "source": null
+    },
+    "physicalProfileSha256": "51d142f005697e16fb1f63adc330acde8207e22b7e2926b5f7c4059e4c806fd9",
+    "gates": {
+      "referenceClassified": true,
+      "profileClassified": true,
+      "actualShipReference": true,
+      "battleConversionUnchanged": true,
+      "positivePhysicalThrust": true,
+      "profileSpeedConsistent": true,
+      "overlayMatchesActual": true,
+      "overlayPreservesPhysics": true,
+      "overlayDoesNotMutateInput": true
+    },
+    "passed": true
+  },
+  "framingEvidence": {
+    "required": false,
+    "key": "arquitens",
+    "scope": "The exact installed framing grid is integrated independently through its real hull sections. The same actual engineering result must include it in each owned-hull material ledger and in the global framing ledger used by the completed-mass calculation; no second statistics pass or substituted mass is used.",
+    "rows": [],
+    "independentFramingMassT": 0,
+    "actualFramingMassT": 0,
+    "ownedHullMaterialMassT": 0,
+    "actualCompletedMassT": 443941.48618825595,
+    "gates": {
+      "ownedPrimaryPresent": false,
+      "ownedMaterialLedger": true,
+      "globalFramingLedger": true,
+      "completedMassContainsHull": false
+    },
+    "passed": true
+  },
+  "occupiedGeometry": {
+    "overlapIds": [],
+    "floating": 0,
+    "floatFits": 0,
+    "ungrounded": {
+      "parts": [],
+      "fits": []
+    }
+  },
+  "finalBlueprintSha256": "ded3d523f4a79880406eece7259407610678fb7cce01a6c2549dd41aa0fe91a8",
+  "figureDifferences": [
+    "VS: 5.88178757826753 → 5.874467859688061",
+    "aStruct: 243026.39487338075 → 537423.5938407888",
+    "aa: 33.77777777777778 → 37.65331370121481",
+    "aaArc: {\"n\":6,\"s\":126.66666666666666,\"a\":126.66666666666666,\"w\":193.68280860184072,\"t\":0,\"h\":\"51fb0f69\"} → {\"n\":6,\"s\":141.19992637955554,\"a\":141.19992637955554,\"w\":215.88045787890775,\"t\":0,\"h\":\"51fb0f69\"}",
+    "alpha: {\"n\":6,\"s\":122.44444444444444,\"a\":122.44444444444444,\"w\":187.22337288761304,\"t\":0,\"h\":\"51fb0f69\"} → {\"n\":6,\"s\":21.77778151111111,\"a\":21.77778151111111,\"w\":33.291098577522725,\"t\":0,\"h\":\"51fb0f69\"}",
+    "alphaBest: 23.555555555555557 → 4.888889466666668",
+    "alphaMean: 20.40740740740741 → 3.629630251851852",
+    "alphaRate: {\"n\":6,\"s\":612.2222222222222,\"a\":612.2222222222222,\"w\":936.1168644380651,\"t\":0,\"h\":\"51fb0f69\"} → {\"n\":6,\"s\":108.88890755555552,\"a\":108.88890755555552,\"w\":166.4554928876136,\"t\":0,\"h\":\"51fb0f69\"}",
+    "alphaTot: 48 → 8.000001600000004",
+    "arcEff: 0.49074074074074076 → 0.6111110611111209",
+    "area: 100005.22337480196 → 100129.83212389456",
+    "armorAvg: 0.2 → 0.19260037362252236",
+    "armorHull: 0.2 → 0.19260037362252236",
+    "armorMass: 162612.9235321739 → 157028.11107449842",
+    "autoCrewCapacity: 4643 → 5341",
+    "autoHabitationVolume: 559883.5286962619 → 537890.6111461371",
+    "bandRate: {\"n\":18,\"s\":612.2222222222222,\"a\":612.2222222222222,\"w\":639.204855652319,\"t\":0,\"h\":\"c7d442a1\"} → {\"n\":18,\"s\":108.88890755555553,\"a\":108.88890755555553,\"w\":113.8144305540041,\"t\":0,\"h\":\"c7d442a1\"}",
+    "bareStructAccel: 44896.494395532456 → 41340.27644929145",
+    "batteryEnergy: 0 → 5e+21",
+    "chargeInfo: {\"n\":188,\"s\":-1594260.3090393748,\"a\":1607379.6909606252,\"w\":-2289440.2300072345,\"t\":0,\"h\":\"66c63513\"} → {\"n\":180,\"s\":1870.7791222258327,\"a\":1870.7791222258327,\"w\":2967.6515127790003,\"t\":0,\"h\":\"b6c0b15b\"}",
+    "chargingExternalVolume: 160 → 160.00003199999992",
+    "chargingHardwareCost: 960 → 160.00003199999992",
+    "chargingHardwareMass: 432 → 72.00001439999997",
+    "chargingHousingVolume: 160 → 160.00003199999992",
+    "chargingOccupiedVolume: 800.000000000136 → 1.4075141052671825e-10",
+    "chargingTotalVolume: 960 → 160.00003199999992",
+    "chargingVolume: 800 → 0",
+    "coreRate: 0.5306264107296864 → 0.5117369645973701",
+    "cost: 2798328 → 3615735",
+    "costBy: {\"n\":9,\"s\":2798328,\"a\":2798328,\"w\":4048889.9563007588,\"t\":0,\"h\":\"811c9dc5\"} → {\"n\":9,\"s\":3615735,\"a\":3615735,\"w\":5085129.749149344,\"t\":0,\"h\":\"811c9dc5\"}",
+    "crew: 183 → 187",
+    "crewAboard: 183 → 187",
+    "crewBase: 183 → 187",
+    "crewCapacity: 4643 → 5341",
+    "dims: {\"n\":3,\"s\":533.4951301574707,\"a\":533.4951301574707,\"w\":812.3255607885093,\"t\":0,\"h\":\"54fb1422\"} → {\"n\":3,\"s\":533.5007570385933,\"a\":533.5007570385933,\"w\":812.3341292525938,\"t\":0,\"h\":\"54fb1422\"}",
+    "dissipatorPower: 0 → 179641198278916900000",
+    "draw: {\"n\":8,\"s\":1.0797770746000097e+24,\"a\":1.0797770746000097e+24,\"w\":1.1817103494242285e+24,\"t\":0,\"h\":\"811c9dc5\"} → {\"n\":8,\"s\":3.104161248475776e+23,\"a\":3.104161248475776e+23,\"w\":3.587811877839101e+23,\"t\":0,\"h\":\"811c9dc5\"}",
+    "droidCapacity: 89204 → 103095",
+    "effectiveMachineryVolumeM3: 29177.395979581554 → 46096.85055714595",
+    "engineVolume: 29432.12456312352 → 46810.83274793004",
+    "feedBranchVolume: 95562.62791475053 → 3705.0769931097366",
+    "feedCellCap: 0 → 166666666666666660000",
+    "feedCellCount: 0 → 1",
+    "feedCellDraw: 0 → 166666666666666660000",
+    "feedCellInfo: {\"n\":0,\"s\":0,\"a\":0,\"w\":0,\"t\":0,\"h\":\"811c9dc5\"} → {\"n\":2,\"s\":333333333333333300000,\"a\":333333333333333300000,\"w\":512945655073660100000,\"t\":0,\"h\":\"ccc4e362\"}",
+    "feedCellShare: 0 → 0.005175776043752912",
+    "feedChargeVolume: 0 → 8.222997871951437",
+    "feedDemand: 1.0241600040000001e+24 → 3.2201290252469668e+22",
+    "feedInfo: {\"n\":51,\"s\":97959.88115253478,\"a\":97959.88115253478,\"w\":162776.09219846714,\"t\":0,\"h\":\"4abd2f06\"} → {\"n\":51,\"s\":6140.074287958784,\"a\":6140.074287958784,\"w\":8502.607894366129,\"t\":0,\"h\":\"4abd2f06\"}",
+    "feedLength: 93.30829903678854 → 115.05989244718467",
+    "feedShare: 0.1706830492714735 → 0.006903448236565033",
+    "feedVolume: 95562.62791475053 → 3713.299990981688",
+    "fitInfo: {\"n\":72,\"s\":30.88888888888889,\"a\":30.88888888888889,\"w\":48.45514671879612,\"t\":0,\"h\":\"cb17ea3b\"} → {\"n\":72,\"s\":29.55555555555556,\"a\":29.55555555555556,\"w\":46.039337249809044,\"t\":0,\"h\":\"cb17ea3b\"}",
+    "ground: {\"n\":21,\"s\":985810.8015630227,\"a\":985810.8015630227,\"w\":1672897.9181855922,\"t\":0,\"h\":\"d56eb699\"} → {\"n\":21,\"s\":1139308.6223103108,\"a\":1139308.6223103108,\"w\":1933378.9868653785,\"t\":0,\"h\":\"d56eb699\"}",
+    "habit: 25.371584699453553 → 28.56149732620321",
+    "habitableVolume: 464320.9007815114 → 534177.3111551554",
+    "heat: {\"n\":967,\"s\":7.162275376954798e+24,\"a\":7.162275376954798e+24,\"w\":1.0800790230441007e+25,\"t\":106,\"h\":\"c5df1cf2\"} → {\"n\":3237,\"s\":8.512016814447971e+24,\"a\":8.512016814447971e+24,\"w\":1.196467098047303e+25,\"t\":241,\"h\":\"89ce0e9b\"}",
+    "hp: 1618.3331748013395 → 1677.8267621198527",
+    "hullArea: 100005.22337480196 → 100129.83212389456",
+    "hullLen: 325 → 325.6056268811226",
+    "hyperClass: 2.995857091137633 → 3.03265252866341",
+    "inertialSupport: 325720.3263241897 → 457248.57742059726",
+    "info: {\"n\":471,\"s\":823839.1754474621,\"a\":823839.1754474621,\"w\":1200691.5841132675,\"t\":3,\"h\":\"b8955c43\"} → {\"n\":1023,\"s\":824022.8207922666,\"a\":824022.8207922666,\"w\":1200972.6411642726,\"t\":3,\"h\":\"b3098155\"}",
+    "integritySupport: 161280.00000000006 → 457248.57198666356",
+    "mass: 438555.1054322186 → 443941.48618825595",
+    "maximumAccelMps2: 8062.883692739338 → 17652.02135533626",
+    "personCapacity: 4643 → 5341",
+    "propulsion: {\"n\":138,\"s\":2.9902792364522458e+23,\"a\":2.9902792364522458e+23,\"w\":4.368916468408972e+23,\"t\":5,\"h\":\"18c1333c\"} → {\"n\":306,\"s\":3.977673626716078e+23,\"a\":3.977673626716078e+23,\"w\":5.6839746514385896e+23,\"t\":6,\"h\":\"f8c619f8\"}",
+    "ratedAccelMps2: 10855.996762196577 → 17652.02135533626",
+    "ratedThrustN: 4760952804616.943 → 7836464594714.811",
+    "rm: 0.7429745336059942 → 0.6494575138771248",
+    "shieldCapacity: 3.6552184185714164e+23 → 3.5250985262643054e+23",
+    "shieldP: 2.122616509343668e+22 → 2.0496054542690414e+22",
+    "shieldPct: 0.5306264107296864 → 0.51173696459737",
+    "skin: {\"n\":483,\"s\":100372,\"a\":100372,\"w\":152794.1115701378,\"t\":0,\"h\":\"95cffd42\"} → {\"n\":483,\"s\":100496.39437311888,\"a\":100497.60562688112,\"w\":152144.9948284143,\"t\":0,\"h\":\"95cffd42\"}",
+    "structG: 24781.795503396243 → 54801.95518763174",
+    "supportVolumes: {\"n\":12,\"s\":22925.573411191453,\"a\":22925.573411191453,\"w\":36793.727994299436,\"t\":0,\"h\":\"811c9dc5\"} → {\"n\":15,\"s\":72907.1720999405,\"a\":72907.1720999405,\"w\":131321.11724790587,\"t\":0,\"h\":\"811c9dc5\"}",
+    "troopCapacity: 4460 → 5154",
+    "troopVolume: 446020.9007815114 → 515477.3111551554",
+    "unassignedVolume: 559883.5286962619 → 537890.6111461371",
+    "warnings: {\"n\":10,\"s\":795,\"a\":795,\"w\":1135.2091366229579,\"t\":0,\"h\":\"c2081fad\"} → {\"n\":8,\"s\":626,\"a\":626,\"w\":932.6874862930272,\"t\":0,\"h\":\"8871eae1\"}",
+    "weakAt: 59.583333333333336 → 61.802118271092574",
+    "$warnings: [[\"warn\",\"\",\"生命維持・シールド・機関への給電が不足しています（稼働率 53%）。\"],[\"warn\",\"\",\"シールドが目標強度の 53% です。発生器の容量と給電を確認してください。\"],[\"warn\",\"\",\"慣性制御装置の対応質量が不足しています。\"],[\"warn\",\"\",\"構造維持装置の対応質量が不足しています。\"],[\"info\",\"heat\",\"互換運転：既存設備の内蔵 → [[\"warn\",\"\",\"生命維持・シールド・機関への給電が不足しています（稼働率 51%）。\"],[\"warn\",\"\",\"シールドが目標強度の 51% です。発生器の容量と給電を確認してください。\"]]",
+    "allGunVolleyTT: new",
+    "bounds: new",
+    "energyInputAdjusted: new",
+    "engineShaftBroken: new",
+    "engineShaftCost: new",
+    "engineShaftCount: new",
+    "engineShaftLength: new",
+    "engineShaftMass: new",
+    "engineShaftVolume: new",
+    "engineTransmissionBroken: new",
+    "engineTransmissionCost: new",
+    "engineTransmissionCount: new",
+    "engineTransmissionLength: new",
+    "engineTransmissionMass: new",
+    "engineTransmissionVolume: new",
+    "fireControl: new",
+    "surface: new",
+    "surfaceMode: new"
+  ]
+}

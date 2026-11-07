@@ -91,16 +91,32 @@ test('ordinary and saved turbine engines resolve to ISD bells without changing s
   assert.deepEqual(plain(loaded.parts.map(p => p.skinAsset)), plain(parts.map(p => p.skinAsset)), 'old asset IDs survive a saved-state round trip');
 });
 
-test('catalog thrust and power laws stay independent of the replacement appearance', () => {
-  for (const [asset, thrust, power] of [
-    ['isd_engine_0', 374447550285105.6, 8.727272727272728e23],
-    ['isd_engine_3', 40955200812433.42, 9.545454545454544e22],
-    ['isdh_engine_main', 219893589268224, 5.125073786866799e23],
-    ['isdh_engine_aux', 32152014142128.51, 7.49369026278409e22],
+test('catalog input and real machinery remain independent of appearance, with force set by density efficiency', () => {
+  for (const [asset, inputW] of [
+    ['isd_engine_0', 8.727272727272728e23],
+    ['isd_engine_3', 9.545454545454544e22],
+    ['isdh_engine_main', 5.125073786866799e23],
+    ['isdh_engine_aux', 7.49369026278409e22],
   ]) {
-    const p = equipment(asset);
-    assert.ok(Math.abs(C.nozzleThrust(p)/thrust-1) < 1e-12, asset+' thrust law');
-    assert.ok(Math.abs(C.nozzleDemand(p)/power-1) < 1e-12, asset+' power law');
+    const p = equipment(asset), ship = fixture(p), authored = C.publicJSON(p), body = plain(C.engineMachineryPaths(ship));
+    const length = p.machineryLengthM ?? Math.max(2, p.bodyLength || 2);
+    const radius = p.machineryRadiusM ?? p.d*(p.bodyRadius ?? .52);
+    const volume = Math.PI*length*radius*radius*(p.machineryShape === 'cylinder' ? 1 : (.78*.78+.78+1)/3);
+    assert.equal(body.length,1,'one retained real machinery body belongs to this nozzle');
+    assert.ok(Math.abs(C.partVolume(body[0])/volume-1)<1e-12,asset+' physical body matches the independent frustum volume');
+    const density = inputW/(volume*C.PROPULSION.referenceInputDensity);
+    const efficiency = .95/(1+.05*Math.max(0, density-1));
+    const force = inputW*efficiency/(.95*C.DRIVE_PROFILES['legacy-internal'].wattsPerNewton);
+    const spec = C.resolveEngineSpec(p);
+    assert.equal(spec.driveProfileId, 'legacy-internal');
+    assert.ok(Math.abs(spec.effectiveMachineryVolumeM3/volume-1) < 1e-12, asset+' actual machinery volume');
+    assert.ok(Math.abs(C.nozzleDemand(p)/inputW-1) < 1e-12, asset+' retained input');
+    assert.ok(Math.abs(C.nozzleThrust(p)/force-1) < 1e-12, asset+' independent density/efficiency law');
+    C.engineAppearance(p); C.engineSkinMesh(p);
+    assert.equal(C.publicJSON(p), authored, 'appearance cannot rewrite saved equipment or ratings');
+    assert.deepEqual(plain(C.engineMachineryPaths(ship)), body, 'the native visual casing cannot create or replace machinery');
+    assert.ok(Math.abs(C.nozzleDemand(p)/inputW-1) < 1e-12);
+    assert.ok(Math.abs(C.nozzleThrust(p)/force-1) < 1e-12);
   }
   const p = generic();
   near(C.partVolume(p), Math.PI*(p.d/2)**2*p.nozzleLength, 'generic physical nozzle volume');
@@ -110,30 +126,32 @@ test('catalog thrust and power laws stay independent of the replacement appearan
   assert.deepEqual(plain(C.refPartBounds(old)), physical);
 });
 
-test('generic bells fit the requested nozzle depth and stop at the collar in every direction and diameter', () => {
-  for (const d of [6, 51.66, 70, 70.01, 94.8, 112]) {
-    const p = generic({d, dir: C.norm([-.7, .3, .6]), nozzleLength: 17.5, bodyLength: 340});
-    const appearance = C.engineAppearance(p), mesh = C.engineSkinMesh(p), source = C.sourceEngine(appearance), asset = C.REFERENCE_ASSETS[mesh.skinAsset];
-    assert.ok(mesh.idx.length > 0 && mesh.uv.length === mesh.pos.length/3*2);
-    const forward = C.mul(C.norm(p.dir), -1);
-    let min = Infinity, max = -Infinity;
-    for (let i = 0; i < mesh.pos.length; i += 3) {
-      const axial = C.dot(C.sub(Array.from(mesh.pos.subarray(i, i+3)), p.c), forward);
-      min = Math.min(min, axial); max = Math.max(max, axial);
+test('generic engines retain the complete native casing and independent bell/body scales in every direction and diameter', () => {
+  const directions = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1],C.norm([-.7,.3,.6])];
+  for (const d of [6, 51.66, 70, 70.01, 94.8, 112]) for (const dir of directions) {
+    const p = generic({d, dir, nozzleLength:17.5, bodyLength:340}), saved = C.publicJSON(p);
+    const appearance = C.engineAppearance(p), mesh = C.engineSkinMesh(p), source = C.sourceEngine(appearance), asset = C.REFERENCE_ASSETS[mesh.skinAsset], native = C.decodeReference(mesh.skinAsset);
+    assert.equal(mesh.pos.length, native.pos.length, 'no native casing vertices may be clipped away');
+    assert.deepEqual(Array.from(mesh.idx), Array.from(native.idx), 'all native casing/bell triangles remain');
+    assert.deepEqual(Array.from(mesh.uv), Array.from(native.uv), 'native UVs remain attached to their complete geometry');
+    const forward = C.mul(C.norm(dir), -1);let right = C.norm(C.cross(forward,[0,1,0]));if (C.len(right)<.01)right=[0,0,1];const up=C.norm(C.cross(right,forward));
+    const sourcePoint = xyz => xyz.map((value,i)=>(value-asset.c[i])/asset.size[i]);
+    const anchor = source.anchor, collar = source.nozzleLength/2, bodyUnit = C.engineBaseline('internal',source.d,'body');
+    vector(C.referenceEnginePoint(appearance,sourcePoint([anchor[0]-collar,anchor[1],anchor[2]]),asset),C.add(p.c,C.mul(dir,p.nozzleLength/2)),'nominal native mouth anchor');
+    vector(C.referenceEnginePoint(appearance,sourcePoint([anchor[0]+collar,anchor[1],anchor[2]]),asset),C.add(p.c,C.mul(forward,p.nozzleLength/2)),'bell/body join');
+    vector(C.referenceEnginePoint(appearance,sourcePoint([anchor[0]+collar+bodyUnit,anchor[1],anchor[2]]),asset),C.add(p.c,C.mul(forward,p.nozzleLength/2+p.bodyLength)),'independent body-length control');
+    let bodyIndex=0,bellIndex=0,bodyX=-Infinity,bellX=Infinity;
+    for(let i=0;i<native.pos.length;i+=3){const x=native.pos[i]*asset.size[0]+asset.c[0]-anchor[0];if(x>bodyX){bodyX=x;bodyIndex=i;}if(x<bellX){bellX=x;bellIndex=i;}}
+    assert.ok(bodyX>collar, 'the native source includes casing beyond its collar');
+    for(const [index,sourceX,targetX]of [[bodyIndex,bodyX,p.nozzleLength/2+(bodyX-collar)*p.bodyLength/bodyUnit],[bellIndex,bellX,bellX*p.nozzleLength/source.nozzleLength]]){
+      const y=native.pos[index+1]*asset.size[1]+asset.c[1]-anchor[1],z=native.pos[index+2]*asset.size[2]+asset.c[2]-anchor[2],scale=d/source.d;
+      const expected=C.add(p.c,C.add(C.mul(forward,targetX),C.add(C.mul(up,y*scale),C.mul(right,z*scale))));
+      vector(Array.from(mesh.pos.subarray(index,index+3)),expected,sourceX>collar?'retained native body vertex':'retained native rim vertex');
     }
-    near(max, p.nozzleLength/2, 'the bell ends at the physical front collar');
-    assert.ok(min < -p.nozzleLength/2, 'the source rim overhang must survive scaling');
-    assert.ok(max-min < p.nozzleLength*1.15, 'a generic nozzle must not acquire the source turbine body');
-    // The nominal mouth is an authored point, not the furthest lip of the source mesh.
-    const mouth = source.anchor.map((value, i) => (value-asset.c[i])/asset.size[i]);
-    mouth[0] -= source.nozzleLength/2/asset.size[0];
-    vector(C.referenceEnginePoint(appearance, mouth, asset), C.add(p.c, C.mul(C.norm(p.dir), p.nozzleLength/2)), 'nozzle mouth stays at the requested pivot');
+    assert.equal(C.publicJSON(p),saved,'display mapping cannot change the paid nozzle or machinery');
   }
-  const narrow = generic({d: 40, nozzleLength: 21}), wide = generic({d: 60, nozzleLength: 21});
-  const a = C.engineSkinMesh(narrow), b = C.engineSkinMesh(wide);
-  near(a.t0, b.t0, 'diameter cannot lengthen a fixed-depth bell');
-  near(a.t1, b.t1, 'diameter cannot move its mouth');
-  near(b.rad/a.rad, 1.5, 'diameter changes the radial scale');
+  const narrow=generic({d:40,nozzleLength:21}),wide=generic({d:60,nozzleLength:21}),a=C.engineSkinMesh(narrow),b=C.engineSkinMesh(wide);
+  near(a.t0,b.t0,'diameter cannot lengthen a fixed-depth/body casing');near(a.t1,b.t1,'diameter cannot move its mouth');near(b.rad/a.rad,1.5,'diameter changes the radial scale');
 });
 
 test('authored Heataker ISD and exposed Venator engines retain their original source triangles', () => {
@@ -176,12 +194,25 @@ test('moving, rotating and resizing a bell refreshes its cached mesh, visible pi
   assert.notEqual(resized, rotated);
   near(resized.rad/rotated.rad, 1.2, 'resized radius');
   near(resized.t1, rotated.t1, 'a diameter edit keeps the nominal mouth fixed');
+  const oldNozzleLength=p.nozzleLength;
   p.nozzleLength *= 1.4;
-  const deeper = C.engineSkinMesh(p);
+  let deeper = C.engineSkinMesh(p);
   assert.notEqual(deeper, resized);
-  near(deeper.t0/resized.t0, 1.4, 'edited front collar');
-  near(deeper.t1/resized.t1, 1.4, 'edited nozzle depth');
   near(deeper.rad, resized.rad, 'depth cannot widen the bell');
+  const appearance=C.engineAppearance(p),source=C.sourceEngine(appearance),asset=C.REFERENCE_ASSETS[deeper.skinAsset],native=C.decodeReference(deeper.skinAsset),collar=source.nozzleLength/2;
+  const assertSegments=(before,after,oldJoin,newJoin,bellScale,bodyScale)=>{
+    let bell=0,body=0;
+    for(let i=0;i<native.pos.length;i+=3){
+      const x=native.pos[i]*asset.size[0]+asset.c[0]-source.anchor[0],a=C.dot(C.sub(Array.from(before.pos.subarray(i,i+3)),p.c),C.mul(after.u,-1)),b=C.dot(C.sub(Array.from(after.pos.subarray(i,i+3)),p.c),C.mul(after.u,-1));
+      if(x>collar){near(b-newJoin,(a-oldJoin)*bodyScale,'body segment scales about its own join');body++;}
+      else {near(b,a*bellScale,'bell segment scales about its mouth pivot');bell++;}
+    }
+    assert.ok(bell>0&&body>0,'both native regions are independently observed');
+  };
+  assertSegments(resized,deeper,oldNozzleLength/2,p.nozzleLength/2,1.4,1);
+  const beforeBodyEdit=deeper;p.bodyLength*=1.5;deeper=C.engineSkinMesh(p);
+  assert.notEqual(deeper,beforeBodyEdit);assertSegments(beforeBodyEdit,deeper,p.nozzleLength/2,p.nozzleLength/2,1,1.5);
+  near(deeper.t1,beforeBodyEdit.t1,'body edits cannot move the bell rim');near(deeper.rad,beforeBodyEdit.rad,'body edits cannot widen the bell');
 
   const outline = G.lineSet(); outline.part(p, [255, 255, 255, 255]);
   const positions = outline.out().pos, axial = [];

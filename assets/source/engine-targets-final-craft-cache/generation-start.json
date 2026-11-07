@@ -1,0 +1,8 @@
+{
+  "phase": "starting-final-actual-craft-cache",
+  "startedAtUtc": "2026-11-07T00:58:30.070560+00:00",
+  "coreBeforeGenerationSha256": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae",
+  "generatorSha256": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9",
+  "observerSha256": "0691c2ace5600915a57b8e72e1e1d5c000394b7ce97e2ab89037cfaa72c069c1",
+  "physicalSourceNote": "Final native generation after the ordinary density law, finite engine/sphere/room source contacts, imported thin-surface parity correction, reference MGLT overlays, all nine factory acceleration targets, and the final MC30 inertial clearance. The observer records unchanged native results without substituted calculations."
+}
