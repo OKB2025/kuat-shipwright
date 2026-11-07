@@ -1,0 +1,402 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "Complementary native Continue of the authenticated published design, actual Worker geometry/statistics, real Select/ion/info clicks, and a new explicit app Save write with deserialization round trip. This is not a fresh factory build; see mandator-battery-native-browser.json for that separate run and its initial inspect-versus-sel harness assertion error.",
+  "sourceSha256": {
+    "index.html": "7645bd712c515b844c2e9d1183258517db36f4826c84ae67498e392bb1756afe",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c",
+    "js/app.js": "1c94573324035bc8ee1d028a0ff883906ec070344691814eaf275f17b05bc7c9",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "74214f1ff44600a12b3aa967e729877b1871c32b043fad35a80504b9a0a30658",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "harness": {
+    "path": "scripts/browser-mandator-layout-continue.cjs",
+    "sha256": "ad2aacc86d89fc694963e499851ccdf830c393ed2d15a7586f014cd8e49fb3d6"
+  },
+  "input": {
+    "path": "assets/source/mandator-battery-layout-factory-blueprints/mandator2.json.gz",
+    "sha256": "7f1c14aca0cddcd3cfcbe636a9b0a03b68a7da275a7f61fa914ed8790fb298b6",
+    "jsonSha256": "d82b69e79dfaf6a99a7d217f123ad1fa1a128c7b2f85fca9b7c0ec6fe2cceb24",
+    "manifestSha256": "8ace37de2cd86487cb938cdc742fc03879df8bedc96936f9614e35ee7a21fecb"
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    {
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://127.0.0.1:34653/favicon.ico",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Access to XMLHttpRequest at 'https://cloudflareinsights.com/cdn-cgi/rum' from origin 'http://127.0.0.1:34653' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'http://127.0.0.1' that is not equal to the supplied origin.",
+      "location": {
+        "url": "http://127.0.0.1:34653/?splash",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://127.0.0.1:34653/favicon.ico",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "networkFailures": [
+    {
+      "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+      "error": "net::ERR_FAILED"
+    }
+  ],
+  "httpFailures": [],
+  "screenshots": [
+    {
+      "path": "docs/images/mandator-battery-native-continue-ion-selected.png",
+      "sha256": "c019e78c7da57f5b24385b6a87ba3cfa851aba853124b9fdc6b73ae506256ebb"
+    }
+  ],
+  "phase": {
+    "reference": "mandator2",
+    "mode": "worker",
+    "gen": 1,
+    "geo": 1,
+    "stats": 1,
+    "adopted": 1,
+    "lastWorker": {
+      "type": "stats",
+      "gen": 1,
+      "hasStats": true,
+      "time": 265723.3999999999
+    }
+  },
+  "current": {
+    "reference": "mandator2",
+    "parts": 320,
+    "fits": 509,
+    "mode": "worker",
+    "generation": {
+      "gen": 1,
+      "geo": 1,
+      "stats": 1,
+      "adopted": 1
+    },
+    "renderer": "webgl",
+    "glError": 0,
+    "worker": {
+      "seedAt": 1794033302096,
+      "events": [
+        {
+          "type": "ready",
+          "hasStats": false,
+          "time": 5716.800000000279
+        },
+        {
+          "type": "authoringGeometry",
+          "gen": 1,
+          "hasStats": false,
+          "time": 17010.30000000028
+        },
+        {
+          "type": "geometry",
+          "gen": 1,
+          "hasStats": false,
+          "time": 188658.8999999999
+        },
+        {
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "hasStats": false,
+          "time": 208353.3999999999
+        },
+        {
+          "type": "stats",
+          "gen": 1,
+          "hasStats": true,
+          "time": 265723.3999999999
+        }
+      ],
+      "inputs": [
+        {
+          "trusted": true,
+          "id": "",
+          "info": false,
+          "target": "",
+          "time": 1794033314973
+        },
+        {
+          "trusted": true,
+          "id": "",
+          "mode": "sandbox",
+          "info": false,
+          "target": "",
+          "time": 1794033315528
+        },
+        {
+          "trusted": true,
+          "id": "",
+          "mode": "design",
+          "info": false,
+          "target": "",
+          "time": 1794033315681
+        },
+        {
+          "trusted": true,
+          "id": "",
+          "title": "continue",
+          "info": false,
+          "target": "titleDraft",
+          "time": 1794033316850
+        }
+      ],
+      "errors": [],
+      "writes": [
+        {
+          "key": "yard.draft3",
+          "bytes": 1873427,
+          "time": 1794033314446
+        },
+        {
+          "key": "yard.draft3.meta",
+          "bytes": 64,
+          "time": 1794033314446
+        },
+        {
+          "key": "yard.draft3",
+          "bytes": 1880855,
+          "time": 1794033493272
+        },
+        {
+          "key": "yard.draft3.meta",
+          "bytes": 64,
+          "time": 1794033493272
+        }
+      ],
+      "workers": 1
+    }
+  },
+  "camera": {
+    "id": 463,
+    "name": "175TT 4連装ボールイオン砲",
+    "cam": {
+      "th": 1.5707963267948966,
+      "ph": 0.95,
+      "r": 100.34552988377025,
+      "target": [
+        452.1083901436232,
+        -222.1510137150418,
+        803.9288738059598
+      ],
+      "fov": 0.72,
+      "ortho": true
+    }
+  },
+  "pointer": {
+    "id": 463,
+    "x": 819.9997912417123,
+    "y": 529.500401561927
+  },
+  "selectionAfterClick": {
+    "tab": "edit",
+    "tool": "select",
+    "sel": {
+      "list": "fits",
+      "id": 463
+    },
+    "inspect": null,
+    "strip": "175TT 4連装ボールイオン砲#463· 対イオン斉射 700 TT · 電力 2.9×10²⁴ W · 射界 最大 100%i解除撤去"
+  },
+  "info": "支持台 0.0 m（自動 0.0＋追加 0.0）・右舷向き · 面に沿って 12° 傾斜\n1発・1砲身 175 TT × 4 門 · 一斉射 700 TT・電力 2.9×10²⁴ W\n前方\n56\n後方\n22\n右舷\n100\n左舷\n0\n上方\n44\n下方\n44\n射界（%）：各方向へ撃てる割合",
+  "saveStartedAt": 1794033571718,
+  "persistence": {
+    "record": {
+      "id": "ship-9ceec31f-e85b-4f94-b582-4c6cbeafb58b",
+      "name": "マンデイターII級スター・ドレッドノート",
+      "savedAt": 1794033572094,
+      "bytes": 482207
+    },
+    "writes": [
+      {
+        "key": "yard.draft3",
+        "bytes": 1873427,
+        "time": 1794033314446
+      },
+      {
+        "key": "yard.draft3.meta",
+        "bytes": 64,
+        "time": 1794033314446
+      },
+      {
+        "key": "yard.draft3",
+        "bytes": 1880855,
+        "time": 1794033493272
+      },
+      {
+        "key": "yard.draft3.meta",
+        "bytes": 64,
+        "time": 1794033493272
+      },
+      {
+        "key": "yard.saves",
+        "bytes": 482387,
+        "time": 1794033572170
+      }
+    ],
+    "inputs": [
+      {
+        "trusted": true,
+        "id": "",
+        "info": false,
+        "target": "",
+        "time": 1794033314973
+      },
+      {
+        "trusted": true,
+        "id": "",
+        "mode": "sandbox",
+        "info": false,
+        "target": "",
+        "time": 1794033315528
+      },
+      {
+        "trusted": true,
+        "id": "",
+        "mode": "design",
+        "info": false,
+        "target": "",
+        "time": 1794033315681
+      },
+      {
+        "trusted": true,
+        "id": "",
+        "title": "continue",
+        "info": false,
+        "target": "titleDraft",
+        "time": 1794033316850
+      },
+      {
+        "trusted": true,
+        "id": "",
+        "rail": "select",
+        "info": false,
+        "target": "",
+        "time": 1794033569208
+      },
+      {
+        "trusted": true,
+        "id": "",
+        "info": false,
+        "target": "",
+        "time": 1794033569686
+      },
+      {
+        "trusted": true,
+        "target": "cv",
+        "time": 1794033570453
+      },
+      {
+        "trusted": true,
+        "id": "",
+        "info": true,
+        "target": "",
+        "time": 1794033570728
+      },
+      {
+        "trusted": true,
+        "id": "btnMenu",
+        "info": false,
+        "target": "btnMenu",
+        "time": 1794033571752
+      },
+      {
+        "trusted": true,
+        "id": "btnSave",
+        "info": false,
+        "target": "btnSave",
+        "time": 1794033572063
+      }
+    ],
+    "currentPoseSha256": "48c89ae0a9433df955eefb340baa6d8b3e98e9e7862b5e903763c5abca87b5df",
+    "loadedPoseSha256": "48c89ae0a9433df955eefb340baa6d8b3e98e9e7862b5e903763c5abca87b5df",
+    "fits": 509
+  },
+  "actualLoadedSourceSha256": {
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "index.html": "7645bd712c515b844c2e9d1183258517db36f4826c84ae67498e392bb1756afe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "js/app.js": "1c94573324035bc8ee1d028a0ff883906ec070344691814eaf275f17b05bc7c9",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
+  },
+  "verifiedHTTPSourceSha256": {
+    "index.html": "7645bd712c515b844c2e9d1183258517db36f4826c84ae67498e392bb1756afe",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c",
+    "js/app.js": "1c94573324035bc8ee1d028a0ff883906ec070344691814eaf275f17b05bc7c9",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "74214f1ff44600a12b3aa967e729877b1871c32b043fad35a80504b9a0a30658",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "sourceSha256After": {
+    "index.html": "7645bd712c515b844c2e9d1183258517db36f4826c84ae67498e392bb1756afe",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c",
+    "js/app.js": "1c94573324035bc8ee1d028a0ff883906ec070344691814eaf275f17b05bc7c9",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "74214f1ff44600a12b3aa967e729877b1871c32b043fad35a80504b9a0a30658",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "expectedEnvironmentNetworkNoise": [
+    {
+      "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+      "error": "net::ERR_FAILED"
+    }
+  ],
+  "runtimeConsoleErrors": [],
+  "sourceStable": true,
+  "completedAt": "2026-11-07T06:39:32.838Z"
+}
