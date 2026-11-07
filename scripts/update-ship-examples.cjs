@@ -41,6 +41,9 @@ function generateEntryFromBlueprint(C,R,key,blueprint,previous,sources,options={
  return generateEntryFromShip(C,R,key,C.deserialize(plain(blueprint)),previous,sources,options);
 }
 function generateEntryFromShip(C,R,key,ship,previous,sources,options={}){
+ const measure=()=>generateMeasuredEntry(C,R,key,ship,previous,sources,options);return typeof C.withFrozenStructures==='function'?C.withFrozenStructures(measure):measure();
+}
+function generateMeasuredEntry(C,R,key,ship,previous,sources,options={}){
  C.syncCompartments(ship);C.remount(ship);C.syncCompartments(ship);
  const stats=C.computeStats(ship),profile=C.fleetProfile(stats,ship.name,ship),info=R.designInfo(stats,profile),blueprint=C.serialize(ship),complement=C.builtinComplement(key);
  if(profile.profileVersion!==C.FLEET_PROFILE_VERSION)throw new Error('Stale generated fleet profile: '+key);
