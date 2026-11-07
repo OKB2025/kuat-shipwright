@@ -1,0 +1,14 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
+const section=(from,to)=>{const a=app.indexOf(from),b=app.indexOf(to,a);assert.ok(a>=0&&b>a);return app.slice(a,b);};
+function fixture(flag,style='exposed',options={}){
+ const owner={id:269,k:'engine',exposedMachinery:flag,style},body={id:-269,k:'machinery',nozzle:269,t:3},feed={id:-9,k:'machinery',nozzle:269,transmission:true,entrySegments:[{}],t:.1},shaft={id:-8,k:'machinery',drivetrain:true,entrySegments:[{}],t:2},parts=[body,feed,...(options.shaft?[shaft]:[])],tested=[];
+ const C={isShipLauncher:()=>false,equipmentSpec:p=>({engineStyle:p.style})},ship={parts:[owner],fits:[]},cx=vm.createContext({C,ship,st:{view:'normal'},envHit:()=>options.hull||null,partHit:(o,d,clip,filter)=>{let best=null;for(const p of parts){if(p.transmission&&!p.drivetrain)continue;if(!filter(p))continue;tested.push(p.id);if(!best||p.t<best.t)best={part:p,t:p.t};}return best;},fitHit:()=>options.fit||null});
+ vm.runInContext(section('function pickRay(','// ---------- tools ----------'),cx);vm.runInContext(section('function editHitItem(','function editTap('),cx);
+ return{owner,body,tested,pick:()=>vm.runInContext('pickRay([0,0,0],[1,0,0],{parts:true,fits:true})',cx),editable:hit=>{cx.hit=hit;return vm.runInContext('editHitItem(hit)',cx);}};
+}
+test('a visible exposed physical machinery body selects its existing editable nozzle owner',()=>{const f=fixture(true),hit=f.pick();assert.equal(hit.part,f.body);assert.equal(f.editable(hit).list,'parts');assert.equal(f.editable(hit).it,f.owner);assert.ok(f.tested.includes(-269));assert.equal(f.tested.includes(-9),false,'electrical feeds remain excluded');});
+for(const flag of [undefined,false,'true',1])test(`legacy or non-boolean exposed flag ${String(flag)} keeps diagnostic machinery out of normal picking`,()=>{const f=fixture(flag);assert.equal(f.pick(),null);assert.equal(f.tested.includes(-269),false);});
+test('the exterior-body picking opt-in is limited to external equipment',()=>{const f=fixture(true,'internal');assert.equal(f.pick(),null);assert.equal(f.tested.includes(-269),false);});
+test('normal-view machinery still respects nearer hull and weapon hits',()=>{const hull={kind:'hull',t:1},fit={fit:{id:17},t:1};assert.equal(fixture(true,'exposed',{hull}).pick(),hull);const hit=fixture(true,'exposed',{fit}).pick();assert.equal(hit.fit,fit.fit);assert.equal(hit.t,1);});
+test('visible mechanical shaft entries remain selectable while electrical feeds stay excluded',()=>{const f=fixture(false,'exposed',{shaft:true}),hit=f.pick();assert.equal(hit.part.id,-8);assert.equal(f.tested.includes(-9),false);});

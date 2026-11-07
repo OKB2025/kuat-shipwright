@@ -10023,4 +10023,43 @@ Object.assign(root.KS_EN.messages,{
  '秒間照射':'s emission'
 });
 Object.assign(root.KS_EN.terms,{'全門':'All Cannons','左砲':'Port Cannon','右砲':'Starboard Cannon','砲軸固定':'Fixed Cannon Axis','発射する砲を選択':'Select Cannons','秒間照射':'s emission'});
+Object.assign(root.KS_EN.terms,{
+ "全艦の蓄熱容量": "Whole-vessel Heat Capacity",
+ "安全弁まで": "Until Safety Valve",
+ "蓄熱速度": "Heat Accumulation Rate",
+ "熱源別の収支（全艦蓄熱へ合算）": "Source Heat Flows (Combined into Vessel Heat)",
+ "発熱": "Heat Generated",
+ "通常航行の航続": "Cruise Endurance",
+ "全艦蓄熱": "Whole-vessel Heat",
+ "出力上限": "Output Ceiling",
+ "全艦停電": "Vessel Blackout",
+ "復旧作業": "Restoration Work",
+ "乗員充足率": "Crew Availability",
+ "熱損傷による出力制限": "Thermal Damage Output Limit"
+});
+Object.assign(root.KS_EN.messages,{
+ "反応炉から機関への配電は自動接続されます。独立した配電区画は不要です。機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。": "Reactor-to-engine power feeds connect automatically. No separate distribution compartment is needed. Engine body → drivetrain → nozzle. Internal engines can be placed independently and drive several nozzles; external engines integrate the body and nozzle.",
+ "航続は通常航行で実際に発電する電力と炉の変換損失から算出します。戦闘中の燃料消費も実発電量に従います。": "Cruise endurance uses actual electrical generation and reactor conversion loss. Combat fuel use also follows actual generation.",
+ "全艦停電 · 復旧作業 {0}% · 乗員充足率 {1}%（蓄熱90%以下で再起動）": "Vessel blackout · Restoration {0}% · Crew availability {1}% (restart requires heat at or below 90%)",
+ "熱損傷の出力制限は修理完了まで継続します。": "Thermal damage limits output until repairs are complete.",
+ "全艦蓄熱70%以上。出力制限は修理まで継続します。": "Whole-vessel heat is at least 70%. Output damage remains until repaired.",
+ "全艦蓄熱 {0} / {1} J（{2}%） · 出力上限 {3}%": "Whole-vessel heat {0} / {1} J ({2}%) · Output ceiling {3}%",
+ "反応炉・武装・推進・シールド・生活設備・超兵器は一つの給電網と熱輸送網につながります。廃熱は消費電力のうち砲弾・排気・有効出力として出ていかない分です。熱計算は全設計で厳格運転です。設備の廃熱は実際に搭載した散逸設備へ熱輸送路で運び、運びきれない分は蓄熱します。旧設計の内蔵冷却や超兵器への散逸能力の自動割当は使用しません。蓄熱容量は全艦質量に比例し、艦全体で共有します。70%から安全弁が働き、100%で全艦の電源を即時遮断します。到達した蓄熱率による出力低下は冷却後も残り、修理で回復します。再起動には蓄熱90%以下と乗員による復旧作業の完了が必要です（定員充足時300秒）。低放射持続は、散逸を止めて全廃熱を蓄熱した場合に続けられる時間です。数値はすべて仮の調整値です。": "Reactors, weapons, propulsion, shields, hotel loads and superweapons share the power and thermal networks. Actual operating waste is carried through finite installed paths to physical dissipators. One heat reservoir scales with total vessel mass. The safety valve starts at 70%; 100% immediately cuts all electrical power. Output damage persists after cooling and requires completed repairs. Restart requires heat at or below 90% and completed crew restoration work (300 seconds at full complement). Low-emission endurance assumes heat rejection is stopped. Fictional game coefficients."
+});
+Object.assign(root.KS_EN.terms,{"熱損傷":"Thermal Damage","被弾収支":"Impact Energy","入射":"Incident","艦外放出":"Released Outside","シールド消費":"Shield Debit","一時保持":"Temporary Shield Storage","艦内蓄熱":"Onboard Heat"});
+Object.assign(root.KS_EN.terms,{
+ "熱エネルギー変換装置":"Thermal Energy Converter",
+ "ノズルの外見":"Nozzle Appearance",
+ "ベル型":"Bell",
+ "汎用型":"Generic",
+ "露出":"External",
+ "放熱翼":"Radiator Wing"
+});
+Object.assign(root.KS_EN.messages,{
+ "内部機関に接続する露出型ノズル。外見・向き・口径を調整できます。":"An external nozzle connected to an internal engine. Appearance, direction and diameter are editable.",
+ "船体内部に置く熱エネルギー変換装置（スター・ウォーズの架空技術）。内部容積・質量を使い、近くの熱源から熱輸送路で廃熱を受けて処理します。武装・反応炉・推進・シールド・超兵器のどの熱も扱えます。":"An internal thermal energy converter using fictional Star Wars technology. It occupies real volume and mass and receives waste heat through thermal paths. It handles weapon, reactor, propulsion, shield and superweapon heat.",
+ "配電路は、反応炉から機関本体へ自動で接続して電力を送ります。太さは伝達容量に応じて決まり、長くなるほど電送損失と発熱が増えます。共用幹線は一度だけ計上します。機関からノズルへの動力伝達路は別に配置します。":"Power feeds connect the reactor to each engine automatically. Their cross-section follows capacity; longer routes incur more transmission loss and heat. Shared trunks count once. Engine-to-nozzle drivetrains use separate routes.",
+ "接続できない熱輸送路が {0} 本あります（相手がない、または放熱翼に適さない廃熱）。":"{0} thermal paths cannot connect (missing endpoint or heat incompatible with a radiator wing).",
+ "<b>広域シールド発生器</b>を選んであります。<b>艦橋本体の上</b>を中心から少しずらしてタップすると、左右一対の球形ドームが据わります。インペリアル級の艦橋の上にある、あの2つの球です。":"A <b>Wide-area Shield Generator</b> is selected. Tap <b>on top of the bridge body</b> slightly off center to place a pair of spherical domes: the two familiar spheres on an Imperial-class bridge."
+});
 })(typeof window==="undefined"?globalThis:window);

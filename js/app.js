@@ -2013,10 +2013,8 @@ function openCommandMenu(sub) {
 // The bridge editor lives inside 区画 → 指揮・艦橋; its state keeps the 'bridge' key.
 const tabKey = () => st.tab === 'bridge' ? 'mod' : ['hull','carve','armor'].includes(st.tab) ? 'edit' : st.tab;
 function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); if (!nativeRender) renderInspBar(); }
-const PLACE = [['inside', '内蔵'], ['partial', '一部露出'], ['outside', '外付け']];
 const st = {
   tab: 'edit', part: 'struct', partTool: 'place',
-  placeBy: {gen: 'inside', shield: 'partial', hyper: 'inside', engine: 'partial', hangar: 'inside'},
   size: {gen: 110, shield: 34, hyper: 50, engine: 60, hangar: 45},
   structSize: [180, 110, 60], structPlacement:'normal',sponsonSize:[24,20,5], structTaper: 0.2, fill: [0.3, 0.8], sizeCraft: {},
   sel: null, hatchA: null,
@@ -2026,7 +2024,7 @@ const st = {
   simOpp: 'destroyer', dockCollapsed: false,
 };
 st.group='power';st.structPlate=false;st.structLight=false;st.structPlateT=1;st.structForm='trap';st.structAngles=[10,10,15,15];st.structYaw=0;st.structOffsetX=0;st.structOffsetZ=0;st.reactor=null;st.engineDir=[-1,0,0];st.trench={side:'both',depth:20,height:16,level:.5,from:0,to:1};
-for(const k of PART_KEYS){if(st.size[k]==null)st.size[k]=C.PARTS[k].def||40;if(!st.placeBy[k])st.placeBy[k]='inside';}
+for(const k of PART_KEYS){if(st.size[k]==null)st.size[k]=C.PARTS[k].def||40;}
 let ship = null, S = null, prevS = null, view = null, bounds = [0, 0, 0, 1, 1, 1];
 const undoStack = [], redoStack = [];
 let lastOp = '', dragSnap = null, dragLabel = '';
@@ -2809,7 +2807,12 @@ function pickRay(o, d, want) {
   let h = null;
   if (st.view === 'xray' && want.parts) h = partHit(o, d, null, (pt) => !C.isShapePart(pt)) || envHit(o, d, null, {structOnly: false,launcherCuts});
   else h = envHit(o, d, null,{launcherCuts});
-  if(st.view!=='xray'&&want.parts){const exterior=partHit(o,d,null,p=>(p.transmission||p.drivetrain)&&p.entrySegments?.length);if(exterior&&(!h||exterior.t<h.t))h=exterior;}
+  if(st.view!=='xray'&&want.parts){const exterior=partHit(o,d,null,p=>{
+    if((p.transmission||p.drivetrain)&&p.entrySegments?.length)return true;
+    if(p.k!=='machinery'||p.transmission||p.drivetrain||p.nozzle==null)return false;
+    const owner=ship.parts.find(q=>q.k==='engine'&&q.id===p.nozzle);
+    return owner?.exposedMachinery===true&&C.equipmentSpec(owner)?.engineStyle==='exposed';
+  });if(exterior&&(!h||exterior.t<h.t))h=exterior;}
   if (want.fits) { const f = fitHit(o,d,h?.t); if (f && (!h || f.t < h.t)) return {fit: f.fit, t: f.t, p: f.p}; }
   return h;
 }
@@ -2841,7 +2844,7 @@ function hintText() {
       if(st.part==='struct'&&isSponsonPlacement())return '壁をタップして水平な張出し砲座を作る';
       const k = st.part, nm = C.PARTS[k].name;
       if (C.isShapeKind(k)) return `面をタップして${k==='struct'&&st.structPlate ? '装甲外板' : k==='struct'&&st.structLight ? '軽構造' : C.PARTS[k].name}（${st.structSize.map(v => num(v,3)).join('×')} m${k==='struct'&&st.structPlate ? `・装甲 ${num(st.structPlateT, 1)} m` : ''}）を据える`;
-      const size=C.PARTS[k].shape==='cube'?(st.roomSize||[120,60,24]).map(v=>num(v,2)).join('×')+' m':fmtM(pSize(k));return `面をタップして${nm}（${size}・${PLACE.find(p => p[0] === st.placeBy[k])?.[1]||PLACE[0][1]}）を置く`;
+      const size=C.PARTS[k].shape==='cube'?(st.roomSize||[120,60,24]).map(v=>num(v,2)).join('×')+' m':fmtM(pSize(k));return `面をタップして${nm}（${size}・${C.partPlacementMode(k)==='inside'?'内蔵':'露出'}）を置く`;
     }
     case 'select': return st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
     case 'fit': return (C.weaponWallOnly?.(curFit())?`左右の舷側面をタップして${C.FITS[curFit()].short}を設置`:C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${!fitPedestalAllowed(curFit())?'面に直接設置':weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
@@ -2873,7 +2876,7 @@ function unalignedPartPreview(hit) {
   let c;
   if (hit.kind === 'section') c = hit.p.slice();
   else {
-    const e = C.PARTS[k].shape==='cube'?(Math.abs(hit.n[0])*st.roomSize[0]+Math.abs(hit.n[1])*st.roomSize[2]+Math.abs(hit.n[2])*st.roomSize[1])/2:extentAlong(k, size, hit.n), mode = st.placeBy[k];
+    const e = C.PARTS[k].shape==='cube'?(Math.abs(hit.n[0])*st.roomSize[0]+Math.abs(hit.n[1])*st.roomSize[2]+Math.abs(hit.n[2])*st.roomSize[1])/2:extentAlong(k, size, hit.n), mode = C.partPlacementMode(k);
     const mg = Math.max(ship.hull.L||0,ship.hull.W||0,ship.hull.H||0)<100 ? .03 : 1, off = mode === 'inside' ? -(e + mg) : mode === 'partial' ? -e * 0.4 : e * 0.92;
     c = C.add(hit.p, C.mul(hit.n, off));
   }
@@ -3498,7 +3501,7 @@ function baseRenderPanel() {
       const k = st.part;
       h = `<div class="pgroup">${seg('parttool', [['place', '配置'], ['select', '選択・調整'], ['multi', '複数選択'], ['remove', '撤去']], st.partTool)}</div>`;
       if (st.partTool === 'place') {
-        h += `<div class="parts">${paletteParts(st.group).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${Object.values(C.EQUIPMENT).filter(d=>d.group===st.group).map(d=>equipmentCard(d.id)).join('')}</div>`;
+        h += `<div class="parts">${paletteParts(st.group).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${Object.values(C.EQUIPMENT).filter(d=>d.group===st.group&&!d.catalogHidden).map(d=>equipmentCard(d.id)).join('')}</div>`;
         if (C.isShapeKind(k)) {
           if(k==='struct')h+=sponsonPlacementControls();
           if(k==='struct'&&isSponsonPlacement())h+=sponsonControls();else h += `<div class="pgroup sliders"><h4>${isAeroKind(k)?C.PARTS[k].name+'の大きさ':'構造物の大きさ'}</h4>
@@ -3509,7 +3512,6 @@ function baseRenderPanel() {
           if (k === 'hangar') h += `<div class="pgroup"><h4>自動充填のセルサイズ</h4><div class="chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-psize="${s}" aria-pressed="${st.size.hangar === s}">${s} m</button>`).join('')}</div></div>`;
           else if(C.PARTS[k].fixed) h += `<div class="pgroup"><h4>固定寸法</h4><p class="note">直径 ${fmtM(C.PARTS[k].def)}・長さ ${fmtM(C.PARTS[k].def * C.PARTS[k].ratio)}。${C.SUPERWEAPONS[k]?.aim === 'bow' ? '艦首方向に固定して置きます。' : '置いた側の舷側方向に固定して置きます（左右対称で一対）。'}給電する炉は最寄りの炉に自動で接続し、選択して変えられます。</p></div>`;
           else if(!activeEquipment()&&C.PARTS[k].shape!=='cube'){const r=partSizeRange(k);h+=`<div class="pgroup sliders">${slider('psize','直径',pSize(k),r.min,r.max,r.step,sizeOut(k,pSize(k)),'any')}</div>`;}
-          h += `<div class="pgroup"><h4>置き方</h4>${seg('place', PLACE, st.placeBy[k])}<p class="note">内蔵：面の内側に収める／一部露出：3割ほど外に出す／外付け：面の外に据える。船内の任意の位置には「座標を指定して配置」を使います。</p></div>`;
           if (k === 'hangar') h += `<div class="pgroup sliders"><h4>自動充填</h4>
             ${slider('ffrom', '範囲（艦尾側）', Math.round(st.fill[0] * 100), 0, 95, 1, Math.round(st.fill[0] * 100) + '%')}
             ${slider('fto', '範囲（艦首側）', Math.round(st.fill[1] * 100), 5, 100, 1, Math.round(st.fill[1] * 100) + '%')}
@@ -4158,7 +4160,6 @@ function bind() {
     if (d.notchstructures) { st.notchStructures=d.notchstructures==='yes';renderPanel(); }
     else if (d.parttool) { if (d.parttool === 'place' && st.partTool !== 'place') carryToPlace(); st.partTool = d.parttool; renderPanel(); }
     else if (d.part) { if(isAeroKind(d.part)){selectAeroPart(d.part);renderPanel();return;}st.template=null;st.equipmentId=null;st.structWing=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.part = d.part; st.partTool = 'place'; renderPanel(); }
-    else if (d.place) { st.placeBy[st.part] = d.place; renderPanel(); }
     else if (d.psize) { st.size.hangar = +d.psize; renderPanel(); }
     else if (d.hsize) { mutate('格納庫の大きさ', () => editSel(it => { it.d = +d.hsize; }), 'parts'); renderPanel(); }
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
@@ -4692,7 +4693,7 @@ const ENGINE_REASON_LABELS={
 const engineReasonText=r=>{const key=typeof r==='string'?r:r?.code||r?.reason||'';return ENGINE_REASON_LABELS[key]||r?.message||key;};
 const engineSpecSnapshot=p=>Object.fromEntries(ENGINE_SPEC_FIELDS.filter(k=>p[k]!==undefined).map(k=>[k,p[k]]));
 function pendingGenericEngine(){
- const p={k:'engine',c:[0,0,0],d:pSize('engine'),...(st.engineSpec||{}),machineryId:st.newEngineCoreId??0};
+ const p={k:'engine',c:[0,0,0],d:pSize('engine'),...(st.engineSpec||{}),nozzleAppearance:st.nozzleAppearance||'bell',machineryId:st.newEngineCoreId??0};
  if(!st.engineSpec)st.engineSpec={nozzleLength:p.d*.32};
  return p;
 }
@@ -4815,7 +4816,7 @@ function engineSpecControls(p,fresh=false,multiple=false){
  ${input('machineryDiameterM','内部機関の直径（m）',spec.machineryDiameterM,.01,C.DESIGN_LIMITS.engineDiameter)}${input('machineryLengthM','内部機関の長さ（m）',spec.machineryLengthM,.01,C.DESIGN_LIMITS.engineLength)}${core?'':external?'<p class="note">外部機関は機関本体とノズルが一体です。</p>':input('machineryOffsetM','ノズルから機関までの距離（m）',p.machineryOffsetM??0,0,C.DESIGN_LIMITS.engineLength)}
  <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力密度</dt><dd>${sci(spec.inputDensityWPerM3)} W/m³</dd></div><div><dt>容積・仕様による入力上限</dt><dd>${fW(spec.maxRatedInputW)}</dd></div><div><dt>入力から推力への係数（密度を反映）</dt><dd>${sci(spec.wattsPerNewton)} W/N</dd></div><div><dt>定格・高密度化の追加費用</dt><dd>${fCr(spec.cost)}</dd></div></dl>
  <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">通常定格は機関容積から計算します。同じ容積で定格入力を上げるほど廃熱率が増えます。実推力と廃熱は実給電で決まり、持続出力は翼などの放熱面・排熱設備と熱輸送路に制限されます。密度・費用はゲーム用の暫定係数です。</p></div>
- ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法・定格入力を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
+ ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${nozzleAppearanceControls(p,!fresh)}${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法・定格入力を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
 }
 function propulsionFiguresHTML(side=false){
  const p=propulsionPreviewForUI();if(!p)return '';
@@ -4859,7 +4860,7 @@ function engineTransmissionHTML(p){
 function engineTransmissionSystemsHTML(){
  const network=transmissionForUI();if(!network||!network.routes.length)return '';
  const broken=network.routes.filter(r=>!r.ok).length,volume=network.volume||0,length=network.routes.reduce((n,r)=>n+(r.ok?r.length:0),0),entryLength=network.routes.reduce((n,r)=>n+(r.entrySegments||[]).reduce((v,s)=>v+s.l,0),0);
- return `<div class="pgroup blueprint-card" id="engine-transmission-editor"><h4>推進配電路</h4><dl class="engineering-stats"><div><dt>物理経路</dt><dd>${num(network.routes.length)} 本${broken?` · <span class="neg">不通 ${num(broken)}</span>`:''}</dd></div><div><dt>伝達経路の占有</dt><dd>${ja(volume)} m³</dd></div><div><dt>伝達経路の質量</dt><dd>${fMass(volume*C.PARTS.machinery.dens)}</dd></div><div><dt>総経路長</dt><dd>${fLen(length)}</dd></div>${entryLength>0?`<div><dt>うち外装ケーシング</dt><dd>${fLen(entryLength)}</dd></div>`:''}</dl><p class="note">配電路は、反応炉から配電区画を経由して機関本体へ電力を送ります。太さは伝達容量に応じて決まり、長くなるほど電送損失と発熱が増えます。共用幹線は一度だけ計上します。機関からノズルへの動力伝達路は別に配置します。</p><details><summary>経路ごとの伝達容量</summary>${network.routes.map(r=>`<div class="engine-row${r.ok?'':' neg'}"><span>${esc(transmissionPortLabel(r.from))} → ${esc(transmissionPortLabel(r.to))}</span><b>${r.ok?`${fW(r.capacityW)} · ⌀${num(r.radius*2,3)} m · ${fLen(r.length)} · ${num((r.efficiency??1)*100,3)}%`:'経路不通'}</b></div>`).join('')}</details></div>`;
+ return `<div class="pgroup blueprint-card" id="engine-transmission-editor"><h4>推進配電路</h4><dl class="engineering-stats"><div><dt>物理経路</dt><dd>${num(network.routes.length)} 本${broken?` · <span class="neg">不通 ${num(broken)}</span>`:''}</dd></div><div><dt>伝達経路の占有</dt><dd>${ja(volume)} m³</dd></div><div><dt>伝達経路の質量</dt><dd>${fMass(volume*C.PARTS.machinery.dens)}</dd></div><div><dt>総経路長</dt><dd>${fLen(length)}</dd></div>${entryLength>0?`<div><dt>うち外装ケーシング</dt><dd>${fLen(entryLength)}</dd></div>`:''}</dl><p class="note">配電路は、反応炉から機関本体へ自動で接続して電力を送ります。太さは伝達容量に応じて決まり、長くなるほど電送損失と発熱が増えます。共用幹線は一度だけ計上します。機関からノズルへの動力伝達路は別に配置します。</p><details><summary>経路ごとの伝達容量</summary>${network.routes.map(r=>`<div class="engine-row${r.ok?'':' neg'}"><span>${esc(transmissionPortLabel(r.from))} → ${esc(transmissionPortLabel(r.to))}</span><b>${r.ok?`${fW(r.capacityW)} · ⌀${num(r.radius*2,3)} m · ${fLen(r.length)} · ${num((r.efficiency??1)*100,3)}%`:'経路不通'}</b></div>`).join('')}</details></div>`;
 }
 function engineControls(p,selected,multiple=false){
   if(p.k==='engineCore')return engineCoreControls(p,selected,multiple);
@@ -4867,18 +4868,29 @@ function engineControls(p,selected,multiple=false){
   if(p.machineryId!=null&&p.machineryId!==p.id)return independentNozzleControls(p,selected);
   const owner=selected?engineConnectionOwner(p):p,source=owner?.reactor==null?'auto':String(owner.reactor),dir=p.dir||[-1,0,0],yaw=Math.atan2(dir[2],-dir[0])*180/Math.PI,pitch=Math.asin(Math.max(-1,Math.min(1,dir[1])))*180/Math.PI;
   const r=owner?C.reactorFor(ship,owner):null;
-  return `${engineSpecControls(p,!selected,multiple)}<div class="pgroup route-card"><h4>炉 → 配電・内部機関 → ノズル</h4>${selected?engineMachineryControls(p):''}${selected&&owner?.busFeed?'<p class="note">保存された配電接続と伝達容量を使って給電します。</p>':`<label class="field-label">接続する炉<select data-engine-route="1" data-reactor="${selected?'selected':'new'}"><option value="auto" ${source==='auto'?'selected':''}>最寄りの炉へ自動接続</option><option value="0" ${source==='0'?'selected':''}>接続しない</option>${ship.parts.filter(C.isReactor).map(q=>`<option value="${q.id}" ${source===String(q.id)?'selected':''}>${esc(C.PARTS[q.k].name)} #${q.id} · X ${Math.round(q.c[0])} m</option>`).join('')}</select></label>`}
+  return `${engineSpecControls(p,!selected,multiple)}<div class="pgroup route-card"><h4>炉 → 配電・内部機関 → ノズル</h4>${selected?engineMachineryControls(p):''}${selected&&false?'':`<label class="field-label">接続する炉<select data-engine-route="1" data-reactor="${selected?'selected':'new'}"><option value="auto" ${source==='auto'?'selected':''}>最寄りの炉へ自動接続</option><option value="0" ${source==='0'?'selected':''}>接続しない</option>${ship.parts.filter(C.isReactor).map(q=>`<option value="${q.id}" ${source===String(q.id)?'selected':''}>${esc(C.PARTS[q.k].name)} #${q.id} · X ${Math.round(q.c[0])} m</option>`).join('')}</select></label>`}
     <div class="sliders">${slider(selected?'engineYaw':'newEngineYaw','左右の向き',Math.round(yaw),-70,70,1,deg(yaw))}${slider(selected?'enginePitch':'newEnginePitch','上下の向き',Math.round(pitch),-60,60,1,deg(pitch))}</div>
     ${selected?engineTransmissionHTML(p):''}<p class="note">${r?`接続先：${C.PARTS[r.k].name} #${r.id}`:'接続炉なし'}<br>給電経路を延ばしても機関容積・定格入力は増えません。ノズルの追加で炉の出力は増えません。</p></div>`;
 }
+$('#panel').addEventListener('change',e=>{if(e.target.dataset.nozzleAppearance)changeNozzleAppearance(e.target.value,e.target.dataset.nozzleAppearance==='selected');});
+function nozzleAppearanceControls(p,selected){
+ if(p.k!=='engine'||C.equipmentSpec(p)?.engineStyle==='exposed')return '';
+ return `<label class="field-label">ノズルの外見<select data-nozzle-appearance="${selected?'selected':'new'}"><option value="bell" ${p.nozzleAppearance!=='generic'?'selected':''}>ベル型</option><option value="generic" ${p.nozzleAppearance==='generic'?'selected':''}>汎用型</option></select></label>`;
+}
+function changeNozzleAppearance(value,selected){
+ if(!['bell','generic'].includes(value))return;
+ if(selected){mutate('ノズルの外見',()=>editEngineSelection(p=>{if(p.k==='engine'&&C.equipmentSpec(p)?.engineStyle!=='exposed')p.nozzleAppearance=value;}),'parts');}
+ else{st.nozzleAppearance=value;for(const q of Object.values(st.engineSizes||{}))q.nozzleAppearance=value;}
+ renderPanel();updateHint();requestDraw();
+}
 function independentNozzleControls(p,selected){
  const fresh=selected?'0':'1',dir=p.dir||[-1,0,0],yaw=Math.atan2(dir[2],-dir[0])*180/Math.PI,pitch=Math.asin(C.clamp(dir[1],-1,1))*180/Math.PI,input=(field,label,value,max)=>`<label class="field-label">${label}<input type="number" step="any" min=".01" max="${max}" data-engine-field="${field}" data-engine-new="${fresh}" value="${value}" aria-label="${label}"></label>`;
- return `<div class="pgroup blueprint-card" id="engine-nozzle-editor"><h4>独立ノズル</h4>${input('d','ノズル径（m）',p.d,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,C.DESIGN_LIMITS.engineLength)}${engineMachineryControls(p,!selected)}<div class="sliders">${slider(selected?'engineYaw':'newEngineYaw','左右の向き',Math.round(yaw),-70,70,1,deg(yaw))}${slider(selected?'enginePitch':'newEnginePitch','上下の向き',Math.round(pitch),-60,60,1,deg(pitch))}</div><p class="note">ノズルの位置・向きは機関本体から独立しています。撤去しても機関本体は残ります。</p>${selected?engineDriveHTML(p)+`<div id="enginePerformance">${enginePerformance(p)}</div>`:''}</div>`;
+ return `<div class="pgroup blueprint-card" id="engine-nozzle-editor"><h4>ノズル</h4>${nozzleAppearanceControls(p,selected)}${input('d','ノズル径（m）',p.d,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,C.DESIGN_LIMITS.engineLength)}${engineMachineryControls(p,!selected)}<div class="sliders">${slider(selected?'engineYaw':'newEngineYaw','左右の向き',Math.round(yaw),-70,70,1,deg(yaw))}${slider(selected?'enginePitch':'newEnginePitch','上下の向き',Math.round(pitch),-60,60,1,deg(pitch))}</div><p class="note">ノズルの位置・向きは機関本体から独立しています。撤去しても機関本体は残ります。</p>${selected?engineDriveHTML(p)+`<div id="enginePerformance">${enginePerformance(p)}</div>`:''}</div>`;
 }
 function engineCoreControls(p,selected,multiple=false){
  if(!selected)p=pendingEngineCore();
  const source=p.reactor==null?'auto':String(p.reactor),outlets=selected?ship.parts.filter(q=>q.k==='engine'&&q.machineryId===p.id):[],direction=p.dir||[-1,0,0],axis=Math.abs(direction[1])>.9?'y':Math.abs(direction[2])>.9?'z':'x';
- return `${engineSpecControls(p,!selected,multiple)}<div class="pgroup route-card"><h4>反応炉 → 配電 → 内部機関</h4>${p.busFeed?'<p class="note">保存された配電接続と伝達容量を使って給電します。</p>':`<label class="field-label">接続する炉<select data-engine-route="1" data-reactor="${selected?'selected':'new'}"><option value="auto" ${source==='auto'?'selected':''}>最寄りの炉へ自動接続</option><option value="0" ${source==='0'?'selected':''}>接続しない</option>${ship.parts.filter(C.isReactor).map(r=>`<option value="${r.id}" ${source===String(r.id)?'selected':''}>${esc(C.partLabel(r))} #${r.id}</option>`).join('')}</select></label>`}${selected?engineTransmissionHTML(p):seg('enginecoreaxis',[['x','前後'],['y','上下'],['z','左右']],axis)}<p class="note">本体の位置・寸法・向きはノズルと別に編集できます。本体を撤去すると、接続していたノズルは未接続になります。</p></div>${selected?`<div class="pgroup blueprint-card"><h4>内部機関 → ノズル</h4>${engineDriveHTML(p)}${outlets.map(n=>`<button class="engine-row" data-goto="${n.id}"><span>ノズル #${n.id}</span><b>⌀${num(n.d,3)} m</b></button>`).join('')||'<p class="note">接続されたノズルはありません。</p>'}</div>`:''}`;
+ return `${engineSpecControls(p,!selected,multiple)}<div class="pgroup route-card"><h4>反応炉 → 配電 → 内部機関</h4>${false?'':`<label class="field-label">接続する炉<select data-engine-route="1" data-reactor="${selected?'selected':'new'}"><option value="auto" ${source==='auto'?'selected':''}>最寄りの炉へ自動接続</option><option value="0" ${source==='0'?'selected':''}>接続しない</option>${ship.parts.filter(C.isReactor).map(r=>`<option value="${r.id}" ${source===String(r.id)?'selected':''}>${esc(C.partLabel(r))} #${r.id}</option>`).join('')}</select></label>`}${selected?engineTransmissionHTML(p):seg('enginecoreaxis',[['x','前後'],['y','上下'],['z','左右']],axis)}<p class="note">本体の位置・寸法・向きはノズルと別に編集できます。本体を撤去すると、接続していたノズルは未接続になります。</p></div>${selected?`<div class="pgroup blueprint-card"><h4>内部機関 → ノズル</h4>${engineDriveHTML(p)}${outlets.map(n=>`<button class="engine-row" data-goto="${n.id}"><span>ノズル #${n.id}</span><b>⌀${num(n.d,3)} m</b></button>`).join('')||'<p class="note">接続されたノズルはありません。</p>'}</div>`:''}`;
 }
 function v3PartEditor(){
   let h=basePartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return h;
@@ -5176,24 +5188,24 @@ function bindWing(){
 function heatHTML(){
   const H=S?.heat;if(!H)return '';const pr=['cruise','combat','max'].includes(st.heatPreset)?st.heatPreset:'combat',e=H.presets[pr];if(!e)return '';
   const dur=t=>!Number.isFinite(t)?'—':t<120?`${Math.round(t)} 秒`:t<7200?`${Math.round(t/60)} 分`:`${(t/3600).toFixed(1)} 時間`;
-  const rows=[['運転方式','厳格運転'],['熱源',`${num(H.sources)} 系統`],['廃熱',fW(e.gen)],['散逸量',fW(e.out)],['余裕率',Number.isFinite(e.margin)?`${e.margin.toFixed(2)}×`:'—'],
+  const rows=[['運転方式','厳格運転'],['熱源',`${num(H.sources)} 系統`],['全艦の蓄熱容量',`${Number(H.capacityJ||0).toExponential(3)} J`],['安全弁まで',dur(e.limitSeconds)],['廃熱',fW(e.gen)],['散逸量',fW(e.out)],['余裕率',Number.isFinite(e.margin)?`${e.margin.toFixed(2)}×`:'—'],
    ['給電経路',H.power.broken?`<span class="neg">${num(H.power.links)} 本（断線 ${num(H.power.broken)}）</span>`:`${num(H.power.links)} 本（断線なし）`],['熱輸送経路',`${num(H.heat.links)} 本（専用 ${num(H.heat.dedicated)}・共用 ${num(H.heat.shared)}）`+(H.heat.broken?` <span class="neg">（不通 ${num(H.heat.broken)}）</span>`:'')],
-   ['散逸設備',`${num(H.dis.length)} 基 · ${fW(H.disCap)}`],['外殻の放熱（低温）',fW(H.skin)],['過負荷',e.overCount?`<span class="neg">${num(e.overCount)} 系統が蓄熱</span>`:'なし'],['低放射持続',dur(e.endurance)]];
+   ['散逸設備',`${num(H.dis.length)} 基 · ${fW(H.disCap)}`],['外殻の放熱（低温）',fW(H.skin)],['蓄熱速度',fW(Math.max(0,e.stored||0))],['低放射持続',dur(e.endurance)]];
   const kinds=Object.entries(H.kinds).filter(([,n])=>n>0).map(([k,n])=>`${C.HEAT_KINDS[k]} ${num(n)}`).join(' · ');
   return `<div class="pgroup blueprint-card" id="heat-editor"><h4>電力・熱ネットワーク</h4><div class="seg">${['cruise','combat','max'].map(k=>`<button type="button" data-heat-preset="${k}" aria-pressed="${k===pr}">${C.HEAT_PRESETS[k].name}</button>`).join('')}</div>
   <dl class="engineering-stats">${rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>${signatureHTML(e)}<p class="note">熱源：${kinds}</p>
-  ${e.over.length?`<h4>蓄熱する系統（装置ごとの残熱）</h4><ul class="ilist">${e.over.map(x=>`<li><span><b>${esc(x.name)}</b>残熱 ${fW(x.stored)}</span><span>${dur(x.t)}で出力制限</span></li>`).join('')}</ul>`:''}
+  ${e.over.length?`<h4>熱源別の収支（全艦蓄熱へ合算）</h4><ul class="ilist">${e.over.map(x=>`<li><span><b>${esc(x.name)}</b>残熱 ${fW(x.stored)}</span><span>${fW(x.gen)} 発熱</span></li>`).join('')}</ul>`:''}
   ${H.dis.length?`<h4>散逸設備</h4>${H.dis.map(d=>`<button class="engine-row" data-goto="${d.id}"><span>${esc(d.name)}</span><b>${fW(d.cap)}${d.ext?` · 露出 ${fPct(d.exposed)}`:''}</b></button>`).join('')}`:''}
-  <p class="note">反応炉・武装・推進・シールド・生活設備・超兵器は一つの給電網と熱輸送網につながります。廃熱は消費電力のうち砲弾・排気・有効出力として出ていかない分です。熱計算は全設計で厳格運転です。設備の廃熱は実際に搭載した散逸設備へ熱輸送路で運び、運びきれない分は蓄熱します。旧設計の内蔵冷却や超兵器への散逸能力の自動割当は使用しません。蓄熱が増えると出力制限、満杯で緊急停止します。停止が間に合わないと武装は武装用電力区画が焼損し、超兵器は直結したジェネレーターが爆発します。低放射持続は、散逸を止めて全廃熱を蓄熱した場合に続けられる時間です。数値はすべて仮の調整値です。</p></div>`;
+  <p class="note">反応炉・武装・推進・シールド・生活設備・超兵器は一つの給電網と熱輸送網につながります。廃熱は消費電力のうち砲弾・排気・有効出力として出ていかない分です。熱計算は全設計で厳格運転です。設備の廃熱は実際に搭載した散逸設備へ熱輸送路で運び、運びきれない分は蓄熱します。旧設計の内蔵冷却や超兵器への散逸能力の自動割当は使用しません。蓄熱容量は全艦質量に比例し、艦全体で共有します。70%から安全弁が働き、100%で全艦の電源を即時遮断します。到達した蓄熱率による出力低下は冷却後も残り、修理で回復します。再起動には蓄熱90%以下と乗員による復旧作業の完了が必要です（定員充足時300秒）。低放射持続は、散逸を止めて全廃熱を蓄熱した場合に続けられる時間です。数値はすべて仮の調整値です。</p></div>`;
 }
 function systemsHTML(){
   const rs=ship.parts.filter(C.isReactor),nozzles=ship.parts.filter(p=>p.k==='engine'),owners=C.propulsionOwners?C.propulsionOwners(ship):nozzles.filter(p=>engineConnectionOwner(p)===p),S0=S;
   const ownerRow=e=>{const physical=transmissionForUI()?.engines?.[e.id],broken=physical?!physical.connected:!C.reactorFor(ship,e),outlets=e.k==='engineCore'?nozzles.filter(n=>n.machineryId===e.id):[];return `<button class="engine-row${broken?' neg':''}" data-goto="${e.id}"><span>↳ ${esc(C.partLabel(e))} #${e.id}</span><b>${broken?'配電路を点検':fW(C.resolveEngineSpec(e,ship).ratedInputW)}</b></button>${outlets.map(n=>{const path=driveForUI()?.engines?.[n.id];return `<button class="engine-row${path&&!path.connected?' neg':''}" data-goto="${n.id}"><span>　↳ ノズル #${n.id}</span><b>${path?.connected?fW(path.capacityW):'動力未接続'}</b></button>`;}).join('')}`;};
-  return `<div class="flow-intro"><span class="eyebrow">ENGINEERING / 03</span><h3>機関本体とノズルを接続する</h3><p>反応炉 → 配電路 → 機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。</p><button class="btn primary" data-internal>内部を透視する</button></div>
+  return `<div class="flow-intro"><span class="eyebrow">ENGINEERING / 03</span><h3>機関本体とノズルを接続する</h3><p>反応炉から機関への配電は自動接続されます。独立した配電区画は不要です。機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。</p><button class="btn primary" data-internal>内部を透視する</button></div>
   <h4>動力の接続</h4>${rs.map(r=>`<div class="system-card"><button class="system-title" data-goto="${r.id}"><i style="background:${rgb(C.PARTS[r.k].col)}"></i>${esc(C.partLabel(r))} #${r.id}<span>${fW(C.reactorPower(r))}</span></button>${owners.filter(e=>C.reactorFor(ship,e)?.id===r.id).map(ownerRow).join('')||'<p class="note">接続された機関はありません。</p>'}</div>`).join('')||'<p class="note">先に主反応炉か補助反応炉を配置してください。</p>'}
   ${owners.filter(e=>!C.reactorFor(ship,e)).map(ownerRow).join('')}${nozzles.filter(n=>!engineConnectionOwner(n)).map(n=>`<button class="engine-row neg" data-goto="${n.id}">機関未接続のノズル #${n.id}</button>`).join('')}
   ${engineTransmissionSystemsHTML()}${engineDriveSystemsHTML()}${propulsionFiguresHTML()}${heatHTML()}
-  ${S0?`<h4>区画の能力</h4><dl class="engineering-stats">${[['機関・推進経路の占有',ja(S0.engineVolume)+' m³'],['反応物貯蔵',ja(S0.fuelVolume)+' m³'],['航続の参考値（炉出力25%）',S0.fuelHours.toFixed(1)+' 時間'],['反応物供給能力',fPct(S0.supplyRatio)],['慣性制御 対応質量',fMass(S0.inertialSupport)],['構造維持 対応質量',fMass(S0.integritySupport)],['リパルサー 支持質量',fMass(S0.repulsorSupport)],['航空整備',num(S0.serviceCapacity)+' 機分'],['貨物容量',fMass(S0.cargoCapacity)]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl><p class="note">航続の参考値は炉出力25%の固定負荷です。上の推進プレビューで選んだ運転条件の航続や、リアルタイムの燃料消費を示す値ではありません。</p>`:''}`;
+  ${S0?`<h4>区画の能力</h4><dl class="engineering-stats">${[['機関・推進経路の占有',ja(S0.engineVolume)+' m³'],['反応物貯蔵',ja(S0.fuelVolume)+' m³'],['通常航行の航続',Number.isFinite(S0.fuelHours)?S0.fuelHours.toFixed(1)+' 時間':'—'],['反応物供給能力',fPct(S0.supplyRatio)],['慣性制御 対応質量',fMass(S0.inertialSupport)],['構造維持 対応質量',fMass(S0.integritySupport)],['リパルサー 支持質量',fMass(S0.repulsorSupport)],['航空整備',num(S0.serviceCapacity)+' 機分'],['貨物容量',fMass(S0.cargoCapacity)]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl><p class="note">航続は通常航行で実際に発電する電力と炉の変換損失から算出します。戦闘中の燃料消費も実発電量に従います。</p>`:''}`;
 }
 function bindEngineering(){
   $('#panel').addEventListener('change',e=>{const t=e.target;if('engineMachinery'in t.dataset){if(t.dataset.engineMachineryNew==='1'){st.newEngineCoreId=Number(t.value)||0;updateHint();renderPanel();}else engineMachineryAction(t.value);return;}if(t.dataset.engineField)engineSpecAction(t.dataset.engineField,t.value,t.dataset.engineNew==='1');});
@@ -5489,7 +5501,7 @@ function equipmentCard(id){
  const spec=d.k==='engine'?d.engineStyle==='exposed'?'径・全長を変更 / 機関胴を外に露出':'独立した内部機関へ接続するノズル':d.k==='struct'?d.s.map(v=>num(v,1)).join(' × ')+' m · 指揮所を内蔵':'センサー・通信設備';
  return `<button type="button" class="part${on?' on':''}" data-equipment="${id}" aria-pressed="${on}"><i class="sw sh-${C.PARTS[d.k].shape}" style="background:${rgb(C.PARTS[d.k].col)}"></i><span class="pn">${esc(d.name)}</span><span class="pd">${spec}</span></button>`;
 }
-function pendingEngine(d){const p={id:-1,c:[0,0,0],dir:(st.engineDir||[-1,0,0]).slice(),...C.equipmentOptions(d.id),...st.engineSizes[d.id],...(d.engineStyle==='internal'?{machineryId:st.newEngineCoreId??0}:{})};C.enforceEquipment(p);if(d.engineStyle==='exposed'){p.machineryOffsetM=(p.nozzleLength??C.partDims(p).l)/2;C.updateEngineSpec(p,{},ship);}if(d.engineStyle==='internal'){p.machineryId=st.newEngineCoreId??0;for(const key of ENGINE_SPEC_FIELDS)if(key!=='propulsionModelVersion')delete p[key];p.propulsionModelVersion=C.PROPULSION_MODEL_VERSION||1;}if(!st.engineSizes[d.id])st.engineSizes[d.id]={...engineSpecSnapshot(p),d:p.d,engineLength:p.engineLength,nozzleLength:p.nozzleLength};return p;}
+function pendingEngine(d){const p={id:-1,c:[0,0,0],dir:(st.engineDir||[-1,0,0]).slice(),...C.equipmentOptions(d.id),...st.engineSizes[d.id],...(d.engineStyle==='internal'?{machineryId:st.newEngineCoreId??0,nozzleAppearance:st.nozzleAppearance||'bell'}:{})};C.enforceEquipment(p);if(d.engineStyle==='exposed'){p.machineryOffsetM=(p.nozzleLength??C.partDims(p).l)/2;C.updateEngineSpec(p,{},ship);}if(d.engineStyle==='internal'){p.machineryId=st.newEngineCoreId??0;for(const key of ENGINE_SPEC_FIELDS)if(key!=='propulsionModelVersion')delete p[key];p.propulsionModelVersion=C.PROPULSION_MODEL_VERSION||1;}if(!st.engineSizes[d.id])st.engineSizes[d.id]={...engineSpecSnapshot(p),d:p.d,engineLength:p.engineLength,nozzleLength:p.nozzleLength};return p;}
 function enginePerformance(p){
  const spec=C.resolveEngineSpec(p,ship),preview=p.id>0?propulsionPreviewForUI():null,core=p.k==='engineCore',shared=!core&&engineConnectionOwner(p)?.k==='engineCore',actual=(core?preview?.cores:preview?.engines)?.find(e=>(e.id??e.nozzleId)===p.id),reasons=[...new Set([...(spec.reasons||[]),...(actual?.reasons||[])].map(engineReasonText).filter(Boolean))];
  const row=(label,value)=>`<div><dt>${label}</dt><dd>${value}</dd></div>`,finite=(value,format)=>Number.isFinite(value)?format(value):'未判定';
@@ -5512,9 +5524,10 @@ function changeEngineSize(diam,length){
 }
 function chooseEquipment(id){
  const d=C.EQUIPMENT[id];if(!d)return;
+ if(id==='internalTurbine'){st.sel=null;st.partTool='place';st.template=null;st.tab='mod';st.group='power';st.part='engine';st.equipmentId=null;st.nozzleAppearance='bell';renderPanel();return;}
  st.sel=null;st.partTool='place';st.template=null;
  if(d.group==='bridge'){st.tab='bridge';st.bridgeMode='body';st.bridgeEquipment=id;}
- else{st.tab='mod';st.group=d.group;st.part=d.k;st.equipmentId=id;st.placeBy[d.k]='partial';}
+ else{st.tab='mod';st.group=d.group;st.part=d.k;st.equipmentId=id;}
  renderPanel();
 }
 function equipmentPreview(hit,d){
@@ -5523,7 +5536,7 @@ function equipmentPreview(hit,d){
  if(d.k==='struct'){p.yaw=st.structYaw;p.pitch=st.structPitch||0;p.roll=st.structRoll||0;return C.alignStructure(p,hit,st.surfaceMode);}
  if(hit.kind!=='section'){
   const dot=d.k==='engine'?Math.abs(C.dot(normal,p.dir)):0,ext=d.k==='struct'?(Math.abs(normal[0])*p.s[0]+Math.abs(normal[1])*p.s[2]+Math.abs(normal[2])*p.s[1])/2:d.k==='sensor'?Math.hypot(...normal.map((v,i)=>v*p.skinSize[i]/2)):dot*p.nozzleLength/2+Math.sqrt(Math.max(0,1-dot*dot))*p.d/2;
-  const mode=st.placeBy[d.k]||'partial',offset=d.k==='struct'?ext*.6:mode==='inside'?-(ext+1):mode==='outside'?ext*.92:-ext*.4;
+  const mode=C.partPlacementMode(p),offset=d.k==='struct'?ext*.6:mode==='inside'?-(ext+1):mode==='outside'?ext*.92:-ext*.4;
   p.c=C.add(hit.p,C.mul(normal,d.engineStyle==='internal'&&C.dot(normal,p.dir)>.8?p.nozzleLength/2-2:offset));
  }
  return p;
@@ -5881,7 +5894,7 @@ function paletteItems(){
  const out=[];
  const gname=g=>g==='command'||g==='bridge'?CMD_LABEL:C.GROUPS[g]||'';
  for(const k of PART_KEYS){const d=C.PARTS[k];out.push({type:'part',key:k,name:d.name,sub:d.desc||'',col:d.col,shape:d.shape,group:gname(d.group)});}
- for(const d of Object.values(C.EQUIPMENT))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:gname(d.group)});
+ for(const d of Object.values(C.EQUIPMENT).filter(d=>!d.catalogHidden))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:gname(d.group)});
  for(const k of WEAPONS)if(C.FITS[k]&&!C.FITS[k].catalogHidden)out.push({type:'fit',key:k,name:C.FITS[k].name,sub:C.FITS[k].short||'',col:[214,120,90],shape:'fit',group:'武装'});
  for(const k of BRIDGES)if(C.FITS[k])out.push({type:'bridge',key:k,name:C.FITS[k].name,sub:'艦橋ポッド',col:[150,200,230],shape:'pod',group:CMD_LABEL});
  for(const t of userParts())out.push({type:'user',key:t.id,name:t.name,sub:upCat(t.category),col:[198,170,230],shape:'cube',group:'ユーザー部品'});
@@ -6794,7 +6807,7 @@ function trialStickInput(){const a=trial.stick,b=trial.keyStick,pick=(x,y)=>Math
 function trialSystemsUnit(){
  if(trial.battle?.me)return trial.battle.me;
  if(!trial.p?.grid&&!trial.p?.propulsion)return trial.swSolo||null;
- if(!trial.systemsUnit||trial.systemsUnit.p!==trial.p)trial.systemsUnit=Object.assign(C.fleetUnit('trial','trial',trial.p,0),{manual:true});
+ if(!trial.systemsUnit||trial.systemsUnit._profile!==trial.p&&trial.systemsUnit.p!==trial.p)trial.systemsUnit=Object.assign(C.fleetUnit('trial','trial',trial.p,0),{manual:true,_profile:trial.p});
  return trial.systemsUnit;
 }
 function trialPowerFactor(kind,moduleIndex){
@@ -7037,7 +7050,7 @@ function trialGunnery(dt){
  const salvo=trialSalvoPlan(dt);
  for(const t of trial.turrets){
   if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
-  for(let burst=0;t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
+  for(let burst=0;C.powerFactor(me||trial.systemsUnit,'weapon')>0&&t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
    const shotTT=trialShotEnergyTT(t),cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+Math.abs(cost)*1e-12<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
    t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:shotTT/n,pd:true,target:t.pdTarget});}continue;}
@@ -7463,17 +7476,16 @@ function statusFlagsHTML(u){
  if((u.shRate||0)>0&&u.shieldMax>0&&u.shield<u.shieldMax*.999){const r=u.shRate/u.shieldMax*100;out.push(`<span class="fl sh">シールド再生 +${r>=1?r.toFixed(1):r>=.1?r.toFixed(2):r.toFixed(3)}%/秒</span>`);}
  if((u.bankUse||0)>0&&u.bankMax>0)out.push(`<span class="fl bank">${u.bank>0?'パワーセルから給電':'パワーセル枯渇'}</span>`);
  const power=typeof C.powerStatus==='function'?C.powerStatus(u):null;
- if(power?.blackout){const left=Math.max(0,...power.domains.map(d=>d.restart));out.push(`<span class="fl ion">${left>0?`共通電力網停止 · 再起動まで ${Math.ceil(left)} 秒`:'給電停止'}</span>`);}
- else if(power?.local?.length)out.push(`<span class="fl ion">局所イオン遮断 ${power.local.length} 設備</span>`);
+ if(power?.blackout)out.push('<span class="fl ion">全艦停電</span>');else if(power?.thermal?.damageLimit<1)out.push(`<span class="fl ion">熱損傷 · 出力上限 ${Math.round(power.thermal.damageLimit*100)}%</span>`);
  return out.length?`<p class="ts-flags">${out.join('')}</p>`:'';
 }
 function surfaceRuntimeHTML(u){
  if(!u)return '';const battery=typeof C.surfaceBatteryStatus==='function'?C.surfaceBatteryStatus(u):null,power=typeof C.powerStatus==='function'?C.powerStatus(u):null,shield=typeof C.shieldStatus==='function'?C.shieldStatus(u):null,html=[],fmt=v=>num(Math.max(0,v||0),3),faces={fore:'前面',aft:'後面',top:'上面',bottom:'下面',port:'左舷',stbd:'右舷'};
  if(battery?.totals?.installed){const t=battery.totals;html.push(`<p class="ts-line" data-battery-totals>表面砲列：設置 ${t.installed} 基 · 残存 ${t.surviving} 基 · 稼働 ${t.operable} 基 · 射撃可能 ${t.fireable} 基</p><p class="ts-line">砲身総数 ${t.barrels} 門 · 兵装蓄電 ${fmt(t.energy)} / ${fmt(t.capacity)} TT</p><ul class="ts-log">${battery.rows.filter(r=>r.installed).map((r,i)=>{const p=u.p.surface.patches.find(p=>p.id===r.id),name=`${faces[p?.face]||'外面'}の砲列 ${i+1}`;return `<li data-battery-cell-status><b>${esc(name)}</b> · 残存 ${r.surviving}/${r.installed} · 稼働 ${r.operable} · ${esc(r.causes.length?r.causes.join(' · '):'稼働')}</li>`;}).join('')}</ul>`);}
  const armor=Object.entries(u.surfaceArmor||{}).filter(([,a])=>a.integrity<.999||a.load>0);if(armor.length)html.push(`<p class="ts-line" data-surface-armor>${armor.map(([id,a])=>{const p=u.p.surface.patches.find(p=>p.id===id);return `${esc(faces[p?.face]||'外面')} · 装甲 ${Math.round(a.integrity*100)}%`;}).join('<br>')}</p>`);
- const trips=power?.domains.filter(d=>d.restart>0)||[];if(trips.length)html.push(`<p class="ts-line" data-power-trips>${trips.map(d=>`電力系統：イオン遮断 · 再起動まで ${Math.ceil(d.restart)} 秒`).join('<br>')}</p>`);
- if(power?.local?.length)html.push(`<p class="ts-line" data-power-local>${power.local.map(l=>`${esc(l.name)}：局所遮断 · 再起動まで ${Math.ceil(l.restart)} 秒`).join('<br>')}</p>`);
- const e=shield?.last;if(e)html.push(`<p class="ts-line" data-shield-budget>被弾収支（戦闘単位）：入射 ${fmt(e.incoming)} · 外部放出 ${fmt(e.external)} · 一時蓄積 ${fmt(e.storedDelta)} · 艦内熱 ${fmt(e.onboardHeat)} · 漏出 ${fmt(e.leaked)}</p>`);
+ const h=power?.thermal;if(h)html.push(`<p class="ts-line" data-ship-heat>全艦蓄熱 ${Number(h.qJ).toExponential(3)} / ${Number(h.capacityJ).toExponential(3)} J（${Math.round(h.peak*100)}%） · 出力上限 ${Math.round(h.outputFactor*100)}%</p>`);
+ if(h&&!h.online)html.push(`<p class="ts-line" data-power-recovery>全艦停電 · 復旧作業 ${Math.round(h.restartWork*100)}% · 乗員充足率 ${Math.round(h.crewFraction*100)}%（蓄熱90%以下で再起動）</p>`);
+ const e=shield?.last,J=v=>Number(Math.max(0,v||0)).toExponential(3)+' J';if(e)html.push(`<p class="ts-line" data-shield-budget>被弾収支：入射 ${J(e.incomingJ)} · 艦外放出 ${J(e.externalJ)} · シールド消費 ${J(e.shieldDebitJ)} · 一時保持 ${J(e.storedDeltaJ)} · 艦内蓄熱 ${J(e.onboardHeatJ)}</p>`);
  return html.length?`<div class="surface-runtime" data-surface-runtime>${html.join('')}</div>`:'';
 }
 function trialSelfUpdate(hud){
@@ -7589,7 +7601,7 @@ const ESC_JUMP={burst:1.3,gap:n=>n>1?Math.min(.6,2.4/(n-1)):.6};
 const escOrder=es=>es.slice().sort((a,b)=>(a.p.len||0)-(b.p.len||0));
 function escortHyperFx(e,out){trial.fx.push({pos:[...e.pos],vel:[0,0,0],life:.4,max:.4,size:Math.max(60,e.p.len*.7),col:[205,225,255]});sndAt(out?sndPick('hyperspace_out','hyperspace_in'):sndPick('hyperspace_in','hyperspace_out'),e.pos,{gain:.75,near:Math.max(2000,e.p.len*2),far:60000});}
 function escortPowerStep(e,dt,throttle){
- if(!e.powerUnit||e.powerUnit.p!==e.p)e.powerUnit=Object.assign(C.fleetUnit('escort:'+e.key,e.key,e.p,0),{manual:true,order:{power:'balanced'}});
+ if(!e.powerUnit||e.powerUnit._profile!==e.p&&e.powerUnit.p!==e.p)e.powerUnit=Object.assign(C.fleetUnit('escort:'+e.key,e.key,e.p,0),{manual:true,_profile:e.p,order:{power:'balanced'}});
  const u=e.powerUnit,s=C.fleetSystems(u);u.maneuver=C.clamp(throttle||0,0,1);
  C.allocateShipPower(u,s,{throttle:u.maneuver,shields:Math.max(0,e.p.grid?.Ds||0)*s.shield,weapons:0},dt,'balanced');
  const ctx={time:trial.t||0,rand:Math.random,ev:()=>{},out:()=>{},sunk:()=>{},hit:()=>{}};C.swDecay(u,dt,ctx);C.heatTick(ctx,u,dt);
@@ -8199,7 +8211,7 @@ function swAxisWorld(u,w){const R=u.manual?trial.R:spaceRotU(trial.battle.E,u);r
 const TRIAL_SW={start:1,burn:.45,ring:16000,droneDown:10};let trialSoloBoltSeq=0;
 function trialSwSolo(){
  const sw=trial.p?.sw;if(trial.battle||!sw?.length)return null;let u=trial.swSolo;
- if(!u||u.p!==trial.p){u=trialSystemsUnit()||{id:'me',manual:true,name:trial.p.name,p:trial.p,over:[],down:null};u.sw=sw.map(w=>({c:TRIAL_SW.start,st:TRIAL_SW.start>=1?'ready':'charge',t:0,mode:w.mode||'beam',tgt:null}));if(u.p.energyModel?.version===1&&C.superweaponDischarge){delete u.weaponLedger;C.superweaponDischarge(u,0,0);}trial.swSolo=u;}
+ if(!u||u._profile!==trial.p&&u.p!==trial.p){u=trialSystemsUnit()||{id:'me',manual:true,name:trial.p.name,p:trial.p,over:[],down:null};u.sw=sw.map(w=>({c:TRIAL_SW.start,st:TRIAL_SW.start>=1?'ready':'charge',t:0,mode:w.mode||'beam',tgt:null}));if(u.p.energyModel?.version===1&&C.superweaponDischarge){delete u.weaponLedger;C.superweaponDischarge(u,0,0);}trial.swSolo=u;}
  return u;
 }
 // Share of the reactor's output the flight keeps (charging and overload take the rest).
@@ -9539,7 +9551,7 @@ function tutTap(o,d){const t=tool(),hit=pickRay(o,d,tapWant(t));if(!hit){toast('
 // One step can ask for several compartments; it selects the first one still missing.
 function tutPartStep(o){
  const has=it=>tutCount(p=>p.k===it.k)>=(it.n||1),next=()=>o.items.find(it=>!has(it))||o.items[o.items.length-1];
- const pick=it=>{st.tab='mod';st.group=o.group;st.part=it.k;st.equipmentId=null;st.partTool='place';st.sel=null;st.placeBy[it.k]=it.placeBy||'inside';if(it.size)st.size[it.k]=it.size;if(it.room)st.roomSize=it.room.slice();st.mirror=it.mirror!==false;st.vmirror=false;};
+ const pick=it=>{st.tab='mod';st.group=o.group;st.part=it.k;st.equipmentId=null;st.partTool='place';st.sel=null;if(it.size)st.size[it.k]=it.size;if(it.room)st.roomSize=it.room.slice();st.mirror=it.mirror!==false;st.vmirror=false;};
  return {title:o.title,text:o.text,extra:o.extra,focus:[`[data-group="${o.group}"]`,()=>`[data-part="${next().k}"]`],phase:()=>next().k,
   select(){pick(next());syncHud();},setup(){pick(next());st.view=o.view||'xray';syncHud();tutCam(o.cam||'iso');},
   done:()=>o.items.every(has),
@@ -9557,15 +9569,15 @@ const TUT_STEPS=[
  tutPartStep({title:'反応物の貯蔵と供給',group:'power',text:'炉を動かし続けるには<b>反応物サイロ</b>（燃料）と<b>反応物供給設備</b>が要ります。炉の前の<b>甲板の中心線</b>にサイロ、炉の<b>横</b>に供給設備を順にタップしてください。1つ置くと次の区画に切り替わります。',
   items:[{k:'fuel',size:60,mirror:false,at:()=>tutDeck(TUT_HULL.L*.39,0)},{k:'pump',room:[60,40,24],mirror:false,at:()=>tutDeck(TUT_HULL.L*.3,110)}]}),
  {title:'艦尾にエンジンを付ける',text:'<b>タービン内蔵型エンジン</b>を選び、艦尾から見る視点にしました。<b>艦尾の面</b>をタップします。「左右対称」がオンなので、中心から離れた所をタップすると左右一対になります。中央にもう1基置けばインペリアル級らしい3基です。炉とノズルの間の機関は自動でつながります。',
-  focus:['[data-equipment="internalTurbine"]','#chipMirror'],
+  focus:['[data-part="engine"]','#chipMirror'],
   setup(){chooseEquipment('internalTurbine');st.mirror=true;st.vmirror=false;st.engineDir=[-1,0,0];st.view='normal';syncHud();tutCam('back');},
   done:()=>tutCount(p=>p.k==='engine')>=2,auto:()=>{tutTap(...tutStern(TUT_HULL.H*.5,150));tutTap(...tutStern(TUT_HULL.H*.5,0));}},
  tutPartStep({title:'ハイパードライブを積む',group:'power',text:'<b>ハイパードライブ</b>がないと超空間へ跳べません。反応物サイロより前の<b>甲板の中心線</b>をタップして船内に収めます。',
   items:[{k:'hyper',size:60,mirror:false,at:()=>tutDeck(TUT_HULL.L*.48,0)}]}),
  tutPartStep({title:'慣性制御と構造維持',group:'support',text:'<b>慣性制御装置</b>がないと乗員が加速に耐えられず、艦は動けません。<b>構造維持装置</b>は推力に船体が耐えられるよう補強します。<b>甲板の中心から少し外</b>を順にタップすると左右一対で置かれます。',
   items:[{k:'inertial',size:60,at:()=>tutDeck(TUT_HULL.L*.56,90)},{k:'integrity',room:[110,50,30],at:()=>tutDeck(TUT_HULL.L*.33,150)}]}),
- tutPartStep({title:'シールド発生器を据える',group:'support',view:'normal',text:'<b>広域シールド発生器</b>を「一部露出」で選んであります。<b>艦橋本体の上</b>を中心から少しずらしてタップすると、左右一対の球形ドームが据わります。インペリアル級の艦橋の上にある、あの2つの球です。',
-  items:[{k:'shield',size:34,placeBy:'partial',at:()=>{const b=tutBridge();return tutDeck(b?b.c[0]-b.s[0]*.25:TUT_HULL.L*.2,b?b.s[1]*.28:80);}}]}),
+ tutPartStep({title:'シールド発生器を据える',group:'support',view:'normal',text:'<b>広域シールド発生器</b>を選んであります。<b>艦橋本体の上</b>を中心から少しずらしてタップすると、左右一対の球形ドームが据わります。インペリアル級の艦橋の上にある、あの2つの球です。',
+  items:[{k:'shield',size:34,at:()=>{const b=tutBridge();return tutDeck(b?b.c[0]-b.s[0]*.25:TUT_HULL.L*.2,b?b.s[1]*.28:80);}}]}),
  {title:'主砲を並べる',text:'「配置 → 武装」で<b>2連装重ターボレーザー</b>を選んであります。<b>甲板の左右の縁</b>を艦尾から艦首へ2〜3か所タップしてください。左右対称なので1回で両舷に付きます。',
   focus:['[data-group="weapons"]','[data-fit="stl"]'],
   setup(){st.tab='mod';st.group='weapons';st.fit='stl';st.fitTool='place';st.weaponMount='auto';st.mirror=true;st.sel=null;st.view='normal';syncHud();tutCam('iso');},
@@ -11816,10 +11828,11 @@ function voyPowerAimHTML(list) { const pw = voyCommon(list, u => u.order.power |
 // v25 Emission management and S-foils of the ships chosen (SENS-005, WING-003/004), and what they radiate now.
 const VOY_EMIT = [['normal', '通常'], ['low', '低放射'], ['high', '高出力'], ['emerg', '緊急散逸']], VOY_FOIL = [['auto', '自動'], ['open', '展開'], ['close', '収納']];
 const VOY_EMIT_NOTE = {normal: '通常：散逸装置を通常に運転し、能動センサーを使います。', low: '低放射：散逸装置を絞って出力を抑え、能動センサーを止めます。廃熱は蓄熱され、蓄熱が限界に近づくと通常運転に戻ります。', high: '高出力：炉を過負荷気味に回し、能動センサーを強めます。廃熱と放射が増えます。', emerg: '緊急散逸：散逸装置を過駆動して蓄熱を一気に放出します。最も目立ちます。蓄熱が抜けると通常に戻ります。'};
+function liveHeatHTML(u){const h=C.heatStatus(u);if(!h)return '';return `<p class="vs-sub">全艦蓄熱 ${Number(h.qJ).toExponential(3)} / ${Number(h.capacityJ).toExponential(3)} J（${Math.round(h.peak*100)}%） · 出力上限 ${Math.round(h.outputFactor*100)}%</p>${!h.online?`<p class="note warn">全艦停電 · 復旧作業 ${Math.round(h.restartWork*100)}% · 乗員充足率 ${Math.round(h.crewFraction*100)}%（蓄熱90%以下で再起動）</p>`:''}${h.damageLimit<1?'<p class="note warn">熱損傷の出力制限は修理完了まで継続します。</p>':''}`;}
 function voySensHTML(list) {
  if (!list.length) return '';const em = voyCommon(list, u => C.emconOf(u)), foils = list.filter(u => u.p.foils?.length), fm = voyCommon(foils, u => u.order.foil || 'auto');
  let h = `<p class="vs-sub">放射管理</p><div class="vs-acts">${VOY_EMIT.map(([k, n]) => `<button type="button" class="btn sm${em === k ? ' on' : ''}" data-vemit="${k}">${n}</button>`).join('')}</div>`;
- if (list.length === 1) { const u = list[0], sg = R.unitSig(u), hs = C.heatStatus(u); h += `<p class="vs-sub">放射：ニュートリノ ${fW(sg.nu)} · 赤外 ${fW(sg.ir)} · 電磁 ${fW(sg.em)}</p>${hs ? `<p class="vs-sub">蓄熱 ${Math.round((hs.peak || 0) * 100)}%</p>` : ''}`; }
+ if (list.length === 1) { const u = list[0], sg = R.unitSig(u), hs = C.heatStatus(u); h += `<p class="vs-sub">放射：ニュートリノ ${fW(sg.nu)} · 赤外 ${fW(sg.ir)} · 電磁 ${fW(sg.em)}</p>${hs ? liveHeatHTML(u) : ''}`; }
  if (em) h += `<p class="note">${VOY_EMIT_NOTE[em]}</p>`;
  if (foils.length) { const fx = foils.flatMap(u => C.foilState(u) || []), d = fx.length ? fx.reduce((a, x) => a + x.d, 0) / fx.length : 0, jam = fx.filter(x => x.jam).length;
   h += `<p class="vs-sub">Sフォイル</p><div class="vs-acts">${VOY_FOIL.map(([k, n]) => `<button type="button" class="btn sm${fm === k ? ' on' : ''}" data-vfoil="${k}">${n}</button>`).join('')}</div><p class="vs-sub">展開 ${Math.round(d * 100)}%${jam ? ` · 固着 ${jam} 基` : ''}</p>`; }
@@ -11920,7 +11933,7 @@ function voyTacSide() {
   if (wsel) { const o = wsel.order, t = o.target && w.units.get(o.target);
    const hm = w.units.get(wsel.home), waitN = wsel.squads.filter(id => w.squads.get(id)?.wait === 'ctl' && w.squads.get(id)?.state === 'docked').length;
    const follow=voyWingFollowText(wsel);if(follow)body+=`<div class="vs-card" data-vfollow><p class="vs-state">${esc(follow)}</p></div>`;
-   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(voyWingStateText(wsel))}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${(() => { const sq = wsel.squads.map(id => w.squads.get(id)).filter(q => q && q.state === 'out' && q.n > 0); if (!sq.length) return ''; const hq = Math.max(...sq.map(q => q.heat || 0)); return `<p class="vs-sub">蓄熱 ${Math.round(hq * 100)}%</p>${hq >= C.CRAFT_HEAT.throttleAt ? '<p class="note warn">蓄熱が限界に近く、射撃を抑えています。</p>' : ''}`; })()}${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
+   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(voyWingStateText(wsel))}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${(() => { const sq = wsel.squads.map(id => w.squads.get(id)).filter(q => q && q.state === 'out' && q.n > 0); if (!sq.length) return ''; const hq = Math.max(...sq.map(q => q.heat || 0)); return `<p class="vs-sub">蓄熱 ${Math.round(hq * 100)}%</p>${hq >= C.CRAFT_HEAT.throttleAt ? '<p class="note warn">全艦蓄熱70%以上。出力制限は修理まで継続します。</p>' : ''}`; })()}${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
    ${o.type === 'strike' && t ? `<p class="vs-sub">進入方向（${esc(t.name)} から見て）</p><div class="vs-acts">${Object.entries(R.APPROACH_NAME).map(([k, n]) => `<button type="button" class="btn sm${o.approach === k ? ' on' : ''}" data-vappr="${k}">${n}</button>`).join('')}</div><p class="note">対空火力が最も弱いのは「${esc(R.APPROACH_NAME[voyWeakArc(t)])}」方向です。</p>` : ''}<p class="note">艦載機はすべて飛行隊単位で発艦・集合・進撃・攻撃・帰還します。地図の飛行隊の印をタップしても選べます。</p></div>`; }
   // v23 each carrier's air control in use (R.airCtlOf): squadrons out / squadrons it can direct at once
   const ctl = [...new Set(wings.map(x => x.home))].map(id => w.units.get(id)).filter(u => u && R.alive(u) && u.sys === sys).map(u => voyCtlText(w, u, true)).join('・');

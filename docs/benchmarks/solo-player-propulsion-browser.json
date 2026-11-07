@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "sourceSha256": {
+    "index.html": "7645bd712c515b844c2e9d1183258517db36f4826c84ae67498e392bb1756afe",
+    "js/core.js": "5468d92dd9fdc357d5d32b4bde360c74186703464c35e96973545f28ab2e9d10",
+    "js/app.js": "2a26ba554ce12677a25cc4a0b771b206a0c31852835e661a1c623f791846f37c",
+    "js/gfx.js": "a1081fae00057878919131137dd1f18172b6e2c12fec8342345cb3c8b9266fb8",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "53c0b5ea3ac6f65f9bba5bacab8cf648619199cdfd2b72545301846b8b8f0192"
+  },
+  "inputBlueprintSha256": "d50862f9cb289cfd6c3ee665300339947cfb90e45eeca547ae7f9b0220790461",
+  "scope": "Native saved-draft Continue, actual current Worker engineering, native public trial, trusted throttle buttons, actual live input/thrust/velocity, and continuous heat/fuel state. No replacement statistics, profile, allocation, simulated clock or manual trialStep is supplied.",
+  "errors": [],
+  "screenshots": [
+    "docs/images/solo-player-propulsion-ahead.png"
+  ],
+  "design": {
+    "name": "Solo propulsion regression",
+    "catalogueG": 369.69907176575475,
+    "legacyBusFlag": true,
+    "authoredPowerLinks": 0,
+    "workerMode": "worker",
+    "coreIds": [
+      2
+    ]
+  },
+  "initial": {
+    "time": 0.05,
+    "telegraph": 1,
+    "speed": 0,
+    "forwardSpeed": 0,
+    "actualInputW": 0,
+    "actualThrustN": 0,
+    "actualAccelerationMps2": 0,
+    "engineOutputRatio": 0,
+    "online": true,
+    "outputCeiling": 1,
+    "storedHeatJ": 0,
+    "operatingHeatJ": 0,
+    "fuelConsumedKg": 0.000013000000000000038,
+    "sameLiveUnit": true
+  },
+  "ahead": {
+    "time": 0.6500000000000002,
+    "telegraph": 5,
+    "speed": 2.8991026319427604,
+    "forwardSpeed": 2.8991026319427604,
+    "actualInputW": 204990901762106300000,
+    "actualThrustN": 102495450881.05315,
+    "actualAccelerationMps2": 3623.8782899284497,
+    "engineOutputRatio": 0.9995501012348141,
+    "online": true,
+    "outputCeiling": 1,
+    "storedHeatJ": 5034193271812240000,
+    "operatingHeatJ": 11133793271810679000,
+    "fuelConsumedKg": 0.0019463874596949624,
+    "sameLiveUnit": true
+  },
+  "stopped": {
+    "time": 1.8499999999999974,
+    "telegraph": 1,
+    "speed": 4.996003610813204e-16,
+    "forwardSpeed": 4.996003610813204e-16,
+    "actualInputW": 204990901762106300000,
+    "actualThrustN": 102495450881.05315,
+    "actualAccelerationMps2": 3623.8782899284497,
+    "engineOutputRatio": 0.9995501012348141,
+    "online": true,
+    "outputCeiling": 1,
+    "storedHeatJ": 23878567145628467000,
+    "operatingHeatJ": 42677051573977880000,
+    "fuelConsumedKg": 0.007590549838779843,
+    "sameLiveUnit": true
+  },
+  "restarted": {
+    "time": 2.249999999999996,
+    "telegraph": 5,
+    "speed": 2.17432697395707,
+    "forwardSpeed": 2.17432697395707,
+    "actualInputW": 204990901762106300000,
+    "actualThrustN": 102495450881.05315,
+    "actualAccelerationMps2": 3623.8782899284497,
+    "engineOutputRatio": 0.9995501012348141,
+    "online": true,
+    "outputCeiling": 1,
+    "storedHeatJ": 23878567145628467000,
+    "operatingHeatJ": 42677051573977880000,
+    "fuelConsumedKg": 0.009027590433551074,
+    "sameLiveUnit": true
+  },
+  "inputs": [
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "title": "continue",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trial": "start",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    }
+  ],
+  "completedAt": "2026-11-07T11:57:42.493Z"
+}

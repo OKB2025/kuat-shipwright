@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "scope": "Immutable PR61 battery-layout publication runtime and catalogue history. This capsule does not claim a later runtime or a fresh construction.",
+  "commit": "bb1ba9b0445fb1578747f84773aff212ca141899",
+  "files": {
+    "js/core.js": {
+      "file": "core.js.gz",
+      "sha256": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523",
+      "bytes": 3361119,
+      "gzipSha256": "c952702181a21f8654b04a96fe2cc73520d66270c45f1274e16a15dfbae12985"
+    },
+    "data/fleet.js": {
+      "file": "fleet.js.gz",
+      "sha256": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+      "bytes": 4402010,
+      "gzipSha256": "eaa5a7e5b9bd31f1732e8a01fba13d00fb8fe787700589188d266520c0689e03"
+    },
+    "tests/helpers/example-figures.json": {
+      "file": "figures.json.gz",
+      "sha256": "0048c4f7f7f2180e861cc902a41cde2612ac01535597a3f66512c48bfe58c8c6",
+      "bytes": 318124,
+      "gzipSha256": "4421e7f779bedb87d8833228b1e09e2bfb6c68f1aac1fa17cb3e4c9026b6e19d"
+    }
+  },
+  "report": {
+    "path": "docs/benchmarks/mandator-battery-layout-refit.json",
+    "sha256": "119be98e3398c35df5129504b269c0e51759247abb223fe196bf9406ceca5fd2"
+  }
+}

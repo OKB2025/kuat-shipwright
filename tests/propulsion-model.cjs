@@ -3,7 +3,7 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),con
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const C=vm.runInContext('Core',context),plain=x=>JSON.parse(JSON.stringify(x)),near=(a,b)=>assert.ok(Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-11,`${a} != ${b}`);
 function ship(){const s=C.newShip({L:40,W:24,H:20},'Propulsion fixture');s.parts=[{id:1,k:'gen',c:[30,10,0],d:4},{id:2,k:'engine',c:[-.5,10,0],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:1,dir:[-1,0,0]}];s.nextId=3;return s;}
-function spec(overrides={}){return {id:2,machineryId:2,valid:true,ratedInputW:1e18,wattsPerNewton:2e9,ratedThrustN:5e8,direction:[1,0,0],...overrides};}
+function spec(overrides={}){return {id:2,machineryId:2,valid:true,ratedInputW:1e18,effectiveMachineryVolumeM3:1e18/3.4e17,driveProfileId:'standard',wattsPerNewton:2e9,ratedThrustN:5e8,direction:[1,0,0],...overrides};}
 function solve({h=1,u=1,power=1e18,damage=1,connected=true}={}){const requests=C.buildPropulsionRequests([spec()],{2:{thermalLimit:h,damageLimit:damage,connected}},u);return C.resolvePropulsion(requests,{2:power},1e6);}
 test('fixed input/thrust/waste/acceleration examples share one pure calculation',()=>{
  for(const [state,P,F,Q,a]of [[{},1e18,5e8,5e16,500],[{h:.25},2.5e17,1.25e8,1.25e16,125],[{h:0},0,0,0,0],[{u:0},0,0,0,0],[{power:5e17},5e17,2.5e8,2.5e16,250]]){const r=solve(state);near(r.totalActualInputW,P);near(r.totalThrustN,F);near(r.wasteHeatW,Q);near(r.freeAccelerationMps2,a);}

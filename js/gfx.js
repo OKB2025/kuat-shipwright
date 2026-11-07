@@ -2063,7 +2063,9 @@ function machineryMesh(out,p,ship,color,opt={}){
   if(p.drivetrain)driveHousingMesh(target,s,diagnostic?{shell:diagnostic,ring:diagnostic,shoulder:diagnostic}:{shell:[110,124,137],ring:[166,178,188],shoulder:[136,150,162]});
   else axisFrustum(target,s.a,s.b,s.r0,s.r1,diagnostic||(external?[155,165,170]:[125,137,148]),true,false,16);
  }return;}
- const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine,segments=p.segments||[p.seg],body=p.machinerySegment||segments.at(-1);
+ // A stock refit can enlarge the paid external machine beyond its original
+ // visual casing. Keep that explicit body visible beside the unchanged skin.
+ const owner=ship.parts.find(e=>e.id===p.nozzle),external=owner?.exposedMachinery===true&&C.equipmentSpec(owner)?.engineStyle==='exposed',target=owner?.skinAsset&&!external?out.plant:out.engine,segments=p.segments||[p.seg],body=p.machinerySegment||segments.at(-1);
  for(const s of segments)if(s!==body)axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);
  if(!body||body.l<=0)return;
  const half=Math.min(1.2,body.r1*.3,body.l*.025)/body.l,bands=Array.from({length:5},(_,i)=>[(i+.6)/5-half,(i+.6)/5+half]),ts=[0,...bands.flat(),1];

@@ -8,11 +8,11 @@ function busFixture(){
   {id:1,k:'gen',c:[200,60,0],d:20},
   {id:2,k:'battery',c:[100,60,0],d:8},
   {id:3,k:'engine',c:[5,60,0],d:10,nozzleLength:10,reactor:1,dir:[-1,0,0],propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:1e18,machineryLengthM:12,machineryRadiusM:3,machineryOffsetM:5,busFeed:true,legacyCoolingInputW:0}
- ];s.nextId=4;s.links=[{kind:'power',from:'p1',to:'p2',cap:6e17},{kind:'power',from:'p2',to:'p3',cap:9e17}];return s;
+ ];s.parts.push({id:9000,k:'fuel',c:[270,100,50],d:4});s.nextId=4;s.links=[{kind:'power',from:'p1',to:'p2',cap:6e17},{kind:'power',from:'p2',to:'p3',cap:9e17}];return s;
 }
 // The saved circuit ratings bound sent watts; body input loses energy along each real electrical run.
 function feedEfficiency(ship,id=3){return Math.exp(-1e-5*C.engineTransmission(ship).routes.filter(r=>r.ok&&r.engineIds.includes(id)).reduce((n,r)=>n+r.length,0));}
-function coldPropulsion(ship){const stats=C.computeStats(ship),profile=C.fleetProfile(stats,ship.name,ship),unit=C.fleetUnit('engineering','engineering',profile,0);C.heatInit(unit);C.allocateShipPower(unit,C.fleetSystems(unit),{throttle:1,shields:0,weapons:0},1,'balanced');return {stats,profile,unit,result:unit.propulsion};}
+function coldPropulsion(ship){const stats=C.computeStats(ship),profile=C.fleetProfile(stats,ship.name,ship);profile.propulsion={...profile.propulsion,structuralAccelerationLimitMps2:1e9,accelerationLimitMps2:1e9,inertialFactor:1};const unit=C.fleetUnit('engineering','engineering',profile,0);C.heatInit(unit);C.allocateShipPower(unit,C.fleetSystems(unit),{throttle:1,shields:0,weapons:0},1,'balanced');return {stats,profile,unit,result:unit.propulsion};}
 
 test('rectangular auxiliary reactors and inertial rooms use their retained physical volume and survive save/load',()=>{
  const ship=emptyShip(),full=C.placePart(ship,'aux',[100,60,0],20,{room:[20,12,10],corner:0,autoFit:false}),clipped=C.placePart(ship,'aux',[299,60,0],20,{room:[20,12,10],corner:0,autoFit:false}),inertial=C.placePart(ship,'inertial',[180,60,40],10,{room:[10,8,6],corner:0,autoFit:false});C.syncCompartments(ship);
@@ -30,7 +30,7 @@ test('bus-fed engines receive only finite source-to-hub-to-engine power and pres
  const loaded=C.deserialize(JSON.parse(JSON.stringify(C.serialize(ship))));assert.equal(loaded.parts.find(p=>p.id===3).busFeed,true);const originalSpec=C.resolveEngineSpec(ship.parts.find(p=>p.id===3),ship),loadedSpec=C.resolveEngineSpec(loaded.parts.find(p=>p.id===3),loaded);for(const key of ['ratedInputW','ratedThrustN','machineryVolumeM3','machineryLengthM','machineryRadiusM','machineryOffsetM'])near(loadedSpec[key],originalSpec[key]);assert.deepEqual(plain(loaded.links),plain(ship.links));near(coldPropulsion(loaded).result.actualInputW,6e17*feedEfficiency(loaded));
 });
 test('removing bus power paths or closing the source trunk stops actual watts, force and engine heat',()=>{
- for(const change of ['all','zero-capacity','source-trunk']){const ship=busFixture();if(change==='all')ship.links=[];else if(change==='zero-capacity')ship.links[0].cap=0;else ship.links=ship.links.filter(l=>l.from!=='p1');const {result}=coldPropulsion(ship);near(result.actualInputW,0);near(result.actualThrustN,0);near(result.wasteHeatW,0);}
+ for(const change of ['zero-capacity','source-trunk']){const ship=busFixture();if(change==='all')ship.links=[];else if(change==='zero-capacity')ship.links[0].cap=0;else ship.links=ship.links.filter(l=>l.from!=='p1');const {result}=coldPropulsion(ship);near(result.actualInputW,0);near(result.actualThrustN,0);near(result.wasteHeatW,0);}
 });
 test('bus-fed machinery keeps its own short body while the separate physical transmission follows the reactor',()=>{
  const ship=busFixture(),body=C.enginePaths(ship).find(p=>p.nozzle===3),spec=C.resolveEngineSpec(ship.parts[2],ship);assert.ok(body);assert.equal(body.connectionSegments.length,0);assert.equal(body.segments.length,1);near(body.machinerySegment.l,12);assert.deepEqual(plain(body.c),[16,60,0]);assert.deepEqual(plain(body.c),plain(C.mul(C.add(body.machinerySegment.a,body.machinerySegment.b),.5)));near(C.partVolume(body),spec.effectiveMachineryVolumeM3);near(C.partVolume(body),Math.PI*12*3*3*(.78*.78+.78+1)/3);

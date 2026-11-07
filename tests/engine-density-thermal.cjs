@@ -65,45 +65,38 @@ test('physical shared-core allocation separates feed loss, useful shaft power an
   assert.equal(profile.cores.length,1);assert.equal(profile.engines.length,1);assert.ok(result.actualInputW>0);assert.ok(result.power.feedLossW>0,'the actual finite electrical cable loses power');
   const core=result.cores[0],shaft=result.engines[0];near(core.actualInputW,core.shaftPowerW+core.wasteHeatW,'core input split');near(shaft.shaftReceivedW,core.shaftPowerW,'one outlet receives the one owner output');
   near(result.power.draw,result.actualInputW+result.power.feedLossW,'reactor delivery and cable loss');near(result.actualThrustN,core.shaftPowerW/profile.cores[0].shaftWattsPerNewton,'useful shaft creates force');
-  near(core.wasteHeatW,core.actualInputW*profile.cores[0].wasteFraction,'only received input creates local conversion heat');
+  const eta=.95/(1+.05*Math.max(0,core.actualInputW/profile.cores[0].normalInputW-1));near(core.wasteHeatW,core.actualInputW*(1-eta),'conversion follows actual received load');
  }
 });
 
-test('raising a rating cannot create additional engine thermal storage in unchanged physical volume',()=>{
+test('raising an acceptance rating does not create source-local thermal storage or change mass-based capacity',()=>{
  const values=[];
  for(const factor of [1,4]){
   const f=fixture(factor),spec=C.resolveEngineSpec(f.core,f.ship),S=C.computeStats(f.ship),source=S.heat.net.src.find(s=>s.id==='p2'&&s.k==='engine');assert.ok(source);
-  near(spec.thermalStoreJ,C.HEAT.storeS*.05*f.volume*NORMAL_INPUT_DENSITY);near(source.store,spec.thermalStoreJ,'the real network uses the physical store');values.push(source.store);
+  near(spec.thermalStoreJ,C.HEAT.storeS*.05*f.volume*NORMAL_INPUT_DENSITY);assert.equal(source.store,undefined,'source-local capacities are retired');values.push(C.shipHeatCapacity({p:{propulsion:{massKg:S.mass*1000}}})/(S.mass*1000));
  }
  near(values[0],values[1]);
 });
 
-test('a current profile missing its heat network retains volume-based engine storage in the strict fallback',()=>{
+test('a missing cached heat network uses strict physical paths and whole-vessel mass capacity',()=>{
  const stores=[];
  for(const factor of [1,4]){
   const f=fixture(factor),S=C.computeStats(f.ship),profile=C.fleetProfile(S,f.ship.name,f.ship),fallback=C.heatProfile({...profile,heat:undefined}),sources=fallback.src.filter(s=>s.k==='engine');
   assert.equal(fallback.mode,'strict');assert.equal(sources.length,1,'one owner cannot become separate body and nozzle heat sources');
-  near(sources[0].st,C.resolveEngineSpec(f.core,f.ship).thermalStoreJ,'a missing cached network cannot invent thermal storage');stores.push(sources[0].st);
+  assert.equal(sources[0].st,undefined);stores.push(C.shipHeatCapacity({p:profile})/(S.mass*1000));
  }
  near(stores[0],stores[1]);
 });
 
 function operatingUnit(cooling){
- const f=fixture(4,cooling),stats=C.computeStats(f.ship),profile=C.fleetProfile(stats,f.ship.name,f.ship),unit=C.fleetUnit('density-'+cooling,'density-'+cooling,profile,0);C.heatInit(unit);unit.ht.t=0;unit.ht.last=0;
+ const f=fixture(4,cooling),stats=C.computeStats(f.ship),profile=C.fleetProfile(stats,f.ship.name,f.ship),unit=C.fleetUnit('density-'+cooling,'density-'+cooling,profile,0);profile.fuel={capacityKnown:false};profile.propulsion={...profile.propulsion,structuralAccelerationLimitMps2:1e9,accelerationLimitMps2:1e9,inertialFactor:1};unit.p=profile;C.heatInit(unit);unit.ht.t=0;unit.ht.last=0;
  return {...f,stats,profile,unit};
 }
 
-test('a real powered wing and connected heat path improve a compact engine sustained output',()=>{
- const bare=operatingUnit('none'),cooled=operatingUnit('high'),cut=operatingUnit('cut');
- const wingDis=cooled.stats.heat.net.dis.find(d=>d.part===cooled.wing.id);assert.ok(wingDis&&wingDis.cap>0&&wingDis.power>0);near(wingDis.cap,C.wingCap(cooled.wing,cooled.stats),'actual wing surface determines cooling');
- for(const f of [bare,cooled,cut]){C.allocateShipPower(f.unit,{reactor:1},{throttle:1,weapons:0,shields:0},.25,'balanced');assert.ok(f.unit.propulsion.actualInputW>0);}
- near(bare.unit.propulsion.actualThrustN,cooled.unit.propulsion.actualThrustN,'cooling does not invent cold thrust');
- const outputs=new Map([[bare,0],[cooled,0],[cut,0]]),dt=.25;
- for(let i=1;i<=240;i++)for(const f of [bare,cooled,cut]){
-  C.allocateShipPower(f.unit,{reactor:1},{throttle:1,weapons:0,shields:0},dt,'balanced');C.heatTick({time:i*dt,ev(){}},f.unit,dt);
-  if(i>120)outputs.set(f,outputs.get(f)+f.unit.propulsion.actualThrustN*dt);
- }
- assert.ok(outputs.get(cooled)>outputs.get(bare)*1.1,'real cooling preserves useful sustained force');assert.ok(outputs.get(cooled)>outputs.get(cut)*1.1,'the mere presence of a wing cannot bypass a severed heat path');
- const engineIndex=f=>f.unit.p.heat.src.findIndex(s=>s.k==='engine'&&s.id==='p2');assert.ok(cooled.unit.ht.st[engineIndex(cooled)]<bare.unit.ht.st[engineIndex(bare)]);
- assert.ok(cooled.unit.ht.cooling.inputJ>0,'the radiator wing spends real electricity');
+test('a powered wing adds real finite heat rejection and consumes actual cooling electricity',()=>{
+ const bare=operatingUnit('none'),cooled=operatingUnit('high'),wingDis=cooled.stats.heat.net.dis.find(d=>d.part===cooled.wing.id);assert.ok(wingDis&&wingDis.cap>0&&wingDis.power>0);near(wingDis.cap,C.wingCap(cooled.wing,cooled.stats));
+ for(const f of [bare,cooled]){C.allocateShipPower(f.unit,{reactor:1},{throttle:1,weapons:0,shields:0},.25,'balanced');assert.ok(f.unit.propulsion.actualInputW>0);}
+ near(bare.unit.propulsion.actualThrustN,cooled.unit.propulsion.actualThrustN);
+ for(let i=1;i<=240;i++)for(const f of [bare,cooled]){C.allocateShipPower(f.unit,{reactor:1},{throttle:1,weapons:0,shields:0},.25,'balanced');C.heatTick({time:i*.25,ev(){}},f.unit,.25);}
+ assert.ok(cooled.unit.ht.rejectedHeatJ>bare.unit.ht.rejectedHeatJ);assert.ok(cooled.unit.ht.cooling.inputJ>0);assert.equal(cooled.unit.ht.st,undefined);
 });

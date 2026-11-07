@@ -1,0 +1,15 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(__dirname,'..'),{C}=require('../scripts/update-ship-examples.cjs').loadRuntime(root),plain=v=>JSON.parse(JSON.stringify(v));
+const cx=vm.createContext({Core:C,console,performance});vm.runInContext(fs.readFileSync(path.join(root,'js/gfx.js'),'utf8'),cx);const G=vm.runInContext('Gfx',cx);
+function ship(){const s=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Nozzle appearance');s.parts=[{id:1,k:'gen',c:[200,60,0],d:20},{id:2,k:'engineCore',c:[70,60,0],d:10,length:20,dir:[-1,0,0],reactor:1,propulsionModelVersion:1,ratedInputW:Math.PI*25*20*3.4e17,driveProfileId:'standard',machineryGradeId:'standard'},{id:3,k:'engine',c:[5,60,0],d:10,nozzleLength:8,machineryId:2,dir:[-1,0,0]}];s.fits=[];s.links=[];s.nextId=4;return s;}
+test('one nozzle kind selects both visible appearances while preserving real engine rating, ownership and nozzle settings',()=>{
+ const s=ship(),p=s.parts[2],core=plain(s.parts[1]),before=C.resolveEngineSpec(p,s).ratedInputW,mouth=C.add(p.c,C.mul(p.dir,p.nozzleLength/2));
+ assert.equal(C.PARTS.engine.name,'ノズル');assert.equal(C.EQUIPMENT.internalTurbine.catalogHidden,true);
+ const bell=C.engineSkinMesh(p);assert.ok(bell?.idx.length>0);p.nozzleAppearance='generic';assert.equal(C.engineSkinMesh(p),null);const m=G.meshPreview(s,[p],[],{coded:false});assert.ok(m.preview.ni>0,'the generic nozzle has an actual drawn mesh');
+ assert.equal(C.resolveEngineSpec(p,s).ratedInputW,before);assert.deepEqual(plain(s.parts[1]),core);assert.deepEqual(plain(C.add(p.c,C.mul(p.dir,p.nozzleLength/2))),plain(mouth));
+ const loaded=C.deserialize(plain(C.serialize(s))),q=loaded.parts.find(p=>p.id===3);assert.equal(q.nozzleAppearance,'generic');assert.equal(q.machineryId,2);assert.equal(C.engineSkinMesh(q),null);assert.equal(C.mirrorPart(q,loaded).nozzleAppearance,'generic');q.nozzleAppearance='bell';assert.ok(C.engineSkinMesh(q)?.idx.length>0);assert.equal(C.resolveEngineSpec(q,loaded).ratedInputW,before);
+});
+test('retiring the standalone radiator removes only its parts, links and group members from an old save',()=>{
+ const s=ship(),saved=plain(C.serialize(s));saved.parts.push({id:4,k:'radiator',c:[100,60,0],d:2},{id:5,k:'hdis',c:[120,60,0],d:2});saved.nextId=7;saved.links=[{kind:'heat',from:'p2',to:'p4',cap:1e18},{kind:'power',from:'p1',to:'p4',cap:1e18},{kind:'heat',from:'p2',to:'p5',cap:1e18}];saved.groups=[{id:6,name:'Cooling',parts:[4,5],fits:[]}];const original=JSON.stringify(saved),loaded=C.deserialize(saved);
+ assert.equal(C.PARTS.radiator,undefined);assert.equal(C.placePart(loaded,'radiator',[100,60,0],2),null);assert.equal(JSON.stringify(saved),original);assert.equal(loaded.parts.some(p=>p.k==='radiator'),false);assert.ok(loaded.parts.some(p=>p.id===5&&p.k==='hdis'));assert.deepEqual(plain(loaded.links),[saved.links[2]]);assert.ok((loaded.groups||[]).every(g=>!g.parts.includes(4)));assert.equal(C.PARTS.hdis.name,'熱エネルギー変換装置');assert.equal(C.DISSIPATORS.hdis.ext,false);
+});
