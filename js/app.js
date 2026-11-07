@@ -3800,6 +3800,11 @@ async function saveCurrent() {
     st.carrySaves = null;st.craftSaves = null;
     toast(where === 'cloud' ? '保存しました（あなたのアカウント）' : '保存しました（この端末）');
     renderSaves();
+    // Prepare the saved snapshot, not whichever design the editor opens next.
+    // Both battle and piloted meshes then survive a reload in the engine cache.
+    if (typeof YardEngineClient !== 'undefined') for (const trial of [false, true]) {
+      YardEngineClient.request('fleet', {design, trial, prepareOnly: true}).catch(() => {});
+    }
   } catch (e) { toast(esc(e.message || '保存できませんでした')); }
   finally { savingCurrent = false; btn.disabled = false; }
 }
