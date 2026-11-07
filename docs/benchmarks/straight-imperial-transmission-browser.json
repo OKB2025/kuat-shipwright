@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "sourceSha256": {
+    "index.html": "43a4bded83d12916800120616b45d86c4d54c964654a2b40b9e416bbe07e8eca",
+    "js/core.js": "1092c63fccef2114f2f2d80a255723b14d9e57b5ce7516cced282e30c6b1d351",
+    "js/app.js": "be301498568c8ca748143ddd34157c4f1868242b696f92220d1ebdc7055854fe",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9"
+  },
+  "input": {
+    "path": "assets/source/imperial2-2300g-factory-blueprints/imperial2.json.gz",
+    "sha256": "37ffe9c520fd667173988c16fba1aed1c6de5d326d935e31c23fe6a5cd9d0d5c",
+    "jsonSha256": "a6db2373fe557147858976af8fbad5e63a54bcabc075243ac83d86fba4ac1541",
+    "kind": "authenticated historical saved design replayed by the current Worker"
+  },
+  "scope": "Native saved-draft Continue, actual Worker geometry/statistics, trusted x-ray and camera buttons, rendered aft-machinery screenshots, native public trial and trusted ahead controls. No profile, statistic, power allocation or simulation step is supplied.",
+  "errors": [],
+  "screenshots": [
+    {
+      "path": "docs/images/imperial2-straight-transmission-top.png",
+      "sha256": "9e517fe679206babebdf292f3f925aafcaf3a721b990b8ecbb6b1d4035932aeb"
+    },
+    {
+      "path": "docs/images/imperial2-straight-transmission-iso.png",
+      "sha256": "52967e0f7e1f14a06cea00e7035b467e94db54de2bb57e0efaa978a48cdd47f1"
+    }
+  ],
+  "design": {
+    "name": "インペリアルII級｜重砲戦艦",
+    "reference": "imperial2",
+    "catalogueG": 2296.001224623226,
+    "renderer": "webgl",
+    "glError": 0,
+    "workerMode": "worker",
+    "coreIds": [
+      187,
+      188,
+      189
+    ],
+    "nozzleIds": [
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57
+    ]
+  },
+  "trial": {
+    "telegraph": 5,
+    "speed": 12.742395371722132,
+    "actualInputW": 2.229198666823203e+24,
+    "actualThrustN": 1114599333411601.2,
+    "engines": [
+      {
+        "id": 51,
+        "machineryId": 187,
+        "actualInputW": 7.256619968844209e+23,
+        "actualThrustN": 362830998442210.44
+      },
+      {
+        "id": 52,
+        "machineryId": 187,
+        "actualInputW": 7.256619968844209e+23,
+        "actualThrustN": 362830998442210.44
+      },
+      {
+        "id": 53,
+        "machineryId": 187,
+        "actualInputW": 7.256619968844209e+23,
+        "actualThrustN": 362830998442210.44
+      },
+      {
+        "id": 54,
+        "machineryId": 188,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      },
+      {
+        "id": 55,
+        "machineryId": 188,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      },
+      {
+        "id": 56,
+        "machineryId": 189,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      },
+      {
+        "id": 57,
+        "machineryId": 189,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "title": "continue",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "view": "xray",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "cam": "top",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "cam": "iso",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trial": "start",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    }
+  ],
+  "completedAt": "2026-11-07T13:00:16.953Z"
+}
