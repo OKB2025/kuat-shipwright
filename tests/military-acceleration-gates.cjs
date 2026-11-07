@@ -34,6 +34,11 @@ test('source preservation permits support rounding and rejects changed hull, sho
  assert.throws(()=>P.preservationEvidence(null,before),/real before-calibration/);
 });
 
+test('save canonicalization preserves redundant room diameters and default flags while real changes still fail',()=>{
+ const before=payload(),after=copy(before);before.structures[0].shellFlip=false;before.reactors[0].raw.room=[5,10,2];after.reactors[0].raw.room=[5,10,2];after.reactors[0].raw.d=Math.cbrt(100);after.weapons[0].raw.launcherBlocked=false;after.weapons[0].raw.commandEnabled=true;
+ assert.equal(P.preservationEvidence(before,after).passed,true);after.weapons[0].raw.commandEnabled=false;assert.equal(P.preservationEvidence(before,after).passed,false);after.weapons[0].raw.commandEnabled=true;after.weapons[0].raw.launcherBlocked=true;assert.equal(P.preservationEvidence(before,after).passed,false);
+});
+
 test('only the explicitly approved Munificent auxiliary47 transformation can precede strict source controls',()=>{
  const before=payload(),sphere=Math.PI*64**3/6;before.reactors=[45,46].map(id=>({id,k:id===45?'gen':'aux',raw:{id,k:id===45?'gen':'aux',c:[505,129,id===45?27:-27],d:54},volumeM3:Math.PI*54**3/6,powerW:1e24})).concat({id:47,k:'aux',raw:{id:47,k:'aux',c:[215,104,0],d:64},volumeM3:sphere,powerW:2e24});const after=copy(before),aux=after.reactors.find(p=>p.id===47);Object.assign(aux.raw,{c:[660,129,0],d:Math.cbrt(sphere),room:[180,sphere/(180*8),8],autoFit:false,customEquipment:true,corner:0});const transform={kind:'munificent-aux47-room',key:'munificent',partId:47,before,after};
  assert.equal(P.preservationEvidence(before,after).gates.reactorGeometryFixed,false,'the general preservation gate still rejects the reactor edit');assert.equal(P.approvedTransformEvidence(null,null,'munificent',[transform],after).passed,true);assert.equal(P.approvedTransformEvidence(null,null,'onager',[transform],after).passed,false);assert.equal(P.approvedTransformEvidence(null,null,'munificent',[],after).passed,false);

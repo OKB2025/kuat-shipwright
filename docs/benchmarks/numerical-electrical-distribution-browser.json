@@ -1,0 +1,797 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "sourceSha256": {
+    "scripts/browser-straight-imperial-transmission.cjs": "e2d8fadcdd9db1a5d3d1bf87e74a834d106ab9aaddfe6a2a152b455f49579884",
+    "index.html": "983d119e199999fecc1729da052ea62c4085028e81e1dff1bd3c4c495a9c6857",
+    "js/core.js": "4a695d8f26aa0ea7c9c92d9b3c7e06f30d12cd96b70dad6a477d4e1ddfb6c3db",
+    "js/app.js": "d3910e305220b97a2b2a4ba0c27d1a80b682534752f280d6f2d409c1b530b632",
+    "js/gfx.js": "cd92e1d347a53307b456770c01c938da04105c08602e81f2858f82505becf2bb",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9"
+  },
+  "input": {
+    "path": "assets/source/imperial2-2300g-factory-blueprints/imperial2.json.gz",
+    "sha256": "37ffe9c520fd667173988c16fba1aed1c6de5d326d935e31c23fe6a5cd9d0d5c",
+    "jsonSha256": "a6db2373fe557147858976af8fbad5e63a54bcabc075243ac83d86fba4ac1541",
+    "kind": "authenticated historical saved design replayed by the current Worker"
+  },
+  "scope": "Native saved-draft Continue, actual Worker geometry/statistics, trusted x-ray and camera buttons, rendered aft-machinery screenshots, native public trial and trusted ahead controls. No profile, statistic, power allocation or simulation step is supplied.",
+  "errors": [],
+  "screenshots": [
+    {
+      "path": "docs/images/imperial2-numerical-distribution-top.png",
+      "sha256": "78ce6ab320c2785b1a222448d5774c90fc96470b223da32c02d9762356c14388"
+    },
+    {
+      "path": "docs/images/imperial2-numerical-distribution-iso.png",
+      "sha256": "ee3997381a235f0386d08be90ad53b59bba605fa15178521f8d62d148bfd9ecd"
+    }
+  ],
+  "design": {
+    "name": "インペリアルII級｜重砲戦艦",
+    "reference": "imperial2",
+    "catalogueG": 2309.441624161947,
+    "renderer": "webgl",
+    "glError": 0,
+    "workerMode": "worker",
+    "coreIds": [
+      187,
+      188,
+      189
+    ],
+    "nozzleIds": [
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57
+    ]
+  },
+  "electrical": {
+    "model": "source-distance",
+    "partCount": 0,
+    "volume": 0,
+    "mass": 0,
+    "cost": 0,
+    "connections": [
+      {
+        "id": "p48>p187",
+        "model": "source-distance",
+        "length": 152.54664272904031,
+        "efficiency": 0.9984756965052066,
+        "hasGeometry": false
+      },
+      {
+        "id": "p64>p188",
+        "model": "source-distance",
+        "length": 241.52186753998075,
+        "efficiency": 0.997587695618534,
+        "hasGeometry": false
+      },
+      {
+        "id": "p75>p189",
+        "model": "source-distance",
+        "length": 241.52186753998075,
+        "efficiency": 0.997587695618534,
+        "hasGeometry": false
+      }
+    ],
+    "powerPaths": [
+      {
+        "model": "source-distance",
+        "routeId": "p59>hotel",
+        "lengthM": 329.73474187595093,
+        "efficiency": 0.9967080828610944
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p48>p65",
+        "lengthM": 213.9421650820614,
+        "efficiency": 0.9978628652804852
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p59>p65",
+        "lengthM": 281.73391702100764,
+        "efficiency": 0.9971866258053556
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p64>p65",
+        "lengthM": 149.4456422917711,
+        "efficiency": 0.9985066597210036
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p75>p65",
+        "lengthM": 510.03333224407993,
+        "efficiency": 0.9949126512928911
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f107",
+        "lengthM": 118.6285288316233,
+        "efficiency": 0.9988144180699211
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f108",
+        "lengthM": 473.01873894973426,
+        "efficiency": 0.9952809823283131
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f109",
+        "lengthM": 84.72483622428453,
+        "efficiency": 0.999153110451309
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f110",
+        "lengthM": 465.67402499489856,
+        "efficiency": 0.9953540855540906
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f111",
+        "lengthM": 88.21183759709453,
+        "efficiency": 0.9991182705760681
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f112",
+        "lengthM": 466.321056881455,
+        "efficiency": 0.9953476453166081
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f113",
+        "lengthM": 127.34417520325368,
+        "efficiency": 0.9987273687308447
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f114",
+        "lengthM": 475.2794324005841,
+        "efficiency": 0.995258482330657
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f128",
+        "lengthM": 443.66459982190884,
+        "efficiency": 0.995573181376738
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f129",
+        "lengthM": 466.65370132430377,
+        "efficiency": 0.9953443343534858
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f130",
+        "lengthM": 490.0597198976055,
+        "efficiency": 0.9951113911361485
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f139",
+        "lengthM": 244.6896292867479,
+        "efficiency": 0.9975560949176419
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f140",
+        "lengthM": 634.3271988345812,
+        "efficiency": 0.9936768040896428
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f141",
+        "lengthM": 173.56442251013667,
+        "efficiency": 0.998265861134288
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f142",
+        "lengthM": 576.6615209936616,
+        "efficiency": 0.9942499798012153
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f143",
+        "lengthM": 230.4001699863406,
+        "efficiency": 0.9976986504747904
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f144",
+        "lengthM": 563.8455742086142,
+        "efficiency": 0.9943774105150888
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f145",
+        "lengthM": 486.82751952790034,
+        "efficiency": 0.9951435556500198
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f146",
+        "lengthM": 655.1250652018207,
+        "efficiency": 0.9934701620051231
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f147",
+        "lengthM": 666.0824046742795,
+        "efficiency": 0.9933613100706615
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f148",
+        "lengthM": 768.6089457646715,
+        "efficiency": 0.9923433729959211
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f149",
+        "lengthM": 869.7121310752387,
+        "efficiency": 0.99134058924518
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f150",
+        "lengthM": 923.7908137857158,
+        "efficiency": 0.990804630246187
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f151",
+        "lengthM": 97.73533556206819,
+        "efficiency": 0.9990231240986104
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f152",
+        "lengthM": 480.5347360500292,
+        "efficiency": 0.9952061798496528
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f153",
+        "lengthM": 288.32380343998375,
+        "efficiency": 0.9971209145045036
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f154",
+        "lengthM": 511.8237725315595,
+        "efficiency": 0.9948948381354245
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f155",
+        "lengthM": 801.9759385605406,
+        "efficiency": 0.9920123130895824
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f156",
+        "lengthM": 853.0518903365466,
+        "efficiency": 0.9915057627326569
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f157",
+        "lengthM": 965.1931818512476,
+        "efficiency": 0.9903944985743329
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f158",
+        "lengthM": 993.249490324056,
+        "efficiency": 0.9901166694148407
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f159",
+        "lengthM": 1023.8045981860728,
+        "efficiency": 0.9898141844132037
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f160",
+        "lengthM": 1028.598876723126,
+        "efficiency": 0.9897667311017347
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f161",
+        "lengthM": 1063.0201621360463,
+        "efficiency": 0.9894260992985859
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f162",
+        "lengthM": 1067.638464010672,
+        "efficiency": 0.9893804056696369
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f163",
+        "lengthM": 1102.299708915706,
+        "efficiency": 0.9890375335294942
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f164",
+        "lengthM": 1106.7541609770967,
+        "efficiency": 0.9889934783079106
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f165",
+        "lengthM": 440.1231292116597,
+        "efficiency": 0.995608439932692
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f166",
+        "lengthM": 528.1934956690241,
+        "efficiency": 0.9947319899341763
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f167",
+        "lengthM": 600.0482318287269,
+        "efficiency": 0.9940174846210089
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f168",
+        "lengthM": 667.3363900585192,
+        "efficiency": 0.9933488535431222
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f179",
+        "lengthM": 1205.8835792405323,
+        "efficiency": 0.988013580589897
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f180",
+        "lengthM": 1199.673702530732,
+        "efficiency": 0.9880749369201842
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f181",
+        "lengthM": 493.8842330394281,
+        "efficiency": 0.9950733336979792
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f182",
+        "lengthM": 557.1050231124741,
+        "efficiency": 0.9944444392915621
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f183",
+        "lengthM": 600.8246193772444,
+        "efficiency": 0.9940097672229867
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f184",
+        "lengthM": 635.1787252929006,
+        "efficiency": 0.9936683427047712
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f185",
+        "lengthM": 312.62962292498327,
+        "efficiency": 0.9968785855461896
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f186",
+        "lengthM": 612.8658250855273,
+        "efficiency": 0.9938900836679712
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p58",
+        "lengthM": 326.09661145126915,
+        "efficiency": 0.9967443450607313
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p60",
+        "lengthM": 344.66505479958363,
+        "efficiency": 0.9965592823338567
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p61",
+        "lengthM": 309.89514355665534,
+        "efficiency": 0.9969058453581439
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p62",
+        "lengthM": 267.3780095669799,
+        "efficiency": 0.9973297912706051
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p63",
+        "lengthM": 52.20153254455275,
+        "efficiency": 0.9994781209008494
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p66",
+        "lengthM": 42.82522621072771,
+        "efficiency": 0.9995718394248039
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p67",
+        "lengthM": 869.8787271798293,
+        "efficiency": 0.9913389377117509
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p68",
+        "lengthM": 275.4541704167864,
+        "efficiency": 0.9972492485648821
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p69",
+        "lengthM": 961.466588083018,
+        "efficiency": 0.9904314072417114
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p70",
+        "lengthM": 209.1267558204832,
+        "efficiency": 0.9979109176182669
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p71",
+        "lengthM": 187.88028103023478,
+        "efficiency": 0.9981229610348856
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p72",
+        "lengthM": 365.7253067535798,
+        "efficiency": 0.9963494265369817
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p73",
+        "lengthM": 391.7792745922122,
+        "efficiency": 0.9960898717914546
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p74",
+        "lengthM": 442.0689991392746,
+        "efficiency": 0.9955890668759504
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p76",
+        "lengthM": 410,
+        "efficiency": 0.995908393524931
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p77",
+        "lengthM": 450.2599249322551,
+        "efficiency": 0.9955075222539549
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p78",
+        "lengthM": 890.8361240991521,
+        "efficiency": 0.99113120064466
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p79",
+        "lengthM": 489.7703543498729,
+        "efficiency": 0.9951142706498421
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p80",
+        "lengthM": 973.3334474885779,
+        "efficiency": 0.9903138811125737
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p81",
+        "lengthM": 365.9699441210986,
+        "efficiency": 0.9963469890969547
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p82",
+        "lengthM": 290.6871170175933,
+        "efficiency": 0.9970973496890022
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p83",
+        "lengthM": 524.5600537593384,
+        "efficiency": 0.9947681335998132
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p85",
+        "lengthM": 721.4542605044342,
+        "efficiency": 0.9928114197344686
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p104",
+        "lengthM": 352.15139654647305,
+        "efficiency": 0.996484679292825
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p105",
+        "lengthM": 461.374809251341,
+        "efficiency": 0.9953968788935232
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p106",
+        "lengthM": 410.90324253581844,
+        "efficiency": 0.9958993980973282
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p115",
+        "lengthM": 409.01761575756126,
+        "efficiency": 0.9959181772201148
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p116",
+        "lengthM": 485.49722965224015,
+        "efficiency": 0.995156794032043
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p117",
+        "lengthM": 493.49375882578295,
+        "efficiency": 0.9950772192103402
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p118",
+        "lengthM": 617.7102880800999,
+        "efficiency": 0.9938419361969137
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p119",
+        "lengthM": 88.05679985100525,
+        "efficiency": 0.9991198195877162
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p120",
+        "lengthM": 477.40444069991645,
+        "efficiency": 0.9952373332300185
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p121",
+        "lengthM": 568.436065006435,
+        "efficiency": 0.9943317647592537
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p122",
+        "lengthM": 552.5233841205276,
+        "efficiency": 0.9944900021895018
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p123",
+        "lengthM": 686.8522402962664,
+        "efficiency": 0.9931550119840558
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p124",
+        "lengthM": 361.5992256628877,
+        "efficiency": 0.9963905375703987
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p125",
+        "lengthM": 600.6288371365464,
+        "efficiency": 0.9940117133194868
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p126",
+        "lengthM": 452.67427583197167,
+        "efficiency": 0.9954834874992774
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p176",
+        "lengthM": 231.14816637791662,
+        "efficiency": 0.9976911877527965
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>p177",
+        "lengthM": 224.8866381090704,
+        "efficiency": 0.997753660424405
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f39",
+        "lengthM": 495.7295239112142,
+        "efficiency": 0.99505497187
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p65>f127",
+        "lengthM": 403.2118830748038,
+        "efficiency": 0.995975999245703
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p48>p187",
+        "lengthM": 152.54664272904031,
+        "efficiency": 0.9984756965052066
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p64>p188",
+        "lengthM": 241.52186753998075,
+        "efficiency": 0.997587695618534
+      },
+      {
+        "model": "source-distance",
+        "routeId": "p75>p189",
+        "lengthM": 241.52186753998075,
+        "efficiency": 0.997587695618534
+      }
+    ],
+    "powerLineDrawingCount": 0,
+    "shaftCount": 7,
+    "allShaftsStraight": true,
+    "panelText": "機関への給電"
+  },
+  "trial": {
+    "telegraph": 5,
+    "speed": 12.057194009837962,
+    "actualInputW": 2.229198666823203e+24,
+    "actualThrustN": 1114599333411601.2,
+    "engines": [
+      {
+        "id": 51,
+        "machineryId": 187,
+        "actualInputW": 7.256619968844209e+23,
+        "actualThrustN": 362830998442210.44
+      },
+      {
+        "id": 52,
+        "machineryId": 187,
+        "actualInputW": 7.256619968844209e+23,
+        "actualThrustN": 362830998442210.44
+      },
+      {
+        "id": 53,
+        "machineryId": 187,
+        "actualInputW": 7.256619968844209e+23,
+        "actualThrustN": 362830998442210.44
+      },
+      {
+        "id": 54,
+        "machineryId": 188,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      },
+      {
+        "id": 55,
+        "machineryId": 188,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      },
+      {
+        "id": 56,
+        "machineryId": 189,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      },
+      {
+        "id": 57,
+        "machineryId": 189,
+        "actualInputW": 1.3053169042485043e+22,
+        "actualThrustN": 6526584521242.521
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "title": "continue",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "view": "xray",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "cam": "top",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "cam": "iso",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trial": "start",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    }
+  ],
+  "completedAt": "2026-11-07T14:10:29.383Z"
+}

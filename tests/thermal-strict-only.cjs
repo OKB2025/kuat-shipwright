@@ -25,22 +25,22 @@ test('a design without a surface ledger still has strict heat and no hidden high
 });
 test('version-one cached networks retain real sinks and finite links while removing integral and automatic sinks',()=>{
  const p=oldProfile(),before=plain(p.heat),H=C.heatProfile(p);
- assert.equal(H.v,3);assert.equal(H.mode,'strict');assert.deepEqual(plain(H.dis.map(d=>d.k)),['hdis']);
+ assert.equal(H.v,5);assert.equal(H.mode,'strict');assert.deepEqual(plain(H.dis.map(d=>d.k)),['hdis']);
  assert.deepEqual(plain(H.ln),[{s:1,d:0,cap:100,sec:-1}]);assert.equal(H.dis[0].m,2);assert.equal(H.dis[0].power,20);assert.deepEqual(plain(p.heat),before,'migration does not rewrite the saved snapshot');
- const alias=oldProfile();alias.heat.links=alias.heat.ln;delete alias.heat.ln;assert.equal(C.heatProfile(alias).src,alias.heat.src,'older path spellings preserve source groups and their local heat state');assert.equal(C.heatProfile(alias).ln.length,1);
+ const alias=oldProfile();alias.heat.links=alias.heat.ln;delete alias.heat.ln;assert.deepEqual(plain(C.heatProfile(alias).src.map(s=>s.id)),plain(alias.heat.src.map(s=>s.id)),'older path spellings preserve source identities');assert.ok(C.heatProfile(alias).src.every(s=>s.st==null),'local thermal stores are retired');assert.equal(C.heatProfile(alias).ln.length,1);
  const unrated=oldProfile();delete unrated.heat.dis[2].power;near(C.heatProfile(unrated).dis[0].power,100*C.HEAT.disPowerK.hdis,'missing old input rating uses the physical catalog coefficient');
- const u=C.fleetUnit('cached','cached',p,0);C.heatInit(u);u.ht.t=0;u.ht.st[1]=100;
+ const u=C.fleetUnit('cached','cached',p,0);C.heatInit(u);u.ht.t=0;u.ht.qJ=100;
  C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0},1,'balanced');C.heatTick({time:1},u,1);
- assert.ok(u.ht.st[1]<100,'real cooler can draw finite electricity even when an old grid omitted cooling');assert.ok(u.ht.cooling.inputJ>0);near(u.ht.cooling.heatJ,u.ht.cooling.inputJ,'cooler electrical waste');near(u.ht.cooling.reactorWasteJ,.04*u.ht.cooling.inputJ,'funding reactor waste');
+ assert.ok(u.ht.qJ<100,'real cooler can draw finite electricity even when an old grid omitted cooling');assert.ok(u.ht.cooling.inputJ>0);near(u.ht.cooling.heatJ,u.ht.cooling.inputJ,'cooler electrical waste');near(u.ht.cooling.reactorWasteJ,.04*u.ht.cooling.inputJ,'funding reactor waste');
  assert.ok(u.ht.cooling.inputJ<=20&&u.ht.cooling.handledJ<=100);
- near(u.ht.st.reduce((n,J)=>n+J,0)+u.ht.emit,100+u.ht.cooling.inputJ+u.ht.cooling.reactorWasteJ,'stored and emitted heat conserves cooler and reactor input losses');
+ near(u.ht.qJ+u.ht.emit,100+u.ht.cooling.inputJ+u.ht.cooling.reactorWasteJ,'stored and emitted heat conserves cooler and reactor input losses');
 });
 test('removing real cooling or cutting its power cannot revive cached compatibility cooling',()=>{
  for(const mode of ['missing','severed']){
   const p=oldProfile({cooler:mode!=='missing'});if(mode==='severed')p.grid.powerPaths[0].ok=false;
-  const u=C.fleetUnit(mode,mode,p,0);C.heatInit(u);u.ht.t=0;u.ht.st[1]=100;
+  const u=C.fleetUnit(mode,mode,p,0);C.heatInit(u);u.ht.t=0;u.ht.qJ=100;
   C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0},1,'balanced');C.heatTick({time:1},u,1);
-  near(u.ht.st[1],100,mode+' retained waste');near(u.ht.emit,0,mode+' emitted heat');near(u.ht.cooling?.inputJ||0,0,mode+' cooler input');
+  near(u.ht.qJ,100,mode+' retained waste');near(u.ht.emit,0,mode+' emitted heat');near(u.ht.cooling?.inputJ||0,0,mode+' cooler input');
  }
 });
 test('a current-numbered cached network cannot smuggle integral sinks or unbound dissipators into runtime',()=>{
@@ -49,5 +49,5 @@ test('a current-numbered cached network cannot smuggle integral sinks or unbound
 });
 test('table-only old profiles get no automatic high-grade cooling even for superweapons',()=>{
  const p=oldProfile({cooler:false});delete p.heat;p.modules=p.modules.filter(m=>m.k!=='dissipator');p.sw=[{k:'sbeam',r:1,mod:-1,Pshare:1,chargeT:10}];
- const H=C.heatProfile(p);assert.equal(H.v,3);assert.equal(H.mode,'strict');assert.ok(H.src.some(s=>s.k==='sw'));assert.ok(H.dis.every(d=>d.k==='skin'));assert.ok(H.ln.every(l=>H.src[l.s].g==='low'));
+ const H=C.heatProfile(p);assert.equal(H.v,5);assert.equal(H.mode,'strict');assert.ok(H.src.some(s=>s.k==='sw'));assert.ok(H.dis.every(d=>d.k==='skin'));assert.ok(H.ln.every(l=>H.src[l.s].g==='low'));
 });
