@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "phase": "before",
+  "scope": "Actual production Gfx/WebGL of authenticated saved structural hull, superstructure and all fittings. Engineering equipment is excluded. No editor, worker, statistics or fresh-factory claim.",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "62bb8b28f13410844ac992fa322d4d89cb1563adffb3854685de47b870e835da",
+    "js/core.js": "29a0410035941dd5ed384773ebe662a4799dc33d6e0f7c4cc925a58583491cbe",
+    "js/gfx.js": "700cd51ead1815a05cca8a372540c0511171c72530fb9fd04478b3104f64d3cd"
+  },
+  "input": {
+    "archive": "assets/source/ship-example-blueprints/mandator2.json.gz",
+    "gzipSha256": "0065e8a0898879d4da36f08617a77b22112092d3ce63e8bb38f870a3493129ed",
+    "jsonSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "authenticated": true,
+    "manifest": "assets/source/ship-example-blueprints/manifest.json",
+    "manifestSha256": "5a6c37e355f5d0d97ef3618cbb9323336600ea991b56b69f3d248a50bd9bb195",
+    "factorySourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "7bc4167cae112ae764acb7cfa700e9d720a7e86f891e8fd558f2b9b1559f132e"
+    }
+  },
+  "framingReference": null,
+  "harness": {
+    "path": "scripts/browser-mandator-layout-saved.cjs",
+    "sha256": "d8e8137316c63ed403a6b887c2700a356c4a1cc8fa2e79deeed33fa40afe0ece"
+  },
+  "errors": [],
+  "screenshots": [
+    {
+      "path": "docs/images/mandator-battery-before-dorsal.png",
+      "sha256": "c186d807ba04851496b6fec1cbeff7d7274f3e76af48a07e3bbf25991688ff77",
+      "name": "dorsal",
+      "camera": {
+        "th": 3.691592653589793,
+        "ph": 0.78,
+        "r": 10301.71156458552,
+        "target": [
+          4000,
+          544.9047727584839,
+          0
+        ],
+        "fov": 0.72,
+        "ortho": true
+      },
+      "litPixels": 131160,
+      "webglError": 0
+    },
+    {
+      "path": "docs/images/mandator-battery-before-ventral.png",
+      "sha256": "f27070a6918a151a51b52c538b9ab897e7b10931ebae5e93a1b2eba4124a0c4f",
+      "name": "ventral",
+      "camera": {
+        "th": 3.691592653589793,
+        "ph": 2.361592653589793,
+        "r": 10301.71156458552,
+        "target": [
+          4000,
+          544.9047727584839,
+          0
+        ],
+        "fov": 0.72,
+        "ortho": true
+      },
+      "litPixels": 7298,
+      "webglError": 0
+    },
+    {
+      "path": "docs/images/mandator-battery-before-port.png",
+      "sha256": "799524247088b717d874ac889e109191312670dc2a299dbee869e44f0ca8327a",
+      "name": "port",
+      "camera": {
+        "th": 4.71238898038469,
+        "ph": 1.5707963267948966,
+        "r": 7379.800226534616,
+        "target": [
+          4000,
+          544.9047727584839,
+          0
+        ],
+        "fov": 0.72,
+        "ortho": true
+      },
+      "litPixels": 100795,
+      "webglError": 0
+    },
+    {
+      "path": "docs/images/mandator-battery-before-starboard.png",
+      "sha256": "3849e10fe1f5fbf1ae5ef01db3ecda398d573ece2572fde9ed70a1e7d7dd8b7b",
+      "name": "starboard",
+      "camera": {
+        "th": 1.5707963267948966,
+        "ph": 1.5707963267948966,
+        "r": 7379.800226534616,
+        "target": [
+          4000,
+          544.9047727584839,
+          0
+        ],
+        "fov": 0.72,
+        "ortho": true
+      },
+      "litPixels": 40080,
+      "webglError": 0
+    },
+    {
+      "path": "docs/images/mandator-battery-before-heavy-closeup.png",
+      "sha256": "e3155b50de09b6a359affc3d41ef0e063823d3a903b00092c0602a08c82f2b6e",
+      "name": "heavy-closeup",
+      "camera": {
+        "th": 3.691592653589793,
+        "ph": 0.92,
+        "r": 720.1785705494653,
+        "target": [
+          575.825,
+          757.2301437011719,
+          0.30000000000001137
+        ],
+        "fov": 0.72,
+        "ortho": true
+      },
+      "litPixels": 1414356,
+      "webglError": 0
+    }
+  ],
+  "geometry": {
+    "normalization": {
+      "materializePrimary": false,
+      "originalParts": 318,
+      "originalAssembly": true,
+      "renderedParts": 318,
+      "renderedAssembly": true
+    },
+    "hasSideBalls": false,
+    "structures": 268,
+    "fits": 535,
+    "gunCounts": {
+      "cmsl": 2,
+      "utl": 203,
+      "stl": 44,
+      "ion": 28,
+      "pd": 250,
+      "trc": 6
+    },
+    "distribution": {
+      "dorsal": 451,
+      "ventral": 82,
+      "port": 0,
+      "starboard": 0,
+      "other": 0
+    },
+    "vertices": 2243334,
+    "triangles": 1362526,
+    "groups": {
+      "struct": {
+        "vertices": 215102,
+        "triangles": 72910
+      },
+      "refStruct": {
+        "vertices": 2076,
+        "triangles": 692
+      },
+      "fits": {
+        "vertices": 130684,
+        "triangles": 44684
+      },
+      "refFits": {
+        "vertices": 1895472,
+        "triangles": 1244240
+      }
+    },
+    "bounds": [
+      0,
+      15.399999618530273,
+      -1448.00048828125,
+      8000,
+      1074.4095458984375,
+      1448.00048828125
+    ],
+    "actualStructuralBounds": [
+      0,
+      15.399999618530273,
+      -1448.00048828125,
+      8000,
+      1074.4095458984375,
+      1448.00048828125
+    ],
+    "closeBounds": [
+      405.82500000000005,
+      642.2301437011719,
+      -169.7,
+      745.825,
+      872.2301437011719,
+      170.3
+    ],
+    "firstHeavyId": 321,
+    "preparationMs": 2484.9000000000233,
+    "referenceTexturesReady": 2
+  },
+  "completedAt": "2026-11-07T05:49:40.283Z"
+}

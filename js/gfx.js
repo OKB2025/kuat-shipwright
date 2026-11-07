@@ -2876,13 +2876,13 @@ function turretDrawPart(a,raw,row){
  const idx=Array.from(raw.idx.subarray(start,end),i=>i-first);if(idx.some(i=>i<0||i>=row.vertices))return null;
  return {pos:raw.pos.slice(first*3,last*3),uv:raw.uv.slice(first*2,last*2),idx};
 }
-function turretDrawSphere(a,row){
+function turretDrawSphere(a,row,ns=20,nl=10){
  const range=a.sphereMeshRange,c=a.sphereCenterM,R=a.sphereRadiusM;
  if(row.normalMode!=='sphere'||!range||row.firstIndex!==range.firstIndex||row.indices!==range.indices||!(R>0)||!Array.isArray(c)||c.length!==3||!c.every(Number.isFinite))return null;
  // Complete balls only: clipped domes and their hard floors keep their exact
  // authored surfaces. Smooth radial normals are applied after the fit pose.
  if(Number.isFinite(row.floorYM))return null;
- const ns=20,nl=10,pos=[],uv=[],idx=[];
+ const pos=[],uv=[],idx=[];
  const vertex=(x,y,z,u,v)=>{pos.push((x-a.c[0])/a.size[0],(y-a.c[1])/a.size[1],(z-a.c[2])/a.size[2]);uv.push(u,v);};
  vertex(c[0],c[1]-R,c[2],.5,0);
  for(let j=1;j<nl;j++){const t=-Math.PI/2+Math.PI*j/nl;for(let i=0;i<ns;i++){const p=i*Math.PI*2/ns;vertex(c[0]+R*Math.cos(t)*Math.cos(p),c[1]+R*Math.sin(t),c[2]+R*Math.cos(t)*Math.sin(p),i/ns,j/nl);}}
@@ -2925,10 +2925,44 @@ function turretDrawBarrel(a,raw,row,barrel){
  const result=turretDrawCompact(mesh.pos,mesh.uv,indices);if(result.idx.length>=mesh.idx.length||!turretDrawClosed(result))return null;
  return result;
 }
+// Point defence is a tiny repeated silhouette at ship scale. Keep the two
+// side-mounted lasers or the three-port ball, but omit rails, collars and
+// decorative rings from its cached draw copy. The full source still defines
+// equipment, charging space, muzzle axes and saved designs.
+function turretMinimumPointDefense(a,raw,id){
+ if(!['pd_twin_side_laser','moncal_pd_triple'].includes(id))return null;
+ const pos=[],uv=[],idx=[],components=[],barrels=[],world=p=>p.map((v,k)=>(v-a.c[k])/a.size[k]);
+ const add=(row,mesh)=>{const firstVertex=pos.length/3,firstIndex=idx.length;pos.push(...mesh.pos);uv.push(...mesh.uv);for(const i of mesh.idx)idx.push(firstVertex+i);const next={...row,firstVertex,vertices:mesh.pos.length/3,firstIndex,indices:mesh.idx.length};components.push(next);return next;};
+ const bounds=row=>{const b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=row.firstVertex;i<row.firstVertex+row.vertices;i++)for(let k=0;k<3;k++){const v=raw.pos[i*3+k]*a.size[k]+a.c[k];b[k]=Math.min(b[k],v);b[k+3]=Math.max(b[k+3],v);}return b;};
+ const mesh=(points,faces)=>({pos:Float32Array.from(points.flatMap(world)),uv:Float32Array.from(points.flatMap(()=>[.5,.5])),idx:Uint32Array.from(faces.flat())});
+ const box=(row,b)=>{const [x,y,z,X,Y,Z]=b,P=[[x,y,z],[X,y,z],[X,Y,z],[x,Y,z],[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]];return add(row,mesh(P,[[0,3,2],[0,2,1],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[3,7,6],[3,6,2],[0,4,7],[0,7,3],[1,2,6],[1,6,5]]));};
+ const cylinder=(row,axis,b)=>{const u=(axis+1)%3,v=(axis+2)%3,c=[0,1,2].map(k=>(b[k]+b[k+3])/2),r=(b[u+3]-b[u])/2,P=[],F=[],N=6;
+  for(const end of [b[axis],b[axis+3]])for(let i=0;i<N;i++){const p=c.slice(),t=i/N*Math.PI*2;p[axis]=end;p[u]+=Math.cos(t)*r;p[v]+=Math.sin(t)*r;P.push(p);}
+  for(let i=0;i<N;i++){const j=(i+1)%N;F.push([i,j,N+j],[i,N+j,N+i]);}for(let i=1;i<N-1;i++)F.push([0,i+1,i],[N,N+i,N+i+1]);return add(row,mesh(P,F));};
+ const barrel=b=>{if(!b.root?.every(Number.isFinite)||!b.muzzle?.every(Number.isFinite)||!b.axis?.every(Number.isFinite)||Math.abs(b.axis[0]-1)>1e-8||Math.abs(b.axis[1])+Math.abs(b.axis[2])>1e-8||!(b.outerRadiusM>b.boreRadiusM&&b.boreRadiusM>0&&b.muzzleRecessM>0))return false;
+  const P=[],F=[],N=4,rings=[[b.root[0],b.outerRadiusM],[b.muzzle[0],b.outerRadiusM],[b.muzzle[0],b.boreRadiusM],[b.muzzle[0]-b.muzzleRecessM,b.boreRadiusM]];
+  for(const [x,r]of rings)for(let i=0;i<N;i++){const t=i/N*Math.PI*2;P.push([x,b.root[1]+r*Math.cos(t),b.root[2]+r*Math.sin(t)]);}
+  for(let ring=0;ring<3;ring++)for(let i=0;i<N;i++){const j=(i+1)%N,x=ring*N+i,y=ring*N+j,X=x+N,Y=y+N;F.push([x,y,Y],[x,Y,X]);}F.push([0,3,2],[0,2,1],[12,13,14],[12,14,15]);barrels.push(add(b,mesh(P,F)));return true;};
+ let elevationIndexStart=0,elevationVertexStart=0,sphereMeshRange;
+ if(id==='moncal_pd_triple'){
+  const sphere=a.components.find(r=>r.normalMode==='sphere'),part=sphere&&turretDrawSphere(a,sphere,8,4);if(!part||a.barrelCenters?.length!==3)return null;sphereMeshRange=add(sphere,part);
+ }else{
+  const byRole=role=>a.components.filter(r=>r.componentRole===role),base=byRole('intrinsic-bearing-ring')[0],body=byRole('fixed-gunhouse')[0],axles=byRole('fixed-transverse-axle'),bearings=byRole('moving-bearing'),receivers=byRole('moving-side-laser-receiver'),rails=byRole('moving-top-rail');
+  if(!base||!body||axles.length!==2||bearings.length!==2||receivers.length!==2||a.barrelCenters?.length!==2)return null;
+  cylinder(base,1,bounds(base));box(body,bounds(body));for(const r of axles)box(r,bounds(r));elevationIndexStart=idx.length;elevationVertexStart=pos.length/3;
+  for(let i=0;i<2;i++){const b=bounds(receivers[i]),rail=rails[i];if(rail)b[4]=Math.max(b[4],bounds(rail)[4]);cylinder(bearings[i],2,bounds(bearings[i]));box(receivers[i],b);}
+ }
+ for(const b of a.barrelCenters)if(!barrel(b))return null;
+ const mapRange=row=>{const next=components.find(c=>c.label===row.label);return next?{...row,firstVertex:next.firstVertex,vertices:next.vertices,firstIndex:next.firstIndex,indices:next.indices}:row;};
+ const asset={...a,n:pos.length/3,faces:idx.length/3,components,barrelCenters:barrels,elevationIndexStart,elevationVertexStart,housingVertices:elevationVertexStart,housingFaces:elevationIndexStart/3,drivePivots:(a.drivePivots||[]).map(mapRange),renderOnly:true,minimumPointDefense:true};
+ if(sphereMeshRange)asset.sphereMeshRange=sphereMeshRange;delete asset.data;delete asset.dataFrom;
+ return {asset,mesh:{pos:Float32Array.from(pos),uv:Float32Array.from(uv),idx:Uint32Array.from(idx)},source:{vertices:a.n,faces:a.faces},reduced:true};
+}
 function turretRenderAsset(id){
  const source=C.REFERENCE_ASSETS[id];if(!source)return null;let result=TURRET_RENDER_ASSET_CACHE.get(source);if(result)return result;
  const raw=C.decodeReference(id);if(!raw)return null;
  const original=()=>({asset:source,mesh:raw,source:{vertices:source.n,faces:source.faces},reduced:false});
+ const pointDefense=turretMinimumPointDefense(source,raw,id);if(pointDefense){TURRET_RENDER_ASSET_CACHE.set(source,pointDefense);return pointDefense;}
  if(id==='isd_heavy_octuple'||!['imperial-photo-family','light-photo-family','capital-photo-family','moncal-photo-family','point-defense-photo','cis-photo-family'].includes(source.nativeCalibration)||!source.components?.length){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}
  const rows=source.components.slice().sort((x,y)=>x.firstIndex-y.firstIndex||y.indices-x.indices),partition=[];let end=0;
  // Some authored houses also record a parent component around several small

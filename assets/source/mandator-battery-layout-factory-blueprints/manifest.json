@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-factory-serialized-ship-blueprint",
+  "runtimeLoaded": false,
+  "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
+  "factoryBaselineCommit": "c657a2e8caf4b60d9a5ceda0f8382710c986f690",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "factoryGeneration": {
+    "method": "fresh-factory",
+    "script": "scripts/update-ship-examples.cjs",
+    "key": "mandator2",
+    "auditSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+      "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523"
+    },
+    "profileVersion": 18,
+    "costVersion": 16,
+    "costSignature": "g1w0fx",
+    "refreshOrchestration": {
+      "script": "scripts/refresh-mandator-layout.cjs",
+      "constructorCalls": 1,
+      "scriptSha256": {
+        "scripts/refresh-mandator-layout.cjs": "f4c41567e6e57a62722682c82df39bb392cb5a0cc83a49f1546de9901b32ed05",
+        "scripts/update-ship-examples.cjs": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6",
+        "scripts/audit-ship-examples.cjs": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+        "scripts/finalize-ship-example-audit.cjs": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d",
+        "scripts/mandator-layout-evidence.cjs": "a009fd94b10454ea421a61223021a3bc73038ed9ed17f343082e2853ef14c079",
+        "tests/helpers/figures-digest.cjs": "5c54ccb8f55efd76759990c8cc90383b781f206109ad3993e3aa22b63124773c"
+      },
+      "totalActualFactoryCalls": 2
+    },
+    "capturedScripts": [
+      {
+        "path": "scripts__refresh-mandator-layout.cjs",
+        "source": "scripts/refresh-mandator-layout.cjs",
+        "sha256": "f4c41567e6e57a62722682c82df39bb392cb5a0cc83a49f1546de9901b32ed05"
+      },
+      {
+        "path": "scripts__update-ship-examples.cjs",
+        "source": "scripts/update-ship-examples.cjs",
+        "sha256": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6"
+      },
+      {
+        "path": "scripts__audit-ship-examples.cjs",
+        "source": "scripts/audit-ship-examples.cjs",
+        "sha256": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d"
+      },
+      {
+        "path": "scripts__finalize-ship-example-audit.cjs",
+        "source": "scripts/finalize-ship-example-audit.cjs",
+        "sha256": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d"
+      },
+      {
+        "path": "scripts__mandator-layout-evidence.cjs",
+        "source": "scripts/mandator-layout-evidence.cjs",
+        "sha256": "a009fd94b10454ea421a61223021a3bc73038ed9ed17f343082e2853ef14c079"
+      },
+      {
+        "path": "tests__helpers__figures-digest.cjs",
+        "source": "tests/helpers/figures-digest.cjs",
+        "sha256": "5c54ccb8f55efd76759990c8cc90383b781f206109ad3993e3aa22b63124773c"
+      }
+    ],
+    "priorFactoryAttempts": [
+      {
+        "journalSha256": "f0976805bafa562655572b70452e93b91078900cea2e74259f18005b4a3cabd8",
+        "constructorCalls": 1,
+        "phase": "failed",
+        "error": "Error: The complete requested Mandator battery differs: {\"counts\":{\"utl\":163,\"ball720\":80,\"quad175\":16,\"ball175Quad\":6,\"ball175QuadIon\":14,\"pd\":160,\"monCalPD\":60},\"preservedFits\":{\"podCombat\":1,\"podAir\":1,\"cmsl\":2,\"trc\":6},\"unexpected\":[],\"mainIonVolleyTT\":317520,\"pointDefenseVolleyTT\":0.00004999999999999992}\n    at batteryEvidence (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:19:19)\n    at C.buildDesign (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:34:339)\n    at Object.generateEntry (/workspace/kuat-shipwright/scripts/update-ship-examples.cjs:33:41)\n    at generate (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:36:11)\n    at Object.<anonymous> (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:69:378)\n    at Module._compile (node:internal/modules/cjs/loader:1929:14)\n    at Object..js (node:internal/modules/cjs/loader:2060:10)\n    at Module.load (node:internal/modules/cjs/loader:1651:32)\n    at Module._load (node:internal/modules/cjs/loader:1443:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)",
+        "elapsedMs": 236690,
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523"
+        },
+        "scriptSha256": {
+          "scripts/refresh-mandator-layout.cjs": "4872138baae934b62ed8c2091c86e7766d1b615243eb0a5d690f1c8de34244bb",
+          "scripts/update-ship-examples.cjs": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6",
+          "scripts/audit-ship-examples.cjs": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+          "scripts/finalize-ship-example-audit.cjs": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d",
+          "scripts/mandator-layout-evidence.cjs": "a009fd94b10454ea421a61223021a3bc73038ed9ed17f343082e2853ef14c079",
+          "tests/helpers/figures-digest.cjs": "5c54ccb8f55efd76759990c8cc90383b781f206109ad3993e3aa22b63124773c"
+        },
+        "constructorBlueprintSha256": "49f1464fd6c0898c1128491e46f77a0e42abd1e9c4bb5e9b7bbca7b740a796e2",
+        "constructorOutputCaptured": false,
+        "journalFile": "prior-factory-attempt-1/generation-journal.json",
+        "capturedScripts": [
+          {
+            "path": "prior-factory-attempt-1/scripts__refresh-mandator-layout.cjs",
+            "source": "scripts/refresh-mandator-layout.cjs",
+            "sha256": "4872138baae934b62ed8c2091c86e7766d1b615243eb0a5d690f1c8de34244bb"
+          },
+          {
+            "path": "prior-factory-attempt-1/scripts__update-ship-examples.cjs",
+            "source": "scripts/update-ship-examples.cjs",
+            "sha256": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6"
+          },
+          {
+            "path": "prior-factory-attempt-1/scripts__audit-ship-examples.cjs",
+            "source": "scripts/audit-ship-examples.cjs",
+            "sha256": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d"
+          },
+          {
+            "path": "prior-factory-attempt-1/scripts__finalize-ship-example-audit.cjs",
+            "source": "scripts/finalize-ship-example-audit.cjs",
+            "sha256": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d"
+          },
+          {
+            "path": "prior-factory-attempt-1/scripts__mandator-layout-evidence.cjs",
+            "source": "scripts/mandator-layout-evidence.cjs",
+            "sha256": "a009fd94b10454ea421a61223021a3bc73038ed9ed17f343082e2853ef14c079"
+          },
+          {
+            "path": "prior-factory-attempt-1/tests__helpers__figures-digest.cjs",
+            "source": "tests/helpers/figures-digest.cjs",
+            "sha256": "5c54ccb8f55efd76759990c8cc90383b781f206109ad3993e3aa22b63124773c"
+          }
+        ]
+      }
+    ],
+    "constructorOutput": {
+      "file": "constructor-output.json.gz",
+      "sha256": "bf30f14f783a37c9b9e7e6a54855335d529259434395714afe08729849c127be",
+      "gzipSha256": "4fdbc9ed8b28d6e8d9bf03fc8c11af99ed9b5d0d49485baf20be05897af74eb5",
+      "canonicalSha256": "49f1464fd6c0898c1128491e46f77a0e42abd1e9c4bb5e9b7bbca7b740a796e2"
+    }
+  },
+  "models": {
+    "mandator2": {
+      "file": "mandator2.json.gz",
+      "sha256": "d82b69e79dfaf6a99a7d217f123ad1fa1a128c7b2f85fca9b7c0ec6fe2cceb24",
+      "gzipSha256": "7f1c14aca0cddcd3cfcbe636a9b0a03b68a7da275a7f61fa914ed8790fb298b6",
+      "canonicalSha256": "5192da529597ea33950ba55046b7135f4332c1bbf036cb8e6c1ca3899ecb7d77",
+      "uncompressedBytes": 4146155,
+      "compressedBytes": 384183,
+      "partCount": 320,
+      "fitCount": 509,
+      "factoryEvidence": {
+        "baselinePowerW": 7.699999983e+26,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 269,
+            "p": [
+              272,
+              300.6,
+              0
+            ]
+          },
+          {
+            "id": 270,
+            "p": [
+              470,
+              356.4,
+              -354.7
+            ]
+          },
+          {
+            "id": 271,
+            "p": [
+              470,
+              356.4,
+              354.7
+            ]
+          },
+          {
+            "id": 272,
+            "p": [
+              771,
+              369.4,
+              -786.4
+            ]
+          },
+          {
+            "id": 273,
+            "p": [
+              771,
+              369.4,
+              786.4
+            ]
+          },
+          {
+            "id": 274,
+            "p": [
+              844,
+              367.4,
+              -1000.5
+            ]
+          },
+          {
+            "id": 275,
+            "p": [
+              844,
+              367.4,
+              1000.5
+            ]
+          },
+          {
+            "id": 276,
+            "p": [
+              900,
+              132,
+              -95.3
+            ]
+          },
+          {
+            "id": 277,
+            "p": [
+              900,
+              132,
+              95.3
+            ]
+          },
+          {
+            "id": 278,
+            "p": [
+              976,
+              135.8,
+              -262.9
+            ]
+          },
+          {
+            "id": 279,
+            "p": [
+              976,
+              135.8,
+              262.9
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

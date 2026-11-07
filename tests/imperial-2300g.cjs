@@ -21,11 +21,8 @@ function engineBayEnvelope(ship){
 test('both 2300 G examples obtain their acceleration from enlarged ordinary engine volume and final physical mass',()=>{
  const report=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/example-engine-acceleration-refit.json')));
  assert.equal(report.physicalVerification.passed,true);
- const runtimeSources=G.sourceHashes(root);
- if(JSON.stringify(report.sourceSha256)!==JSON.stringify(runtimeSources)){
-  const revision=require('../scripts/verify-engine-runtime-revision.cjs').verifyRuntimeRevision(root);
-  assert.equal(revision.passed,true);assert.deepEqual(revision.generationSources,report.sourceSha256);assert.deepEqual(revision.runtimeSources,runtimeSources);
- }else assert.deepEqual(report.sourceSha256,runtimeSources);
+ const revision=require('./helpers/historical-engine-runtime.cjs').verifyHistoricalEngineRuntime(root);
+ assert.equal(revision.passed,true);assert.equal(revision.historical,true);assert.equal(revision.currentRuntimeClaimed,false);assert.deepEqual(revision.generationSources,report.sourceSha256);
  for(const key of ['imperial','imperial2']){
   const blueprint=archive(key,'2300g'),ship=C.deserialize(plain(blueprint)),bayEnvelope=engineBayEnvelope(ship),cores=ship.parts.filter(p=>p.k==='engineCore'),old=archive(key,'user-layout'),oldVolume=old.parts.filter(p=>p.k==='engineCore').reduce((n,p)=>n+C.partVolume(p),0),volume=cores.reduce((n,p)=>n+C.partVolume(p),0),row=report.models.find(r=>r.key===key),entry=data.designs[key];
   assert.equal(cores.length,3);assert.ok(volume>oldVolume*3,'the extra thrust has substantially larger physical machinery');
