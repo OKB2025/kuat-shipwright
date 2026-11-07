@@ -96,7 +96,7 @@ test('a passage that is too narrow for rated cable cross-section reduces the act
 
 test('the occupied transmission hardware contributes real mass and cost to the same ship statistics',()=>{
  const ship=fixture();Object.assign(ship.parts[2],{ratedInputW:1e22,machineryGradeId:'advanced',machineryRadiusM:5});for(const link of ship.links)link.cap*=1e4;
- const before=drive(ship),physical=C.engineTransmission(ship),volume=physical.volume,cost=physical.parts.reduce((n,p)=>n+C.partBuildCost(p),0);assert.ok(cost>1000);assert.ok(volume>0);near(physical.cost,cost);near(before.stats.engineTransmissionMass,volume*C.PARTS.machinery.dens);near(before.stats.engineTransmissionVolume,volume);near(before.stats.engineTransmissionCost,cost);ship.links=[];
+ const before=drive(ship),physical=C.engineTransmission(ship),volume=physical.volume,cost=physical.parts.reduce((n,p)=>n+C.partBuildCost(p),0);assert.ok(cost>1000);assert.ok(volume>0);near(physical.cost,cost);near(before.stats.engineTransmissionMass,volume*C.PARTS.machinery.dens);near(before.stats.engineTransmissionVolume,volume);near(before.stats.engineTransmissionCost,cost);ship.links=[];ship.parts.find(p=>p.id===3).reactor=0;
  const without=drive(ship);near(C.engineTransmission(ship).volume,0);near(without.result.actualInputW,0);const massAdded=before.stats.mass-without.stats.mass;assert.ok(massAdded>=volume*(C.PARTS.machinery.dens-C.K.hullDens)-1e-7);assert.ok(massAdded<=volume*C.PARTS.machinery.dens+1e-7,'cable hardware replaces hull material only where another installed body has not already occupied it');assert.ok(Math.abs(before.stats.cost-without.stats.cost-cost)<=1,'the displayed integer build cost includes the real cable cost within final rounding');
  near(C.partVolume(body(ship)),C.resolveEngineSpec(ship.parts[2],ship).effectiveMachineryVolumeM3);
 });
@@ -118,8 +118,17 @@ test('saving stores the finite wiring and deterministically rebuilds paths inste
  const geometry=plain(body(loaded).machinerySegment),old=C.engineTransmission(loaded);loaded.parts.find(p=>p.id===1).c[0]=250;const moved=C.engineTransmission(loaded);assert.notEqual(moved,old);assert.ok(route(moved,'p1','p2').length>route(old,'p1','p2').length);assert.deepEqual(plain(body(loaded).machinerySegment),geometry);near(C.resolveEngineSpec(loaded.parts.find(p=>p.id===3),loaded).maxInputW,C.resolveEngineSpec(ship.parts.find(p=>p.id===3),ship).maxInputW);
 });
 
-test('disconnecting either bus edge leaves no alternate automatic source path',()=>{
- for(const edge of [0,1]){const ship=fixture();ship.links.splice(edge,1);const {stats,result}=drive(ship);near(result.actualInputW,0);near(result.actualThrustN,0);near(result.wasteHeatW,0);assert.equal(stats.heat.powerPaths.some(l=>l.to==='p3'&&l.auto&&l.ok),false);}
+test('an obsolete bus flag or dangling authored feed does not suppress a valid automatic engine connection',()=>{
+ for(const links of [[],[{kind:'power',from:'p999',to:'p3',cap:9e17}]]){
+  const ship=fixture();ship.parts=ship.parts.filter(p=>p.id!==2);ship.links=links;const net=C.engineTransmission(ship),direct=net.routes.find(r=>r.from==='p1'&&r.to==='p3');assert.ok(direct?.automatic&&direct.ok);assert.ok(drive(ship).result.actualInputW>0);
+  const loaded=C.deserialize(plain(C.serialize(ship)));assert.ok(drive(loaded).result.actualInputW>0,'the saved custom design retains automatic propulsion');
+ }
+});
+test('removing the authored engine branch restores automatic direct connection while explicit isolation stays disconnected',()=>{
+ const ship=fixture();ship.links.splice(1,1);assert.ok(drive(ship).result.actualInputW>0);ship.parts.find(p=>p.id===3).reactor=0;near(drive(ship).result.actualInputW,0);
+});
+test('an authored branch whose upstream source is disconnected does not receive a bypass',()=>{
+ const ship=fixture();ship.links.splice(0,1);near(drive(ship).result.actualInputW,0);
 });
 
 test('automatic physical routing cannot bridge an isolated electrical domain, while an explicit manual circuit can',()=>{

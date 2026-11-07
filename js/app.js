@@ -6794,7 +6794,7 @@ function trialStickInput(){const a=trial.stick,b=trial.keyStick,pick=(x,y)=>Math
 function trialSystemsUnit(){
  if(trial.battle?.me)return trial.battle.me;
  if(!trial.p?.grid&&!trial.p?.propulsion)return trial.swSolo||null;
- if(!trial.systemsUnit||trial.systemsUnit.p!==trial.p)trial.systemsUnit=Object.assign(C.fleetUnit('trial','trial',trial.p,0),{manual:true});
+ if(!trial.systemsUnit||trial.systemsUnit._profile!==trial.p&&trial.systemsUnit.p!==trial.p)trial.systemsUnit=Object.assign(C.fleetUnit('trial','trial',trial.p,0),{manual:true,_profile:trial.p});
  return trial.systemsUnit;
 }
 function trialPowerFactor(kind,moduleIndex){
@@ -7589,7 +7589,7 @@ const ESC_JUMP={burst:1.3,gap:n=>n>1?Math.min(.6,2.4/(n-1)):.6};
 const escOrder=es=>es.slice().sort((a,b)=>(a.p.len||0)-(b.p.len||0));
 function escortHyperFx(e,out){trial.fx.push({pos:[...e.pos],vel:[0,0,0],life:.4,max:.4,size:Math.max(60,e.p.len*.7),col:[205,225,255]});sndAt(out?sndPick('hyperspace_out','hyperspace_in'):sndPick('hyperspace_in','hyperspace_out'),e.pos,{gain:.75,near:Math.max(2000,e.p.len*2),far:60000});}
 function escortPowerStep(e,dt,throttle){
- if(!e.powerUnit||e.powerUnit.p!==e.p)e.powerUnit=Object.assign(C.fleetUnit('escort:'+e.key,e.key,e.p,0),{manual:true,order:{power:'balanced'}});
+ if(!e.powerUnit||e.powerUnit._profile!==e.p&&e.powerUnit.p!==e.p)e.powerUnit=Object.assign(C.fleetUnit('escort:'+e.key,e.key,e.p,0),{manual:true,_profile:e.p,order:{power:'balanced'}});
  const u=e.powerUnit,s=C.fleetSystems(u);u.maneuver=C.clamp(throttle||0,0,1);
  C.allocateShipPower(u,s,{throttle:u.maneuver,shields:Math.max(0,e.p.grid?.Ds||0)*s.shield,weapons:0},dt,'balanced');
  const ctx={time:trial.t||0,rand:Math.random,ev:()=>{},out:()=>{},sunk:()=>{},hit:()=>{}};C.swDecay(u,dt,ctx);C.heatTick(ctx,u,dt);

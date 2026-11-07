@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "sourceSha256": {
+    "index.html": "378f9b7e77b39a434b2a14954d0c89903461295e5a82b17d137191eb135cd042",
+    "js/core.js": "a9a393459dfe44dcf89af493f4ff476b03caa52af88634f8f433b49db5ef018e",
+    "js/app.js": "be301498568c8ca748143ddd34157c4f1868242b696f92220d1ebdc7055854fe",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c",
+    "js/engine.js": "5dd0a60c6691a1a4705f3054ead06978a60cb7c1de8a1edfd1487e2251eefd44",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "74214f1ff44600a12b3aa967e729877b1871c32b043fad35a80504b9a0a30658"
+  },
+  "inputBlueprintSha256": "d50862f9cb289cfd6c3ee665300339947cfb90e45eeca547ae7f9b0220790461",
+  "scope": "Native saved-draft Continue, actual current Worker engineering, native public trial, trusted throttle buttons, actual live input/thrust/velocity, and continuous live ship state. No replacement statistics, profile, allocation, simulated clock or manual trialStep is supplied.",
+  "errors": [],
+  "screenshots": [
+    "docs/images/solo-player-propulsion-ahead.png"
+  ],
+  "design": {
+    "name": "Solo propulsion regression",
+    "catalogueG": 369.72542727874577,
+    "legacyBusFlag": true,
+    "authoredPowerLinks": 0,
+    "workerMode": "worker",
+    "coreIds": [
+      2
+    ]
+  },
+  "initial": {
+    "time": 0.05,
+    "telegraph": 1,
+    "speed": 0,
+    "forwardSpeed": 0,
+    "actualInputW": 0,
+    "actualThrustN": 0,
+    "actualAccelerationMps2": 0,
+    "engineOutputRatio": 0,
+    "online": true,
+    "outputCeiling": 1,
+    "fuelConsumedKg": null,
+    "sameLiveUnit": true
+  },
+  "ahead": {
+    "time": 0.5167000000000009,
+    "telegraph": 5,
+    "speed": 2.174556815168325,
+    "forwardSpeed": 2.174556815168325,
+    "actualInputW": 204997956581245700000,
+    "actualThrustN": 102498978290.62286,
+    "actualAccelerationMps2": 3624.2613586138746,
+    "engineOutputRatio": 0.999584501030729,
+    "online": true,
+    "outputCeiling": 1,
+    "fuelConsumedKg": null,
+    "sameLiveUnit": true
+  },
+  "stopped": {
+    "time": 1.8165000000000018,
+    "telegraph": 1,
+    "speed": 1.5407439555097887e-33,
+    "forwardSpeed": 1.5407439555097887e-33,
+    "actualInputW": 15699.299034869542,
+    "actualThrustN": 0.000007849649517434771,
+    "actualAccelerationMps2": 2.775557561562891e-13,
+    "engineOutputRatio": 7.655088984305482e-17,
+    "online": true,
+    "outputCeiling": 1,
+    "fuelConsumedKg": null,
+    "sameLiveUnit": true
+  },
+  "restarted": {
+    "time": 2.1997999999999958,
+    "telegraph": 5,
+    "speed": 2.05350648579059,
+    "forwardSpeed": 2.05350648579059,
+    "actualInputW": 204997956581245700000,
+    "actualThrustN": 102498978290.62286,
+    "actualAccelerationMps2": 3624.2613586138746,
+    "engineOutputRatio": 0.999584501030729,
+    "online": true,
+    "outputCeiling": 1,
+    "fuelConsumedKg": null,
+    "sameLiveUnit": true
+  },
+  "inputs": [
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "title": "continue",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "trial": "start",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "id": "",
+      "command": "tele+",
+      "trusted": true
+    }
+  ],
+  "completedAt": "2026-11-07T12:27:04.084Z"
+}
