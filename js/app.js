@@ -4387,7 +4387,18 @@ function start(hot) {
   window.__yard = {veObject: () => veObject(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
-  engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
+  engineStart.then(mode => {
+    engineHello(mode); boot?.step('engine', 'done'); titleStatus();
+    let downloads=null,preparation=null;
+    const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'作例の準備が完了しました':preparation.phase==='complete'?`作例を準備しました ${preparation.ready} / ${preparation.total}`:`作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
+    if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint).filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});}
+    if(mode==='worker'&&boot?.createBackgroundWorker&&window.KSAssetCache){
+      window.KSPreload?.stop();
+      window.KSPreload=KSAssetCache.createPreloader({keys:EXAMPLES.map(e=>e.key),createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
+        preparation=s;window.dispatchEvent(new CustomEvent('ks-preload-progress',{detail:s}));preparationStatus();
+      }});
+    }
+  }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
   boot?.step('view', 'done');
   // Keep the draft available without blocking New or examples behind work the
   // player has not selected. Continue starts its preparation when requested.

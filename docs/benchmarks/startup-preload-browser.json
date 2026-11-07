@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "scope": "Native CacheStorage downloads of the actual texture/map data source; interruptible startup scheduler and real Worker/IndexedDB preparation of both model variants from a downloaded compressed blueprint, with its expensive constructor deliberately blocked, for a small registered structural fixture. This is not a full application UI or all-ship performance benchmark.",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "7a1e53b2f2702e082451e32861263ee8a6a0ef80d9055330d1c99c130392834c",
+    "js/gfx.js": "cd92e1d347a53307b456770c01c938da04105c08602e81f2858f82505becf2bb",
+    "js/asset-cache.js": "9e8f4b51b1c112d0eddd3e262ec7f8234c88d65b1ba29b796b7fc3b714b8084d",
+    "js/engine.js": "0ad1f396bbf316c8464735ed67a28ea98da3f6f8926356a659840bbc74f94253"
+  },
+  "errors": [],
+  "download": {
+    "bytes": 561583,
+    "size": 561583,
+    "hash": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354"
+  },
+  "offline": {
+    "bytes": 561583,
+    "size": 561583,
+    "hash": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354"
+  },
+  "rejectedWrongVersion": true,
+  "blueprintDownload": {
+    "phase": "complete",
+    "total": 1,
+    "ready": 1,
+    "failed": 0
+  },
+  "preload": {
+    "state": {
+      "phase": "complete",
+      "ready": 1,
+      "failed": 0,
+      "total": 1,
+      "current": null
+    },
+    "progress": [
+      {
+        "phase": "waiting",
+        "ready": 0,
+        "failed": 0,
+        "total": 1,
+        "current": null
+      },
+      {
+        "phase": "preparing",
+        "ready": 0,
+        "failed": 0,
+        "total": 1,
+        "current": "preload_test"
+      },
+      {
+        "phase": "complete",
+        "ready": 1,
+        "failed": 0,
+        "total": 1,
+        "current": null
+      }
+    ]
+  },
+  "warm": [
+    {
+      "src": "disk",
+      "cacheSaved": true,
+      "geoCached": true,
+      "hasStats": true,
+      "hasProfile": true,
+      "meshCount": 17
+    },
+    {
+      "src": "memory",
+      "cacheSaved": true,
+      "geoCached": true,
+      "hasStats": true,
+      "hasProfile": true,
+      "meshCount": 18
+    }
+  ],
+  "blueprintNetworkRequests": 1,
+  "completedAt": "2026-11-07T16:47:18.697Z"
+}
