@@ -313,19 +313,26 @@ function quad(g, p, n, uv, col, a) {   // p: 4 corners CCW from outside
   for (let k = 0; k < 4; k++) g.v(p[k][0], p[k][1], p[k][2], n[0], n[1], n[2], uv[k][0], uv[k][1], col, a);
   g.tri(b, b + 1, b + 2); g.tri(b, b + 2, b + 3);
 }
+// Reuse radial samples across repeated equipment. These are draw meshes only;
+// Core retains the analytic dimensions used by volume, support and picking.
+const ROUND_CIRCLES=new Map();
+function roundCircle(segments){
+ let circle=ROUND_CIRCLES.get(segments);if(!circle){circle=Array.from({length:segments+1},(_,i)=>{const a=i/segments*Math.PI*2;return [Math.cos(a),Math.sin(a)];});ROUND_CIRCLES.set(segments,circle);}return circle;
+}
+function radialSegments(radius){return radius>40?24:radius>8?16:12;}
 function sphere(g, c, r, col, ru, rv) {
-  const nl = r > 60 ? 28 : 20, nm = nl * 2, base = g.n;
+  const nl = r > 60 ? 16 : 12, nm = nl * 2, base = g.n, circle=roundCircle(nm);
   g.room((nl + 1) * (nm + 1), nl * nm * 6);
   for (let i = 0; i <= nl; i++) {
-    const th = i / nl * Math.PI, st = Math.sin(th), ct = Math.cos(th);
+    const th = i / nl * Math.PI, st = i===0||i===nl?0:Math.sin(th), ct = Math.cos(th);
     for (let j = 0; j <= nm; j++) {
-      const ph = j / nm * Math.PI * 2, n = [st * Math.cos(ph), ct, st * Math.sin(ph)];
+      const n = [st * circle[j][0], ct, st * circle[j][1]];
       g.v(c[0] + n[0] * r, c[1] + n[1] * r, c[2] + n[2] * r, n[0], n[1], n[2], j / nm * ru, i / nl * rv, col, 255);
     }
   }
   for (let i = 0; i < nl; i++) for (let j = 0; j < nm; j++) {
     const a = base + i * (nm + 1) + j, b = a + 1, d = a + nm + 1, cc = d + 1;
-    g.tri(a, b, cc); g.tri(a, cc, d);
+    if(i>0)g.tri(a, b, cc);if(i+1<nl)g.tri(a, cc, d);
   }
 }
 function boxSolid(g, lo, hi, col, us) {   // axis-aligned box; us = metres per texture repeat (0 = one per face)
@@ -360,10 +367,10 @@ function frustum(g, pt, col) {   // struct box with taper toward the top
   quad(g, [B[0], B[1], B[2], B[3]], [0, -1, 0], [B[0], B[1], B[2], B[3]].map(q => [q[0] / TS, q[2] / TS]), col, 255);
 }
 function cylX(g, c, rad, l, col, ru, rv, caps) {   // cylinder along X; caps: {front:true, back:true}
-  const seg = rad > 40 ? 48 : 32, x0 = c[0] - l / 2, x1 = c[0] + l / 2, base = g.n;
+  const seg = radialSegments(rad), x0 = c[0] - l / 2, x1 = c[0] + l / 2, base = g.n, circle=roundCircle(seg);
   g.room((seg + 1) * 2, seg * 6);
   for (let k = 0; k <= seg; k++) {
-    const a = k / seg * Math.PI * 2, cy = Math.cos(a), sz = Math.sin(a);
+    const [cy,sz] = circle[k];
     g.v(x0, c[1] + cy * rad, c[2] + sz * rad, 0, cy, sz, k / seg * ru, 0, col, 255);
     g.v(x1, c[1] + cy * rad, c[2] + sz * rad, 0, cy, sz, k / seg * ru, rv, col, 255);
   }
@@ -373,7 +380,7 @@ function cylX(g, c, rad, l, col, ru, rv, caps) {   // cylinder along X; caps: {f
     const tg = on === true ? g : on.g, cc = on === true ? col : on.col, b = tg.n;
     tg.room(seg + 2, seg * 3);
     tg.v(x, c[1], c[2], sgn, 0, 0, 0.5, 0.5, cc, 255);
-    for (let k = 0; k <= seg; k++) { const a = k / seg * Math.PI * 2; tg.v(x, c[1] + Math.cos(a) * rad, c[2] + Math.sin(a) * rad, sgn, 0, 0, 0.5 + 0.5 * Math.cos(a), 0.5 + 0.5 * Math.sin(a), cc, 255); }
+    for (let k = 0; k <= seg; k++) { const [cy,sz]=circle[k];tg.v(x, c[1] + cy * rad, c[2] + sz * rad, sgn, 0, 0, 0.5 + 0.5 * cy, 0.5 + 0.5 * sz, cc, 255); }
     for (let k = 0; k < seg; k++) { if (sgn > 0) tg.tri(b, b + 1 + k, b + 2 + k); else tg.tri(b, b + 2 + k, b + 1 + k); }
   }
 }
@@ -445,8 +452,8 @@ function pedestal(g, M, o, ph, pr, shape, col, flare) {
     face([top[3], top[2], top[1], top[0]]); face([bot[0], bot[1], bot[2], bot[3]]);
     return;
   }
-  cyl(g, M, o, 0, -ph / 2, 0, pr * 1.18, pr, ph, 1, col, 20);
-  if (ph > flare) cyl(g, M, o, 0, -ph * 0.8, 0, pr * 1.45, pr * 1.2, ph * 0.4, 1, col, 20);
+  cyl(g, M, o, 0, -ph / 2, 0, pr * 1.18, pr, ph, 1, col, 12);
+  if (ph > flare) cyl(g, M, o, 0, -ph * 0.8, 0, pr * 1.45, pr * 1.2, ph * 0.4, 1, col, 12);
 }
 // The automatic foundation follows the actual hull below the stationary
 // turntable. Core also uses these triangles for bounds and support volume.
@@ -499,29 +506,24 @@ function wedge(g, M, o, cx, cy, cz, sx, sy, sz, ch, col) {
 }
 // cylinder along local axis (0 = X, 1 = Y)
 function cyl(g, M, o, cx, cy, cz, r0, r1, len, axis, col, seg) {
+  if(!(len>0)||!(r0>0||r1>0))return;
   seg = seg || 12;
-  const pt = (a, along, r) => { const c = Math.cos(a) * r, s = Math.sin(a) * r; return axis === 0 ? [cx + along, cy + c, cz + s] : [cx + c, cy + along, cz + s]; };
-  const nrm = (a) => axis === 0 ? [0, Math.cos(a), Math.sin(a)] : [Math.cos(a), 0, Math.sin(a)];
-  for (let k = 0; k < seg; k++) {
-    const a0 = k / seg * Math.PI * 2, a1 = (k + 1) / seg * Math.PI * 2;
-    const p = [pt(a0, -len / 2, r0), pt(a0, len / 2, r1), pt(a1, len / 2, r1), pt(a1, -len / 2, r0)].map(q => mx(M, o, q));
-    const n0 = mv(M, nrm(a0)), n1 = mv(M, nrm(a1));
-    g.room(4); const b = g.n, u = 0.25, v = 0.5;
-    g.v(p[0][0], p[0][1], p[0][2], n0[0], n0[1], n0[2], u, v, col, 240);
-    g.v(p[1][0], p[1][1], p[1][2], n0[0], n0[1], n0[2], u, v, col, 240);
-    g.v(p[2][0], p[2][1], p[2][2], n1[0], n1[1], n1[2], u, v, col, 240);
-    g.v(p[3][0], p[3][1], p[3][2], n1[0], n1[1], n1[2], u, v, col, 240);
-    if (axis === 0) { g.tri(b, b + 2, b + 1); g.tri(b, b + 3, b + 2); } else { g.tri(b, b + 1, b + 2); g.tri(b, b + 2, b + 3); }
-    for (const [end, r, sgn] of [[len / 2, r1, 1], [-len / 2, r0, -1]]) {
-      if (r <= 0) continue;
-      const cc = mx(M, o, axis === 0 ? [cx + end, cy, cz] : [cx, cy + end, cz]);
-      const q0 = mx(M, o, pt(a0, end, r)), q1 = mx(M, o, pt(a1, end, r)), nn = mv(M, axis === 0 ? [sgn, 0, 0] : [0, sgn, 0]);
-      g.room(3); const c0 = g.n;
-      g.v(cc[0], cc[1], cc[2], nn[0], nn[1], nn[2], u, v, col, 240);
-      g.v(q0[0], q0[1], q0[2], nn[0], nn[1], nn[2], u, v, col, 240);
-      g.v(q1[0], q1[1], q1[2], nn[0], nn[1], nn[2], u, v, col, 240);
-      if ((axis === 0) === (sgn > 0)) g.tri(c0, c0 + 1, c0 + 2); else g.tri(c0, c0 + 2, c0 + 1);
-    }
+  const circle=roundCircle(seg),slope=(r0-r1)/len,pt=(k,along,r)=>{const [c,s]=circle[k];return axis===0?[cx+along,cy+c*r,cz+s*r]:[cx+c*r,cy+along,cz+s*r];},base=g.n;
+  g.room((seg+1)*2+(r0>0?seg+2:0)+(r1>0?seg+2:0),seg*12);
+  for(let k=0;k<=seg;k++){
+    const [c,s]=circle[k],n=mv(M,C.norm(axis===0?[slope,c,s]:[c,slope,s]));
+    for(const [along,r]of [[-len/2,r0],[len/2,r1]])g.v(...mx(M,o,pt(k,along,r)),...n,.25,.5,col,240);
+  }
+  for(let k=0;k<seg;k++){
+    const a=base+k*2,b=a+1,c=a+2,d=a+3;
+    if(axis===0){if(r1>0)g.tri(a,d,b);if(r0>0)g.tri(a,c,d);}else{if(r1>0)g.tri(a,b,d);if(r0>0)g.tri(a,d,c);}
+  }
+  // Separate cap rings retain the hard rim while sharing their fan vertices.
+  for(const [along,r,sgn]of [[len/2,r1,1],[-len/2,r0,-1]]){
+    if(!(r>0))continue;const cap=g.n,n=mv(M,axis===0?[sgn,0,0]:[0,sgn,0]);
+    g.v(...mx(M,o,axis===0?[cx+along,cy,cz]:[cx,cy+along,cz]),...n,.25,.5,col,240);
+    for(let k=0;k<=seg;k++)g.v(...mx(M,o,pt(k,along,r)),...n,.25,.5,col,240);
+    for(let k=0;k<seg;k++)if((axis===0)===(sgn>0))g.tri(cap,cap+k+1,cap+k+2);else g.tri(cap,cap+k+2,cap+k+1);
   }
 }
 // Ion tubes have a thick root that visibly narrows toward the muzzle. The
@@ -536,20 +538,19 @@ function ionBarrel(g,M,o,root,tip,y,z,nominal,col,seg=12){
 // ring at (cx,cy,cz), closed underneath.
 function domeL(g, M, o, cx, cy, cz, r, ry, col, seg, rings) {
   seg = seg || 12; rings = rings || 4;
-  const P = (a, b) => [cx + Math.cos(a) * Math.cos(b) * r, cy + Math.sin(b) * ry, cz + Math.sin(a) * Math.cos(b) * r];
-  const N = (a, b) => C.norm([Math.cos(a) * Math.cos(b) / r, Math.sin(b) / ry, Math.sin(a) * Math.cos(b) / r]);
-  for (let j = 0; j < rings; j++) {
-    const b0 = j / rings * Math.PI / 2, b1 = (j + 1) / rings * Math.PI / 2;
-    for (let i = 0; i < seg; i++) {
-      const a0 = i / seg * Math.PI * 2, a1 = (i + 1) / seg * Math.PI * 2, q = [[a0, b0], [a0, b1], [a1, b1], [a1, b0]];
-      g.room(4); const b = g.n;
-      for (const [a, e] of q) { const p = mx(M, o, P(a, e)), n = mv(M, N(a, e)); g.v(p[0], p[1], p[2], n[0], n[1], n[2], 0.25, 0.5, col, 240); }
-      g.tri(b, b + 1, b + 2); g.tri(b, b + 2, b + 3);
+  const circle=roundCircle(seg),base=g.n;
+  g.room((rings+1)*(seg+1)+seg+1,(rings*2+1)*seg*3);
+  for(let j=0;j<=rings;j++){
+    const b=j/rings*Math.PI/2,cb=j===rings?0:Math.cos(b),sb=Math.sin(b);
+    for(let i=0;i<=seg;i++){
+      const [ca,sa]=circle[i],p=mx(M,o,[cx+ca*cb*r,cy+sb*ry,cz+sa*cb*r]),n=mv(M,C.norm([ca*cb/r,sb/ry,sa*cb/r]));
+      g.v(...p,...n,.25,.5,col,240);
     }
   }
+  for(let j=0;j<rings;j++)for(let i=0;i<seg;i++){const a=base+j*(seg+1)+i,b=a+seg+1;if(j+1<rings)g.tri(a,b,b+1);g.tri(a,b+1,a+1);}
   const c = mx(M, o, [cx, cy, cz]), dn = mv(M, [0, -1, 0]);g.room(seg + 1); const b = g.n;
   g.v(c[0], c[1], c[2], dn[0], dn[1], dn[2], 0.25, 0.5, col, 240);
-  for (let i = 0; i < seg; i++) { const p = mx(M, o, P(i / seg * Math.PI * 2, 0)); g.v(p[0], p[1], p[2], dn[0], dn[1], dn[2], 0.25, 0.5, col, 240); }
+  for (let i = 0; i < seg; i++) { const [ca,sa]=circle[i],p=mx(M,o,[cx+ca*r,cy,cz+sa*r]);g.v(...p,...dn,.25,.5,col,240); }
   for (let i = 0; i < seg; i++) g.tri(b, b + 1 + i, b + 1 + (i + 1) % seg);
 }
 // A frame pitched up by ang about the local Z axis at a local origin.
@@ -819,7 +820,7 @@ function fitRayAssetMeshes(f,model){
  // the renderer's exact float positions and all separate support triangles.
  const body=FIT_SKIP_BODY,ped=FIT_SKIP_PED;let support;
  try{FIT_SKIP_BODY=new Set([f.id]);FIT_SKIP_PED=null;support=meshFits(model,null,null,[f]);}finally{FIT_SKIP_BODY=body;FIT_SKIP_PED=ped;}
- if(f.float)return [support];const raw=C.decodeReference(id);if(!raw)return [support];
+ if(f.float)return [support];const raw=familyReferenceAsset(f)?turretRenderAsset(id)?.mesh:C.decodeReference(id);if(!raw)return [support];
  const point=plainFitAsset(f)||familyReferenceAsset(f)?fitReferenceTransform(f):v=>C.referenceFitPoint(f,v),pos=new Float32Array(raw.pos.length);
  for(let i=0;i<pos.length;i+=3)pos.set(point([raw.pos[i],raw.pos[i+1],raw.pos[i+2]]),i);
  return [support,{pos,idx:raw.idx,ni:raw.idx.length}];
@@ -1963,11 +1964,23 @@ function triangleMesh(g,T,col,scale=48,alpha=255){
     const k=g.n;g.v(ax,ay,az,nx,ny,nz,ax/scale,(ay+az)/scale,col,alpha);g.v(bx,by,bz,nx,ny,nz,bx/scale,(by+bz)/scale,col,alpha);g.v(cx,cy,cz,nx,ny,nz,cx/scale,(cy+cz)/scale,col,alpha);g.tri(k,k+1,k+2);
   }
 }
-function axisFrustum(g,a,b,r0,r1,col,caps=true,inward=false,segments=32){
-  const f=C.frameAxis(C.sub(b,a)),l=C.len(C.sub(b,a)),N=segments;
-  const p=(o,r,t)=>C.add(o,C.add(C.mul(f.v,Math.cos(t)*r),C.mul(f.w,Math.sin(t)*r)));
-  for(let i=0;i<N;i++){const t=i/N*Math.PI*2,t2=(i+1)/N*Math.PI*2,ps=[p(a,r0,t),p(a,r0,t2),p(b,r1,t2),p(b,r1,t)],n=C.norm(C.add(C.add(C.mul(f.v,Math.cos((t+t2)/2)),C.mul(f.w,Math.sin((t+t2)/2))),C.mul(f.u,(r0-r1)/l)));quad(g,inward?[ps[3],ps[2],ps[1],ps[0]]:ps,inward?C.mul(n,-1):n,[[i/N*4,0],[(i+1)/N*4,0],[(i+1)/N*4,l/64],[i/N*4,l/64]],col,255);
-    if(caps)for(const [o,r,sg] of [[a,r0,-1],[b,r1,1]]){if(Array.isArray(caps)&&!caps[sg<0?0:1])continue;g.room(3);const k=g.n,ps2=sg<0?[o,p(o,r,t2),p(o,r,t)]:[o,p(o,r,t),p(o,r,t2)];for(const q of ps2)g.v(...q,...C.mul(f.u,sg),.5,.5,col,255);g.tri(k,k+1,k+2);}
+function axisFrustum(g,a,b,r0,r1,col,caps=true,inward=false,segments){
+  const delta=C.sub(b,a),l=C.len(delta);if(!(l>1e-9)||!(r0>0||r1>0))return;
+  const f=C.frameAxis(delta),N=segments||radialSegments(Math.max(r0,r1)),circle=roundCircle(N),base=g.n,p=(o,r,i)=>C.add(o,C.add(C.mul(f.v,circle[i][0]*r),C.mul(f.w,circle[i][1]*r)));
+  g.room((N+1)*2+(caps?(N+2)*2:0),N*(caps?12:6));
+  // Shared side rings use the analytical frustum normal. Smooth lighting keeps
+  // the reduced silhouette round; cap vertices stay separate for a hard rim.
+  for(let i=0;i<=N;i++){
+    const n=C.mul(C.norm(C.add(C.add(C.mul(f.v,circle[i][0]),C.mul(f.w,circle[i][1])),C.mul(f.u,(r0-r1)/l))),inward?-1:1);
+    g.v(...p(a,r0,i),...n,i/N*4,0,col,255);g.v(...p(b,r1,i),...n,i/N*4,l/64,col,255);
+  }
+  const tri=(a,b,c)=>inward?g.tri(c,b,a):g.tri(a,b,c);
+  for(let i=0;i<N;i++){const a=base+i*2,b=a+1,c=a+2,d=a+3;if(r0>0)tri(a,c,d);if(r1>0)tri(a,d,b);}
+  if(caps)for(const [o,r,sg]of [[a,r0,-1],[b,r1,1]]){
+    if(!(r>0)||Array.isArray(caps)&&!caps[sg<0?0:1])continue;
+    const cap=g.n,n=C.mul(f.u,sg);g.v(...o,...n,.5,.5,col,255);
+    for(let i=0;i<=N;i++)g.v(...p(o,r,i),...n,.5,.5,col,255);
+    for(let i=0;i<N;i++)if(sg<0)g.tri(cap,cap+i+2,cap+i+1);else g.tri(cap,cap+i+1,cap+i+2);
   }
 }
 const CANOPY_GLASS=[46,62,74],ASTRO_DOME=[120,150,196];
@@ -2039,7 +2052,7 @@ function driveHousingMesh(g,s,palette){
  for(let i=0;i<bands;i++){const center=end+(1-2*end)*(i+1)/(bands+1),half=Math.min((1-2*end)/(4*(bands+1)),radius*.18/length);stations.push([center-half,.92],[center-half*.55,1],[center+half*.55,1],[center+half,.92]);}
  stations.push([1-end,.92],[1-end*.7,1],[1,1]);const u=C.mul(C.sub(s.b,s.a),1/length);
  for(let i=1;i<stations.length;i++){const [lo,r0]=stations[i-1],[hi,r1]=stations[i];if(hi-lo<1e-10)continue;const a=C.add(s.a,C.mul(u,length*lo)),b=C.add(s.a,C.mul(u,length*hi)),color=r0===1&&r1===1?palette.ring:r0===.92&&r1===.92?palette.shell:palette.shoulder;
-  axisFrustum(g,a,b,C.lerp(s.r0,s.r1,lo)*r0,C.lerp(s.r0,s.r1,hi)*r1,color,[i===1,i===stations.length-1],false,20);
+  axisFrustum(g,a,b,C.lerp(s.r0,s.r1,lo)*r0,C.lerp(s.r0,s.r1,hi)*r1,color,[i===1,i===stations.length-1],false,Math.min(20,radialSegments(radius)));
  }
 }
 // The body and its connectors use the occupied segments themselves. Keep ribs
@@ -2061,7 +2074,7 @@ function machineryMesh(out,p,ship,color,opt={}){
 function engineCoreMesh(target,p,color){
  const m=C.partDims(p),u=C.norm(p.dir||[1,0,0]);if(!(m.l>0)||!Number.isFinite(m.l)||m.l>C.DESIGN_LIMITS.engineLength||!(m.rad>0)||!Number.isFinite(m.rad)||m.rad>C.DESIGN_LIMITS.engineDiameter||!p.c?.every(v=>Number.isFinite(v)&&Math.abs(v)<=C.DESIGN_LIMITS.coordinate)||!u.every(Number.isFinite)||C.len(u)<.99)return;
  const a=C.sub(p.c,C.mul(u,m.l/2)),half=Math.min(m.l*.025,m.rad*.18)/m.l,ts=[0,...Array.from({length:5},(_,i)=>[(i+.5)/5-half,(i+.5)/5+half]).flat(),1];
- for(let i=0;i+1<ts.length;i++){const lo=ts[i],hi=ts[i+1],rib=i%2===1,r=m.rad*(rib?1:.97);axisFrustum(target,C.add(a,C.mul(u,m.l*lo)),C.add(a,C.mul(u,m.l*hi)),r,r,rib?[117,134,145]:color,[i===0||rib,i===ts.length-2||rib],false,24);}
+ for(let i=0;i+1<ts.length;i++){const lo=ts[i],hi=ts[i+1],rib=i%2===1,r=m.rad*(rib?1:.97);axisFrustum(target,C.add(a,C.mul(u,m.l*lo)),C.add(a,C.mul(u,m.l*hi)),r,r,rib?[117,134,145]:color,[i===0||rib,i===ts.length-2||rib],false,radialSegments(m.rad));}
 }
 // Index ranges per part let the editor hide a part while it previews an edit.
 function geoMarks(out){const m={};for(const k in out)m[k]=out[k].ni;return m;}
@@ -2738,7 +2751,7 @@ function engineBell(out,p,a,b,u,color,glow,ship){
  for(let i=0;i<20;i++){const angle=i/20*Math.PI*2,radial=C.add(C.mul(f.v,Math.cos(angle)),C.mul(f.w,Math.sin(angle)));axisFrustum(out.engine,C.add(a,C.mul(radial,r*.62)),C.add(b,C.mul(radial,r*1.015)),Math.min(Math.max(.25,r*.016),r*.05),Math.min(Math.max(.25,r*.018),r*.05),[105,117,125],false);}
  axisFrustum(out.engine,C.sub(b,C.mul(u,Math.min(.6,r*.15))),C.add(b,C.mul(u,Math.min(.6,r*.15))),r*1.02,r*1.02,[170,180,184],false);
  }
- const g=on?out.nozzle:out.engine,N=32;g.room(N+2,N*3);const base=g.n;g.v(...tip,...u,.5,.5,on?WHITE:[33,42,47],255);
+ const g=on?out.nozzle:out.engine,N=radialSegments(r*throat);g.room(N+2,N*3);const base=g.n;g.v(...tip,...u,.5,.5,on?WHITE:[33,42,47],255);
  for(let i=0;i<=N;i++){const t=i/N*Math.PI*2,q=C.add(tip,C.add(C.mul(f.v,Math.cos(t)*r*throat),C.mul(f.w,Math.sin(t)*r*throat)));g.v(...q,...u,.5+.5*Math.cos(t),.5+.5*Math.sin(t),on?WHITE:[33,42,47],255);}for(let i=0;i<N;i++)g.tri(base,base+i+1,base+i+2);
  if(on)glow.push(...C.add(b,C.mul(u,r*(hasSkin ? .5 : .12))),r*.8);
 }
@@ -2848,6 +2861,95 @@ function appendPlainFit(g,f){
 // Every gun uses the existing ISD octuple's paint. Keep the original octuple
 // untouched; recolor only cached draw copies, never decoded or archived assets.
 const FAMILY_REFERENCE_CACHE=new WeakMap();
+// Drawing uses a separate, cached copy of the authored geometry. The original
+// reference remains the authority for dimensions, equipment space and physics.
+// Preserve every barrel profile station; only circular sampling is reduced.
+const TURRET_RENDER_ASSET_CACHE=new WeakMap();
+function turretDrawCompact(pos,uv,indices){
+ const used=new Set(indices),map=new Int32Array(pos.length/3).fill(-1),P=[],U=[];
+ for(let i=0;i<map.length;i++)if(used.has(i)){map[i]=P.length/3;P.push(pos[i*3],pos[i*3+1],pos[i*3+2]);U.push(uv[i*2],uv[i*2+1]);}
+ return {pos:Float32Array.from(P),uv:Float32Array.from(U),idx:Uint32Array.from(indices,i=>map[i]),sourceVertexMap:map};
+}
+function turretDrawPart(a,raw,row){
+ const first=row.firstVertex,last=first+row.vertices,start=row.firstIndex,end=start+row.indices;
+ if(![first,last,start,end].every(Number.isInteger)||first<0||last>a.n||start<0||end>raw.idx.length||start%3||end%3)return null;
+ const idx=Array.from(raw.idx.subarray(start,end),i=>i-first);if(idx.some(i=>i<0||i>=row.vertices))return null;
+ return {pos:raw.pos.slice(first*3,last*3),uv:raw.uv.slice(first*2,last*2),idx};
+}
+function turretDrawSphere(a,row){
+ const range=a.sphereMeshRange,c=a.sphereCenterM,R=a.sphereRadiusM;
+ if(row.normalMode!=='sphere'||!range||row.firstIndex!==range.firstIndex||row.indices!==range.indices||!(R>0)||!Array.isArray(c)||c.length!==3||!c.every(Number.isFinite))return null;
+ // Complete balls only: clipped domes and their hard floors keep their exact
+ // authored surfaces. Smooth radial normals are applied after the fit pose.
+ if(Number.isFinite(row.floorYM))return null;
+ const ns=20,nl=10,pos=[],uv=[],idx=[];
+ const vertex=(x,y,z,u,v)=>{pos.push((x-a.c[0])/a.size[0],(y-a.c[1])/a.size[1],(z-a.c[2])/a.size[2]);uv.push(u,v);};
+ vertex(c[0],c[1]-R,c[2],.5,0);
+ for(let j=1;j<nl;j++){const t=-Math.PI/2+Math.PI*j/nl;for(let i=0;i<ns;i++){const p=i*Math.PI*2/ns;vertex(c[0]+R*Math.cos(t)*Math.cos(p),c[1]+R*Math.sin(t),c[2]+R*Math.cos(t)*Math.sin(p),i/ns,j/nl);}}
+ const top=pos.length/3;vertex(c[0],c[1]+R,c[2],.5,1);
+ for(let i=0;i<ns;i++)idx.push(0,1+(i+1)%ns,1+i);
+ for(let j=0;j<nl-2;j++){const b=1+j*ns,n=b+ns;for(let i=0;i<ns;i++){const k=(i+1)%ns;idx.push(b+i,b+k,n+k,b+i,n+k,n+i);}}
+ for(let i=0;i<ns;i++)idx.push(1+(nl-2)*ns+i,1+(nl-2)*ns+(i+1)%ns,top);
+ for(let i=0;i<idx.length;i+=3){const t=idx[i+1];idx[i+1]=idx[i+2];idx[i+2]=t;}
+ return {pos:Float32Array.from(pos),uv:Float32Array.from(uv),idx:Uint32Array.from(idx)};
+}
+function turretDrawClosed(mesh){
+ const edges=new Map(),keys=Array.from({length:mesh.pos.length/3},(_,i)=>Array.from(mesh.pos.subarray(i*3,i*3+3)).join(','));
+ for(let i=0;i<mesh.idx.length;i+=3){const t=Array.from(mesh.idx.slice(i,i+3),j=>keys[j]);for(let j=0;j<3;j++){const x=t[j],y=t[(j+1)%3];if(x===y)return false;const k=x<y?x+'|'+y:y+'|'+x;edges.set(k,(edges.get(k)||0)+1);}}
+ return edges.size>0&&[...edges.values()].every(n=>n===2);
+}
+function turretDrawBarrel(a,raw,row,barrel){
+ if(!barrel||!Array.isArray(barrel.root)||!Array.isArray(barrel.axis)||Math.abs(barrel.axis[0]-1)>1e-5||Math.abs(barrel.axis[1])+Math.abs(barrel.axis[2])>1e-5)return null;
+ const mesh=turretDrawPart(a,raw,row);if(!mesh||!turretDrawClosed(mesh))return null;
+ const tol=Math.max(...a.size)/65532*2.2,cy=barrel.root[1],cz=barrel.root[2],points=Array.from({length:row.vertices},(_,i)=>[0,1,2].map(k=>mesh.pos[i*3+k]*a.size[k]+a.c[k])),map=Int32Array.from(points,(_,i)=>i),rings=[];
+ // The generated barrels store their profile in axial order. An unfamiliar
+ // imported mesh deliberately falls back to its original draw geometry.
+ for(let first=0;first<points.length;){
+  const p=points[first],radius=Math.hypot(p[1]-cy,p[2]-cz);let end=first+1;
+  while(end<points.length&&Math.abs(points[end][0]-p[0])<=tol&&Math.abs(Math.hypot(points[end][1]-cy,points[end][2]-cz)-radius)<=tol)end++;
+  const n=end-first;if(radius<=tol){if(n!==1)return null;rings.push({first,end,n});first=end;continue;}
+  if(n<8||n%4)return null;
+  const angles=Array.from({length:n},(_,j)=>({id:first+j,angle:(Math.atan2(points[first+j][2]-cz,points[first+j][1]-cy)+Math.PI*2)%(Math.PI*2)})).sort((x,y)=>x.angle-y.angle);
+  for(let j=0;j<n;j++){const gap=(angles[(j+1)%n].angle-angles[j].angle+Math.PI*2)%(Math.PI*2);if(Math.abs(gap-Math.PI*2/n)>Math.max(.012,tol/Math.max(radius,tol)*4))return null;}
+  const byColumn=new Map();for(const v of angles){const column=Math.round(v.angle*n/(Math.PI*2))%n,error=Math.abs(Math.atan2(Math.sin(v.angle-column*Math.PI*2/n),Math.cos(v.angle-column*Math.PI*2/n)));if(byColumn.has(column)||error>Math.max(.012,tol/Math.max(radius,tol)*4))return null;byColumn.set(column,v);}
+  if(n>12){const target=n===16?8:12,keep=new Set();for(let j=0;j<target;j++)keep.add(Math.round(j*n/target)%n);
+   // Always retain the original four silhouette extrema, even for a ring
+   // whose angular origin differs from the standard generated profile.
+   for(const column of [0,n/4,n/2,n*3/4])keep.add(column);
+   for(const [column,v]of byColumn){let best=0,distance=Infinity;for(const q of keep){const d=Math.min((column-q+n)%n,(q-column+n)%n);if(d<distance||d===distance&&q<best){distance=d;best=q;}}map[v.id]=byColumn.get(best).id;}
+  }
+  rings.push({first,end,n});first=end;
+ }
+ if(rings.length<3||!map.some((v,i)=>v!==i))return null;
+ const indices=[],seen=new Set();for(let i=0;i<mesh.idx.length;i+=3){const t=[map[mesh.idx[i]],map[mesh.idx[i+1]],map[mesh.idx[i+2]]];if(new Set(t).size<3)continue;const min=Math.min(...t),j=t.indexOf(min),key=[t[j],t[(j+1)%3],t[(j+2)%3]].join(',');if(!seen.has(key)){seen.add(key);indices.push(...t);}}
+ const result=turretDrawCompact(mesh.pos,mesh.uv,indices);if(result.idx.length>=mesh.idx.length||!turretDrawClosed(result))return null;
+ return result;
+}
+function turretRenderAsset(id){
+ const source=C.REFERENCE_ASSETS[id];if(!source)return null;let result=TURRET_RENDER_ASSET_CACHE.get(source);if(result)return result;
+ const raw=C.decodeReference(id);if(!raw)return null;
+ const original=()=>({asset:source,mesh:raw,source:{vertices:source.n,faces:source.faces},reduced:false});
+ if(id==='isd_heavy_octuple'||!['imperial-photo-family','light-photo-family','capital-photo-family','moncal-photo-family','point-defense-photo','cis-photo-family'].includes(source.nativeCalibration)||!source.components?.length){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}
+ const rows=source.components.slice().sort((x,y)=>x.firstIndex-y.firstIndex||y.indices-x.indices),partition=[];let end=0;
+ // Some authored houses also record a parent component around several small
+ // cells. Draw those triangles once while retaining every nested metadata row.
+ for(const row of rows){if(row.firstIndex<end){if(row.firstIndex+row.indices>end){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}continue;}partition.push(row);end=row.firstIndex+row.indices;}
+ const pos=[],uv=[],idx=[],mapped=new Map(),rangeKey=r=>r.firstIndex+':'+r.indices,indexBoundary=new Map([[0,0]]),vertexBoundary=new Map([[0,0]]);let cursor=0,changed=false;
+ for(const row of partition){
+  if(row.firstIndex!==cursor){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}
+  const barrel=(source.barrelCenters||[]).find(b=>b.firstIndex===row.firstIndex&&b.indices===row.indices),replacement=turretDrawSphere(source,row)||turretDrawBarrel(source,raw,row,barrel),part=replacement||turretDrawPart(source,raw,row);
+  if(!part){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}
+  const mesh=turretDrawCompact(part.pos,part.uv,part.idx),firstVertex=pos.length/3,firstIndex=idx.length,range={firstVertex,vertices:mesh.pos.length/3,firstIndex,indices:mesh.idx.length};
+  pos.push(...mesh.pos);uv.push(...mesh.uv);for(const i of mesh.idx)idx.push(firstVertex+i);mapped.set(rangeKey(row),range);cursor+=row.indices;indexBoundary.set(row.firstIndex,firstIndex);indexBoundary.set(cursor,idx.length);vertexBoundary.set(row.firstVertex,firstVertex);vertexBoundary.set(row.firstVertex+row.vertices,pos.length/3);changed=changed||!!replacement;
+  if(!replacement)for(const nested of rows){if(nested===row||nested.firstIndex<row.firstIndex||nested.firstIndex+nested.indices>cursor)continue;const lo=nested.firstVertex-row.firstVertex,hi=lo+nested.vertices;if(lo<0||hi>mesh.sourceVertexMap.length)continue;const used=Array.from(mesh.sourceVertexMap.subarray(lo,hi)).filter(i=>i>=0);if(!used.length)continue;const r={firstVertex:firstVertex+used[0],vertices:used.length,firstIndex:firstIndex+nested.firstIndex-row.firstIndex,indices:nested.indices};mapped.set(rangeKey(nested),r);indexBoundary.set(nested.firstIndex,r.firstIndex);indexBoundary.set(nested.firstIndex+nested.indices,r.firstIndex+r.indices);vertexBoundary.set(nested.firstVertex,r.firstVertex);vertexBoundary.set(nested.firstVertex+nested.vertices,r.firstVertex+r.vertices);}
+ }
+ if(cursor!==raw.idx.length||!indexBoundary.has(source.elevationIndexStart)){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}
+ if(!changed){result=original();TURRET_RENDER_ASSET_CACHE.set(source,result);return result;}
+ const remap=value=>{if(Array.isArray(value))return value.map(remap);if(!value||typeof value!=='object')return value;const range=mapped.get(rangeKey(value)),next={...value};if(range)Object.assign(next,range);for(const k of Object.keys(next))if(next[k]&&typeof next[k]==='object')next[k]=remap(next[k]);return next;};
+ const asset={...source,n:pos.length/3,faces:idx.length/3,components:source.components.map(remap),barrelCenters:(source.barrelCenters||[]).map(remap),sphereMeshRange:source.sphereMeshRange&&remap(source.sphereMeshRange),drivePivots:(source.drivePivots||[]).map(remap),fixedDriveShoulders:(source.fixedDriveShoulders||[]).map(remap),machineryMeshRanges:(source.machineryMeshRanges||[]).map(remap),elevationIndexStart:indexBoundary.get(source.elevationIndexStart),elevationVertexStart:vertexBoundary.get(source.elevationVertexStart)??0,renderOnly:true};
+ delete asset.data;delete asset.dataFrom;
+ result={asset,mesh:{pos:Float32Array.from(pos),uv:Float32Array.from(uv),idx:Uint32Array.from(idx)},source:{vertices:source.n,faces:source.faces},reduced:true};TURRET_RENDER_ASSET_CACHE.set(source,result);return result;
+}
 // Interior non-emissive texel matching the area-weighted original octuple roof
 // (2048px atlas). One sample avoids stretching panel rectangles into camouflage.
 const TURRET_PAINT_UV=[.046142578125,.153564453125];
@@ -2859,8 +2961,8 @@ function appendProceduralTurret(g,f){const key=JSON.stringify([f,C.fitSpec(f)],(
   applyTurretPaint(mesh);item={key,mesh};PROCEDURAL_TURRET_PAINT_CACHE.set(f,item);}appendGeo(g,item.mesh);
 }
 function appendFamilyReference(g,f){
- const a=familyReferenceAsset(f),id=f.skinAsset||C.FITS[f.k].asset,key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=FAMILY_REFERENCE_CACHE.get(f);
- if(!item||item.key!==key){const mesh=new Geo(a.n),raw=C.decodeReference(id),point=fitReferenceTransform(f);appendReference(mesh,id,point);applyTurretPaint(mesh);
+ const id=f.skinAsset||C.FITS[f.k].asset,render=turretRenderAsset(id),a=render.asset,key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=FAMILY_REFERENCE_CACHE.get(f);
+ if(!item||item.key!==key){const mesh=new Geo(a.n),raw=render.mesh,point=fitReferenceTransform(f);appendReference(mesh,id,point,null,WHITE,[],[],null,null,render);applyTurretPaint(mesh);
   for(const part of a.components||[]){if(part.normalMode!=='sphere'||!Array.isArray(part.normalCenterM)||part.normalCenterM.length!==3||!part.normalCenterM.every(Number.isFinite))continue;
    const c=part.normalCenterM.map((v,k)=>(v-a.c[k])/a.size[k]),center=point(c),up=C.norm(C.sub(point([c[0],c[1]+1/a.size[1],c[2]]),center)),eps=Math.max(.002,(a.maxQuantizationErrorM||0)*3);
    for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){const v=Array.from(raw.pos.subarray(i*3,i*3+3)),n0=Array.from(mesh.nor.subarray(i*3,i*3+3));
@@ -2876,11 +2978,12 @@ function appendFamilyReference(g,f){
     const gradient=c.map((v,k)=>(raw.pos[i*3+k]*a.size[k]+a.c[k]-v)/(part.normalRadiiM[k]**2)),tip=c.map((v,k)=>(v+gradient[k]-a.c[k])/a.size[k]),n=C.norm(C.sub(point(tip),worldCenter));
     for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;
    }}
-  item={key,mesh};FAMILY_REFERENCE_CACHE.set(f,item);}
+  mesh.drawElevationIndexStart=a.elevationIndexStart;item={key,mesh};FAMILY_REFERENCE_CACHE.set(f,item);}
+ if(g.ni===0)g.drawElevationIndexStart=item.mesh.drawElevationIndexStart;
  appendGeo(g,item.mesh);
 }
-function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[],ship=null,host=null){
- const a=C.REFERENCE_ASSETS[id],d=C.decodeReference(id);if(!a||!d)return;if(!a.plainMetal)color=refTone(id,color);
+function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[],ship=null,host=null,drawAsset=null){
+ const a=drawAsset?.asset||C.REFERENCE_ASSETS[id],d=drawAsset?.mesh||C.decodeReference(id);if(!a||!d)return;if(!a.plainMetal)color=refTone(id,color);
  const pos=new Float32Array(d.pos.length),nor=new Float32Array(d.pos.length),indices=[];
  for(let i=0;i<d.pos.length;i+=3)pos.set(point([d.pos[i],d.pos[i+1],d.pos[i+2]],a),i);
  // The common uncut reference keeps every source index. Accumulate the
@@ -3166,7 +3269,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
-  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
+  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=Number.isInteger(geo.drawElevationIndexStart)?geo.drawElevationIndexStart:g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
   const embedded=C.surfaceBatteryGeometry?.(f),bay=C.broadsideBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),...(bay?{broadsideBattery:true,muzzles:bay.muzzles.map(p=>p.slice())}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:bay?.width??embedded?.width,portHeight:bay?.height??embedded?.height,port:bay?{width:bay.width,height:bay.height,depth:bay.depth}:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:bay?true:embedded?false:!!(spec.casemate||spec.fixed),barrels:d.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:d.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
@@ -3393,6 +3496,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, clearPreviewCache, isHiddenEngineFeed, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
+return {meshPreview, clearPreviewCache, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
 })();
 

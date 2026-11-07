@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance});
@@ -68,7 +69,7 @@ test('all nine capital weapons use their native physical models, requested barre
   assert.equal(Buffer.from(raw.data,'base64').length,a.n*10+a.faces*3*a.indexBytes);assert.equal(m.pos.length,a.n*3);assert.equal(m.idx.length,a.faces*3);
   assert.ok(a.faces>0&&a.faces<=5000,`${k}: ${a.faces} actual fixed + moving triangles`);assert.ok(a.elevationIndexStart>=0&&a.elevationIndexStart<=m.idx.length&&a.elevationIndexStart%3===0);
   for(const i of m.idx)assert.ok(Number.isInteger(i)&&i>=0&&i<a.n);for(const x of m.pos)assert.ok(Number.isFinite(x));
-  const geos=[G.meshFits({fits:[fit(k)]}),G.meshReferenceFits({fits:[fit(k)]})];assert.equal(geos.reduce((s,g)=>s+g.ni,0),m.idx.length,'no duplicate mesh or omitted moving assembly');
+  const geos=[G.meshFits({fits:[fit(k)]}),G.meshReferenceFits({fits:[fit(k)]})];assert.equal(geos.reduce((s,g)=>s+g.ni,0),drawAsset(k).faces*3,'no duplicate mesh or omitted moving assembly');
  }
  assert.equal(new Set(ids).size,9);
 });
@@ -120,7 +121,7 @@ test('twenty-five complete physical barrels have circular mouths, real recessed 
 
 test('capital models share draw, selection, muzzle and GPU normal frames on every mounting axis and sloped walls',()=>{
  const frames=[...Array.from({length:6},(_,a)=>({a,p:[1600,300,-600]})),{a:2,tilt:C.norm([.23,.91,-.34])}];
- for(const[k]of FAMILY){const{a}=model(k);for(const frame of frames){const f=fit(k,{...frame,assetYaw:37}),s={fits:[f]},geos=[G.meshFits(s),G.meshReferenceFits(s)],B=C.fitAABB(f),g=C.authoredTurretGeometry(f);assert.ok(g,k+' authored mechanical joint');assert.equal(geos.reduce((n,q)=>n+q.ni,0),a.faces*3);
+ for(const[k]of FAMILY){const{a}=model(k);for(const frame of frames){const f=fit(k,{...frame,assetYaw:37}),s={fits:[f]},geos=[G.meshFits(s),G.meshReferenceFits(s)],B=C.fitAABB(f),g=C.authoredTurretGeometry(f);assert.ok(g,k+' authored mechanical joint');assert.equal(geos.reduce((n,q)=>n+q.ni,0),drawAsset(k).faces*3);
   for(const q of geos){usedNormals(q,k);for(const i of q.idx.subarray(0,q.ni))for(let j=0;j<3;j++)assert.ok(q.pos[i*3+j]>=B[j]-.005&&q.pos[i*3+j]<=B[j+3]+.005,k+' visible vertices remain selectable');}
   const world=p=>C.referenceFitPoint(f,p.map((x,i)=>(x-a.c[i])/a.size[i]));vector(world(a.mount),C.fitOrigin(f),1e-6);
   for(const r of a.barrelCenters){const start=world(C.add(r.muzzle,[1,0,0])),end=world(C.sub(r.muzzle,[r.muzzleRecessM,0,0])),hit=G.rayFit(start,C.norm(C.sub(end,start)),f);assert.ok(hit,k+' rendered muzzle selectable');vector(hit.p,end,.012);}
@@ -130,9 +131,9 @@ test('capital models share draw, selection, muzzle and GPU normal frames on ever
 
 test('fleet and editor previews use the same complete fixed and elevating capital geometry',()=>{
  for(const[k]of FAMILY){const{a}=model(k),s=C.newShip({assembly:true,L:200,W:150,H:100},'Capital partition test');s.parts=[];const f=fit(k);s.fits=[f];const fleet=G.fleetGeometry(s,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id),g=C.authoredTurretGeometry(f),preview=G.meshPreview(s,[],[f]);assert.ok(t&&g);
-  assert.equal(t.barrels,a.barrels);assert.equal(t.bodyMesh?fleet.meshes[t.bodyMesh].geo.ni:0,a.elevationIndexStart);assert.equal(fleet.meshes[t.mesh].geo.ni,a.faces*3-a.elevationIndexStart);
+  assert.equal(t.barrels,a.barrels);assert.equal(t.bodyMesh?fleet.meshes[t.bodyMesh].geo.ni:0,drawAsset(k).elevationIndexStart);assert.equal(fleet.meshes[t.mesh].geo.ni,drawAsset(k).faces*3-drawAsset(k).elevationIndexStart);
   for(const name of [t.bodyMesh,t.mesh].filter(Boolean))usedNormals(fleet.meshes[name].geo,k+' '+name);
-  assert.equal(preview.previewFits.ni+preview.previewRefFits.ni,a.faces*3);vector(t.pivot,g.elevationPivot,1e-6);vector(t.bodyPivot||g.yawPivot,g.yawPivot,1e-6);
+  assert.equal(preview.previewFits.ni+preview.previewRefFits.ni,drawAsset(k).faces*3);vector(t.pivot,g.elevationPivot,1e-6);vector(t.bodyPivot||g.yawPivot,g.yawPivot,1e-6);
  }
 });
 
@@ -250,16 +251,16 @@ test('the flattened IS-style twin uses true ellipsoid lighting on curved armor a
  const{a,m}=model('ion'),curves=a.components.filter(p=>p.normalMode==='ellipsoid');assert.ok(curves.length>0);assert.equal(a.caseStyle,'flattened-is-cast-bowl');assert.equal(model('stl').a.caseStyle,'forward-wide-naval-hexagon');
  const bowl=spans(a.fixedCaseMeshRanges.flatMap(r=>points(a,m,r))),laser=model('stl');assert.ok(bowl[0]>bowl[2]*1.1,'the actual ion case is a front-to-back oval');for(const r of curves)assert.ok(r.normalRadiiM[0]>r.normalRadiiM[2]*1.1,'longitudinal ellipsoid radii preserve the oval casting');
  const ionFore=bounds(points(a,m,a.frontPod.podMeshRange))[3]-a.mount[0],laserFore=bounds(points(laser.a,laser.m,laser.a.frontPod.podMeshRange))[3]-laser.a.mount[0];near(ionFore-laserFore,1.65,.015,'the real ion gun pod projects farther ahead of its traverse center');
- const marked=new Set(curves.flatMap(r=>Array.from({length:r.vertices},(_,i)=>r.firstVertex+i))),modes=curves.map(r=>r.normalMode);
+ const draw=G.turretRenderAsset(C.FITS.ion.asset),drawCurves=draw.asset.components.filter(p=>p.normalMode==='ellipsoid'),marked=new Set(drawCurves.flatMap(r=>Array.from({length:r.vertices},(_,i)=>r.firstVertex+i))),modes=drawCurves.map(r=>r.normalMode);
  for(const frame of [{a:2,p:[0,0,0],assetYaw:0},{a:5,p:[300,50,-200],assetYaw:37},{a:2,p:[100,30,20],tilt:C.norm([.23,.91,-.34]),assetYaw:23}]){
   let flat;
-  try{for(const p of curves)delete p.normalMode;flat=G.meshReferenceFits({fits:[fit('ion',frame)]});}
-  finally{curves.forEach((p,i)=>p.normalMode=modes[i]);}
-  const f=fit('ion',frame),smooth=G.meshReferenceFits({fits:[f]});assert.equal(smooth.n,a.n);assert.equal(flat.n,a.n);
+  try{for(const p of drawCurves)delete p.normalMode;flat=G.meshReferenceFits({fits:[fit('ion',frame)]});}
+  finally{drawCurves.forEach((p,i)=>p.normalMode=modes[i]);}
+  const f=fit('ion',frame),smooth=G.meshReferenceFits({fits:[f]});assert.equal(smooth.n,draw.asset.n);assert.equal(flat.n,draw.asset.n);
   for(const k of ['pos','uv','col','idx']){const n=k==='idx'?smooth.ni:smooth.n*(k==='col'?4:k==='uv'?2:3);assert.deepEqual(Array.from(smooth[k].subarray(0,n)),Array.from(flat[k].subarray(0,n)),k+' remains unchanged by analytic shading');}
   const nativeToWorld=p=>C.referenceFitPoint(f,p.map((v,i)=>(v-a.c[i])/a.size[i]));let changed=0,hard=0;
-  for(let i=0;i<a.n;i++){const n=Array.from(smooth.nor.subarray(i*3,i*3+3));if(!marked.has(i)){assert.deepEqual(n,Array.from(flat.nor.subarray(i*3,i*3+3)),'unmarked armor cuts remain flat');hard++;continue;}
-   const r=curves.find(r=>i>=r.firstVertex&&i<r.firstVertex+r.vertices),p=point(a,m,i),normal=r.normalCenterM.map((c,j)=>(p[j]-c)/(r.normalRadiiM[j]**2)),worldNormal=C.norm(C.sub(nativeToWorld(C.add(r.normalCenterM,normal)),nativeToWorld(r.normalCenterM)));
+  for(let i=0;i<draw.asset.n;i++){const n=Array.from(smooth.nor.subarray(i*3,i*3+3));if(!marked.has(i)){assert.deepEqual(n,Array.from(flat.nor.subarray(i*3,i*3+3)),'unmarked armor cuts remain flat');hard++;continue;}
+   const r=drawCurves.find(r=>i>=r.firstVertex&&i<r.firstVertex+r.vertices),p=point(a,draw.mesh,i),normal=r.normalCenterM.map((c,j)=>(p[j]-c)/(r.normalRadiiM[j]**2)),worldNormal=C.norm(C.sub(nativeToWorld(C.add(r.normalCenterM,normal)),nativeToWorld(r.normalCenterM)));
    near(r.normalCenterM.reduce((q,c,j)=>q+((p[j]-c)/r.normalRadiiM[j])**2,0),1,.025,'only actual faceted ellipsoid skin receives analytic normals');assert.ok(C.dot(C.norm(n),worldNormal)>.9998,'cast armor follows the ellipsoid gradient');if(n.some((v,j)=>v!==flat.nor[i*3+j]))changed++;
   }
   assert.ok(changed>20&&hard>20,'curved casting and distinct hard armor cuts are both present');

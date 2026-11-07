@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance:{now:()=>0}});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -38,8 +39,8 @@ for(const [family,limit,count]of [['TURRET_FAMILY_KEYS',5000,9],['LIGHT_TURRET_K
   for(const p of m.pos)assert.ok(Number.isFinite(p),k+' finite rendered coordinate');
   assert.ok(m.idx.length/3<=limit,`${k}: ${m.idx.length/3} triangles exceed ${limit}`);
   const f=fit(k),s={fits:[f]},drawn=G.meshFits(s).ni+G.meshReferenceFits(s).ni;
-  assert.equal(drawn,m.idx.length,k+' the complete physical model is drawn exactly once');assert.ok(drawn/3<=limit);
-  assert.ok(a.elevationIndexStart>=0&&a.elevationIndexStart<=drawn&&a.elevationIndexStart%3===0,k+' fixed and moving groups share the same budget');
+  assert.equal(drawn,drawAsset(k).faces*3,k+' the complete budgeted model is drawn exactly once');assert.ok(drawn/3<=limit);
+  assert.ok(drawAsset(k).elevationIndexStart>=0&&drawAsset(k).elevationIndexStart<=drawn&&drawAsset(k).elevationIndexStart%3===0,k+' fixed and moving draw groups share the same budget');
  }
 });
 
@@ -71,7 +72,7 @@ test('the reduced triple70 front pod retains nonzero lighting normals on every i
  const frames=[{a:2,p:[0,0,0],assetYaw:0},...Array.from({length:6},(_,a)=>({a,p:[1600,300,-600],assetYaw:37})),{a:2,p:[40,30,20],assetYaw:23,tilt:C.norm([.25,.91,-.31])}];
  for(const [i,frame]of frames.entries()){
   const f={...fit('triple70'),...frame},s={fits:[f]},regular=[G.meshFits(s),G.meshReferenceFits(s)];
-  assert.equal(regular.reduce((n,g)=>n+g.ni,0),a.faces*3);assert.ok(regular.reduce((n,g)=>n+check(g,'pose '+i),0)>0);
+  assert.equal(regular.reduce((n,g)=>n+g.ni,0),drawAsset('triple70').faces*3);assert.ok(regular.reduce((n,g)=>n+check(g,'pose '+i),0)>0);
  }
  const s=C.newShip({assembly:true,L:200,W:100,H:60},'Reduced triple lighting regression');s.parts=[];s.fits=[{...fit('triple70'),p:[0,0,0],assetYaw:0}];
  const fleet=G.fleetGeometry(s,{trial:true}),turret=fleet.turrets.find(t=>t.id===1);assert.ok(turret?.bodyMesh&&turret.mesh);

@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),cx=vm.createContext({console,performance:{now:()=>1000}});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -21,9 +22,9 @@ function fixture(kind='quad500',frame={a:2}){
 function triangles(g){const out=[];for(let i=0;i<g.ni;i+=3)out.push(Array.from(g.idx.slice(i,i+3)).flatMap(k=>[...g.pos.slice(k*3,k*3+3),...g.nor.slice(k*3,k*3+3)]).join(','));return out.sort();}
 
 test('both authored turrets partition their actual housing and moving barrels without losing triangles',()=>{
- const palette=vm.createContext({C,ship:C.newShip({L:100,W:50,H:40})});vm.runInContext(section('const PART_KEYS =','const partOffered ='),palette);assert.equal(vm.runInContext("weaponKeys().filter(k=>k==='twin40').length",palette),1,'the new twin is available from the ordinary weapon palette');
+ const paletteShip=C.newShip({L:100,W:50,H:40}),palette=vm.createContext({C,ship:paletteShip,editorCraftDesign:()=>C.isCraft(paletteShip)});vm.runInContext(section('const PART_KEYS =','const partOffered ='),palette);assert.equal(vm.runInContext("weaponKeys().filter(k=>k==='twin40').length",palette),1,'the new twin is available from the ordinary weapon palette');
  for(const kind of ['quad500','twin40']){const {f,ship,geometry,t}=fixture(kind),a=C.REFERENCE_ASSETS[C.FITS[kind].asset],body=geometry.meshes[t.bodyMesh].geo,barrels=geometry.meshes[t.mesh].geo;
-  assert.equal(body.ni,t.authored.indexStart);assert.equal(body.ni+barrels.ni,a.faces*3);assert.deepEqual([...triangles(body),...triangles(barrels)].sort(),[G.meshFits(ship),G.meshReferenceFits(ship)].flatMap(triangles).sort());
+  assert.equal(t.authored.indexStart,a.elevationIndexStart);assert.equal(body.ni,drawAsset(kind).elevationIndexStart);assert.equal(body.ni+barrels.ni,drawAsset(kind).faces*3);assert.deepEqual([...triangles(body),...triangles(barrels)].sort(),[G.meshFits(ship),G.meshReferenceFits(ship)].flatMap(triangles).sort());
   near(t.pivot,t.authored.elevationPivot);near(t.bodyPivot,C.fitOrigin(f));assert.ok(C.dot(C.sub(t.pivot,t.bodyPivot),C.fitUp(f))>0,'barrels use the elevated trunnion rather than the turntable floor');
  }
 });
@@ -89,7 +90,7 @@ test('the side-mounted quad keeps its case fixed while its mantlet follows the s
 
 test('the complete ion sphere and four barrels share one moving group with the lower third below the mount',()=>{
  const {f,t,geometry}=fixture('quad40Ion'),a=C.REFERENCE_ASSETS[C.FITS.quad40Ion.asset],decoded=C.decodeReference(C.FITS.quad40Ion.asset),range=a.sphereMeshRange,moving=geometry.meshes[t.mesh].geo,body=geometry.meshes[t.bodyMesh].geo;
- assert.equal(t.authored.indexStart,0);assert.equal(body.ni,0,'the whole ball must not be replaced with a static case or artificial neck');assert.equal(moving.ni,a.faces*3);assert.equal(t.ion,true);assert.equal(t.barrels,4);assert.ok(range?.vertices>0);
+ assert.equal(t.authored.indexStart,0);assert.equal(body.ni,0,'the whole ball must not be replaced with a static case or artificial neck');assert.equal(moving.ni,drawAsset('quad40Ion').faces*3);assert.equal(t.ion,true);assert.equal(t.barrels,4);assert.ok(range?.vertices>0);
  const sphere=Array.from({length:range.vertices},(_,i)=>{const k=range.firstVertex+i;return {source:Array.from(decoded.pos.slice(k*3,k*3+3)),local:[0,1,2].map(axis=>decoded.pos[k*3+axis]*a.size[axis]+a.c[axis])};}),bottom=Math.min(...sphere.map(q=>q.local[1])),top=Math.max(...sphere.map(q=>q.local[1])),mount=a.mount[1];
  assert.ok(Math.abs((mount-bottom)/(top-bottom)-1/3)<.0002,'one third of the actual sphere diameter lies below the mounting plane');near(a.elevationPivot,a.sphereCenterM);assert.ok(Math.abs(top-bottom-2*a.sphereRadiusM)<.002);
  const crown=sphere.reduce((best,q)=>q.local[1]>best.local[1]?q:best),rest=C.referenceFitPoint(f,crown.source);assert.ok(Array.from({length:moving.n},(_,i)=>C.len(C.sub(Array.from(moving.pos.slice(i*3,i*3+3)),rest))).some(d=>d<.002),'the actual sphere crown belongs to the moving renderer mesh');

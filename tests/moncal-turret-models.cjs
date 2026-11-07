@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance});
@@ -10,7 +11,7 @@ const near=(a,b,eps=.005)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
 test('all eight new authored models use complete native geometry and the shared reference paint',()=>{
  for(const k of kinds){const f=fitting(k),s=ship([f]),d=C.FITS[k],a=C.REFERENCE_ASSETS[d.asset],g=G.meshReferenceFits(s),preview=G.meshPreview(s,[],[f]),fleet=G.fleetGeometry(s,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id);
   assert.equal(C.weaponModelScale(k),1,k+' keeps diagram/model physical dimensions');assert.ok(a.faces>0&&a.faces<=5000);
-  assert.equal(g.ni,a.faces*3,k+' draws every authored triangle');assert.equal(G.meshFits(s).ni,0,k+' has no duplicated procedural body');assert.equal(preview.previewRefFits.ni,g.ni);
+  assert.equal(g.ni,drawAsset(k).faces*3,k+' draws one complete budgeted mesh');assert.equal(G.meshFits(s).ni,0,k+' has no duplicated procedural body');assert.equal(preview.previewRefFits.ni,g.ni);
   for(const j of new Set(g.idx.slice(0,g.ni))){assert.ok([0,1,2].some(c=>g.nor[j*3+c]!==0),k+' used normal');near(g.uv[j*2],.046142578125,1e-10);near(g.uv[j*2+1],.153564453125,1e-10);assert.deepEqual(Array.from(g.col.slice(j*4,j*4+4)),[143,150,155,255]);}
   assert.ok(t?.authored,k+' aims the actual model');assert.equal(fleet.meshes[t.mesh].geo.ni+(fleet.meshes[t.bodyMesh]?.geo.ni||0),g.ni,k+' moving/fixed partitions conserve geometry');
   if(k.startsWith('monCal')){assert.equal(a.elevationIndexStart,0);near(a.bounds[0][1],-a.sphereRadiusM*2/3);near(a.bounds[1][1],a.sphereRadiusM*4/3);near(a.size[1],a.size[2]);}
@@ -30,7 +31,7 @@ test('retained surface-assigned Mon Cal, twin PD and CIS batteries expose full m
   // still carry surface tags, which must not force these guns into wall ports.
   const f=fitting(k,s.nextId++,{p:patch.center.slice(),a:4,tilt:patch.normal.slice(),surfacePatch:patch.id,surfaceCell:'b0',surfaceRole:'weapons',surfacePoint:patch.center.slice(),surfaceFootprint:[C.FITS[k].fm,C.FITS[k].wm],surfaceDepth:1});s.fits.push(f);
   assert.equal(C.surfaceBatteryGeometry(f),null,k+' no retired wall opening');
-  const a=C.REFERENCE_ASSETS[C.FITS[k].asset],g=G.meshReferenceFits(s,null,[f]);assert.equal(g.ni,a.faces*3,k+' full model');assert.equal(G.meshFits(s,null,null,[f]).ni,0,k+' no wall port copy');assert.ok(C.authoredTurretGeometry(f),k+' authored surface aim');
-  const preview=G.meshPreview(s,[],[f]);assert.equal(preview.previewRefFits.ni,a.faces*3,k+' preview body');const fleet=G.fleetGeometry(s,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id);assert.ok(t?.authored&&t.mesh,k+' surface gun animates');assert.equal(t.embedded,false);assert.equal(fleet.meshes[t.mesh].geo.ni+(fleet.meshes[t.bodyMesh]?.geo.ni||0),a.faces*3,k+' surface moving partition');
+  const a=C.REFERENCE_ASSETS[C.FITS[k].asset],g=G.meshReferenceFits(s,null,[f]);assert.equal(g.ni,drawAsset(k).faces*3,k+' complete budgeted model');assert.equal(G.meshFits(s,null,null,[f]).ni,0,k+' no wall port copy');assert.ok(C.authoredTurretGeometry(f),k+' authored surface aim');
+  const preview=G.meshPreview(s,[],[f]);assert.equal(preview.previewRefFits.ni,drawAsset(k).faces*3,k+' preview body');const fleet=G.fleetGeometry(s,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id);assert.ok(t?.authored&&t.mesh,k+' surface gun animates');assert.equal(t.embedded,false);assert.equal(fleet.meshes[t.mesh].geo.ni+(fleet.meshes[t.bodyMesh]?.geo.ni||0),drawAsset(k).faces*3,k+' surface moving partition');
  }
 });

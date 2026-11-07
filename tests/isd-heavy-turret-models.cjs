@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -86,11 +87,11 @@ test('heavy models use the standardized physical pivot in editor, preview and tr
     const ship = C.newShip({L: 200, W: 100, H: 50, assembly: true}, 'Heavy turret');
     ship.parts = []; ship.fits = [f];
     const preview = G.meshPreview(ship, [], [f]);
-    assert.equal(preview.previewRefFits.ni+preview.previewFits.ni, asset.faces*3);
+    assert.equal(preview.previewRefFits.ni+preview.previewFits.ni, drawAsset(k).faces*3);
     const fleet = G.fleetGeometry(ship, {trial: true}), turret = fleet.turrets.find(t => t.id === f.id);
     assert.ok(turret);
     assert.equal(turret.barrels, C.FITS[k].barrels);
-    assert.equal(fleet.meshes[turret.mesh].geo.ni+(turret.bodyMesh?fleet.meshes[turret.bodyMesh].geo.ni:0),asset.faces*3);
+    assert.equal(fleet.meshes[turret.mesh].geo.ni+(turret.bodyMesh?fleet.meshes[turret.bodyMesh].geo.ni:0),drawAsset(k).faces*3);
     const joint=C.authoredTurretGeometry(f),expected=joint?.elevationPivot||C.fitOrigin(f);
     turret.pivot.forEach((value,axis)=>near(value,expected[axis],1e-6));
   }
