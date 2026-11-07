@@ -69,3 +69,8 @@ test('solo player controls start and restart real automatically wired machinery 
  const unit=run('trial.systemsUnit');assert.ok(unit);assert.ok(unit.propulsion.actualInputW>0);assert.ok(unit.propulsion.actualThrustN>0);assert.ok(run('trial.V[0]')>0,'a solo player actually moves after selecting ahead');assert.equal(run('trialSystemsUnit()'),unit,'the live vessel survives successive control frames');const consumed=C.shipFuelState(unit).consumedKg;
  run('trial.tele=1;trialStep(.1);trial.tele=5;trialStep(.1)');assert.equal(run('trial.systemsUnit'),unit);assert.ok(unit.propulsion.actualThrustN>0,'ahead resumes after selecting stop');assert.ok(run('trial.V[0]')>0);assert.ok(C.shipFuelState(unit).consumedKg>consumed,'control updates do not replace the unit and reset its fuel/heat state');run('trialStep(1)');assert.ok(C.heatStatus(unit).operatingHeatJ>0);
 });
+
+test('escort control frames retain one live power unit and its thermal state',()=>{
+ setup();run("trial.escorts=[{key:'escort-live',p:profile,powerUnit:null}];escortPowerStep(trial.escorts[0],.1,1)");const unit=run('trial.escorts[0].powerUnit'),heat=unit.ht;assert.ok(unit.propulsion.actualThrustN>0);
+ run('escortPowerStep(trial.escorts[0],.1,0);escortPowerStep(trial.escorts[0],.1,1)');assert.equal(run('trial.escorts[0].powerUnit'),unit);assert.equal(unit.ht,heat);assert.ok(unit.propulsion.actualThrustN>0);
+});
