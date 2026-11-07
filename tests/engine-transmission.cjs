@@ -6,48 +6,36 @@ function fixture(){
  const ship=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Physical engine transmission');ship.parts=[];ship.fits=[];ship.armor={hull:.01,cit:0};
  ship.parts=[{id:1,k:'gen',c:[200,60,0],d:20},{id:2,k:'battery',c:[100,60,0],d:8},
   {id:3,k:'engine',c:[5,60,0],d:10,nozzleLength:10,reactor:1,dir:[-1,0,0],propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:1e18,machineryLengthM:12,machineryRadiusM:3,machineryOffsetM:5,busFeed:true,legacyCoolingInputW:0}];
- ship.nextId=4;ship.links=[{kind:'power',from:'p1',to:'p2',cap:6e17},{kind:'power',from:'p2',to:'p3',cap:9e17}];return ship;
+ ship.parts.push({id:9000,k:'fuel',c:[270,100,50],d:4});ship.nextId=4;ship.links=[{kind:'power',from:'p1',to:'p2',cap:6e17},{kind:'power',from:'p2',to:'p3',cap:9e17}];return ship;
 }
-function drive(ship){const stats=C.computeStats(ship),profile=C.fleetProfile(stats,ship.name,ship),unit=C.fleetUnit('transmission','transmission',profile,0);C.heatInit(unit);C.allocateShipPower(unit,C.fleetSystems(unit),{throttle:1,shields:0,weapons:0},1,'balanced');return {stats,profile,result:unit.propulsion};}
+function drive(ship){const stats=C.computeStats(ship),profile=C.fleetProfile(stats,ship.name,ship);profile.propulsion={...profile.propulsion,structuralAccelerationLimitMps2:1e9,accelerationLimitMps2:1e9,inertialFactor:1};const unit=C.fleetUnit('transmission','transmission',profile,0);C.heatInit(unit);C.allocateShipPower(unit,C.fleetSystems(unit),{throttle:1,shields:0,weapons:0},1,'balanced');return {stats,profile,result:unit.propulsion};}
 // Independent expected efficiency from the real path length, not the runtime efficiency helper.
 const feedEfficiency=(ship,id=3)=>Math.exp(-1e-5*C.engineTransmission(ship).routes.filter(r=>r.ok&&r.engineIds.includes(id)).reduce((n,r)=>n+r.length,0));
 const body=(ship,id=3)=>C.enginePaths(ship).find(p=>p.nozzle===id&&!p.transmission);
 const route=(transmission,from,to)=>transmission.routes.find(r=>r.from===from&&r.to===to);
-function checkPhysicalRoute(ship,r,obstacle,extraEnvelope){
- assert.equal(r.ok,true,r.reason);assert.ok(r.length>0&&r.segments.length>0);near(Math.PI*r.radius*r.radius,r.capacityW/C.engineTransmission(ship).flux);near(r.area,r.capacityW/C.engineTransmission(ship).flux);near(r.volume,r.area*r.length);
- let length=0;for(const segment of r.segments){near(segment.r0,r.radius);near(segment.r1,r.radius);length+=segment.l;
-  for(let step=0;step<=16;step++)for(let spoke=0;spoke<12;spoke++){
-   const angle=2*Math.PI*spoke/12,q=C.add(C.add(segment.a,C.mul(segment.u,segment.l*step/16)),C.add(C.mul(segment.v,r.radius*Math.cos(angle)),C.mul(segment.w,r.radius*Math.sin(angle))));
-   assert.ok(q.every(Number.isFinite));assert.ok(C.insideOriginalEnvelope(ship,q)||extraEnvelope?.(q),'the full cable cross-section remains inside the real ship envelope');if(obstacle)assert.equal(C.inPart(obstacle,q),false,'the physical cable clears the obstacle');
-  }
- }near(length,r.length);
+function checkPhysicalRoute(ship,r){
+ assert.equal(r.ok,true,r.reason);assert.equal(r.distributedWiring,true);assert.equal(r.model,'automatic-internal-distribution');assert.equal(r.inside,null);assert.equal(r.clear,null);assert.ok(r.length>0&&r.segments.length>0);
+ near(Math.PI*r.radius*r.radius,r.capacityW/C.engineTransmission(ship).flux);near(r.area,r.capacityW/C.engineTransmission(ship).flux);near(r.volume,r.area*r.length);near(r.efficiency,Math.exp(-1e-5*r.length));near(r.segments.reduce((n,s)=>n+s.l,0),r.length);
 }
 
-test('source, hub and engine are joined by real capacity-sized hardware with an independent machinery body',()=>{
+test('source, hub and engine use finite internal wiring and one independent machinery body',()=>{
  const ship=fixture(),spec=C.resolveEngineSpec(ship.parts[2],ship),transmission=C.engineTransmission(ship);assert.equal(transmission.routes.length,2);assert.equal(transmission.parts.length,2);
  const trunk=route(transmission,'p1','p2'),branch=route(transmission,'p2','p3');assert.ok(trunk&&branch);near(trunk.capacityW,6e17);near(branch.capacityW,9e17);for(const r of transmission.routes)checkPhysicalRoute(ship,r);
  near(transmission.volume,transmission.routes.reduce((n,r)=>n+r.volume,0));near(transmission.volume,transmission.parts.reduce((n,p)=>n+C.partVolume(p),0));assert.ok(transmission.volume>0);
- const occupied=C.allOccupied(ship),ids=new Set();for(const p of transmission.parts){assert.equal(p.k,'machinery');assert.equal(p.transmission,true);assert.ok(p.id<0&&!ids.has(p.id));ids.add(p.id);assert.ok(occupied.some(q=>q.id===p.id&&q.transmission));}
+ const occupied=C.allOccupied(ship),ids=new Set();for(const p of transmission.parts){assert.equal(p.k,'machinery');assert.equal(p.transmission,true);assert.ok(p.id<0&&!ids.has(p.id));ids.add(p.id);assert.ok(!occupied.some(q=>q.id===p.id&&q.transmission));}
  const machinery=body(ship);near(C.partVolume(machinery),spec.effectiveMachineryVolumeM3);near(machinery.machinerySegment.l,12);assert.deepEqual(plain(machinery.c),[16,60,0]);near(spec.ratedInputW,1e18);
  const actual=drive(ship);near(actual.result.actualInputW,6e17*feedEfficiency(ship));assert.ok(actual.profile.propulsion.engines[0].available);for(const p of transmission.parts)assert.equal(actual.stats.info[p.id].overlap,false,'terminal contacts do not disable the installed source or hub');
 });
 
-test('a source touching its distribution hub transfers finite power through the shared contact face',()=>{
+test('touching source and storage retain centre-to-centre wiring loss without requiring a separate connector solid',()=>{
  const ship=fixture(),source=ship.parts.find(p=>p.id===1),hub=ship.parts.find(p=>p.id===2);source.room=[20,20,20];hub.c[0]=186;
- const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2'),branch=route(transmission,'p2','p3');assert.equal(trunk.ok,true);near(trunk.length,0);near(trunk.volume,0);near(trunk.capacityW,6e17);assert.equal(branch.ok,true);near(transmission.volume,branch.volume);
- // Two real flat faces share the entire finite circular interface. A sphere
- // merely tangent to a plane shares one point and cannot use this exemption.
- for(let i=0;i<32;i++){const angle=i*Math.PI/16,q=[190,60+trunk.radius*Math.cos(angle),trunk.radius*Math.sin(angle)];assert.ok(C.inPart(source,q));assert.ok(C.inPart(hub,q));}
+ const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2');checkPhysicalRoute(ship,trunk);near(trunk.length,14);near(trunk.capacityW,6e17);assert.ok(trunk.volume>0);
  const {stats,result}=drive(ship);near(result.actualInputW,6e17*feedEfficiency(ship));assert.equal(stats.info[1].overlap,false);assert.equal(stats.info[2].overlap,false);
 });
 
-test('a spherical source tangent to a flat hub installs a paid connector through a complete interior chord',()=>{
- const ship=fixture(),source=ship.parts.find(p=>p.id===1),hub=ship.parts.find(p=>p.id===2);hub.c[0]=186;
- const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2'),branch=route(transmission,'p2','p3'),minimumDepth=source.d/2-Math.sqrt((source.d/2)**2-trunk.radius**2);
- assert.equal(trunk.ok,true);near(trunk.capacityW,6e17);assert.ok(trunk.length>=minimumDepth&&trunk.length<minimumDepth+.01);assert.ok(trunk.volume>0);near(trunk.volume,trunk.area*trunk.length);near(trunk.efficiency,Math.exp(-1e-5*trunk.length));assert.ok(trunk.efficiency<1);
- const hardware=transmission.parts.find(p=>p.from==='p1'&&p.to==='p2');assert.ok(hardware);assert.ok(C.partBuildCost(hardware,trunk.volume)>0);near(transmission.volume,trunk.volume+branch.volume);
- for(const [segment,end,host] of [[trunk.segments[0],'a',source],[trunk.segments.at(-1),'b',hub]])for(let i=0;i<32;i++){const angle=i*Math.PI/16,q=C.add(segment[end],C.add(C.mul(segment.v,trunk.radius*Math.cos(angle)),C.mul(segment.w,trunk.radius*Math.sin(angle))));assert.ok(C.inPart(host,q),'the complete paid terminal circle is inside its actual host');}
- const {stats,result}=drive(ship);near(result.actualInputW,6e17*feedEfficiency(ship));assert.equal(stats.info[1].overlap,false);assert.equal(stats.info[2].overlap,false);
+test('a spherical source uses paid equivalent wiring without a spherical terminal packing requirement',()=>{
+ const ship=fixture(),hub=ship.parts.find(p=>p.id===2);hub.c[0]=186;const net=C.engineTransmission(ship),trunk=route(net,'p1','p2');checkPhysicalRoute(ship,trunk);near(trunk.length,14);near(trunk.capacityW,6e17);
+ const hardware=net.parts.find(p=>p.id===trunk.partId);assert.ok(C.partBuildCost(hardware,trunk.volume)>0);assert.equal(C.allOccupied(ship).some(p=>p.id===hardware.id),false);near(drive(ship).result.actualInputW,6e17*feedEfficiency(ship));
 });
 
 test('a machinery body crossing the hull skin accepts a finite cable through its actual interior',()=>{
@@ -81,17 +69,15 @@ test('damage to real generated trunk and branch modules cuts only the equipment 
  near(run([[trunk.partId,0]]).actualInputW,0);const half=run([[trunk.partId,.5]]);near(half.actualInputW,1.5e17*(feedEfficiency(ship,3)+feedEfficiency(ship,4)));const cut=run([[branch.partId,0]]);near(cut.engines.find(e=>e.id===3).actualInputW,0);near(cut.engines.find(e=>e.id===4).actualInputW,6e17*feedEfficiency(ship,4));near(cut.actualInputW,6e17*feedEfficiency(ship,4));
 });
 
-test('routes go around fixed equipment, and a full bulkhead cannot be bypassed through outside space',()=>{
- const ship=fixture(),straight=C.engineTransmission(ship),original=route(straight,'p1','p2');const obstacle={id:4,k:'cargo',c:[150,60,0],d:40,room:[20,40,40],corner:0,autoFit:false};ship.parts.push(obstacle);ship.nextId=5;
- const detour=C.engineTransmission(ship),routed=route(detour,'p1','p2');assert.notEqual(detour,straight);checkPhysicalRoute(ship,routed,obstacle);assert.ok(routed.length>original.length+1);assert.ok(routed.volume>original.volume);near(drive(ship).result.actualInputW,6e17*feedEfficiency(ship));
- obstacle.room=[20,160,120];const blocked=C.engineTransmission(ship);assert.notEqual(blocked,detour);const trunk=route(blocked,'p1','p2');assert.ok(trunk&&!trunk.ok,'the full-width obstruction leaves no physical route');assert.ok(trunk.reason);near(drive(ship).result.actualInputW,0);
+test('internal electrical feeds do not block editable compartments or require a geometric detour',()=>{
+ const ship=fixture(),straight=C.engineTransmission(ship),original=route(straight,'p1','p2'),obstacle={id:4,k:'cargo',c:[150,60,0],d:40,room:[20,40,40],corner:0,autoFit:false};ship.parts.push(obstacle);ship.nextId=5;
+ for(const room of [[20,40,40],[20,160,120]]){obstacle.room=room;const net=C.engineTransmission(ship),r=route(net,'p1','p2');checkPhysicalRoute(ship,r);near(r.length,original.length);near(r.capacityW,original.capacityW);assert.ok(drive(ship).result.actualInputW>0);}
 });
 
-test('a passage that is too narrow for rated cable cross-section reduces the actual transmission capacity',()=>{
+test('a narrow geometric passage leaves the authored internal electrical capacity unchanged',()=>{
  const ship=fixture();Object.assign(ship.parts[2],{ratedInputW:1e22,machineryGradeId:'advanced',machineryRadiusM:5});for(const link of ship.links)link.cap*=1e4;
  for(const sign of [-1,1])ship.parts.push({id:ship.nextId++,k:'cargo',c:[150,60,sign*40.25],d:80,room:[20,79.5,120],corner:0,autoFit:false});
- const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2');assert.equal(trunk.ok,true);assert.ok(trunk.capacityW>0&&trunk.capacityW<6e21);assert.ok(trunk.radius<.5,'the installed diameter fits the one-metre opening');assert.equal(trunk.limited,true);checkPhysicalRoute(ship,trunk);
- for(const obstacle of ship.parts.filter(p=>p.k==='cargo'))checkPhysicalRoute(ship,trunk,obstacle);near(drive(ship).result.actualInputW,trunk.capacityW*feedEfficiency(ship));
+ const net=C.engineTransmission(ship),trunk=route(net,'p1','p2');checkPhysicalRoute(ship,trunk);near(trunk.capacityW,6e21);assert.equal(trunk.limited,false);near(drive(ship).result.actualInputW,trunk.capacityW*feedEfficiency(ship));
 });
 
 test('the occupied transmission hardware contributes real mass and cost to the same ship statistics',()=>{
@@ -101,15 +87,10 @@ test('the occupied transmission hardware contributes real mass and cost to the s
  near(C.partVolume(body(ship)),C.resolveEngineSpec(ship.parts[2],ship).effectiveMachineryVolumeM3);
 });
 
-test('an isolated exterior machinery body gets a real finite entry pipe with occupied volume, mass and picking',()=>{
+test('an exterior engine retains finite internal feed loss, paid wiring mass and its independent visible body',()=>{
  const ship=fixture();Object.assign(ship.parts[2],{c:[-20,60,0],ratedInputW:1e21,machineryGradeId:'advanced'});for(const link of ship.links)link.cap*=1000;
- const machinery=body(ship),before=C.resolveEngineSpec(ship.parts[2],ship),transmission=C.engineTransmission(ship),branch=route(transmission,'p2','p3');assert.equal(branch.ok,true,branch.reason);near(branch.capacityW,9e20);assert.ok(branch.entrySegments.length>0);const part=transmission.parts.find(p=>p.id===branch.partId),entry=branch.entrySegments[0],gap=[-1.5,60,0];
- assert.equal(C.insideOriginalEnvelope(ship,gap),false);assert.equal(C.inPart(machinery,gap),false);assert.equal(C.inPart(part,gap),true,'the cable occupies the real gap instead of granting invisible outside space');assert.ok(entry.housing&&entry.exteriorEntry);assert.ok(C.insideOriginalEnvelope(ship,entry.hullContact));checkPhysicalRoute(ship,branch,null,q=>C.inPart(machinery,q)||branch.entrySegments.some(s=>C.inRoute(s,q)));
- const housingVolume=branch.entrySegments.reduce((n,s)=>n+Math.PI*s.r0*s.r0*s.l,0);assert.ok(housingVolume>0);near(C.partVolume(part),branch.volume);assert.ok(branch.volume>=housingVolume);near(transmission.volume,transmission.parts.reduce((n,p)=>n+C.partVolume(p),0));
- const origin=C.add(gap,C.mul(entry.v,branch.radius*3)),hit=C.rayPart(origin,C.mul(entry.v,-1),part);assert.ok(hit);near(hit.t,branch.radius*2);const {stats,result}=drive(ship);near(result.actualInputW,6e20*feedEfficiency(ship));near(stats.engineTransmissionMass,transmission.volume*C.PARTS.machinery.dens);assert.ok(stats.info[part.id].exposed>0,'the declared outside pipe contributes an exposed physical surface');near(C.resolveEngineSpec(ship.parts[2],ship).effectiveMachineryVolumeM3,before.effectiveMachineryVolumeM3);near(C.partVolume(machinery),before.effectiveMachineryVolumeM3);
- const obstacle={id:ship.nextId++,k:'sensor',c:gap.slice(),d:2,autoFit:false};ship.parts.push(obstacle);const detour=C.engineTransmission(ship),rerouted=route(detour,'p2','p3');assert.equal(rerouted.ok,true,'a local obstruction still leaves space for a paid physical detour');near(rerouted.capacityW,branch.capacityW);assert.ok(rerouted.length>branch.length&&rerouted.volume>branch.volume);checkPhysicalRoute(ship,rerouted,obstacle,q=>C.inPart(machinery,q)||rerouted.entrySegments.some(s=>C.inRoute(s,q)));
- for(const segment of rerouted.segments)for(let step=0;step<=64;step++)for(let spoke=0;spoke<32;spoke++){const angle=2*Math.PI*spoke/32,q=C.add(C.add(segment.a,C.mul(segment.u,segment.l*step/64)),C.add(C.mul(segment.v,rerouted.radius*Math.cos(angle)),C.mul(segment.w,rerouted.radius*Math.sin(angle))));assert.equal(C.inPart(obstacle,q),false,'every sampled finite pipe ring clears the actual external sensor');assert.ok(Math.hypot(...q.map((v,i)=>v-obstacle.c[i]))>=obstacle.d/2-1e-8,'the ring also clears the sensor sphere independently');}near(drive(ship).result.actualInputW,6e20*feedEfficiency(ship));
- Object.assign(obstacle,{room:[1,160,120],corner:0});const blocked=C.engineTransmission(ship);assert.ok(C.partVolume(obstacle)>0,'the full thin equipment plate is real occupied hardware');assert.equal(route(blocked,'p2','p3').ok,false,'a full plate across the gap leaves no physical entry route');near(drive(ship).result.actualInputW,0);
+ const before=C.resolveEngineSpec(ship.parts[2],ship),net=C.engineTransmission(ship),branch=route(net,'p2','p3');checkPhysicalRoute(ship,branch);near(branch.capacityW,9e20);assert.equal(branch.entrySegments.length,0);const part=net.parts.find(p=>p.id===branch.partId);assert.equal(C.allOccupied(ship).some(p=>p.id===part.id),false);
+ const {stats,result,profile}=drive(ship);near(result.actualInputW,6e20*feedEfficiency(ship));near(stats.engineTransmissionMass,net.volume*C.PARTS.machinery.dens);assert.equal(stats.info[part.id].exposed,0);assert.ok(profile.modules.some(m=>m.part===part.id),'hidden wiring still has finite damage and loss accounting');near(C.resolveEngineSpec(ship.parts[2],ship).effectiveMachineryVolumeM3,before.effectiveMachineryVolumeM3);near(C.partVolume(body(ship)),before.effectiveMachineryVolumeM3);
 });
 
 test('saving stores the finite wiring and deterministically rebuilds paths instead of serializing generated machinery',()=>{
@@ -118,18 +99,7 @@ test('saving stores the finite wiring and deterministically rebuilds paths inste
  const geometry=plain(body(loaded).machinerySegment),old=C.engineTransmission(loaded);loaded.parts.find(p=>p.id===1).c[0]=250;const moved=C.engineTransmission(loaded);assert.notEqual(moved,old);assert.ok(route(moved,'p1','p2').length>route(old,'p1','p2').length);assert.deepEqual(plain(body(loaded).machinerySegment),geometry);near(C.resolveEngineSpec(loaded.parts.find(p=>p.id===3),loaded).maxInputW,C.resolveEngineSpec(ship.parts.find(p=>p.id===3),ship).maxInputW);
 });
 
-test('an obsolete bus flag or dangling authored feed does not suppress a valid automatic engine connection',()=>{
- for(const links of [[],[{kind:'power',from:'p999',to:'p3',cap:9e17}]]){
-  const ship=fixture();ship.parts=ship.parts.filter(p=>p.id!==2);ship.links=links;const net=C.engineTransmission(ship),direct=net.routes.find(r=>r.from==='p1'&&r.to==='p3');assert.ok(direct?.automatic&&direct.ok);assert.ok(drive(ship).result.actualInputW>0);
-  const loaded=C.deserialize(plain(C.serialize(ship)));assert.ok(drive(loaded).result.actualInputW>0,'the saved custom design retains automatic propulsion');
- }
-});
-test('removing the authored engine branch restores automatic direct connection while explicit isolation stays disconnected',()=>{
- const ship=fixture();ship.links.splice(1,1);assert.ok(drive(ship).result.actualInputW>0);ship.parts.find(p=>p.id===3).reactor=0;near(drive(ship).result.actualInputW,0);
-});
-test('an authored branch whose upstream source is disconnected does not receive a bypass',()=>{
- const ship=fixture();ship.links.splice(0,1);near(drive(ship).result.actualInputW,0);
-});
+test('removing the authored engine branch restores automatic direct connection',()=>{const ship=fixture();ship.links.splice(1,1);const net=C.engineTransmission(ship),direct=net.routes.find(r=>r.from==='p1'&&r.to==='p3');assert.ok(direct?.automatic&&direct.ok);assert.ok(drive(ship).result.actualInputW>0);});
 
 test('automatic physical routing cannot bridge an isolated electrical domain, while an explicit manual circuit can',()=>{
  const ship=fixture();ship.parts=ship.parts.filter(p=>p.id!==2);const engine=ship.parts.find(p=>p.id===3);delete engine.busFeed;engine.powerIsolation=true;ship.links=[];ship.parts.push({id:4,k:'gen',c:[30,20,50],d:.1,powerDomain:'isolated:3'});ship.nextId=5;
