@@ -3,6 +3,20 @@
 "use strict";
 root.KS_EN={
  "terms": {
+ "機関への給電": "Engine power supply",
+ "武装への給電": "Weapon power supply",
+ "給電距離（共用区間を含む）": "Supply distance (including shared sections)",
+ "給電容量": "Supply capacity",
+ "送電効率": "Transmission efficiency",
+ "給電元を点検": "Check power source",
+ "機関への給電元がありません。": "No power source is connected to the engine.",
+ "接続ごとの容量・距離・効率": "Capacity, distance and efficiency by connection",
+ "電源点と接続先の艦内距離から送電効率を計算します。距離が長いほど損失が増え、その全量が艦内の熱になります。": "Transmission efficiency depends on the distance between the power source and the equipment. All transmission loss becomes heat aboard the ship.",
+ "反応炉・パワーセルなどの電源点から武装までの距離で送電損失と発熱を計算します。": "Power loss and heat depend on the distance from each reactor or power cell to the weapon.",
+ "居住に使える空き容積": "Free volume available for habitation",
+ "空き容積の表示を隠す": "Hide free volume",
+ "空き容積を透視": "Show free volume in X-ray",
+ "緑の点は、居住に使える空き容積の近似範囲です。": "Green points approximate the free volume available for habitation.",
  "命中率は距離・目標の見かけの大きさ・射撃管制で変わります。正常な射撃管制を持つISDが最大射程で全長1600mのISDを真横から狙う場合、命中率は約50%です。": "Hit probability depends on distance, the target's apparent size, and fire control. At maximum range, an ISD with normal fire control hits a broadside 1,600 m ISD about 50% of the time.",
  "DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合のキャリア／デストロイヤー。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。主艦橋は艦尾上部の垂直尾翼のような塔（ウィザーズ・タワー）の頂部で、『クローン・ウォーズ』の画面と正史の資料のとおり、前端を回り込む 180 度の展望窓（模型の窓の発光テクスチャの位置）から前方を見る艦橋甲板と、その上の最上層の将官区画・展望甲板からなる。艦首上部の稜線とドーム窓（『シスの復讐』のインヴィジブル・ハンドの前部艦橋）は前部指揮所（戦闘指揮）とした。艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は腹部の200TT三連装球状ターボレーザー14基、背部・腹部の球状3連装両用砲34基、艦首側面の球状3連装対空砲12基、球状3連装点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム4基。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 12 万 5,000 体とした（v22。正史の武装を積むと砲の持ち場の乗員が増え、以前の 16 万 2,000 体は収まらない）。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。": "A Separatist carrier/destroyer reconstructed from measurements of lolqeeeeeeeeee's Sketchfab 3D model (CC BY-NC 4.0), scaled vertically by 0.928 to match the DK Invisible Hand cutaway layout and dimensions: 1,088 m long, 198 m wide, and 347 m high including the tower. The curved dorsal shell above the hangar, central dorsal plates, and curved forward ventral armor use 0.6–0.8 m armor plating and carry no weapons. The main bridge sits atop the vertical-fin-like aft Wizard's Tower. As shown in The Clone Wars and canonical references, it comprises a bridge deck looking forward through a 180° wraparound viewport matching the model's emissive window texture, topped by flag-officer quarters and an observation deck. The dorsal bow ridge and domed viewport, the Invisible Hand's forward bridge in Revenge of the Sith, serve as a forward combat command post. The bow houses main and secondary reactors, a network of deflector generators, and hyperdrive reactant silos; midships contains inertial compensation; the aft half contains fighter racks, MTT and armored-vehicle stowage, and maintenance decks; the stern contains auxiliary reactors, radial ion engines, and the port hyperdrive module. Armament comprises fourteen triple 200 TT spherical turbolasers below the hull, thirty-four spherical triple dual-purpose guns on the dorsal and ventral faces, twelve spherical triple antiaircraft guns on the bow sides, twelve spherical triple point-defense guns, thirty-four triple proton-torpedo launchers (102 tubes), and four tractor beams. Embarked: 120 tri-fighters, 120 Vultures, 160 MTTs, and 280 armored droid vehicles (AATs, Hailfires, OG-9s, and LM-432s). DK lists up to 1.5 million inactive droids; this design carries the 125,000 that fit. With the full source armament, the increased weapon-station crew leaves less room than the former 162,000-droid complement (v22). Acceleration is approximately 2,560 G, hyperdrive Class 1.5. Canonical crew: 600 droids.",
  "プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じで、主艦橋は塔の頂部、前部指揮所は艦首上部。兵装は腹部の200TT三連装球状ターボレーザー14基、背部・腹部の80TT単装球状ターボレーザー34基、球状3連装対空砲12基と点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム10基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち 100 万体（1 部隊の上限）、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイドで、持ち場の約 7 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。": "A Separatist dreadnought using the hull, structures, and compartments reconstructed from the same lolqeeeeeeeeee Sketchfab model as the Providence-class carrier/destroyer (CC BY-NC 4.0), scaled by 2.001 in every dimension to the Legends length of 2,177.35 m, approximately twice the size and eight times the volume. The compartment layout is unchanged, with the main bridge atop the tower and the forward command post above the bow. Armament comprises fourteen triple 200 TT spherical turbolasers below the hull, thirty-four single 80 TT spherical turbolasers on the dorsal and ventral faces, twelve spherical triple antiaircraft guns, twelve spherical triple point-defense guns, thirty-four triple proton-torpedo launchers (102 tubes), and ten tractor beams. Embarked: 120 Vultures, 120 tri-fighters, and ten Hyena-class bombers. It carries one million of the canonical 1.5 million stored battle droids (the per-unit limit), plus 640 MTTs and 1,120 armored droid vehicles. Acceleration is approximately 3,130 G: armor-plate thickness is not scaled, so mass increases by less than eightfold. Hyperdrive: Class 1.2. Canonical crew comprises 900 officers plus droids; automation through droid control handles approximately 70% of stations (v19.1).",
@@ -10023,4 +10037,43 @@ Object.assign(root.KS_EN.messages,{
  '秒間照射':'s emission'
 });
 Object.assign(root.KS_EN.terms,{'全門':'All Cannons','左砲':'Port Cannon','右砲':'Starboard Cannon','砲軸固定':'Fixed Cannon Axis','発射する砲を選択':'Select Cannons','秒間照射':'s emission'});
+Object.assign(root.KS_EN.terms,{
+ "全艦の蓄熱容量": "Whole-vessel Heat Capacity",
+ "安全弁まで": "Until Safety Valve",
+ "蓄熱速度": "Heat Accumulation Rate",
+ "熱源別の収支（全艦蓄熱へ合算）": "Source Heat Flows (Combined into Vessel Heat)",
+ "発熱": "Heat Generated",
+ "通常航行の航続": "Cruise Endurance",
+ "全艦蓄熱": "Whole-vessel Heat",
+ "出力上限": "Output Ceiling",
+ "全艦停電": "Vessel Blackout",
+ "復旧作業": "Restoration Work",
+ "乗員充足率": "Crew Availability",
+ "熱損傷による出力制限": "Thermal Damage Output Limit"
+});
+Object.assign(root.KS_EN.messages,{
+ "反応炉から機関への配電は自動接続されます。独立した配電区画は不要です。機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。": "Reactor-to-engine power feeds connect automatically. No separate distribution compartment is needed. Engine body → drivetrain → nozzle. Internal engines can be placed independently and drive several nozzles; external engines integrate the body and nozzle.",
+ "航続は通常航行で実際に発電する電力と炉の変換損失から算出します。戦闘中の燃料消費も実発電量に従います。": "Cruise endurance uses actual electrical generation and reactor conversion loss. Combat fuel use also follows actual generation.",
+ "全艦停電 · 復旧作業 {0}% · 乗員充足率 {1}%（蓄熱90%以下で再起動）": "Vessel blackout · Restoration {0}% · Crew availability {1}% (restart requires heat at or below 90%)",
+ "熱損傷の出力制限は修理完了まで継続します。": "Thermal damage limits output until repairs are complete.",
+ "全艦蓄熱70%以上。出力制限は修理まで継続します。": "Whole-vessel heat is at least 70%. Output damage remains until repaired.",
+ "全艦蓄熱 {0} / {1} J（{2}%） · 出力上限 {3}%": "Whole-vessel heat {0} / {1} J ({2}%) · Output ceiling {3}%",
+ "反応炉・武装・推進・シールド・生活設備・超兵器は一つの給電網と熱輸送網につながります。廃熱は消費電力のうち砲弾・排気・有効出力として出ていかない分です。熱計算は全設計で厳格運転です。設備の廃熱は実際に搭載した散逸設備へ熱輸送路で運び、運びきれない分は蓄熱します。旧設計の内蔵冷却や超兵器への散逸能力の自動割当は使用しません。蓄熱容量は全艦質量に比例し、艦全体で共有します。70%から安全弁が働き、100%で全艦の電源を即時遮断します。到達した蓄熱率による出力低下は冷却後も残り、修理で回復します。再起動には蓄熱90%以下と乗員による復旧作業の完了が必要です（定員充足時300秒）。低放射持続は、散逸を止めて全廃熱を蓄熱した場合に続けられる時間です。数値はすべて仮の調整値です。": "Reactors, weapons, propulsion, shields, hotel loads and superweapons share the power and thermal networks. Actual operating waste is carried through finite installed paths to physical dissipators. One heat reservoir scales with total vessel mass. The safety valve starts at 70%; 100% immediately cuts all electrical power. Output damage persists after cooling and requires completed repairs. Restart requires heat at or below 90% and completed crew restoration work (300 seconds at full complement). Low-emission endurance assumes heat rejection is stopped. Fictional game coefficients."
+});
+Object.assign(root.KS_EN.terms,{"熱損傷":"Thermal Damage","被弾収支":"Impact Energy","入射":"Incident","艦外放出":"Released Outside","シールド消費":"Shield Debit","一時保持":"Temporary Shield Storage","艦内蓄熱":"Onboard Heat"});
+Object.assign(root.KS_EN.terms,{
+ "熱エネルギー変換装置":"Thermal Energy Converter",
+ "ノズルの外見":"Nozzle Appearance",
+ "ベル型":"Bell",
+ "汎用型":"Generic",
+ "露出":"External",
+ "放熱翼":"Radiator Wing"
+});
+Object.assign(root.KS_EN.messages,{
+ "内部機関に接続する露出型ノズル。外見・向き・口径を調整できます。":"An external nozzle connected to an internal engine. Appearance, direction and diameter are editable.",
+ "船体内部に置く熱エネルギー変換装置（スター・ウォーズの架空技術）。内部容積・質量を使い、近くの熱源から熱輸送路で廃熱を受けて処理します。武装・反応炉・推進・シールド・超兵器のどの熱も扱えます。":"An internal thermal energy converter using fictional Star Wars technology. It occupies real volume and mass and receives waste heat through thermal paths. It handles weapon, reactor, propulsion, shield and superweapon heat.",
+ "配電路は、反応炉から機関本体へ自動で接続して電力を送ります。太さは伝達容量に応じて決まり、長くなるほど電送損失と発熱が増えます。共用幹線は一度だけ計上します。機関からノズルへの動力伝達路は別に配置します。":"Power feeds connect the reactor to each engine automatically. Their cross-section follows capacity; longer routes incur more transmission loss and heat. Shared trunks count once. Engine-to-nozzle drivetrains use separate routes.",
+ "接続できない熱輸送路が {0} 本あります（相手がない、または放熱翼に適さない廃熱）。":"{0} thermal paths cannot connect (missing endpoint or heat incompatible with a radiator wing).",
+ "<b>広域シールド発生器</b>を選んであります。<b>艦橋本体の上</b>を中心から少しずらしてタップすると、左右一対の球形ドームが据わります。インペリアル級の艦橋の上にある、あの2つの球です。":"A <b>Wide-area Shield Generator</b> is selected. Tap <b>on top of the bridge body</b> slightly off center to place a pair of spherical domes: the two familiar spheres on an Imperial-class bridge."
+});
 })(typeof window==="undefined"?globalThis:window);

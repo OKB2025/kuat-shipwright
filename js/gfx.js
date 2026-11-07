@@ -1992,11 +1992,7 @@ function v3MeshParts(ship,opt){
     const before=geoMarks(out),start=glow.length;meshOnePart(out,p,ship,opt,glow);markRanges(ranges,p.id,before,out);if(glow.length>start)glowRanges[p.id]=[start,glow.length-start];
   }
   if(opt.habitation&&ship.autoHabitation!==false){const h=C.habitationSpace(ship),d=h.cell.map(v=>v*.2);for(const p of h.points)boxSolid(out.interior,C.sub(p,d),C.add(p,d),[104,159,124],24);
-    // Weapon conduits as tubes as thick as their cross-section: orange from the power
-    // cell or reactor to each mount, yellow for the charging lines from the reactors to the cells.
-    // Each run follows its route through the ship (a polyline on the free-volume grid).
-    const fd=C.feedConduits(ship),tube=(k,col)=>{const P=k.path||[k.a,k.b],r=Math.max(.15,Math.sqrt(k.area/Math.PI));for(let i=1;i<P.length;i++)if(C.len(C.sub(P[i],P[i-1]))>=.5)axisFrustum(out.interior,P[i-1],P[i],r,r,col,true,false,10);};
-    for(const w of fd.rows)for(const k of w.links)tube(k,[222,154,64]);for(const k of fd.charge)tube(k,[236,212,96]);}
+  }
   return {g:out,glow,ranges,glowRanges};
 }
 // One part into the group meshes (shared by the full build and the live preview).
@@ -2063,7 +2059,9 @@ function machineryMesh(out,p,ship,color,opt={}){
   if(p.drivetrain)driveHousingMesh(target,s,diagnostic?{shell:diagnostic,ring:diagnostic,shoulder:diagnostic}:{shell:[110,124,137],ring:[166,178,188],shoulder:[136,150,162]});
   else axisFrustum(target,s.a,s.b,s.r0,s.r1,diagnostic||(external?[155,165,170]:[125,137,148]),true,false,16);
  }return;}
- const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine,segments=p.segments||[p.seg],body=p.machinerySegment||segments.at(-1);
+ // A stock refit can enlarge the paid external machine beyond its original
+ // visual casing. Keep that explicit body visible beside the unchanged skin.
+ const owner=ship.parts.find(e=>e.id===p.nozzle),external=owner?.exposedMachinery===true&&C.equipmentSpec(owner)?.engineStyle==='exposed',target=owner?.skinAsset&&!external?out.plant:out.engine,segments=p.segments||[p.seg],body=p.machinerySegment||segments.at(-1);
  for(const s of segments)if(s!==body)axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);
  if(!body||body.l<=0)return;
  const half=Math.min(1.2,body.r1*.3,body.l*.025)/body.l,bands=Array.from({length:5},(_,i)=>[(i+.6)/5-half,(i+.6)/5+half]),ts=[0,...bands.flat(),1];

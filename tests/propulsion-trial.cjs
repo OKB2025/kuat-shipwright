@@ -18,15 +18,15 @@ vm.runInContext(app.slice(app.indexOf('function trialPowerStep(dt,want){'),app.i
 vm.runInContext('const JUMP={spool:1,accel:1,enter:1},ESC_JUMP={gap:()=>0},escOrder=es=>es;',cx);
 vm.runInContext(app.slice(app.indexOf('function escortPowerStep(e,dt,throttle){'),app.indexOf('// v21.2 In the tunnel',app.indexOf('function escortPowerStep(e,dt,throttle){'))),cx);
 const run=code=>vm.runInContext(code,cx);
-function setup({supply=2e18,thermal=1,velocity=[0,0,0],tele=5}={}){
- const R=1e18,p={name:'Trial power reference',hp:1e12,len:100,width:40,height:20,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:0,maxSpeed:1000,accel:999999,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules:[{k:'engine',part:1,size:1,share:1,at:.1,domain:'main',powerConnected:true},{k:'reactor',part:3,size:1,share:1,at:.4,domain:'main',powerConnected:true}],propulsion:{version:1,engines:[{id:1,machineryId:1,moduleIndex:0,powerNode:'p1',heatNode:'p1',domain:'main',valid:true,available:true,connected:true,outletAvailable:true,ratedInputW:R,ratedThrustN:5e8,wattsPerNewton:2e9,direction:[1,0,0],pathCapacityW:R}],massKg:1e6,ratedThrustN:5e8,ratedAccelMps2:500,accelerationLimitMps2:500},grid:{P:supply,fixed:0,De:R,Ds:0,Dw:0,domains:[{id:'main',P:supply,sources:[{moduleIndex:1,P:supply}],modules:[0,1]}],powerPaths:[{from:'p3',to:'p1',cap:R,ok:true}]},heat:{v:1,src:[{id:'p1',k:'engine',n:'engine',g:'high',sh:1,st:1e30,m:[0],pc:[],sec:-1,sw:-1,gen:-1},{id:'p3',k:'reactor',n:'reactor',g:'high',sh:1,st:1e30,m:[1],pc:[],sec:-1,sw:-1,gen:-1}],dis:[],ln:[]}};
- const unit=C.fleetUnit('trial-test','trial-test',p,0);unit.order={...unit.order,power:'balanced'};unit._profile=p;C.heatInit(unit);unit.ht.lm[0]=thermal;unit.ht.lim.engine=thermal;
+function setup({supply=1e18,thermal=1,velocity=[0,0,0],tele=5}={}){
+ const R=1e18,p={name:'Trial power reference',hp:1e12,len:100,width:40,height:20,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:0,maxSpeed:1000,accel:999999,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules:[{k:'engine',part:1,size:1,share:1,at:.1,domain:'main',powerConnected:true},{k:'reactor',part:3,size:1,share:1,at:.4,domain:'main',powerConnected:true}],propulsion:{version:1,engines:[{id:1,machineryId:1,moduleIndex:0,powerNode:'p1',heatNode:'p1',domain:'main',valid:true,available:true,connected:true,outletAvailable:true,ratedInputW:R,effectiveMachineryVolumeM3:R/3.4e17,driveProfileId:'standard',ratedThrustN:5e8,wattsPerNewton:2e9,direction:[1,0,0],pathCapacityW:R}],massKg:1e6,ratedThrustN:5e8,ratedAccelMps2:500,accelerationLimitMps2:500},grid:{P:supply,fixed:0,De:R,Ds:0,Dw:0,domains:[{id:'main',P:supply,sources:[{moduleIndex:1,P:supply}],modules:[0,1]}],powerPaths:[{from:'p3',to:'p1',cap:R,ok:true}]},heat:{v:1,src:[{id:'p1',k:'engine',n:'engine',g:'high',sh:1,st:1e30,m:[0],pc:[],sec:-1,sw:-1,gen:-1},{id:'p3',k:'reactor',n:'reactor',g:'high',sh:1,st:1e30,m:[1],pc:[],sec:-1,sw:-1,gen:-1}],dis:[],ln:[]}};
+ const unit=C.fleetUnit('trial-test','trial-test',p,0);unit.order={...unit.order,power:'balanced'};unit._profile=p;C.heatInit(unit);unit.ht.online=thermal>0;unit.ht.damageLimit=Math.max(.6,thermal);
  cx.unit=unit;cx.profile=p;cx.velocity=velocity;cx.telegraph=tele;
  run(`Object.assign(trial,{p:profile,battle:{me:unit},energy:{E:0,cap:0},powerMode:'balanced',P:[10000,10000,0],V:velocity.slice(),R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],stickX:0,rudder:0,level:false,tele:telegraph,craft:false,t:0,vf:0,dust:{H:100,pos:new Float32Array(0)},rec:{top:0},engF:0});`);
  return unit;
 }
 test('ENG-T04/15 direct controls use the same actual watts/newtons and one battle acceleration scale',()=>{
- for(const thermal of [1,.25,0]){
+ for(const thermal of [1,.6,0]){
   const u=setup({thermal});run('trialStep(.1)');
   near(u.propulsion.actualInputW,1e18*thermal);near(u.propulsion.actualThrustN,5e8*thermal);near(u.propulsion.wasteHeatW,5e16*thermal);
   near(run('trial.V[0]'),500*C.FLEET_RULES.accelScale*.1*thermal);near(run('trial.engF'),thermal);
@@ -58,16 +58,16 @@ test('ENG-T13/15 a powerless escort coasts instead of being pulled into its form
  near(run('trial.escorts[0].lvl'),0);
 });
 test('a powered escort bounds all formation corrections by the shared actual acceleration',()=>{
- const u=setup({thermal:.25});
+ const u=setup({thermal:.6});
  run(`trial.jump=null;trial.escorts=[{key:'escort',p:profile,powerUnit:unit,slot:[0,0,2000],pos:[10000,10000,1000],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],f:[1,0,0]}];escortsStep(.1);`);
- near(u.propulsion.actualThrustN,1.25e8);near(run('tv.len(trial.escorts[0].V)'),125*C.FLEET_RULES.accelScale*.1);
+ near(u.propulsion.actualThrustN,3e8);near(run('tv.len(trial.escorts[0].V)'),300*C.FLEET_RULES.accelScale*.1);
 });
 
 test('solo player controls start and restart real automatically wired machinery even with an old bus flag',()=>{
  const {soloTrialDesign}=require('./helpers/solo-trial-design.cjs'),design=soloTrialDesign(C);C.syncCompartments(design);C.remount(design);C.syncCompartments(design);const stats=C.computeStats(design),profile=C.fleetProfile(stats,design.name,design);assert.ok(stats.maximumAccelMps2>0);assert.equal(design.links.some(l=>l.kind==='power'),false,'no player-placed distribution circuit is required');
  setup();cx.soloProfile=profile;run('trial.p=soloProfile;trial.battle=null;trial.systemsUnit=null;trial.swSolo=null;trial.tele=5;trial.V=[0,0,0];trialStep(.1)');
- const unit=run('trial.systemsUnit');assert.ok(unit);assert.ok(unit.propulsion.actualInputW>0);assert.ok(unit.propulsion.actualThrustN>0);assert.ok(run('trial.V[0]')>0,'a solo player actually moves after selecting ahead');assert.equal(run('trialSystemsUnit()'),unit,'the live vessel survives successive control frames');const heat=unit.ht;
- run('trial.tele=1;trialStep(.1);trial.tele=5;trialStep(.1)');assert.equal(run('trial.systemsUnit'),unit);assert.ok(unit.propulsion.actualThrustN>0,'ahead resumes after selecting stop');assert.ok(run('trial.V[0]')>0);assert.equal(unit.ht,heat,'control updates retain the live thermal state');run('trialStep(1)');assert.equal(run('trial.systemsUnit'),unit);
+ const unit=run('trial.systemsUnit');assert.ok(unit);assert.ok(unit.propulsion.actualInputW>0);assert.ok(unit.propulsion.actualThrustN>0);assert.ok(run('trial.V[0]')>0,'a solo player actually moves after selecting ahead');assert.equal(run('trialSystemsUnit()'),unit,'the live vessel survives successive control frames');const consumed=C.shipFuelState(unit).consumedKg;
+ run('trial.tele=1;trialStep(.1);trial.tele=5;trialStep(.1)');assert.equal(run('trial.systemsUnit'),unit);assert.ok(unit.propulsion.actualThrustN>0,'ahead resumes after selecting stop');assert.ok(run('trial.V[0]')>0);assert.ok(C.shipFuelState(unit).consumedKg>consumed,'control updates do not replace the unit and reset its fuel/heat state');run('trialStep(1)');assert.ok(C.heatStatus(unit).operatingHeatJ>0);
 });
 
 test('escort control frames retain one live power unit and its thermal state',()=>{

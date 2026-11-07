@@ -1,0 +1,4 @@
+const assert=require('node:assert/strict'),{test}=require('node:test'),{canonicalMountSupport:C}=require('./helpers/canonical-mount-support.cjs');
+const original={version:1,top:2,polys:[[[0,0,0],[1,0,0],[1,1,0]],[[0,0,0],[1,1,0],[0,1,0]]]};
+test('reordering support polygons and changing their cyclic starting vertices preserves exact geometry',()=>{const permuted={...original,polys:[original.polys[1].slice(1).concat(original.polys[1].slice(0,1)),original.polys[0]]};assert.deepEqual(C(permuted),C(original));});
+test('moving a support vertex, changing height or reversing winding fails preservation',()=>{for(const mutate of [s=>s.polys[0][0][0]=.001,s=>s.top=2.001,s=>s.polys[0].reverse()]){const changed=JSON.parse(JSON.stringify(original));mutate(changed);assert.notDeepEqual(C(changed),C(original));}});

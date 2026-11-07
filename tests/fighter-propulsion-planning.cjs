@@ -17,7 +17,7 @@ const near = (actual, expected) => assert.ok(
 
 function powerProfile() {
   const engine = {
-    id: 2, machineryId: 2, ratedInputW: 1e18, ratedThrustN: 5e8,
+    id: 2, machineryId: 2, ratedInputW: 1e18, effectiveMachineryVolumeM3:1e18/3.4e17, ratedThrustN: 5e8,
     wattsPerNewton: 2e9, driveProfileId: 'standard', machineryGradeId: 'standard',
     machineryLengthM: 2, machineryRadiusM: 1, moduleIndex: 1,
     powerNode: 'p2', heatNode: 'p2', domain: 'main', direction: [1, 0, 0],
@@ -45,7 +45,7 @@ function powerProfile() {
 test('live propulsion retains its planning limits across throttle and power changes', () => {
   const p = powerProfile().propulsion;
   for (const [throttle, powerW, expected] of [
-    [1, 1e18, 150], [.25, 1e18, 62.5], [0, 1e18, 0], [1, 0, 0],
+    [1, 1e18, 150], [.25, 1e18, 125], [0, 1e18, 0], [1, 0, 0],
   ]) {
     const result = C.solveShipPropulsion(p, {
       throttle, sources: [{id: 'p1', domain: 'main', powerW}],
@@ -83,7 +83,7 @@ test('a real architecture-two engine and paid feed retain planning limits while 
   const original = JSON.stringify(profile);
   for (const [throttle, available] of [[1, rated], [.25, rated], [0, rated], [1, 0], [1, rated * .25]]) {
     const result = C.solveShipPropulsion(profile, {throttle, sources: [{id: 'p1', domain: 'main', powerW: available}], links: fleet.grid.powerPaths});
-    const input = Math.min(throttle * rated, available * efficiency), thrust = input / wattsPerNewton;
+    const input = Math.min(throttle * rated, available * efficiency, structural*.5*descriptor.massKg*wattsPerNewton), thrust = input / wattsPerNewton;
     assert.equal(result.version, 2);
     near(result.ratedAccelMps2, descriptor.ratedAccelMps2);
     near(result.accelerationLimitMps2, structural * .5);
@@ -92,7 +92,7 @@ test('a real architecture-two engine and paid feed retain planning limits while 
     near(result.actualInputW, input);
     near(result.actualThrustN, thrust);
     near(result.wasteHeatW, input * .05);
-    near(result.actualAccelMps2, Math.min(thrust / descriptor.massKg, structural) * .5);
+    near(result.actualAccelMps2, Math.min(thrust / descriptor.massKg, structural*.5));
     near(result.power.draw, input / efficiency);
     near(result.power.feedLossW, result.power.draw - input);
     assert.ok(result.power.draw <= available * (1 + 1e-12));
@@ -134,7 +134,7 @@ test('fighter flight loses acceleration and turning when stopped or unpowered', 
     near(powered.acc, .3);
     const quarter = R.squadPropulsion(squad, .25, 0);
     near(quarter.acc0, powered.acc0);
-    near(quarter.acc, .125);
+    near(quarter.acc, .25);
     assert.ok(quarter.turn > 0 && quarter.turn < powered.turn);
     const stopped = R.squadPropulsion(squad, 0, 0);
     near(stopped.acc0, powered.acc0);
@@ -181,7 +181,7 @@ test('a fighter design without propulsion stays at zero speed when saved and nor
 });
 
 test('ordnance electronics do not take a laser battery share of continuous weapon power', () => {
-  const p = powerProfile();
+  const p = powerProfile();p.propulsion={...p.propulsion,structuralAccelerationLimitMps2:1e9,accelerationLimitMps2:1e9,inertialFactor:1};
   p.modules.push(
     {k: 'weapon', fit: 3, port: 'f3', domain: 'main', size: 1, share: 1},
     {k: 'weapon', fit: 4, port: 'f4', domain: 'main', size: 0, share: 0,
@@ -208,7 +208,7 @@ test('ordnance electronics do not take a laser battery share of continuous weapo
 
 test('weapon input ratings take precedence over damage shares, including an explicit zero', () => {
   for (const secondPower of [0, 1e15, 2e18]) {
-    const p = powerProfile();
+    const p = powerProfile();p.propulsion={...p.propulsion,structuralAccelerationLimitMps2:1e9,accelerationLimitMps2:1e9,inertialFactor:1};
     p.modules.push(
       {k: 'weapon', fit: 3, port: 'f3', domain: 'main', size: 1,
         share: .75, weaponPowerW: 1e18},

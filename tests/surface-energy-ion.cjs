@@ -13,29 +13,18 @@ test('explicit energy conversion conserves input, output and losses while effect
  const old=C.weaponEnergy({energyUnit:'effect'},60);assert.equal(old.outputJ,null);assert.equal(old.inputJ,null);assert.equal(old.outputEffect,60);
 });
 
-test('a shield blocks ion with low onboard heat, finite defence and a conserved transient ledger',()=>{
- const ion=unit(),beam=unit(),i=C.shieldReceive(ion,{energy:100,ion:100}),b=C.shieldReceive(beam,{energy:100,ion:0});
- assert.equal(i.leaked,0);assert.ok(i.onboardHeat<b.onboardHeat/10);close(i.incoming,i.external+i.storedDelta+i.onboardHeat+i.leaked);
- assert.equal(ion.shield,900);assert.equal(C.powerStatus(ion).local.length,0);
- for(let n=0;n<30;n++){ion.shield=1000;C.shieldReceive(ion,{energy:1000,ion:1000});}
- assert.ok(ion.lastShieldHit.leaked>0,'finite transient acceptance eventually leaks even if defence is externally replenished');
- const before=ion.shieldTransient;C.powerTick(ion,2,ctx);assert.ok(ion.shieldTransient<before);const l=ion.shieldLedger;close(l.incoming,l.external+l.heat+l.leaked+l.stored);
+test('ordinary ion redirects 95 percent, debits only five percent and never fills a transient buffer',()=>{
+ const ion=unit(),i=C.shieldReceive(ion,{energy:100,ion:100});close(i.external,95);close(i.shieldWork,5);close(i.incoming,i.external+i.shieldWork+i.onboardHeat);close(ion.shield,995);close(ion.shieldTransient,0);close(i.onboardHeat,0);
+ for(let n=0;n<30;n++){ion.shield=1000;C.shieldReceive(ion,{energy:1000,ion:1000});}close(ion.lastShieldHit.leaked,0);close(ion.shieldTransient,0);
 });
 
-test('ordinary leaked ion trips only its struck connected device and restarts without repairing physical damage',()=>{
- const u=unit(),health=plain(u.mods),r=C.ionOverload(u,2,{moduleIndex:2},ctx);assert.equal(r.scope,'local');assert.equal(C.powerFactor(u,'weapon',2),0);assert.equal(C.powerFactor(u,'weapon',3),1);assert.equal(C.powerFactor(u,'reactor'),1);assert.equal(u.down,null);assert.deepEqual(plain(u.mods),health);
- C.powerTick(u,30,ctx);assert.equal(C.powerFactor(u,'weapon',2),1);assert.deepEqual(plain(u.mods),health);const l=u.ionLedger;close(l.incoming,l.external+l.heat+l.stored);
+test('unblocked ordinary ion adds only whole-vessel heat and uses the shared restoration conditions',()=>{
+ const u=unit(),health=plain(u.mods);C.ionOverload(u,2,{moduleIndex:2},ctx);close(u.ht.qJ,2*TT);assert.deepEqual(plain(u.mods),health);assert.equal(u.ht.online,false);assert.equal(C.powerFactor(u,'weapon',2),0);assert.equal(C.powerFactor(u,'weapon',3),0);
+ u.p.crewCapacity=100;u.crew=50;u.ht.qJ=u.ht.capacityJ*.8;C.powerTick(u,300,ctx);assert.equal(u.ht.online,false);close(u.ht.restartWork,.5);C.powerTick(u,300,ctx);assert.equal(u.ht.online,true);close(C.shipHeatOutputFactor(u),.6);assert.deepEqual(plain(u.mods),health);
 });
 
-test('large common-grid overload stops connected auxiliary reactors regardless of their capacity share',()=>{
- const u=unit();u.p.grid.Paux=u.p.grid.P*.99;C.ionOverload(u,1000,{moduleIndex:2},ctx);assert.equal(C.powerStatus(u).blackout,true);assert.equal(C.powerFactor(u,'reactor',0),0);assert.equal(C.powerFactor(u,'reactor',1),0);assert.equal(u.down.black,true);assert.equal(u.dead,false);assert.equal(u.out,null);
- const health=plain(u.mods),s=C.fleetSystems(u),f=C.fleetPowerStep(u,s,null,10,.25);assert.equal(f,0);assert.equal(u.engF,0);assert.equal(u.shF,0);assert.equal(u.pw.P,0);assert.deepEqual(plain(u.mods),health);
- C.powerTick(u,181,ctx);assert.equal(C.powerStatus(u).blackout,false);assert.equal(C.powerFactor(u,'engine'),1);assert.deepEqual(plain(u.mods),health);
-});
-
-test('an isolated emergency domain survives another grid trip and an empty domain cannot borrow its power',()=>{
- const u=unit(true);C.ionOverload(u,1000,{moduleIndex:2},ctx);assert.equal(C.powerFactor(u,'weapon',2),0);assert.equal(C.powerFactor(u,'weapon',3),1);close(C.powerFactor(u,'reactor'),.1);assert.equal(C.powerStatus(u).blackout,false);
- u.p.grid.domains[1].P=0;assert.equal(C.powerFactor(u,'weapon',3),0);
+test('the whole-vessel heat limit stops both independent electrical domains at once',()=>{
+ const u=unit(true);C.ionOverload(u,1000,{moduleIndex:2},ctx);assert.equal(C.powerStatus(u).blackout,true);assert.equal(C.powerFactor(u,'weapon',2),0);assert.equal(C.powerFactor(u,'weapon',3),0);const s=C.fleetSystems(u);close(C.fleetPowerStep(u,s,null,10,.25),0);close(u.pw.P,0);close(u.engF,0);
 });
 
 test('a blackout stops new steering and firing while a real fleet ship retains its inertial velocity',()=>{
@@ -73,7 +62,7 @@ test('strict cooling uses real powered devices and exposes electronic and hyperd
 
 test('pulse traversal is ordered by distance and never duplicates a finite shot across targets',()=>{
  const units=[1,2,3].map(n=>{const t=unit();t.id='t'+n;t.pos=[n*3000,0,0];return t;}),make=()=>({id:'pulse',from:'source',o:[0,0,0],dir:[1,0,0],x:0,E:1000000,E0:1000000,d:100,hit:[]}),a=make(),b=make();
- C.ionBoltsStep([a],units.slice().reverse(),4,ctx);C.ionBoltsStep([b],units,4,ctx);assert.deepEqual(plain(a.log),plain(b.log));assert.deepEqual(plain(a.log.map(h=>h.id)),['t1','t2','t3']);assert.ok(a.log.reduce((n,h)=>n+h.E,0)<=a.E0);close(a.E0,a.E+a.log.reduce((n,h)=>n+h.E,0));
+ const independent=units.map(t=>({...t,...C.combatClone(t)}));C.ionBoltsStep([a],units.slice().reverse(),4,ctx);C.ionBoltsStep([b],independent,4,ctx);assert.deepEqual(plain(a.log),plain(b.log));assert.deepEqual(plain(a.log.map(h=>h.id)),['t1','t2','t3']);close(a.E0,a.E+a.log.reduce((n,h)=>n+(h.consumedJ||0)/TT,0));
 });
 
 function coolingFixture(stored=0,physical=true){
@@ -81,21 +70,21 @@ function coolingFixture(stored=0,physical=true){
  u.p.grid={P:1000,fixed:10,cooling:10,De:0,Ds:0,Dw:0,domains:[{id:'main',P:1000,sources:[{moduleIndex:0,P:1000}],modules:[0,...(physical?[coolerIndex]:[])]}]};u.p.wCap=0;u.energy=0;
  const source=(k,m)=>({k,n:k,g:k==='hotel'?'low':'high',sh:1,st:1000,m,pc:[],sec:-1,sw:-1,gen:-1});
  u.p.heat={v:1,src:[source('hotel',[]),source('reactor',[0])],dis:[{n:'Powered cooler',k:'hdis',g:'high',cap:500,power:10,m:coolerIndex,sec:-1,src:-1}],ln:[{s:0,d:0,cap:1000,sec:-1},{s:1,d:0,cap:1000,sec:-1}]};
- C.heatInit(u);u.ht.t=0;u.ht.last=0;u.ht.st[0]=stored;return u;
+ C.heatInit(u);u.ht.t=0;u.ht.last=0;u.ht.qJ=stored;return u;
 }
 
 test('an idle installed cooler reserves finite startup power without drawing it or creating heat and emission',()=>{
  const u=coolingFixture();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);assert.equal(u.pw.coolingReserved,10);assert.equal(u.pw.drawNonCooling,0);assert.equal(u.ht.e.hotel,0);C.heatTick({...ctx,time:1},u,1);
- assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling.inputJ,0);assert.equal(u.ht.cooling.lastDraw,0);assert.ok(u.ht.st.every(v=>v===0));
+ assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling.inputJ,0);assert.equal(u.ht.cooling.lastDraw,0);close(u.ht.qJ,0);
 });
 
 test('a cold cooler starts from reserved power and conserves processed heat, actual operation input and reactor loss',()=>{
  const u=coolingFixture(100);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);C.heatTick({...ctx,time:1},u,1);const c=u.ht.cooling;
- assert.ok(u.ht.emit>0,'zero previous electric draw must not deadlock startup');assert.ok(c.inputJ>0&&c.inputJ<c.reservedJ);close(c.inputJ,c.heatJ);close(100+c.heatJ+c.reactorWasteJ,u.ht.st.reduce((a,v)=>a+v,0)+c.handledJ);close(c.lastDraw,c.inputJ);close(u.pw.cooling,c.inputJ);
- const off=coolingFixture(100);off.p.grid.P=0;C.fleetPowerStep(off,C.fleetSystems(off),null,0,1);C.heatTick({...ctx,time:1},off,1);assert.equal(off.ht.emit,0);assert.equal(off.ht.cooling.inputJ,0);close(off.ht.st[0],100);
+ assert.ok(u.ht.emit>0,'zero previous electric draw must not deadlock startup');assert.ok(c.inputJ>0&&c.inputJ<c.reservedJ);close(c.inputJ,c.heatJ);close(100+c.heatJ+c.reactorWasteJ,u.ht.qJ+c.handledJ);close(c.lastDraw,c.inputJ);close(u.pw.cooling,c.inputJ);
+ const off=coolingFixture(100);off.p.grid.P=0;C.fleetPowerStep(off,C.fleetSystems(off),null,0,1);C.heatTick({...ctx,time:1},off,1);assert.equal(off.ht.emit,0);assert.equal(off.ht.cooling.inputJ,0);close(off.ht.qJ,100);
 });
 
 // A power reservation is not itself an installed cooling device.
 test('strict startup rejects a cooler record without its actual dissipator module',()=>{
- const u=coolingFixture(100,false);assert.equal(C.heatProfile(u.p).dis.length,0);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);C.heatTick({...ctx,time:1},u,1);assert.equal(u.pw.coolingReserved,0);assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling?.inputJ||0,0);close(u.ht.st[0],100);
+ const u=coolingFixture(100,false);assert.equal(C.heatProfile(u.p).dis.length,0);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);C.heatTick({...ctx,time:1},u,1);assert.equal(u.pw.coolingReserved,0);assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling?.inputJ||0,0);close(u.ht.qJ,100);
 });

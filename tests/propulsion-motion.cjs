@@ -183,7 +183,7 @@ test('a stale result cannot move a unit without a finite valid descriptor', () =
 test('a legacy combined acceleration remains only an upper bound on real powered movement',()=>{
  const p=profile();delete p.propulsion;p.mass=1000;p.accel=.2;
  const model=C.legacyPropulsionProfile(p,1000);assert.equal(model.legacyMovementCapSource,'profile.accel');assert.equal(model.ratedAccelMps2,500);assert.equal(model.legacyUpperMovementCapMps2,.2/C.FLEET_RULES.accelScale);
- const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');assert.equal(u.propulsion.actualInputW,1e18*throttle);assert.equal(C.propulsionMotion(u).acc,.2);}
+ const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');assert.equal(u.propulsion.actualInputW,Math.min(1e18*throttle,2e17));assert.equal(C.propulsionMotion(u).acc,.2);}
  u.mods[0]=0;C.allocateShipPower(u,C.fleetSystems(u),{throttle:1},0,'balanced');assert.equal(u.propulsion.actualInputW,0);assert.equal(C.propulsionMotion(u).acc,0);
  delete p.accel;assert.equal(C.legacyPropulsionProfile(p,1000).accelerationLimitMps2,500);for(const invalid of [NaN,Infinity,-1]){p.accel=invalid;assert.equal(C.legacyPropulsionProfile(p,1000),null);}
 });

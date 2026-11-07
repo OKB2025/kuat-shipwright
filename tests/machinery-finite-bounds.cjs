@@ -1,4 +1,4 @@
-const assert=require('node:assert/strict'),{test}=require('node:test'),{C}=require('../scripts/update-ship-examples.cjs').loadRuntime(require('node:path').resolve(__dirname,'..')),near=(a,b)=>assert.ok(Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-9,`${a} != ${b}`);
+const assert=require('node:assert/strict'),{test}=require('node:test'),{C,near}=require('./helpers/global-energy-runtime.cjs');
 function body(a,b,r0,r1){const delta=C.sub(b,a),length=C.len(delta),fr=C.frameAxis(delta);return {k:'machinery',seg:{a,b,r0,r1,l:length,...fr}};}
 test('finite engine cylinders have end caps without an extra axial radius',()=>{
  for(const axis of [0,1,2]){const a=[10,20,30],b=a.slice();b[axis]+=100;const p=body(a,b,12,5),B=C.partAABB(p);near(B[axis],a[axis]);near(B[axis+3],b[axis]);for(const j of [0,1,2].filter(i=>i!==axis)){near(B[j],a[j]-12);near(B[j+3],a[j]+12);}}

@@ -6,5 +6,5 @@ for(const key of ['imperial','imperial2'])test(`${key}: all seven saved-design o
   const p=drive.parts.find(p=>p.id===r.partId),mesh=G.meshPreview(s,[p],[],{budgetMs:Infinity}).preview;assert.ok(mesh.n>0);for(let i=0;i<mesh.n;i++){const q=Array.from(mesh.pos.subarray(i*3,i*3+3)),delta=C.sub(q,r.path[0]),t=C.dot(delta,axis),radius=C.len(C.sub(delta,C.mul(axis,t)));assert.ok(t>=-.003&&t<=r.length+.003);assert.ok(radius<=r.radius+.003,'the actual rendered housing has no off-axis elbow');}
  }
  assert.equal(C.publicJSON(C.serialize(s)),before,'automatic routes cannot move saved machinery, nozzles, weapons or hull parts');assert.equal(new Set(nozzles.map(p=>p.machineryId)).size,3);
- const feeds=C.engineTransmission(s);assert.ok(feeds.routes.every(r=>r.distributedWiring));assert.equal(C.allOccupied(s).some(p=>p.distributedWiring),false);assert.ok(feeds.massTonnes>0&&feeds.cost>0);
+ const feeds=C.engineTransmission(s);assert.ok(feeds.routes.every(r=>r.model==='source-distance'&&!r.path));assert.equal(feeds.parts.length,0);assert.equal(C.allOccupied(s).some(p=>p.distributedWiring),false);assert.equal(feeds.massTonnes,0);assert.equal(feeds.cost,0);
 });

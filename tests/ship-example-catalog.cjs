@@ -1,40 +1,27 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{test}=require('node:test');
-const {loadRuntime,exampleKeys,sourceHashes,stable}=require('../scripts/update-ship-examples.cjs'),crypto=require('node:crypto');
+const {loadRuntime,exampleKeys,sourceHashes,stable}=require('../scripts/update-ship-examples.cjs'),crypto=require('node:crypto'),H=require('./helpers/mandator-battery-history.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),plain=value=>JSON.parse(JSON.stringify(value));
 const engineRefitKeys=['imperial','imperial2','arquitens','cr90','hammerhead','mc80home','mc80liberty','mc75','mc30c'],targets={imperial:2300,imperial2:2300,arquitens:1800,cr90:2100,hammerhead:2500,mc80home:2100,mc80liberty:2100,mc75:2100,mc30c:2100},archiveTags=Object.fromEntries(Object.entries(targets).map(([key,target])=>[key,target+'g'])),nozzleCounts={imperial:7,imperial2:7,arquitens:3,cr90:11,hammerhead:3,mc80home:10,mc80liberty:9,mc75:12,mc30c:5},coreCounts={imperial:3,imperial2:3,arquitens:3,cr90:11,hammerhead:3,mc80home:2,mc80liberty:2,mc75:2,mc30c:2},fingerprint=value=>crypto.createHash('sha256').update(stable(value)).digest('hex'),scopedReport=()=>JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/example-engine-acceleration-refit.json'),'utf8'));
-test('stock rows retain their declared generating sources and require a worker profile before sailing',()=>{
- const {C,data}=loadRuntime(root),keys=exampleKeys(C,data),sources=sourceHashes(root);
- const refreshed=scopedReport(),latest=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/mandator-battery-layout-refit.json'))),historical=require('./helpers/historical-engine-runtime.cjs').verifyHistoricalEngineRuntime(root);
+const militaryKeys=['mandator2','dreadnaught','gozanti','lucrehulk','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator','executor','venator','acclamator'],militaryReport=()=>JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/military-engine-acceleration-refit.json')));
+test('stock rows retain their declared historical or current factory sources and require a worker profile before sailing',()=>{
+ const {C,data}=loadRuntime(root),keys=exampleKeys(C,data),sources=sourceHashes(root),baseline=H.loadMandatorBatteryHistory(root),refreshed=scopedReport(),battery=baseline.report,latest=militaryReport(),historical=require('./helpers/historical-engine-runtime.cjs').verifyHistoricalEngineRuntime(root);
  assert.equal(historical.passed,true);assert.equal(historical.historical,true);assert.equal(historical.currentRuntimeClaimed,false);assert.deepEqual(historical.generationSources,refreshed.sourceSha256);assert.equal(historical.generationReportSha256,crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'docs/benchmarks/example-engine-acceleration-refit.json'))).digest('hex'));
- assert.deepEqual(latest.allKeys,['mandator2']);assert.deepEqual(latest.sourceSha256,sources);assert.equal(latest.physicalVerification.passed,true);assert.equal(latest.orchestration.constructorCalls,1);assert.equal(Object.keys(latest.controls.catalogue).length,27);
- assert.deepEqual(refreshed.allKeys,engineRefitKeys);assert.equal(refreshed.verificationScope.kind,'selected-stock-models');assert.equal(refreshed.verificationScope.unverifiedKeys.length,19);assert.equal(keys.length,28);
- assert.deepEqual(keys,Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort());
+ assert.deepEqual(battery.allKeys,['mandator2']);assert.equal(battery.sourceSha256['js/core.js'],H.constants.EXPECTED.core);assert.equal(battery.physicalVerification.passed,true);assert.equal(battery.orchestration.constructorCalls,1);assert.equal(Object.keys(battery.controls.catalogue).length,27);
+ assert.deepEqual([...latest.allKeys].sort(),[...militaryKeys].sort());assert.deepEqual(latest.sourceSha256,sources);assert.equal(latest.physicalVerification.passed,true);assert.equal(latest.orchestration.constructorCalls,16);assert.equal(latest.generationMethods.currentFactoryBuilds,16);assert.equal(latest.generationMethods.savedBlueprintReplays,0);assert.equal(Object.keys(latest.controls.catalogue).length,12);assert.equal(Object.keys(latest.controls.figures).length,24);
+ assert.deepEqual(refreshed.allKeys,engineRefitKeys);assert.equal(refreshed.verificationScope.kind,'selected-stock-models');assert.equal(refreshed.verificationScope.unverifiedKeys.length,19);assert.equal(keys.length,28);assert.deepEqual(keys,Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort());
  for(const key of keys){
   const entry=data.designs[key],p=entry.p,model=entry.model;
-  assert.equal(p.catalogOnly,true,key+' metadata must require a complete worker profile before sailing');
-  assert.equal(p.surface,undefined,key+' large physical surface meshes stay out of the catalogue');
-  assert.ok(JSON.stringify(p).length<8*1024*1024,key+' bounded catalogue engineering metadata');
-  if(key==='mandator2'){
-   assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION);assert.equal(model.profileVersion,C.FLEET_PROFILE_VERSION);assert.equal(model.costVersion,C.COST_MODEL.version);assert.equal(model.costSignature,C.costModelSignature());assert.deepEqual(plain(model.sourceSha256),sources,'Mandator retains the exact new factory sources');assert.equal(model.provenance.constructorCalls,1);
+  assert.equal(p.catalogOnly,true,key+' metadata must require a complete worker profile before sailing');assert.equal(p.surface,undefined,key+' large physical surface meshes stay out of the catalogue');assert.ok(JSON.stringify(p).length<8*1024*1024,key+' bounded catalogue engineering metadata');
+  if(militaryKeys.includes(key)){
+   assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION,key+' current military fleet schema');assert.equal(model.profileVersion,C.FLEET_PROFILE_VERSION);assert.equal(model.costVersion,C.COST_MODEL.version);assert.equal(model.costSignature,C.costModelSignature());assert.deepEqual(plain(model.sourceSha256),sources,key+' exact new military factory sources');assert.equal(model.provenance.constructorCalls,1);
   }else if(engineRefitKeys.includes(key)){
-   assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION,key+' retained engine-refit fleet schema');assert.equal(model?.profileVersion,C.FLEET_PROFILE_VERSION,key+' retained engine-refit generation metadata');assert.equal(model?.costVersion,C.COST_MODEL.version,key+' current cost model');assert.equal(model?.costSignature,C.costModelSignature(),key+' current engineering price coefficients');assert.deepEqual(plain(model?.sourceSha256),refreshed.sourceSha256,key+' exact fresh generating sources are retained');
+   assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION,key+' retained engine-refit fleet schema');assert.equal(model.profileVersion,C.FLEET_PROFILE_VERSION);assert.equal(model.costVersion,C.COST_MODEL.version);assert.equal(model.costSignature,C.costModelSignature());assert.deepEqual(plain(model.sourceSha256),refreshed.sourceSha256,key+' exact earlier factory sources are retained');
   }else{
-   const control=refreshed.controls.catalogue[key];assert.ok(control,key+' independently recorded unchanged row');assert.equal(fingerprint(entry),control.sha256,key+' entire unselected catalogue row, including its original cost signature, is unchanged');assert.deepEqual(plain(model?.sourceSha256),control.sourceSha256,key+' original generating sources are retained');assert.equal(p.profileVersion,17,key+' authenticated historical fleet schema remains17');assert.equal(model?.profileVersion,17,key+' historical generation metadata remains17');
+   const control=refreshed.controls.catalogue[key];assert.ok(control,key+' independently recorded historical civilian row');assert.equal(fingerprint(entry),control.sha256,key+' entire civilian row is unchanged');assert.deepEqual(plain(model.sourceSha256),control.sourceSha256,key+' original generating sources are retained');assert.equal(p.profileVersion,17,key+' authentic historical fleet schema remains17');assert.equal(model.profileVersion,17);
   }
-  if(key!=='mandator2')assert.equal(fingerprint(entry),latest.controls.catalogue[key].sha256,key+' entire row is unchanged by the Mandator-only publication');
-  assert.match(model.blueprintSha256,/^[a-f0-9]{64}$/);
-  assert.ok(Number.isFinite(entry.info.mass)&&entry.info.mass>0,key+' finite physical mass');
-  assert.ok(Math.abs(p.propulsion.massKg-entry.info.mass*1000)<=entry.info.mass*1e-5,key+' catalogue mass matches its propulsion ledger');
-  assert.ok(p.crewNeed>0&&p.crewMax>=p.crewNeed,key+' room for the operating crew');
-  assert.ok(Number.isFinite(p.maxSpeed)&&p.maxSpeed>0&&p.propulsion.ratedAccelMps2>0,key+' usable planned propulsion');
-  assert.ok(p.propulsion.engines.length>0,key+' machinery installed');
-  for(const e of p.propulsion.engines){
-   assert.equal(e.valid,true,key+' engine '+e.id+' finite machinery');
-   assert.equal(e.available,true,key+' engine '+e.id+' available outlet and body');
-   assert.equal(e.driveProfileId,'standard',key+' engine '+e.id+' current input law');
-   assert.notEqual(e.machineryGradeId,'legacy-refit',key+' engine '+e.id+' ordinary density');
-   assert.equal(e.legacyCoolingInputW,0,key+' engine '+e.id+' physical cooling');
-  }
+  if(!militaryKeys.includes(key)){assert.equal(fingerprint(entry),fingerprint(baseline.data.designs[key]),key+' authentic pre-military catalogue row is retained');assert.equal(fingerprint(entry),latest.controls.catalogue[key].sha256,key+' complete unselected row is unchanged by the military publication');}
+  assert.match(model.blueprintSha256,/^[a-f0-9]{64}$/);assert.ok(Number.isFinite(entry.info.mass)&&entry.info.mass>0,key+' finite physical mass');assert.ok(Math.abs(p.propulsion.massKg-entry.info.mass*1000)<=entry.info.mass*1e-5,key+' catalogue mass matches its propulsion ledger');assert.ok(p.crewNeed>0&&p.crewMax>=p.crewNeed,key+' room for the operating crew');assert.ok(Number.isFinite(p.maxSpeed)&&p.maxSpeed>0&&p.propulsion.ratedAccelMps2>0,key+' usable planned propulsion');assert.ok(p.propulsion.engines.length>0,key+' machinery installed');
+  for(const e of p.propulsion.engines){assert.equal(e.valid,true,key+' engine '+e.id+' finite machinery');assert.equal(e.available,true,key+' engine '+e.id+' available outlet and body');assert.equal(e.driveProfileId,'standard',key+' engine '+e.id+' current input law');assert.notEqual(e.machineryGradeId,'legacy-refit',key+' engine '+e.id+' physical machinery');assert.equal(e.legacyCoolingInputW,0,key+' engine '+e.id+' physical cooling');}
  }
 });
 
@@ -61,8 +48,8 @@ test('the nine earlier factory archives retain their authentic audit and figure 
   if(['mc80home','mc80liberty','mc75','mc30c'].includes(key)){const framing=report.framingEvidence[key];assert.equal(framing.required,true);assert.equal(framing.passed,true);assert.equal(framing.rows.length,1);assert.equal(framing.rows[0].sampleCount,120);assert.equal(framing.rows[0].materialLedgerMatches,true);assert.ok(Math.abs(framing.actualCompletedMassT-row.massT)<=Math.max(1,row.massT)*1e-9);assert.ok(framing.independentFramingMassT>0);}
  }
  const oldFiguresBytes=require('node:zlib').gunzipSync(fs.readFileSync(path.join(root,'assets/source/engine-runtime-revisions/table-craft-thermal-figures.json.gz')));assert.equal(crypto.createHash('sha256').update(oldFiguresBytes).digest('hex'),'86f00e14233e50f40a960f97dcadd679167ae2b11faf44516e1bd91de3c2edae');const oldFigures=JSON.parse(oldFiguresBytes);
- for(const [key,hash]of Object.entries(report.controls.figures)){assert.equal(fingerprint(oldFigures.ships[key]),hash,key+' historical figure matches the authentic earlier snapshot');if(key!=='mandator2')assert.equal(fingerprint(figures.ships[key]),hash,key+' retained figure digest is unchanged');}
- const latest=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/mandator-battery-layout-refit.json')));for(const [key,hash]of Object.entries(latest.controls.figures))assert.equal(fingerprint(figures.ships[key]),hash,key+' current figure remains unchanged by the Mandator-only publication');
+ for(const [key,hash]of Object.entries(report.controls.figures)){assert.equal(fingerprint(oldFigures.ships[key]),hash,key+' historical figure matches the authentic earlier snapshot');if(key!=='mandator2')assert.equal(fingerprint(H.loadMandatorBatteryHistory(root).figures.ships[key]),hash,key+' figure was retained through the authentic battery-layout publication');}
+ const battery=H.loadMandatorBatteryHistory(root);for(const [key,hash]of Object.entries(battery.report.controls.figures))assert.equal(fingerprint(battery.figures.ships[key]),hash,key+' authentic battery-layout figure control');const latest=militaryReport();for(const [key,hash]of Object.entries(latest.controls.figures))assert.equal(fingerprint(figures.ships[key]),hash,key+' current figure remains unchanged by the military-only publication');
 });
 
 test('the new I and II catalogue rows use their own main batteries and retain the uploaded supporting armament',()=>{
@@ -98,8 +85,8 @@ test('the PR58 factory archives and report remain authenticated historical evide
  for(const key of ['imperial','imperial2']){const directory=path.join(root,'assets/source/'+key+'-user-layout-factory-blueprints'),manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json'))),input=readBlueprint(directory,key,manifest),row=report.models.find(model=>model.key===key);assert.deepEqual(manifest.factorySourceSha256,report.sourceSha256);assert.equal(input.canonicalSha256,row.generation.outputCanonicalSha256);assert.equal(input.blueprint.parts.length,manifest.models[key].partCount);assert.equal(input.blueprint.fits.length,manifest.models[key].fitCount);}
 });
 
-test('the previous shared-core archives remain historical evidence and still authenticate retained Onager metadata',()=>{
- const report=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/shared-engine-core-refit.json'))),{data}=loadRuntime(root);assert.deepEqual(report.allKeys,['imperial','onager']);assert.equal(report.generationMethods.currentFactoryBuilds,2);assert.equal(report.physicalVerification.passed,true);
+test('the previous shared-core archives authenticate historical Onager metadata without claiming its later engine refit',()=>{
+ const report=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/shared-engine-core-refit.json'))),{data}=H.loadMandatorBatteryHistory(root);assert.deepEqual(report.allKeys,['imperial','onager']);assert.equal(report.generationMethods.currentFactoryBuilds,2);assert.equal(report.physicalVerification.passed,true);
  for(const key of ['imperial','onager']){const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/'+key+'-shared-core-factory-blueprints/manifest.json'))),row=report.models.find(row=>row.key===key);assert.deepEqual(manifest.factorySourceSha256,report.sourceSha256);assert.equal(manifest.models[key].canonicalSha256,row.generation.outputCanonicalSha256);if(key==='onager')assert.equal(manifest.models[key].canonicalSha256,data.designs[key].model.blueprintSha256);}
 });
 

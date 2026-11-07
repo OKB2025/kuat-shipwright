@@ -15,13 +15,13 @@ function finiteFixture(left=3e20,right=5e20){const f=fixture();f.ship.links=[{ki
 const nameplate=gun=>C.fitSpec(gun).power/C.ENERGY_MODEL.eta;
 const signature=gun=>{const s=C.fitSpec(gun);return {power:s.power,tt:s.tt,ion:s.ion,barrels:s.barrels,boltTT:s.boltTT,cycle:s.cycle,p:plain(gun.p),a:gun.a};};
 
-test('finite manual branches reserve their real wattage and less living volume without changing either gun',()=>{
- const {ship,guns}=fixture(),before=guns.map(signature),automatic=C.feedConduits(ship);near(automatic.demand,guns.reduce((n,g)=>n+nameplate(g),0));assert.ok(automatic.volume>0);assert.ok(automatic.routed);assert.ok(automatic.h.envelopeVolume>0&&automatic.h.volume>0);
- ship.links=guns.map((g,i)=>({kind:'power',from:'p2',to:'f'+g.id,cap:i?5e20:3e20}));const limited=C.feedConduits(ship);near(limited.demand,8e20);assert.ok(limited.volume>0&&limited.volume<automatic.volume*.1);near(limited.rows.find(w=>w.id===guns[0].id).P,3e20);near(limited.rows.find(w=>w.id===guns[1].id).P,5e20);assert.deepEqual(guns.map(signature),before);
+test('manual branches retain their real wattage without reserving cable volume or changing either gun',()=>{
+ const {ship,guns}=fixture(),before=guns.map(signature),automatic=C.feedConduits(ship);near(automatic.demand,guns.reduce((n,g)=>n+nameplate(g),0));near(automatic.volume,0);assert.equal(automatic.routed,false);assert.equal(automatic.h,undefined);
+ ship.links=guns.map((g,i)=>({kind:'power',from:'p2',to:'f'+g.id,cap:i?5e20:3e20}));const limited=C.feedConduits(ship);near(limited.demand,8e20);near(limited.volume,0);near(limited.rows.find(w=>w.id===guns[0].id).P,3e20);near(limited.rows.find(w=>w.id===guns[1].id).P,5e20);assert.deepEqual(guns.map(signature),before);
  const stats=C.computeStats(ship);near(stats.feedDemand,8e20);near(stats.feedVolume,limited.volume);assert.ok(stats.habitableVolume>0);for(const g of guns){assert.equal(g.float,false);assert.ok(stats.chargeInfo[g.id].ratio>1-1e-6,'the real gun retains its full physical firing charge');}
 });
-test('editing only a finite branch capacity invalidates the conduit cache while retaining the hull grid',()=>{
- const {ship}=finiteFixture(),first=C.feedConduits(ship);assert.equal(C.feedConduits(ship),first);ship.links[1].cap=1e20;const second=C.feedConduits(ship);assert.notEqual(second,first);assert.equal(second.h,first.h);near(second.demand,6e20);assert.ok(second.volume<first.volume);assert.equal(C.feedConduits(ship),second);
+test('editing a branch capacity invalidates the numerical cache without building a hull grid',()=>{
+ const {ship}=finiteFixture(),first=C.feedConduits(ship);assert.equal(C.feedConduits(ship),first);ship.links[1].cap=1e20;const second=C.feedConduits(ship);assert.notEqual(second,first);assert.equal(second.h,undefined);near(second.demand,6e20);near(second.volume,0);assert.equal(C.feedConduits(ship),second);
 });
 test('all finite incoming routes add their capacities and never exceed the gun nameplate',()=>{
  const {ship,source,guns}=finiteFixture();ship.links.push({kind:'power',from:'p'+source.id,to:'f'+guns[0].id,cap:2e20});let feed=C.feedConduits(ship);near(feed.rows.find(w=>w.id===guns[0].id).P,5e20);near(feed.demand,1e21);
@@ -37,5 +37,5 @@ test('zero-capacity manual gun feeds reserve no wire demand or conduit volume',(
 });
 test('the real finite branch graph retains fixed-load priority and cannot create power for the guns',()=>{
  const {ship,source,hub,guns}=finiteFixture(),feed=C.feedConduits(ship),stats=C.computeStats(ship),loads=[{id:'fixed',kind:'fixed',port:'p'+hub.id,requestedInputW:4e20},...guns.map(g=>({id:'weapon:'+g.id,kind:'weapons',port:'f'+g.id,requestedInputW:nameplate(g)}))],result=C.allocateConnectedPower({sources:[{id:'p'+source.id,powerW:C.reactorPower(source)}],links:stats.heat.powerPaths,loads,mode:'weapons'});
- near(result.granted.fixed,4e20);near(result.weapons,6e20);near(result.draw,1e21);assert.ok(result.weapons<=feed.demand);for(let i=0;i<guns.length;i++){const amount=result.granted['weapon:'+guns[i].id];assert.ok(amount>0&&amount<=(i?5e20:3e20)*(1+1e-9));}assert.ok(result.draw<C.reactorPower(source));assert.ok(stats.heat.powerPaths.filter(l=>!l.auto&&l.to.startsWith('f')).every(l=>Number.isFinite(l.cap)));
+ near(result.granted.fixed,4e20);const trunk=stats.heat.powerPaths.find(l=>l.from==='p'+source.id&&l.to==='p'+hub.id),branches=guns.map(g=>stats.heat.powerPaths.find(l=>l.to==='f'+g.id&&!l.auto));const eta=branches[0].efficiency;assert.ok(eta<1);near(branches[1].efficiency,eta);near(result.weapons,(1e21*trunk.efficiency-4e20)*eta);near(result.draw,result.delivered+result.feedLossW);near(result.draw,1e21);assert.ok(result.weapons<=feed.demand);for(let i=0;i<guns.length;i++){const amount=result.granted['weapon:'+guns[i].id];assert.ok(amount>0&&amount<=(i?5e20:3e20)*(1+1e-9));}assert.ok(result.draw<C.reactorPower(source));assert.ok(stats.heat.powerPaths.filter(l=>!l.auto&&l.to.startsWith('f')).every(l=>Number.isFinite(l.cap)));
 });

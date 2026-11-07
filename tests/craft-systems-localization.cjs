@@ -128,7 +128,7 @@ test('actual sortie consumable displays, low-life warnings and empty-gas notices
     run('trialCraftSystemsStep(3500);');
     translated(run('trialCraftSystemsWarning()'));
     translatedHTML(run('trialCraftSystemsHTML()'));
-    run('trialCraftSystemsStep(100);trialCraftGasTake({k:"claser",power:C.FITS.claser.power,cycle:2},1);');
+    run('trialCraftSystemsStep(100);trial.systemsRuntime.gasSeconds=trialCraftGasNeed({k:"claser",power:C.FITS.claser.power,cycle:2});trialCraftGasTake({k:"claser",power:C.FITS.claser.power,cycle:2},1);');
     translated(run('trialCraftSystemsWarning()'));
     translatedHTML(run('trialCraftSystemsHTML()'));
     assert.equal(run('notices.length'), 3);

@@ -4,8 +4,8 @@
 
 一つの機関から複数のノズルを駆動できる。機関の受電・発熱は一度だけ数え、各経路の伝達容量と損傷を個別に扱う。経路が装備や船外の空隙で遮られる場合は、直線を通せるように機関・ノズル・内部装備を配置する。外装の一体型機関には独立した伝達路を追加しない。
 
-反応炉から機関への配電は、他の装備と同じ内部配線として自動計算する。独立した占有パーツや迂回用の配管にはせず、有限な容量、距離に応じた電送損失、発熱、配線の質量・費用を計上する。
+反応炉から機関への配電は、他の装備と同じ[電源点と距離による数値計算](numerical-electrical-distribution.md)を使う。有限な容量、距離に応じた送電損失、発熱を計算し、配線の立体パーツ・占有容積・質量・費用は生成しない。
 
-インペリアルI・IIの保存済み図面で、機関3基とノズル7基の位置を維持し、全7経路の直線接続と定格伝達容量を確認した。物理形状と実際の描画メッシュを検査し、[ブラウザ検証](benchmarks/straight-imperial-transmission-browser.json)では、実際のWorker計算から透視表示・公試へ進み、7ノズルすべてで正の実推力を確認している。この検証は保存済み図面の再計算であり、新規作例の構築とは区別する。
+インペリアルI・IIの保存済み図面で、機関3基とノズル7基の位置を維持し、全7経路の直線接続と定格伝達容量を確認した。物理形状と実際の描画メッシュを検査し、[ブラウザ検証](benchmarks/numerical-electrical-distribution-browser.json)では、実際のWorker計算から透視表示・公試へ進み、7ノズルすべてで正の実推力を確認している。この検証は保存済み図面の再計算であり、新規作例の構築とは区別する。
 
-[透視・上面](images/imperial2-straight-transmission-top.png) · [透視・斜め](images/imperial2-straight-transmission-iso.png)
+[透視・上面](images/imperial2-numerical-distribution-top.png) · [透視・斜め](images/imperial2-numerical-distribution-iso.png)

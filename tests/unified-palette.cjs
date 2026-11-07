@@ -6,6 +6,8 @@ function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start
 run(`
 const C=Core,precisePartSize=p=>C.isReactor(p)||['engine','hyper','shield','localShield'].includes(p.k);
 let ship;
+const eng={gen:0,adoptedGen:0,geoGen:0,statsGen:0},editorPartsRevision=0;
+const editorOwnedHullReady=()=>false,editorMountShip=()=>ship,hullEditorProfile=()=>ship.hull;
 const st={size:{},sizeCraft:{},placeBy:{},structSize:[180,110,60],roomSize:[120,60,24]};
 const panel={innerHTML:''},$=selector=>selector==='#panel'?panel:null;
 const esc=s=>String(s??''),num=(n,d=0)=>Number(n).toFixed(d),fmtM=n=>n+' m',rgb=c=>'rgb('+c.join(',')+')',sizeOut=(k,n)=>n+' m';
@@ -14,7 +16,7 @@ const findSel=()=>null,partInfoHTML=()=>'',selItem=()=>ship.parts[0],twinOfItem=
 const fitBtn=(k,on,data)=>'<button data-'+data+'="'+k+'"></button>',storeCapText=()=>'';
 function reset(small=true){
  ship={name:'test',hull:small?{L:20,W:12,H:4}:{L:300,W:100,H:40},shipClass:small?'starfighter':'frigate',parts:[],fits:[],armor:{hull:.01,cit:0},keel:'std'};
- Object.assign(st,{tab:'mod',group:'power',part:'gen',partTool:'place',fit:'htl',fitTool:'place',bridge:'podBridge',bridgeTool:'place',bridgeMode:'body',size:{gen:110},sizeCraft:{},placeBy:Object.fromEntries(Object.keys(C.PARTS).map(k=>[k,'inside'])),structSize:[180,110,60],roomSize:[120,60,24],structForm:'trap',structTaper:0,structPlate:false,structLight:false,sel:null,ped:0,pedShape:'round',pedSize:1,engineDir:[-1,0,0],fill:[.2,.8]});
+ Object.assign(st,{tab:'mod',group:'power',part:'gen',partTool:'place',fit:'stl',fitTool:'place',bridge:'podBridge',bridgeTool:'place',bridgeMode:'body',size:{gen:110},sizeCraft:{},placeBy:Object.fromEntries(Object.keys(C.PARTS).map(k=>[k,'inside'])),structSize:[180,110,60],roomSize:[120,60,24],structForm:'trap',structTaper:0,structPlate:false,structLight:false,sel:null,ped:0,pedShape:'round',pedSize:1,engineDir:[-1,0,0],fill:[.2,.8]});
 }
 `);
 section('const PART_KEYS =','// v23 (UI-008)');
@@ -25,17 +27,18 @@ section('function basePartEditor()','function baseFitEditor(');
 section('const PED_SHAPES =','const TEMPLATE_SKIP =');
 section('function launcherCanPitch(','function weaponMountControls(');
 section('function baseRenderPanel()','function sizeOut(');
+section('function extentAlong(','function partPreview(');
 section('function unalignedPartPreview(','function notchBox(');
 section('let paletteShip=null;','// v23 Item selection');
-run('const PLACE=[["inside","内蔵"],["partial","一部露出"],["outside","外付け"]];reset();');
+run('reset();');
 
 test('all hull classes offer the same weapons, placeable parts, command rooms and bridge navigation',()=>{
  for(const small of [true,false]){
   context.small=small;run('reset(small);');
   const offered=plain(run('PART_KEYS.filter(partOffered).sort()')),weapons=plain(run('weaponKeys()'));
   assert.ok(offered.includes('cockpit'));assert.ok(offered.includes('command'));assert.ok(offered.includes('pump'));
-  assert.ok(weapons.includes('claser'));assert.ok(weapons.includes('htl'));assert.equal(new Set(weapons).size,weapons.length);
-  for(const k of ['stl','oct40','ion','refVen','refSide'])assert.equal(weapons.filter(v=>v===k).length,1,k+' appears once');
+  assert.ok(weapons.includes('claser'));assert.ok(weapons.includes('stl'));assert.equal(new Set(weapons).size,weapons.length);
+  for(const k of ['stl','oct40','ion','refVen','venSide70'])assert.equal(weapons.filter(v=>v===k).length,1,k+' appears once');
   for(const k of ['refISD','refISDh','refIon','refIonH','casemate40'])assert.equal(weapons.includes(k),false,k+' is migration input only');
   assert.deepEqual(plain(run('layoutGroups().find(g=>g[0]==="command")')),['command','指揮・艦橋']);
   run('openCommandMenu("body");craftPaletteGuard();');assert.equal(run('st.tab'),'bridge');assert.equal(run('st.bridgeMode'),'body');
@@ -47,11 +50,11 @@ test('all hull classes offer the same weapons, placeable parts, command rooms an
 });
 
 test('compact hulls prioritize small equipment without filtering capital components or replacing valid selections',()=>{
- run('reset(true);st.fit="htl";st.part="pump";craftPaletteGuard();');
- assert.equal(run('weaponKeys()[0]'),'claser');assert.equal(run('st.fit'),'htl');assert.equal(run('st.part'),'pump');
+ run('reset(true);st.fit="stl";st.part="pump";craftPaletteGuard();');
+ assert.equal(run('weaponKeys()[0]'),'claser');assert.equal(run('st.fit'),'stl');assert.equal(run('st.part'),'pump');
  assert.equal(run('paletteParts("power")[0]'),'gen');
  run('ship={...ship,hull:{L:300,W:100,H:40},shipClass:"frigate"};st.part="cockpit";st.fit="claser";craftPaletteGuard();');
- assert.equal(run('st.part'),'cockpit');assert.equal(run('st.fit'),'claser');assert.equal(run('weaponKeys()[0]'),'refVen');
+ assert.equal(run('st.part'),'cockpit');assert.equal(run('st.fit'),'claser');assert.equal(run('weaponKeys()[0]'),'single40');
 });
 
 test('every catalogue part has finite placement defaults even when no previous per-hull size exists',()=>{
@@ -66,9 +69,9 @@ test('every catalogue part has finite placement defaults even when no previous p
 
 test('small hull palette renders standard equipment and both weapon scales with valid slider dimensions',()=>{
  run('reset(true);craftPaletteGuard();baseRenderPanel();');
- assert.match(run('panel.innerHTML'),/data-equipment=/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
+ assert.match(run('panel.innerHTML'),/data-equipment=/);assert.doesNotMatch(run('panel.innerHTML'),/data-place=|<h4>置き方<|data-equipment="internalTurbine"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
  run('st.part="pump";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-part="pump"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
- run('st.tab="arm";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-fit="htl"/);assert.match(run('panel.innerHTML'),/data-fit="claser"/);
+ run('st.tab="arm";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-fit="stl"/);assert.match(run('panel.innerHTML'),/data-fit="claser"/);
  for(const k of ['stl','oct40','ion'])assert.equal(run('panel.innerHTML').split('data-fit="'+k+'"').length,2,k+' renders one button');
  assert.doesNotMatch(run('panel.innerHTML'),/data-fit="(?:refISD|refISDh|refIon|refIonH|casemate40)"/);
  assert.match(run('panel.innerHTML'),/data-sl="ped"[^>]*value="0"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
@@ -100,4 +103,14 @@ test('editing sub-metre equipment and rooms does not clamp them to capital-size 
   run('ship.parts[0]={id:1,k:"cargo",c:[5,2,0],d:1,room:[2,1,.5]};');
   html=run('basePartEditor()');assert.match(html,/data-sl="room2"[^>]*min="0\.02"[^>]*value="0\.5"/);
  }
+});
+
+
+test('surface placement follows each equipment kind and ignores retired placement preferences',()=>{
+ run('reset(false);st.part="gen";st.size.gen=20;st.placeBy.gen="outside";');
+ const interior=plain(run('unalignedPartPreview({kind:"hull",p:[100,40,0],n:[0,1,0]})'));
+ assert.ok(interior.c[1]<30,'the reactor sits inside the surface');
+ run('st.part="shield";st.size.shield=20;st.placeBy.shield="inside";');
+ const exterior=plain(run('unalignedPartPreview({kind:"hull",p:[100,40,0],n:[0,1,0]})'));
+ assert.ok(exterior.c[1]>40,'the shield dome sits outside the surface');
 });
