@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance:{now:()=>0}});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -52,8 +53,8 @@ test('both regular twin models retain direct placement, heading, save roundtrips
   C.placePart(s,'struct',[80,10,0],[150,150,20],{form:'chamfer',corner:.05,skin:'armor'},false);
   const result=C.placeFit(s,k,[80,20,0],[0,1,0],0,false);assert.ok(result.fit,result.err);assert.ok(!result.fit.float);near(result.fit.ped,0,1e-12);near(result.fit.base,0,1e-12);result.fit.assetYaw=27.5;
   const loaded=C.deserialize(C.serialize(s)),f=loaded.fits[0];assert.equal(f.k,k);assert.ok(!f.float);near(f.assetYaw,27.5,1e-12);assert.equal(C.fitSpec(f).tt,80);
-  const preview=G.meshPreview(loaded,[],[f]);assert.equal(preview.previewFits.ni+preview.previewRefFits.ni,a.faces*3);
-  const fleet=G.fleetGeometry(loaded,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id),joint=C.authoredTurretGeometry(f);assert.ok(t&&joint);assert.equal(fleet.meshes[t.bodyMesh].geo.ni,a.elevationIndexStart);assert.equal(fleet.meshes[t.mesh].geo.ni,a.faces*3-a.elevationIndexStart);t.pivot.forEach((v,i)=>near(v,joint.elevationPivot[i],1e-6));
+  const preview=G.meshPreview(loaded,[],[f]);assert.equal(preview.previewFits.ni+preview.previewRefFits.ni,drawAsset(k).faces*3);
+  const fleet=G.fleetGeometry(loaded,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id),joint=C.authoredTurretGeometry(f);assert.ok(t&&joint);assert.equal(fleet.meshes[t.bodyMesh].geo.ni,drawAsset(k).elevationIndexStart);assert.equal(fleet.meshes[t.mesh].geo.ni,drawAsset(k).faces*3-drawAsset(k).elevationIndexStart);t.pivot.forEach((v,i)=>near(v,joint.elevationPivot[i],1e-6));
   assert.deepEqual(plain(C.serialize(C.deserialize(C.serialize(loaded))).fits),plain(C.serialize(loaded).fits));
  }
 });

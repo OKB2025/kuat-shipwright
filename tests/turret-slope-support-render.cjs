@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance:{now:()=>0}});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -16,7 +17,7 @@ test('authored slope foundations draw the exact physical solid in editor and pre
   assert.deepEqual(triangles(mesh),Array.from(Float32Array.from(support.triangles)),k+' adds exactly the foundation without a duplicate drum');
   sameMesh(mesh,preview.previewFits);assert.deepEqual(plain(ranges[f.id]),[['fits',0,mesh.ni]]);
   for(let i=0;i<mesh.n*3;i++)assert.ok(mesh.pos[i]>=bounds[i%3]-.00005&&mesh.pos[i]<=bounds[i%3+3]+.00005,k+' foundation is enclosed by selection bounds');
-  const gun=G.meshReferenceFits(ship);assert.equal(gun.ni,C.REFERENCE_ASSETS[C.FITS[k].asset].faces*3,k+' retains the complete authored gun');
+  const gun=G.meshReferenceFits(ship);assert.equal(gun.ni,drawAsset(k).faces*3,k+' retains the complete budgeted gun');
  }
 });
 

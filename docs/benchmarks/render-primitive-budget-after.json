@@ -1,0 +1,1059 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "phase": "after",
+  "measuredAt": "2026-11-07T03:51:10.638Z",
+  "node": "v24.22.1",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "62bb8b28f13410844ac992fa322d4d89cb1563adffb3854685de47b870e835da",
+    "js/core.js": "29a0410035941dd5ed384773ebe662a4799dc33d6e0f7c4cc925a58583491cbe",
+    "js/gfx.js": "700cd51ead1815a05cca8a372540c0511171c72530fb9fd04478b3104f64d3cd"
+  },
+  "renderer": {
+    "path": "js/gfx.js",
+    "sha256": "700cd51ead1815a05cca8a372540c0511171c72530fb9fd04478b3104f64d3cd"
+  },
+  "harness": {
+    "path": "scripts/benchmark-render-primitives.cjs",
+    "sha256": "6e8839925bb6e622e74624a78088e48a5d293e54b450446e9e189f006272baf8"
+  },
+  "scope": "Actual production Gfx meshes and active indexed buffers; CPU preparation includes all per-fit renderer work. Cold is the first render preparation for each fixture, after earlier fixture kinds may already have warmed shared per-asset decode/draw caches. Repeated timings reuse the native fitting caches. Fittings-only saved-ship cases exclude hull/structural geometry, engineering, worker scheduling, GPU upload, draw and frame rate. Active buffer bytes assume Uint32 indices.",
+  "cases": [
+    {
+      "key": "utl",
+      "scope": "one native weapon model",
+      "asset": "capital_twin720",
+      "sourceTriangles": 3696,
+      "barrels": 2,
+      "boltTT": 720,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 5344,
+      "usedVertices": 5344,
+      "triangles": 3216,
+      "activeBytes": 182880,
+      "allocatedBytes": 218720,
+      "bounds": [
+        40.625,
+        30,
+        -33.75,
+        130.625,
+        54.75,
+        33.75
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 5344,
+          "usedVertices": 5344,
+          "triangles": 3216,
+          "activeBytes": 182880,
+          "allocatedBytes": 218720
+        }
+      },
+      "preparation": {
+        "coldMs": 32.51558700000004,
+        "warmMs": [
+          0.1548129999999901,
+          0.1362359999999967,
+          0.12100300000003017
+        ],
+        "warmMedianMs": 0.1362359999999967
+      }
+    },
+    {
+      "key": "stl",
+      "scope": "one native weapon model",
+      "asset": "capital_twin175",
+      "sourceTriangles": 3696,
+      "barrels": 2,
+      "boltTT": 175,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 5356,
+      "usedVertices": 5356,
+      "triangles": 3216,
+      "activeBytes": 183204,
+      "allocatedBytes": 219044,
+      "bounds": [
+        53.75,
+        30,
+        -22.5,
+        113.75,
+        46.42499923706055,
+        22.5
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 5356,
+          "usedVertices": 5356,
+          "triangles": 3216,
+          "activeBytes": 183204,
+          "allocatedBytes": 219044
+        }
+      },
+      "preparation": {
+        "coldMs": 29.455686000000014,
+        "warmMs": [
+          0.3358470000000011,
+          0.12298500000002832,
+          0.10575999999997521
+        ],
+        "warmMedianMs": 0.12298500000002832
+      }
+    },
+    {
+      "key": "ion",
+      "scope": "one native weapon model",
+      "asset": "capital_twin175_ion",
+      "sourceTriangles": 3552,
+      "barrels": 2,
+      "boltTT": 175,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 7272,
+      "usedVertices": 7272,
+      "triangles": 3328,
+      "activeBytes": 236280,
+      "allocatedBytes": 272120,
+      "bounds": [
+        53.75,
+        30,
+        -22.5,
+        113.75,
+        46.42499923706055,
+        22.5
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 7272,
+          "usedVertices": 7272,
+          "triangles": 3328,
+          "activeBytes": 236280,
+          "allocatedBytes": 272120
+        }
+      },
+      "preparation": {
+        "coldMs": 29.75363500000003,
+        "warmMs": [
+          0.21796000000000504,
+          0.11435199999999668,
+          0.14555000000001428
+        ],
+        "warmMedianMs": 0.14555000000001428
+      }
+    },
+    {
+      "key": "ball720",
+      "scope": "one native weapon model",
+      "asset": "capital_ball720_single",
+      "sourceTriangles": 2356,
+      "barrels": 1,
+      "boltTT": 720,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 988,
+      "usedVertices": 988,
+      "triangles": 1116,
+      "activeBytes": 40068,
+      "allocatedBytes": 75908,
+      "bounds": [
+        62,
+        18,
+        -18,
+        106.5,
+        54,
+        18
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 988,
+          "usedVertices": 988,
+          "triangles": 1116,
+          "activeBytes": 40068,
+          "allocatedBytes": 75908
+        }
+      },
+      "preparation": {
+        "coldMs": 12.86409900000001,
+        "warmMs": [
+          0.08538900000002059,
+          0.08461699999998018,
+          0.05475300000000516
+        ],
+        "warmMedianMs": 0.08461699999998018
+      }
+    },
+    {
+      "key": "ball175Quad",
+      "scope": "one native weapon model",
+      "asset": "capital_ball175_quad",
+      "sourceTriangles": 4156,
+      "barrels": 4,
+      "boltTT": 175,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 1534,
+      "usedVertices": 1534,
+      "triangles": 2196,
+      "activeBytes": 67770,
+      "allocatedBytes": 103610,
+      "bounds": [
+        62,
+        18,
+        -18,
+        106.5,
+        54,
+        18
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 1534,
+          "usedVertices": 1534,
+          "triangles": 2196,
+          "activeBytes": 67770,
+          "allocatedBytes": 103610
+        }
+      },
+      "preparation": {
+        "coldMs": 27.67449499999998,
+        "warmMs": [
+          0.08178399999997055,
+          0.05659499999990203,
+          0.04922399999998106
+        ],
+        "warmMedianMs": 0.05659499999990203
+      }
+    },
+    {
+      "key": "ball175QuadIon",
+      "scope": "one native weapon model",
+      "asset": "capital_ball175_quad_ion",
+      "sourceTriangles": 2888,
+      "barrels": 4,
+      "boltTT": 175,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 1174,
+      "usedVertices": 1174,
+      "triangles": 1440,
+      "activeBytes": 48978,
+      "allocatedBytes": 84818,
+      "bounds": [
+        62,
+        18,
+        -18,
+        106.5,
+        54,
+        18
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 1174,
+          "usedVertices": 1174,
+          "triangles": 1440,
+          "activeBytes": 48978,
+          "allocatedBytes": 84818
+        }
+      },
+      "preparation": {
+        "coldMs": 11.119793999999956,
+        "warmMs": [
+          0.07150799999999435,
+          0.05134700000007797,
+          0.04721099999994749
+        ],
+        "warmMedianMs": 0.05134700000007797
+      }
+    },
+    {
+      "key": "monCalPD",
+      "scope": "one native weapon model",
+      "asset": "moncal_pd_triple",
+      "sourceTriangles": 2924,
+      "barrels": 3,
+      "boltTT": 1e-7,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 740,
+      "usedVertices": 740,
+      "triangles": 1204,
+      "activeBytes": 34428,
+      "allocatedBytes": 70268,
+      "bounds": [
+        78.19999694824219,
+        28.799999237060547,
+        -1.7999999523162842,
+        83.33000183105469,
+        32.400001525878906,
+        1.7999999523162842
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 740,
+          "usedVertices": 740,
+          "triangles": 1204,
+          "activeBytes": 34428,
+          "allocatedBytes": 70268
+        }
+      },
+      "preparation": {
+        "coldMs": 15.213326000000052,
+        "warmMs": [
+          0.07289000000002943,
+          0.07479299999999967,
+          0.04843300000004547
+        ],
+        "warmMedianMs": 0.07289000000002943
+      }
+    },
+    {
+      "key": "monCal34",
+      "scope": "one native weapon model",
+      "asset": "moncal_single34",
+      "sourceTriangles": 1964,
+      "barrels": 1,
+      "boltTT": 34,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 496,
+      "usedVertices": 496,
+      "triangles": 724,
+      "activeBytes": 22080,
+      "allocatedBytes": 57920,
+      "bounds": [
+        77,
+        28,
+        -3,
+        85.55000305175781,
+        34,
+        3
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 496,
+          "usedVertices": 496,
+          "triangles": 724,
+          "activeBytes": 22080,
+          "allocatedBytes": 57920
+        }
+      },
+      "preparation": {
+        "coldMs": 5.361297000000036,
+        "warmMs": [
+          0.05915000000004511,
+          0.19939099999999144,
+          0.09046699999998964
+        ],
+        "warmMedianMs": 0.09046699999998964
+      }
+    },
+    {
+      "key": "monCal80",
+      "scope": "one native weapon model",
+      "asset": "moncal_single80",
+      "sourceTriangles": 1964,
+      "barrels": 1,
+      "boltTT": 80,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 496,
+      "usedVertices": 496,
+      "triangles": 724,
+      "activeBytes": 22080,
+      "allocatedBytes": 57920,
+      "bounds": [
+        76,
+        27.33333396911621,
+        -4,
+        87.4000015258789,
+        35.33333206176758,
+        4
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 496,
+          "usedVertices": 496,
+          "triangles": 724,
+          "activeBytes": 22080,
+          "allocatedBytes": 57920
+        }
+      },
+      "preparation": {
+        "coldMs": 5.052841000000058,
+        "warmMs": [
+          0.10890500000004977,
+          0.04596900000001369,
+          0.04365599999994174
+        ],
+        "warmMedianMs": 0.04596900000001369
+      }
+    },
+    {
+      "key": "monCal200",
+      "scope": "one native weapon model",
+      "asset": "moncal_single200",
+      "sourceTriangles": 1964,
+      "barrels": 1,
+      "boltTT": 200,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 496,
+      "usedVertices": 496,
+      "triangles": 724,
+      "activeBytes": 22080,
+      "allocatedBytes": 57920,
+      "bounds": [
+        75,
+        26.66666603088379,
+        -5,
+        89.25,
+        36.66666793823242,
+        5
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 496,
+          "usedVertices": 496,
+          "triangles": 724,
+          "activeBytes": 22080,
+          "allocatedBytes": 57920
+        }
+      },
+      "preparation": {
+        "coldMs": 6.07976199999996,
+        "warmMs": [
+          0.06382699999994657,
+          0.07999099999994996,
+          0.10148300000003019
+        ],
+        "warmMedianMs": 0.07999099999994996
+      }
+    },
+    {
+      "key": "monCal200Triple",
+      "scope": "one native weapon model",
+      "asset": "moncal_triple200",
+      "sourceTriangles": 2924,
+      "barrels": 3,
+      "boltTT": 200,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 740,
+      "usedVertices": 740,
+      "triangles": 1204,
+      "activeBytes": 34428,
+      "allocatedBytes": 70268,
+      "bounds": [
+        72,
+        24.66666603088379,
+        -8,
+        94.80000305175781,
+        40.66666793823242,
+        8
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 740,
+          "usedVertices": 740,
+          "triangles": 1204,
+          "activeBytes": 34428,
+          "allocatedBytes": 70268
+        }
+      },
+      "preparation": {
+        "coldMs": 16.677065999999968,
+        "warmMs": [
+          0.1339619999999968,
+          0.07709699999998065,
+          0.06998599999997168
+        ],
+        "warmMedianMs": 0.07709699999998065
+      }
+    },
+    {
+      "key": "monCal150Ion",
+      "scope": "one native weapon model",
+      "asset": "moncal_single150_ion",
+      "sourceTriangles": 1708,
+      "barrels": 1,
+      "boltTT": 150,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 432,
+      "usedVertices": 432,
+      "triangles": 596,
+      "activeBytes": 18816,
+      "allocatedBytes": 54656,
+      "bounds": [
+        74.5,
+        26.33333396911621,
+        -5.5,
+        90.17500305175781,
+        37.33333206176758,
+        5.5
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 432,
+          "usedVertices": 432,
+          "triangles": 596,
+          "activeBytes": 18816,
+          "allocatedBytes": 54656
+        }
+      },
+      "preparation": {
+        "coldMs": 5.027543000000037,
+        "warmMs": [
+          0.09593499999994037,
+          0.07479299999999967,
+          0.07398200000000088
+        ],
+        "warmMedianMs": 0.07479299999999967
+      }
+    },
+    {
+      "key": "pd",
+      "scope": "one native weapon model",
+      "asset": "pd_twin_side_laser",
+      "sourceTriangles": 1904,
+      "barrels": 2,
+      "boltTT": 1e-7,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 1480,
+      "usedVertices": 1480,
+      "triangles": 1424,
+      "activeBytes": 57048,
+      "allocatedBytes": 92888,
+      "bounds": [
+        77.5999984741211,
+        30,
+        -2.549999952316284,
+        86.5999984741211,
+        33.119998931884766,
+        2.549999952316284
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 1480,
+          "usedVertices": 1480,
+          "triangles": 1424,
+          "activeBytes": 57048,
+          "allocatedBytes": 92888
+        }
+      },
+      "preparation": {
+        "coldMs": 17.615304000000037,
+        "warmMs": [
+          0.12004100000001472,
+          0.1185090000000173,
+          0.08149300000002313
+        ],
+        "warmMedianMs": 0.1185090000000173
+      }
+    },
+    {
+      "key": "quad200",
+      "scope": "one native weapon model",
+      "asset": "light_quad200",
+      "sourceTriangles": 2850,
+      "barrels": 4,
+      "boltTT": 0.2,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 3170,
+      "usedVertices": 3170,
+      "triangles": 2210,
+      "activeBytes": 112110,
+      "allocatedBytes": 147950,
+      "bounds": [
+        72.6875,
+        30,
+        -6.7858805656433105,
+        92.0250015258789,
+        37.60499954223633,
+        6.7858781814575195
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 3170,
+          "usedVertices": 3170,
+          "triangles": 2210,
+          "activeBytes": 112110,
+          "allocatedBytes": 147950
+        }
+      },
+      "preparation": {
+        "coldMs": 13.758368000000019,
+        "warmMs": [
+          0.07706600000005892,
+          0.06121199999995497,
+          0.05677500000001601
+        ],
+        "warmMedianMs": 0.06121199999995497
+      }
+    },
+    {
+      "key": "quad500",
+      "scope": "one native weapon model",
+      "asset": "arq_turret_quad500",
+      "sourceTriangles": 2966,
+      "barrels": 4,
+      "boltTT": 0.5,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 4772,
+      "usedVertices": 4772,
+      "triangles": 2966,
+      "activeBytes": 164436,
+      "allocatedBytes": 200276,
+      "bounds": [
+        71.1292495727539,
+        30,
+        -5.895546913146973,
+        99.6292495727539,
+        39.20000076293945,
+        5.895546913146973
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 4772,
+          "usedVertices": 4772,
+          "triangles": 2966,
+          "activeBytes": 164436,
+          "allocatedBytes": 200276
+        }
+      },
+      "preparation": {
+        "coldMs": 10.023889000000054,
+        "warmMs": [
+          0.1435669999999618,
+          0.10653100000001814,
+          0.10226399999999103
+        ],
+        "warmMedianMs": 0.10653100000001814
+      }
+    },
+    {
+      "key": "refVen",
+      "scope": "one native weapon model",
+      "asset": "ven_turret70_native",
+      "sourceTriangles": 4388,
+      "barrels": 2,
+      "boltTT": 70,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 3603,
+      "usedVertices": 3603,
+      "triangles": 4388,
+      "activeBytes": 149937,
+      "allocatedBytes": 185777,
+      "bounds": [
+        66.9765625,
+        30,
+        -8.127120971679688,
+        95.83855438232422,
+        39.99770736694336,
+        8.130963325500488
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 3603,
+          "usedVertices": 3603,
+          "triangles": 4388,
+          "activeBytes": 149937,
+          "allocatedBytes": 185777
+        }
+      },
+      "preparation": {
+        "coldMs": 5.988623999999959,
+        "warmMs": [
+          0.10548900000003414,
+          0.06493799999998373,
+          0.0840970000000425
+        ],
+        "warmMedianMs": 0.0840970000000425
+      }
+    },
+    {
+      "key": "oct40",
+      "scope": "one native weapon model",
+      "asset": "isd_heavy_octuple",
+      "sourceTriangles": 1104,
+      "barrels": 8,
+      "boltTT": 40,
+      "fits": 1,
+      "parts": 0,
+      "vertices": 1436,
+      "usedVertices": 1436,
+      "triangles": 1104,
+      "activeBytes": 52020,
+      "allocatedBytes": 87860,
+      "bounds": [
+        60.00013732910156,
+        30,
+        -19.9996280670166,
+        100.00013732910156,
+        40.568946838378906,
+        20.000194549560547
+      ],
+      "groups": {
+        "refFits": {
+          "vertices": 1436,
+          "usedVertices": 1436,
+          "triangles": 1104,
+          "activeBytes": 52020,
+          "allocatedBytes": 87860
+        }
+      },
+      "preparation": {
+        "coldMs": 7.390342000000032,
+        "warmMs": [
+          4.6013490000000274,
+          4.794129999999996,
+          5.222007000000076
+        ],
+        "warmMedianMs": 4.794129999999996
+      }
+    },
+    {
+      "key": "gen-diameter-24",
+      "scope": "one native spherical apparatus",
+      "diameterM": 24,
+      "fits": 0,
+      "parts": 1,
+      "vertices": 325,
+      "usedVertices": 323,
+      "triangles": 528,
+      "activeBytes": 15111,
+      "allocatedBytes": 143360,
+      "bounds": [
+        288,
+        138,
+        -12,
+        312,
+        162,
+        12
+      ],
+      "groups": {
+        "gen": {
+          "vertices": 325,
+          "usedVertices": 323,
+          "triangles": 528,
+          "activeBytes": 15111,
+          "allocatedBytes": 143360
+        }
+      },
+      "preparation": {
+        "coldMs": 7.382800999999972,
+        "warmMs": [
+          0.6266460000000507,
+          0.46038499999997384,
+          0.38803599999994276
+        ],
+        "warmMedianMs": 0.46038499999997384
+      }
+    },
+    {
+      "key": "gen-diameter-180",
+      "scope": "one native spherical apparatus",
+      "diameterM": 180,
+      "fits": 0,
+      "parts": 1,
+      "vertices": 561,
+      "usedVertices": 559,
+      "triangles": 960,
+      "activeBytes": 26667,
+      "allocatedBytes": 143360,
+      "bounds": [
+        210,
+        60,
+        -90,
+        390,
+        240,
+        90
+      ],
+      "groups": {
+        "gen": {
+          "vertices": 561,
+          "usedVertices": 559,
+          "triangles": 960,
+          "activeBytes": 26667,
+          "allocatedBytes": 143360
+        }
+      },
+      "preparation": {
+        "coldMs": 1.0539919999999938,
+        "warmMs": [
+          0.6134660000000167,
+          0.3967089999999871,
+          0.44900799999993524
+        ],
+        "warmMedianMs": 0.44900799999993524
+      }
+    },
+    {
+      "key": "shield-diameter-24",
+      "scope": "one native spherical apparatus",
+      "diameterM": 24,
+      "fits": 0,
+      "parts": 1,
+      "vertices": 325,
+      "usedVertices": 323,
+      "triangles": 528,
+      "activeBytes": 15111,
+      "allocatedBytes": 71680,
+      "bounds": [
+        288,
+        138,
+        -12,
+        312,
+        162,
+        12
+      ],
+      "groups": {
+        "shield": {
+          "vertices": 325,
+          "usedVertices": 323,
+          "triangles": 528,
+          "activeBytes": 15111,
+          "allocatedBytes": 71680
+        }
+      },
+      "preparation": {
+        "coldMs": 0.46467100000006667,
+        "warmMs": [
+          0.3899390000000267,
+          0.20473900000001777,
+          0.1845580000000382
+        ],
+        "warmMedianMs": 0.20473900000001777
+      }
+    },
+    {
+      "key": "shield-diameter-180",
+      "scope": "one native spherical apparatus",
+      "diameterM": 180,
+      "fits": 0,
+      "parts": 1,
+      "vertices": 561,
+      "usedVertices": 559,
+      "triangles": 960,
+      "activeBytes": 26667,
+      "allocatedBytes": 71680,
+      "bounds": [
+        210,
+        60,
+        -90,
+        390,
+        240,
+        90
+      ],
+      "groups": {
+        "shield": {
+          "vertices": 561,
+          "usedVertices": 559,
+          "triangles": 960,
+          "activeBytes": 26667,
+          "allocatedBytes": 71680
+        }
+      },
+      "preparation": {
+        "coldMs": 0.43971399999998084,
+        "warmMs": [
+          0.29708900000002814,
+          0.19944099999997889,
+          0.23556600000006256
+        ],
+        "warmMedianMs": 0.23556600000006256
+      }
+    },
+    {
+      "key": "mandator2-weapons",
+      "scope": "Only the complete authored weapon fitting collection from the authenticated saved example; hull/interior/physics excluded.",
+      "fixture": {
+        "path": "assets/source/ship-example-blueprints/mandator2.json.gz",
+        "compressedSha256": "0065e8a0898879d4da36f08617a77b22112092d3ce63e8bb38f870a3493129ed",
+        "jsonSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+        "manifest": {
+          "path": "assets/source/ship-example-blueprints/manifest.json",
+          "sha256": "5a6c37e355f5d0d97ef3618cbb9323336600ea991b56b69f3d248a50bd9bb195",
+          "verified": true
+        }
+      },
+      "weaponCounts": {
+        "cmsl": 2,
+        "utl": 203,
+        "stl": 44,
+        "ion": 28,
+        "pd": 250,
+        "trc": 6
+      },
+      "fits": 533,
+      "parts": 0,
+      "vertices": 2024796,
+      "usedVertices": 2024796,
+      "triangles": 1288220,
+      "activeBytes": 70128132,
+      "allocatedBytes": 116572160,
+      "bounds": [
+        530.8250122070312,
+        51.880001068115234,
+        -1236.232421875,
+        7406.66455078125,
+        876.8499755859375,
+        1236.232421875
+      ],
+      "groups": {
+        "fits": {
+          "vertices": 130684,
+          "usedVertices": 130684,
+          "triangles": 44684,
+          "activeBytes": 4064676,
+          "allocatedBytes": 4587520
+        },
+        "refFits": {
+          "vertices": 1894112,
+          "usedVertices": 1894112,
+          "triangles": 1243536,
+          "activeBytes": 66063456,
+          "allocatedBytes": 111984640
+        }
+      },
+      "preparation": {
+        "coldMs": 1078.763977,
+        "warmMs": [
+          104.21797500000002,
+          84.5477679999999,
+          84.05796799999985
+        ],
+        "warmMedianMs": 84.5477679999999
+      }
+    },
+    {
+      "key": "mc80home-weapons",
+      "scope": "Only the complete authored weapon fitting collection from the authenticated saved example; hull/interior/physics excluded.",
+      "fixture": {
+        "path": "assets/source/mc80home-2100g-factory-blueprints/mc80home.json.gz",
+        "compressedSha256": "d2a2010d46cf8869b49cd59e800abec61ec50d46b04197e128c7d9fca98dad4d",
+        "jsonSha256": "3b5ad888c30d1df0d65f4ea89efa531e28ac157a9da2aaf2116a724755f4026f",
+        "manifest": {
+          "path": "assets/source/mc80home-2100g-factory-blueprints/manifest.json",
+          "sha256": "b37ebef9f872876d6c89431324f4d5606ff78895bb53b4f1dafda372aa4cd840",
+          "verified": true
+        }
+      },
+      "weaponCounts": {
+        "monCalPD": 56,
+        "monCal80": 12,
+        "monCal34": 28,
+        "monCal150Ion": 4,
+        "trc": 6
+      },
+      "fits": 106,
+      "parts": 0,
+      "vertices": 68156,
+      "usedVertices": 68156,
+      "triangles": 101500,
+      "activeBytes": 3058212,
+      "allocatedBytes": 4783872,
+      "bounds": [
+        136.3184051513672,
+        6.4886369705200195,
+        -137.04574584960938,
+        1253.776123046875,
+        186.693359375,
+        143.8874969482422
+      ],
+      "groups": {
+        "fits": {
+          "vertices": 5148,
+          "usedVertices": 5148,
+          "triangles": 2732,
+          "activeBytes": 171780,
+          "allocatedBytes": 286720
+        },
+        "refFits": {
+          "vertices": 63008,
+          "usedVertices": 63008,
+          "triangles": 98768,
+          "activeBytes": 2886432,
+          "allocatedBytes": 4497152
+        }
+      },
+      "preparation": {
+        "coldMs": 94.0163379999999,
+        "warmMs": [
+          4.005789999999706,
+          3.2152460000002065,
+          3.013802000000396
+        ],
+        "warmMedianMs": 3.2152460000002065
+      }
+    },
+    {
+      "key": "imperial-weapons",
+      "scope": "Only the complete authored weapon fitting collection from the authenticated saved example; hull/interior/physics excluded.",
+      "fixture": {
+        "path": "assets/source/imperial-2300g-factory-blueprints/imperial.json.gz",
+        "compressedSha256": "cab3ac7d433f7a1897966950c020790e2315fcc4b5f51a50749c728a70708551",
+        "jsonSha256": "97569907ec8a60d79c8e3222abda99320ab870795bb42341457bedea3ea0e5d5",
+        "manifest": {
+          "path": "assets/source/imperial-2300g-factory-blueprints/manifest.json",
+          "sha256": "d3c5d6ee1607c63d21389593c11f4d1322e3c5e604396324930442c3e67c0ac4",
+          "verified": true
+        }
+      },
+      "weaponCounts": {
+        "ion": 2,
+        "stl": 6,
+        "triple40": 9,
+        "pd": 20,
+        "trc": 10,
+        "quad70Side": 2
+      },
+      "fits": 49,
+      "parts": 0,
+      "vertices": 135498,
+      "usedVertices": 135498,
+      "triangles": 90105,
+      "activeBytes": 4739706,
+      "allocatedBytes": 9854720,
+      "bounds": [
+        257.6000061035156,
+        63.61075210571289,
+        -420.23046875,
+        1577.2457275390625,
+        251.88250732421875,
+        420.23046875
+      ],
+      "groups": {
+        "fits": {
+          "vertices": 21371,
+          "usedVertices": 21371,
+          "triangles": 9057,
+          "activeBytes": 685701,
+          "allocatedBytes": 1146880
+        },
+        "refFits": {
+          "vertices": 114127,
+          "usedVertices": 114127,
+          "triangles": 81048,
+          "activeBytes": 4054005,
+          "allocatedBytes": 8707840
+        }
+      },
+      "preparation": {
+        "coldMs": 78.92786100000012,
+        "warmMs": [
+          5.710814999999911,
+          6.19369400000005,
+          12.61222799999996
+        ],
+        "warmMedianMs": 6.19369400000005
+      }
+    }
+  ]
+}

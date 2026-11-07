@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console}),gfxSource=fs.readFileSync(path.join(root,'js/gfx.js'),'utf8');
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
@@ -11,10 +12,10 @@ function drawMaterial(r,name,paintName='imperial'){r.calls.length=0;r.paint=pain
 
 test('all modeled turrets share ISD paint while the original octuple remains byte exact',()=>{
  assert.equal(modeled.length,32);assert.equal(C.CAPITAL_TURRET_KEYS.length,9);
- for(const k of modeled){const f=fitting(k),id=C.FITS[k].asset,source=C.decodeReference(id),rawUV=Array.from(source.uv),rawPos=Array.from(source.pos),mesh=G.meshReferenceFits({fits:[f]});assert.equal(mesh.ni,source.idx.length,k+' keeps every authored triangle');assert.equal(G.meshFits({fits:[f]}).ni,0,k+' does not duplicate its body');
+ for(const k of modeled){const f=fitting(k),id=C.FITS[k].asset,source=C.decodeReference(id),draw=G.turretRenderAsset(id),renderedSource=draw.mesh,rawUV=Array.from(source.uv),rawPos=Array.from(source.pos),mesh=G.meshReferenceFits({fits:[f]});assert.equal(mesh.ni,renderedSource.idx.length,k+' draws every budgeted triangle');assert.equal(G.meshFits({fits:[f]}).ni,0,k+' does not duplicate its body');
   if(k==='oct40'){assert.deepEqual(Array.from(mesh.uv.slice(0,mesh.n*2)),rawUV);for(let i=0;i<mesh.n;i++)assert.deepEqual(Array.from(mesh.col.slice(i*4,i*4+3)),color);}
   else paint(mesh,k);
-  for(let i=0;i<mesh.n;i++){const target=C.referenceFitPoint(f,Array.from(source.pos.slice(i*3,i*3+3)));for(let j=0;j<3;j++)assert.ok(Math.abs(mesh.pos[i*3+j]-target[j])<.00002,k+' paint does not change geometry');}
+  for(let i=0;i<mesh.n;i++){const target=C.referenceFitPoint(f,Array.from(renderedSource.pos.slice(i*3,i*3+3)));for(let j=0;j<3;j++)assert.ok(Math.abs(mesh.pos[i*3+j]-target[j])<.00002,k+' paint does not change budgeted draw geometry');}
   exact(mesh,G.meshReferenceFits({fits:[f]}),['pos','nor','idx','uv','col']);assert.deepEqual(Array.from(source.uv),rawUV,k+' source UVs are immutable');assert.deepEqual(Array.from(source.pos),rawPos,k+' decoded geometry is immutable');
  }
 });

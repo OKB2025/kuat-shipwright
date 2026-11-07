@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -18,10 +19,10 @@ for(const kind of ['triple70','quad70Side'])test(`${kind} reduced source claddin
  const poses=kind==='quad70Side'?[{a:4},{a:5,p:[330,20,0]}]:[{a:2},{a:2,p:[330,20,0],assetYaw:27},{a:2,tilt:C.norm([.2,.93,.3])}];
  for(const pose of poses){
   const fit={id:1,k:kind,p:[0,0,0],a:2,ped:0,base:0,low:0,float:false,...pose},g=G.meshReferenceFits({fits:[fit]});
-  assert.equal(g.n,a.n);
-  for(const row of parts)for(let i=row.firstVertex;i<row.firstVertex+row.vertices;i++){
+  const drawn=drawAsset(kind);assert.equal(g.n,drawn.n);
+  for(const sourceRow of parts){const row=drawn.components.find(r=>r.label===sourceRow.label);assert.ok(row,sourceRow.label+' retains draw metadata');for(let i=row.firstVertex;i<row.firstVertex+row.vertices;i++){
    const n=Array.from(g.nor.subarray(i*3,i*3+3));assert.ok(n.every(Number.isFinite));
    assert.ok(Math.hypot(...n)>0,`${kind}: referenced source vertex ${i} has a nonzero packed production normal`);
-  }
+  }}
  }
 });

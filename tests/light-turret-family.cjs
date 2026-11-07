@@ -1,3 +1,4 @@
+const drawAsset=k=>G.turretRenderAsset(C.FITS[k]?.asset||k).asset;
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance:{now:()=>0}});
@@ -90,7 +91,7 @@ test('usable room consists only of closed physical gunhouse cells and excludes t
 });
 
 test('draw, picking and physical muzzle transforms agree on every mount axis and tilted surfaces',()=>{
- for(const[k]of FAMILY){const{a}=data(k);for(const frame of [...Array.from({length:6},(_,a)=>({a})),{a:2,tilt:C.norm([.25,.91,-.31])}]){const f=fit(k,{...frame,assetYaw:31}),geos=[G.meshFits({fits:[f]}),G.meshReferenceFits({fits:[f]})],b=C.fitAABB(f),joint=C.authoredTurretGeometry(f);assert.ok(joint);assert.equal(geos.reduce((s,g)=>s+g.ni,0),a.faces*3,k+' model drawn exactly once');for(const g of geos)for(let i=0;i<g.ni;i++){const j=g.idx[i]*3;for(let q=0;q<3;q++)assert.ok(g.pos[j+q]>=b[q]-.003&&g.pos[j+q]<=b[q+3]+.003,k+' visible triangle inside selectable bounds');}
+ for(const[k]of FAMILY){const{a}=data(k);for(const frame of [...Array.from({length:6},(_,a)=>({a})),{a:2,tilt:C.norm([.25,.91,-.31])}]){const f=fit(k,{...frame,assetYaw:31}),geos=[G.meshFits({fits:[f]}),G.meshReferenceFits({fits:[f]})],b=C.fitAABB(f),joint=C.authoredTurretGeometry(f);assert.ok(joint);assert.equal(geos.reduce((s,g)=>s+g.ni,0),drawAsset(k).faces*3,k+' budgeted model drawn exactly once');for(const g of geos)for(let i=0;i<g.ni;i++){const j=g.idx[i]*3;for(let q=0;q<3;q++)assert.ok(g.pos[j+q]>=b[q]-.003&&g.pos[j+q]<=b[q+3]+.003,k+' visible triangle inside selectable bounds');}
   const nativeToWorld=p=>C.referenceFitPoint(f,p.map((v,i)=>(v-a.c[i])/a.size[i]));vector(nativeToWorld(a.mount),C.fitOrigin(f),1e-6);
   for(const r of a.barrelCenters){const start=nativeToWorld(C.add(r.muzzle,[.7,0,0])),end=nativeToWorld(C.sub(r.muzzle,[r.muzzleRecessM,0,0])),hit=G.rayFit(start,C.norm(C.sub(end,start)),f);assert.ok(hit,k+' actual muzzle is pickable');vector(hit.p,end,.008);}
   const pose=C.aimAuthoredTurret(joint,.3,.45);assert.equal(pose.muzzles.length,a.barrels);assert.ok(C.len(C.sub(pose.muzzles[0],joint.muzzles[0]))>.1,k+' barrel mouths follow elevation');assert.ok(C.authoredTurretInArc(joint,pose.fw));
@@ -98,5 +99,5 @@ test('draw, picking and physical muzzle transforms agree on every mount axis and
 });
 
 test('fleet and preview partition the same physical meshes at their authored elevation joints',()=>{
- for(const[k]of FAMILY){const{a}=data(k),s=C.newShip({assembly:true,L:120,W:100,H:80},'Light family articulated mesh');s.parts=[];const f=fit(k,{assetYaw:24});s.fits=[f];const g=G.fleetGeometry(s,{trial:true}),t=g.turrets.find(t=>t.id===f.id),joint=C.authoredTurretGeometry(f),preview=G.meshPreview(s,[],[f]);assert.ok(t&&joint);assert.equal(t.barrels,a.barrels);assert.equal(t.bodyMesh?g.meshes[t.bodyMesh].geo.ni:0,a.elevationIndexStart);assert.equal(g.meshes[t.mesh].geo.ni,a.faces*3-a.elevationIndexStart);near(preview.previewFits.ni+preview.previewRefFits.ni,a.faces*3,1e-12);vector(t.pivot,joint.elevationPivot,1e-6);vector(t.bodyPivot||joint.yawPivot,joint.yawPivot,1e-6);}
+ for(const[k]of FAMILY){const{a}=data(k),s=C.newShip({assembly:true,L:120,W:100,H:80},'Light family articulated mesh');s.parts=[];const f=fit(k,{assetYaw:24});s.fits=[f];const g=G.fleetGeometry(s,{trial:true}),t=g.turrets.find(t=>t.id===f.id),joint=C.authoredTurretGeometry(f),preview=G.meshPreview(s,[],[f]);assert.ok(t&&joint);assert.equal(t.barrels,a.barrels);assert.equal(t.bodyMesh?g.meshes[t.bodyMesh].geo.ni:0,drawAsset(k).elevationIndexStart);assert.equal(g.meshes[t.mesh].geo.ni,drawAsset(k).faces*3-drawAsset(k).elevationIndexStart);near(preview.previewFits.ni+preview.previewRefFits.ni,drawAsset(k).faces*3,1e-12);vector(t.pivot,joint.elevationPivot,1e-6);vector(t.bodyPivot||joint.yawPivot,joint.yawPivot,1e-6);}
 });
