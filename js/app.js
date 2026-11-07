@@ -4198,7 +4198,7 @@ function bind() {
       mutate({L: '船体長', W: '船体幅', H: '船体高'}[k] + 'の微調整', () => setHullDims(k === 'L' ? v : hp.L, k === 'W' ? v : hp.W, k === 'H' ? v : hp.H), 'hull', {quiet: true});
       refitOnGeometry(); renderPanel();
     }
-    else if (d.sec) { mutate('断面', () => { hp.sec = d.sec; }, 'hull'); renderPanel(); }
+    else if (d.sec) { mutate('断面', () => { hullEditorProfile().sec = d.sec; }, 'hull'); renderPanel(); }
     else if (d.rzside) { st.razee.side = d.rzside; renderPanel(); }
     else if (d.rzedge) { st.razee.edge = d.rzedge; renderPanel(); }
     else if (d.delcut) { mutate('ラザー化を取り消す', () => { hullEditorShip().cuts = hullEditorShip().cuts.filter(c => c.id !== +d.delcut); }, 'hull'); renderPanel(); }
