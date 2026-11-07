@@ -22,6 +22,6 @@ test('current layout audits distinguish an existing hull mask from a new machine
  s.parts=s.parts.filter(p=>p!==wall);assert.equal(engineWeaponClearance(C,s,{ignoreHullMasked:true}).passed,false,'machinery in an otherwise clear ray is still rejected');
 });
 test('the published military examples keep enlarged engines clear of actual gun meshes and neutral shots',()=>{
- const report=JSON.parse(fs.readFileSync(path.join(root,'docs/benchmarks/military-engine-acceleration-refit.json')));assert.equal(report.physicalVerification.passed,true);
- for(const key of report.allKeys){const directory=path.join(root,'assets/source',key+'-military-acceleration-factory-blueprints'),manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json'))),{blueprint}=readBlueprint(directory,key,manifest),ship=C.deserialize(blueprint),proof=engineWeaponClearance(C,ship);assert.equal(proof.passed,true,key+': '+JSON.stringify(proof.failures.slice(0,5)));assert.ok(proof.bodies>0,key+' actual machinery is surveyed');}
+ const {constants}=require('../scripts/refresh-capital-examples.cjs'),report=JSON.parse(fs.readFileSync(path.join(root,constants.REPORT))),directory=path.join(root,constants.ARCHIVE),manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json')));assert.equal(report.physicalVerification.passed,true);
+ for(const key of report.allKeys){const {blueprint}=readBlueprint(directory,key,manifest),ship=C.deserialize(blueprint),proof=C.withFrozenStructures(()=>engineWeaponClearance(C,ship,{ignoreHullMasked:true}));assert.equal(proof.passed,true,key+': '+JSON.stringify(proof.failures.slice(0,5)));assert.ok(proof.bodies>0,key+' actual machinery and casings are surveyed');}
 });

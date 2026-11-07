@@ -1,7 +1,7 @@
 // Independent survey of enlarged machinery against actual authored gun meshes
 // and complete neutral firing rays. No constructor or statistics calculation.
 function engineWeaponClearance(C,ship,options={}){
- const bodies=[...ship.parts.filter(p=>p.k==='engineCore'),...C.engineMachineryPaths(ship)],bounds=new Map(bodies.map(p=>[p,C.partAABB(p)])),failures=[],samples=new Map();let checkedVertices=0,checkedRays=0;
+ const casings=ship.parts.filter(p=>p.k==='engine'&&C.equipmentSpec(p)?.engineStyle==='exposed'&&C.engineSkinMesh(p)),bodies=[...ship.parts.filter(p=>p.k==='engineCore'),...C.engineMachineryPaths(ship),...casings],bounds=new Map(bodies.map(p=>[p,p.k==='engine'?C.engineSkinMesh(p).b:C.partAABB(p)])),failures=[],samples=new Map();let checkedVertices=0,checkedRays=0;
  let hullMaskedRays=0;
  const inside=(p,q)=>C.inPart(p,q),overlap=(a,b)=>a.every((v,i)=>i>=3||v<b[i+3]-.005&&a[i+3]>b[i]+.005);
  for(const f of ship.fits){
@@ -26,6 +26,6 @@ function engineWeaponClearance(C,ship,options={}){
    }
   }
  }
- return {passed:failures.length===0,bodies:bodies.length,checkedVertices,checkedRays,hullMaskedRays,scope:options.ignoreHullMasked?'Actual gun meshes and neutral fire before its first existing hull obstruction. An engine behind an already obstructing hull does not reduce that firing arc.':'Actual gun meshes and complete neutral firing rays.',failures};
+ return {passed:failures.length===0,bodies:bodies.length,casings:casings.length,checkedVertices,checkedRays,hullMaskedRays,scope:options.ignoreHullMasked?'Actual gun meshes, engine bodies and authored casings; neutral fire before its first existing hull obstruction. An engine behind an already obstructing hull does not reduce that firing arc.':'Actual gun meshes, engine bodies, authored casings and complete neutral firing rays.',failures};
 }
 module.exports={engineWeaponClearance};
