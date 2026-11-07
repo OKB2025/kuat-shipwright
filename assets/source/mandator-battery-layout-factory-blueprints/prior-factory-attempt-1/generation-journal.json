@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "key": "mandator2",
+  "method": "fresh-factory",
+  "scope": "Only the current Mandator constructor, its actual geometry and engineering output are captured. Other ship rows are retained as their recorded historical generations.",
+  "baselineCommit": "c657a2e8caf4b60d9a5ceda0f8382710c986f690",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523"
+  },
+  "scriptSha256": {
+    "scripts/refresh-mandator-layout.cjs": "4872138baae934b62ed8c2091c86e7766d1b615243eb0a5d690f1c8de34244bb",
+    "scripts/update-ship-examples.cjs": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6",
+    "scripts/audit-ship-examples.cjs": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+    "scripts/finalize-ship-example-audit.cjs": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d",
+    "scripts/mandator-layout-evidence.cjs": "a009fd94b10454ea421a61223021a3bc73038ed9ed17f343082e2853ef14c079",
+    "tests/helpers/figures-digest.cjs": "5c54ccb8f55efd76759990c8cc90383b781f206109ad3993e3aa22b63124773c"
+  },
+  "constructorCalls": 1,
+  "controls": {
+    "catalogue": {
+      "imperial": {
+        "sha256": "ca5d8b2373485459ed5699e55d909096ab41850e6607d56440adc804f48ab5cb",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "venator": {
+        "sha256": "c887c5349f939364f593056f4b4839ad20b9392f8784bc347732715ad979492e",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "8d0348a50aee1d300ca0c657bfa648e6b045b6cc8323b498bd2ae27ea4da4ea7"
+        }
+      },
+      "reptransport": {
+        "sha256": "869f0d4ee43a4dfd7dc23329519a5b9086f1249b273dd9ffca6f214f4c373803",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "heraklon": {
+        "sha256": "99c5d4dacffcb985181ebbee04f328406cbf08607bd0f1299350fbb3f252c7ee",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "dreadnaught": {
+        "sha256": "a458ee5ab1956d4e40b00cb3879887abea41a435f6f53921b9e62973d9c136dc",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "executor": {
+        "sha256": "9330ccf334e4098fdd57677ad42df2fc1ec121d84a3a837fb6c265b4417e8341",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "cr90": {
+        "sha256": "f9a4714f66e6c722f26b9e1cc9a8d30cfc4529546b63572e77ec2b719b70e7be",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "nebulonb": {
+        "sha256": "f2138fab758d41b7b16314de564f8e21f73bf2c53ab4a3666490bfcc8f81c7d5",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "gr75": {
+        "sha256": "4e16049944b782dfecef3055e5fbdc9232825f5521b939acdd096685f59242fb",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "gozanti": {
+        "sha256": "a3732ce81bfde5cdb12d6547e636a35665809e077fccde0867bbeab18cb96c46",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "providence": {
+        "sha256": "b7f50d9f502037721dcef36a87b3858d830e986515a66fbea2158081df22e4ce",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "munificent": {
+        "sha256": "ca7fdf20299aab67d900bea8d2f36008b931f757121f8dcf5057a5f095cd7a0c",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "recusant": {
+        "sha256": "8d95e4737213862b850f093baab2c7b86198bd19ee5793a86ec5d410789fdb81",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "lucrehulk": {
+        "sha256": "cfb0fdab5cfc1539cb17de2d91bb7ee8d7fadbca006c4e143f2575531d25f5cd",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "providenceDn": {
+        "sha256": "5f6739a89591434e8982b7596bec8e23c2c399ee8fb421d9cd8b86a9d9b0fce8",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "recusantDn": {
+        "sha256": "5b9046b0b2f105c28d31b6ee76f1a6871d047267bad6d796ffac49edb85cf6af",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "mc80home": {
+        "sha256": "0d5d65bdfc03d507c6fae8b6e1379bd7015dfcaca250810c37ebb8b39be4ee24",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "mc80liberty": {
+        "sha256": "7e3a7791376ca1550e6cbbbe9edbc70f773f1e9896c62705bf67675e4273a2f0",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "mc75": {
+        "sha256": "e4b59762edcbc2c44c3bba0d6cab2719b5857fa1c2d5910ae5b322039336c713",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "mc30c": {
+        "sha256": "73cb61c62a151558abd14b3f0490c04f7c7b5d607a5eea5115c4a5366930c7c0",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "acclamator": {
+        "sha256": "e3378dc7e7ebf307c766675984f1537b478d2814cd8db5857327c4a5d2b61f83",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "arquitens": {
+        "sha256": "cbff8b03972eecc75c3032ddbf16ba6b914c267730f8cc387ef97e7196943ab4",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "hammerhead": {
+        "sha256": "fc3b895623d3a3dbe334bacf11d4ed016b14ac400212b445cc7f44d4218b1191",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      },
+      "onager": {
+        "sha256": "3db962885c29800842836b55d98b56726b058e333f548bd8469f10f3f7ef7ca1",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "cc3a3dd550ca76a7cb8051d94d3e06169d14334982f82aec30be1f53a6dcbcd0"
+        }
+      },
+      "subjugator": {
+        "sha256": "c1c830976e6b8b50965d905444a8c25621ec783734d14d4252666bfc1039c894",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "lh3210": {
+        "sha256": "01cf646d6dd5f5795986056c6da8460d4fb539204db444335a99690c96a515b5",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+          "js/core.js": "f8d2bbfcc2a58069f6e6aaa01311ab0498e87b7fd4ee4fe6cb50290db21b0e26"
+        }
+      },
+      "imperial2": {
+        "sha256": "935b5acb5911d28463aa2494acaeab89be7c388670403ea22ec58eb04ba70564",
+        "sourceSha256": {
+          "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+          "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+          "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+        }
+      }
+    },
+    "figures": {
+      "acclamator": "9f4e48b996fdbf97f7bbf5d3958d1d4ffb0660b25d827e86dc0b34d2819db5de",
+      "arquitens": "706e6a9a185db3f4fe87fc92229288b511588b785e38a9fe3c4264916ae43993",
+      "cr90": "d7b003d33b5b1605a711564c89b46b609c8684d3e9a5ed23f4da6d4bd13f0a6c",
+      "craft_arc170": "c00a0b199bda58825c621b54b2db50fb4e40439928159a7d80e8bfc5fbf4bff5",
+      "craft_awing": "3838d06d7a60cfa15be63cb568404eeeab58970b3d02162bedbb0811dc79c6eb",
+      "craft_btlb": "335258608b021893827aebe2124c52e5a520c0c3870f2ac3d6b2da50ef5d158e",
+      "craft_hyena": "d5bed4811a45548161fef8d10062a311cd81d69fe40868d352069f7f8f0ec626",
+      "craft_tie_in": "8c03afc030c30a233023114d21d8df14ca0ffd46094dfe2a372d80e5182271ef",
+      "craft_tie_ln": "2ca1a984ca6899cb6deaeac4c31e015ff14896db32ea7cd4a317e08ffecb3507",
+      "craft_tie_sa": "d5eedf2633faecc3b6e89bb45cde01dbf571df6b9d42a49ee6159cb6fefe4ae5",
+      "craft_v19": "bb9a239fbb3b030754feccfe3bc2069308b68bd6b3a6969ac05fce83d8754e09",
+      "craft_vulture": "7471e318de64ac8f348bda196430e545aaf8569d59fb386a167370fda7a74de1",
+      "craft_vwing": "33ac2a851faf7917c4c813f1082e2b727cf0f9f3222f4ab829603fcbc5204af9",
+      "craft_xwing": "f472aafed25fbed53d42825268e997c204f0acf5f59fc4d923aebc2f48b76df2",
+      "craft_z95": "3323f0a59b24ec563855b2b8494656f058b7f2de137a20d7cd14963506335201",
+      "dreadnaught": "107e0b66226508b03278eaba394af4082645594997d51e39d75ceed93a9f38de",
+      "executor": "e7922098d924963e7d16ace79b3979b457a0bcc9e74a9cb82df10d80031ab52b",
+      "gozanti": "6d9dc0454105565fc231a0faf7f4025e18e8bf6c14307bd728b9f9b557a8f2f2",
+      "gr75": "c6fff2715e714629411e1f0b6a1936f5bb712227da7bfd760ac0f96bd9b69a3e",
+      "hammerhead": "709e1ef0dda2c6a9245ede989219e172e4f0cd54b7b03160745fb1afd3daa454",
+      "heraklon": "6b152774cada77d441e74c3691c6c3f20f61c03007a8ea7eef0dd3c1b9de6074",
+      "imperial": "3b6de594ca1b39cc68904c5b4d2d40afc8e008f28a00eca030adfadc0a587668",
+      "lh3210": "6c3c6657e74918819c4a3ad476f75075c507cb1898f6312c277a55711693a42a",
+      "lucrehulk": "b0a8bf05f31f7acc2e761a6eb4acfccf98ba236bf01e48d9ba9f47f8ef94667c",
+      "mc30c": "f34fb8a470e26e893e70458b3520ff24ac5a4b71e68645e1d60b0ac77e2a8654",
+      "mc75": "86b892598066c17925cde7de20d1e4c680d800903533cd4cc388ba6dde93901f",
+      "mc80home": "cf68178bee0866f5bde502e7311cd12ea99ea7ce705a7ea6d0e166d49b761b67",
+      "mc80liberty": "bde01c587cbad1a4d464ee71da34be4896a10d5714b8804a37a2e17d87e0df88",
+      "munificent": "451422df126fcd2141fcba38dd7c1ab9b66a3b34f140b939d4ac274f30d362bb",
+      "nebulonb": "065288a076cf4ac3d9c4142967439670a065e3f61c771d8d16286ceb492febb2",
+      "onager": "982224d9af6baf53adb03e5f9c3f02374479619cd529511caa3ad1fc165f53cf",
+      "providence": "a6046b31872c62d1505559e6e900a89deffaadcdf7b084be1a5984e014b85f8b",
+      "providenceDn": "a8654c96f6458210db855353adffbccc4b2122e5499d1f24046a108c19d56875",
+      "recusant": "aa28eaf840c23967391405bb7e8d4bff70a72ece3feb44d30176d3dd0865147b",
+      "recusantDn": "7c46cab20c27a005ac2baf5c7ae6924c6f34284c8ae52935d43503c94993c4d6",
+      "reptransport": "c59008bdd680458189f6e836abe11c7278979482c7e568e4300975cf88a3a80e",
+      "subjugator": "1897b93a47fcf859781d4642e3e5229f45b74f09f069c553f2842cfa88e75dc0",
+      "venator": "9b2cdbf31b1e7210d593953b65c3d0e9ee186abc40a08f246f2834a03ddab9b1",
+      "imperial2": "b1192dacf67b154097c791070ad56dc8410e9a12ab0daf297302bc2683a4898e"
+    }
+  },
+  "startedAt": "2026-11-07T05:56:06.167Z",
+  "phase": "failed",
+  "elapsedMs": 236690,
+  "constructorBlueprintSha256": "49f1464fd6c0898c1128491e46f77a0e42abd1e9c4bb5e9b7bbca7b740a796e2",
+  "error": "Error: The complete requested Mandator battery differs: {\"counts\":{\"utl\":163,\"ball720\":80,\"quad175\":16,\"ball175Quad\":6,\"ball175QuadIon\":14,\"pd\":160,\"monCalPD\":60},\"preservedFits\":{\"podCombat\":1,\"podAir\":1,\"cmsl\":2,\"trc\":6},\"unexpected\":[],\"mainIonVolleyTT\":317520,\"pointDefenseVolleyTT\":0.00004999999999999992}\n    at batteryEvidence (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:19:19)\n    at C.buildDesign (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:34:339)\n    at Object.generateEntry (/workspace/kuat-shipwright/scripts/update-ship-examples.cjs:33:41)\n    at generate (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:36:11)\n    at Object.<anonymous> (/workspace/kuat-shipwright/scripts/refresh-mandator-layout.cjs:69:378)\n    at Module._compile (node:internal/modules/cjs/loader:1929:14)\n    at Object..js (node:internal/modules/cjs/loader:2060:10)\n    at Module.load (node:internal/modules/cjs/loader:1651:32)\n    at Module._load (node:internal/modules/cjs/loader:1443:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)"
+}

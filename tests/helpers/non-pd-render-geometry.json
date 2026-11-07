@@ -1,0 +1,343 @@
+{
+  "sourceCommit": "c657a2e8caf4b60d9a5ceda0f8382710c986f690",
+  "sourceGfxSha256": "700cd51ead1815a05cca8a372540c0511171c72530fb9fd04478b3104f64d3cd",
+  "referenceSha256": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+  "rows": [
+    {
+      "id": "arq_turret_quad500",
+      "vertices": 4772,
+      "faces": 2966,
+      "pos": "e41497342e7ce94125849d18292af20e00acfeb27b90c6a82809e15a8567bbc9",
+      "uv": "1339bd880637eb7491c64f496602a2a3e52463c859b5cbb1758396969d7a330f",
+      "idx": "3ef80d5e11dcb958e6924a84d5cf3798abc03338e2818d3c0fd4b005a528f9c0"
+    },
+    {
+      "id": "capital_ball175_quad",
+      "vertices": 1534,
+      "faces": 2196,
+      "pos": "859401b30ecb6e62a47f9296d9865165b5c82584ef0c34be3a476d481b5e47bd",
+      "uv": "a2714624858f8208271050cdde727fbccbd94366ddb3bec4868af3abc33c8a45",
+      "idx": "87094b5000fe23557b5d49963500b8b24b9fd3b7b69fb7526fb845b11d37bf6b"
+    },
+    {
+      "id": "capital_ball175_quad_ion",
+      "vertices": 1174,
+      "faces": 1440,
+      "pos": "e28a772341fc70c504011b5ceac845e0ffa256e106831a9fc9f6dfb666642951",
+      "uv": "9969607e835ca01387d308fadd3838926d8d2cd8734373ea14ad8a4302c1396c",
+      "idx": "be394a11b5cc4265aa87df0bb98a1cb4a3c9a785605fce5981bb6acb18a30a67"
+    },
+    {
+      "id": "capital_ball175_triple_ion",
+      "vertices": 1088,
+      "faces": 1272,
+      "pos": "1e7a6b4b05777f914e67c0509eac52a3356579ae41e2b08380dd3e2d83c1ae4a",
+      "uv": "2d2e8ff209212f3fd6f77274863793577001267c687258a0718244a7e9dbf7b6",
+      "idx": "faabeb448bc49f1f2c9bba15f55187656d353cfce444c855add227e52d93f611"
+    },
+    {
+      "id": "capital_ball720_single",
+      "vertices": 988,
+      "faces": 1116,
+      "pos": "e448a18b5dacf63907b33dc4dd3f6e89489ad96ed3c3708b5d3b0f955d745e7b",
+      "uv": "28dff78dc48227b575c1b21d8a1b1d538b64cad7b3155f39d5918a5fc0adc347",
+      "idx": "f605f1e1255c160a29cb0d1c20ab4bd18f5990f3d0ca55c1de0adb5247199c11"
+    },
+    {
+      "id": "capital_quad175",
+      "vertices": 5924,
+      "faces": 4040,
+      "pos": "701bbc2834ace2d4d1bd0e34471c8333be7e673297af02bb56b982cae77e4b59",
+      "uv": "96942b50370dd54c799347d71eba162f65ba618f4e740d6afe98bd1cefd9fbb3",
+      "idx": "2b73fcb8fd95230c84b8bb7e85d0de935232c1f47cc8b11ca952bc5f0088ff4f"
+    },
+    {
+      "id": "capital_triple175",
+      "vertices": 5538,
+      "faces": 3576,
+      "pos": "f13aaf57a2212ce8c3df7a226c4e85d4ccae041422c8d7132d706d6d919c8173",
+      "uv": "267f6683502502b1a921496727436f9e6ffbf6040b10dfda1f3b9d959f2400d7",
+      "idx": "d42cba6d3a5bdfff35158acdc3de3c9b4331a408ee7212203ae505366d59f897"
+    },
+    {
+      "id": "capital_twin175",
+      "vertices": 5356,
+      "faces": 3216,
+      "pos": "9f3fca96b6983df77a4887ad22a143d31fbeed5e6c267170611b76f0e2a93644",
+      "uv": "c0ba021f5feaa35d7e64266b7c9434fde4190bc93dbcae380d0350810ea876c3",
+      "idx": "4e9a1cde0700b01653b762038e356102c557da8cd2bb11c7c6c0e2c6f8c52d0e"
+    },
+    {
+      "id": "capital_twin175_ion",
+      "vertices": 7272,
+      "faces": 3328,
+      "pos": "6ea1e109d5186d3d9cfe7e2286e13b12b7f6bec528c5c9aac6752e1b3d2d8302",
+      "uv": "532fe4d8b556537ba39e151182ecf593eb471fc799555c3a7044430cafac2d1d",
+      "idx": "873809f230611b011d2f660f4852f44dec5e223d721f32c1a2137b6a17bb7a37"
+    },
+    {
+      "id": "capital_twin720",
+      "vertices": 5344,
+      "faces": 3216,
+      "pos": "2ec1db0d3e89928e0ab43a64f5e2cb8503c6616baf6ac2b0933fc1c3f01f5700",
+      "uv": "62d6b41908112a24413665b6742e87b752ff3988212c4d34c13bb2b992578690",
+      "idx": "44def6528d934f98381a0b903222b491f56f21712ad665ea027d84744bf5e425"
+    },
+    {
+      "id": "cis_rapid_quad1",
+      "vertices": 3860,
+      "faces": 3360,
+      "pos": "e9a7739142611fa9d149f5b3605a2230e0102888537fd699f1dae4357e30badf",
+      "uv": "79c4014064dd24a4c7d1483e88b8cbd2cb8996f5ac5002945d1a0ddc95996faa",
+      "idx": "ec4b03abcc7193931e2d845e86ff0b37437157a89507d764d670bd31d756be66"
+    },
+    {
+      "id": "cr90_heavy_single6mt",
+      "vertices": 134,
+      "faces": 224,
+      "pos": "92987b8eafc52e7daa34a8d5e1909f2ec9f81b6f70d1b43c35ba3abe978de1ba",
+      "uv": "482500ac4ba894ac24dbc1e3e06f5455e570378d55808949294af424208dff4c",
+      "idx": "e98a7a9646a15c76f515a9513bb7b87799e66299f7433c0853b6c910e2c9f08f"
+    },
+    {
+      "id": "cr90_light_quad500mt",
+      "vertices": 194,
+      "faces": 354,
+      "pos": "c2ad8cf19f14ec31c4de6f08b4fe06c1817b107735a9a036fd1d47ffb7cb0ab8",
+      "uv": "07cb830e7cb76dc7d43b0fc8bc389e8225057335ffe80dda35b8c38e4b24f2c1",
+      "idx": "e174d2f784afe998f9a52bcfe275a3addf19fe536ddeb55fa9a3462e1168ca0e"
+    },
+    {
+      "id": "cr90_light_single500mt",
+      "vertices": 107,
+      "faces": 190,
+      "pos": "e5ef102f3d4c4eeaff93637e6d44c08d2611a76e6d2dac0bf7e975fe0e6a65c7",
+      "uv": "ab9ac8d62fd064748c921e6bd4c123f5cc8910a384d1804bec33ffe27da27c4c",
+      "idx": "6dc0c277e4b7f13d0a7acefb1e11a1cd090d1156ddb88c7009c532f1a05a6781"
+    },
+    {
+      "id": "cr90_light_twin500mt",
+      "vertices": 122,
+      "faces": 218,
+      "pos": "e7c372d690985eaeed00d5adf55cf902607ce64307a9d126bfa1a39cceae9d9e",
+      "uv": "116d7399ce18e417bb9d1586091987731f6b78e79edbea12349960da3b9269b2",
+      "idx": "2cc01957101dfdcf365c99a16ce1a15ecda53818ab14686d6f2ed30de16c5814"
+    },
+    {
+      "id": "family_quad40_ion",
+      "vertices": 526,
+      "faces": 1032,
+      "pos": "4a6faab0082e83bdedc63d83a6f0befe88fad1273694ef3f5f997d129c2b25c3",
+      "uv": "193a3625a3d81bb057e9cd2892aa2a8fe15b1a3944bd3387dba02ea1727cd0c6",
+      "idx": "0ca4fc8345ae590e2560a5a260354a78786d16d9e9458e557e636f6fe74d1698"
+    },
+    {
+      "id": "family_quad70_side",
+      "vertices": 3808,
+      "faces": 4479,
+      "pos": "89c6659b0a1821bd5b65aba5252594446779e3247bd5b96be471e659591b69cb",
+      "uv": "742197d35e8d7d698045e27ab73cd1147bd7b711992de4eb36fa40b5d09a3b9c",
+      "idx": "7fd0299c150dffed934d0206f0e65427be242cbb6435213a96975d4718bd1cdd"
+    },
+    {
+      "id": "family_single40",
+      "vertices": 2077,
+      "faces": 1452,
+      "pos": "e6393ee965e9ef8b5ff74402b85155971d1222187acfe01d578637310cb8a4f5",
+      "uv": "b922684588d2d05be5d289e67a6f25405f94046459343c3fc3630ca932f0d248",
+      "idx": "f15b22607e7ab9ab153932b6ca8c639a610fdcb38485c7c4196d1388e280752d"
+    },
+    {
+      "id": "family_triple40",
+      "vertices": 3359,
+      "faces": 1962,
+      "pos": "ab62b36f74527bda32973424c984ae6bcd6c31a4f153b7ae22eb6e2e86b4d801",
+      "uv": "f37406494a4a12b517ade75d9fe79d94ae34d237a68ce93a6ac8e033917c483b",
+      "idx": "8b5c2545cdc4b77f2fe9eedbedcb0414cfe55838da5e72d85a1deb55374392ec"
+    },
+    {
+      "id": "family_triple70",
+      "vertices": 4902,
+      "faces": 4995,
+      "pos": "cd4d2ba5b1e9106061bfe2319f38b3e9a6e718c849447a8e4288233c3cee9481",
+      "uv": "d81dcadc81a67a74ce7210a2a79ff87536fe483b1859bc6c7db4fc4c4062b3e3",
+      "idx": "f180a58552025296f050395c62cca84cde6ad448be50214b5b71b7304c9c9fa0"
+    },
+    {
+      "id": "family_twin40_box",
+      "vertices": 3596,
+      "faces": 2074,
+      "pos": "67e1799b1a9989176ccf58cfa31c0a75a96c19828644eb675967a422dd8cb869",
+      "uv": "93fa973f0267833e0ff3f25489a02498b2680da8648f4c6770d32fd0d41be741",
+      "idx": "b18a8d6a29fe4ed3f03cb0d2d7b2609dcd482122efe6a310af578a2fb7a2340c"
+    },
+    {
+      "id": "family_twin40_dome",
+      "vertices": 8238,
+      "faces": 4558,
+      "pos": "38d79c99793441a19d433132e162f52838ae97ee85c250ddc1dbf142b0eef21f",
+      "uv": "8fe99d8bfb2134019c9c20eb149a6d45189218a824d5528ae00393376091a9e2",
+      "idx": "3e9614510ca47735705dc5c5ffcb878a134cd09591ba703295c266ab2d658ace"
+    },
+    {
+      "id": "isd_heavy_octuple",
+      "vertices": 1436,
+      "faces": 1104,
+      "pos": "716027ffba335738caa4fde0bd42458b97271271b6d300d14fc1833985ad84cd",
+      "uv": "b027c1e52ac24f623dee9d646b3f0c07beee8d2146f07031697cc37a7b73e79f",
+      "idx": "a7f6e4ca71ef045a14643ba34a2564b45901095d88acb447b3bedc67e11cbb15"
+    },
+    {
+      "id": "light_quad200",
+      "vertices": 3170,
+      "faces": 2210,
+      "pos": "997de964e6663d03592e61ca7adfed24052218b8b40d5aec918be05e03ffb73b",
+      "uv": "5dbbcaaa309883022a0847ac9b7e97441849a6ceb811fb637769ddc87bd26848",
+      "idx": "75ba5c55e5829fe8cc58aeaeb20bf6cc2c0493461f7c1dd81e1fe903def545a2"
+    },
+    {
+      "id": "light_single200",
+      "vertices": 2582,
+      "faces": 1872,
+      "pos": "e063b52429c558a04120ddcf701040d190dc063fa7f95889250a31473f18203a",
+      "uv": "e00261c2d58ce87190d2b9c02a7d41a02a41a126489b5bef8a4344370f3b3b18",
+      "idx": "dd08d8b90872977899d944a9fbdaa74a5cfb51e53e8e6eb61eacdc9510d68437"
+    },
+    {
+      "id": "light_single500",
+      "vertices": 556,
+      "faces": 844,
+      "pos": "f0c3a19deac195672b14c0d6debe5cf34ab5a96d69717edf485788b0e227e599",
+      "uv": "2ee53ae0941def2c33b997a39e926a50f2eb351e3ca0f536527bf56bed4ac024",
+      "idx": "7223bd4ec06069fde09f4e23390afd2e121ebd4861804b9fc62278a256583f3f"
+    },
+    {
+      "id": "light_twin200",
+      "vertices": 2860,
+      "faces": 2088,
+      "pos": "c14b5dd5ba05e23538ab6bcf9bb2a11274908ce5b09e318da780db7c3311352f",
+      "uv": "d5b8474dea4dda57c507c0c1833cde5d13896806175d9803dc8e05ea40eca4e7",
+      "idx": "2add7f2927bd83c73ced1bcaaf7a0fc5f9998224c6176e831bccadce5c97da40"
+    },
+    {
+      "id": "light_twin200_fast",
+      "vertices": 2812,
+      "faces": 2256,
+      "pos": "1c405fa4973199b85098b8d36e28079a3fddc3d55806b6e985bfef38d0d014a3",
+      "uv": "ebf31cbc259d590529c64fe1b5b106c2cadb2068dde7435a41748d070f40af37",
+      "idx": "145d0cfebee82bf8ea51ca774a64a93c1529de394fa696a7b7831e716d53c334"
+    },
+    {
+      "id": "moncal_single150_ion",
+      "vertices": 432,
+      "faces": 596,
+      "pos": "1269c61591c9f76439cdcfc92d3c00ff88f406f39cee9d8e24038a9c60fab43e",
+      "uv": "5c825501270ef9a28e744407e36a629926382bc9757ce86f44a170e9284e19d9",
+      "idx": "90a4ac4ea84c335779bfc3527692a1abc15f5c71b1c3596044c652dec21086f7"
+    },
+    {
+      "id": "moncal_single200",
+      "vertices": 496,
+      "faces": 724,
+      "pos": "2db6f36e535219cb1b94f9d44b7f822a30df884ead50bac5d6788a0945a63ef0",
+      "uv": "1eaca02fea98a811505160932346f6f38e279d1907968d60705fbfb30b850bdf",
+      "idx": "191053584280076f0ec865e35c9b3b717c5f19cb1b222e77fb3042d770b109cd"
+    },
+    {
+      "id": "moncal_single34",
+      "vertices": 496,
+      "faces": 724,
+      "pos": "72771427b80ca64211f911da7e847ec77381a0b0854c740320c7490f16490ba5",
+      "uv": "1eaca02fea98a811505160932346f6f38e279d1907968d60705fbfb30b850bdf",
+      "idx": "191053584280076f0ec865e35c9b3b717c5f19cb1b222e77fb3042d770b109cd"
+    },
+    {
+      "id": "moncal_single80",
+      "vertices": 496,
+      "faces": 724,
+      "pos": "c63e09c332edae277271203efc00748202f2cd54bec677bbde0faaa73e8a0017",
+      "uv": "1eaca02fea98a811505160932346f6f38e279d1907968d60705fbfb30b850bdf",
+      "idx": "191053584280076f0ec865e35c9b3b717c5f19cb1b222e77fb3042d770b109cd"
+    },
+    {
+      "id": "moncal_triple200",
+      "vertices": 740,
+      "faces": 1204,
+      "pos": "b89e89ad67826a3fb1985ffa236077bf6c1e6420a0df129e5779452fdd208fb0",
+      "uv": "f20d6cae7ed31b9114ac6893dd42fda9488da1e95e6e034002a2531567c2bbab",
+      "idx": "718f7ec14896e1cbe3231cdee23b8384777f9f391852ede0e7678965d5034ab4"
+    },
+    {
+      "id": "mun_bow_twin",
+      "vertices": 4524,
+      "faces": 4678,
+      "pos": "1ad8a19ae3953bdbb20cc23be6219e61aff6b6477b79b6b1c2f2865cac9beb3d",
+      "uv": "10b5643f0ad088db99f6384d5dd2a1b8560bad926893635c439ec6cd0f6bd359",
+      "idx": "de08fef827cbffaef685a9bcc623e78b69f2a5d6f6fb49894337b551ca618f97"
+    },
+    {
+      "id": "mun_ventral_twin50",
+      "vertices": 881,
+      "faces": 1645,
+      "pos": "1b56e453cc4d55e5f60958d754b00bcadbdb7be736370ac5718ec6bcd102baf9",
+      "uv": "83d2abc3b9da29c9a4b302932fa56bdea6699b4289f0219f24467191d24320f0",
+      "idx": "aff86d39e6608d2349b54388f3bf306322f71845894688248ad99a14423007b2"
+    },
+    {
+      "id": "rec_keel_twin",
+      "vertices": 326,
+      "faces": 312,
+      "pos": "5f9a7aee57a6e5d57c5bef945a0d03b89c41feef067a7d5b65f732014017826e",
+      "uv": "e4e45c14a09c139ebd07e465bcfb563d217bb67665e78d5bf2738e465ba7a350",
+      "idx": "b6df16136fcd8417b42544b5eb3802ea7e631ace632b583fd96c00d10ea42917"
+    },
+    {
+      "id": "rec_prow_heavy",
+      "vertices": 1972,
+      "faces": 760,
+      "pos": "2e463a3ede579d5bee01b19c154b727a57d0e85b4eecb3b10a15fb55c80bf2cd",
+      "uv": "9cfec3e0856e92553460c8590959c2f79e79b7fd89316ada295eb108d58c4150",
+      "idx": "f1f20554cc008bc3c26271bab01b1266a17a04d3f9bf8b648c1038344a2ad40b"
+    },
+    {
+      "id": "rec_twin_pod",
+      "vertices": 732,
+      "faces": 468,
+      "pos": "56a714a832a83d1f778916df37ccb47d01f60682ada11e0756b962983dd36945",
+      "uv": "0404c19e0464b9646a6aaadfc08180452dd69bc985144d2d1a5e015317855bda",
+      "idx": "1961a99ed436d37f136e220cce8383de22d86ff32cbf8fa1911a1a24ba1d7f6f"
+    },
+    {
+      "id": "sphyrna_heavy_twin6mt",
+      "vertices": 117,
+      "faces": 238,
+      "pos": "067c753c2ed72fb6974000f7cd0e825142d2246cba78538292a36132f4d45afb",
+      "uv": "4db2fd521b198ad08a6602141c428d23a3bf232e85fd7de8418439e89d7b3d04",
+      "idx": "faccd278f3506085684fc9fb0c81d510d0d7ddd5861283165fd91a13b3d498e3"
+    },
+    {
+      "id": "sphyrna_light_twin500mt",
+      "vertices": 160,
+      "faces": 294,
+      "pos": "c948f343f1b7497244c29d6d2641ed3ab299d8a00d43a666a787eb56312778ab",
+      "uv": "bfe492baf731a0dbf6e1e050f5bc3fe8c1b049383194dcdf82f023bfa409f462",
+      "idx": "05acd5770e65db14a2ceff7814c9df7401049455791e3ca09dcb1571895761f7"
+    },
+    {
+      "id": "ven_side70_native",
+      "vertices": 1044,
+      "faces": 928,
+      "pos": "828d121a58a0f7ce75076997d0716f64d93c1c874195388da6f3b45f076eee8c",
+      "uv": "70553dca2e95259fc7bf9d73ce8a88c7178ae9fee8d7cab17a1a1b8342a87532",
+      "idx": "eb910a25aa6703635a98f441c9a58faa988320a9077f36e0878913a0d0a19671"
+    },
+    {
+      "id": "ven_turret70_native",
+      "vertices": 3603,
+      "faces": 4388,
+      "pos": "2b83af8b0194fec2142bae10f6a80b84105c887b77174f18bed53d929e0a18ef",
+      "uv": "ebb70d037a34473ca1ba74d1b5c5b8cbd53fcbabf6c2d166d074435980ddb8c3",
+      "idx": "b23bc6335f7b9faab841feec4a01b99cd4bdbe9b6a539e228ab1b3fffd14187c"
+    }
+  ]
+}

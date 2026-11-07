@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "measuredAt": "2026-11-07T06:13:12.025Z",
+  "scope": "Actual production Gfx PD meshes only; triangle, vertex and active GPU-buffer counts. No ship build, engineering calculation, timings or FPS claims.",
+  "baseline": {
+    "commit": "c657a2e8caf4b60d9a5ceda0f8382710c986f690",
+    "gfxSha256": "700cd51ead1815a05cca8a372540c0511171c72530fb9fd04478b3104f64d3cd"
+  },
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c303ba286c9b7b286585e405dc59bb43065f10e82fe84e24bd784090d4788523",
+    "js/gfx.js": "fd0cd71bf0cfdc9bf9598b8d65b2357b627d448d4788234205f1deab1942071c"
+  },
+  "harness": {
+    "path": "scripts/benchmark-point-defense.cjs",
+    "sha256": "5954f5269418f431d332f6829b6776baa06429565cbeb6510c8067b514a697da"
+  },
+  "sourceModelsUnchanged": true,
+  "rows": [
+    {
+      "kind": "pd",
+      "before": {
+        "kind": "pd",
+        "asset": "pd_twin_side_laser",
+        "triangles": 1424,
+        "vertices": 1480,
+        "activeBytes": 57048,
+        "barrels": 2,
+        "sourceTriangles": 1904,
+        "sourceVertices": 1720,
+        "drawFixedTriangles": 392,
+        "closedMuzzleRecessesM": [
+          0.21000000000000002,
+          0.21000000000000002
+        ],
+        "cached": true
+      },
+      "after": {
+        "kind": "pd",
+        "asset": "pd_twin_side_laser",
+        "triangles": 176,
+        "vertices": 108,
+        "activeBytes": 5028,
+        "barrels": 2,
+        "sourceTriangles": 1904,
+        "sourceVertices": 1720,
+        "drawFixedTriangles": 56,
+        "closedMuzzleRecessesM": [
+          0.21000000000000002,
+          0.21000000000000002
+        ],
+        "cached": true
+      },
+      "triangleReductionFraction": 0.8764044943820225,
+      "activeBufferReductionFraction": 0.9118636937315945
+    },
+    {
+      "kind": "monCalPD",
+      "before": {
+        "kind": "monCalPD",
+        "asset": "moncal_pd_triple",
+        "triangles": 1204,
+        "vertices": 740,
+        "activeBytes": 34428,
+        "barrels": 3,
+        "sourceTriangles": 2924,
+        "sourceVertices": 3718,
+        "drawFixedTriangles": 0,
+        "closedMuzzleRecessesM": [
+          0.1215,
+          0.1215,
+          0.1215
+        ],
+        "cached": true
+      },
+      "after": {
+        "kind": "monCalPD",
+        "asset": "moncal_pd_triple",
+        "triangles": 132,
+        "vertices": 74,
+        "activeBytes": 3582,
+        "barrels": 3,
+        "sourceTriangles": 2924,
+        "sourceVertices": 3718,
+        "drawFixedTriangles": 0,
+        "closedMuzzleRecessesM": [
+          0.1215,
+          0.1215,
+          0.1215
+        ],
+        "cached": true
+      },
+      "triangleReductionFraction": 0.8903654485049834,
+      "activeBufferReductionFraction": 0.8959567793656327
+    }
+  ]
+}
