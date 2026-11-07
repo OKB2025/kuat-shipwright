@@ -33,7 +33,20 @@ test('source, hub and engine are joined by real capacity-sized hardware with an 
 });
 
 test('a source touching its distribution hub transfers finite power through the shared contact face',()=>{
- const ship=fixture();ship.parts.find(p=>p.id===2).c[0]=186;const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2'),branch=route(transmission,'p2','p3');assert.equal(trunk.ok,true);near(trunk.length,0);near(trunk.volume,0);near(trunk.capacityW,6e17);assert.equal(branch.ok,true);near(transmission.volume,branch.volume);
+ const ship=fixture(),source=ship.parts.find(p=>p.id===1),hub=ship.parts.find(p=>p.id===2);source.room=[20,20,20];hub.c[0]=186;
+ const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2'),branch=route(transmission,'p2','p3');assert.equal(trunk.ok,true);near(trunk.length,0);near(trunk.volume,0);near(trunk.capacityW,6e17);assert.equal(branch.ok,true);near(transmission.volume,branch.volume);
+ // Two real flat faces share the entire finite circular interface. A sphere
+ // merely tangent to a plane shares one point and cannot use this exemption.
+ for(let i=0;i<32;i++){const angle=i*Math.PI/16,q=[190,60+trunk.radius*Math.cos(angle),trunk.radius*Math.sin(angle)];assert.ok(C.inPart(source,q));assert.ok(C.inPart(hub,q));}
+ const {stats,result}=drive(ship);near(result.actualInputW,6e17*feedEfficiency(ship));assert.equal(stats.info[1].overlap,false);assert.equal(stats.info[2].overlap,false);
+});
+
+test('a spherical source tangent to a flat hub installs a paid connector through a complete interior chord',()=>{
+ const ship=fixture(),source=ship.parts.find(p=>p.id===1),hub=ship.parts.find(p=>p.id===2);hub.c[0]=186;
+ const transmission=C.engineTransmission(ship),trunk=route(transmission,'p1','p2'),branch=route(transmission,'p2','p3'),minimumDepth=source.d/2-Math.sqrt((source.d/2)**2-trunk.radius**2);
+ assert.equal(trunk.ok,true);near(trunk.capacityW,6e17);assert.ok(trunk.length>=minimumDepth&&trunk.length<minimumDepth+.01);assert.ok(trunk.volume>0);near(trunk.volume,trunk.area*trunk.length);near(trunk.efficiency,Math.exp(-1e-5*trunk.length));assert.ok(trunk.efficiency<1);
+ const hardware=transmission.parts.find(p=>p.from==='p1'&&p.to==='p2');assert.ok(hardware);assert.ok(C.partBuildCost(hardware,trunk.volume)>0);near(transmission.volume,trunk.volume+branch.volume);
+ for(const [segment,end,host] of [[trunk.segments[0],'a',source],[trunk.segments.at(-1),'b',hub]])for(let i=0;i<32;i++){const angle=i*Math.PI/16,q=C.add(segment[end],C.add(C.mul(segment.v,trunk.radius*Math.cos(angle)),C.mul(segment.w,trunk.radius*Math.sin(angle))));assert.ok(C.inPart(host,q),'the complete paid terminal circle is inside its actual host');}
  const {stats,result}=drive(ship);near(result.actualInputW,6e17*feedEfficiency(ship));assert.equal(stats.info[1].overlap,false);assert.equal(stats.info[2].overlap,false);
 });
 

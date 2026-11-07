@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-rts-runtime-revision",
+  "scope": "The nine factory outputs remain generated/audited at Core861. This separate revision changes only explicitly estimated table-only craft runtime power/thermal planning and its estimate-price branch; it does not claim new ship factories at the runtime whole-file hash.",
+  "generation": {
+    "report": {
+      "path": "docs/benchmarks/example-engine-acceleration-refit.json",
+      "sha256": "828019f4b94201caa5e8753587cceebbcf67b0bd4ff92fa3389edeb91996652a"
+    },
+    "coreSnapshot": {
+      "path": "assets/source/engine-targets-final-craft-cache/core-before-generation.js.gz",
+      "compressedSha256": "ea5ee908daf176c59932cb555d5f3737b3bc79e84be534917a4c464dfc1fe9fb",
+      "sha256": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+    },
+    "catalogueSha256": "62bb8b28f13410844ac992fa322d4d89cb1563adffb3854685de47b870e835da",
+    "scripts": {
+      "scripts/refresh-imperial-layouts.cjs": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c",
+      "scripts/audit-ship-examples.cjs": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+      "scripts/finalize-ship-example-audit.cjs": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d",
+      "scripts/update-ship-examples.cjs": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6",
+      "scripts/arquitens-engine-evidence.cjs": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce",
+      "scripts/stock-engine-source-evidence.cjs": "37f89837559922fbbe2bf3301d579df0530b73804dddbbc12ba8b2447fdbc9d1",
+      "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2"
+    },
+    "scriptSnapshots": {
+      "scripts/refresh-imperial-layouts.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-generation.cjs",
+      "scripts/audit-ship-examples.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-auditor.cjs",
+      "scripts/finalize-ship-example-audit.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-finalizer.cjs",
+      "scripts/update-ship-examples.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-catalogue.cjs",
+      "scripts/arquitens-engine-evidence.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-arquitens-source.cjs",
+      "scripts/stock-engine-source-evidence.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-stock-source.cjs",
+      "scripts/replay-ship-examples.cjs": "assets/source/imperial2-2300g-factory-blueprints/refresh-blueprint-reader.cjs"
+    }
+  },
+  "runtime": {
+    "coreSha256": "29a0410035941dd5ed384773ebe662a4799dc33d6e0f7c4cc925a58583491cbe",
+    "supportScripts": {
+      "scripts/refresh-imperial-layouts.cjs": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c",
+      "scripts/audit-ship-examples.cjs": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d",
+      "scripts/finalize-ship-example-audit.cjs": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d",
+      "scripts/update-ship-examples.cjs": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6",
+      "scripts/arquitens-engine-evidence.cjs": "ba206716146709f80edc33b39743c90c599ec8e0ad265a22308b914458c43613",
+      "scripts/stock-engine-source-evidence.cjs": "37f89837559922fbbe2bf3301d579df0530b73804dddbbc12ba8b2447fdbc9d1",
+      "scripts/replay-ship-examples.cjs": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2"
+    },
+    "supportScriptSupplement": {
+      "script": "scripts/arquitens-engine-evidence.cjs",
+      "generationSha256": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce",
+      "runtimeSha256": "ba206716146709f80edc33b39743c90c599ec8e0ad265a22308b914458c43613",
+      "authority": "The immutable generation report publicationVerifier records this source-representation-only maintenance supplement; it is not a new factory generation."
+    },
+    "snapshot": {
+      "path": "assets/source/engine-runtime-revisions/table-craft-thermal-core.js.gz",
+      "compressedSha256": "01cb4e1d94829169a378ad725370120fda542b3d63c4dd8c140bf82be84c196b"
+    }
+  },
+  "reviewedFunctions": [
+    {
+      "name": "craftPowerOf",
+      "beforeSha256": "620995e70c82e6331dd8ef9fd9aebf0abce6cb6f8e6716e0cefac6493bf95dd7",
+      "afterSha256": "3bf34ccd9695d17ba0fb1af448b1a78ec518237d918e848053cd58849f7b4da6"
+    },
+    {
+      "name": "craftPrice",
+      "beforeSha256": "89ac29fb3a6b5566803e112eb387b6b0c8bb3867105321b56fb1a5887da7aa14",
+      "afterSha256": "6f9af15b316759fb45ea21b4e1d794880f38f73190332b8b3622b53a5d8269a3"
+    },
+    {
+      "name": "estimatedCraftRuntime",
+      "beforeSha256": null,
+      "afterSha256": "df83e02f018cdda404803d7af73d94e1b3cd2579d3b916ca988752fb19262235"
+    }
+  ],
+  "boundary": {
+    "coreIifeSha256": "ffebf60f83704d2c2ade7c94d15ef3abb266962cefcdb60593ee01ec414a275f",
+    "physicalGenerationPrefixSha256": "9b8bcb815dc5b4e4ebc85785f9ed98d19fde5b278306ff4301189152e28446a3",
+    "globalSuffixSha256": "e2b3212442f0dcae2b823d24c55fe4ad836a2469c568e357038dbe0d97f29836",
+    "designInfoSha256": "37ea5074bf1c6ce7e8fc1d5eb87bc54a266d37cd9f6ed60e34c63a8fa6d812b2",
+    "capturedIntrinsicDeclarationSha256": "9604c9c360b0ef8884ebabbd8c18395fe38115a729462b98d7018d9fea3ce75b",
+    "capitalLengthDeclarationSha256": "21ee7dbf061d6531d2c958e5c8fdfeeb36c8f3b9475b8616b79fed839e835b13",
+    "capitalLength": 900,
+    "designInfoFreeBindings": [
+      "CAPITAL_LENGTH",
+      "Math",
+      "Object"
+    ],
+    "protectedBlueprintAndPriceStatementCounts": {
+      "craftPowerOf": 8,
+      "craftPrice": 6
+    },
+    "coreExecutableRtsReads": 0,
+    "outsideReviewedFunctionsExecutableTokensIdentical": true,
+    "reviewedFunctions": [
+      {
+        "name": "craftPowerOf",
+        "beforeSha256": "620995e70c82e6331dd8ef9fd9aebf0abce6cb6f8e6716e0cefac6493bf95dd7",
+        "afterSha256": "3bf34ccd9695d17ba0fb1af448b1a78ec518237d918e848053cd58849f7b4da6"
+      },
+      {
+        "name": "craftPrice",
+        "beforeSha256": "89ac29fb3a6b5566803e112eb387b6b0c8bb3867105321b56fb1a5887da7aa14",
+        "afterSha256": "6f9af15b316759fb45ea21b4e1d794880f38f73190332b8b3622b53a5d8269a3"
+      },
+      {
+        "name": "estimatedCraftRuntime",
+        "beforeSha256": null,
+        "afterSha256": "df83e02f018cdda404803d7af73d94e1b3cd2579d3b916ca988752fb19262235"
+      }
+    ]
+  },
+  "dependencies": {
+    "runtimeReads": [
+      "designInfo"
+    ],
+    "functionSha256": "87c9d8361bdbf78bf40135350f68b6f165128c1d88dd618567b6a26b903a16ea"
+  },
+  "probes": {
+    "corePublicStateSha256": "8237f7545a937e7a3d7b6ee9a250cdf350293244cb3a8e1838124eed083c9673",
+    "initializationPreservesCore": true,
+    "lazyResolutionPreservesCore": true,
+    "lazyResolutionFactoryCalls": 0,
+    "lazyResolutionStatisticsCalls": 0,
+    "designInfoExternalCalls": 0,
+    "generatorRuntimeReads": [
+      "designInfo"
+    ]
+  },
+  "probeEnvironment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "architecture": "x64"
+  },
+  "verifier": {
+    "path": "scripts/verify-engine-runtime-revision.cjs",
+    "sha256": "f214314bf4100cfe7d9959cc70aa46ab348c4d3de3ed687c809d010ec47aa52e"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-factory-serialized-ship-blueprint",
+  "runtimeLoaded": false,
+  "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
+  "factoryBaselineCommit": "bfa371ee1786952199176c4187008723a863af5c",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "factoryGeneration": {
+    "method": "fresh-factory",
+    "script": "scripts/update-ship-examples.cjs",
+    "key": "mc80liberty",
+    "auditSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+      "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+    },
+    "profileVersion": 18,
+    "costVersion": 16,
+    "costSignature": "g1w0fx",
+    "refreshOrchestration": {
+      "script": "scripts/refresh-imperial-layouts.cjs",
+      "constructorCalls": 1,
+      "files": [
+        {
+          "file": "refresh-generation.cjs",
+          "sha256": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c"
+        },
+        {
+          "file": "refresh-auditor.cjs",
+          "sha256": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d"
+        },
+        {
+          "file": "refresh-finalizer.cjs",
+          "sha256": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d"
+        },
+        {
+          "file": "refresh-catalogue.cjs",
+          "sha256": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6"
+        },
+        {
+          "file": "refresh-arquitens-source.cjs",
+          "sha256": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce"
+        },
+        {
+          "file": "refresh-stock-source.cjs",
+          "sha256": "37f89837559922fbbe2bf3301d579df0530b73804dddbbc12ba8b2447fdbc9d1"
+        },
+        {
+          "file": "refresh-blueprint-reader.cjs",
+          "sha256": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2"
+        }
+      ]
+    }
+  },
+  "models": {
+    "mc80liberty": {
+      "file": "mc80liberty.json.gz",
+      "sha256": "2208fbb0c28a1bc6c2ecfe43318da8ddca7669d20bf563f49058d6be12f8f8d3",
+      "gzipSha256": "f6d1b57d69b713d5c100ad1aa2add884177d2183f5bbefef1aaed8ab267ab42c",
+      "canonicalSha256": "de8149117f9ba3e72d4f517d3a634f350f0e1e7308545aae7ba0347a95159232",
+      "uncompressedBytes": 435285,
+      "compressedBytes": 38502,
+      "partCount": 120,
+      "fitCount": 106,
+      "factoryEvidence": {
+        "baselinePowerW": 2.568108685e+24,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 74,
+            "p": [
+              108.5,
+              61,
+              0
+            ]
+          },
+          {
+            "id": 75,
+            "p": [
+              164,
+              49.1,
+              22.5
+            ]
+          },
+          {
+            "id": 76,
+            "p": [
+              164,
+              49.1,
+              -22.5
+            ]
+          },
+          {
+            "id": 77,
+            "p": [
+              205,
+              38.3,
+              62
+            ]
+          },
+          {
+            "id": 78,
+            "p": [
+              205,
+              38.3,
+              -62
+            ]
+          },
+          {
+            "id": 79,
+            "p": [
+              212,
+              47.3,
+              47.1
+            ]
+          },
+          {
+            "id": 80,
+            "p": [
+              212,
+              47.3,
+              -47.1
+            ]
+          },
+          {
+            "id": 81,
+            "p": [
+              219.5,
+              61.6,
+              75.8
+            ]
+          },
+          {
+            "id": 82,
+            "p": [
+              219.5,
+              61.6,
+              -75.8
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

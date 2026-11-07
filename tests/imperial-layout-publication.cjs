@@ -27,10 +27,11 @@ test('the two-model refresh preserves every unrelated catalogue row and engineer
 });
 test('both source-stage constructors satisfy the independently archived uploaded layout',()=>{
  const {C}=G.loadRuntime(root),source=P.sourceLayout(root);assert.equal(source.sourceSha256,'914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b');
- for(const key of ['imperial','imperial2']){const ship=C.SHIP_EXAMPLES[key].build(),proof=P.layoutEvidence(C,ship,source,key);for(const field of ['structuralLayoutPreserved','allFittingPosesPreserved','weaponKindsCorrect','nozzleAppearancePreserved'])assert.equal(proof[field],true,key+' '+field);assert.equal(proof.structures.length,26);assert.equal(proof.fits.length,51);}
+ for(const key of ['imperial','imperial2']){const ship=C.SHIP_EXAMPLES[key].build(),proof=P.layoutEvidence(C,ship,source,key,'2300g');for(const field of ['structuralLayoutPreserved','allFittingPosesPreserved','weaponKindsCorrect','nozzleAppearancePreserved'])assert.equal(proof[field],true,key+' '+field);assert.equal(proof.structures.length,26);assert.equal(proof.fits.length,51);}
 });
 test('the publication layout guard rejects a moved structure, gun, nozzle skin or wrong main battery',()=>{
- const {C}=G.loadRuntime(root),source=P.sourceLayout(root),ship=C.SHIP_EXAMPLES.imperial.build(),verify=()=>P.layoutEvidence(C,ship,source,'imperial');
+ const {C}=G.loadRuntime(root),source=P.sourceLayout(root),ship=C.SHIP_EXAMPLES.imperial.build(),verify=()=>P.layoutEvidence(C,ship,source,'imperial','2300g');
  const structure=ship.parts.find(p=>p.k==='struct');structure.c[0]+=.01;assert.equal(verify().structuralLayoutPreserved,false);structure.c[0]-=.01;
  const gun=ship.fits.find(p=>p.id===107),position=gun.p[0];gun.p[0]+=.01;assert.equal(verify().allFittingPosesPreserved,false);gun.p[0]=position;gun.k='oct40';assert.equal(verify().weaponKindsCorrect,false);gun.k='ion';const nozzle=ship.parts.find(p=>p.k==='engine');nozzle.skinAsset='different-bell';assert.equal(verify().nozzleAppearancePreserved,false);
+ for(const [field,value]of [['frameFlip',true],['frameForward',[0,0,1]],['localForward',[0,0,1]]]){gun[field]=value;assert.equal(verify().allFittingPosesPreserved,false,field+' cannot silently turn an authored gun');delete gun[field];}
 });

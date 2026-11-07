@@ -1398,7 +1398,10 @@ class Renderer {
     if(geo.previewToken&&(this.u32||geo.n<65536)){uploadPreviewGeo(this,m,geo);return;}
     delete m.previewToken;delete m.previewRevision;
     // v20.2 A version and a box per mesh: the shadow map is redrawn only when a caster changes.
-    m.ver = (m.ver || 0) + 1; { const P = geo.pos, b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]; for (let i = 0; i < geo.n * 3; i += 3) for (let k = 0; k < 3; k++) { const v = P[i + k]; if (v < b[k]) b[k] = v; if (v > b[k + 3]) b[k + 3] = v; } m.bb = geo.n ? b : null; }
+    m.ver = (m.ver || 0) + 1;
+    const supplied=geo.bounds,validBounds=geo.boundsVertexCount===geo.n&&Array.isArray(supplied)&&supplied.length===6&&supplied.every(Number.isFinite)&&supplied.slice(0,3).every((v,a)=>v<=supplied[a+3]);
+    if(validBounds)m.bb=geo.n?supplied.slice():null;
+    else { const P = geo.pos, b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]; for (let i = 0; i < geo.n * 3; i += 3) for (let k = 0; k < 3; k++) { const v = P[i + k]; if (v < b[k]) b[k] = v; if (v > b[k + 3]) b[k + 3] = v; } m.bb = geo.n ? b : null; }
     m.flat = !this.u32 && geo.n >= 65536;
     if (m.flat) {
       // Clipped rooms can exceed 16-bit indices. Expand only on devices without

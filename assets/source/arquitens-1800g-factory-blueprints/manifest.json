@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-factory-serialized-ship-blueprint",
+  "runtimeLoaded": false,
+  "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
+  "factoryBaselineCommit": "bfa371ee1786952199176c4187008723a863af5c",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "factoryGeneration": {
+    "method": "fresh-factory",
+    "script": "scripts/update-ship-examples.cjs",
+    "key": "arquitens",
+    "auditSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+      "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+    },
+    "profileVersion": 18,
+    "costVersion": 16,
+    "costSignature": "g1w0fx",
+    "refreshOrchestration": {
+      "script": "scripts/refresh-imperial-layouts.cjs",
+      "constructorCalls": 1,
+      "files": [
+        {
+          "file": "refresh-generation.cjs",
+          "sha256": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c"
+        },
+        {
+          "file": "refresh-auditor.cjs",
+          "sha256": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d"
+        },
+        {
+          "file": "refresh-finalizer.cjs",
+          "sha256": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d"
+        },
+        {
+          "file": "refresh-catalogue.cjs",
+          "sha256": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6"
+        },
+        {
+          "file": "refresh-arquitens-source.cjs",
+          "sha256": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce"
+        },
+        {
+          "file": "refresh-stock-source.cjs",
+          "sha256": "37f89837559922fbbe2bf3301d579df0530b73804dddbbc12ba8b2447fdbc9d1"
+        },
+        {
+          "file": "refresh-blueprint-reader.cjs",
+          "sha256": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2"
+        }
+      ]
+    }
+  },
+  "models": {
+    "arquitens": {
+      "file": "arquitens.json.gz",
+      "sha256": "571f8b5fbe5f6ef55f8b63cfdb86490e275c41baff58ef8195fa18688a08edae",
+      "gzipSha256": "2c752d6ea3d4d529e5630989cf809c83ac4610952039461b264b733b71f7aaae",
+      "canonicalSha256": "ded3d523f4a79880406eece7259407610678fb7cce01a6c2549dd41aa0fe91a8",
+      "uncompressedBytes": 169705,
+      "compressedBytes": 13836,
+      "partCount": 280,
+      "fitCount": 17,
+      "factoryEvidence": {
+        "baselinePowerW": 2.374271804e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 78,
+            "p": [
+              -0.5999999999999996,
+              21.8,
+              0.55796
+            ]
+          },
+          {
+            "id": 80,
+            "p": [
+              -0.5999999999999996,
+              21.8,
+              55.432
+            ]
+          },
+          {
+            "id": 82,
+            "p": [
+              -0.5999999999999996,
+              21.8,
+              -55.432
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "supplementalPublicLayoutVerification": {
+    "method": "read-only-public-representation-equivalence",
+    "originalRuntimeStructureGate": false,
+    "originalGenerationPreserved": true,
+    "additionalFullConstructorCalls": 0,
+    "originalHelperSha256": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce",
+    "correctedMaintenanceHelperSha256": "ba206716146709f80edc33b39743c90c599ec8e0ad265a22308b914458c43613",
+    "supplementScriptSha256": "27a1f891f813435f27d4d01e3655d092bbef4b5abf9a80afe8200f6d10657516",
+    "files": [
+      {
+        "file": "original-generation-journal.json",
+        "sha256": "21fd2c6ee92bcb155aa1d8dfadf4159689e1eeb2d00973e03f15333818dab94f"
+      },
+      {
+        "file": "original-constructor-public.json",
+        "sha256": "d097ffa3941ff628b1004508610066a17a9bf8827bfd7980b05e952c29854bd5"
+      },
+      {
+        "file": "runtime-undefined-projection-reproduction.json",
+        "sha256": "77c1af223c5c5740c6144a67142fdd604d908223cb907fadbbf840fe5c7a25a4"
+      },
+      {
+        "file": "public-layout-supplement.json",
+        "sha256": "4fbaaf3e3e45d3a74382e1e9fc6182d00c557efa959017e2e1ec3ba4ba44ea06"
+      },
+      {
+        "file": "public-layout-recheck.cjs",
+        "sha256": "27a1f891f813435f27d4d01e3655d092bbef4b5abf9a80afe8200f6d10657516"
+      },
+      {
+        "file": "corrected-maintenance-arquitens-helper.cjs",
+        "sha256": "ba206716146709f80edc33b39743c90c599ec8e0ad265a22308b914458c43613"
+      },
+      {
+        "file": "supplemental-publication.cjs",
+        "sha256": "057db87b2667a53f28021e408313a8406e79961c5985eecfe40fdc63a18c5406"
+      }
+    ]
+  }
+}

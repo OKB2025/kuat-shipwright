@@ -12,6 +12,9 @@ function runtime(withLayout=true){
 const {C,source}=runtime(),plain=value=>value===undefined?undefined:JSON.parse(C.publicJSON(value)),normalized=C.deserialize(plain(source));
 const shapes=ship=>plain(ship.parts.filter(C.isShapePart)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-8,`${a} != ${b}`);
 const layoutFields=['hull','cuts','trenches','solidCuts','subs','hatches','armor','shieldTarget','surfaces','designEnvelope'];
+// The only authorized structural correction removes the one-centimetre
+// engine-bay sheet while keeping the upper opening boundary unchanged.
+function expectedShapes(){const out=shapes(normalized),cut=out.find(p=>p.id===178).hullData.solidCuts.find(c=>c.id===2);assert.equal(cut.c[1],202.53);assert.equal(cut.s[2],127.05);cut.c[1]=202.52;cut.s[2]=127.07;return out;}
 
 test('Imperial I and II are distinct selectable examples with the same explicit military complement',()=>{
  for(const [key,name]of [['imperial','インペリアルI級'],['imperial2','インペリアルII級']]){
@@ -21,10 +24,10 @@ test('Imperial I and II are distinct selectable examples with the same explicit 
  assert.deepEqual(plain(C.builtinComplement('imperial2')),plain(C.builtinComplement('imperial')));
 });
 
-test('both fresh layout recipes preserve every supplied editable structure and hull opening',()=>{
+test('both recipes preserve the supplied structures with only the declared engine-bay seam correction',()=>{
  assert.equal(shapes(normalized).length,26);
  for(const key of ['imperial','imperial2']){
-  const ship=C.SHIP_EXAMPLES[key].build();assert.deepEqual(shapes(ship),shapes(normalized));
+  const ship=C.SHIP_EXAMPLES[key].build();assert.deepEqual(shapes(ship),expectedShapes());
   for(const field of layoutFields)assert.deepEqual(plain(ship[field]),plain(normalized[field]),key+' keeps '+field);
   const hull=ship.parts.find(p=>p.primaryHull);assert.equal(hull.id,178);assert.equal(hull.form,'hull');
   assert.ok(!ship.parts.some(p=>[21,22,23,24,25,31,32,33,34,35].includes(p.id)),'removed gun-deck edge structures stay removed');
@@ -60,7 +63,10 @@ test('old individual machinery and stale circuits are retired only in the new st
   const ship=C.SHIP_EXAMPLES[key].build();assert.equal(ship.parts.filter(p=>p.k==='engineCore').length,0,'current stock refit must create the three shared bodies');assert.deepEqual(plain(ship.links),[]);
   assert.deepEqual(plain(ship.parts.filter(p=>p.k==='engine').map(appearance)),plain(normalized.parts.filter(p=>p.k==='engine').map(appearance)));
   assert.ok(ship.parts.filter(p=>p.k==='engine').every(p=>p.machineryId==null&&p.nozzleShare==null));near(power(ship),power(normalized));near(shield(ship),shield(normalized));near(power(ship),1e25);near(shield(ship),1e26);
-  assert.deepEqual(plain(ship.parts.filter(C.isReactor)),plain(normalized.parts.filter(C.isReactor)));assert.deepEqual(plain(ship.airWings),[]);assert.deepEqual(plain(ship.groundForces),[]);
+  const reactorHardware=p=>{const q=plain(p);if(q.id===59)delete q.c;return q;};
+  assert.deepEqual(plain(ship.parts.filter(C.isReactor).map(reactorHardware)),plain(normalized.parts.filter(C.isReactor).map(reactorHardware)),'the enlarged engine may relocate reserve reactor59 while keeping every reactor and its generating hardware');
+  const reserve=ship.parts.find(p=>p.id===59);assert.equal(C.insideOriginalEnvelope(ship,reserve.c),true,'the relocated reserve reactor remains inside the real ship');
+  assert.deepEqual(plain(ship.airWings),[]);assert.deepEqual(plain(ship.groundForces),[]);
  }
  // This is a new-stock construction policy, never a migration of user saves.
  const loaded=C.deserialize(plain(source));assert.equal(loaded.parts.filter(p=>p.k==='engineCore').length,7);assert.deepEqual(plain(loaded.links),plain(normalized.links));
@@ -68,7 +74,7 @@ test('old individual machinery and stale circuits are retired only in the new st
 
 test('creating either variant cannot mutate the immutable common source or another fresh recipe',()=>{
  const before=JSON.stringify(source),a=C.SHIP_EXAMPLES.imperial.build(),b=C.SHIP_EXAMPLES.imperial2.build();a.parts[0].c[0]+=100;a.fits[0].p[0]+=100;
- assert.equal(JSON.stringify(source),before);assert.deepEqual(shapes(b),shapes(normalized));assert.deepEqual(plain(b.fits),plain(normalized.fits));assert.deepEqual(shapes(C.SHIP_EXAMPLES.imperial.build()),shapes(normalized));
+ assert.equal(JSON.stringify(source),before);assert.deepEqual(shapes(b),expectedShapes());assert.deepEqual(plain(b.fits),plain(normalized.fits));assert.deepEqual(shapes(C.SHIP_EXAMPLES.imperial.build()),expectedShapes());
 });
 
 test('missing supplied data fails explicitly instead of reviving the obsolete Imperial II builder',()=>{

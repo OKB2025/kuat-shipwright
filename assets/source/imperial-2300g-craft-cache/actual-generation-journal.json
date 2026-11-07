@@ -1,0 +1,875 @@
+{
+  "schemaVersion": 1,
+  "method": "native-generator-with-observation-only-preload",
+  "startedAt": "2026-11-06T23:52:04.476Z",
+  "buildCalls": 12,
+  "statsCalls": 12,
+  "profileCalls": 12,
+  "gunMountCalls": 12,
+  "entries": {
+    "craft_arc170": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 36.927629275871524,
+      "powerW": 26943763873255174000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 30,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 41.14816244345542,
+          "wasteFraction": 0.6841133755688434,
+          "volumeM3": 0.09191640369946479,
+          "ratedInputW": 1285944977618893300,
+          "issues": []
+        },
+        {
+          "id": 31,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 41.14816244345542,
+          "wasteFraction": 0.6841133755688434,
+          "volumeM3": 0.09191640369946479,
+          "ratedInputW": 1285944977618893300,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 4
+    },
+    "craft_awing": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 10.715661375621272,
+      "powerW": 7050878085363967000,
+      "warnings": [
+        {
+          "lv": "warn",
+          "text": "ジェネレーターの表面の 2% が露出しています。構造物で覆うか集中防御で守れます。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 14
+            },
+            {
+              "part": "struct"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 15,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 22.656833233920878,
+          "wasteFraction": 0.5438923575081451,
+          "volumeM3": 0.0695715259601249,
+          "ratedInputW": 535931956912702000,
+          "issues": []
+        },
+        {
+          "id": 16,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 22.656833233920878,
+          "wasteFraction": 0.5438923575081451,
+          "volumeM3": 0.0695715259601249,
+          "ratedInputW": 535931956912702000,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 2
+    },
+    "craft_btlb": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 49.22498316991177,
+      "powerW": 22747682592261005000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 13,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 10.948505273832657,
+          "wasteFraction": 0.3655776865564925,
+          "volumeM3": 0.3890392425381079,
+          "ratedInputW": 1448195387543154400,
+          "issues": []
+        },
+        {
+          "id": 14,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 10.948505273832657,
+          "wasteFraction": 0.3655776865564925,
+          "volumeM3": 0.3890392425381079,
+          "ratedInputW": 1448195387543154400,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 3
+    },
+    "craft_hyena": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 27.230740327084455,
+      "powerW": 6168401077645663000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 19,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 9.589614783054596,
+          "wasteFraction": 0.3354230148192999,
+          "volumeM3": 0.06661119272945695,
+          "ratedInputW": 217183730695201760,
+          "issues": []
+        },
+        {
+          "id": 20,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 9.589614783054596,
+          "wasteFraction": 0.3354230148192999,
+          "volumeM3": 0.06661119272945695,
+          "ratedInputW": 217183730695201760,
+          "issues": []
+        },
+        {
+          "id": 21,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 15.156226337704728,
+          "wasteFraction": 0.44373246001634314,
+          "volumeM3": 0.07445228699656649,
+          "ratedInputW": 383661342447102200,
+          "issues": []
+        },
+        {
+          "id": 22,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 15.156226337704728,
+          "wasteFraction": 0.44373246001634314,
+          "volumeM3": 0.07445228699656649,
+          "ratedInputW": 383661342447102200,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 4
+    },
+    "craft_tie_in": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 17.676451517039936,
+      "powerW": 7276773006109312000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 31
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 33,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 12.530503939055835,
+          "wasteFraction": 0.3974089333705415,
+          "volumeM3": 0.17251789810352544,
+          "ratedInputW": 734990308592912000,
+          "issues": []
+        },
+        {
+          "id": 34,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 12.530503939055835,
+          "wasteFraction": 0.3974089333705415,
+          "volumeM3": 0.17251789810352544,
+          "ratedInputW": 734990308592912000,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 4
+    },
+    "craft_tie_ln": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 10.351574045810194,
+      "powerW": 3088413887674337000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 42
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 44,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 14.694846752645617,
+          "wasteFraction": 0.4361155538269905,
+          "volumeM3": 0.08330420433843971,
+          "ratedInputW": 416208455645512260,
+          "issues": []
+        },
+        {
+          "id": 45,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 14.694846752645617,
+          "wasteFraction": 0.4361155538269905,
+          "volumeM3": 0.08330420433843971,
+          "ratedInputW": 416208455645512260,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 2
+    },
+    "craft_tie_sa": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 48.263400544929176,
+      "powerW": 7354377344558333000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 35
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 38,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 9.984737656573957,
+          "wasteFraction": 0.3444825954569005,
+          "volumeM3": 0.33181821735506783,
+          "ratedInputW": 1126460068987211800,
+          "issues": []
+        },
+        {
+          "id": 39,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 9.984737656573957,
+          "wasteFraction": 0.3444825954569005,
+          "volumeM3": 0.33181821735506783,
+          "ratedInputW": 1126460068987211800,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 2
+    },
+    "craft_v19": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 12.612260228975192,
+      "powerW": 3568703751125112000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 19,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 27.23887288936342,
+          "wasteFraction": 0.5890903300030337,
+          "volumeM3": 0.05882649836765746,
+          "ratedInputW": 544804953931408500,
+          "issues": []
+        },
+        {
+          "id": 20,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 27.23887288936342,
+          "wasteFraction": 0.5890903300030337,
+          "volumeM3": 0.05882649836765746,
+          "ratedInputW": 544804953931408500,
+          "issues": []
+        },
+        {
+          "id": 21,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 9.219310824092231,
+          "wasteFraction": 0.3267021962925206,
+          "volumeM3": 0.022979100924866196,
+          "ratedInputW": 72029501120739090,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 2
+    },
+    "craft_vulture": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 9.862842164514923,
+      "powerW": 4941390161528088000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 17,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 52.654759307360784,
+          "wasteFraction": 0.7348396647527611,
+          "volumeM3": 0.019449511022806756,
+          "ratedInputW": 348197169327595100,
+          "issues": []
+        },
+        {
+          "id": 18,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 52.654759307360784,
+          "wasteFraction": 0.7348396647527611,
+          "volumeM3": 0.019449511022806756,
+          "ratedInputW": 348197169327595100,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 4
+    },
+    "craft_vwing": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 10.021911438384649,
+      "powerW": 8394349151915561000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 20,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 24.032689674335696,
+          "wasteFraction": 0.5584751930732458,
+          "volumeM3": 0.045039037812737735,
+          "ratedInputW": 368019134454627000,
+          "issues": []
+        },
+        {
+          "id": 21,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 39.99502806558034,
+          "wasteFraction": 0.6779389615870828,
+          "volumeM3": 0.04810205950325319,
+          "ratedInputW": 654106694747241200,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 2
+    },
+    "craft_xwing": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 25.69074936655632,
+      "powerW": 24312294686635070000,
+      "warnings": [
+        {
+          "lv": "warn",
+          "text": "シールドが目標強度の 88% です。発生器の容量と給電を確認してください。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 30
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 2,
+          "text": "Sフォイル #2 が 0° で 右舷下翼（Sフォイル） #16 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 3,
+          "text": "Sフォイル #3 が 0° で 右舷下翼（Sフォイル） #17 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 3
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 16,
+          "text": "Sフォイル #16 が 0° で 右舷上翼（Sフォイル） #2 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 16
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 17,
+          "text": "Sフォイル #17 が 0° で 右舷上翼（Sフォイル） #3 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 17
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 31,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 41.42803931218933,
+          "wasteFraction": 0.6855764274951845,
+          "volumeM3": 0.03308990533180732,
+          "ratedInputW": 466088965633730500,
+          "issues": []
+        },
+        {
+          "id": 32,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 41.42803931218933,
+          "wasteFraction": 0.6855764274951845,
+          "volumeM3": 0.03308990533180732,
+          "ratedInputW": 466088965633730500,
+          "issues": []
+        },
+        {
+          "id": 33,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 41.42803931218933,
+          "wasteFraction": 0.6855764274951845,
+          "volumeM3": 0.03308990533180732,
+          "ratedInputW": 466088965633730500,
+          "issues": []
+        },
+        {
+          "id": 34,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 41.42803931218933,
+          "wasteFraction": 0.6855764274951845,
+          "volumeM3": 0.03308990533180732,
+          "ratedInputW": 466088965633730500,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 4
+    },
+    "craft_z95": {
+      "constructorReturned": true,
+      "statisticsReturned": true,
+      "massT": 17.823537489092107,
+      "powerW": 5819852996623119000,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ],
+      "profileReturned": true,
+      "profileVersion": 18,
+      "owners": [
+        {
+          "id": 23,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 32.24479192511469,
+          "wasteFraction": 0.6292306147370998,
+          "volumeM3": 0.05309091477681084,
+          "ratedInputW": 582047870031369100,
+          "issues": []
+        },
+        {
+          "id": 24,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "densityFactor": 32.24479192511469,
+          "wasteFraction": 0.6292306147370998,
+          "volumeM3": 0.05309091477681084,
+          "ratedInputW": 582047870031369100,
+          "issues": []
+        }
+      ],
+      "gunMountsReturned": true,
+      "gunMountCount": 2
+    }
+  },
+  "phase": "complete",
+  "elapsedMs": 56317,
+  "completedAt": "2026-11-06T23:53:00.793Z",
+  "processExitCode": 0,
+  "count": 12,
+  "complete": true
+}

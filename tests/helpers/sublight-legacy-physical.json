@@ -1,0 +1,534 @@
+{
+  "method": "Actual table-only runtime profiles captured before reference-speed overlay; no constructors. This freezes the old physical compatibility basis independently of published MGLT.",
+  "coreSha256": "ae168c7c9fd5d2a00f8acbf8100819b9810b44a98fb7f78c473524b08c3d0520",
+  "rows": [
+    {
+      "key": "lambda",
+      "speed": 1080,
+      "mass": 133.12800000000001,
+      "grid": {
+        "P": 2097928514187684000,
+        "fixed": 672243241298255700,
+        "cooling": 0,
+        "De": 1425615539556095000,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 2097928514187684000,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 1425615539556095000,
+            "ratedThrustN": 712807769.7780474,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1425615539556095000
+          }
+        ],
+        "massKg": 133128,
+        "ratedThrustN": 712807769.7780474,
+        "ratedAccelMps2": 5354.3039013434245,
+        "accelerationLimitMps2": 5354.3039013434245
+      }
+    },
+    {
+      "key": "ywing",
+      "speed": 1400,
+      "mass": 12.182494463999998,
+      "grid": {
+        "P": 344134227095097600,
+        "fixed": 64197029572532370,
+        "cooling": 0,
+        "De": 279867464189231940,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 344134227095097600,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 279867464189231940,
+            "ratedThrustN": 139933732.09461597,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 279867464189231940
+          }
+        ],
+        "massKg": 12182.494463999998,
+        "ratedThrustN": 139933732.09461597,
+        "ratedAccelMps2": 11486.459731882378,
+        "accelerationLimitMps2": 11486.459731882378
+      }
+    },
+    {
+      "key": "bwing",
+      "speed": 1820,
+      "mass": 12.879827999999998,
+      "grid": {
+        "P": 707794619876400800,
+        "fixed": 67616141827686990,
+        "cooling": 0,
+        "De": 640108744715380400,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 707794619876400800,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 640108744715380400,
+            "ratedThrustN": 320054372.35769016,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 640108744715380400
+          }
+        ],
+        "massKg": 12879.827999999998,
+        "ratedThrustN": 320054372.35769016,
+        "ratedAccelMps2": 24849.27379136509,
+        "accelerationLimitMps2": 24849.27379136509
+      }
+    },
+    {
+      "key": "eta2",
+      "speed": 2360,
+      "mass": 2.1168899999999997,
+      "grid": {
+        "P": 238466732296286800,
+        "fixed": 12352372822671400,
+        "cooling": 0,
+        "De": 225905159473615400,
+        "Ds": 0,
+        "Dw": 209200000000000.03,
+        "Pgen": 238466732296286800,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 225905159473615400,
+            "ratedThrustN": 112952579.73680769,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 225905159473615400
+          }
+        ],
+        "massKg": 2116.89,
+        "ratedThrustN": 112952579.73680769,
+        "ratedAccelMps2": 53357.79362026732,
+        "accelerationLimitMps2": 53357.79362026732
+      }
+    },
+    {
+      "key": "laat",
+      "speed": 830,
+      "mass": 75.1343832,
+      "grid": {
+        "P": 750458538072395400,
+        "fixed": 379485276413574000,
+        "cooling": 0,
+        "De": 370903528325487940,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 750458538072395400,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 370903528325487940,
+            "ratedThrustN": 185451764.16274396,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 370903528325487940
+          }
+        ],
+        "massKg": 75134.3832,
+        "ratedThrustN": 185451764.16274396,
+        "ratedAccelMps2": 2468.2676061782586,
+        "accelerationLimitMps2": 2468.2676061782586
+      }
+    },
+    {
+      "key": "tri",
+      "speed": 2230,
+      "mass": 2.1461760000000005,
+      "grid": {
+        "P": 206417856946363970,
+        "fixed": 12404532739481570,
+        "cooling": 0,
+        "De": 193873857540215740,
+        "Ds": 0,
+        "Dw": 139466666666666.69,
+        "Pgen": 206417856946363970,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 193873857540215740,
+            "ratedThrustN": 96936928.77010787,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 193873857540215740
+          }
+        ],
+        "massKg": 2146.1760000000004,
+        "ratedThrustN": 96936928.77010787,
+        "ratedAccelMps2": 45167.278345349056,
+        "accelerationLimitMps2": 45167.278345349056
+      }
+    },
+    {
+      "key": "sentinel",
+      "speed": 1400,
+      "mass": 355.68,
+      "grid": {
+        "P": 9961574883071093000,
+        "fixed": 1790497154865910800,
+        "cooling": 0,
+        "De": 8171007994871848000,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 9961574883071093000,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 8171007994871848000,
+            "ratedThrustN": 4085503997.435924,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 8171007994871848000
+          }
+        ],
+        "massKg": 355680,
+        "ratedThrustN": 4085503997.435924,
+        "ratedAccelMps2": 11486.459731882378,
+        "accelerationLimitMps2": 11486.459731882378
+      }
+    },
+    {
+      "key": "barge",
+      "speed": 900,
+      "mass": 292.032,
+      "grid": {
+        "P": 3296899228502259700,
+        "fixed": 1467630803809240800,
+        "cooling": 0,
+        "De": 1829268424693018600,
+        "Ds": 0,
+        "Dw": 0,
+        "Pgen": 3296899228502259700,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 1829268424693018600,
+            "ratedThrustN": 914634212.3465093,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1829268424693018600
+          }
+        ],
+        "massKg": 292032,
+        "ratedThrustN": 914634212.3465093,
+        "ratedAccelMps2": 3131.965717272454,
+        "accelerationLimitMps2": 3131.965717272454
+      }
+    },
+    {
+      "key": "laatc",
+      "speed": 830,
+      "mass": 141.10272,
+      "grid": {
+        "P": 1407534412152216800,
+        "fixed": 710906132979601400,
+        "cooling": 0,
+        "De": 696558545839282200,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 1407534412152216800,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 696558545839282200,
+            "ratedThrustN": 348279272.9196411,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 696558545839282200
+          }
+        ],
+        "massKg": 141102.72,
+        "ratedThrustN": 348279272.9196411,
+        "ratedAccelMps2": 2468.2676061782586,
+        "accelerationLimitMps2": 2468.2676061782586
+      }
+    },
+    {
+      "key": "uwing",
+      "speed": 1900,
+      "mass": 25.887954455999996,
+      "grid": {
+        "P": 1593258606019102700,
+        "fixed": 133066962379431100,
+        "cooling": 0,
+        "De": 1460121910306338300,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 1593258606019102700,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 1460121910306338300,
+            "ratedThrustN": 730060955.1531692,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1460121910306338300
+          }
+        ],
+        "massKg": 25887.954455999996,
+        "ratedThrustN": 730060955.1531692,
+        "ratedAccelMps2": 28200.797262449003,
+        "accelerationLimitMps2": 28200.797262449003
+      }
+    },
+    {
+      "key": "c9979",
+      "speed": 780,
+      "mass": 68531.40000000001,
+      "grid": {
+        "P": 626176908699188000000,
+        "fixed": 344371875474161530000,
+        "cooling": 0,
+        "De": 281804963491693070000,
+        "Ds": 0,
+        "Dw": 69733333333333.34,
+        "Pgen": 626176908699188000000,
+        "Paux": 0
+      },
+      "propulsion": {
+        "version": 1,
+        "engines": [
+          {
+            "id": 2,
+            "machineryId": 2,
+            "version": 1,
+            "ratedInputW": 281804963491693070000,
+            "ratedThrustN": 140902481745.84653,
+            "driveProfileId": "standard",
+            "machineryGradeId": "legacy-refit",
+            "wattsPerNewton": 2000000000,
+            "moduleIndex": 1,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "valid": true,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 281804963491693070000
+          }
+        ],
+        "massKg": 68531400.00000001,
+        "ratedThrustN": 140902481745.84653,
+        "ratedAccelMps2": 2056.0280651766416,
+        "accelerationLimitMps2": 2056.0280651766416
+      }
+    }
+  ]
+}

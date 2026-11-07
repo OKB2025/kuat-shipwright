@@ -1,0 +1,667 @@
+{
+  "schemaVersion": 1,
+  "method": "actual-all-12-editable-craft-factories",
+  "phase": "complete-pre-room-source-fix-cache",
+  "generationSourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "728fc1a13057badf097548fdb9465dcb63dbb2e4fa76b323db377ce04dd08867"
+  },
+  "preGenerationCore": {
+    "file": "core-before-generation.js.gz",
+    "uncompressedSha256": "728fc1a13057badf097548fdb9465dcb63dbb2e4fa76b323db377ce04dd08867",
+    "compressedSha256": "ab0d00eac47703a42d52aec123a94ff311bc3394076cd9e33c9ec317e4e6fa6c"
+  },
+  "generator": {
+    "file": "generator.cjs",
+    "sourceFile": "scripts/update-craft-costs.cjs",
+    "sha256": "4f578ba2348354345dc892afe3cf2c2d4af5216138209b5168857b997a1bf5b9"
+  },
+  "observer": {
+    "file": "observer.cjs",
+    "sha256": "0691c2ace5600915a57b8e72e1e1d5c000394b7ce97e2ab89037cfaa72c069c1",
+    "method": "Calls unchanged native methods and records their actual returned warnings and metadata. No substituted calculations or extra factory builds."
+  },
+  "command": "KS_CRAFT_PROOF_DIR=assets/source/engine-targets-craft-cache node --require ./assets/source/engine-targets-craft-cache/observer.cjs scripts/update-craft-costs.cjs --output assets/source/engine-targets-craft-cache/generated-craft-block.cjs --progress",
+  "startedAt": "2026-11-07T00:48:50.940Z",
+  "completedAt": "2026-11-07T00:49:48.172Z",
+  "elapsedMs": 57232,
+  "count": 12,
+  "nativeCalls": {
+    "build": 12,
+    "stats": 12,
+    "powerProfile": 12,
+    "fireArcs": 12
+  },
+  "modelVersion": 16,
+  "modelSignature": "g1w0fx",
+  "generatedBlock": {
+    "file": "generated-craft-block.cjs",
+    "sha256": "46f39d2aefcb83c659f472ff342194143c212db53de964e2dd8c2158c1b41900"
+  },
+  "journal": {
+    "file": "actual-generation-journal.json",
+    "sha256": "af1653c96040b9bd7c6604361e3004027effda07e27e809d8c9e3d0ff0944866"
+  },
+  "log": {
+    "file": "generation.log",
+    "sha256": "1292bb1f723100cd6c09e9fe7bec9aaf7f65a394227d35d1ef473b25dc22c9d2"
+  },
+  "coreAtInsertionSha256": "728fc1a13057badf097548fdb9465dcb63dbb2e4fa76b323db377ce04dd08867",
+  "coreAfterInsertionSha256": "1a636e3d036ddf92386c82de8bfa5c375c2da63d0305ad78afa5ab2099ca01d6",
+  "entries": {
+    "arc170": {
+      "reference": "craft_arc170",
+      "total": 233835,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "arc170",
+        "status": "published",
+        "mglt": 100,
+        "model": "Aggressive ReConnaissance-170 starfighter",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2000,
+      "coreCount": 2,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "awing": {
+      "reference": "craft_awing",
+      "total": 160914,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "awing",
+        "status": "published",
+        "mglt": 120,
+        "model": "RZ-1 A-wing interceptor",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2400,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "warn",
+          "text": "ジェネレーターの表面の 2% が露出しています。構造物で覆うか集中防御で守れます。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 14
+            },
+            {
+              "part": "struct"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "btlb": {
+      "reference": "craft_btlb",
+      "total": 207192,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "btlb",
+        "status": "published",
+        "mglt": 100,
+        "model": "BTL-B Y-wing starfighter/bomber",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2000,
+      "coreCount": 2,
+      "fireArcCount": 3,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "hyena": {
+      "reference": "craft_hyena",
+      "total": 186072,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "hyena",
+        "status": "published",
+        "mglt": 110,
+        "model": "Hyena-class Droid Fighter/Bomber",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2200,
+      "coreCount": 4,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "tie_in": {
+      "reference": "craft_tie_in",
+      "total": 100333,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "tie_in",
+        "status": "published",
+        "mglt": 110,
+        "model": "TIE/in Interceptor",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2200,
+      "coreCount": 2,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 31
+            }
+          ]
+        }
+      ]
+    },
+    "tie_ln": {
+      "reference": "craft_tie_ln",
+      "total": 85416,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "tie_ln",
+        "status": "published",
+        "mglt": 100,
+        "model": "TIE/ln space superiority starfighter",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2000,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 42
+            }
+          ]
+        }
+      ]
+    },
+    "tie_sa": {
+      "reference": "craft_tie_sa",
+      "total": 135203,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "tie_sa",
+        "status": "published",
+        "mglt": 90,
+        "model": "TIE/sa tactical bomber",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 1800,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 35
+            }
+          ]
+        }
+      ]
+    },
+    "v19": {
+      "reference": "craft_v19",
+      "total": 140679,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "v19",
+        "status": "published",
+        "mglt": 100,
+        "model": "V-19 Torrent starfighter",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2000,
+      "coreCount": 3,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "vulture": {
+      "reference": "craft_vulture",
+      "total": 121700,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "vulture",
+        "status": "published",
+        "mglt": 120,
+        "model": "Vulture-class starfighter",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2400,
+      "coreCount": 2,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "vwing": {
+      "reference": "craft_vwing",
+      "total": 247670,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "vwing",
+        "status": "published",
+        "mglt": 130,
+        "model": "Alpha-3 Nimbus-class V-wing starfighter (2025 Encyclopedia)",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2600,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    },
+    "xwing": {
+      "reference": "craft_xwing",
+      "total": 182065,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "xwing",
+        "status": "published",
+        "mglt": 100,
+        "model": "T-65B X-wing starfighter",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2000,
+      "coreCount": 4,
+      "fireArcCount": 4,
+      "warnings": [
+        {
+          "lv": "warn",
+          "text": "シールドが目標強度の 88% です。発生器の容量と給電を確認してください。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 30
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 2,
+          "text": "Sフォイル #2 が 0° で 右舷下翼（Sフォイル） #16 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 2
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 3,
+          "text": "Sフォイル #3 が 0° で 右舷下翼（Sフォイル） #17 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 3
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 16,
+          "text": "Sフォイル #16 が 0° で 右舷上翼（Sフォイル） #2 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 16
+            }
+          ]
+        },
+        {
+          "lv": "warn",
+          "code": "foil-clash",
+          "partId": 17,
+          "text": "Sフォイル #17 が 0° で 右舷上翼（Sフォイル） #3 と干渉します。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 17
+            }
+          ]
+        }
+      ]
+    },
+    "z95": {
+      "reference": "craft_z95",
+      "total": 135729,
+      "profileVersion": 18,
+      "speedReference": {
+        "version": 1,
+        "key": "z95",
+        "status": "published",
+        "mglt": 100,
+        "model": "Clone Z-95 starfighter (2025 Encyclopedia)",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "maxSpeedMps": 2000,
+      "coreCount": 2,
+      "fireArcCount": 2,
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "purpose": "Actual completed generation before the later discovered oblique reactor-room terminal regression was corrected. Retained as exact intermediate evidence; it is not relabelled as the final room-source model.",
+  "supersededBy": "assets/source/engine-targets-final-craft-cache/manifest.json"
+}

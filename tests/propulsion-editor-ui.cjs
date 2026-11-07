@@ -3,7 +3,7 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app
 function setup(){
  const c=vm.createContext({console,navigator:{language:'en-US'}});for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/lang-en.js','js/i18n.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),c,{filename:file});
  const run=code=>vm.runInContext(code,c);run(`
- const C=Core,st={tab:'edit',part:'engine',partTool:'select',mirror:true,vmirror:false,engineDir:[-1,0,0],engineSizes:{},multi:{parts:new Set([1,2,3]),fits:new Set()},sel:{list:'parts',id:1}},undoStack=[],redoStack=[],messages=[],eng={gen:0};
+ const C=Core,st={tab:'edit',part:'engine',partTool:'select',mirror:true,vmirror:false,engineDir:[-1,0,0],engineSizes:{},multi:{parts:new Set([1,2,3]),fits:new Set()},sel:{list:'parts',id:1}},undoStack=[],redoStack=[],messages=[],eng={gen:0,adoptedGen:0,statsGen:0};
  let ship=C.newShip({L:100,W:80,H:40,plan:'rect',sec:'rect'},'Engine UI'),S=null,dragSnap=null,dragLabel='',lastOp='',renders=0;
  ship.parts=[];ship.fits=[];ship.nextId=4;
  function engine(id,z){const p={id,k:'engine',c:[20,20,z],d:1,nozzleLength:.32,dir:[-1,0,0],reactor:0};const r=C.updateEngineSpec(p,{ratedInputW:1e18,machineryDiameterM:2,machineryLengthM:2});if(!r.ok)throw Error(r.issues);return p;}
@@ -14,9 +14,13 @@ function setup(){
  let genericSize=1;const pSize=()=>genericSize,setPSize=(k,v)=>genericSize=v,enginePending=()=>false,queuePreview=()=>{},renderPanel=()=>renders++,updateHint=()=>{},touch=()=>eng.gen++,scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},sndEdit=()=>{},sndUI=()=>{},toast=s=>messages.push(s);
  const snap=()=>JSON.stringify(C.serialize(ship)),restore=json=>ship=C.deserialize(JSON.parse(json));
  function assignMirror(target,q){const id=target.id,tw=target.tw,vt=target.vt;Object.assign(target,q,{id});if(tw!=null)target.tw=tw;if(vt!=null)target.vt=vt;}
+ // Prepare the same derived data that the real worker supplies, outside the
+ // rendering call. Panels must read this generation instead of solving routes.
+ function settleRoutes(){ship._editorSnapshot={transmission:C.engineTransmission(ship),drive:C.engineDriveRoutes(ship)};ship._editorSnapshotGen=eng.gen;eng.adoptedGen=eng.gen;eng.statsGen=eng.gen;}
  `);
  function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
  section('const requestedParts =','function editorRayEnv(');
+ section('function editorSnapshotForUI()', 'function editorCommandCompartments(');
  section('function xfFollowers(', '// Shapes as requested');section('function mutate(', 'function updateUndo(');
  section('// Engine edits share the same action', 'function v3PartEditor(');section('function pendingEngine(', 'function equipmentInfo(');
  run(`let focused=null;const scopeRoot=()=>null,current=()=>focused,Event=class{constructor(type,options){this.type=type;this.bubbles=options?.bubbles;}};`);section('function adjustFocused(', 'function activateFocused(');
@@ -99,13 +103,14 @@ test('an external integrated engine cannot be rebound to an independent core thr
  assert.equal(run('engineMachineryAction("4")'),false);assert.equal(run('snap()'),before);assert.equal(run('undoStack.length'),0);assert.match(run('messages.at(-1)'),/外部機関.*一体/);
 });
 test('engine diagnostics and full editor strings translate to English',()=>{
- const run=setup();run('C.propulsionPreview=(ship,stats)=>stats.propulsion;S={propulsion:{engines:[{id:1,actualInputW:0,actualThrustN:0,wasteHeatW:0,reasons:["overheat","unconnected"]}]}}');
+ const run=setup();run('C.propulsionPreview=()=>{throw Error("UI cannot solve physical preview")};S={propulsion:{preset:"combat",engines:[{id:1,actualInputW:0,actualThrustN:0,wasteHeatW:0,reasons:["overheat","unconnected"]}]}}');
  const html=run('engineSpecControls(selItem())');const text=[...html.matchAll(/>([^<>]+)</g)].map(m=>m[1]).filter(s=>s.trim());
  for(const value of text){const result=run('KSI18n.t('+JSON.stringify(value)+')');assert.doesNotMatch(result,/[\u3040-\u30ff\u3400-\u9fff]/,value);}
  assert.match(run('enginePerformance(selItem())'),/局所過熱/);assert.equal(run('KSI18n.t(engineReasonText("overheat"))'),'Local Overheating');
 });
 test('independent core, nozzle and electrical/shaft panels translate their user-facing text',()=>{
- const run=setup();run(`const fMass=v=>v+' t',ja=v=>String(v);ship.parts.push(core(4,25,5),{id:5,k:'gen',c:[70,20,25],d:4},{id:6,k:'powerBus',c:[55,20,25],d:2,room:[2,2,2]});ship.nextId=7;ship.links=[{kind:'power',from:'p5',to:'p6',cap:1e18},{kind:'power',from:'p6',to:'p4',cap:1e18}];ship.parts[2].machineryId=4;st.mirror=false;st.multi.parts=new Set([4]);st.sel={list:'parts',id:4};`);
+ const run=setup();run(`const fMass=v=>v+' t',ja=v=>String(v);ship.parts.push(core(4,25,5),{id:5,k:'gen',c:[70,20,25],d:4},{id:6,k:'powerBus',c:[55,20,25],d:2,room:[2,2,2]});ship.nextId=7;ship.links=[{kind:'power',from:'p5',to:'p6',cap:1e18},{kind:'power',from:'p6',to:'p4',cap:1e18}];ship.parts[2].machineryId=4;st.mirror=false;st.multi.parts=new Set([4]);st.sel={list:'parts',id:4};settleRoutes();C.engineTransmission=C.engineDriveRoutes=()=>{throw Error('UI cannot solve engineering routes')};`);
+ assert.match(run('engineTransmissionSystemsHTML()'),/id="engine-transmission-editor"/);assert.match(run('engineDriveSystemsHTML()'),/id="engine-drive-editor"/);
  const untranslated=[];
  for(const expression of ['engineControls(ship.parts.find(p=>p.id===4),true)','engineControls(ship.parts.find(p=>p.id===3),true)','engineTransmissionSystemsHTML()','engineDriveSystemsHTML()']){
   const html=run(expression),text=[...html.matchAll(/>([^<>]+)</g)].map(m=>m[1]).filter(s=>s.trim());

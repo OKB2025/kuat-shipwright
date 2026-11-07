@@ -1,0 +1,3705 @@
+{
+  "schemaVersion": 1,
+  "status": "ERROR",
+  "variant": "baseline",
+  "fixture": "imperial",
+  "harnessSha256": "f3b07c09da71e914ae7dc0bd692530299e47a58ef74c73d8a140e65e477497fc",
+  "scope": "Authenticated existing saved design, real worker and native mirrored-gun placement, followed by actual mouse orbit, wheel zoom and trusted two-touch pinch during background geometry/statistics. Passive method timing preserves all returns; no synthetic delays, worker results or design replacement. Headless Chromium/SwiftShader is not a physical Safari/mobile performance measurement.",
+  "input": {
+    "archive": "assets/source/imperial-user-layout-factory-blueprints/imperial.json.gz",
+    "sha256": "533e5f13adf9a347a1173d8e44b72ba80eb09ca4c3612d7ed3f10ac26345b00f",
+    "parts": 89,
+    "fits": 49
+  },
+  "sourceSha256": {
+    "index.html": "7424818c2bd81bacd885c6b2869a900b8e37f9699ca55689d131e1039d2be3c3",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/coruscant.js": "80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "934e7ed2dca12e34e561b4db154998472937ccd32c9c3274ca21248601b5d958",
+    "js/core.js": "b8f9bd586d8f3c861491a0b334ba6d41af267e13cb1a439dc35d84efd8a8773f",
+    "js/gfx.js": "2896dcab3afec34217cd11dea63e3ee208911e9e866ce555477ccbb8a777cfe0",
+    "js/engine.js": "045c73636e54cf340975d7f9998029bb944885f2b2ca63dbf846ff4d5df3af70",
+    "js/app.js": "eab571ca0d577d2c103374ff65aa31e8e673a2cbcccfd3e05d31f935e5a08aa0",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9",
+    "js/lang-en.js": "2acd915a5f18854c4c3fe0821db699abf48efd8d6002f7fbd8eef511189bf5a2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422"
+  },
+  "operations": [
+    {
+      "kind": "orbit",
+      "roundtripMs": 1890,
+      "before": {
+        "time": 12286.70000000298,
+        "theta": -1.5707963267948966,
+        "phi": 0.0001,
+        "r": 950,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 14204.10000000894,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 950,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1096,
+      "before": {
+        "time": 14247.90000000596,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 950,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 15345.10000000894,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 1078.25,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 2499,
+      "before": {
+        "time": 15384.29999999702,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 1078.25,
+        "target": [
+          -385.1,
+          -69.44015918291416,
+          -255.7
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 17875.70000000298,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 1765,
+      "before": {
+        "time": 17943,
+        "theta": -0.8507963267948968,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 19716.79999999702,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1356,
+      "before": {
+        "time": 19749.70000000298,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 539.125,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 21106.79999999702,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 611.906875,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 1664,
+      "before": {
+        "time": 21152,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 611.906875,
+        "target": [
+          -382.9835949106904,
+          -69.44015918291416,
+          -253.8437690287018
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 22817.60000000894,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 2504,
+      "before": {
+        "time": 22849.70000000298,
+        "theta": -0.1307963267948969,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 25355,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 1155,
+      "before": {
+        "time": 25396,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 305.9534375,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 26554.10000000894,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 347.2571515625,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 2615,
+      "before": {
+        "time": 26596,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 347.2571515625,
+        "target": [
+          -382.77523431763234,
+          -69.44015918291416,
+          -252.25984804130266
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 29216.29999999702,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 3638,
+      "before": {
+        "time": 29251.79999999702,
+        "theta": 0.5892036732051031,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 32892.20000000298,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 828,
+      "before": {
+        "time": 32946.10000000894,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 173.62857578125,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 33774.60000000894,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 197.06843351171875,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 1590,
+      "before": {
+        "time": 33808.70000000298,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 197.06843351171875,
+        "target": [
+          -383.279041842172,
+          -69.44015918291416,
+          -251.50609984587848
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 35399.90000000596,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 2550,
+      "before": {
+        "time": 35447.29999999702,
+        "theta": 1.309203673205103,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 37999.5,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 3057,
+      "before": {
+        "time": 38049.29999999702,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 98.53421675585936,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 41106.90000000596,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 111.83633601790038,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 1435,
+      "before": {
+        "time": 41145.5,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 111.83633601790038,
+        "target": [
+          -383.77604437790535,
+          -69.44015918291416,
+          -251.3730385453967
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 42584.79999999702,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 6299,
+      "before": {
+        "time": 42644.20000000298,
+        "theta": 2.0292036732051026,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 48947,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "wheel",
+      "roundtripMs": 6118,
+      "before": {
+        "time": 48988.10000000894,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 55.91816800895019,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 55098.70000000298,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 63.46712069015847,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "touch",
+      "roundtripMs": 9202,
+      "before": {
+        "time": 55152.10000000894,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 63.46712069015847,
+        "target": [
+          -384.0378820341531,
+          -69.44015918291416,
+          -251.50224671334038
+        ],
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 64353.20000000298,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 31.733560345079233,
+        "target": [
+          -384.1012452002502,
+          -69.44015918291416,
+          -251.65535320806688
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    },
+    {
+      "kind": "orbit",
+      "roundtripMs": 8047,
+      "before": {
+        "time": 64396,
+        "theta": 2.7492036732051033,
+        "phi": 0.0006,
+        "r": 31.733560345079233,
+        "target": [
+          -384.1012452002502,
+          -69.44015918291416,
+          -251.65535320806688
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "after": {
+        "time": 72446.60000000894,
+        "theta": 3.469203673205104,
+        "phi": 0.0006,
+        "r": 31.733560345079233,
+        "target": [
+          -384.1012452002502,
+          -69.44015918291416,
+          -251.65535320806688
+        ],
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "xy": [
+          736,
+          647.6999999999999
+        ]
+      },
+      "changed": true
+    }
+  ],
+  "errors": [],
+  "seed": {
+    "ms": 339.8999999910593,
+    "gen": 1
+  },
+  "placement": {
+    "gen": 2,
+    "fits": 51,
+    "last": [
+      {
+        "id": 198,
+        "k": "stl",
+        "p": [
+          414.9000244140626,
+          193.15669718766958,
+          -255.6999942315826
+        ],
+        "tw": 199
+      },
+      {
+        "id": 199,
+        "k": "stl",
+        "p": [
+          414.9000242993628,
+          193.1566955834769,
+          255.69999392117143
+        ],
+        "tw": 198
+      }
+    ]
+  },
+  "final": {
+    "gen": 2,
+    "geo": 2,
+    "stats": 2,
+    "adopted": 2,
+    "fits": 51,
+    "last": [
+      {
+        "id": 198,
+        "k": "stl",
+        "p": [
+          414.9000244140626,
+          193.15669718766958,
+          -255.6999942315826
+        ],
+        "tw": 199
+      },
+      {
+        "id": 199,
+        "k": "stl",
+        "p": [
+          414.9000242993628,
+          193.1566955834769,
+          255.69999392117143
+        ],
+        "tw": 198
+      }
+    ],
+    "calls": [
+      {
+        "name": "rayEnv",
+        "t": 11648.40000000596,
+        "duration": 61.5,
+        "phase": "placement",
+        "gen": 1
+      },
+      {
+        "name": "rayEnv",
+        "t": 11808.20000000298,
+        "duration": 5.4000000059604645,
+        "phase": "placement",
+        "gen": 1
+      },
+      {
+        "name": "rayEnv",
+        "t": 12663,
+        "duration": 8,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 14866.20000000298,
+        "duration": 6.200000002980232,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 16477.29999999702,
+        "duration": 1.300000011920929,
+        "phase": "touch",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 18343,
+        "duration": 4.200000002980232,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 20079.79999999702,
+        "duration": 1.300000011920929,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 21820.10000000894,
+        "duration": 1.2999999970197678,
+        "phase": "touch",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 23212.10000000894,
+        "duration": 1.2999999970197678,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 25892.60000000894,
+        "duration": 1.0999999940395355,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 27560.60000000894,
+        "duration": 1.0999999940395355,
+        "phase": "touch",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 29268.79999999702,
+        "duration": 1.4000000059604645,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 33483.10000000894,
+        "duration": 1.5,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 34790,
+        "duration": 1.1000000089406967,
+        "phase": "touch",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 36184.10000000894,
+        "duration": 4.299999997019768,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 39409,
+        "duration": 1.9000000059604645,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 41804.90000000596,
+        "duration": 1.8999999910593033,
+        "phase": "touch",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 42858.70000000298,
+        "duration": 4.4000000059604645,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 50455.5,
+        "duration": 8.900000005960464,
+        "phase": "wheel",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 56705.10000000894,
+        "duration": 2,
+        "phase": "touch",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 66601.40000000596,
+        "duration": 181.3999999910593,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 71954.5,
+        "duration": 22.600000008940697,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 72177.90000000596,
+        "duration": 8.200000002980232,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 72192.40000000596,
+        "duration": 9.599999994039536,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 72220,
+        "duration": 25.900000005960464,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 72255,
+        "duration": 5.9000000059604645,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 72374.29999999702,
+        "duration": 5.300000011920929,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 74213.60000000894,
+        "duration": 5.299999997019768,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "surfaceWorkingShip",
+        "t": 74225.79999999702,
+        "duration": 20.700000002980232,
+        "phase": "orbit",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 76026.90000000596,
+        "duration": 3.0999999940395355,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "enginePaths",
+        "t": 76030.40000000596,
+        "duration": 4496.0999999940395,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "commandCompartments",
+        "t": 80526.5,
+        "duration": 0,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "weaponCapacitors",
+        "t": 80526.5,
+        "duration": 5.799999997019768,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "missileCells",
+        "t": 80532.40000000596,
+        "duration": 4.200000002980232,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "rayEnv",
+        "t": 80548.40000000596,
+        "duration": 1.3999999910593033,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "commandCompartments",
+        "t": 80549.90000000596,
+        "duration": 0,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "weaponCapacitors",
+        "t": 80549.90000000596,
+        "duration": 5.899999991059303,
+        "phase": "ready-hover",
+        "gen": 2
+      },
+      {
+        "name": "missileCells",
+        "t": 80555.79999999702,
+        "duration": 15,
+        "phase": "ready-hover",
+        "gen": 2
+      }
+    ],
+    "events": [
+      {
+        "type": "pointermove",
+        "time": 9449.60000000894,
+        "trusted": true,
+        "gen": 0,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "boot"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.3999999910593033,
+        "phase": "boot",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 9450.20000000298,
+        "trusted": true,
+        "gen": 0,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "boot"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 151.09999999403954,
+        "phase": "boot",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 9602.40000000596,
+        "trusted": true,
+        "gen": 0,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "boot"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.20000000298023224,
+        "phase": "boot",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 11616.79999999702,
+        "trusted": true,
+        "gen": 1,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "placement"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 178.30000001192093,
+        "phase": "placement",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 11800.20000000298,
+        "trusted": true,
+        "gen": 1,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "placement"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 6,
+        "phase": "placement",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 11806.70000000298,
+        "trusted": true,
+        "gen": 1,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "placement"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 141.09999999403954,
+        "phase": "placement",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 12662.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 22,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 12690.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 12714.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.6000000089406967,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 13157.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 13503.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.20000000298023224,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 14194.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 14202.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 14865.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 11,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "time": 15319.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "processingMs": 0.09999999403953552,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 16476.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 5.5999999940395355,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 16482.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 16482.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.29999999701976776,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 16483,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 17843.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.29999999701976776,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 17843.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "time": 17843.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 17867.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 17868,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 17868.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.29999999701976776,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 17868.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 18318.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 34.1000000089407,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 18368.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 18384.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.5,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 19147.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 19268.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 19696.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 19707.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 20079.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 15.900000005960464,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "time": 21104,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "processingMs": 0,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 21819.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 27.69999998807907,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 21847.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 21847.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 8.400000005960464,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 21856.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 22503.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 22503.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "time": 22503.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 22816.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 22816.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 22816.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.29999999701976776,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 22816.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 23211.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 3.7000000029802322,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 23242.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.20000000298023224,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 23264.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 1.5,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 23778.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 24291.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 25348.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 25353.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 25891.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 7.0999999940395355,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "time": 26548.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "processingMs": 0,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 27559.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 8.399999991059303,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 27568.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 27568.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 27568.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 27989.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.20000000298023224,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 27989.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "time": 27989.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 29213.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 29213.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 29213.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.29999999701976776,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 29214.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 29268.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 17.599999994039536,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 29289.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 30017.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.7000000029802322,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 30817.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 31588.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 32886.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 32891.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 33482.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 5,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "time": 33770.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "processingMs": 0.10000000894069672,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 34789.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 6.5,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 34796,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 34796.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.20000000298023224,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 34796.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 34818.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 34818.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "time": 34818.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 35396.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 35396.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 35396.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.20000000298023224,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 35396.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 36183.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 8.799999997019768,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 36194.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 36208,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.29999999701976776,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 36951.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 37705.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 37988.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 37998.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 39408.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 9.300000011920929,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "time": 41105,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "processingMs": 0,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 41804.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 5.4000000059604645,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 41809.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 41809.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 41810,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 41872.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 41873,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "time": 41873.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 42581.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 42581.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 42582.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.4000000059604645,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 42583.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 42857.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 14.299999997019768,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 42878.79999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 44251.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.29999999701976776,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 45801.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 47416.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.20000000298023224,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 48924,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 48930.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 50454.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 12.899999991059303,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "wheel",
+        "time": 55096.20000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "wheel"
+      },
+      {
+        "type": "wheel",
+        "processingMs": 0,
+        "phase": "wheel",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 56704.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 19.19999998807907,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 56723.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0.10000000894069672,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 56744.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.5,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchstart",
+        "time": 56745,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchstart",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 58148.70000000298,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 58148.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchmove",
+        "time": 58149,
+        "trusted": true,
+        "gen": 2,
+        "geo": 0,
+        "stats": 0,
+        "adopted": 0,
+        "phase": "touch"
+      },
+      {
+        "type": "touchmove",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 64313.90000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 64314,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 64314.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0.3999999910593033,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "touchend",
+        "time": 64314.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "touch"
+      },
+      {
+        "type": "touchend",
+        "processingMs": 0,
+        "phase": "touch",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 66600.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 185.3999999910593,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 66787.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 66789.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.20000000298023224,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 68508.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 70449.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 0,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.10000000894069672,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 72409.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.20000000298023224,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 72441.5,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 74203.29999999702,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 0.09999999403953552,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerdown",
+        "time": 74203.40000000596,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerdown",
+        "processingMs": 0.3999999910593033,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointerup",
+        "time": 74204,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "orbit"
+      },
+      {
+        "type": "pointerup",
+        "processingMs": 0,
+        "phase": "orbit",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 76026.60000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "ready-hover"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 4512.5999999940395,
+        "phase": "ready-hover",
+        "trusted": true
+      },
+      {
+        "type": "pointermove",
+        "time": 80548.10000000894,
+        "trusted": true,
+        "gen": 2,
+        "geo": 2,
+        "stats": 2,
+        "adopted": 2,
+        "phase": "ready-hover"
+      },
+      {
+        "type": "pointermove",
+        "processingMs": 25.69999998807907,
+        "phase": "ready-hover",
+        "trusted": true
+      }
+    ],
+    "workers": [
+      {
+        "type": "authoringGeometry",
+        "gen": 1,
+        "t": 11383.29999999702
+      },
+      {
+        "type": "geometry",
+        "gen": 1,
+        "t": 38588
+      },
+      {
+        "type": "geometry",
+        "gen": 2,
+        "t": 59344.5
+      },
+      {
+        "type": "surfaceGeometry",
+        "gen": 2,
+        "t": 64246.20000000298
+      },
+      {
+        "type": "stats",
+        "gen": 2,
+        "t": 71954
+      }
+    ],
+    "long": [
+      {
+        "start": 466.1000000089407,
+        "duration": 68,
+        "phase": "boot"
+      },
+      {
+        "start": 3759.2000000029802,
+        "duration": 73,
+        "phase": "boot"
+      },
+      {
+        "start": 4732.9000000059605,
+        "duration": 3143,
+        "phase": "boot"
+      },
+      {
+        "start": 7876.100000008941,
+        "duration": 74,
+        "phase": "boot"
+      },
+      {
+        "start": 7965.29999999702,
+        "duration": 120,
+        "phase": "boot"
+      },
+      {
+        "start": 8094.70000000298,
+        "duration": 337,
+        "phase": "boot"
+      },
+      {
+        "start": 8433.10000000894,
+        "duration": 840,
+        "phase": "boot"
+      },
+      {
+        "start": 9274.29999999702,
+        "duration": 78,
+        "phase": "boot"
+      },
+      {
+        "start": 9450,
+        "duration": 158,
+        "phase": "boot"
+      },
+      {
+        "start": 9877.60000000894,
+        "duration": 384,
+        "phase": "seed"
+      },
+      {
+        "start": 10324.70000000298,
+        "duration": 458,
+        "phase": "seed"
+      },
+      {
+        "start": 11443.5,
+        "duration": 166,
+        "phase": "placement"
+      },
+      {
+        "start": 11616.60000000894,
+        "duration": 183,
+        "phase": "placement"
+      },
+      {
+        "start": 11800,
+        "duration": 155,
+        "phase": "placement"
+      },
+      {
+        "start": 11955.70000000298,
+        "duration": 144,
+        "phase": "placement"
+      },
+      {
+        "start": 14892.20000000298,
+        "duration": 391,
+        "phase": "wheel"
+      },
+      {
+        "start": 59298,
+        "duration": 2616,
+        "phase": "touch"
+      },
+      {
+        "start": 61914.60000000894,
+        "duration": 2230,
+        "phase": "touch"
+      },
+      {
+        "start": 64146.29999999702,
+        "duration": 166,
+        "phase": "touch"
+      },
+      {
+        "start": 66600.10000000894,
+        "duration": 186,
+        "phase": "orbit"
+      },
+      {
+        "start": 71854.70000000298,
+        "duration": 532,
+        "phase": "orbit"
+      },
+      {
+        "start": 72644.90000000596,
+        "duration": 52,
+        "phase": "orbit"
+      },
+      {
+        "start": 74202.79999999702,
+        "duration": 62,
+        "phase": "ready-hover"
+      },
+      {
+        "start": 76025.5,
+        "duration": 4521,
+        "phase": "ready-hover"
+      }
+    ],
+    "phase": "ready-hover"
+  },
+  "statsPendingEvents": [
+    {
+      "type": "pointerup",
+      "time": 64313.90000000596,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "touchend",
+      "time": 64314,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "pointerup",
+      "time": 64314.10000000894,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "touchend",
+      "time": 64314.5,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "touch"
+    },
+    {
+      "type": "pointermove",
+      "time": 66600.40000000596,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "orbit"
+    },
+    {
+      "type": "pointerdown",
+      "time": 66787.60000000894,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "orbit"
+    },
+    {
+      "type": "pointermove",
+      "time": 66789.40000000596,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "orbit"
+    },
+    {
+      "type": "pointermove",
+      "time": 68508.5,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "orbit"
+    },
+    {
+      "type": "pointermove",
+      "time": 70449.29999999702,
+      "trusted": true,
+      "gen": 2,
+      "geo": 2,
+      "stats": 0,
+      "adopted": 2,
+      "phase": "orbit"
+    }
+  ],
+  "maxInputRoundtripMs": 9202,
+  "mainPhysicsCalls": [
+    {
+      "name": "enginePaths",
+      "t": 76030.40000000596,
+      "duration": 4496.0999999940395,
+      "phase": "ready-hover",
+      "gen": 2
+    },
+    {
+      "name": "commandCompartments",
+      "t": 80526.5,
+      "duration": 0,
+      "phase": "ready-hover",
+      "gen": 2
+    },
+    {
+      "name": "weaponCapacitors",
+      "t": 80526.5,
+      "duration": 5.799999997019768,
+      "phase": "ready-hover",
+      "gen": 2
+    },
+    {
+      "name": "missileCells",
+      "t": 80532.40000000596,
+      "duration": 4.200000002980232,
+      "phase": "ready-hover",
+      "gen": 2
+    },
+    {
+      "name": "commandCompartments",
+      "t": 80549.90000000596,
+      "duration": 0,
+      "phase": "ready-hover",
+      "gen": 2
+    },
+    {
+      "name": "weaponCapacitors",
+      "t": 80549.90000000596,
+      "duration": 5.899999991059303,
+      "phase": "ready-hover",
+      "gen": 2
+    },
+    {
+      "name": "missileCells",
+      "t": 80555.79999999702,
+      "duration": 15,
+      "phase": "ready-hover",
+      "gen": 2
+    }
+  ],
+  "slowMainCalls": [
+    {
+      "name": "rayEnv",
+      "t": 11648.40000000596,
+      "duration": 61.5,
+      "phase": "placement",
+      "gen": 1
+    },
+    {
+      "name": "rayEnv",
+      "t": 66601.40000000596,
+      "duration": 181.3999999910593,
+      "phase": "orbit",
+      "gen": 2
+    },
+    {
+      "name": "enginePaths",
+      "t": 76030.40000000596,
+      "duration": 4496.0999999940395,
+      "phase": "ready-hover",
+      "gen": 2
+    }
+  ],
+  "sourceStable": true,
+  "error": "AssertionError [ERR_ASSERTION]: zoom must also operate while statistics remain pending\n    at /workspace/kuat-shipwright/scripts/browser-stats-camera.cjs:42:582"
+}

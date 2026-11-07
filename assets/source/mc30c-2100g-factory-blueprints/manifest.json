@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-factory-serialized-ship-blueprint",
+  "runtimeLoaded": false,
+  "description": "Actual fresh constructor output on the recorded runtime. Historical ship snapshots and earlier independently generated factory outputs remain separate and unchanged. Only public geometry, equipment and circuits are stored; no cached physics.",
+  "factoryBaselineCommit": "bfa371ee1786952199176c4187008723a863af5c",
+  "factorySourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename": ""
+  },
+  "factoryGeneration": {
+    "method": "fresh-factory",
+    "script": "scripts/update-ship-examples.cjs",
+    "key": "mc30c",
+    "auditSourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+      "js/core.js": "861585e78f3d9a63cf4ef1390f4ac5ccb058c5e93a8f95a87ead2ad70f5381ae"
+    },
+    "profileVersion": 18,
+    "costVersion": 16,
+    "costSignature": "g1w0fx",
+    "refreshOrchestration": {
+      "script": "scripts/refresh-imperial-layouts.cjs",
+      "constructorCalls": 1,
+      "files": [
+        {
+          "file": "refresh-generation.cjs",
+          "sha256": "565c6a4959f3e3e8cc6bc743698ab4ed3dae3fd60b688e70f87cc3933fdba36c"
+        },
+        {
+          "file": "refresh-auditor.cjs",
+          "sha256": "dbef63fff30c507aa2cdcd0e5654b4e0719bdb8556c5c1d7dc7cfb8967f8a45d"
+        },
+        {
+          "file": "refresh-finalizer.cjs",
+          "sha256": "7e69dc70d311f74919ad8b2f78047dd80cac9a0bf5c95683f4ad83d1e891591d"
+        },
+        {
+          "file": "refresh-catalogue.cjs",
+          "sha256": "11861105378b8c3a92e2676f5afc322b51ffc275784edfa0a98ff0e632c72ab6"
+        },
+        {
+          "file": "refresh-arquitens-source.cjs",
+          "sha256": "17d019a0e71080c8d34a8348e02bd906df8085b6b4aa5de0e4ab6f491e8628ce"
+        },
+        {
+          "file": "refresh-stock-source.cjs",
+          "sha256": "37f89837559922fbbe2bf3301d579df0530b73804dddbbc12ba8b2447fdbc9d1"
+        },
+        {
+          "file": "refresh-blueprint-reader.cjs",
+          "sha256": "fc8bc5574728f7ce0ffb2a6320621f53cc264cd9d236627938f175d800eb2ad2"
+        }
+      ]
+    }
+  },
+  "models": {
+    "mc30c": {
+      "file": "mc30c.json.gz",
+      "sha256": "d2d4d7ad3b983ddd81094beb252d08a7729adf4c97523c405482a63eeb0aee4d",
+      "gzipSha256": "e15a936d378012d409277de9328599b1e53291858c4186b7e589d62925c6e587",
+      "canonicalSha256": "13f9bca6fb190935746df2855e5b6e7dde45a2061fccca3805f543acb5e758e3",
+      "uncompressedBytes": 316445,
+      "compressedBytes": 26720,
+      "partCount": 120,
+      "fitCount": 36,
+      "factoryEvidence": {
+        "baselinePowerW": 4.966745319e+22,
+        "addedReactorCount": 0,
+        "originalEngineOutlets": [
+          {
+            "id": 88,
+            "p": [
+              168.66999999999996,
+              13.95,
+              11.65
+            ]
+          },
+          {
+            "id": 89,
+            "p": [
+              168.66999999999996,
+              13.95,
+              -11.65
+            ]
+          },
+          {
+            "id": 90,
+            "p": [
+              176.64,
+              15.75,
+              20.15
+            ]
+          },
+          {
+            "id": 91,
+            "p": [
+              176.64,
+              15.75,
+              -20.15
+            ]
+          },
+          {
+            "id": 92,
+            "p": [
+              21.42000000000001,
+              24.2,
+              0
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
