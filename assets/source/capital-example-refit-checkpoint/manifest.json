@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "kind": "in-progress-current-source-measurements",
+  "complete": false,
+  "runtimeLoaded": false,
+  "passedKeys": [
+    "arquitens",
+    "cr90",
+    "dreadnaught",
+    "gozanti",
+    "gr75",
+    "hammerhead",
+    "heraklon",
+    "imperial",
+    "imperial2",
+    "lh3210",
+    "lucrehulk",
+    "mc30c",
+    "mc75",
+    "mc80home",
+    "mc80liberty",
+    "munificent",
+    "nebulonb",
+    "onager",
+    "providence",
+    "providenceDn",
+    "recusant",
+    "recusantDn",
+    "reptransport",
+    "venator"
+  ],
+  "remainingKeys": [
+    "acclamator",
+    "executor",
+    "mandator2",
+    "subjugator"
+  ],
+  "models": {
+    "cr90": {
+      "file": "cr90.json.gz",
+      "sha256": "b3a483eafd734f52ebf137871ab299f4c22d595af833185b9a905faa4b243d9d",
+      "gzipSha256": "d46d3f4e48ca895c25d09c61e3c3124cbc60f8103f194a2d11f24fbfe98bca9c"
+    },
+    "gozanti": {
+      "file": "gozanti.json.gz",
+      "sha256": "fb9515d3354b012fdfb61523148aea20c2e2d92de1b97761156230ea0f641574",
+      "gzipSha256": "35ca9a056616fdbad288d8ece6b071cf6f60180ceb4ba59716eebed12e044cdd"
+    },
+    "gr75": {
+      "file": "gr75.json.gz",
+      "sha256": "7bd617cbc970ce889ef68763a10de8c8055fadbb785ebef7643bfa26113fe0a8",
+      "gzipSha256": "1c3190404e13aa85ecd3ddcd027b33aa1f6c8981abb0ae4bf206b0c63a0d376b"
+    },
+    "heraklon": {
+      "file": "heraklon.json.gz",
+      "sha256": "0b1437bfcb2887208cb55f80d3fcb950a23b8c6f2abbae8ed13df429277e4305",
+      "gzipSha256": "f2238714b97d85d0fa0c37912fbe39511673639fb644ce925364e543e4ee3391"
+    },
+    "lh3210": {
+      "file": "lh3210.json.gz",
+      "sha256": "9bcffd19e0448d705692221b570767bebbd0bdf2d4f77b332438736370830fda",
+      "gzipSha256": "288b1bb6ae4f5b826bec0d40f3e70041126cc80d84c8c0135f09e122a152bd5d"
+    },
+    "reptransport": {
+      "file": "reptransport.json.gz",
+      "sha256": "063eb7ea5aed35eaf6d156e9bb7739dbd2c1b370e06fc0f7fb4c2a07823f112c",
+      "gzipSha256": "a66af18e1d723bca7ba3cccccddcd27e9b8edecd9451d64bf11d33c8c0879b6f"
+    },
+    "hammerhead": {
+      "file": "hammerhead.json.gz",
+      "sha256": "05b12a5229553cb18701c3234de62a38bcfd90c7a0443f7bc6f9ae90939d470d",
+      "gzipSha256": "fcc76268bdb9ddcfcb64d8643a2bc54bc2f6248cb0cd00b13c3478340580fa44"
+    },
+    "arquitens": {
+      "file": "arquitens.json.gz",
+      "sha256": "e067aa1f5fdadaa4de20cec4c97f0f78fe1c248ba502c11fd9e2aded01ea5272",
+      "gzipSha256": "47c6a821ef3ab175be84a9935076f4ad7ffc3d63c1866e6e001feb5e98b2f0c5"
+    },
+    "dreadnaught": {
+      "file": "dreadnaught.json.gz",
+      "sha256": "036e3b15629a9895ea55b1152ddf0310be66dae19d4f9c92def849c5f3d91e10",
+      "gzipSha256": "29942e32bab337d3183a4e32a0480f4c374058a3fe8992504f705d37a49d10ab"
+    },
+    "mc30c": {
+      "file": "mc30c.json.gz",
+      "sha256": "1d6225abf934e7c00a4fe6822f2c0270b938f4957aa0e95689e8b3ca53c26947",
+      "gzipSha256": "58112ec6525a4fc9ed417b1862ba8efd129c08c432f664d1a532cf0f1a2b8942"
+    },
+    "nebulonb": {
+      "file": "nebulonb.json.gz",
+      "sha256": "c456c800b711058df6106f3ceedf441496cb012a8865c3e23f447b5af5cebf95",
+      "gzipSha256": "0d2cc6de0277e7afae71c35162611e8633e45e118c169a24d5802fcdae2dedc8"
+    },
+    "imperial": {
+      "file": "imperial.json.gz",
+      "sha256": "f4c3d8975aecbcc3ffc3af7e3c5ed4f673037cec036a3000205839b39fd2312e",
+      "gzipSha256": "4ba8dac02b94e928f911ce3f4026042ea08e9183ce581c6b643bfa8d46527642"
+    },
+    "imperial2": {
+      "file": "imperial2.json.gz",
+      "sha256": "5534fad1a1f1dca57872d16904d2df4b6c9dbcd2e8a786dab41191b8a80c5523",
+      "gzipSha256": "50a6e0def6d74478adb630e7657d775ef46d30d7f456fcf12411c5d9987debbc"
+    },
+    "venator": {
+      "file": "venator.json.gz",
+      "sha256": "766014b97e67bc0c819e5307fc3937a47682324e35c3eafd2ac2ad47239cfd09",
+      "gzipSha256": "9a8f9ad0e1186a2a452cae23da4464128b5ff03908d965cff2878cfd13cac140"
+    },
+    "munificent": {
+      "file": "munificent.json.gz",
+      "sha256": "9c694c5e195a537b20fbb8a7ef6d4b6c1d79fe282305785d39c179fe60da3909",
+      "gzipSha256": "2d7b611def92e806dd2fdc20573224ce5ccf85d25d9f2b3bd37a0ec4310e9f8f"
+    },
+    "onager": {
+      "file": "onager.json.gz",
+      "sha256": "a4c8bb07864ba347717f194a169dbdef6ad7b622092354dc6e15a6efbd142ffb",
+      "gzipSha256": "c630f615ec012b4264b2439e74ef032bbe4aa506150a25bae348f3f3aafc34e1"
+    },
+    "mc75": {
+      "file": "mc75.json.gz",
+      "sha256": "0af3618b2a87b8f35913d3a57544f87bc1a7c071e0981a8bc5f899b6adce119d",
+      "gzipSha256": "ebaf7996cd6bcccaca59f5c73d827c1e004ae5242c8199bfc96264702bd3837b"
+    },
+    "mc80home": {
+      "file": "mc80home.json.gz",
+      "sha256": "bbb5e059e7b9401dfd41aa68f246e7f97a1786e01ecd0c61c1345dc9f0ae2f54",
+      "gzipSha256": "ac98b20087de0b58667c76d0000902dd7311c81ac29ed80d9c5dea7ae47ca409"
+    },
+    "mc80liberty": {
+      "file": "mc80liberty.json.gz",
+      "sha256": "edab70984c249e37fd378fc46f42a3e17a355c7e6ace18b7b593d139ac66f64e",
+      "gzipSha256": "000fe66f04e0ae00e30af21f44839cdce2ad48873905443f00a07f798fef3396"
+    },
+    "providence": {
+      "file": "providence.json.gz",
+      "sha256": "3b421e054b9366f5d3beb7d513d038e816d0c30f2c7c8c5d79d67506673187ae",
+      "gzipSha256": "cf991c7844e4f05bb14d89bd1da79378ff4bc38c82a3e1f375edb3df8a4596a8"
+    },
+    "providenceDn": {
+      "file": "providenceDn.json.gz",
+      "sha256": "b61bac186a3a063b87b9a6c70ad6e64cb83fa2092c416f6b726060f25286480d",
+      "gzipSha256": "220ab8f1221c71e15ec73a6dcd5bd58597b90697a7877106fb0a45670d260afb"
+    },
+    "recusant": {
+      "file": "recusant.json.gz",
+      "sha256": "031743f6301a0e2f544abf49d24b600483268b7a1849f214cedd28b014e6731c",
+      "gzipSha256": "47ffcb73c462245151f245fda663c795580fd0d945bbe83f19519afec8029ca8"
+    },
+    "lucrehulk": {
+      "file": "lucrehulk.json.gz",
+      "sha256": "9a5f41b7e0ce5dc30d3e14e5f4b5b22f54e66d5c9de41da722ca01cf400dc0e6",
+      "gzipSha256": "f19e5a74d23cb3122b88ca14c7ca82c36073cf528a2226a0f0ad69ff2dd48a51"
+    },
+    "recusantDn": {
+      "file": "recusantDn.json.gz",
+      "sha256": "dbed9e67ca2426e15355ff5321defea978ba63ddff03ceace9c46cb0795bdd5c",
+      "gzipSha256": "1469d235bf25701a181b39476784c94497278215c9665908bd21aec9bccabf81"
+    }
+  }
+}

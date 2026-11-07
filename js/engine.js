@@ -307,7 +307,7 @@ async function handleUpdate(job) {
 // code or data invalidates prior results. Missing/failed storage falls back to
 // ordinary builds. LRU budgets: 120 build records / 256 MB; 64 meshes / 512 MB.
 let BUILD = null;
-const DISK = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 120, BYTES: 256e6, GEO_MAX: 64, GEO_BYTES: 512e6, hits: 0, puts: 0};
+const DISK = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 240, BYTES: 512e6, GEO_MAX: 160, GEO_BYTES: 1024e6, hits: 0, puts: 0};
 // The bootstrap computes this from the exact blobs executed on both threads.
 // Never refetch unversioned source URLs here: force-cache can hash older bytes
 // than the running code and incorrectly accept geometry from another release.
@@ -384,7 +384,10 @@ async function diskTrim(db) {
     if (!all) return;
     const drop = all.filter(m => m.v !== BUILD).map(m => m.id), keep = all.filter(m => m.v === BUILD).sort((a, b) => b.at - a.at);
     const used = {r: [0, 0], g: [0, 0]};
-    for (const m of keep) { const u = used[m.geo ? 'g' : 'r']; u[0]++; u[1] += m.size || 0; if (m.geo ? u[0] > DISK.GEO_MAX || u[1] > DISK.GEO_BYTES : u[0] > DISK.MAX || u[1] > DISK.BYTES) drop.push(m.id); }
+    // A title-screen download must not evict examples prepared earlier in
+    // that same run. Current stock bundles stay until the release changes;
+    // the browser's real quota still decides whether a transaction succeeds.
+    for (const m of keep) {if(m.id.startsWith('k:')||m.id.startsWith('g|k:'))continue;const u = used[m.geo ? 'g' : 'r']; u[0]++; u[1] += m.size || 0; if (m.geo ? u[0] > DISK.GEO_MAX || u[1] > DISK.GEO_BYTES : u[0] > DISK.MAX || u[1] > DISK.BYTES) drop.push(m.id); }
     if (drop.length) await idbRun(db, 'readwrite', (rec, meta) => { for (const id of drop) { rec.delete(id); meta.delete(id); } });
   } finally { trimming = false; }
 }
@@ -395,6 +398,17 @@ function handlePropulsionPreview(job){
  post({type:'propulsionPreview',id:job.id,gen:job.gen,preset:job.preset,preview});
 }
 
+async function loadExample(key){
+ const row=typeof YardFleetData==='undefined'?null:YardFleetData.designs?.[key],asset=row?.model?.preparedBlueprint,hash=globalThis.KS_SOURCE_SHA256?.['js/core.js'];
+ const matchingSources=['data/reference.js','data/imperial2.js','js/core.js'].every(file=>row?.model?.sourceSha256?.[file]&&row.model.sourceSha256[file]===globalThis.KS_SOURCE_SHA256?.[file]);
+ if(asset&&hash&&matchingSources&&asset.coreSha256===hash&&typeof KSAssetCache!=='undefined'&&typeof DecompressionStream!=='undefined')try{
+  const url=new URL(asset.url,globalThis.KS_ASSET_BASE).href,blob=await KSAssetCache.getBlob(url,asset.sha256),raw=await new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer(),actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',raw)),v=>v.toString(16).padStart(2,'0')).join('');
+  if(actual!==asset.jsonSha256)throw Error('Prepared blueprint checksum mismatch');
+  return C.deserialize(JSON.parse(new TextDecoder().decode(raw)));
+ }catch(error){console.warn('Prepared example unavailable',key,error?.message);}
+ return C.buildDesign(key);
+}
+
 async function handleBuild(job) {
   const t0 = now();
   // Completed records restore native caches too. Older public-state-only
@@ -402,7 +416,7 @@ async function handleBuild(job) {
   let b = null, src = 'built';
   const disk = await diskGet('k:' + job.key);
   if (disk && disk.state) { try { b = JSON.parse(disk.state); if (!disk.caches || !restoreCaches(b, disk.caches)) C.syncCompartments(b); src = 'disk'; } catch (e) { b = null; } }
-  if (!b) { b = C.buildDesign(job.key); C.syncCompartments(b); C.remount(b); C.syncCompartments(b); }
+  if (!b) { b = await loadExample(job.key); C.syncCompartments(b); C.remount(b); C.syncCompartments(b); }
   ship = b; shipGen++; hullKey = ''; lastInfo = null; lastOverlap = '';
   const state = settledState = C.publicJSON(ship);
   post({type: 'built', id: job.id, key: job.key, state, ms: now() - t0, src});
@@ -505,7 +519,7 @@ async function fleetJob(job) {
       try { const state = C.publicJSON(ship), caches = packCaches(ship, {runtime: true}); rec = {d: rehydrate(state, null, caches), state, caches, stats: lastStats.S, profile: lastStats.profile, serial: job.design}; src = 'editor'; save = true; } catch (e) { rec = null; }
     }
     if (!rec) {
-      const d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design); if (job.paint) d.paint = job.paint;
+      const d = job.key ? await loadExample(job.key) : C.deserialize(job.design); if (job.paint) d.paint = job.paint;
       C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
       rec = {d, state: C.publicJSON(d), stats: null, profile: null, serial: null}; src = 'built'; save = true;
     }
@@ -539,7 +553,8 @@ async function fleetJob(job) {
     if (rec.alias !== rec.cacheId) records.push({id: rec.alias, alias: rec.cacheId});
   }
   const cacheSaved = records.length ? await diskPutMany(records) : !!stored || src === 'disk';
-  if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile, design: serial, ms: now() - t0, src, cacheSaved});
+  if (job.prepareOnly && job.silent) post({type:'fleet',id:job.id,src,cacheSaved,geoCached:!!stored,ms:now()-t0});
+  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile, design: serial, ms: now() - t0, src, cacheSaved});
   else post({type: 'fleet', id: job.id, stats: displayStats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved}, transfer);
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
@@ -662,7 +677,7 @@ function fail() {
   waiting.clear();
   const h = handlers.restart; if (h) h();
 }
-function post(msg, transfer) { if (!send) throw new Error('engine not started'); send(msg, transfer); }
+function post(msg, transfer) { if (!send) throw new Error('engine not started'); if(typeof window!=='undefined')window.dispatchEvent?.(new Event('ks-engine-foreground'));send(msg, transfer); }
 function request(type, payload = {}, transfer) {
   const id = nextId++;
   return ready.then(() => new Promise((resolve, reject) => { waiting.set(id, {resolve, reject}); post({...payload, type, id}, transfer); }));

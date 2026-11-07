@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+// A saved factory output already contains generated engineCore parts. Seed the
+// replacement recipe with their real volume instead of installing both sets.
+const fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),crypto=require('node:crypto');
+const G=require('./update-ship-examples.cjs'),B=require('./replay-ship-examples.cjs'),sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+function prepareBlueprint(input,density){
+ const s=JSON.parse(JSON.stringify(input)),cores=new Map(s.parts.filter(p=>p.k==='engineCore').map(p=>[p.id,p])),changes=[];
+ for(const p of s.parts.filter(p=>p.k==='engine')){const owner=cores.get(p.machineryId);if(!owner)continue;const radius=owner.d/2,length=owner.length;if(!(radius>0&&length>0))throw Error('Invalid old engine geometry');const outlets=input.parts.filter(q=>q.k==='engine'&&q.machineryId===owner.id),weight=q=>q.nozzleShare>0?q.nozzleShare:q.d**2,share=weight(p)/outlets.reduce((n,q)=>n+weight(q),0),volume=Math.PI*radius*radius*length*share;changes.push({nozzleId:p.id,oldOwnerId:owner.id,originalOwner:owner,seedVolumeM3:volume});delete p.machineryId;delete p.feedCapacityW;Object.assign(p,{machineryShape:'cylinder',machineryRadiusM:radius,machineryLengthM:length*share,machineryOffsetM:p.nozzleLength/2,propulsionModelVersion:1,machineryGradeId:'standard',driveProfileId:'standard',ratedInputW:volume*density,legacyCoolingInputW:0});}
+ const replaced=new Set(changes.map(p=>p.oldOwnerId));if([...cores.keys()].some(id=>!replaced.has(id)))throw Error('An unreferenced authored engine cannot be silently discarded');s.parts=s.parts.filter(p=>!replaced.has(p.id));s.links=(s.links||[]).filter(l=>![l.from,l.to].some(v=>replaced.has(Number(String(v).replace(/^p/,'')))));
+ for(const change of changes){const p=s.parts.find(p=>p.id===change.nozzleId);if(p.reactor!=null)s.links.push({kind:'power',from:'p'+p.reactor,to:'p'+p.id,cap:p.ratedInputW*1.3});}
+ return {blueprint:s,changes};
+}
+function prepare(root,key,source,destination){
+ if(fs.existsSync(destination))throw Error('Use a new input directory');const mf=path.join(source,'manifest.json'),m=JSON.parse(fs.readFileSync(mf)),original=B.readBlueprint(source,key,m),{C}=G.loadRuntime(root),result=prepareBlueprint(original.blueprint,C.PROPULSION.referenceInputDensity);if(!result.changes.length)throw Error('No previous generated machinery to replace');
+ const raw=Buffer.from(JSON.stringify(result.blueprint)+'\n'),packed=zlib.gzipSync(raw,{level:9,mtime:0});fs.mkdirSync(destination,{recursive:true});fs.writeFileSync(path.join(destination,key+'.json.gz'),packed);
+ const manifest={schemaVersion:1,kind:'prepared-layout-input-for-current-engineering-refit',runtimeLoaded:false,factorySourceSha256:G.sourceHashes(root),factoryGeneration:{method:'explicit-saved-layout-preparation',constructorCalls:0},parentArchive:{manifest:path.relative(root,mf),manifestSha256:sha(fs.readFileSync(mf)),canonicalSha256:original.canonicalSha256,factorySourceSha256:m.factorySourceSha256},transformation:{kind:'replace-existing-generated-machinery-with-volume-preserving-recipe-seeds',changes:result.changes},models:{[key]:{file:key+'.json.gz',sha256:sha(raw),gzipSha256:sha(packed),canonicalSha256:sha(G.stable(result.blueprint)),partCount:result.blueprint.parts.length,fitCount:result.blueprint.fits.length,factoryEvidence:original.record.factoryEvidence}}};fs.writeFileSync(path.join(destination,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');return manifest;
+}
+module.exports={prepareBlueprint,prepare};
+if(require.main===module){try{const root=path.resolve(__dirname,'..'),[key,source,dest]=process.argv.slice(2);if(!key||!source||!dest)throw Error('Usage: KEY SOURCE_ARCHIVE NEW_INPUT_DIRECTORY');prepare(root,key,path.resolve(source),path.resolve(dest));}catch(e){console.error(e.stack||e);process.exitCode=1;}}

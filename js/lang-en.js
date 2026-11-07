@@ -3633,6 +3633,10 @@ root.KS_EN={
   "陣形エディターで編集": "Edit in Formation Editor"
  },
  "messages": {
+  "作例の準備が完了しました": "Examples are ready",
+  "作例を準備しました {0} / {1}": "Prepared examples: {0} / {1}",
+  "作例データを取得中 {0} / {1}": "Downloading example data: {0} / {1}",
+  "作例を準備中 {0} / {1}": "Preparing examples: {0} / {1}",
  // v26 PLAN-007/008 ground combat
  "脚で歩く。悪路と斜面に強く、背が高いので遠くまで見えるが目立つ": "Walks on legs. Good on rough ground and slopes; tall, so it sees far but is easily seen.",
  "無限軌道・装輪・リパルサーで走る。平地では速いが悪路で遅くなる": "Runs on tracks, wheels or repulsors. Fast on open ground, slower over rough terrain.",
