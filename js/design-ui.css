@@ -71,3 +71,9 @@ body.designer-ui #dock.design-editing .panel>.sel-strip{position:static}
 body.designer-ui #dock.design-editing .ed-list,body.designer-ui #dock.design-editing .editor{position:relative;isolation:isolate}
 .design-parent-target{flex:1 1 100%;font-size:12px;color:var(--cyan)}
 .design-parent-target small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+/* Weapon names must not set the minimum width of the trench editor. */
+[data-trench-armament-editor]{min-width:0;max-width:100%}
+[data-trench-armament-editor] .row2>label{display:grid;gap:4px;min-width:0;max-width:100%;flex:1 1 145px}
+[data-trench-armament-editor] input,[data-trench-armament-editor] select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px;padding:8px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:inherit}
+[data-trench-armament-editor] button{min-height:44px}
+@container ks (max-width:700px){[data-trench-armament-editor] .row2>label:first-child{flex-basis:100%}}

@@ -26,8 +26,15 @@ function setup() {
         checked: true, _solidCutShip: ship, local: [.1, .5, .2], localNormal: [0, 1, 0],
         placement: {modelVersion: 1, mode: 'direct', geometryRevision: request.geometryRevision || 0}}};
     },
+    configureTrenchArmament(ship, request) {
+      calls.push({trench: true, count: request.count});
+      ship.trenches = [{id: 8, from: .1, to: .8}]; ship.parts.push({id: 9, k: 'capacitor'});
+      if (request.fail) return {ok: false, code: 'trench-space'};
+      ship._trenchConfigured = true;
+      return {ok: true, count: request.count, groups: 2};
+    },
     // A preview may not enter the authoritative design/statistics pipeline.
-    publicJSON() { throw new Error('Preview changed worker design'); },
+    publicJSON(ship) { if (ship._trenchConfigured) return JSON.stringify(ship, (key, value) => key[0] === '_' ? undefined : value); throw new Error('Preview changed worker design'); },
     patchShip() { throw new Error('Preview patched worker design'); }
   };
   const context = vm.createContext({Core: C, Gfx: {}, console, setTimeout, clearTimeout, structuredClone});
@@ -82,6 +89,27 @@ test('fittings cross the same generation boundary with their entity tag and cano
   assert.equal(reply.result.fit._solidCutShip, undefined);
   assert.deepEqual(reply.result.fit.localNormal, [0, 1, 0]);
   assert.equal(t.calls[0].request.list, 'fits');
+});
+
+test('trench configuration returns one detached complete authoring edit and exposes no partial failed state', async () => {
+  const t = setup(), job = t.job({type: 'trenchArmament', request: {count: 10000}}), before = job.state;
+  t.send(job); const reply = await t.reply(1);
+  assert.equal(reply.type, 'trenchArmament'); assert.equal(reply.result.ok, true);
+  assert.equal(reply.result.count, 10000); assert.equal(JSON.parse(reply.state).parts.length, 2);
+  assert.equal(JSON.parse(reply.state).trenches.length, 1); assert.equal(job.state, before);
+  t.send(t.job({type: 'trenchArmament', id: 2, gen: 11, request: {count: 10000, fail: true}}));
+  const failed = await t.reply(2); assert.equal(failed.result.ok, false); assert.equal(failed.state, undefined);
+  assert.equal(job.state, before);
+});
+
+test('trench configuration shares cancellation and latest-source guards with strict placement jobs', async () => {
+  const t = setup(); t.send(t.job({type: 'trenchArmament', request: {count: 100}}));
+  t.send({type: 'cancelPlacement', designId: 'design-A', operationId: 'ghost-1'});
+  const cancelled = await t.reply(1); assert.equal(cancelled.type, 'trenchArmament'); assert.equal(cancelled.cancelled, true); assert.equal(cancelled.state, undefined);
+  t.send(t.job({type: 'trenchArmament', id: 2, gen: 11, request: {count: 200}}));
+  t.send(t.job({type: 'trenchArmament', id: 3, gen: 12, request: {count: 300}}));
+  assert.equal((await t.reply(2)).stale, true);
+  const latest = await t.reply(3); assert.equal(latest.result.count, 300); assert.ok(latest.state);
 });
 
 test('a mixed structure/fitting batch reserves shared stable IDs and remaps the fitting parent', async () => {

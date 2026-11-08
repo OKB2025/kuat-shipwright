@@ -1,0 +1,678 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T08:51:22.240Z",
+  "scope": "Authenticated saved Imperial-II native hull178, nozzles55/56/57, their machinery173/174/175 and reactor48. All retained source shapes, transforms, settings and native rendering/Worker are preserved. Other77 apparatus parts, all51 fittings, hatches and links to excluded apparatus are removed explicitly. This focused functional proof does not establish full85-part performance or combat acceptance.",
+  "fixture": {
+    "path": "assets/source/imperial-ii-user-layout/imperial-ii-upload.json",
+    "sha256": "914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b",
+    "sourceBytes": 169496,
+    "provenance": "user-supplied-editable-ship-layout",
+    "retainedIds": [
+      48,
+      55,
+      56,
+      57,
+      173,
+      174,
+      175,
+      178
+    ]
+  },
+  "harness": {
+    "path": "scripts/browser-nozzle-lowpoly.cjs",
+    "sha256": "a2d585ae2895c7f77061bfd5e74f1769f4b7ac9c1674b92c184269f4fef1f247"
+  },
+  "sourceSha256": {
+    "index.html": "34584187fa9caa9a0507ea91c56c8ee0211d413710e01cc09116106d2b5b8ad7",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "js/design-ui.css": "ba0e3216d968a858cc3bddb602fb2f30604e59419eb707a2e303dd6693047ae0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "ee2d2dd0aae05e1d267cba270f40019a2ce4abcda48b8af4ccecdf9066a8f0ec"
+  },
+  "executionConditions": {
+    "controlledPerformanceComparison": false,
+    "graphics": "Chromium SwiftShader",
+    "waitMs": 180000,
+    "cpuShared": true,
+    "safari": "Not tested"
+  },
+  "stages": [
+    {
+      "name": "boot",
+      "at": "2026-11-08T08:51:22.789Z"
+    },
+    {
+      "name": "authenticated-eight-part-extraction",
+      "at": "2026-11-08T08:51:32.632Z"
+    },
+    {
+      "name": "latest-worker-three-closed-four-sided-roots",
+      "at": "2026-11-08T08:51:37.840Z"
+    },
+    {
+      "name": "native-support-only-tap-selects-nozzle55",
+      "at": "2026-11-08T08:51:42.818Z"
+    },
+    {
+      "name": "save-sheet-replaced-design-and-latest-worker-restored-supports",
+      "at": "2026-11-08T08:51:54.408Z"
+    },
+    {
+      "name": "complete",
+      "at": "2026-11-08T08:51:54.508Z"
+    }
+  ],
+  "errors": [],
+  "stage": "complete",
+  "seed": {
+    "originalParts": 85,
+    "originalFits": 51,
+    "retainedIds": [
+      178,
+      48,
+      55,
+      56,
+      57,
+      173,
+      174,
+      175
+    ],
+    "links": 0,
+    "unchanged": true,
+    "expected": [
+      {
+        "id": 55,
+        "settings": {
+          "id": 55,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 173,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        }
+      },
+      {
+        "id": 56,
+        "settings": {
+          "id": 56,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 174,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        }
+      },
+      {
+        "id": 57,
+        "settings": {
+          "id": 57,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 175,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        }
+      }
+    ]
+  },
+  "loaded": {
+    "saveId": "ship-1921ec48-9d52-4af9-91ba-2604b2618a35",
+    "parts": 8,
+    "fits": 0,
+    "worker": "worker",
+    "profileVersion": 22,
+    "gen": 1,
+    "adoptedGen": 1,
+    "statsGen": 1,
+    "glError": 0,
+    "parentUnchanged": true,
+    "engineSupportVolume": 108447.43180660903,
+    "engineSupportMass": 32534.22954198271,
+    "engines": [
+      {
+        "id": 55,
+        "settings": {
+          "id": 55,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 173,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        "bodyTriangles": 1600,
+        "engineVolume": 67861.81505065675,
+        "support": {
+          "parentId": 178,
+          "footprintSegments": 4,
+          "sourceKey": "1w2jz62",
+          "triangles": 28,
+          "volume": 37737.63538010656,
+          "measuredVolume": 37737.63538010651,
+          "bounds": [
+            106.85,
+            165.1483612060547,
+            -132.05184936523438,
+            164.24815673726894,
+            196.05270385742188,
+            -101.14750671386717
+          ],
+          "closed": true,
+          "contact": true
+        },
+        "floating": false
+      },
+      {
+        "id": 56,
+        "settings": {
+          "id": 56,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 174,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        "bodyTriangles": 1600,
+        "engineVolume": 67861.81505065675,
+        "support": {
+          "parentId": 178,
+          "footprintSegments": 4,
+          "sourceKey": "qav19w",
+          "triangles": 34,
+          "volume": 32972.70433249789,
+          "measuredVolume": 32972.704332497764,
+          "bounds": [
+            106.85,
+            77.4483642578125,
+            101.14814758300781,
+            159.25840416153443,
+            108.35270026447986,
+            132.052490234375
+          ],
+          "closed": true,
+          "contact": true
+        },
+        "floating": false
+      },
+      {
+        "id": 57,
+        "settings": {
+          "id": 57,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 175,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        "bodyTriangles": 1600,
+        "engineVolume": 67861.81505065675,
+        "support": {
+          "parentId": 178,
+          "footprintSegments": 4,
+          "sourceKey": "hvd78t",
+          "triangles": 18,
+          "volume": 37737.66899728236,
+          "measuredVolume": 37737.668997282344,
+          "bounds": [
+            106.85,
+            165.1483612060547,
+            101.14814758300781,
+            164.24819241461333,
+            196.05270385742188,
+            132.052490234375
+          ],
+          "closed": true,
+          "contact": true
+        },
+        "floating": false
+      }
+    ]
+  },
+  "nativeTarget": {
+    "pixel": [
+      720,
+      529.5
+    ],
+    "engineId": 55,
+    "point": [
+      125.9827340552105,
+      175.4498087565104,
+      -132.05184936523438
+    ],
+    "triangle": 18,
+    "supportOnly": true,
+    "diagnostic": {
+      "triangles": 28,
+      "screened": 17,
+      "accepted": 5
+    }
+  },
+  "reloaded": {
+    "saveId": "ship-1921ec48-9d52-4af9-91ba-2604b2618a35",
+    "parts": 8,
+    "fits": 0,
+    "worker": "worker",
+    "profileVersion": 22,
+    "gen": 2,
+    "adoptedGen": 2,
+    "statsGen": 2,
+    "glError": 0,
+    "parentUnchanged": true,
+    "engineSupportVolume": 108447.43180660903,
+    "engineSupportMass": 32534.22954198271,
+    "engines": [
+      {
+        "id": 55,
+        "settings": {
+          "id": 55,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            -116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 173,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        "bodyTriangles": 1600,
+        "engineVolume": 67861.81505065675,
+        "support": {
+          "parentId": 178,
+          "footprintSegments": 4,
+          "sourceKey": "1w2jz62",
+          "triangles": 28,
+          "volume": 37737.63538010656,
+          "measuredVolume": 37737.63538010651,
+          "bounds": [
+            106.85,
+            165.1483612060547,
+            -132.05184936523438,
+            164.24815673726894,
+            196.05270385742188,
+            -101.14750671386717
+          ],
+          "closed": true,
+          "contact": true
+        },
+        "floating": false
+      },
+      {
+        "id": 56,
+        "settings": {
+          "id": 56,
+          "k": "engine",
+          "c": [
+            92.925,
+            92.9,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 174,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        "bodyTriangles": 1600,
+        "engineVolume": 67861.81505065675,
+        "support": {
+          "parentId": 178,
+          "footprintSegments": 4,
+          "sourceKey": "qav19w",
+          "triangles": 34,
+          "volume": 32972.70433249789,
+          "measuredVolume": 32972.704332497764,
+          "bounds": [
+            106.85,
+            77.4483642578125,
+            101.14814758300781,
+            159.25840416153443,
+            108.35270026447986,
+            132.052490234375
+          ],
+          "closed": true,
+          "contact": true
+        },
+        "floating": false
+      },
+      {
+        "id": 57,
+        "settings": {
+          "id": 57,
+          "k": "engine",
+          "c": [
+            92.925,
+            180.6,
+            116.6
+          ],
+          "d": 55.7,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 27.85,
+          "bodyLength": 127.31428571428572,
+          "bodyRadius": 0.5,
+          "skinAsset": "isdh_engine_aux",
+          "skinAnchor": [
+            44.815,
+            76.367,
+            109.639
+          ],
+          "skinDiameter": 51.66,
+          "ratedInputW": 1.2426281966501435e+23,
+          "reactor": 48,
+          "machineryId": 175,
+          "machineryLengthM": 55.7,
+          "machineryRadiusM": 16.71,
+          "machineryOffsetM": 13.925,
+          "machineryFeedRadiusM": 1,
+          "nozzleShare": 1.2426281966501435e+23,
+          "driveProfileId": "standard",
+          "machineryGradeId": "advanced",
+          "propulsionModelVersion": 1,
+          "legacyCoolingInputW": 0,
+          "busFeed": true
+        },
+        "bodyTriangles": 1600,
+        "engineVolume": 67861.81505065675,
+        "support": {
+          "parentId": 178,
+          "footprintSegments": 4,
+          "sourceKey": "hvd78t",
+          "triangles": 18,
+          "volume": 37737.66899728236,
+          "measuredVolume": 37737.668997282344,
+          "bounds": [
+            106.85,
+            165.1483612060547,
+            101.14814758300781,
+            164.24819241461333,
+            196.05270385742188,
+            132.052490234375
+          ],
+          "closed": true,
+          "contact": true
+        },
+        "floating": false
+      }
+    ]
+  },
+  "servedSources": {
+    "index.html": "34584187fa9caa9a0507ea91c56c8ee0211d413710e01cc09116106d2b5b8ad7",
+    "js/design-ui.css": "ba0e3216d968a858cc3bddb602fb2f30604e59419eb707a2e303dd6693047ae0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "data/reference.js": true,
+    "data/imperial2.js": true,
+    "data/fleet.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/app.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "34584187fa9caa9a0507ea91c56c8ee0211d413710e01cc09116106d2b5b8ad7",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "js/design-ui.css": "ba0e3216d968a858cc3bddb602fb2f30604e59419eb707a2e303dd6693047ae0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "ee2d2dd0aae05e1d267cba270f40019a2ce4abcda48b8af4ccecdf9066a8f0ec"
+  },
+  "sourceStable": true,
+  "browser": "156.0.8078.79",
+  "completedAt": "2026-11-08T08:51:54.508Z"
+}

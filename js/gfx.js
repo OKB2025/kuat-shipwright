@@ -561,6 +561,9 @@ function subFrame(M, o, at, ang) {
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
 const embeddedSurfaceFit=f=>!!(f?.surfacePatch&&C.FITS[f.k]?.cat==='w'&&!C.FITS[f.k]?.exposedSurfaceTurret);
+// Trench groups are compact weapon records. Their occupied charging rooms
+// use the interior compartment pass; the guns have no exterior model.
+const noModelFit=f=>C.isTrenchBatteryGroup?.(f)===true;
 function surfaceRenderFits(ship){const derived=C.surfaceDerivedFits?.(ship);if(!derived?.length)return ship.fits||[];const ids=new Set(derived.map(f=>f.id));return [...(ship.fits||[]).filter(f=>!ids.has(f.id)),...derived];}
 // A surface battery is an opening in its host wall. Its visible bore stays
 // behind the shallow lip; the shared Core geometry owns the actual muzzle.
@@ -660,6 +663,7 @@ function craftWeaponMesh(g,f){
 function meshFits(ship, filter, ranges, only, paintSource=false) {
   const g = new Geo(paintSource?64:only?.length===1?128:8192), body = FC.body;
   const one = (f) => {
+    if(noModelFit(f))return;
     if (!paintSource && !f.float && !FIT_SKIP_PED?.has(f.id)) turretSupportMesh(g, C.turretSupportGeometry?.(f));
     if(f.k==='broadsideBattery'){if(!FIT_SKIP_BODY?.has(f.id))broadsideBatteryMesh(g,f);return;}
     if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f,ship);return;}
@@ -828,7 +832,7 @@ function fitRayAssetMeshes(f,model){
 // Core's box ray query reports entry surfaces; inside origins still need the exact mesh test.
 const fitRayStartsInside=(o,b)=>o.every((v,a)=>v>=b[a]&&v<=b[a+3]);
 function rayFit(o,d,f,maxT){
- if(!f||!C.FITS[f.k]||maxT!=null&&maxT<=1e-6)return null;
+ if(!f||!C.FITS[f.k]||noModelFit(f)||maxT!=null&&maxT<=1e-6)return null;
  const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v);let known=FIT_RAY_BOUNDS.get(f);
  // Most pointer rays miss most weapons. Do not construct every visible mesh
  // merely to discover its bounds on the first hover over a large design.
@@ -1905,9 +1909,10 @@ function lineSet() {
       n = n || 48; let prev = null;
       for (let k = 0; k <= n; k++) { const a = k / n * Math.PI * 2, p = [cen[0] + (u[0] * Math.cos(a) + v[0] * Math.sin(a)) * r, cen[1] + (u[1] * Math.cos(a) + v[1] * Math.sin(a)) * r, cen[2] + (u[2] * Math.cos(a) + v[2] * Math.sin(a)) * r]; if (prev) this.seg(prev, p, c); prev = p; }
     },
-    part(pt, c) {
+    part(pt, c, ship) {
       if(!C.PARTS[pt.k]&&C.FITS[pt.k]){this.fit(pt,c);return;}
       if(isHiddenEngineFeed(pt))return;
+      const support=pt.k==='engine'&&C.engineMountSupportGeometry?.(ship,pt);if(support?.triangles?.length||support?.tris?.length)this.triangles(support.triangles||support.tris,c);
       const weaponBody=C.superweaponShape?.(pt);if(weaponBody){this.part(weaponBody,c);return;}
       if(pt._placementGeometry){this.triangles(C.structTriangles(pt),c);return;}
       if(pt._packing?.tris){this.triangles(pt._packing.tris,c);return;}
@@ -1973,7 +1978,7 @@ function shipBounds(ship) {
   for (const s of g.secs) for (let j = 0; j < s.Y.length; j++) { b[1] = Math.min(b[1], s.Y[j]); b[4] = Math.max(b[4], s.Y[j]); b[2] = Math.min(b[2], s.Z[j]); b[5] = Math.max(b[5], s.Z[j]); }
   const rb=C.referenceHullGeometry(ship)?.bounds;if(rb)for(let k=0;k<3;k++){b[k]=Math.min(b[k],rb[k]);b[k+3]=Math.max(b[k+3],rb[k+3]);}
   // Frame the displayed bells; Core's saved-skin bounds also serve physical statistics.
-  for (const pt of ship.parts) { const a = (pt.k==='engine'&&C.engineSkinMesh(pt)?.b)||C.refPartBounds(pt)||C.partAABB(pt); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
+  for (const pt of ship.parts) { const bounds=[(pt.k==='engine'&&C.engineSkinMesh(pt)?.b)||C.refPartBounds(pt)||C.partAABB(pt)],support=pt.k==='engine'&&C.engineMountSupportGeometry?.(ship,pt);if(support?.bounds)bounds.push(support.bounds);for(const a of bounds)for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
   for(const pt of C.enginePaths(ship)){if(isHiddenEngineFeed(pt))continue;const a=C.partAABB(pt);for(let k=0;k<3;k++){b[k]=Math.min(b[k],a[k]);b[k+3]=Math.max(b[k+3],a[k+3]);}}
   for (const f of surfaceRenderFits(ship)) { const a = C.fitAABB(f); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
   if(ship.surfaces?.patches?.length&&typeof C.surfacePatches==='function')for(const p of C.surfacePatches(ship)){const t=p.config?.armor?.thickness||0;if(!p.exposed||!(t>0)||!ship.surfaces.patches.some(q=>q.id===p.id))continue;const T=surfaceTriangles(p);for(let i=0;i<T.length;i+=3)for(let a=0;a<3;a++){const v=T[i+a]+p.normal[a]*t;b[a]=Math.min(b[a],v);b[a+3]=Math.max(b[a+3],v);}}
@@ -2025,6 +2030,10 @@ function meshOnePart(out,p,ship,opt,glow){
     if(isHiddenEngineFeed(p))return;
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
     if(p.surfacePatch&&p.surfaceUnplaced)return;
+    // The foundation is paid, closed Core geometry shared with physical
+    // contact and picking. Keep it separate from the bell's skin, dimensions
+    // and luminous throat in the full model and every editor preview.
+    if(k==='engine'){const support=C.engineMountSupportGeometry?.(ship,p),T=support?.triangles||support?.tris;if(T?.length)hullTriangleMesh(out.struct,T,opt.coded?C.PARTS.struct.col:p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT,48);}
     if(p._placementGeometry&&C.isShapePart(p)){
       const T=opt.preview?C.structTriangles(p):equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),target=p.plate?out.plate:out.struct,tone=opt.coded?d.col:p.paint?hex(p.paint):p.plate?(ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT):(ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);
       hullTriangleMesh(target,T,tone,opt.preview?36:64,opt.preview?251:255);if(p.bands)structureBands(p,target,T);return;
@@ -2306,7 +2315,7 @@ function placementSurfaceCandidates(ship,o,d,options={}){
 const PLACEMENT_COLORS=Object.freeze({pending:[105,195,220,255],valid:[95,196,138,255],invalid:[236,106,92,255],disconnected:[236,106,92,255]});
 const PLACEMENT_FIT_MESH_CACHE=new WeakMap();
 function placementFittingMesh(ship,fit){
- const empty=()=>new Geo(16);if(!fit||!C.FITS[fit.k])return empty();
+ const empty=()=>new Geo(16);if(!fit||!C.FITS[fit.k]||noModelFit(fit))return empty();
  const key=JSON.stringify([fit,C.fitSpec(fit),fit._store],(k,v)=>k.startsWith('_')?undefined:v),cached=PLACEMENT_FIT_MESH_CACHE.get(fit);if(cached?.key===key)return cached.mesh;
  // Use the installed-fitting mesh builders, including automatic foundations,
  // manual pedestals, authored turret joints and command pods. A fleet draw's
@@ -2327,7 +2336,7 @@ function placementDiagnosticLines(ship,diagnostics){
   for(const edge of surfaceBoundary(patch))lines.seg(edge.a,edge.b,tone);
  }
  const preview=fit?null:effectivePart||part,T=diagnostics.effectiveTriangles;
- if(fit)lines.fit(fit,color,ship);else if(T?.length)lines.triangles(T,color);else if(preview)lines.part(preview,color);
+ if(fit)lines.fit(fit,color,ship);else if(T?.length)lines.triangles(T,color);else if(preview)lines.part(preview,color,ship);
  // Only the requested contact side is emphasized. This is an orientation aid,
  // not a fabricated contact surface; connectivity is the strict Core result.
  if(preview&&contactSide&&C.isShapePart(preview)){
@@ -2340,7 +2349,7 @@ function placementDiagnosticLines(ship,diagnostics){
  for(const polygon of diagnostics.contactRegions||diagnostics.contact?.regions||[]){if(!Array.isArray(polygon)||polygon.length<3||!polygon.every(p=>p?.length===3&&p.every(Number.isFinite)))continue;for(let i=0;i<polygon.length;i++)lines.seg(polygon[i],polygon[(i+1)%polygon.length],[135,234,195,255]);}
  const extent=fit?C.fitAABB(fit):preview?C.partAABB(preview):null,radius=extent?Math.max(.01,Math.min(...[0,1,2].map(i=>extent[i+3]-extent[i]))*.025):.1;
  for(const p of diagnostics.contactPoints||[])if(p?.length===3&&p.every(Number.isFinite))lines.cross(p,radius,[135,234,195,255]);
- for(const p of diagnostics.disconnectedParts||[]){const item=typeof p==='object'?p:ship.parts.find(q=>q.id===p);if(item)lines.part(item,PLACEMENT_COLORS.disconnected);}
+ for(const p of diagnostics.disconnectedParts||[]){const item=typeof p==='object'?p:ship.parts.find(q=>q.id===p);if(item)lines.part(item,PLACEMENT_COLORS.disconnected,ship);}
  for(const f of diagnostics.disconnectedFits||[]){const item=typeof f==='object'?f:ship.fits.find(q=>q.id===f);if(item)lines.fit(item,PLACEMENT_COLORS.disconnected,ship);}
  return lines.out();
 }
@@ -3192,7 +3201,7 @@ function meshReferenceParts(ship,ranges,only,opt={}){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
-  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod||sharedProceduralTurret(f))||f.float&&!sharedProceduralTurret(f)||plainFitAsset(f)&&!familyReferenceAsset(f))continue;const before=g.ni;
+  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(noModelFit(f)||embeddedSurfaceFit(f)||!(d.asset||d.pod||sharedProceduralTurret(f))||f.float&&!sharedProceduralTurret(f)||plainFitAsset(f)&&!familyReferenceAsset(f))continue;const before=g.ni;
   if(sharedProceduralTurret(f))appendProceduralTurret(g,f);else if(familyReferenceAsset(f))appendFamilyReference(g,f);else if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
@@ -3418,13 +3427,20 @@ function turretPose(f){
 }
 const TRIAL_BARRELS={pd:2,ltl:4,mtl:3,htl:2,stl:2,utl:2,ion:2,ionL:2};
 function trialTurrets(model,put,ranges){
- const list=surfaceRenderFits(model).filter(trialTurretFit),turning=new Set(list.filter(f=>!embeddedSurfaceFit(f)&&!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
+ const list=surfaceRenderFits(model).filter(trialTurretFit),turning=new Set(list.filter(f=>!noModelFit(f)&&!embeddedSurfaceFit(f)&&!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
  FIT_SKIP_BODY=turning;try{put('fits',meshFits(model,null,ranges));}finally{FIT_SKIP_BODY=null;}
  put('refFits',meshReferenceFits(model,ranges,surfaceRenderFits(model).filter(f=>!turning.has(f.id))));
- const all=new Set(surfaceRenderFits(model).map(f=>f.id)),poses=new Map();
- for(const f of list){const p=turretPose(f);if(p)poses.set(f.id,p);}
- for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
+ const all=new Set(surfaceRenderFits(model).map(f=>f.id)),poses=new Map(),bulk=new Map(list.some(noModelFit)?(C.bulkTrenchGroups?.(model)||[]).map(row=>[row.id,row]):[]);
+ for(const f of list){if(noModelFit(f))continue;const p=turretPose(f);if(p)poses.set(f.id,p);}
+ for(const f of list)if(!noModelFit(f)&&!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
+  if(noModelFit(f)){
+   const row=bulk.get(f.id),muzzles=(row?.muzzles||[]).slice(0,8).map(p=>Array.isArray(p)?p:p.p||p.point).filter(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)).map(p=>p.slice());if(row?.valid===false||!muzzles.length)continue;
+   const d=C.fitSpec(f),spec=C.FITS[f.k],fr=C.fitFrameOf(f),volleyTT=Math.max(0,d.tt||0)+Math.max(0,d.ion||0);
+   // One logical firing descriptor represents the group. Bounded muzzle
+   // effects do not expand its counted barrels into thousands of models.
+   out.push({id:f.id,k:f.k,name:spec.short||spec.name,trenchAggregate:true,noModel:true,aggregateCount:row.count??f.aggregateCount,aggregateBarrels:d.barrels||1,volleyTT,mesh:null,broadsideBattery:true,muzzles,rowSpan:row.rowSpan,pivot:muzzles[0].slice(),axis:fr.up,fw:fr.fw,origin:muzzles[0].slice(),mount:fr.up,r:d.r,hm:0,embedded:true,fixed:true,casemate:true,barrels:muzzles.length,cycle:d.cycle||2.5,tt:volleyTT,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});continue;
+  }
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=Number.isInteger(geo.drawElevationIndexStart)?geo.drawElevationIndexStart:g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);

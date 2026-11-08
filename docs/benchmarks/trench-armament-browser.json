@@ -1,0 +1,1409 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T08:52:01.128Z",
+  "scope": "Native trench panel controls, real Worker validation, undo/redo, real save-sheet replacement, renderer geometry and common combat/power Core. The seeded 8km analytic rectangular hull is promoted to the normal editable primary hull structure by setShip; it is a functional fixture, not an Executor/Mandator saved example or a performance acceptance test.",
+  "sourceSha256": {
+    "index.html": "34584187fa9caa9a0507ea91c56c8ee0211d413710e01cc09116106d2b5b8ad7",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "js/design-ui.css": "ba0e3216d968a858cc3bddb602fb2f30604e59419eb707a2e303dd6693047ae0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "ee2d2dd0aae05e1d267cba270f40019a2ce4abcda48b8af4ccecdf9066a8f0ec"
+  },
+  "harness": {
+    "path": "scripts/browser-trench-armament.cjs",
+    "sha256": "8f678c8fcb71f3a1e4364fb1de5757ab98c92d557a800192defb1184adf5b87f"
+  },
+  "executionConditions": {
+    "controlledPerformanceComparison": false,
+    "graphics": "Chromium SwiftShader",
+    "waitMs": 180000,
+    "cpuShared": true,
+    "safari": "Not tested"
+  },
+  "stages": [
+    {
+      "name": "boot",
+      "at": "2026-11-08T08:52:01.798Z"
+    },
+    {
+      "name": "analytic-hull-real-worker-ready",
+      "at": "2026-11-08T08:52:17.674Z"
+    },
+    {
+      "name": "native-create-trench-and-111-guns",
+      "at": "2026-11-08T08:52:27.331Z"
+    },
+    {
+      "name": "native-edit-10021-guns-still-four-groups-two-rows-zero-gun-mesh",
+      "at": "2026-11-08T08:52:38.871Z"
+    },
+    {
+      "name": "native-undo-redo-entire-trench-armament-edit",
+      "at": "2026-11-08T08:52:52.177Z"
+    },
+    {
+      "name": "real-save-sheet-replaced-design-and-worker-restored-compact-groups",
+      "at": "2026-11-08T08:53:11.999Z"
+    },
+    {
+      "name": "restored-profile-fires-from-trench-and-consumes-real-power",
+      "at": "2026-11-08T08:53:12.156Z"
+    },
+    {
+      "name": "actual-fleet-tick-emits-bounded-shots-at-real-trench-origins",
+      "at": "2026-11-08T08:53:12.297Z"
+    },
+    {
+      "name": "390px-native-touch-count-input-and-scrollable-controls",
+      "at": "2026-11-08T08:53:13.921Z"
+    },
+    {
+      "name": "complete",
+      "at": "2026-11-08T08:53:13.995Z"
+    }
+  ],
+  "errors": [],
+  "stage": "complete",
+  "seed": {
+    "hull": {
+      "name": "楔形",
+      "plan": "rect",
+      "sec": "rect",
+      "L": 8000,
+      "W": 2000,
+      "H": 1000,
+      "bowW": 1,
+      "bowH": 1,
+      "stern": 1,
+      "assembly": true
+    },
+    "parts": 4,
+    "fits": 0,
+    "trenchCount": 0
+  },
+  "small": {
+    "saveId": "ship-2d1742d4-69ee-4a79-8032-990924e2e9d6",
+    "parts": 4,
+    "fits": 4,
+    "hostId": 4,
+    "trenchCount": 1,
+    "trenches": [
+      {
+        "side": "both",
+        "depth": 100,
+        "height": 80,
+        "level": 0.5,
+        "from": 0.2,
+        "to": 0.8,
+        "mode": "split",
+        "taper": false,
+        "id": 5,
+        "armament": {
+          "version": 1,
+          "counts": [
+            {
+              "kind": "monCal34",
+              "count": 11
+            },
+            {
+              "kind": "pd",
+              "count": 100
+            }
+          ]
+        }
+      }
+    ],
+    "managed": [
+      {
+        "id": 6,
+        "k": "monCal34",
+        "aggregateCount": 6,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1629.9250000000002,
+          500,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 7,
+        "k": "pd",
+        "aggregateCount": 50,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1844.8000000000002,
+          499.55,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 8,
+        "k": "monCal34",
+        "aggregateCount": 5,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1629.9250000000002,
+          500,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "id": 9,
+        "k": "pd",
+        "aggregateCount": 50,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1836.25,
+          499.55,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "chargeRows": [
+      {
+        "id": -9000000006,
+        "c": [
+          4000,
+          500,
+          -899.85
+        ],
+        "boxSize": [
+          1276.6645344726296,
+          31.958279484010145,
+          0.09999999999999999
+        ],
+        "volume": 4080.0001999999995,
+        "requiredVolume": 4080.0002,
+        "targetVolume": 4080.0002
+      },
+      {
+        "id": -9000000008,
+        "c": [
+          4000,
+          500,
+          899.85
+        ],
+        "boxSize": [
+          1130.5487636632645,
+          30.07389251378364,
+          0.09999999999999999
+        ],
+        "volume": 3400.0002,
+        "requiredVolume": 3400.0002,
+        "targetVolume": 3400.0002
+      }
+    ],
+    "weaponModules": 4,
+    "profileMounts": 4,
+    "profileVersion": 22,
+    "gunModelIndices": 0,
+    "referenceGunModelIndices": 0,
+    "mass": 3791036839.9074173,
+    "power": 3.427610914061568e+26,
+    "saveFormat": 3,
+    "gen": 2,
+    "adoptedGen": 2,
+    "statsGen": 2,
+    "worker": "worker",
+    "glError": 0
+  },
+  "large": {
+    "saveId": "ship-2d1742d4-69ee-4a79-8032-990924e2e9d6",
+    "parts": 4,
+    "fits": 4,
+    "hostId": 4,
+    "trenchCount": 1,
+    "trenches": [
+      {
+        "side": "both",
+        "depth": 100,
+        "height": 80,
+        "level": 0.5,
+        "from": 0.2,
+        "to": 0.8,
+        "mode": "split",
+        "taper": false,
+        "id": 5,
+        "armament": {
+          "version": 1,
+          "counts": [
+            {
+              "kind": "monCal34",
+              "count": 21
+            },
+            {
+              "kind": "pd",
+              "count": 10000
+            }
+          ]
+        }
+      }
+    ],
+    "managed": [
+      {
+        "id": 6,
+        "k": "monCal34",
+        "aggregateCount": 11,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1638.475,
+          477.05,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 7,
+        "k": "pd",
+        "aggregateCount": 5000,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          2198.5,
+          497.9,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 8,
+        "k": "monCal34",
+        "aggregateCount": 10,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1629.9250000000002,
+          477.05,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "id": 9,
+        "k": "pd",
+        "aggregateCount": 5000,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          2189.5,
+          497.9,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "chargeRows": [
+      {
+        "id": -9000000006,
+        "c": [
+          4000,
+          500,
+          -899.85
+        ],
+        "boxSize": [
+          1912.3696546408728,
+          39.11388147081159,
+          0.1
+        ],
+        "volume": 7480.02,
+        "requiredVolume": 7480.02,
+        "targetVolume": 7480.02
+      },
+      {
+        "id": -9000000008,
+        "c": [
+          4000,
+          500,
+          899.85
+        ],
+        "boxSize": [
+          1794.6377452515162,
+          37.890766635173975,
+          0.1
+        ],
+        "volume": 6800.02,
+        "requiredVolume": 6800.02,
+        "targetVolume": 6800.02
+      }
+    ],
+    "weaponModules": 4,
+    "profileMounts": 4,
+    "profileVersion": 22,
+    "gunModelIndices": 0,
+    "referenceGunModelIndices": 0,
+    "mass": 3793529539.917316,
+    "power": 3.427610914061568e+26,
+    "saveFormat": 3,
+    "gen": 3,
+    "adoptedGen": 3,
+    "statsGen": 3,
+    "worker": "worker",
+    "glError": 0
+  },
+  "undo": {
+    "saveId": "ship-2d1742d4-69ee-4a79-8032-990924e2e9d6",
+    "parts": 4,
+    "fits": 4,
+    "hostId": 4,
+    "trenchCount": 1,
+    "trenches": [
+      {
+        "id": 5,
+        "side": "both",
+        "from": 0.2,
+        "to": 0.8,
+        "level": 0.5,
+        "height": 80,
+        "depth": 100,
+        "taper": false,
+        "mode": "split",
+        "armament": {
+          "version": 1,
+          "counts": [
+            {
+              "kind": "monCal34",
+              "count": 11
+            },
+            {
+              "kind": "pd",
+              "count": 100
+            }
+          ]
+        }
+      }
+    ],
+    "managed": [
+      {
+        "id": 6,
+        "k": "monCal34",
+        "aggregateCount": 6,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1629.9250000000002,
+          500,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 7,
+        "k": "pd",
+        "aggregateCount": 50,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1844.8000000000002,
+          499.55,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 8,
+        "k": "monCal34",
+        "aggregateCount": 5,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1629.9250000000002,
+          500,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "id": 9,
+        "k": "pd",
+        "aggregateCount": 50,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1836.25,
+          499.55,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "chargeRows": [
+      {
+        "id": -9000000006,
+        "c": [
+          4000,
+          500,
+          -899.85
+        ],
+        "boxSize": [
+          1276.6645344726296,
+          31.958279484010145,
+          0.09999999999999999
+        ],
+        "volume": 4080.0001999999995,
+        "requiredVolume": 4080.0002,
+        "targetVolume": 4080.0002
+      },
+      {
+        "id": -9000000008,
+        "c": [
+          4000,
+          500,
+          899.85
+        ],
+        "boxSize": [
+          1130.5487636632645,
+          30.07389251378364,
+          0.09999999999999999
+        ],
+        "volume": 3400.0002,
+        "requiredVolume": 3400.0002,
+        "targetVolume": 3400.0002
+      }
+    ],
+    "weaponModules": 4,
+    "profileMounts": 4,
+    "profileVersion": 22,
+    "gunModelIndices": 0,
+    "referenceGunModelIndices": 0,
+    "mass": 3791036839.9074173,
+    "power": 3.427610914061568e+26,
+    "saveFormat": 3,
+    "gen": 4,
+    "adoptedGen": 4,
+    "statsGen": 4,
+    "worker": "worker",
+    "glError": 0
+  },
+  "redo": {
+    "saveId": "ship-2d1742d4-69ee-4a79-8032-990924e2e9d6",
+    "parts": 4,
+    "fits": 4,
+    "hostId": 4,
+    "trenchCount": 1,
+    "trenches": [
+      {
+        "id": 5,
+        "side": "both",
+        "from": 0.2,
+        "to": 0.8,
+        "level": 0.5,
+        "height": 80,
+        "depth": 100,
+        "taper": false,
+        "mode": "split",
+        "armament": {
+          "version": 1,
+          "counts": [
+            {
+              "kind": "monCal34",
+              "count": 21
+            },
+            {
+              "kind": "pd",
+              "count": 10000
+            }
+          ]
+        }
+      }
+    ],
+    "managed": [
+      {
+        "id": 6,
+        "k": "monCal34",
+        "aggregateCount": 11,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1638.475,
+          477.05,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 7,
+        "k": "pd",
+        "aggregateCount": 5000,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          2198.5,
+          497.9,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 8,
+        "k": "monCal34",
+        "aggregateCount": 10,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1629.9250000000002,
+          477.05,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "id": 9,
+        "k": "pd",
+        "aggregateCount": 5000,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          2189.5,
+          497.9,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "chargeRows": [
+      {
+        "id": -9000000006,
+        "c": [
+          4000,
+          500,
+          -899.85
+        ],
+        "boxSize": [
+          1912.3696546408728,
+          39.11388147081159,
+          0.1
+        ],
+        "volume": 7480.02,
+        "requiredVolume": 7480.02,
+        "targetVolume": 7480.02
+      },
+      {
+        "id": -9000000008,
+        "c": [
+          4000,
+          500,
+          899.85
+        ],
+        "boxSize": [
+          1794.6377452515162,
+          37.890766635173975,
+          0.1
+        ],
+        "volume": 6800.02,
+        "requiredVolume": 6800.02,
+        "targetVolume": 6800.02
+      }
+    ],
+    "weaponModules": 4,
+    "profileMounts": 4,
+    "profileVersion": 22,
+    "gunModelIndices": 0,
+    "referenceGunModelIndices": 0,
+    "mass": 3793529539.917316,
+    "power": 3.427610914061568e+26,
+    "saveFormat": 3,
+    "gen": 5,
+    "adoptedGen": 5,
+    "statsGen": 5,
+    "worker": "worker",
+    "glError": 0
+  },
+  "reloaded": {
+    "saveId": "ship-2d1742d4-69ee-4a79-8032-990924e2e9d6",
+    "parts": 4,
+    "fits": 4,
+    "hostId": 4,
+    "trenchCount": 1,
+    "trenches": [
+      {
+        "id": 5,
+        "side": "both",
+        "from": 0.2,
+        "to": 0.8,
+        "level": 0.5,
+        "height": 80,
+        "depth": 100,
+        "taper": false,
+        "mode": "split",
+        "armament": {
+          "version": 1,
+          "counts": [
+            {
+              "kind": "monCal34",
+              "count": 21
+            },
+            {
+              "kind": "pd",
+              "count": 10000
+            }
+          ]
+        }
+      }
+    ],
+    "managed": [
+      {
+        "id": 6,
+        "k": "monCal34",
+        "aggregateCount": 11,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          1638.475,
+          477.05,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 7,
+        "k": "pd",
+        "aggregateCount": 5000,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "port"
+        },
+        "p": [
+          2198.5,
+          497.9,
+          -900
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "id": 8,
+        "k": "monCal34",
+        "aggregateCount": 10,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          1629.9250000000002,
+          477.05,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "id": 9,
+        "k": "pd",
+        "aggregateCount": 5000,
+        "noModel": true,
+        "trenchRef": {
+          "hostId": 4,
+          "trenchId": 5,
+          "side": "stbd"
+        },
+        "p": [
+          2189.5,
+          497.9,
+          900
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "chargeRows": [
+      {
+        "id": -9000000006,
+        "c": [
+          4000,
+          500,
+          -899.85
+        ],
+        "boxSize": [
+          1912.3696546408728,
+          39.11388147081159,
+          0.1
+        ],
+        "volume": 7480.02,
+        "requiredVolume": 7480.02,
+        "targetVolume": 7480.02
+      },
+      {
+        "id": -9000000008,
+        "c": [
+          4000,
+          500,
+          899.85
+        ],
+        "boxSize": [
+          1794.6377452515162,
+          37.890766635173975,
+          0.1
+        ],
+        "volume": 6800.02,
+        "requiredVolume": 6800.02,
+        "targetVolume": 6800.02
+      }
+    ],
+    "weaponModules": 4,
+    "profileMounts": 4,
+    "profileVersion": 22,
+    "gunModelIndices": 0,
+    "referenceGunModelIndices": 0,
+    "mass": 3793529539.917316,
+    "power": 3.427610914061568e+26,
+    "saveFormat": 3,
+    "gen": 6,
+    "adoptedGen": 6,
+    "statsGen": 6,
+    "worker": "worker",
+    "glError": 0
+  },
+  "combat": {
+    "profileVersion": 22,
+    "distance": 20000,
+    "dt": 0.5,
+    "fire": {
+      "gun": 166.55199755240196,
+      "ion": 0,
+      "cost": 166.55199755240196,
+      "gunHit": 0.033853647508750924,
+      "ionHit": 0,
+      "fall": 0.033853647508750924,
+      "runtime": true
+    },
+    "portFire": {
+      "gun": 187.3709972464521,
+      "ion": 0,
+      "cost": 187.3709972464521,
+      "gunHit": 0.033853647508750924,
+      "ionHit": 0,
+      "fall": 0.033853647508750924,
+      "runtime": true
+    },
+    "frontFire": {
+      "gun": 0,
+      "ion": 0,
+      "cost": 0,
+      "gunHit": 0,
+      "ionHit": 0,
+      "fall": 0,
+      "runtime": true
+    },
+    "before": 714.002,
+    "after": 670.3806833485708,
+    "factor": 1,
+    "power": 3.318303800200907e+23,
+    "last": {
+      "spent": 83.27599877620098,
+      "gun": 166.55199755240196,
+      "ion": 0,
+      "cells": [
+        {
+          "fit": 8,
+          "module": 2,
+          "energy": 83.27599877620098,
+          "gun": 166.55199755240196,
+          "ion": 0
+        }
+      ],
+      "targetPoint": [
+        0,
+        0,
+        20000
+      ],
+      "charged": 39.65468212477183,
+      "unusedInputTT": 43.62131665142915
+    },
+    "mounts": [
+      {
+        "id": 6,
+        "center": [
+          -2358.3187500000004,
+          -22.94999999999999,
+          -900
+        ],
+        "muzzle": [
+          -2395.725,
+          -22.94999999999999,
+          -900
+        ],
+        "muzzles": [
+          [
+            -2395.725,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2387.175,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2378.625,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2361.525,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2352.975,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2344.425,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2327.325,
+            -22.94999999999999,
+            -900
+          ],
+          [
+            -2318.775,
+            -22.94999999999999,
+            -900
+          ]
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "aggregateCount": 11
+      },
+      {
+        "id": 7,
+        "center": [
+          410.75625,
+          -1.5749999999999957,
+          -900
+        ],
+        "muzzle": [
+          506.5500000000002,
+          -23.399999999999977,
+          -900
+        ],
+        "muzzles": [
+          [
+            506.5500000000002,
+            -23.399999999999977,
+            -900
+          ],
+          [
+            1339.5,
+            -17.399999999999977,
+            -900
+          ],
+          [
+            2167.5,
+            -12.300000000000011,
+            -900
+          ],
+          [
+            -1801.5,
+            -2.1000000000000227,
+            -900
+          ],
+          [
+            -973.5,
+            3,
+            -900
+          ],
+          [
+            -145.5,
+            8.100000000000023,
+            -900
+          ],
+          [
+            682.5,
+            13.200000000000045,
+            -900
+          ],
+          [
+            1510.5,
+            18.299999999999955,
+            -900
+          ]
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "aggregateCount": 5000
+      },
+      {
+        "id": 8,
+        "center": [
+          -2361.525,
+          -22.94999999999999,
+          900
+        ],
+        "muzzle": [
+          -2395.725,
+          -22.94999999999999,
+          900
+        ],
+        "muzzles": [
+          [
+            -2395.725,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2387.175,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2378.625,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2370.075,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2352.975,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2344.425,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2335.875,
+            -22.94999999999999,
+            900
+          ],
+          [
+            -2327.325,
+            -22.94999999999999,
+            900
+          ]
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "aggregateCount": 10
+      },
+      {
+        "id": 9,
+        "center": [
+          401.8125,
+          -1.5749999999999957,
+          900
+        ],
+        "muzzle": [
+          498,
+          -23.399999999999977,
+          900
+        ],
+        "muzzles": [
+          [
+            498,
+            -23.399999999999977,
+            900
+          ],
+          [
+            1330.5,
+            -17.399999999999977,
+            900
+          ],
+          [
+            2158.5,
+            -12.300000000000011,
+            900
+          ],
+          [
+            -1810.5,
+            -2.1000000000000227,
+            900
+          ],
+          [
+            -982.5,
+            3,
+            900
+          ],
+          [
+            -154.5,
+            8.100000000000023,
+            900
+          ],
+          [
+            673.5,
+            13.200000000000045,
+            900
+          ],
+          [
+            1501.5,
+            18.299999999999955,
+            900
+          ]
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "aggregateCount": 5000
+      }
+    ],
+    "banks": {
+      "6": 374,
+      "7": 0.001,
+      "8": 296.37868334857086,
+      "9": 0.001
+    },
+    "gridPower": 3.427610914061568e+26,
+    "weaponDemand": 2.9874178400000004e+24
+  },
+  "battle": {
+    "seconds": 0.25,
+    "shots": [
+      {
+        "gun": 18.094807584785567,
+        "ion": false,
+        "point": [
+          -2370.075,
+          -22.94999999999999,
+          900
+        ],
+        "sourceFit": 8,
+        "sourceMuzzle": [
+          -2370.075,
+          -22.94999999999999,
+          900
+        ],
+        "trenchAggregate": true,
+        "from": "trench-source",
+        "to": "trench-target",
+        "team": 0,
+        "msl": 0,
+        "salvo": false
+      }
+    ],
+    "allShotCount": 1,
+    "mountCount": 4,
+    "sourceCrew": 865370,
+    "sourceCrewNeed": 1297167,
+    "power": 3.318303800200907e+23,
+    "last": {
+      "spent": 41.63799938810049,
+      "gun": 166.55199755240196,
+      "ion": 0,
+      "cells": [
+        {
+          "fit": 8,
+          "module": 2,
+          "energy": 41.63799938810049,
+          "gun": 166.55199755240196,
+          "ion": 0
+        }
+      ],
+      "targetPoint": [
+        0,
+        0,
+        20000
+      ],
+      "charged": 19.827341062385916,
+      "unusedInputTT": 21.810658325714574
+    },
+    "originsMatch": true,
+    "targetBefore": {
+      "hp": 13829686.589241032,
+      "shield": 0,
+      "armor": 1
+    },
+    "targetAfter": {
+      "hp": 13829686.227344882,
+      "shield": 0,
+      "armor": 0
+    }
+  },
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "nativeTouch": true,
+    "focusedCount": true,
+    "controls": [
+      {
+        "selector": "[data-trench-gun-kind=\"0\"]",
+        "box": {
+          "x": 27,
+          "y": 570.1875,
+          "width": 336,
+          "height": 44
+        }
+      },
+      {
+        "selector": "[data-trench-gun-count=\"0\"]",
+        "box": {
+          "x": 27,
+          "y": 656.1875,
+          "width": 223.984375,
+          "height": 44
+        }
+      },
+      {
+        "selector": "[data-trench-gun-kind=\"1\"]",
+        "box": {
+          "x": 27,
+          "y": 696.1875,
+          "width": 336,
+          "height": 44
+        }
+      },
+      {
+        "selector": "[data-trench-gun-count=\"1\"]",
+        "box": {
+          "x": 27,
+          "y": 552.1875,
+          "width": 223.984375,
+          "height": 44
+        }
+      },
+      {
+        "selector": "[data-trench-armament-add]",
+        "box": {
+          "x": 27,
+          "y": 596.1875,
+          "width": 80.015625,
+          "height": 38
+        }
+      },
+      {
+        "selector": "[data-trench-armament-apply]",
+        "box": {
+          "x": 27,
+          "y": 677.5625,
+          "width": 104.015625,
+          "height": 62
+        }
+      },
+      {
+        "selector": "[data-trench-armament-cancel]",
+        "box": {
+          "x": 139.015625,
+          "y": 677.5625,
+          "width": 169.015625,
+          "height": 62
+        }
+      }
+    ],
+    "documentWidth": 390
+  },
+  "servedSources": {
+    "index.html": "34584187fa9caa9a0507ea91c56c8ee0211d413710e01cc09116106d2b5b8ad7",
+    "js/design-ui.css": "ba0e3216d968a858cc3bddb602fb2f30604e59419eb707a2e303dd6693047ae0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "data/reference.js": true,
+    "data/imperial2.js": true,
+    "data/fleet.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/app.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "34584187fa9caa9a0507ea91c56c8ee0211d413710e01cc09116106d2b5b8ad7",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "js/design-ui.css": "ba0e3216d968a858cc3bddb602fb2f30604e59419eb707a2e303dd6693047ae0",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "ee2d2dd0aae05e1d267cba270f40019a2ce4abcda48b8af4ccecdf9066a8f0ec"
+  },
+  "sourceStable": true,
+  "browser": "156.0.8078.79",
+  "completedAt": "2026-11-08T08:53:13.994Z"
+}

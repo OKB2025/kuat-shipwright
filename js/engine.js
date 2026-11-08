@@ -25,6 +25,7 @@ let wakeStats = null;
 let placementSequence = 0;
 const placementOperations = new Map(), placementDesignGenerations = new Map();
 const placementOperationKey = job => JSON.stringify([job.designId, job.operationId]);
+const isPlacementJob = job => job.type === 'placement' || job.type === 'trenchArmament';
 function placementGeneration(job) {
   if (job.designId == null || !Number.isSafeInteger(job.gen) || job.gen < 0) return;
   const prior = placementDesignGenerations.get(job.designId);
@@ -57,7 +58,7 @@ function placementReply(job, result, extra = {}) {
     publicResult.effectiveGeometry = placementEffectiveGeometry(result.part);
     if (result.results) publicResult.results.forEach((row, i) => { row.effectiveGeometry = placementEffectiveGeometry(result.results[i].part); });
   }
-  post({type: 'placement', id: job.id, gen: job.gen, designId: job.designId, operationId: job.operationId,
+  post({type: job.type === 'trenchArmament' ? 'trenchArmament' : 'placement', id: job.id, gen: job.gen, designId: job.designId, operationId: job.operationId,
     partId: r.partId ?? r.part?.id, fitId: r.fitId ?? r.fit?.id,
     entityKind: r.entityKind ?? (r.list === 'fits' || r.fit || r.part?._fit ? 'fit' : 'part'),
     list: r.list ?? (r.fit || r.part?._fit ? 'fits' : 'parts'), parentStructureId: r.parentStructureId, hostId: r.hostId,
@@ -69,7 +70,7 @@ function cancelPlacement(job) {
   if (operation) operation.cancelled = true;
   for (let i = queue.length - 1; i >= 0; i--) {
     const queued = queue[i];
-    if (queued.type === 'placement' && placementOperationKey(queued) === key) {
+    if (isPlacementJob(queued) && placementOperationKey(queued) === key) {
       queue.splice(i, 1); placementReply(queued, null, {cancelled: true, stale: true});
     }
   }
@@ -521,6 +522,20 @@ async function handlePlacement(job) {
   placementReply(job, result);
 }
 
+// Trench configuration may create a real recess and its aggregate charging
+// rooms together. Validate that complete edit on an isolated authoring copy;
+// neither a rejected request nor a late result can partly change the design.
+async function handleTrenchArmament(job) {
+  if (!placementCurrent(job)) { placementReply(job, null, {stale: true}); return; }
+  if (typeof C.configureTrenchArmament !== 'function') throw new Error('Trench armament solver unavailable');
+  const candidate = typeof job.state === 'string' ? JSON.parse(job.state) : JSON.parse(JSON.stringify(job.state));
+  if (!candidate || !Array.isArray(candidate.parts) || !Array.isArray(candidate.fits)) throw new Error('Invalid trench source design');
+  const result = C.configureTrenchArmament(candidate, job.request || {});
+  await yieldGeometry();
+  if (!placementCurrent(job)) { placementReply(job, null, {stale: true, cancelled: !!placementOperations.get(placementOperationKey(job))?.cancelled}); return; }
+  placementReply(job, result, result?.ok ? {state: C.publicJSON(candidate)} : {});
+}
+
 async function loadExample(key){
  const row=typeof YardFleetData==='undefined'?null:YardFleetData.designs?.[key],asset=row?.model?.preparedBlueprint,hash=globalThis.KS_SOURCE_SHA256?.['js/core.js'];
  const matchingSources=['data/reference.js','data/imperial2.js','js/core.js'].every(file=>row?.model?.sourceSha256?.[file]&&row.model.sourceSha256[file]===globalThis.KS_SOURCE_SHA256?.[file]);
@@ -707,6 +722,7 @@ async function pump() {
         else if (job.type === 'craftPrice') handleCraftPrice(job);
         else if (job.type === 'propulsionPreview') handlePropulsionPreview(job);
         else if (job.type === 'placement') await handlePlacement(job);
+        else if (job.type === 'trenchArmament') await handleTrenchArmament(job);
         else if (job.type === 'trialRays') handleTrialRays(job);
         else if (job.type === 'trialEnd') trialHold = null;
         else if (job.type === 'op') handleOp(job);
@@ -720,8 +736,8 @@ async function pump() {
 function receive(msg) {
   if (!msg || !msg.type) return;
   if (msg.type === 'cancelPlacement') { cancelPlacement(msg); return; }
-  if (msg.type === 'update' || msg.type === 'placement') placementGeneration(msg);
-  if (msg.type === 'placement') {
+  if (msg.type === 'update' || isPlacementJob(msg)) placementGeneration(msg);
+  if (isPlacementJob(msg)) {
     if (msg.designId == null || msg.operationId == null || !Number.isSafeInteger(msg.gen) || msg.gen < 0) {
       placementReply(msg, {ok: false, code: 'invalid-placement-generation'}); return;
     }
@@ -733,7 +749,7 @@ function receive(msg) {
     while (placementOperations.size > 256) placementOperations.delete(placementOperations.keys().next().value);
     // Superseded previews need no exact geometry job, but their callers must
     // still settle so cancellation cannot leave a pending Promise forever.
-    for (let i = queue.length - 1; i >= 0; i--) if (queue[i].type === 'placement' && placementOperationKey(queue[i]) === key) {
+    for (let i = queue.length - 1; i >= 0; i--) if (isPlacementJob(queue[i]) && placementOperationKey(queue[i]) === key) {
       const old = queue.splice(i, 1)[0]; placementReply(old, null, {stale: true});
     }
   }

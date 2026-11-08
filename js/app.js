@@ -2046,6 +2046,7 @@ function touch(what) {   // geometry or design changed
   if(what==='hull')syncHullEditor(true);else if(what==='parts'||what==='all')syncHullEditor(false);
   if (what !== 'fits') editorPartsRevision++;
   eng.gen++;if(typeof designUIInvalidatePending==='function')designUIInvalidatePending('設計が変更されました。位置を指定し直してください。');
+  if(typeof trenchArmamentInvalidate==='function')trenchArmamentInvalidate('設計が変更されました。武装数を確認して再適用してください。');
   meshStore.pendingSurfaceGeometry = null;meshStore.pendingStatsGeometry=null; eng.what.add(what || 'all');
   if (live.active) live.gen = eng.gen;
   kickEngine(); engineStatus(); dirty.overlay = true; dirty.draw = true;
@@ -2779,7 +2780,7 @@ function enginePickParts(){
 }
 function partHit(o, d, clip, filter) {
   let best = null;const nativeFits=new Set(ship.fits.map(f=>f.id));
-  const pending=!eng.ready||enginePending()||!!ship._deferredPreparation, snapshot=editorSnapshotForUI(),parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...(snapshot?.commands||[]),...(snapshot?.capacitors||[]).filter(p=>nativeFits.has(p.weaponId)),...(snapshot?.missileCells||[])];
+  const pending=!eng.ready||enginePending()||!!ship._deferredPreparation, snapshot=editorSnapshotForUI(),parts=pending?ship.parts:[...ship.parts,...enginePickParts(),...(snapshot?.commands||[]),...(snapshot?.capacitors||[]).filter(p=>nativeFits.has(p.weaponId)||(p.weaponIds||[]).some(id=>nativeFits.has(id))),...(snapshot?.missileCells||[])];
   for (const pt of parts) {
     if(Gfx.isHiddenEngineFeed(pt))continue;
     if(pending&&!editorCanMeshPart(pt))continue;
@@ -2791,6 +2792,7 @@ function partHit(o, d, clip, filter) {
   return best;
 }
 function fitPickHit(o, d, f, maxT) {
+  if(C.isTrenchBatteryGroup?.(f))return null;
   const h=C.FITS[f.k]?.cat === 'w' ? Gfx.rayFit(o,d,f,maxT) : C.rayAABB(o,d,C.fitAABB(f));
   return h&&(maxT==null||h.t<maxT)?h:null;
 }
@@ -3007,6 +3009,7 @@ function tapHit(t, hit, add) {
     case 'unany': { const h = editHitItem(hit); if (h?.it) { removeWithPreview('撤去', h.list, h.it); selSync(); renderPanel(); } else toast(st.view === 'normal' ? '撤去する部品をタップしてください（内部の区画は「透視」で選べます）' : '撤去する部品をタップしてください'); break; }
     case 'inspect': showInspect(hit); break;
     case 'select':
+      if(hit?.part?.trenchChargeRow){trenchArmamentOpen(hit.part);break;}
       if(hit?.part?.windowId||hit?.part?.weaponId){openLayoutTarget({list:'fits',id:hit.part.windowId||hit.part.weaponId});break;}
       if(hit?.part?.k==='machinery'){if(hit.part.nozzle!=null)openLayoutTarget({list:'parts',id:hit.part.nozzle});else showInspect(hit);break;}
       if (hit && hit.part) { st.sel = {list: 'parts', id: hit.part.id}; renderPanel(); }
@@ -4590,7 +4593,7 @@ function designUIRequest(hit){
   designUI.parentId=tapped;
  }
  const parent=designParent(cap.space==='exterior'?designUI.parentId:designUI.hostId),request={part:pv,partId:pv.id,...(list==='fits'?{list:'fits',entityKind:'fit'}:{}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,mode:cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0],...(cap.space==='exterior'&&designUI.parentId!=null?{parentStructureId:designUI.parentId,hostId:designUI.parentId}:designUI.hostId!=null?{hostId:designUI.hostId}:{}),hostSurfaceId:hit.hostSurfaceId||hit.surfaceId,contactSide:designUI.contactSide||undefined,hit:{p:hit.p.slice(),n:hit.n.slice(),kind:hit.kind,face:hit.face,...(hit.rootPlane?{rootPlane:true}:{}),...(hit.u?{u:hit.u.slice()}:{})},geometryRevision:(pv.placement?.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||parent?.geometryRevision||0};
- const rows=designUIRequests(pv,request);if(rows.length>1)request.parts=rows;
+ let rows;try{rows=designUIRequests(pv,request);}catch(error){designUIRejectTap(error.message||'対称側の取付面を確認できません。位置を変えるか、対称配置を解除してください。');return;}Object.assign(request,rows[0].request);if(rows.length>1)request.parts=rows;
  const pending=designUI.pending={source,gen,operationId,designId,request,rows,list,state:'pending'};designUIBar();
  view?.setPlacementDiagnostics?.(ship,designUIDiagnostics(pv,request,'pending'));
  YardEngineClient.request('placement',{gen,state:C.publicJSON(ship),designId,operationId,request}).then(packet=>{
@@ -4609,17 +4612,38 @@ function designUIRequest(hit){
  }).catch(error=>{if(designUI.pending!==pending||pending.invalidated)return;pending.state='failed';pending.result={error:String(error.message||error)};hoverLines=null;view?.setPlacementDiagnostics?.(ship,designUIDiagnostics(pv,request,'invalid'));designUIBar();requestDraw();});
 }
 function designUIRequests(part,request){
- if(request.list!=='fits'&&designCapability(part).kind!=='structure'){const draft=partPreview(request.hit);if(draft)request.position=draft.c.slice();}
- const rows=[{part,request:{...request},symmetry:''}];if(designUI.replaceId!=null)return rows;
+ const cloneHit=hit=>({...hit,p:hit.p.slice(),n:hit.n.slice(),...(hit.u?{u:hit.u.slice()}:{}),...(hit.v?{v:hit.v.slice()}:{})});
+ const initial={...request,hit:cloneHit(request.hit),...(request.position?{position:request.position.slice()}:{})};
+ if(initial.list!=='fits'&&designCapability(part).kind!=='structure'){const draft=partPreview(initial.hit);if(draft)initial.position=draft.c.slice();}
+ const rows=[{part,request:initial,symmetry:''}];if(designUI.replaceId!=null)return rows;
+ const faces={z:{port:'stbd',stbd:'port'},y:{top:'bottom',bottom:'top'}};
+ const cardinal=new Set(['fore','aft','port','stbd','top','bottom']);
+ const reflected=(p,axis)=>axis==='z'?[p[0],p[1],-p[2]]:C.vmirrorPoint(ship,p);
+ const sameDirection=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&Math.abs(C.dot(C.norm(a),C.norm(b))-1)<=1e-9;
  const mirrored=(source,axis)=>{
-  const fit=request.list==='fits',next=fit?publicCopy(source.part):axis==='z'?C.mirrorPart(source.part,ship):C.vmirrorPart(source.part,ship),r={...source.request,hit:{...source.request.hit,p:source.request.hit.p.slice(),n:source.request.hit.n.slice()}},i=axis==='z'?2:1,link=axis==='z'?'tw':'vt';
-  r.hit.p[i]=axis==='z'?-r.hit.p[i]:C.vmirrorPoint(ship,r.hit.p)[1];r.hit.n[i]*=-1;if(fit){next.p=r.hit.p.slice();next.n=(next.n||source.request.hit.n).slice();next.n[i]*=-1;next.assetYaw=-(next.assetYaw||0);for(const key of ['frameForward','tilt'])if(Array.isArray(next[key])){next[key]=next[key].slice();next[key][i]*=-1;}if(axis==='y'){if(next.mountMode==='top')next.mountMode='bottom';else if(next.mountMode==='bottom')next.mountMode='top';}}
+  const fit=request.list==='fits',next=fit?publicCopy(source.part):axis==='z'?C.mirrorPart(source.part,ship):C.vmirrorPart(source.part,ship),r={...source.request,hit:cloneHit(source.request.hit)},i=axis==='z'?2:1,link=axis==='z'?'tw':'vt';
+  r.hit.p=reflected(r.hit.p,axis);r.hit.n[i]*=-1;if(r.hit.u)r.hit.u[i]*=-1;if(r.hit.v)r.hit.v[i]*=-1;r.hit.face=faces[axis][r.hit.face]||r.hit.face;
+  if(source.request.position)r.position=reflected(source.request.position,axis);
+  if(fit){next.p=r.hit.p.slice();next.n=(next.n||source.request.hit.n).slice();next.n[i]*=-1;next.assetYaw=-(next.assetYaw||0);for(const key of ['frameForward','tilt'])if(Array.isArray(next[key])){next[key]=next[key].slice();next[key][i]*=-1;}if(axis==='y'){if(next.mountMode==='top')next.mountMode='bottom';else if(next.mountMode==='bottom')next.mountMode='top';}}
   for(const field of ['parentStructureId','hostId']){const owner=designParent(r[field]);if(owner?.[link]!=null)r[field]=owner[link];}
   if(axis==='y'&&r.contactSide)r.contactSide=r.contactSide==='bottom'?'top':r.contactSide==='top'?'bottom':r.contactSide;
   if(axis==='z'&&r.contactSide)r.contactSide=r.contactSide==='port'?'stbd':r.contactSide==='stbd'?'port':r.contactSide;
   const parent=designParent(r.parentStructureId);r.parentGeometryRevision=parent?.placement?.geometryRevision||parent?.geometryRevision||0;
   delete r.hostSurfaceId;
-  if(parent&&Gfx.structureSurfaceCandidates){const n=r.hit.n,o=C.add(r.hit.p,C.mul(n,.05)),hit=Gfx.structureSurfaceCandidates(editorMountShip(),o,C.mul(n,-1),parent.id,{maxDistance:.2})[0];if(hit)r.hostSurfaceId=hit.hostSurfaceId;}
+  if(r.parentStructureId!=null&&!parent)throw Error('対称側の取付面を確認できません。位置を変えるか、対称配置を解除してください。');
+  if(parent){
+   // Reuse the existing 20 cm local probe, centred on the reflected anchor.
+   // It is a geometric adjustment on this parent, never a larger contact tolerance.
+   const n=C.norm(r.hit.n),radius=.1,origin=C.add(r.hit.p,C.mul(n,radius)),hit=Gfx.structureSurfaceCandidates?.(editorMountShip(),origin,C.mul(n,-1),parent.id,{maxDistance:radius*2})[0];
+   const point=hit?.p||hit?.point,normal=hit?.n,surfaceId=hit?.hostSurfaceId,host=hit?.parentStructureId??hit?.part?.id;
+   const finite=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite),epsilon=Number.EPSILON*Math.max(1,...r.hit.p.map(Math.abs));
+   if(!finite(point)||!finite(normal)||host!==parent.id||typeof surfaceId!=='string'||!surfaceId||C.len(normal)<1e-12||C.dot(C.norm(normal),n)<=0||cardinal.has(r.hit.face)&&hit.face!==r.hit.face||C.len(C.sub(point,r.hit.p))>radius+epsilon)throw Error('対称側の取付面を確認できません。位置を変えるか、対称配置を解除してください。');
+   const delta=C.sub(point,r.hit.p),upright=fit&&C.FITS[next.k]?.cat==='w'&&!C.weaponWallOnly?.(next.k)&&!(C.isShipLauncher?.(next.k)&&next.launcherEmbedded)&&['top','bottom'].includes(next.mountMode),normalFollowsSurface=fit&&!upright&&sameDirection(next.n,r.hit.n),tiltFollowsSurface=fit&&!upright&&sameDirection(next.tilt,r.hit.n);
+   r.hit={...r.hit,p:point.slice(),n:normal.slice(),face:hit.face,...(hit.u?{u:hit.u.slice()}:{}),...(hit.v?{v:hit.v.slice()}:{})};r.hostSurfaceId=surfaceId;
+   if(fit){next.p=point.slice();if(normalFollowsSurface)next.n=normal.slice();if(tiltFollowsSurface)next.tilt=normal.slice();}
+   else if(next.c)next.c=C.add(next.c,delta);
+   if(r.position)r.position=C.add(r.position,delta);
+  }
   return {part:next,request:r,...(fit?{list:'fits'}:{}),symmetry:source.symmetry+axis};
  };
  if(st.mirror&&Math.abs((request.list==='fits'?part.p:part.c)[2])>1e-5)rows.push(mirrored(rows[0],'z'));
@@ -5265,13 +5289,83 @@ function v3RenderPanel(){
   if(st.tab==='armor')panel.insertAdjacentHTML('beforeend',`<div class="pgroup sliders"><h4>シールドの目標強度</h4>${slider('shieldTarget','標準に対して',(ship.shieldTarget||1)*100,10,300,5,Math.round((ship.shieldTarget||1)*100)+'%')}<p class="note">目標強度 × 外表面積で必要電力が決まります。発生器の容量と給電が不足すると実効強度が下がります。</p></div>`);
 }
 function trenchPanelHTML(){
-  const t=st.trench;
+  const t=st.trench,q=trenchArmamentState(),pending=!!q.pending;
   return `<div class="pgroup trench-editor"><h3>上下を開いてトレンチを作る</h3><p class="note">上部と下部の船体を同じ量ずつ離します。指定した上下の間隔を艦尾から艦首まで保ち、元の甲板と船底の傾斜を残します。</p>
   ${seg('trside',[['both','左右両舷'],['port','左舷'],['stbd','右舷']],t.side)}
   <div class="sliders">${slider('trHeight','上下の間隔',t.height,2,Math.min(500,Math.max(50,Math.round(hullEditorProfile().H))),1,fmtM(t.height))}${slider('trDepth','奥壁の後退量',t.depth,2,Math.min(800,Math.max(20,Math.round(hullEditorProfile().W/3))),1,fmtM(t.depth))}</div>
   <details><summary>分割位置・前後の範囲</summary><div class="sliders">${slider('trLevel','船体を上下に分ける位置',t.level*100,10,90,1,Math.round(t.level*100)+'%')}${slider('trFrom','艦尾側の開始位置',t.from*100,0,95,1,Math.round(t.from*100)+'%')}${slider('trTo','艦首側の終了位置',t.to*100,5,100,1,Math.round(t.to*100)+'%')}</div><div class="row2"><button class="btn sm" data-trench-range="all">全長に適用</button><button class="btn sm" data-trench-range="middle">中央70%に適用</button></div><p class="note">船体の一部だけに作っても、上下の船体は全長にわたって同じ間隔だけ離れるので、端で段差はできません。溝は指定した範囲だけに入ります。削った面には溝を付けません。</p></details>
-  <button class="btn primary" id="btnTrench">上下を開いて作成</button></div>
-  <div class="pgroup"><h4>設置済みトレンチ</h4><ul class="ilist">${(hullEditorShip().trenches||[]).map(q=>`<li><span><b>${q.mode==='split'?'一定間隔':'従来の切削'} · ${q.side==='both'?'両舷':q.side==='port'?'左舷':'右舷'}</b>上下 ${fmtM(q.height)} / 後退 ${fmtM(q.depth)}</span><div class="cutter-list-actions">${q.mode!=='split'?`<button class="btn sm" data-gap-trench="${q.id}">一定間隔に変更</button>`:''}<button class="btn sm ghost" data-deltrench="${q.id}">撤去</button></div></li>`).join('')||'<li>トレンチはまだありません。</li>'}</ul></div>`;
+  ${q.trenchId==null?trenchArmamentPanelHTML(q):''}${q.trenchId==null?`<button class="btn primary" id="btnTrench" ${pending?'disabled':''}>上下を開いて作成</button>`:'<button class="btn" data-trench-armament-new>新しいトレンチの設定へ</button>'}</div>
+  ${q.trenchId!=null?trenchArmamentPanelHTML(q):''}
+  <div class="pgroup"><h4>設置済みトレンチ</h4><ul class="ilist">${(hullEditorShip().trenches||[]).map(t=>`<li><span><b>${t.mode==='split'?'一定間隔':'従来の切削'} · ${t.side==='both'?'両舷':t.side==='port'?'左舷':'右舷'}</b>上下 ${fmtM(t.height)} / 後退 ${fmtM(t.depth)}</span><div class="cutter-list-actions"><button class="btn sm" data-trench-armament-edit="${t.id}">武装数を編集</button>${t.mode!=='split'?`<button class="btn sm" data-gap-trench="${t.id}">一定間隔に変更</button>`:''}<button class="btn sm ghost" data-deltrench="${t.id}">撤去</button></div></li>`).join('')||'<li>トレンチはまだありません。</li>'}</ul></div>`;
+}
+// Trench counts are a draft until the Worker validates the real charge rooms.
+// Only the compact source configuration is edited here; Core owns all capacity,
+// power, damage and geometry calculations, independently of the number of guns.
+const trenchArmamentUI={source:null,hostId:null,trenchId:null,rows:[],pending:null,error:'',sequence:0};
+function trenchArmamentHostId(){const p=hullEditorPart();return p&&C.isHullStructure?.(p)?p.id:'hull';}
+function trenchArmamentCancel(message=''){
+  const q=trenchArmamentUI;if(q.pending)YardEngineClient.post({type:'cancelPlacement',designId:q.pending.designId,operationId:q.pending.operationId});
+  q.pending=null;q.error=message;
+  const apply=$('[data-trench-armament-apply]'),create=$('#btnTrench'),status=$('[data-trench-armament-status]');if(apply)apply.disabled=false;if(create)create.disabled=false;if(status)status.textContent=T(message||'基数は未適用です。適用時に実際の船内空間と給電設備を検証します。');
+}
+function trenchArmamentInvalidate(message){if(trenchArmamentUI.pending)trenchArmamentCancel(message);}
+function trenchArmamentState(){
+  const q=trenchArmamentUI,hostId=trenchArmamentHostId();
+  if(q.source!==ship||q.hostId!==hostId){trenchArmamentCancel();Object.assign(q,{source:ship,hostId,trenchId:null,rows:[],error:''});}
+  if(q.trenchId!=null&&!(hullEditorShip().trenches||[]).some(t=>t.id===q.trenchId)){trenchArmamentCancel();q.trenchId=null;q.rows=[];}
+  return q;
+}
+function trenchArmamentChoose(id){
+  const q=trenchArmamentState();trenchArmamentCancel();q.trenchId=id;
+  const t=(hullEditorShip().trenches||[]).find(t=>t.id===id);q.rows=(t?.armament?.counts||[]).map(r=>({kind:r.kind,count:String(r.count)}));
+  if(!t)q.trenchId=null;renderPanel();
+}
+function trenchArmamentOpen(item){
+  const ref=item?.trenchRef;if(!ref)return false;
+  if(typeof designUIEditSession==='function'&&designUIEditSession())designUIEditCancel({silent:true});
+  designUICancel();designUI.drawer=true;designUI.details=true;st.tab='carve';st.carveTool='trench';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');
+  const parent=ship.parts.find(p=>p.id===ref.hostId&&C.isHullStructure?.(p));st.sel=parent?{list:'parts',id:parent.id}:null;
+  trenchArmamentChoose(ref.trenchId);syncHud();refreshOverlay();requestDraw();return true;
+}
+function trenchArmamentRows(q=trenchArmamentState()){
+  const allowed=new Set((C.trenchArmamentKinds?.()||[]).map(r=>r.kind||r.k)),seen=new Set(),rows=[];
+  for(const row of q.rows){const kind=row.kind,count=Number(row.count);if(!allowed.has(kind)||seen.has(kind)||String(row.count).trim()===''||!Number.isSafeInteger(count)||count<0)throw Error('砲種を重複させず、基数を0以上の整数で指定してください');seen.add(kind);if(count)rows.push({kind,count});}
+  return rows;
+}
+function trenchArmamentPanelHTML(q){
+  const kinds=C.trenchArmamentKinds?.()||[],trench=q.trenchId==null?st.trench:(hullEditorShip().trenches||[]).find(t=>t.id===q.trenchId),side=trench?.side||'both';
+  const summary=q.rows.map(row=>{const count=Number(row.count),def=kinds.find(d=>(d.kind||d.k)===row.kind);if(!Number.isSafeInteger(count)||count<0||!def)return '';const port=side==='stbd'?0:side==='port'?count:Math.ceil(count/2),stbd=count-port;return `${esc(T(def.short||def.name||row.kind))}: ${port} / ${stbd} · ${Math.max(1,def.barrels||1)} ${T('砲身/基')}`;}).filter(Boolean).join('<br>');
+  return `<div class="pgroup" data-trench-armament-editor data-trench-armament-target="${q.trenchId??'new'}"><h4>${q.trenchId==null?'新しいトレンチの武装':'設置済みトレンチの武装'}</h4><p class="field-label">砲種ごとの基数（左右合計）</p><p class="note">砲塔モデルを増やさずに砲群と実寸の充電区画を配置します。既存の通常砲塔はそのまま残ります。</p>
+  ${q.rows.map((row,i)=>`<div class="row2"><label><span class="field-label">砲種</span><select data-trench-gun-kind="${i}">${kinds.map(d=>`<option value="${esc(d.kind||d.k)}" ${(d.kind||d.k)===row.kind?'selected':''}>${esc(T(d.name||d.short||d.kind||d.k))} · ${Math.max(1,d.barrels||1)} ${T('砲身/基')}</option>`).join('')}</select></label><label><span class="field-label">基数</span><input type="number" min="0" step="1" inputmode="numeric" data-trench-gun-count="${i}" value="${esc(row.count)}"></label><button class="btn sm ghost" data-trench-armament-remove="${i}">この砲種を外す</button></div>`).join('')}
+  <button class="btn sm" data-trench-armament-add ${q.rows.length>=kinds.length?'disabled':''}>砲種を追加</button><p class="note" data-trench-armament-split>${T('左舷 / 右舷')}<br>${summary||T('砲群なし')}<br>${T('両舷では奇数の1基を左舷に配置します。')}</p>
+  <p class="note" role="status" aria-live="polite" data-trench-armament-status>${esc(T(q.pending?'充電区画とトレンチ砲群を検証中…':q.error||'基数は未適用です。適用時に実際の船内空間と給電設備を検証します。'))}</p>
+  <div class="row2">${q.trenchId!=null?`<button class="btn primary" data-trench-armament-apply ${q.pending?'disabled':''}>武装数を適用</button>`:''}<button class="btn ghost" data-trench-armament-cancel>武装数の変更を取り消す</button></div></div>`;
+}
+function trenchArmamentInput(target){
+  const q=trenchArmamentState();let index,key;if('trenchGunKind'in target.dataset){index=Number(target.dataset.trenchGunKind);key='kind';}else if('trenchGunCount'in target.dataset){index=Number(target.dataset.trenchGunCount);key='count';}else return false;
+  if(!q.rows[index])return true;trenchArmamentCancel();q.rows[index][key]=target.value;
+  // Keep focus during number entry; the displayed split uses the same base counts.
+  const box=target.closest?.('[data-trench-armament-editor]'),summary=box?.querySelector('[data-trench-armament-split]');if(summary){const holder=document.createElement('div');holder.innerHTML=trenchArmamentPanelHTML(q);summary.innerHTML=holder.querySelector('[data-trench-armament-split]').innerHTML;}
+  const status=box?.querySelector('[data-trench-armament-status]');if(status)status.textContent=T('基数は未適用です。適用時に実際の船内空間と給電設備を検証します。');return true;
+}
+function trenchArmamentSubmit(create=false){
+  const q=trenchArmamentState();if(q.pending)return;
+  if(typeof designUIEditSession==='function'&&designUIEditSession()){toast('編集を適用または取消してから保存してください');return;}
+  let counts;try{counts=trenchArmamentRows(q);}catch(error){q.error=error.message;toast(T(q.error));renderPanel();return;}
+  if(create&&st.trench.from>=st.trench.to){q.error='艦尾側端を艦首側端より手前にしてください';toast(T(q.error));renderPanel();return;}
+  const source=ship,gen=eng.gen,designId=ship.saveId,sourceState=C.publicJSON(ship),hostId=q.hostId,trenchId=create?null:q.trenchId,draftTrenchId=q.trenchId,operationId='trench-armament-'+(++q.sequence);
+  const request={hostId,counts,...(create?{newTrench:{...st.trench,mode:'split',taper:false}}:{trenchId})};
+  const pending=q.pending={source,gen,designId,sourceState,hostId,trenchId,operationId};q.error='';renderPanel();
+  YardEngineClient.request('trenchArmament',{gen,state:sourceState,designId,operationId,request}).then(packet=>{
+    if(q.pending!==pending)return;
+    const invalid=ship!==source||ship.saveId!==designId||eng.gen!==gen||trenchArmamentHostId()!==hostId||q.trenchId!==draftTrenchId||C.publicJSON(ship)!==sourceState;
+    if(invalid||packet.stale||packet.cancelled||packet.gen!==gen||packet.designId!==designId||packet.operationId!==operationId){trenchArmamentCancel('設計が変更されました。武装数を確認して再適用してください。');renderPanel();return;}
+    if(!packet.result?.ok||!packet.state){q.pending=null;q.error=packet.result?.error||'トレンチ武装の検証に失敗しました';toast(T(q.error));renderPanel();return;}
+    const state=typeof packet.state==='string'?JSON.parse(packet.state):packet.state;state.saveId=designId;
+    q.pending=null;
+    const ok=mutate(create?'トレンチと砲群を作成':'トレンチの武装数を変更',()=>{C.patchShip(ship,state);ship._client=true;},'all');
+    if(ok){st.showTrench=true;q.trenchId=packet.result.trenchId??trenchId;q.rows=((hullEditorShip().trenches||[]).find(t=>t.id===q.trenchId)?.armament?.counts||[]).map(r=>({kind:r.kind,count:String(r.count)}));q.error='';}renderPanel();requestDraw();
+  }).catch(error=>{if(q.pending!==pending)return;q.pending=null;q.error=String(error.message||error);toast(T(q.error));renderPanel();});
 }
 function hpWidth(){return hullEditorProfile().W;}
 // v23 The ship's power + heat network (spec 10.5): sources, power and heat paths, dissipators, margin, broken
@@ -5531,7 +5625,7 @@ function systemsHTML(){
   ${S0?`<h4>区画の能力</h4><dl class="engineering-stats">${[['機関・推進経路の占有',ja(S0.engineVolume)+' m³'],['反応物貯蔵',ja(S0.fuelVolume)+' m³'],['通常航行の航続',Number.isFinite(S0.fuelHours)?S0.fuelHours.toFixed(1)+' 時間':'—'],['反応物供給能力',fPct(S0.supplyRatio)],['慣性制御 対応質量',fMass(S0.inertialSupport)],['構造維持 対応質量',fMass(S0.integritySupport)],['リパルサー 支持質量',fMass(S0.repulsorSupport)],['航空整備',num(S0.serviceCapacity)+' 機分'],['貨物容量',fMass(S0.cargoCapacity)]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl><p class="note">航続は通常航行で実際に発電する電力と炉の変換損失から算出します。戦闘中の燃料消費も実発電量に従います。</p>`:''}`;
 }
 function bindEngineering(){
-  $('#panel').addEventListener('change',e=>{const t=e.target;if('engineMachinery'in t.dataset){if(t.dataset.engineMachineryNew==='1'){st.newEngineCoreId=Number(t.value)||0;updateHint();renderPanel();}else engineMachineryAction(t.value);return;}if(t.dataset.engineField)engineSpecAction(t.dataset.engineField,t.value,t.dataset.engineNew==='1');});
+  $('#panel').addEventListener('change',e=>{const t=e.target;if(trenchArmamentInput(t))return;if('engineMachinery'in t.dataset){if(t.dataset.engineMachineryNew==='1'){st.newEngineCoreId=Number(t.value)||0;updateHint();renderPanel();}else engineMachineryAction(t.value);return;}if(t.dataset.engineField)engineSpecAction(t.dataset.engineField,t.value,t.dataset.engineNew==='1');});
   $('#panel').addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
     if(d.heatPreset){st.heatPreset=d.heatPreset;renderPanel();return;}
@@ -5551,11 +5645,17 @@ function bindEngineering(){
     if(d.editform){if(d.editform==='hull'&&!C.isHullStructure?.(selItem()))return;mutate('構造物の形状',()=>editSel(p=>{p.form=d.editform;if(d.editform!=='reference'){delete p.skinAsset;delete p.equipmentId;}}),'parts');renderPanel();}
     if(d.partaxis){mutate('円筒の向き',()=>editSel(p=>p.dir=d.partaxis==='y'?[0,1,0]:d.partaxis==='z'?[0,0,1]:[1,0,0]),'parts');renderPanel();}
     if(d.duplicate){const p=selItem();if(!p)return;st.multi={parts:new Set([p.id]),fits:new Set()};st.sel={list:'parts',id:p.id};editDuplicate();renderPanel();}
-    if(d.trside){st.trench.side=d.trside;st.showTrench=true;renderPanel();}
-    if(b.id==='btnTrench'){if(st.trench.from>=st.trench.to){toast('艦尾側端を艦首側端より手前にしてください');return;}mutate('上下を開いてトレンチを作成',()=>{hullEditorShip().trenches||=[];hullEditorShip().trenches.push({...st.trench,id:ship.nextId++,mode:'split',taper:false});},'hull');st.showTrench=true;renderPanel();}
+    if('trenchArmamentEdit'in d){trenchArmamentChoose(Number(d.trenchArmamentEdit));return;}
+    if('trenchArmamentNew'in d){trenchArmamentChoose(null);return;}
+    if('trenchArmamentCancel'in d){trenchArmamentChoose(trenchArmamentState().trenchId);return;}
+    if('trenchArmamentApply'in d){trenchArmamentSubmit(false);return;}
+    if('trenchArmamentAdd'in d){const q=trenchArmamentState();trenchArmamentCancel();const next=(C.trenchArmamentKinds?.()||[]).find(k=>!q.rows.some(r=>r.kind===(k.kind||k.k)));if(next)q.rows.push({kind:next.kind||next.k,count:'0'});renderPanel();return;}
+    if('trenchArmamentRemove'in d){const q=trenchArmamentState();trenchArmamentCancel();q.rows.splice(Number(d.trenchArmamentRemove),1);renderPanel();return;}
+    if(d.trside){trenchArmamentCancel();st.trench.side=d.trside;st.showTrench=true;renderPanel();}
+    if(b.id==='btnTrench'){trenchArmamentSubmit(true);return;}
     if(d.gapTrench){mutate('トレンチを一定間隔に変更',()=>{const t=hullEditorShip().trenches.find(t=>t.id===+d.gapTrench);if(t){t.mode='split';t.taper=false;}},'hull');renderPanel();}
-    if(d.trenchRange){st.trench.from=d.trenchRange==='all'?0:.15;st.trench.to=d.trenchRange==='all'?1:.85;renderPanel();}
-    if(d.deltrench){mutate('トレンチを撤去',()=>hullEditorShip().trenches=hullEditorShip().trenches.filter(t=>t.id!==+d.deltrench),'hull');renderPanel();}
+    if(d.trenchRange){trenchArmamentCancel();st.trench.from=d.trenchRange==='all'?0:.15;st.trench.to=d.trenchRange==='all'?1:.85;renderPanel();}
+    if(d.deltrench){mutate('トレンチを撤去',()=>{const hostId=trenchArmamentHostId();hullEditorShip().trenches=hullEditorShip().trenches.filter(t=>t.id!==+d.deltrench);ship.fits=ship.fits.filter(f=>!C.isTrenchBatteryGroup?.(f)||f.trenchRef.hostId!==hostId||f.trenchRef.trenchId!==+d.deltrench);},'hull');renderPanel();}
     if(d.goto){st.sel={list:'parts',id:+d.goto};st.tab='mod';st.partTool='select';st.view='xray';syncHud();renderPanel();requestDraw();}
     if('internal'in d){st.view='xray';syncHud();requestDraw();}
     if('commandroom'in d){st.equipmentId=null;st.tab='mod';st.group='command';st.part='command';st.partTool='place';renderPanel();}
@@ -5570,13 +5670,14 @@ function bindEngineering(){
     renderPanel();
   });
   $('#panel').addEventListener('input',e=>{
+    if(trenchArmamentInput(e.target))return;
     const k=e.target.dataset.sl;if(!k||e.target.value==='')return;const v=Math.max(+e.target.min,Math.min(+e.target.max,Number(e.target.value)||0)),out=$('#out-'+k);
     const live=(fn,what='parts')=>{beginDrag('設計を調整');fn();touch(what);scheduleStats(350);};
     if(['sponsonLength','sponsonDepth','sponsonHeight'].includes(k)){const i=['sponsonLength','sponsonDepth','sponsonHeight'].indexOf(k);st.sponsonSize[i]=C.clamp(v,i===2?2:10,[200,120,40][i]);if(out)out.textContent=fmtM(st.sponsonSize[i]);hoverLines=null;updateHint();refreshOverlay();}
     if(/^([es])angle[0-3]$/.test(k)){const i=+k.at(-1);if(k[0]==='e')live(()=>editSel(p=>{p.angles||=[0,0,0,0];p.angles[i]=v;}));else st.structAngles[i]=v;if(out)out.textContent=deg(v);}
     if(['eshellCurve','sshellCurve','eshellThick','sshellThick'].includes(k)){const prop=k.slice(1),val=prop==='shellCurve'?v/100:v;if(k[0]==='e')live(()=>editSel(p=>{if(p.form==='shell')p[prop]=val;}));else st[prop]=val;if(out)out.textContent=prop==='shellCurve'?Math.round(v)+'%':fmtM(v);}
     if(['eyaw','syaw','eoffsetX','eoffsetZ','soffsetX','soffsetZ'].includes(k)){const prop=k.slice(1);if(k[0]==='e')live(()=>editSel(p=>p[prop]=v));else st['struct'+prop[0].toUpperCase()+prop.slice(1)]=v;if(out)out.textContent=prop==='yaw'?deg(v):fmtM(v);}
-    if(k.startsWith('tr')){const map={trDepth:'depth',trHeight:'height',trLevel:'level',trFrom:'from',trTo:'to'};if(map[k]){st.trench[map[k]]=k==='trDepth'||k==='trHeight'?v:v/100;if(out)out.textContent=k==='trDepth'||k==='trHeight'?fmtM(v):v+'%';}}
+    if(k.startsWith('tr')){const map={trDepth:'depth',trHeight:'height',trLevel:'level',trFrom:'from',trTo:'to'};if(map[k]){trenchArmamentCancel();st.trench[map[k]]=k==='trDepth'||k==='trHeight'?v:v/100;if(out)out.textContent=k==='trDepth'||k==='trHeight'?fmtM(v):v+'%';}}
     if(['engineYaw','enginePitch','newEngineYaw','newEnginePitch'].includes(k)){
       const make=dir=>{let y=Math.atan2(dir[2],-dir[0]),p=Math.asin(dir[1]);if(k.endsWith('Yaw'))y=v*Math.PI/180;else p=v*Math.PI/180;return [-Math.cos(y)*Math.cos(p),Math.sin(p),Math.sin(y)*Math.cos(p)];};
       if(k.startsWith('new'))st.engineDir=make(st.engineDir);else live(()=>editEngineSelection(p=>p.dir=make(p.dir||[-1,0,0])));if(out)out.textContent=deg(v);
@@ -6358,6 +6459,7 @@ function multiPanelHTML(){
  <div class="multi-count"><span><b>${np}</b> 区画・構造物</span><span><b>${nf}</b> 装備</span></div>${n?`<p class="note multi-kinds">${Object.entries(kinds).map(([k,v])=>esc(k||'—')+' ×'+v).join('・')}</p>`:''}
  <div class="chips"><button type="button" class="chip" data-multi="allparts">区画・構造物をすべて</button><button type="button" class="chip" data-multi="allstruct">構造物だけ</button><button type="button" class="chip" data-multi="allfits">装備をすべて</button><button type="button" class="chip" data-multi="none" ${n?'':'disabled'}>選択解除</button></div>
  <div class="multi-actions"><button type="button" class="btn primary" data-multi="copy" ${n?'':'disabled'}>コピー</button><button type="button" class="btn" data-multi="cut" ${n?'':'disabled'}>切り取り</button><button type="button" class="btn sm danger" data-multi="delete" ${n?'':'disabled'}>撤去</button></div>
+ ${m.fits.some(f=>C.isTrenchBatteryGroup?.(f))?'<p class="note">トレンチ砲群は同じ砲種の両舷を削除</p>':''}
  <h4>まとめて移動</h4><label class="field-label multi-step">移動量（m）<input type="number" data-multistep min="0.1" step="any" value="${st.multiStep}"></label>
  <div class="multi-move">${[[0,1,'艦首へ'],[0,-1,'艦尾へ'],[1,1,'上へ'],[1,-1,'下へ'],[2,-1,'左舷へ'],[2,1,'右舷へ']].map(([a,sg,l])=>`<button type="button" class="btn sm" data-multimove="${a}" data-sign="${sg}" ${n?'':'disabled'}>${l}</button>`).join('')}</div>
  <p class="note">対称の相手も選んでいれば鏡写しに動きます。装備は移動後に近くの面へ据え直します。</p></div>
@@ -6449,6 +6551,7 @@ function selEntities(){
  return out;
 }
 function editHitItem(hit){
+ if(hit?.part?.trenchChargeRow)return {list:'fits',it:ship.fits.find(f=>(hit.part.weaponIds||[]).includes(f.id))};
  if(hit?.part?.windowId||hit?.part?.weaponId)return {list:'fits',it:ship.fits.find(f=>f.id===(hit.part.windowId||hit.part.weaponId))};
  if(hit?.fit)return {list:'fits',it:hit.fit};
  if(hit?.part?.k==='machinery'&&hit.part.nozzle!=null){const p=ship.parts.find(q=>q.id===hit.part.nozzle);if(p)return {list:'parts',it:p};}
@@ -6456,8 +6559,10 @@ function editHitItem(hit){
  return null;
 }
 function editTap(hit,add){
+ if(hit?.part?.trenchChargeRow&&!add&&st.editTool!=='multi'){trenchArmamentOpen(hit.part);return;}
  if(hit?.part&&(hit.part.transmission||hit.part.drivetrain)){if(!add){selClear();xfReset();showInspect(hit);renderPanel();}return;}
  const h=editHitItem(hit);
+ if(h?.it&&C.isTrenchBatteryGroup?.(h.it)&&!add&&st.editTool!=='multi'){trenchArmamentOpen(h.it);return;}
  if(!h?.it){if(!add&&st.editTool!=='multi'){selClear();xfReset();}else toast(st.view==='normal'?'部品をタップしてください（内部の区画は「透視」で選べます）':'部品が見つかりません');renderPanel();return;}
  selPick(h.list,h.it.id,add||st.editTool==='multi');xfReset();designUI.drawer=true;designUI.details=false;designUI.mode=null;designUI.parentId=h.it.host??h.it.placement?.parentStructureId??null;designUI.hostId=h.it.placement?.hostId??null;renderPanel();
 }
@@ -6734,8 +6839,8 @@ function editListHTML(){
  return `<div class="ed-list" aria-label="配置済みの区画・装備"><div class="ed-head"><b>配置済み</b><span>区画 ${np}・装備 ${nf}</span><small class="ed-tip">${isWide()?'Shift＋クリックで追加・解除':'「複数」で追加選択'}</small></div><div class="ed-scroll" role="listbox" aria-multiselectable="true">${h}</div></div>`;
 }
 function editOpsHTML(){
- const n=selN(),gs=selEntities().filter(e=>e.group).length,ents=selEntities().length,c=clipRead(),dis=b=>b?'':' disabled';
- return `<div class="pgroup ed-ops hscroll" role="toolbar" aria-label="選択した部品の操作"><button type="button" class="chip" data-ed="dup"${dis(n)} title="複製（少しずらして置く）">複製</button><button type="button" class="chip" data-ed="group"${dis(ents>1)} title="グループ化（Ctrl+G）">グループ化</button><button type="button" class="chip" data-ed="ungroup"${dis(gs)} title="グループ解除（Ctrl+Shift+G）">${selEntities().some(e=>e.group?.assembly)?'分解・グループ解除':'グループ解除'}</button><button type="button" class="chip" data-up="register"${dis(n)} title="選んだ部品を、ほかの艦でも使える部品としてカタログに登録">部品として登録</button><button type="button" class="chip" data-ed="copy"${dis(n)}>コピー</button><button type="button" class="chip" data-ed="paste"${dis(c&&(c.parts.length||c.fits.length))}>貼り付け</button><button type="button" class="chip" data-ed="all">すべて選択</button><button type="button" class="chip danger" data-ed="delete"${dis(n)}>撤去</button></div>`;
+ const n=selN(),gs=selEntities().filter(e=>e.group).length,ents=selEntities().length,c=clipRead(),dis=b=>b?'':' disabled',trench=multiItems().fits.some(f=>C.isTrenchBatteryGroup?.(f));
+ return `<div class="pgroup ed-ops hscroll" role="toolbar" aria-label="選択した部品の操作"><button type="button" class="chip" data-ed="dup"${dis(n)} title="複製（少しずらして置く）">複製</button><button type="button" class="chip" data-ed="group"${dis(ents>1)} title="グループ化（Ctrl+G）">グループ化</button><button type="button" class="chip" data-ed="ungroup"${dis(gs)} title="グループ解除（Ctrl+Shift+G）">${selEntities().some(e=>e.group?.assembly)?'分解・グループ解除':'グループ解除'}</button><button type="button" class="chip" data-up="register"${dis(n)} title="選んだ部品を、ほかの艦でも使える部品としてカタログに登録">部品として登録</button><button type="button" class="chip" data-ed="copy"${dis(n)}>コピー</button><button type="button" class="chip" data-ed="paste"${dis(c&&(c.parts.length||c.fits.length))}>貼り付け</button><button type="button" class="chip" data-ed="all">すべて選択</button><button type="button" class="chip danger" data-ed="delete"${dis(n)}>撤去</button></div>${trench?'<p class="note">トレンチ砲群は同じ砲種の両舷を削除</p>':''}`;
 }
 function editXfHTML(){
  if(!selN())return '';
@@ -6783,7 +6888,7 @@ function bindEdit(){
  const panel=$('#panel');
  panel.addEventListener('click',e=>{if(st.tab!=='edit'||!ship)return;const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset,add=e.shiftKey||e.ctrlKey||e.metaKey||st.editTool==='multi';
   if(d.edfold){st.edOpen[d.edfold.startsWith('g')||d.edfold.startsWith('c')?d.edfold:d.edfold]=b.getAttribute('aria-expanded')!=='true';renderPanel();return;}
-  if(d.edpick){const [l,i]=d.edpick.split(':'),id=+i;if(l==='g'){const g=edGroup(id);if(g)selGroup(g,add);}else selPick(l,id,add,true);xfReset();st.edReveal=false;renderPanel();if(e.detail>=2&&l!=='g')edFocus(l,id);return;}
+  if(d.edpick){const [l,i]=d.edpick.split(':'),id=+i;const group=l==='fits'&&ship.fits.find(f=>f.id===id&&C.isTrenchBatteryGroup?.(f));if(group&&!add){trenchArmamentOpen(group);return;}if(l==='g'){const g=edGroup(id);if(g)selGroup(g,add);}else selPick(l,id,add,true);xfReset();st.edReveal=false;renderPanel();if(e.detail>=2&&l!=='g')edFocus(l,id);return;}
   if(d.edcat){const ids={parts:[],fits:[]};for(const l of ['parts','fits'])for(const q of ship[l])if(edCategory(l,q)[0]===d.edcat)ids[l].push(q.id);if(!add)st.multi={parts:new Set(),fits:new Set()};for(const l of ['parts','fits'])for(const x of ids[l])st.multi[l].add(x);st.multi=selExpand(st.multi);st.sel=null;selSync();xfReset();renderPanel();return;}
   if(d.ed){const a=d.ed;
    if(a==='dup')editDuplicate();else if(a==='group')editGroup();else if(a==='ungroup')editUngroup();
@@ -7085,6 +7190,7 @@ function trialSpawnTarget(i,first){
 // A calibrated aircraft laser keeps its per-barrel energy on every pulse.
 const TRIAL_PILOT_CYCLE=C.CRAFT_FIRE.cycles;
 function trialShotEnergyTT(t){
+ if(t.trenchAggregate)return Math.max(0,t.volleyTT||0)*(t.charge??1);
  const spec=C.FITS[t.k];
  if(spec?.fixedPerBarrelEnergy&&spec.boltTT>0&&!spec.store)return spec.boltTT*(t.barrels||spec.barrels||1);
  return t.power*t.cycle*t.charge/TT_J;
@@ -7270,7 +7376,8 @@ function trialPdPick(t,oW,threats){
 function trialPdBoltHit(b){
  const q=b.target;if(!q||!q.alive||b.life<=0)return;const seg=tv.sub(b.pos,b.prev),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(q.pos,b.prev),seg)/l2,0,1),p=tv.add(b.prev,seg,k);
  if(tv.len(tv.sub(p,q.pos))>(TRIAL_PD.radius[q.kind]||40))return;b.life=0;
- if(Math.random()<(TRIAL_PD.pKill[q.kind]||.2))trialThreatDown(q,p);else trial.fx.push({pos:p,vel:q.vel,life:.15,max:.15,size:12,col:[255,220,160]});
+ const base=TRIAL_PD.pKill[q.kind]||.2,multiplicity=Number.isFinite(b.shotMultiplicity)?Math.max(0,b.shotMultiplicity):1,chance=1-Math.pow(1-base,multiplicity);
+ if(Math.random()<chance)trialThreatDown(q,p);else trial.fx.push({pos:p,vel:q.vel,life:.15,max:.15,size:12,col:[255,220,160]});
 }
 // Small craft and missiles a pilot's guns can reach.
 function trialPilotThreats(){const out=[],P=trial.P,R2=TRIAL_PILOT_HIT.range**2;for(const l of [trial.drones,trial.foeCraft,trial.foeMissiles])for(const q of l||[]){if(!q.alive)continue;const x=q.pos[0]-P[0],y=q.pos[1]-P[1],z=q.pos[2]-P[2];if(x*x+y*y+z*z<R2)out.push(q);}return out;}
@@ -7396,12 +7503,12 @@ function trialGunnery(dt){
   if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
   for(let burst=0;C.powerFactor(me||trial.systemsUnit,'weapon')>0&&t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
    const shotTT=trialShotEnergyTT(t),cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+Math.abs(cost)*1e-12<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
-   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
-   if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:shotTT/n,pd:true,target:t.pdTarget});}continue;}
-   trial.gun.shots+=t.barrels;
+   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=t.trenchAggregate?Math.max(1,Math.min(8,t.barrels||1)):t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),barrels=t.trenchAggregate?Math.max(0,t.aggregateBarrels||0):t.barrels,sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
+   if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:shotTT/n,pd:true,target:t.pdTarget,...(t.trenchAggregate?{shotMultiplicity:barrels/n*(t.charge??1)}:{})});}continue;}
+   trial.gun.shots+=barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
    const pl=t.pilot,hv=t.k==='claserH',hitScale=1;sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
-   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off),control=cellUnit||trial.swSolo,direction=pl?bw:C.gunScatter(trialApply(R,bd),trial.p,t.reach||TRIAL_GUN.range,control?C.fleetSystems(control).fire:1);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(direction,spd),trial.V),life:(t.reach||TRIAL_GUN.range)/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:t.barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off),control=cellUnit||trial.swSolo,direction=pl?bw:C.gunScatter(trialApply(R,bd),trial.p,t.reach||TRIAL_GUN.range,control?C.fleetSystems(control).fire:1);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(direction,spd),trial.V),life:(t.reach||TRIAL_GUN.range)/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
@@ -8776,25 +8883,26 @@ function spaceSurfaceTurrets(a,target){
  if(!a.p?.surface)return undefined;const asset=a.key===trial.asset?.key?trial.asset:fleet.assets.get(a.key);if(!asset?.geometry?.turrets)return undefined;
  return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=a.p.surface.mounts.find(m=>m.id===rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
 }
-function spaceShotEmitter(a,t,index,ion=false){
+function spaceShotEmitter(a,t,index,ion=false,sourceFit,sourceMuzzle){
  if(!a.p?.surface)return {pos:spaceHullPoint(a,.4),fixed:false};
  const cells=(a.surfaceLastFire?.cells||[]).filter(c=>c.energy>0&&(ion?c.ion>0:c.gun>0));if(!cells.length)return null;
- const cell=cells[index%cells.length],mount=a.p.surface.mounts.find(m=>m.id===cell.fit);if(!mount)return null;
+ const cell=sourceFit==null?cells[index%cells.length]:cells.find(c=>c.fit===sourceFit);if(!cell)return null;const mount=a.p.surface.mounts.find(m=>m.id===cell.fit);if(!mount)return null;
  const asset=a.key===trial.asset?.key?trial.asset:typeof fleet!=='undefined'?fleet.assets.get(a.key):null,g=asset?.geometry,turret=g?.turrets?.find(q=>q.id===mount.id),foil=turret?.foilId!=null?g.foils?.find(f=>f.id===turret.foilId):null,offset=a.p.surface.offset||g?.center||[0,0,0];
  if(!mount.broadsideBattery&&!turret?.broadsideBattery&&!mount.fixed&&turret?.mesh&&(!mount.authored||turret.authored)){const pose=spaceSurfaceTurretPose(a,t,turret,mount,asset),R=spaceRotU(trial.battle.E,a),relative=tv.add(tv.sub(turret.origin,turret.pivot),turret.fw,mount.barrelLength||0),muzzle=pose.muzzles?.[index%pose.muzzles.length]||tv.add(pose.pivot,trialApply(pose.rot,relative));return {pos:tv.add(spaceWorld(a),trialApply(R,tv.sub(muzzle,g.center))),dir:tv.norm(trialApply(R,pose.fw||trialApply(pose.rot,turret.fw))),fixed:false,fit:mount.id,cell:mount.cell,unit:a.id};}
  let posePoint=p=>p,poseDirection=v=>v;if(foil&&typeof Gfx!=='undefined'&&Gfx.foilTransform){const X=Gfx.foilTransform(foil,unitFoilDeployments(a)?.[foil.id]??1);posePoint=p=>tv.sub(X.point(tv.add(p,offset)),offset);poseDirection=v=>X.direction(v);}
  const R=spaceRotU(trial.battle.E,a),origin=spaceWorld(a),renderOffset=tv.sub(offset,g?.center||offset),world=p=>tv.add(origin,trialApply(R,tv.add(posePoint(p),renderOffset))),pivot=world(mount.pivot||mount.center),direction=mount.fixed?tv.norm(trialApply(R,poseDirection(mount.dir||[1,0,0]))):tv.norm(tv.sub(spaceWorld(t),pivot)),pos=mount.fixed?world(mount.muzzle||mount.center):tv.add(pivot,direction,mount.barrelLength||0);
- if(mount.broadsideBattery||turret?.broadsideBattery){const mouths=mount.muzzles?.length?mount.muzzles:turret?.muzzles?.map(p=>tv.sub(p,offset));if(!mouths?.length)return null;return {pos:world(mouths[index%mouths.length]),dir:direction,fixed:!!mount.fixed,fit:mount.id,cell:mount.cell,unit:a.id};}
+ if(mount.broadsideBattery||mount.trenchAggregate||turret?.broadsideBattery){const mouths=mount.muzzles?.length?mount.muzzles:turret?.muzzles?.map(p=>tv.sub(p,offset));if(!mouths?.length)return null;const explicit=sourceFit===mount.id&&Array.isArray(sourceMuzzle)&&sourceMuzzle.length===3&&sourceMuzzle.every(Number.isFinite)?sourceMuzzle:null;return {pos:world(explicit||mouths[index%mouths.length]),dir:direction,fixed:!!mount.fixed,fit:mount.id,cell:mount.cell,unit:a.id};}
  if(mount.authored){let want=trialApplyT(R,direction);if(foil&&Gfx.foilTransform)want=trialApplyT(Gfx.foilTransform(foil,unitFoilDeployments(a)?.[foil.id]??1).rot,want);const [yaw,elevation]=mount.fixed?[0,0]:C.authoredTurretAngles(mount.authored,want),limits=mount.authored.limits||C.AUTHORED_TURRET_LIMITS,p=C.aimAuthoredTurret(mount.authored,limits.yaw!=null?C.clamp(yaw,-limits.yaw,limits.yaw):yaw,C.clamp(elevation,limits.lo,limits.hi));return {pos:world(p.muzzles[index%p.muzzles.length]),dir:tv.norm(trialApply(R,poseDirection(p.fw))),fixed:!!mount.fixed,fit:mount.id,cell:mount.cell,unit:a.id};}
  return {pos,dir:direction,fixed:!!mount.fixed,fit:mount.id,cell:mount.cell,unit:a.id};
 }
 function spaceShots(shots){
+ shots=shots.flatMap(s=>s.packets?.length?s.packets.map(p=>({...s,...p,packets:undefined})):s);
  const B=trial.battle,byId=new Map(B.b.units.map(u=>[u.id,u]));
  for(const s of shots)if(s.sw)swShotFx(s,byId);
  for(const s of shots){if(s.sw)continue;const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;
   // v20.6 A salvo: the whole broadside leaves the ship at once (many bolts within a moment, and a heavier report).
   const sv=!!s.salvo&&!s.ff,n=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)};o.fac=sndFac(a);sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
-  for(let i=0;i<n;i++){const emitter=spaceShotEmitter(a,t,i,!!s.ion);if(!emitter)continue;const from=emitter.pos,tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(tw,spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d),mount=a.p.surface?.mounts.find(m=>m.id===emitter.fit),reach=s.ion?C.GUN_BANDS.long.range:C.GUN_BANDS[mount?.band]?.range||C.fleetReach(a.p),direction=C.gunScatter(emitter.dir||tv.norm(d),a.p,reach,C.fleetSystems(a).fire);if(dist<1)continue;
+  for(let i=0;i<n;i++){const emitter=spaceShotEmitter(a,t,i,!!s.ion,s.sourceFit,s.sourceMuzzle);if(!emitter)continue;const from=emitter.pos,tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(tw,spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d),mount=a.p.surface?.mounts.find(m=>m.id===emitter.fit),reach=s.ion?C.GUN_BANDS.long.range:C.GUN_BANDS[mount?.band]?.range||C.fleetReach(a.p),direction=C.gunScatter(emitter.dir||tv.norm(d),a.p,reach,C.fleetSystems(a).fire);if(dist<1)continue;
    trial.vbolts.push({pos:from,vel:tv.scale(direction,TRIAL_GUN.boltSpeed),life:reach/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t,sourceFit:emitter.fit,sourceCell:emitter.cell,sourceUnit:emitter.unit});}
   if(s.launches?.length){sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)});for(const packet of s.launches){const from=packet.origin?tv.add(B.O,trialApply(B.E,packet.origin)):spaceHullPoint(a,.3),axis=packet.axis?trialApply(B.E,packet.axis):tv.norm(tv.sub(spaceWorld(t),from)),vel=tv.add(spaceVel(a),axis,2600),life=Math.min(2.5,C.missileRange(packet)/Math.max(1,tv.len(vel)));for(let k=0;k<Math.min(4,Math.ceil(packet.n));k++)trial.fx.push({pos:from,vel,life,max:life,size:packet.ion?10:9,col:packet.ion?[205,230,255]:[255,210,150]});}}
   else if(s.msl>0&&Math.random()<.5&&(sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}
@@ -9270,6 +9378,7 @@ function inspectionHTML(w){
 
 function openLayoutTarget(t){
  if(fleet.mode!=='design')fleetSetMode('design');
+ const aggregate=t.list==='fits'&&ship.fits.find(f=>f.id===t.id&&C.isTrenchBatteryGroup?.(f));if(aggregate){trenchArmamentOpen(aggregate);return;}
  st.dockCollapsed=false;$('#dock').classList.remove('collapsed');st.sel=null;st.equipmentId=null;st.hatchA=null;
  if(t.routeId){const route=enginePickParts().find(p=>p.routeId===t.routeId&&!!p.drivetrain===!!t.drivetrain);st.tab='systems';st.view='xray';st.inspect=route?{part:route}:null;st.selInfo=!!route;syncHud();renderPanel();if(route&&view){view.cam.target=C.add(route.c,view.off);view.cam.r=Math.max(30,C.partDims(route).r*6);}refreshOverlay();requestDraw();return;}
  const p=t.list&&ship[t.list]?.find(p=>p.id===t.id);
@@ -10943,10 +11052,10 @@ async function voyPickEmbarkedDesign(source,row=null){
  }catch(e){if(voy.setup===setup){toast('設計した機体・小型艦を読み込めません');voyOrbatSheet();}return false;}
 }
 function voySquadFitHTML(q,status){
- const c=R.CRAFT[q.craft];if(!status)return '';
+ const c=R.CRAFT[q.craft],snapshot=q.design||c?.snapshot,legacy=snapshot?.requiresBlueprint?`<small class="vo-fit bad" role="status">${esc(T('旧計算の参考値です。図面がないため再計算できません。'))}</small>`:'';if(!status)return legacy;
  const bad=status.tooLarge||status.unembarked||status.undeployable;
  const text=status.tooLarge?'入る格納区画なし':status.unembarked?`${num(status.embarked)} 機だけ搭載（${num(status.unembarked)} 機入らず）`:status.undeployable?`${num(status.undeployable)} 機はハッチを通れず発艦不可`:c?.stay?'輸送機（艦隊戦では艦内に待機）':'搭載・発艦可';
- return `<small class="vo-fit${bad?' bad':''}">${text}</small>`;
+ return `${legacy}<small class="vo-fit${bad?' bad':''}">${text}</small>`;
 }
 function voyBattleWingListHTML(wings,w){
  const groups=new Map();for(const x of wings){const key=x.home+':'+(x.groupNo||1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(x);}
@@ -13265,8 +13374,8 @@ function voyFollowDraw(j) {
 // What a ship fired in the step just run: its last tick's fire, or a salvo it fired earlier in the step
 // (several ticks run in one frame when time is sped up, and a salvo lands on one of them only).
 function voyShotOf(u, t0) {
- const v = u.lastSalvo;if (v && v.t > t0) return {from: u.id, to: v.to, gun: v.gun, ion: v.ion, salvo: true};
- const s = u.lastShot;return s && !s.salvo ? {from: u.id, to: s.to, gun: s.gun, ion: s.ion} : null;
+ const v = u.lastSalvo;if (v && v.t > t0) return {from: u.id, to: v.to, gun: v.gun, ion: v.ion, salvo: true,...(v.packets?.length?{packets:v.packets}:{})};
+ const s = u.lastShot;return s && !s.salvo ? {from: u.id, to: s.to, gun: s.gun, ion: s.ion,...(s.packets?.length?{packets:s.packets}:{})} : null;
 }
 // v26 Tractor beams and boarding in the 3D view: a stream of glowing motes along each beam (violet for a boarding,
 // green for a tow), sparks at the boarding tubes of a ship docked alongside, and flashes of small-arms fire inside a

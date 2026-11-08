@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T07:59:11.968248+00:00",
+  "scope": "Composed verification of the four completed positive real-browser stages and a separate corrected negative-only real-browser run. This does not relabel the original full-harness assertion failure as a successful run.",
+  "positiveEvidence": {
+    "artifact": "nozzle-support-browser-positive.json",
+    "originalRunStatus": "PARTIAL",
+    "completedStages": [
+      "initial actual Worker closed supports and unchanged 55/56/57 settings",
+      "native support-only triangle selects nozzle55",
+      "native X+1 edit cancelled and latest Worker restored unchanged supports",
+      "save-sheet save/load replaced the actual design and latest Worker restored all three supports"
+    ],
+    "actualSavedDesignWorkerGeneration": 4,
+    "sourceRuntimeUnchanged": true
+  },
+  "negativeEvidence": {
+    "artifact": "nozzle-support-negative-browser.json",
+    "status": "PASS",
+    "sourceRuntimeUnchanged": true
+  },
+  "correctedTestExpectation": {
+    "oldAssertion": "No foundation must imply ungrounded=true",
+    "reason": "Immutable 2bd4123 and current Core retain valid shaft routes p173>p55, p174>p56, p175>p57 to hull part178. Mount floating and whole-system grounding are different diagnostics.",
+    "requiredAssertions": "All three displaced nozzles have no foundation and floating=true, while retaining the same existing shaft grounding.",
+    "runtimeChangedForTest": false
+  },
+  "notVerified": [
+    "Real Safari and iPhone hardware",
+    "Controlled timing/FPS benchmark"
+  ],
+  "evidenceNotes": [
+    "The original positive JSON preserves the erroneous assertion failure and all completed stages.",
+    "Actual ship-object replacement and latest Worker generation are required for the positive save-sheet stage; the earlier unverified 15ms reload is not evidence.",
+    "The separate negative-only run checks all three unsupported/floating nozzles under the preserved transmission rules."
+  ]
+}
