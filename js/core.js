@@ -94944,8 +94944,17 @@ function aviationEnvelope(ship){
  const tris=new Float32Array(sources.reduce((n,a)=>n+a.length,0));let off=0;for(const source of sources){tris.set(source,off);off+=source.length;}
  const value={key,tris,bounds:solidMeshBounds(tris),bvh:tris.length?buildBVH(tris):null};AVIATION_ENVELOPE_CACHE.set(ship,value);return value;
 }
-function aviationPartBounds(p){const geometry=p._packing||p._clip;return geometry?.tris?.length?(geometry.bounds||(geometry.bounds=solidMeshBounds(geometry.tris))).slice():partAABB({...p,_packing:null});}
-function aviationPartContains(p,q){return p._packing?packingContains(p,q):p._clip?interiorMeshContains(p._clip,q):unclippedInPart(p,q);}
+// An opening pierces the skin in front of the compartment's actual solid: its
+// clipped body when it has one. The packing (the airspace left once the
+// compartment's own fittings are laid out) is not what meets the skin.
+function aviationPartBounds(p){const geometry=p._clip;return geometry?.tris?.length?(geometry.bounds||(geometry.bounds=solidMeshBounds(geometry.tris))).slice():partAABB({...p,_packing:null});}
+function aviationPartContains(p,q){return p._clip?.tris?.length?interiorMeshContains(p._clip,q):unclippedInPart(p,q);}
+// A clipped compartment stops at the inner face of the skin it was clipped
+// against, while the hatch is found on the outer face. Walk inward from the
+// skin through at most its thickness (10 m, or 10% of the bay's depth on small
+// craft) to find the compartment behind it.
+function aviationSkinDepth(p,h){const {axis}=hatchAxes(h),b=aviationPartBounds(p);return Math.min(10,Math.max(.05,(b[axis+3]-b[axis])*.1));}
+function aviationContainsBehind(p,hitPoint,h){const deep=aviationSkinDepth(p,h);for(const d of [.02,.25,.5,1,2,3,4,6,8,10])if(d<=deep+1e-9&&aviationPartContains(p,sub(hitPoint,mul(h.n,d))))return true;return aviationPartContains(p,sub(hitPoint,mul(h.n,deep)));}
 function aviationFiniteBounds(p,h){
  const {axis,longAxis,widthAxis}=hatchAxes(h),positive=h.n[axis]>0,b=aviationPartBounds(p),inner=lerp(b[axis],b[axis+3],h.sill??.5),pad=.04;
  b[axis+(positive?0:3)]=inner;b[axis+(positive?3:0)]+=positive?pad:-pad;
@@ -94959,8 +94968,8 @@ function aviationSurfaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  const hit=rayBVH(envelope.bvh,o,d);if(!hit)return null;
  // Test both sides of a coincident boundary to keep exact contact stable. The
  // inward point must still belong to the compartment, including its rotation.
- const point=sub(hit.p,mul(h.n,.02));if(!aviationPartContains(p,point))return null;
- const b=aviationFiniteBounds(p,h);if(hit.p[axis]<b[axis]-.05||hit.p[axis]>b[axis+3]+.05)return null;
+ if(!aviationContainsBehind(p,hit.p,h))return null;
+ const b=aviationFiniteBounds(p,h),skin=aviationSkinDepth(p,h)+.05;if(hit.p[axis]<b[axis]-(sign<0?skin:.05)||hit.p[axis]>b[axis+3]+(sign>0?skin:.05))return null;
  return hit;
 }
 // Second look for faces the outside test cannot see: a recess cut into the hull
@@ -94978,7 +94987,7 @@ function aviationFaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  // A surface beyond the face needs the compartment right behind it; one inside
  // the compartment must belong to it.
  if(gap>=0){const q=o.slice();q[axis]=face-sign*.05;if(!aviationPartContains(p,q))return null;}
- else if(!aviationPartContains(p,sub(hit.p,mul(h.n,.02))))return null;
+ else if(!aviationContainsBehind(p,hit.p,h))return null;
  return hit;
 }
 function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
@@ -95010,11 +95019,15 @@ function aviationContactScan(ship,p,h,b,hitAt){
  // Select a contiguous uncovered rectangle. This keeps a covering structure or
  // a concavity from opening an unrelated face inside the bay's bounding box.
  let best=null;for(let start=0;start<nu;start++){const columns=Array(nv).fill(true);for(let end=start;end<nu;end++){for(let j=0;j<nv;j++)columns[j]=columns[j]&&cells[end][j];let left=0;for(let j=0;j<=nv;j++){if(j<nv&&columns[j])continue;if(j>left){const score=(end-start+1)*(j-left);if(!best||score>best.score)best={i0:start,i1:end+1,j0:left,j1:j,score};}left=j+1;}}}
- let bounds=null,area=0;if(best){const q=best,t0=lerp(b[longAxis],b[longAxis+3],q.i0/nu),t1=lerp(b[longAxis],b[longAxis+3],q.i1/nu);bounds=b.slice();bounds[longAxis]=t0;bounds[longAxis+3]=t1;
+ const measure=q=>{if(!q)return {bounds:null,area:0};const t0=lerp(b[longAxis],b[longAxis+3],q.i0/nu),t1=lerp(b[longAxis],b[longAxis+3],q.i1/nu);let bounds=b.slice(),area=0;bounds[longAxis]=t0;bounds[longAxis+3]=t1;
   if(q.j0+q.j1===nv&&b.length>6){const f=(q.j1-q.j0)/nv;bounds[6]=openingHalf(b,t0,widthAxis)*f;bounds[7]=openingHalf(b,t1,widthAxis)*f;const half=Math.max(bounds[6],bounds[7]);bounds[widthAxis]=mid-half;bounds[widthAxis+3]=mid+half;area=(t1-t0)*(bounds[6]+bounds[7]);}
   else{const lows=[],highs=[];for(let i=q.i0;i<=q.i1;i++){const t=lerp(b[longAxis],b[longAxis+3],i/nu),half=openingHalf(b,t,widthAxis);lows.push(mid+(q.j0/nv*2-1)*half);highs.push(mid+(q.j1/nv*2-1)*half);}bounds.length=6;bounds[widthAxis]=Math.max(...lows);bounds[widthAxis+3]=Math.min(...highs);area=(t1-t0)*Math.max(0,bounds[widthAxis+3]-bounds[widthAxis]);}
-  if(area<.1)bounds=null;
- }
+  return area<.1?{bounds:null,area:0}:{bounds,area};};
+ // On a tapered mouth a lopsided rectangle collapses to the narrow end once it
+ // is boxed, so also try the best centred (tapering) rectangle and keep the
+ // one that opens the larger real area.
+ let chosen=measure(best);if(b.length>6){for(let k=0;k<nv/2;k++)for(let start=0;start<nu;start++)for(let end=start;end<nu;end++){let ok=true;for(let i=start;i<=end&&ok;i++)for(let j=k;j<nv-k&&ok;j++)ok=cells[i][j];if(!ok)break;const q={i0:start,i1:end+1,j0:k,j1:nv-k},m=measure(q);if(m.area>chosen.area){chosen=m;best=q;}}}
+ const bounds=chosen.bounds,area=chosen.area;
  const hits=[];if(bounds)for(let i=best.i0;i<=best.i1;i++)for(let j=best.j0;j<=best.j1;j++){const q=points[index(i,j)];if(q.hit)hits.push(q.hit);}
  return {bounds,area,hits};
 }
