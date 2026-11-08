@@ -16,7 +16,7 @@ function trialGunnery(dt){trialPowerStep(dt,0);}
 vm.runInContext(app.slice(app.indexOf('function trialSystemsUnit(){'),app.indexOf('// ---- gunnery ----')),cx);
 vm.runInContext(app.slice(app.indexOf('function trialPowerStep(dt,want){'),app.indexOf('\nconst TT_J=C.TT;',app.indexOf('function trialPowerStep(dt,want){'))),cx);
 vm.runInContext('const JUMP={spool:1,accel:1,enter:1},ESC_JUMP={gap:()=>0},escOrder=es=>es;',cx);
-vm.runInContext(app.slice(app.indexOf('function escortPowerStep(e,dt,throttle){'),app.indexOf('// v21.2 In the tunnel',app.indexOf('function escortPowerStep(e,dt,throttle){'))),cx);
+vm.runInContext(app.slice(app.indexOf('function escortSystemsUnit(e){'),app.indexOf('// v21.2 In the tunnel',app.indexOf('function escortSystemsUnit(e){'))),cx);
 const run=code=>vm.runInContext(code,cx);
 function setup({supply=1e18,thermal=1,velocity=[0,0,0],tele=5}={}){
  const R=1e18,p={name:'Trial power reference',hp:1e12,len:100,width:40,height:20,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:0,maxSpeed:1000,accel:999999,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules:[{k:'engine',part:1,size:1,share:1,at:.1,domain:'main',powerConnected:true},{k:'reactor',part:3,size:1,share:1,at:.4,domain:'main',powerConnected:true}],propulsion:{version:1,engines:[{id:1,machineryId:1,moduleIndex:0,powerNode:'p1',heatNode:'p1',domain:'main',valid:true,available:true,connected:true,outletAvailable:true,ratedInputW:R,effectiveMachineryVolumeM3:R/3.4e17,driveProfileId:'standard',ratedThrustN:5e8,wattsPerNewton:2e9,direction:[1,0,0],pathCapacityW:R}],massKg:1e6,ratedThrustN:5e8,ratedAccelMps2:500,accelerationLimitMps2:500},grid:{P:supply,fixed:0,De:R,Ds:0,Dw:0,domains:[{id:'main',P:supply,sources:[{moduleIndex:1,P:supply}],modules:[0,1]}],powerPaths:[{from:'p3',to:'p1',cap:R,ok:true}]},heat:{v:1,src:[{id:'p1',k:'engine',n:'engine',g:'high',sh:1,st:1e30,m:[0],pc:[],sec:-1,sw:-1,gen:-1},{id:'p3',k:'reactor',n:'reactor',g:'high',sh:1,st:1e30,m:[1],pc:[],sec:-1,sw:-1,gen:-1}],dis:[],ln:[]}};
@@ -37,10 +37,11 @@ test('ENG-T04/15 direct controls use the same actual watts/newtons and one battl
 test('a half-powered direct-control engine delivers half the actual acceleration',()=>{
  const u=setup({supply:5e17});run('trialStep(.1)');near(u.propulsion.actualThrustN,2.5e8);near(run('trial.V[0]'),.05);near(run('trial.engF'),.5);
 });
-test('ENG-T13 direct blackout preserves forward and lateral drift without steering or free braking',()=>{
+test('ENG-T13 direct blackout preserves drift direction and applies only passive mass braking',()=>{
  const u=setup({supply:0,velocity:[5,3,2],tele:1});run('trial.stickX=1;trialStep(.1)');
- near(u.propulsion.actualInputW,0);assert.deepEqual(Array.from(run('trial.V')),[5,3,2]);assert.deepEqual(Array.from(run('trial.w')),[0,0,0]);
- for(const [i,n]of [[0,10000.5],[1,10000.3],[2,.2]])near(run(`trial.P[${i}]`),n);
+ const k=u.p.propulsion.massKg*Math.LN2/(1e11*60),decay=Math.exp(-k*.1),distance=-Math.expm1(-k*.1)/k;
+ near(u.propulsion.actualInputW,0);for(const [i,v]of [5,3,2].entries())near(run(`trial.V[${i}]`),v*decay);assert.deepEqual(Array.from(run('trial.w')),[0,0,0]);
+ for(const [i,v]of [5,3,2].entries())near(run(`trial.P[${i}]`),[10000,10000,0][i]+v*distance);
 });
 test('ENG-T04 zero throttle creates no propulsion heat and no waiting thrust',()=>{
  const u=setup({tele:1});run('trialStep(.1)');near(u.propulsion.actualInputW,0);near(u.propulsion.actualThrustN,0);near(u.propulsion.wasteHeatW,0);near(run('trial.engF'),0);assert.deepEqual(Array.from(run('trial.V')),[0,0,0]);
@@ -52,9 +53,10 @@ test('ENG-T16 direct physics integrates the same input and velocity at different
 test('ENG-T13/15 a powerless escort coasts instead of being pulled into its formation slot',()=>{
  const u=setup({supply:0,velocity:[0,0,0],tele:1});
  run(`trial.jump=null;trial.escorts=[{key:'escort',p:profile,powerUnit:unit,slot:[0,0,2000],pos:[10000,10000,1000],V:[5,3,2],R:[1,0,0,0,1,0,0,0,1],f:[1,0,0]}];escortsStep(.1);`);
- near(u.propulsion.actualInputW,0);assert.deepEqual(Array.from(run('trial.escorts[0].V')),[5,3,2]);
+ const k=u.p.propulsion.massKg*Math.LN2/(1e11*60),decay=Math.exp(-k*.1),distance=-Math.expm1(-k*.1)/k;
+ near(u.propulsion.actualInputW,0);for(const [i,v]of [5,3,2].entries())near(run(`trial.escorts[0].V[${i}]`),v*decay);
  assert.deepEqual(Array.from(run('trial.escorts[0].R')),[1,0,0,0,1,0,0,0,1]);
- for(const [i,n]of [[0,10000.5],[1,10000.3],[2,1000.2]])near(run(`trial.escorts[0].pos[${i}]`),n);
+ for(const [i,v]of [5,3,2].entries())near(run(`trial.escorts[0].pos[${i}]`),[10000,10000,1000][i]+v*distance);
  near(run('trial.escorts[0].lvl'),0);
 });
 test('a powered escort bounds all formation corrections by the shared actual acceleration',()=>{

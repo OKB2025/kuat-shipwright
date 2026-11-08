@@ -1,0 +1,1536 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T17:33:43.056Z",
+  "sourceSha256": {
+    "index.html": "9f1e66693c0ca612542dad8223138061170fa4a89ee4739d427c57fd0bfb364b",
+    "js/app.js": "1b369504853cf75d17cc7c39850bd00ecb21830f850df0883abb286c044d1193",
+    "js/core.js": "eaf9471c6064304af829cf1253dfa954b29f158ccdafaf39e041948e364df97a",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "4ce3900b3ddce71c31eef7f12f6ad1920ae7dc775199a01f0b2bf6ae030451a9"
+  },
+  "harnessSha256": "3bad980fe1eb1b3282957c1062e6064f9f1834b8eab96450e30fa1ffa6ff3c84",
+  "scope": "Generic editable1200m physical laboratory. Real Worker engineering/geometry, native public-trial throttle, priority and trigger controls, real RAF simulation time, actual mass-dependent coast and actual WebGL exhaust submissions. No uploaded/private blueprint is read. No replacement mass, profile, allocation, clock, mesh or effects.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "safari": "Not tested",
+    "initialMomentum": "One explicitly seeded launch velocity[200,30,-10]m/s during native pause, followed by normal live simulation.",
+    "thermalScenario": "Real SI impact heat is later added through Core.shipHeatAdd to trigger the genuine blackout; this is an initial damage fixture, not a natural overheating observation.",
+    "externalTelemetry": "External Cloudflare RUM receives a local204 acknowledgement; game traffic and runtime results remain real."
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "stages": [
+    {
+      "name": "Actual Worker and WebGL ready",
+      "at": "2026-11-08T17:33:55.549Z"
+    },
+    {
+      "name": "Generic physical heavy design settled through real Worker",
+      "at": "2026-11-08T17:34:03.547Z"
+    },
+    {
+      "name": "Native public trial started with healthy physical engineering",
+      "at": "2026-11-08T17:34:13.698Z"
+    },
+    {
+      "name": "Native0/25/50/100 output pays real watts and scales real shader/plume submissions",
+      "at": "2026-11-08T17:35:14.755Z"
+    },
+    {
+      "name": "Heavy unpowered drift decays exactly and quarter throttle remains a power request",
+      "at": "2026-11-08T17:35:59.524Z"
+    },
+    {
+      "name": "Native weapon priority spends real gun power while unfunded engines coast with no flame",
+      "at": "2026-11-08T17:36:47.152Z"
+    },
+    {
+      "name": "Genuine thermal blackout stops paid drive/steering while passive mass drag remains",
+      "at": "2026-11-08T17:37:05.521Z"
+    }
+  ],
+  "screenshots": [
+    "docs/benchmarks/mass-drag-throttle-browser.zero.jpg",
+    "docs/benchmarks/mass-drag-throttle-browser.quarter.jpg",
+    "docs/benchmarks/mass-drag-throttle-browser.half.jpg",
+    "docs/benchmarks/mass-drag-throttle-browser.full.jpg",
+    "docs/benchmarks/mass-drag-throttle-browser.weapon-priority.jpg",
+    "docs/benchmarks/mass-drag-throttle-browser.thermal-blackout.jpg"
+  ],
+  "engine": "worker",
+  "renderer": "webgl",
+  "fixture": {
+    "name": "Generic heavy throttle laboratory",
+    "inputSha256": "dcfd2bc132823c3cb300fc2bc1707aac6c88246413d083f06ccfe340df1ee9dd",
+    "parts": 10,
+    "fits": 5,
+    "hull": [
+      1200,
+      800,
+      600
+    ],
+    "hardware": "Physical reactor, finite machinery/shaft/nozzle, installed fuel, inertia/strength support, powered thermal converter and five40TT guns."
+  },
+  "design": {
+    "massKg": 127017290134.86586,
+    "overlaps": [],
+    "powerW": 5.9229116594983905e+23,
+    "heat": {
+      "capacityJ": 4.055789091296402e+24,
+      "coolers": [
+        {
+          "id": 8,
+          "k": "hdis",
+          "name": "熱エネルギー変換装置 #8",
+          "cap": 5.362691800779602e+24,
+          "grade": "high",
+          "ext": false,
+          "exposed": 0
+        }
+      ],
+      "brokenPower": 0,
+      "brokenHeat": 6
+    },
+    "gen": 1
+  },
+  "initialRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 12,
+    "lastFrame": 23722.8,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 98
+  },
+  "levels": [
+    {
+      "label": "zero",
+      "time": 1.0498999999999947,
+      "telegraph": 1,
+      "requested": 0,
+      "mainShare": 0,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "speed": 0,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "balanced",
+      "shots": 0,
+      "energy": 200,
+      "heat": {
+        "online": true,
+        "peak": 0.000004929680930003298,
+        "qJ": 19993746139479278000,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 3.007332965438735e+22,
+        "operatingHeatJ": 3.009332340052683e+22,
+        "coolingInputJ": 19186344815811613000
+      },
+      "fuel": 1.3162625724243344,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "zero",
+        "time": 1.0498999999999947,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "出力0%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    },
+    {
+      "label": "quarter",
+      "time": 3.2830999999999912,
+      "telegraph": 2,
+      "requested": 0.25,
+      "mainShare": 1,
+      "actualInputW": 6.408849013323177e+21,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 3204424506661.5884,
+      "actualAccelerationMps2": 25.228254383786318,
+      "output": 0.24999999999999997,
+      "mainOutput": 0.24999999999999997,
+      "velocity": [
+        0.06661985187295262,
+        0,
+        0
+      ],
+      "speed": 0.06661985187295262,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "balanced",
+      "shots": 0,
+      "energy": 200,
+      "heat": {
+        "online": true,
+        "peak": 0.000025057229955572437,
+        "qJ": 101626839911916110000,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 1.522542177865419e+23,
+        "operatingHeatJ": 1.5235584462645384e+23,
+        "coolingInputJ": 102364093829511900000
+      },
+      "fuel": 4.303485133701526,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "quarter",
+        "time": 3.2830999999999912,
+        "glow": 0.24999999999999997,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0.31249999999999994,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0.31249999999999994,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0.46875
+          }
+        ],
+        "points": {
+          "count": 5,
+          "alpha": 60,
+          "maxSize": 25,
+          "first": [
+            -620.5,
+            -4.125,
+            0
+          ],
+          "last": [
+            -684.5,
+            -4.125,
+            0
+          ]
+        }
+      },
+      "hud": {
+        "label": "25%",
+        "outputBar": "25%"
+      },
+      "sameUnit": true
+    },
+    {
+      "label": "half",
+      "time": 5.48310000000001,
+      "telegraph": 3,
+      "requested": 0.5,
+      "mainShare": 1,
+      "actualInputW": 1.2817698026646355e+22,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 6408849013323.177,
+      "actualAccelerationMps2": 50.456508767572636,
+      "output": 0.49999999999999994,
+      "mainOutput": 0.49999999999999994,
+      "velocity": [
+        0.2403601024792496,
+        0,
+        0
+      ],
+      "speed": 0.2403601024792496,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "balanced",
+      "shots": 0,
+      "energy": 200,
+      "heat": {
+        "online": true,
+        "peak": 0.00004768051641306781,
+        "qJ": 193382118335499470000,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 2.7560304127214963e+23,
+        "operatingHeatJ": 2.7579642339048513e+23,
+        "coolingInputJ": 203025605704030950000
+      },
+      "fuel": 7.557279743836418,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "half",
+        "time": 5.48310000000001,
+        "glow": 0.49999999999999994,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0.6249999999999999,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0.6249999999999999,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0.9375
+          }
+        ],
+        "points": {
+          "count": 5,
+          "alpha": 120,
+          "maxSize": 50,
+          "first": [
+            -620.5,
+            -4.125,
+            0
+          ],
+          "last": [
+            -748.5,
+            -4.125,
+            0
+          ]
+        }
+      },
+      "hud": {
+        "label": "50%",
+        "outputBar": "50%"
+      },
+      "sameUnit": true
+    },
+    {
+      "label": "full",
+      "time": 8.283000000000028,
+      "telegraph": 5,
+      "requested": 1,
+      "mainShare": 1,
+      "actualInputW": 2.544384977929283e+22,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 12721924889646.414,
+      "actualAccelerationMps2": 100.15900100008734,
+      "output": 0.9925280548191382,
+      "mainOutput": 0.9925280548191382,
+      "velocity": [
+        0.6529275566947292,
+        0,
+        0
+      ],
+      "speed": 0.6529275566947292,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "balanced",
+      "shots": 0,
+      "energy": 200,
+      "heat": {
+        "online": true,
+        "peak": 0.00008641900121272793,
+        "qJ": 350497242399312450000,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 4.6184039921017114e+23,
+        "operatingHeatJ": 4.6219089645257044e+23,
+        "coolingInputJ": 390078896638239900000
+      },
+      "fuel": 12.261687101090336,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "full",
+        "time": 8.283000000000028,
+        "glow": 0.9925280548191382,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 1.2406600685239226,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 1.2406600685239226,
+            "indices": 48,
+            "calls": 1,
+            "emission": 1.860990047454834
+          }
+        ],
+        "points": {
+          "count": 5,
+          "alpha": 238,
+          "maxSize": 99.2528076171875,
+          "first": [
+            -620.5,
+            -4.125,
+            0
+          ],
+          "last": [
+            -874.587158203125,
+            -4.125,
+            0
+          ]
+        }
+      },
+      "hud": {
+        "label": "100%",
+        "outputBar": "99.3%"
+      },
+      "sameUnit": true
+    }
+  ],
+  "coast": {
+    "before": {
+      "time": 11.516200000000081,
+      "telegraph": 1,
+      "requested": 0,
+      "mainShare": 0,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        199.70674295450385,
+        29.95601144317558,
+        -9.985337147725197
+      ],
+      "speed": 202.1876671833217,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "balanced",
+      "shots": 0,
+      "energy": 200,
+      "heat": {
+        "online": true,
+        "peak": 0.00012045381465413027,
+        "qJ": 488535267479260230000,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 6.484596508915977e+23,
+        "operatingHeatJ": 6.489481861590768e+23,
+        "coolingInputJ": 582665988158512760000
+      },
+      "fuel": 17.05261619718407,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "coast",
+        "time": 11.516200000000081,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "出力0%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 13.7663000000001,
+      "telegraph": 1,
+      "requested": 0,
+      "mainShare": 0,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        193.2206710773127,
+        28.98310066159691,
+        -9.661033553865645
+      ],
+      "speed": 195.62101989524598,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "balanced",
+      "shots": 0,
+      "energy": 200,
+      "heat": {
+        "online": true,
+        "peak": 0.0001316130205608024,
+        "qJ": 533794653063071400000,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 8.315215932659305e+23,
+        "operatingHeatJ": 8.320553879189938e+23,
+        "coolingInputJ": 700229858119280400000
+      },
+      "fuel": 19.875232487332266,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "coast",
+        "time": 13.7663000000001,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "出力0%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    },
+    "expectedDecay": 0.9675220186297416
+  },
+  "quarterDrifting": {
+    "time": 15.449600000000098,
+    "telegraph": 2,
+    "requested": 0.25,
+    "mainShare": 1,
+    "actualInputW": 6.408849013323177e+21,
+    "ratedInputW": 2.563539605329271e+22,
+    "actualThrustN": 3204424506661.5884,
+    "actualAccelerationMps2": 25.228254383786318,
+    "output": 0.24999999999999997,
+    "mainOutput": 0.24999999999999997,
+    "velocity": [
+      188.50656179311366,
+      28.275984268967054,
+      -9.425328089655679
+    ],
+    "speed": 190.8483480018559,
+    "angularVelocity": [
+      0,
+      0,
+      0
+    ],
+    "rotation": [
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    "keyStick": {
+      "x": 0,
+      "y": 0
+    },
+    "weaponsW": 0,
+    "mode": "balanced",
+    "shots": 0,
+    "energy": 200,
+    "heat": {
+      "online": true,
+      "peak": 0.00013563568341304027,
+      "qJ": 550109725177141000000,
+      "capacityJ": 4.055789091296402e+24,
+      "rejectedHeatJ": 8.928786790033001e+23,
+      "operatingHeatJ": 8.934287887284774e+23,
+      "coolingInputJ": 742124654496195300000
+    },
+    "fuel": 22.137389852503613,
+    "dragRate": 0.014673612756557803,
+    "draw": {
+      "phase": "quarter-drifting",
+      "time": 15.449600000000098,
+      "glow": 0.24999999999999997,
+      "engine": [
+        {
+          "mesh": "engine",
+          "engineK": 0.31249999999999994,
+          "indices": 1728,
+          "calls": 1,
+          "emission": 0
+        },
+        {
+          "mesh": "nozzle",
+          "engineK": 0.31249999999999994,
+          "indices": 48,
+          "calls": 1,
+          "emission": 0.46875
+        }
+      ],
+      "points": {
+        "count": 5,
+        "alpha": 60,
+        "maxSize": 25,
+        "first": [
+          -620.5,
+          -4.125,
+          0
+        ],
+        "last": [
+          -684.5,
+          -4.125,
+          0
+        ]
+      }
+    },
+    "hud": {
+      "label": "25%",
+      "outputBar": "25%"
+    },
+    "sameUnit": true
+  },
+  "weaponPriority": {
+    "before": {
+      "time": 20.54999999999983,
+      "telegraph": 5,
+      "requested": 1,
+      "mainShare": 1,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        174.9134923636998,
+        26.237023854554923,
+        -8.745674618184989
+      ],
+      "speed": 177.08641409249245,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 4.514957847513656e+23,
+      "mode": "weapons",
+      "shots": 11,
+      "energy": 0.11072434279476084,
+      "heat": {
+        "online": true,
+        "peak": 0.0008794734233128469,
+        "qJ": 3.566958716357347e+21,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 1.3934121764219571e+24,
+        "operatingHeatJ": 1.3969791351383144e+24,
+        "coolingInputJ": 3.8640381108280607e+21
+      },
+      "fuel": 51.95339247813386,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "weapon-priority",
+        "time": 20.54999999999983,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "100%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 22.316699999999717,
+      "telegraph": 5,
+      "requested": 1,
+      "mainShare": 1,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        170.43732787344504,
+        25.56559918101672,
+        -8.521866393672246
+      ],
+      "speed": 172.5546429423335,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 4.514957847513656e+23,
+      "mode": "weapons",
+      "shots": 15,
+      "energy": 30.755466914551413,
+      "heat": {
+        "online": true,
+        "peak": 0.0018126994059156306,
+        "qJ": 7.351926476312083e+21,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 1.784221022416929e+24,
+        "operatingHeatJ": 1.7915729488932415e+24,
+        "coolingInputJ": 7.981538992496056e+21
+      },
+      "fuel": 71.62949958886318,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "weapon-priority",
+        "time": 22.316699999999717,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "100%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    }
+  },
+  "thermalTrip": {
+    "scope": "Explicit initial damage: one ship-capacity of real SI impact heat via the production API, not naturally observed overheating.",
+    "joules": 4.055789091296402e+24,
+    "before": {
+      "online": true,
+      "qJ": 9.120327127390843e+21,
+      "capacityJ": 4.055789091296402e+24
+    },
+    "after": {
+      "version": 1,
+      "peak": 1.0022487182942927,
+      "peakJ": 4.0649094184237926e+24,
+      "qJ": 4.0649094184237926e+24,
+      "capacityJ": 4.055789091296402e+24,
+      "massKg": 127017290134.86586,
+      "qAllowJPerKg": 31931000000000,
+      "online": false,
+      "damageLimit": 0.6,
+      "outputFactor": 0,
+      "restartWork": 0,
+      "crewFraction": 1,
+      "repairProgress": 0,
+      "emit": 1.9394786761000303e+23,
+      "band": {
+        "nu": 1.0898250481673776e+23,
+        "ir": 7.815395624221916e+22,
+        "em": 6.81140655104611e+21
+      },
+      "cap": 1.83368667449366e+25,
+      "mode": "normal",
+      "cooling": {
+        "reserveJ": 0,
+        "reservedJ": 1.83002662105372e+24,
+        "inputJ": 1.0059048150305908e+22,
+        "sourceInputJ": 1.0079186378121592e+22,
+        "heatJ": 1.0059048150305908e+22,
+        "feedLossJ": 20138227815684730000,
+        "reactorWasteJ": 403167455124863700000,
+        "handledJ": 6.706032100203938e+23,
+        "lastDraw": 0,
+        "lastSourceDraw": 0,
+        "rated": 8.044037701169404e+22,
+        "reserveByNodeJ": {},
+        "reserveByNodeSourceJ": {},
+        "reserveByNodeFeedJ": {},
+        "sources": {
+          "p1": {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 5.9229116594983905e+23,
+            "drawW": 5.9229116594983905e+23
+          }
+        }
+      },
+      "actualGeneratedElectricalJ": 3.529824908870072e+24,
+      "reactorHeatJ": 1.4119299635480548e+23,
+      "operatingHeatJ": 1.990524778856032e+24,
+      "impactHeatJ": 4.055789091296402e+24,
+      "rejectedHeatJ": 1.9814044517286404e+24,
+      "feedLossW": 2.7550041867795536e+21,
+      "feedLossJ": 1.7420695849383856e+22,
+      "lim": {
+        "reactor": 0,
+        "weapon": 0,
+        "shield": 0,
+        "engine": 0
+      },
+      "src": [
+        {
+          "name": "主反応炉 #1",
+          "k": "reactor",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 2.0467589887842413e+22,
+          "flowW": 2.051630386644048e+22
+        },
+        {
+          "name": "内蔵推進機関 #2",
+          "k": "engine",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 48713978598068550000
+        },
+        {
+          "name": "武装（艦尾区画）",
+          "k": "weapon",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 2.3486608461482108e+22,
+          "flowW": 2.3535322440080174e+22
+        },
+        {
+          "name": "武装（後部区画）",
+          "k": "weapon",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 1.8927512341912886e+22,
+          "flowW": 1.8976226320510953e+22
+        },
+        {
+          "name": "武装（中央区画）",
+          "k": "weapon",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 4.6973216922964215e+22,
+          "flowW": 4.702193090156229e+22
+        },
+        {
+          "name": "武装（前部区画）",
+          "k": "weapon",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 2.3486608461482108e+22,
+          "flowW": 2.3535322440080174e+22
+        },
+        {
+          "name": "生活・電子設備",
+          "k": "hotel",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 5.759999999999996e+22,
+          "flowW": 5.771973658908029e+22
+        },
+        {
+          "name": "送電損失 p1>f11",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 691317886369428000000,
+          "flowW": 691335187520210300000
+        },
+        {
+          "name": "送電損失 p1>f12",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 564227680264563500000,
+          "flowW": 564241922357194700000
+        },
+        {
+          "name": "送電損失 p1>f13",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 453278579273349200000,
+          "flowW": 453289952885369700000
+        },
+        {
+          "name": "送電損失 p1>f14",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 353827992096446900000,
+          "flowW": 353836880032056200000
+        },
+        {
+          "name": "送電損失 p1>f15",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 286415069206232240000,
+          "flowW": 286422269118259040000
+        },
+        {
+          "name": "送電損失 p1>hotel",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 244895237484641850000,
+          "flowW": 244903200608284050000
+        },
+        {
+          "name": "送電損失 p1>p4",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 4748062851854946
+        },
+        {
+          "name": "送電損失 p1>p5",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 1373249240267795.2
+        },
+        {
+          "name": "送電損失 p1>p6",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 659081330762448.8
+        },
+        {
+          "name": "送電損失 p1>p7",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 22329980014136.867
+        },
+        {
+          "name": "送電損失 p1>p9",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 4761402529914.769
+        },
+        {
+          "name": "送電損失 p1>p8",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 272243672881684400
+        },
+        {
+          "name": "送電損失 p1>p2",
+          "k": "feed",
+          "fill": 1.0022487182942927,
+          "mode": "全艦停電",
+          "generationW": 0,
+          "flowW": 2609971290205425
+        }
+      ]
+    }
+  },
+  "thermalMotion": {
+    "before": {
+      "time": 22.750099999999687,
+      "telegraph": 5,
+      "requested": 1,
+      "mainShare": 1,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        169.35686349876002,
+        25.403529524813955,
+        -8.467843174937997
+      ],
+      "speed": 171.46075613530655,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 4.514957847513656e+23,
+      "mode": "weapons",
+      "shots": 16,
+      "energy": 37.523696625650665,
+      "heat": {
+        "online": false,
+        "peak": 1.0022487182942927,
+        "qJ": 4.0649094184237926e+24,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 1.9814044517286404e+24,
+        "operatingHeatJ": 1.990524778856032e+24,
+        "coolingInputJ": 1.0059048150305908e+22
+      },
+      "fuel": 76.4795396921847,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "thermal-blackout",
+        "time": 22.750099999999687,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "100%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 25.016899999999584,
+      "telegraph": 5,
+      "requested": 1,
+      "mainShare": 1,
+      "actualInputW": 0,
+      "ratedInputW": 2.563539605329271e+22,
+      "actualThrustN": 0,
+      "actualAccelerationMps2": 0,
+      "output": 0,
+      "mainOutput": 0,
+      "velocity": [
+        163.81634643576763,
+        24.572451965365122,
+        -8.190817321788385
+      ],
+      "speed": 165.85141013435043,
+      "angularVelocity": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "keyStick": {
+        "x": 0,
+        "y": 0
+      },
+      "weaponsW": 0,
+      "mode": "weapons",
+      "shots": 16,
+      "energy": 37.523696625650665,
+      "heat": {
+        "online": false,
+        "peak": 0.9049399695285526,
+        "qJ": 3.670245656692002e+24,
+        "capacityJ": 4.055789091296402e+24,
+        "rejectedHeatJ": 2.3760682134604316e+24,
+        "operatingHeatJ": 1.990524778856032e+24,
+        "coolingInputJ": 1.0059048150305908e+22
+      },
+      "fuel": 76.4795396921847,
+      "dragRate": 0.014673612756557803,
+      "draw": {
+        "phase": "thermal-blackout",
+        "time": 25.016899999999584,
+        "glow": 0,
+        "engine": [
+          {
+            "mesh": "engine",
+            "engineK": 0,
+            "indices": 1728,
+            "calls": 1,
+            "emission": 0
+          },
+          {
+            "mesh": "nozzle",
+            "engineK": 0,
+            "indices": 48,
+            "calls": 1,
+            "emission": 0
+          }
+        ],
+        "points": {
+          "count": 0,
+          "alpha": 0,
+          "maxSize": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "hud": {
+        "label": "100%",
+        "outputBar": "0%"
+      },
+      "sameUnit": true
+    },
+    "expectedDecay": 0.967284957051459
+  },
+  "nativeInput": [
+    {
+      "type": "click",
+      "command": "btnTrialQuick",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "power",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "pmode:weapons",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "Space",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "Space",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyQ",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "code": "KeyQ",
+      "trusted": true
+    }
+  ],
+  "finalRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 563,
+    "lastFrame": 201499,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 649
+  },
+  "glError": 0,
+  "servedSourceSha256": {
+    "index.html": "9f1e66693c0ca612542dad8223138061170fa4a89ee4739d427c57fd0bfb364b",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/app.js": "1b369504853cf75d17cc7c39850bd00ecb21830f850df0883abb286c044d1193",
+    "js/core.js": "eaf9471c6064304af829cf1253dfa954b29f158ccdafaf39e041948e364df97a"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/app.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "9f1e66693c0ca612542dad8223138061170fa4a89ee4739d427c57fd0bfb364b",
+    "js/app.js": "1b369504853cf75d17cc7c39850bd00ecb21830f850df0883abb286c044d1193",
+    "js/core.js": "eaf9471c6064304af829cf1253dfa954b29f158ccdafaf39e041948e364df97a",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "4ce3900b3ddce71c31eef7f12f6ad1920ae7dc775199a01f0b2bf6ae030451a9"
+  },
+  "sourceStable": true,
+  "harnessStable": true,
+  "completedAt": "2026-11-08T17:37:06.802Z"
+}

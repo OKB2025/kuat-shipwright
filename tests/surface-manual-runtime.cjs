@@ -14,7 +14,7 @@ function fixture(surface=false){
 }
 `);
 function extract(name){const a=app.indexOf('function '+name+'('),b=app.indexOf('\n}',a)+2;assert.ok(a>=0&&b>a,name);run(app.slice(a,b));}
-for(const name of ['trialSystemsUnit','trialPowerFactor','trialPropulsionMotion','trialPowerStep','trialStep','trialJump','trialJumpStep','trialIonPracticeStep'])extract(name);
+for(const name of ['trialSystemsUnit','trialPowerFactor','trialPropulsionMotion','trialThrottleCommand','trialMainOutput','trialPowerStep','trialStep','trialJump','trialJumpStep','trialIonPracticeStep'])extract(name);
 for(const line of app.split('\n'))if(line.startsWith('function trialSwSoloEnergy(')||line.startsWith('function trialSwSoloBeamEnergy('))run(line);
 
 test('manual charging uses the same input/output/loss boundary as common combat',()=>{
