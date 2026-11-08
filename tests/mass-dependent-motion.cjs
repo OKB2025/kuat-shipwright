@@ -12,20 +12,20 @@ function profile(massKg=1e11){
   propulsion:{version:C.PROPULSION_MODEL_VERSION,massKg,ratedThrustN:massKg*500,ratedAccelMps2:500,accelerationLimitMps2:500,engines:[{id:2,machineryId:2,version:C.PROPULSION_MODEL_VERSION,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:input,ratedThrustN:massKg*500,wattsPerNewton:2e9,effectiveMachineryVolumeM3:input/3.4e17,driveProfileId:'standard',machineryGradeId:'standard',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:input}]}};
 }
 const unit=mass=>C.fleetUnit('mass-motion','mass-motion',profile(mass));
-const expectedRate=mass=>mass*Math.LN2/(1e11*60);
+const expectedRate=mass=>mass*.001/1e11,legacyRate=mass=>mass*Math.LN2/(1e11*60);
 
 test('resistance uses measured mass in kilograms and scales linearly without hull or class checks',()=>{
- const a=unit(1e11),b=unit(2e11);near(C.massDragRate(b),2*C.massDragRate(a));near(C.massDragRate(a),expectedRate(1e11));
+ const a=unit(1e11),b=unit(1e11);b.p.propulsion={...b.p.propulsion,massKg:2e11};near(C.massDragRate(b),2*C.massDragRate(a));near(C.massDragRate(a),expectedRate(1e11));
  a.p.len=1e8;a.p.shipClass='fighter';near(C.massDragRate(a),expectedRate(1e11));
- near(C.massDragRate({propulsion:{massKg:0},heat:{massKg:1e11}}),expectedRate(1e11));
- near(C.massDragRate({propulsion:{massKg:NaN},heat:{massKg:1e11}}),expectedRate(1e11));
- near(C.massDragRate({mass:1e8}),expectedRate(1e11));assert.equal(C.massDragRate({len:1e8,width:1e8,height:1e8}),0,'unknown mass does not create an assumed force');
+ near(C.massDragRate({propulsion:{massKg:0},heat:{massKg:1e11}}),legacyRate(1e11));
+ near(C.massDragRate({propulsion:{massKg:NaN},heat:{massKg:1e11}}),legacyRate(1e11));
+ near(C.massDragRate({mass:1e8}),legacyRate(1e11));assert.equal(C.massDragRate({len:1e8,width:1e8,height:1e8}),0,'unknown mass does not create an assumed force');
 });
-test('a 100-million-tonne unpowered ship halves every velocity component in sixty seconds',()=>{
- const u=unit(1e11),v=[1200,120,-300],out=C.integratePropulsionMotion(u,v,[0,0,0],60),k=expectedRate(1e11);
+test('a mass-only legacy snapshot retains its fallback coast until a physical speed reference exists',()=>{
+ const u={propulsion:{massKg:1e11}},v=[1200,120,-300],out=C.integratePropulsionMotion(u,v,[0,0,0],60),k=legacyRate(1e11);
  for(let i=0;i<3;i++){near(out.velocity[i],v[i]/2);near(out.displacement[i],v[i]*.5/k);}
  assert.deepEqual(v,[1200,120,-300],'integration does not mutate the caller');
- const tiny=C.integratePropulsionMotion(unit(1e4),v,[0,0,0],60);assert.ok(tiny.velocity[0]>v[0]*.9999999,'a ten-tonne craft practically preserves drift');
+ const tiny=C.integratePropulsionMotion({propulsion:{massKg:1e4}},v,[0,0,0],60);assert.ok(tiny.velocity[0]>v[0]*.9999999,'a ten-tonne craft practically preserves drift');
 });
 test('equal integration time gives identical velocity and displacement for powered and unpowered motion',()=>{
  const u=unit(1e11),v=[1000,20,-15],a=[4,-.5,2],one=C.integratePropulsionMotion(u,v,a,12);let velocity=v.slice(),position=[0,0,0];
@@ -35,8 +35,8 @@ test('equal integration time gives identical velocity and displacement for power
  const slow=C.integratePropulsionMotion(u,[1,0,0],[0,0,0],1e7);assert.ok(slow.velocity.every(Number.isFinite));assert.ok(slow.velocity[0]>=0);assert.ok(slow.displacement.every(Number.isFinite));
 });
 test('funded acceleration has a finite mass-dependent equilibrium rather than a free constant-speed coast',()=>{
- const u=unit(1e11),k=expectedRate(1e11),full=C.integratePropulsionMotion(u,[0,0,0],[1,0,0],1000),quarter=C.integratePropulsionMotion(u,[0,0,0],[.25,0,0],1000);
- near(full.velocity[0],(1-Math.exp(-k*1000))/k);near(quarter.velocity[0],full.velocity[0]/4);
+ const u=unit(1e11),k=expectedRate(1e11),full=C.integratePropulsionMotion(u,[0,0,0],[1,0,0],10000),quarter=C.integratePropulsionMotion(u,[0,0,0],[.25,0,0],10000);
+ near(full.velocity[0],(1-Math.exp(-k*10000))/k);near(quarter.velocity[0],full.velocity[0]/4);
  assert.ok(full.velocity[0]<1/k&&full.velocity[0]>.99/k);
 });
 test('holding velocity requests actual engine electricity and heat through the existing solver',()=>{
@@ -55,10 +55,10 @@ test('thermal blackout and broken machinery remove thrust while the same passive
   assert.equal(C.propulsionMotion(u).acc,0,stop);const q=C.integratePropulsionMotion(u,[1000,0,0],[0,0,0],10);near(q.velocity[0],1000*Math.exp(-expectedRate(1e11)*10));
  }
 });
-test('game-speed limits constrain only funded acceleration and never snap an existing overspeed coast',()=>{
- const u={propulsion:{massKg:0}},q=C.integratePropulsionMotion(u,[900,0,0],[100,0,0],2,{maxSpeed:1000});near(q.velocity[0],1000);assert.ok(q.thrustFraction<1);near(q.displacement[0],1900);
+test('historical speed options cannot clip funded force or pin a ship at the old maximum',()=>{
+ const u={propulsion:{massKg:0}},q=C.integratePropulsionMotion(u,[900,0,0],[100,0,0],2,{maxSpeed:1000});near(q.velocity[0],1100);near(q.thrustFraction,1);near(q.displacement[0],2000);
  const drift=C.integratePropulsionMotion(unit(1e11),[2000,0,0],[0,0,0],2,{maxSpeed:1000});assert.ok(drift.velocity[0]>1000);near(drift.velocity[0],2000*Math.exp(-expectedRate(1e11)*2));
- const powered=C.integratePropulsionMotion(u,[2000,0,0],[100,0,0],2,{maxSpeed:1000});near(powered.velocity[0],2000);near(powered.displacement[0],4000);
+ const powered=C.integratePropulsionMotion(u,[2000,0,0],[100,0,0],2,{maxSpeed:1000});near(powered.velocity[0],2200);near(powered.displacement[0],4200);
 });
 test('both fleet clocks decay powerless velocity and integrate distance with the same rule',()=>{
  for(const kind of ['tactical','peace']){const u=unit(1e11);u.velocity=[1000,20,-40];u.order={...u.order,type:'move',point:[10000,0,0]};u.p.grid.P=0;u.p.grid.Pgen=0;const start=u.pos.slice(),want=C.integratePropulsionMotion(u,u.velocity,[0,0,0],.25);

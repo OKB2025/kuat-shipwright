@@ -1,0 +1,363 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T22:03:47.399Z",
+  "sources": {
+    "index.html": "f72ac3002cb3ffb83e68b0d6c8048c687141d2a66e4faba13dab45ac13070976",
+    "js/core.js": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214"
+  },
+  "checks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/app.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/lang-en.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/audit-ship-examples.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/refresh-imperial-layouts.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/catalogue-reference-speed-ui.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/engine-density-thermal.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/engine-speed-publication.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/fighter-propulsion-planning.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/mass-dependent-motion.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/propulsion-editor-ui.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/propulsion-motion.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/propulsion-trial.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/received-power-efficiency.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/reference-sublight-speeds.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/throttle-output-trial.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-reactor-powered-propulsion.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/reactor-engine-audit.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/reactor-engine-budget-allocation.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/reactor-engine-input.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/reactor-profile-migration.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/terminal-speed-calibration.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/update-asset-manifest.cjs",
+        "--check"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "HEAD",
+        "--check"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "localization": [
+    {
+      "input": "後進 25%",
+      "output": "Reverse 25%",
+      "status": "PASS"
+    },
+    {
+      "input": "出力0%",
+      "output": "0% Output",
+      "status": "PASS"
+    },
+    {
+      "input": "スロットル",
+      "output": "Throttle",
+      "status": "PASS"
+    },
+    {
+      "input": "出力を上げる",
+      "output": "Increase Engine Output",
+      "status": "PASS"
+    },
+    {
+      "input": "出力を下げる",
+      "output": "Decrease Engine Output",
+      "status": "PASS"
+    },
+    {
+      "input": "熱停止中：冷却・復旧を待っています",
+      "output": "Thermal shutdown: waiting for cooling and restoration",
+      "status": "PASS"
+    },
+    {
+      "input": "推進出力が得られません。機関と出力配分を確認してください。",
+      "output": "No propulsion output. Check the engines and power allocation.",
+      "status": "PASS"
+    },
+    {
+      "input": "上部の「公試」でコルサント低軌道を操艦する。左下の▲▼でスロットル（後進25%〜出力100%）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。砲は充電装置に蓄えた「兵装エネルギー」で撃ち、1斉射ごとに減る。反応炉がシールド維持・推進の残りで再充電するので、推進出力を下げるほど兵装へ回せる電力が増える。最高速度は推力と抵抗の釣り合いで決まる。速度維持にも推進電力が要る。噴射は実際の推進出力に従う。右上の「⚡」で出力配分（推進優先・巡航・均衡・兵装優先・防御優先・全力）を選ぶ。推進優先では冷却・艦内維持分を残して機関へ給電する。兵装優先は推進を削って充電に回し、炉を上げるほど「炉心」負荷が高まる。キーボードは W/S スロットル、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、P 出力配分、Z 水平復帰、X 舵中央、V 視点",
+      "output": "Start a Trial using Flight Trial in the top bar to pilot in low Coruscant orbit. ▲▼ controls engine output from 25% reverse to full output; ◀▶ controls the rudder, retaining its order. The right stick controls pitch and roll, returning to neutral when released. Fire uses the guns; Missiles fires eight rounds per launcher and reloads in 20 seconds. Turrets track the center reticle, with larger turrets turning more slowly. Hulls, structures, and other turrets block shots. Aim at a target to lock it: turbolasers and ion guns lead toward ◇ while missiles home. Salvos consume stored weapon energy. Reactors recharge it after supplying shields and propulsion, so lowering engine output leaves more charging power. Maximum speed comes from the balance of thrust and resistance. Maintaining speed also requires propulsion power. Exhaust follows actual supplied engine output. Use ⚡ to allocate power: propulsion priority, cruise, balanced, weapons, shields, or overload. Propulsion priority reserves necessary cooling and onboard services before supplying the engines. More reactor output increases core load. Keys: W/S throttle, A/D rudder, R/F pitch, Q/E roll, Space guns, M missiles, P power, Z level, X center rudder, V camera.",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · B 超兵器 · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · B Superweapon · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · B 超兵器 · N 発射する砲を選択 · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · B Superweapon · N Select Cannons · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · O Sフォイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · O S-foils · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · B 超兵器 · N 発射する砲を選択 · O Sフォイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · B Superweapon · N Select Cannons · O S-foils · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "推力・構造強度・慣性制御の上限",
+      "output": "Limits from Thrust, Structural Strength, and Inertial Control",
+      "status": "PASS"
+    },
+    {
+      "input": "機関の内部機構",
+      "output": "Engine Machinery",
+      "status": "PASS"
+    },
+    {
+      "input": "接続炉からの最大入力",
+      "output": "Maximum Input from Connected Reactors",
+      "status": "PASS"
+    },
+    {
+      "input": "接続機関の最大入力",
+      "output": "Connected Engine Maximum Input",
+      "status": "PASS"
+    },
+    {
+      "input": "入力から推力への係数",
+      "output": "Input to Thrust Coefficient",
+      "status": "PASS"
+    },
+    {
+      "input": "変換効率",
+      "output": "Conversion Efficiency",
+      "status": "PASS"
+    },
+    {
+      "input": "推進の廃熱率",
+      "output": "Propulsion Waste Heat Fraction",
+      "status": "PASS"
+    },
+    {
+      "input": "最大推力",
+      "output": "Maximum Thrust",
+      "status": "PASS"
+    },
+    {
+      "input": "推進への最大入力",
+      "output": "Maximum Propulsion Input",
+      "status": "PASS"
+    },
+    {
+      "input": "接続炉による最大加速度（無制限）",
+      "output": "Maximum Acceleration from Connected Reactors (Unrestricted)",
+      "status": "PASS"
+    },
+    {
+      "input": "推進優先",
+      "output": "Propulsion Priority",
+      "status": "PASS"
+    },
+    {
+      "input": "機関への最大入力は接続された反応炉の出力から計算します。実推力と廃熱は実給電で決まり、持続出力は放熱面・排熱設備と熱輸送路に制限されます。",
+      "output": "Maximum engine input is calculated from connected reactor output. Actual thrust and waste heat depend on the power received; sustained output is limited by radiating surfaces, cooling equipment, and heat-transfer paths.",
+      "status": "PASS"
+    },
+    {
+      "input": "ノズルの変更は内部機関の寸法と接続する炉を維持します。出口・干渉・質量は形状に応じて変わります。",
+      "output": "Changing a nozzle preserves the engine machinery dimensions and reactor connection. Its outlet, interference, and mass follow the geometry.",
+      "status": "PASS"
+    },
+    {
+      "input": "外観のサイズ選択は内部機関の寸法と炉への接続を維持します。内部機構と給電はそれぞれ下の項目で編集できます。",
+      "output": "Changing the appearance size preserves the machinery dimensions and reactor connection. Edit machinery and power connections in the sections below.",
+      "status": "PASS"
+    },
+    {
+      "input": "必要な艦内電力と冷却を確保した後、接続炉の出力を推進へ優先配分する。",
+      "output": "Reserve necessary onboard power and cooling, then prioritize propulsion using connected reactor output.",
+      "status": "PASS"
+    },
+    {
+      "input": "シールド維持→推進→兵装充電の順。推進を絞ると兵装に多く回る。",
+      "output": "Supply shield maintenance, propulsion, then weapon charging. Reducing propulsion leaves more power for weapons.",
+      "status": "PASS"
+    }
+  ],
+  "localizationMethod": "Production KSI18n.t in Node VM with English navigator; actual Japanese source labels and help paragraph plus dynamic superweapon/S-foil controls. This is not an English browser interaction test.",
+  "sourcesAfter": {
+    "index.html": "f72ac3002cb3ffb83e68b0d6c8048c687141d2a66e4faba13dab45ac13070976",
+    "js/core.js": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214"
+  },
+  "sourcesStable": true,
+  "completedAt": "2026-11-08T22:03:50.015Z"
+}

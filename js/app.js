@@ -3151,7 +3151,7 @@ function stripFacts(t) {
   if (t.list === 'parts') {
     if(t.it.transmission||t.it.drivetrain){const p=t.it;return {title:p.drivetrain?'機関動力伝達路':'推進配電路',id:null,tw:false,line:`${fLen(p.lengthM||0)} · ${fW(p.capacityW||0)} · ${num(C.partVolume(p),3)} m³`,detail:()=>partInfoHTML(p).replace(/^<b>[^<]*<\/b>/,'')};}
     const p = t.it, V = editorCanMeshPart(p)?C.partVolume(enginePending()?requestedPart(p):p):null, size = C.isShapePart(p) || p.room ? (p.room || p.s).map(v => num(v,3)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 3) + ' m' : fLen(p.d)}`;
-    const key = V===null?'計算中…':C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の定格入力 ${fW(C.resolveEngineSpec(p,ship).ratedInputW)}` : `推力 ${sci(C.nozzleThrust(p))} N` : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
+    const key = V===null?'計算中…':C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の最大入力 ${fW(engineSourceInput(C.resolveEngineSpec(p,ship)))}` : `推力 ${sci(C.resolveEngineSpec(p,ship).ratedThrustN)} N` : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
     return {title: C.partLabel(p), id: p.id > 0 ? p.id : null, tw: p.tw != null || p.vt != null, line: size + ' · ' + key, detail: () => partInfoHTML(p).replace(/^<b>[^<]*<\/b>/, '')};
   }
   const x = t.p[0], sb = C.sectionBase(ship.hull, Math.max(0, Math.min(ship.hull.L, x)));
@@ -3284,7 +3284,7 @@ function specHTML(S, opt = {}) {
     <div><dt>${S.superweapons?.length?'一斉射（通常砲・公称）':'一斉射（全砲・公称）'}</dt><dd>${fTT(S.allGunVolleyTT??S.alphaTot+(S.ionTot||0))}<small>通常砲の主射界 ${fTT(S.alphaBest)}</small></dd></div>
     ${superweaponCatalogHTML(S)}
     ${engagementCapacityHTML(S)}
-    <div><dt>最大加速</dt><dd>${fG(S.accelG)}<small>定格推力・構造強度・慣性制御の上限</small></dd></div>
+    <div><dt>最大加速</dt><dd>${fG(S.accelG)}<small>推力・構造強度・慣性制御の上限</small></dd></div>
     <div><dt>ハイパードライブ</dt><dd>${S.hyperClass ? 'クラス ' + S.hyperClass.toFixed(1) : 'なし'}<small>${S.hyperClass ? (S.jumpOK ? '跳躍電力 可' : '跳躍電力 不足') : ''}</small></dd></div>
     <div><dt>シールド強度（最大）</dt><dd>${fPct(S.shieldPct)}<small>${fW(S.shieldP)} · 蓄積 ${sci(S.shieldCapacity)} J</small></dd></div>
     <div><dt>装甲</dt><dd>外殻 ${S.armorHull.toFixed(2)} m<small>集中防御 ${S.armorCit.toFixed(1)} m${S.plateArea>0?` · 装甲外板 ${S.armorPlate.toFixed(1)} m（表面の ${fPct(S.plateShare||0)}）`:''}</small></dd></div>
@@ -4552,7 +4552,6 @@ function designUIInfoPanel(){
  if(position?.every(Number.isFinite))add('位置 XYZ（m）',position.map(v=>num(v,3)).join(' / '));
  const owner=part.host??part.placement?.parentStructureId??part.placement?.hostId;if(owner!=null)add('追加元',owner==='hull'?T('船体'):'#'+owner);
  if(fit){if(def.power)add('電力',fW(def.power));if(def.tt||def.ion)add('一斉射',fTT(def.tt||def.ion));if(part.trenchAggregate)add('基数',num(part.aggregateCount));}
- else if(Number.isFinite(part.ratedInputW))add('定格入力',fW(part.ratedInputW));
  if(info&&Number.isFinite(info.materialVolume))add('体積',num(info.materialVolume,3)+' m³');
  if(info&&Number.isFinite(info.materialMass))add('質量',fMass(info.materialMass));
  if(part.placement?.pendingGeometry)add('接続状態',T('計算中'));else if(part.placement?.validationFailed)add('接続状態',T('計算失敗'));else if(info)add('接続状態',T(info.floating||part._placementError||part.placement?.repairRequired?'未接続':'接続済み'));
@@ -5370,7 +5369,7 @@ function superweaponArcSVG(w){
 }
 // Engine edits share the same action for pointer, keyboard and gamepad focus controls.
 // The existing transform drivers supply the selection and its mirror followers.
-const ENGINE_SPEC_FIELDS=['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryShape','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM'];
+const ENGINE_SPEC_FIELDS=['propulsionModelVersion','driveProfileId','machineryShape','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM'];
 const ENGINE_REASON_LABELS={
  disconnected:'給電未接続',unconnected:'給電未接続','no-reactor':'給電する炉がありません',
  'power-shortage':'給電不足','insufficient-power':'給電不足',power:'給電不足',
@@ -5382,25 +5381,26 @@ const ENGINE_REASON_LABELS={
  'engine-casing-fit':'機関本体が外装型タービンの内部に収まりません',
  overheated:'局所過熱',thermal:'局所過熱','thermal-limit':'局所過熱',damage:'機関の損傷',damaged:'機関の損傷',
  blocked:'噴射口が塞がっています','blocked-nozzle':'噴射口が塞がっています','invalid-nozzle':'噴射口が成立していません',
- 'density-exceeded':'機関の入力密度を超過','density-limit':'機関の入力密度を超過','machinery-density':'機関の入力密度を超過',
  'cooling-shortage':'散逸能力不足','insufficient-cooling':'散逸能力不足',
  shutdown:'保護遮断中',ion:'イオン遮断中',unplaced:'機関が未配置',destroyed:'機関が破壊されています',
- 'invalid-input':'入力値が不正です','invalid-rating':'定格入力が不正です','invalid-profile':'機関プロファイルが不正です',
- 'invalid-machinery':'内部機関の形状が不正です','legacy-refit':'旧機関の改修仕様',
+ 'invalid-input':'入力値が不正です','invalid-profile':'機関プロファイルが不正です',
+ 'invalid-machinery':'内部機関の形状が不正です',
  'invalid-engine':'機関データが不正です','invalid-model-version':'機関の保存形式が不正です',
- 'invalid-drive-profile':'機関プロファイルが不正です','invalid-machinery-grade':'内部機関の仕様が不正です',
- 'invalid-rated-input':'定格入力が不正です','invalid-machinery-shape':'内部機関の形状が不正です',
+ 'invalid-drive-profile':'機関プロファイルが不正です',
+ 'invalid-machinery-shape':'内部機関の形状が不正です',
  'invalid-machinery-position':'内部機関の位置が不正です','invalid-engine-position':'ノズルの位置・向きが不正です',
- 'invalid-machinery-reference':'共有機関への接続が不正です','machinery-density-exceeded':'機関の入力密度を超過',
- 'legacy-refit-required':'旧機関の改修を確認してください','legacy-refit-upgrade-required':'定格増強には内部機関の改修が必要です',
- 'migration-profile-read-only':'移行専用プロファイルは選択できません','migration-grade-read-only':'移行専用の機関仕様は選択できません',
+ 'invalid-machinery-reference':'共有機関への接続が不正です',
+ 'migration-profile-read-only':'移行専用プロファイルは選択できません',
  'invalid-mass':'艦の質量が不正です',unavailable:'機関が作動できません','outlet-blocked':'噴射口が塞がっています',overheat:'局所過熱',
  'machinery-owner-in-use':'この内部機関を使うノズルを先に接続し直してください','machinery-connection-cycle':'内部機関の循環接続はできません'
 };
-const engineReasonText=r=>{const key=typeof r==='string'?r:r?.code||r?.reason||'';return ENGINE_REASON_LABELS[key]||r?.message||key;};
+const ENGINE_RETIRED_RATING_REASONS=new Set(['density-exceeded','density-limit','machinery-density','invalid-rating','invalid-rated-input','invalid-machinery-grade','machinery-density-exceeded','legacy-refit','legacy-refit-required','legacy-refit-upgrade-required','migration-grade-read-only']);
+const engineReasonText=r=>{const key=typeof r==='string'?r:r?.code||r?.reason||'';return ENGINE_RETIRED_RATING_REASONS.has(key)?'':ENGINE_REASON_LABELS[key]||r?.message||key;};
 const engineSpecSnapshot=p=>Object.fromEntries(ENGINE_SPEC_FIELDS.filter(k=>p[k]!==undefined).map(k=>[k,p[k]]));
+const engineSourceInput=spec=>Math.max(0,Number.isFinite(spec?.availableInputW)?spec.availableInputW:Number.isFinite(spec?.sourceInputLimitW)?spec.sourceInputLimitW:Number.isFinite(spec?.ratedInputW)?spec.ratedInputW:0);
 function pendingGenericEngine(){
  const p={k:'engine',c:[0,0,0],d:pSize('engine'),...(st.engineSpec||{}),nozzleAppearance:st.nozzleAppearance||'bell',machineryId:st.newEngineCoreId??0};
+ delete p.ratedInputW;delete p.machineryGradeId;
  if(!st.engineSpec)st.engineSpec={nozzleLength:p.d*.32};
  p._autoEngineOwner=st.newEngineCoreId==null;return bindPendingEngineOwner(p,null);
 }
@@ -5442,8 +5442,9 @@ function bindPendingEngineOwner(p,at){
  return p;
 }
 function pendingEngineCore(){
- const d=pSize('engineCore'),p={id:-1,k:'engineCore',c:[0,0,0],dir:st.engineDir.slice(),d,length:d*2,propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:0,...(st.engineCoreSpec||{}),reactor:st.reactor};
- if(!st.engineCoreSpec){p.ratedInputW=C.partVolume(p)*C.PROPULSION.referenceInputDensity;st.engineCoreSpec={...engineSpecSnapshot(p),length:p.length};}
+ const d=pSize('engineCore'),p={id:-1,k:'engineCore',c:[0,0,0],dir:st.engineDir.slice(),d,length:d*2,propulsionModelVersion:1,driveProfileId:'standard',...(st.engineCoreSpec||{}),reactor:st.reactor};
+ delete p.ratedInputW;delete p.machineryGradeId;
+ if(!st.engineCoreSpec)st.engineCoreSpec={...engineSpecSnapshot(p),length:p.length};
  return p;
 }
 function engineSelectionDrivers(){
@@ -5511,10 +5512,10 @@ function engineConnectionAction(value,fresh=false){
  renderPanel();return true;
 }
 function engineSpecAction(field,value,fresh=false){
- const shape=['d','nozzleLength'].includes(field),allowed=shape||['ratedInputW','driveProfileId','machineryGradeId','machineryDiameterM','machineryLengthM','machineryOffsetM'].includes(field);
+ const shape=['d','nozzleLength'].includes(field),allowed=shape||['driveProfileId','machineryDiameterM','machineryLengthM','machineryOffsetM'].includes(field);
  if(!allowed)return false;
- if(!['driveProfileId','machineryGradeId'].includes(field)&&(String(value).trim()===''||!Number.isFinite(Number(value)))){toast('入力値が不正です');return false;}
- if(!['driveProfileId','machineryGradeId'].includes(field))value=Number(value);
+ if(field!=='driveProfileId'&&(String(value).trim()===''||!Number.isFinite(Number(value)))){toast('入力値が不正です');return false;}
+ if(field!=='driveProfileId')value=Number(value);
  const equipment=activeEquipment(),pending=fresh?(st.part==='engineCore'?pendingEngineCore():equipment?.k==='engine'?pendingEngine(equipment):pendingGenericEngine()):null;
  const drivers=fresh?[{it:pending,fol:[]}]:engineSelectionDrivers();if(!drivers.length)return false;
  const targets=[...new Set(drivers.flatMap(d=>[d.it,...(d.fol||[]).map(f=>f.it)]).map(p=>!shape&&p.machineryId!=null?ship.parts.find(q=>q.k==='engineCore'&&q.id===p.machineryId)||p:p))];
@@ -5553,22 +5554,22 @@ function propulsionPreviewForUI(){
  return null;
 }
 function engineSpecControls(p,fresh=false,multiple=false){
- const spec=C.resolveEngineSpec(p,ship),profiles=C.PROPULSION_PROFILES||C.DRIVE_PROFILES,grades=C.MACHINERY_GRADES,core=p.k==='engineCore',external=C.equipmentSpec(p)?.engineStyle==='exposed';
- const input=(field,label,value,min=0,max='')=>`<label class="field-label">${label}<input type="number" inputmode="decimal" step="any" data-engine-step="${field==='ratedInputW'?Math.max(1,10**(Math.floor(Math.log10(Math.max(1,value)))-2)):.01}" data-engine-field="${field}" data-engine-new="${fresh?'1':'0'}" value="${value}" min="${min}" ${max!==''?`max="${max}"`:''} aria-label="${label}"></label>`;
+ const spec=C.resolveEngineSpec(p,ship),profiles=C.PROPULSION_PROFILES||C.DRIVE_PROFILES,core=p.k==='engineCore',external=C.equipmentSpec(p)?.engineStyle==='exposed';
+ const input=(field,label,value,min=0,max='')=>`<label class="field-label">${label}<input type="number" inputmode="decimal" step="any" data-engine-step="0.01" data-engine-field="${field}" data-engine-new="${fresh?'1':'0'}" value="${value}" min="${min}" ${max!==''?`max="${max}"`:''} aria-label="${label}"></label>`;
  const select=(field,label,current,catalog)=>`<label class="field-label">${label}<select data-engine-field="${field}" data-engine-new="${fresh?'1':'0'}" aria-label="${label}">${Object.entries(catalog||{}).filter(([id,d])=>id===current||(!id.startsWith('legacy')&&!d.migrationOnly&&!d.legacy)).map(([id,d])=>`<option value="${esc(id)}" ${id===current?'selected':''}>${esc(d.name||d.label||id)}</option>`).join('')}</select></label>`;
- return `<div class="pgroup blueprint-card" id="engine-spec-editor"><h4>${multiple?'選択した機関の一括仕様':'機関の定格・内部機構'}</h4>${multiple?'<p class="note">表示値は先頭の機関です。変更した項目を選択中の全機関と対称部品へ適用します。</p>':''}
- ${input('ratedInputW','定格入力（W）',spec.ratedInputW,0,spec.maxRatedInputW)}${select('driveProfileId','推進プロファイル',spec.driveProfileId,profiles)}${select('machineryGradeId','内部機関の仕様',spec.machineryGradeId,grades)}
+ return `<div class="pgroup blueprint-card" id="engine-spec-editor"><h4>${multiple?'選択した機関の一括仕様':'機関の内部機構'}</h4>${multiple?'<p class="note">表示値は先頭の機関です。変更した項目を選択中の全機関と対称部品へ適用します。</p>':''}
+ ${select('driveProfileId','推進プロファイル',spec.driveProfileId,profiles)}
  ${input('machineryDiameterM','内部機関の直径（m）',spec.machineryDiameterM,.01,C.DESIGN_LIMITS.engineDiameter)}${input('machineryLengthM','内部機関の長さ（m）',spec.machineryLengthM,.01,C.DESIGN_LIMITS.engineLength)}${core?'':external?'<p class="note">外部機関は機関本体とノズルが一体です。</p>':input('machineryOffsetM','ノズルから機関までの距離（m）',p.machineryOffsetM??0,0,C.DESIGN_LIMITS.engineLength)}
- <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力密度</dt><dd>${sci(spec.inputDensityWPerM3)} W/m³</dd></div><div><dt>容積・仕様による入力上限</dt><dd>${fW(spec.maxRatedInputW)}</dd></div><div><dt>入力から推力への係数（密度を反映）</dt><dd>${sci(spec.wattsPerNewton)} W/N</dd></div><div><dt>定格・高密度化の追加費用</dt><dd>${fCr(spec.cost)}</dd></div></dl>
- <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">通常定格は機関容積から計算します。同じ容積で定格入力を上げるほど廃熱率が増えます。実推力と廃熱は実給電で決まり、持続出力は翼などの放熱面・排熱設備と熱輸送路に制限されます。密度・費用はゲーム用の暫定係数です。</p></div>
- ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${nozzleAppearanceControls(p,!fresh)}${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法・定格入力を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
+ <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力から推力への係数</dt><dd>${sci(spec.wattsPerNewton)} W/N</dd></div></dl>
+ <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">機関への最大入力は接続された反応炉の出力から計算します。実推力と廃熱は実給電で決まり、持続出力は放熱面・排熱設備と熱輸送路に制限されます。</p></div>
+ ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${nozzleAppearanceControls(p,!fresh)}${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法と接続する炉を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
 }
 function propulsionFiguresHTML(side=false){
  const p=propulsionPreviewForUI();if(!p)return '';
  const row=(name,value)=>`<div><dt>${name}</dt><dd>${value}</dd></div>`,finite=(v,format)=>Number.isFinite(v)?format(v):'未判定';
- const diagnostics=(p.engines||[]).filter(e=>e.reasons?.length).map(e=>`<${side?'div':'button type="button"'} class="engine-row neg" ${side?'':`data-goto="${e.id}"`}><span>機関 #${e.id}</span><b>${esc([...new Set(e.reasons.map(engineReasonText))].join(' · '))}</b></${side?'div':'button'}>`).join('');
+ const diagnostics=(p.engines||[]).map(e=>({e,reasons:[...new Set((e.reasons||[]).map(engineReasonText).filter(Boolean))]})).filter(q=>q.reasons.length).map(({e,reasons})=>`<${side?'div':'button type="button"'} class="engine-row neg" ${side?'':`data-goto="${e.id}"`}><span>機関 #${e.id}</span><b>${esc(reasons.join(' · '))}</b></${side?'div':'button'}>`).join('');
  return `<div class="pgroup blueprint-card" id="propulsion-preview${side?'-side':''}"><h4>実給電による推進能力</h4>${side?'':`<div class="seg">${['cruise','combat','max'].map(k=>`<button type="button" data-heat-preset="${k}" aria-pressed="${(st.heatPreset||'combat')===k}">${C.HEAT_PRESETS[k].name}</button>`).join('')}</div>`}
- <dl class="engineering-stats">${row('定格入力',fW(p.ratedInputW))}${row('定格推力',sci(p.ratedThrustN)+' N')}${row('計画最大加速度（定格・無制限）',finite(p.ratedAccelMps2,v=>num(v,3)+' m/s²'))}${row('推進への実入力',fW(p.actualInputW))}${row('実推力',sci(p.actualThrustN)+' N')}${row('推進廃熱',fW(p.wasteHeatW))}${row('配電路の損失熱',fW(p.power?.feedLossW||0))}${row('無制限時の実加速度',finite(p.freeAccelerationMps2,v=>num(v,3)+' m/s²'))}${row('構造・慣性制限後の実加速度',finite(p.actualAccelMps2??p.cappedAccelerationMps2,v=>num(v,3)+' m/s²'))}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${diagnostics}
+ <dl class="engineering-stats">${row('推進への最大入力',fW(engineSourceInput(p)))}${row('最大推力',sci(p.ratedThrustN)+' N')}${row('接続炉による最大加速度（無制限）',finite(p.ratedAccelMps2,v=>num(v,3)+' m/s²'))}${row('推進への実入力',fW(p.actualInputW))}${row('実推力',sci(p.actualThrustN)+' N')}${row('推進廃熱',fW(p.wasteHeatW))}${row('配電路の損失熱',fW(p.power?.feedLossW||0))}${row('無制限時の実加速度',finite(p.freeAccelerationMps2,v=>num(v,3)+' m/s²'))}${row('構造・慣性制限後の実加速度',finite(p.actualAccelMps2??p.cappedAccelerationMps2,v=>num(v,3)+' m/s²'))}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${diagnostics}
  <p class="note">冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。</p></div>`;
 }
 function transmissionPortLabel(port){
@@ -6014,7 +6015,7 @@ function heatHTML(){
 }
 function systemsHTML(){
   const rs=ship.parts.filter(C.isReactor),nozzles=ship.parts.filter(p=>p.k==='engine'),owners=C.propulsionOwners?C.propulsionOwners(ship):nozzles.filter(p=>engineConnectionOwner(p)===p),S0=S;
-  const ownerRow=e=>{const physical=transmissionForUI()?.engines?.[e.id],broken=physical?!physical.connected:!C.reactorFor(ship,e),outlets=e.k==='engineCore'?nozzles.filter(n=>n.machineryId===e.id):[];return `<button class="engine-row${broken?' neg':''}" data-goto="${e.id}"><span>↳ ${esc(C.partLabel(e))} #${e.id}</span><b>${broken?'給電元を点検':fW(C.resolveEngineSpec(e,ship).ratedInputW)}</b></button>${outlets.map(n=>{const path=driveForUI()?.engines?.[n.id];return `<button class="engine-row${path&&!path.connected?' neg':''}" data-goto="${n.id}"><span>　↳ ノズル #${n.id}</span><b>${path?.connected?fW(path.capacityW):'動力未接続'}</b></button>`;}).join('')}`;};
+  const ownerRow=e=>{const physical=transmissionForUI()?.engines?.[e.id],broken=physical?!physical.connected:!C.reactorFor(ship,e),outlets=e.k==='engineCore'?nozzles.filter(n=>n.machineryId===e.id):[];return `<button class="engine-row${broken?' neg':''}" data-goto="${e.id}"><span>↳ ${esc(C.partLabel(e))} #${e.id}</span><b>${broken?'給電元を点検':fW(engineSourceInput(C.resolveEngineSpec(e,ship)))}</b></button>${outlets.map(n=>{const path=driveForUI()?.engines?.[n.id];return `<button class="engine-row${path&&!path.connected?' neg':''}" data-goto="${n.id}"><span>　↳ ノズル #${n.id}</span><b>${path?.connected?fW(path.capacityW):'動力未接続'}</b></button>`;}).join('')}`;};
   return `<div class="flow-intro"><span class="eyebrow">ENGINEERING / 03</span><h3>機関本体とノズルを接続する</h3><p>反応炉から機関への配電は自動接続されます。独立した配電区画は不要です。機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。</p><button class="btn primary" data-internal>内部を透視する</button></div>
   <h4>動力の接続</h4>${rs.map(r=>`<div class="system-card"><button class="system-title" data-goto="${r.id}"><i style="background:${rgb(C.PARTS[r.k].col)}"></i>${esc(C.partLabel(r))} #${r.id}<span>${fW(C.reactorPower(r))}</span></button>${owners.filter(e=>C.reactorFor(ship,e)?.id===r.id).map(ownerRow).join('')||'<p class="note">接続された機関はありません。</p>'}</div>`).join('')||'<p class="note">先に主反応炉か補助反応炉を配置してください。</p>'}
   ${owners.filter(e=>!C.reactorFor(ship,e)).map(ownerRow).join('')}${nozzles.filter(n=>!engineConnectionOwner(n)).map(n=>`<button class="engine-row neg" data-goto="${n.id}">機関未接続のノズル #${n.id}</button>`).join('')}
@@ -6321,17 +6322,17 @@ function equipmentCard(id){
  const spec=d.k==='engine'?d.engineStyle==='exposed'?'径・全長を変更 / 機関胴を外に露出':'独立した内部機関へ接続するノズル':d.k==='struct'?d.s.map(v=>num(v,1)).join(' × ')+' m · 指揮所を内蔵':'センサー・通信設備';
  return `<button type="button" class="part${on?' on':''}" data-equipment="${id}" aria-pressed="${on}"><i class="sw sh-${C.PARTS[d.k].shape}" style="background:${rgb(C.PARTS[d.k].col)}"></i><span class="pn">${esc(d.name)}</span><span class="pd">${spec}</span></button>`;
 }
-function pendingEngine(d){const p={id:-1,c:[0,0,0],dir:(st.engineDir||[-1,0,0]).slice(),...C.equipmentOptions(d.id),...st.engineSizes[d.id],...(d.engineStyle==='internal'?{machineryId:st.newEngineCoreId??0,nozzleAppearance:st.nozzleAppearance||'bell'}:{})};C.enforceEquipment(p);if(d.engineStyle==='exposed'){p.machineryOffsetM=(p.nozzleLength??C.partDims(p).l)/2;C.updateEngineSpec(p,{},ship);}if(d.engineStyle==='internal'){p.machineryId=st.newEngineCoreId??0;for(const key of ENGINE_SPEC_FIELDS)if(key!=='propulsionModelVersion')delete p[key];p.propulsionModelVersion=C.PROPULSION_MODEL_VERSION||1;}if(!st.engineSizes[d.id])st.engineSizes[d.id]={...engineSpecSnapshot(p),d:p.d,engineLength:p.engineLength,nozzleLength:p.nozzleLength};if(d.engineStyle==='internal'){p._autoEngineOwner=st.newEngineCoreId==null;bindPendingEngineOwner(p,null);}return p;}
+function pendingEngine(d){const p={id:-1,c:[0,0,0],dir:(st.engineDir||[-1,0,0]).slice(),...C.equipmentOptions(d.id),...st.engineSizes[d.id],...(d.engineStyle==='internal'?{machineryId:st.newEngineCoreId??0,nozzleAppearance:st.nozzleAppearance||'bell'}:{})};C.enforceEquipment(p);if(d.engineStyle==='exposed'){p.machineryOffsetM=(p.nozzleLength??C.partDims(p).l)/2;C.updateEngineSpec(p,{},ship);}if(d.engineStyle==='internal'){p.machineryId=st.newEngineCoreId??0;for(const key of ENGINE_SPEC_FIELDS)if(key!=='propulsionModelVersion')delete p[key];p.propulsionModelVersion=C.PROPULSION_MODEL_VERSION||1;}if(!st.engineSizes[d.id])st.engineSizes[d.id]={...engineSpecSnapshot(p),d:p.d,engineLength:p.engineLength,nozzleLength:p.nozzleLength};if(d.engineStyle==='internal'){p._autoEngineOwner=st.newEngineCoreId==null;bindPendingEngineOwner(p,null);}delete p.ratedInputW;delete p.machineryGradeId;return p;}
 function enginePerformance(p){
  if(p._pendingEngineOwnerReason)return `<p class="note" data-engine-reasons>${esc(T(p._pendingEngineOwnerReason))}</p>`;
  const spec=C.resolveEngineSpec(p,ship),preview=p.id>0?propulsionPreviewForUI():null,core=p.k==='engineCore',shared=!core&&engineConnectionOwner(p)?.k==='engineCore',actual=(core?preview?.cores:preview?.engines)?.find(e=>(e.id??e.nozzleId)===p.id),reasons=[...new Set([...(spec.reasons||[]),...(actual?.reasons||[])].map(engineReasonText).filter(Boolean))];
  const row=(label,value)=>`<div><dt>${label}</dt><dd>${value}</dd></div>`,finite=(value,format)=>Number.isFinite(value)?format(value):'未判定';
- return `<dl class="engineering-stats" data-engine-performance>${row('通常定格入力（機関容積）',finite(spec.normalInputW,fW))}${row(shared?'接続機関の定格入力':'定格入力',fW(spec.ratedInputW))}${row('通常定格に対する入力倍率',finite(spec.densityFactor,v=>'×'+num(v,2)))}${row('定格時の廃熱率',finite(spec.wasteFraction,v=>num(v*100,2)+'%'))}${row('定格時の推進廃熱',finite(spec.ratedWasteHeatW,fW))}${shared?'':row('定格推力',sci(spec.ratedThrustN)+' N')}${row(core?'機関への実入力':'推進への実入力',actual?fW(actual.actualInputW):'未判定')}${Number.isFinite(actual?.shaftPowerW)?row(core?'ノズルへ出す動力':'ノズルへの動力',fW(actual.shaftPowerW)):''}${core?'':row('実推力',actual?sci(actual.actualThrustN)+' N':'未判定')}${row('推進廃熱',actual?fW(actual.wasteHeatW):'未判定')}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${reasons.length?`<ul class="ilist neg" data-engine-reasons>${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
+ return `<dl class="engineering-stats" data-engine-performance>${row(shared?'接続機関の最大入力':'接続炉からの最大入力',fW(engineSourceInput(spec)))}${row('変換効率',finite(spec.efficiency,v=>num(v*100,2)+'%'))}${row('推進の廃熱率',finite(spec.wasteFraction,v=>num(v*100,2)+'%'))}${shared?'':row('最大推力',sci(spec.ratedThrustN)+' N')}${row(core?'機関への実入力':'推進への実入力',actual?fW(actual.actualInputW):'未判定')}${Number.isFinite(actual?.shaftPowerW)?row(core?'ノズルへ出す動力':'ノズルへの動力',fW(actual.shaftPowerW)):''}${core?'':row('実推力',actual?sci(actual.actualThrustN)+' N':'未判定')}${row('推進廃熱',actual?fW(actual.wasteHeatW):'未判定')}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${reasons.length?`<ul class="ilist neg" data-engine-reasons>${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
 }
 function equipmentInfo(d,p){
  if(d.k==='engine'){
   p=p||pendingEngine(d);
-  return `<div class="pgroup blueprint-card"><h4>${esc(d.name)}</h4><details><summary>ノズル外観のサイズを選ぶ</summary><div class="chips">${C.ENGINE_BASELINES[d.engineStyle].map((b,i)=>`<button class="chip" data-enginebaseline="${i}">径 ${b.d} m</button>`).join('')}</div></details><p class="note">外観のサイズ選択は内部機関の寸法・定格入力を維持します。定格・内部機構・給電はそれぞれ下の項目で編集できます。</p></div>`;
+  return `<div class="pgroup blueprint-card"><h4>${esc(d.name)}</h4><details><summary>ノズル外観のサイズを選ぶ</summary><div class="chips">${C.ENGINE_BASELINES[d.engineStyle].map((b,i)=>`<button class="chip" data-enginebaseline="${i}">径 ${b.d} m</button>`).join('')}</div></details><p class="note">外観のサイズ選択は内部機関の寸法と炉への接続を維持します。内部機構と給電はそれぞれ下の項目で編集できます。</p></div>`;
  }
  return `<div class="pgroup blueprint-card"><h4>${esc(d.name)}</h4>${d.k==='struct'?'<p class="note">艦橋本体はそれだけで指揮所として働きます（どちらも前面の円筒ポッドから視界を測ります）。役割は選択後に変更でき、支持塔は構造パーツで組み立てます。配置後に位置・寸法・向きを調整できます。</p>':'<p class="note">通常のセンサー部品として配置します。位置・大きさは配置後にも調整できます。</p>'}</div>`;
 }
@@ -7447,7 +7448,7 @@ const GUN_MODES={
  enemy:{name:'敵方固定',short:'敵固定',note:'視点を動かしても、捉えた目標（なければ最寄りの敵）を追い続けます'},
  home:{name:'初期位置固定',short:'初期位置',note:'砲塔を初期位置に戻して固定します。射撃は砲身の向きへ'}};
 const trial={on:false,gunMode:'free',gunTarget:null,paused:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'ship',camF:null,rec:null,dust:null,warn:'',designCamera:null,
- stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],launchers:[],bolts:[],missiles:[],fx:[],wrecks:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null,lead:null,power:null,mslOrder:false,energy:null,powerMode:'balanced',engF:0,thrustWant:0,sysKey:'coruscant',mode:'trial',vbolts:[],jump:null,navigation:null,flash:0,hitFlash:0,battle:null,battlePlan:null};
+ stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],launchers:[],bolts:[],missiles:[],fx:[],wrecks:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null,lead:null,power:null,mslOrder:false,energy:null,powerMode:'propulsion',engF:0,thrustWant:0,sysKey:'coruscant',mode:'trial',vbolts:[],jump:null,navigation:null,flash:0,hitFlash:0,battle:null,battlePlan:null};
 const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]]};
 function trialRot(v,axis,ang){const c=Math.cos(ang),s=Math.sin(ang),d=tv.dot(axis,v),x=tv.cross(axis,v);return [v[0]*c+x[0]*s+axis[0]*d*(1-c),v[1]*c+x[1]*s+axis[1]*d*(1-c),v[2]*c+x[2]*s+axis[2]*d*(1-c)];}
 // Column-major frame from forward and approximate up (Gram-Schmidt).
@@ -7727,7 +7728,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),acceleration=tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{maxSpeed:p.maxSpeed});
+ const f=trialCol(trial.R,0),acceleration=tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt);
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
  const up=tv.norm(trial.P),floor=trialSys().planet.radius+trialSys().floor;trial.warn='';
  if(tv.len(trial.P)<floor){trial.P=tv.scale(up,floor);const vr=tv.dot(trial.V,up);if(vr<0)trial.V=tv.add(trial.V,up,-vr);trial.warn='大気圏上層：これ以上は降下できません';}
@@ -7856,7 +7857,7 @@ function trialPowerStep(dt,want){
  if(!g||!me||typeof C.allocateShipPower!=='function'){
   trial.engF=0;trial.propulsion=null;trial.power={load:0,engF:0,got:null,P:0};return;
  }
- const mode=trial.powerMode||'balanced',M=C.POWER_MODES[mode]||C.POWER_MODES.balanced,s=C.fleetSystems(me),regen=me.shield<me.shieldMax*.999||me.underFire||(me.bank||0)<(me.bankMax||0)*.999,input=C.weaponInputFactor(p),lim=x=>C.heatLim(me,x);
+ const mode=trial.powerMode||'propulsion',M=C.POWER_MODES[mode]||C.POWER_MODES.propulsion||C.POWER_MODES.balanced,s=C.fleetSystems(me),regen=me.shield<me.shieldMax*.999||me.underFire||(me.bank||0)<(me.bankMax||0)*.999,input=C.weaponInputFactor(p),lim=x=>C.heatLim(me,x);
  if(me.ionDrained){en.E=Math.max(0,en.E-me.ionDrained);me.ionDrained=0;}
  me.energy=en.E;me.maneuver=C.clamp(trial.thrustWant||0,0,1);me.order={...me.order,power:mode};
  const demand={throttle:me.maneuver,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*(regen?M.shields:1)*lim('shield')),weapons:Math.max(0,Math.min(g.Dw*s.weapon*M.weapons,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon'))};
@@ -8267,8 +8268,8 @@ function trialMissileHudState(){
 function trialHudHTML(){
  return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
  <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl></div>
- <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
- <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'balanced')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
+ <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.propulsion||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
+ <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'propulsion')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
  <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 ${trialCamName(trial.camMode)}</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
  <div class="th-flash" data-th="flash" aria-hidden="true"></div>${trial.mode==='battle'||trial.pat?'<div class="th-cine" aria-hidden="true"><i class="bar top"></i><i class="bar bot"></i><b>敵艦隊　ハイパースペースより出現</b></div>':''}<div class="th-hit" data-th="hit" aria-hidden="true"></div>
@@ -8406,7 +8407,7 @@ function trialCommand(cmd){
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
  else if(cmd==='power'){const m=$('#thPower'),b=document.querySelector('[data-trial-cmd="power"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
- else if(cmd==='pnext'){const ks=Object.keys(C.POWER_MODES);trialSetPower(ks[(ks.indexOf(trial.powerMode||'balanced')+1)%ks.length]);}
+ else if(cmd==='pnext'){const ks=Object.keys(C.POWER_MODES);trialSetPower(ks[(ks.indexOf(trial.powerMode||'propulsion')+1)%ks.length]);}
  else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));const m=$('#thPower');if(m)m.hidden=true;document.querySelector('[data-trial-cmd="power"]')?.setAttribute('aria-expanded','false');}
  else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
  else if(cmd==='volley'){trialVolley();}
@@ -8512,7 +8513,7 @@ function escortsStep(dt){
   let goal=tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
   // Clear of the flagship and of each other.
   for(const o of [{pos:trial.P,L:trial.p.len},...es.filter(x=>x!==e).map(x=>({pos:x.pos,L:x.p.len}))]){const r=tv.sub(e.pos,o.pos),l=tv.len(r),min=(e.p.len+o.L)*.62;if(l<min&&l>1)goal=tv.add(goal,r,(min-l)/l*.6);}
-  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt,{maxSpeed:e.p.maxSpeed});
+  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt);
   e.V=next.velocity;e.pos=tv.add(e.pos,next.displacement);
   // The bow follows the way it moves (the flagship's heading when it is nearly still), turning at its own rate.
   const sp=tv.len(e.V);e.lvl=motion.acc>0?C.engineLevel(unit):0;const tf=sp>25?tv.norm(e.V):trialCol(trial.R,0),k=(1-Math.exp(-dt*Math.max(0,(e.p.turnRate||0)*6)))*motion.turn;e.f=tv.norm(tv.add(e.f,tv.sub(tf,e.f),k));

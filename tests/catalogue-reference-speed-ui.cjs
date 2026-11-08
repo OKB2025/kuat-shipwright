@@ -9,8 +9,14 @@ test('catalogue profiles apply published sublight speeds on copies without alter
   assert.equal(run(`by.get('${key}').p.mglt`),run(`C.referenceSublightMGLT('${key}')`));assert.equal(run(`by.get('${key}').p.maxSpeed`),run(`C.referenceSublightMGLT('${key}')*C.MGLT.ms`));assert.equal(run(`by.get('${key}').p.speedReference.status`),'published');assert.equal(run(`by.get('${key}').p===YardFleetData.designs['${key}'].p`),false);
  }
  assert.equal(run('JSON.stringify(YardFleetData)'),before);
- const strip=p=>{const q={...p};delete q.maxSpeed;delete q.mglt;delete q.speedReference;return q;};
- for(const d of plain(run('rows'))){const expected=plain(run('C.emptyDesignProfile(YardFleetData.designs['+JSON.stringify(d.key)+'].p)'));assert.deepEqual(strip(d.p),strip(expected),d.key+' physical profile stays unchanged');}
+ const strip=p=>{const q={...p};for(const k of ['maxSpeed','mglt','speedReference','motionResistance','propulsion','grid','accel'])delete q[k];return q;};
+ for(const d of plain(run('rows'))){
+  const expected=plain(run('C.emptyDesignProfile(YardFleetData.designs['+JSON.stringify(d.key)+'].p)'));assert.deepEqual(strip(d.p),strip(expected),d.key+' non-propulsion engineering fields stay unchanged');
+  for(const field of ['P','Pgen','Paux','fixed','cooling','Ds','Dw'])assert.equal(d.p.grid?.[field],expected.grid?.[field],d.key+' source and other consumer '+field);
+  assert.equal(d.p.propulsion?.massKg,expected.propulsion?.massKg,d.key+' physical mass');
+  for(const list of ['cores','engines']){const actual=d.p.propulsion?.[list]||[],before=expected.propulsion?.[list]||[];assert.equal(actual.length,before.length);for(let i=0;i<actual.length;i++)for(const field of ['id','machineryId','coreId','direction','effectiveMachineryVolumeM3','machineryVolumeM3','machineryShape','machineryLengthM','machineryRadiusM'])assert.deepEqual(actual[i][field],before[i][field],d.key+' '+list+' '+field);}
+  if(d.p.motionResistance){assert.equal(d.p.motionResistance.version,run('C.MOTION_RESISTANCE_VERSION'));assert.equal(d.p.motionResistance.referenceSpeedMps,d.p.maxSpeed);assert.ok(d.p.motionResistance.ratePerKg>0);}
+ }
 });
 
 test('unpublished or custom model speeds retain their previous computed fallback',()=>{
@@ -18,7 +24,7 @@ test('unpublished or custom model speeds retain their previous computed fallback
 });
 
 test('a catalogue ship with no thrust does not acquire motion from a published maximum',()=>{
- const {run}=setup();run('YardFleetData.designs.imperial.p.accel=0;const original=JSON.stringify(YardFleetData.designs.imperial),row=voyExampleDesigns().find(d=>d.key==="imperial");');assert.equal(run('row.p.maxSpeed'),0);assert.equal(run('row.p.mglt'),0);assert.equal(run('JSON.stringify(YardFleetData.designs.imperial)'),run('original'));
+ const {run}=setup();run('const missing=YardFleetData.designs.imperial.p;missing.accel=0;missing.propulsion={...missing.propulsion,cores:[],engines:[],ratedAccelMps2:0,ratedThrustN:0};const original=JSON.stringify(YardFleetData.designs.imperial),row=voyExampleDesigns().find(d=>d.key==="imperial");');assert.equal(run('row.p.maxSpeed'),0);assert.equal(run('row.p.mglt'),0);assert.equal(run('JSON.stringify(YardFleetData.designs.imperial)'),run('original'));
 });
 
 test('craft performance separates published speed, source and independent acceleration from calculated assumptions',()=>{

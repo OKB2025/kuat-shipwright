@@ -1,0 +1,30 @@
+{
+  "baseline": "8331a7aff11a6528e6755cfdd37a64f242a6663e",
+  "date": "2026-11-08T21:15:11.481107+00:00",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/reference-sublight-speeds.cjs"
+  ],
+  "exitCode": 1,
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "eaf9471c6064304af829cf1253dfa954b29f158ccdafaf39e041948e364df97a",
+    "tests/reference-sublight-speeds.cjs": "9420a2b88176875082e1be2353fc20cbc52d4c0d9ba767bd7dd58b187e27d7f9",
+    "tests/helpers/sublight-legacy-physical.json": "d74db9c183318db191c1c66ab941cfc61f0d06185c877fabd34daaed35cd0853"
+  },
+  "summary": [
+    "# tests 8",
+    "# pass 7",
+    "# fail 1",
+    "# skipped 0",
+    "# duration_ms 1160.971416"
+  ],
+  "failures": [
+    "not ok 6 - built-in reference speed overlays preserve the catalogue and old physical profiles require regeneration"
+  ],
+  "logSha256": "bd38517fc8cb855d0d72ee07be6ceeece0a7041a33f8504bad74988c9588c2ef"
+}
