@@ -20,29 +20,56 @@ run(`
 const performance={now:()=>1000},glowEase=new Map(),renderHealth={frames:0,failures:0},view={setPoints(){},draw(frame){drawnFrame=frame;return true;}};
 let drawnFrame=null;
 const $=()=>null,trialFoilStep=()=>{},trialCraftSystemsStep=()=>{},trialCamera=()=>{},trialJumpStep=()=>{},trialPoseFoilMounts=()=>{},trialRenderSets=()=>{},trialFoilDeployments=()=>[],trialTurretDrawParts=()=>[],escortsDraw=()=>[],spaceDrawUnits=()=>[],patrolDraw=()=>[],trialTunnelK=()=>0,trialStreak=()=>0,trialPlanet=()=>null,trialFast=()=>false,trialAdaptScale=()=>{},trialMarkers=()=>{},trialCockpitHud=()=>{},spaceAttStep=()=>{},spaceDeaths=()=>{},trialSwBeamCheck=()=>{},hitcamStep=()=>{},trialHudUpdate=()=>{};
+const document={querySelector:()=>null,querySelectorAll:()=>[]};
 `);
 function fn(name){const start=new RegExp('function '+name+'\\s*\\(').exec(app);assert.ok(start,name);for(let i=app.indexOf('}',start.index);i>=0;i=app.indexOf('}',i+1)){const source=app.slice(start.index,i+1);try{new vm.Script(source);return source;}catch{}}assert.fail(name);}
-run(fn('glowOf'));run(fn('trialLoop'));
+run(fn('glowOf'));run(fn('trialLoop'));run(fn('trialSetPower'));run(fn('trialCommand'));
 
-function setup({supply=1e18,massKg=1e6,velocity=[0,0,0],tele=5,thermal=true,mode='balanced',weaponCharging=false}={}){
- const rating=1e18,thrust=5e8,modules=[{k:'engine',part:1,port:'p1',size:1,share:1,at:.1,domain:'main',powerConnected:true},{k:'reactor',part:3,port:'p3',size:1,share:1,at:.4,domain:'main',powerConnected:true}];
+function setup({rating=1e18,supply=rating,massKg=1e6,referenceMassKg=massKg,maxSpeed=1000,velocity=[0,0,0],tele=5,thermal=true,mode='balanced',weaponCharging=false}={}){
+ const thrust=rating/2e9,modules=[{k:'engine',part:1,port:'p1',size:1,share:1,at:.1,domain:'main',powerConnected:true},{k:'reactor',part:3,port:'p3',size:1,share:1,at:.4,domain:'main',powerConnected:true}];
  if(weaponCharging)modules.push({k:'weapon',fit:4,port:'f4',size:1,share:1,at:.5,domain:'main',powerConnected:true});
- const profile={name:'Finite throttle and mass reference',profileVersion:C.FLEET_PROFILE_VERSION,hp:1e12,len:100,width:40,height:20,mass:massKg/1000,D:0,shieldBuffer:0,reserve:0,wCap:weaponCharging?10*rating/C.TT:0,crewNeed:0,crewMax:0,maxSpeed:1000,accel:999999,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,
+ const profile={name:'Finite throttle and mass reference',profileVersion:C.FLEET_PROFILE_VERSION,hp:1e12,len:100,width:40,height:20,mass:massKg/1000,D:0,shieldBuffer:0,reserve:0,wCap:weaponCharging?10*rating/C.TT:0,crewNeed:0,crewMax:0,maxSpeed,accel:999999,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,
   propulsion:{version:C.PROPULSION_MODEL_VERSION,engines:[{id:1,machineryId:1,moduleIndex:0,powerNode:'p1',heatNode:'p1',domain:'main',valid:true,available:true,connected:true,outletAvailable:true,ratedInputW:rating,effectiveMachineryVolumeM3:rating/3.4e17,driveProfileId:'standard',ratedThrustN:thrust,wattsPerNewton:rating/thrust,direction:[1,0,0],pathCapacityW:rating}],massKg,ratedThrustN:thrust,ratedAccelMps2:thrust/massKg,accelerationLimitMps2:thrust/massKg},
-  grid:{P:supply,fixed:0,De:rating,Ds:0,Dw:weaponCharging?rating:0,domains:[{id:'main',P:supply,sources:[{moduleIndex:1,P:supply}],modules:modules.map((_,i)=>i)}],powerPaths:[{from:'p3',to:'p1',cap:rating,ok:true},...(weaponCharging?[{from:'p3',to:'f4',cap:rating,ok:true}]:[])]},
+  grid:{P:rating,fixed:0,De:rating,Ds:0,Dw:weaponCharging?rating:0,domains:[{id:'main',P:rating,sources:[{moduleIndex:1,P:rating}],modules:modules.map((_,i)=>i)}],powerPaths:[{from:'p3',to:'p1',cap:rating,ok:true},...(weaponCharging?[{from:'p3',to:'f4',cap:rating,ok:true}]:[])]},
   heat:{v:1,src:[{id:'p1',k:'engine',n:'engine',g:'high',sh:1,m:[0],pc:[],sec:-1,sw:-1,gen:-1},{id:'p3',k:'reactor',n:'reactor',g:'high',sh:1,m:[1],pc:[],sec:-1,sw:-1,gen:-1},...(weaponCharging?[{id:'f4',k:'weapon',n:'weapon',g:'high',sh:1,m:[2],pc:[],sec:-1,sw:-1,gen:-1}]:[])],dis:[],ln:[]}};
- const unit=C.fleetUnit('throttle-reference','throttle-reference',profile,0);unit.order={...unit.order,power:mode};unit._profile=profile;C.heatInit(unit);unit.ht.online=thermal;
+ // A changed physical mass shares the original calibrated resistance, rather
+ // than silently recalibrating the coefficient after loading or damage.
+ profile.propulsion.massKg=referenceMassKg;profile.propulsion.ratedAccelMps2=thrust/referenceMassKg;profile.propulsion.accelerationLimitMps2=thrust/referenceMassKg;
+ Object.assign(profile,C.reactorSupplyProfile(profile));profile.motionResistance=C.calibrateMotionResistance(profile);
+ profile.propulsion.massKg=massKg;profile.propulsion.ratedAccelMps2=thrust/massKg;profile.propulsion.accelerationLimitMps2=thrust/massKg;
+ assert.equal(profile.propulsion.inputModelVersion,C.ENGINE_INPUT_MODEL_VERSION);assert.equal(profile.motionResistance.version,C.MOTION_RESISTANCE_VERSION);
+ const unit=C.fleetUnit('throttle-reference','throttle-reference',profile,0);unit.order={...unit.order,power:mode};unit._profile=profile;
+ // Loss of live reactor output is a fault on the already calibrated vessel,
+ // not a smaller healthy reactor from which to derive a new top speed.
+ assert.ok(supply>=0&&supply<=rating);unit.mods[1]=supply/rating;C.heatInit(unit);unit.ht.online=thermal;
  cx.unit=unit;cx.profile=profile;cx.velocity=velocity;cx.telegraph=tele;cx.powerMode=mode;
  run(`Object.assign(trial,{p:profile,battle:{me:unit},systemsUnit:null,energy:{E:0,cap:profile.wCap},powerMode,P:[10000,10000,0],V:velocity.slice(),R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],stickX:0,rudder:0,level:false,tele:telegraph,craft:false,t:0,vf:velocity[0],dust:{H:100,pos:new Float32Array(0)},rec:{top:0},engF:0,thrust:0,thrustWant:0});testFloor=0;`);
  return unit;
 }
 
 test('quarter throttle requests quarter engine input independently of current speed',()=>{
- for(const speed of [0,500]){const u=setup({tele:2,velocity:[speed,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,2.5e17,'quarter power');near(u.propulsion.actualThrustN,1.25e8,'quarter thrust');near(run('trialMainOutput()'),.25,'quarter plume');assert.ok(run('trial.V[0]')>speed,'quarter output accelerates forward rather than targeting a quarter-speed setting');}
+ for(const speed of [0,500]){const u=setup({tele:2,velocity:[speed,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,2.5e17,'quarter power');near(u.propulsion.actualThrustN,1.25e8,'quarter thrust');near(run('trialMainOutput()'),.25,'quarter plume');near(run('trial.V[0]'),250+(speed-250)*Math.exp(-.001*.1),'quarter output and fixed resistance');assert.equal(run('trial.V[0]')>speed,speed<250,'the same funded output accelerates below its equilibrium and slows above it');}
 });
 
 test('full throttle keeps requesting real power at the old nominal maximum speed',()=>{
  const u=setup({velocity:[1000,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,1e18);near(u.propulsion.actualThrustN,5e8);near(run('trialMainOutput()'),1);near(engineHeatJ(u),u.propulsion.wasteHeatW*.1,'maintaining engine output accrues its source-attributed heat');
+});
+
+for(const [name,nominal] of [['Venator',1000],['TIE/ln',2000]])test(`direct full-to-quarter output approaches force balance around the ${name} ${nominal} m/s reference`,()=>{
+ const rating=2e20,u=setup({rating,maxSpeed:nominal,velocity:[nominal,0,0]}),calibration=JSON.stringify(u.p.motionResistance),k=200/nominal;
+ run('trialStep(.5)');near(run('trial.V[0]'),nominal,'full output and drag balance without a velocity clamp');near(u.propulsion.actualInputW,rating);near(engineHeatJ(u),rating*.05*.5,'full output heat');
+ run('trial.tele=2;trialStep(.5)');const first=nominal*.25+nominal*.75*Math.exp(-k*.5);near(run('trial.V[0]'),first,'quarter output starts slowing continuously');assert.ok(first>nominal*.25&&first<nominal);near(u.propulsion.actualInputW,rating*.25);near(run('trialMainOutput()'),.25);
+ run('trialStep(80)');near(run('trial.V[0]'),nominal*.25+nominal*.75*Math.exp(-k*80.5),'settled quarter output');assert.ok(Math.abs(run('trial.V[0]')/nominal-.25)<.0003,'quarter funded output approaches one quarter of the full-output equilibrium');near(engineHeatJ(u),rating*.05*(.5+.25*80.5),'source heat follows actual full and quarter input');assert.equal(JSON.stringify(u.p.motionResistance),calibration,'reducing the throttle does not recalibrate or weaken drag');
+ const before=run('trial.V[0]');run('trial.tele=1;trialStep(1)');near(run('trial.V[0]'),before*Math.exp(-k),'idle coasts down with unchanged resistance');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.equal(JSON.stringify(u.p.motionResistance),calibration);
+});
+
+test('actual power shortage lowers the force-balance speed even with a full throttle command',()=>{
+ const rating=2e20,nominal=2000,u=setup({rating,supply:rating*.5,maxSpeed:nominal,velocity:[nominal,0,0]}),calibration=JSON.stringify(u.p.motionResistance);
+ run('trialStep(80)');near(run('trial.V[0]'),nominal*.5+nominal*.5*Math.exp(-.1*80),'half-funded terminal motion');near(u.propulsion.actualInputW,rating*.5);near(u.propulsion.actualThrustN,rating*.5/2e9);near(run('trialMainOutput()'),.5);near(engineHeatJ(u),rating*.5*.05*80,'half-funded source heat');assert.equal(JSON.stringify(u.p.motionResistance),calibration);
+});
+
+test('a vessel above its nominal full-output equilibrium slows naturally instead of snapping to a ceiling',()=>{
+ const rating=2e20,nominal=2000,u=setup({rating,maxSpeed:nominal,velocity:[2400,0,0]});run('trialStep(1)');near(run('trial.V[0]'),nominal+400*Math.exp(-.1),'overspeed decay');assert.ok(run('trial.V[0]')>nominal);near(u.propulsion.actualInputW,rating);near(run('trialMainOutput()'),1);
 });
 
 test('idle does not command a powered brake or a main-engine plume',()=>{
@@ -50,13 +77,20 @@ test('idle does not command a powered brake or a main-engine plume',()=>{
 });
 
 test('a large unpowered vessel loses speed in all axes while a small craft nearly keeps its drift',()=>{
- const start=[100,20,-5];setup({supply:0,massKg:1e11,tele:1,velocity:start});run('trialStep(10)');const heavy=plain(run('trial.V')),position=plain(run('trial.P'));
+ const start=[100,20,-5];setup({supply:0,massKg:1e11,referenceMassKg:1e6,maxSpeed:1e6,tele:1,velocity:start});run('trialStep(10)');const heavy=plain(run('trial.V')),position=plain(run('trial.P'));
  for(let i=0;i<3;i++){assert.ok(Math.abs(heavy[i])<Math.abs(start[i])*.95);assert.equal(Math.sign(heavy[i]),Math.sign(start[i]),'resistance cannot reverse velocity');}assert.ok(position[0]>10000&&position[1]>10000&&position[2]<0);
- setup({supply:0,massKg:1e4,tele:1,velocity:start});run('trialStep(10)');for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),start[i],'small-craft drift',1e-7);
+ setup({supply:0,massKg:1e4,referenceMassKg:1e6,maxSpeed:1e6,tele:1,velocity:start});run('trialStep(10)');for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),start[i],'small-craft drift',1e-6);
 });
 
 test('weapon priority cannot preserve a heavy vessel speed using an unfunded throttle command',()=>{
  const u=setup({massKg:1e11,velocity:[1000,0,0],weaponCharging:true,mode:'weapons'});run('trialStep(.5)');assert.ok(run('trial.power.got.weapons')>0);near(u.propulsion.actualInputW,0,'no engine allocation');near(run('trialMainOutput()'),0,'no commanded-only plume');assert.ok(run('trial.V[0]')<1000,'weapon-funded coasting now slows');
+});
+
+test('a fresh power choice prioritizes propulsion while throttle commands retain explicit weapon or shield priorities',()=>{
+ const u=setup({weaponCharging:true});run("trial.on=true;trial.cine=null;delete trial.powerMode;trial.tele=4;trialCommand('tele+');trialStep(.1)");
+ assert.equal(run('trial.power.mode'),'propulsion');near(u.propulsion.actualInputW,1e18,'the fresh full-output choice supplies propulsion before optional charging');near(run('trial.power.got.weapons'),0);
+ run("trialCommand('pmode:weapons');trialCommand('tele-');trialCommand('tele+');trialStep(.1)");assert.equal(run('trial.powerMode'),'weapons');assert.equal(run('trial.power.mode'),'weapons');assert.ok(run('trial.power.got.weapons')>0);near(u.propulsion.actualInputW,0,'an explicit weapon-priority choice still funds weapons first');
+ run("trialCommand('pmode:shields');trialCommand('tele-');trialCommand('tele+');trialStep(.1)");assert.equal(run('trial.powerMode'),'shields');assert.equal(run('trial.power.mode'),'shields');near(run('trialThrottleCommand()'),1);
 });
 
 test('thermal blackout suppresses engine output and steering while mass resistance remains active',()=>{

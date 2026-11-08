@@ -12,7 +12,7 @@ const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
 const plain = value => JSON.parse(JSON.stringify(value));
 const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} != ${b}`);
 const nearVector=(a,b)=>b.forEach((v,i)=>near(a[i],v));
-function analyticMotion(u,v,a,dt){const k=u.p.propulsion.massKg*Math.LN2/(1e11*60),x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
+function analyticMotion(u,v,a,dt){const k=.001*u.p.propulsion.massKg/1e6,x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
 function profile() {
   const engine = {id: 2, machineryId: 2, ratedInputW: 1e18,
     wattsPerNewton: 2e9, ratedThrustN: 5e8, driveProfileId: 'standard',
@@ -220,16 +220,16 @@ test('the real peaceful registry preserves slow drift after its original start t
   nearVector(u.velocity,expected.v);
 });
 
-test('saved power profiles cannot exceed their machinery density limit', () => {
+test('saved power profiles retain verified physical volume without a retired density power ceiling', () => {
   const p=profile();p.propulsion.engines[0].machineryLengthM=.01;
   p.propulsion.engines[0].effectiveMachineryVolumeM3=1e20;
   p.propulsion.engines[0].maxInputW=1e32;
   const clean=C.cleanCraftPowerProfile(p);
-  assert.equal(clean.propulsion.ratedThrustN,0);
-  assert.equal(clean.propulsion.engines[0].valid,false);
+  assert.equal(clean.propulsion.ratedThrustN,1e18/2e9);
+  const engine=clean.propulsion.engines[0];assert.equal(engine.valid,true);assert.ok(engine.effectiveMachineryVolumeM3<1,'cached claimed volume cannot enlarge the real machinery');assert.equal(engine.availableInputW,1e18);const point=C.engineOperatingPoint(engine,1e18);assert.ok(point.loadFactor>1);near(point.wasteHeatW,5e16);
 });
 
-test('a blueprint owns cached engine ratings and machinery dimensions', () => {
+test('a blueprint owns the physical machinery and connected reactor supply instead of cached input ratings', () => {
   const ship=C.newShip({L:35,W:18,H:8},'Cached engine');
   ship.parts=[{id:2,k:'engine',c:[0,0,0],dir:[-1,0,0],d:1,
     propulsionModelVersion:1,ratedInputW:1e18,driveProfileId:'standard',
@@ -238,11 +238,11 @@ test('a blueprint owns cached engine ratings and machinery dimensions', () => {
   const p=profile(),e=p.propulsion.engines[0];e.ratedInputW=1e25;
   e.machineryLengthM=1e5;e.machineryRadiusM=1e5;
   const clean=C.cleanCraftPowerProfile(p,C.serialize(ship)),engine=clean.propulsion.engines[0];
-  assert.equal(engine.ratedInputW,1e18);
+  assert.equal(engine.ratedInputW,0);assert.equal(engine.availableInputW,0);
   assert.equal(engine.machineryLengthM,2);assert.equal(engine.machineryRadiusM,1);
   const actualMassKg=C.computeStats(C.deserialize(plain(C.serialize(ship)))).mass*1000;
   assert.equal(clean.propulsion.massKg,Math.max(p.propulsion.massKg,actualMassKg));
-  assert.equal(clean.propulsion.ratedAccelMps2,(1e18/2e9)/clean.propulsion.massKg);
+  assert.equal(clean.propulsion.ratedAccelMps2,0);
   assert.equal(engine.available,false,'an old cached source cannot power a blueprint without its reactor');
   const offline=C.fleetUnit('cached-offline','cached-offline',clean);
   C.allocateShipPower(offline,C.fleetSystems(offline),{throttle:1},.25);
