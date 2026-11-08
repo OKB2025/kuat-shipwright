@@ -3151,7 +3151,7 @@ function stripFacts(t) {
   if (t.list === 'parts') {
     if(t.it.transmission||t.it.drivetrain){const p=t.it;return {title:p.drivetrain?'機関動力伝達路':'推進配電路',id:null,tw:false,line:`${fLen(p.lengthM||0)} · ${fW(p.capacityW||0)} · ${num(C.partVolume(p),3)} m³`,detail:()=>partInfoHTML(p).replace(/^<b>[^<]*<\/b>/,'')};}
     const p = t.it, V = editorCanMeshPart(p)?C.partVolume(enginePending()?requestedPart(p):p):null, size = C.isShapePart(p) || p.room ? (p.room || p.s).map(v => num(v,3)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 3) + ' m' : fLen(p.d)}`;
-    const key = V===null?'計算中…':C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の最大入力 ${fW(engineSourceInput(C.resolveEngineSpec(p,ship)))}` : `推力 ${sci(C.resolveEngineSpec(p,ship).ratedThrustN)} N` : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
+    const key = V===null?'計算中…':C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の最大入力 ${fW(engineSourceInput(engineSpecForUI(p)))}` : engineMassCurrentForUI()?`推力 ${sci(engineSpecForUI(p).ratedThrustN)} N`:'計算中…' : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
     return {title: C.partLabel(p), id: p.id > 0 ? p.id : null, tw: p.tw != null || p.vt != null, line: size + ' · ' + key, detail: () => partInfoHTML(p).replace(/^<b>[^<]*<\/b>/, '')};
   }
   const x = t.p[0], sb = C.sectionBase(ship.hull, Math.max(0, Math.min(ship.hull.L, x)));
@@ -5527,7 +5527,7 @@ function engineSpecAction(field,value,fresh=false){
    const external=C.equipmentSpec(q)?.engineStyle==='exposed',previousLength=q.nozzleLength??C.partDims(q).l,coupled=external&&Number.isFinite(q.machineryOffsetM)&&Math.abs(q.machineryOffsetM-previousLength/2)<=Math.max(1,previousLength)*1e-9;
    if(field==='d'&&C.parametricEngine(q)&&(q.machineryId==null||q.machineryId===q.id))C.resizeEngine(q,value,q.engineLength);else q[field]=value;
    if(coupled)q.machineryOffsetM=(q.nozzleLength??C.partDims(q).l)/2;
-   if(external&&C.resolveEngineSpec(q,ship).issues.includes('external-engine-detached'))return {ok:false,reasons:['external-engine-detached']};
+   if(external&&engineSpecForUI(q).issues.includes('external-engine-detached'))return {ok:false,reasons:['external-engine-detached']};
    return external?C.updateEngineSpec(q,{},ship):{ok:true};
   }
   return C.updateEngineSpec(q,{[field]:value},ship);
@@ -5553,14 +5553,19 @@ function propulsionPreviewForUI(){
  }
  return null;
 }
+// Use the latest confirmed Core mass; previewing an engine must not recompute
+// vessel physics on the UI thread. setShip() clears S before changing designs.
+function engineMassForUI(){return Number.isFinite(S?.mass)&&S.mass>0?S.mass*1000:undefined;}
+function engineMassCurrentForUI(){return engineMassForUI()!=null&&eng.statsGen===eng.gen&&eng.adoptedGen===eng.gen;}
+function engineSpecForUI(p){return C.resolveEngineSpec(p,ship,engineMassForUI());}
 function engineSpecControls(p,fresh=false,multiple=false){
- const spec=C.resolveEngineSpec(p,ship),profiles=C.PROPULSION_PROFILES||C.DRIVE_PROFILES,core=p.k==='engineCore',external=C.equipmentSpec(p)?.engineStyle==='exposed';
+ const spec=engineSpecForUI(p),profiles=C.PROPULSION_PROFILES||C.DRIVE_PROFILES,core=p.k==='engineCore',external=C.equipmentSpec(p)?.engineStyle==='exposed';
  const input=(field,label,value,min=0,max='')=>`<label class="field-label">${label}<input type="number" inputmode="decimal" step="any" data-engine-step="0.01" data-engine-field="${field}" data-engine-new="${fresh?'1':'0'}" value="${value}" min="${min}" ${max!==''?`max="${max}"`:''} aria-label="${label}"></label>`;
  const select=(field,label,current,catalog)=>`<label class="field-label">${label}<select data-engine-field="${field}" data-engine-new="${fresh?'1':'0'}" aria-label="${label}">${Object.entries(catalog||{}).filter(([id,d])=>id===current||(!id.startsWith('legacy')&&!d.migrationOnly&&!d.legacy)).map(([id,d])=>`<option value="${esc(id)}" ${id===current?'selected':''}>${esc(d.name||d.label||id)}</option>`).join('')}</select></label>`;
  return `<div class="pgroup blueprint-card" id="engine-spec-editor"><h4>${multiple?'選択した機関の一括仕様':'機関の内部機構'}</h4>${multiple?'<p class="note">表示値は先頭の機関です。変更した項目を選択中の全機関と対称部品へ適用します。</p>':''}
  ${select('driveProfileId','推進プロファイル',spec.driveProfileId,profiles)}
  ${input('machineryDiameterM','内部機関の直径（m）',spec.machineryDiameterM,.01,C.DESIGN_LIMITS.engineDiameter)}${input('machineryLengthM','内部機関の長さ（m）',spec.machineryLengthM,.01,C.DESIGN_LIMITS.engineLength)}${core?'':external?'<p class="note">外部機関は機関本体とノズルが一体です。</p>':input('machineryOffsetM','ノズルから機関までの距離（m）',p.machineryOffsetM??0,0,C.DESIGN_LIMITS.engineLength)}
- <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力から推力への係数</dt><dd>${sci(spec.wattsPerNewton)} W/N</dd></div></dl>
+ <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力から推力への係数</dt><dd>${engineMassCurrentForUI()?sci(spec.wattsPerNewton)+' W/N':'計算中…'}</dd></div></dl>
  <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">機関への最大入力は接続された反応炉の出力から計算します。実推力と廃熱は実給電で決まり、持続出力は放熱面・排熱設備と熱輸送路に制限されます。</p></div>
  ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${nozzleAppearanceControls(p,!fresh)}${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法と接続する炉を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
 }
@@ -6015,7 +6020,7 @@ function heatHTML(){
 }
 function systemsHTML(){
   const rs=ship.parts.filter(C.isReactor),nozzles=ship.parts.filter(p=>p.k==='engine'),owners=C.propulsionOwners?C.propulsionOwners(ship):nozzles.filter(p=>engineConnectionOwner(p)===p),S0=S;
-  const ownerRow=e=>{const physical=transmissionForUI()?.engines?.[e.id],broken=physical?!physical.connected:!C.reactorFor(ship,e),outlets=e.k==='engineCore'?nozzles.filter(n=>n.machineryId===e.id):[];return `<button class="engine-row${broken?' neg':''}" data-goto="${e.id}"><span>↳ ${esc(C.partLabel(e))} #${e.id}</span><b>${broken?'給電元を点検':fW(engineSourceInput(C.resolveEngineSpec(e,ship)))}</b></button>${outlets.map(n=>{const path=driveForUI()?.engines?.[n.id];return `<button class="engine-row${path&&!path.connected?' neg':''}" data-goto="${n.id}"><span>　↳ ノズル #${n.id}</span><b>${path?.connected?fW(path.capacityW):'動力未接続'}</b></button>`;}).join('')}`;};
+  const ownerRow=e=>{const physical=transmissionForUI()?.engines?.[e.id],broken=physical?!physical.connected:!C.reactorFor(ship,e),outlets=e.k==='engineCore'?nozzles.filter(n=>n.machineryId===e.id):[];return `<button class="engine-row${broken?' neg':''}" data-goto="${e.id}"><span>↳ ${esc(C.partLabel(e))} #${e.id}</span><b>${broken?'給電元を点検':fW(engineSourceInput(engineSpecForUI(e)))}</b></button>${outlets.map(n=>{const path=driveForUI()?.engines?.[n.id];return `<button class="engine-row${path&&!path.connected?' neg':''}" data-goto="${n.id}"><span>　↳ ノズル #${n.id}</span><b>${path?.connected?fW(path.capacityW):'動力未接続'}</b></button>`;}).join('')}`;};
   return `<div class="flow-intro"><span class="eyebrow">ENGINEERING / 03</span><h3>機関本体とノズルを接続する</h3><p>反応炉から機関への配電は自動接続されます。独立した配電区画は不要です。機関本体 → 動力伝達路 → ノズル。内部機関は独立して配置し、一つの機関から複数のノズルを駆動できます。外部機関は本体とノズルが一体です。</p><button class="btn primary" data-internal>内部を透視する</button></div>
   <h4>動力の接続</h4>${rs.map(r=>`<div class="system-card"><button class="system-title" data-goto="${r.id}"><i style="background:${rgb(C.PARTS[r.k].col)}"></i>${esc(C.partLabel(r))} #${r.id}<span>${fW(C.reactorPower(r))}</span></button>${owners.filter(e=>C.reactorFor(ship,e)?.id===r.id).map(ownerRow).join('')||'<p class="note">接続された機関はありません。</p>'}</div>`).join('')||'<p class="note">先に主反応炉か補助反応炉を配置してください。</p>'}
   ${owners.filter(e=>!C.reactorFor(ship,e)).map(ownerRow).join('')}${nozzles.filter(n=>!engineConnectionOwner(n)).map(n=>`<button class="engine-row neg" data-goto="${n.id}">機関未接続のノズル #${n.id}</button>`).join('')}
@@ -6325,9 +6330,9 @@ function equipmentCard(id){
 function pendingEngine(d){const p={id:-1,c:[0,0,0],dir:(st.engineDir||[-1,0,0]).slice(),...C.equipmentOptions(d.id),...st.engineSizes[d.id],...(d.engineStyle==='internal'?{machineryId:st.newEngineCoreId??0,nozzleAppearance:st.nozzleAppearance||'bell'}:{})};C.enforceEquipment(p);if(d.engineStyle==='exposed'){p.machineryOffsetM=(p.nozzleLength??C.partDims(p).l)/2;C.updateEngineSpec(p,{},ship);}if(d.engineStyle==='internal'){p.machineryId=st.newEngineCoreId??0;for(const key of ENGINE_SPEC_FIELDS)if(key!=='propulsionModelVersion')delete p[key];p.propulsionModelVersion=C.PROPULSION_MODEL_VERSION||1;}if(!st.engineSizes[d.id])st.engineSizes[d.id]={...engineSpecSnapshot(p),d:p.d,engineLength:p.engineLength,nozzleLength:p.nozzleLength};if(d.engineStyle==='internal'){p._autoEngineOwner=st.newEngineCoreId==null;bindPendingEngineOwner(p,null);}delete p.ratedInputW;delete p.machineryGradeId;return p;}
 function enginePerformance(p){
  if(p._pendingEngineOwnerReason)return `<p class="note" data-engine-reasons>${esc(T(p._pendingEngineOwnerReason))}</p>`;
- const spec=C.resolveEngineSpec(p,ship),preview=p.id>0?propulsionPreviewForUI():null,core=p.k==='engineCore',shared=!core&&engineConnectionOwner(p)?.k==='engineCore',actual=(core?preview?.cores:preview?.engines)?.find(e=>(e.id??e.nozzleId)===p.id),reasons=[...new Set([...(spec.reasons||[]),...(actual?.reasons||[])].map(engineReasonText).filter(Boolean))];
+ const spec=engineSpecForUI(p),preview=p.id>0?propulsionPreviewForUI():null,core=p.k==='engineCore',shared=!core&&engineConnectionOwner(p)?.k==='engineCore',actual=(core?preview?.cores:preview?.engines)?.find(e=>(e.id??e.nozzleId)===p.id),reasons=[...new Set([...(spec.reasons||[]),...(actual?.reasons||[])].map(engineReasonText).filter(Boolean))];
  const row=(label,value)=>`<div><dt>${label}</dt><dd>${value}</dd></div>`,finite=(value,format)=>Number.isFinite(value)?format(value):'未判定';
- return `<dl class="engineering-stats" data-engine-performance>${row(shared?'接続機関の最大入力':'接続炉からの最大入力',fW(engineSourceInput(spec)))}${row('変換効率',finite(spec.efficiency,v=>num(v*100,2)+'%'))}${row('推進の廃熱率',finite(spec.wasteFraction,v=>num(v*100,2)+'%'))}${shared?'':row('最大推力',sci(spec.ratedThrustN)+' N')}${row(core?'機関への実入力':'推進への実入力',actual?fW(actual.actualInputW):'未判定')}${Number.isFinite(actual?.shaftPowerW)?row(core?'ノズルへ出す動力':'ノズルへの動力',fW(actual.shaftPowerW)):''}${core?'':row('実推力',actual?sci(actual.actualThrustN)+' N':'未判定')}${row('推進廃熱',actual?fW(actual.wasteHeatW):'未判定')}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${reasons.length?`<ul class="ilist neg" data-engine-reasons>${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
+ return `<dl class="engineering-stats" data-engine-performance>${row(shared?'接続機関の最大入力':'接続炉からの最大入力',fW(engineSourceInput(spec)))}${row('変換効率',finite(spec.efficiency,v=>num(v*100,2)+'%'))}${row('推進の廃熱率',finite(spec.wasteFraction,v=>num(v*100,2)+'%'))}${shared?'':row('最大推力',engineMassCurrentForUI()?sci(spec.ratedThrustN)+' N':'計算中…')}${row(core?'機関への実入力':'推進への実入力',actual?fW(actual.actualInputW):'未判定')}${Number.isFinite(actual?.shaftPowerW)?row(core?'ノズルへ出す動力':'ノズルへの動力',fW(actual.shaftPowerW)):''}${core?'':row('実推力',actual?sci(actual.actualThrustN)+' N':'未判定')}${row('推進廃熱',actual?fW(actual.wasteHeatW):'未判定')}${row('持続運転能力','未判定（熱平衡未解決）')}</dl>${reasons.length?`<ul class="ilist neg" data-engine-reasons>${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
 }
 function equipmentInfo(d,p){
  if(d.k==='engine'){

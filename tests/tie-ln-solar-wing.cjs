@@ -26,7 +26,7 @@ test('mirrored wing identity and editable native panel settings survive save and
 
 
 test('fresh factory combat profiles record the native-wing physical revision through cleaning and JSON',()=>{
- const expected={key:'craft_tie_ln',version:C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision};assert.equal(expected.version,1);
+ const expected={key:'craft_tie_ln',version:C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision};assert.equal(expected.version,2);
  const craft=C.craftPowerProfile(ship,stats),fleet=C.fleetProfile(stats,ship.name,ship);
  for(const p of [craft,fleet]){assert.deepEqual(plain(p.referencePhysicalRevision),expected);assert.equal(C.referencePhysicalProfileCurrent(p,'craft_tie_ln'),true);}
  const clean=C.cleanCraftPowerProfile(plain(craft));assert.ok(clean);assert.deepEqual(plain(clean.referencePhysicalRevision),expected);
@@ -34,7 +34,7 @@ test('fresh factory combat profiles record the native-wing physical revision thr
 });
 
 test('a stale built-in TIE profile rebuilds once and replaces its old mass without rebuilding other types',()=>{
- const fresh=C.craftPowerProfile(ship,stats),stale=plain(fresh);delete stale.referencePhysicalRevision;stale.propulsion.massKg=12345;
+ const fresh=C.craftPowerProfile(ship,stats),stale=plain(fresh);stale.referencePhysicalRevision={key:'craft_tie_ln',version:1};stale.propulsion.massKg=12345;
  const craft=R.CRAFT.tie_ln,fields=['powerProfile','mass','_powerResolved'],before=new Map(fields.map(k=>[k,{has:Object.hasOwn(craft,k),value:craft[k]}])),build=C.buildDesign;let builds=0;
  C.buildDesign=key=>{assert.equal(key,'craft_tie_ln');builds++;return ship;};
  try{craft.powerProfile=stale;craft.mass=12.345;craft._powerResolved=true;const p=R.craftPowerOf(craft);assert.ok(p);assert.notEqual(p,stale);assert.equal(builds,1);near(p.propulsion.massKg,stats.mass*1000);near(craft.mass,stats.mass);assert.equal(C.referencePhysicalProfileCurrent(p,'craft_tie_ln'),true);assert.equal(R.craftPowerOf(craft),p);assert.equal(builds,1);}

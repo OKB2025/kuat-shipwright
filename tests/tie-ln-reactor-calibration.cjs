@@ -1,0 +1,14 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance});
+for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-8,`${a} != ${b}`);
+const ship=C.buildDesign('craft_tie_ln'),stats=C.computeStats(ship),profile=C.craftPowerProfile(ship,stats),reactor=ship.parts.find(p=>C.isReactor(p));
+test('the new TIE factory installs a real smaller reactor and reaches its rounded 4,100 G reference',()=>{
+ assert.ok(reactor.d>.99&&reactor.d<1);assert.equal(ship.parts.filter(p=>p.k==='solarPanel').length,2);assert.equal(ship.parts.length,25);assert.equal(C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision,2);near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY);assert.ok(C.reactorPower(reactor)<7e17);assert.ok(stats.mass>8&&stats.mass<8.2);near(C.engineConversionCoefficient(profile.propulsion.massKg),2e9);assert.ok(Math.abs(profile.propulsion.ratedAccelMps2/C.G0-4100)<.1,'physical geometry calibration is within the displayed G precision');assert.equal(Math.round(profile.propulsion.ratedAccelMps2/C.G0),4100);
+});
+test('full throttle consumes the finite real source after mandatory loads rather than an old input nameplate',()=>{
+ const u=C.fleetUnit('real-tie-reactor','tie_ln',profile),a=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:0,shields:0},.05,'propulsion').propulsion,source=a.power.sources.find(s=>s.id==='p'+reactor.id);assert.ok(source);assert.ok(source.drawW/source.availableW>.999);assert.ok(a.actualInputW>.95*C.reactorPower(reactor));assert.ok(a.actualInputW<C.reactorPower(reactor));near(a.actualThrustN,a.actualInputW/C.engineConversionCoefficient(profile.propulsion.massKg));near(a.wasteHeatW,.05*a.actualInputW);assert.ok(a.actualAccelMps2/C.G0<4100);near(profile.mglt,100);near(profile.maxSpeed,2000);
+});
+test('saved custom larger reactors retain their physical dimensions and gain actual acceleration',()=>{
+ const saved=plain(C.serialize(ship)),old=saved.parts.find(p=>p.id===reactor.id);old.d=1.6;const custom=C.deserialize(saved),loaded=custom.parts.find(p=>p.id===reactor.id);near(loaded.d,1.6);const s=C.computeStats(custom),p=C.craftPowerProfile(custom,s);assert.ok(C.reactorPower(loaded)>C.reactorPower(reactor));assert.ok(p.propulsion.ratedAccelMps2>profile.propulsion.ratedAccelMps2,'the new factory calibration is not a runtime G cap');near(C.serialize(custom).parts.find(p=>p.id===reactor.id).d,1.6);
+});

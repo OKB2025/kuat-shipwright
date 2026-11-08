@@ -4,12 +4,12 @@ for(const p of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core
 const {C,R}=vm.runInContext('({C:Core,R:Rts})',cx),plain=x=>JSON.parse(JSON.stringify(x));
 const near=(a,b,message='')=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${message}: ${a} != ${b}`);
 function profile(massKg=1e11){
- const input=massKg*500*2e9;
+ const input=massKg*500*C.engineConversionCoefficient(massKg);
  return {profileVersion:C.FLEET_PROFILE_VERSION,name:'Finite mass and paid drive',hp:100,len:100,width:40,height:20,mass:massKg/1000,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,maxSpeed:1000,turnRate:.2,
   gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],
   modules:[{k:'reactor',part:1,port:'p1',domain:'main',share:1,size:1,at:.5},{k:'engine',part:2,port:'p2',domain:'main',share:1,size:1,at:.1,powerConnected:true},{k:'weapon',fit:3,port:'f3',domain:'main',share:1,size:1,at:.5,powerConnected:true}],
   grid:{P:input,Pgen:input,fixed:0,cooling:0,De:input,Ds:0,Dw:input,powerPaths:[{from:'p1',to:'p2',cap:input,ok:true},{from:'p1',to:'f3',cap:input,ok:true}]},
-  propulsion:{version:C.PROPULSION_MODEL_VERSION,massKg,ratedThrustN:massKg*500,ratedAccelMps2:500,accelerationLimitMps2:500,engines:[{id:2,machineryId:2,version:C.PROPULSION_MODEL_VERSION,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:input,ratedThrustN:massKg*500,wattsPerNewton:2e9,effectiveMachineryVolumeM3:input/3.4e17,driveProfileId:'standard',machineryGradeId:'standard',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:input}]}};
+  propulsion:{version:C.PROPULSION_MODEL_VERSION,massKg,ratedThrustN:massKg*500,ratedAccelMps2:500,accelerationLimitMps2:500,engines:[{id:2,machineryId:2,version:C.PROPULSION_MODEL_VERSION,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:input,ratedThrustN:massKg*500,wattsPerNewton:C.engineConversionCoefficient(massKg),effectiveMachineryVolumeM3:input/3.4e17,driveProfileId:'standard',machineryGradeId:'standard',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:input}]}};
 }
 const unit=mass=>C.fleetUnit('mass-motion','mass-motion',profile(mass));
 const expectedRate=mass=>mass*.001/1e11,legacyRate=mass=>mass*Math.LN2/(1e11*60);
@@ -47,7 +47,7 @@ test('holding velocity requests actual engine electricity and heat through the e
 test('100 percent weapon priority preserves paid shots but cannot preserve a large ship speed',()=>{
  const u=unit(1e11),v=[1000,0,0],dt=.25,R=u.p.grid.P;u.order={...u.order,power:'weapons'};u.maneuver=1;u.velocity=v.slice();
  C.fleetPowerStep(u,C.fleetSystems(u),null,R/C.TT,dt);
- near(u.pw.wpn,R);near(u.propulsion.actualInputW,0);assert.equal(C.propulsionMotion(u).acc,0);
+ near(u.pw.wpn,R);near(u.propulsion.actualInputW,0);assert.equal(C.propulsionMotion(u).acc,0);assert.ok(!u.out,'weapon priority retains live electrical power even when propulsion receives none');
  const q=C.integratePropulsionMotion(u,v,[0,0,0],dt);assert.ok(q.velocity[0]<v[0]);near(q.velocity[0],v[0]*Math.exp(-expectedRate(1e11)*dt));
 });
 test('thermal blackout and broken machinery remove thrust while the same passive mass resistance remains',()=>{
@@ -60,9 +60,10 @@ test('historical speed options cannot clip funded force or pin a ship at the old
  const drift=C.integratePropulsionMotion(unit(1e11),[2000,0,0],[0,0,0],2,{maxSpeed:1000});assert.ok(drift.velocity[0]>1000);near(drift.velocity[0],2000*Math.exp(-expectedRate(1e11)*2));
  const powered=C.integratePropulsionMotion(u,[2000,0,0],[100,0,0],2,{maxSpeed:1000});near(powered.velocity[0],2200);near(powered.displacement[0],4200);
 });
-test('both fleet clocks decay powerless velocity and integrate distance with the same rule',()=>{
- for(const kind of ['tactical','peace']){const u=unit(1e11);u.velocity=[1000,20,-40];u.order={...u.order,type:'move',point:[10000,0,0]};u.p.grid.P=0;u.p.grid.Pgen=0;const start=u.pos.slice(),want=C.integratePropulsionMotion(u,u.velocity,[0,0,0],.25);
+test('both fleet clocks use disabled motion on total power loss with the existing gravity setting',()=>{
+ for(const kind of ['tactical','peace']){const u=unit(1e11);u.velocity=[1000,20,-40];u.order={...u.order,type:'move',point:[10000,0,0]};u.p.grid.P=0;u.p.grid.Pgen=0;const start=u.pos.slice(),want=C.integratePropulsionMotion(u,u.velocity,kind==='peace'?[0,-C.HULL_FALL.g,0]:[0,0,0],.25);
   if(kind==='tactical')C.fleetTick(C.fleetBattle([u],false),.25,{collide:false});else{u.sys=0;u.side=0;u.info={mass:1e8};R.peaceTick({time:10,units:new Map([[u.id,u]]),groups:new Map(),ctgs:new Map(),battles:new Map(),sides:[],sensors:false},0,.25);}
+  assert.equal(u.out,'電源喪失',kind);
   for(let i=0;i<3;i++){near(u.velocity[i],want.velocity[i],kind);near(u.pos[i],start[i]+want.displacement[i],kind);}
  }
 });
@@ -73,7 +74,8 @@ test('a disabled vessel gravity integration uses the same drag once per tick',()
 test('releasing a pilot into an otherwise quiet world wakes the same passive motion clock',()=>{
  const p=profile(1e11),w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[{key:'mass-motion',p,info:{mass:1e8,hyper:null,capital:true,sensor:0}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mass-motion'}],[]]}),u=[...w.units.values()][0];
  u.manual=false;u.order={...u.order,type:'hold'};u.velocity=[1000,20,0];u.p.grid.P=0;u.p.grid.Pgen=0;w.stir=new Map();
- const before=u.pos.slice(),expected=C.integratePropulsionMotion(u,u.velocity,[0,0,0],.25);R.tick(w,.25);
+ const before=u.pos.slice(),expected=C.integratePropulsionMotion(u,u.velocity,[0,-C.HULL_FALL.g,0],.25);R.tick(w,.25);
+ assert.equal(u.out,'電源喪失');
  assert.ok(w.stir.has(u.sys));for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],before[i]+expected.displacement[i]);}
 });
 test('a disabled stirred world advances gravity and mass resistance once, not in both peace and drift passes',()=>{
