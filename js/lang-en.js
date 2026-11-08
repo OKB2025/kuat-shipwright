@@ -10379,4 +10379,76 @@ Object.assign(root.KS_EN.messages,{
  "接続できない熱輸送路が {0} 本あります（相手がない、または放熱翼に適さない廃熱）。":"{0} thermal paths cannot connect (missing endpoint or heat incompatible with a radiator wing).",
  "<b>広域シールド発生器</b>を選んであります。<b>艦橋本体の上</b>を中心から少しずらしてタップすると、左右一対の球形ドームが据わります。インペリアル級の艦橋の上にある、あの2つの球です。":"A <b>Wide-area Shield Generator</b> is selected. Tap <b>on top of the bridge body</b> slightly off center to place a pair of spherical domes: the two familiar spheres on an Imperial-class bridge."
 });
+Object.assign(root.KS_EN.terms,{
+ "前の項目":"Previous items",
+ "次の項目":"Next items",
+ "等間隔・回転配置":"Spaced and Rotational Placement"
+});
+Object.assign(root.KS_EN.messages,{
+ "追加元の構造物と取付位置をタップすると配置します。":"Tap a parent structure and mounting point to place.",
+ "位置をタップすると配置します。":"Tap a position to place."
+});
+Object.assign(root.KS_EN.terms,{
+ "最大使用電力量（1秒あたり）":"Maximum Power Use (per second)",
+ "旋回速度":"Traverse Speed",
+ "最大発熱（1秒あたり）":"Maximum Heat Generation (per second)",
+ "給電元により変化":"Depends on Power Source",
+ "条件により変化":"Depends on Conditions",
+ "威力が変わる兵装":"Variable-output Weapon"
+});
+Object.assign(root.KS_EN.messages,{
+ "威力は1発・1門あたりです。電力と発熱は選択した武装全体の最大値です。":"Output is per shot and per barrel. Power and heat are maximum rates for the entire selected weapon."
+});
+Object.assign(root.KS_EN.terms,{
+ "設備最大発熱量（1秒あたり）":"Maximum Equipment Heat Generation (per second)",
+ "設備最大発熱 /秒":"Equipment Heat Max /s",
+ "排熱能力（1秒あたり）":"Heat Rejection Capacity (per second)",
+ "排熱能力 /秒":"Heat Rejection Capacity /s"
+});
+Object.assign(root.KS_EN.messages,{
+ "各設備の計算済み負荷条件における最大発熱の合計です。":"Sum of each equipment source's maximum heat across the calculated design loads.",
+ "設置済み排熱設備と船体表面の定格合計です。熱種と輸送経路により実際の排熱量は変わります。":"Combined rated capacity of installed cooling equipment and the hull surface. Actual heat rejection depends on heat grade and transport paths."
+});
+Object.assign(root.KS_EN.messages,{
+ "閉じると変更が反映されます。取消で元に戻します。":"Close to keep changes. Cancel to restore the previous state.",
+ "編集を取り消しました":"Edits cancelled",
+ "編集画面を閉じるか、取消してから保存してください":"Close the editor or cancel your changes before saving",
+ "編集画面を閉じてから公試に出てください。":"Close the editor before starting a trial flight."
+});
+Object.assign(root.KS_EN.messages,{
+ "内装を収める船体・構造物の面をタップしてください":"Tap the hull or structure that will contain this equipment",
+ "指定した内装の母体の面をタップしてください":"Tap a surface of the selected interior host"
+});
+Object.assign(root.KS_EN.terms,{
+ "3Dでタップして母体を指定":"Tap in 3D to choose the host"
+});
+Object.assign(root.KS_EN.messages,{
+ "機関本体が外装型タービンの内部に収まりません":"The machinery body does not fit inside the external turbine casing",
+ "機関本体が外装に収まりません":"The machinery body does not fit inside the casing"
+});
+Object.assign(root.KS_EN.messages,{
+ "超兵器の発熱は充電時の値です。発射時の瞬間発熱は含みません。":"Superweapon heat is the charging rate. Instantaneous heat from firing is not included."
+});
+Object.assign(root.KS_EN.terms,{
+ "自動（設置位置に対応する内部機関）":"Automatic (internal engine for the placement position)"
+});
+Object.assign(root.KS_EN.messages,{
+ "先に内部機関を配置するか、接続する内部機関を選択してください。":"Place an internal engine first, or select the internal engine to connect.",
+ "接続する内部機関を選択してください。複数の機関候補があります。":"Select the internal engine to connect. There are multiple candidates.",
+ "取付位置に対応する内部機関を特定できません。接続する内部機関を選択してください。":"The matching internal engine could not be identified at this mounting point. Select an internal engine to connect.",
+ "対称側の接続する内部機関を確認してください。機関本体を選択するか、対称配置を解除してください。":"Check the internal engine for the mirrored nozzle. Select an engine or turn off symmetry."
+});
+Object.assign(root.KS_EN.terms,{
+ "航空ハッチ":"Aviation Hatches",
+ "航空区画を編集":"Edit Aviation Compartment",
+ "航空ハッチを開く":"Open Aviation Hatch",
+ "航空ハッチを閉じる":"Close Aviation Hatch"
+});
+Object.assign(root.KS_EN.terms,{
+ "種類ごとにまとめて削除":"Delete by Part Type",
+ "まとめて削除":"Delete All of This Type"
+});
+Object.assign(root.KS_EN.messages,{
+ "この種類をすべて削除します。Undoで元に戻せます。":"Delete all parts of this type. Undo restores them."
+});
 })(typeof window==="undefined"?globalThis:window);

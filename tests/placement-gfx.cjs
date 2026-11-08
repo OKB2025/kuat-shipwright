@@ -98,8 +98,8 @@ test('the translucent ghost contains exactly the effective mesh rather than its 
 
 test('a fitted native hull renders and outlines its effective skin while a legacy hull retains its reference skin',()=>{
  const {C,G}=runtime(),s=fixture(C);s.parts=[{id:1,k:'struct',form:'box',c:[30,5,0],s:[80,80,20],roll:10}];s.nextId=2;
- const hull={L:10,W:10,H:10,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1,bowFree:true,stations:[[0,1,1],[1,1,1]]},input={id:-1,k:'struct',form:'hull',c:[0,0,0],s:[10,10,10],hullProfile:hull,hullData:{cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[]}},result=C.solvePlacement(s,input,{mode:'horizontal',parentStructureId:1,hit:C.rayPart([30,100,0],[0,-1,0],s.parts[0])});assert.equal(result.ok,true,result.error);
- const p=result.part;p.id=2;p.hullData.hullSkin={enabled:true,asset:'cr90_stl_hull',base:{hull:JSON.parse(JSON.stringify(hull)),trenches:[],cuts:[]}};
+ const hull={L:10,W:10,H:10,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1,bowFree:true,stations:[[0,1,1],[1,1,1]]},input={id:2,k:'struct',form:'hull',c:[0,0,0],s:[10,10,10],hullProfile:hull,hullData:{cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[],hullSkin:{enabled:true,asset:'cr90_stl_hull',base:{hull:JSON.parse(JSON.stringify(hull)),trenches:[],cuts:[]}}}},result=C.solvePlacement(s,input,{mode:'horizontal',parentStructureId:1,hit:C.rayPart([30,100,0],[0,-1,0],s.parts[0])});assert.equal(result.ok,true,result.error);
+ const p=result.part;assert.equal(C.placementCachedGeometryInputCurrent(p),true,'the stable ID and skin are inputs to the validated fitting, not later authoring edits');
  const T=C.structTriangles(p),vertices=[];for(let i=0;i<T.length;i+=3)vertices.push(Array.from(T.slice(i,i+3)));
  const outline=G.lineSet();outline.part(p,[105,195,220,255]);const lines=outline.out();assert.equal(lines.pos.length,T.length*2,'each effective triangle contributes its actual three outline edges');
  for(let i=0;i<lines.pos.length;i+=3){const q=Array.from(lines.pos.slice(i,i+3));assert.ok(vertices.some(v=>Math.hypot(...q.map((n,j)=>n-v[j]))<3e-5),'outline points come from fitted geometry');}

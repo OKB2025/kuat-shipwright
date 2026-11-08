@@ -10,7 +10,7 @@ const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
 const trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],trialCraftGasReady=()=>true,trialCraftGasTake=()=>true,sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'',trialThreatDown=q=>{q.alive=false;downs++;};
 C.FITS.testPurePd={...C.FITS.pd,dualPurpose:false,tt:2e-6,boltTT:1e-6,power:2e-6/.2*TT_J};
 function reset(key='pd'){
- Object.assign(trial,{craft:false,p:{len:100},asset:{geometry:{center:[0,0,0],targetRadius:5}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],drones:[],foeCraft:[],foeMissiles:[],rays:{busy:true,last:0}});
+ Object.assign(trial,{craft:false,systemsUnit:{p:{modules:[]}},p:{len:100},asset:{geometry:{center:[0,0,0],targetRadius:5}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],drones:[],foeCraft:[],foeMissiles:[],rays:{busy:true,last:0}});
  const d=C.FITS[key],t=trialTurretState({id:1,k:key,origin:[0,0,0],fw:[1,0,0],axis:[0,1,0],cycle:d.cycle||.2,power:d.power,barrels:d.barrels||2,rate:1000,r:2});
  t.clear=true;t.clearDir=t.fw.slice();t.charge=1;trial.turrets=[t];downs=0;aimPoint=[10000,0,0];
 }
@@ -24,12 +24,13 @@ section('const TRIAL_PD=','// Small craft and missiles a pilot');
 section('function trialShotGeometry(','// Missiles leave');
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 
-test('weapon roles keep explicit dual-purpose guns, pure defence and existing craft/ion roles distinct',()=>{
- assert.deepEqual(plain(C.weaponRoles({tt:5,aa:6,dualPurpose:true})),{pointDefense:true,dualPurpose:true,purePointDefense:false});
- assert.deepEqual(plain(C.weaponRoles({tt:2e-6,aa:6})),{pointDefense:true,dualPurpose:false,purePointDefense:true});
+test('only explicitly designated point defence automatically intercepts, independently of yield or tracking capability',()=>{
+ assert.deepEqual(plain(C.weaponRoles({tt:5,aa:6,dualPurpose:true})),{pointDefense:false,dualPurpose:false,purePointDefense:false});
+ assert.deepEqual(plain(C.weaponRoles({tt:2e-6,aa:6})),{pointDefense:false,dualPurpose:false,purePointDefense:false});
+ assert.deepEqual(plain(C.weaponRoles({tt:5,aa:6,dualPurpose:true,pointDefense:true})),{pointDefense:true,dualPurpose:true,purePointDefense:false});
+ assert.deepEqual(plain(C.weaponRoles({tt:2e-6,aa:6,pointDefense:true})),{pointDefense:true,dualPurpose:false,purePointDefense:true});
  for(const spec of [C.FITS.ion,{tt:5,aa:6,dualPurpose:true,ion:1},{tt:5,aa:6,dualPurpose:true,msl:1}])assert.equal(C.weaponRoles(spec).pointDefense,false);
- // v28 Every turning turbolaser is dual-purpose; its anti-air rating comes from traverse speed and fire rate.
- assert.equal(C.weaponRoles(C.FITS.quad200).dualPurpose,true);assert.ok(C.FITS.quad200.aa>C.FITS.stl.aa,'a fast, rapid-fire turret out-tracks a slow heavy one');
+ assert.equal(C.weaponRoles(C.FITS.quad200).dualPurpose,false);assert.ok(C.FITS.quad200.aa>C.FITS.stl.aa,'a normal gun retains its real tracking capability without becoming automatic point defence');
 });
 
 test('the real small dual-purpose gun fires at ships and switches to automatic missile/craft interception',()=>{
@@ -68,7 +69,7 @@ test('generated fleet profiles retain the dual-purpose rating and current revisi
  assert.equal(C.emptyDesignProfile({profileVersion:2,dualPurpose:{aa:6}}).dualPurpose.aa,6);
 });
 
-function fleetProfile(){const p=plain(D.cr90.p);Object.assign(p,{len:100,width:40,height:30,hp:1e9,acc:1,accel:0,maxSpeed:0,turnRate:0,D:0,shieldBuffer:0,reserve:0,gunArcs:Array(6).fill(30),ionArcs:Array(6).fill(0),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(30),close:Array(6).fill(0)},aa:6,aaArcs:Array(6).fill(6),aaCh:4,msl:0,imsl:0,slots:0,embarkedSlots:0,launch:0,crewNeed:0,crewMax:0,autoCrew:0,wCap:1000,modules:[],grid:{P:C.TT*1000,fixed:0,De:0,Ds:0,Dw:C.TT*100},dualPurpose:{gunArcs:Array(6).fill(25),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(25),close:Array(6).fill(0)},aaArcs:Array(6).fill(6),aa:6}});for(const k of ['hf','outline','heat','sw','mouths','surface'])delete p[k];return p;}
+function fleetProfile(){const p=plain(D.cr90.p);Object.assign(p,{profileVersion:C.FLEET_PROFILE_VERSION,len:100,width:40,height:30,hp:1e9,acc:1,accel:0,maxSpeed:0,turnRate:0,D:0,shieldBuffer:0,reserve:0,gunArcs:Array(6).fill(30),ionArcs:Array(6).fill(0),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(30),close:Array(6).fill(0)},aa:6,aaArcs:Array(6).fill(6),aaCh:4,msl:0,imsl:0,slots:0,embarkedSlots:0,launch:0,crewNeed:0,crewMax:0,autoCrew:0,wCap:1000,modules:[],grid:{P:C.TT*1000,fixed:0,De:0,Ds:0,Dw:C.TT*100},dualPurpose:{gunArcs:Array(6).fill(25),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(25),close:Array(6).fill(0)},aaArcs:Array(6).fill(6),aa:6}});for(const k of ['hf','outline','heat','sw','mouths','surface'])delete p[k];return p;}
 
 test('fleet role reservation removes only the shared battery while preserving other ship guns',()=>{
  const p=fleetProfile(),u=C.fleetUnit('own','own',p,0),target={pos:[3000,0,0]},missile={side:1,n:8,pos:[1000,0,0]};u.pos=[0,0,0];u.yaw=0;u.side=0;
@@ -124,9 +125,14 @@ test('aircraft arriving after tactical role selection cannot reuse a ship-firing
 });
 
 test('tactical reservation ignores ceased fire and empty magazines while independent AA remains active',()=>{
- const f=tacticalFixture();f.u.p.aa=8;f.u.p.aaArcs=Array(6).fill(8);f.e.queue=[[0,8]];
+ const f=tacticalFixture();
+ // Keep this multi-step role-selection fixture thermally online. Its finite
+ // gun output is deliberately synthetic; inherited tiny-craft machinery mass
+ // otherwise blacked it out before the empty-magazine assertion even on main.
+ for(const u of [f.u,f.e]){u.p.mass=1e9;u.p.propulsion={...u.p.propulsion,massKg:1e12};}
+ f.u.p.aa=8;f.u.p.aaArcs=Array(6).fill(8);f.e.queue=[[0,8]];
  tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(f.e.air<8,'the two independent AA points retain their existing role');
- f.e.air=0;f.e.p.msl=80;f.e.p.modules=[{k:'launcher',stock:0,size:1,share:1}];f.e.mods=[1];f.e.ammo=[0];
+ f.e.air=0;f.e.p.msl=80;f.e.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},{k:'launcher',fit:2,port:'f2',domain:'main',name:'Finite missile cell',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]}];f.e.mods=[1,1];f.e.ammo=[0,0];f.e.p.grid.fixed=1e15;f.e.p.grid.fixedLoads=[{id:'f2',port:'f2',domain:'main',weight:1e15}];
  const empty=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(empty,f.u.id)>0);
- f.e.ammo=[8];f.e.order.fire=false;const ceased=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(ceased,f.u.id)>0);
+ f.e.ammo[1]=6;f.e.order.fire=false;const ceased=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(ceased,f.u.id)>0);
 });

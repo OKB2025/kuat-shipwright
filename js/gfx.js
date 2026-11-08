@@ -3332,13 +3332,16 @@ function meshReferenceFits(ship,ranges,only){
 }
 // Live preview of edited parts and fittings, built in the editor from their
 // requested shapes while the engine recomputes clipped, merged geometry.
-const PREVIEW_SHIPS=new WeakMap(),PREVIEW_PARTS=new WeakMap();
+const PREVIEW_SHIPS=new WeakMap(),PREVIEW_PARTS=new WeakMap(),PREVIEW_PLACEMENT_GEOMETRY_IDS=new WeakMap();
+let previewPlacementGeometryId=0;
 const previewKey=value=>JSON.stringify(value,(k,v)=>k.startsWith('_')?undefined:v);
+function previewPlacementGeometry(part){return part._placementGeometry&&C.placementCachedGeometryInputCurrent?.(part)?part._placementGeometry:null;}
+function previewPlacementGeometryKey(part){const geometry=previewPlacementGeometry(part);if(!geometry)return 0;let id=PREVIEW_PLACEMENT_GEOMETRY_IDS.get(geometry);if(!id){id=++previewPlacementGeometryId;PREVIEW_PLACEMENT_GEOMETRY_IDS.set(geometry,id);}return id;}
 // The editor supplies the same authored proxy used by pending picking. The
 // fallback also retains the local hull cache instead of cloning it per frame.
 function previewRequestedPart(p){
- const key=previewKey(p),old=PREVIEW_PARTS.get(p);if(old?.key===key)return old.part;
- const part={...p,_packing:undefined,_clip:undefined,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};PREVIEW_PARTS.set(p,{key,part});return part;
+ const key=previewKey(p),geometry=previewPlacementGeometry(p),old=PREVIEW_PARTS.get(p);if(old?.key===key&&old.geometry===geometry)return old.part;
+ const part={...p,_placementGeometry:geometry||undefined,_packing:undefined,_clip:undefined,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};PREVIEW_PARTS.set(p,{key,geometry,part});return part;
 }
 function compactPreviewGeo(g){const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<g.n*3;i++){const a=i%3;bounds[a]=Math.min(bounds[a],g.pos[i]);bounds[a+3]=Math.max(bounds[a+3],g.pos[i]);}return {n:g.n,ni:g.ni,pos:g.pos.slice(0,g.n*3),nor:g.nor.slice(0,g.n*3),uv:g.uv.slice(0,g.n*2),col:g.col.slice(0,g.n*4),idx:g.idx.slice(0,g.ni),bounds:g.n?bounds:null};}
 function compactPreviewMeshes(value){const out={glow:value.glow};for(const k of ['preview','previewRef','previewFits','previewRefFits'])out[k]=compactPreviewGeo(value[k]);return out;}
@@ -3400,16 +3403,19 @@ function meshPreview(ship,parts,fits,opt={}){
  let cache=PREVIEW_SHIPS.get(ship);if(!cache){cache={parts:new Map(),fits:new Map(),visible:new Map(),contextVersion:0,environmentVersion:0};PREVIEW_SHIPS.set(ship,cache);}
  const revision=opt.progressive&&Number.isFinite(opt.revision)?opt.revision:null,stamp=revision==null?null:revision+':'+!!opt.coded+':'+parts.length+':'+fits.length;
  let plan=stamp!=null&&cache.plan?.stamp===stamp?cache.plan:null;
+ // A Worker may replace only derived fitting data while public input and the
+ // caller's revision stay equal. Reuse unchanged plans without hashing meshes.
+ if(plan&&!parts.every((p,i)=>{const old=plan.placementInputs?.[i];return old?.part===p&&old.geometry===p._placementGeometry&&old.self===p._placementSelfKey&&old.request===p._placementRequestKey;}))plan=null;
  if(!plan){const context=previewKey([ship.paint,ship.detail,ship.reference,ship.hullSkin,ship.hatches,ship.armor]);if(cache.context!==context){cache.context=context;cache.contextVersion++;}
   const engineParts=parts.filter(p=>p.k==='engine'),needsEnvironment=engineParts.length||parts.some(p=>p.room||p.k==='machinery');
   if(needsEnvironment){const key=previewKey([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,ship.parts]);if(cache.environment!==key){cache.environment=key;cache.environmentVersion++;}}
   const tasks=[],add=(token,key,store,id,build,after,sourceParts)=>tasks.push({token,key,store,id,build,after,sourceParts});
-  for(const p of parts)if(p.k!=='engine'){const id=p.id??p,key=previewKey([p,!!opt.coded,cache.contextVersion,p.room||p.k==='machinery'?cache.environmentVersion:0]);add(p.id==null?p:'p'+id,key,cache.parts,id,()=>buildPreviewMeshes(ship,[p],[],opt),null,[p]);}
+  for(const p of parts)if(p.k!=='engine'){const id=p.id??p,key=previewKey([p,!!opt.coded,cache.contextVersion,p.room||p.k==='machinery'?cache.environmentVersion:0,previewPlacementGeometryKey(p)]);add(p.id==null?p:'p'+id,key,cache.parts,id,()=>buildPreviewMeshes(ship,[p],[],opt),null,[p]);}
   if(engineParts.length){const key=previewKey([engineParts,!!opt.coded,cache.contextVersion,cache.environmentVersion]);add('engines',key,cache.parts,'engines',()=>buildPreviewMeshes(ship,engineParts,[],opt),null,engineParts);}
   for(const f of fits){const geometryKey=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),key=geometryKey+':'+cache.contextVersion+':'+!!FIT_SKIP_BODY?.has(f.id)+':'+!!FIT_SKIP_PED?.has(f.id),id=f.id??f;add(f.id==null?f:'f'+id,key,cache.fits,id,()=>buildPreviewMeshes(ship,[],[f],opt),value=>previewFitBounds(f,geometryKey,value));}
   const current=new Map(tasks.map(task=>[task.token,task]));for(const [token,value]of cache.visible)if(current.get(token)?.key!==value.key)cache.visible.delete(token);
   const partIds=new Set(ship.parts.map(p=>p.id??p)),fitIds=new Set(ship.fits.map(f=>f.id??f));for(const id of cache.parts.keys())if(id!=='engines'&&!partIds.has(id))cache.parts.delete(id);for(const id of cache.fits.keys())if(!fitIds.has(id))cache.fits.delete(id);
-  plan={stamp,tasks,current};cache.plan=plan;
+  plan={stamp,tasks,current,placementInputs:parts.map(part=>({part,geometry:part._placementGeometry,self:part._placementSelfKey,request:part._placementRequestKey}))};cache.plan=plan;
  }
  const urgentParts=opt.priorityParts||[],urgentFits=opt.priorityFits||[],urgent=new Set();
  if(urgentParts.length+urgentFits.length<=8){for(const p of urgentParts)urgent.add(p.k==='engine'?'engines':p.id==null?p:'p'+p.id);for(const f of urgentFits)urgent.add(f.id==null?f:'f'+f.id);}

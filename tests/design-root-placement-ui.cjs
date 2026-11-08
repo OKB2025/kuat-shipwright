@@ -6,7 +6,7 @@ test('the first tap immediately records a real root on the explicit Y=0 workspac
  r('designUI.drawer=true;designUI.armed=false;designUI.parentId=999;designUI.hostId=777;templateDraft={id:-1,k:"struct",form:"box",s:[10,8,4],placement:{modelVersion:1,mode:"surface",parentStructureId:99,hostId:77,geometryRevision:4}};designUIArm();const tapHit=pickRay([20,30,40],[0,-1,0],{parts:false,fits:false})');
  assert.deepEqual(plain(r('tapHit')),{p:[20,0,40],n:[0,1,0],t:30,distance:30,kind:'section',rootPlane:true});assert.equal(r('designUI.parentId'),null);
  r('designUIRequest(tapHit)');assert.equal(r('ship.parts.length'),1,'the root exists before any Worker response');assert.equal(r('undoStack.length'),1);assert.equal(r('ship.nextId'),2);
- const part=plain(r('ship.parts[0]'));assert.equal(part.id,1);assert.equal(part.placement.root,true);assert.equal(part.placement.pendingGeometry,true);assert.equal(part.placement.parentStructureId,undefined);assert.equal(part.placement.hostId,undefined);assert.deepEqual(part.c,[20,0,40]);assert.equal(t.requests.length,0);assert.equal(r('designUI.armed'),true);
+ const part=plain(r('ship.parts[0]'));assert.equal(part.id,1);assert.equal(part.placement.root,true);assert.equal(part.placement.pendingGeometry,true);assert.equal(part.placement.parentStructureId,undefined);assert.equal(part.placement.hostId,undefined);assert.deepEqual(part.c,[20,0,40]);assert.equal(t.requests.length,0);assert.equal(r('designUI.armed'),false);
  t.context.packet=resolution(t);assert.equal(r('onEnginePlacementResolution(packet)'),true);assert.equal(r('ship.parts.length'),1);assert.equal(r('undoStack.length'),1);assert.equal(r('ship.parts[0].placement.root'),true);
 });
 

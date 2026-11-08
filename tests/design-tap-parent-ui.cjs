@@ -11,7 +11,7 @@ test('the tapped structure replaces the former parent and immediately stores its
 });
 
 test('successive taps immediately retain their own parent and stable face without cancelling earlier source records',()=>{
- const {run:r,requests}=setup();r('designUIRequest(hit(1,0));designUIRequest(hit(2,80))');
+ const {run:r,requests}=setup({continuous:true});r('designUIRequest(hit(1,0));designUIRequest(hit(2,80))');
  assert.equal(requests.length,0);assert.equal(r('ship.parts.length'),4);assert.equal(r('undoStack.length'),2);
  assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.parentStructureId)')),[1,2]);
  assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.hostSurfaceId)')),plain(r('[faceIds.get(1),faceIds.get(2)]')));assert.equal(r('designUI.lastStamp.request.parentStructureId'),2);
@@ -24,7 +24,7 @@ test('surface mode preserves an isolated exact point, normal, tangent and stable
 
 test('a missing or invalid hit never falls back to the former parent or removes an earlier placement',()=>{
  for(const bad of ['null','{p:[0,0,0],n:[0,1,0],part:{id:90,k:"cargo"}}','{p:[0,0,0],n:[0,1,0],fit:{id:8}}','{p:[0,0,0],n:[0,1,0],parentStructureId:99}']){
-  const {run:r}=setup();r('tap(0);designUIRequest('+bad+')');assert.equal(r('ship.parts.length'),3,bad);assert.equal(r('undoStack.length'),1,bad);assert.equal(r('designUI.pending.state'),'failed',bad);assert.equal(r('diagnostics.at(-1)'),null);assert.equal(r('hoverLines'),null);
+  const {run:r}=setup({continuous:true});r('tap(0);designUIRequest('+bad+')');assert.equal(r('ship.parts.length'),3,bad);assert.equal(r('undoStack.length'),1,bad);assert.equal(r('designUI.pending.state'),'failed',bad);assert.equal(r('diagnostics.at(-1)'),null);assert.equal(r('hoverLines'),null);
  }
 });
 
@@ -48,5 +48,5 @@ test('weapons immediately use the tapped parent and direct mode, then resolve th
 });
 
 test('an explicit placement start retains the selected part and face-placement mode',()=>{
- const {run:r}=setup();r('designUI.armed=false;st.surfaceMode="surface";designUIStartTap(hit(2,80))');assert.equal(r('designUI.armed'),true);assert.equal(r('designUI.drawer'),false);assert.equal(r('ship.parts.length'),3);assert.equal(r('ship.parts[2].placement.mode'),'surface');assert.equal(r('ship.parts[2].placement.parentStructureId'),2);
+ const {run:r}=setup();r('designUI.armed=false;st.surfaceMode="surface";designUIStartTap(hit(2,80))');assert.equal(r('designUI.armed'),false);assert.equal(r('designUI.drawer'),false);assert.equal(r('ship.parts.length'),3);assert.equal(r('ship.parts[2].placement.mode'),'surface');assert.equal(r('ship.parts[2].placement.parentStructureId'),2);
 });

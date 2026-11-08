@@ -38,8 +38,9 @@ test('explicit fleet manifests retain aircraft hierarchy and troops across norma
 
 test('a ship profile or optional historical preset never spawns aircraft or troops without a fleet row',()=>{
  const d=plain(D.venator);assert.ok(d.air.length>0,'fixture includes the historical fleet preset');d.troops=12345;d.ground=[{troops:12345}];
+ const profileBefore=plain(d.p),presetBefore=plain({air:d.air,ground:d.ground,troops:d.troops});
  const w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[d],sides:[{faction:'republic',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'venator'}],[]]});
- assert.equal(w.squads.size,0);assert.equal(w.wings.size,0);const u=[...w.units.values()][0];assert.equal(u.air,0);assert.equal(u.troops,0);assert.equal(u.ground,null);assert.equal(u.p.slots,0);assert.equal(u.p.embarkedSlots,0);assert.equal(u.p.aviationSize,0);assert.equal(u.p.airOrd,undefined);assert.equal(R.shipRole(u),'carrier','an empty physical carrier keeps its capacity-based formation role');assert.ok(d.p.slots>0,'runtime cleaning must not mutate the optional reference preset');
+ assert.equal(w.squads.size,0);assert.equal(w.wings.size,0);const u=[...w.units.values()][0];assert.equal(u.air,0);assert.equal(u.troops,0);assert.equal(u.ground,null);assert.equal(u.p.slots,0);assert.equal(u.p.embarkedSlots,0);assert.equal(u.p.aviationSize,0);assert.equal(u.p.airOrd,undefined);assert.equal(R.shipRole(u),'carrier','an empty physical carrier keeps its capacity-based formation role');assert.deepEqual(plain(d.p),profileBefore,'runtime cleaning must not mutate the reference profile');assert.deepEqual(plain({air:d.air,ground:d.ground,troops:d.troops}),presetBefore,'runtime cleaning must not mutate the optional reference preset');
 });
 
 test('legacy fleet troops become visible editable ground rows and cannot reappear after clearing them',()=>{

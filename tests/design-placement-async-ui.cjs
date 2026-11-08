@@ -27,14 +27,14 @@ test('wrong design or generation and malformed entity envelopes cannot replace t
 });
 
 test('rapid positions are all authored before a reply and the latest complete resolution adds no extra history',()=>{
- const t=setup(),r=t.run;r('tap(-8)');t.context.old=resolution(t);r('tap(8)');
+ const t=setup({continuous:true}),r=t.run;r('tap(-8)');t.context.old=resolution(t);r('tap(8)');
  assert.equal(r('ship.parts.length'),4);assert.equal(r('undoStack.length'),2);assert.equal(r('onEnginePlacementResolution(old)'),false);
  t.context.latest=resolution(t);assert.equal(r('onEnginePlacementResolution(latest)'),true);assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.requestedGeometry.c[0])')),[-8,8]);
  assert.equal(r('ship.parts.length'),4);assert.equal(r('undoStack.length'),2);assert.equal(r('C.placementDraftStatus(ship).ready'),true);assert.equal(t.requests.length,0);
 });
 
 test('a failed exact resolution marks the placed entity for repair without removing its source or prior placements',()=>{
- const t=setup(),r=t.run;r('tap(-8);tap(1000)');t.context.packet=resolution(t);
+ const t=setup({continuous:true}),r=t.run;r('tap(-8);tap(1000)');t.context.packet=resolution(t);
  assert.equal(r('packet.rows.some(row=>row.error)'),true);assert.equal(r('onEnginePlacementResolution(packet)'),true);
  assert.equal(r('ship.parts.length'),4);assert.equal(r('undoStack.length'),2);const failed=plain(r('ship.parts.find(p=>p.id===4)'));
  assert.equal(failed.placement.validationFailed,true);assert.equal(failed.placement.repairRequired,true);assert.deepEqual(failed.placement.requestedGeometry.c,[1000,5,0]);assert.equal(r('C.placementDraftStatus(ship).failed.length'),1);

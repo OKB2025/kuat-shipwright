@@ -8,7 +8,7 @@ function setup(){
  let S={warnings:[{lv:'warn',text:'Cargo needs attention',targets:[{list:'parts',id:2}]},{lv:'bad',text:'Structure and cargo need attention',targets:[{list:'parts',id:1},{list:'parts',id:2}]}]};
  const calls=[],notices=[],listeners={},classes=new Set(),bar={hidden:true,innerHTML:'',classList:{toggle(k,on){on?classes.add(k):classes.delete(k);}},addEventListener(name,cb){listeners[name]=cb;}};
  const $=selector=>selector==='#inspBar'?bar:{classList:{remove(){}}},setHTML=(node,html)=>{node.innerHTML=html;},T=x=>x,esc=String,selFind=(list,id)=>ship[list]?.find(p=>p.id===id),selItem=()=>st.sel&&selFind(st.sel.list,st.sel.id);
- const designUIEditCancel=()=>calls.push('edit-cancel'),designUICancel=()=>{calls.push('placement-cancel');designUI.armed=false;},syncHud=()=>calls.push('hud'),renderPanel=()=>calls.push({render:designUI.layout,visible:designUI.drawer}),edFocus=(list,id)=>calls.push({focus:list+':'+id}),refreshOverlay=()=>calls.push('overlay'),toast=text=>notices.push(text);
+ const designUIEditApply=()=>calls.push('edit-apply'),designUICancel=()=>{calls.push('placement-cancel');designUI.armed=false;},syncHud=()=>calls.push('hud'),renderPanel=()=>calls.push({render:designUI.layout,visible:designUI.drawer}),edFocus=(list,id)=>calls.push({focus:list+':'+id}),refreshOverlay=()=>calls.push('overlay'),toast=text=>notices.push(text);
  function click(dataset){listeners.click({target:{closest(){return {dataset};}}});}
  `);
  for(const name of ['designEntityEditable','designSpaceNotice','openLayoutTarget','renderInspBar','bindInspBar'])run(fn(name));

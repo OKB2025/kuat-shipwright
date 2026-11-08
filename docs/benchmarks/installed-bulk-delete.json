@@ -1,0 +1,1229 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T14:55:16.089Z",
+  "sourceSha256": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f"
+  },
+  "harnessSha256": "1d6c9a4ff7d6400614f9c12d4e8caac0b7fd3fb7ad8312c7c0ca884bee0fb97f",
+  "scope": "Small genuine Core-generated owned hull, structures, interior cargo mirror pair, mixed manual group and a retained battery. Native list actions and real Worker replies; no fake meshes or computed results.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "nativeTouch": true,
+    "safari": "Not tested",
+    "controlledPerformanceBenchmark": false
+  },
+  "profiles": [
+    {
+      "width": 1280,
+      "height": 588,
+      "fixture": {
+        "ownerId": 1,
+        "exteriorIds": [
+          2,
+          3
+        ],
+        "cargoIds": [
+          4,
+          5
+        ],
+        "batteryId": 6,
+        "groupId": 100,
+        "expectedIds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "physicalCargoCenters": [
+          [
+            65,
+            50,
+            -30
+          ],
+          [
+            65,
+            50,
+            30
+          ]
+        ],
+        "groupMembers": [
+          4,
+          6,
+          2
+        ],
+        "cargoDefinition": "貨物・物資庫"
+      },
+      "exteriorTypes": [
+        {
+          "key": "%5B%22parts%22%2C%22struct%22%2Cnull%5D",
+          "type": [
+            "parts",
+            "struct",
+            null
+          ],
+          "name": "構造物",
+          "count": 3,
+          "button": {
+            "x": 239,
+            "y": 165.640625,
+            "right": 321,
+            "bottom": 193.640625,
+            "width": 82,
+            "height": 28,
+            "insidePanel": true,
+            "reachable": true
+          }
+        }
+      ],
+      "interiorTypes": [
+        {
+          "key": "%5B%22parts%22%2C%22cargo%22%2Cnull%5D",
+          "type": [
+            "parts",
+            "cargo",
+            null
+          ],
+          "name": "貨物・物資庫",
+          "count": 2,
+          "button": {
+            "x": 239,
+            "y": 165.640625,
+            "right": 321,
+            "bottom": 193.640625,
+            "width": 82,
+            "height": 28,
+            "insidePanel": true,
+            "reachable": true
+          }
+        },
+        {
+          "key": "%5B%22parts%22%2C%22battery%22%2Cnull%5D",
+          "type": [
+            "parts",
+            "battery",
+            null
+          ],
+          "name": "パワーセル",
+          "count": 1,
+          "button": {
+            "x": 239,
+            "y": 203.640625,
+            "right": 321,
+            "bottom": 231.640625,
+            "width": 82,
+            "height": 28,
+            "insidePanel": true,
+            "reachable": true
+          }
+        }
+      ],
+      "button": {
+        "x": 239,
+        "y": 165.640625,
+        "right": 321,
+        "bottom": 193.640625,
+        "width": 82,
+        "height": 28,
+        "insidePanel": true,
+        "reachable": true
+      },
+      "before": {
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "cargo": [
+          {
+            "id": 4,
+            "c": [
+              65,
+              50,
+              -30
+            ],
+            "tw": 5
+          },
+          {
+            "id": 5,
+            "c": [
+              65,
+              50,
+              30
+            ],
+            "tw": 4
+          }
+        ],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              4,
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 1,
+        "adopted": 1,
+        "stats": 1,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 576,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      },
+      "immediate": {
+        "ids": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "cargo": [],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 2,
+        "adopted": 1,
+        "stats": 1,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 576,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      },
+      "deleted": {
+        "ids": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "cargo": [],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 2,
+        "adopted": 2,
+        "stats": 2,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 192,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      },
+      "lateWorkerProbe": {
+        "scope": "Intentionally re-evaluated a real pre-delete snapshot at its original, older generation through the real Worker; no synthetic replies.",
+        "requestGeneration": 1,
+        "currentGeneration": 2,
+        "replies": [
+          {
+            "type": "authoringGeometry",
+            "gen": 1,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 29140.79999999702
+          },
+          {
+            "type": "geometry",
+            "gen": 1,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 30643.89999999851
+          },
+          {
+            "type": "surfaceGeometry",
+            "gen": 1,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 32078.39999999851
+          },
+          {
+            "type": "stats",
+            "gen": 1,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 33293.79999999702
+          }
+        ],
+        "after": {
+          "ids": [
+            1,
+            2,
+            3,
+            6
+          ],
+          "cargo": [],
+          "battery": [
+            {
+              "id": 6,
+              "c": [
+                120,
+                50,
+                0
+              ],
+              "room": [
+                8,
+                8,
+                8
+              ],
+              "d": 8
+            }
+          ],
+          "groups": [
+            {
+              "id": 100,
+              "name": "Mixed manual group",
+              "parts": [
+                6,
+                2
+              ]
+            }
+          ],
+          "gen": 2,
+          "adopted": 2,
+          "stats": 2,
+          "layout": "list",
+          "listVisible": true,
+          "bulkOpen": true,
+          "meshCounts": {
+            "cutter": 0,
+            "placement-ghost": 0,
+            "preview": 0,
+            "previewRef": 0,
+            "previewFits": 0,
+            "previewRefFits": 0,
+            "hull": 0,
+            "refHull": 0,
+            "struct": 97482,
+            "plate": 0,
+            "gen": 0,
+            "shield": 0,
+            "hyper": 0,
+            "interior": 192,
+            "engine": 0,
+            "plant": 0,
+            "nozzle": 0,
+            "hangar": 0,
+            "refStruct": 0,
+            "refEngine": 0,
+            "refPlant": 0,
+            "surfaceArmor": 0,
+            "surfaceDevices": 0,
+            "surfaceDetail": 0,
+            "hatchOpen": 0,
+            "hatchRay": 0,
+            "refHatches": 0,
+            "fits": 0,
+            "refFits": 0
+          }
+        }
+      },
+      "oneUndo": {
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "cargo": [
+          {
+            "id": 4,
+            "c": [
+              65,
+              50,
+              -30
+            ],
+            "tw": 5
+          },
+          {
+            "id": 5,
+            "c": [
+              65,
+              50,
+              30
+            ],
+            "tw": 4
+          }
+        ],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              4,
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 3,
+        "adopted": 3,
+        "stats": 3,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 576,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "fixture": {
+        "ownerId": 1,
+        "exteriorIds": [
+          2,
+          3
+        ],
+        "cargoIds": [
+          4,
+          5
+        ],
+        "batteryId": 6,
+        "groupId": 100,
+        "expectedIds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "physicalCargoCenters": [
+          [
+            65,
+            50,
+            -30
+          ],
+          [
+            65,
+            50,
+            30
+          ]
+        ],
+        "groupMembers": [
+          4,
+          6,
+          2
+        ],
+        "cargoDefinition": "貨物・物資庫"
+      },
+      "exteriorTypes": [
+        {
+          "key": "%5B%22parts%22%2C%22struct%22%2Cnull%5D",
+          "type": [
+            "parts",
+            "struct",
+            null
+          ],
+          "name": "構造物",
+          "count": 3,
+          "button": {
+            "x": 177,
+            "y": 219.984375,
+            "right": 259,
+            "bottom": 247.984375,
+            "width": 82,
+            "height": 28,
+            "insidePanel": true,
+            "reachable": true
+          }
+        }
+      ],
+      "interiorTypes": [
+        {
+          "key": "%5B%22parts%22%2C%22cargo%22%2Cnull%5D",
+          "type": [
+            "parts",
+            "cargo",
+            null
+          ],
+          "name": "貨物・物資庫",
+          "count": 2,
+          "button": {
+            "x": 177,
+            "y": 219.984375,
+            "right": 259,
+            "bottom": 247.984375,
+            "width": 82,
+            "height": 28,
+            "insidePanel": true,
+            "reachable": true
+          }
+        },
+        {
+          "key": "%5B%22parts%22%2C%22battery%22%2Cnull%5D",
+          "type": [
+            "parts",
+            "battery",
+            null
+          ],
+          "name": "パワーセル",
+          "count": 1,
+          "button": {
+            "x": 177,
+            "y": 257.984375,
+            "right": 259,
+            "bottom": 285.984375,
+            "width": 82,
+            "height": 28,
+            "insidePanel": true,
+            "reachable": true
+          }
+        }
+      ],
+      "button": {
+        "x": 177,
+        "y": 219.984375,
+        "right": 259,
+        "bottom": 247.984375,
+        "width": 82,
+        "height": 28,
+        "insidePanel": true,
+        "reachable": true
+      },
+      "before": {
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "cargo": [
+          {
+            "id": 4,
+            "c": [
+              65,
+              50,
+              -30
+            ],
+            "tw": 5
+          },
+          {
+            "id": 5,
+            "c": [
+              65,
+              50,
+              30
+            ],
+            "tw": 4
+          }
+        ],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              4,
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 4,
+        "adopted": 4,
+        "stats": 4,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 576,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      },
+      "immediate": {
+        "ids": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "cargo": [],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 5,
+        "adopted": 4,
+        "stats": 4,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 576,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      },
+      "deleted": {
+        "ids": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "cargo": [],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 5,
+        "adopted": 5,
+        "stats": 5,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 192,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      },
+      "lateWorkerProbe": {
+        "scope": "Intentionally re-evaluated a real pre-delete snapshot at its original, older generation through the real Worker; no synthetic replies.",
+        "requestGeneration": 4,
+        "currentGeneration": 5,
+        "replies": [
+          {
+            "type": "authoringGeometry",
+            "gen": 4,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 54143.39999999851
+          },
+          {
+            "type": "geometry",
+            "gen": 4,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 55019.69999999553
+          },
+          {
+            "type": "surfaceGeometry",
+            "gen": 4,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 55636.19999999553
+          },
+          {
+            "type": "stats",
+            "gen": 4,
+            "ids": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "at": 57319.89999999851
+          }
+        ],
+        "after": {
+          "ids": [
+            1,
+            2,
+            3,
+            6
+          ],
+          "cargo": [],
+          "battery": [
+            {
+              "id": 6,
+              "c": [
+                120,
+                50,
+                0
+              ],
+              "room": [
+                8,
+                8,
+                8
+              ],
+              "d": 8
+            }
+          ],
+          "groups": [
+            {
+              "id": 100,
+              "name": "Mixed manual group",
+              "parts": [
+                6,
+                2
+              ]
+            }
+          ],
+          "gen": 5,
+          "adopted": 5,
+          "stats": 5,
+          "layout": "list",
+          "listVisible": true,
+          "bulkOpen": true,
+          "meshCounts": {
+            "cutter": 0,
+            "placement-ghost": 0,
+            "preview": 0,
+            "previewRef": 0,
+            "previewFits": 0,
+            "previewRefFits": 0,
+            "hull": 0,
+            "refHull": 0,
+            "struct": 97482,
+            "plate": 0,
+            "gen": 0,
+            "shield": 0,
+            "hyper": 0,
+            "interior": 192,
+            "engine": 0,
+            "plant": 0,
+            "nozzle": 0,
+            "hangar": 0,
+            "refStruct": 0,
+            "refEngine": 0,
+            "refPlant": 0,
+            "surfaceArmor": 0,
+            "surfaceDevices": 0,
+            "surfaceDetail": 0,
+            "hatchOpen": 0,
+            "hatchRay": 0,
+            "refHatches": 0,
+            "fits": 0,
+            "refFits": 0
+          }
+        }
+      },
+      "oneUndo": {
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "cargo": [
+          {
+            "id": 4,
+            "c": [
+              65,
+              50,
+              -30
+            ],
+            "tw": 5
+          },
+          {
+            "id": 5,
+            "c": [
+              65,
+              50,
+              30
+            ],
+            "tw": 4
+          }
+        ],
+        "battery": [
+          {
+            "id": 6,
+            "c": [
+              120,
+              50,
+              0
+            ],
+            "room": [
+              8,
+              8,
+              8
+            ],
+            "d": 8
+          }
+        ],
+        "groups": [
+          {
+            "id": 100,
+            "name": "Mixed manual group",
+            "parts": [
+              4,
+              6,
+              2
+            ]
+          }
+        ],
+        "gen": 6,
+        "adopted": 6,
+        "stats": 6,
+        "layout": "list",
+        "listVisible": true,
+        "bulkOpen": true,
+        "meshCounts": {
+          "cutter": 0,
+          "placement-ghost": 0,
+          "preview": 0,
+          "previewRef": 0,
+          "previewFits": 0,
+          "previewRefFits": 0,
+          "hull": 0,
+          "refHull": 0,
+          "struct": 97482,
+          "plate": 0,
+          "gen": 0,
+          "shield": 0,
+          "hyper": 0,
+          "interior": 576,
+          "engine": 0,
+          "plant": 0,
+          "nozzle": 0,
+          "hangar": 0,
+          "refStruct": 0,
+          "refEngine": 0,
+          "refPlant": 0,
+          "surfaceArmor": 0,
+          "surfaceDevices": 0,
+          "surfaceDetail": 0,
+          "hatchOpen": 0,
+          "hatchRay": 0,
+          "refHatches": 0,
+          "fits": 0,
+          "refFits": 0
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "engine": "worker",
+  "renderer": "webgl",
+  "stages": [
+    {
+      "name": "1280x588: fixture",
+      "at": "2026-11-08T14:55:26.849Z"
+    },
+    {
+      "name": "1280x588: deleted, real Worker settled",
+      "at": "2026-11-08T14:55:44.347Z"
+    },
+    {
+      "name": "1280x588: late real snapshot rejected and one Undo restored",
+      "at": "2026-11-08T14:55:56.850Z"
+    },
+    {
+      "name": "390x844: fixture",
+      "at": "2026-11-08T14:55:56.855Z"
+    },
+    {
+      "name": "390x844: deleted, real Worker settled",
+      "at": "2026-11-08T14:56:09.939Z"
+    },
+    {
+      "name": "390x844: late real snapshot rejected and one Undo restored",
+      "at": "2026-11-08T14:56:21.924Z"
+    }
+  ],
+  "servedSourceSha256": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/app.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f"
+  },
+  "sourceStable": true,
+  "glError": 0,
+  "completedAt": "2026-11-08T14:56:22.010Z"
+}

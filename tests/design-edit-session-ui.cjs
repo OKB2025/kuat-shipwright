@@ -32,14 +32,14 @@ function setup() {
     const window={claude:{hot:{snapshot:f=>hotSnapshot=f}},addEventListener:(name,f)=>events.set(name,f)};
     const T=x=>x,esc=String,toast=m=>notices.push(m),sndEdit=()=>{},sndUI=()=>{},reconcileSolidCutter=()=>{},syncHullEditor=()=>{},kickEngine=()=>{},engineStatus=()=>{},previewHistory=()=>{},hideInspect=()=>{},updateName=()=>{},scheduleStats=()=>{},requestDraw=()=>{},refreshOverlay=()=>{},renderSaves=()=>{},autosaveShipLength=()=>100;
     const selItem=()=>st.sel?ship[st.sel.list].find(p=>p.id===st.sel.id):null,findSel=sel=>ship[sel.list].some(p=>p.id===sel.id),renderPanel=()=>designUIEditSync();
-    const onEngineSurfaceGeometry=()=>{},designUIBar=()=>{},designUIMetrics=()=>{},renderInspBar=()=>{},queuePreview=()=>{},showPreview=(...args)=>calls.push({preview:args}),publicCopy=v=>JSON.parse(C.publicJSON(v));
+    const onEngineSurfaceGeometry=()=>{},designUIBar=()=>{},designUIPanel=()=>{},designUIMetrics=()=>{},renderInspBar=()=>{},queuePreview=()=>{},showPreview=(...args)=>calls.push({preview:args}),publicCopy=v=>JSON.parse(C.publicJSON(v));
     const YardEngineClient={post:m=>posts.push(m),request:(type,payload)=>{requests.push({type,payload});return new Promise((resolve,reject)=>replies.push({resolve,reject}));}};
     const Gfx={lineSet:()=>({part(){}})},tool=()=> 'part',designParents=()=>ship.parts,designParent=id=>ship.parts.find(p=>p.id===id),designCapability=()=>({space:'exterior',kind:'structure',allowedModes:['horizontal']}),partPreview=hit=>({id:-1,k:'struct',form:'box',c:hit.p.slice(),s:[4,4,4]}),designUIRequests=(part,request)=>[{part,request,symmetry:''}];
     const pack=async value=>{packCalls++;return JSON.stringify(value);},Store={save:async rec=>{records.push(rec);return 'local';}};
     function envelope(){const q=requests.at(-1).payload,r=q.request;return{gen:q.gen,designId:q.designId,operationId:q.operationId,geometryRevision:r.geometryRevision,parentGeometryRevision:r.parentGeometryRevision,placementModelVersion:r.placementModelVersion,result:{ok:true,part:r.part}};}
   `);
   for (const name of ['snap', 'restore', 'mutate', 'beginDrag', 'endDrag', 'undo', 'redo', 'updateUndo', 'touch', 'autosave', 'saveCurrent', 'exportDesign',
-    'editorPublicKey', 'editorGeometryContext', 'currentEditorGeometryContext', 'designEntityEditable', 'designUIEditSession', 'designUIEditDirty', 'designUISavedDesign', 'designUIEditBegin', 'designUIEditApply', 'designUIEditCancel', 'designUIEditSync', 'designUIEditStatus', 'designUIDiagnostics', 'designUIRejectTap', 'designUIInvalidatePending', 'designUICancel', 'designUIRequest', 'designUIPlaceDraft', 'onEnginePlacementResolution', 'designUIStampNext', 'removeWithPreview', 'editorRemovalIds', 'editorRemovedIds', 'editorRemoveParts', 'removeLinked']) run(fn(name));
+    'editorPublicKey', 'editorGeometryContext', 'currentEditorGeometryContext', 'designEntityEditable', 'designUIEditSession', 'designUIEditDirty', 'designUISavedDesign', 'designUIEditBegin', 'designUIEditApply', 'designUIEditCancel', 'designUIEditSync', 'designUIEditStatus', 'designUIClose', 'designUIDiagnostics', 'designUIRejectTap', 'designUIInvalidatePending', 'designUICancel', 'designUIRequest', 'designUIPlaceDraft', 'onEnginePlacementResolution', 'designUIStampNext', 'removeWithPreview', 'editorRemovalIds', 'editorRemovedIds', 'editorRemoveParts', 'removeLinked']) run(fn(name));
   return {run,context};
 }
 
@@ -123,16 +123,17 @@ test('explicit save defers a dirty session and writes the applied authoring stat
   await r('saveCurrent()');
   assert.equal(r('records.length'), 0);
   assert.equal(r('packCalls'), 0);
-  assert.equal(r('notices.at(-1)'), '編集を適用または取消してから保存してください');
+  assert.equal(r('notices.at(-1)'), '編集画面を閉じるか、取消してから保存してください');
   r('designUIEditApply()'); await r('saveCurrent()');
   assert.equal(r('records.length'), 1);
   assert.equal(r('JSON.parse(records[0].data).name'), 'Applied name');
 });
 
-test('selecting another existing part cancels the prior draft and starts that part from the restored source', () => {
+test('selecting another existing part keeps the prior edit and starts a clean transaction on the selected part', () => {
   const {run:r} = setup();
   r("designUIEditBegin();mutate('move',()=>ship.parts[0].c[0]=99);st.sel={list:'parts',id:2};designUIEditSync();");
-  assert.equal(r('ship.parts[0].c[0]'), 0);
+  assert.equal(r('ship.parts[0].c[0]'), 99);
+  assert.equal(r('undoStack.length'), 1);
   assert.equal(r('st.sel.id'), 2);
   assert.equal(r('designUIEditSession().initialSelected.id'), 2);
   assert.equal(r('designUIEditDirty()'), false);
@@ -151,13 +152,14 @@ test('a duplicated selection and deletion stay in the same operation and cancel 
   assert.equal(r('st.sel.id'), 1);
 });
 
-test('closing the drawer discards its draft while an armed reconnect keeps its source session', () => {
+test('leaving a reconnect keeps ordinary edits while an armed reconnect retains its current source session', () => {
   const {run:r} = setup();
   r("designUIEditBegin();const session=designUIEditSession();mutate('move',()=>ship.parts[0].c[0]=9);designUI.drawer=false;designUI.armed=true;designUI.replaceId=1;designUIEditSync();");
   assert.equal(r('designUIEditSession()===session'), true);
   r('designUI.armed=false;designUIEditSync()');
   assert.equal(r('designUIEditSession()'), null);
-  assert.equal(r('ship.parts[0].c[0]'), 0);
+  assert.equal(r('ship.parts[0].c[0]'), 9);
+  assert.equal(r('undoStack.length'), 1);
 });
 
 test('cancel restores a newer editor generation and a late background resolution cannot revive its immediate reconnect draft', () => {
@@ -193,4 +195,76 @@ test('applying a parent graph deletion keeps its fitting removal in the same Und
   assert.equal(r('ship.fits.length'), 0); assert.equal(r('undoStack.length'), 1);
   r('undo()'); assert.deepEqual(plain(r('ship.parts.map(p=>p.id)')), [1, 2]); assert.equal(r('ship.fits[0].host'), 1);
   r('redo()'); assert.deepEqual(plain(r('ship.parts.map(p=>p.id)')), [2]); assert.equal(r('ship.fits.length'), 0);
+});
+
+function bindHeaderActions(t){
+ t.run(`
+  const document={querySelector:s=>$('doc:'+s),addEventListener:(kind,listener)=>events.set('document:'+kind,listener),body:{classList:{contains:()=>true}}};
+  for(const selector of ['#btnTrialQuick','#viewport','#dock','#designInspection','#inspBar','#panel','doc:.main']){const node=$(selector);node.insertAdjacentHTML=()=>{};node.append=()=>{};node.addEventListener=(kind,listener)=>events.set(selector+':'+kind,listener);}
+  ${fn('bindDesignUI')}
+  bindDesignUI();
+  function headerAction(action){events.get('document:click')({target:{closest:()=>({dataset:{designAction:action}})}});}
+ `);
+}
+
+test('the real Close action keeps changed inputs and compacts them into one Undo without an Apply button',()=>{
+ const t=setup(),r=t.run;bindHeaderActions(t);
+ r("designUI.layout='edit';designUIEditBegin();mutate('move',()=>ship.parts[0].c[0]=4);mutate('height',()=>ship.parts[0].s[2]=35);eng.waiting=true;headerAction('close')");
+ assert.equal(r('ship.parts[0].c[0]'),4);assert.equal(r('ship.parts[0].s[2]'),35);assert.equal(r('designUI.drawer'),false);assert.equal(r('designUIEditSession()'),null);assert.equal(r('undoStack.length'),1);assert.equal(r('requests.length'),0,'closing never waits for a strict solve');
+ assert.equal(r('designUISavedDesign().parts[0].s[2]'),35);r('undo()');assert.equal(r('ship.parts[0].c[0]'),0);assert.equal(r('ship.parts[0].s[2]'),20);r('redo()');assert.equal(r('ship.parts[0].s[2]'),35);assert.equal(r('designUI.drawer'),false);
+ const panel=fn('designUIPanel');assert.match(panel,/data-design-action="edit-cancel">取消</);assert.doesNotMatch(panel,/data-design-action="edit-apply"/);
+});
+
+test('the real Cancel action restores source and history instead of taking the Close path',()=>{
+ const t=setup(),r=t.run;bindHeaderActions(t);
+ r("ship=C.deserialize(C.serialize(ship),{deferPlacementGeometry:true});ship.saveId='session-source';const original=snap();designUI.layout='edit';designUIEditBegin();mutate('move',()=>ship.parts[0].c[0]=20);headerAction('edit-cancel')");
+ assert.equal(r('snap()===original'),true);assert.equal(r('undoStack.length'),0);assert.equal(r('designUIEditSession()'),null);assert.equal(r('designUI.drawer'),false);assert.equal(r('notices.at(-1)'),'編集を取り消しました');
+});
+
+test('Close keeps a pending reconnect source and its later Worker result does not reopen editing or add Undo',()=>{
+ const t=setup(),r=t.run;bindHeaderActions(t);
+ r("designUI.layout='edit';designUIEditBegin();designUI.replaceId=1;designUI.armed=true;designUIRequest({parentStructureId:2,p:[30,5,0],n:[0,1,0]});const id=ship.parts[0].id;headerAction('close')");
+ assert.equal(r('ship.parts[0].placement.pendingGeometry'),true);assert.equal(r('designUIEditSession()'),null);assert.equal(r('undoStack.length'),1);const generation=r('eng.gen');t.context.packet=resolution(t);
+ assert.equal(r('onEnginePlacementResolution(packet)'),true);assert.equal(r('eng.gen'),generation);assert.equal(r('ship.parts[0].id'),r('id'));assert.equal(r('ship.parts[0].placement.pendingGeometry'),undefined);assert.equal(r('designUI.drawer'),false);assert.equal(r('designUIEditSession()'),null);assert.equal(r('undoStack.length'),1);
+ r('undo()');assert.equal(r('ship.parts[0].placement'),undefined);r('redo()');assert.equal(r('ship.parts[0].placement.parentStructureId'),2);
+});
+
+test('a clean Close preserves existing Redo and a new-placement Cancel creates no source or history',()=>{
+ const t=setup(),r=t.run;bindHeaderActions(t);
+ r("designUI.drawer=false;mutate('name',()=>ship.name='Redo name');undo();const redoBefore=redoStack.slice();designUI.drawer=true;designUI.layout='edit';designUIEditBegin();headerAction('close')");
+ assert.deepEqual(plain(r('redoStack')),plain(r('redoBefore')));assert.equal(r('undoStack.length'),0);
+ r("designUI.drawer=true;designUI.layout='new';const original=snap();headerAction('close')");assert.equal(r('snap()===original'),true);assert.equal(r('undoStack.length'),0);assert.equal(r('designUI.drawer'),false);
+});
+
+function bindNavigation(t){
+ t.run(`
+  const selClear=()=>{st.sel=null;st.multi={parts:new Set(),fits:new Set()};},xfReset=()=>{},syncHud=()=>{},trenchArmamentCancel=()=>{};let itemDrag=null;
+  $('#dock').classList={remove(){}};$('#app').classList={remove(){}};
+  ${fn('designUIOpen')}
+  ${fn('designUISpace')}
+ `);
+}
+
+test('selecting a second part and then leaving its tab retains both edits as independent Undo operations',()=>{
+ const {run:r}=setup();
+ r("designUI.layout='edit';designUIEditBegin();mutate('first',()=>ship.parts[0].c[0]=4);st.sel={list:'parts',id:2};st.multi={parts:new Set([2]),fits:new Set()};designUIEditSync();mutate('second',()=>ship.parts[1].c[1]=8);designUI.layout='performance';st.tab='spec';designUIEditSync()");
+ assert.equal(r('ship.parts[0].c[0]'),4);assert.equal(r('ship.parts[1].c[1]'),8);assert.equal(r('undoStack.length'),2);assert.equal(r('designUIEditSession()'),null);assert.equal(r('designUI.layout'),'performance');assert.equal(r('designUI.drawer'),true);
+ r('undo()');assert.equal(r('ship.parts[0].c[0]'),4);assert.equal(r('ship.parts[1].c[1]'),0);r('undo()');assert.equal(r('ship.parts[0].c[0]'),0);r('redo();redo()');assert.equal(r('ship.parts[0].c[0]'),4);assert.equal(r('ship.parts[1].c[1]'),8);
+});
+
+test('opening another panel keeps the edit and preserves the requested navigation destination',()=>{
+ for(const destination of ['list','performance','new']){
+  const t=setup(),r=t.run;bindNavigation(t);
+  r("designUI.layout='edit';designUIEditBegin();mutate('first',()=>ship.parts[0].c[0]=4);designUIOpen("+JSON.stringify(destination)+")");
+  assert.equal(r('ship.parts[0].c[0]'),4,destination);assert.equal(r('undoStack.length'),1,destination);assert.equal(r('designUI.layout'),destination);assert.equal(r('designUI.drawer'),true);assert.equal(r('designUIEditSession()'),null);
+  assert.equal(r('st.tab'),destination==='new'?'mod':destination==='performance'?'spec':'edit');assert.equal(r('ship.parts.length'),2,'opening new settings never places a part');
+  r('undo()');assert.equal(r('ship.parts[0].c[0]'),0);r('redo()');assert.equal(r('ship.parts[0].c[0]'),4);
+ }
+});
+
+test('switching exterior to interior keeps the prior edit while clearing the old selection and pending tool',()=>{
+ const t=setup(),r=t.run;bindNavigation(t);
+ r("designUI.layout='edit';designUIEditBegin();mutate('first',()=>ship.parts[0].c[0]=4);designUISpace('interior')");
+ assert.equal(r('ship.parts[0].c[0]'),4);assert.equal(r('undoStack.length'),1);assert.equal(r('designUIEditSession()'),null);assert.equal(r('designUI.space'),'interior');assert.equal(r('designUI.layout'),'edit');assert.equal(r('designUI.drawer'),true);assert.equal(r('st.sel'),null);assert.equal(r('st.view'),'xray');assert.equal(r('designUI.armed'),false);
+ r('undo()');assert.equal(r('ship.parts[0].c[0]'),0);r('redo()');assert.equal(r('ship.parts[0].c[0]'),4);
 });
