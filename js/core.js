@@ -84077,7 +84077,7 @@ function shellTriangles(p){
 function inShell(p,q){const v=localStruct(p,q),t=v[0]/p.s[0]+.5;if(t<0||t>1)return false;const poly=shellRing(shellSection(p,loftProfile(p,t)));let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>v[1])!==(b[1]>v[1])&&v[2]<(b[0]-a[0])*(v[1]-a[1])/(b[1]-a[1])+a[0])yes=!yes;}return yes;}
 // A point on the plate's outer face: u along the length (0 aft … 1 fore), v across it from the inner edge.
 function shellPoint(p,u,v,lift=0){const sec=shellSection(p,loftProfile(p,clamp(u,0,1))),o=sec.outer,f=clamp(v,0,1)*(o.length-1),i=Math.min(o.length-2,Math.floor(f)),w=f-i,a=o[i],b=o[i+1],z=a[0]+(b[0]-a[0])*w,y=a[1]+(b[1]-a[1])*w,inn=sec.inner,ia=inn[i],ib=inn[i+1],iz=ia[0]+(ib[0]-ia[0])*w,iy=ia[1]+(ib[1]-ia[1])*w,l=Math.hypot(z-iz,y-iy)||1;return worldStruct(p,[sec.x,y+(y-iy)/l*lift,z+(z-iz)/l*lift]);}
-function openingSurfacePoint(ship,h,x,v){const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h);if(h.surface){const bay=ship.parts.find(p=>p.id===h.bay);let hit=bay&&aviationSurfaceHit(ship,bay,h,x,v);if(!hit&&bay&&(h._surfaceMode!==undefined?h._surfaceMode:aviationContact(ship,bay,h.face).mode)==='face')hit=aviationFaceHit(ship,bay,h,x,v);return hit?add(hit.p,mul(h.n,.9)):null;}const p=[0,0,0],skin=originalSurface(ship,x,ax,v,h.n[ax]);if(skin==null)return null;p[l]=x;p[u]=v;p[ax]=skin+h.n[ax]*.9;return p;}
+function openingSurfacePoint(ship,h,x,v){const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h);if(h.surface){const original=ship.parts.find(p=>p.id===h.bay),bay=original&&aviationHatchSource(original);let hit=bay&&aviationSurfaceHit(ship,bay,h,x,v);if(!hit&&bay&&(h._surfaceMode!==undefined?h._surfaceMode:aviationContact(ship,original,h.face).mode)==='face')hit=aviationFaceHit(ship,bay,h,x,v);return hit?add(hit.p,mul(h.n,.9)):null;}const p=[0,0,0],skin=originalSurface(ship,x,ax,v,h.n[ax]);if(skin==null)return null;p[l]=x;p[u]=v;p[ax]=skin+h.n[ax]*.9;return p;}
 
 // Plating just outside an opening (the ray-shield halo). Unlike
 // openingSurfacePoint it does not require the point to belong to the bay.
@@ -84204,8 +84204,8 @@ function syncCompartmentsRaw(ship){
    if(samples.some(q=>!(p.surfacePatch?surfaceEnvelopeContains(ship,q,p):insideOriginalEnvelope(ship,q)))){const tris=clipCompartmentMesh(ship,p,b),volume=meshVolume(tris);let area=0;for(let i=0;i<tris.length;i+=9){const a=Array.from(tris.slice(i,i+3)),c=Array.from(tris.slice(i+6,i+9)),bb=Array.from(tris.slice(i+3,i+6));area+=len(cross(sub(bb,a),sub(c,a)))/2;}p._clip={tris,volume:Math.min(v,volume),area,requestedVolume:v,retained:v?Math.min(1,volume/v):0};}
    p._clipKey=key;
  }integrateCompartments(ship,occupied);ship._interiorKey=interiorKey;for(const p of weaponCapacitors(ship))p._allocationReady=true;}finally{if(oldLock)ship._lockedCache=oldLock;else delete ship._lockedCache;}
- // Effective clipping/packing can change the aperture footprint. Finish that
- // dependency here, rather than letting the next render mutate hatch data.
+ // Finish hatch synchronization here so rendering never mutates hatch data.
+ // Its source footprint remains independent of effective clipping/packing.
  syncAviationSurfaces(ship);
 }
 function clipCompartmentMesh(ship,p,b){
@@ -84439,8 +84439,9 @@ function interiorHatchConstraint(ship,p){
  const original=ship.parts.find(q=>q.id===p.id),shape=q=>JSON.stringify([q.c,q.d,q.room,q.yaw,q.pitch,q.roll,q.surfaceNormal,q.outline,q.corner,q.foreWidth,q.aftWidth,q.deckSlope,q.ridge]);
  // Existing hatch geometry is an independent authored object. Its connection
  // cannot be moved or cut by a volume solver without an explicit hatch edit.
- // Clipping is a persistent property of the room, not a new hatch edit. Test
- // the newly solved effective solid instead of rejecting every clipped room.
+ // Clipping is a persistent property of the room, not a new hatch edit.
+ // Validate the opening against its editable source without replacing the
+ // newly solved effective solid or rejecting every clipped compartment.
  if(original&&shape(original)!==shape(p))return {code:'opening-constraint',error:'既存ハッチの接続を維持できません。開口を保つ元の位置・寸法で配置してください'};
  const query={...ship,parts:ship.parts.map(q=>q.id===p.id?p:q)};
  for(const h of hatches){if(!h.face||!aviationContact(query,p,h.face).contact)return {code:'opening-constraint',error:'航空区画がハッチのある外皮に接触していません。接続位置を修正してください'};}
@@ -91638,7 +91639,8 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  const mode=o.power==='auto'||!POWER_MODES[o.power]?fleetAutoPower(u,t,raw>0):o.power,M=POWER_MODES[mode];u.mode=mode;
  const weapons=(p.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='weapon'),physical=weapons.length?weapons.reduce((a,{m,i})=>a+(m.share||0)*Math.max(0,u.mods?.[i]??1),0):1,cap=(p.wCap||0)*physical,nominalShield=g?g.Ds*s.shield:0;
  if(!g){u.load=0;u.engF=0;u.shF=0;u.pw=null;u.propulsion=solveShipPropulsion(p.propulsion||{engines:[],massKg:0},{throttle:0});return 0;}
- const regen=u.shield<u.shieldMax*.999||u.underFire||(u.bank||0)<(u.bankMax||0)*.999,man=u.out?0:clamp(Math.max(u.maneuver||0,u._tractorResistance||0),0,1);
+ const rated=propulsionMotion(u).acc0,hold=rated>0?massDragRate(u)*len(u.velocity||[0,0,0])/rated:0;
+ const regen=u.shield<u.shieldMax*.999||u.underFire||(u.bank||0)<(u.bankMax||0)*.999,man=u.out?0:clamp(Math.max(u.maneuver||0,u._tractorResistance||0,hold),0,1);
  // A disabled ship's shield generators fail with it: its shields fade.
  // v23 The heat network limits what an overheating system may draw (heatLim is 1 until its stores fill).
  const want={throttle:man,shields:u.out?0:nominalShield*(regen?M.shields:1)*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon*M.weapons,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)))*heatLim(u,'weapon'),deferHeat:true};
@@ -92858,7 +92860,7 @@ function hullImpact(inc,u,other,c){
 const HULL_FALL={g:.6,depth:60000,pitch:.55};
 function hullFall(u,dt,rand=Math.random){
  const f=u.fall||(u.fall={t:0,pitch:0,roll:(rand()-.5)*.5,spin:(rand()-.5)*.02});f.t+=dt;
- const k=Math.max(0,1-.05*dt),v=u.velocity||[0,0,0];u.velocity=[v[0]*k,v[1]-HULL_FALL.g*dt,v[2]*k];u.pos=add(u.pos,mul(u.velocity,dt));
+ const motion=integratePropulsionMotion(u,u.velocity||[0,0,0],[0,-HULL_FALL.g,0],dt);u.velocity=motion.velocity;u.pos=add(u.pos,motion.displacement);
  f.pitch=Math.min(HULL_FALL.pitch,f.pitch+.006*dt);u.yaw=(u.yaw||0)+f.spin*dt;return u.pos[1]<-HULL_FALL.depth;
 }
 // A ship turning carries its way round with its bow: the velocity turns with
@@ -92893,7 +92895,39 @@ function hullBoxGap(u,h,x,hx){
 // absent unit (still in hyperspace) takes no part at all.
 // v18 How hard a ship's drives burn, for the engine glow (0–1): the share of
 // full acceleration it is using, over a cruise floor that rises with speed.
-function engineLevel(u){return !u||u.out||u.dead?0:clamp(u.propulsion?.outputRatio??0,0,1);}
+function engineLevel(u){const main=u?.manual&&Number.isFinite(u.mainThrustShare)?clamp(u.mainThrustShare,0,1):1;return !u||u.out||u.dead||u.ht?.online===false?0:clamp(u.propulsion?.outputRatio??0,0,1)*main;}
+// Game-space resistance: its rate is proportional to the vessel's actual SI
+// mass, independently of hull length or class. A 1e11 kg (1e8 tonne) vessel
+// loses half its unpowered speed in 60 seconds; a fighter's loss is negligible.
+// This is a movement rule, not additional thrust, electrical work or heat.
+const MASS_DRAG={referenceMassKg:1e11,halfLifeSeconds:60,ratePerKg:Math.LN2/(1e11*60)};
+function massDragRate(unit){
+ const p=unit?.p||unit||{},mass=[p.propulsion?.massKg,p.heat?.massKg,Number.isFinite(p.mass)?p.mass*1000:null].find(m=>Number.isFinite(m)&&m>0);
+ return mass?mass*MASS_DRAG.ratePerKg:0;
+}
+function propulsionDragFactors(unit,dt){
+ const time=Number.isFinite(dt)&&dt>0?dt:0,rate=massDragRate(unit),x=rate*time;
+ if(!(rate>0))return {time,rate,decay:1,gain:time,distanceGain:time*time*.5};
+ const decay=Math.exp(-x),gain=-Math.expm1(-x)/rate;
+ // Avoid cancellation for the tiny, but nonzero, resistance of small craft.
+ const distanceGain=x<1e-3?time*time*(.5-x/6+x*x/24-x*x*x/120):(time-gain)/rate;
+ return {time,rate,decay,gain,distanceGain};
+}
+function propulsionTargetAcceleration(unit,velocity,targetVelocity,dt){
+ const f=propulsionDragFactors(unit,dt);if(!(f.gain>0))return [0,0,0];
+ return [0,1,2].map(i=>(targetVelocity[i]-velocity[i]*f.decay)/f.gain);
+}
+function integratePropulsionMotion(unit,velocity,acceleration,dt,options={}){
+ const f=propulsionDragFactors(unit,dt),coast=mul(velocity,f.decay),a=Array.isArray(acceleration)&&acceleration.length===3&&acceleration.every(Number.isFinite)?acceleration:[0,0,0];let fraction=1;
+ // The existing game-speed ceiling constrains funded thrust, never passive
+ // motion. An already overspeed vessel must coast down rather than snap back.
+ if(Number.isFinite(options.maxSpeed)&&options.maxSpeed>0&&f.gain>0){
+  const delta=mul(a,f.gain),limit=Math.max(options.maxSpeed,len(coast)),q=dot(delta,delta),b=dot(coast,delta),c=dot(coast,coast)-limit*limit;
+  if(q>0&&dot(add(coast,delta),add(coast,delta))>limit*limit){const root=Math.sqrt(Math.max(0,b*b-q*c));fraction=clamp(b>=0?-c/Math.max(Number.MIN_VALUE,b+root):(-b+root)/q,0,1);}
+ }
+ const appliedAcceleration=mul(a,fraction);
+ return {velocity:add(coast,mul(appliedAcceleration,f.gain)),displacement:add(mul(velocity,f.gain),mul(appliedAcceleration,f.distanceGain)),dragRate:f.rate,appliedAcceleration,thrustFraction:fraction};
+}
 // Physical acceleration arrives from the shared power solver. The tactical scale is applied only here.
 // A missing result never grants an unpowered unit its design acceleration.
 function propulsionMotion(u,load=1){
@@ -92910,8 +92944,8 @@ function fleetTick(b,dt,opts={}){
  const moveFleet=()=>{
  for(const u of alive){const o=u.order,t=byId.get(o.target),old=byId.get(u.id),s=sys.get(u.id);
   if(u.manual)continue;
-  if(u.out){if(opts.gravity){u.velocity=[...old.velocity];u.pos=[...old.pos];if(hullFall(u,dt,()=>fleetRandom(b))&&!u.dead){u.dead=true;u.fate='fall';u.fire=(u.fire||[]).map(()=>0);b.events.push({time:b.time+dt,text:`${u.name}：大気圏に落下して喪失`,id:u.id,sunk:true});}}else{u.velocity=[...old.velocity];u.pos=add(old.pos,mul(u.velocity,dt));}u.maneuver=0;continue;}
-  if(powerFactor(u,'engine')<=0||powerFactor(u,'reactor')<=0){u.engF=0;u.maneuver=0;u.pos=add(old.pos,mul(old.velocity,dt));continue;}
+  if(u.out){if(opts.gravity){u.velocity=[...old.velocity];u.pos=[...old.pos];if(hullFall(u,dt,()=>fleetRandom(b))&&!u.dead){u.dead=true;u.fate='fall';u.fire=(u.fire||[]).map(()=>0);b.events.push({time:b.time+dt,text:`${u.name}：大気圏に落下して喪失`,id:u.id,sunk:true});}}else{const motion=integratePropulsionMotion(u,old.velocity,[0,0,0],dt);u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);}u.maneuver=0;continue;}
+  if(powerFactor(u,'engine')<=0||powerFactor(u,'reactor')<=0){const motion=integratePropulsionMotion(u,old.velocity,[0,0,0],dt);u.engF=0;u.maneuver=0;u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);continue;}
   const {acc0,acc,turn}=propulsionMotion(u),nominalTurn=u.p.turnRate||0,turnRate=nominalTurn*turn;let turnNeed=0,dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];const v0=[...old.velocity],turnToward=yaw=>{const err=fleetAngle(yaw-u.yaw);turnNeed=Math.max(turnNeed,Math.abs(err)/Math.max(1e-9,nominalTurn*dt));u.yaw+=clamp(err,-turnRate*dt,turnRate*dt);};
   // v21.1 Escort: keep station on the threat side of the guarded ship; there, keep its pace, bow on the threat.
   let escHold=false;const G=o.type==='escort'?byId.get(o.target):null;
@@ -92928,8 +92962,8 @@ function fleetTick(b,dt,opts={}){
    const signed=attack?d-stop:d,remaining=attack?Math.max(0,Math.abs(signed)-(head!=null?600:2500)):Math.max(0,signed),direction=attack&&signed<0&&head==null?-1:1,speed=Math.min(u.p.maxSpeed*(head!=null?.4:1),Math.sqrt((attack?1:2)*acc0*remaining))*Math.max(.08,Math.cos(err));
    if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
   want=hullAvoid(old,before,want);
-  const dv=sub(want,v0),n=len(dv),step=Math.min(n,acc*dt);u.velocity=add(v0,mul(dv,step/Math.max(1e-9,n)));u.pos=add(old.pos,mul(u.velocity,dt));
-  u.maneuver=acc0>0?clamp(Math.max(n/Math.max(1e-9,acc0*dt),turnNeed),0,1):0;
+  const required=propulsionTargetAcceleration(u,v0,want,dt),need=len(required),applied=mul(required,Math.min(1,acc/Math.max(1e-12,need))),motion=integratePropulsionMotion(u,v0,applied,dt);u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);
+  u.maneuver=acc0>0?clamp(Math.max(need/acc0,turnNeed),0,1):0;
  }
  };
  const incoming=new Map(alive.map(u=>[u.id,combatIncoming()])),shots=[];b.bumps=[];
@@ -94907,6 +94941,9 @@ function solidStructVolume(p){const T=structTriangles(p);return meshVolume(p._so
 
 // Aviation openings belong to a compartment face. A finite compartment must
 // reach the first exterior shell on that face; it never drills a remote roof.
+// Candidate faces use the editable, pre-clipping compartment. Its effective
+// solid still owns rendering, capacity and collisions; opening a hatch never
+// replaces that solid with the request.
 const AVIATION_SURFACE_FACES=Object.freeze({top:'上面',bottom:'腹面',port:'左舷',stbd:'右舷',fore:'艦首',aft:'艦尾'});
 const AVIATION_ENVELOPE_CACHE=new WeakMap(),AVIATION_CONTACT_CACHE=new WeakMap();
 function hatchAxes(h){const axis=typeof h==='number'?h:[0,1,2].reduce((a,i)=>Math.abs(h.n?.[i]||0)>Math.abs(h.n?.[a]||0)?i:a,0);return {axis,longAxis:axis===0?2:0,widthAxis:axis===1?2:1};}
@@ -94944,15 +94981,14 @@ function aviationEnvelope(ship){
  const tris=new Float32Array(sources.reduce((n,a)=>n+a.length,0));let off=0;for(const source of sources){tris.set(source,off);off+=source.length;}
  const value={key,tris,bounds:solidMeshBounds(tris),bvh:tris.length?buildBVH(tris):null};AVIATION_ENVELOPE_CACHE.set(ship,value);return value;
 }
-// An opening pierces the skin in front of the compartment's actual solid: its
-// clipped body when it has one. The packing (the airspace left once the
-// compartment's own fittings are laid out) is not what meets the skin.
+// Hatch queries use the authored room before clipping or equipment packing.
+// Keep that query view separate from the effective solid and its capacity.
+function aviationHatchSource(p){return p._clip||p._packing?{...p,_clip:null,_packing:null}:p;}
 function aviationPartBounds(p){const geometry=p._clip;return geometry?.tris?.length?(geometry.bounds||(geometry.bounds=solidMeshBounds(geometry.tris))).slice():partAABB({...p,_packing:null});}
 function aviationPartContains(p,q){return p._clip?.tris?.length?interiorMeshContains(p._clip,q):unclippedInPart(p,q);}
-// A clipped compartment stops at the inner face of the skin it was clipped
-// against, while the hatch is found on the outer face. Walk inward from the
-// skin through at most its thickness (10 m, or 10% of the bay's depth on small
-// craft) to find the compartment behind it.
+// The requested room may end at the inner face of the skin, while the hatch
+// is on its outer face. Search behind that skin within the existing depth
+// bound (10 m, or 10% of a small bay), without changing the actual room.
 function aviationSkinDepth(p,h){const {axis}=hatchAxes(h),b=aviationPartBounds(p);return Math.min(10,Math.max(.05,(b[axis+3]-b[axis])*.1));}
 function aviationContainsBehind(p,hitPoint,h){const deep=aviationSkinDepth(p,h);for(const d of [.02,.25,.5,1,2,3,4,6,8,10])if(d<=deep+1e-9&&aviationPartContains(p,sub(hitPoint,mul(h.n,d))))return true;return aviationPartContains(p,sub(hitPoint,mul(h.n,deep)));}
 function aviationFiniteBounds(p,h){
@@ -94991,8 +95027,9 @@ function aviationFaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  return hit;
 }
 function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
+ const owner=p;p=aviationHatchSource(p);
  const existing=ship.hatches.find(h=>h.bay===p.id&&h.face===face),h={n:aviationFaceNormal(face),aperture:existing?.aperture??.85,sill:existing?.sill??.5},key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge,surfaceMeshId(p._packing?.tris||p._clip?.tris),h]);
- let cache=AVIATION_CONTACT_CACHE.get(p);if(!cache){cache=new Map();AVIATION_CONTACT_CACHE.set(p,cache);}const old=cache.get(face);if(old?.key===key)return old;
+ let cache=AVIATION_CONTACT_CACHE.get(owner);if(!cache){cache=new Map();AVIATION_CONTACT_CACHE.set(owner,cache);}const old=cache.get(face);if(old?.key===key)return old;
  const b=aviationFiniteBounds(p,h),{axis}=hatchAxes(h);
  let value=aviationContactScan(ship,p,h,b,(t,v)=>aviationSurfaceHit(ship,p,h,t,v,envelope));
  if(!value.bounds){
@@ -96281,8 +96318,8 @@ function heatTick(ctx,u,dt,interval=null){
    heatTick(ctx,u,step,step);
   }return;
  }
- const n=H.src.length,mods=u.mods||[],gen=new Array(n).fill(0),weights={};for(const s of H.src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh||1);
- for(let i=0;i<n;i++){const s=H.src[i],local=s.k==='engine'?h.engineE:s.k==='reactor'?h.reactorE:s.k==='feed'?h.feedE:null;gen[i]=s.k==='sw'?Math.max(0,h.esw[s.sw]||0)/T:Math.max(0,local?.[i]||0)/T+Math.max(0,h.e[s.k]||0)/T*Math.max(0,s.sh||1)/Math.max(1e-30,weights[s.k]);}
+ const n=H.src.length,mods=u.mods||[],gen=new Array(n).fill(0),weights={};for(const s of H.src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
+ for(let i=0;i<n;i++){const s=H.src[i],local=s.k==='engine'?h.engineE:s.k==='reactor'?h.reactorE:s.k==='feed'?h.feedE:null;gen[i]=s.k==='sw'?Math.max(0,h.esw[s.sw]||0)/T:Math.max(0,local?.[i]||0)/T+Math.max(0,h.e[s.k]||0)/T*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]);}
  const allPending=Object.values(h.e).reduce((a,J)=>a+Math.max(0,J||0),0)+[h.engineE,h.reactorE,h.feedE,h.esw].reduce((a,row)=>a+row.reduce((b,J)=>b+Math.max(0,J||0),0),0),assigned=gen.reduce((a,W)=>a+W,0)*T,unassigned=Math.max(0,allPending-assigned);
  const integ=fleetIntegrity(u),secOk=si=>si<0||!u.sec?.[si]||!u.secLost?.includes(si)&&u.sec[si].s>=u.sec[si].max*HEAT.linkBreak,em=EMCON[emconOf(u)],fd=u.fo?.d;
  const cap=H.dis.map(d=>Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):d.k==='skin'?integ:0)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
@@ -96859,6 +96896,7 @@ return {BROADSIDE_BATTERY_CALIBERS,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirR
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
+  MASS_DRAG, massDragRate, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
@@ -99040,8 +99078,8 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
   if (u.warp) { if (!peace) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; } continue; }
   if (u.towedBy) continue;
   // Disabled: the planet pulls it down until it burns up (C.hullFall), unless a beam holds it.
-  if (u.out) { u.engF=0;u.maneuver=0;if(peace)u.pos=add(u.pos,u.velocity||[0,0,0],dt);else if(C.hullFall(u,dt,w.rand))lostToGravity(w,sys,u);continue; }
-  if(C.powerFactor(u,'engine')<=0||C.powerFactor(u,'reactor')<=0){u.engF=0;u.maneuver=0;u.pos=add(u.pos,u.velocity||[0,0,0],dt);continue;}
+  if (u.out) { u.engF=0;u.maneuver=0;u._fallTime=w.time;if(C.hullFall(u,dt,w.rand))lostToGravity(w,sys,u);continue; }
+  if(C.powerFactor(u,'engine')<=0||C.powerFactor(u,'reactor')<=0){const motion=C.integratePropulsionMotion(u,u.velocity||[0,0,0],[0,0,0],dt);u.engF=0;u.maneuver=0;u.velocity=motion.velocity;u.pos=add(u.pos,motion.displacement);continue;}
   const load = u.tractor?.lock ? (() => { const t = byId.get(u.tractor.target); return t ? u.info.mass / Math.max(1, u.info.mass + (t.info?.mass || 0)) : 1; })() : 1;
   const {acc0,acc,turn}=C.propulsionMotion(u,load),turnRate=(u.p.turnRate||0)*turn;
   let dest = null, head = null, speedCap = u.p.maxSpeed, near = 2000, attack = false, steer = null;
@@ -99101,8 +99139,8 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
   }
   want = C.hullAvoid(u, clearOf, want);
   u.turnK = clamp(turned / Math.max(1e-6, (u.p.turnRate||0) * dt), -1, 1);
-  const dv = sub(want, u.velocity), n = len(dv), step = Math.min(n, acc * dt);u.velocity = add(u.velocity, scale(dv, step / Math.max(1e-9, n)));u.pos = add(u.pos, u.velocity, dt);
-  u.maneuver = acc0 > 0 ? clamp(Math.max(n / Math.max(1e-9,acc0 * dt),turnNeed), 0, 1) : 0;
+  const required=C.propulsionTargetAcceleration(u,u.velocity,want,dt),need=len(required),applied=scale(required,Math.min(1,acc/Math.max(1e-12,need))),motion=C.integratePropulsionMotion(u,u.velocity,applied,dt);u.velocity=motion.velocity;u.pos=add(u.pos,motion.displacement);
+  u.maneuver = acc0 > 0 ? clamp(Math.max(need/acc0,turnNeed), 0, 1) : 0;
  }
  // Hulls that meet are pushed apart, and the impact damages both (C.hullCollide).
 
@@ -99126,6 +99164,9 @@ function peaceTick(w, sys, dt) {
  return {moving, far};
 }
 function peaceMoves(w, dt) {
+ // A pilot release or restored world may contain moving units without a
+ // pending navigation command. Their passive resistance still owns a clock.
+ for(const u of w.units.values())if(alive(u)&&!u.manual&&!u.out&&!u.warp&&!u.towedBy&&u.sys!=null&&!w.battles.has(u.sys)&&len(u.velocity||[0,0,0])>1e-9&&!w.stir?.has(u.sys))stir(w,u.sys);
  if (!w.stir?.size) return;
  // A system is settled when no ship moves: at once if all are on their marks, after a few seconds at rest if some cannot close on theirs.
  for (const [sys, r] of [...w.stir]) { if (w.battles.has(sys)) { w.stir.delete(sys); continue; } const st = peaceTick(w, sys, dt); if (!st || !st.moving && !st.far) { w.stir.delete(sys); continue; } r.still = st.moving ? 0 : r.still + dt; if (r.still > 5) w.stir.delete(sys); }
@@ -99469,10 +99510,10 @@ function steer(s, goal, speed, dt, flyThrough = false) {
  if(!(dt>0))return;const d = sub(goal, s.pos), l = len(d),profile=craftPowerOf(CRAFT[s.craft]),descriptor=profile?.propulsion;
  let want=l>=1?scale(d,1/l):s.h.slice();if (HULLS) want = hullSteer(s, want, speed, goal, l);
  let v=l<1&&!flyThrough?0:flyThrough?speed:Math.min(speed,l/dt);if(HULLS)v=Math.min(v,hullFree(s,v*dt)/dt);
- const before=s.vel||[0,0,0],rated=descriptor?Math.min(descriptor.ratedAccelMps2,descriptor.accelerationLimitMps2)*C.FLEET_RULES.accelScale:0,change=len(sub(scale(want,v),before)),ang=Math.acos(clamp(dot(s.h,want),-1,1)),request=rated>0?clamp(Math.max(change/(rated*dt),ang/Math.max(1e-9,1.3*dt)),0,1):0;
+ const before=s.vel||[0,0,0],rated=descriptor?Math.min(descriptor.ratedAccelMps2,descriptor.accelerationLimitMps2)*C.FLEET_RULES.accelScale:0,change=len(C.propulsionTargetAcceleration(s.drive||profile,before,scale(want,v),dt)),ang=Math.acos(clamp(dot(s.h,want),-1,1)),request=rated>0?clamp(Math.max(change/rated,ang/Math.max(1e-9,1.3*dt)),0,1):0;
  const motion=squadPropulsion(s,s.throttle==null?request:Number.isFinite(s.throttle)?clamp(s.throttle,0,1):0,dt),maxA=1.3*dt*(CRAFT[s.craft]?.systems?.turnK??1)*motion.turn;
  if (ang > 1e-4) { const turn=Math.min(ang,maxA);let axis=C.cross(s.h,want);if(len(axis)<1e-8)axis=C.cross(s.h,Math.abs(s.h[1])<.9?[0,1,0]:[1,0,0]);axis=norm(axis);s.h=norm(add(scale(s.h,Math.cos(turn)),C.cross(axis,s.h),Math.sin(turn))); }
- const dv=sub(scale(s.h,v),before),n=len(dv),step=Math.min(n,motion.acc*dt),p0=s.pos;s.vel=add(before,scale(dv,step/Math.max(1e-9,n)));s.pos=add(s.pos,s.vel,dt);if(HULLS)hullContact(s,p0);
+ const required=C.propulsionTargetAcceleration(s.drive||profile,before,scale(s.h,v),dt),need=len(required),applied=scale(required,Math.min(1,motion.acc/Math.max(1e-12,need))),advance=C.integratePropulsionMotion(s.drive||profile,before,applied,dt),p0=s.pos;s.vel=advance.velocity;s.pos=add(s.pos,advance.displacement);if(HULLS)hullContact(s,p0);
 }
 // ---------- craft and hulls (v23) ----------
 // Craft fly round the ships of their system (the battle's, or HULLS set for the system they are in): they look ahead
@@ -99674,7 +99715,7 @@ function craftIdle(w, dt) {
 }
 // Disabled ships keep falling out of battle too.
 function driftTick(w, dt) {
- for (const u of w.units.values()) { if (!alive(u) || !u.out || u.sys == null || u.towedBy || w.battles.has(u.sys)) continue; if (C.hullFall(u, dt, w.rand)) lostToGravity(w, u.sys, u); }
+ for (const u of w.units.values()) { if (!alive(u) || !u.out || u.sys == null || u.towedBy || w.battles.has(u.sys)||u._fallTime===w.time) continue;u._fallTime=w.time;if (C.hullFall(u, dt, w.rand)) lostToGravity(w, u.sys, u); }
 }
 function applyDamage(w, sys, u, o, dt, s, ctx) {
  // Damage dealt outside the battle model (the bolts of a piloted ship) arrives here.

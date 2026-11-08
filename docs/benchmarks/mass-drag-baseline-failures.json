@@ -1,0 +1,88 @@
+{
+  "baseline": "d5dedb7de6b2fdc63bb28f3c41b86f3ab691b697",
+  "earlierBaseline": "48cfbede2a5b333961601c57a18549ccf77fee8b",
+  "existingFailures": 12,
+  "groups": [
+    {
+      "cases": 7,
+      "evidence": "mass-drag-power-baseline-comparison.md"
+    },
+    {
+      "cases": 4,
+      "evidence": "mass-drag-foils-baseline-comparison.json"
+    },
+    {
+      "cases": 1,
+      "evidence": "mass-drag-ion-baseline-comparison.json"
+    }
+  ],
+  "logs": [
+    {
+      "name": "mass-motion-three-baseline.tap",
+      "sha256": "048eb874e75c48203f3c64176cd36971637c9aaafbd48193327e6bd2e13eb434",
+      "summary": [
+        "# tests 27",
+        "# pass 20",
+        "# fail 7",
+        "# skipped 0"
+      ],
+      "failures": [
+        "not ok 2 - a real architecture-two engine and paid feed retain planning limits while actual watts, force and heat follow the allocation",
+        "not ok 11 - integrated nozzle edits retain body dimensions and rating while keeping the body attached",
+        "not ok 20 - fleet charging respects each isolated source and a 100 TT/s shared engine/cooling trunk",
+        "not ok 21 - fleet charging respects each isolated source and a 90 TT/s shared engine/cooling trunk",
+        "not ok 22 - direct surface charging uses the same per-module grants and does not borrow unused charge",
+        "not ok 24 - repeated charging cannot spend one allocated module input a second time",
+        "not ok 25 - accepted surface charge heats only its actual funding reactors, including cooling consumption"
+      ]
+    },
+    {
+      "name": "mass-motion-three-latest-main-targeted.tap",
+      "sha256": "b59c626f9c451d0b968c7b5bcc3471445c1c83219addd855224ab303b2b88272",
+      "summary": [
+        "# tests 7",
+        "# pass 0",
+        "# fail 7",
+        "# skipped 0"
+      ],
+      "failures": [
+        "not ok 1 - a real architecture-two engine and paid feed retain planning limits while actual watts, force and heat follow the allocation",
+        "not ok 2 - integrated nozzle edits retain body dimensions and rating while keeping the body attached",
+        "not ok 3 - fleet charging respects each isolated source and a 100 TT/s shared engine/cooling trunk",
+        "not ok 4 - fleet charging respects each isolated source and a 90 TT/s shared engine/cooling trunk",
+        "not ok 5 - direct surface charging uses the same per-module grants and does not borrow unused charge",
+        "not ok 6 - repeated charging cannot spend one allocated module input a second time",
+        "not ok 7 - accepted surface charge heats only its actual funding reactors, including cooling consumption"
+      ]
+    },
+    {
+      "name": "mass-drag-foils-latest-baseline.tap",
+      "sha256": "3cc1a239dac77f70c5456dccede3bc837f9af5cc1b1c3380e75f99884871ef31",
+      "summary": [
+        "# tests 13",
+        "# pass 9",
+        "# fail 4",
+        "# skipped 0"
+      ],
+      "failures": [
+        "not ok 1 - duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins",
+        "not ok 2 - copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates",
+        "not ok 3 - copying a foil without any carried children drops source references and keeps automatic roots automatic",
+        "not ok 7 - the new internal rails stay inside their engine and mirror with it throughout S-foil travel"
+      ]
+    },
+    {
+      "name": "surface-energy-review-base-d5dedb7.tap",
+      "sha256": "41bfbb0c6d12f40129ea329376dc51aeda719f18d06c47f1bc4af63797629471",
+      "summary": [
+        "# tests 10",
+        "# pass 9",
+        "# fail 1",
+        "# skipped 0"
+      ],
+      "failures": [
+        "not ok 5 - a hit on an electrically disconnected gun does not inject overload into its nominal main grid"
+      ]
+    }
+  ]
+}

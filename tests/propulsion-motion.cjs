@@ -10,6 +10,9 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
 }
 const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
 const plain = value => JSON.parse(JSON.stringify(value));
+const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} != ${b}`);
+const nearVector=(a,b)=>b.forEach((v,i)=>near(a[i],v));
+function analyticMotion(u,v,a,dt){const k=u.p.propulsion.massKg*Math.LN2/(1e11*60),x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
 function profile() {
   const engine = {id: 2, machineryId: 2, ratedInputW: 1e18,
     wattsPerNewton: 2e9, ratedThrustN: 5e8, driveProfileId: 'standard',
@@ -54,8 +57,7 @@ test('fleet movement receives this tick\'s allocation and never rotates drifting
   u.p.grid.P = 0;u.p.grid.Pgen = 0;
   const b = C.fleetBattle([u], false);
   C.fleetTick(b, .25, {collide: false});
-  assert.deepEqual(plain(u.velocity), [40, 2, 3]);
-  assert.deepEqual(plain(u.pos), [10, .5, .75]);
+  const expected=analyticMotion(u,[40,2,3],[0,0,0],.25);nearVector(u.velocity,expected.v);nearVector(u.pos,expected.dp);
   assert.equal(u.yaw, .2);
   assert.equal(u.engF, 0);
 });
@@ -64,7 +66,7 @@ test('fleet acceleration is bounded by supplied force rather than legacy p.accel
   const u = unit();u.order = {...u.order, type: 'move', point: [10000, 0, 0]};
   const b = C.fleetBattle([u], false);
   C.fleetTick(b, .25, {collide: false});
-  assert.ok(Math.abs(u.velocity[0] - .25) < 1e-10);
+  near(u.velocity[0],analyticMotion(u,[0,0,0],[1,0,0],.25).v[0]);
   assert.equal(u.propulsion.actualInputW, 1e18);
   assert.equal(u.propulsion.actualAccelMps2, 500);
 });
@@ -75,13 +77,12 @@ test('peaceful movement shares current power and preserves a blackout\'s velocit
   const w = {time: 10, units: new Map([[u.id, u]]), groups: new Map(),
     ctgs: new Map(), battles: new Map(), sides: [], sensors: false};
   R.peaceTick(w, 0, .25);
-  assert.equal(u.velocity[0], .25);
+  near(u.velocity[0],analyticMotion(u,[0,0,0],[1,0,0],.25).v[0]);
   assert.equal(u.propulsion.actualInputW, 1e18);
   u.p.grid.P = 0;u.p.grid.Pgen = 0;u.velocity = [40, 2, 3];
   const position = u.pos.slice(), heading = u.yaw;w.time += .25;
   R.peaceTick(w, 0, .25);
-  assert.deepEqual(plain(u.velocity), [40, 2, 3]);
-  assert.deepEqual(plain(u.pos), plain(position.map((v, i) => v + [40, 2, 3][i] * .25)));
+  const expected=analyticMotion(u,[40,2,3],[0,0,0],.25);nearVector(u.velocity,expected.v);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));
   assert.equal(u.yaw, heading);
   assert.equal(u.propulsion.actualInputW, 0);
 });
@@ -102,17 +103,17 @@ test('zero aircraft throttle preserves drift and powered steering stays within a
   const s = {id: 'powered', craft: 'motionPowered', side: 0,
     h: [1, 0, 0], pos: [0, 0, 0], vel: [40, 2, 3], throttle: 0};
   R.steer(s, [0, 0, 1000], 1000, .25);
-  assert.deepEqual(plain(s.vel), [40, 2, 3]);
+  nearVector(s.vel,analyticMotion(s.drive,[40,2,3],[0,0,0],.25).v);
   assert.deepEqual(plain(s.h), [1, 0, 0]);
   assert.equal(s.propulsion.actualInputW, 0);
   s.throttle = 1;const before = s.vel.slice();
   R.steer(s, [0, 0, 1000], 1000, .25);
-  const dv = Math.hypot(...s.vel.map((v, i) => v - before[i]));
-  assert.ok(dv > 0 && dv <= .25 + 1e-10);
+  const coast=analyticMotion(s.drive,before,[0,0,0],.25),dv=Math.hypot(...s.vel.map((v,i)=>v-coast.v[i]));
+  assert.ok(dv > 0 && dv <= coast.gain + 1e-10,'only the funded change beyond passive decay uses the engine budget');
   assert.equal(s.propulsion.actualInputW, 1e18);
   s.drive.mods[1] = 0;const drift = s.vel.slice(), heading = s.h.slice();
   R.steer(s, s.pos.slice(), 1000, .25);
-  assert.deepEqual(plain(s.vel), plain(drift), 'destroying the drive cannot grant free braking at the goal');
+  nearVector(s.vel,analyticMotion(s.drive,drift,[0,0,0],.25).v);
   assert.deepEqual(plain(s.h), plain(heading));
   assert.equal(s.propulsion.actualInputW, 0);
 });
@@ -198,13 +199,12 @@ test('stationary turning keeps requesting engine power until the heading is reac
   yaw=r.yaw;for(let i=0;i<4;i++){R.peaceTick(w,0,.25);assert.ok(r.yaw<yaw);yaw=r.yaw;w.time+=.25;}
 });
 
-test('a disabled peaceful unit keeps integrating its inertial position', () => {
+test('a disabled peaceful unit integrates mass resistance and planetary gravity once', () => {
   const u=unit();u.sys=0;u.side=0;u.info={mass:1000};u.out='電源喪失';
   u.velocity=[.001,0,.002];u.yaw=.7;u.mods[0]=0;
-  const w={time:10,units:new Map([[u.id,u]]),groups:new Map(),ctgs:new Map(),battles:new Map(),sides:[],sensors:false};
+  const w={time:10,rand:()=>.5,units:new Map([[u.id,u]]),groups:new Map(),ctgs:new Map(),battles:new Map(),sides:[],sensors:false};
   for(let i=0;i<4;i++){R.peaceTick(w,0,.25);w.time+=.25;}
-  assert.deepEqual(plain(u.pos),[.001,0,.002]);
-  assert.deepEqual(plain(u.velocity),[.001,0,.002]);assert.equal(u.yaw,.7);
+  const expected=analyticMotion(u,[.001,0,.002],[0,-C.HULL_FALL.g,0],1);nearVector(u.pos,expected.dp);nearVector(u.velocity,expected.v);assert.equal(u.yaw,.7);
 });
 
 test('the real peaceful registry preserves slow drift after its original start time', () => {
@@ -216,9 +216,8 @@ test('the real peaceful registry preserves slow drift after its original start t
   const position=u.pos.slice();w.time=2000;w.stir=new Map([[u.sys,{t0:0,still:0}]]);
   for(let i=0;i<40;i++)R.tick(w,.25);
   assert.ok(w.stir.has(u.sys),'slow inertial flight stays registered');
-  assert.ok(Math.abs(u.pos[0]-position[0]-.01)<1e-8);
-  assert.ok(Math.abs(u.pos[2]-position[2]-.02)<1e-8);
-  assert.deepEqual(plain(u.velocity),[.001,0,.002]);
+  const expected=analyticMotion(u,[.001,0,.002],[0,0,0],10);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));nearVector(u.velocity,expected.v);
+  nearVector(u.velocity,expected.v);
 });
 
 test('saved power profiles cannot exceed their machinery density limit', () => {

@@ -10451,4 +10451,17 @@ Object.assign(root.KS_EN.terms,{
 Object.assign(root.KS_EN.messages,{
  "この種類をすべて削除します。Undoで元に戻せます。":"Delete all parts of this type. Undo restores them."
 });
+Object.assign(root.KS_EN.terms,{
+ "後進 25%": "Reverse 25%",
+ "出力0%": "0% Output",
+ "スロットル": "Throttle",
+ "出力を上げる": "Increase Engine Output",
+ "出力を下げる": "Decrease Engine Output",
+ "上部の「公試」でコルサント低軌道を操艦する。左下の▲▼でスロットル（後進25%〜出力100%）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。砲は充電装置に蓄えた「兵装エネルギー」で撃ち、1斉射ごとに減る。反応炉がシールド維持・推進の残りで再充電するので、推進出力を下げるほど兵装へ回せる電力が増える。重い艦ほど質量に比例する抵抗で減速するため、速度維持にも推進電力が要る。噴射は実際の推進出力に従う。右上の「⚡」で出力配分（巡航・均衡・兵装優先・防御優先・全力）を選ぶ。兵装優先は推進を削って充電に回し、炉を上げるほど「炉心」負荷が高まる。キーボードは W/S スロットル、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、P 出力配分、Z 水平復帰、X 舵中央、V 視点": "Start a Trial using Flight Trial in the top bar to pilot in low Coruscant orbit. ▲▼ controls engine output from 25% reverse to full output; ◀▶ controls the rudder, retaining its order. The right stick controls pitch and roll, returning to neutral when released. Fire uses the guns; Missiles fires eight rounds per launcher and reloads in 20 seconds. Turrets track the center reticle, with larger turrets turning more slowly. Hulls, structures, and other turrets block shots. Aim at a target to lock it: turbolasers and ion guns lead toward ◇ while missiles home. Salvos consume stored weapon energy. Reactors recharge it after supplying shields and propulsion, so lowering engine output leaves more charging power. Heavy ships face resistance proportional to mass, so maintaining speed needs propulsion power. Exhaust follows actual supplied engine output. Use ⚡ to allocate power: cruise, balanced, weapons, shields, or overload. More reactor output increases core load. Keys: W/S throttle, A/D rudder, R/F pitch, Q/E roll, Space guns, M missiles, P power, Z level, X center rudder, V camera."
+});
+Object.assign(root.KS_EN.messages,{
+ "熱停止中：冷却・復旧を待っています": "Thermal shutdown: waiting for cooling and restoration",
+ "推進出力が得られません。機関と出力配分を確認してください。": "No propulsion output. Check the engines and power allocation.",
+ "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル{0} · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles{0} · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom"
+});
 })(typeof window==="undefined"?globalThis:window);

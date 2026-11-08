@@ -1,0 +1,252 @@
+{
+  "status": "MATCHING_LATEST_MAIN_BASELINE_FAILURES",
+  "latestMain": "d5dedb7de6b2fdc63bb28f3c41b86f3ab691b697",
+  "previousBaseline": "48cfbede2a5b333961601c57a18549ccf77fee8b",
+  "date": "2026-11-08",
+  "scope": "Read-only replay of the two unchanged foil test files on a git archive of latest main; all 13 outcomes and the complete four failure errors match the previous baseline and captured feature-run snapshot exactly. Live worktree source may change during independent hatch integration; snapshot source hashes are retained in previous comparison report.",
+  "baselineCommand": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-concurrency=1",
+    "tests/runtime-foils-copy.cjs",
+    "tests/runtime-foils-core.cjs"
+  ],
+  "baselineCwd": "/workspace/scratch/mass-drag-foils-base-d5dedb7",
+  "baselineExitCode": 1,
+  "baselineLog": "/workspace/scratch/mass-drag-foils-latest-baseline.tap",
+  "baselineLogSha256": "3cc1a239dac77f70c5456dccede3bc837f9af5cc1b1c3380e75f99884871ef31",
+  "comparisonToFeatureRunLogSha256": "c2c1430ce13c2eb57ce5927fc1e46ec5cbb6a2397ae5c3dd4df6e20df3aaa904",
+  "previousComparisonReport": "/workspace/scratch/mass-drag-foils-baseline-comparison.json",
+  "previousComparisonReportSha256": "3bbea0d7a1a55f49ee604294c0e5206ade3cc001596ff89f3c6e2dee947479d0",
+  "baselineSummary": {
+    "tests": 13,
+    "pass": 9,
+    "fail": 4
+  },
+  "allCaseOutcomesMatch": true,
+  "failures": [
+    {
+      "name": "duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   10,\n-   30,\n    5,\n    8\n  ]"
+      },
+      "previousBaseline": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   10,\n-   30,\n    5,\n    8\n  ]"
+      },
+      "currentSnapshot": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   10,\n-   30,\n    5,\n    8\n  ]"
+      },
+      "exactStatusAndErrorMatch": true
+    },
+    {
+      "name": "copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "'designEntityEditable is not defined'"
+      },
+      "previousBaseline": {
+        "status": "FAIL",
+        "error": "'designEntityEditable is not defined'"
+      },
+      "currentSnapshot": {
+        "status": "FAIL",
+        "error": "'designEntityEditable is not defined'"
+      },
+      "exactStatusAndErrorMatch": true
+    },
+    {
+      "name": "copying a foil without any carried children drops source references and keeps automatic roots automatic",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly equal:\n\ntrue !== false"
+      },
+      "previousBaseline": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly equal:\n\ntrue !== false"
+      },
+      "currentSnapshot": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly equal:\n\ntrue !== false"
+      },
+      "exactStatusAndErrorMatch": true
+    },
+    {
+      "name": "the new internal rails stay inside their engine and mirror with it throughout S-foil travel",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "'rigid rail centre[1]: 2.692585229874521 != 2.692585332884771'"
+      },
+      "previousBaseline": {
+        "status": "FAIL",
+        "error": "'rigid rail centre[1]: 2.692585229874521 != 2.692585332884771'"
+      },
+      "currentSnapshot": {
+        "status": "FAIL",
+        "error": "'rigid rail centre[1]: 2.692585229874521 != 2.692585332884771'"
+      },
+      "exactStatusAndErrorMatch": true
+    }
+  ],
+  "baselineFiles": [
+    {
+      "path": "data/reference.js",
+      "latestBaselineSha256": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "matchesGitLatestMain": true
+    },
+    {
+      "path": "data/imperial2.js",
+      "latestBaselineSha256": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+      "matchesGitLatestMain": true
+    },
+    {
+      "path": "data/fleet.js",
+      "latestBaselineSha256": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+      "matchesGitLatestMain": true
+    },
+    {
+      "path": "js/core.js",
+      "latestBaselineSha256": "295b6109f9df962ab336fc26cd742c094b55f56667b045decd8dca4ed7605cd3",
+      "matchesGitLatestMain": true
+    },
+    {
+      "path": "js/app.js",
+      "latestBaselineSha256": "3ba9c60bb2185f760de561b1723ccf7b5ca452b89cdab82b98fa8c0afa1146d2",
+      "matchesGitLatestMain": true
+    },
+    {
+      "path": "tests/runtime-foils-copy.cjs",
+      "latestBaselineSha256": "0d9c434808d28524efcc6942c550c78005168f77a59a57b954811c3b6d0992c8",
+      "matchesGitLatestMain": true,
+      "currentTestUnchangedFromLatestMain": true
+    },
+    {
+      "path": "tests/runtime-foils-core.cjs",
+      "latestBaselineSha256": "730ea7235f521935c6b4097ed4a06f0e5959b1988166f35451f91d0f8d86164e",
+      "matchesGitLatestMain": true,
+      "currentTestUnchangedFromLatestMain": true
+    }
+  ],
+  "allCaseOutcomes": [
+    {
+      "name": "duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   10,\n-   30,\n    5,\n    8\n  ]"
+      },
+      "previousBaselineStatus": "FAIL",
+      "matchingOutcome": true
+    },
+    {
+      "name": "copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "'designEntityEditable is not defined'"
+      },
+      "previousBaselineStatus": "FAIL",
+      "matchingOutcome": true
+    },
+    {
+      "name": "copying a foil without any carried children drops source references and keeps automatic roots automatic",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "|-\nExpected values to be strictly equal:\n\ntrue !== false"
+      },
+      "previousBaselineStatus": "FAIL",
+      "matchingOutcome": true
+    },
+    {
+      "name": "legacy multi-move shifts each explicit hinge once with the part and mirrors displacement for symmetric pairs",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "stock X-wing has four independent S-foil assemblies with all carried structures, engines and lasers",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "X-wing stowing reverses the authored 13-degree deployment and preserves the saved model",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "the new internal rails stay inside their engine and mirror with it throughout S-foil travel",
+      "latestBaseline": {
+        "status": "FAIL",
+        "error": "'rigid rail centre[1]: 2.692585229874521 != 2.692585332884771'"
+      },
+      "previousBaselineStatus": "FAIL",
+      "matchingOutcome": true
+    },
+    {
+      "name": "membership normalization rejects malformed IDs, deduplicates, copies arrays and bounds lists",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "explicit carrying extends inference without self, other roots, missing IDs or cross-foil duplicates",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "horizontal and vertical mirrors remap explicit source IDs to their mirrored partners",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "duplicating only a root does not retain links to the original assembly",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "assembly capture and mirrored placement remap pivot coordinates and carried IDs into each new instance",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    },
+    {
+      "name": "stock X-wing runtime profile exposes four actuators that deploy and stow over one second",
+      "latestBaseline": {
+        "status": "PASS",
+        "error": null
+      },
+      "previousBaselineStatus": "PASS",
+      "matchingOutcome": true
+    }
+  ]
+}

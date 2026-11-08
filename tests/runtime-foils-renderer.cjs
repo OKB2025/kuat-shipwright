@@ -68,10 +68,10 @@ test('geometry partitions wing, carried structures and fittings without duplicat
   const stationary = geometry.meshes.struct.geo;
   for (let i = 2; i < stationary.n*3; i += 3) assert.ok(stationary.pos[i] <= 5, 'the deployed wing is absent from the static mesh');
   assert.equal(geometry.meshes.fits.geo.ni, 0);
-  const trial = G.fleetGeometry(fixture(), {trial: true});
-  assert.equal(trial.turrets.find(t => t.id === 6).foilId, 1);
+  const trial = G.fleetGeometry(fixture(), {trial: true}), turret=trial.turrets.find(t => t.id === 6);
+  assert.equal(turret.foilId, 1);
   assert.equal(trial.launchers.find(l => l.id === 7).foilId, 1);
-  assert.ok(trial.meshes.tur_6.geo.ni > 0, 'turning turret is separate from its moving pedestal');
+  assert.ok(turret.mesh&&trial.meshes[turret.mesh].geo.ni > 0, 'the actual turning turret is separate from its moving pedestal');
 });
 
 function canvas() {
@@ -102,7 +102,7 @@ test('WebGL draws each ship at its current fraction, restores state and moves wi
   foil.glow = [53, 17, 23, 1];
   const {r, calls, points, asset} = gpu(geometry), originalMeshes = r.meshes, originalOff = r.off;
   const rotation = [0, 1, 0, -1, 0, 0, 0, 0, 1];
-  const unit = {key: 'test', pos: [10, 20, 30], rot: rotation, foils: {1: .5}, glow: 0};
+  const unit = {key: 'test', pos: [10, 20, 30], rot: rotation, foils: {1: .5}, glow: 1};
   r.drawFleet({VP, eye: r.eye()}, {fleet: [unit]});
   const moving = calls.find(c => c.name === 'foil_1_struct'), vertex = [54, 15, 22], T = G.foilTransform(foil, .5);
   near(placed(moving, vertex), C.add(unit.pos, apply(rotation, C.sub(T.point(vertex), asset.center))));
