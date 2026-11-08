@@ -19,6 +19,61 @@ const queue = [];
 let running = false;
 let inlineHost = false;
 let wakeStats = null;
+// Placement previews are independent transactions. They never replace the
+// worker's current design, and their results are valid only for the operation
+// and source generation that requested them.
+let placementSequence = 0;
+const placementOperations = new Map(), placementDesignGenerations = new Map();
+const placementOperationKey = job => JSON.stringify([job.designId, job.operationId]);
+function placementGeneration(job) {
+  if (job.designId == null || !Number.isSafeInteger(job.gen) || job.gen < 0) return;
+  const prior = placementDesignGenerations.get(job.designId);
+  if (prior == null || job.gen > prior) placementDesignGenerations.set(job.designId, job.gen);
+  while (placementDesignGenerations.size > 128) placementDesignGenerations.delete(placementDesignGenerations.keys().next().value);
+}
+function placementCurrent(job) {
+  const operation = placementOperations.get(placementOperationKey(job));
+  return operation && !operation.cancelled && operation.sequence === job.placementSequence &&
+    placementDesignGenerations.get(job.designId) === job.gen;
+}
+function placementEffectiveGeometry(part) {
+  const fields = {
+    placement: ['local', 'volume', 'area'],
+    clip: ['tris', 'volume', 'area', 'bounds', 'requestedVolume', 'retained', 'explicitPlacement'],
+    packing: ['tris', 'volume', 'area', 'boxes', 'bounds', 'requestedVolume', 'retained', 'cell', 'limited', 'searchLimited']
+  }, out = {};
+  for (const [kind, keys] of Object.entries(fields)) {
+    const cache = part?.[kind === 'placement' ? '_placementGeometry' : '_' + kind];
+    if (cache) out[kind] = Object.fromEntries(keys.filter(key => cache[key] !== undefined).map(key => [key, cache[key]]));
+  }
+  return out;
+}
+function placementReply(job, result, extra = {}) {
+  const r = job.request || {};
+  // Solver meshes are public authoring geometry; private caches can point at
+  // the complete temporary ship. Do not send those graphs back with a ghost.
+  const publicResult = result == null ? null : JSON.parse(JSON.stringify(result, (key, value) => key[0] === '_' ? undefined : value));
+  if (result?.ok) {
+    publicResult.effectiveGeometry = placementEffectiveGeometry(result.part);
+    if (result.results) publicResult.results.forEach((row, i) => { row.effectiveGeometry = placementEffectiveGeometry(result.results[i].part); });
+  }
+  post({type: 'placement', id: job.id, gen: job.gen, designId: job.designId, operationId: job.operationId,
+    partId: r.partId ?? r.part?.id, fitId: r.fitId ?? r.fit?.id,
+    entityKind: r.entityKind ?? (r.list === 'fits' || r.fit || r.part?._fit ? 'fit' : 'part'),
+    list: r.list ?? (r.fit || r.part?._fit ? 'fits' : 'parts'), parentStructureId: r.parentStructureId, hostId: r.hostId,
+    geometryRevision: r.geometryRevision, parentGeometryRevision: r.parentGeometryRevision,
+    placementModelVersion: r.placementModelVersion, result: publicResult, ...extra});
+}
+function cancelPlacement(job) {
+  const key = placementOperationKey(job), operation = placementOperations.get(key);
+  if (operation) operation.cancelled = true;
+  for (let i = queue.length - 1; i >= 0; i--) {
+    const queued = queue[i];
+    if (queued.type === 'placement' && placementOperationKey(queued) === key) {
+      queue.splice(i, 1); placementReply(queued, null, {cancelled: true, stale: true});
+    }
+  }
+}
 function waitForStats(ms) {
   return new Promise(resolve => {
     const done = () => { clearTimeout(timer); if (wakeStats === done) wakeStats = null; resolve(); };
@@ -245,6 +300,9 @@ async function yieldGeometry() {
 async function handleUpdate(job) {
   const t0 = now();
   applyState(job);
+  // Fitted source/parent revisions are resolved before authoring meshes and
+  // exact picking caches are published, including the early geometry packet.
+  if (typeof C.refreshPlacementGeometry === 'function') C.refreshPlacementGeometry(ship);
   if (job.view) view = job.view;
   if (authoringGeometry(job)) {
     await yieldGeometry();
@@ -396,6 +454,71 @@ function handlePropulsionPreview(job){
  const valid=ship&&lastStats&&job.gen===shipGen&&job.gen===lastStats.gen&&['cruise','combat','max'].includes(job.preset);
  const preview=valid?(lastStats.S.propulsion?.preset===job.preset?lastStats.S.propulsion:C.propulsionPreview(ship,lastStats.S,job.preset)):null;
  post({type:'propulsionPreview',id:job.id,gen:job.gen,preset:job.preset,preview});
+}
+
+// Solve against a copy of the authored design. In particular, a preview must
+// not call applyState: doing so could resurrect a deleted parent or overwrite
+// the worker's newer statistics and geometry while a ghost is being moved.
+async function handlePlacement(job) {
+  if (!placementCurrent(job)) { placementReply(job, null, {stale: true}); return; }
+  if (typeof C.solvePlacement !== 'function') throw new Error('Placement solver unavailable');
+  const candidate = typeof job.state === 'string' ? JSON.parse(job.state) : JSON.parse(JSON.stringify(job.state));
+  if (!candidate || !Array.isArray(candidate.parts)) throw new Error('Invalid placement source design');
+  if (typeof C.refreshPlacementGeometry === 'function') C.refreshPlacementGeometry(candidate);
+  candidate.fits ||= [];
+  const root = job.request || {}, rows = Array.isArray(root.parts) ? root.parts : [{part: root.part, fit: root.fit, request: root}];
+  if (!rows.length || rows.length > C.DESIGN_LIMITS.parts + (C.DESIGN_LIMITS.fits || 0)) throw new Error('Invalid placement candidate count');
+  const solved = [], authoredIds = {parts: new Set(candidate.parts.map(p => p.id)), fits: new Set(candidate.fits.map(p => p.id))}, batchIds = new Map();
+  if (Array.isArray(root.parts)) candidate.nextId = Math.max(candidate.nextId || 1, 1, ...candidate.parts.concat(candidate.fits).map(p => Number.isSafeInteger(p.id) ? p.id + 1 : 1));
+  let result = null;
+  for (const row of rows) {
+    if (!placementCurrent(job)) { placementReply(job, null, {stale: true}); return; }
+    let request = row.request || root;
+    const list = row.list || request.list || (row.fit || request.fit || row.entityKind === 'fit' || request.entityKind === 'fit' || row.part?._fit || request.part?._fit ? 'fits' : 'parts');
+    if (list !== 'parts' && list !== 'fits') { result = {ok: false, code: 'placement-list-mismatch'}; break; }
+    let part = row.fit || row.part || request.fit || request.part || candidate[list].find(p => p.id === (request.fitId ?? request.partId));
+    if (!part) throw new Error('Placement part missing');
+    if (request.partId != null && request.partId !== part.id) { result = {ok: false, code: 'part-identity-mismatch'}; break; }
+    if (request.fitId != null && request.fitId !== part.id) { result = {ok: false, code: 'fit-identity-mismatch'}; break; }
+    if (list === 'fits') request = {...request, entityKind: 'fit', list: 'fits'};
+    if (Array.isArray(root.parts) && !authoredIds[list].has(part.id)) {
+      // Palette symmetry candidates share a negative ghost ID. Reserve real
+      // IDs only in this temporary transaction, so no later candidate can be
+      // mistaken for an edit of the first ghost. Acceptance uses the same
+      // source nextId and dependency order after the generation is checked.
+      const oldId = part.id, id = candidate.nextId++;
+      part = {...part, id}; request = {...request, ...(list === 'fits' ? {fitId: id} : {partId: id})};
+      if (request.partId != null) request.partId = id;
+      if (list === 'parts' && Number.isSafeInteger(oldId) && oldId > 0) batchIds.set(oldId, id);
+    }
+    if (batchIds.has(request.parentStructureId)) request = {...request, parentStructureId: batchIds.get(request.parentStructureId)};
+    if (batchIds.has(request.hostId)) request = {...request, hostId: batchIds.get(request.hostId)};
+    if (request.placementModelVersion != null && request.placementModelVersion !== C.PLACEMENT_MODEL_VERSION) {
+      result = {ok: false, code: 'placement-model-mismatch'}; break;
+    }
+    const parentId = request.parentStructureId ?? (list === 'fits' ? request.hostId ?? part.host : undefined);
+    if (parentId != null && parentId !== 'hull' && request.parentGeometryRevision != null) {
+      const parent = candidate.parts.find(p => p.id === parentId);
+      if (!parent || (parent.placement?.geometryRevision ?? parent.geometryRevision ?? 0) !== request.parentGeometryRevision) {
+        result = {ok: false, code: parent ? 'parent-updated' : 'parent-missing'}; break;
+      }
+    }
+    result = list === 'fits' && typeof C.solveFitPlacement === 'function' ? C.solveFitPlacement(candidate, part, request) : C.solvePlacement(candidate, part, request);
+    if (!result?.ok) break;
+    const entity = list === 'fits' ? result.fit : result.part;
+    if (!entity || result.list != null && result.list !== list) { result = {ok: false, code: 'placement-result-kind-mismatch'}; break; }
+    solved.push(result);
+    // Later candidates can attach to an earlier, successfully solved parent.
+    // Only this throwaway design changes; batch failure commits no members.
+    const index = candidate[list].findIndex(p => p.id === entity.id);
+    if (index < 0) candidate[list].push(entity); else candidate[list][index] = entity;
+    if (Number.isSafeInteger(entity.id)) candidate.nextId = Math.max(candidate.nextId || 1, entity.id + 1);
+    await yieldGeometry();
+  }
+  const current = placementCurrent(job);
+  if (!current) { placementReply(job, null, {stale: true, cancelled: !!placementOperations.get(placementOperationKey(job))?.cancelled}); return; }
+  if (Array.isArray(root.parts) && result?.ok) result = {...result, parts: solved.filter(r => r.part).map(r => r.part), fits: solved.filter(r => r.fit).map(r => r.fit), results: solved};
+  placementReply(job, result);
 }
 
 async function loadExample(key){
@@ -583,6 +706,7 @@ async function pump() {
         else if (job.type === 'fleet') await handleFleet(job);
         else if (job.type === 'craftPrice') handleCraftPrice(job);
         else if (job.type === 'propulsionPreview') handlePropulsionPreview(job);
+        else if (job.type === 'placement') await handlePlacement(job);
         else if (job.type === 'trialRays') handleTrialRays(job);
         else if (job.type === 'trialEnd') trialHold = null;
         else if (job.type === 'op') handleOp(job);
@@ -595,6 +719,24 @@ async function pump() {
 }
 function receive(msg) {
   if (!msg || !msg.type) return;
+  if (msg.type === 'cancelPlacement') { cancelPlacement(msg); return; }
+  if (msg.type === 'update' || msg.type === 'placement') placementGeneration(msg);
+  if (msg.type === 'placement') {
+    if (msg.designId == null || msg.operationId == null || !Number.isSafeInteger(msg.gen) || msg.gen < 0) {
+      placementReply(msg, {ok: false, code: 'invalid-placement-generation'}); return;
+    }
+    const key = placementOperationKey(msg), previous = placementOperations.get(key);
+    if (previous && previous.gen > msg.gen) { placementReply(msg, null, {stale: true}); return; }
+    msg.placementSequence = ++placementSequence;
+    placementOperations.delete(key);
+    placementOperations.set(key, {sequence: msg.placementSequence, gen: msg.gen, cancelled: false});
+    while (placementOperations.size > 256) placementOperations.delete(placementOperations.keys().next().value);
+    // Superseded previews need no exact geometry job, but their callers must
+    // still settle so cancellation cannot leave a pending Promise forever.
+    for (let i = queue.length - 1; i >= 0; i--) if (queue[i].type === 'placement' && placementOperationKey(queue[i]) === key) {
+      const old = queue.splice(i, 1)[0]; placementReply(old, null, {stale: true});
+    }
+  }
   if (msg.type === 'update') {
     // Only the newest design matters; merge the dirty flags of skipped edits.
     const old = queue.find(j => j.type === 'update');

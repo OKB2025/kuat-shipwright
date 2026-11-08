@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "status": "ERROR",
+  "scope": "Authenticated 8 km Mandator layout, retained exterior weapon-fitting path (new UI Details when present). Native palette and canvas request three mirrored 720 TT pairs. New UI candidates require actual Worker validation and native confirmation; the baseline commits taps immediately. Real camera gestures run while calculations remain pending. These are different interaction contracts, not a controlled speed comparison. No runtime, worker or render substitution, artificial delay, CPU throttle or diagnostic pause.",
+  "mode": "hull",
+  "input": {
+    "archive": "assets/source/ship-example-blueprints/mandator2.json.gz",
+    "unpackedSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "manifestFileSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "manifestFactorySourceSha256": {
+      "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "js/core.js": "7bc4167cae112ae764acb7cfa700e9d720a7e86f891e8fd558f2b9b1559f132e"
+    },
+    "authenticated": true,
+    "parts": 318,
+    "originalFits": 535,
+    "fitsInitially": 0,
+    "removedFitIds": "allauthoredfits"
+  },
+  "harness": {
+    "path": "scripts/browser-responsive-placement.cjs",
+    "sha256": "80f873cb7840c431749f0434d5e20c5437d7085ac492f4a9d5ac2f968b667ac8"
+  },
+  "sourceSha256": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/lang-en.js": "4788137eafdfc6ae5b041c0c75859a00ae240671abf5e2ce6b166cb010afe0af",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e"
+  },
+  "errors": [],
+  "consoleErrors": [
+    {
+      "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "location": {
+        "url": "http://127.0.0.1:8000/favicon.ico",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Access to XMLHttpRequest at 'https://cloudflareinsights.com/cdn-cgi/rum' from origin 'http://127.0.0.1:8000' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'http://127.0.0.1' that is not equal to the supplied origin.",
+      "location": {
+        "url": "http://127.0.0.1:8000/",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "location": {
+        "url": "http://127.0.0.1:8000/favicon.ico",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "networkFailures": [
+    {
+      "url": "https://cloudflareinsights.com/cdn-cgi/rum",
+      "error": "net::ERR_FAILED"
+    }
+  ],
+  "httpFailures": [],
+  "operations": [
+    {
+      "kind": "paired-placement",
+      "index": 0,
+      "witness": {
+        "id": 358,
+        "p": [
+          4821.600000000482,
+          452.51667531701514,
+          290.2000000024773
+        ]
+      },
+      "before": {
+        "t": 36468.200000000186,
+        "pixel": [
+          799.9999355518431,
+          529.499996015111
+        ],
+        "realAnimationFramesAfterPreset": 2,
+        "pickDiagnostic": null,
+        "proxyDiagnostic": {
+          "hasSurfaces": false,
+          "currentPartitions": "null"
+        },
+        "canvas": {
+          "width": 1600,
+          "height": 941,
+          "clientWidth": 1600,
+          "clientHeight": 941
+        },
+        "canvasTarget": true,
+        "target": "cv",
+        "gen": 1,
+        "adopted": 0,
+        "stats": 0,
+        "fits": 0,
+        "uploadCount": 172
+      },
+      "hoverRoundtripMs": 763,
+      "clickDispatchRoundtripMs": 15,
+      "pendingAfterTap": {
+        "t": 37252.09999999963,
+        "fits": 0,
+        "gen": 1,
+        "state": "failed",
+        "text": "追加元の構造物と取付位置をタップしてください設定に戻る取消",
+        "nativeBeforeHandler": {
+          "type": "pointerup",
+          "t": 37240.700000000186,
+          "eventTimeStamp": 37234.59999999963,
+          "estimatedInputQueueDelayMs": 6.1000000005587935,
+          "phase": "placement-0",
+          "placementState": "draft",
+          "button": 0,
+          "x": 799.9999389648438,
+          "y": 529.5,
+          "engine": {
+            "gen": 1,
+            "adopted": 0,
+            "stats": 0,
+            "sent": 1,
+            "waiting": true
+          }
+        }
+      },
+      "tapAndReadMs": 24,
+      "validationOrbit": {
+        "before": {
+          "t": 37258.299999999814,
+          "theta": -1.5707963267948966,
+          "phi": 0.0001,
+          "fits": 0,
+          "gen": 1,
+          "xy": [
+            800,
+            529.5
+          ],
+          "state": "failed"
+        },
+        "after": {
+          "t": 44713.799999999814,
+          "theta": -1.1207963267948966,
+          "phi": 0.0006,
+          "fits": 0,
+          "gen": 1,
+          "nativeBeforeHandler": {
+            "type": "pointerdown",
+            "t": 37731.5,
+            "eventTimeStamp": 37709.09999999963,
+            "estimatedInputQueueDelayMs": 22.40000000037253,
+            "phase": "validation-orbit-0",
+            "placementState": "failed",
+            "button": 0,
+            "x": 800,
+            "y": 529.5,
+            "engine": {
+              "gen": 1,
+              "adopted": 0,
+              "stats": 0,
+              "sent": 1,
+              "waiting": true
+            }
+          }
+        },
+        "changed": true,
+        "roundtripMs": 7455
+      },
+      "validationWaitIncludingCameraMs": 7465,
+      "validation": {
+        "state": "failed",
+        "text": "追加元の構造物と取付位置をタップしてください設定に戻る取消",
+        "fits": 0,
+        "gen": 1
+      }
+    }
+  ],
+  "httpCapture": {
+    "maxTotalBufferBytes": 134217728,
+    "maxResourceBufferBytes": 67108864,
+    "reason": "The authenticated reference source is 17.9 MB; preserve the actual browser-loaded response body beyond the inspector default cache size."
+  },
+  "environment": {
+    "viewport": {
+      "width": 1600,
+      "height": 1000,
+      "devicePixelRatio": 1
+    },
+    "canvas": {
+      "width": 300,
+      "height": 150,
+      "clientWidth": 960,
+      "clientHeight": 941
+    },
+    "heapScope": "Browser-exposed Chromium JavaScript heap estimate at two observation times, without forced collection. This does not measure peak, leak rate, total worker/process memory or GPU memory.",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "vendor": "Google Inc. (Google)",
+    "maskedRenderer": "WebKit WebGL",
+    "maskedVendor": "WebKit",
+    "debugRendererExtensionAvailable": true,
+    "supportedWebglExtensions": [
+      "ANGLE_instanced_arrays",
+      "EXT_blend_minmax",
+      "EXT_clip_control",
+      "EXT_color_buffer_half_float",
+      "EXT_depth_clamp",
+      "EXT_disjoint_timer_query",
+      "EXT_float_blend",
+      "EXT_frag_depth",
+      "EXT_polygon_offset_clamp",
+      "EXT_shader_texture_lod",
+      "EXT_texture_compression_bptc",
+      "EXT_texture_compression_rgtc",
+      "EXT_texture_filter_anisotropic",
+      "EXT_texture_mirror_clamp_to_edge",
+      "EXT_sRGB",
+      "OES_element_index_uint",
+      "OES_fbo_render_mipmap",
+      "OES_standard_derivatives",
+      "OES_texture_float",
+      "OES_texture_float_linear",
+      "OES_texture_half_float",
+      "OES_texture_half_float_linear",
+      "OES_vertex_array_object",
+      "WEBGL_color_buffer_float",
+      "WEBGL_compressed_texture_astc",
+      "WEBGL_compressed_texture_etc",
+      "WEBGL_compressed_texture_etc1",
+      "WEBGL_compressed_texture_s3tc",
+      "WEBGL_compressed_texture_s3tc_srgb",
+      "WEBGL_debug_renderer_info",
+      "WEBGL_debug_shaders",
+      "WEBGL_depth_texture",
+      "WEBGL_draw_buffers",
+      "WEBGL_lose_context",
+      "WEBGL_multi_draw",
+      "WEBGL_polygon_mode"
+    ],
+    "timerQueryAvailable": true,
+    "webglVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "hardwareConcurrency": 5,
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "browserVersion": "156.0.8078.79",
+    "cpuThrottleRate": 1,
+    "cpuThrottleScope": "No Emulation.setCPUThrottlingRate command is applied by this harness; OS/container scheduling still applies.",
+    "requestedGraphicsBackend": "--use-angle=swiftshader",
+    "softwareRenderer": true,
+    "scope": "Headless Chromium with explicit SwiftShader rendering; these results do not establish physical mobile GPU frame rate."
+  },
+  "workerMode": "worker",
+  "init": {
+    "scope": "Diagnostic programmatic archive seed, including deserialize/setShip and synchronous setup/render scheduling before presentation. This is separate from the native saved-design Continue path.",
+    "started": 13982.099999999627,
+    "ended": 14593.299999999814,
+    "duration": 611.2000000001863,
+    "deserializeMs": 465.70000000018626,
+    "setShipMs": 68.5,
+    "setupUiMs": 77,
+    "parts": 318,
+    "fits": 0,
+    "gen": 1,
+    "heap": {
+      "usedJSHeapSize": 103550394,
+      "totalJSHeapSize": 124650638,
+      "jsHeapSizeLimit": 4395630592
+    }
+  },
+  "operationFlow": "native tap, strict Worker candidate validation, native confirm",
+  "paletteNavigations": [
+    {
+      "reason": "initial",
+      "nativeClick": true,
+      "roundtripMs": 1422,
+      "drawerOpen": true,
+      "detailsOpen": true,
+      "tab": "mod",
+      "scope": "Native Details navigation reaches the retained real weapon geometry and mount rules. New UI taps still require actual Worker validation and a separate native confirmation."
+    }
+  ],
+  "detailsNavigation": {
+    "reason": "initial",
+    "nativeClick": true,
+    "roundtripMs": 1422,
+    "drawerOpen": true,
+    "detailsOpen": true,
+    "tab": "mod",
+    "scope": "Native Details navigation reaches the retained real weapon geometry and mount rules. New UI taps still require actual Worker validation and a separate native confirmation."
+  },
+  "nativePalette": {
+    "kind": "utl",
+    "tool": "place",
+    "template": null
+  },
+  "nativeArming": [
+    {
+      "reason": "initial",
+      "nativeNewCategoryPartArm": true,
+      "realAnimationFramesWaited": 2,
+      "drawerOpen": false,
+      "fit": "utl",
+      "tab": "mod"
+    }
+  ],
+  "authoringReady": {
+    "t": 36325,
+    "ready": true,
+    "gen": 1,
+    "adopted": 0,
+    "stats": 0,
+    "ownedHullIds": [
+      1154
+    ],
+    "worker": [
+      {
+        "type": "authoringGeometry",
+        "gen": 1,
+        "prepareMs": 9562.400000000373,
+        "t": 28036.099999999627
+      }
+    ],
+    "waitAfterPaletteMs": 6
+  },
+  "error": "Error: StrictWorkerValidationFailed 追加元の構造物と取付位置をタップしてください設定に戻る取消",
+  "active": {
+    "kind": "paired-placement",
+    "index": 0,
+    "witness": {
+      "id": 358,
+      "p": [
+        4821.600000000482,
+        452.51667531701514,
+        290.2000000024773
+      ]
+    },
+    "before": {
+      "t": 36468.200000000186,
+      "pixel": [
+        799.9999355518431,
+        529.499996015111
+      ],
+      "realAnimationFramesAfterPreset": 2,
+      "pickDiagnostic": null,
+      "proxyDiagnostic": {
+        "hasSurfaces": false,
+        "currentPartitions": "null"
+      },
+      "canvas": {
+        "width": 1600,
+        "height": 941,
+        "clientWidth": 1600,
+        "clientHeight": 941
+      },
+      "canvasTarget": true,
+      "target": "cv",
+      "gen": 1,
+      "adopted": 0,
+      "stats": 0,
+      "fits": 0,
+      "uploadCount": 172
+    },
+    "hoverRoundtripMs": 763,
+    "clickDispatchRoundtripMs": 15,
+    "pendingAfterTap": {
+      "t": 37252.09999999963,
+      "fits": 0,
+      "gen": 1,
+      "state": "failed",
+      "text": "追加元の構造物と取付位置をタップしてください設定に戻る取消",
+      "nativeBeforeHandler": {
+        "type": "pointerup",
+        "t": 37240.700000000186,
+        "eventTimeStamp": 37234.59999999963,
+        "estimatedInputQueueDelayMs": 6.1000000005587935,
+        "phase": "placement-0",
+        "placementState": "draft",
+        "button": 0,
+        "x": 799.9999389648438,
+        "y": 529.5,
+        "engine": {
+          "gen": 1,
+          "adopted": 0,
+          "stats": 0,
+          "sent": 1,
+          "waiting": true
+        }
+      }
+    },
+    "tapAndReadMs": 24,
+    "validationOrbit": {
+      "before": {
+        "t": 37258.299999999814,
+        "theta": -1.5707963267948966,
+        "phi": 0.0001,
+        "fits": 0,
+        "gen": 1,
+        "xy": [
+          800,
+          529.5
+        ],
+        "state": "failed"
+      },
+      "after": {
+        "t": 44713.799999999814,
+        "theta": -1.1207963267948966,
+        "phi": 0.0006,
+        "fits": 0,
+        "gen": 1,
+        "nativeBeforeHandler": {
+          "type": "pointerdown",
+          "t": 37731.5,
+          "eventTimeStamp": 37709.09999999963,
+          "estimatedInputQueueDelayMs": 22.40000000037253,
+          "phase": "validation-orbit-0",
+          "placementState": "failed",
+          "button": 0,
+          "x": 800,
+          "y": 529.5,
+          "engine": {
+            "gen": 1,
+            "adopted": 0,
+            "stats": 0,
+            "sent": 1,
+            "waiting": true
+          }
+        }
+      },
+      "changed": true,
+      "roundtripMs": 7455
+    },
+    "validationWaitIncludingCameraMs": 7465,
+    "validation": {
+      "state": "failed",
+      "text": "追加元の構造物と取付位置をタップしてください設定に戻る取消",
+      "fits": 0,
+      "gen": 1
+    }
+  },
+  "servedSources": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c"
+  },
+  "sourceSha256After": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/textures.js": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/lang-en.js": "4788137eafdfc6ae5b041c0c75859a00ae240671abf5e2ce6b166cb010afe0af",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e"
+  },
+  "sourceStable": true,
+  "measurementConditions": {
+    "cpuExclusive": false,
+    "knownConcurrentActivity": "The parent agent coordinated other heavy task benchmarks to stop before this browser run. OS/container scheduling remains uncontrolled.",
+    "timingClaim": "Different interaction contracts and an incomplete after scenario prevent a speed or memory improvement claim.",
+    "safari": "Not tested."
+  },
+  "completion": {
+    "plannedFits": 6,
+    "actualFits": 0,
+    "threePairsPlaced": false,
+    "initialTapAccepted": false,
+    "actualCameraMoved": true,
+    "knownIssue": "During initial large-design preparation, the fast authoring caches are ready but the semantic surface proxy is absent. Even after native arming and two real RAFs, a visible canvas witness has no strict pick target. The first tap is rejected before a fitting candidate reaches the Worker. This does not establish failure after the full surface proxy is ready.",
+    "cameraScope": "The camera gesture ran while the real background geometry/statistics request was pending; it did not run during a successfully submitted fitting candidate calculation."
+  },
+  "servedSourceCheck": {
+    "matched": [
+      "index.html",
+      "js/core.js",
+      "js/app.js",
+      "js/gfx.js",
+      "js/engine.js",
+      "data/reference.js",
+      "data/imperial2.js",
+      "data/fleet.js",
+      "js/design-ui.css"
+    ],
+    "mismatched": [],
+    "workerScope": "Actual worker mode is verified. The worker is bootstrapped from the captured Core/Gfx/Engine bytes; worker.js disk fingerprint is not an HTTP-response attestation."
+  }
+}

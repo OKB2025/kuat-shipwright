@@ -1,0 +1,271 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T03:01:27.047Z",
+  "browser": "156.0.8078.79",
+  "worker": "worker",
+  "sourceSha256": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "scripts/browser-exterior-parenting.cjs": "3d451a9995099492153df034cb95491601542445dcbc8f9925b9691d6d6c42e1"
+  },
+  "scope": "Native copy/paste/delete/apply/Undo through the real app. Fixtures alone are programmatically seeded through public Core placement APIs.",
+  "checks": [
+    "unsupported child and weapon delete together; one Undo restores the complete tree",
+    "touching siblings and mounted weapon survive parent deletion without cyclic or missing parents, including save/load",
+    "copying a parent automatically includes its child and weapon, then paste into another design remaps every stable reference"
+  ],
+  "supported": {
+    "parts": [
+      {
+        "id": 2,
+        "root": true,
+        "volume": 1000.0000000000001
+      },
+      {
+        "id": 3,
+        "parent": 2,
+        "volume": 1000.0000000000001
+      }
+    ],
+    "fits": [
+      {
+        "id": 4,
+        "host": 2,
+        "float": false
+      }
+    ],
+    "roundParts": [
+      {
+        "id": 2,
+        "volume": 1000.0000000000001
+      },
+      {
+        "id": 3,
+        "parent": 2,
+        "volume": 1000.0000000000001
+      }
+    ],
+    "roundFits": [
+      {
+        "id": 4,
+        "host": 2,
+        "float": false
+      }
+    ],
+    "diagnostics": [
+      {
+        "partId": 2,
+        "connected": true,
+        "root": true
+      },
+      {
+        "partId": 3,
+        "connected": true,
+        "area": 100,
+        "regions": [
+          [
+            [
+              5,
+              15,
+              0
+            ],
+            [
+              5,
+              10,
+              -5
+            ],
+            [
+              5,
+              10,
+              5
+            ]
+          ],
+          [
+            [
+              5,
+              15,
+              0
+            ],
+            [
+              5,
+              20,
+              -5
+            ],
+            [
+              5,
+              10,
+              -5
+            ]
+          ],
+          [
+            [
+              5,
+              15,
+              0
+            ],
+            [
+              5,
+              10,
+              5
+            ],
+            [
+              5,
+              20,
+              5
+            ]
+          ],
+          [
+            [
+              5,
+              20,
+              -5
+            ],
+            [
+              5,
+              15,
+              0
+            ],
+            [
+              5,
+              20,
+              5
+            ]
+          ]
+        ],
+        "reason": null,
+        "distanceTolerance": 0.000012,
+        "minimumArea": 1e-8,
+        "code": null
+      }
+    ],
+    "glError": 0
+  },
+  "pasted": {
+    "parts": [
+      {
+        "id": 100,
+        "volume": 127999.99999999996
+      },
+      {
+        "id": 101,
+        "parent": 100,
+        "volume": 1000.0000000000001
+      }
+    ],
+    "fits": [
+      {
+        "id": 102,
+        "host": 101,
+        "float": false
+      }
+    ],
+    "roundParts": [
+      {
+        "id": 100,
+        "volume": 127999.99999999996
+      },
+      {
+        "id": 101,
+        "parent": 100,
+        "volume": 1000.0000000000001
+      }
+    ],
+    "roundFits": [
+      {
+        "id": 102,
+        "host": 101,
+        "float": false
+      }
+    ],
+    "diagnostics": [
+      {
+        "partId": 101,
+        "connected": true,
+        "area": 100,
+        "regions": [
+          [
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              -5,
+              10,
+              -5
+            ],
+            [
+              5,
+              10,
+              -5
+            ]
+          ],
+          [
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              5,
+              10,
+              -5
+            ],
+            [
+              5,
+              10,
+              5
+            ]
+          ],
+          [
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              5,
+              10,
+              5
+            ],
+            [
+              -5,
+              10,
+              5
+            ]
+          ],
+          [
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              -5,
+              10,
+              5
+            ],
+            [
+              -5,
+              10,
+              -5
+            ]
+          ]
+        ],
+        "reason": null,
+        "distanceTolerance": 0.000096,
+        "minimumArea": 1e-8,
+        "code": null
+      }
+    ],
+    "glError": 0
+  },
+  "errors": [],
+  "notVerified": [
+    "Safari",
+    "real iPhone hardware"
+  ]
+}

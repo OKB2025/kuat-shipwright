@@ -1,0 +1,404 @@
+{
+  "schemaVersion": 2,
+  "status": "PASS",
+  "date": "2026-11-08T03:08:02.711Z",
+  "node": "v24.22.1",
+  "baselineRoot": "/workspace/kuat-baseline",
+  "currentRoot": "/workspace/kuat-shipwright",
+  "baselineRevision": "7217097da06c5873c017460f18edc24dcf775069",
+  "currentRevision": "7217097da06c5873c017460f18edc24dcf775069",
+  "beforeSourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "7a1e53b2f2702e082451e32861263ee8a6a0ef80d9055330d1c99c130392834c"
+  },
+  "afterSourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c"
+  },
+  "reproducer": {
+    "path": "scripts/compare-placement-physics.cjs",
+    "sha256": "894234730cd6cbba979d88a187f57cf0d03ec1028be81b918a0eba86c0289e95",
+    "command": "node scripts/compare-placement-physics.cjs IMMUTABLE_MAIN_ROOT OUTPUT_JSON"
+  },
+  "scope": {
+    "inputs": "Previously serialized main blueprints; all baseline source and blueprint checksums verified.",
+    "baselineMeasurements": "Reused from /workspace/scratch/placement-physics-comparison.json",
+    "runtime": "Cold healthy initial state, balanced allocation, full maneuver, .25 s power step; no thermal-equilibrium claim.",
+    "timings": "Core build/compute wall times only. Historical reused baseline durations are not a controlled speed comparison.",
+    "browser": "No browser, Safari, input-latency, FPS or GPU-memory measurement.",
+    "relativeTolerance": 1e-9,
+    "revisions": "HEAD identifies each checkout; source hashes identify the tested bytes, including uncommitted changes.",
+    "massUnit": "tonnes",
+    "otherPhysicalUnits": "SI"
+  },
+  "constantsBefore": {
+    "framing": 0.003,
+    "framingStiff": 0.0448,
+    "framingDens": 0.4,
+    "hullDens": 0.2,
+    "structuralSigma": 25000000000,
+    "heatCapacityJPerKg": 31931000000000,
+    "battleAccelerationScale": 0.002
+  },
+  "constantsAfter": {
+    "framing": 0.003,
+    "framingStiff": 0.0448,
+    "framingDens": 0.4,
+    "hullDens": 0.2,
+    "structuralSigma": 25000000000,
+    "heatCapacityJPerKg": 31931000000000,
+    "battleAccelerationScale": 0.002
+  },
+  "cases": [
+    {
+      "key": "imperial",
+      "inputSha256": "f7910d88825404c9f6bab293468557a9e34019df7211198dd5cc180487bcf87c",
+      "before": {
+        "stats": {
+          "mass": 49269361.527341306,
+          "framingMass": 3284025.0794599364,
+          "hp": 153094.65360647303,
+          "armorMass": 12590251.610361768,
+          "cost": 183319243,
+          "power": 1e+25,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 202514.07709614132,
+          "bareStructAccel": 15578.00593047241,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 20650.688777119743,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 75241772.37200628,
+          "integritySupport": 61243191.2109375
+        },
+        "heatCapacityJ": 1.5732199829295353e+24,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 1111834447350019.5,
+          "ratedAccelMps2": 22566.447237864515,
+          "structuralAccelerationLimitMps2": 202514.07709614132,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 22566.447237864515
+        },
+        "runtime": {
+          "actualInputW": 2.220238877452118e+24,
+          "actualThrustN": 1110119438726058.8,
+          "wasteHeatW": 1.1101194387260599e+23,
+          "actualAccelMps2": 22531.63841203857
+        },
+        "elapsedMs": 18160.342591
+      },
+      "after": {
+        "stats": {
+          "mass": 49269361.527341306,
+          "framingMass": 3284025.0794599364,
+          "hp": 153094.65360647303,
+          "armorMass": 12590251.610361768,
+          "cost": 183319243,
+          "power": 1e+25,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 202514.07709614132,
+          "bareStructAccel": 15578.00593047241,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 20650.688777119743,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 75241772.37200628,
+          "integritySupport": 61243191.2109375
+        },
+        "heatCapacityJ": 1.5732199829295353e+24,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 1111834447350019.5,
+          "ratedAccelMps2": 22566.447237864515,
+          "structuralAccelerationLimitMps2": 202514.07709614132,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 22566.447237864515
+        },
+        "runtime": {
+          "actualInputW": 2.220238877452118e+24,
+          "actualThrustN": 1110119438726058.8,
+          "wasteHeatW": 1.1101194387260599e+23,
+          "actualAccelMps2": 22531.63841203857
+        },
+        "elapsedMs": 14369.582712000001
+      },
+      "differences": [],
+      "passed": true,
+      "exactPhysicalValuesEqual": true
+    },
+    {
+      "key": "imperial2",
+      "inputSha256": "003e128b71d8df4de32581151888dea337d98f8f5e8efc4a167389e96ef7c429",
+      "before": {
+        "stats": {
+          "mass": 49278999.96206295,
+          "framingMass": 3284025.0794599364,
+          "hp": 153053.28186047112,
+          "armorMass": 12590251.610361768,
+          "cost": 184516484,
+          "power": 1e+25,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 202360.84710026404,
+          "bareStructAccel": 15566.21900771262,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 20635.063666008682,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 75241772.37200628,
+          "integritySupport": 61243191.2109375
+        },
+        "heatCapacityJ": 1.5735277477886322e+24,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 1112039439974825.4,
+          "ratedAccelMps2": 22566.193324355612,
+          "structuralAccelerationLimitMps2": 202360.84710026404,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 22566.193324355612
+        },
+        "runtime": {
+          "actualInputW": 2.2206479646355572e+24,
+          "actualThrustN": 1110323982317778.4,
+          "wasteHeatW": 1.1103239823177807e+23,
+          "actualAccelMps2": 22531.382194698606
+        },
+        "elapsedMs": 11773.405992
+      },
+      "after": {
+        "stats": {
+          "mass": 49278999.96206295,
+          "framingMass": 3284025.0794599364,
+          "hp": 153053.28186047112,
+          "armorMass": 12590251.610361768,
+          "cost": 184516484,
+          "power": 1e+25,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 202360.84710026404,
+          "bareStructAccel": 15566.21900771262,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 20635.063666008682,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 75241772.37200628,
+          "integritySupport": 61243191.2109375
+        },
+        "heatCapacityJ": 1.5735277477886322e+24,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 1112039439974825.4,
+          "ratedAccelMps2": 22566.193324355612,
+          "structuralAccelerationLimitMps2": 202360.84710026404,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 22566.193324355612
+        },
+        "runtime": {
+          "actualInputW": 2.2206479646355572e+24,
+          "actualThrustN": 1110323982317778.4,
+          "wasteHeatW": 1.1103239823177807e+23,
+          "actualAccelMps2": 22531.382194698606
+        },
+        "elapsedMs": 13013.046377000002
+      },
+      "differences": [],
+      "passed": true,
+      "exactPhysicalValuesEqual": true
+    },
+    {
+      "key": "venator",
+      "inputSha256": "db895fcf540a0a5ee3f63ab4d654ed6c929c83fda5206e755351b82e374228e5",
+      "before": {
+        "stats": {
+          "mass": 12049994.506555507,
+          "framingMass": 518639.73424144497,
+          "hp": 21615.793213505778,
+          "armorMass": 6768892.865367238,
+          "cost": 306578544,
+          "power": 3.6e+24,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 92458.76842021641,
+          "bareStructAccel": 7112.212955401263,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 9428.170519006635,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 13013046.236086547,
+          "integritySupport": 14432054.822771642
+        },
+        "heatCapacityJ": 3.8476837458882394e+23,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 354509135247219,
+          "ratedAccelMps2": 29419.85866087797,
+          "structuralAccelerationLimitMps2": 92458.76842021641,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 29419.85866087797
+        },
+        "runtime": {
+          "actualInputW": 8.340959300652865e+23,
+          "actualThrustN": 353948796805974.56,
+          "wasteHeatW": 1.6159321613393472e+23,
+          "actualAccelMps2": 29373.357524222713
+        },
+        "elapsedMs": 30110.378811000002
+      },
+      "after": {
+        "stats": {
+          "mass": 12049994.506555507,
+          "framingMass": 518639.73424144497,
+          "hp": 21615.793213505778,
+          "armorMass": 6768892.865367238,
+          "cost": 306578544,
+          "power": 3.6e+24,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 92458.76842021641,
+          "bareStructAccel": 7112.212955401263,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 9428.170519006635,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 13013046.236086547,
+          "integritySupport": 14432054.822771642
+        },
+        "heatCapacityJ": 3.8476837458882394e+23,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 354509135247219,
+          "ratedAccelMps2": 29419.85866087797,
+          "structuralAccelerationLimitMps2": 92458.76842021641,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 29419.85866087797
+        },
+        "runtime": {
+          "actualInputW": 8.340959300652865e+23,
+          "actualThrustN": 353948796805974.56,
+          "wasteHeatW": 1.6159321613393472e+23,
+          "actualAccelMps2": 29373.357524222713
+        },
+        "elapsedMs": 46941.88476700001
+      },
+      "differences": [],
+      "passed": true,
+      "exactPhysicalValuesEqual": true
+    },
+    {
+      "key": "cr90",
+      "inputSha256": "0b54131d8fc20edcb8077a12fd387a25dc2e675166e3d9f82f7eb9a8ca177c04",
+      "before": {
+        "stats": {
+          "mass": 45122.47485705289,
+          "framingMass": 0,
+          "hp": 158.66020136121926,
+          "armorMass": 16220.559172360374,
+          "cost": 455778,
+          "power": 1.277054338601343e+22,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 2632581.618365158,
+          "bareStructAccel": 202506.27833578136,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 268448.61582346243,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 72382.29473870884,
+          "integritySupport": 92159.99999999997
+        },
+        "heatCapacityJ": 1.440805744660556e+21,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 929295924536.9578,
+          "ratedAccelMps2": 20594.967972854967,
+          "structuralAccelerationLimitMps2": 2632581.618365158,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 20594.967972854967
+        },
+        "runtime": {
+          "actualInputW": 0,
+          "actualThrustN": 0,
+          "wasteHeatW": 0,
+          "actualAccelMps2": 0
+        },
+        "elapsedMs": 12333.49248700001
+      },
+      "after": {
+        "stats": {
+          "mass": 45122.47485705289,
+          "framingMass": 0,
+          "hp": 158.66020136121926,
+          "armorMass": 16220.559172360374,
+          "cost": 455778,
+          "power": 1.277054338601343e+22,
+          "thrust": 0,
+          "aThrust": 0,
+          "aStruct": 2632581.618365158,
+          "bareStructAccel": 202506.27833578136,
+          "aEff": 0,
+          "accelG": 0,
+          "structG": 268448.61582346243,
+          "cutSection": false,
+          "structLimited": false,
+          "inertialSupport": 72382.29473870884,
+          "integritySupport": 92159.99999999997
+        },
+        "heatCapacityJ": 1.440805744660556e+21,
+        "profile": {
+          "version": 1,
+          "architectureVersion": 2,
+          "ratedThrustN": 929295924536.9578,
+          "ratedAccelMps2": 20594.967972854967,
+          "structuralAccelerationLimitMps2": 2632581.618365158,
+          "inertialFactor": 1,
+          "accelerationLimitMps2": 20594.967972854967
+        },
+        "runtime": {
+          "actualInputW": 0,
+          "actualThrustN": 0,
+          "wasteHeatW": 0,
+          "actualAccelMps2": 0
+        },
+        "elapsedMs": 24543.068788999997
+      },
+      "differences": [],
+      "passed": true,
+      "exactPhysicalValuesEqual": true
+    }
+  ],
+  "baselineSourceSha256AtCompletion": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "7a1e53b2f2702e082451e32861263ee8a6a0ef80d9055330d1c99c130392834c"
+  },
+  "currentSourceSha256AtCompletion": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c"
+  },
+  "sourceStable": true,
+  "constantDifferences": []
+}
