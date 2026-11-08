@@ -91594,9 +91594,10 @@ function powerFactor(u,kind,moduleIndex){
  if(st?.domains?.main?.trip>0)return 0;return 1;
 }
 function powerStatus(u){
- const st=u?.gridState,thermal=heatStatus(u),ds=u?.p?.grid?.domains||[{id:'main',P:u?.p?.grid?.P||0,modules:[]}];
- const rated=ds.reduce((a,d)=>a+(d.P||0),0),live=ds.reduce((a,d)=>a+powerDomainWatts(u,d.id),0),available=u?.p?.grid?rated>0?clamp(live/rated,0,1):0:1;
- return {available:available*(thermal?.outputFactor??1),blackout:thermal?.online===false||available<=0,thermal,domains:ds.map(d=>({id:d.id,rated:d.P,available:powerDomainWatts(u,d.id),load:st?.domains?.[d.id]?.load||0,restart:st?.domains?.[d.id]?.trip||0,state:st?.domains?.[d.id]?.trip>0?'イオン遮断':powerDomainWatts(u,d.id)<=0?'給電停止':st?.domains?.[d.id]?.load>0?'放電中':'給電中'})),local:Object.entries(st?.local||{}).filter(([,t])=>t>0).map(([i,t])=>({module:+i,name:u.p.modules?.[i]?.name||'設備',restart:t,state:'イオン遮断'}))};
+ const st=u?.gridState,thermal=heatStatus(u),ds=u?.p?.grid?.domains?.length?u.p.grid.domains:[{id:'main',P:u?.p?.grid?.P||0,modules:[]}],sources=shipElectricalSources(u),byDomain=new Map();
+ for(const source of sources||[])byDomain.set(source.domain,(byDomain.get(source.domain)||0)+source.powerW);
+ const domainW=d=>sources?byDomain.get(d.id)||0:powerDomainWatts(u,d.id),rated=ds.reduce((a,d)=>a+(d.P||0),0),live=ds.reduce((a,d)=>a+domainW(d),0),available=(u?.p?.grid?rated>0?clamp(live/rated,0,1):0:1)*(sources?1:thermal?.outputFactor??1);
+ return {available,blackout:thermal?.online===false||available<=0,thermal,domains:ds.map(d=>({id:d.id,rated:d.P,available:domainW(d),load:st?.domains?.[d.id]?.load||0,restart:st?.domains?.[d.id]?.trip||0,state:st?.domains?.[d.id]?.trip>0?'イオン遮断':domainW(d)<=0?'給電停止':st?.domains?.[d.id]?.load>0?'放電中':'給電中'})),local:Object.entries(st?.local||{}).filter(([,t])=>t>0).map(([i,t])=>({module:+i,name:u.p.modules?.[i]?.name||'設備',restart:t,state:'イオン遮断'}))};
 }
 // Explicit external processing ratings follow the installed shield devices,
 // their damage, their electrical connection and the power actually granted.
@@ -91916,11 +91917,12 @@ function shipPowerSources(u,s={},options={}){
 // Available generation before throttle, consumer priorities or weapon charging.
 // Unknown legacy snapshots have no provable electrical budget. Reserved fuel
 // still powers its owner; only exhausted physical fuel removes reactor sources.
-function shipElectricalAvailableW(u){
+function shipElectricalSources(u){
  if(!u?.p?.grid||!Number.isFinite(u.p.grid.P))return null;
  const fuel=shipFuelState(u),reactorReady=!fuel.capacityKnown||fuel.capacityJ>fuel.fuelEnergyJ;
- return shipPowerSources(u,{}, {ignoreReservations:true}).reduce((n,s)=>n+(s.reactor!==false&&!reactorReady?0:Number.isFinite(s.powerW)?Math.max(0,s.powerW):0),0);
+ return shipPowerSources(u,{}, {ignoreReservations:true}).map(s=>({...s,powerW:s.reactor!==false&&!reactorReady?0:Number.isFinite(s.powerW)?Math.max(0,s.powerW):0}));
 }
+function shipElectricalAvailableW(u){const sources=shipElectricalSources(u);return sources?sources.reduce((n,s)=>n+s.powerW,0):null;}
 function stopPowerLossRuntime(u){
  u.engF=0;u.shF=0;u.maneuver=0;shipHeatClearCooling(u.ht);shipFuelReleaseReservation(u,'cooling');
  if(u.pw){for(const k of ['P','eng','sh','wpn','draw','drawNonCooling','fixed','cooling','coolingSource','coolingReserved'])u.pw[k]=0;u.pw.weaponInputRemainingJ={};u.pw.weaponInputs={};}
