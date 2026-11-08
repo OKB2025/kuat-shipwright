@@ -15,7 +15,7 @@ function reset(overrides={}){
  notices.length=0;undoStack.length=0;autosaves=0;salvo=null;
  const spec={v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:2,laserGasSeconds:1,...overrides};
  ship=C.newShip({L:20,W:10,H:5});ship.parts.push({id:1,k:'laserGas',c:[0,0,0],d:1});
- Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:20},asset:{stats:{craftSystems:spec},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},turrets:[makeTurret()],P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'home',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e20,cap:1e20},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+ const profile={len:20,grid:{P:1e20},modules:[]};Object.assign(trial,{systemsUnit:{p:profile},on:true,craft:true,spectate:false,paused:false,p:profile,asset:{stats:{craftSystems:spec},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},turrets:[makeTurret()],P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'home',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e20,cap:1e20},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  trialCraftSystemsReset();
 }
 function fire(){for(const t of trial.turrets)t.reload=0;trialGunnery(.1);}
@@ -25,6 +25,7 @@ section('const trialCol=', 'const trialWrap=');
 run(app.match(/const trialWrap=.*?;/)[0]);
 section('function trialCraftSystemsSpec()', 'function trialReset()');
 section('const TRIAL_PILOT_CYCLE=', 'function trialTurretState(');
+section('function trialSystemsUnit()', 'function trialPowerFactor(');
 section('function trialShotGeometry(', '// Missiles leave');
 section('function trialDurText(', 'function trialHyperUpdate(');
 section('function trialRateBase(', 'function trialMaxRates(');
@@ -92,4 +93,9 @@ test('RCS support scales manual craft pitch, yaw, and roll once after handling f
  assert.deepEqual(legacy,unmanaged);
  const zero=plain('trialRateBase({len:12,accel:0,turnRate:0,systems:{managed:true,turnK:0}},true)');
  assert.equal(zero.roll,0);assert.equal(zero.yaw,0);assert.equal(zero.pitch,0);assert.ok(Number.isFinite(zero.tau));
+});
+
+
+test('power loss blocks direct laser shots without spending retained gas or weapon energy',()=>{
+ run('reset();trial.p.grid.P=0;');const before=plain('trial.systemsRuntime'),energy=run('trial.energy.E');run('fire();');assert.equal(run('trial.systemsUnit.out'),'電源喪失');assert.equal(run('trial.systemsUnit.powerLossDisabled'),true);assert.equal(run('trial.gun.shots'),0);assert.deepEqual(plain('trial.systemsRuntime'),before);assert.equal(run('trial.energy.E'),energy);
 });

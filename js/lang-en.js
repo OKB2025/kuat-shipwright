@@ -4872,6 +4872,7 @@ root.KS_EN={
   "「終了」": "End",
   "作戦を終えるときはここ": "Press here to end the operation",
   "電源喪失": "Power Loss",
+  "電源が復旧・航行不能を解除": "Power restored; navigation restored",
   "{0}：電源喪失で航行不能（チュートリアル）": "{0}: disabled by power loss (tutorial)",
   "作例の艦を準備できません": "Unable to prepare the example ships",
   "艦艇の性能を更新中…": "Updating ship performance…",
