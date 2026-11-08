@@ -2,7 +2,7 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const assert = require('node:assert/strict'), {test} = require('node:test');
 const root = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
-const {C} = require('../scripts/update-ship-examples.cjs').loadRuntime(root);
+const {C,resolution} = require('./helpers/immediate-design-ui.cjs');
 const plain = value => JSON.parse(JSON.stringify(value));
 function fn(name) {
   const match = new RegExp('(?:async )?function ' + name + '\\s*\\(').exec(app);
@@ -22,8 +22,9 @@ function setup() {
     ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[20,10,20]},{id:2,k:'struct',form:'box',c:[30,0,0],s:[10,10,10]}];
     ship.nextId=3;ship.saveId='session-source';
     let S={cls:{role:'test',name:'test'},hullLen:100},prevS=null,view=null,lastOp='',dragSnap=null,dragLabel='',hoverLines=null,editorPartsRevision=0,saveT=0,savingCurrent=false;
-    const undoStack=[],redoStack=[],st={tab:'edit',sel:{list:'parts',id:1},multi:{parts:new Set([1]),fits:new Set()}},eng={gen:4,what:new Set()},meshStore={},live={},dirty={},fleet={mode:'design'};
-    const designUI={drawer:true,details:false,armed:false,parentId:1,mode:'horizontal',sequence:0,pending:null},calls=[],notices=[],posts=[],requests=[],replies=[],records=[],timers=new Map(),drafts=new Map(),nodes=new Map(),events=new Map();
+    const undoStack=[],redoStack=[],st={tab:'edit',sel:{list:'parts',id:1},multi:{parts:new Set([1]),fits:new Set()}},eng={gen:4,what:new Set()},meshStore={},live={},dirty={},fleet={mode:'design'},trial={on:false};
+    const editorContext={ship:null,gen:-1,revision:-1,key:''};
+    const designUI={space:'exterior',drawer:true,details:false,armed:false,parentId:1,mode:'horizontal',sequence:0,pending:null},calls=[],notices=[],posts=[],requests=[],replies=[],records=[],timers=new Map(),drafts=new Map(),nodes=new Map(),events=new Map();
     let timerSequence=0,packCalls=0,hotSnapshot=null;
     const setTimeout=f=>{const id=++timerSequence;timers.set(id,f);return id;},clearTimeout=id=>timers.delete(id);
     function flushTimers(){const work=[...timers.values()];timers.clear();for(const f of work)f();}
@@ -31,15 +32,15 @@ function setup() {
     const window={claude:{hot:{snapshot:f=>hotSnapshot=f}},addEventListener:(name,f)=>events.set(name,f)};
     const T=x=>x,esc=String,toast=m=>notices.push(m),sndEdit=()=>{},sndUI=()=>{},reconcileSolidCutter=()=>{},syncHullEditor=()=>{},kickEngine=()=>{},engineStatus=()=>{},previewHistory=()=>{},hideInspect=()=>{},updateName=()=>{},scheduleStats=()=>{},requestDraw=()=>{},refreshOverlay=()=>{},renderSaves=()=>{},autosaveShipLength=()=>100;
     const selItem=()=>st.sel?ship[st.sel.list].find(p=>p.id===st.sel.id):null,findSel=sel=>ship[sel.list].some(p=>p.id===sel.id),renderPanel=()=>designUIEditSync();
-    const onEngineSurfaceGeometry=()=>{},designUIBar=()=>{},showPreview=(...args)=>calls.push({preview:args}),publicCopy=v=>JSON.parse(C.publicJSON(v));
+    const onEngineSurfaceGeometry=()=>{},designUIBar=()=>{},designUIMetrics=()=>{},renderInspBar=()=>{},queuePreview=()=>{},showPreview=(...args)=>calls.push({preview:args}),publicCopy=v=>JSON.parse(C.publicJSON(v));
     const YardEngineClient={post:m=>posts.push(m),request:(type,payload)=>{requests.push({type,payload});return new Promise((resolve,reject)=>replies.push({resolve,reject}));}};
     const Gfx={lineSet:()=>({part(){}})},tool=()=> 'part',designParents=()=>ship.parts,designParent=id=>ship.parts.find(p=>p.id===id),designCapability=()=>({space:'exterior',kind:'structure',allowedModes:['horizontal']}),partPreview=hit=>({id:-1,k:'struct',form:'box',c:hit.p.slice(),s:[4,4,4]}),designUIRequests=(part,request)=>[{part,request,symmetry:''}];
     const pack=async value=>{packCalls++;return JSON.stringify(value);},Store={save:async rec=>{records.push(rec);return 'local';}};
     function envelope(){const q=requests.at(-1).payload,r=q.request;return{gen:q.gen,designId:q.designId,operationId:q.operationId,geometryRevision:r.geometryRevision,parentGeometryRevision:r.parentGeometryRevision,placementModelVersion:r.placementModelVersion,result:{ok:true,part:r.part}};}
   `);
   for (const name of ['snap', 'restore', 'mutate', 'beginDrag', 'endDrag', 'undo', 'redo', 'updateUndo', 'touch', 'autosave', 'saveCurrent', 'exportDesign',
-    'designUIEditSession', 'designUIEditDirty', 'designUISavedDesign', 'designUIEditBegin', 'designUIEditApply', 'designUIEditCancel', 'designUIEditSync', 'designUIEditStatus', 'designUIDiagnostics', 'designUIRejectTap', 'designUIInvalidatePending', 'designUICancel', 'designUIRequest', 'removeWithPreview', 'editorRemovalIds', 'editorRemovedIds', 'editorRemoveParts', 'removeLinked']) run(fn(name));
-  return {run};
+    'editorPublicKey', 'editorGeometryContext', 'currentEditorGeometryContext', 'designEntityEditable', 'designUIEditSession', 'designUIEditDirty', 'designUISavedDesign', 'designUIEditBegin', 'designUIEditApply', 'designUIEditCancel', 'designUIEditSync', 'designUIEditStatus', 'designUIDiagnostics', 'designUIRejectTap', 'designUIInvalidatePending', 'designUICancel', 'designUIRequest', 'designUIPlaceDraft', 'onEnginePlacementResolution', 'designUIStampNext', 'removeWithPreview', 'editorRemovalIds', 'editorRemovedIds', 'editorRemoveParts', 'removeLinked']) run(fn(name));
+  return {run,context};
 }
 
 test('opening the drawer captures an isolated source and legacy detail editing has no session', () => {
@@ -159,13 +160,15 @@ test('closing the drawer discards its draft while an armed reconnect keeps its s
   assert.equal(r('ship.parts[0].c[0]'), 0);
 });
 
-test('cancel restores a newer editor generation and a late placement reply cannot revive its pending draft', async () => {
-  const {run:r} = setup();
-  r("designUIEditBegin();mutate('move',()=>ship.parts[0].c[0]=6);designUI.replaceId=1;designUI.armed=true;designUIRequest({parentStructureId:2,p:[0,10,0],n:[0,1,0]});const requestGeneration=eng.gen;designUIEditCancel();");
+test('cancel restores a newer editor generation and a late background resolution cannot revive its immediate reconnect draft', () => {
+  const t=setup(),r=t.run;
+  r("designUIEditBegin();mutate('move',()=>ship.parts[0].c[0]=6);designUI.replaceId=1;designUI.armed=true;designUIRequest({parentStructureId:2,p:[0,10,0],n:[0,1,0]});const requestGeneration=eng.gen;");
+  assert.equal(r('ship.parts[0].placement.pendingGeometry'),true);
+  assert.equal(r('requests.length'),0,'reconnection records its source without a strict request wait');
+  t.context.packet=resolution(t);r('designUIEditCancel()');
   assert.equal(r('eng.gen>requestGeneration'), true);
   assert.equal(r('designUI.pending'), null);
-  assert.equal(r('posts.some(p=>p.type==="cancelPlacement")'), true);
-  r('replies[0].resolve(envelope())'); await flush();
+  assert.equal(r('onEnginePlacementResolution(packet)'),false);
   assert.equal(r('designUI.pending'), null);
   assert.equal(r('ship.parts[0].c[0]'), 0);
   assert.equal(r('ship.parts.length'), 2);

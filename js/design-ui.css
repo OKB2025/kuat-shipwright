@@ -1,4 +1,5 @@
 /* The design drawer overlays the existing renderer; flight and fleet layouts stay independent. */
+body.designer-ui{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body.designer-ui .main{position:relative;display:block;min-height:0}
 body.designer-ui .viewport{position:absolute;inset:0;min-height:0}
 body.designer-ui #specSide{display:none}
@@ -71,9 +72,180 @@ body.designer-ui #dock.design-editing .panel>.sel-strip{position:static}
 body.designer-ui #dock.design-editing .ed-list,body.designer-ui #dock.design-editing .editor{position:relative;isolation:isolate}
 .design-parent-target{flex:1 1 100%;font-size:12px;color:var(--cyan)}
 .design-parent-target small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+/* Repeated placement keeps the target visible above a compact feedback strip. */
+body.designer-ui .design-placement-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 8px;padding:7px 9px;align-items:center}
+body.designer-ui .design-placement-bar>p{grid-column:1;grid-row:1;min-width:0;font-size:11px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+body.designer-ui .design-placement-bar>button{grid-row:1;min-height:32px;padding:4px 8px;font-size:11px;line-height:1.3}
+body.designer-ui .design-placement-bar>[data-design-action="adjust"]{grid-column:2}
+body.designer-ui .design-placement-bar>[data-design-action="cancel"]{grid-column:3}
+body.designer-ui .design-placement-bar>.design-parent-target{grid-column:1/-1;grid-row:2;min-width:0;font-size:10px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.designer-ui .design-placement-bar .design-parent-target small{font-size:10px;margin-top:1px}
+@container ks (orientation:landscape) and (max-height:640px){
+ body.designer-ui .design-placement-bar{bottom:calc(48px + var(--sa-bottom));left:max(6px,var(--sa-left));right:calc(min(205px,25cqw) + 18px + var(--sa-right));max-width:650px;padding:5px 7px;gap:3px 6px}
+ body.designer-ui .design-placement-bar>button{min-height:28px;padding:3px 7px}
+ body.designer-ui .design-placement-bar .design-parent-target small{display:none}
+}
 /* Weapon names must not set the minimum width of the trench editor. */
 [data-trench-armament-editor]{min-width:0;max-width:100%}
 [data-trench-armament-editor] .row2>label{display:grid;gap:4px;min-width:0;max-width:100%;flex:1 1 145px}
 [data-trench-armament-editor] input,[data-trench-armament-editor] select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px;padding:8px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:inherit}
 [data-trench-armament-editor] button{min-height:44px}
 @container ks (max-width:700px){[data-trench-armament-editor] .row2>label:first-child{flex-basis:100%}}
+/* Short landscape screens need room for the editable fields, not taller chrome. */
+@container ks (orientation:landscape) and (max-height:640px){
+ body.designer-ui{--design-sheet-height:min(380px,calc(100cqh - 174px - var(--sa-top) - var(--sa-bottom)))}
+ body.designer-ui .topbar{padding-block:2px;gap:8px}
+ body.designer-ui .topbar .mark{width:24px;height:24px}
+ body.designer-ui .brand-name{font-size:12px;line-height:1.2}
+ body.designer-ui .ship-name{font-size:10.5px;line-height:1.3}
+ body.designer-ui .topbar .icon-btn{width:30px;height:30px;min-height:0}
+ body.designer-ui .topbar .icon-btn svg{width:16px;height:16px}
+ body.designer-ui .topbar .btn-ghost{height:30px;min-height:30px;padding:0 9px;font-size:11.5px}
+ body.designer-ui .design-menu{gap:6px;padding:4px max(8px,var(--sa-right)) calc(4px + var(--sa-bottom)) max(8px,var(--sa-left))}
+ body.designer-ui .design-menu .seg{flex:0 1 150px}
+ body.designer-ui .design-menu button{min-height:32px;min-width:64px;padding:4px 10px;font-size:11.5px;line-height:1.25}
+ body.designer-ui .design-menu .seg button{min-width:0}
+ body.designer-ui #dock{bottom:calc(48px + var(--sa-bottom));left:max(6px,var(--sa-left));right:max(6px,var(--sa-right));border-radius:10px 10px 6px 6px}
+ body.designer-ui.design-sheet-open #cv{height:calc(100% - var(--design-sheet-height) - 48px - var(--sa-bottom));min-height:90px}
+ body.designer-ui #dock .design-drawer-head{gap:8px;padding:2px 10px;font-size:12px;line-height:1.3}
+ body.designer-ui #dock .design-drawer-head button{min-height:28px;padding:2px 8px;font-size:11px}
+ body.designer-ui #dock .panel{padding:6px 10px;font-size:12px;line-height:1.4}
+ body.designer-ui #dock.design-editing .panel{scroll-padding-top:44px}
+ body.designer-ui #dock .design-edit-session{display:flex;align-items:center;gap:8px;top:-6px;padding:4px 0}
+ body.designer-ui #dock .design-edit-session p{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;line-height:1.35}
+ body.designer-ui #dock .design-edit-session .design-placement-actions{flex:0 0 auto;gap:6px;width:auto;margin:0}
+ body.designer-ui #dock .design-edit-session .design-placement-actions button{flex:0 0 auto;min-height:30px;padding:3px 10px;font-size:11.5px;line-height:1.3}
+ body.designer-ui #dock .btn,body.designer-ui #dock .seg button{min-height:30px;padding:4px 9px;font-size:11.5px;line-height:1.3}
+ body.designer-ui #dock #tabs button{min-height:28px;min-width:64px;padding:4px 8px;font-size:11.5px}
+ body.designer-ui #dock :is(h3,h4,.ed-head b,.sl-l,.field-label){font-size:11.5px}
+ body.designer-ui #dock .note{font-size:11px;line-height:1.35;margin:4px 0 6px}
+ body.designer-ui #dock .design-placement{padding:8px;margin:8px 0}
+ body.designer-ui #dock .design-placement label{gap:3px;margin:5px 0}
+ body.designer-ui #dock .design-placement select{min-height:30px;padding:4px 6px}
+ body.designer-ui #dock .design-placement-actions{gap:6px;margin-top:6px}
+ body.designer-ui #dock .design-part-preview{width:min(180px,28%);height:100px;margin-left:8px}
+ body.designer-ui #dock .sliders{gap:4px}
+ body.designer-ui #dock .sl{grid-template-columns:5.2em minmax(0,1fr) auto;gap:7px}
+ body.designer-ui #dock .sl-num{width:65px;min-height:30px;padding:3px 4px}
+ body.designer-ui #dock details.fold{margin-bottom:4px}
+ body.designer-ui #dock details.fold>summary{min-height:28px;padding:5px 0;font-size:11.5px}
+ body.designer-ui .design-metrics{top:6px;right:max(6px,var(--sa-right));min-width:148px;max-width:170px;margin:0;padding:6px 8px;gap:3px;font-size:11px;line-height:1.3}
+ body.designer-ui .design-metrics>div{grid-template-columns:46px minmax(0,1fr);gap:5px;align-items:baseline}
+ body.designer-ui .design-metrics dt,body.designer-ui .design-metrics p{font-size:10px;line-height:1.3}
+ body.designer-ui .design-metrics dd{font-size:13px;line-height:1.25}
+ body.designer-ui .hudbottom{bottom:calc(48px + var(--sa-bottom))}
+ body.designer-ui .hudbottom .seg button{min-height:28px;padding:3px 8px;font-size:11px}
+}
+/* New placement is a full-screen workspace; inspecting and editing stay beside the ship. */
+body.designer-ui #toolRail[data-design-rail="compact"]{display:none}
+body.designer-ui #dock[data-design-layout="new"]{position:fixed;z-index:58;inset:max(6px,var(--sa-top)) max(6px,var(--sa-right)) max(6px,var(--sa-bottom)) max(6px,var(--sa-left));width:auto;height:auto;max-height:none;border-radius:10px}
+body.designer-ui #dock[data-design-layout="new"] .design-drawer-head{padding:4px 10px;font-size:13px;line-height:1.3;gap:8px}
+body.designer-ui #dock[data-design-layout="new"] .design-drawer-head button{min-height:30px;padding:3px 9px;font-size:11.5px}
+body.designer-ui #dock[data-design-layout="new"] .panel{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:12px;padding:10px;overflow:hidden}
+body.designer-ui #dock[data-design-layout="new"] .panel>[data-design-catalog]{display:flex;flex-direction:column;grid-column:1;grid-row:1;min-width:0;min-height:0;max-height:100%;overflow:hidden}
+body.designer-ui #dock[data-design-layout="new"] .panel>[data-design-settings]{grid-column:2;grid-row:1;min-width:0;min-height:0;max-height:100%;overflow:auto;padding:0 4px 8px;scroll-padding-bottom:52px}
+body.designer-ui #dock[data-design-layout="new"] .design-categories{flex:0 0 auto;flex-wrap:nowrap;gap:4px;min-height:32px;margin-bottom:6px;overflow-x:auto;overscroll-behavior-inline:contain}
+body.designer-ui #dock[data-design-layout="new"] .design-categories button{flex:0 0 auto;min-height:30px;padding:3px 9px;font-size:11.5px;white-space:nowrap}
+body.designer-ui #dock[data-design-layout="new"] .pal-search{flex:0 0 auto;margin:0 0 8px}
+body.designer-ui #dock[data-design-layout="new"] .design-palette{flex:1 1 auto;min-height:0;max-height:none;height:auto;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));align-content:start;overflow:auto;gap:6px}
+body.designer-ui #dock[data-design-layout="new"] .design-palette .part{min-height:74px;padding:7px}
+body.designer-ui #dock[data-design-layout="new"] [data-design-settings]>.design-placement{margin:0 0 8px}
+body.designer-ui #dock[data-design-layout="new"] [data-design-modal-actions]{display:flex;flex:0 0 auto;justify-content:flex-end;gap:8px;padding:6px 10px;border-top:1px solid var(--line);background:var(--panel)}
+body.designer-ui #dock[data-design-layout="new"] [data-design-modal-actions] button{min-height:34px;min-width:96px;padding:4px 12px;font-size:12px}
+body.designer-ui [data-design-symmetry-controls]{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+body.designer-ui [data-design-symmetry],body.designer-ui [data-design-selection-multi]{min-height:30px;padding:3px 8px;border:1px solid var(--line-2);border-radius:6px;background:var(--panel-2);color:var(--muted);font-size:11.5px;line-height:1.3}
+body.designer-ui [data-design-symmetry][aria-pressed="true"],body.designer-ui [data-design-selection-multi][aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+body.designer-ui.design-new-open .design-menu,body.designer-ui.design-new-open .toolrail,body.designer-ui.design-new-open .design-metrics,body.designer-ui.design-new-open .hudbar,body.designer-ui.design-new-open .hudbottom{display:none}
+body.designer-ui #dock[data-design-layout="edit"]{top:58px;bottom:calc(80px + var(--sa-bottom));left:max(8px,var(--sa-left));right:auto;width:clamp(240px,36cqw,310px);max-width:calc(100% - 16px - var(--sa-left) - var(--sa-right));max-height:min(68cqh,580px);border-radius:9px;box-shadow:0 6px 24px #0007}
+body.designer-ui #dock[data-design-layout="edit"] .design-drawer-head{padding:3px 8px;font-size:12px;line-height:1.3;gap:6px}
+body.designer-ui #dock[data-design-layout="edit"] .design-drawer-head button{min-height:26px;padding:2px 7px;font-size:11px}
+body.designer-ui #dock[data-design-layout="edit"] .panel{display:block;padding:6px 8px;font-size:12px;line-height:1.4;scroll-padding-top:66px}
+body.designer-ui #dock[data-design-layout="edit"] .design-edit-session{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;top:-6px;margin:0 0 6px;padding:4px 0}
+body.designer-ui #dock[data-design-layout="edit"] .design-edit-session p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;line-height:1.3}
+body.designer-ui #dock[data-design-layout="edit"] .design-edit-session .design-placement-actions{display:flex;gap:5px;width:100%;margin:0}
+body.designer-ui #dock[data-design-layout="edit"] .design-edit-session .design-placement-actions button{flex:1 1 0;min-width:0;min-height:28px;padding:3px 5px;font-size:11px;line-height:1.3}
+body.designer-ui #dock[data-design-layout="edit"] .btn,body.designer-ui #dock[data-design-layout="edit"] .seg button{min-height:28px;padding:3px 7px;font-size:11px;line-height:1.3}
+body.designer-ui #dock[data-design-layout="edit"] .sl{grid-template-columns:4.6em minmax(0,1fr) auto;gap:5px}
+body.designer-ui #dock[data-design-layout="edit"] .sl-num{width:62px;min-height:28px;padding:2px 3px}
+body.designer-ui #dock[data-design-layout="edit"] .sl-l{font-size:11px}
+body.designer-ui #dock[data-design-layout="edit"] .design-part-preview{width:84px;height:76px;margin-left:6px}
+body.designer-ui #dock[data-design-layout="edit"] .design-placement{padding:6px;margin:6px 0}
+body.designer-ui #dock[data-design-layout="edit"] [data-design-attachment]{margin:6px 0;border-top:1px solid var(--line)}
+body.designer-ui #dock[data-design-layout="edit"] [data-design-attachment]>summary{min-height:28px;padding:5px 0;color:var(--muted);font-size:11.5px;cursor:pointer}
+body.designer-ui #dock[data-design-layout="edit"] .note{font-size:10.5px;line-height:1.35;margin:3px 0 5px}
+body.designer-ui #dock[data-design-layout="edit"] .sel-strip{min-height:32px;margin-bottom:5px;padding-left:6px}
+body.designer-ui #dock[data-design-layout="edit"] .sel-strip .ss-t b{font-size:11.5px}
+body.designer-ui #dock[data-design-layout="edit"] .sel-strip .ss-l{font-size:10.5px}
+body.designer-ui #dock[data-design-layout="edit"] .sel-strip .ss-b{min-width:26px;height:26px;padding:0 5px;font-size:10.5px}
+body.designer-ui #designInfoWindow{position:absolute;z-index:18;top:58px;left:max(8px,var(--sa-left));width:248px;max-width:calc(100% - 16px - var(--sa-left) - var(--sa-right));max-height:min(240px,calc(100cqh - 148px));overflow:auto;padding:8px 10px;border:1px solid var(--hud-line);border-radius:8px;background:var(--hud-bg);box-shadow:0 5px 20px #0007;color:var(--hud-fg);font-size:11px;line-height:1.35}
+body.designer-ui #designInfoWindow h3{margin:0;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+body.designer-ui #designInfoWindow .design-info-head{display:flex;align-items:flex-start;gap:6px}
+body.designer-ui #designInfoWindow .design-info-head h3{flex:1;min-width:0}
+body.designer-ui #designInfoWindow .design-info-head button{flex:0 0 auto}
+body.designer-ui #designInfoWindow [data-info-values]{display:grid;gap:3px;margin:6px 0}
+body.designer-ui #designInfoWindow [data-info-values]>div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:6px;align-items:baseline}
+body.designer-ui #designInfoWindow dt{color:var(--hud-dim);font-size:10.5px}
+body.designer-ui #designInfoWindow dd{min-width:0;margin:0;font-size:11.5px;overflow-wrap:anywhere}
+body.designer-ui #designInfoWindow button{min-height:26px;padding:3px 7px;font-size:11px;line-height:1.3}
+body.designer-ui #designInfoWindow .design-info-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+@container ks (orientation:landscape) and (max-height:640px){
+ body.designer-ui #dock[data-design-layout="edit"]{top:44px;bottom:calc(48px + var(--sa-bottom));max-height:none}
+ body.designer-ui #designInfoWindow{top:44px}
+ body.designer-ui #dock[data-design-layout="new"] .panel{gap:10px;padding:8px}
+ body.designer-ui #dock[data-design-layout="new"] .design-part-preview{height:110px}
+}
+@container ks (max-width:600px){
+ body.designer-ui #dock[data-design-layout="new"] .panel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(130px,.8fr) minmax(0,1.2fr);gap:8px;padding:8px}
+ body.designer-ui #dock[data-design-layout="new"] .panel>[data-design-settings]{grid-column:1;grid-row:2;padding-inline:0}
+ body.designer-ui #dock[data-design-layout="new"] .design-palette{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+ body.designer-ui #dock[data-design-layout="edit"]{width:min(268px,calc(100cqw - 24px));top:54px}
+ body.designer-ui #designInfoWindow{width:min(248px,calc(100cqw - 24px));top:54px}
+}
+/* Installed parts and performance share the small side window, without the old tab strip. */
+body.designer-ui #dock #tabs{display:none}
+body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]){top:58px;bottom:calc(80px + var(--sa-bottom));left:max(8px,var(--sa-left));right:auto;width:clamp(240px,36cqw,330px);max-width:calc(100% - 16px - var(--sa-left) - var(--sa-right));max-height:min(68cqh,580px);border-radius:9px;box-shadow:0 6px 24px #0007}
+body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]) .panel{display:block;padding:6px 8px;font-size:12px;line-height:1.4}
+body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]) .design-drawer-head{padding:3px 8px;font-size:12px;line-height:1.3;gap:6px}
+body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]) .design-drawer-head button{min-height:26px;padding:2px 7px;font-size:11px}
+body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]) .btn{min-height:28px;padding:3px 7px;font-size:11px}
+@container ks (orientation:landscape) and (max-height:640px){body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]){top:44px;bottom:calc(48px + var(--sa-bottom));max-height:none}}
+@container ks (max-width:600px){body.designer-ui #dock:is([data-design-layout="list"],[data-design-layout="performance"]){width:min(268px,calc(100cqw - 24px));top:54px}.designer-ui .tb-actions{gap:3px}body.designer-ui .topbar .btn-ghost{padding-inline:6px;font-size:11px}}
+body.designer-ui #btnDock{display:none}
+.design-weapon-filters{flex:0 0 auto;min-width:0;display:grid;gap:4px;margin:0 0 8px}
+.design-weapon-filters .seg{display:flex;flex-wrap:nowrap;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
+.design-weapon-filters .seg button{flex:0 0 auto;min-height:28px;padding:3px 8px;font-size:11px;white-space:nowrap}
+body.designer-ui .design-readouts{position:absolute;z-index:8;right:max(10px,var(--sa-right));top:10px;display:grid;gap:6px;width:min(230px,28cqw);max-height:calc(100% - 92px - var(--sa-bottom));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;pointer-events:auto}
+body.designer-ui .hudbar{right:calc(min(230px,28cqw) + 20px + var(--sa-right))}
+body.designer-ui .design-readouts .design-metrics{position:static;inset:auto;box-sizing:border-box;width:100%;min-width:0;max-width:none;margin:0}
+body.designer-ui .design-readouts #inspBar{min-height:0;max-height:none;border:1px solid var(--hud-line);border-radius:8px;background:var(--hud-bg)}
+body.designer-ui .design-readouts .ib-head{flex-wrap:wrap;gap:4px;min-height:30px;padding:6px 8px;font-size:11px;overflow:visible}
+body.designer-ui .design-readouts .ib-head b{font-size:11px}
+body.designer-ui .design-readouts .ib-c{font-size:10px;padding:1px 3px}
+body.designer-ui .design-readouts .ib-sum{display:none}
+body.designer-ui .design-readouts .ib-list{max-height:none;overflow:visible;padding:0 6px 6px}
+body.designer-ui .design-readouts .ib-item{padding:6px 2px;min-height:30px;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+body.designer-ui .design-readouts .ib-item small{white-space:normal;font-size:10px}
+body.designer-ui.design-new-open .design-readouts{display:none}
+body.title-open .design-readouts,body.shot-mode .design-readouts,body.trial-on .design-readouts{display:none!important}
+@container ks (orientation:landscape) and (max-height:640px){body.designer-ui .design-readouts{top:6px;right:max(6px,var(--sa-right));width:min(205px,25cqw);max-height:calc(100% - 54px - var(--sa-bottom))}body.designer-ui .hudbar{right:calc(min(205px,25cqw) + 18px + var(--sa-right))}}
+@container ks (max-width:600px){
+ body.designer-ui .topbar{gap:6px;padding-inline:max(8px,var(--sa-left)) max(8px,var(--sa-right))}
+ body.designer-ui .topbar .icon-btn{width:30px;height:30px;min-height:0}
+ body.designer-ui .topbar .icon-btn svg{width:16px;height:16px}
+ body.designer-ui .topbar .mark{width:24px;height:24px}
+ body.designer-ui .brand-name{font-size:12px;line-height:1.2}
+ body.designer-ui .ship-name{font-size:10.5px;line-height:1.3}
+ body.designer-ui .hudbar{left:max(8px,var(--sa-left));right:auto}
+ body.designer-ui .design-readouts{width:132px;right:max(6px,var(--sa-right));max-height:calc(100% - 80px - var(--sa-bottom))}
+ body.designer-ui:is(.design-editor-open,.design-info-open) .design-readouts{width:min(112px,calc(100cqw - 284px))}
+ body.designer-ui:is(.design-editor-open,.design-info-open) .design-readouts .design-metrics dd{font-size:12px;overflow-wrap:anywhere}
+ body.designer-ui:is(.design-editor-open,.design-info-open) .design-readouts .ib-c{font-size:9px}
+ body.designer-ui .design-readouts .ib-item{display:block}
+ body.designer-ui .design-readouts .ib-item span{display:block;-webkit-line-clamp:unset;margin-top:4px}
+ body.designer-ui .design-readouts .ib-item small{display:block;margin-top:4px}
+}
+@container ks (max-width:380px){
+ body.designer-ui .hudbar button{min-height:28px;padding-inline:6px;font-size:11px}
+ body.designer-ui #dock:is([data-design-layout="edit"],[data-design-layout="list"],[data-design-layout="performance"]),body.designer-ui #designInfoWindow{width:calc(100cqw - 132px)}
+ body.designer-ui:is(.design-editor-open,.design-info-open) .design-readouts{width:112px}
+}

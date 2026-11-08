@@ -79,6 +79,32 @@ test('placement jobs return exact solver output and source/parent generations wi
   assert.equal(JSON.parse(job.state).parts.length, 1, 'authoring source stays untouched');
 });
 
+test('repeated stamps reuse derived host caches but never carry uncommitted public repairs into a later snapshot', async () => {
+  const t = setup(), seen = [];
+  t.context.Core.refreshPlacementGeometry = (ship, options) => {
+    const parent = ship.parts[0]; seen.push({cached: !!parent._exactMesh, repaired: parent.repaired, ids: [...options.ids], fits: options.includeFits});
+    parent._exactMesh = {triangles: 'private'};
+  };
+  t.send(t.job()); await t.reply(1);
+  t.send(t.job({id: 2, operationId: 'stamp-2'})); await t.reply(2);
+  assert.deepEqual(seen.map(s => s.cached), [false, true]);
+  assert.deepEqual(seen[0].ids, [1]); assert.equal(seen[0].fits, false);
+  t.context.Core.refreshPlacementGeometry = ship => { seen.push({repaired: ship.parts[0].repaired}); ship.parts[0].repaired = true; };
+  t.send(t.job({id: 3, operationId: 'stamp-3'})); await t.reply(3);
+  t.send(t.job({id: 4, operationId: 'stamp-4'})); await t.reply(4);
+  assert.equal(seen[2].repaired, undefined); assert.equal(seen[3].repaired, undefined);
+  assert.equal(JSON.parse(t.job().state).parts[0].repaired, undefined);
+});
+
+test('a changed global cut context invalidates the isolated source mesh cache', async () => {
+  const t = setup(), seen = [];
+  t.context.Core.refreshPlacementGeometry = ship => { seen.push(!!ship.parts[0]._exactMesh); ship.parts[0]._exactMesh = {}; };
+  t.send(t.job()); await t.reply(1);
+  const state = JSON.parse(t.job().state); state.solidCuts = [{id: 11, c: [0, 0, 0], s: [1, 1, 1]}];
+  t.send(t.job({id: 2, operationId: 'stamp-2', state: JSON.stringify(state)})); await t.reply(2);
+  assert.deepEqual(seen, [false, false]);
+});
+
 test('fittings cross the same generation boundary with their entity tag and canonical host', async () => {
   const t = setup(), fit = {id: -1, k: 'pd', p: [4, 5, 6]}, request = {fit, fitId: -1, entityKind: 'fit', list: 'fits',
     mode: 'direct', hostId: 1, geometryRevision: 2, parentGeometryRevision: 3, placementModelVersion: 1};

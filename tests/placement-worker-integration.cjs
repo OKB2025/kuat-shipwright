@@ -59,6 +59,24 @@ test('actual fitted exterior geometry crosses the Worker boundary and commits wi
   assert.equal(C.placementContact(restored, rebuilt, restored.parts[0]).connected, true);
 });
 
+test('strict Worker interference follows legacy exterior shields after their catalogue moves to interior', async () => {
+  let ship = fixture([30, 20, 10]);
+  const shield = {id: 2, k: 'shield', c: [0, 5.5, 4], d: 1};
+  shield.placement = {modelVersion: C.PLACEMENT_MODEL_VERSION, mode: 'direct', parentStructureId: 1,
+    geometryRevision: 1, parentGeometryRevision: 0, parentLocalAnchor: [0, 5.5, 4], surfaceAnchor: [0, 5, 4],
+    contactNormal: [0, 1, 0], contactLocalNormal: [0, 1, 0],
+    rigidPose: {offset: [0, .5, 0], forward: [1, 0, 0], up: [0, 1, 0]}, requestedGeometry: {...shield}};
+  ship.parts.push(shield); ship.nextId = 3; ship = C.deserialize(C.serialize(ship));
+  ship.parts[0].c[0] = 5;
+  assert.equal(C.placementCapability(ship.parts[1]).space, 'interior');
+  assert.equal(ship.parts[1].c[0], 0, 'authoring snapshot is still waiting for child follow');
+  const source = C.publicJSON(ship), reply = await solve(ship,
+    {id: -1, k: 'struct', form: 'box', c: [5, 0, 4], s: [2, 2, 2]},
+    {mode: 'horizontal', parentStructureId: 1, parentGeometryRevision: 0, hit: {p: [5, 5, 4], n: [0, 1, 0]}});
+  assert.equal(reply.result.ok, false); assert.equal(reply.result.code, 'placement-interference');
+  assert.equal(C.publicJSON(ship), source, 'failed strict placement does not commit the temporary follow');
+});
+
 test('an actual weapon fitting validates in the Worker and adopts the exact tapped host and pose', async () => {
   const ship = fixture([200, 160, 20]); ship.parts[0].c = [100, 10, 0];
   const before = C.publicJSON(ship), fit = {id: -1, k: 'pd', p: [0, 0, 0], n: [0, 1, 0], a: 2, ped: .3, assetYaw: 17, mountMode: 'auto'};
@@ -75,6 +93,25 @@ test('an actual weapon fitting validates in the Worker and adopts the exact tapp
   const stored = C.serialize(ship), restored = C.deserialize(stored), f = restored.fits.find(f => f.id === accepted.fit.id);
   assert.equal(f.host, 1); assert.deepEqual(Array.from(f.p), [83, 20, 23]);
   assert.deepEqual(Array.from(f.local), Array.from(accepted.fit.local));
+});
+
+test('an early native pick acquires the exact stable face in the Worker without rebinding a lost explicit face', async () => {
+  const ship = fixture([200, 160, 20]), parent = ship.parts[0];
+  Object.assign(parent, {yaw: 21, pitch: 8, roll: -12});
+  const top = C.surfacePatches(ship, true).find(p => p.host === 'p1' && p.face === 'top');
+  assert.ok(top);
+  const fit = {id: -1, k: 'pd', p: [0, 0, 0], n: Array.from(top.normal), tilt: Array.from(top.normal), a: 2, ped: 0};
+  const request = {fit, fitId: -1, entityKind: 'fit', list: 'fits', mode: 'direct', hostId: 1,
+    hit: {p: Array.from(top.center), n: Array.from(top.normal)}, geometryRevision: 1, parentGeometryRevision: 0};
+  const source = C.publicJSON(ship), early = await solve(ship, undefined, request);
+  assert.equal(early.result.ok, true, early.result.error);
+  assert.equal(early.result.fit.placement.hostSurfaceId, top.id);
+  assert.deepEqual(Array.from(early.result.fit.p), Array.from(top.center), 'face binding cannot shift the tapped position');
+  const lost = await solve(ship, undefined, {...request, hostSurfaceId: 'p1:top:lost'});
+  assert.equal(lost.result.ok, false); assert.equal(lost.result.code, 'surface-missing');
+  const gap = await solve(ship, undefined, {...request, hit: {p: C.add(top.center, C.mul(top.normal, 1)), n: Array.from(top.normal)}});
+  assert.equal(gap.result.ok, false); assert.equal(gap.result.code, 'surface-missing');
+  assert.equal(C.publicJSON(ship), source, 'early face resolution never mutates the live design');
 });
 
 test('a new structure and its weapon fitting solve in dependency order and adopt without duplicate IDs', async () => {

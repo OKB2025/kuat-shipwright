@@ -1,0 +1,262 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T11:45:40.297Z",
+  "command": "node scripts/benchmark-placement-validation.cjs",
+  "baseline": "a4d3251141ad7f42caaa6248a6e58c8691ed9f21",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "183a831cb257b593bafbfbe167e050e41abe5bdb457dd8f756175f939b9ac54b",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567"
+  },
+  "node": "v24.22.1",
+  "platform": "linux/x64",
+  "scope": "Strict compatibility-API benchmark, not the current normal UI path, which places a basic draft without waiting for this API. Actual saved Mandator2 parent1154 and stable semantic face. Full case retains every318 authored part and534 other fittings, removing only witness358 to avoid intentional overlap. Four exact Worker engine solves of the same witness pose; no rendering or app auto-commit timing. No source geometry simplification.",
+  "limitations": [
+    "Node VM engine actor; browser scheduling, FPS, Safari and mobile timing are not measured here.",
+    "RSS/heap figures describe an isolated Node helper process, including loading the complete runtime; they are not a browser extra-Worker allocation or a device peak.",
+    "Baseline timeout is a lower bound, not a measured completion time. Cases run sequentially; other independent development processes may be active."
+  ],
+  "fixture": {
+    "archive": "assets/source/ship-example-blueprints/mandator2.json.gz",
+    "unpackedSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "witnessFitId": 358,
+    "parentId": 1154,
+    "surfaceId": "p1154:top:2:12e2bm3"
+  },
+  "cases": [
+    {
+      "status": "TIMEOUT",
+      "variant": "main-before",
+      "fixture": "selected-parent-only",
+      "timeoutMs": 15000,
+      "observedWallMs": 15096.382941,
+      "completedSolves": [
+        {
+          "completedSolve": 1,
+          "elapsedMs": 1912.675746
+        },
+        {
+          "completedSolve": 2,
+          "elapsedMs": 4989.499338
+        }
+      ],
+      "scope": "The four-solve case did not finish within this wall-time budget, including source evaluation. Any completed solves are listed; no missing solve completion time is claimed."
+    },
+    {
+      "variant": "working-tree-after",
+      "fixture": "selected-parent-only",
+      "status": "PASS",
+      "original": {
+        "parts": 318,
+        "fits": 535
+      },
+      "retained": {
+        "parts": 1,
+        "fits": 0
+      },
+      "sourceSha256": {
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+        "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+        "js/core.js": "183a831cb257b593bafbfbe167e050e41abe5bdb457dd8f756175f939b9ac54b",
+        "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567"
+      },
+      "sourceParentUnchanged": true,
+      "strictResults": [
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        },
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        },
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        },
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        }
+      ],
+      "elapsedMs": [
+        1472.0515460000006,
+        209.443217,
+        345.21117799999956,
+        287.65029100000083
+      ],
+      "nodeProcessMemory": {
+        "beforeRuntime": {
+          "rss": 31006720,
+          "heapTotal": 7917568,
+          "heapUsed": 5400544,
+          "external": 2341249,
+          "arrayBuffers": 145683
+        },
+        "afterRuntime": {
+          "rss": 223272960,
+          "heapTotal": 138653696,
+          "heapUsed": 119616608,
+          "external": 2477701,
+          "arrayBuffers": 282095
+        },
+        "afterPlacement": {
+          "rss": 337240064,
+          "heapTotal": 197402624,
+          "heapUsed": 130743000,
+          "external": 8367932,
+          "arrayBuffers": 3752012
+        }
+      }
+    },
+    {
+      "status": "TIMEOUT",
+      "variant": "main-before",
+      "fixture": "full-318-parts-534-fittings",
+      "timeoutMs": 15000,
+      "observedWallMs": 15020.629956000004,
+      "completedSolves": [],
+      "scope": "The four-solve case did not finish within this wall-time budget, including source evaluation. Any completed solves are listed; no missing solve completion time is claimed."
+    },
+    {
+      "variant": "working-tree-after",
+      "fixture": "full-318-parts-534-fittings",
+      "status": "PASS",
+      "original": {
+        "parts": 318,
+        "fits": 535
+      },
+      "retained": {
+        "parts": 318,
+        "fits": 534
+      },
+      "sourceSha256": {
+        "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+        "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+        "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+        "js/core.js": "183a831cb257b593bafbfbe167e050e41abe5bdb457dd8f756175f939b9ac54b",
+        "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567"
+      },
+      "sourceParentUnchanged": true,
+      "strictResults": [
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        },
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        },
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        },
+        {
+          "ok": true,
+          "host": 1154,
+          "point": [
+            4821.600000000482,
+            452.51667531701514,
+            290.2000000024773
+          ],
+          "semanticFace": "p1154:top:2:12e2bm3",
+          "floating": false
+        }
+      ],
+      "elapsedMs": [
+        807.2537649999999,
+        579.0967659999999,
+        403.4454959999998,
+        324.21336500000007
+      ],
+      "nodeProcessMemory": {
+        "beforeRuntime": {
+          "rss": 31408128,
+          "heapTotal": 7655424,
+          "heapUsed": 5404176,
+          "external": 2341249,
+          "arrayBuffers": 145683
+        },
+        "afterRuntime": {
+          "rss": 227082240,
+          "heapTotal": 141799424,
+          "heapUsed": 118909672,
+          "external": 2539909,
+          "arrayBuffers": 344303
+        },
+        "afterPlacement": {
+          "rss": 426831872,
+          "heapTotal": 305139712,
+          "heapUsed": 172430280,
+          "external": 8081516,
+          "arrayBuffers": 3465596
+        }
+      }
+    }
+  ],
+  "sourceStable": true,
+  "sourceSha256After": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "183a831cb257b593bafbfbe167e050e41abe5bdb457dd8f756175f939b9ac54b",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567"
+  },
+  "completedAt": "2026-11-08T11:46:22.219Z",
+  "executionConditions": {
+    "concurrentActivity": "Other functional Node/Chromium verification ran in the shared validation session. Exact process overlap with each case was not instrumented; this was not an isolated CPU/device comparison.",
+    "normalUI": "Current normal UI does not await this strict compatibility API. Timings are not tap-to-placement latency."
+  }
+}

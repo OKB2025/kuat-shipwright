@@ -1,0 +1,1767 @@
+{
+  "cgroupMemoryEventsBefore": {
+    "low": 0,
+    "high": 0,
+    "max": 8179,
+    "oom": 7,
+    "oom_kill": 4,
+    "oom_group_kill": 0
+  },
+  "status": "PASS",
+  "phase": "after",
+  "date": "2026-11-08T12:13:19.976Z",
+  "sourceSha256": {
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/design-ui.css": "68917a0ca5d313341c7c3cc9073faf9fea3ee4ecfa6d2ef152b60660d4807ca2",
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "635f223a4192967d6003a730343ec64a9c1fa98de794f9c9c5bda3785109953e"
+  },
+  "harness": {
+    "path": "scripts/browser-compact-design-ui.cjs",
+    "sha256": "191ebd35a380f3b55f5ec47a67c5c62485ba5d7b5f999b7183f3ab766281dfb0"
+  },
+  "scope": "Actual editor and real Worker with authenticated hull178/nozzles55/56/57/machinery173/174/175/reactor48. Other77 apparatus and all51 fittings are explicitly excluded. Actual source geometry and settings retained. This checks UI reach and layout, not full-ship performance.",
+  "fixture": {
+    "path": "assets/source/imperial-ii-user-layout/imperial-ii-upload.json",
+    "sha256": "914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b",
+    "retainedIds": [
+      48,
+      55,
+      56,
+      57,
+      173,
+      174,
+      175,
+      178
+    ]
+  },
+  "executionConditions": {
+    "runMode": "functional",
+    "graphics": "Chromium SwiftShader",
+    "nativeTouch": true,
+    "safari": "Not tested",
+    "controlledPerformanceBenchmark": false,
+    "deepFunctionalChecks": true
+  },
+  "workersCreated": [
+    {
+      "url": "blob:http://127.0.0.1:8000/360becde-247f-4440-9f4f-9da326668f86",
+      "at": "2026-11-08T12:13:23.880Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/5b150911-447c-4435-8583-1e0d70d1b310",
+      "at": "2026-11-08T12:13:27.570Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/8f2de121-41dd-4b18-9a37-584c68b1f336",
+      "at": "2026-11-08T12:13:32.181Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/a41903c8-d98b-472e-bba6-9faa655827bf",
+      "at": "2026-11-08T12:13:39.449Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/e8fccc72-13e2-4af2-8f91-fc0201347915",
+      "at": "2026-11-08T12:13:52.902Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/4f0973c2-0dfe-4c94-bf1d-7c9027b74f7a",
+      "at": "2026-11-08T12:13:56.767Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/e3888c65-2419-489c-ac10-d43f246c9e1b",
+      "at": "2026-11-08T12:14:03.038Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/ef3faac1-37a6-412b-b04d-e95825a032d0",
+      "at": "2026-11-08T12:14:06.307Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/2327c631-7b9e-4831-a30a-a1cb7904987e",
+      "at": "2026-11-08T12:14:08.806Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/842c2705-a881-4c92-bd6d-b9a8cc79ed3a",
+      "at": "2026-11-08T12:14:12.553Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/5d0b149b-0691-48ba-943c-7576a0ec123a",
+      "at": "2026-11-08T12:14:14.623Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/dd7ae355-6088-41d7-b0a8-ff0d70cd1746",
+      "at": "2026-11-08T12:14:17.344Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/f84d27f8-f3c3-438a-874e-c6c2b3d0692c",
+      "at": "2026-11-08T12:14:19.257Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/fbbc0b7f-4f25-424a-9f3a-72c61c674dcd",
+      "at": "2026-11-08T12:14:21.936Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/9a44ccee-9e45-4658-a11c-5b9479f8c1ec",
+      "at": "2026-11-08T12:14:24.636Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/b811d34c-e3ad-4b9f-bb5e-2a3dc9f18890",
+      "at": "2026-11-08T12:14:30.578Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/a078e42c-7e41-4de9-b060-a17c7b139094",
+      "at": "2026-11-08T12:14:35.347Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/9a753b90-9471-4050-86e3-e5ba2b6ecdc6",
+      "at": "2026-11-08T12:14:40.012Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/dfc360cc-3c48-4a17-a920-24a801092c62",
+      "at": "2026-11-08T12:14:44.120Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/0e674922-35d2-45f3-9f7f-4663eafcc81c",
+      "at": "2026-11-08T12:14:46.518Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/0be11bda-9f3d-43d5-9b6f-c0628cd0fe4d",
+      "at": "2026-11-08T12:15:07.123Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/de4f99a6-8b22-4b7a-baf4-43af7fe55afd",
+      "at": "2026-11-08T12:15:17.306Z"
+    },
+    {
+      "url": "blob:http://127.0.0.1:8000/c99e7cb1-3992-4cb7-a968-23105e55b563",
+      "at": "2026-11-08T12:15:22.721Z"
+    }
+  ],
+  "profiles": [],
+  "errors": [],
+  "engineMode": "worker",
+  "seed": {
+    "parts": 8,
+    "fits": 0
+  },
+  "functional": {
+    "rightInspection": {
+      "target": {
+        "index": 0,
+        "text": "どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。",
+        "targets": [
+          {
+            "list": "parts",
+            "id": 55,
+            "space": "exterior"
+          },
+          {
+            "list": "parts",
+            "id": 56,
+            "space": "exterior"
+          },
+          {
+            "list": "parts",
+            "id": 57,
+            "space": "exterior"
+          }
+        ]
+      },
+      "selected": {
+        "list": "parts",
+        "id": 55
+      },
+      "foreignTargetBlocked": true,
+      "expandedAndCollapsed": true,
+      "unchangedDesign": true
+    },
+    "catalogTaxonomy": {
+      "categories": [
+        {
+          "key": "structure",
+          "text": "構造物"
+        },
+        {
+          "key": "propulsion",
+          "text": "推進装置"
+        },
+        {
+          "key": "weapon",
+          "text": "兵装"
+        },
+        {
+          "key": "command",
+          "text": "指揮・通信設備"
+        },
+        {
+          "key": "appearance",
+          "text": "外観"
+        },
+        {
+          "key": "user",
+          "text": "ユーザー部品"
+        }
+      ],
+      "landings": [
+        {
+          "category": "structure",
+          "items": [
+            "part:struct",
+            "part:wing",
+            "part:solarPanel"
+          ],
+          "selected": [
+            "part:struct"
+          ],
+          "settings": true,
+          "space": "normal"
+        },
+        {
+          "category": "propulsion",
+          "items": [
+            "part:engine",
+            "equipment:exposedTurbine"
+          ],
+          "selected": [
+            "part:engine"
+          ],
+          "settings": true,
+          "space": "normal"
+        },
+        {
+          "category": "weapon",
+          "items": [
+            "part:sbeam",
+            "part:hion",
+            "fit:single40",
+            "fit:quad40Ion",
+            "fit:twin40Dome",
+            "fit:twin40",
+            "fit:triple40",
+            "fit:oct40",
+            "fit:refVen",
+            "fit:triple70",
+            "fit:quad70Side",
+            "fit:venSide70",
+            "fit:ion",
+            "fit:stl",
+            "fit:quad175",
+            "fit:triple175",
+            "fit:ball175TripleIon",
+            "fit:ball175Quad",
+            "fit:ball175QuadIon",
+            "fit:ball720",
+            "fit:utl",
+            "fit:monCalPD",
+            "fit:monCal34",
+            "fit:monCal80",
+            "fit:monCal200",
+            "fit:monCal200Triple",
+            "fit:monCal150Ion",
+            "fit:single500",
+            "fit:twin200",
+            "fit:quad500",
+            "fit:quad500MT",
+            "fit:twin500MT",
+            "fit:single500MT",
+            "fit:single6MT",
+            "fit:twin6MT",
+            "fit:sphyrnaTwin500MT",
+            "fit:quad1Rapid",
+            "fit:recProw",
+            "fit:recTwin",
+            "fit:recKeel",
+            "fit:munBow",
+            "fit:munTwin",
+            "fit:quad200",
+            "fit:single200",
+            "fit:twin200Fast",
+            "fit:pd",
+            "fit:cmsl",
+            "fit:shipMsl",
+            "fit:itl",
+            "fit:trc"
+          ],
+          "selected": [
+            "part:sbeam"
+          ],
+          "settings": true,
+          "space": "normal"
+        },
+        {
+          "category": "command",
+          "items": [
+            "part:scanner",
+            "part:sensor",
+            "equipment:isdBridge",
+            "equipment:venAirBridge",
+            "equipment:venNavBridge",
+            "equipment:isdSensor",
+            "equipment:isdMast",
+            "equipment:isdhBridge",
+            "equipment:isdhSensor",
+            "equipment:isdhMast",
+            "equipment:exeBridge",
+            "equipment:exeSensor",
+            "bridge:podBridge",
+            "bridge:podAir",
+            "bridge:podHangar",
+            "bridge:podCombat"
+          ],
+          "selected": [
+            "part:scanner"
+          ],
+          "settings": true,
+          "space": "normal"
+        },
+        {
+          "category": "appearance",
+          "items": [
+            "part:cockpit"
+          ],
+          "selected": [
+            "part:cockpit"
+          ],
+          "settings": true,
+          "space": "normal"
+        }
+      ],
+      "categoryScroll": {
+        "before": 1,
+        "afterCategory": 1,
+        "afterPart": 1
+      },
+      "command": {
+        "exterior": [
+          "part:scanner",
+          "part:sensor",
+          "equipment:isdBridge",
+          "equipment:venAirBridge",
+          "equipment:venNavBridge",
+          "equipment:isdSensor",
+          "equipment:isdMast",
+          "equipment:isdhBridge",
+          "equipment:isdhSensor",
+          "equipment:isdhMast",
+          "equipment:exeBridge",
+          "equipment:exeSensor",
+          "bridge:podBridge",
+          "bridge:podAir",
+          "bridge:podHangar",
+          "bridge:podCombat"
+        ],
+        "interior": [
+          "part:command",
+          "part:firecontrol",
+          "part:automation",
+          "part:navComputer"
+        ]
+      },
+      "canopy": {
+        "form": "box",
+        "length": 7,
+        "unchangedDesign": true,
+        "before": {
+          "parameters": {
+            "fit": "refVen",
+            "ped": 0,
+            "pedShape": "round",
+            "pedSize": 1
+          },
+          "uploads": {
+            "preview": {
+              "n": 360,
+              "nonFiniteCoordinates": 0,
+              "hash": "1bc6a95d",
+              "bounds": [
+                -0.800000011920929,
+                -0.800000011920929,
+                -0.800000011920929,
+                0.800000011920929,
+                0.800000011920929,
+                0.800000011920929
+              ]
+            },
+            "previewRef": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewFits": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewRefFits": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            }
+          },
+          "camera": {
+            "th": 0.85,
+            "ph": 1.05,
+            "r": 4.480000066757202,
+            "target": [
+              0,
+              0,
+              0
+            ],
+            "fov": 0.72
+          },
+          "off": [
+            0,
+            0,
+            0
+          ],
+          "bounds": [
+            -0.800000011920929,
+            -0.800000011920929,
+            -0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929
+          ],
+          "draws": 1
+        },
+        "after": {
+          "parameters": {
+            "fit": "refVen",
+            "ped": 0,
+            "pedShape": "round",
+            "pedSize": 1
+          },
+          "uploads": {
+            "preview": {
+              "n": 48,
+              "nonFiniteCoordinates": 0,
+              "hash": "52ef2105",
+              "bounds": [
+                -3.5,
+                -0.800000011920929,
+                -0.800000011920929,
+                3.5,
+                0.800000011920929,
+                0.800000011920929
+              ]
+            },
+            "previewRef": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewFits": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewRefFits": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            }
+          },
+          "camera": {
+            "th": 0.85,
+            "ph": 1.05,
+            "r": 19.599999999999998,
+            "target": [
+              0,
+              0,
+              0
+            ],
+            "fov": 0.72
+          },
+          "off": [
+            0,
+            0,
+            0
+          ],
+          "bounds": [
+            -3.5,
+            -0.800000011920929,
+            -0.800000011920929,
+            3.5,
+            0.800000011920929,
+            0.800000011920929
+          ],
+          "draws": 1
+        }
+      },
+      "weapons": {
+        "laserItems": [
+          "fit:venSide70",
+          "fit:monCal34",
+          "fit:monCal80",
+          "fit:monCal200",
+          "fit:monCal200Triple",
+          "fit:quad500MT",
+          "fit:twin500MT",
+          "fit:single500MT",
+          "fit:single6MT",
+          "fit:twin6MT",
+          "fit:sphyrnaTwin500MT",
+          "fit:recProw",
+          "fit:recKeel",
+          "fit:munBow"
+        ],
+        "actualOutput": 0.000006,
+        "filtered": [
+          {
+            "key": "single6MT",
+            "output": 0.000006,
+            "ion": false,
+            "missile": false,
+            "matches": true
+          }
+        ]
+      },
+      "supportPreview": {
+        "observer": "Original Renderer.upload/draw wrappers record actual buffers, camera and bounds; rendering is unchanged",
+        "round": {
+          "parameters": {
+            "fit": "utl",
+            "ped": 8,
+            "pedShape": "round",
+            "pedSize": 0.6
+          },
+          "uploads": {
+            "preview": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewRef": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewFits": {
+              "n": 54,
+              "nonFiniteCoordinates": 0,
+              "hash": "6b3c82ee",
+              "bounds": [
+                -22.939199447631836,
+                0,
+                -22.939199447631836,
+                22.939199447631836,
+                8,
+                22.939199447631836
+              ]
+            },
+            "previewRefFits": {
+              "n": 5344,
+              "nonFiniteCoordinates": 0,
+              "hash": "e3ca5306",
+              "bounds": [
+                -39.375,
+                8,
+                -33.75,
+                50.625,
+                32.75,
+                33.75
+              ]
+            }
+          },
+          "camera": {
+            "th": 0.85,
+            "ph": 1.05,
+            "r": 251.99999999999997,
+            "target": [
+              0,
+              0,
+              0
+            ],
+            "fov": 0.72
+          },
+          "off": [
+            -5.625,
+            -16.375,
+            0
+          ],
+          "bounds": [
+            -39.375,
+            0,
+            -33.75,
+            50.625,
+            32.75,
+            33.75
+          ],
+          "draws": 1
+        },
+        "trap": {
+          "parameters": {
+            "fit": "utl",
+            "ped": 8,
+            "pedShape": "trap",
+            "pedSize": 0.6
+          },
+          "uploads": {
+            "preview": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewRef": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewFits": {
+              "n": 24,
+              "nonFiniteCoordinates": 0,
+              "hash": "17a87475",
+              "bounds": [
+                -26.243999481201172,
+                0,
+                -26.243999481201172,
+                26.243999481201172,
+                8,
+                26.243999481201172
+              ]
+            },
+            "previewRefFits": {
+              "n": 5344,
+              "nonFiniteCoordinates": 0,
+              "hash": "e3ca5306",
+              "bounds": [
+                -39.375,
+                8,
+                -33.75,
+                50.625,
+                32.75,
+                33.75
+              ]
+            }
+          },
+          "camera": {
+            "th": 0.85,
+            "ph": 1.05,
+            "r": 251.99999999999997,
+            "target": [
+              0,
+              0,
+              0
+            ],
+            "fov": 0.72
+          },
+          "off": [
+            -5.625,
+            -16.375,
+            0
+          ],
+          "bounds": [
+            -39.375,
+            0,
+            -33.75,
+            50.625,
+            32.75,
+            33.75
+          ],
+          "draws": 1
+        },
+        "large": {
+          "parameters": {
+            "fit": "utl",
+            "ped": 8,
+            "pedShape": "trap",
+            "pedSize": 2.5
+          },
+          "uploads": {
+            "preview": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewRef": {
+              "n": 0,
+              "nonFiniteCoordinates": 0,
+              "hash": "811c9dc5",
+              "bounds": null
+            },
+            "previewFits": {
+              "n": 24,
+              "nonFiniteCoordinates": 0,
+              "hash": "a4ed4005",
+              "bounds": [
+                -109.3499984741211,
+                0,
+                -109.3499984741211,
+                109.3499984741211,
+                8,
+                109.3499984741211
+              ]
+            },
+            "previewRefFits": {
+              "n": 5344,
+              "nonFiniteCoordinates": 0,
+              "hash": "e3ca5306",
+              "bounds": [
+                -39.375,
+                8,
+                -33.75,
+                50.625,
+                32.75,
+                33.75
+              ]
+            }
+          },
+          "camera": {
+            "th": 0.85,
+            "ph": 1.05,
+            "r": 612.3599914550781,
+            "target": [
+              0,
+              0,
+              0
+            ],
+            "fov": 0.72
+          },
+          "off": [
+            0,
+            -16.375,
+            0
+          ],
+          "bounds": [
+            -109.3499984741211,
+            0,
+            -109.3499984741211,
+            109.3499984741211,
+            32.75,
+            109.3499984741211
+          ],
+          "draws": 2
+        },
+        "selectedFromScroll": {
+          "top": 1898,
+          "left": 0,
+          "selected": "part:sbeam"
+        },
+        "retainedPaletteScroll": {
+          "top": 1898,
+          "left": 0,
+          "selected": "fit:trc"
+        },
+        "scrollBefore": [
+          {
+            "pane": "palette",
+            "top": 789
+          },
+          {
+            "pane": "settings",
+            "top": 262
+          }
+        ],
+        "scrollAfter": [
+          {
+            "pane": "palette",
+            "top": 789
+          },
+          {
+            "pane": "settings",
+            "top": 262
+          }
+        ]
+      },
+      "interior": [
+        "part:gen",
+        "part:shield",
+        "part:hyper",
+        "part:hangar",
+        "part:aux",
+        "part:fuel",
+        "part:pump",
+        "part:battery",
+        "part:localShield",
+        "part:inertial",
+        "part:integrity",
+        "part:repulsor",
+        "part:service",
+        "part:cargo",
+        "part:habitat",
+        "part:command",
+        "part:firecontrol",
+        "part:automation",
+        "part:astromech",
+        "part:droidbrain",
+        "part:troopbay",
+        "part:lifeSupport",
+        "part:ejectSeat",
+        "part:navComputer",
+        "part:maneuver",
+        "part:laserGas",
+        "part:engineCore",
+        "part:hdis"
+      ],
+      "unchangedDesign": true
+    },
+    "newPlacement": {
+      "modal": {
+        "viewControls": [],
+        "readouts": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0,
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "display": "none",
+          "visibility": "visible",
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        "inspectionInReadouts": true,
+        "quickTrial": {
+          "x": 724.5,
+          "y": 2,
+          "width": 43,
+          "height": 30,
+          "bottom": 32,
+          "right": 767.5,
+          "fontSize": "11.5px",
+          "lineHeight": "17.25px",
+          "display": "block",
+          "visibility": "visible",
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "info": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0,
+          "fontSize": "11px",
+          "lineHeight": "14.85px",
+          "display": "none",
+          "visibility": "visible",
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        "dockLayout": "new",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "documentWidth": 844,
+        "bodyClasses": "designer-ui design-new-open",
+        "topbar": {
+          "x": 0,
+          "y": 0,
+          "width": 844,
+          "height": 35,
+          "bottom": 35,
+          "right": 844,
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "display": "flex",
+          "visibility": "visible",
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "dock": {
+          "x": 6,
+          "y": 6,
+          "width": 832,
+          "height": 378,
+          "bottom": 384,
+          "right": 838,
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "display": "flex",
+          "visibility": "visible",
+          "scrollHeight": 376,
+          "clientHeight": 376
+        },
+        "drawerHeader": {
+          "x": 7,
+          "y": 7,
+          "width": 830,
+          "height": 39,
+          "bottom": 46,
+          "right": 837,
+          "fontSize": "13px",
+          "lineHeight": "16.9px",
+          "display": "flex",
+          "visibility": "visible",
+          "scrollHeight": 38,
+          "clientHeight": 38
+        },
+        "panel": {
+          "x": 7,
+          "y": 46,
+          "width": 830,
+          "height": 290,
+          "bottom": 336,
+          "right": 837,
+          "fontSize": "12px",
+          "lineHeight": "16.8px",
+          "display": "grid",
+          "visibility": "visible",
+          "scrollHeight": 290,
+          "clientHeight": 290
+        },
+        "session": null,
+        "usableControlHeight": 0,
+        "editActions": [],
+        "menu": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0,
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "display": "none",
+          "visibility": "visible",
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        "menuButtons": [],
+        "toolRail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0,
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "display": "none",
+          "visibility": "visible",
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        "railActions": [],
+        "mirrors": [
+          {
+            "selector": "#chipMirror",
+            "visible": false,
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "bottom": 0,
+              "right": 0,
+              "fontSize": "9.5px",
+              "lineHeight": "10.925px",
+              "display": "grid",
+              "visibility": "visible",
+              "scrollHeight": 0,
+              "clientHeight": 0
+            }
+          },
+          {
+            "selector": "#chipVMirror",
+            "visible": false,
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "bottom": 0,
+              "right": 0,
+              "fontSize": "9.5px",
+              "lineHeight": "10.925px",
+              "display": "grid",
+              "visibility": "visible",
+              "scrollHeight": 0,
+              "clientHeight": 0
+            }
+          }
+        ],
+        "metrics": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0,
+          "fontSize": "11px",
+          "lineHeight": "14.3px",
+          "display": "none",
+          "visibility": "visible",
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        "canvas": {
+          "x": 0,
+          "y": 35,
+          "width": 844,
+          "height": 355,
+          "bottom": 390,
+          "right": 844,
+          "fontSize": "14px",
+          "lineHeight": "21px",
+          "display": "block",
+          "visibility": "visible",
+          "scrollHeight": 355,
+          "clientHeight": 355
+        },
+        "numericInputs": [
+          {
+            "sl": "sl",
+            "box": {
+              "x": 739,
+              "y": 270.328125,
+              "width": 75,
+              "height": 38,
+              "bottom": 308.328125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "sw",
+            "box": {
+              "x": 739,
+              "y": 308.328125,
+              "width": 75,
+              "height": 38,
+              "bottom": 346.328125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "sh",
+            "box": {
+              "x": 739,
+              "y": 346.328125,
+              "width": 75,
+              "height": 38,
+              "bottom": 384.328125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "st",
+            "box": {
+              "x": 739,
+              "y": 384.328125,
+              "width": 75,
+              "height": 38,
+              "bottom": 422.328125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "newSurfacePitch",
+            "box": {
+              "x": 739,
+              "y": 414.8125,
+              "width": 75,
+              "height": 38,
+              "bottom": 452.8125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "newSurfaceRoll",
+            "box": {
+              "x": 739,
+              "y": 456.8125,
+              "width": 75,
+              "height": 38,
+              "bottom": 494.8125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "syaw",
+            "box": {
+              "x": 739,
+              "y": 574.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 612.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "sangle0",
+            "box": {
+              "x": 739,
+              "y": 616.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 654.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "sangle1",
+            "box": {
+              "x": 739,
+              "y": 658.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 696.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "sangle2",
+            "box": {
+              "x": 739,
+              "y": 700.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 738.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "sangle3",
+            "box": {
+              "x": 739,
+              "y": 742.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 780.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "soffsetX",
+            "box": {
+              "x": 739,
+              "y": 784.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 822.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "sl": "soffsetZ",
+            "box": {
+              "x": 739,
+              "y": 826.5,
+              "width": 75,
+              "height": 38,
+              "bottom": 864.5,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 36,
+              "clientHeight": 36
+            }
+          },
+          {
+            "box": {
+              "x": 361.59375,
+              "y": 593.890625,
+              "width": 452.40625,
+              "height": 28.390625,
+              "bottom": 622.28125,
+              "right": 814,
+              "fontSize": "16px",
+              "lineHeight": "22.4px",
+              "display": "block",
+              "visibility": "visible",
+              "scrollHeight": 25,
+              "clientHeight": 24
+            }
+          }
+        ],
+        "selected": null,
+        "parts": 8,
+        "fits": 0,
+        "gen": 1,
+        "statsGen": 1,
+        "worker": "worker"
+      },
+      "toggles": [
+        {
+          "key": "mirror",
+          "restored": true,
+          "state": false
+        },
+        {
+          "key": "vmirror",
+          "restored": true,
+          "state": false
+        }
+      ],
+      "cameraPreserved": true,
+      "taps": [
+        {
+          "pixel": [
+            422,
+            81.50854512378137
+          ],
+          "p": [
+            699.6640014648436,
+            217.79897259080803,
+            -11.240281189640882
+          ],
+          "n": [
+            0.07002539854871913,
+            0.9793948653727103,
+            -0.1894258198864763
+          ],
+          "surfaceId": "p178:top:64:1kc39tc",
+          "parent": 178
+        },
+        {
+          "pixel": [
+            526.8811902411603,
+            84.45330318510432
+          ],
+          "p": [
+            1100.000006617532,
+            191.34931651106558,
+            -0.000012812971192488476
+          ],
+          "n": [
+            0.06960718752190319,
+            0.9794453002104742,
+            -0.18931915735314492
+          ],
+          "surfaceId": "p178:top:130:1kc39tc",
+          "parent": 178
+        }
+      ],
+      "countAtSecondTap": 9,
+      "atSecondTap": {
+        "parts": 9,
+        "gen": 2,
+        "adoptedGen": 1,
+        "geoGen": 1,
+        "statsGen": 1,
+        "secondHit": {
+          "id": "cv",
+          "tag": "CANVAS"
+        },
+        "bar": {
+          "x": 6,
+          "y": 286,
+          "width": 615,
+          "height": 56
+        }
+      },
+      "firstTapDispatchMs": 24,
+      "secondTapDispatchMs": 86,
+      "authoredBothMs": 136,
+      "finalStatsMs": 14454,
+      "timingScope": "Shared-host functional observation including Playwright dispatch, not a controlled speed/FPS comparison",
+      "stamps": {
+        "state": "draft",
+        "text": "追加元の構造物と取付位置をタップすると配置します。同じ設定で続けて配置できます。追加元：船体構造物 #178 ・ 上面取付位置 XYZ（m）：1100 / 191.35 / 0設定に戻る配置を終了",
+        "parts": 10,
+        "gen": 3,
+        "confirmButtons": 0,
+        "created": [
+          {
+            "id": 189,
+            "k": "struct",
+            "parent": 178,
+            "mode": "horizontal",
+            "volume": 789491.3770012084,
+            "mesh": {
+              "triangles": 856,
+              "degenerateTriangles": 0,
+              "weldedVertexCount": 430,
+              "invalidEdges": 0,
+              "coordinateTolerance": 0.00005357063100442668,
+              "contact": {
+                "connected": true,
+                "area": 18488.021645268673,
+                "reason": null
+              }
+            },
+            "floating": null
+          },
+          {
+            "id": 190,
+            "k": "struct",
+            "parent": 178,
+            "mode": "horizontal",
+            "volume": 824952.6983911431,
+            "mesh": {
+              "triangles": 1286,
+              "degenerateTriangles": 0,
+              "weldedVertexCount": 645,
+              "invalidEdges": 0,
+              "coordinateTolerance": 0.00005357026331654283,
+              "contact": {
+                "connected": true,
+                "area": 17806.2074744431,
+                "reason": null
+              }
+            },
+            "floating": null
+          }
+        ],
+        "cancelVisible": true
+      },
+      "independentUndo": true
+    }
+  },
+  "paletteScrollProbe": [
+    {
+      "selector": "panel",
+      "pane": null,
+      "top": 0,
+      "clientHeight": 290,
+      "scrollHeight": 290,
+      "overflowY": "hidden",
+      "minHeight": "0px",
+      "flex": "1 1 auto",
+      "display": "grid",
+      "gridTemplateRows": "274px",
+      "rect": {
+        "x": 7,
+        "y": 46,
+        "width": 830,
+        "height": 290
+      }
+    },
+    {
+      "selector": "",
+      "pane": "catalog",
+      "top": 0,
+      "clientHeight": 274,
+      "scrollHeight": 274,
+      "overflowY": "hidden",
+      "minHeight": "0px",
+      "flex": "0 1 auto",
+      "display": "flex",
+      "gridTemplateRows": "none",
+      "rect": {
+        "x": 15,
+        "y": 54,
+        "width": 321.59375,
+        "height": 274
+      }
+    },
+    {
+      "selector": "parts design-palette",
+      "pane": null,
+      "top": 1898,
+      "clientHeight": 96,
+      "scrollHeight": 1994,
+      "overflowY": "auto",
+      "minHeight": "0px",
+      "flex": "1 1 auto",
+      "display": "grid",
+      "gridTemplateRows": "74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px 74px",
+      "rect": {
+        "x": 15,
+        "y": 220,
+        "width": 321.59375,
+        "height": 96
+      }
+    },
+    {
+      "selector": "",
+      "pane": "settings",
+      "top": 0,
+      "clientHeight": 274,
+      "scrollHeight": 290,
+      "overflowY": "auto",
+      "minHeight": "0px",
+      "flex": "0 1 auto",
+      "display": "block",
+      "gridTemplateRows": "none",
+      "rect": {
+        "x": 346.59375,
+        "y": 54,
+        "width": 482.40625,
+        "height": 274
+      }
+    }
+  ],
+  "supportSizeProbe": {
+    "trap": {
+      "parameters": {
+        "fit": "utl",
+        "ped": 8,
+        "pedShape": "trap",
+        "pedSize": 0.6
+      },
+      "uploads": {
+        "preview": {
+          "n": 0,
+          "nonFiniteCoordinates": 0,
+          "hash": "811c9dc5",
+          "bounds": null
+        },
+        "previewRef": {
+          "n": 0,
+          "nonFiniteCoordinates": 0,
+          "hash": "811c9dc5",
+          "bounds": null
+        },
+        "previewFits": {
+          "n": 24,
+          "nonFiniteCoordinates": 0,
+          "hash": "17a87475",
+          "bounds": [
+            -26.243999481201172,
+            0,
+            -26.243999481201172,
+            26.243999481201172,
+            8,
+            26.243999481201172
+          ]
+        },
+        "previewRefFits": {
+          "n": 5344,
+          "nonFiniteCoordinates": 0,
+          "hash": "e3ca5306",
+          "bounds": [
+            -39.375,
+            8,
+            -33.75,
+            50.625,
+            32.75,
+            33.75
+          ]
+        }
+      },
+      "camera": {
+        "th": 0.85,
+        "ph": 1.05,
+        "r": 251.99999999999997,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "fov": 0.72
+      },
+      "off": [
+        -5.625,
+        -16.375,
+        0
+      ],
+      "bounds": [
+        -39.375,
+        0,
+        -33.75,
+        50.625,
+        32.75,
+        33.75
+      ],
+      "draws": 1
+    },
+    "afterTwoFrames": {
+      "parameters": {
+        "fit": "utl",
+        "ped": 8,
+        "pedShape": "trap",
+        "pedSize": 2.5
+      },
+      "uploads": {
+        "preview": {
+          "n": 0,
+          "nonFiniteCoordinates": 0,
+          "hash": "811c9dc5",
+          "bounds": null
+        },
+        "previewRef": {
+          "n": 0,
+          "nonFiniteCoordinates": 0,
+          "hash": "811c9dc5",
+          "bounds": null
+        },
+        "previewFits": {
+          "n": 24,
+          "nonFiniteCoordinates": 0,
+          "hash": "a4ed4005",
+          "bounds": [
+            -109.3499984741211,
+            0,
+            -109.3499984741211,
+            109.3499984741211,
+            8,
+            109.3499984741211
+          ]
+        },
+        "previewRefFits": {
+          "n": 5344,
+          "nonFiniteCoordinates": 0,
+          "hash": "e3ca5306",
+          "bounds": [
+            -39.375,
+            8,
+            -33.75,
+            50.625,
+            32.75,
+            33.75
+          ]
+        }
+      },
+      "camera": {
+        "th": 0.85,
+        "ph": 1.05,
+        "r": 612.3599914550781,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "fov": 0.72
+      },
+      "off": [
+        0,
+        -16.375,
+        0
+      ],
+      "bounds": [
+        -109.3499984741211,
+        0,
+        -109.3499984741211,
+        109.3499984741211,
+        32.75,
+        109.3499984741211
+      ],
+      "draws": 2
+    },
+    "state": {
+      "fit": "utl",
+      "ped": 8,
+      "pedSize": 2.5,
+      "pedShape": "trap"
+    },
+    "controls": [
+      {
+        "type": "range",
+        "min": "40",
+        "max": "250",
+        "value": "250",
+        "rect": {
+          "x": 432.984375,
+          "y": 156.6875,
+          "width": 301.015625,
+          "height": 16
+        }
+      },
+      {
+        "type": "number",
+        "min": "40",
+        "max": "250",
+        "value": "250",
+        "rect": {
+          "x": 739,
+          "y": 145.6875,
+          "width": 75,
+          "height": 38
+        }
+      }
+    ]
+  },
+  "activeStamp": {
+    "name": "functional",
+    "taps": [
+      {
+        "pixel": [
+          422,
+          81.50854512378137
+        ],
+        "p": [
+          699.6640014648436,
+          217.79897259080803,
+          -11.240281189640882
+        ],
+        "n": [
+          0.07002539854871913,
+          0.9793948653727103,
+          -0.1894258198864763
+        ],
+        "surfaceId": "p178:top:64:1kc39tc",
+        "parent": 178
+      },
+      {
+        "pixel": [
+          526.8811902411603,
+          84.45330318510432
+        ],
+        "p": [
+          1100.000006617532,
+          191.34931651106558,
+          -0.000012812971192488476
+        ],
+        "n": [
+          0.06960718752190319,
+          0.9794453002104742,
+          -0.18931915735314492
+        ],
+        "surfaceId": "p178:top:130:1kc39tc",
+        "parent": 178
+      }
+    ],
+    "requests": [],
+    "firstTapDispatchMs": 24,
+    "secondTapDispatchMs": 86,
+    "countAtSecondTap": 9,
+    "atSecondTap": {
+      "parts": 9,
+      "gen": 2,
+      "adoptedGen": 1,
+      "geoGen": 1,
+      "statsGen": 1,
+      "secondHit": {
+        "id": "cv",
+        "tag": "CANVAS"
+      },
+      "bar": {
+        "x": 6,
+        "y": 286,
+        "width": 615,
+        "height": 56
+      }
+    },
+    "afterTwoTaps": {
+      "parts": 10,
+      "gen": 3,
+      "state": "background",
+      "text": "配置しました。形状・性能はバックグラウンドで計算しています。追加元：船体構造物 #178 ・ 上面取付位置 XYZ（m）：1100 / 191.35 / 0設定に戻る配置を終了"
+    },
+    "replies": [],
+    "preparePlacementCalls": 0
+  },
+  "license": {
+    "paragraphs": 8,
+    "links": 94,
+    "textAndLinksUnchanged": true,
+    "blueprintSourceParagraphs": 0,
+    "lastParagraphReachable": true
+  },
+  "servedSources": {
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779",
+    "js/design-ui.css": "68917a0ca5d313341c7c3cc9073faf9fea3ee4ecfa6d2ef152b60660d4807ca2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/app.js": true,
+    "js/design-ui.css": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true
+  },
+  "actorPrepareCalls": 0,
+  "activeWorkers": 1,
+  "cgroupMemoryEventsAfter": {
+    "low": 0,
+    "high": 0,
+    "max": 8179,
+    "oom": 7,
+    "oom_kill": 4,
+    "oom_group_kill": 0
+  },
+  "sourceSha256After": {
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/design-ui.css": "68917a0ca5d313341c7c3cc9073faf9fea3ee4ecfa6d2ef152b60660d4807ca2",
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "635f223a4192967d6003a730343ec64a9c1fa98de794f9c9c5bda3785109953e"
+  },
+  "sourceStable": true,
+  "browser": "156.0.8078.79",
+  "completedAt": "2026-11-08T12:15:25.788Z"
+}

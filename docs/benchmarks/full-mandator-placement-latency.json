@@ -1,0 +1,279 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T12:08:08.693Z",
+  "sourceSha256": {
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/design-ui.css": "68917a0ca5d313341c7c3cc9073faf9fea3ee4ecfa6d2ef152b60660d4807ca2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "635f223a4192967d6003a730343ec64a9c1fa98de794f9c9c5bda3785109953e"
+  },
+  "harnessSha256": "49429d80409caea4d3147753dd47af0bad829ab4d52735e525c91d403f124f0f",
+  "fixture": {
+    "archive": "assets/source/ship-example-blueprints/mandator2.json.gz",
+    "unpackedSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "originalParts": 318,
+    "originalFits": 535,
+    "removedFitId": 358,
+    "parentId": 1154,
+    "semanticFace": "p1154:top:2:12e2bm3"
+  },
+  "scope": "Full318-part Mandator with534 existing fittings. Native fullscreen catalog, early real Gfx parent-mesh pick, immediate stable-ID placement/render/Undo/Redo while the main Worker is busy, and separately bounded background-resolution observation. No parent-only extraction, custom face proxy, or geometry simplification.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "safari": "Not tested",
+    "concurrentActivity": "Compact-design Chromium SwiftShader and Node functional regressions may run concurrently under root coordination; exact overlap with individual phases is not instrumented. This is functional timing and heap observation, not a controlled graphics/device comparison.",
+    "controlledDeviceBenchmark": false,
+    "memory": "CDP main-page heap only. Normal placement must not start the optional strict-placement actor. Worker heaps, GPU, process RSS and device peak excluded."
+  },
+  "stages": [
+    {
+      "name": "boot",
+      "at": "2026-11-08T12:08:09.707Z"
+    },
+    {
+      "name": "full-authored-ship-seeded",
+      "at": "2026-11-08T12:08:34.916Z"
+    },
+    {
+      "name": "real-worker-authoring-body-ready-before-full-survey",
+      "at": "2026-11-08T12:08:41.002Z"
+    },
+    {
+      "name": "native-full-ship-tap",
+      "at": "2026-11-08T12:09:31.212Z"
+    },
+    {
+      "name": "full-native-immediate-placement-rendered",
+      "at": "2026-11-08T12:09:42.593Z"
+    },
+    {
+      "name": "full-native-undo-redo-and-background-observed",
+      "at": "2026-11-08T12:10:34.989Z"
+    }
+  ],
+  "errors": [],
+  "httpObservationErrors": [],
+  "stage": "full-native-undo-redo-and-background-observed",
+  "mainHeapBefore": {
+    "usedSize": 49982552,
+    "totalSize": 61116416,
+    "embedderHeapUsedSize": 8434304,
+    "backingStorageSize": 45747208
+  },
+  "seed": {
+    "parts": 318,
+    "fits": 534,
+    "gen": 1,
+    "parentId": 1154
+  },
+  "earlyGeometry": {
+    "gen": 1,
+    "adoptedGen": 0,
+    "statsGen": 0,
+    "parentTriangles": 10912,
+    "fullFaceSurveyReady": false
+  },
+  "target": {
+    "point": [
+      4821.600000000482,
+      452.51667531701514,
+      290.2000000024773
+    ],
+    "gen": 1,
+    "statsGen": 0,
+    "pixel": [
+      719.9999432035894,
+      529.499996015111
+    ],
+    "canvasTarget": true,
+    "hit": {
+      "parentId": 1154,
+      "point": [
+        4821.600018751538,
+        452.5166741799617,
+        290.20000272113816
+      ]
+    }
+  },
+  "placed": {
+    "parts": 318,
+    "fits": 535,
+    "gen": 2,
+    "statsGen": 0,
+    "tapToObservedCommitMs": 10723.20000000298,
+    "tapToStableIdMs": 791.2000000029802,
+    "tapToFirstRenderMs": 1357,
+    "renderTimingScope": "First main Renderer.draw completion after stable-ID insertion; screenshot follows. This is not hardware display latency or an FPS measurement.",
+    "timing": {
+      "requests": [],
+      "preparations": [
+        {
+          "elapsedMs": 12.600000001490116,
+          "ok": true,
+          "pending": true
+        }
+      ],
+      "workerPreparations": 0,
+      "uploads": [
+        {
+          "key": "previewFits",
+          "vertices": 0,
+          "indices": 0,
+          "nonFinite": 0
+        },
+        {
+          "key": "previewRefFits",
+          "vertices": 5344,
+          "indices": 9648,
+          "nonFinite": 0
+        },
+        {
+          "key": "previewFits",
+          "vertices": 0,
+          "indices": 0,
+          "nonFinite": 0
+        },
+        {
+          "key": "previewRefFits",
+          "vertices": 5344,
+          "indices": 9648,
+          "nonFinite": 0
+        },
+        {
+          "key": "previewFits",
+          "vertices": 0,
+          "indices": 0,
+          "nonFinite": 0
+        },
+        {
+          "key": "previewRefFits",
+          "vertices": 5344,
+          "indices": 9648,
+          "nonFinite": 0
+        }
+      ],
+      "pingComplete": false,
+      "tapStarted": 81459.39999999851,
+      "nativeTapStarted": 81509.39999999851,
+      "stableIdAt": 82300.60000000149,
+      "placedId": 1155,
+      "firstRenderedAt": 82866.39999999851
+    },
+    "installed": [
+      {
+        "id": 1155,
+        "k": "utl",
+        "host": 1154,
+        "p": [
+          4821.6000219730095,
+          452.5166745765723,
+          290.19999969255997
+        ],
+        "n": [
+          0.03555805480320676,
+          0.9853393932621007,
+          0.16685893690326378
+        ],
+        "floating": false,
+        "pending": true,
+        "failed": false
+      }
+    ],
+    "parentShapeUnchanged": true,
+    "draftStatus": {
+      "ok": false,
+      "ready": false,
+      "pending": [
+        {
+          "list": "fits",
+          "id": 1155
+        }
+      ],
+      "failed": []
+    },
+    "confirmButtons": 0,
+    "glError": 0
+  },
+  "mainHeapAfter": {
+    "usedSize": 74632392,
+    "totalSize": 89866240,
+    "embedderHeapUsedSize": 8563488,
+    "backingStorageSize": 62623981
+  },
+  "newWorkerCount": 0,
+  "undo": {
+    "fits": 534,
+    "gen": 3,
+    "pingComplete": false
+  },
+  "redo": {
+    "stableIdPreserved": true,
+    "gen": 4,
+    "pingComplete": false
+  },
+  "background": {
+    "observationWindowMs": 10000,
+    "parts": 318,
+    "fits": 535,
+    "placedIdPresent": true,
+    "status": {
+      "ok": false,
+      "ready": false,
+      "pending": [
+        {
+          "list": "fits",
+          "id": 1155
+        }
+      ],
+      "failed": []
+    },
+    "pending": true,
+    "failed": false,
+    "gen": 4,
+    "statsGen": 0,
+    "profileReady": false,
+    "error": null
+  },
+  "servedSourceSha256": {
+    "js/design-ui.css": "68917a0ca5d313341c7c3cc9073faf9fea3ee4ecfa6d2ef152b60660d4807ca2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
+  },
+  "servedSourcesMatch": true,
+  "optionalUnrequestedSources": [
+    "js/lang-en.js"
+  ],
+  "sourceSha256After": {
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/design-ui.css": "68917a0ca5d313341c7c3cc9073faf9fea3ee4ecfa6d2ef152b60660d4807ca2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "635f223a4192967d6003a730343ec64a9c1fa98de794f9c9c5bda3785109953e"
+  },
+  "sourceStable": true,
+  "completedAt": "2026-11-08T12:10:35.559Z"
+}

@@ -4,11 +4,11 @@ const core=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),core,{filename:file});
 const C=vm.runInContext('Core',core),plain=x=>JSON.parse(JSON.stringify(x));
 function setup(){
- const ctx=vm.createContext({console,C,setTimeout});
+ const ctx=vm.createContext({console,C,setTimeout,structuredClone});
  const run=code=>vm.runInContext(code,ctx);
  run(`
  let ship=null,S=null,prevS=null,view=null,lastOp='',dragSnap=null,dragLabel='';
- const undoStack=[],redoStack=[],st={},fleet={mode:'design'},eng={},meshStore={},nodes=new Map(),records=new Map(),notices=[];
+ const undoStack=[],redoStack=[],st={},fleet={mode:'design'},eng={},meshStore={},nodes=new Map(),records=new Map(),notices=[],designUI={};
  const $=id=>{if(!nodes.has(id))nodes.set(id,{disabled:false,textContent:'',setAttribute(){}});return nodes.get(id);};
  const T=x=>x,esc=String,toast=x=>notices.push(x),resetSolidCutter=()=>{},clearPreview=()=>{},reconcileSolidCutter=()=>{},showBusyOverlay=()=>{},touch=()=>{},kickEngine=()=>{},hideInspect=()=>{},renderPanel=()=>{},scheduleStats=()=>{},autosave=()=>{},sndEdit=()=>{},sndUI=()=>{},findSel=()=>null,renderSaves=()=>{};
  let releasePack=null,releaseStore=null,delayPack=false,delayStore=false,failStore=false,packCalls=0;
@@ -19,6 +19,7 @@ function setup(){
  `);
  function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
  section('// ---------- ship lifecycle & history ----------', '// Performance figures arrive');
+ section('function designUIEditSession()', 'function designUIEditBegin(');
  section(app.includes('let savingCurrent =')?'let savingCurrent =':'async function saveCurrent()', 'let delConfirm =');
  return run;
 }
@@ -65,9 +66,10 @@ test('switching designs cancels a drag snapshot from the prior design',()=>{
  const r=setup();r("load('A','id-A');beginDrag('move');load('B','id-B');endDrag();");assert.equal(r('dragSnap'),null);r('undo();');assert.equal(r('ship.saveId'),'id-A');
 });
 
-test('cross-design undo cannot save stale statistics from the previous design',async()=>{
- const r=setup();r("load('A','id-A');load('B','id-B');undo();");assert.equal(r('S'),null);await r('saveCurrent()');assert.equal(r('records.size'),0);
- r('stats();');await r('saveCurrent()');assert.equal(r("records.get('id-A').cls"),'A role／A class');
+test('cross-design undo can save the raw blueprint while marking its statistics provisional',async()=>{
+ const r=setup();r("load('A','id-A');load('B','id-B');undo();");assert.equal(r('S'),null);await r('saveCurrent()');assert.equal(r('records.size'),1);
+ assert.equal(r("records.get('id-A').cls"),'計算中');assert.equal(r("records.get('id-A').provisional"),true);assert.equal(r("JSON.parse(records.get('id-A').data).name"),'A');assert.equal(r("records.has('id-B')"),false,'saving does not borrow the previous design or its statistics');
+ r('stats();');await r('saveCurrent()');assert.equal(r("records.get('id-A').cls"),'A role／A class');assert.equal(r("records.get('id-A').provisional"),undefined);
 });
 test('imported identity metadata is discarded before entering the editor',()=>{
  const r=setup();r("load('A','id-A');const imported=C.deserialize({...C.serialize(ship),saveId:'id-A',_historySaveId:'id-A'});setShip(imported);");

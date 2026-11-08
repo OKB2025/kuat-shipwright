@@ -24,6 +24,29 @@ let wakeStats = null;
 // and source generation that requested them.
 let placementSequence = 0;
 const placementOperations = new Map(), placementDesignGenerations = new Map();
+// This isolated source mirror keeps the selected parent's exact mesh warm
+// between stamps. It is never the statistics engine's authoritative ship.
+let placementSource = null;
+function placementCandidate(job) {
+  const candidate = typeof job.state === 'string' ? JSON.parse(job.state) : JSON.parse(JSON.stringify(job.state));
+  if (!candidate || !Array.isArray(candidate.parts)) throw new Error('Invalid placement source design');
+  const globals = JSON.stringify(candidate, (key, value) => key[0] === '_' || key === 'parts' || key === 'fits' || key === 'nextId' ? undefined : value);
+  const previous = placementSource?.designId === job.designId && placementSource.globals === globals ? placementSource.parts : null, parts = new Map();
+  candidate.parts = candidate.parts.map(part => {
+    const signature = JSON.stringify(part), old = previous?.get(part.id);
+    // Refresh may repair metadata on its temporary branch. Such public edits
+    // cannot be carried into a later snapshot that never authored them.
+    const unchanged = old?.signature === signature && JSON.stringify(old.part, (key, value) => key[0] === '_' ? undefined : value) === signature;
+    const value = unchanged ? old.part : part;
+    parts.set(part.id, {signature, part: value}); return value;
+  });
+  // Cached meshes belong to this snapshot's cut/occupancy context. Rebind
+  // ship references rather than retaining older complete design graphs.
+  for (const part of candidate.parts) { part._solidCutShip = candidate; if (part._envelope) part._envelope = candidate; }
+  placementSource = {designId: job.designId, globals, parts};
+  candidate.fits ||= [];
+  return candidate;
+}
 const placementOperationKey = job => JSON.stringify([job.designId, job.operationId]);
 const isPlacementJob = job => job.type === 'placement' || job.type === 'trenchArmament';
 function placementGeneration(job) {
@@ -36,6 +59,32 @@ function placementCurrent(job) {
   const operation = placementOperations.get(placementOperationKey(job));
   return operation && !operation.cancelled && operation.sequence === job.placementSequence &&
     placementDesignGenerations.get(job.designId) === job.gen;
+}
+function resolvePlacementSurface(candidate, part, request, list, parentId) {
+  // Early authoring meshes permit a real native pick before the expensive
+  // ship-wide exposure survey. Bind that exact hit to a stable semantic face
+  // here, on the selected parent only. An explicitly supplied lost face is
+  // still rejected by Core; saved references are never silently reassigned.
+  if (request.hostSurfaceId != null || !request.hit || parentId == null || typeof C.surfacePatches !== 'function' || typeof C.rayTris !== 'function') return {request};
+  const capability = C.placementCapability(part), mode = request.mode || part.placement?.mode || capability.allowedModes[0];
+  if (list !== 'fits' && capability.space !== 'exterior' || !capability.allowedModes.includes(mode)) return {request};
+  const point = request.hit.p, normal = request.hit.n;
+  if (![point, normal].every(v => Array.isArray(v) && v.length === 3 && v.every(Number.isFinite)) || C.len(normal) < 1e-12) return {request};
+  const parent = candidate.parts.find(p => p.id === parentId);
+  if (!parent) return {request};
+  const bounds = C.partAABB(parent), extent = Math.max(...[0, 1, 2].map(i => bounds[i + 3] - bounds[i]));
+  const tolerance = C.PLACEMENT_TOLERANCES, reach = Math.max(tolerance.coordinate, extent * tolerance.relativeCoordinate) * 64;
+  const n = C.norm(normal), origin = C.add(point, C.mul(n, reach)), patches = C.surfacePatches(candidate, true, false, new Set(['p' + parentId]));
+  const matches = [];
+  for (const patch of patches) {
+    const hit = C.rayTris(patch.triangles, origin, C.mul(n, -1), reach * 2);
+    if (hit && C.dot(hit.n, n) > .5) matches.push({patch, distance: C.len(C.sub(hit.p, point))});
+  }
+  matches.sort((a, b) => a.distance - b.distance || a.patch.id.localeCompare(b.patch.id));
+  if (!matches.length) return {failure: {ok: false, code: 'surface-missing', error: '指定した追加元の実形状に取付面がありません。面を選び直してください'}};
+  // Do not snap the point or relax Core's contact tolerance: the original
+  // authored-mesh hit undergoes the same strict shape/contact checks below.
+  return {request: {...request, hostSurfaceId: matches[0].patch.id}};
 }
 function placementEffectiveGeometry(part) {
   const fields = {
@@ -154,6 +203,13 @@ function packCaches(s, options) {
   if (options?.runtime) return out;
   // Pick geometry: the exact objects the editor's ray casts and section queries use.
   out.geoProxy = {hull: conv(C.hullGeo(s)), ref: conv(C.referenceHullGeometry(s))};
+  if (!options?.runtime) {
+    out.geoProxy.placementBodies = s.parts.filter(p => C.isShapePart(p)).map(p => ({parentStructureId: p.id,
+      sourceKey: C.publicJSON(p), triangles: conv(C.structTriangles(p))}));
+    if (!s.hull.assembly) out.geoProxy.placementBodies.push({parentStructureId: 'hull',
+      sourceKey: C.publicJSON([s.hull, s.cuts || [], s.subs || [], s.trenches || [], s.solidCuts || [], s.hatches || [], s.fits.filter(f => C.isShipLauncher(f) && C.shipLauncherConfig(f).embedded)]),
+      triangles: out.geoProxy.ref?.tris || out.geoProxy.hull.tris});
+  }
   // Face picking and outlines use the same completed exposure survey as the
   // mesh. Keep it in the worker snapshot so pointer events never clip all the
   // ship's faces again. Configurations remain the editor's current settings.
@@ -298,12 +354,30 @@ async function yieldGeometry() {
   } else await new Promise(resolve => setTimeout(resolve, 0));
 }
 
+function placementResolution(job, resolution) {
+  const lists = [['parts', resolution?.resolvedParts || []], ['fits', resolution?.resolvedFits || []]];
+  if (!lists.some(([, ids]) => ids.length)) return;
+  const source = typeof job.state === 'string' ? JSON.parse(job.state) : job.state, rows = [];
+  for (const [list, ids] of lists) for (const id of ids) {
+    const original = source?.[list]?.find(p => p.id === id), item = ship[list].find(p => p.id === id);
+    if (!original || !item) continue;
+    const problem = item._placementError || item._fitPlacementError || item.placement?.repairReason || null;
+    rows.push({list, id, sourceKey: C.placementPendingInputKey(original),
+      [list === 'parts' ? 'part' : 'fit']: JSON.parse(C.publicJSON(item)),
+      effectiveGeometry: placementEffectiveGeometry(item), error: typeof problem === 'string' ? problem : problem?.code || null,
+      ...(problem?.error ? {errorMessage: problem.error} : {}),
+      geometryKeys: {self: item._placementSelfKey, request: item._placementRequestKey, parent: item._placementParentKey}});
+  }
+  if (rows.length) post({type: 'placementResolution', designId: job.designId, gen: job.gen, rows,
+    placementDraftStatus: C.placementDraftStatus(ship)});
+}
+
 async function handleUpdate(job) {
   const t0 = now();
   applyState(job);
   // Fitted source/parent revisions are resolved before authoring meshes and
   // exact picking caches are published, including the early geometry packet.
-  if (typeof C.refreshPlacementGeometry === 'function') C.refreshPlacementGeometry(ship);
+  if (typeof C.refreshPlacementGeometry === 'function') placementResolution(job, C.refreshPlacementGeometry(ship));
   if (job.view) view = job.view;
   if (authoringGeometry(job)) {
     await yieldGeometry();
@@ -345,9 +419,10 @@ async function handleUpdate(job) {
   const t1 = now();
   const S = C.computeStats(ship);
   lastInfo = S.info;
-  const profile = C.fleetProfile(S, ship.name, ship);
+  const placementDraftStatus = typeof C.placementDraftStatus === 'function' ? C.placementDraftStatus(ship) : {ok: true, ready: true, pending: [], failed: []};
+  const profile = placementDraftStatus.ok ? C.fleetProfile(S, ship.name, ship) : null;
   lastStats = {S, profile, gen: shipGen};
-  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), profile, statsMs: now() - t1};
+  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), profile, provisional: !placementDraftStatus.ok, placementDraftStatus, statsMs: now() - t1};
   const transfer = [];
   if (overlapSig(S.info) !== lastOverlap) {
     const m = meshPartsRanged(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation});
@@ -463,12 +538,31 @@ function handlePropulsionPreview(job){
 async function handlePlacement(job) {
   if (!placementCurrent(job)) { placementReply(job, null, {stale: true}); return; }
   if (typeof C.solvePlacement !== 'function') throw new Error('Placement solver unavailable');
-  const candidate = typeof job.state === 'string' ? JSON.parse(job.state) : JSON.parse(JSON.stringify(job.state));
-  if (!candidate || !Array.isArray(candidate.parts)) throw new Error('Invalid placement source design');
-  if (typeof C.refreshPlacementGeometry === 'function') C.refreshPlacementGeometry(candidate);
-  candidate.fits ||= [];
+  const candidate = placementCandidate(job);
   const root = job.request || {}, rows = Array.isArray(root.parts) ? root.parts : [{part: root.part, fit: root.fit, request: root}];
   if (!rows.length || rows.length > C.DESIGN_LIMITS.parts + (C.DESIGN_LIMITS.fits || 0)) throw new Error('Invalid placement candidate count');
+  // Rebuild only the selected host and its ancestors. Every other authored
+  // part remains present for the same exact collision/interference checks.
+  const dependencies = new Set();
+  for (const row of rows) { const request = row.request || root, part = row.fit || row.part || request.fit || request.part;
+    for (const id of [request.parentStructureId, request.hostId, part?.host, request.partId, request.fitId]) if (id != null && id !== 'hull') dependencies.add(id);
+  }
+  // Fitting supports, launcher clearance rays and internal usable regions
+  // also inspect surrounding shells. A cold authored fitted shell must use
+  // its effective mesh in those tests. Legacy shells need no re-fit, and
+  // unchanged hydrated shells keep their keyed caches on subsequent stamps.
+  const physicalScene = rows.some(row => { const request = row.request || root, part = row.fit || row.part || request.fit || request.part;
+    return row.list === 'fits' || request.list === 'fits' || row.fit || request.fit || row.entityKind === 'fit' || request.entityKind === 'fit' ||
+      part?._fit || typeof C.placementCapability === 'function' && C.placementCapability(part).space === 'interior';
+  });
+  if (typeof C.placementCapability === 'function') for (const part of candidate.parts) {
+    if (!part.placement) continue;
+    const capability = C.placementCapability(part);
+    // Rigid exterior equipment can also have followed an edited ancestor;
+    // its current pose is needed by fixed-equipment interference checks.
+    if ((capability.space === 'exterior' || part.placement.parentStructureId != null) && (physicalScene || capability.kind !== 'structure')) dependencies.add(part.id);
+  }
+  if (typeof C.refreshPlacementGeometry === 'function') C.refreshPlacementGeometry(candidate, {ids: dependencies, includeFits: false});
   const solved = [], authoredIds = {parts: new Set(candidate.parts.map(p => p.id)), fits: new Set(candidate.fits.map(p => p.id))}, batchIds = new Map();
   if (Array.isArray(root.parts)) candidate.nextId = Math.max(candidate.nextId || 1, 1, ...candidate.parts.concat(candidate.fits).map(p => Number.isSafeInteger(p.id) ? p.id + 1 : 1));
   let result = null;
@@ -504,7 +598,10 @@ async function handlePlacement(job) {
         result = {ok: false, code: parent ? 'parent-updated' : 'parent-missing'}; break;
       }
     }
-    result = list === 'fits' && typeof C.solveFitPlacement === 'function' ? C.solveFitPlacement(candidate, part, request) : C.solvePlacement(candidate, part, request);
+    const resolved = resolvePlacementSurface(candidate, part, request, list, parentId);
+    if (resolved.failure) { result = resolved.failure; break; }
+    request = resolved.request;
+    result = list === 'fits' && typeof C.solveFitPlacement === 'function' ? C.solveFitPlacement(candidate, part, request, {isolatedSource: true}) : C.solvePlacement(candidate, part, request);
     if (!result?.ok) break;
     const entity = list === 'fits' ? result.fit : result.part;
     if (!entity || result.list != null && result.list !== list) { result = {ok: false, code: 'placement-result-kind-mismatch'}; break; }
@@ -631,6 +728,8 @@ function handleCraftPrice(job){
 function handleFleet(job) { return fleetJob(job); }
 async function fleetJob(job) {
   const t0 = now();
+  if (job.design && typeof C.placementDraftStatus === 'function' && !C.placementDraftStatus(job.design).ok)
+    throw Object.assign(new Error('配置の計算・修正が完了していない部品があります'), {code: 'placement-unresolved'});
   if (job.prepareOnly && !(await diskOpen())) { post({type: 'fleet', id: job.id, src: 'unavailable', cacheSaved: false, ms: now() - t0}); return; }
   const djson = job.key ? '' : JSON.stringify(job.design), dkey = job.key ? 'k:' + job.key + (job.paint ? '#' + job.paint : '') : 'd:' + designHash(djson);
   let rec = fleetBuilt.get(dkey), src = rec ? 'memory' : '', save = false;
@@ -653,7 +752,7 @@ async function fleetJob(job) {
     }
     // Prefer the completed disk bundle even when this design is open in the
     // editor: repacking its native graph/catalogue would repeat expensive work.
-    if (!rec && djson && ship && lastStats && lastStats.gen === shipGen && JSON.stringify(C.serialize(ship)) === djson) {
+    if (!rec && djson && ship && lastStats?.profile && lastStats.gen === shipGen && JSON.stringify(C.serialize(ship)) === djson) {
       try { const state = C.publicJSON(ship), caches = packCaches(ship, {runtime: true}); rec = {d: rehydrate(state, null, caches), state, caches, stats: lastStats.S, profile: lastStats.profile, serial: job.design}; src = 'editor'; save = true; } catch (e) { rec = null; }
     }
     if (!rec) {
@@ -662,13 +761,15 @@ async function fleetJob(job) {
       rec = {d, state: C.publicJSON(d), stats: null, profile: null, serial: null}; src = 'built'; save = true;
     }
     if (!rec.serial) rec.serial = C.serialize(recShip(rec));
+    if (typeof C.placementDraftStatus === 'function' && !C.placementDraftStatus(rec.serial).ok)
+      throw Object.assign(new Error('配置の計算・修正が完了していない部品があります'), {code: 'placement-unresolved'});
     rec.cacheId ||= dkey; rec.designJSON ||= djson;
     rec.alias = 'd:' + designHash(JSON.stringify(rec.serial)); rec.surfaces = !!rec.serial.surfaces;
     const big = rec.d ? rec.d.parts.length + rec.d.fits.length >= 3000 : rec.state.length > 4e6;
     if (!big) { fleetBuilt.set(dkey, rec); fleetBuilt.set(rec.alias, rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
   }
   const lite = !!job.lite && !rec.surfaces;
-  if (!lite && !rec.stats) { const d = recShip(rec); rec.stats = C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
+  if (!lite && (!rec.stats || !rec.profile)) { const d = recShip(rec); rec.stats ||= C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
   const {stats, profile, serial} = rec;
   let displayStats = null, geometry = null, stored = null, gid = null;
   const transfer = [], records = [], identity = JSON.stringify(serial);
@@ -728,7 +829,7 @@ async function pump() {
         else if (job.type === 'op') handleOp(job);
         else if (job.type === 'ping') post({type: 'pong', id: job.id});
       } catch (e) {
-        post({type: 'error', job: job.type, id: job.id, gen: job.gen, message: String(e && e.message || e), stack: String(e && e.stack || '')});
+        post({type: 'error', job: job.type, id: job.id, gen: job.gen, message: String(e && e.message || e), stack: String(e && e.stack || ''), ...(e?.code ? {code: e.code} : {})});
       }
     }
   } finally { running = false; }
@@ -736,6 +837,7 @@ async function pump() {
 function receive(msg) {
   if (!msg || !msg.type) return;
   if (msg.type === 'cancelPlacement') { cancelPlacement(msg); return; }
+  if (msg.type === 'placementGeneration') { placementGeneration(msg); return; }
   if (msg.type === 'update' || isPlacementJob(msg)) placementGeneration(msg);
   if (isPlacementJob(msg)) {
     if (msg.designId == null || msg.operationId == null || !Number.isSafeInteger(msg.gen) || msg.gen < 0) {
@@ -788,12 +890,15 @@ const YardEngineClient = (() => {
 'use strict';
 let send = null, mode = 'none', worker = null, nextId = 1, readyResolve, sources = null;
 const handlers = {}, waiting = new Map();
+let placementWorker = null, placementBoot = null, placementUnavailable = false;
+const placementWaiting = new Set(), placementGenerations = new Map();
+const placementCancellations = new Map();
 const ready = new Promise(r => { readyResolve = r; });
 function dispatch(msg) {
   if (!msg || !msg.type) return;
   if (msg.id != null && waiting.has(msg.id)) {
-    const w = waiting.get(msg.id); waiting.delete(msg.id);
-    if (msg.type === 'error') w.reject(Object.assign(new Error(msg.message), {stack: msg.stack})); else w.resolve(msg);
+    const w = waiting.get(msg.id); waiting.delete(msg.id); placementWaiting.delete(msg.id);
+    if (msg.type === 'error') w.reject(Object.assign(new Error(msg.message), {stack: msg.stack}, msg.code ? {code: msg.code} : {})); else w.resolve(msg);
     return;
   }
   const h = handlers[msg.type]; if (h) h(msg);
@@ -830,15 +935,67 @@ async function start(src, opts = {}) {
 function fail() {
   // A crashed worker hands over to the inline engine; pending requests fail.
   try { worker?.terminate(); } catch (e) {}
+  placementFail(new Error('engine restarted'));
   inline();
   for (const [id, w] of waiting) w.reject(new Error('engine restarted'));
   waiting.clear();
   const h = handlers.restart; if (h) h();
 }
-function post(msg, transfer) { if (!send) throw new Error('engine not started'); if(typeof window!=='undefined')window.dispatchEvent?.(new Event('ks-engine-foreground'));send(msg, transfer); }
+function placementFail(error) {
+  try { placementWorker?.terminate(); } catch (_) {}
+  placementWorker = null; placementUnavailable = true;
+  for (const id of placementWaiting) { const pending = waiting.get(id); waiting.delete(id); pending?.reject(error || new Error('placement worker restarted')); }
+  placementWaiting.clear();
+}
+// A long synchronous fleet/statistics calculation cannot service a new
+// message. A second worker uses the same verified source snapshot and Core,
+// but receives placement jobs only, so a tap never queues behind that work.
+function preparePlacement() {
+  if (placementWorker) return Promise.resolve(placementWorker);
+  if (placementBoot) return placementBoot;
+  if (mode !== 'worker' || placementUnavailable) return Promise.resolve(null);
+  const factory = globalThis.KSBoot?.createBackgroundWorker;
+  if (!factory && !sources) return Promise.resolve(null);
+  placementBoot = Promise.resolve().then(() => factory ? factory.call(globalThis.KSBoot) : bootWorker(sources)).then(w => {
+    if (mode !== 'worker') { w.terminate(); return null; }
+    placementWorker = w;
+    w.onmessage = e => dispatch(e.data);
+    w.onerror = e => { e.preventDefault?.(); placementFail(new Error(e.message || 'placement worker failed')); };
+    for (const [designId, gen] of placementGenerations) w.postMessage({type: 'placementGeneration', designId, gen});
+    return w;
+  }).catch(() => { placementUnavailable = true; return null; }).finally(() => { placementBoot = null; });
+  return placementBoot;
+}
+function post(msg, transfer) {
+  if (!send) throw new Error('engine not started');
+  if (msg.type === 'update' && msg.designId != null && Number.isSafeInteger(msg.gen)) {
+    const old = placementGenerations.get(msg.designId);
+    if (old == null || msg.gen > old) placementGenerations.set(msg.designId, msg.gen);
+    while (placementGenerations.size > 128) placementGenerations.delete(placementGenerations.keys().next().value);
+    placementWorker?.postMessage({type: 'placementGeneration', designId: msg.designId, gen: msg.gen});
+  }
+  if (msg.type === 'cancelPlacement') {
+    const key = JSON.stringify([msg.designId, msg.operationId]);
+    placementCancellations.set(key, (placementCancellations.get(key) || 0) + 1);
+    while (placementCancellations.size > 256) placementCancellations.delete(placementCancellations.keys().next().value);
+    placementWorker?.postMessage(msg);
+  }
+  if(typeof window!=='undefined')window.dispatchEvent?.(new Event('ks-engine-foreground'));send(msg, transfer);
+}
 function request(type, payload = {}, transfer) {
   const id = nextId++;
-  return ready.then(() => new Promise((resolve, reject) => { waiting.set(id, {resolve, reject}); post({...payload, type, id}, transfer); }));
+  const operationKey = JSON.stringify([payload.designId, payload.operationId]), cancellation = placementCancellations.get(operationKey) || 0;
+  return ready.then(async () => {
+    const dedicated = type === 'placement' ? await preparePlacement() : null;
+    if (type === 'placement' && cancellation !== (placementCancellations.get(operationKey) || 0)) return {type, id, ...payload, state: undefined, result: null, stale: true, cancelled: true};
+    return new Promise((resolve, reject) => {
+      waiting.set(id, {resolve, reject});
+      try {
+        if (dedicated) { placementWaiting.add(id); dedicated.postMessage({...payload, type, id}, transfer || []); }
+        else post({...payload, type, id}, transfer);
+      } catch (error) { waiting.delete(id); placementWaiting.delete(id); reject(error); }
+    });
+  });
 }
-return {start, post, request, ready, on(type, fn) { handlers[type] = fn; }, get mode() { return mode; }};
+return {start, post, request, preparePlacement, ready, on(type, fn) { handlers[type] = fn; }, get mode() { return mode; }};
 })();
