@@ -63,17 +63,28 @@ test('reference bracing metadata survives placement, save/load and a folded edit
  }
 });
 
-test('measured stock collectors and old stock copies keep their existing physical frames without added spokes',()=>{
+test('fresh TIE/ln collectors use native bracing while the other stock TIE types retain their separate frames',()=>{
  let count=0;
  for(const key of ['craft_tie_ln','craft_tie_in','craft_tie_sa']){
   const ship=C.buildDesign(key),panels=ship.parts.filter(p=>p.k==='solarPanel'),before=plain(C.serialize(ship).parts.filter(p=>p.k==='struct'));
-  for(const p of panels){count++;assert.equal(p.panelBracing,'none');assert.equal(p.panelFrame,0);assert.equal(p.panelRib,0);assert.equal(C.aeroPanelRibs(p).length,0);}
+  for(const p of panels){count++;if(key==='craft_tie_ln'){const shape=C.solarPanelPreset('hex');assert.equal(p.panelBracing,shape.panelBracing);near(p.panelFrame,p.s[0]*shape.frameRatio);near(p.panelRib,p.s[0]*shape.ribRatio);assert.ok(C.aeroPanelRibs(p).length>0);}else{assert.equal(p.panelBracing,'none');assert.equal(p.panelFrame,0);assert.equal(p.panelRib,0);assert.equal(C.aeroPanelRibs(p).length,0);}}
+  if(key==='craft_tie_ln'){const saved=C.serialize(ship),loaded=C.deserialize(saved);for(const p of panels){const q=loaded.parts.find(q=>q.id===p.id);for(const field of ['panelBracing','panelFrame','panelRib'])assert.equal(q[field],p[field],field);}assert.deepEqual(plain(C.serialize(loaded).parts.filter(p=>p.k==='struct')),before);continue;}
   const old=C.serialize(ship);for(const p of old.parts.filter(p=>p.k==='solarPanel')){delete p.panelBracing;delete p.panelSparX;p.panelFrame=.06;p.panelRib=.035;}
   const loaded=C.deserialize(old);for(const p of loaded.parts.filter(p=>p.k==='solarPanel')){assert.equal(p.panelBracing,'none',key+' '+p.label);assert.equal(p.panelFrame,0);assert.equal(p.panelRib,0);}
   assert.deepEqual(plain(C.serialize(loaded).parts.filter(p=>p.k==='struct')),before);
  }
  assert.equal(count,14);
  const {ship,p}=panel('interceptor');delete p.label;const loaded=C.deserialize(C.serialize(ship)).parts[0];assert.equal(loaded.panelBracing,'spar');near(loaded.panelSparX,p.panelSparX);
+});
+
+test('an old TIE/ln save retains its separate physical frame without adding native bracing',()=>{
+ const {ship,p}=panel('hex',{label:'太陽電池翼',panelBracing:'none',panelFrame:0,panelRib:0});
+ const frame=C.placePart(ship,'struct',p.c.slice(),[2,.18,.2],{form:'box',light:true,label:'翼外枠',allowOverlap:true},false);assert.ok(frame);
+ const saved=C.serialize(ship),old=saved.parts.find(q=>q.id===p.id);delete old.panelBracing;delete old.panelSparX;old.panelFrame=.06;old.panelRib=.035;
+ const original=JSON.stringify(saved),physicalFrames=plain(saved.parts.filter(q=>q.k==='struct')),loaded=C.deserialize(saved),q=loaded.parts.find(q=>q.id===p.id);
+ assert.equal(JSON.stringify(saved),original,'reading an old save does not rewrite its source');assert.equal(q.k,'solarPanel');assert.equal(q.panelBracing,'none');assert.equal(q.panelFrame,0);assert.equal(q.panelRib,0);assert.equal(C.aeroPanelRibs(q).length,0);
+ for(const field of ['s','outline','c','roll'])assert.deepEqual(plain(q[field]),plain(old[field]),field);
+ assert.deepEqual(plain(C.serialize(loaded).parts.filter(q=>q.k==='struct')),physicalFrames);near(C.solarArea(q),C.solarArea(p));
 });
 
 test('the interceptor rear collector uses its vertical broad face and keeps the original box bounds',()=>{

@@ -1,0 +1,275 @@
+{
+  "status": "COMPLETED_WITH_KNOWN_FAILURES",
+  "startedAt": "2026-11-08T22:55:00.748752+00:00",
+  "baselineCommit": "7840e8e6a9fbe321aa950c574e5d6ee3ec737d71",
+  "scope": "TIE/ln native single-part solar wings, fresh built-in physical-profile revision, saved custom and legacy designs, solar geometry, mirrored identity, thermal devices, wing editing/rendering/copying and worker source cache. No global acceleration or resistance calibration changes and no exhaustive repository run.",
+  "sources": {
+    "js/core.js": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "index.html": "847bea6fcef0a292adab2efc9f7c16ee855d945a142237f6b96d71c5fbb9a1ea",
+    "scripts/browser-tie-solar-wings.cjs": "6fb536fcb995b095b38414fb477061ab0e79a02cb0be5cf350ffe05d0fc97c3c"
+  },
+  "testSha256": {
+    "tests/tie-ln-solar-wing.cjs": "d21d02e4f43e503c869426a00e807b63abaa0278be99c62528157094f5888e24",
+    "tests/solar-preset-core.cjs": "3c31c59204f045440dc4ac127f99cd2877972542ec7e3e2619d00d7ede2c0475",
+    "tests/direct-thermal-wing-core.cjs": "3e25c68d238b9b83e42109c4ed7bf89a8990e7c297733a9b545e45580686fcd4",
+    "tests/wing-planform-core.cjs": "30a19388c1c10ac852736e94b6fa36eb7441ee90a455351f8ebbbdfc536432bb",
+    "tests/wing-planform-ui.cjs": "184119d704af8af1cc34386f7f30d3fc31b512aaa2d7f028a9d6ffbc3829e0f1",
+    "tests/wing-localization.cjs": "f29ce57fa70330eac86daa3228eff3575c3138f671eecc0a98b64c12b80ca925",
+    "tests/thermal-wing-ui.cjs": "cb2dd5571c23ce1d5bbae965c072eedf5b9822f3ca8cdcf8c3b2f199eab0820c",
+    "tests/runtime-foils-core.cjs": "730ea7235f521935c6b4097ed4a06f0e5959b1988166f35451f91d0f8d86164e",
+    "tests/runtime-foils-copy.cjs": "0d9c434808d28524efcc6942c550c78005168f77a59a57b954811c3b6d0992c8",
+    "tests/runtime-foils-rays.cjs": "1464f014feb739798b6e1ed1ea6ff54b7c27ef15ec7f7e07e8d5af6159e4e941",
+    "tests/runtime-foils-renderer.cjs": "afd82dcfba87e0aaf57c1e9535afbd924823695441306fa6e9146df54b1a9e31",
+    "tests/foil-pivot.cjs": "462be3cb23d7e42e08232d358fee4d9aebcd387085c7c057df6c1c69b065732f",
+    "tests/foil-pivot-ui.cjs": "96f161a203115cc22aba43c18a4c7b7428d1aa530b40ed67bb967371b9be68f9",
+    "tests/foil-handles.cjs": "6d2ff4398e1b8d3713e17710867751bebce56f7e6d5caebfb338ea724f4f250f",
+    "tests/trial-foils.cjs": "e0ddb2052466d9fe3713f92f157078562b8a6538f6c72617590a50876fcb13e5",
+    "tests/design-save-identity.cjs": "47ceee9ef726ce23a4f8f6e9d0ead6f8464cb8ec727e6439cbb83feec3b85266",
+    "tests/prepared-ship-cache.cjs": "da1a29e9e7d9bcd50569ed84f91075c7ec7dd9cb4176f557b34ae71db2e0ccd3",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db"
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-concurrency=2",
+    "tests/tie-ln-solar-wing.cjs",
+    "tests/solar-preset-core.cjs",
+    "tests/direct-thermal-wing-core.cjs",
+    "tests/wing-planform-core.cjs",
+    "tests/wing-planform-ui.cjs",
+    "tests/wing-localization.cjs",
+    "tests/thermal-wing-ui.cjs",
+    "tests/runtime-foils-core.cjs",
+    "tests/runtime-foils-copy.cjs",
+    "tests/runtime-foils-rays.cjs",
+    "tests/runtime-foils-renderer.cjs",
+    "tests/foil-pivot.cjs",
+    "tests/foil-pivot-ui.cjs",
+    "tests/foil-handles.cjs",
+    "tests/trial-foils.cjs",
+    "tests/design-save-identity.cjs",
+    "tests/prepared-ship-cache.cjs",
+    "tests/source-manifest.cjs"
+  ],
+  "fixtureCaptureEnvironment": {
+    "KS_TIE_AUDIT_OUTPUT": "/workspace/scratch/tie-ln-modern-wing-final"
+  },
+  "exitCode": 1,
+  "completedAt": "2026-11-08T22:55:36.841214+00:00",
+  "sourcesAfter": {
+    "js/core.js": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "index.html": "847bea6fcef0a292adab2efc9f7c16ee855d945a142237f6b96d71c5fbb9a1ea",
+    "scripts/browser-tie-solar-wings.cjs": "6fb536fcb995b095b38414fb477061ab0e79a02cb0be5cf350ffe05d0fc97c3c"
+  },
+  "testSha256After": {
+    "tests/tie-ln-solar-wing.cjs": "d21d02e4f43e503c869426a00e807b63abaa0278be99c62528157094f5888e24",
+    "tests/solar-preset-core.cjs": "3c31c59204f045440dc4ac127f99cd2877972542ec7e3e2619d00d7ede2c0475",
+    "tests/direct-thermal-wing-core.cjs": "3e25c68d238b9b83e42109c4ed7bf89a8990e7c297733a9b545e45580686fcd4",
+    "tests/wing-planform-core.cjs": "30a19388c1c10ac852736e94b6fa36eb7441ee90a455351f8ebbbdfc536432bb",
+    "tests/wing-planform-ui.cjs": "184119d704af8af1cc34386f7f30d3fc31b512aaa2d7f028a9d6ffbc3829e0f1",
+    "tests/wing-localization.cjs": "f29ce57fa70330eac86daa3228eff3575c3138f671eecc0a98b64c12b80ca925",
+    "tests/thermal-wing-ui.cjs": "cb2dd5571c23ce1d5bbae965c072eedf5b9822f3ca8cdcf8c3b2f199eab0820c",
+    "tests/runtime-foils-core.cjs": "730ea7235f521935c6b4097ed4a06f0e5959b1988166f35451f91d0f8d86164e",
+    "tests/runtime-foils-copy.cjs": "0d9c434808d28524efcc6942c550c78005168f77a59a57b954811c3b6d0992c8",
+    "tests/runtime-foils-rays.cjs": "1464f014feb739798b6e1ed1ea6ff54b7c27ef15ec7f7e07e8d5af6159e4e941",
+    "tests/runtime-foils-renderer.cjs": "afd82dcfba87e0aaf57c1e9535afbd924823695441306fa6e9146df54b1a9e31",
+    "tests/foil-pivot.cjs": "462be3cb23d7e42e08232d358fee4d9aebcd387085c7c057df6c1c69b065732f",
+    "tests/foil-pivot-ui.cjs": "96f161a203115cc22aba43c18a4c7b7428d1aa530b40ed67bb967371b9be68f9",
+    "tests/foil-handles.cjs": "6d2ff4398e1b8d3713e17710867751bebce56f7e6d5caebfb338ea724f4f250f",
+    "tests/trial-foils.cjs": "e0ddb2052466d9fe3713f92f157078562b8a6538f6c72617590a50876fcb13e5",
+    "tests/design-save-identity.cjs": "47ceee9ef726ce23a4f8f6e9d0ead6f8464cb8ec727e6439cbb83feec3b85266",
+    "tests/prepared-ship-cache.cjs": "da1a29e9e7d9bcd50569ed84f91075c7ec7dd9cb4176f557b34ae71db2e0ccd3",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db"
+  },
+  "summary": [
+    "# tests 144",
+    "# suites 0",
+    "# pass 133",
+    "# fail 11",
+    "# cancelled 0",
+    "# skipped 0",
+    "# todo 0",
+    "# duration_ms 36014.485306"
+  ],
+  "failures": [
+    "not ok 17 - a sub-cubic-metre wing is a damageable dissipator in a fleet heat profile",
+    "not ok 31 - background geometry updates preserve and rebuild an active stowed preview",
+    "not ok 33 - removing or converting the last S-foil clears its stowed preview when the engine catches up",
+    "not ok 62 - duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins",
+    "not ok 63 - copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates",
+    "not ok 64 - copying a foil without any carried children drops source references and keeps automatic roots automatic",
+    "not ok 68 - the new internal rails stay inside their engine and mirror with it throughout S-foil travel",
+    "not ok 100 - normal catalogue cards and legacy recent selections place a dedicated wing without a structural host",
+    "not ok 101 - preselecting low temperature cooling puts that function directly on the placed wing",
+    "not ok 103 - changing the wing cooling mode records a normal undo step and keeps the geometry",
+    "not ok 127 - fractional size guidance and metric fields retain exact decimal values in English"
+  ],
+  "logSha256": "b92e7bffd37d16ff6ad880981bfd3115167364c9165d18189c8b7549717ada90",
+  "sourceStable": true,
+  "testsStable": true,
+  "actualReferenceComparison": {
+    "method": "Original main was actually constructed and measured before editing; the after values are captured from the production build and computeStats shared by tests/tie-ln-solar-wing.cjs. No private user blueprint or mass override.",
+    "before": {
+      "sourceCoreSha256": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+      "baselineCommit": "7840e8e6a9fbe321aa950c574e5d6ee3ec737d71",
+      "partCount": 59,
+      "massTonnes": 10.330584170666537,
+      "solarPowerW": 60571929600000000,
+      "powerW": 3088413887674337000,
+      "framingMassTonnes": 0.17807825738663258
+    },
+    "after": {
+      "sourceCoreSha256": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+      "partCount": 25,
+      "massTonnes": 8.40651907301772,
+      "solarPowerW": 60571929600000000,
+      "powerW": 3088413887674337000,
+      "framingMassTonnes": 0.17807825738663258,
+      "solarPanels": [
+        {
+          "id": 1,
+          "kind": "solarPanel",
+          "tw": 2,
+          "sizeMetres": [
+            7.24,
+            8.346,
+            0.08
+          ],
+          "panelBracing": "radial",
+          "areaM2": 50.476608
+        },
+        {
+          "id": 2,
+          "kind": "solarPanel",
+          "tw": 1,
+          "sizeMetres": [
+            7.24,
+            8.346,
+            0.08
+          ],
+          "panelBracing": "radial",
+          "areaM2": 50.476608
+        }
+      ],
+      "warnings": [
+        {
+          "lv": "info",
+          "text": "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+          "targets": [
+            {
+              "part": "shield"
+            },
+            {
+              "tab": "armor"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "ハイパードライブがありません（星系内専用艦）。",
+          "targets": [
+            {
+              "part": "hyper"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "text": "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+          "targets": [
+            {
+              "part": "integrity"
+            }
+          ]
+        },
+        {
+          "lv": "info",
+          "code": "craft-systems",
+          "text": "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。",
+          "targets": [
+            {
+              "list": "parts",
+              "id": 8
+            }
+          ]
+        }
+      ]
+    },
+    "massReductionTonnes": 1.9240650976488176,
+    "massReductionPercent": 18.624939943978745,
+    "removedSeparateFrameworkParts": 34,
+    "blueprintSha256": "d88a948741385f5fc54e50d34c3db93c75e6dcfe95277551796f8d403fd1f751",
+    "statsSha256": "1cf8f772cb45b3882205d88aae0b60a29ef272cbbfeb5aa41628058300bdf063"
+  },
+  "knownFailureBaseline": {
+    "file": "docs/benchmarks/tie-ln-native-solar-known-failures-baseline.json",
+    "sha256": "628e84840c9d18dc8c0f0c3fcfc568825442e6b703a9b2497632e191f31c339a",
+    "allElevenFailureNamesMatch": true,
+    "exitCodePreserved": 1,
+    "newFailures": 0
+  },
+  "staticChecks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-tie-solar-wings.cjs"
+      ],
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/tie-ln-solar-wing.cjs"
+      ],
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/solar-preset-core.cjs"
+      ],
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/update-asset-manifest.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  ],
+  "verifiedAt": "2026-11-08T22:57:09.508273+00:00"
+}
