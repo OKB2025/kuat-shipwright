@@ -1,0 +1,89 @@
+{
+  "status": "KNOWN_BASELINE_FAILURES",
+  "date": "2026-11-08T14:56:46.635736+00:00",
+  "baseline": "e21a5474373f4ce2e8d52d5f83f5e2ec8470c908",
+  "scope": "Separate final supplemental run, outside the passing focused matrix. These three unchanged files still have four failures reproduced on baseline. The full repository suite is not claimed green. Legacy weapon-family and combat test fixtures were repaired to exercise the actual UI and powered physical conditions, and are included in the passing focused regression scope.",
+  "currentCommand": "node --test --test-reporter=tap --test-concurrency=1 tests/engine-body-shape.cjs tests/engine-core-render.cjs tests/weapon-output-sizing.cjs",
+  "currentLogSha256": "648a09bc881929a95cfd429ec4dc510e8670213581eb02f652990597028a4038",
+  "currentSummary": [
+    "# tests 24",
+    "# suites 0",
+    "# pass 20",
+    "# fail 4",
+    "# cancelled 0",
+    "# skipped 0",
+    "# todo 0",
+    "# duration_ms 28981.330226"
+  ],
+  "currentFailures": [
+    "a cylinder remains one attached external unit with finite source delivery and unchanged rating",
+    "only machinery-to-nozzle housings are drawn; power feeds retain their physical circuits",
+    "electrical feeds stay invisible in exterior entries, diagnostic warnings, outlines and cached previews",
+    "point defense adopts the photographed side-carrier model at its native scale"
+  ],
+  "baselineEvidence": [
+    {
+      "testFile": "tests/engine-body-shape.cjs",
+      "testSha256": "ef314d5f8af15fb7a29d444346d401b4cff9c53535788cebc9ec5cb576808914",
+      "testUnchangedFromBaseline": true,
+      "baselineLogSha256": "380c67c7fb761eaa2fb7ebe44d13a5a6c8313341e642bf457dd72718fba4d8fb",
+      "baselineFailures": [
+        "a cylinder remains one attached external unit with finite source delivery and unchanged rating"
+      ],
+      "sameFailureNamesPresentInCurrent": true
+    },
+    {
+      "testFile": "tests/engine-core-render.cjs",
+      "testSha256": "78789c7ae5b033d01ba2aeba475b109494bf369e2578d7ad21a1e645043c9e0e",
+      "testUnchangedFromBaseline": true,
+      "baselineLogSha256": "4d5d94c771a84fd57340d8b900fd4785e2d9f5cc7fd3cf3ce0ba53b992c9245d",
+      "baselineFailures": [
+        "only machinery-to-nozzle housings are drawn; power feeds retain their physical circuits",
+        "electrical feeds stay invisible in exterior entries, diagnostic warnings, outlines and cached previews"
+      ],
+      "sameFailureNamesPresentInCurrent": true
+    },
+    {
+      "testFile": "tests/weapon-output-sizing.cjs",
+      "testSha256": "360c4a1707ac9dec2d7079ecaaae6e4c2b8016054508c04d8bb8154750dcff16",
+      "testUnchangedFromBaseline": true,
+      "baselineLogSha256": "b6afa2357832c3b0c508f3c83cd3332c512b109c6e7128dbe799a93e9c99de4c",
+      "baselineFailures": [
+        "point defense adopts the photographed side-carrier model at its native scale"
+      ],
+      "sameFailureNamesPresentInCurrent": true
+    }
+  ],
+  "baselineRuntimeVerification": [
+    {
+      "path": "js/core.js",
+      "sha256": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+      "matchesBaseline": true
+    },
+    {
+      "path": "js/gfx.js",
+      "sha256": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+      "matchesBaseline": true
+    },
+    {
+      "path": "js/engine.js",
+      "sha256": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+      "matchesBaseline": true
+    }
+  ],
+  "currentSources": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/lang-en.js": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f"
+  },
+  "observedMismatches": [
+    "Engine fixture source delivery: 0 instead of 1e18 W (baseline and current).",
+    "Electrical/drive housing assertions fail on baseline and current.",
+    "Point-defense index count: 176 instead of 1904 (baseline and current)."
+  ]
+}

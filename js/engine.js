@@ -361,10 +361,11 @@ function placementResolution(job, resolution) {
   for (const [list, ids] of lists) for (const id of ids) {
     const original = source?.[list]?.find(p => p.id === id), item = ship[list].find(p => p.id === id);
     if (!original || !item) continue;
-    const problem = item._placementError || item._fitPlacementError || item.placement?.repairReason || null;
+    const problem = item._placementError || item._fitPlacementError || item.placement?.repairReason || item._embeddedCasingError || null;
     rows.push({list, id, sourceKey: C.placementPendingInputKey(original),
       [list === 'parts' ? 'part' : 'fit']: JSON.parse(C.publicJSON(item)),
       effectiveGeometry: placementEffectiveGeometry(item), error: typeof problem === 'string' ? problem : problem?.code || null,
+      ...(item._embeddedCasingError?{cacheKeys:{_embeddedCasingError:item._embeddedCasingError,_embeddedCasingErrorKey:item._embeddedCasingErrorKey}}:{}),
       ...(problem?.error ? {errorMessage: problem.error} : {}),
       geometryKeys: {self: item._placementSelfKey, request: item._placementRequestKey, parent: item._placementParentKey}});
   }

@@ -1,0 +1,63 @@
+{
+  "status": "FOCUSED_PASS_WITH_EXTENDED_SCOPE_INCOMPLETE",
+  "date": "2026-11-08T15:19:12.633472+00:00",
+  "testFile": "tests/fleet-loadout-separation.cjs",
+  "testSha256": "e1646fb89cac33668daa659f0b49675b5fc53a706c47e55c3b8a903d585497a5",
+  "focusedCommand": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-skip-pattern=all example definitions|every direct example ship builder",
+    "tests/fleet-loadout-separation.cjs"
+  ],
+  "focusedSummary": [
+    "# tests 8",
+    "# suites 0",
+    "# pass 8",
+    "# fail 0",
+    "# cancelled 0",
+    "# skipped 0",
+    "# todo 0",
+    "# duration_ms 2855.330169"
+  ],
+  "focusedLogSha256": "ea79847f3ea8a60862c9adc12f0f1f0a06fc0ff02d5d4ee1a41417ab0ad0436d",
+  "notRunToCompletion": [
+    "all example definitions keep reference complements outside their blueprints and builds stay empty",
+    "every direct example ship builder returns an empty hull rather than hidden embarked forces"
+  ],
+  "extendedRun": {
+    "completed": false,
+    "stoppedBy": "assistant",
+    "reason": "Optional all-example legacy direct-builder expansion remained CPU-active in existing exposed-surface/refit work. Stopped that file; do not count its two builder checks as passed. The focused metadata suite and final main matrix are recorded separately.",
+    "matrixStartedAt": "2026-11-08T14:56:25.887049+00:00",
+    "matrixStoppedAt": "2026-11-08T15:11:59.172711+00:00",
+    "matrixDurationMs": 933036.902016,
+    "sourceStable": true,
+    "cpuProfileSha256": "bf875ae4e868f89acc03b65feafcb471722065646b04e93a0e2ac0d43ad457c6",
+    "cpuProfileWindowSeconds": 3,
+    "cpuSamples": 2524,
+    "inclusiveSamples": {
+      "exposedSurface": 2121,
+      "surfaceExposedTriangles": 1987,
+      "solidSliceSegments": 1245,
+      "fitEmbeddedEngineMachinery": 0,
+      "engineCasingEmbedded": 0
+    },
+    "inference": "The sampled interval does not identify the new turbine helper as the cause of this long-running builder check; no before/after benchmark or full-file pass is claimed."
+  },
+  "fixtureRepair": {
+    "baseline": "e21a5474373f4ce2e8d52d5f83f5e2ec8470c908",
+    "baselineOriginalCaseLogSha256": "aeb28244427a8966c143c6bda65294b648806aafe1f10c298bc86ddc21b4aea4",
+    "reason": "Reference slots are already zero on baseline/current data. Replace a false positive-slot assumption with full before/after profile and optional-complement immutability assertions; preserve carrier role and runtime empty-occupancy checks."
+  },
+  "sources": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/lang-en.js": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f"
+  }
+}

@@ -20,7 +20,7 @@ run(`function setup(k='ball720',frame={a:2},pitch=42,foil=false,pd=false,yaw=.2,
  if(frame.tilt)frame={...frame,tilt:C.norm(frame.tilt)};
  const f={id:7,k,p:[100,40,15],a:2,assetYaw:31,assetPitch:pitch,float:false,...frame},ship=C.newShip({assembly:true,L:200,W:200,H:100},'Actual ball trial aiming');ship.parts=[];ship.fits=[f];ship.detail=0;
  const geometry=G.fleetGeometry(ship,{trial:true}),raw=geometry.turrets.find(t=>t.id===f.id);if(!raw?.authored)throw Error('No physical authored gun');
- Object.assign(trial,{craft:false,p:{len:200},asset:{geometry},P:[1000,2000,-3000],V:[0,0,0],R:[0,0,1,0,1,0,-1,0,0],gunMode:'free',fire:false,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e8,cap:1e8},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+ Object.assign(trial,{systemsUnit:{p:{modules:[]}},craft:false,p:{len:200},asset:{geometry},P:[1000,2000,-3000],V:[0,0,0],R:[0,0,1,0,1,0,-1,0,0],gunMode:'free',fire:false,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e8,cap:1e8},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  const t=trialTurretState(raw);t.rateRad=1e6;t.charge=1;trial.turrets=[t];threat=null;deployments={};
  if(foil){const wing={id:'pitch-wing',pivot:[30,12,5],axis:'x',open:0,stow:65,sg:1};geometry.foils=[wing];t.foilId=wing.id;deployments[wing.id]=.4;trialPoseFoilMounts();}
  const native=C.aimAuthoredTurret(raw.authored,yaw,elevation),desired=t._foilTransform?t._foilTransform.direction(native.fw):native.fw;

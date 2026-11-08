@@ -1,0 +1,43 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
+function appFunction(name){
+ const start=new RegExp('function '+name+'\\s*\\(').exec(app);assert.ok(start,name);
+ for(let end=app.indexOf('}',start.index);end>=0;end=app.indexOf('}',end+1)){const code=app.slice(start.index,end+1);try{new vm.Script(code);return code;}catch{}}
+ throw Error('Cannot read '+name);
+}
+function fixture(){
+ const cx=vm.createContext({console,performance});for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
+ vm.runInContext(`const C=Core,G=Gfx;let ship,editorPartsRevision=0,editorMountCache=null;const requestedParts={ship:null,records:new Map()},placementDraftPartCache=new WeakMap();const currentEditorGeometryContext=()=> 'same-hull-context';function copyEditorHullCache(){throw Error('Not a native hull');}\n${['editorPublicKey','editorPartGeometryKey','requestedPart'].map(appFunction).join('\n')}`,cx);
+ const {C,G,set,request,bump}=vm.runInContext('({C,G,set:s=>ship=s,request:requestedPart,bump:()=>editorPartsRevision++})',cx),ship=C.newShip({L:300,W:100,H:20,assembly:true},'Height editing');
+ ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[200,100,20]}];ship.fits=[];ship.hatches=[];ship.links=[];ship.groups=[];ship.nextId=2;ship.detail=0;ship.autoHabitation=false;
+ const solved=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:[0,20,0],s:[20,10,40]},{mode:'horizontal',contactFit:'cut',position:[0,20,0],parentStructureId:1,hit:{p:[0,10,0],n:[0,1,0]}});assert.equal(solved.ok,true,solved.error);const accepted=C.acceptPlacementResult(ship,solved);assert.equal(accepted.ok,true,accepted.error);set(ship);
+ return {C,G,ship,part:accepted.part,request,bump};
+}
+function renderedY(r){const g=r.G.meshPreview(r.ship,[r.part],[],{requestedPart:r.request}).preview;assert.ok(g.ni>0);let min=Infinity,max=-Infinity;for(let i=0;i<g.ni;i++){const y=g.pos[g.idx[i]*3+1];assert.ok(Number.isFinite(y));min=Math.min(min,y);max=Math.max(max,y);}return [min,max];}
+
+test('the real editor proxy and preview grow from the installed base instead of moving the former cut slab',()=>{
+ const r=fixture(),{C,part,request,bump}=r,sourceBefore=C.publicJSON(r.ship.parts[0]);assert.deepEqual(renderedY(r),[10,40]);
+ C.resizeStructureHeightAtContact(part,100);bump();const proxy=request(part);assert.equal(proxy._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,100],'requested-height preview replaces the former Y40..70 floating slab');assert.equal(C.publicJSON(r.ship.parts[0]),sourceBefore);
+ const result=C.refreshPlacementGeometry(r.ship);assert.equal(result.ok,true,JSON.stringify(result.failed));const authoritative=part._placementGeometry;assert.ok(authoritative);assert.equal(request(part)._placementGeometry,authoritative,'same hull context must not hide the new fitted result');assert.deepEqual(renderedY(r),[10,100]);
+});
+
+test('direct dimension edits clear the detached editor fit while preserving the source last-valid solid',()=>{
+ const r=fixture(),{part,request,bump}=r,cache=part._placementGeometry;request(part);part.s[2]=100;part.c[1]=50;bump();assert.equal(request(part)._placementGeometry,undefined);assert.equal(part._placementGeometry,cache);assert.deepEqual(renderedY(r),[0,100]);
+});
+
+test('an authoritative fitting cache replacement is adopted without another authoring revision or context change',()=>{
+ const r=fixture(),{C,part,request}=r,proxy=request(part),before=C.publicJSON(part),replacement={...part._placementGeometry,local:part._placementGeometry.local.slice()};
+ part._placementGeometry=replacement;assert.equal(C.publicJSON(part),before);assert.equal(request(part),proxy,'the stable editor proxy is retained');assert.equal(proxy._placementGeometry,replacement);assert.deepEqual(renderedY(r),[10,40]);
+});
+
+test('an authoritative fitting cache removal also updates the stable editor proxy',()=>{
+ const r=fixture(),{C,part,request}=r,proxy=request(part),before=C.publicJSON(part);delete part._placementGeometry;assert.equal(C.publicJSON(part),before);assert.equal(request(part),proxy);assert.equal(proxy._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,40]);
+});
+
+test('a label-only edit retains the unchanged fitted solid and keeps the source authoritative',()=>{
+ const r=fixture(),{part,request,bump}=r,proxy=request(part),geometry=part._placementGeometry;part.label='Resized deckhouse';bump();assert.equal(request(part),proxy);assert.equal(proxy._placementGeometry,geometry);assert.equal(part._placementGeometry,geometry);assert.deepEqual(renderedY(r),[10,40]);
+});
+
+test('a pending placement edit previews its request and cannot borrow an earlier finalized solid',()=>{
+ const r=fixture(),{part,request,bump}=r,geometry=part._placementGeometry;request(part);part.placement.pendingGeometry=true;bump();assert.equal(request(part)._placementGeometry,undefined);assert.equal(part._placementGeometry,geometry);assert.deepEqual(renderedY(r),[0,40]);
+});

@@ -31,6 +31,10 @@ function setup(){
  run(section(core,'function shipCost(row, designOf) {','// ---------- SBOX-001..004 battle scenarios ----------'));
  run(section(core,'const scenarioPick =','// The battle of a scenario.'));
  run(`R.shipCost=shipCost;R.fleetCost=fleetCost;R.scenarioCosts=(sc,of)=>{const result=scenarioCosts(sc,of);checks.push(result);events.push('costs');return result;};`);
+ // Example registration also applies Core's cheap reference-speed overlay.
+ // Use its production implementation rather than an identity substitute.
+ run(section(core,'const MGLT=','// v12: assembled dimensions'));
+ run('C.referenceSpeedProfile=referenceSpeedProfile;');
  run(section(app,'function voyExampleDesigns() {','function voyDesign(key)'));
  run('for(const d of voyExampleDesigns())voy.designs.set(d.key,d);');
  run(section(app,'function voyProfileStale(','const voyShort ='));

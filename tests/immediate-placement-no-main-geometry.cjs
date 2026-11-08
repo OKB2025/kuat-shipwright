@@ -11,7 +11,7 @@ function guardedRuntime(){
  return {C:vm.runInContext('Core',context),context};
 }
 test('actual source mutation, history and engine transport place synchronously without hidden whole-design Core work',()=>{
- const runtime=guardedRuntime(),t=setup({core:runtime.C}),r=t.run;
+ const runtime=guardedRuntime(),t=setup({core:runtime.C,continuous:true}),r=t.run;
  r('ship.surfaces={version:4,mode:"strict",patches:[],partitions:[]}');
  runtime.context.__mainGuard=true;
  assert.throws(()=>runtime.C.publicJSON(r('ship')),/main-thread geometry forbidden: adoptWeaponFits/,'the guard detects the former hidden whole-design serialization work');
@@ -32,7 +32,7 @@ test('pending catalogue metrics read actual Worker statistics without synchroniz
  try{r('const readout=catalogStats(workerStats)');assert.equal(r('readout.power'),stats.power);assert.equal(r('readout.mass'),stats.mass);assert.equal(runtime.context.__mainBlocked.length,0);}finally{runtime.context.__mainGuard=false;}
 });
 test('immediate Undo, Redo and raw pending saves keep the authored IDs without starting geometry or completed-profile work',async()=>{
- const runtime=guardedRuntime(),t=setup({core:runtime.C}),r=t.run;
+ const runtime=guardedRuntime(),t=setup({core:runtime.C,continuous:true}),r=t.run;
  r(`ship.surfaces={version:4,mode:'strict',patches:[],partitions:[]};
  let savingCurrent=false;
  const savedRecords=[];

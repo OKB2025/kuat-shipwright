@@ -1,0 +1,945 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T14:18:42.739Z",
+  "sourceSha256": {
+    "index.html": "9e7f18e60bab275248cfa2c4bb73a2350aaa6a9cca994b5e2c34b2ee9fcbfde6",
+    "js/core.js": "831d5870ce615f4d1217e4cec4939f7aa084eb5d702f8e96fa3c9e95da89434e",
+    "js/app.js": "dae93a0f2fdca327489fd1dae5af15ff3ed08c5cb56b4380bd082777fdd616d0",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "1e2471e9e65c2069ae1756fc30d00e5e99d826babda485a086e85f3d54db41f9"
+  },
+  "harnessSha256": "75d48981382568747bcd82d836e57a3a9cdb78e2ed3e05e27ad86fb6f0fafd38",
+  "scope": "Native input and actual rendering/Worker updates for a small Core-generated physical fixture. No injected meshes, fake Worker results or performance claims.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "touch": true,
+    "safari": "Not tested"
+  },
+  "errors": [],
+  "stages": [
+    {
+      "name": "booted-real-worker",
+      "at": "2026-11-08T14:19:22.398Z"
+    },
+    {
+      "name": "height-and-undo",
+      "at": "2026-11-08T14:20:26.822Z"
+    },
+    {
+      "name": "info-duplicate-descendants",
+      "at": "2026-11-08T14:20:38.537Z"
+    },
+    {
+      "name": "single-repeat-and-symmetry",
+      "at": "2026-11-08T14:22:06.588Z"
+    },
+    {
+      "name": "landscape-and-portrait-carousel",
+      "at": "2026-11-08T14:23:52.319Z"
+    },
+    {
+      "name": "automatic-interior-host",
+      "at": "2026-11-08T14:24:24.484Z"
+    },
+    {
+      "name": "authentic-venator-owned-hatch",
+      "at": "2026-11-08T14:27:28.540Z"
+    }
+  ],
+  "renderer": "webgl",
+  "height": {
+    "before": {
+      "c": [
+        -45,
+        20,
+        0
+      ],
+      "s": [
+        20,
+        20,
+        40
+      ],
+      "bounds": [
+        -55,
+        10,
+        -10,
+        -35,
+        40,
+        10
+      ],
+      "volume": 12000,
+      "form": "box",
+      "taper": 0,
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "parent": 1,
+      "anchor": [
+        -45,
+        10,
+        0
+      ],
+      "requested": {
+        "id": 2,
+        "k": "struct",
+        "form": "box",
+        "c": [
+          -45,
+          20,
+          0
+        ],
+        "s": [
+          20,
+          20,
+          40
+        ],
+        "taper": 0,
+        "label": "Height child",
+        "pitch": 0,
+        "roll": 0,
+        "_geom": {
+          "key": "[[-45,20,0],[20,20,40],0,\"box\",null,null,0,0,null,null,null]",
+          "tris": {
+            "0": -55,
+            "1": 0,
+            "2": -10,
+            "3": -55,
+            "4": 40,
+            "5": -10,
+            "6": -35,
+            "7": 40,
+            "8": -10,
+            "9": -55,
+            "10": 0,
+            "11": -10,
+            "12": -35,
+            "13": 40,
+            "14": -10,
+            "15": -35,
+            "16": 0,
+            "17": -10,
+            "18": -35,
+            "19": 0,
+            "20": -10,
+            "21": -35,
+            "22": 40,
+            "23": -10,
+            "24": -35,
+            "25": 40,
+            "26": 10,
+            "27": -35,
+            "28": 0,
+            "29": -10,
+            "30": -35,
+            "31": 40,
+            "32": 10,
+            "33": -35,
+            "34": 0,
+            "35": 10,
+            "36": -35,
+            "37": 0,
+            "38": 10,
+            "39": -35,
+            "40": 40,
+            "41": 10,
+            "42": -55,
+            "43": 40,
+            "44": 10,
+            "45": -35,
+            "46": 0,
+            "47": 10,
+            "48": -55,
+            "49": 40,
+            "50": 10,
+            "51": -55,
+            "52": 0,
+            "53": 10,
+            "54": -55,
+            "55": 0,
+            "56": 10,
+            "57": -55,
+            "58": 40,
+            "59": 10,
+            "60": -55,
+            "61": 40,
+            "62": -10,
+            "63": -55,
+            "64": 0,
+            "65": 10,
+            "66": -55,
+            "67": 40,
+            "68": -10,
+            "69": -55,
+            "70": 0,
+            "71": -10,
+            "72": -45,
+            "73": 0,
+            "74": 0,
+            "75": -55,
+            "76": 0,
+            "77": -10,
+            "78": -35,
+            "79": 0,
+            "80": -10,
+            "81": -45,
+            "82": 0,
+            "83": 0,
+            "84": -35,
+            "85": 0,
+            "86": -10,
+            "87": -35,
+            "88": 0,
+            "89": 10,
+            "90": -45,
+            "91": 0,
+            "92": 0,
+            "93": -35,
+            "94": 0,
+            "95": 10,
+            "96": -55,
+            "97": 0,
+            "98": 10,
+            "99": -45,
+            "100": 0,
+            "101": 0,
+            "102": -55,
+            "103": 0,
+            "104": 10,
+            "105": -55,
+            "106": 0,
+            "107": -10,
+            "108": -45,
+            "109": 40,
+            "110": 0,
+            "111": -35,
+            "112": 40,
+            "113": -10,
+            "114": -55,
+            "115": 40,
+            "116": -10,
+            "117": -45,
+            "118": 40,
+            "119": 0,
+            "120": -35,
+            "121": 40,
+            "122": 10,
+            "123": -35,
+            "124": 40,
+            "125": -10,
+            "126": -45,
+            "127": 40,
+            "128": 0,
+            "129": -55,
+            "130": 40,
+            "131": 10,
+            "132": -35,
+            "133": 40,
+            "134": 10,
+            "135": -45,
+            "136": 40,
+            "137": 0,
+            "138": -55,
+            "139": 40,
+            "140": -10,
+            "141": -55,
+            "142": 40,
+            "143": 10
+          }
+        }
+      },
+      "gen": 1,
+      "adopted": 1,
+      "geometry": true,
+      "error": null
+    },
+    "immediate": {
+      "c": [
+        -45,
+        50,
+        0
+      ],
+      "s": [
+        20,
+        20,
+        100
+      ],
+      "bounds": [
+        -55,
+        0,
+        -10,
+        -35,
+        100,
+        10
+      ],
+      "volume": 39999.99999999999,
+      "form": "box",
+      "taper": 0,
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "parent": 1,
+      "anchor": [
+        -45,
+        10,
+        0
+      ],
+      "requested": {
+        "id": 2,
+        "k": "struct",
+        "form": "box",
+        "c": [
+          -45,
+          50,
+          0
+        ],
+        "s": [
+          20,
+          20,
+          100
+        ],
+        "taper": 0,
+        "label": "Height child",
+        "pitch": 0,
+        "roll": 0
+      },
+      "gen": 2,
+      "adopted": 1,
+      "geometry": false,
+      "error": null
+    },
+    "after": {
+      "c": [
+        -45,
+        50,
+        0
+      ],
+      "s": [
+        20,
+        20,
+        100
+      ],
+      "bounds": [
+        -55,
+        10,
+        -10,
+        -35,
+        100,
+        10
+      ],
+      "volume": 36000,
+      "form": "box",
+      "taper": 0,
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "parent": 1,
+      "anchor": [
+        -45,
+        10,
+        0
+      ],
+      "requested": {
+        "id": 2,
+        "k": "struct",
+        "form": "box",
+        "c": [
+          -45,
+          50,
+          0
+        ],
+        "s": [
+          20,
+          20,
+          100
+        ],
+        "taper": 0,
+        "label": "Height child",
+        "pitch": 0,
+        "roll": 0
+      },
+      "gen": 2,
+      "adopted": 2,
+      "geometry": true,
+      "error": null
+    },
+    "uploads": [
+      {
+        "key": "preview",
+        "bounds": [
+          -55,
+          0,
+          -10,
+          -35,
+          100,
+          10
+        ],
+        "nonFinite": 0,
+        "indices": 48,
+        "gen": 2,
+        "at": 58505.79999999702
+      }
+    ],
+    "closeCommits": true,
+    "undo": {
+      "c": [
+        -45,
+        20,
+        0
+      ],
+      "s": [
+        20,
+        20,
+        40
+      ],
+      "bounds": [
+        -55,
+        10,
+        -10,
+        -35,
+        40,
+        10
+      ],
+      "volume": 12000,
+      "form": "box",
+      "taper": 0,
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "parent": 1,
+      "anchor": [
+        -45,
+        10,
+        0
+      ],
+      "requested": {
+        "id": 2,
+        "k": "struct",
+        "c": [
+          -45,
+          20,
+          0
+        ],
+        "s": [
+          20,
+          20,
+          40
+        ],
+        "taper": 0,
+        "form": "box",
+        "yaw": 0,
+        "offsetX": 0,
+        "offsetZ": 0,
+        "label": "Height child",
+        "pitch": 0,
+        "roll": 0
+      },
+      "gen": 3,
+      "adopted": 3,
+      "geometry": true,
+      "error": null
+    },
+    "cancelRollsBack": {
+      "c": [
+        -45,
+        20,
+        0
+      ],
+      "s": [
+        20,
+        20,
+        40
+      ],
+      "bounds": [
+        -55,
+        10,
+        -10,
+        -35,
+        40,
+        10
+      ],
+      "volume": 12000,
+      "form": "box",
+      "taper": 0,
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "parent": 1,
+      "anchor": [
+        -45,
+        10,
+        0
+      ],
+      "requested": {
+        "id": 2,
+        "k": "struct",
+        "c": [
+          -45,
+          20,
+          0
+        ],
+        "s": [
+          20,
+          20,
+          40
+        ],
+        "taper": 0,
+        "form": "box",
+        "yaw": 0,
+        "offsetX": 0,
+        "offsetZ": 0,
+        "label": "Height child",
+        "pitch": 0,
+        "roll": 0
+      },
+      "gen": 5,
+      "adopted": 5,
+      "geometry": true,
+      "error": null
+    },
+    "thermal": {
+      "rates": {
+        "equipmentMaxHeatW": 0,
+        "rejectionCapacityW": 3.312e+23
+      },
+      "rows": [
+        {
+          "metric": "equipment-heat",
+          "label": "設備最大発熱量（1秒あたり）",
+          "text": "0 W",
+          "visible": true
+        },
+        {
+          "metric": "rejection-capacity",
+          "label": "排熱能力（1秒あたり）",
+          "text": "3.3×10²³ W",
+          "visible": true
+        }
+      ]
+    }
+  },
+  "duplicate": {
+    "parts": 5,
+    "selected": {
+      "list": "parts",
+      "id": 4
+    },
+    "copies": [
+      {
+        "id": 4,
+        "label": "Height child",
+        "unresolvedParent": 1
+      },
+      {
+        "id": 5,
+        "label": "Nested child",
+        "parent": 4
+      }
+    ],
+    "infoVisible": true,
+    "editorOpen": false,
+    "oneUndoRemovesBoth": true
+  },
+  "placement": {
+    "defaultSingle": true,
+    "nextTapSelectsOnly": true,
+    "checkedRepeatAddsTwo": true,
+    "symmetryBatch": [
+      {
+        "id": 2,
+        "tw": 3
+      },
+      {
+        "id": 3,
+        "tw": 2
+      }
+    ],
+    "symmetrySingleUndo": true,
+    "strictRequests": []
+  },
+  "carousels": [
+    {
+      "width": 1280,
+      "height": 588,
+      "header": {
+        "closeCount": 1,
+        "footerCancelCount": 0,
+        "buttons": [
+          {
+            "action": "close",
+            "text": "取消",
+            "withinHeader": true,
+            "reachable": true,
+            "x": 1116,
+            "right": 1159,
+            "y": 13,
+            "bottom": 43
+          },
+          {
+            "action": "arm",
+            "text": "設置",
+            "withinHeader": true,
+            "reachable": true,
+            "x": 1167,
+            "right": 1263,
+            "y": 11,
+            "bottom": 45
+          }
+        ]
+      },
+      "rows": [
+        {
+          "scrollLeft": 926,
+          "width": 430,
+          "total": 1356,
+          "last": {
+            "x": 367.15625,
+            "right": 478.15625
+          },
+          "track": {
+            "x": 47,
+            "right": 479
+          },
+          "index": 1,
+          "scrollRetained": true
+        },
+        {
+          "scrollLeft": 0,
+          "width": 430,
+          "total": 430,
+          "last": {
+            "x": 414,
+            "right": 467.5
+          },
+          "track": {
+            "x": 47,
+            "right": 479
+          },
+          "index": 0,
+          "scrollRetained": true
+        }
+      ],
+      "perBarrel40": [
+        "fit:single40",
+        "fit:quad40Ion",
+        "fit:twin40Dome",
+        "fit:twin40",
+        "fit:triple40",
+        "fit:oct40"
+      ],
+      "weaponStats": [
+        {
+          "stat": "output",
+          "value": "40",
+          "text": "40 TT"
+        },
+        {
+          "stat": "traverse",
+          "value": "13.09655593067274",
+          "text": "13.1 °/s"
+        },
+        {
+          "stat": "range",
+          "value": "40000",
+          "text": "40.0 km"
+        },
+        {
+          "stat": "power",
+          "value": "5.0208e+23",
+          "text": "5.0×10²³ W"
+        },
+        {
+          "stat": "heat",
+          "value": "1.2552e+23",
+          "text": "1.3×10²³ W"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "header": {
+        "closeCount": 1,
+        "footerCancelCount": 0,
+        "buttons": [
+          {
+            "action": "close",
+            "text": "取消",
+            "withinHeader": true,
+            "reachable": true,
+            "x": 226,
+            "right": 269,
+            "y": 13,
+            "bottom": 43
+          },
+          {
+            "action": "arm",
+            "text": "設置",
+            "withinHeader": true,
+            "reachable": true,
+            "x": 277,
+            "right": 373,
+            "y": 11,
+            "bottom": 45
+          }
+        ]
+      },
+      "rows": [
+        {
+          "scrollLeft": 975,
+          "width": 294,
+          "total": 1269,
+          "last": {
+            "x": 236.96875,
+            "right": 341.96875
+          },
+          "track": {
+            "x": 47,
+            "right": 343
+          },
+          "index": 1,
+          "scrollRetained": true
+        },
+        {
+          "scrollLeft": 99,
+          "width": 294,
+          "total": 393,
+          "last": {
+            "x": 292,
+            "right": 342
+          },
+          "track": {
+            "x": 47,
+            "right": 343
+          },
+          "index": 0,
+          "scrollRetained": true
+        }
+      ],
+      "nativeSwipe": 99,
+      "perBarrel40": [
+        "fit:single40",
+        "fit:quad40Ion",
+        "fit:twin40Dome",
+        "fit:twin40",
+        "fit:triple40",
+        "fit:oct40"
+      ],
+      "weaponStats": [
+        {
+          "stat": "output",
+          "value": "40",
+          "text": "40 TT"
+        },
+        {
+          "stat": "traverse",
+          "value": "13.09655593067274",
+          "text": "13.1 °/s"
+        },
+        {
+          "stat": "range",
+          "value": "40000",
+          "text": "40.0 km"
+        },
+        {
+          "stat": "power",
+          "value": "5.0208e+23",
+          "text": "5.0×10²³ W"
+        },
+        {
+          "stat": "heat",
+          "value": "1.2552e+23",
+          "text": "1.3×10²³ W"
+        }
+      ]
+    }
+  ],
+  "interior": [
+    {
+      "requestedDimensions": [
+        4,
+        4,
+        4
+      ],
+      "automaticHostSelected": true,
+      "tap": {
+        "pixel": [
+          800.1766915991902,
+          497.0613544513181
+        ],
+        "point": [
+          65.00004177552316,
+          10,
+          45.00001755514387
+        ]
+      },
+      "after": {
+        "kind": "cargo",
+        "id": 2,
+        "host": 1,
+        "mode": "clip",
+        "room": [
+          4,
+          4,
+          4
+        ],
+        "d": 4,
+        "volume": 64.00006103515625,
+        "pending": false,
+        "failed": false,
+        "error": null,
+        "bounds": [
+          63.00004196166992,
+          5,
+          43.00000762939453,
+          67.00004577636719,
+          9,
+          47.00000762939453
+        ]
+      }
+    },
+    {
+      "requestedDimensions": [
+        4,
+        4,
+        4
+      ],
+      "automaticHostSelected": true,
+      "tap": {
+        "pixel": [
+          800.1766915991902,
+          497.0613544513181
+        ],
+        "point": [
+          65.00004177552316,
+          10,
+          45.00001755514387
+        ]
+      },
+      "after": {
+        "kind": "battery",
+        "id": 2,
+        "host": 1,
+        "mode": "direct",
+        "room": [
+          4,
+          4,
+          4
+        ],
+        "d": 4,
+        "volume": 64.00006103515625,
+        "pending": false,
+        "failed": false,
+        "error": null,
+        "bounds": [
+          63.00004196166992,
+          5,
+          43.00000762939453,
+          67.00004577636719,
+          9,
+          47.00000762939453
+        ]
+      }
+    }
+  ],
+  "venator": {
+    "archive": "assets/source/ship-example-blueprints/venator.json.gz",
+    "unpackedSha256": "b97bfed0499aa325f4274ce1b0e4615fe50591a6d91db0146bd9abd92fda1181",
+    "originalParts": 269,
+    "originalFits": 59,
+    "retainedPartIds": [
+      363,
+      32,
+      48,
+      55,
+      57
+    ],
+    "hatchIds": [
+      33,
+      49,
+      56,
+      58,
+      92
+    ],
+    "ownerId": 363,
+    "scope": "Five authentic owner/bay parts and all five hatches; other264 parts,59 fittings, links, aircraft and ground-force configuration omitted for UI-only verification. No hull or hatch geometry simplified.",
+    "target": {
+      "p": [
+        700,
+        106.12459305936738,
+        20
+      ],
+      "owner": 363
+    },
+    "pixel": [
+      640,
+      389.5
+    ],
+    "listedHatches": 5,
+    "before": {
+      "open": 0,
+      "localOpen": 0,
+      "active": true,
+      "area": 0,
+      "gen": 20
+    },
+    "after": {
+      "open": 1,
+      "localOpen": 1,
+      "active": true,
+      "area": 19234.221995872642,
+      "gen": 21
+    },
+    "oneUndo": {
+      "open": 0,
+      "localOpen": 0,
+      "active": true,
+      "area": 0,
+      "gen": 22
+    }
+  },
+  "servedSourceSha256": {
+    "index.html": "9e7f18e60bab275248cfa2c4bb73a2350aaa6a9cca994b5e2c34b2ee9fcbfde6",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/app.js": "dae93a0f2fdca327489fd1dae5af15ff3ed08c5cb56b4380bd082777fdd616d0",
+    "js/core.js": "831d5870ce615f4d1217e4cec4939f7aa084eb5d702f8e96fa3c9e95da89434e"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/core.js": true,
+    "js/app.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "9e7f18e60bab275248cfa2c4bb73a2350aaa6a9cca994b5e2c34b2ee9fcbfde6",
+    "js/core.js": "831d5870ce615f4d1217e4cec4939f7aa084eb5d702f8e96fa3c9e95da89434e",
+    "js/app.js": "dae93a0f2fdca327489fd1dae5af15ff3ed08c5cb56b4380bd082777fdd616d0",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "1e2471e9e65c2069ae1756fc30d00e5e99d826babda485a086e85f3d54db41f9"
+  },
+  "sourceStable": true,
+  "glError": 0,
+  "completedAt": "2026-11-08T14:27:29.202Z"
+}

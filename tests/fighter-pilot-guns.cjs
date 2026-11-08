@@ -17,7 +17,7 @@ function stateFromFit(f){
 }
 function reset(k='claser',extra={}){
  notices.length=0;sounds.length=0;aimPoint=[10000,0,0];salvo=null;
- Object.assign(trial,{on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],emitted:[],seenBolts:new WeakSet(),missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+ Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],emitted:[],seenBolts:new WeakSet(),missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  trial.turrets=[stateFromFit(makeFit(k,extra))];trialCraftSystemsReset();
 }
 function advance(duration,dt=.001){for(let i=0;i<Math.round(duration/dt);i++){trialGunnery(dt);for(const b of trial.bolts)if(!trial.seenBolts.has(b)){trial.seenBolts.add(b);trial.emitted.push(b);}}}

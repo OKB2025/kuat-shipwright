@@ -7,12 +7,13 @@ function setup(){
  const ui=vm.createContext({console,C}),run=code=>vm.runInContext(code,ui);
  run(`let ship=C.newShip({L:500,W:300,H:160,plan:'rect',sec:'rect'},'Mon Calamari UI');
  const st={tab:'arm',fit:'monCal80',fitTool:'place',sel:null,weaponMount:'auto',gunYaw:0,gunPitch:0},notes=[];
- const num=(v,n=0)=>Number(v).toFixed(n),esc=String,fTT=v=>v+' TT',deg=v=>v+'°',fmtM=v=>v+' m',I18N=null,view=null;
+ const num=(v,n=0)=>Number(v).toFixed(n),esc=String,fTT=v=>v+' TT',deg=v=>v+'°',fmtM=v=>v+' m',I18N=null,view=null,T=x=>x,fW=v=>v+' W';
  const curFit=()=>st.fit,selItem=()=>st.sel?ship.fits.find(f=>f.id===st.sel.id):null;
  const renderPanel=()=>{},syncHud=()=>{},requestDraw=()=>{},updateHint=()=>{},toast=s=>notes.push(s);
  const fitPairHTML=()=>'',fitPositionSliders=()=>'',fitPedestalControls=()=>'';
  `);
- for(const [a,b]of [['const PART_KEYS =','const partOffered ='],['function seg(','function silhouette('],['function fitBtn(','const fmtM ='],['function baseFitEditor()','function partList('],['function weaponYawControls(','function turretHeadingLines('],['function weaponMountIssue(','function turretCompartmentHTML('],['function weaponMountControls(','function aviationNumbers('],['function weaponSourcesHTML()','function bindReference(){']])run(section(a,b));
+ for(const [a,b]of [['const PART_KEYS =','const partOffered ='],['function seg(','function silhouette('],['function fitBtn(','const fmtM ='],['function baseFitEditor()','function partList('],['function weaponYawControls(','function turretHeadingLines('],['function weaponMountIssue(','function turretCompartmentHTML('],['function weaponMountControls(','function aviationNumbers('],['function designWeaponPreviewHTML(','function designUIPlacementHTML(']])run(section(a,b));
+ run('function editorCraftDesign(){return !!C.shipClassFor(ship.hull.L,ship.shipClass).craft;}');
  return run;
 }
 test('ship and compact-craft catalogs expose all new weapons exactly once and omit retired types',()=>{
@@ -40,9 +41,8 @@ test('obsolete mount actions and battery edit events cannot recreate retired com
  }
  run("st.fit='monCal80';chooseWeaponMount('trench')");assert.equal(run('st.weaponMount'),'trench');assert.equal(run('st.fit'),'monCal80');
 });
-test('weapon source table includes each new caliber and no obsolete battery instructions',()=>{
- const run=setup(),html=run('weaponSourcesHTML()');for(const k of weapons)assert.ok(html.includes(C.FITS[k].short),k);
- assert.doesNotMatch(html,/undefined|NaN|砲列区画|軽イオン砲/);assert.match(html,/球状PDは3門×20 GT/);assert.match(html,/CIS用の1TT 4連装速射砲/);
+test('weapon previews show the actual per-barrel rating for every spherical and rapid-fire family',()=>{
+ const run=setup();for(const k of weapons){const html=run('designWeaponPreviewHTML({k:'+JSON.stringify(k)+'})');assert.ok(html.includes('data-weapon-stat="output" data-value="'+C.weaponChargeSpec({k}).boltTT+'"'),k);assert.doesNotMatch(html,/undefined|NaN|武装の威力と出典/);}
 });
 test('English weapon names, descriptions and evidence translate without Japanese leftovers',()=>{
  const en=vm.createContext({console,navigator:{language:'en-US'}});for(const file of ['js/lang-en.js','js/i18n.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),en,{filename:file});

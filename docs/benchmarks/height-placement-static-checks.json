@@ -1,0 +1,267 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T15:19:59.259210+00:00",
+  "node": "v24.22.1",
+  "syntax": [
+    {
+      "path": "js/app.js",
+      "sha256": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+      "exitCode": 0
+    },
+    {
+      "path": "js/core.js",
+      "sha256": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+      "exitCode": 0
+    },
+    {
+      "path": "js/engine.js",
+      "sha256": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+      "exitCode": 0
+    },
+    {
+      "path": "js/gfx.js",
+      "sha256": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+      "exitCode": 0
+    },
+    {
+      "path": "js/lang-en.js",
+      "sha256": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f",
+      "exitCode": 0
+    },
+    {
+      "path": "scripts/browser-compact-design-ui.cjs",
+      "sha256": "360b690e7be8b87e57f040655fa4c7d18d7d7bfe38e4449eb7dffdfb7c756d6d",
+      "exitCode": 0
+    },
+    {
+      "path": "scripts/browser-height-placement-regression.cjs",
+      "sha256": "75d48981382568747bcd82d836e57a3a9cdb78e2ed3e05e27ad86fb6f0fafd38",
+      "exitCode": 0
+    },
+    {
+      "path": "scripts/browser-installed-bulk-delete.cjs",
+      "sha256": "1d6c9a4ff7d6400614f9c12d4e8caac0b7fd3fb7ad8312c7c0ca884bee0fb97f",
+      "exitCode": 0
+    },
+    {
+      "path": "scripts/browser-manual-interception.cjs",
+      "sha256": "73de055cea3c8d4f9dadc359c4b451cb98eed190ed6dc2685a69a745bba7dbe4",
+      "exitCode": 0
+    },
+    {
+      "path": "scripts/update-asset-manifest.cjs",
+      "sha256": "17c3bce43264cb8c4f3001328614d705374d9c1268f7d53169e0010f18daffb4",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/capital-turret-trial.cjs",
+      "sha256": "0db2a775b1f906bfc3f1eaae6b854c96ef2e2d086a03776cbd719d6ce353ef41",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/combat-point-defense-targeting.cjs",
+      "sha256": "647bf93b052e37bf3482385beb325e72b84e0de37dc465fad2a2cda884ceac76",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/cturret-aa-trial.cjs",
+      "sha256": "ee2c461a9bca0c1edbe8355da0f43d86e07a513e084e608491020e9f1d15e1a7",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-continuous-placement-ui.cjs",
+      "sha256": "0f08f03443d8f586928e13bef38b56d14108781c06145cc116390c382360567c",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-edit-session-ui.cjs",
+      "sha256": "550815446067ff68d854458ac35a2057b0a48efd33a3c43529fd2a2cb52b87f8",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-heat-readout-rates.cjs",
+      "sha256": "b6a5d7f00dc7fdacdbfc6e9beeef28eb70c4f5e0a49f5904ba64161059d5c2b4",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-info-duplicate-carousel-ui.cjs",
+      "sha256": "a963a3aff6e7302858fc57c7f6e13a154af4c8fd558500b62e12929f4cfb710a",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-inspection-ui.cjs",
+      "sha256": "c35ad3eea265719e78dc10beb1f2e67adc7fdc6247c18d7b504dafc8dc424dba",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-installed-bulk-delete.cjs",
+      "sha256": "2da799143834a722e67e650dbab09e43f4c411ef66833f27fbaf3903f09d2b62",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-interior-host-ui.cjs",
+      "sha256": "03b6fda64bd6d12b5dbb41191ba0cc3e56f2b568ab81ad6794a04fca4cdb9898",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-placement-async-ui.cjs",
+      "sha256": "9489d1f875620aad211b0a6024fa4549dafc5380955a95c9128be67081feae82",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-placement-catalog-ui.cjs",
+      "sha256": "742a6cb7807f0f0e72147a4f0fc03009d7ed7deaeaf3c5d9925492f343e2fce3",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-root-placement-ui.cjs",
+      "sha256": "3754958e06cf7175cdc5ab367706e0333370e07c48436fc4cefd8e5169b8e33d",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-space-editing.cjs",
+      "sha256": "f7fc560ee88146326edcfcc04595ce657b3670c6b7cb2f4040e6c7328dae36fc",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-stamp-queue-ui.cjs",
+      "sha256": "8cc12e14cc92a3bb9719050f231b6754d9b0b8d0269b5f72ee72d84ca8ffab81",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/design-tap-parent-ui.cjs",
+      "sha256": "3700ffe8e10716ef326e9a2756c251dbb18da5fcf9d35b0d81a03a7cda6e6dca",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/dual-purpose-weapons.cjs",
+      "sha256": "001be3c866bfc2f8d18fcb5f0baf426ff10da4e1f3746d4fe2ac9d778af4f046",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/embedded-external-turbine.cjs",
+      "sha256": "4115ba5adc418aed875a0f70952e32f3239e096d4b5c18f12c2fcbbb575826be",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/fighter-pilot-damage.cjs",
+      "sha256": "fcea8029d79a2cc777e0e2fc22ad7ac4dd925d637c5db23d7f27b4681637d00a",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/fighter-pilot-guns.cjs",
+      "sha256": "f94603141e269580f0b12672cb560a80fe6d07aa63a49fd19422a6ab8a9e0e10",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/fleet-cost-refresh.cjs",
+      "sha256": "c28b4eb7b344390cb0b9f4a3cd510cb7543cbb7468a8c30d45ad107d2acd19f1",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/fleet-loadout-separation.cjs",
+      "sha256": "e1646fb89cac33668daa659f0b49675b5fc53a706c47e55c3b8a903d585497a5",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/heavy-laser-aa-trial.cjs",
+      "sha256": "8696eaec8e192e3fc29a5391f64260051272abc5b7675ef52b6bdbfcd8056705",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/helpers/immediate-design-ui.cjs",
+      "sha256": "3223af5c4ccd537359db10b0dbf64aab9d8875265df80abb8ca801bf41bc0e69",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/immediate-placement-no-main-geometry.cjs",
+      "sha256": "176c4e47d810bafe416bb0136c8bc10af893d12688110c36d31f1417db1631c7",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/mirrored-engine-connection-ui.cjs",
+      "sha256": "68c42b6ba371cabd1eeaba924619a99ad06b671f0a608102a122c5b9a681e9f8",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/moncal-weapons-ui.cjs",
+      "sha256": "8a750a27d4179d3d7c53917c28439f7ec5107539408a29513ff92d08b57f90a7",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/placement-gfx.cjs",
+      "sha256": "f487bb575be4b5fec64180834bba06c1bc05b6a2067487849b55923ba46c8ce1",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/small-weapons-ui.cjs",
+      "sha256": "8e3f6885f16a7d53f23cb93ec3275118adc1066edc7610561c37f400acab37fa",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/structure-height-anchor.cjs",
+      "sha256": "de687e2de5d473faf827f008989bacfb68b6ce1a49335f69ad172dca60bc3cee",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/structure-height-preview-gfx.cjs",
+      "sha256": "bb1d3fb6446ab91b82a55f94bf7c1122b0a26d55be5ee960b4be810ec133fea7",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/structure-height-preview-ui.cjs",
+      "sha256": "2248675ef599590a72058f34f8c80a18590f873d394b3cf39d0954b36ae1ecef",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/trial-craft-systems.cjs",
+      "sha256": "43609b4548813cb3337f350f9da41e356e6ccc180cc7869de1dfbd4e9e9f0ea5",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/trial-manual-threat-targeting.cjs",
+      "sha256": "32f4d1183ab19e7fe208cba92e1b48e885863001bdd92e4ef1f7713b9de8bac9",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/venator-hatch-context-ui.cjs",
+      "sha256": "9df1965333a0274a1dad9d132b1efd3504e2b354b858511797cb5765d8a26382",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/weapon-family-ui.cjs",
+      "sha256": "1080a4ad1d6cc96cab14c4d9406626f1b88919234c5a6d488525e9a5ccdb5c05",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/weapon-preview-stats.cjs",
+      "sha256": "f8b6305f7e4065c8ced0d5f63a64d4e048e1a228b69cb44be92735e842691765",
+      "exitCode": 0
+    },
+    {
+      "path": "tests/weapon-shot-calibration.cjs",
+      "sha256": "655577d58b863c82f151ce6b42f919f9ef2272638566a88baad07e4a004b7e6a",
+      "exitCode": 0
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "node",
+        "scripts/update-asset-manifest.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "output": ""
+    }
+  ]
+}

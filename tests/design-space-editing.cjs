@@ -53,7 +53,7 @@ function setup(extra = []) {
     const xfReset=()=>calls.push('xfReset'),syncHud=()=>calls.push('syncHud'),requestDraw=()=>calls.push('draw');
     const renderPanel=()=>calls.push('render'),designUIPanel=()=>calls.push('panel'),refreshOverlay=()=>calls.push('overlay');
     const designUIEditSession=()=>designUI.editSession||null;
-    const designUIEditCancel=()=>{calls.push('cancel:'+designUI.space);designUI.editSession=null;designUI.drawer=false;};
+    const designUIEditApply=()=>{calls.push('apply:'+designUI.space);designUI.editSession=null;designUI.drawer=false;};
     const designUICancel=()=>{calls.push('placementCancel');designUI.armed=false;designUI.pending=null;};
     const trenchArmamentCancel=()=>calls.push('trenchCancel'),hideInspect=()=>calls.push('hideInspect');
     function designUIInspectMode(){return false;}
@@ -157,11 +157,11 @@ test('derived performance routes open read-only information without selecting an
   assert.equal(r('designUI.info.part===route'),true);assert.equal(r('designUI.editSession'),undefined);
 });
 
-test('space changes cancel the prior draft before clearing selection and retain the open panel kind', () => {
+test('space changes keep the prior edit before clearing selection and retain the open panel kind', () => {
   for(const layout of ['new','edit','list','performance']) {
     const {run:r}=setup(['designUISpace']);
     r(`designUI.drawer=true;designUI.layout=${JSON.stringify(layout)};designUI.info={source:ship,list:'parts',id:1};designUI.editSession={source:ship};designUI.armed=true;designUI.pending={state:'validating'};st.sel={list:'parts',id:1};st.multi.parts.add(1);itemDrag={id:1};designUISpace('interior');`);
-    assert.equal(r('calls[0]'),'cancel:exterior','cancel reads the original mode');
+    assert.equal(r('calls[0]'),'apply:exterior','commit reads the original mode');
     assert.equal(r('designUI.space'),'interior');assert.equal(r('st.view'),'xray');
     assert.equal(r('designUI.editSession'),null);assert.equal(r('designUI.pending'),null);
     assert.equal(r('designUI.info'),null);assert.equal(r('itemDrag'),null);

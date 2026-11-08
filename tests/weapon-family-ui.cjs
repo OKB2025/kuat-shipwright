@@ -3,25 +3,32 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),core,{filename:file});
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',core),plain=v=>JSON.parse(JSON.stringify(v)),family=['single40','quad40Ion','twin40Dome','twin40','triple40','oct40','refVen','triple70','quad70Side'];
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);return app.slice(a,b);}
+function fn(name){const m=new RegExp('function '+name+'\\s*\\(').exec(app);assert.ok(m,name);for(let end=app.indexOf('}',m.index);end>=0;end=app.indexOf('}',end+1)){const source=app.slice(m.index,end+1);try{new vm.Script(source);return source;}catch{}}assert.fail(name);}
 function setup(){
  const cx=vm.createContext({console,C,Gfx:G}),run=code=>vm.runInContext(code,cx);
- run(`let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Weapon family UI'),S=null;ship.parts=[];ship.fits=[];ship.nextId=1;
+ run(`let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Weapon family UI'),S=null;ship.parts=[];ship.fits=[];ship.nextId=1;C.ensurePrimaryHull(ship);ship.saveId='weapon-family-ui';
  const st={tab:'arm',fit:'single40',fitTool:'place',weaponMount:'auto',gunYaw:0,launchPitch:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none',multi:{parts:new Set(),fits:new Set()}},notes=[],undoStack=[],redoStack=[],listeners={},meshStore={};
  let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,prevS=null,editorPartsRevision=0;const eng={gen:0,adoptedGen:0,geoGen:0,statsGen:0,ready:false};
- const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',fTT=v=>v+' TT',fPct=v=>Math.round(v*100)+'%',I18N=null;
+ const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',fTT=v=>v+' TT',fPct=v=>Math.round(v*100)+'%',I18N=null,T=x=>x,fW=v=>v+' W';
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:null,view=null,tool=()=> 'fit',activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,curFit=()=>st.fit,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
  const sndEdit=()=>{},sndUI=()=>{},touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},queuePreview=()=>{},showPreview=()=>{},refreshOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},reconcileSolidCutter=()=>{},requestDraw=()=>{},syncHud=()=>{};
  const toast=s=>notes.push(s),packingInfoHTML=()=>'',fitPositionSliders=()=>'',fitPairHTML=()=>'',engineEditTarget=()=>null,CMD_LABEL='指揮',userParts=()=>[],upCat=String;
  function hit(n){return C.rayEnv(ship,C.add([250,60,0],C.mul(n,1000)),C.mul(n,-1),{structOnly:true});}
- function install(k='single40',n=[0,1,0]){st.fit=k;st.sel=null;const h=hit(n);if(!h)throw Error('Missing mount face');tapHit('fit',{...h,kind:'hull'},false);return selItem();}
+ function install(k='single40',n=[0,1,0]){st.fit=k;st.sel=null;designUI.armed=true;const next=ship.nextId,h=hit(n);if(!h)throw Error('Missing mount face');tapHit('fit',{...h,kind:'hull'},false);C.refreshPlacementGeometry(ship);const made=ship.fits.find(f=>f.id===next);if(made)st.sel={list:'fits',id:made.id};return selItem();}
  `);
  for(const [start,end]of [
   ['function enginePending()','function engineStatus('],['const requestedParts =','function editorRayEnv('],['function previewHistory(','// Exterior view skips machinery'],
   ['function seg(','function silhouette('],['const PART_KEYS =','const partOffered ='],['function baseFitEditor()','function partList('],
   ['function weaponYawControls(','function turretHeadingLines('],['function turretHeadingLines(','function aviationNumbers('],
   ['function snap(','function updateUndo('],['function assignMirror(','const TEMPLATE_SKIP ='],['const TEMPLATE_SKIP =','function removeWithPreview('],
-  ['function placeVerticalFits(','function bind()'],['function alignFitPoint(','function tapWant('],['function tapHit(','// ---------- inspect ----------'],['function ghostFor(','function refreshOverlay('],['function bindReference(){','function packingInfoHTML('],['function paletteItems()','const palIcon='],['function fitPickHit(','function pick('],['function weaponSourcesHTML()','function bindReference(){']
+  ['function placeVerticalFits(','function bind()'],['function alignFitPoint(','function tapWant('],['function tapHit(','// ---------- inspect ----------'],['function ghostFor(','function refreshOverlay('],['function bindReference(){','function packingInfoHTML('],['function paletteItems()','const palIcon='],['function fitPickHit(','function pick('],['function designWeaponPreviewHTML(','function designUIPlacementHTML(']
  ])run(section(start,end));
+ run('function editorCraftDesign(){return !!C.shipClassFor(ship.hull.L,ship.shipClass).craft;}');
+ run(app.split('\n').find(line=>line.startsWith('const partOffered =')));
+ run(`const fleet={mode:'design'},trial={on:false},designUI={space:'exterior',armed:true,continuous:false,mode:'direct',sequence:0,pending:null};
+ const publicCopy=value=>JSON.parse(C.publicJSON(value)),designUIBar=()=>{},designUIMetrics=()=>{},designUIPanel=()=>{},designUIEditSession=()=>null,designPartDefinition=()=>({_fit:true,k:curFit()});function editorMountShip(){return ship;}
+ `);
+ for(const name of ['designCapability','designParent','designUIRootEligible','designUISavedDesign','designPlacementActive','designExternalPlacementTool','designUIStartTap','designUIFitDraft','designUIRequest','designUIRequests','designUIPlaceDraft','designUIFinishPlacement','designUIRejectTap','designEntityEditable','editHitItem'])run(fn(name));
  run('bindReference()');
  return run;
 }
@@ -32,8 +39,8 @@ test('all nine photo families appear once in order, with twenty-nine physical ba
  for(const k of ['refSide','xx9','nk7']){assert.equal(run(`weaponKeys().includes(${JSON.stringify(k)})`),false,k);assert.equal(run(`paletteItems().some(i=>i.type==='fit'&&i.key===${JSON.stringify(k)})`),false,k);}
 });
 
-test('the real weapon-source table renders all nine families and legacy saved aliases normalize without dropping fittings',()=>{
- const run=setup(),html=run('weaponSourcesHTML()');assert.match(html,/<table/);assert.doesNotMatch(html,/undefined|NaN/);for(const k of family)assert.ok(html.includes(C.FITS[k].short),k+' is represented in the actual source table');
+test('per-barrel previews cover all nine families and legacy saved aliases normalize without dropping fittings',()=>{
+ const run=setup();for(const k of family){const html=run('st.fit='+JSON.stringify(k)+';designWeaponPreviewHTML({k:'+JSON.stringify(k)+'})');assert.ok(html.includes('data-weapon-stat="output" data-value="'+C.weaponChargeSpec({k}).boltTT+'"'),k+' per-barrel preview');assert.doesNotMatch(html,/undefined|NaN/);}
  run("const data=C.serialize(ship);data.fits=['refSide','xx9','nk7'].map((k,i)=>({id:91+i,k,p:[100+i*100,120,0],a:2,n:[0,1,0],ped:0,base:0,low:0}));ship=C.deserialize(data)");assert.deepEqual(plain(run('ship.fits.map(f=>[f.id,f.k])')),[[91,'twin40'],[92,'twin40'],[93,'quad40Ion']]);for(const f of plain(run('ship.fits'))){assert.ok(C.FITS[f.k]);assert.equal(C.fitSpec(f).barrels,C.FITS[f.k].barrels);}
 });
 
@@ -46,9 +53,11 @@ test('legacy htl saves join DBY-827 without losing identity, placement, aim, edi
  run('ship.hull.L=10');assert.equal(run("weaponKeys().includes('htl')"),false,'compact craft catalogs use the same canonical DBY entry');
 });
 
-test('actual wall-only placement rejects deck and bow taps before creating an Undo transaction',()=>{
+test('wall-only authoring keeps invalid requests repairable and strict validation rejects deck and bow mounts',()=>{
  const run=setup();assert.equal(typeof C.weaponMountAllowed,'function');
- for(const n of [[0,1,0],[0,-1,0],[1,0,0],[-1,0,0]]){run(`st.fit='quad70Side';tapHit('fit',{kind:'hull',p:[250,120,100],n:${JSON.stringify(n)}},false)`);assert.equal(run('ship.fits.length'),0);assert.equal(run('undoStack.length'),0);assert.equal(run('notes.at(-1)'),'この砲は左右の舷側面に配置してください');}
+ // Immediate placement records editable source first; the ordinary Worker then
+ // resolves strict mounting rules and keeps failed source available for repair.
+ for(const n of [[0,1,0],[0,-1,0],[1,0,0],[-1,0,0]]){const invalid=setup();invalid(`st.fit='quad70Side';tapHit('fit',{...hit(${JSON.stringify(n)}),kind:'hull'},false)`);assert.equal(invalid('ship.fits.length'),1);assert.equal(invalid('undoStack.length'),1);assert.equal(invalid('ship.fits[0].placement.pendingGeometry'),true);invalid('C.refreshPlacementGeometry(ship)');assert.equal(invalid('ship.fits[0].placement.validationFailed'),true);assert.equal(invalid('ship.fits[0]._fitPlacementError.error'),'この砲は左右の舷側面に配置してください');assert.equal(invalid('ship.fits[0].float'),true);assert.equal(invalid('ship.fits[0].id'),2,'failed source keeps its stable ID for repair');}
  for(const n of [[0,0,1],[0,0,-1]]){const fresh=setup();fresh(`install('quad70Side',${JSON.stringify(n)})`);assert.equal(fresh('ship.fits.length'),1);assert.equal(fresh('selItem().float'),false);assert.equal(fresh('undoStack.length'),1);}
  run("install('single40');undoStack.length=0;for(const fn of listeners.change||[])fn({target:{dataset:{refweapon:''},value:'quad70Side'}})");assert.equal(run('selItem().k'),'single40','replacing a deck turret with the wall-only model is rejected before changing the gun');assert.equal(run('undoStack.length'),0);
  run("ship.fits=[{id:77,k:'quad70Side',p:[250,120,100],a:2,ped:0,base:0,low:0,float:true}];st.sel={list:'fits',id:77}");assert.match(run('baseFitEditor()'),/data-weapon-mount-error>この砲は左右の舷側面に配置してください/);assert.equal(run('ship.fits[0].id'),77,'a loaded invalid fit remains available to relocate');
@@ -63,7 +72,7 @@ test('wall-only placement previews reject the same normal and mount controls ret
 });
 
 test('ordinary guns place flush without automatic riser geometry while missile pitch retains its explicit support',()=>{
- for(const k of family){const run=setup();run(`install(${JSON.stringify(k)},${JSON.stringify(k==='quad70Side'?[0,0,1]:[0,1,0])})`);for(const key of ['ped','base','low'])assert.equal(run(`selItem().${key}`),0,k+' '+key);assert.equal(run('Gfx.meshFits(ship).ni+Gfx.meshReferenceFits(ship).ni'),C.REFERENCE_ASSETS[C.FITS[k].asset].faces*3,k+' draws only its authored weapon mesh');}
+ for(const k of family){const run=setup();run(`install(${JSON.stringify(k)},${JSON.stringify(k==='quad70Side'?[0,0,1]:[0,1,0])})`);for(const key of ['ped','base','low'])assert.equal(run(`selItem().${key}`),0,k+' '+key);assert.equal(run('Gfx.meshFits(ship).ni'),0,k+' adds no generated support mesh');const visible=run('Gfx.meshReferenceFits(ship).ni');assert.ok(visible>0&&visible<=C.REFERENCE_ASSETS[C.FITS[k].asset].faces*3,k+' draws the authored weapon with buried faces culled');}
  const run=setup();
  run("st.fit='cmsl';st.launchPitch=35");assert.match(run('fitPedestalControls()'),/発射角に合わせて自動生成/);assert.match(run('launcherPitchControls()'),/data-sl="newLaunchPitch"/);
 });

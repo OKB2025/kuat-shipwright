@@ -15,7 +15,7 @@ function reset(overrides={}){
  notices.length=0;undoStack.length=0;autosaves=0;salvo=null;
  const spec={v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:2,laserGasSeconds:1,...overrides};
  ship=C.newShip({L:20,W:10,H:5});ship.parts.push({id:1,k:'laserGas',c:[0,0,0],d:1});
- Object.assign(trial,{on:true,craft:true,spectate:false,paused:false,p:{len:20},asset:{stats:{craftSystems:spec},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},turrets:[makeTurret()],P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'home',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e20,cap:1e20},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+ Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:20},asset:{stats:{craftSystems:spec},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},turrets:[makeTurret()],P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'home',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e20,cap:1e20},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  trialCraftSystemsReset();
 }
 function fire(){for(const t of trial.turrets)t.reload=0;trialGunnery(.1);}

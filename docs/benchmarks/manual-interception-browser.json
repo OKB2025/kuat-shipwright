@@ -1,0 +1,1183 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T15:15:41.415Z",
+  "sourceSha256": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f"
+  },
+  "harnessSha256": "73de055cea3c8d4f9dadc359c4b451cb98eed190ed6dc2685a69a745bba7dbe4",
+  "scope": "Small editable powered capital-ship fixture, real Worker geometry/profile, actual public trial, native Space trigger, production hostile actor builders and actual projectile/power/casualty functions. The trial is paused and its unmodified gunnery advances in fixed ticks; this is a control-path smoke, not a full battle/performance benchmark.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "safari": "Not tested",
+    "externalTelemetry": "External Cloudflare RUM requests receive a local204 acknowledgement; game sources, data, Worker jobs and physics are not stubbed."
+  },
+  "stages": [
+    {
+      "name": "Real Worker/WebGL ready",
+      "at": "2026-11-08T15:15:54.595Z"
+    },
+    {
+      "name": "Physical design and actual Worker statistics settled",
+      "at": "2026-11-08T15:16:06.062Z"
+    },
+    {
+      "name": "Native public trial and pause entered",
+      "at": "2026-11-08T15:16:26.710Z"
+    },
+    {
+      "name": "Native manual craft lock, paid shot and real casualty passed",
+      "at": "2026-11-08T15:17:07.346Z"
+    },
+    {
+      "name": "Native manual missile lock, paid shot and real casualty passed",
+      "at": "2026-11-08T15:17:12.227Z"
+    },
+    {
+      "name": "Dedicated PD fires and takes real missile inventory without a trigger",
+      "at": "2026-11-08T15:17:16.429Z"
+    }
+  ],
+  "errors": [],
+  "consoleErrors": [],
+  "exportBridge": {
+    "productionSha256": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "servedSha256": "01c87e041132b5c67175cf8fb430d93565f9c7729e6cec4f0ca244cab7d080ac",
+    "scope": "Only exports references to existing lexical functions and R; no function bodies, physics or results change.",
+    "indexManifestSha256": "deddd71ecdb4f5cd56fe5ca5420b82ab6ed7198c5c8bb67114e45d4afaa33984"
+  },
+  "inputBlueprintSha256": "ab98de2724a8c8d708f2f99ed3a869322773071b686db85696804eb4da32fc78",
+  "fixture": {
+    "parts": [
+      [
+        9,
+        "struct"
+      ],
+      [
+        1,
+        "gen"
+      ],
+      [
+        2,
+        "engineCore"
+      ],
+      [
+        3,
+        "engine"
+      ],
+      [
+        4,
+        "fuel"
+      ],
+      [
+        5,
+        "inertial"
+      ],
+      [
+        6,
+        "integrity"
+      ],
+      [
+        7,
+        "pump"
+      ],
+      [
+        8,
+        "firecontrol"
+      ]
+    ],
+    "fits": [
+      {
+        "id": 10,
+        "k": "single40",
+        "p": [
+          210,
+          150,
+          -40
+        ],
+        "a": 2
+      },
+      {
+        "id": 11,
+        "k": "pd",
+        "p": [
+          210,
+          0,
+          40
+        ],
+        "a": 3
+      }
+    ],
+    "scope": "Actual solo-trial hardware expanded to a300m hull with a50m reactor, real fire-control compartment, ordinary40TT deck gun and undersidePD. No catalogue ship/performance claim."
+  },
+  "design": {
+    "gen": 1,
+    "accel": 1.1438131951077637,
+    "charge": {
+      "10": {
+        "required": 800,
+        "plannedVolume": 800,
+        "housingVolume": 757.3860067027804,
+        "externalVolume": 757.3860067027804,
+        "embeddedVolume": 0,
+        "externalUsed": 757.3860067027804,
+        "embeddedUsed": 0,
+        "housingUsed": 757.3860067027804,
+        "internalRequired": 42.61399329721962,
+        "internalVolume": 42.61399329721962,
+        "internalOccupiedVolume": 42.61399329721962,
+        "volume": 800,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 40,
+        "allocationPending": false,
+        "id": -200010,
+        "blocked": false
+      },
+      "11": {
+        "required": 0.000004,
+        "plannedVolume": 0.000004,
+        "housingVolume": 9.443000000000074,
+        "externalVolume": 9.443000000000074,
+        "embeddedVolume": 0,
+        "externalUsed": 0.000004,
+        "embeddedUsed": 0,
+        "housingUsed": 0.000004,
+        "internalRequired": 0,
+        "internalVolume": 0,
+        "internalOccupiedVolume": 0,
+        "volume": 0.000004,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 2e-7,
+        "allocationPending": false,
+        "id": null,
+        "blocked": false
+      }
+    }
+  },
+  "initialRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 22,
+    "lastFrame": 44102.3,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 213
+  },
+  "manual": [
+    {
+      "kind": "craft",
+      "built": {
+        "squad": 2,
+        "packet": 3,
+        "foeCraft": [
+          {
+            "id": "native-squad:7",
+            "pos": [
+              801.201616016847,
+              6280501.1910975585,
+              0.9377171387660594
+            ]
+          },
+          {
+            "id": "native-squad:8",
+            "pos": [
+              789.1617347307628,
+              6280497.407737392,
+              -15.98884814399823
+            ]
+          }
+        ],
+        "foeMissiles": [],
+        "energy": 40.0000002
+      },
+      "actor": {
+        "id": "native-squad:7",
+        "kind": "craft",
+        "pos": [
+          801.201616016847,
+          6280501.1910975585,
+          0.9377171387660594
+        ],
+        "far": false
+      },
+      "withoutTrigger": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": false,
+        "shots": 0,
+        "pdShots": 0,
+        "kills": 0,
+        "pdKills": 0,
+        "energy": 40.0000002,
+        "power": 0,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-squad:7",
+          "kind": "craft"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [],
+        "aliveCraft": 2,
+        "aliveMissiles": 0
+      },
+      "pre": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": true,
+        "shots": 0,
+        "pdShots": 0,
+        "kills": 0,
+        "pdKills": 0,
+        "energy": 40.0000002,
+        "power": 0,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-squad:7",
+          "kind": "craft"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [],
+        "aliveCraft": 2,
+        "aliveMissiles": 0
+      },
+      "paid": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": true,
+        "shots": 1,
+        "pdShots": 0,
+        "kills": 0,
+        "pdKills": 0,
+        "energy": 1.9999999523179213e-7,
+        "power": 1.6719504277402958e+23,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-squad:7",
+          "kind": "craft"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 1.0416276972000955,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 8.838888888888889
+          }
+        ],
+        "aliveCraft": 2,
+        "aliveMissiles": 0
+      },
+      "hit": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": false,
+        "shots": 4,
+        "pdShots": 0,
+        "kills": 1,
+        "pdKills": 0,
+        "energy": 31.96845962142056,
+        "power": 1.6719504277402958e+23,
+        "normalBank": 0,
+        "craftRemaining": 1,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-squad:8",
+          "kind": "craft"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 0.222768946173164,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 5.888888888888885
+          }
+        ],
+        "aliveCraft": 1,
+        "aliveMissiles": 0
+      }
+    },
+    {
+      "kind": "missile",
+      "built": {
+        "squad": 2,
+        "packet": 3,
+        "foeCraft": [],
+        "foeMissiles": [
+          {
+            "id": "native-packet:0",
+            "pos": [
+              772,
+              6280482,
+              -28
+            ]
+          },
+          {
+            "id": "native-packet:1",
+            "pos": [
+              800,
+              6280518,
+              -14
+            ]
+          },
+          {
+            "id": "native-packet:2",
+            "pos": [
+              828,
+              6280506,
+              0
+            ]
+          }
+        ],
+        "energy": 40.0000002
+      },
+      "actor": {
+        "id": "native-packet:0",
+        "kind": "missile",
+        "pos": [
+          772,
+          6280482,
+          -28
+        ],
+        "far": false
+      },
+      "withoutTrigger": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": false,
+        "shots": 0,
+        "pdShots": 0,
+        "kills": 0,
+        "pdKills": 0,
+        "energy": 40.0000002,
+        "power": 0,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-packet:0",
+          "kind": "missile"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [],
+        "aliveCraft": 0,
+        "aliveMissiles": 3
+      },
+      "pre": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": true,
+        "shots": 0,
+        "pdShots": 0,
+        "kills": 0,
+        "pdKills": 0,
+        "energy": 40.0000002,
+        "power": 0,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-packet:0",
+          "kind": "missile"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [],
+        "aliveCraft": 0,
+        "aliveMissiles": 3
+      },
+      "paid": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": true,
+        "shots": 1,
+        "pdShots": 0,
+        "kills": 0,
+        "pdKills": 0,
+        "energy": 1.9999999523179213e-7,
+        "power": 1.6719504277402958e+23,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 3,
+        "lock": {
+          "id": "native-packet:0",
+          "kind": "missile"
+        },
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": true,
+            "charge": 1,
+            "arc": true,
+            "aimed": true,
+            "laid": true,
+            "reload": 1.059586417354244,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 8.838888888888889
+          }
+        ],
+        "aliveCraft": 0,
+        "aliveMissiles": 3
+      },
+      "hit": {
+        "on": true,
+        "paused": true,
+        "craft": false,
+        "fire": false,
+        "shots": 10,
+        "pdShots": 0,
+        "kills": 1,
+        "pdKills": 0,
+        "energy": 15.98422991071028,
+        "power": 1.6719504277402958e+23,
+        "normalBank": 0,
+        "craftRemaining": 2,
+        "missileRemaining": 2,
+        "lock": null,
+        "turrets": [
+          {
+            "id": 10,
+            "k": "single40",
+            "pd": false,
+            "pdCapable": false,
+            "clear": true,
+            "ready": false,
+            "charge": 1,
+            "arc": true,
+            "aimed": false,
+            "laid": false,
+            "reload": 0.6619267881139572,
+            "dead": false,
+            "origin": [
+              207.3,
+              153.5,
+              -40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          {
+            "id": 11,
+            "k": "pd",
+            "pd": false,
+            "pdCapable": true,
+            "clear": false,
+            "ready": false,
+            "charge": 1,
+            "arc": false,
+            "aimed": false,
+            "laid": false,
+            "reload": 0,
+            "dead": false,
+            "origin": [
+              209.9,
+              -2.02,
+              40
+            ],
+            "fw": [
+              1,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ]
+          }
+        ],
+        "bolts": [
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 2.0388888888888985
+          },
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 3.088888888888895
+          },
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 4.188888888888891
+          },
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 5.238888888888887
+          },
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 6.338888888888883
+          },
+          {
+            "pd": false,
+            "tt": 40.00000000000001,
+            "life": 7.3888888888888795
+          }
+        ],
+        "aliveCraft": 0,
+        "aliveMissiles": 2
+      }
+    }
+  ],
+  "pd": {
+    "built": {
+      "squad": 2,
+      "packet": 3,
+      "foeCraft": [],
+      "foeMissiles": [
+        {
+          "id": "native-packet:0",
+          "pos": [
+            1972,
+            6279182,
+            -28
+          ]
+        },
+        {
+          "id": "native-packet:1",
+          "pos": [
+            2000,
+            6279218,
+            -14
+          ]
+        },
+        {
+          "id": "native-packet:2",
+          "pos": [
+            2028,
+            6279206,
+            0
+          ]
+        }
+      ],
+      "energy": 40.0000002
+    },
+    "actor": {
+      "id": "native-packet:0",
+      "kind": "missile",
+      "pos": [
+        1972,
+        6279182,
+        -28
+      ],
+      "far": false
+    },
+    "result": {
+      "on": true,
+      "paused": true,
+      "craft": false,
+      "fire": false,
+      "shots": 0,
+      "pdShots": 10,
+      "kills": 0,
+      "pdKills": 2,
+      "energy": 40.00000009,
+      "power": 2301200000000000,
+      "normalBank": 0,
+      "craftRemaining": 2,
+      "missileRemaining": 1,
+      "lock": null,
+      "turrets": [
+        {
+          "id": 10,
+          "k": "single40",
+          "pd": false,
+          "pdCapable": false,
+          "clear": true,
+          "ready": false,
+          "charge": 1,
+          "arc": false,
+          "aimed": false,
+          "laid": false,
+          "reload": 0,
+          "dead": false,
+          "origin": [
+            207.3,
+            153.5,
+            -40
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "id": 11,
+          "k": "pd",
+          "pd": true,
+          "pdCapable": true,
+          "clear": true,
+          "ready": true,
+          "charge": 1,
+          "arc": true,
+          "aimed": true,
+          "laid": true,
+          "reload": 0.2147294525335176,
+          "dead": false,
+          "origin": [
+            209.9,
+            -2.02,
+            40
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            -1,
+            0
+          ]
+        }
+      ],
+      "bolts": [
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 0.7333333333333325
+        },
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 0.7333333333333325
+        },
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 0.9833333333333327
+        },
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 1.233333333333333
+        },
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 1.233333333333333
+        },
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 1.4833333333333332
+        },
+        {
+          "pd": true,
+          "tt": 1e-7,
+          "life": 1.4833333333333332
+        }
+      ],
+      "aliveCraft": 0,
+      "aliveMissiles": 1
+    }
+  },
+  "nativeInput": [
+    {
+      "type": "keydown",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "trusted": true
+    },
+    {
+      "type": "keyup",
+      "trusted": true
+    }
+  ],
+  "glError": 0,
+  "finalRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 131,
+    "lastFrame": 93983.6,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 322
+  },
+  "servedSourceSha256": {
+    "index.html": "deddd71ecdb4f5cd56fe5ca5420b82ab6ed7198c5c8bb67114e45d4afaa33984",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/app.js": "01c87e041132b5c67175cf8fb430d93565f9c7729e6cec4f0ca244cab7d080ac",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/app.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "906b80c0c7dff739e5dd96b1e04a2cafeb051a98593e633b2fb8a3d6b10901c7",
+    "js/app.js": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+    "js/core.js": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+    "js/gfx.js": "a83976c9006489a8cb21fac8b7223622c3118f520aff6c7298623bbab90eb1d2",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a26df2f554478978090026421641d5acb23db493418822be8787dfd20efd4f8f"
+  },
+  "sourceStable": true,
+  "harnessStable": true,
+  "completedAt": "2026-11-08T15:17:16.538Z"
+}
