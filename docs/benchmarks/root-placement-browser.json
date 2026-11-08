@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T03:01:49.957Z",
+  "browser": "156.0.8078.79",
+  "worker": "worker",
+  "sourceSha256": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/lang-en.js": "4788137eafdfc6ae5b041c0c75859a00ae240671abf5e2ce6b166cb010afe0af"
+  },
+  "scope": "Empty assembly fixture, native canvas taps, actual Worker validation, explicit confirmation and actual save-sheet reload. No fake parent or geometry substitute.",
+  "rejected": [
+    {
+      "kind": "fixed exterior equipment",
+      "reason": "Tap the structure and attachment point"
+    },
+    {
+      "kind": "fitting",
+      "reason": "Tap the structure and attachment point"
+    }
+  ],
+  "placed": {
+    "parts": 1,
+    "fits": 0,
+    "id": 1,
+    "saveId": "ship-4003d3c4-d549-4039-89d8-3e437e1df6e6",
+    "root": true,
+    "parent": null,
+    "host": null,
+    "c": [
+      49.99999714100312,
+      0,
+      -0.00005035518830709407
+    ],
+    "s": [
+      20,
+      16,
+      8
+    ],
+    "nextId": 2,
+    "glError": 0
+  },
+  "restored": {
+    "parts": 1,
+    "fits": 0,
+    "id": 1,
+    "saveId": "ship-4003d3c4-d549-4039-89d8-3e437e1df6e6",
+    "root": true,
+    "parent": null,
+    "host": null,
+    "c": [
+      49.99999714100312,
+      0,
+      -0.00005035518830709407
+    ],
+    "s": [
+      20,
+      16,
+      8
+    ],
+    "glError": 0
+  },
+  "errors": [],
+  "notVerified": [
+    "Safari",
+    "real iPhone hardware"
+  ]
+}

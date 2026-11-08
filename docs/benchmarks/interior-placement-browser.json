@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T03:00:39.123Z",
+  "browser": "156.0.8078.79",
+  "worker": "worker",
+  "sourceSha256": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/lang-en.js": "4788137eafdfc6ae5b041c0c75859a00ae240671abf5e2ce6b166cb010afe0af",
+    "scripts/browser-interior-placement.cjs": "1546985821b89b26392bce329c4c19773e1ec060479069dc33da10a1e413ea80"
+  },
+  "scope": "Native mouse selections, real host surface raycast, strict geometry through YardEngine, explicit confirmation, save/reload. Programmatic seed and camera projection only.",
+  "notVerified": [
+    "Safari",
+    "real iPhone hardware"
+  ],
+  "results": [
+    {
+      "kind": "cargo",
+      "mode": "clip",
+      "modes": [
+        "clip",
+        "preserve-volume"
+      ],
+      "status": "PASS",
+      "reason": "Valid placement. Check the shape and confirm.",
+      "part": {
+        "id": 2,
+        "k": "cargo",
+        "c": [
+          95.00011778485427,
+          4.000000000000014,
+          0.00009738389722713237
+        ],
+        "d": 45,
+        "mode": "clip",
+        "hostId": 1,
+        "requestedVolume": 8000.000000000002,
+        "effectiveVolume": 5999.954223632813,
+        "reloadVolume": 5999.954223632813,
+        "glError": 0
+      }
+    },
+    {
+      "kind": "cargo",
+      "mode": "preserve-volume",
+      "modes": [
+        "clip",
+        "preserve-volume"
+      ],
+      "status": "EXPECTED_REJECTION",
+      "reason": "No connected interior region can hold the requested volume"
+    },
+    {
+      "kind": "battery",
+      "mode": "direct",
+      "modes": [],
+      "status": "EXPECTED_REJECTION",
+      "reason": "The fixed equipment does not fit inside the host or interferes with other equipment"
+    },
+    {
+      "kind": "battery",
+      "mode": "direct",
+      "modes": [],
+      "status": "PASS",
+      "reason": "Valid placement. Check the shape and confirm.",
+      "part": {
+        "id": 2,
+        "k": "battery",
+        "c": [
+          50.000149651868796,
+          9,
+          0.00011131271034514612
+        ],
+        "d": 10,
+        "mode": "direct",
+        "hostId": 1,
+        "requestedVolume": 999.9999999999999,
+        "effectiveVolume": 999.9999999999999,
+        "reloadVolume": 999.9999999999999,
+        "glError": 0
+      }
+    }
+  ],
+  "errors": []
+}

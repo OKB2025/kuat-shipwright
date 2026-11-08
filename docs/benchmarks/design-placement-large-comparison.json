@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "status": "PARTIAL",
+  "sameAuthenticatedInput": true,
+  "before": {
+    "artifact": "design-placement-large-before.json",
+    "status": "MEASURED",
+    "sourceStable": true,
+    "flow": "Immediate native placement through the original weapon mount path",
+    "fits": 6,
+    "canvas": {
+      "width": 960,
+      "height": 941,
+      "clientWidth": 960,
+      "clientHeight": 941
+    },
+    "nativeOrbitChanged": true,
+    "nativeOrbitRoundtripMs": 19942,
+    "heapAfterSeedBytes": 94047085,
+    "heapAtCaptureBytes": 109965039,
+    "measurementConditions": {
+      "cpuExclusive": false,
+      "knownConcurrentActivity": "Another UI browser verification of interior placement overlapped part of this run, as reported by the parent agent during measurement. Other OS/container scheduling is not controlled.",
+      "timingClaim": "This is an observation of actual input acceptance and camera movement while actual Worker calculations are pending. It is not a controlled before/after speed comparison or FPS acceptance result.",
+      "safari": "Not tested."
+    }
+  },
+  "after": {
+    "artifact": "design-placement-large-after.json",
+    "status": "ERROR",
+    "sourceStable": true,
+    "flow": "native tap, strict Worker candidate validation, native confirm",
+    "fits": 0,
+    "plannedFits": 6,
+    "canvas": {
+      "width": 1600,
+      "height": 941,
+      "clientWidth": 1600,
+      "clientHeight": 941
+    },
+    "actualPick": null,
+    "surfaceProxy": {
+      "hasSurfaces": false,
+      "currentPartitions": "null"
+    },
+    "engineAtNativeTap": {
+      "gen": 1,
+      "adopted": 0,
+      "stats": 0,
+      "sent": 1,
+      "waiting": true
+    },
+    "nativeOrbitChanged": true,
+    "nativeOrbitRoundtripMs": 7455,
+    "heapAfterSeedBytes": 103550394,
+    "heapAtCaptureBytes": null,
+    "completion": {
+      "plannedFits": 6,
+      "actualFits": 0,
+      "threePairsPlaced": false,
+      "initialTapAccepted": false,
+      "actualCameraMoved": true,
+      "knownIssue": "During initial large-design preparation, the fast authoring caches are ready but the semantic surface proxy is absent. Even after native arming and two real RAFs, a visible canvas witness has no strict pick target. The first tap is rejected before a fitting candidate reaches the Worker. This does not establish failure after the full surface proxy is ready.",
+      "cameraScope": "The camera gesture ran while the real background geometry/statistics request was pending; it did not run during a successfully submitted fitting candidate calculation."
+    }
+  },
+  "interpretation": [
+    "The after scenario is ERROR, not a completed placement or performance acceptance test.",
+    "Both real camera gestures changed the camera while real background Worker results were pending.",
+    "Before uses immediate tap commits; after requires Worker validation and native confirmation, and stops before the first candidate.",
+    "Canvas dimensions differ, and another UI browser overlapped part of before. No comparable speed improvement is claimed.",
+    "JS heap values are browser-exposed estimates at the recorded stages. No after-run heap sample, total worker/process/GPU memory, leak rate or memory improvement is claimed.",
+    "Headless Chromium/SwiftShader only; Safari and physical iPhone hardware are unverified."
+  ],
+  "supplementaryReady": {
+    "artifact": "design-placement-large-ready.json",
+    "status": "ERROR",
+    "outcome": "CANDIDATE_REJECTED",
+    "sourceStable": true,
+    "surfaceProxyReadiness": {
+      "waitMs": 36042,
+      "gen": 1,
+      "adopted": 1,
+      "stats": 0,
+      "surfaces": 4019,
+      "t": 77998
+    },
+    "observedFits": 0,
+    "completedPairs": 0,
+    "readyFlowSucceeded": false,
+    "error": "指定した取付位置は追加元の実形状の面上にありません追加元：船体構造物 #1154 ・ 上面取付位置 XYZ（m）：4821.6 / 452.52 / 290.2設定に戻る取消",
+    "scope": "The real semantic surface proxy became available, and the first mirrored UTL candidate was rejected by exact-surface validation. The artifact does not establish which symmetry member or geometry condition caused the rejection. No completed placement or performance acceptance is claimed.",
+    "stopRequestRace": "The harness independently finished with a recorded Worker candidate rejection immediately before the external bounded-stop attempt. Its browser was already closed; zero processes were terminated."
+  }
+}

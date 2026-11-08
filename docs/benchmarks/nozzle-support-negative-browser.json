@@ -1,0 +1,505 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T07:57:21.813Z",
+  "browser": "156.0.8078.79",
+  "graphics": "Chromium SwiftShader",
+  "executionConditions": {
+    "purpose": "one fresh real-Worker functional negative control",
+    "supportWaitMs": 300000,
+    "controlledPerformanceBenchmark": false,
+    "cpuShared": true,
+    "concurrentWork": "Shared execution host; timings are not controlled performance measurements."
+  },
+  "workerElapsedMs": 56955,
+  "runtimeSha256": {
+    "index.html": "5f402bd87d1b1894fef8eb5be27d02328ebd255d8d40486a4bb8d790cba10846",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "0d1175f6b059c6b323f20ba99a60103be84c854fa60ec9acb67255c5415c7dbc",
+    "js/gfx.js": "022af7af377d6e3fe3df0ad28acef065857e8480c4a4e146613ead3e3d9b4e48",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "29f81f64940ed93e6ae2897cd38136dd47a21410b8c63fa23d06c3c8bc5a3e33",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "504382e27044d365f88439886a2128640aa2e0db58ed8b0b2ecafb8c83b51f75"
+  },
+  "scriptSha256": "450f4593226e2e50904c36589a75e80d88c42fc42b57f9fe1890e6b6d4028116",
+  "positiveEvidence": {
+    "path": "docs/benchmarks/nozzle-support-browser-positive.json",
+    "sha256": "0dd580cc1c7ab2577f04961ee6762274b1208ed47b8cab63030481bf51a1b125",
+    "status": "PARTIAL",
+    "completedStages": [
+      "initial actual Worker closed supports and unchanged 55/56/57 settings",
+      "native support-only triangle selects nozzle55",
+      "native X+1 edit cancelled and latest Worker restored unchanged supports",
+      "save-sheet save/load replaced the actual design and latest Worker restored all three supports"
+    ],
+    "savedGen": 4,
+    "savedStatsGen": 4,
+    "runtimeMatches": true,
+    "priorOverallFailurePreserved": true
+  },
+  "fixture": {
+    "path": "assets/source/imperial-ii-user-layout/imperial-ii-upload.json",
+    "sha256": "914320506d4aee20cda02f3446e6f5e87949cd8292796c22f9b1d8b3c4a2c81b",
+    "provenance": "user-supplied-editable-ship-layout"
+  },
+  "displacement": {
+    "basis": "C.shipBounds measured from the fully restored positive layout",
+    "bounds": [
+      0.34927961230278015,
+      -0.06400000303983688,
+      -525.5355224609375,
+      1600,
+      494.476806640625,
+      525.5355224609375
+    ],
+    "moves": [
+      {
+        "id": 55,
+        "from": [
+          92.925,
+          180.6,
+          -116.6
+        ],
+        "to": [
+          92.925,
+          180.6,
+          -692.6355224609375
+        ],
+        "diameter": 55.7,
+        "side": -1,
+        "edge": -525.5355224609375,
+        "clearance": 167.10000000000002
+      },
+      {
+        "id": 56,
+        "from": [
+          92.925,
+          92.9,
+          116.6
+        ],
+        "to": [
+          92.925,
+          92.9,
+          692.6355224609375
+        ],
+        "diameter": 55.7,
+        "side": 1,
+        "edge": 525.5355224609375,
+        "clearance": 167.10000000000002
+      },
+      {
+        "id": 57,
+        "from": [
+          92.925,
+          180.6,
+          116.6
+        ],
+        "to": [
+          92.925,
+          180.6,
+          692.6355224609375
+        ],
+        "diameter": 55.7,
+        "side": 1,
+        "edge": 525.5355224609375,
+        "clearance": 167.10000000000002
+      }
+    ]
+  },
+  "settings": [
+    {
+      "id": 55,
+      "before": {
+        "id": 55,
+        "k": "engine",
+        "c": [
+          92.925,
+          180.6,
+          -116.6
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "reactor": 48,
+        "machineryId": 173,
+        "nozzleShare": 1.2426281966501435e+23,
+        "driveProfileId": "standard",
+        "machineryGradeId": "advanced"
+      },
+      "after": {
+        "id": 55,
+        "k": "engine",
+        "c": [
+          92.925,
+          180.6,
+          -692.6355224609375
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "reactor": 48,
+        "machineryId": 173,
+        "nozzleShare": 1.2426281966501435e+23,
+        "driveProfileId": "standard",
+        "machineryGradeId": "advanced"
+      }
+    },
+    {
+      "id": 56,
+      "before": {
+        "id": 56,
+        "k": "engine",
+        "c": [
+          92.925,
+          92.9,
+          116.6
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "reactor": 48,
+        "machineryId": 174,
+        "nozzleShare": 1.2426281966501435e+23,
+        "driveProfileId": "standard",
+        "machineryGradeId": "advanced"
+      },
+      "after": {
+        "id": 56,
+        "k": "engine",
+        "c": [
+          92.925,
+          92.9,
+          692.6355224609375
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "reactor": 48,
+        "machineryId": 174,
+        "nozzleShare": 1.2426281966501435e+23,
+        "driveProfileId": "standard",
+        "machineryGradeId": "advanced"
+      }
+    },
+    {
+      "id": 57,
+      "before": {
+        "id": 57,
+        "k": "engine",
+        "c": [
+          92.925,
+          180.6,
+          116.6
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "reactor": 48,
+        "machineryId": 175,
+        "nozzleShare": 1.2426281966501435e+23,
+        "driveProfileId": "standard",
+        "machineryGradeId": "advanced"
+      },
+      "after": {
+        "id": 57,
+        "k": "engine",
+        "c": [
+          92.925,
+          180.6,
+          692.6355224609375
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "reactor": 48,
+        "machineryId": 175,
+        "nozzleShare": 1.2426281966501435e+23,
+        "driveProfileId": "standard",
+        "machineryGradeId": "advanced"
+      }
+    }
+  ],
+  "result": {
+    "state": {
+      "gen": 1,
+      "geoGen": 1,
+      "adoptedGen": 1,
+      "statsGen": 1
+    },
+    "profileVersion": 21,
+    "parts": 85,
+    "fits": 51,
+    "glError": 0,
+    "engines": [
+      {
+        "id": 55,
+        "c": [
+          92.925,
+          180.6,
+          -692.6355224609375
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "machineryId": 173,
+        "reactor": 48,
+        "hasSupport": false,
+        "supportVolume": 0,
+        "directContact": false,
+        "infoPresent": true,
+        "floating": true,
+        "ungrounded": false,
+        "shaftRoutes": [
+          {
+            "id": "p173>p55",
+            "from": "p173",
+            "to": "p55",
+            "nozzleId": 55,
+            "coreId": 173,
+            "ok": true,
+            "valid": true,
+            "reason": null,
+            "entrySegments": [
+              {
+                "a": [
+                  204.8568229194479,
+                  138.65267075648802,
+                  -341.4445028638722
+                ],
+                "b": [
+                  102.93464255656838,
+                  180.6,
+                  -692.6355224609375
+                ],
+                "r0": 1.9526787217158115,
+                "r1": 1.9526787217158115,
+                "l": 368.0799390434275,
+                "u": [
+                  -0.2769022963537666,
+                  0.1139625521361621,
+                  -0.9541161643031855
+                ],
+                "v": [
+                  -0.9603729498532448,
+                  0,
+                  0.27871813215177954
+                ],
+                "w": [
+                  0.0317634296666409,
+                  0.9934850460427738,
+                  0.10944655236781022
+                ],
+                "exteriorEntry": true,
+                "housing": true,
+                "hullContact": [
+                  204.8568229194479,
+                  138.65267075648802,
+                  -341.4445028638722
+                ],
+                "engineId": 55
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 56,
+        "c": [
+          92.925,
+          92.9,
+          692.6355224609375
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "machineryId": 174,
+        "reactor": 48,
+        "hasSupport": false,
+        "supportVolume": 0,
+        "directContact": false,
+        "infoPresent": true,
+        "floating": true,
+        "ungrounded": false,
+        "shaftRoutes": [
+          {
+            "id": "p174>p56",
+            "from": "p174",
+            "to": "p56",
+            "nozzleId": 56,
+            "coreId": 174,
+            "ok": true,
+            "valid": true,
+            "reason": null,
+            "entrySegments": [
+              {
+                "a": [
+                  178.56442228481802,
+                  100.51128640146099,
+                  432.0740275173618
+                ],
+                "b": [
+                  102.93464255656838,
+                  92.9,
+                  692.6355224609375
+                ],
+                "r0": 1.9526787217158115,
+                "r1": 1.9526787217158115,
+                "l": 271.42234231849756,
+                "u": [
+                  -0.27864242524111266,
+                  -0.028042225029985213,
+                  0.9599854334681951
+                ],
+                "v": [
+                  0.9603631063620565,
+                  0,
+                  0.2787520474160171
+                ],
+                "w": [
+                  -0.00781682764120906,
+                  0.9996067394807657,
+                  0.02693071833910041
+                ],
+                "exteriorEntry": true,
+                "housing": true,
+                "hullContact": [
+                  178.56442228481802,
+                  100.51128640146099,
+                  432.0740275173618
+                ],
+                "engineId": 56
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 57,
+        "c": [
+          92.925,
+          180.6,
+          692.6355224609375
+        ],
+        "d": 55.7,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "nozzleLength": 27.85,
+        "ratedInputW": 1.2426281966501435e+23,
+        "machineryId": 175,
+        "reactor": 48,
+        "hasSupport": false,
+        "supportVolume": 0,
+        "directContact": false,
+        "infoPresent": true,
+        "floating": true,
+        "ungrounded": false,
+        "shaftRoutes": [
+          {
+            "id": "p175>p57",
+            "from": "p175",
+            "to": "p57",
+            "nozzleId": 57,
+            "coreId": 175,
+            "ok": true,
+            "valid": true,
+            "reason": null,
+            "entrySegments": [
+              {
+                "a": [
+                  204.8568229194479,
+                  138.65267075648802,
+                  341.4445028638722
+                ],
+                "b": [
+                  102.93464255656838,
+                  180.6,
+                  692.6355224609375
+                ],
+                "r0": 1.9526787217158115,
+                "r1": 1.9526787217158115,
+                "l": 368.0799390434275,
+                "u": [
+                  -0.2769022963537666,
+                  0.1139625521361621,
+                  0.9541161643031855
+                ],
+                "v": [
+                  0.9603729498532448,
+                  0,
+                  0.27871813215177954
+                ],
+                "w": [
+                  0.0317634296666409,
+                  0.9934850460427738,
+                  -0.10944655236781022
+                ],
+                "exteriorEntry": true,
+                "housing": true,
+                "hullContact": [
+                  204.8568229194479,
+                  138.65267075648802,
+                  341.4445028638722
+                ],
+                "engineId": 57
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "interpretation": "The foundation is absent and direct hull contact is absent, so floating remains true. Existing mechanical shaft routes p173>p55, p174>p56 and p175>p57 retain ungrounded=false, as in baseline 2bd41239. This test does not remove or relax those routes and does not relabel the archived incorrect assertion as a pass.",
+  "errors": [],
+  "warnings": [],
+  "notVerified": [
+    "Safari",
+    "real iPhone hardware"
+  ]
+}

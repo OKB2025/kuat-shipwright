@@ -1,0 +1,79 @@
+/* The design drawer overlays the existing renderer; flight and fleet layouts stay independent. */
+body.designer-ui .main{position:relative;display:block;min-height:0}
+body.designer-ui .viewport{position:absolute;inset:0;min-height:0}
+body.designer-ui #specSide{display:none}
+body.designer-ui #dock{position:absolute;z-index:24;left:max(10px,var(--sa-left));right:max(10px,var(--sa-right));bottom:calc(68px + var(--sa-bottom));width:auto;max-height:min(66cqh,670px);border:1px solid var(--line-2);border-radius:16px 16px 8px 8px;box-shadow:0 -12px 60px #0008;overflow:hidden;display:flex;flex-direction:column;background:var(--panel);transform:translateY(18px);opacity:0;visibility:hidden;pointer-events:none;transition:transform .18s,opacity .18s,visibility .18s}
+body.designer-ui #dock.design-open{transform:translateY(0);opacity:1;visibility:visible;pointer-events:auto}
+body.designer-ui #dock .panel{display:block;min-height:0;overflow:auto;padding:14px 18px}
+body.designer-ui #statstrip{display:none}
+body.designer-ui #tabs{display:flex;flex-wrap:nowrap;overflow:auto;flex-shrink:0}
+body.designer-ui #tabs button{min-width:85px;flex:1}
+body.designer-ui #dock:not(.design-details) #tabs{display:none}
+body.designer-ui #dock.collapsed .panel{display:block}
+body.designer-ui #inspBar{flex-shrink:0}
+body.designer-ui .hudbottom{bottom:calc(82px + var(--sa-bottom))}
+body.designer-ui .toolrail{left:max(12px,var(--sa-left));top:70px}
+body.designer-ui .hudbar{right:calc(160px + var(--sa-right))}
+body.designer-ui .design-menu{display:flex}
+body.designer-ui .design-metrics{display:grid}
+.design-menu{display:none;position:absolute;z-index:25;left:0;right:0;bottom:0;align-items:center;justify-content:center;gap:8px;padding:10px max(12px,var(--sa-right)) calc(10px + var(--sa-bottom)) max(12px,var(--sa-left));background:var(--hud-bg);border-top:1px solid var(--hud-line);backdrop-filter:blur(12px)}
+.design-menu .seg{flex:0 1 220px;display:flex}.design-menu .seg button{flex:1}.design-menu>button{min-height:44px;min-width:80px}.design-menu button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.design-metrics{display:none;position:absolute;z-index:5;right:max(12px,var(--sa-right));top:14px;gap:8px;min-width:145px;max-width:190px;padding:12px;border:1px solid var(--hud-line);border-radius:10px;background:var(--hud-bg);pointer-events:none;font-variant-numeric:tabular-nums}
+.design-metrics>div{display:grid;gap:1px}.design-metrics dt{font-size:11px;color:var(--muted)}.design-metrics dd{margin:0;font:600 17px var(--font-display)}.design-metrics p{margin:0;font-size:11px;color:var(--cyan)}.design-metrics[data-state=failed] p{color:var(--bad)}
+.design-drawer-head{display:flex;gap:12px;align-items:center;flex-shrink:0;padding:10px 18px;border-bottom:1px solid var(--line);cursor:default}.design-drawer-head strong{flex:1}.design-drawer-head button{min-height:40px}
+.design-categories{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.design-categories button{min-height:40px}.design-categories button[aria-pressed=true]{border-color:var(--cyan);color:var(--cyan)}
+.design-placement{position:relative;border:1px solid var(--line-2);border-radius:10px;padding:12px;margin:12px 0}.design-placement h4{margin:0 0 10px}.design-placement select{max-width:100%;width:100%;min-height:42px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;padding:8px}.design-placement .seg{display:flex;flex-wrap:wrap;gap:6px}.design-placement button{min-height:40px}.design-placement label{font-size:12px;display:grid;gap:6px;margin:9px 0}.design-placement .note{line-height:1.6}
+.design-placement-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.design-placement-actions button{min-height:44px;flex:1}.design-part-preview{float:right;width:min(240px,32%);height:160px;margin:0 0 10px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--space)}
+.design-placement-bar{position:absolute;z-index:23;bottom:calc(80px + var(--sa-bottom));left:max(14px,var(--sa-left));right:calc(180px + var(--sa-right));display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:650px;padding:10px;background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:10px;backdrop-filter:blur(10px)}
+.design-placement-bar p{margin:0;flex:1 1 180px;font-size:12px}.design-placement-bar button{min-height:42px}.design-placement-bar[data-state=failed]{border-color:var(--bad)}
+body.designer-ui #dock:not(.design-details) .design-legacy-groups{display:none}
+body.designer-ui #dock .design-placement{display:flow-root}
+body.designer-ui #dock .design-placement .note{display:block;max-height:none}
+body.designer-ui #dock .design-palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));overflow:visible;max-height:210px;overflow-y:auto;height:auto;gap:8px}
+body.designer-ui #dock .design-palette .part{min-width:0;min-height:80px;width:auto;white-space:normal}
+body.designer-ui #dock .design-palette .part[aria-pressed=true]{border-color:var(--accent)}
+body.shot-mode .design-menu,body.shot-mode .design-metrics,body.shot-mode .design-placement-bar,body.title-open .design-menu,body.title-open .design-metrics{display:none!important}
+@container ks (max-width:700px){
+ body.designer-ui #dock{left:max(5px,var(--sa-left));right:max(5px,var(--sa-right));max-height:66cqh;bottom:calc(66px + var(--sa-bottom))}
+ body.designer-ui #dock .panel{padding:10px}.design-menu{gap:5px;padding-inline:max(6px,var(--sa-left));padding-block:8px calc(8px + var(--sa-bottom))}.design-menu>button{min-width:62px;padding-inline:9px}.design-menu .seg{flex:0 1 150px}
+ .design-metrics{min-width:115px;max-width:140px;gap:4px;padding:8px;right:max(6px,var(--sa-right));top:10px}.design-metrics dd{font-size:14px}.design-metrics dt,.design-metrics p{font-size:10px}.design-placement-bar{right:max(6px,var(--sa-right));bottom:calc(76px + var(--sa-bottom));left:max(6px,var(--sa-left))}.design-drawer-head{padding:7px 10px}.design-part-preview{width:35%;height:130px}
+ body.designer-ui .hudbar{left:12px;right:auto;top:10px}.design-menu button{font-size:12px}
+}
+@container ks (max-height:460px){body.designer-ui #dock{max-height:64cqh}.design-part-preview{height:110px}.design-metrics{gap:3px}.design-metrics>div{grid-template-columns:40px 1fr;align-items:center;gap:5px}}
+@media(prefers-reduced-motion:reduce){body.designer-ui #dock{transition:none}}
+/* Keep the live model visible above the sheet without changing its camera pose. */
+body.designer-ui{--design-sheet-height:min(54cqh,520px)}
+body.designer-ui #dock{max-height:var(--design-sheet-height)}
+body.designer-ui.design-sheet-open #cv{height:calc(100% - var(--design-sheet-height) - 74px - var(--sa-bottom));min-height:90px}
+body.designer-ui #dock:not(.design-details) #inspBar,body.designer-ui #dock:not(.design-details) #pinfo,body.designer-ui #dock:not(.design-details) .compartment-rule{display:none!important}
+body.designer-ui #dock:not(.design-details) .panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 18px;align-items:start}
+body.designer-ui #dock:not(.design-details) .panel>[data-design-catalog]{grid-column:1;grid-row:1}
+body.designer-ui #dock:not(.design-details) .panel>[data-design-placement]{grid-column:2;grid-row:1;margin:0}
+body.designer-ui #dock:not(.design-details) .panel>.pgroup,body.designer-ui #dock:not(.design-details) .panel>details,body.designer-ui #dock:not(.design-details) .panel>.editor,body.designer-ui #dock:not(.design-details) .panel>.design-placement-actions{grid-column:1/-1}
+body.designer-ui #dock .design-palette{max-height:180px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+body.designer-ui #dock .design-palette .part{min-height:74px;padding:8px}.design-palette .pd{max-height:3.2em;overflow:hidden}.design-placement-actions{clear:both}
+body.designer-ui #dock:not(.design-details) .panel>.sel-strip,body.designer-ui #dock:not(.design-details) .panel>.sel-info{grid-column:1/-1}
+@container ks (max-width:700px){
+ body.designer-ui{--design-sheet-height:56cqh}
+ body.designer-ui #dock:not(.design-details) .panel{grid-template-columns:minmax(0,1fr);gap:10px}
+ body.designer-ui #dock:not(.design-details) .panel>[data-design-placement]{grid-column:1;grid-row:2}
+ body.designer-ui #dock .design-palette{max-height:95px;grid-template-columns:repeat(auto-fill,minmax(115px,1fr))}
+ .design-placement .design-placement-actions{position:sticky;bottom:0;padding-top:8px;background:var(--panel)}
+}
+/* A draft edit has its own explicit boundary, while the live renderer stays responsive. */
+.design-edit-session{grid-column:1/-1;grid-row:1;position:sticky;top:-14px;z-index:3;padding:10px 0;background:var(--panel);border-bottom:1px solid var(--line-2)}
+.design-edit-session p{margin:0;font-size:12px;line-height:1.5;color:var(--cyan)}
+.design-edit-session .design-placement-actions{margin-top:8px}
+body.designer-ui #dock:not(.design-details) .panel>[data-design-edit-session]~[data-design-placement]{grid-row:2}
+body.designer-ui #dock.design-editing .panel{display:block;scroll-padding-top:120px}
+body.designer-ui #dock.design-editing .panel>.design-placement{margin:12px 0}
+body.designer-ui #dock.design-editing .panel>.sel-strip{position:static}
+body.designer-ui #dock.design-editing .ed-list,body.designer-ui #dock.design-editing .editor{position:relative;isolation:isolate}
+.design-parent-target{flex:1 1 100%;font-size:12px;color:var(--cyan)}
+.design-parent-target small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+/* Weapon names must not set the minimum width of the trench editor. */
+[data-trench-armament-editor]{min-width:0;max-width:100%}
+[data-trench-armament-editor] .row2>label{display:grid;gap:4px;min-width:0;max-width:100%;flex:1 1 145px}
+[data-trench-armament-editor] input,[data-trench-armament-editor] select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px;padding:8px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:inherit}
+[data-trench-armament-editor] button{min-height:44px}
+@container ks (max-width:700px){[data-trench-armament-editor] .row2>label:first-child{flex-basis:100%}}

@@ -48,3 +48,17 @@ test('a locally unpowered turret retains its servo angle while its supporting S-
  const r=run(`(()=>{const {a,t}=fixture();a.p.modules=[{k:'weapon',domain:'main'}];a.deployments={foil:0};const rest={id:1,mesh:'gun1',pivot:[0,1,0],origin:[0,2,0],fw:[1,0,0],foilId:'foil'},asset={geometry:{center:[0,0,0],turrets:[rest],foils:[{id:'foil',pivot:[0,0,0],axis:'x',open:90,stow:0,sg:1}]}};fleet.assets.set('ship',asset);const m=a.p.surface.mounts[0],first=spaceSurfaceTurretPose(a,t,rest,m,asset);a.gridState={local:{0:5},domains:{}};a.deployments.foil=1;const second=spaceSurfaceTurretPose(a,t,rest,m,asset);return {first:first.aim,second:second.aim,pivot:second.pivot,rot:second.rot};})()`);
  assert.deepEqual(plain(r.first),plain(r.second));assert.deepEqual(plain(r.pivot),[0,1,0]);assert.deepEqual(plain(r.rot),plain(r.second));
 });
+
+test('compact shot metadata selects its own live typed cell and exact profile-local trench mouth',()=>{
+ const actual=run(`(()=>{const {a,t}=fixture(),m=a.p.surface.mounts[2];Object.assign(m,{trenchAggregate:true,noModel:true,muzzles:[[79,6,3],[83,7,-3]],fixed:false});a.surfaceLastFire.cells.push({fit:3,energy:3,gun:3,ion:0});return{e:spaceShotEmitter(a,t,0,false,3,[83,7,-3]),unknown:spaceShotEmitter(a,t,0,false,999,[83,7,-3]),wrongKind:spaceShotEmitter(a,t,0,true,3,[83,7,-3])};})()`);
+ assert.equal(actual.e.fit,3);assert.equal(actual.e.cell,'b2');assert.deepEqual(plain(actual.e.pos),[183,27,27]);assert.equal(actual.unknown,null);assert.equal(actual.wrongKind,null);
+});
+
+test('compact source mouths retain the existing rotation and geometry/profile offset alignment',()=>{
+ const actual=run(`(()=>{const {a,t}=fixture(),m=a.p.surface.mounts[0],mouth=[11,6,-3];Object.assign(m,{trenchAggregate:true,noModel:true,muzzles:[mouth],fixed:false});a.rot=[0,0,-1,0,1,0,1,0,0];a.p.surface.offset=[80,23.5,0];fleet.assets.set('ship',{geometry:{center:[77.8,23.4,0],turrets:[],foils:[]}});const original=mouth.slice(),e=spaceShotEmitter(a,t,0,false,1,mouth);return{e,want:tv.add(a.pos,trialApply(a.rot,tv.add(mouth,tv.sub(a.p.surface.offset,[77.8,23.4,0])))),original,mouth};})()`);
+ assert.deepEqual(plain(actual.e.pos),plain(actual.want));assert.deepEqual(plain(actual.mouth),plain(actual.original));assert.equal(actual.e.fit,1);
+});
+
+test('a stale compact packet cannot substitute another firing mount when its own cell stops firing',()=>{
+ const actual=run(`(()=>{const {a,t}=fixture(),m=a.p.surface.mounts[0];Object.assign(m,{trenchAggregate:true,muzzles:[[11,5,0]]});a.surfaceLastFire.cells[0].energy=0;return spaceShotEmitter(a,t,0,false,1,[11,5,0]);})()`);assert.equal(actual,null);
+});

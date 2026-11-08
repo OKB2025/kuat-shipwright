@@ -1,0 +1,251 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T02:59:58.929Z",
+  "browser": "156.0.8078.79",
+  "graphics": "Chromium SwiftShader",
+  "sourceSha256": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "4788137eafdfc6ae5b041c0c75859a00ae240671abf5e2ce6b166cb010afe0af",
+    "scripts/browser-design-placement.cjs": "359e253f9d9310f1efd81a01e0619fe6237d78358b70159910423762f9bceab9"
+  },
+  "scope": "Native pointer/touch controls and actual Worker. Programmatic fixture seeding and camera projection only; no geometry, Worker or render substitution.",
+  "notVerified": [
+    "real iPhone hardware",
+    "Safari",
+    "large-ship interaction and memory under sustained editing"
+  ],
+  "results": [
+    {
+      "profile": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touch": false,
+      "boot": {
+        "readyAtMs": 5981.100000000559,
+        "worker": "worker",
+        "heapBytes": 119004655,
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "drawer": {
+        "bounds": {
+          "x": 10,
+          "y": 346,
+          "width": 1420,
+          "height": 486
+        },
+        "preview": 1
+      },
+      "geometryValidationMs": 111,
+      "placed": {
+        "parts": 2,
+        "id": 2,
+        "mode": "horizontal",
+        "parentId": 1,
+        "volume": 2560.000000000008,
+        "roundVolume": 2560,
+        "contact": true,
+        "sourceRetained": true,
+        "format": "starship-yard",
+        "version": 3,
+        "glError": 0
+      },
+      "undoRedo": true,
+      "tapParent": {
+        "id": 3,
+        "parentId": 1,
+        "mode": "surface",
+        "surfaceId": "p1:top:0:cctl1g",
+        "anchor": [
+          85.05678182267522,
+          10.000000000000028,
+          -11.900224223162281
+        ]
+      },
+      "weapon": {
+        "id": 4,
+        "k": "pd",
+        "host": 1,
+        "roundHost": 1,
+        "p": [
+          17.90263241185798,
+          10,
+          -20.08924224767493
+        ],
+        "roundP": [
+          17.90263241185798,
+          10,
+          -20.08924224767493
+        ]
+      },
+      "englishRejection": "Vertical placement needs a side face. Choose one instead of a top or bottom face.",
+      "final": {
+        "heapBytes": 112671050,
+        "parts": 3,
+        "worker": "worker",
+        "glError": 0
+      },
+      "elapsedMs": 34468,
+      "errors": [],
+      "warnings": [],
+      "status": "PASS"
+    },
+    {
+      "profile": "touch-portrait",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "touch": true,
+      "boot": {
+        "readyAtMs": 3328.699999999255,
+        "worker": "worker",
+        "heapBytes": 89665838,
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "drawer": {
+        "bounds": {
+          "x": 5,
+          "y": 322.25,
+          "width": 380,
+          "height": 455.75
+        },
+        "preview": 1
+      },
+      "geometryValidationMs": 144,
+      "placed": {
+        "parts": 2,
+        "id": 2,
+        "mode": "horizontal",
+        "parentId": 1,
+        "volume": 2560.0000000000086,
+        "roundVolume": 2560,
+        "contact": true,
+        "sourceRetained": true,
+        "format": "starship-yard",
+        "version": 3,
+        "glError": 0
+      },
+      "undoRedo": true,
+      "tapParent": {
+        "id": 3,
+        "parentId": 1,
+        "mode": "surface",
+        "surfaceId": "p1:top:0:cctl1g",
+        "anchor": [
+          84.98706858997642,
+          10.000000000000028,
+          12.085608592170246
+        ]
+      },
+      "weapon": {
+        "id": 4,
+        "k": "pd",
+        "host": 1,
+        "roundHost": 1,
+        "p": [
+          18.003031958301737,
+          9.999999999999986,
+          -19.881375690869007
+        ],
+        "roundP": [
+          18.003031958301737,
+          9.999999999999986,
+          -19.881375690869007
+        ]
+      },
+      "final": {
+        "heapBytes": 96566082,
+        "parts": 3,
+        "worker": "worker",
+        "glError": 0
+      },
+      "elapsedMs": 23217,
+      "errors": [],
+      "warnings": [],
+      "status": "PASS"
+    },
+    {
+      "profile": "touch-landscape",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "touch": true,
+      "boot": {
+        "readyAtMs": 4100.9000000003725,
+        "worker": "worker",
+        "heapBytes": 79067391,
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "drawer": {
+        "bounds": {
+          "x": 10,
+          "y": 111.40625,
+          "width": 824,
+          "height": 210.59375
+        },
+        "preview": 1
+      },
+      "geometryValidationMs": 133,
+      "placed": {
+        "parts": 2,
+        "id": 2,
+        "mode": "horizontal",
+        "parentId": 1,
+        "volume": 2560.000000000001,
+        "roundVolume": 2560.000000000009,
+        "contact": true,
+        "sourceRetained": true,
+        "format": "starship-yard",
+        "version": 3,
+        "glError": 0
+      },
+      "undoRedo": true,
+      "tapParent": {
+        "id": 3,
+        "parentId": 1,
+        "mode": "surface",
+        "surfaceId": "p1:top:0:cctl1g",
+        "anchor": [
+          84.88792299414328,
+          10.000000000000028,
+          -12.126794575795698
+        ]
+      },
+      "weapon": {
+        "id": 4,
+        "k": "pd",
+        "host": 1,
+        "roundHost": 1,
+        "p": [
+          17.652300460375926,
+          10,
+          -20.11066624909634
+        ],
+        "roundP": [
+          17.652300460375926,
+          10,
+          -20.11066624909634
+        ]
+      },
+      "final": {
+        "heapBytes": 96630874,
+        "parts": 3,
+        "worker": "worker",
+        "glError": 0
+      },
+      "elapsedMs": 22452,
+      "errors": [],
+      "warnings": [],
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,673 @@
+{
+  "sourceCommit": "2bd41239ec80b6d071bfa8780f2a31a9a98b1032",
+  "sourceFleetProfileVersion": 20,
+  "description": "Saved with the preceding Core before physical nozzle foundations; built from the editable blueprint and a working rated engine/reactor pair.",
+  "expected": {
+    "mass": 432739.8609070146,
+    "hp": 1678.8497747601393,
+    "cost": 1346151,
+    "ratedThrustN": 34180528071.05695,
+    "ratedAccelMps2": 78.98631755210904
+  },
+  "snapshot": {
+    "ref": "support-v20",
+    "name": "Nozzle support migration",
+    "dims": [
+      124.67,
+      80,
+      109.38
+    ],
+    "blueprint": {
+      "format": "starship-yard",
+      "v": 3,
+      "propulsionModelVersion": 1,
+      "name": "Nozzle support migration",
+      "hull": {
+        "plan": "wedge",
+        "sec": "rect",
+        "L": 200,
+        "W": 100,
+        "H": 100,
+        "bowW": 0.02,
+        "bowH": 0.5,
+        "stern": 1,
+        "assembly": true,
+        "deckWidth": 0.52,
+        "belt": 0.13
+      },
+      "cuts": [],
+      "trenches": [],
+      "solidCuts": [],
+      "subs": [],
+      "parts": [
+        {
+          "id": 1,
+          "k": "struct",
+          "c": [
+            50,
+            0,
+            0
+          ],
+          "s": [
+            100,
+            80,
+            80
+          ],
+          "taper": 0,
+          "form": "box",
+          "yaw": 0,
+          "offsetX": 0,
+          "offsetZ": 0,
+          "pitch": 20
+        },
+        {
+          "id": 2,
+          "k": "engine",
+          "c": [
+            -12,
+            0,
+            0
+          ],
+          "d": 8,
+          "dir": [
+            -1,
+            0,
+            0
+          ],
+          "nozzleLength": 4,
+          "propulsionModelVersion": 1,
+          "ratedInputW": 68361056142113900000,
+          "driveProfileId": "standard",
+          "machineryGradeId": "standard",
+          "machineryLengthM": 17.6,
+          "machineryRadiusM": 4.16,
+          "machineryOffsetM": 2,
+          "machineryFeedRadiusM": 2.32,
+          "legacyCoolingInputW": 0,
+          "propulsionMigration": {
+            "version": 1,
+            "previous": {
+              "id": 2,
+              "k": "engine",
+              "c": [
+                -12,
+                0,
+                0
+              ],
+              "d": 8,
+              "nozzleLength": 4,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "legacyCoolingInputW": 0
+            },
+            "baselineThrustN": 34180528071.05695,
+            "baselineInputW": 68361056142113900000
+          }
+        },
+        {
+          "id": 3,
+          "k": "gen",
+          "c": [
+            20,
+            0,
+            0
+          ],
+          "d": 8
+        }
+      ],
+      "hatches": [],
+      "fits": [],
+      "armor": {
+        "hull": 0.5,
+        "cit": 0
+      },
+      "nextId": 4,
+      "shieldTarget": 1,
+      "systemsVersion": 1,
+      "airWings": [],
+      "designEnvelope": {
+        "L": 200,
+        "W": 100,
+        "H": 100
+      },
+      "groundForces": [],
+      "paint": "neutral",
+      "detail": 0,
+      "autoHabitation": false,
+      "hullLocked": false
+    },
+    "weaponProfileVersion": 1,
+    "craft": {
+      "role": "transport",
+      "roleName": "非武装",
+      "speed": 0,
+      "speedReference": {
+        "version": 1,
+        "key": "support-v20",
+        "status": "assumed",
+        "mglt": null,
+        "model": null,
+        "scope": null,
+        "continuity": null,
+        "source": null
+      },
+      "speedLoaded": 0,
+      "accelLoaded": 0,
+      "speedMode": "ship",
+      "aa": 0.05,
+      "strike": 0,
+      "gun": 0,
+      "armor": 4.37,
+      "crew": 32,
+      "accelG": 0,
+      "shield": false,
+      "hyper": null,
+      "stations": [],
+      "load": [],
+      "mass": 432739.86,
+      "cost": 1346151,
+      "costBy": {
+        "hull": 640000,
+        "armor": 676804,
+        "power": 20906,
+        "drive": 8441
+      },
+      "priceVersion": 17,
+      "systems": {
+        "v": 1,
+        "managed": false,
+        "power": 0,
+        "crew": 32,
+        "suitSeats": 0,
+        "lifeSupportCapacity": 0,
+        "lifeSupportHours": null,
+        "ejectionSeats": 0,
+        "ejectionCoverage": 0,
+        "ejectionSurvival": 0.1,
+        "navCapacity": 0,
+        "navReady": true,
+        "targetDemand": 0,
+        "targetCapacity": 0,
+        "targetRatio": 1,
+        "fireK": 1,
+        "maneuverSupport": 0,
+        "maneuverRatio": 0,
+        "turnK": 1,
+        "laserUnits": 0,
+        "laserGunShare": 0,
+        "laserAaShare": 0,
+        "laserGasSeconds": null,
+        "landingSupport": 0,
+        "landingRatio": 0,
+        "landingReady": false
+      },
+      "powerProfile": {
+        "profileVersion": 20,
+        "name": "Nozzle support migration",
+        "modules": [
+          {
+            "k": "engine",
+            "name": "ノズル",
+            "w": 34.3204703537764,
+            "hits": 1,
+            "crew": 0.0804247719318987,
+            "size": 201.06192982974676,
+            "at": 0.016,
+            "part": 2,
+            "y": 0,
+            "z": 0,
+            "r": 0.023,
+            "share": 0.20881925667169393,
+            "domain": "main",
+            "port": "p2",
+            "powerConnected": true
+          },
+          {
+            "k": "reactor",
+            "name": "主反応炉",
+            "w": 24.945773374212816,
+            "hits": 1,
+            "crew": 0.1340412865531645,
+            "size": 268.082573106329,
+            "at": 0.273,
+            "part": 3,
+            "y": 0,
+            "z": 0,
+            "r": 0.026,
+            "share": 1,
+            "domain": "main",
+            "port": "p3",
+            "powerConnected": true
+          },
+          {
+            "k": "engine",
+            "name": "自動推進機関",
+            "w": 83.41100226515026,
+            "hits": 1,
+            "crew": 0.1523579095464581,
+            "size": 761.7895477322903,
+            "at": 0.103,
+            "part": -2,
+            "machineryOwner": 2,
+            "y": 0,
+            "z": 0,
+            "r": 0.037,
+            "share": 0.7911807433283061,
+            "domain": "main",
+            "port": "p2",
+            "powerConnected": true
+          },
+          {
+            "k": "quarters",
+            "name": "居住空間（後部）",
+            "w": 306.79575177187377,
+            "hits": 2,
+            "crew": 0,
+            "size": 92499.01835617705,
+            "at": 0.173,
+            "y": -0.03,
+            "z": 0,
+            "r": 0.181,
+            "share": 0.1446819835003992,
+            "domain": "main"
+          },
+          {
+            "k": "quarters",
+            "name": "居住空間（中央後部）",
+            "w": 523.5553686229676,
+            "hits": 3,
+            "crew": 0,
+            "size": 206208.725164353,
+            "at": 0.368,
+            "y": -0.12,
+            "z": 0,
+            "r": 0.2,
+            "share": 0.32254058369555577,
+            "domain": "main"
+          },
+          {
+            "k": "quarters",
+            "name": "居住空間（中央前部）",
+            "w": 558.3108657735924,
+            "hits": 3,
+            "crew": 0,
+            "size": 227079.13519198832,
+            "at": 0.623,
+            "y": 0.09,
+            "z": 0,
+            "r": 0.2,
+            "share": 0.3551849552026968,
+            "domain": "main"
+          },
+          {
+            "k": "quarters",
+            "name": "居住空間（前部）",
+            "w": 351.7138060865901,
+            "hits": 2,
+            "crew": 0,
+            "size": 113539.56759599416,
+            "at": 0.839,
+            "y": 0.06,
+            "z": 0,
+            "r": 0.194,
+            "share": 0.1775924776013484,
+            "domain": "main"
+          },
+          {
+            "k": "hull",
+            "name": "船体構造",
+            "w": 1129.831822948898,
+            "hits": null,
+            "crew": 0,
+            "size": 1,
+            "share": 1,
+            "domain": "main"
+          }
+        ],
+        "grid": {
+          "P": 1.4039494303996185e+21,
+          "fixed": 63999999885955230000,
+          "cooling": 0,
+          "De": 68361056142113900000,
+          "Ds": 0,
+          "Dw": 0,
+          "domains": [
+            {
+              "id": "main",
+              "P": 1.4039494303996185e+21,
+              "reactors": [
+                1
+              ],
+              "sources": [
+                {
+                  "moduleIndex": 1,
+                  "P": 1.4039494303996185e+21
+                }
+              ],
+              "modules": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "protection": 1
+            }
+          ],
+          "powerPaths": [
+            {
+              "kind": "power",
+              "from": "p3",
+              "to": "hotel",
+              "cap": 63999999885955230000,
+              "auto": true,
+              "ok": true,
+              "routeId": "p3>hotel",
+              "model": "source-distance",
+              "lengthM": 28.33153009414673,
+              "efficiency": 0.9997167248290485
+            },
+            {
+              "kind": "power",
+              "from": "p3",
+              "to": "p2",
+              "cap": 68361056142113900000,
+              "auto": true,
+              "ok": true,
+              "capacityGroup": "p3>p2",
+              "groupCap": 68361056142113900000,
+              "routeId": "p3>p2",
+              "model": "source-distance",
+              "lengthM": 21.2,
+              "efficiency": 0.9997880224704121
+            }
+          ],
+          "trunks": [],
+          "fixedLoads": [
+            {
+              "id": "hotel",
+              "port": "hotel",
+              "weight": 63999999885955230000,
+              "domain": "main"
+            }
+          ],
+          "coolingLoads": []
+        },
+        "propulsion": {
+          "version": 1,
+          "architectureVersion": 2,
+          "cores": [
+            {
+              "thermalModelVersion": 2,
+              "normalInputW": 259008446228978700000,
+              "densityFactor": 0.26393369458569205,
+              "efficiency": 0.95,
+              "wasteFraction": 0.050000000000000044,
+              "profileWattsPerNewton": 2000000000,
+              "shaftWattsPerNewton": 1900000000,
+              "wattsPerNewton": 2000000000,
+              "ratedShaftPowerW": 64943003335008200000,
+              "ratedWasteHeatW": 3418052807105698000,
+              "thermalStoreJ": 0,
+              "version": 1,
+              "id": 2,
+              "machineryId": 2,
+              "coreId": 2,
+              "entityKind": "engine",
+              "integrated": true,
+              "legacyShared": false,
+              "ratedInputW": 68361056142113900000,
+              "driveProfileId": "standard",
+              "machineryGradeId": "standard",
+              "ratedThrustN": 34180528071.05695,
+              "effectiveMachineryVolumeM3": 761.7895477322903,
+              "machineryVolumeM3": 761.7895477322903,
+              "machineryShape": "frustum",
+              "machineryLengthM": 17.6,
+              "machineryRadiusM": 4.16,
+              "machineryDiameterM": 8.32,
+              "machineryOffsetM": 2,
+              "maxInputW": 259008446228978700000,
+              "maxRatedInputW": 259008446228978700000,
+              "inputDensityWPerM3": 89737456159135280,
+              "allowedInputDensityWPerM3": 340000000000000000,
+              "cost": 136.7221122842278,
+              "powerNode": "p2",
+              "heatNode": "p2",
+              "reactorId": 3,
+              "domain": "main",
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "legacyCoolingInputW": 0,
+              "valid": true,
+              "issues": [],
+              "reasons": [],
+              "moduleIndex": 0,
+              "machineryModuleIndex": 2,
+              "available": true,
+              "connected": true,
+              "outletAvailable": true,
+              "pathCapacityW": 68346565134312870000,
+              "transmissionRouteIds": [
+                "p3>p2"
+              ]
+            }
+          ],
+          "engines": [
+            {
+              "thermalModelVersion": 2,
+              "normalInputW": 259008446228978700000,
+              "densityFactor": 0.26393369458569205,
+              "efficiency": 0.95,
+              "wasteFraction": 0.050000000000000044,
+              "profileWattsPerNewton": 2000000000,
+              "shaftWattsPerNewton": 1900000000,
+              "wattsPerNewton": 2000000000,
+              "ratedShaftPowerW": 64943003335008200000,
+              "ratedWasteHeatW": 3418052807105698000,
+              "thermalStoreJ": 0,
+              "version": 1,
+              "id": 2,
+              "machineryId": 2,
+              "coreId": 2,
+              "entityKind": "engine",
+              "integrated": true,
+              "legacyShared": false,
+              "ratedInputW": 68361056142113900000,
+              "driveProfileId": "standard",
+              "machineryGradeId": "standard",
+              "ratedThrustN": 34180528071.05695,
+              "effectiveMachineryVolumeM3": 761.7895477322903,
+              "machineryVolumeM3": 761.7895477322903,
+              "machineryShape": "frustum",
+              "machineryLengthM": 17.6,
+              "machineryRadiusM": 4.16,
+              "machineryDiameterM": 8.32,
+              "machineryOffsetM": 2,
+              "maxInputW": 259008446228978700000,
+              "maxRatedInputW": 259008446228978700000,
+              "inputDensityWPerM3": 89737456159135280,
+              "allowedInputDensityWPerM3": 340000000000000000,
+              "cost": 136.7221122842278,
+              "powerNode": "p2",
+              "heatNode": "p2",
+              "reactorId": 3,
+              "domain": "main",
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "legacyCoolingInputW": 0,
+              "valid": true,
+              "issues": [],
+              "reasons": [],
+              "moduleIndex": 0,
+              "coreModuleIndex": 0,
+              "machineryModuleIndex": 2,
+              "shaftModuleIndices": [],
+              "shaftCapacityW": 64943003335008200000,
+              "ratedShaftCapacityW": 64943003335008200000,
+              "shaftRouteId": null,
+              "available": true,
+              "connected": true,
+              "outletAvailable": true,
+              "pathCapacityW": 68346565134312870000
+            }
+          ],
+          "massKg": 432739860.90701455,
+          "ratedThrustN": 34180528071.05695,
+          "ratedAccelMps2": 78.98631755210904,
+          "structuralAccelerationLimitMps2": 0,
+          "inertialFactor": 0,
+          "accelerationLimitMps2": 0
+        },
+        "heat": {
+          "v": 5,
+          "mode": "strict",
+          "capacityModel": "whole-ship-mass",
+          "src": [
+            {
+              "k": "reactor",
+              "id": "p3",
+              "n": "主反応炉 #3",
+              "g": "high",
+              "sh": 1,
+              "m": [
+                1
+              ],
+              "pc": [],
+              "sec": 0,
+              "sw": -1,
+              "gen": -1
+            },
+            {
+              "k": "engine",
+              "id": "p2",
+              "n": "ノズル #2",
+              "g": "high",
+              "sh": 0,
+              "m": [
+                0,
+                2
+              ],
+              "pc": [],
+              "sec": 0,
+              "sw": -1,
+              "gen": -1
+            },
+            {
+              "k": "hotel",
+              "id": "hotel",
+              "n": "生活・電子設備",
+              "g": "low",
+              "sh": 1,
+              "m": [],
+              "pc": [],
+              "sec": 0,
+              "sw": -1,
+              "gen": -1
+            },
+            {
+              "k": "feed",
+              "id": "feed:p3>hotel",
+              "n": "送電損失 p3>hotel",
+              "g": "high",
+              "sh": 1,
+              "m": [],
+              "pc": [],
+              "sec": 0,
+              "sw": -1,
+              "gen": -1,
+              "routeId": "p3>hotel"
+            },
+            {
+              "k": "feed",
+              "id": "feed:p3>p2",
+              "n": "送電損失 p3>p2",
+              "g": "high",
+              "sh": 0,
+              "m": [],
+              "pc": [],
+              "sec": 0,
+              "sw": -1,
+              "gen": -1,
+              "routeId": "p3>p2"
+            }
+          ],
+          "dis": [
+            {
+              "id": "skin",
+              "n": "外殻からの放熱",
+              "k": "skin",
+              "g": "low",
+              "cap": 1.3536078364210662e+23,
+              "m": -1,
+              "sec": -1,
+              "src": -1
+            }
+          ],
+          "ln": [
+            {
+              "s": 2,
+              "d": 0,
+              "cap": 1.3536078364210662e+23,
+              "sec": -1
+            }
+          ]
+        },
+        "energyModel": {
+          "version": 0,
+          "eta": 0.75
+        },
+        "D": 0,
+        "shieldBuffer": 0,
+        "wCap": 0,
+        "fuel": {
+          "version": 1,
+          "capacityKnown": true,
+          "volumeM3": 0,
+          "massKg": 0,
+          "capacityJ": 0,
+          "specificEnergyJPerKg": 4.8e+22,
+          "basis": "installed-reactant-volume"
+        },
+        "crewCapacity": 32,
+        "crewNeed": 32,
+        "crewMax": 32,
+        "hp": 1678.8497747601393,
+        "len": 124.6678113937378,
+        "width": 80,
+        "height": 109.37742614746094,
+        "mglt": 0,
+        "maxSpeed": 0,
+        "speedReference": {
+          "version": 1,
+          "key": "",
+          "status": "assumed",
+          "mglt": null,
+          "model": null,
+          "scope": null,
+          "continuity": null,
+          "source": null
+        }
+      },
+      "fireArcs": [],
+      "heat": {
+        "up": 0.00018658010161074469,
+        "upS": 0.00018658010161074469,
+        "down": 0.01,
+        "T": 0
+      }
+    }
+  }
+}

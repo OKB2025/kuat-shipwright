@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-08T03:03:18.490058+00:00",
+  "baselineRevision": "7217097da06c5873c017460f18edc24dcf775069",
+  "runtimeSourceSha256": {
+    "index.html": "f8c5a10aaff68c86439f36a749f81db2e928082bb40ea3c8a22addb19152eda5",
+    "js/app.js": "dca66fac49395e3b9631ea1e50ab6589008a56dce3537a570b2b76a239c6d4c6",
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "js/gfx.js": "7853542907e9e5184882a077b21f78e0b1810eb3b66fc927c6e8f2a9deea0242",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "4788137eafdfc6ae5b041c0c75859a00ae240671abf5e2ce6b166cb010afe0af"
+  },
+  "newSuites": {
+    "command": "node --test tests/design-edit-session-ui.cjs tests/design-placement-async-ui.cjs tests/design-placement-catalog-ui.cjs tests/design-placement-orientation.cjs tests/design-root-placement-ui.cjs tests/design-tap-parent-ui.cjs tests/exterior-copy-editor-ui.cjs tests/exterior-equipment-parenting.cjs tests/fit-placement-attachment.cjs tests/structure-placement-modes.cjs tests/interior-placement-modes.cjs tests/placement-curved-contact.cjs tests/placement-contact-thickness.cjs tests/placement-delete-graph.cjs tests/placement-gfx.cjs tests/placement-physics-preserved.cjs tests/placement-worker-generations.cjs tests/placement-worker-integration.cjs",
+    "tests": 183,
+    "pass": 183,
+    "fail": 0,
+    "failedNames": [],
+    "scope": "18 suites, including 16 clipped/exposed surface-pick roundtrips in the final fitting regression."
+  },
+  "relatedSuites": {
+    "baseline": {
+      "command": "node --test tests/editor-pending-placement.cjs tests/editor-background-edits.cjs tests/editor-interaction-performance.cjs tests/editor-preview-incremental.cjs tests/fixed-equipment-placement.cjs tests/structure-copy-placement.cjs tests/design-save-identity.cjs tests/surface-exposure-core.cjs tests/propulsion-editor-ui.cjs tests/turret-compartment-volume.cjs tests/worker-geometry-bounds.cjs",
+      "tests": 117,
+      "pass": 95,
+      "fail": 22,
+      "failedNames": [
+        "a density overflow rejects a complete batch before mutating any engine",
+        "a linked nozzle opens its real body editor and the body reactor selector uses the bound action and Undo",
+        "a real air gap stays exposed, selectable and usable instead of being closed by the old2.5cm probe",
+        "an external integrated engine cannot be rebound to an independent core through a mixed selection",
+        "an independent nozzle selection strip resolves the connected body without duplicating its thrust",
+        "an oversized exterior gunhouse retains the same finite bank and charges only through the shared power budget",
+        "appearance edits preserve unequal machinery and editing an independent body updates its linked nozzle",
+        "clipped cooling uses its actual installed area once and buried stock remains physical through save and reveal",
+        "engine diagnostics and full editor strings translate to English",
+        "engine editor exposes independent machinery and fixed profiles with honest unresolved endurance",
+        "external cylinder shape survives saved machinery snapshots and repeated palette edits",
+        "external units keep their body at the nozzle throat while appearance changes preserve one integrated unit",
+        "gamepad nudges unrestricted precision number fields through the same validated action and Undo",
+        "independent core, nozzle and electrical/shaft panels translate their user-facing text",
+        "machinery linking maps mirrored real bodies atomically and rejects nozzles or missing bodies as sources",
+        "new engine previews use normal volume rating and display the cost of raising density",
+        "nozzle-only edits preserve each machine rating and geometry through Undo and Redo",
+        "one batch rating action edits selected machines and symmetry followers in one Undo step",
+        "pending generic and model engines preserve rated machinery across appearance edits and placement previews",
+        "shared outlet connection batches resolve mirrored owner and reactor IDs once and reject broken owners atomically",
+        "the bound selector connects a real body and disconnects its nozzle without creating another machine",
+        "worker statistics refresh shows performance without repeating the 系統 propulsion card"
+      ]
+    },
+    "changed": {
+      "command": "node --test tests/editor-pending-placement.cjs tests/editor-background-edits.cjs tests/editor-interaction-performance.cjs tests/editor-preview-incremental.cjs tests/fixed-equipment-placement.cjs tests/structure-copy-placement.cjs tests/design-save-identity.cjs tests/surface-exposure-core.cjs tests/propulsion-editor-ui.cjs tests/turret-compartment-volume.cjs tests/worker-geometry-bounds.cjs",
+      "tests": 117,
+      "pass": 95,
+      "fail": 22,
+      "failedNames": [
+        "a density overflow rejects a complete batch before mutating any engine",
+        "a linked nozzle opens its real body editor and the body reactor selector uses the bound action and Undo",
+        "a real air gap stays exposed, selectable and usable instead of being closed by the old2.5cm probe",
+        "an external integrated engine cannot be rebound to an independent core through a mixed selection",
+        "an independent nozzle selection strip resolves the connected body without duplicating its thrust",
+        "an oversized exterior gunhouse retains the same finite bank and charges only through the shared power budget",
+        "appearance edits preserve unequal machinery and editing an independent body updates its linked nozzle",
+        "clipped cooling uses its actual installed area once and buried stock remains physical through save and reveal",
+        "engine diagnostics and full editor strings translate to English",
+        "engine editor exposes independent machinery and fixed profiles with honest unresolved endurance",
+        "external cylinder shape survives saved machinery snapshots and repeated palette edits",
+        "external units keep their body at the nozzle throat while appearance changes preserve one integrated unit",
+        "gamepad nudges unrestricted precision number fields through the same validated action and Undo",
+        "independent core, nozzle and electrical/shaft panels translate their user-facing text",
+        "machinery linking maps mirrored real bodies atomically and rejects nozzles or missing bodies as sources",
+        "new engine previews use normal volume rating and display the cost of raising density",
+        "nozzle-only edits preserve each machine rating and geometry through Undo and Redo",
+        "one batch rating action edits selected machines and symmetry followers in one Undo step",
+        "pending generic and model engines preserve rated machinery across appearance edits and placement previews",
+        "shared outlet connection batches resolve mirrored owner and reactor IDs once and reject broken owners atomically",
+        "the bound selector connects a real body and disconnects its nozzle without creating another machine",
+        "worker statistics refresh shows performance without repeating the 系統 propulsion card"
+      ]
+    },
+    "sameFailures": true
+  },
+  "targetedCache": {
+    "command": "node --test --test-name-pattern='lite models|a trial of the design' tests/load-cache.cjs",
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "failedNames": []
+  },
+  "browserEvidence": [
+    "design-placement-browser.json",
+    "interior-placement-browser.json",
+    "design-edit-session-browser.json",
+    "exterior-parenting-browser.json",
+    "root-placement-browser.json"
+  ],
+  "limitations": [
+    "Real Safari and real iPhone not tested.",
+    "The full load-cache suite terminated with SIGKILL on both immutable main and the change; the two targeted passes do not establish full cache coverage.",
+    "Pre-existing failures are not counted as successes.",
+    "Parent deletion is synchronous; see parent-deletion.json."
+  ],
+  "largeDesignEvidence": {
+    "comparison": "design-placement-large-comparison.json",
+    "initialStatus": "ERROR",
+    "readyEvidence": "design-placement-large-ready.json",
+    "readyStatus": "ERROR",
+    "completedPairs": 0,
+    "notAcceptedAsComplete": true
+  },
+  "physicsEvidence": "placement-physics-comparison.json",
+  "checks": {
+    "syntax": "PASS",
+    "sourceManifest": "PASS",
+    "gitDiffCheck": "PASS"
+  }
+}

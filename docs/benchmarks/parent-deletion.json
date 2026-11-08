@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-08T03:02:28.844Z",
+  "node": "v24.22.1",
+  "sourceSha256": {
+    "js/core.js": "72adaf08493d819171c4d34543877356a44502198a9d39c717f36692ceed0f2c",
+    "scripts/benchmark-parent-deletion.cjs": "9369e7e371e35ca393df705412ce738e9464906ac6a7e4123830459e2b29f124"
+  },
+  "scope": "Single in-process synchronous graph-deletion observations after real Core placement setup. Setup is excluded from deleteMs. CPU/GC/cache history are not controlled; this is not browser input latency or a measured speedup.",
+  "results": [
+    {
+      "count": 20,
+      "connected": false,
+      "setupMs": 95.27614200000005,
+      "deleteMs": 2.890064000000052,
+      "removedParts": 21,
+      "remainingParts": 0
+    },
+    {
+      "count": 20,
+      "connected": true,
+      "setupMs": 63.29052300000001,
+      "deleteMs": 26.99359000000004,
+      "removedParts": 1,
+      "remainingParts": 20
+    },
+    {
+      "count": 100,
+      "connected": false,
+      "setupMs": 246.41708999999992,
+      "deleteMs": 16.01282900000001,
+      "removedParts": 101,
+      "remainingParts": 0
+    },
+    {
+      "count": 100,
+      "connected": true,
+      "setupMs": 202.47769799999992,
+      "deleteMs": 131.66185100000007,
+      "removedParts": 1,
+      "remainingParts": 100
+    }
+  ]
+}

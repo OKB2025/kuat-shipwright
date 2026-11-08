@@ -1,0 +1,295 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T07:49:12.915Z",
+  "scope": "Focused functional proof of the actual native Mandator parent1154 geometry. The other317 apparatus parts and all535 authored fittings are excluded after normal Core deserialization. The real hullProfile, hullData, transforms, semantic face triangles, Gfx pick and strict Worker are retained. This does not establish full318-part placement acceptance or performance.",
+  "fixture": {
+    "archive": "assets/source/ship-example-blueprints/mandator2.json.gz",
+    "unpackedSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "originalParts": 318,
+    "originalFits": 535,
+    "retainedParentId": 1154,
+    "excludedApparatus": 317
+  },
+  "sourceSha256": {
+    "index.html": "5f402bd87d1b1894fef8eb5be27d02328ebd255d8d40486a4bb8d790cba10846",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "0d1175f6b059c6b323f20ba99a60103be84c854fa60ec9acb67255c5415c7dbc",
+    "js/gfx.js": "022af7af377d6e3fe3df0ad28acef065857e8480c4a4e146613ead3e3d9b4e48",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "29f81f64940ed93e6ae2897cd38136dd47a21410b8c63fa23d06c3c8bc5a3e33",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "504382e27044d365f88439886a2128640aa2e0db58ed8b0b2ecafb8c83b51f75"
+  },
+  "harness": {
+    "path": "scripts/browser-native-mirror-hull.cjs",
+    "sha256": "d3db3221a44548650ae41fcc18c72fef7ce1f29fd1c4753bb80c6b8a07450317"
+  },
+  "executionConditions": {
+    "controlledPerformanceComparison": false,
+    "concurrentFunctionalBrowser": "Root nozzle functional verification may run concurrently. No speed/FPS improvement claim.",
+    "graphics": "Chromium SwiftShader",
+    "safari": "Not tested."
+  },
+  "stages": [
+    {
+      "name": "boot",
+      "at": "2026-11-08T07:49:13.728Z"
+    },
+    {
+      "name": "native-hull-seeded",
+      "at": "2026-11-08T07:49:24.217Z"
+    },
+    {
+      "name": "native-utl-mirror-armed",
+      "at": "2026-11-08T07:49:34.227Z"
+    },
+    {
+      "name": "real-worker-semantic-face-ready",
+      "at": "2026-11-08T07:49:34.243Z"
+    },
+    {
+      "name": "native-canvas-tap",
+      "at": "2026-11-08T07:49:34.711Z"
+    },
+    {
+      "name": "strict-worker-pair-ready-without-commit",
+      "at": "2026-11-08T07:49:41.105Z"
+    },
+    {
+      "name": "native-confirm-installed-two",
+      "at": "2026-11-08T07:49:43.039Z"
+    },
+    {
+      "name": "actual-native-face-contact-and-v3-core-reload-pass",
+      "at": "2026-11-08T07:49:48.994Z"
+    },
+    {
+      "name": "actual-save-sheet-reloaded-two",
+      "at": "2026-11-08T07:50:01.007Z"
+    }
+  ],
+  "errors": [],
+  "stage": "complete",
+  "seed": {
+    "parts": 1,
+    "fits": 0,
+    "shapeUnchangedByExtraction": true,
+    "parent": {
+      "id": 1154,
+      "form": "hull",
+      "c": [
+        4000,
+        500,
+        0
+      ],
+      "s": [
+        8000,
+        2900,
+        1000
+      ],
+      "hasHullProfile": true,
+      "hasHullData": true
+    },
+    "gen": 1,
+    "shapeSha256": "ed6d452b1936cda4157222d194c1c71a12dfac20071e91c0b737c1f24293297f"
+  },
+  "proxy": {
+    "surfaces": 71,
+    "gen": 1,
+    "adopted": 1,
+    "face": {
+      "id": "p1154:top:2:12e2bm3",
+      "triangles": 528,
+      "exposedTriangles": 528
+    }
+  },
+  "nativeTarget": {
+    "pixel": [
+      799.9999355518431,
+      529.4999696894433
+    ],
+    "canvasTarget": true,
+    "hit": {
+      "p": [
+        4821.600024566906,
+        452.5166757429761,
+        290.19999225191884
+      ],
+      "n": [
+        0.03555805480320676,
+        0.9853393932621007,
+        0.16685893690326378
+      ],
+      "parentStructureId": 1154,
+      "hostSurfaceId": "p1154:top:2:12e2bm3"
+    },
+    "fits": 0,
+    "gen": 1
+  },
+  "validation": {
+    "state": "ready",
+    "text": "配置可能。形状を確認して確定してください。追加元：船体構造物 #1154 ・ 上面取付位置 XYZ（m）：4821.6 / 452.52 / 290.2確定設定に戻る取消",
+    "fits": 0,
+    "gen": 1
+  },
+  "confirmed": {
+    "parts": 1,
+    "fits": [
+      {
+        "id": 1155,
+        "k": "utl",
+        "p": [
+          4821.600021973006,
+          452.5166797376362,
+          290.19996921532197
+        ],
+        "n": [
+          0.03555805480320676,
+          0.9853393932621007,
+          0.16685893690326378
+        ],
+        "tw": 1156,
+        "host": 1154,
+        "float": false,
+        "surfaceId": "p1154:top:2:12e2bm3",
+        "actualSurfaceDistanceM": 5.684341886080802e-14
+      },
+      {
+        "id": 1156,
+        "k": "utl",
+        "p": [
+          4821.59968094076,
+          452.50722948766145,
+          -290.1983688949907
+        ],
+        "n": [
+          0.03556995695582791,
+          0.9853083628794804,
+          -0.16703954083365619
+        ],
+        "tw": 1155,
+        "host": 1154,
+        "float": false,
+        "surfaceId": "p1154:top:2:12e2bm3",
+        "actualSurfaceDistanceM": 5.684341886080802e-14
+      }
+    ],
+    "mirrorCorrectionM": 0.009590857768765476,
+    "shapeUnchanged": true,
+    "format": "starship-yard",
+    "v": 3,
+    "surfaceVersion": 4,
+    "reloaded": [
+      {
+        "id": 1155,
+        "p": [
+          4821.600021973006,
+          452.5166797376362,
+          290.19996921532197
+        ],
+        "n": [
+          0.03555805480320676,
+          0.9853393932621007,
+          0.16685893690326378
+        ],
+        "host": 1154,
+        "float": false,
+        "tw": 1156,
+        "surfaceId": "p1154:top:2:12e2bm3"
+      },
+      {
+        "id": 1156,
+        "p": [
+          4821.59968094076,
+          452.50722948766145,
+          -290.1983688949907
+        ],
+        "n": [
+          0.03556995695582791,
+          0.9853083628794804,
+          -0.16703954083365619
+        ],
+        "host": 1154,
+        "float": false,
+        "tw": 1155,
+        "surfaceId": "p1154:top:2:12e2bm3"
+      }
+    ],
+    "saveId": "ship-ae444684-0480-47f2-920c-dfc0c4508338",
+    "gen": 2
+  },
+  "nativeReload": {
+    "saveId": "ship-ae444684-0480-47f2-920c-dfc0c4508338",
+    "parts": 1,
+    "fits": [
+      {
+        "id": 1155,
+        "p": [
+          4821.600021973006,
+          452.5166797376362,
+          290.19996921532197
+        ],
+        "host": 1154,
+        "float": false,
+        "surfaceId": "p1154:top:2:12e2bm3"
+      },
+      {
+        "id": 1156,
+        "p": [
+          4821.59968094076,
+          452.50722948766145,
+          -290.1983688949907
+        ],
+        "host": 1154,
+        "float": false,
+        "surfaceId": "p1154:top:2:12e2bm3"
+      }
+    ],
+    "gen": 3,
+    "adopted": 3,
+    "glError": 0
+  },
+  "servedSources": {
+    "index.html": "5f402bd87d1b1894fef8eb5be27d02328ebd255d8d40486a4bb8d790cba10846",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/gfx.js": "022af7af377d6e3fe3df0ad28acef065857e8480c4a4e146613ead3e3d9b4e48",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/app.js": "29f81f64940ed93e6ae2897cd38136dd47a21410b8c63fa23d06c3c8bc5a3e33",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "0d1175f6b059c6b323f20ba99a60103be84c854fa60ec9acb67255c5415c7dbc",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe"
+  },
+  "requiredServedSourcesMatch": {
+    "index.html": true,
+    "data/reference.js": true,
+    "data/imperial2.js": true,
+    "data/fleet.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/app.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "5f402bd87d1b1894fef8eb5be27d02328ebd255d8d40486a4bb8d790cba10846",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "0d1175f6b059c6b323f20ba99a60103be84c854fa60ec9acb67255c5415c7dbc",
+    "js/gfx.js": "022af7af377d6e3fe3df0ad28acef065857e8480c4a4e146613ead3e3d9b4e48",
+    "js/engine.js": "cfd2178d1fa8f4708495fca36cfbcf20738d92505615b1d7e6619c5a30d7621d",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/app.js": "29f81f64940ed93e6ae2897cd38136dd47a21410b8c63fa23d06c3c8bc5a3e33",
+    "js/design-ui.css": "3a8f022dec51d177d5efee1179276a485f9804c97f79935e2feb5c35ea22af6e",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "504382e27044d365f88439886a2128640aa2e0db58ed8b0b2ecafb8c83b51f75"
+  },
+  "sourceStable": true,
+  "completedAt": "2026-11-08T07:50:01.102Z"
+}

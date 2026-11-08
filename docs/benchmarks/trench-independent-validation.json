@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-08T08:48:32.065557+00:00",
+  "scope": "Final frozen-source independent Node verification. The feature suite uses actual authenticated native dreadnought hulls plus isolated real-UI-function async contract tests. The same old manual test is also run against immutable main and current; its failures remain failures, not passing feature assertions.",
+  "sourceSha256Before": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "tests/trench-armament-dreadnoughts.cjs": "c1022db81e4fd02c6e629521d83909cc508d916e097d1c7bb24d88025577debd",
+    "tests/trench-armament-async-ui.cjs": "a857418f632e2e6d65e613625be9755060f9b487c18d5e0468813a0a1b3d321c",
+    "tests/surface-embedded-manual.cjs": "eef4ec907d3a0167d2ef7ae88a5054881196505836e077e8d2aa1cda4f1ece83"
+  },
+  "sourceSha256After": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "c6f9cce9a72c8fccfe3650a25f213b27462a71e6d0e51f6645bbde06792943fc",
+    "js/gfx.js": "4d51ad4ebb7e29b141a0bb375310a8ce605b8d937fb80f12e6391ac1d9262aea",
+    "js/engine.js": "cfe8aa9c3e8f3430c28a66e7ac675b41e33ac06b16da4e2f3efafe8dcfa37d1e",
+    "js/app.js": "1bbb44b8d56436f17bbdba2e8352aa062a14135313cd46e16f761aafcfd526e3",
+    "tests/trench-armament-dreadnoughts.cjs": "c1022db81e4fd02c6e629521d83909cc508d916e097d1c7bb24d88025577debd",
+    "tests/trench-armament-async-ui.cjs": "a857418f632e2e6d65e613625be9755060f9b487c18d5e0468813a0a1b3d321c",
+    "tests/surface-embedded-manual.cjs": "eef4ec907d3a0167d2ef7ae88a5054881196505836e077e8d2aa1cda4f1ece83"
+  },
+  "sourceStable": true,
+  "fleetProfileVersion": 22,
+  "runs": [
+    {
+      "name": "feature",
+      "command": [
+        "node",
+        "--test",
+        "tests/trench-armament-dreadnoughts.cjs",
+        "tests/trench-armament-async-ui.cjs"
+      ],
+      "exitCode": 0,
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "log": "/workspace/scratch/trench-independent-feature.log",
+      "outputSha256": "3236046b7e1a422671f672c25582ce552f42b3a69cc0a813d3218b387bf78fca",
+      "failureSignatures": {
+        "missingMountedGun": 0,
+        "missingAuthoredTurretPose": 0
+      }
+    },
+    {
+      "name": "baseline-manual",
+      "command": [
+        "KS_TEST_ROOT=/workspace/kuat-baseline",
+        "node",
+        "--test",
+        "tests/surface-embedded-manual.cjs"
+      ],
+      "exitCode": 1,
+      "tests": 4,
+      "passed": 0,
+      "failed": 4,
+      "log": "/workspace/scratch/trench-independent-baseline-manual.log",
+      "outputSha256": "03643e8800649d034a8c451665e93f15521d4e26b6249b0410081e1d14579fbf",
+      "failureSignatures": {
+        "missingMountedGun": 6,
+        "missingAuthoredTurretPose": 1
+      }
+    },
+    {
+      "name": "current-manual",
+      "command": [
+        "node",
+        "--test",
+        "tests/surface-embedded-manual.cjs"
+      ],
+      "exitCode": 1,
+      "tests": 4,
+      "passed": 0,
+      "failed": 4,
+      "log": "/workspace/scratch/trench-independent-current-manual.log",
+      "outputSha256": "e8bf5936dd9c048c74f6e4a8355efd3522a3abfc6707c80cc9ad2459ba307762",
+      "failureSignatures": {
+        "missingMountedGun": 6,
+        "missingAuthoredTurretPose": 1
+      }
+    }
+  ],
+  "oldManualFailureNames": [
+    "actual manual-shot geometry emits at the compact port and keeps offset barrels in the wall plane",
+    "wall and roof ports aim straight outward while native fixed and manual casemate limits remain distinct",
+    "ordinary same-kind manual guns retain the original barrel advance and spread",
+    "space battle representative streams use the same embedded mouth without a hidden turret length"
+  ],
+  "featurePassed": true,
+  "oldManualBaselineMatched": true,
+  "status": "PASS_WITH_PREEXISTING_FAILURES"
+}
