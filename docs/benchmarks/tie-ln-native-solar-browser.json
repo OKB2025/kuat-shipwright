@@ -1,0 +1,494 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-11-08T22:52:47.138Z",
+  "sourceSha256": {
+    "index.html": "847bea6fcef0a292adab2efc9f7c16ee855d945a142237f6b96d71c5fbb9a1ea",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/core.js": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214"
+  },
+  "harnessSha256": "6fb536fcb995b095b38414fb477061ab0e79a02cb0be5cf350ffe05d0fc97c3c",
+  "scope": "Actual public craft_tie_ln production blueprint, settled by the native geometry/stats Worker and rendered by WebGL. Native pointer taps select both single-part solar wings; native read-only editor views expose the actual Core solar/cooling results. No authored geometry, source, mass or physics is patched by the harness.",
+  "conditions": {
+    "browser": "Chromium / SwiftShader",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "language": "Japanese",
+    "safari": "Not tested",
+    "performanceBenchmark": false,
+    "externalTelemetry": "Cloudflare RUM receives a local204 acknowledgement only."
+  },
+  "stages": [
+    {
+      "name": "Public TIE/ln settled through actual Worker with two native single-part solar wings",
+      "at": "2026-11-08T22:53:00.308Z"
+    },
+    {
+      "name": "Native pointer taps selected both wings; read-only native editors show solar generation and cooling",
+      "at": "2026-11-08T22:53:07.410Z"
+    }
+  ],
+  "screenshots": [
+    "docs/benchmarks/tie-ln-native-solar-browser.whole-craft.jpg",
+    "docs/benchmarks/tie-ln-native-solar-browser.starboard-panel.jpg",
+    "docs/benchmarks/tie-ln-native-solar-browser.starboard-readout.jpg",
+    "docs/benchmarks/tie-ln-native-solar-browser.port-panel.jpg",
+    "docs/benchmarks/tie-ln-native-solar-browser.port-readout.jpg"
+  ],
+  "errors": [],
+  "consoleErrors": [],
+  "expectedNodeStats": {
+    "sha256": "1cf8f772cb45b3882205d88aae0b60a29ef272cbbfeb5aa41628058300bdf063",
+    "massTonnes": 8.40651907301772,
+    "powerW": 3088413887674337000,
+    "scope": "Independent production Core stats for the same actual public blueprint; used for comparison only, never injected into the app."
+  },
+  "blueprint": {
+    "sha256": "d88a948741385f5fc54e50d34c3db93c75e6dcfe95277551796f8d403fd1f751",
+    "name": "TIE/ln 制宙戦闘機",
+    "reference": "craft_tie_ln",
+    "parts": 25,
+    "fits": 2,
+    "solarPanelIds": [
+      1,
+      2
+    ],
+    "provenance": "Fresh Core.buildDesign(craft_tie_ln), supplied by the separate production Node validation. Input remains outside this repository report."
+  },
+  "engine": "worker",
+  "renderer": "webgl",
+  "initialRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 11,
+    "lastFrame": 12395.2,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 169
+  },
+  "design": {
+    "name": "TIE/ln 制宙戦闘機",
+    "reference": "craft_tie_ln",
+    "parts": 25,
+    "fits": 2,
+    "massTonnes": 8.40651907301772,
+    "powerW": 3088413887674337000,
+    "reactorPowerW": 3027841958074337000,
+    "solarPowerW": 60571929600000000,
+    "panelRows": [
+      {
+        "id": 1,
+        "label": "太陽電池翼",
+        "k": "solarPanel",
+        "center": [
+          1.2350000000000003,
+          1.236,
+          2.9865
+        ],
+        "size": [
+          7.24,
+          8.346,
+          0.08
+        ],
+        "mirrorId": 2,
+        "roll": 90,
+        "outline": [
+          [
+            -0.5,
+            0
+          ],
+          [
+            -0.33535911602209945,
+            0.5
+          ],
+          [
+            0.33535911602209945,
+            0.5
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            0.33535911602209945,
+            -0.5
+          ],
+          [
+            -0.33535911602209945,
+            -0.5
+          ]
+        ],
+        "panelBracing": "radial",
+        "panelFrame": 0.2,
+        "panelRib": 0.27,
+        "triangles": 20,
+        "bounds": [
+          -2.384999990463257,
+          -2.936999797821045,
+          2.946500062942505,
+          4.855000019073486,
+          5.408999919891357,
+          3.0264999866485596
+        ],
+        "solidVolumeM3": 4.03812459791652,
+        "areaM2": 50.476608,
+        "solarPowerW": 30285964800000000,
+        "coolingCapacityW": 252383040000000000,
+        "confirmedWingStats": {
+          "area": 50.476608,
+          "solarP": 30285964800000000,
+          "capOpen": 252383040000000000,
+          "mass": 1.0935825976195312,
+          "feedMass": 0.03936897351430312
+        }
+      },
+      {
+        "id": 2,
+        "label": "太陽電池翼",
+        "k": "solarPanel",
+        "center": [
+          1.2350000000000003,
+          1.236,
+          -2.9865
+        ],
+        "size": [
+          7.24,
+          8.346,
+          0.08
+        ],
+        "mirrorId": 1,
+        "roll": -90,
+        "outline": [
+          [
+            -0.5,
+            0
+          ],
+          [
+            -0.33535911602209945,
+            -0.5
+          ],
+          [
+            0.33535911602209945,
+            -0.5
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            0.33535911602209945,
+            0.5
+          ],
+          [
+            -0.33535911602209945,
+            0.5
+          ]
+        ],
+        "panelBracing": "radial",
+        "panelFrame": 0.2,
+        "panelRib": 0.27,
+        "triangles": 20,
+        "bounds": [
+          -2.384999990463257,
+          -2.936999797821045,
+          -3.0264999866485596,
+          4.855000019073486,
+          5.408999919891357,
+          -2.946500062942505
+        ],
+        "solidVolumeM3": 4.0381245979165215,
+        "areaM2": 50.476608,
+        "solarPowerW": 30285964800000000,
+        "coolingCapacityW": 252383040000000000,
+        "confirmedWingStats": {
+          "area": 50.476608,
+          "solarP": 30285964800000000,
+          "capOpen": 252383040000000000,
+          "mass": 1.0935825976195315,
+          "feedMass": 0.03936897351430313
+        }
+      }
+    ],
+    "retiredSeparateWingParts": [],
+    "solarVerticesInActualWorkerMesh": 4632,
+    "structGpuIndices": 57888,
+    "coreVersion": 2,
+    "gen": 1,
+    "statsGen": 1,
+    "geometryGen": 1
+  },
+  "selections": [
+    {
+      "id": 1,
+      "tap": {
+        "world": [
+          2.1350000000000002,
+          2.136,
+          2.9865
+        ],
+        "screen": [
+          683.9024320090688,
+          345.5975687955936,
+          0.944602670459138
+        ],
+        "hitId": 1
+      },
+      "infoText": "太陽電池翼 (2)\n閉じる\n種類\n太陽光パネル\nID\n#1\n寸法\n7.240 × 8.346 × 0.080 m\n位置 XYZ（m）\n1.235 / 1.236 / 2.987\n体積\n4.038 m³\n質量\n0 t\n接続状態\n接続済み\n\n最新確定\n\n編集\n複製\n削除\n複数",
+      "editorText": "太陽光パネルの散熱・発電\n100% · 0%\nエネルギー伝達（付け根）\n補強\nパネル面積\n50.477 m²\n集電出力\n3.0×10¹⁶ W\n放熱能力（両面）\n2.5×10¹⁷ W\n\nTIE の太陽電池翼のように、片面で集電して艦の発電に加わり、翼そのものの両面で熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。\n\n翼内の設備\n0\n最大散熱能力（展開）\n2.5×10¹⁷ W\n主翼の質量\n1 t\n伝達路・補強の質量\n0 t\n翼の形を頂点編集できる形に変換\n\n翼の形は「編集」タブの頂点編集で変えられます。蓄電池や構造維持装置などは翼内に配置できます。",
+      "actualWorkerSolarW": 30285964800000000,
+      "actualWorkerCoolingW": 252383040000000000
+    },
+    {
+      "id": 2,
+      "tap": {
+        "world": [
+          2.1350000000000002,
+          2.136,
+          -2.9865
+        ],
+        "screen": [
+          596.0975679909312,
+          345.5975687955936,
+          0.944602670459138
+        ],
+        "hitId": 2
+      },
+      "infoText": "太陽電池翼 (2)\n閉じる\n種類\n太陽光パネル\nID\n#2\n寸法\n7.240 × 8.346 × 0.080 m\n位置 XYZ（m）\n1.235 / 1.236 / -2.987\n体積\n4.038 m³\n質量\n0 t\n接続状態\n接続済み\n\n最新確定\n\n編集\n複製\n削除\n複数",
+      "editorText": "太陽光パネルの散熱・発電\n100% · 0%\nエネルギー伝達（付け根）\n補強\nパネル面積\n50.477 m²\n集電出力\n3.0×10¹⁶ W\n放熱能力（両面）\n2.5×10¹⁷ W\n\nTIE の太陽電池翼のように、片面で集電して艦の発電に加わり、翼そのものの両面で熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。\n\n翼内の設備\n0\n最大散熱能力（展開）\n2.5×10¹⁷ W\n主翼の質量\n1 t\n伝達路・補強の質量\n0 t\n翼の形を頂点編集できる形に変換\n\n翼の形は「編集」タブの頂点編集で変えられます。蓄電池や構造維持装置などは翼内に配置できます。",
+      "actualWorkerSolarW": 30285964800000000,
+      "actualWorkerCoolingW": 252383040000000000
+    }
+  ],
+  "publicDesignUnchanged": true,
+  "nativeInput": [
+    {
+      "type": "pointerdown",
+      "target": "cv",
+      "trusted": true
+    },
+    {
+      "type": "pointerup",
+      "target": "cv",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "target": "cv",
+      "trusted": true
+    },
+    {
+      "type": "pointerdown",
+      "target": "BUTTON",
+      "trusted": true
+    },
+    {
+      "type": "pointerup",
+      "target": "BUTTON",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "target": "BUTTON",
+      "trusted": true
+    },
+    {
+      "type": "pointerdown",
+      "target": "close",
+      "trusted": true
+    },
+    {
+      "type": "pointerup",
+      "target": "close",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "target": "close",
+      "trusted": true
+    },
+    {
+      "type": "pointerdown",
+      "target": "cv",
+      "trusted": true
+    },
+    {
+      "type": "pointerup",
+      "target": "cv",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "target": "cv",
+      "trusted": true
+    },
+    {
+      "type": "pointerdown",
+      "target": "BUTTON",
+      "trusted": true
+    },
+    {
+      "type": "pointerup",
+      "target": "BUTTON",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "target": "BUTTON",
+      "trusted": true
+    },
+    {
+      "type": "pointerdown",
+      "target": "close",
+      "trusted": true
+    },
+    {
+      "type": "pointerup",
+      "target": "close",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "target": "close",
+      "trusted": true
+    }
+  ],
+  "glDraws": [
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    },
+    {
+      "mesh": "struct",
+      "indices": 57888,
+      "calls": 1
+    }
+  ],
+  "finalRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 25,
+    "lastFrame": 19494.9,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 259
+  },
+  "glError": 0,
+  "servedSourceSha256": {
+    "index.html": "847bea6fcef0a292adab2efc9f7c16ee855d945a142237f6b96d71c5fbb9a1ea",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/core.js": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/app.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "847bea6fcef0a292adab2efc9f7c16ee855d945a142237f6b96d71c5fbb9a1ea",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/core.js": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214"
+  },
+  "sourceStable": true,
+  "harnessStable": true,
+  "completedAt": "2026-11-08T22:53:07.452Z"
+}

@@ -1,0 +1,83 @@
+Immutable baseline 7840e8e6a9fbe321aa950c574e5d6ee3ec737d71
+
+a sub-cubic-metre wing is a damageable dissipator in a fleet heat profile
+tests/direct-thermal-wing-core.cjs:45
+destroying the wing removes its heat-rejection capacity
+
+background geometry updates preserve and rebuild an active stowed preview
+tests/foil-pivot-ui.cjs:98
+Expected values to be strictly equal:
+
+0 !== 1
+
+
+removing or converting the last S-foil clears its stowed preview when the engine catches up
+tests/foil-pivot-ui.cjs:117
+Expected values to be strictly equal:
+
+'stow' !== null
+
+
+duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins
+tests/runtime-foils-copy.cjs:39
+Expected values to be strictly deep-equal:
++ actual - expected
+
+[
++   10,
+-   30,
+5,
+8
+]
+
+
+copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates
+tests/runtime-foils-copy.cjs:56
+designEntityEditable is not defined
+
+copying a foil without any carried children drops source references and keeps automatic roots automatic
+tests/runtime-foils-copy.cjs:66
+Expected values to be strictly equal:
+
+true !== false
+
+
+the new internal rails stay inside their engine and mirror with it throughout S-foil travel
+tests/runtime-foils-core.cjs:42
+rigid rail centre[1]: 2.692585229874521 != 2.692585332884771
+
+normal catalogue cards and legacy recent selections place a dedicated wing without a structural host
+tests/thermal-wing-ui.cjs:22
+The expression evaluated to a falsy value:
+
+assert.ok(run('refresh().wings[0].capOpen')>0)
+
+
+preselecting low temperature cooling puts that function directly on the placed wing
+tests/thermal-wing-ui.cjs:28
+The expression evaluated to a falsy value:
+
+assert.ok(run('refresh().wings[0].capOpen')>0)
+
+
+changing the wing cooling mode records a normal undo step and keeps the geometry
+tests/thermal-wing-ui.cjs:37
+The expression evaluated to a falsy value:
+
+assert.ok(run('S.wings[0].capOpen')>0)
+
+
+fractional size guidance and metric fields retain exact decimal values in English
+tests/wing-localization.cjs:47
+The expression evaluated to a falsy value:
+
+assert.ok(note)
+
+
+# tests 49
+# pass 38
+# fail 11
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11258.102039

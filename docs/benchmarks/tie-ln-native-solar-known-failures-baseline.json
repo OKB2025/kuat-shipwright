@@ -1,0 +1,162 @@
+{
+  "status": "PRE_EXISTING_FAILURES_REPRODUCED",
+  "date": "2026-11-08T22:55:21.181832+00:00",
+  "scope": "Six unchanged related test files on immutable origin/main sources. This baseline does not validate the new TIE/ln wings and does not change or waive failing tests.",
+  "baselineCommit": "7840e8e6a9fbe321aa950c574e5d6ee3ec737d71",
+  "sourceExtraction": {
+    "method": "git show <baselineCommit>:<path>, written as independent copies in an isolated directory",
+    "workspace": "/workspace/scratch/tie-ln-native-solar-baseline",
+    "paths": [
+      "js/core.js",
+      "js/app.js",
+      "js/gfx.js",
+      "js/lang-en.js",
+      "js/i18n.js",
+      "data/reference.js",
+      "data/imperial2.js",
+      "data/fleet.js",
+      "tests/direct-thermal-wing-core.cjs",
+      "tests/foil-pivot-ui.cjs",
+      "tests/runtime-foils-copy.cjs",
+      "tests/runtime-foils-core.cjs",
+      "tests/thermal-wing-ui.cjs",
+      "tests/wing-localization.cjs"
+    ]
+  },
+  "command": [
+    "env",
+    "KS_TEST_ROOT=/workspace/scratch/tie-ln-native-solar-baseline",
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "/workspace/scratch/tie-ln-native-solar-baseline/tests/direct-thermal-wing-core.cjs",
+    "/workspace/scratch/tie-ln-native-solar-baseline/tests/foil-pivot-ui.cjs",
+    "/workspace/scratch/tie-ln-native-solar-baseline/tests/runtime-foils-copy.cjs",
+    "/workspace/scratch/tie-ln-native-solar-baseline/tests/runtime-foils-core.cjs",
+    "/workspace/scratch/tie-ln-native-solar-baseline/tests/thermal-wing-ui.cjs",
+    "/workspace/scratch/tie-ln-native-solar-baseline/tests/wing-localization.cjs"
+  ],
+  "exitCode": 1,
+  "summary": {
+    "tests": 49,
+    "pass": 38,
+    "fail": 11,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "sourceSha256": {
+    "js/core.js": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "tests/direct-thermal-wing-core.cjs": "3e25c68d238b9b83e42109c4ed7bf89a8990e7c297733a9b545e45580686fcd4",
+    "tests/foil-pivot-ui.cjs": "96f161a203115cc22aba43c18a4c7b7428d1aa530b40ed67bb967371b9be68f9",
+    "tests/runtime-foils-copy.cjs": "0d9c434808d28524efcc6942c550c78005168f77a59a57b954811c3b6d0992c8",
+    "tests/runtime-foils-core.cjs": "730ea7235f521935c6b4097ed4a06f0e5959b1988166f35451f91d0f8d86164e",
+    "tests/thermal-wing-ui.cjs": "cb2dd5571c23ce1d5bbae965c072eedf5b9822f3ca8cdcf8c3b2f199eab0820c",
+    "tests/wing-localization.cjs": "f29ce57fa70330eac86daa3228eff3575c3138f671eecc0a98b64c12b80ca925"
+  },
+  "testFilesUnchangedInCandidate": true,
+  "sourcesStable": true,
+  "failures": [
+    {
+      "name": "a sub-cubic-metre wing is a damageable dissipator in a fleet heat profile",
+      "file": "tests/direct-thermal-wing-core.cjs",
+      "line": 45,
+      "error": "destroying the wing removes its heat-rejection capacity"
+    },
+    {
+      "name": "background geometry updates preserve and rebuild an active stowed preview",
+      "file": "tests/foil-pivot-ui.cjs",
+      "line": 98,
+      "error": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "removing or converting the last S-foil clears its stowed preview when the engine catches up",
+      "file": "tests/foil-pivot-ui.cjs",
+      "line": 117,
+      "error": "Expected values to be strictly equal:\n\n'stow' !== null\n"
+    },
+    {
+      "name": "duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins",
+      "file": "tests/runtime-foils-copy.cjs",
+      "line": 39,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n[\n+   10,\n-   30,\n5,\n8\n]\n"
+    },
+    {
+      "name": "copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates",
+      "file": "tests/runtime-foils-copy.cjs",
+      "line": 56,
+      "error": "designEntityEditable is not defined"
+    },
+    {
+      "name": "copying a foil without any carried children drops source references and keeps automatic roots automatic",
+      "file": "tests/runtime-foils-copy.cjs",
+      "line": 66,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "name": "the new internal rails stay inside their engine and mirror with it throughout S-foil travel",
+      "file": "tests/runtime-foils-core.cjs",
+      "line": 42,
+      "error": "rigid rail centre[1]: 2.692585229874521 != 2.692585332884771"
+    },
+    {
+      "name": "normal catalogue cards and legacy recent selections place a dedicated wing without a structural host",
+      "file": "tests/thermal-wing-ui.cjs",
+      "line": 22,
+      "error": "The expression evaluated to a falsy value:\n\nassert.ok(run('refresh().wings[0].capOpen')>0)\n"
+    },
+    {
+      "name": "preselecting low temperature cooling puts that function directly on the placed wing",
+      "file": "tests/thermal-wing-ui.cjs",
+      "line": 28,
+      "error": "The expression evaluated to a falsy value:\n\nassert.ok(run('refresh().wings[0].capOpen')>0)\n"
+    },
+    {
+      "name": "changing the wing cooling mode records a normal undo step and keeps the geometry",
+      "file": "tests/thermal-wing-ui.cjs",
+      "line": 37,
+      "error": "The expression evaluated to a falsy value:\n\nassert.ok(run('S.wings[0].capOpen')>0)\n"
+    },
+    {
+      "name": "fractional size guidance and metric fields retain exact decimal values in English",
+      "file": "tests/wing-localization.cjs",
+      "line": 47,
+      "error": "The expression evaluated to a falsy value:\n\nassert.ok(note)\n"
+    }
+  ],
+  "candidateComparison": {
+    "candidateLogSha256": "b92e7bffd37d16ff6ad880981bfd3115167364c9165d18189c8b7549717ada90",
+    "summary": {
+      "tests": 144,
+      "pass": 133,
+      "fail": 11,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "matchingFailureNames": [
+      "a sub-cubic-metre wing is a damageable dissipator in a fleet heat profile",
+      "background geometry updates preserve and rebuild an active stowed preview",
+      "removing or converting the last S-foil clears its stowed preview when the engine catches up",
+      "duplicate remaps foil assemblies and translates hinges while retaining hosts and mirrored twins",
+      "copy and scaled paste remap only included members and transform the explicit hinge in ship coordinates",
+      "copying a foil without any carried children drops source references and keeps automatic roots automatic",
+      "the new internal rails stay inside their engine and mirror with it throughout S-foil travel",
+      "normal catalogue cards and legacy recent selections place a dedicated wing without a structural host",
+      "preselecting low temperature cooling puts that function directly on the placed wing",
+      "changing the wing cooling mode records a normal undo step and keeps the geometry",
+      "fractional size guidance and metric fields retain exact decimal values in English"
+    ],
+    "allElevenFailureNamesMatch": true
+  },
+  "fullLogSha256": "7b9f272788b9355fde215421e5547a61271605c06ed150125d87de64d36a52ec",
+  "shortLog": "docs/benchmarks/tie-ln-native-solar-known-failures-baseline.log",
+  "shortLogSha256": "34394be58a2334f4f3d673b4c7cb2c29a37b245fb871ef16f3eccfe78fe836ab"
+}
