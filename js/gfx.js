@@ -990,6 +990,29 @@ const FS_PT = `precision mediump float;varying vec4 vC;void main(){float d=lengt
 function yawMatrix(t){const c=Math.cos(t),s=Math.sin(t);return [c,0,s,0,1,0,-s,0,c];}
 function mat3Mul(A,B){const o=new Array(9);for(let c=0;c<3;c++)for(let r=0;r<3;r++)o[c*3+r]=A[r]*B[c*3]+A[3+r]*B[c*3+1]+A[6+r]*B[c*3+2];return o;}
 const MAT3_I=[1,0,0,0,1,0,0,0,1];
+// Reject only a complete uploaded mesh outside one camera clip plane. These
+// are rendering bounds, not replacement geometry for selection or physics.
+// Use the vertex shader's exact scale/centre/rotation/translation order so
+// fleet poses, moving turrets and mirrored previews keep their visible faces.
+function meshOutsideView(renderer,mesh,matrix,scale){
+ const b=mesh.bb,V=matrix?.VP;if(!b||b.length!==6||!V||V.length!==16||!b.every(Number.isFinite)||b.some((v,i)=>i<3&&v>b[i+3]))return false;
+ const center=renderer.modelCenter||[0,0,0],R=renderer.modelRot||(renderer.modelYaw?yawMatrix(renderer.modelYaw):MAT3_I),off=renderer.off||[0,0,0],s=scale||[1,1,1];let outside=63;
+ // Include terms before cancellation: GPU float32 arithmetic can differ from
+ // CPU doubles when a large local coordinate is close to the model centre.
+ const ax=Math.max(Math.abs(b[0]*s[0]),Math.abs(b[3]*s[0]))+Math.abs(center[0]),ay=Math.max(Math.abs(b[1]*s[1]),Math.abs(b[4]*s[1]))+Math.abs(center[1]),az=Math.max(Math.abs(b[2]*s[2]),Math.abs(b[5]*s[2]))+Math.abs(center[2]),
+  wx=Math.abs(R[0])*ax+Math.abs(R[3])*ay+Math.abs(R[6])*az+Math.abs(off[0]),wy=Math.abs(R[1])*ax+Math.abs(R[4])*ay+Math.abs(R[7])*az+Math.abs(off[1]),wz=Math.abs(R[2])*ax+Math.abs(R[5])*ay+Math.abs(R[8])*az+Math.abs(off[2]),
+  slack=1e-5*Math.max(1,...[0,1,2,3].map(i=>Math.abs(V[i])*wx+Math.abs(V[4+i])*wy+Math.abs(V[8+i])*wz+Math.abs(V[12+i])));
+ if(!Number.isFinite(slack))return false;
+ for(let corner=0;corner<8;corner++){
+  const x=b[corner&1?3:0]*s[0]-center[0],y=b[corner&2?4:1]*s[1]-center[1],z=b[corner&4?5:2]*s[2]-center[2],
+   px=R[0]*x+R[3]*y+R[6]*z+off[0],py=R[1]*x+R[4]*y+R[7]*z+off[1],pz=R[2]*x+R[5]*y+R[8]*z+off[2],
+   cx=V[0]*px+V[4]*py+V[8]*pz+V[12],cy=V[1]*px+V[5]*py+V[9]*pz+V[13],cz=V[2]*px+V[6]*py+V[10]*pz+V[14],cw=V[3]*px+V[7]*py+V[11]*pz+V[15];
+  if(!Number.isFinite(cx+cy+cz+cw))return false;
+  outside&=(cx< -cw-slack?1:0)|(cx>cw+slack?2:0)|(cy< -cw-slack?4:0)|(cy>cw+slack?8:0)|(cz< -cw-slack?16:0)|(cz>cw+slack?32:0);
+  if(!outside)return false;
+ }
+ return true;
+}
 // Coruscant for the trial flights: an analytic ecumenopolis sphere drawn per
 // pixel behind the ship. Lengths are in planet radii to keep float precision.
 const FS_PLANET = `#ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -1679,6 +1702,7 @@ class Renderer {
   }
   drawRay(name, m, alpha) {
     const mm = this.meshes[name]; if (!mm || !mm.count) return;
+    if(meshOutsideView(this,mm,m,this.meshScale?.[name]))return;
     const gl = this.gl;
     if (this.pray === undefined) { try { this.pray = compile(gl, VS_MESH, FS_RAY); } catch (e) { console.error(e); this.pray = null; } }
     const p = this.pray; if (!p) { gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); this.drawMesh(name, m, 0.6 * alpha); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); return; }
@@ -1702,6 +1726,7 @@ class Renderer {
   setLights(k){const c=k==='off'?null:SHIP_LIGHTS[k]||SHIP_LIGHTS.white;this.lightCol=c||[0,0,0];this.lightK=c?1:0;}
   drawMesh(name, m, alpha, emi) {
     const mm = this.meshes[name]; if (!mm || !mm.count) return;
+    if(meshOutsideView(this,mm,m,this.unitScl||this.meshScale?.[name]))return;
     const gl = this.gl, p = this.pm, source=MESH_SOURCE[name]||name, tx = this.tex[MESH_TEX[name] || 'hull'];
     gl.useProgram(p.p);
     const lit=this.lightK>0&&LIGHT_MESHES.has(source)&&(alpha==null||alpha>.9),ports=this.lightK>0&&source==='surfaceDevices'&&(alpha==null||alpha>.9);gl.uniform1f(p.u.uLightK,lit?this.lightK:0);gl.uniform1f(p.u.uPortK,ports?this.lightK:0);
@@ -2068,7 +2093,7 @@ function meshOnePart(out,p,ship,opt,glow){
     if(k==='engineCore'){engineCoreMesh(out.interior,p,color);return;}
     if(k==='sensor'){sensorShell(out.struct,p,color);return;}
     // v21 A cockpit shows as tinted canopy glass where it stands out of the hull; an astromech as its dome.
-    if(k==='cockpit'){sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
+    if(k==='cockpit'){const canopy=C.canopyTriangles?.(p);if(canopy)triangleMesh(out.struct,canopy,opt.coded?color:CANOPY_GLASS,36);else sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
     if(k==='astromech'){const r=p.d/2,u=C.norm(p.dir||[0,1,0]),h=p.d*1.05,base=C.sub(p.c,C.mul(u,h/2)),top=C.add(p.c,C.mul(u,h*.18));axisFrustum(C.isInternal(p)?out.interior:out.struct,base,top,r*.82,r*.82,opt.coded?color:[188,196,204],false);if(!C.isInternal(p))sphere(out.struct,top,r*.8,opt.coded?color:ASTRO_DOME,8,3);return;}
     if(d.shape==='sphere'){sphere(C.isInternal(p)?out.interior:k==='gen'?out.gen:out.shield,p.c,p.d/2,color,8,3);return;}
     if(d.shape==='cube'){if(p.room||p._clip){roomMesh(ship,p,k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,color);}else{const r=p.d/2;boxSolid(k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,C.sub(p.c,[r,r,r]),C.add(p.c,[r,r,r]),color,32);}return;}
@@ -2149,6 +2174,7 @@ function meshHull(ship){
   if(!ship.solidCuts?.length&&!equipment.length)plateDetail(ship,g);return g;
 }
 function roomMesh(ship,p,g,col){
+  if(p.placement?.pendingGeometry||p.placement?.validationFailed){triangleMesh(g,C.structTriangles(C.roomShape(p)),col,36);return;}
   let T=p._clip?.tris||C.structTriangles(C.roomShape(p));for(const h of ship.hatches.filter(h=>h.bay===p.id)){const b=C.openingBounds(ship,h);if(b)T=C.subtractBoxMesh(T,b);}
   let front=T,back=T;
   if(ship.hatches.some(h=>h.bay===p.id&&h.hullOwner)){
@@ -2300,17 +2326,115 @@ function placementSurfaceHits(ship,o,d,parents,patches,options){
  hits.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));
  return hits;
 }
+function placementSurveyReady(ship){const proxy=ship?._geoProxy;return Array.isArray(proxy?.surfaces)&&(proxy.surfacePartitions===undefined||proxy.surfacePartitions===JSON.stringify(ship.surfaces?.partitions||null));}
+function placementAuthoringHullKey(ship){return C.publicJSON([ship.hull,ship.cuts||[],ship.subs||[],ship.trenches||[],ship.solidCuts||[],ship.hatches||[],(ship.fits||[]).filter(f=>C.isShipLauncher(f)&&C.shipLauncherConfig(f).embedded)]);}
+function placementRayBeforeBounds(o,d,b,limit){return b?.length===6&&b.every(Number.isFinite)&&(fitRayStartsInside(o,b)||((C.rayAABB(o,d,b)?.t??Infinity)<limit));}
+function placementAuthoringOccluded(ship,o,d,limit,options){
+ // A cold pick must not construct hundreds of weapon meshes on the input
+ // thread. Warm exact meshes decide visibility; a potentially closer cold
+ // mesh conservatively waits rather than selecting through its bounds.
+ for(const fit of ship.fits||[]){
+  if(noModelFit(fit)||!C.FITS[fit.k])continue;
+  const key=JSON.stringify([fit,C.fitSpec(fit),fit._store],(k,v)=>k.startsWith('_')?undefined:v),cached=FIT_RAY_CACHE.get(fit),known=FIT_RAY_BOUNDS.get(fit),bounds=known?.key===key?known.bounds:fitRayColdBounds(fit);
+  if(!placementRayBeforeBounds(o,d,bounds,limit))continue;
+  if(cached?.key!==key)return true;
+  if(C.rayTris(cached.T,o,d,limit))return true;
+ }
+ for(const part of ship.parts||[]){
+  if(part.id===options.excludePartId||C.isShapePart?.(part)||isStructuralPart(part)||!C.PARTS[part.k]||!part.c)continue;
+  let bounds=C.partAABB(part);
+  if(part.k==='engine'){
+   // The skin may extend beyond the physical cylinder. Its authored corner
+   // transform is cheap; decoding/building that skin on a pointer is not.
+   const appearance=C.engineAppearance?.(part)||part,asset=C.REFERENCE_ASSETS[appearance.skinAsset];
+   if(asset&&C.referenceEnginePoint)for(const x of [-.50004,.50004])for(const y of [-.50004,.50004])for(const z of [-.50004,.50004]){const p=C.referenceEnginePoint(appearance,[x,y,z],asset);for(let a=0;a<3;a++){bounds[a]=Math.min(bounds[a],p[a]);bounds[a+3]=Math.max(bounds[a+3],p[a]);}}
+  }
+  if(!placementRayBeforeBounds(o,d,bounds,limit))continue;
+  // Packed solids already have their real triangles. Ordinary primitives
+  // have exact bounded ray tests; reference skins wait for their real mesh.
+  const cached=part._packing?.tris||part._clip?.tris;
+  if(cached){if(C.rayTris(cached,o,d,limit))return true;continue;}
+  if(part.k==='engine'||part.skinAsset||part.weaponBody)return true;
+  const hit=C.rayPart(o,d,part);if(hit&&hit.t<limit)return true;
+ }
+ return false;
+}
+const PLACEMENT_ACCEPTED_RAY_CACHE=new WeakMap();
+const PLACEMENT_DRAFT_PREVIEWS=new WeakMap(),PLACEMENT_DRAFT_PREVIEW_RESULTS=new WeakMap();
+function publishPlacementDraftPreview(ship,meshes){
+ const prepared=PLACEMENT_DRAFT_PREVIEW_RESULTS.get(meshes);if(!prepared||prepared.source!==ship)return false;
+ PLACEMENT_DRAFT_PREVIEWS.set(ship,prepared.entries);return true;
+}
+function placementRenderedDraftTriangles(ship,part){
+ if(!part?.placement?.pendingGeometry||part.placement.validationFailed)return null;
+ const record=PLACEMENT_DRAFT_PREVIEWS.get(ship)?.get(part.id);if(!record||record.inputKey!==C.placementPendingInputKey(part))return null;
+ if(record.triangles)return record.triangles;
+ const chunks=[record.value.preview,record.value.previewRef].filter(chunk=>chunk?.ni>0),count=chunks.reduce((n,chunk)=>n+chunk.ni*3,0);if(!count)return null;
+ const triangles=new Float32Array(count);let cursor=0;
+ for(const chunk of chunks)for(let i=0;i<chunk.ni;i++){const index=chunk.idx[i]*3;triangles[cursor++]=chunk.pos[index];triangles[cursor++]=chunk.pos[index+1];triangles[cursor++]=chunk.pos[index+2];}
+ return record.triangles=triangles;
+}
+
+function placementAcceptedTriangles(ship,part){
+ if(!C.placementCachedGeometryCurrent?.(ship,part))return null;
+ const geometry=part._placementGeometry,key=JSON.stringify([part.c,part.yaw,part.pitch,part.roll,part.surfaceNormal]),old=PLACEMENT_ACCEPTED_RAY_CACHE.get(part);
+ if(old?.geometry===geometry&&old.key===key)return old.triangles;
+ const triangles=new Float64Array(geometry.local.length);for(let i=0;i<triangles.length;i+=3)triangles.set(C.worldStruct(part,Array.from(geometry.local.subarray(i,i+3))),i);
+ PLACEMENT_ACCEPTED_RAY_CACHE.set(part,{geometry,key,triangles});return triangles;
+}
+function placementPendingBounds(part,ship){
+ if(!part){const h=ship.hull;part={k:'struct',form:'hull',c:[h.L/2,h.H/2,0],s:[h.L,h.W,h.H],hullProfile:h};}
+ if(!part.c?.every(Number.isFinite)||!part.s?.every(v=>Number.isFinite(v)&&v>0)||!isStructuralPart(part))return null;
+ let points=[],local=null;const [l,w,h]=part.s,form=part.form||'trap';
+ if(form==='mesh'&&Array.isArray(part.mesh?.v))local=part.mesh.v.map(v=>[v[0]*l,v[1]*h,v[2]*w]);
+ else if(form==='reference')return C.refPartBounds?.(part)||null;
+ else if(form==='hull'){
+  const profile=part.hullProfile||{},rows=profile.stations||[],width=Math.max(1,profile.stern||0,profile.bowW||0,...rows.map(row=>Math.abs(row[1]||0))),height=Math.max(1,profile.bowH||0,...rows.map(row=>Math.abs(row[2]||0))),offset=Math.max(0,...rows.map(row=>Math.abs(row[3]||0)));
+  for(const x of [-l/2,l/2])for(const y of [-h*(height/2+offset),h*(height/2+offset)])for(const z of [-w*width/2,w*width/2])points.push(C.worldStruct(part,[x,y,z]));
+ }else if(['box','trap','wedge','cylinder','cone','dome','ellipsoid'].includes(form)){
+  const angles=(part.angles||[]).map(v=>Math.abs(Math.tan(v*Math.PI/180))),x=l/2+Math.abs(part.offsetX||0)+h*Math.max(0,...angles.slice(0,2)),z=w/2+Math.abs(part.offsetZ||0)+h*Math.max(0,...angles.slice(2));
+  for(const a of [-x,x])for(const b of [-h/2,h/2])for(const c of [-z,z])points.push(C.worldStruct(part,[a,b,c]));
+ }else return null;
+ if(local)points=local.map(point=>C.worldStruct(part,point));if(!points.length||points.some(point=>!point.every(Number.isFinite)))return null;
+ const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(const point of points)for(let a=0;a<3;a++){bounds[a]=Math.min(bounds[a],point[a]);bounds[a+3]=Math.max(bounds[a+3],point[a]);}return bounds;
+}
+function placementAuthoringHits(ship,o,d,parents,patches,options){
+ const source=ship._placementSource||ship,proxy=ship._geoProxy,survey=placementSurveyReady(ship),rows=proxy?.placementBodies;
+ if(!ship._client||!source._editorGeometryContext&&!PLACEMENT_DRAFT_PREVIEWS.has(source)||!o?.every(Number.isFinite)||!d?.every(Number.isFinite)||C.len(d)<1e-12)return [];
+ const currentContext=ship._placementGeometryContext==null||ship._placementGeometryContext===source._editorGeometryContext,direction=C.norm(d),bodies=new Map((rows||[]).map(body=>[body.parentStructureId,body])),hits=[],unknown=[];
+ for(const [host,parent]of parents){
+  const id=parent?.id??'hull',body=bodies.get(id),partContext=parent?._placementResolvedGeometryContext,accepted=parent&&(currentContext||partContext!=null&&partContext===ship._placementGeometryContext)?placementAcceptedTriangles(source,parent):null,provisional=parent?placementRenderedDraftTriangles(source,parent):null,bodyCurrent=!parent?.placement?.pendingGeometry&&!parent?.placement?.validationFailed&&source._editorGeometryContext!=null&&currentContext&&body?.triangles?.length&&(!parent||parent._editorGeometryContext===source._editorGeometryContext)&&(!parent?._placementGeometry||!!accepted)&&body.sourceKey===(parent?C.publicJSON(parent):placementAuthoringHullKey(source));
+  const semantic=!parent?.placement?.pendingGeometry&&!parent?.placement?.validationFailed&&source._editorGeometryContext!=null&&survey&&currentContext&&(bodyCurrent||!rows&&!accepted)&&(!parent?true:!parent._placementGeometry||!!accepted),selected=semantic?patches.filter(patch=>patch.host===host):[];
+  if(selected.length){hits.push(...placementSurfaceHits(ship,o,d,new Map([[host,parent]]),selected,options));continue;}
+  // A complete survey with an unchanged known parent is authoritative even
+  // if that parent has no exposed patch. New accepted solids are different:
+  // their real Worker geometry is useful before the next survey catches up.
+  if(options.surfaceId||semantic&&bodyCurrent)continue;
+  const triangles=provisional||accepted||(!survey&&bodyCurrent?body.triangles:null);
+  if(triangles){const hit=C.rayTris(triangles,o,direction,options.maxDistance);if(hit)hits.push({host,point:hit.p,p:hit.p,n:hit.n,t:hit.t,distance:hit.t,part:parent,kind:parent?'part':'hull',parentStructureId:id,semanticPending:true,...(provisional?{provisional:true}:{} )});}
+  else if(!semantic||!selected.length&&!bodyCurrent)unknown.push(placementPendingBounds(parent,source));
+ }
+ hits.sort((a,b)=>a.distance-b.distance||String(a.parentStructureId).localeCompare(String(b.parentStructureId)));
+ const distance=hits[0]?.distance??options.maxDistance??Infinity;
+ if(unknown.some(bounds=>!bounds||placementRayBeforeBounds(o,direction,bounds,distance)))return [];
+ if(hits[0]?.semanticPending&&!options.includeOccluded&&placementAuthoringOccluded(source,o,direction,distance,options))return [];
+ return hits;
+}
 function structureSurfaceCandidates(ship,o,d,parentStructureId,options={}){
  if(!ship||parentStructureId==null||parentStructureId===options.excludePartId)return [];
- const parent=parentStructureId==='hull'?null:ship.parts.find(p=>p.id===parentStructureId&&(C.isShapePart?.(p)||isStructuralPart(p)));
+ const source=ship._placementSource||ship,parent=parentStructureId==='hull'?null:source.parts.find(p=>p.id===parentStructureId&&(C.isShapePart?.(p)||isStructuralPart(p)));
  if(parentStructureId!=='hull'&&!parent||parentStructureId==='hull'&&ship.hull.assembly)return [];
- return placementSurfaceHits(ship,o,d,new Map([[parent?'p'+parent.id:'hull',parent]]),placementParentPatches(ship,parentStructureId),options);
+ const parents=new Map([[parent?'p'+parent.id:'hull',parent]]),patches=placementParentPatches(ship,parentStructureId);
+ if(ship._client&&(Array.isArray(ship._geoProxy?.placementBodies)||!placementSurveyReady(ship)||parent?._placementGeometry||parent?.placement?.pendingGeometry))return placementAuthoringHits(ship,o,d,parents,patches,options);
+ return placementSurfaceHits(ship,o,d,parents,patches,options);
 }
 function placementSurfaceCandidates(ship,o,d,options={}){
- if(!ship)return [];const parents=new Map();
+ if(!ship)return [];const source=ship._placementSource||ship,parents=new Map();
  if(!ship.hull.assembly&&options.excludePartId!=='hull')parents.set('hull',null);
- for(const part of ship.parts)if(part.id!==options.excludePartId&&(C.isShapePart?.(part)||isStructuralPart(part)))parents.set('p'+part.id,part);
- return placementSurfaceHits(ship,o,d,parents,placementParentPatches(ship),options);
+ for(const part of source.parts)if(part.id!==options.excludePartId&&(C.isShapePart?.(part)||isStructuralPart(part)))parents.set('p'+part.id,part);
+ const patches=placementParentPatches(ship);
+ if(ship._client&&(Array.isArray(ship._geoProxy?.placementBodies)||!placementSurveyReady(ship)||[...parents.values()].some(part=>part?._placementGeometry||part?.placement?.pendingGeometry)))return placementAuthoringHits(ship,o,d,parents,patches,options);
+ return placementSurfaceHits(ship,o,d,parents,patches,options);
 }
 const PLACEMENT_COLORS=Object.freeze({pending:[105,195,220,255],valid:[95,196,138,255],invalid:[236,106,92,255],disconnected:[236,106,92,255]});
 const PLACEMENT_FIT_MESH_CACHE=new WeakMap();
@@ -2873,7 +2997,7 @@ function meshRayField(g,ship,h,b,open){
 function convexRim(points){const a=points.slice().sort((p,q)=>p[0]-q[0]||p[2]-q[2]),cross=(o,a,b)=>(a[0]-o[0])*(b[2]-o[2])-(a[2]-o[2])*(b[0]-o[0]),lo=[],hi=[];for(const p of a){while(lo.length>1&&cross(lo.at(-2),lo.at(-1),p)<=.001)lo.pop();lo.push(p);}for(const p of a.slice().reverse()){while(hi.length>1&&cross(hi.at(-2),hi.at(-1),p)<=.001)hi.pop();hi.push(p);}return lo.slice(0,-1).concat(hi.slice(0,-1));}
 
 function engineBell(out,p,a,b,u,color,glow,ship){
- const hasSkin=!!C.REFERENCE_ASSETS[C.engineAppearance(p)?.skinAsset],r=p.d/2,on=C.engineVented(ship,p)&&!!C.reactorFor(ship,p),f=C.frameAxis(u),throat=C.clamp(p.throatRatio??.34,.18,.8),tip=C.add(a,C.mul(u,C.len(C.sub(b,a))*.16));
+ const hasSkin=!!C.REFERENCE_ASSETS[C.engineAppearance(p)?.skinAsset],r=p.d/2,on=!p.placement?.pendingGeometry&&!p.placement?.validationFailed&&C.engineVented(ship,p)&&!!C.reactorFor(ship,p),f=C.frameAxis(u),throat=C.clamp(p.throatRatio??.34,.18,.8),tip=C.add(a,C.mul(u,C.len(C.sub(b,a))*.16));
  if(!hasSkin){
  axisFrustum(out.engine,a,b,r*.6,r,color,false);
  // The inside of the bell must face inward; reversing the axis alone is insufficient.
@@ -3228,9 +3352,9 @@ function buildPreviewMeshes(ship,parts,fits,opt={}){
  // Requested internal envelopes can extend outside the ship. Keep their editor
  // outlines until the engine returns the clipped solid, in every view mode.
  // Surface-role volumes are diagnostic too, even when backed by an adapter.
- const plain=parts.filter(p=>(p.k==='engineCore'||!C.isInternal(p))&&!(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch)).map(p=>(opt.requestedPart||previewRequestedPart)(p));
+ const plain=parts.filter(p=>(p.placement?.pendingGeometry||p.placement?.validationFailed||p.k==='engineCore'||!C.isInternal(p))&&!(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch)).map(p=>(opt.requestedPart||previewRequestedPart)(p));
  for(const p of plain)meshOnePart(out,p,ship,{coded:!!opt.coded,preview:true},glow);
- const engines=new Set(plain.filter(p=>p.k==='engine').map(p=>p.id));
+ const engines=new Set(plain.filter(p=>p.k==='engine'&&!p.placement?.pendingGeometry&&!p.placement?.validationFailed).map(p=>p.id));
  if(engines.size){const replacements=new Map(plain.map(p=>[p.id,p])),model={...ship,parts:ship.parts.map(p=>replacements.get(p.id)||p)};for(const p of plain)if(!model.parts.some(q=>q.id===p.id))model.parts.push(p);for(const p of C.engineMachineryPaths(model))if(engines.has(p.nozzle))meshOnePart(out,p,model,{coded:!!opt.coded,preview:true},glow);}
  if(opt.coded)for(let i=3;i<g.n*4;i+=4)if(g.col[i]===251)g.col[i]=255;
  const ref=meshReferenceParts(ship,null,plain,{preview:true}),refG=new Geo(64);for(const k of ['refStruct','refEngine','refPlant'])if(ref[k].ni)appendGeo(refG,ref[k]);
@@ -3267,7 +3391,7 @@ function incrementalPreviewMeshes(cache,entries,glow){
  return {...state.groups,glow};
 }
 function clearPreviewCache(ship){
- for(const f of ship?.fits||[])FIT_RAY_SOURCES.delete(f);PREVIEW_SHIPS.delete(ship);
+ for(const f of ship?.fits||[])FIT_RAY_SOURCES.delete(f);PREVIEW_SHIPS.delete(ship);PLACEMENT_DRAFT_PREVIEWS.delete(ship);
 }
 // Keep unchanged draft chunks and GPU buffers while the worker builds. New
 // or edited items take priority; the remaining initial draft fills while idle.
@@ -3290,9 +3414,22 @@ function meshPreview(ship,parts,fits,opt={}){
  const urgentParts=opt.priorityParts||[],urgentFits=opt.priorityFits||[],urgent=new Set();
  if(urgentParts.length+urgentFits.length<=8){for(const p of urgentParts)urgent.add(p.k==='engine'?'engines':p.id==null?p:'p'+p.id);for(const f of urgentFits)urgent.add(f.id==null?f:'f'+f.id);}
  const clock=()=>typeof performance!=='undefined'?performance.now():Date.now(),deadline=clock()+Math.max(0,opt.budgetMs??6),tasks=plan.tasks.filter(task=>!cache.visible.has(task.token)).sort((a,b)=>Number(urgent.has(b.token))-Number(urgent.has(a.token)));let processed=0;
- for(const task of tasks){const priority=urgent.has(task.token);if(opt.progressive&&!priority&&(opt.deferBackground||processed>=8||processed>0&&clock()>=deadline))continue;let item=task.store.get(task.id);if(item?.key!==task.key){if(task.sourceParts&&opt.canMeshPart&&!task.sourceParts.every(opt.canMeshPart))continue;item={key:task.key,value:compactPreviewMeshes(task.build())};task.store.set(task.id,item);if(task.after)task.after(item.value);}cache.visible.set(task.token,{token:task.token,key:task.key,value:item.value});processed++;}
+ for(const task of tasks){const priority=urgent.has(task.token);if(opt.progressive&&!priority&&(opt.deferBackground||processed>=8||processed>0&&clock()>=deadline))continue;let item=task.store.get(task.id);if(item?.key!==task.key){if(task.sourceParts&&opt.canMeshPart&&!task.sourceParts.every(opt.canMeshPart))continue;item={key:task.key,value:compactPreviewMeshes(task.build()),placementPendingInputKey:task.sourceParts?.length===1&&task.sourceParts[0].placement?.pendingGeometry?C.placementPendingInputKey(task.sourceParts[0]):null};task.store.set(task.id,item);if(task.after)task.after(item.value);}cache.visible.set(task.token,{token:task.token,key:task.key,value:item.value});processed++;}
  const entries=plan.tasks.map(task=>cache.visible.get(task.token)).filter(Boolean),glow=[];for(const entry of entries)if(entry.value.glow?.length)for(const n of entry.value.glow)glow.push(n);
- let result;if(opt.incremental)result=incrementalPreviewMeshes(cache,entries,glow);else{const groups={};for(const k of PREVIEW_GROUPS)groups[k]=new Geo(64);for(const entry of entries)for(const k of PREVIEW_GROUPS)if(entry.value[k].ni)appendGeo(groups[k],entry.value[k]);result={...groups,glow};}
+ let result;if(opt.incremental)result=incrementalPreviewMeshes(cache,entries,glow);else{
+  const groups={};for(const k of PREVIEW_GROUPS){groups[k]=new Geo(64);groups[k].bounds=null;}
+  for(const entry of entries)for(const k of PREVIEW_GROUPS)if(entry.value[k].ni){
+   const g=groups[k],block=entry.value[k];appendGeo(g,block);
+   // Keep the exact bounds already measured for each cached geometry block.
+   // Catalogue cameras must include manual pedestals outside a turret's body.
+   if(block.bounds){if(!g.bounds)g.bounds=block.bounds.slice();else for(let a=0;a<3;a++){g.bounds[a]=Math.min(g.bounds[a],block.bounds[a]);g.bounds[a+3]=Math.max(g.bounds[a+3],block.bounds[a+3]);}}
+  }
+  result={...groups,glow};
+ }
+ if(opt.placementDraftPickable){
+  const visible=new Map();for(const task of plan.tasks){if(task.sourceParts?.length!==1)continue;const part=ship.parts.find(part=>part.id===task.id),item=task.store.get(task.id),entry=cache.visible.get(task.token);if(!part?.placement?.pendingGeometry||part.placement.validationFailed||!item?.placementPendingInputKey||entry?.value!==item.value||item.placementPendingInputKey!==C.placementPendingInputKey(part)||!(item.value.preview.ni||item.value.previewRef.ni))continue;visible.set(part.id,{inputKey:item.placementPendingInputKey,value:item.value});}
+  PLACEMENT_DRAFT_PREVIEW_RESULTS.set(result,{source:ship,entries:visible});
+ }
  if(opt.progressive)result.pending=entries.length<plan.tasks.length;return result;
 }
 
@@ -3673,6 +3810,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, clearPreviewCache, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh};
+return {meshPreview, clearPreviewCache, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh};
 })();
 

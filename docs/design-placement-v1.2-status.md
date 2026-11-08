@@ -8,6 +8,11 @@
 大量のトレンチ兵装は砲種×舷で集約し、左右の実充電区画と射撃・実給電へ接続する。
 追加12条件は [トレンチ砲群の追補](design-trench-armament-addendum.md)で既存37件と分けて扱う。
 
+その後の画面・連続配置・接触側切除・部品分類の変更は
+[設計操作の追補](design-ui-refinement.md)を参照する。
+以下の初版ブラウザ記録にある「詳細」「確定」は取得時点の操作であり、
+現在の入口は「設置一覧」「性能」と、タップ後の自動配置に変更した。
+
 ## 変更の接続先
 
 - `index.html`, `js/design-ui.css`, `js/app.js`: 全面3D、実諸元、下部メニューとドロワー。
@@ -32,15 +37,15 @@
 |UI-03|実装済|砲塔の通常取付と、追加のノズル支持台を既存取付へ接続。支持台は実形状で接触・選択・保存を共用。|
 |UI-04|実装済|`interior-placement-modes.cjs`, ブラウザのcargo/hangar選択。|
 |UI-05|実装済|同上とengineCore/battery選択。固定形状の切断・縮小を拒否。|
-|GEO-01|実装済|`structure-placement-modes.cjs` の楔上の水平屋根、実接触、容積。|
+|GEO-01|実装済|`structure-placement-modes.cjs` の既存水平屋根に加え、追補の`structure-contact-cut.cjs`と`native-structure-contact-cut.cjs`で親と重なる子だけを切除。姿勢・上面・実接触・容積を確認。|
 |GEO-02|実装済|同上の面配置。法線追従、専用フィットなし。|
 |GEO-03|実装済|`interior-placement-modes.cjs`, `placement-worker-integration.cjs`。要求1000／有効800m³。|
 |GEO-04|実装済|同上。800m³母体への1000m³容積維持を原状保持して拒否。|
 |GEO-05|部分実装|連結したcargo/fuel区画の容積維持を検証。一部機械の変形寸法は未校正で明示拒否。|
 |GEO-06|実装済|`interior-placement-modes.cjs` の固定球・円筒・設備干渉と実寸維持。|
-|DATA-01|実装済|`placement-worker-integration.cjs`, 保存互換試験、ブラウザ保存・Undo/Redo。実Workerで適用・取消・通常保存の拒否・下書き保全・1回のUndoを確認。|
+|DATA-01|実装済|`placement-worker-integration.cjs`, 保存互換試験、ブラウザ保存・Undo/Redo。追補では未計算の元入力も保存可能とし、安定ID・世代・1回のUndoを保持。未検証の新規配置から完成艦プロフィールを作らない。|
 |DATA-02|実装済|旧保存に新モードを推測しない。4作例の同一保存図面で形状設定と物理値を比較。既存リポジトリ収録のユーザー図面は後述の支持台試験で使用。今回の画像から図面を検証済みとはしない。|
-|PERF-01|部分実装|`design-placement-async-ui.cjs`, Worker世代試験。大型艦の初回semantic面データ未準備時は配置拒否。接触群の同期削除と実機性能は残課題。|
+|PERF-01|部分実装|`design-placement-async-ui.cjs`と追補の即時配置・早期実形状選択・Worker世代試験。全艦の面調査前でも実形状をタップし、計算中の移動・削除・カメラ操作を受理。接触群の同期削除と実機性能は残課題。|
 |PERF-02|実装済|既存`editor-interaction-performance.cjs`, `editor-preview-incremental.cjs`。フレーム単位の軽量更新。|
 |MOBILE-01|部分実装|`design-placement-orientation.cjs` と縦横タッチharness。実iPhone/Safariは未検証。|
 |I18N-01|実装済|日本語／英語辞書と実ブラウザの切替・配置失敗表示を検証。FITS追加エラーも辞書へ登録。|

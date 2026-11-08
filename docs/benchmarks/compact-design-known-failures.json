@@ -1,0 +1,102 @@
+{
+  "scope": "Supplementary existing failures, kept separate from the focused passing regression suite. These tests are not reported as passed.",
+  "baseline": "a4d3251141ad7f42caaa6248a6e58c8691ed9f21",
+  "sources": {
+    "js/core.js": "bcbd53791572b8e2359838a76fe31e4cd861ec625c618bfa4e00b79a86de1f25",
+    "js/app.js": "ea25b8342f63913851d4a7357dd09a588d2a1a44d4c79060353425258e4cfbae",
+    "js/gfx.js": "49d8f4515f683ae22f2daa40b62b94db2a8e11dd21391c8eb70716d75a25a5f1",
+    "js/engine.js": "725f9016d6da28975af14709beeb515df5e2f5093d5354c100ebb1c07ffaf567",
+    "index.html": "466ab4cdf7eced9a5b288a4aaae55bdc88a3c90225e181ef06cf2c81c28cb779"
+  },
+  "renderer": {
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "tests/armor-skin-renderer.cjs",
+      "tests/screenshot-renderer.cjs",
+      "tests/runtime-foils-renderer.cjs",
+      "tests/surface-renderer.cjs"
+    ],
+    "baselineCommandEnvironment": {
+      "KS_TEST_ROOT": "separate baseline source directory verified against git HEAD for all five loaded source files"
+    },
+    "baseline": {
+      "baseline": "a4d3251141ad7f42caaa6248a6e58c8691ed9f21",
+      "exitCode": 1,
+      "summary": [
+        "# tests 34",
+        "# pass 22",
+        "# fail 12"
+      ],
+      "failures": [
+        "not ok 2 - surface armor keeps its charged thickness and exact outer boundary while repaint changes only its color",
+        "not ok 3 - only native armor receives the plating marker, with machinery backing, solar collectors, ports and coded colors isolated",
+        "not ok 6 - geometry partitions wing, carried structures and fittings without duplicate deployed triangles",
+        "not ok 23 - legacy role interfaces retain installed capacities without persistent devices at cosmetic detail zero",
+        "not ok 24 - surface visual seeds are reproducible and density changes preserve mount IDs, mass, crew and capacity",
+        "not ok 25 - saving and loading the same design restores device anchors and seeded surface detail exactly",
+        "not ok 28 - surface ornament footprints keep clear of actual turret envelopes and remain bounded by the patch",
+        "not ok 30 - surface armor, equipment ports and actual guns remain attached to an animated S-foil",
+        "not ok 31 - Canvas2D fleet LOD also separates decorative meshes from the physical armor shell",
+        "not ok 32 - both renderers retain embedded metadata and use the combat center for independent uncommanded turrets",
+        "not ok 33 - an independent turret on a surface-enabled foil moves without needing an aiming update",
+        "not ok 34 - far surface assets omit cosmetic and turret meshes even when the ship supplies aiming poses"
+      ]
+    },
+    "current": {
+      "summary": [
+        "# tests 34",
+        "# pass 22",
+        "# fail 12",
+        "# skipped 0",
+        "# duration_ms 9644.082462"
+      ],
+      "failures": [
+        "not ok 2 - surface armor keeps its charged thickness and exact outer boundary while repaint changes only its color",
+        "not ok 3 - only native armor receives the plating marker, with machinery backing, solar collectors, ports and coded colors isolated",
+        "not ok 6 - geometry partitions wing, carried structures and fittings without duplicate deployed triangles",
+        "not ok 23 - legacy role interfaces retain installed capacities without persistent devices at cosmetic detail zero",
+        "not ok 24 - surface visual seeds are reproducible and density changes preserve mount IDs, mass, crew and capacity",
+        "not ok 25 - saving and loading the same design restores device anchors and seeded surface detail exactly",
+        "not ok 28 - surface ornament footprints keep clear of actual turret envelopes and remain bounded by the patch",
+        "not ok 30 - surface armor, equipment ports and actual guns remain attached to an animated S-foil",
+        "not ok 31 - Canvas2D fleet LOD also separates decorative meshes from the physical armor shell",
+        "not ok 32 - both renderers retain embedded metadata and use the combat center for independent uncommanded turrets",
+        "not ok 33 - an independent turret on a surface-enabled foil moves without needing an aiming update",
+        "not ok 34 - far surface assets omit cosmetic and turret meshes even when the ship supplies aiming poses"
+      ]
+    },
+    "sameFailingTests": true,
+    "baselineLogSha256": "afdb1ab9449ac86a093a83e2bd0648e76e3e62b4715be12c0dd33e77e2aa83f7",
+    "currentLogSha256": "0bdadf844a18cf0a0d21fbc27fd5814c476d77690fa13cbe894d127821286716"
+  },
+  "propulsion": {
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "tests/propulsion-model.cjs"
+    ],
+    "baseline": {
+      "tests": 12,
+      "pass": 11,
+      "fail": 1,
+      "message": "a reactor moved outside the hull cannot earn a free outside transmission route",
+      "logSha256": "18b53f8ebb83c00b2d948beb1577ed6f1fa3711f916ab47f7da3b1c9c4135b7f"
+    },
+    "current": {
+      "summary": [
+        "# tests 12",
+        "# pass 11",
+        "# fail 1",
+        "# skipped 0",
+        "# duration_ms 12595.145997"
+      ],
+      "failures": [
+        "not ok 4 - integrated nozzle edits retain body dimensions and rating while keeping the body attached"
+      ]
+    },
+    "currentLogSha256": "1485acd7023f00c750e2a635cd2ec601400a83ecd18fa7595dffe192d18c548d"
+  }
+}

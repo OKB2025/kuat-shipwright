@@ -96,12 +96,16 @@ test('worker cache packing produces plain editor data and reference markers only
  run(`const calls=[],part={id:1,k:'struct'},fit={id:10,k:'gun'},ship={hull:{L:100},parts:[part],fits:[fit],hatches:[]};
  const rows={engineParts:[{id:-1,drivetrain:true,owner:ship}],commands:[{id:-2,source:part}],capacitors:[{id:-3,source:fit}],missileCells:[{id:-4}],transmission:{routes:[{id:'feed',lossW:3}]},drive:{routes:[{id:'shaft',capacityW:97}]}};
  const get=(name,key)=>s=>{calls.push(name);if(s!==ship)throw Error('wrong source');return rows[key];};
- const C={isShapePart:p=>p.k==='struct',hullGeo:()=>({tris:new Float32Array(9)}),referenceHullGeometry:()=>null,surfacePatches:()=>[],enginePaths:get('enginePaths','engineParts'),commandCompartments:get('commandCompartments','commands'),weaponCapacitors:get('weaponCapacitors','capacitors'),missileCells:get('missileCells','missileCells'),engineTransmission:get('engineTransmission','transmission'),engineDriveRoutes:get('engineDriveRoutes','drive')};`);
+ const actualTriangles=new Float32Array([0,0,0,1,0,0,0,0,1]);
+ const C={isShapePart:p=>p.k==='struct',structTriangles:()=>actualTriangles,publicJSON:p=>JSON.stringify(p,(k,v)=>k[0]==='_'?undefined:v),isShipLauncher:()=>false,hullGeo:()=>({tris:new Float32Array(9)}),referenceHullGeometry:()=>null,surfacePatches:()=>[],enginePaths:get('enginePaths','engineParts'),commandCompartments:get('commandCompartments','commands'),weaponCapacitors:get('weaponCapacitors','capacitors'),missileCells:get('missileCells','missileCells'),engineTransmission:get('engineTransmission','transmission'),engineDriveRoutes:get('engineDriveRoutes','drive')};`);
  run(section(engine,'const SHIP_SKIP =','// Exact authored pick geometry'));
  run('const full=packCaches(ship,{deferSurfaces:true});');assert.deepEqual(plain(run('Object.keys(full.editor).sort()')),['capacitors','commands','drive','engineParts','missileCells','transmission']);
  assert.deepEqual(plain(run('full.editor.engineParts[0].owner')),{$r:'ship'});assert.deepEqual(plain(run('full.editor.commands[0].source')),{$r:'parts',id:1});assert.deepEqual(plain(run('full.editor.capacitors[0].source')),{$r:'fits',id:10});
  assert.equal(run('full.editor.transmission.routes[0].lossW'),3);assert.equal(run('full.editor.drive.routes[0].capacityW'),97);assert.equal(run('calls.length'),6);
  run('calls.length=0;const early=packCaches(ship,{authoring:true,deferSurfaces:true});');assert.equal(run('early.editor'),undefined);assert.deepEqual(plain(run('calls')),[],'early authoring messages must not start expensive engineering just to prepare a camera snapshot');
+ assert.equal(run('early.geoProxy.placementBodies[0].triangles===actualTriangles'),true,'early picking reuses the exact warmed typed mesh');
+ assert.equal(run('early.geoProxy.placementBodies[0].sourceKey'),JSON.stringify({id:1,k:'struct'}));
+ assert.equal(run('early.geoProxy.placementBodies[1].parentStructureId'),'hull');assert.equal(run('full.geoProxy.placementBodies[0].triangles===actualTriangles'),true);
 });
 
 function catalogueSetup(){
@@ -172,7 +176,7 @@ test('ordinary hull picks reuse the worker BVH while embedded ship launchers ret
 });
 
 test('hover ray work is coalesced and camera pointer or wheel input cancels it before it can block',()=>{
- const cx=vm.createContext({}),run=code=>vm.runInContext(code,cx);run(`const performance={now:()=>0},timers=new Map(),picks=[],listeners={};let nextTimer=0,queuedHover=null,hoverTimer=0,hoverLines=null,ship={fits:[]},dragSnap=null;const fleet={mode:'design'},trial={on:false},shot={on:false},eng={gen:1},live={pointerActive:false},view={cam:{r:1000}},tool=()=> 'fit',previewInput=()=>{},requestDraw=()=>{},ghostFor=x=>x,refreshOverlay=()=>{},pick=(x,y)=>{picks.push([x,y]);return{x,y};},setTimeout=fn=>(timers.set(++nextTimer,fn),nextTimer),clearTimeout=id=>timers.delete(id),canvas={addEventListener:(name,fn)=>listeners[name]=fn,setPointerCapture(){}};`);
+ const cx=vm.createContext({}),run=code=>vm.runInContext(code,cx);run(`const performance={now:()=>0},timers=new Map(),picks=[],listeners={};let nextTimer=0,queuedHover=null,hoverTimer=0,hoverLines=null,ship={fits:[]},dragSnap=null;const fleet={mode:'design'},trial={on:false},shot={on:false},eng={gen:1},live={pointerActive:false},view={cam:{r:1000}},tool=()=> 'fit',designUIInspectMode=()=>false,previewInput=()=>{},requestDraw=()=>{},ghostFor=x=>x,refreshOverlay=()=>{},pick=(x,y)=>{picks.push([x,y]);return{x,y};},setTimeout=fn=>(timers.set(++nextTimer,fn),nextTimer),clearTimeout=id=>timers.delete(id),canvas={addEventListener:(name,fn)=>listeners[name]=fn,setPointerCapture(){}};`);
  for(const name of ['cancelQueuedHover','onHover','attachControls'])run(fn(app,name));run('attachControls(canvas);onHover(10,20);onHover(30,40)');assert.equal(run('picks.length'),0);assert.equal(run('timers.size'),1);
  run('listeners.pointerdown({pointerId:1,clientX:30,clientY:40,button:2,pointerType:"mouse"})');assert.equal(run('timers.size'),0);assert.equal(run('picks.length'),0);
  run('onHover(50,60);listeners.wheel({deltaY:20,preventDefault(){}})');assert.equal(run('timers.size'),0);assert.equal(run('picks.length'),0);assert.ok(run('view.cam.r>1000'));
@@ -181,7 +185,7 @@ test('hover ray work is coalesced and camera pointer or wheel input cancels it b
 
 test('queued hover from a changed generation or active camera gesture cannot perform a stale pick',()=>{
  for(const change of ['eng.gen++','ship={fits:[]}','live.pointerActive=true','dragSnap={held:true}']){
-  const cx=vm.createContext({}),run=code=>vm.runInContext(code,cx);run(`let timer,queuedHover=null,hoverTimer=0,hoverLines=null,ship={fits:[]},dragSnap=null,picks=0;const fleet={mode:'design'},trial={on:false},view={},eng={gen:1},live={pointerActive:false},tool=()=> 'fit',ghostFor=x=>x,refreshOverlay=()=>{},pick=()=>{picks++;},setTimeout=fn=>(timer=fn,1),clearTimeout=()=>{};`);run(fn(app,'onHover'));run('onHover(1,2)');run(change);run('timer()');assert.equal(run('picks'),0,change);
+  const cx=vm.createContext({}),run=code=>vm.runInContext(code,cx);run(`let timer,queuedHover=null,hoverTimer=0,hoverLines=null,ship={fits:[]},dragSnap=null,picks=0;const fleet={mode:'design'},trial={on:false},view={},eng={gen:1},live={pointerActive:false},tool=()=> 'fit',designUIInspectMode=()=>false,ghostFor=x=>x,refreshOverlay=()=>{},pick=()=>{picks++;},setTimeout=fn=>(timer=fn,1),clearTimeout=()=>{};`);run(fn(app,'onHover'));run('onHover(1,2)');run(change);run('timer()');assert.equal(run('picks'),0,change);
  }
 });
 

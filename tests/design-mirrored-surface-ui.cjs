@@ -28,3 +28,12 @@ test('an unverifiable mirror clears the old confirmation and reports failure bef
  const eng={gen:2},requests=[],posts=[],diagnostics=[],view={setPlacementDiagnostics:(s,d)=>diagnostics.push(d)};let hoverLines={valid:true};
  const tool=()=> 'fit',designParents=()=>ship.parts,designUIFitDraft=()=>structuredClone(part),designUIBar=()=>{},requestDraw=()=>{},toast=()=>{},YardEngineClient={post:p=>posts.push(p),request:(type,payload)=>{requests.push(payload);throw Error('No failed mirror should reach the Worker')}};
  `);t.run(fn('designUIRejectTap'));t.run(fn('designUIRequest'));t.run('designUIRequest({...request.hit,parentStructureId:1})');assert.equal(t.run('requests.length'),0);assert.equal(t.run('designUI.pending.state'),'failed');assert.equal(t.run('designUI.pending.request'),null);assert.match(t.run('designUI.pending.result.error'),/対称側の取付面を確認できません/);assert.equal(t.run('hoverLines'),null);assert.equal(t.run('diagnostics.at(-1)'),null);assert.equal(JSON.stringify(input),before);});
+
+test('only a verified pending semantic hit can omit its stable face ID for mirrored Worker validation',()=>{
+ const input=fitRequest(),t=setup({...input,respond:hit=>{const raw={...hit,semanticPending:true};delete raw.hostSurfaceId;return [raw];}}),rows=t.rows(),mirror=rows[1];
+ assert.equal(mirror.request.hostSurfaceId,undefined,'the UI never invents a semantic face ID');
+ assert.equal(mirror.request.parentStructureId,2,'the selected mirrored parent stays explicit');
+ vector(mirror.request.hit.p,t.calls[0].hit.p);
+ assert.equal(mirror.request.hit.semanticPending,undefined,'ephemeral Gfx validation flags are not persisted');
+ for(const respond of [hit=>{const raw={...hit};delete raw.hostSurfaceId;return [raw];},hit=>[{...hit,semanticPending:true,hostSurfaceId:''}],hit=>[{...hit,semanticPending:true,hostSurfaceId:undefined,parentStructureId:99}]])assert.throws(()=>setup({...input,respond}).rows(),/対称側の取付面を確認できません/);
+});

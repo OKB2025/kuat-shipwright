@@ -11,7 +11,8 @@ test('ordinary exterior equipment requires an explicit structure and real surfac
 });
 
 test('all normal exterior kinds keep direct mode and reject the three structure modes',()=>{
- for(const k of ['engine','sensor','scanner','shield','localShield']){const s=fixture(),p=equipment(k),r=C.solvePlacement(s,p,request());assert.equal(r.ok,true,k+': '+r.error);assert.equal(r.part.placement.mode,'direct');assert.equal(r.part.placement.parentStructureId,1);for(const mode of ['horizontal','vertical','surface'])assert.equal(C.solvePlacement(s,p,request({mode})).code,'placement-mode');}
+ for(const k of ['engine','sensor','scanner','cockpit']){const s=fixture(),p=equipment(k),r=C.solvePlacement(s,p,request());assert.equal(r.ok,true,k+': '+r.error);assert.equal(r.part.placement.mode,'direct');assert.equal(r.part.placement.parentStructureId,1);for(const mode of ['horizontal','vertical','surface'])assert.equal(C.solvePlacement(s,p,request({mode})).code,'placement-mode');}
+ for(const k of ['shield','localShield']){assert.equal(C.placementCapability({k}).space,'interior',k+' is now an interior generator');const s=fixture(),p={...equipment(k),c:[0,0,0]};assert.equal(C.solvePlacement(s,p,{mode:'direct',hostId:1}).ok,true);for(const mode of ['horizontal','vertical','surface'])assert.equal(C.solvePlacement(s,p,{mode,hostId:1}).code,'placement-mode');}
 });
 
 test('parent translation and rotation carry exterior sensors through a saved rigid pose',()=>{

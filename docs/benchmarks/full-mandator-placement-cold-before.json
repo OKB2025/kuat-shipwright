@@ -1,0 +1,90 @@
+{
+  "status": "ERROR",
+  "date": "2026-11-08T10:20:08.408Z",
+  "sourceSha256": {
+    "index.html": "c211562dcfd880b9e7fd84890206eea7d5500119fd39438a945f890e811f4fc5",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "d526e99a2d8e2ee1d17ce1e0e02a495ea04e802cfa94d6c6620fead7e921f06b",
+    "js/gfx.js": "75cd286461e84dc0faef363ada3798611d05fa5771c99938f404a6b11fddfd45",
+    "js/engine.js": "3f3d2f3aaf5edf3a122d411a8a6a5888a56ad2da3bb4e101f8bc0439f2ba9ded",
+    "js/app.js": "3a6aaebea4261e98f87582ace81e5b43939faeb58d5cac9a5af061dedf944c84",
+    "js/design-ui.css": "cb88a77700ffb2d1ce569bb3ac7d2bb03e314219581c43e8d17d7a9a2b5fc0f2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "aa1025d49ad182c422cc071ef56814f899b303e55223f55db856a9a2d196d5e1"
+  },
+  "harnessSha256": "7c3f30487bd6b24048130426815fca7c96abfabd199d22d360fcc3f40b450f45",
+  "fixture": {
+    "archive": "assets/source/ship-example-blueprints/mandator2.json.gz",
+    "unpackedSha256": "929cf99f72436e643fd8531e9684772ae467f48a6c14fb25cc704bca801bb5a5",
+    "originalParts": 318,
+    "originalFits": 535,
+    "removedFitId": 358,
+    "parentId": 1154,
+    "semanticFace": "p1154:top:2:12e2bm3"
+  },
+  "scope": "Full318-part Mandator with534 existing fittings. Native fullscreen catalog, real Gfx semantic-face pick, one native canvas tap, strict independent placement Worker and automatic commit. No parent-only extraction, custom face proxy, or geometry simplification.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "safari": "Not tested",
+    "concurrentActivity": "The compact-design responsive Chromium SwiftShader functional suite may run concurrently under root coordination; the Node444-case suite has finished. This is functional timing and heap observation, not a controlled graphics/device comparison.",
+    "controlledDeviceBenchmark": false,
+    "memory": "CDP main-page and newly created placement Worker heaps. Other workers, GPU, process RSS and device peak excluded."
+  },
+  "stages": [
+    {
+      "name": "boot",
+      "at": "2026-11-08T10:20:09.288Z"
+    },
+    {
+      "name": "full-authored-ship-seeded",
+      "at": "2026-11-08T10:20:17.940Z"
+    }
+  ],
+  "errors": [
+    "HTTP source: response.body: Protocol error (Network.getResponseBody): Request content was evicted from inspector cache\nResponse body is not available for a response that was navigated away from. Read response.body() before triggering any navigation."
+  ],
+  "stage": "full-authored-ship-seeded",
+  "mainHeapBefore": {
+    "usedSize": 51256920,
+    "totalSize": 61116416,
+    "embedderHeapUsedSize": 7918080,
+    "backingStorageSize": 45694401
+  },
+  "seed": {
+    "parts": 318,
+    "fits": 534,
+    "gen": 1,
+    "parentId": 1154
+  },
+  "error": "page.waitForFunction: Timeout 90000ms exceeded.\n    at /workspace/kuat-shipwright/scripts/browser-full-placement-latency.cjs:71:16",
+  "sourceSha256After": {
+    "index.html": "c211562dcfd880b9e7fd84890206eea7d5500119fd39438a945f890e811f4fc5",
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "d526e99a2d8e2ee1d17ce1e0e02a495ea04e802cfa94d6c6620fead7e921f06b",
+    "js/gfx.js": "75cd286461e84dc0faef363ada3798611d05fa5771c99938f404a6b11fddfd45",
+    "js/engine.js": "3f3d2f3aaf5edf3a122d411a8a6a5888a56ad2da3bb4e101f8bc0439f2ba9ded",
+    "js/app.js": "3a6aaebea4261e98f87582ace81e5b43939faeb58d5cac9a5af061dedf944c84",
+    "js/design-ui.css": "cb88a77700ffb2d1ce569bb3ac7d2bb03e314219581c43e8d17d7a9a2b5fc0f2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "aa1025d49ad182c422cc071ef56814f899b303e55223f55db856a9a2d196d5e1"
+  },
+  "servedSourceSha256": {
+    "index.html": "c211562dcfd880b9e7fd84890206eea7d5500119fd39438a945f890e811f4fc5",
+    "js/design-ui.css": "cb88a77700ffb2d1ce569bb3ac7d2bb03e314219581c43e8d17d7a9a2b5fc0f2",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "js/gfx.js": "75cd286461e84dc0faef363ada3798611d05fa5771c99938f404a6b11fddfd45",
+    "js/engine.js": "3f3d2f3aaf5edf3a122d411a8a6a5888a56ad2da3bb4e101f8bc0439f2ba9ded",
+    "js/app.js": "3a6aaebea4261e98f87582ace81e5b43939faeb58d5cac9a5af061dedf944c84",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "d526e99a2d8e2ee1d17ce1e0e02a495ea04e802cfa94d6c6620fead7e921f06b"
+  }
+}
