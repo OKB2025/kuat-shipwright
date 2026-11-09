@@ -76,6 +76,7 @@ def yc_at(x):
 def top_at(x): return np.interp(x,xs,[f['top'] for f in F])
 def bot_at(x): return np.interp(x,xs,[f['bot'] for f in F])
 bridge=(5850,6320,-280,280,1400)  # bridge and neck footprint above the city roof are the source bridge asset
+MERGE=float(sys.argv[3]) if len(sys.argv)>3 else .88
 band=float(sys.argv[1]) if len(sys.argv)>1 else 40.;minA=float(sys.argv[2]) if len(sys.argv)>2 else 4000.
 ymax=T[:,:,1].max();edges=np.arange(0,ymax+band,band)
 layers=[]
@@ -107,7 +108,7 @@ for d in layers:
     for o in out:
         if o['m']==d['m'] and abs(o['y'][1]-d['y'][0])<1e-6:
             inter=o['poly'].intersection(d['poly']).area;uni=o['poly'].union(d['poly']).area
-            if uni>0 and inter/uni>.88: o['y'][1]=d['y'][1];break
+            if uni>0 and inter/uni>MERGE: o['y'][1]=d['y'][1];break
     else: out.append(d)
 city=[];ventral=[]
 for d in out:
