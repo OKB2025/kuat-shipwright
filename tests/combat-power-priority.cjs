@@ -82,3 +82,14 @@ test('continuous squad firing remains a real weapon demand with full compatibili
   s.weaponDemand=true;s.drive.p.grid.P=30*TT;s.drive.p.grid.domains[0].P=30*TT;s.drive.p.grid.domains[0].sources[0].P=30*TT;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn/TT,15);near(s.weaponPowerK,15/40);near(s.drive.propulsion.actualInputW,0);
  }finally{delete R.CRAFT[key];}
 });
+
+test('numerically full aggregate and surface banks create no unaccepted charge or persistent combat demand',()=>{
+ for(const surface of [false,true]){
+  const u=unit({surface});u.energy=1000-1e-10;if(surface)u.surfaceBanks[4]=u.energy;
+  let r=allocate(u);near(r.got.weapons,0);near(u.pw.requestedWeaponChargeW,0);assert.equal(u.pw.activeCombatPower,false);near(r.got.engines/TT,85);
+  // This deficit exceeds the same existing relative bank epsilon used by the
+  // actual surface charger, so it must still request and consume real input.
+  u.energy=1000-1e-6;if(surface)u.surfaceBanks[4]=u.energy;r=allocate(u);assert.ok(r.got.weapons>0);assert.ok(u.pw.requestedWeaponChargeW>0);assert.equal(u.pw.activeCombatPower,true);
+  if(surface){const before=u.surfaceBanks[4],charged=C.surfaceManualCharge(u,r.got.weapons,1);assert.ok(charged>0);near(u.surfaceBanks[4]-before,charged);}
+ }
+});

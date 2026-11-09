@@ -92030,7 +92030,7 @@ function shipCombatPowerDemand(u,want={},dt=0){
   const mounts=p.surface.mounts,banks=surfaceBanks(u),factor=weaponInputFactor(p),states=mounts.map(m=>surfaceMountState(u,m)),target=want.weaponTarget,query=target?surfaceFireQuery(u,target):null,distance=target?len(sub(target.pos,u.pos)):0,weights=mounts.map((m,i)=>positive(m.power)*states[i].operable*states[i].capacitorK),total=weights.reduce((a,b)=>a+b,0),byModule=new Map();
   let actualFireW=0;
   for(let i=0;i<mounts.length;i++){
-   const m=mounts[i],state=states[i],maxW=weights[i],room=Math.max(0,state.effectiveCapacity-(banks[m.id]||0))*TT*factor/step;
+   const m=mounts[i],state=states[i],maxW=weights[i],roomTT=Math.max(0,state.effectiveCapacity-(banks[m.id]||0)),room=roomTT>weaponEnergyEpsilon(state.effectiveCapacity)?roomTT*TT*factor/step:0;
    const firing=fireW>0?(target?(u.dualDefense&&m.dualPurpose?1-(u.dualWeights?.[m.aaTier??0]??1):1)*positive(m.gun+m.ion)*surfaceMountArc(u,target,m,distance,query)*state.operable*Math.max(0,want.weaponVolley??1)*TT*factor:total>0?fireW*maxW/total:0):0;
    actualFireW+=Math.min(maxW,firing);
    const requestedInputW=Math.min(maxW,room+firing);if(!(requestedInputW>0))continue;
@@ -92042,7 +92042,7 @@ function shipCombatPowerDemand(u,want={},dt=0){
   for(const load of weaponLoads)load.requestedInputW*=scale;
   weapons=totalRequest*scale;fireW=Math.min(fireW,actualFireW);
  }else if(Number.isFinite(u.energy)&&Number.isFinite(p.wCap)&&step>0){
-  const rows=(p.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='weapon'),physical=rows.length?rows.reduce((n,{m,i})=>n+Math.max(0,m.share||0)*Math.max(0,u.mods?.[i]??1),0):1,room=Math.max(0,p.wCap*physical-u.energy)*TT*weaponInputFactor(p)/step;
+  const rows=(p.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='weapon'),physical=rows.length?rows.reduce((n,{m,i})=>n+Math.max(0,m.share||0)*Math.max(0,u.mods?.[i]??1),0):1,capacity=Math.max(0,p.wCap*physical),roomTT=Math.max(0,capacity-u.energy),room=roomTT>weaponEnergyEpsilon(capacity)?roomTT*TT*weaponInputFactor(p)/step:0;
   weapons=Math.min(weapons,room+fireW);
  }
  const requestedShieldRechargeW=shields,requestedWeaponChargeW=weapons,requestedWeaponFireW=fireW;
