@@ -16,6 +16,8 @@ function leave(a){
  // from rest is covered by the dedicated hyperspace preparation tests.
  const route=Rts.routePath(a.w.sector,a.home.sys,a.to),from=a.w.sector.systems[route.path[0]].pos,to=a.w.sector.systems[route.path[1]].pos,dir=Core.norm([to[0]-from[0],0,to[1]-from[1]]);
  a.home.yaw=Math.atan2(dir[2],dir[0]);a.home.velocity=Core.mul(dir,.95*Core.propulsionTerminalSpeed(a.home));Core.allocateShipPower(a.home,Core.fleetSystems(a.home),{throttle:1},0,'balanced');
+ // v24 A cruising carrier has long since charged its hyperdrive from spare power.
+ for(const id of a.g.units){const u=a.w.units.get(id);if(u)u.hyperE=Core.hyperChargeNeedJ(u.p);}
  const r=Rts.orderJump(a.w,a.g.id,a.to);if(!r.ok)throw Error(r.why);a.g.spool.t=a.g.spool.need-.25;
  for(let i=0;i<80&&!a.g.transit;i++)Rts.tick(a.w,.25);
  if(!a.g.transit)throw Error('Cruising carrier did not complete actual jump preparation: '+JSON.stringify(Rts.groupHyperspaceReadiness(a.w,a.g)));

@@ -25,3 +25,15 @@ test('ship statistics give the charge time from spare power rather than requirin
  assert.match(src,/jumpOK = hyperEffectiveVolume > 0 && jumpRateW > 0/);assert.match(src,/jumpChargeS = jumpOK \? HYPER_CHARGE\.seconds\*Dj\/jumpRateW/);
  assert.match(src,/Dj:dr\.jump\|\|0/,'the fleet profile carries the jump draw');
 });
+test('a fleet jump waits for a full drive before it is ready',()=>{
+ const u={p:{grid:{P:1e12,Dj:1e9},modules:[{k:'hyper'}],hyper:1},hyperE:0,mods:[1],velocity:[0,0,0],yaw:0};
+ const empty=C.hyperspaceReadiness(u,[0,0,0],[1,0,0],{requireCharge:true});assert.equal(empty.chargeReady,false);assert.equal(empty.ready,false);
+ if(empty.powerReady)assert.equal(empty.reason,'hyper-charging');
+ const loose=C.hyperspaceReadiness(u,[0,0,0],[1,0,0]);assert.equal(loose.chargeReady,true,'callers that do not ask for the charge are unaffected');
+ u.hyperE=C.hyperChargeNeedJ(u.p);assert.equal(C.hyperspaceReadiness(u,[0,0,0],[1,0,0],{requireCharge:true}).chargeReady,true);
+});
+test('fleet departures require the charge and spend it',()=>{
+ const src=fs.readFileSync(path.join(root,'js/core.js'),'utf8');
+ assert.match(src,/jumpVector\(w,u\),\{load,requireCharge:true\}\);units\.push/);assert.match(src,/\{load,requireCharge:true\}\)\.ready\)return;u\.hyperBurst=/);
+ assert.match(src,/u\.hyperT = w\.time;u\.hyperE=0;/);assert.match(src,/ship\.hyperE=0;delete ship\.hyperBurst;/);
+});

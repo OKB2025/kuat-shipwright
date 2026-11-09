@@ -10524,6 +10524,8 @@ Object.assign(root.KS_EN.messages,{
  "兵装使用・充電中": "Weapons firing or charging",
  "推進電力不足": "Insufficient propulsion power",
  "ジャンプ速度へ加速中": "Accelerating to jump speed",
+ "ハイパードライブ充電中": "Hyperdrive charging",
+ "随伴艦のハイパードライブ充電中": "Escort hyperdrive charging",
  "ジャンプ速度に到達": "Jump speed reached",
  "ジャンプ待機": "Jump standby",
  "航行不能 · {0}% / 70%": "Navigation disabled · {0}% / 70%",
@@ -10532,6 +10534,8 @@ Object.assign(root.KS_EN.messages,{
  "兵装使用・充電中 · {0}% / 70%": "Weapons firing or charging · {0}% / 70%",
  "推進電力不足 · {0}% / 70%": "Insufficient propulsion power · {0}% / 70%",
  "ジャンプ速度へ加速中 · {0}% / 70%": "Accelerating to jump speed · {0}% / 70%",
+ "ハイパードライブ充電中 · {0}% / 70%": "Hyperdrive charging · {0}% / 70%",
+ "随伴艦のハイパードライブ充電中 · {0}% / 70%": "Escort hyperdrive charging · {0}% / 70%",
  "ジャンプ速度に到達 · {0}% / 70%": "Jump speed reached · {0}% / 70%",
  "ジャンプ待機 · {0}% / 70%": "Jump standby · {0}% / 70%",
  "通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block the jump."

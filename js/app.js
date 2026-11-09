@@ -8315,7 +8315,7 @@ function storedHeatText(h){return h&&Number.isFinite(h.qJ)&&h.capacityJ>0?`蓄�
 function trialDefenseEnabled(){const u=trialSystemsUnit();return C.automaticPointDefenseEnabled?.(u)??u?.order?.autoPointDefense!==false;}
 function trialSetDefense(enabled){const u=trialSystemsUnit();if(!u)return;C.setAutomaticPointDefense(u,enabled);if(!enabled)for(const t of trial.turrets||[]){t.pdTarget=null;t.pd=false;t.firing=false;}}
 function trialJumpReadiness(){const unit=trialSystemsUnit();return typeof trialHyperspaceReadiness==='function'?trialHyperspaceReadiness():unit&&C.hyperspaceReadiness?.(unit,trial.V,trial.jump?.dir||trialCol(trial.R,0));}
-function trialJumpReadinessText(r=trialJumpReadiness()){const j=trial.jump;if(j&&(j.follow||C.hyperspaceCommitted(j)))return trialHyperText(j,SYSTEMS[j.dest]?.name||'',Math.max(0,trialTunnelLeft(j)));if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*70:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 70%`;}
+function trialJumpReadinessText(r=trialJumpReadiness()){const j=trial.jump;if(j&&(j.follow||C.hyperspaceCommitted(j)))return trialHyperText(j,SYSTEMS[j.dest]?.name||'',Math.max(0,trialTunnelLeft(j)));if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*70:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中','hyper-charging':r.escorts?.some(x=>x.reason==='hyper-charging')&&r.escort?'随伴艦のハイパードライブ充電中':'ハイパードライブ充電中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 70%`;}
 function trialFlightReadouts(hud){
  const unit=trialSystemsUnit(),heat=C.heatStatus(unit),el=hud.querySelector('[data-th="heat"]');if(el){const text=storedHeatText(heat);if(sourceText(el)!==text)el.textContent=text;el.dataset.heatJ=String(heat?.qJ??'');el.dataset.capacityJ=String(heat?.capacityJ??'');}
  const pd=hud.querySelector('[data-trial-cmd="pd-auto"]'),enabled=trialDefenseEnabled();if(pd){pd.setAttribute('aria-pressed',String(enabled));const text=enabled?'自動迎撃 ON':'自動迎撃 OFF';if(sourceText(pd)!==text)pd.textContent=text;}
@@ -8574,7 +8574,9 @@ function escortSystemsUnit(e){
 }
 function escortPowerStep(e,dt,throttle){
  const u=escortSystemsUnit(e),s=C.fleetSystems(u);u.maneuver=C.clamp(throttle||0,0,1);
- C.allocateShipPower(u,s,{throttle:u.maneuver,shields:Math.max(0,e.p.grid?.Ds||0)*s.shield,weapons:0},dt,'balanced');
+ const solved=C.allocateShipPower(u,s,{throttle:u.maneuver,shields:Math.max(0,e.p.grid?.Ds||0)*s.shield,weapons:0},dt,'balanced');
+ // v24 An escort's hyperdrive charges from its spare power like the flagship's (C.hyperChargeStep).
+ if(typeof C.hyperChargeStep==='function')C.hyperChargeStep(u,solved?.P||0,(solved?.got?.draw||0)+(solved?.cooling?.draw||0),dt);
  const ctx={time:trial.t||0,rand:Math.random,ev:()=>{},out:()=>{},sunk:()=>{},hit:()=>{}};C.swDecay(u,dt,ctx);C.heatTick(ctx,u,dt);
  return C.propulsionMotion(u);
 }
@@ -8628,7 +8630,7 @@ function trialCancelJump(force=false){
  trial.jump=null;const command=C.clamp(Number(j.priorThrottle)||0,0,1);if(typeof trialSetThrottle==='function')trialSetThrottle(command);else{trial.throttle=command;trial.tele=command>0?5:1;}return true;
 }
 function trialHyperspaceReadiness(){
- const unit=trialSystemsUnit(),dir=trial.jump?.dir||trialCol(trial.R,0),status=C.hyperspaceReadiness(unit,trial.V,dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}),escorts=(trial.escorts||[]).map(e=>C.hyperspaceReadiness(escortSystemsUnit(e),e.V,dir,{forwardDirection:e.f||trialCol(e.R,0),hyperClass:e.p?.hyperClass??e.p?.hyper})),waiting=escorts.find(e=>!e.ready);
+ const unit=trialSystemsUnit(),dir=trial.jump?.dir||trialCol(trial.R,0),status=C.hyperspaceReadiness(unit,trial.V,dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass(),requireCharge:true}),escorts=(trial.escorts||[]).map(e=>C.hyperspaceReadiness(escortSystemsUnit(e),e.V,dir,{forwardDirection:e.f||trialCol(e.R,0),hyperClass:e.p?.hyperClass??e.p?.hyper,requireCharge:true})),waiting=escorts.find(e=>!e.ready);
  return !status.ready?{...status,escorts}:waiting?{...waiting,escorts,escort:true}: {...status,escorts};
 }
 function trialJump(dest){
@@ -8704,7 +8706,7 @@ function trialJumpStep(dt){
  else if(j.phase==='enter'){
   if(!j.follow&&!j.burst){next('accel');return;}
   if(bursting&&!C.hyperspaceReadiness(unit,trial.V,j.dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}).powerReady){trialCancelJump(true);return;}
-  if(j.follow?j.t>=JUMP.enter:j.burst.t>=j.burst.duration&&(trial.escorts||[]).every(e=>e.burst?.t>=e.burst?.duration)){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{if(unit)unit.hyperE=0;j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
+  if(j.follow?j.t>=JUMP.enter:j.burst.t>=j.burst.duration&&(trial.escorts||[]).every(e=>e.burst?.t>=e.burst?.duration)){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{if(unit)unit.hyperE=0;for(const e of trial.escorts||[]){const eu=escortSystemsUnit(e);if(eu)eu.hyperE=0;}j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
  }
  else if(j.phase==='tunnel'){
   if(!j.arrived&&!j.follow&&trialTunnelLeft(j)<=JUMP.close){j.arrived=true;trialArrive(j.dest);}

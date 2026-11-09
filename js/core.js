@@ -62058,8 +62058,10 @@ function hyperspaceReadiness(u,velocity=u?.velocity,direction=null,options={}){
  const valid=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)&&len(v)>1e-12,load=Number.isFinite(options.load)?Math.max(0,options.load):1,forward=valid(options.forwardDirection)?norm(options.forwardDirection):[Math.cos(u?.yaw||0),0,Math.sin(u?.yaw||0)],dir=valid(direction)?norm(direction):forward,v=valid(velocity)?velocity:[0,0,0],healthyMaximumSpeedMps=propulsionTerminalSpeed(u)*load,requiredForwardSpeedMps=healthyMaximumSpeedMps*HYPERSPACE_ENTRY_SPEED_FRACTION,forwardSpeedMps=Math.min(dot(v,dir),dot(v,forward)),pw=u?.pw||{},positive=x=>Number.isFinite(x)?Math.max(0,x):0;
  const shieldRechargeW=positive(pw.requestedShieldRechargeW),weaponChargeW=positive(pw.requestedWeaponChargeW),weaponFireW=positive(pw.requestedWeaponFireW),activeWeaponFire=pw.activeWeaponFire===true||weaponFireW>0;
  const hyperModules=(u?.p?.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='hyper'),knownHyper=options.hyperClass??u?.info?.hyper??u?.p?.hyperClass??u?.p?.hyper,hasHyperdrive=hyperModules.length>0||Number.isFinite(knownHyper)&&knownHyper>0,hyperReady=!!u&&hasHyperdrive&&powerFactor(u,'hyper')>0&&(!hyperModules.length||hyperModules.some(x=>(u.mods?.[x.i]??1)>0&&powerFactor(u,'hyper',x.i)>0)),speedReady=requiredForwardSpeedMps>0&&forwardSpeedMps+Math.max(1e-6,requiredForwardSpeedMps*1e-9)>=requiredForwardSpeedMps,powerReady=hyperReady&&!u?.dead&&!u?.out&&shipElectricalAvailableW(u)!==0;
- const reason=u?.dead||u?.out?'disabled':!hasHyperdrive?'hyper-unavailable':!powerReady?'hyper-unpowered':!speedReady?'accelerating':null;
- return {ready:reason===null,speedReady,powerReady,hasHyperdrive,healthyMaximumSpeedMps,requiredForwardSpeedMps,forwardSpeedMps,speedFraction:healthyMaximumSpeedMps>0?forwardSpeedMps/healthyMaximumSpeedMps:0,shieldRechargeW,weaponChargeW,weaponFireW,activeWeaponFire,reason};
+ // v24 A fleet jump (options.requireCharge) also waits until the drive is charged from spare power (hyperChargeStep).
+ const charge=u?hyperCharged(u):1,chargeReady=!options.requireCharge||charge>=1;
+ const reason=u?.dead||u?.out?'disabled':!hasHyperdrive?'hyper-unavailable':!powerReady?'hyper-unpowered':!chargeReady?'hyper-charging':!speedReady?'accelerating':null;
+ return {ready:reason===null,chargeReady,charge,speedReady,powerReady,hasHyperdrive,healthyMaximumSpeedMps,requiredForwardSpeedMps,forwardSpeedMps,speedFraction:healthyMaximumSpeedMps>0?forwardSpeedMps/healthyMaximumSpeedMps:0,shieldRechargeW,weaponChargeW,weaponFireW,activeWeaponFire,reason};
 }
 function fleetTick(b,dt,opts={}){
  const pdStep={abstractPointDefense:true};
@@ -67497,7 +67499,7 @@ function jumpAhead(w,u){
   if(!g.units.includes(charge.id)){const old=w.groups.get(charge.group);if(old)old.units=old.units.filter(id=>id!==charge.id);g.units.push(charge.id);charge.group=g.id;}
   charge.velocity=u.velocity.slice();going.push(charge);
  }
- for(const ship of going){followDepartingCarrier(w,ship,from,dest);ship.hyperEntryVelocity=(ship.velocity||[0,0,0]).slice();delete ship.hyperBurst;ship.hyperT=w.time;ship.jump=null;ship.sys=null;ship.velocity=[0,0,0];for(const sid of ship.squads){const s=w.squads.get(sid);if(s?.state==='docked')s.sys=null;}}
+ for(const ship of going){followDepartingCarrier(w,ship,from,dest);ship.hyperEntryVelocity=(ship.velocity||[0,0,0]).slice();ship.hyperE=0;delete ship.hyperBurst;ship.hyperT=w.time;ship.jump=null;ship.sys=null;ship.velocity=[0,0,0];for(const sid of ship.squads){const s=w.squads.get(sid);if(s?.state==='docked')s.sys=null;}}
 }
 function abortGroupHyperspaceBurst(w,g){
  const sp=g.spool;if(!sp?.burstStarted)return;
@@ -67511,14 +67513,14 @@ function spoolSequence(w,g){
   if(!sp.seq){sp.seq=jumpSequence(w,g);sp.gap=sp.seq.length?Math.min(JUMP_STAGGER.gap,JUMP_STAGGER.span/sp.seq.length):0;sp.left=0;}
   sp.burstStarted=true;sp.entryStartedAt=w.time;sp.burstBase=sp.left;
  }
- const start=(u,index)=>{if(!u||!alive(u)||u.sys==null||w.time-sp.entryStartedAt+1e-12<(index-(sp.burstBase||0))*sp.gap)return;if(!u.hyperBurst){const previous=index>0?w.units.get(sp.seq[index-1]):null;if(alive(previous)&&previous.sys!=null&&!previous.hyperBurst)return;const target=u.tractor?.lock?w.units.get(u.tractor.target):null,load=target?(u.info?.mass||0)/Math.max(1,(u.info?.mass||0)+(target.info?.mass||0)):1;if(!C.hyperspaceReadiness(u,u.velocity,jumpVector(w,u),{load}).ready)return;u.hyperBurst=C.hyperspaceBurstStart(u.velocity,jumpVector(w,u));u.jump={...u.jump,phase:'enter',dest:sp.dest};}};
+ const start=(u,index)=>{if(!u||!alive(u)||u.sys==null||w.time-sp.entryStartedAt+1e-12<(index-(sp.burstBase||0))*sp.gap)return;if(!u.hyperBurst){const previous=index>0?w.units.get(sp.seq[index-1]):null;if(alive(previous)&&previous.sys!=null&&!previous.hyperBurst)return;const target=u.tractor?.lock?w.units.get(u.tractor.target):null,load=target?(u.info?.mass||0)/Math.max(1,(u.info?.mass||0)+(target.info?.mass||0)):1;if(!C.hyperspaceReadiness(u,u.velocity,jumpVector(w,u),{load,requireCharge:true}).ready)return;u.hyperBurst=C.hyperspaceBurstStart(u.velocity,jumpVector(w,u));u.jump={...u.jump,phase:'enter',dest:sp.dest};}};
  for(let i=sp.left;i<sp.seq.length;i++)start(w.units.get(sp.seq[i]),i);
  for(const u of pending)if(!sp.seq.includes(u.id))start(u,sp.seq.length);
  while(sp.left<sp.seq.length){const u=w.units.get(sp.seq[sp.left]);if(!alive(u)||u.sys==null){sp.left++;continue;}if(!u.hyperBurst||u.hyperBurst.t<C.HYPERSPACE_BURST_SECONDS-1e-12)break;jumpAhead(w,u);sp.left++;}
 }
 function groupHyperspaceReadiness(w,g){
  const towed=towedIn(w,g),units=[];
- for(const id of g.units){const u=w.units.get(id);if(!alive(u)||u.sys==null||towed.has(id))continue;const target=u.tractor?.lock?w.units.get(u.tractor.target):null,load=target?(u.info?.mass||0)/Math.max(1,(u.info?.mass||0)+(target.info?.mass||0)):1,status=C.hyperspaceReadiness(u,u.velocity,jumpVector(w,u),{load});units.push({id:u.id,...status});}
+ for(const id of g.units){const u=w.units.get(id);if(!alive(u)||u.sys==null||towed.has(id))continue;const target=u.tractor?.lock?w.units.get(u.tractor.target):null,load=target?(u.info?.mass||0)/Math.max(1,(u.info?.mass||0)+(target.info?.mass||0)):1,status=C.hyperspaceReadiness(u,u.velocity,jumpVector(w,u),{load,requireCharge:true});units.push({id:u.id,...status});}
  const completed=units.length===0&&g.spool?.left>0&&g.units.some(id=>alive(w.units.get(id)));return {ready:completed||units.length>0&&units.every(u=>u.ready),units,reason:units.find(u=>!u.ready)?.reason||null};
 }
 function jumpDepartures(w){
@@ -67536,7 +67538,7 @@ function departGroup(w, g) {
  for (const id of [...towedIn(w, g)]) { const t = w.units.get(id); if (!t || g.units.includes(id)) continue; const old = w.groups.get(t.group); if (old) old.units = old.units.filter(x => x !== id); g.units.push(id); t.group = g.id; }
  // Craft aboard go along; airborne craft with their own drive follow independently.
  for(const id of g.units){const u=w.units.get(id);if(alive(u)&&u.sys!=null)followDepartingCarrier(w,u,from,sp.dest);}
- for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; if (u.sys != null){u.hyperEntryVelocity=[...(u.velocity||[0,0,0])];u.hyperT = w.time;}delete u.hyperBurst; u.jump = null; u.sys = null; u.velocity = [0, 0, 0];
+ for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; if (u.sys != null){u.hyperEntryVelocity=[...(u.velocity||[0,0,0])];u.hyperT = w.time;u.hyperE=0;}delete u.hyperBurst; u.jump = null; u.sys = null; u.velocity = [0, 0, 0];
   for (const sid of u.squads) { const s = w.squads.get(sid); if (!s) continue; if (s.state === 'docked') s.sys = null; else if (s.state !== 'lost' && !s.raid && !s.follow) { if ((s.ops?.k === 'launch' ? s.n - opsDone(w, s) : s.ops?.k === 'land' ? opsDone(w, s) : 0) > 0) { const n = opsCut(w, from, s, false, 'behind', null); if (n) blog(w, from, `${s.name}の ${n} 機が母艦の離脱に間に合わず喪失`, {side: s.side}); if (s.n > 0) { dockSquad(w, s, u); s.sys = null; continue; } } craftLostBehind(w, s, from); } } }
  for (const wing of w.wings.values()) if (g.units.includes(wing.home) && !(wing.raid && wing.raid.phase !== 'launch')) { wing.recall = false; wing.phase = 'docked'; }
  // Leg by leg, each at its lane's speed.
