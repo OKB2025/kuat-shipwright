@@ -8113,13 +8113,14 @@ function trialLoop(now){
  const real=trial.last?Math.min(.05,(now-trial.last)/1000):0,dt=trial.paused?0:real;trial.last=now;
  trialFoilStep(dt);trialCraftSystemsStep(dt);
  if(trial.cine){trial.cine.t+=dt;if(trial.cine.t>=trial.cine.dur||trial.fire||trial.fireKey)spaceCineEnd();}
- trialCamera(real||.016);trialJumpStep(dt);
+ trialCamera(real||.016);
  // In hyperspace the ship holds still in the tunnel; in a flight everything
  // else waits, while a fleet battle watched in 3D runs on (the far end of the
  // tunnel is where the followed group comes out).
- const tunnel=trial.jump?.phase==='tunnel',ph=trial.jump?.phase;
+ let tunnel=trial.jump?.phase==='tunnel',ph=trial.jump?.phase;
  if(dt>0){escortsStep(dt);if(trial.spectate)voySpectateStep(dt);else if(!tunnel){if(trialCoasting())trialSublight(dt);else if(ph==='exit'||ph==='brake'){}else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}trialSwSyncFrame();if(trial.rts)voyPilotStep(dt);else if(trial.battle)spaceStep(dt);}if(!tunnel){spaceBolts(dt);trialFxStep(dt);trialWrecksStep(dt);trialSwSoloStep(dt);}}
  if(trial.battle&&!tunnel){spaceAttStep(dt);spaceDeaths();trialSwBeamCheck();}
+ trialJumpStep(dt);tunnel=trial.jump?.phase==='tunnel';ph=trial.jump?.phase;
  if(trial.pat)patrolStep(dt,tunnel);
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  trialPoseFoilMounts();
@@ -8530,19 +8531,14 @@ function escortsStep(dt){
   // Coming out: hidden until their turn after the flagship's own reversion begins, then in their places.
   if(j.phase==='exit'||j.phase==='brake'||j.phase==='arrive'){escortsPlace();const t=j.age-(j.exit0??j.age);for(const e of es){e.stretch=1;if(e.gone&&t>=order.indexOf(e)*gap+.15){e.gone=false;escortHyperFx(e,false);}}return;}
  }
- const up0=tv.norm(trial.P),pre=JUMP.spool+JUMP.accel+JUMP.enter,order=j?escOrder(es):null,gap=j?ESC_JUMP.gap(es.length):0;
+ const up0=tv.norm(trial.P),preparing=j&&!trialJumpCommitted();
  for(const e of es){
-  // Going in: its turn comes (n-k)·gap before the flagship's; its burst runs ESC_JUMP.burst before that.
-  if(j){if(e.gone)continue;const te=pre-(es.length-order.indexOf(e))*gap,ts=te-ESC_JUMP.burst;
-   if(j.age>=te){e.gone=true;e.stretch=1;escortHyperFx(e,true);continue;}
-   // (once the flagship is accelerating, the ones still waiting ride in their places with it)
-   if(j.age<ts&&j.phase!=='spool'){e.pos=tv.add(trial.P,trialApply(trial.R,e.slot));e.V=[...trial.V];e.R=[...trial.R];e.f=trialCol(trial.R,0);continue;}
-   if(j.age>=ts){if(e.burstV0==null)e.burstV0=Math.max(300,e.p.maxSpeed||0,trial.vf||0);const t=j.age-ts,v0=e.burstV0,v=Math.min(SUBLIGHT,v0*Math.exp(t*Math.log(SUBLIGHT/v0)/ESC_JUMP.burst));e.V=tv.scale(j.dir,v);e.pos=tv.add(e.pos,e.V,dt);e.f=tv.norm(tv.add(e.f,tv.sub(j.dir,e.f),Math.min(1,dt*4)));e.R=trialFrame(e.f,tv.add(tv.scale(up0,.85),trialCol(trial.R,1),.15));e.lvl=1;e.stretch=1+5*(t/ESC_JUMP.burst)**3;continue;}}
+  if(preparing){e.gone=false;e.stretch=1;e.burstV0=null;}
   const want=tv.add(trial.P,trialApply(trial.R,e.slot)),err=tv.sub(want,e.pos),d=tv.len(err),vmax=Number.isFinite(e.p.maxSpeed)&&e.p.maxSpeed>0?e.p.maxSpeed:Infinity;
-  let goal=tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
+  let goal=preparing?tv.scale(j.dir,C.propulsionTerminalSpeed(escortSystemsUnit(e))):tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
   // Clear of the flagship and of each other.
   for(const o of [{pos:trial.P,L:trial.p.len},...es.filter(x=>x!==e).map(x=>({pos:x.pos,L:x.p.len}))]){const r=tv.sub(e.pos,o.pos),l=tv.len(r),min=(e.p.len+o.L)*.62;if(l<min&&l>1)goal=tv.add(goal,r,(min-l)/l*.6);}
-  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=unit.out?tv.scale(tv.norm(e.pos),-C.HULL_FALL.g):need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt);
+  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,preparing?1:planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=unit.out?tv.scale(tv.norm(e.pos),-C.HULL_FALL.g):need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt);
   e.V=next.velocity;e.pos=tv.add(e.pos,next.displacement);
   // The bow follows the way it moves (the flagship's heading when it is nearly still), turning at its own rate.
   const sp=tv.len(e.V);e.lvl=motion.acc>0?C.engineLevel(unit):0;const tf=sp>25?tv.norm(e.V):trialCol(trial.R,0),k=(1-Math.exp(-dt*Math.max(0,(e.p.turnRate||0)*6)))*motion.turn;e.f=tv.norm(tv.add(e.f,tv.sub(tf,e.f),k));
@@ -8563,13 +8559,21 @@ function escortsFire(dt,lock,firing){
   for(let i=0;i<2;i++){const pos=tv.add(tv.add(e.pos,trialApply(e.R,[e.p.len*(.1-.2*i),(e.p.height||e.p.len*.2)*.3,0])),aim,e.p.len*.2);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(aim,spd),e.V),life:C.fleetReach(e.p)/spd,len:Math.max(70,e.p.len*.04),size:Math.max(5,e.p.len*.006),col:[120,235,255],weight:1,tt:0,esc:true});}
   trial.fx.push({pos:e.pos,vel:e.V,life:.1,max:.1,size:Math.max(8,e.p.len*.02),col:[200,240,255]});}
 }
+function trialJumpCommitted(){return C.hyperspaceCommitted(trial.jump);}
+function trialCancelJump(){
+ const j=trial.jump;if(!j||trialJumpCommitted())return false;trial.jump=null;const command=C.clamp(Number(j.priorThrottle)||0,0,1);if(typeof trialSetThrottle==='function')trialSetThrottle(command);else{trial.throttle=command;trial.tele=command>0?5:1;}return true;
+}
+function trialHyperspaceReadiness(){
+ const unit=trialSystemsUnit(),dir=trial.jump?.dir||trialCol(trial.R,0),status=C.hyperspaceReadiness(unit,trial.V,dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}),escorts=(trial.escorts||[]).map(e=>C.hyperspaceReadiness(escortSystemsUnit(e),e.V,dir,{forwardDirection:e.f||trialCol(e.R,0),hyperClass:e.p?.hyperClass??e.p?.hyper})),waiting=escorts.find(e=>!e.ready);
+ return !status.ready?{...status,escorts}:waiting?{...waiting,escorts,escort:true}: {...status,escorts};
+}
 function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
  if(!(trialPowerFactor('hyper')>0)){toast('給電停止中のためジャンプできません');return;}
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
  if(trialSystemsUnit()?.out||trialSystemsUnit()?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;})){toast('戦闘不能のためジャンプできません');return;}
  const plan=Galaxy.itinerary(trial.sysKey,dest);if(!plan?.segments.length){toast('航路がありません');return;}trial.navigation={version:1,final:dest,stop:plan.next,remaining:plan.stops.slice(1),waiting:false};dest=plan.next;
- spaceCineEnd();trial.jump={phase:'spool',t:0,dest,final:plan.final,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
+ spaceCineEnd();trial.jump={phase:'spool',t:0,priorThrottle:C.clamp(trialThrottleCommand(),0,1),dest,final:plan.final,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}
  trialMapShow(false);const way=Galaxy.path(trial.sysKey,dest);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${trialDurText(trial.jump.tunnel)}${way&&way.legs.length>1?`・${way.legs.length - 1} 星系経由`:''}）`);
  if(trial.battle&&!trial.battle.result)spaceDepartEscorts();
 }
@@ -8587,13 +8591,16 @@ function trialStreak(){
  return 0;}
 // The tunnel fades in over the stretched stars and out over the new system's.
 function trialTunnelK(j){return j?.phase==='tunnel'?C.clamp(Math.min(j.t/.35,trialTunnelLeft(j)/JUMP.close),0,1):0;}
-// The sublight burst: speed climbs from the ship's own to a tenth of light by
-// the end of the burst and holds there while the stars stretch. The ship
-// flies straight on its heading, so the planet drops away behind.
+// Real-space preparation uses the ordinary paid flight integrator. Only a
+// spectator following a ship already departed by Core uses a camera burst.
 const trialCoasting=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter';};
 const trialFast=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter'||p==='exit'||p==='brake';};
 function trialSublight(dt){
- const j=trial.jump;if(!trialCoasting())return;const v=j.phase==='accel'?Math.min(SUBLIGHT,j.v0*Math.exp(j.t*Math.log(SUBLIGHT/j.v0)/JUMP.accel)):SUBLIGHT,f=j.dir;
+ const j=trial.jump;if(!trialCoasting())return;
+ if(!j.follow){trialStep(dt);return;}
+ // A followed RTS ship has already passed the physical gate. This is only
+ // its post-departure camera transition, starting at its real entry speed.
+ const start=Math.max(1,j.v0||0),v=j.phase==='accel'?Math.min(SUBLIGHT,start*Math.exp(j.t*Math.log(SUBLIGHT/start)/JUMP.accel)):SUBLIGHT,f=j.dir;
  trial.P=tv.add(trial.P,f,v*dt);trial.V=tv.scale(f,v);trial.vf=v;trial.w=[0,0,0];
 }
 // Reversion: still at sublight while the streaks shrink, then slowing as
@@ -8610,12 +8617,22 @@ function trialReversion(){
  trial.P=tv.add(j.to,j.dir,-trialRevDist(j));trial.V=tv.scale(j.dir,v);trial.vf=v;trial.w=[0,0,0];
 }
 function trialJumpStep(dt){
- const j=trial.jump;if(!j)return;const unit=trialSystemsUnit();if(unit)C.syncPowerLossDisabled(unit);if(!j.follow&&['spool','accel','enter'].includes(j.phase)&&(unit?.out||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trial.jump=null;return;}if(!j.follow&&j.phase==='spool'&&!(trialPowerFactor('hyper')>0))return;j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
- if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
- else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
- else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}}
+ const j=trial.jump;if(!j||!(dt>0))return;const unit=trialSystemsUnit();if(unit)C.syncPowerLossDisabled(unit);
+ const preparing=!j.follow&&['spool','accel','enter'].includes(j.phase);
+ if(preparing&&(unit?.out||unit?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trialCancelJump();return;}
+ if(preparing){
+  if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}
+  j.dir=trialCol(trial.R,0);j.readiness=trialHyperspaceReadiness();
+  if(j.readiness.reason==='hyper-unpowered')return;
+ }
+ j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
+ if(j.phase==='spool'){if(j.t>=JUMP.spool)next('accel');}
+ else if(j.phase==='accel'){if(j.follow?j.t>=JUMP.accel:j.readiness?.ready)next('enter');}
+ else if(j.phase==='enter'){
+  if(!j.follow&&!j.readiness?.ready)next('accel');
+  else if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
+ }
  else if(j.phase==='tunnel'){
-  // The far end: the new system is set up while the tunnel still covers it.
   if(!j.arrived&&!j.follow&&trialTunnelLeft(j)<=JUMP.close){j.arrived=true;trialArrive(j.dest);}
   if(trialTunnelLeft(j)<=0){next('exit');trial.flash=Math.max(trial.flash||0,.7);}}
  else if(j.phase==='exit'){if(j.t>=JUMP.exit)next('brake');}
@@ -9283,7 +9300,7 @@ function trialSwMenu(){
 }
 // The line on the trial record.
 function trialSwRecord(){const g=trial.gun;return g?.sw?` · 超兵器 ${g.sw} 射${g.swKills?` / 撃破 ${g.swKills}`:''}${g.swDown?` / 無力化 ${g.swDown}`:''}`:'';}
-window.__trialJump={step:dt=>{trialJumpStep(dt);escortsStep(dt);if(trialCoasting())trialSublight(dt);}};   // (for tests)
+window.__trialJump={step:dt=>{escortsStep(dt);if(trialCoasting())trialSublight(dt);else if(trial.jump?.phase==='spool')trialStep(dt);trialJumpStep(dt);}};   // (for tests)
 window.__trialSw={step:dt=>trialSwSoloStep(dt),solo:()=>trialSwSolo(),scan:w=>trialSwScan(w),arc:()=>trialSwArcPoints().length};   // (for tests)
 // Two vertices per beam keep the luminous core continuous at every view distance.
 // The bounded point sprites below add glow; they do not define the beam's line.
@@ -13806,8 +13823,8 @@ function voySqNext(dir) {
 // in the tunnel, at their places around the ship.
 function voyFollowDepart(f, mates, ahead = []) {
  const B = trial.battle, P = spaceWorld(f), fw = trialApply(B.E, [Math.cos(f.yaw), 0, Math.sin(f.yaw)]), g = voy.w.groups.get(f.group);
- trial.P = P;trial.R = trialFrame(fw, tv.norm(P));trial.V = [0, 0, 0];spaceCineEnd();
- trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0: Math.max(300, f.p.maxSpeed || 0), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
+ trial.P = P;trial.R = trialFrame(fw, tv.norm(P));trial.V = trialApply(B.E,f.hyperEntryVelocity||[0,0,0]);spaceCineEnd();
+ trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0:tv.len(trial.V), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
 }
 // Picked up while already in hyperspace: straight into the tunnel.
 function voyFollowTransit(u) {
@@ -14520,7 +14537,7 @@ function patrolArrive() {
 }
 window.__patrol = {get pat() { return trial.pat; }, force(sec = 0) { const P = trial.pat;if (P) P.encAt = trial.t + sec; return !!P; }, spawn: (route, present) => { const P = trial.pat, keys = P?.civKeys.filter(k => fleet.assets.has(k)) || []; return keys.length ? patrolCivSpawn(keys, route, present)?.name : null; }, dissolve: () => patrolBattleDissolve(),
  // (tests) the flight's clock run on without drawing, as trialLoop would, in steps of dt
- run(sec, dt = .05) { for (let t = 0; t < sec && trial.on; t += dt) { if (trial.cine) { trial.cine.t += dt; if (trial.cine.t >= trial.cine.dur) spaceCineEnd(); } trialJumpStep(dt); const ph = trial.jump?.phase, tunnel = ph === 'tunnel'; escortsStep(dt); if (!tunnel) { if (trialCoasting()) trialSublight(dt); else if (ph !== 'exit' && ph !== 'brake') trialStep(dt); if (trial.battle) {trialSwSyncFrame();spaceStep(dt);} spaceBolts(dt); trialFxStep(dt); trialWrecksStep(dt); } if (trial.battle && !tunnel) { spaceAttStep(dt); spaceDeaths(); } patrolStep(dt, tunnel); } return +trial.t.toFixed(1); }};
+ run(sec, dt = .05) { for (let t = 0; t < sec && trial.on; t += dt) { if (trial.cine) { trial.cine.t += dt; if (trial.cine.t >= trial.cine.dur) spaceCineEnd(); } const ph = trial.jump?.phase, tunnel = ph === 'tunnel'; escortsStep(dt); if (!tunnel) { if (trialCoasting()) trialSublight(dt); else if (ph !== 'exit' && ph !== 'brake') trialStep(dt); if (trial.battle) {trialSwSyncFrame();spaceStep(dt);} spaceBolts(dt); trialFxStep(dt); trialWrecksStep(dt); } trialJumpStep(dt);if (trial.battle && !tunnel) { spaceAttStep(dt); spaceDeaths(); } patrolStep(dt, tunnel); } return +trial.t.toFixed(1); }};
 
 // From the drawing board: the order of battle, with the design on the board added to a task group.
 async function voyOpenWithCurrent() {
