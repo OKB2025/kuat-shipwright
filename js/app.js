@@ -4630,15 +4630,39 @@ function designUIInfoDelete(){
  designUICancel();st.tab='edit';st.editTool='select';st.sel={list:ref.list,id:ref.id};if(!st.multi?.[ref.list]?.has(ref.id))st.multi={parts:new Set(ref.list==='parts'?[ref.id]:[]),fits:new Set(ref.list==='fits'?[ref.id]:[])};
  editDelete();designUI.info=null;designUIPanel();syncHud();refreshOverlay();requestDraw();
 }
+// v24 新規配置 remembers what was last set up for placement in each space and offers it again.
+const DESIGN_NEW_KEYS=['tab','group','part','fit','bridge','bridgeMode','bridgeEquipment','equipmentId','weaponEntity','weaponMount','userPart','template','structSize','structForm','structPlate','structPlateT','structWing','structYaw','structLight','structTaper','structOutline','structAngles','structOffsetX','structOffsetZ','skinAsset','roomSize','ped','pedShape','pedSize','gunYaw','gunPitch','launchPitch','engineDir','partTool','fitTool','bridgeTool'];
+function designNewRemember(){if(st.tab==='edit')return;const snap={category:designUI.category,weaponType:designUI.weaponType,weaponOutput:designUI.weaponOutput,st:{}};for(const k of DESIGN_NEW_KEYS)if(st[k]!==undefined)snap.st[k]=structuredClone(st[k]);(designUI.lastNew||(designUI.lastNew={}))[designUI.space]=snap;}
+function designNewRestore(){const snap=designUI.lastNew?.[designUI.space];if(!snap)return false;for(const k of DESIGN_NEW_KEYS){if(k in snap.st)st[k]=structuredClone(snap.st[k]);}designUI.category=snap.category;designUI.weaponType=snap.weaponType;designUI.weaponOutput=snap.weaponOutput;if(st.tab==='mod'&&st.group==='user'&&!userPartFind(st.userPart)){st.group=designUI.space==='exterior'?'shape':'support';designUI.category=designUI.space==='exterior'?'structure':'support';}return true;}
+// The catalogue entry a selected fitting or part is placed again from.
+function designNewCopySource(it,sel){
+ if(!it||!sel)return null;
+ if(sel.list==='fits'){const d=C.FITS[it.k];if(!d)return null;return d.window?{type:'bridge',key:it.k}:{type:'fit',key:C.canonicalWeaponKind?.(it.k)||it.k};}
+ if(sel.list!=='parts'||!ship.parts.includes(it)||C.isHullStructure?.(it)||it.placement?.root)return null;
+ const spec=C.equipmentSpec(it);if(spec)return {type:'equipment',key:spec.id};
+ return C.PARTS[it.k]?{type:'part',key:it.k}:null;
+}
+function designCategoryForPick(type,key){
+ if(type==='user')return 'user';if(type==='fit')return 'weapon';if(type==='bridge')return 'command';
+ const p=type==='part'?{k:key}:C.equipmentOptions(key);if(C.PARTS[p.k]?.group==='appearance')return 'appearance';
+ const kind=designCapability(p).kind;if(designUI.space!=='interior')return kind;
+ const group=C.PARTS[p.k]?.group;return designUICatalog(group).some(it=>it.key===key)?group:designUICatalog(kind).some(it=>it.key===key)?kind:'all';
+}
 function designUIOpen(which){
  if(!ship)return;if(which==='details')which='list';designUI.context=null;designUI.resetScroll=true;designUI.keepCategoryScroll=null;
  if(which!=='edit')designUIEditApply({close:true});
  designUICancel();designUI.info=null;designUI.drawer=true;designUI.details=false;designUI.layout=which;$('#panel').scrollTop=0;st.dockCollapsed=false;$('#dock').classList.remove('collapsed');$('#app').classList.remove('dock-off');
  if(which==='new'){
-  const selected=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(selected))designUI.parentId=selected.id;
+  const selected=selItem(),selRef=st.sel?{...st.sel}:null,copy=typeof designNewCopySource==='function'?designNewCopySource(selected,selRef):null;
+  // v24 With a fitting or part selected, 新規配置 places another one of the same kind and settings
+  // (carryToPlace); the selected structure is no longer made the parent of the new placement then.
+  if(!copy&&st.sel?.list==='parts'&&C.isStructuralPart(selected))designUI.parentId=selected.id;
   if(st.sel?.list==='parts'&&selected?.k==='engineCore')rememberEngineCore(selected);
   designUI.mode=null;selClear();st.partTool=st.fitTool=st.bridgeTool='place';
   st.tab='mod';st.group=designUI.space==='exterior'?'shape':'support';st.part=designUI.space==='exterior'?'struct':(paletteParts('support')[0]||'hangar');st.equipmentId=null;
+  if(copy){designUI.parentId=null;palettePick(copy.type,copy.key);designUI.category=designCategoryForPick(copy.type,copy.key);st.sel=selRef;carryToPlace();}
+  // v24 Otherwise it reopens on what was placed last in this space, not on the default structure.
+  else if(typeof designNewRestore==='function')designNewRestore();
  }else if(which==='edit'||which==='list'){st.tab='edit';st.editTool='select';}else if(which==='performance')st.tab='spec';
  renderPanel();syncHud();requestDraw();
 }
@@ -4849,6 +4873,7 @@ function designUIBar(){
  el.innerHTML=`<p role="status">${esc(T(status))}</p>${target}<button type="button" class="btn ghost" data-design-action="adjust">設定に戻る</button><button type="button" class="btn ghost" data-design-action="cancel">配置を終了</button>`;
 }
 function designUIArm(){
+ if(typeof designNewRemember==='function')designNewRemember();
  const editing=st.tab==='edit',it=editing?selItem():null,p=it||designPartDefinition(),cap=designCapability(p);
  if(tool()==='userpart'){const template=userPartFind(st.userPart);if(!template||!designClipboardEditable(template)){designSpaceNotice();return;}designUI.replaceId=null;designUI.replaceList=null;designUI.armed=true;designUIClose(true);updateHint();return;}
  designUI.replaceId=editing&&['parts','fits'].includes(st.sel?.list)?it.id:null;designUI.replaceList=designUI.replaceId!=null?st.sel.list:null;
@@ -5111,7 +5136,7 @@ function start(hot) {
     window.claude.hot.snapshot(() => ({design: ship ? designUISavedDesign() : null, ui: {tab: st.tab, part: st.part, partTool: st.partTool, mirror: st.mirror, view: st.view, coded: st.coded, fit: st.fit, bridge: st.bridge, bridgeMode:st.bridgeMode,bridgeEquipment:st.bridgeEquipment,equipmentId:st.equipmentId,group:st.group,ped: st.ped,batteryCaliber:st.batteryCaliber,batteryGuns:st.batteryGuns}}));
   }
   Store.init();
-  window.__yard = {veObject: () => veObject(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
+  window.__yard = {veObject: () => veObject(), designUI, designUIOpen: w => designUIOpen(w), designUIArm: () => designUIArm(), designUIClose: k => designUIClose(k), tool: () => tool(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => {
