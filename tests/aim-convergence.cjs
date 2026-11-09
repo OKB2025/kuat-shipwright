@@ -20,7 +20,7 @@ test('a settled aim lands more of a battery’s fire than one just thrown off',(
  const settled=C.gunHitChance({...u,aim:1},t,30000,60000,1),thrown=C.gunHitChance({...u,aim:0},t,30000,60000,1);assert.ok(settled>thrown);
 });
 test('the fleet profile carries the fire-control ratio of its guns',()=>{
- const src=fs.readFileSync(path.join(root,'js/core.js'),'utf8');assert.match(src,/aimRatio:S\.craftSystems&&/);assert.match(src,/u\.aim=aimAfter\(aimBefore,p,dt,/);
+ const src=fs.readFileSync(path.join(root,'js/core.js'),'utf8');assert.match(src,/aimRatio:S\.craft&&Number/);assert.match(src,/u\.aim=aimAfter\(aimBefore,p,dt,/);
 });
 test('a bridge directs some fire: at least a quarter of the standard ratio, at most a half, on top of fire-control compartments',()=>{
  assert.equal(C.aimFireControlRatio(0,0,10),0);assert.equal(C.aimFireControlRatio(0,100,10),A.bridgeMin);assert.equal(C.aimFireControlRatio(0,1e9,10),A.bridgeMax);
