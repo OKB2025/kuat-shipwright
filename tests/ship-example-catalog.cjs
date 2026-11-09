@@ -73,8 +73,9 @@ test('the previous shared-core archives authenticate historical Onager metadata 
  for(const key of ['imperial','onager']){const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/'+key+'-shared-core-factory-blueprints/manifest.json'))),row=report.models.find(row=>row.key===key);assert.deepEqual(manifest.factorySourceSha256,report.sourceSha256);assert.equal(manifest.models[key].canonicalSha256,row.generation.outputCanonicalSha256);if(key==='onager')assert.equal(manifest.models[key].canonicalSha256,data.designs[key].model.blueprintSha256);}
 });
 
-test('the Onager catalogue has one three-outlet main body and two independent auxiliary bodies',()=>{
- const {data}=loadRuntime(root),model=data.designs.onager.p.propulsion,owners=model.engines.map(p=>p.coreId??p.machineryId);assert.equal(model.cores.length,3);assert.equal(model.engines.length,5);assert.deepEqual(plain(model.cores.map(p=>owners.filter(id=>id===p.id).length).sort()),[1,1,3]);
+// v24 One engine body directly forward of each nozzle (docs/engine-layout-v24.md).
+test('the Onager catalogue has one engine body for each of its five nozzles',()=>{
+ const {data}=loadRuntime(root),model=data.designs.onager.p.propulsion,owners=model.engines.map(p=>p.coreId??p.machineryId);assert.equal(model.cores.length,5);assert.equal(model.engines.length,5);assert.deepEqual(plain(model.cores.map(p=>owners.filter(id=>id===p.id).length)),[1,1,1,1,1]);
 });
 
 test('the CR90 catalogue retains one positive internal engine body per nozzle',()=>{

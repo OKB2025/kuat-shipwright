@@ -59513,13 +59513,6 @@ function onaBuild(opt={}){
  for(const [x0,x1] of D.lugTop)k.box('砲身の固定具（背面）',[x0,100,21],[x1,107.1,53],{corner:.08},true);
  for(const [x0,x1] of D.lugBottom)k.box('砲身の固定具（腹面）',[x0,27.3,21],[x1,38,53],{corner:.08},true);
  k.loftX('腹部ドーム後方のブロック',[[408,-30,30,34,42],[420,-30,30,33.5,42],[432,-30,30,28.3,42],[461,-30,30,28.3,42]],{corner:.06});
- // ---- the stern engine block (v24) ----
- // The STL closes the hull directly forward of the five nozzles: the central engine's housing (r 15 m)
- // runs from its nozzle to the inner faces of the stern plates, and the block beside the core starts
- // where the inner and outer nozzles end. The engine bodies sit in this block, on their nozzles' axes.
- k.loftX('中央機関の外筒',[[16,-15,15,50.4,80.4],[48,-15,15,50.4,80.4]],{corner:.45});
- k.box('艦尾機関ブロック（内側）',[58,50.4,16],[118,81,79],{corner:.04},true);
- k.box('艦尾機関ブロック（外側）',[66,50.4,79],[118,81,124],{corner:.04},true);
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- machinery ----
  // The solar ionization reactor sits in the body directly behind the barrels' breeches, its lower
@@ -59537,6 +59530,13 @@ function onaBuild(opt={}){
  // The superheavy composite-beam turbolasers: the two barrels along the split forward hull, each fed
  // straight from the main reactor.
  for(const sg of [-1,1]){const body=onaWeaponBody(s,sg);part('sbeam',(sg<0?'左舷':'右舷')+'125 PT超重合成ターボレーザー',body.center,38.2,{reactor:gen.id,weaponBody:body.weaponBody,weaponMuzzle:body.weaponMuzzle});}
+ // ---- the stern engine block (v24; added after the earlier parts so their ids stay as published) ----
+ // The STL closes the hull directly forward of the five nozzles: the central engine's housing (r 15 m)
+ // runs from its nozzle to the inner faces of the stern plates, and the block beside the core starts
+ // where the inner and outer nozzles end. The engine bodies sit in this block, on their nozzles' axes.
+ k.loftX('中央機関の外筒',[[16,-15,15,50.4,80.4],[48,-15,15,50.4,80.4]],{corner:.45});
+ k.box('艦尾機関ブロック（内側）',[58,50.4,16],[118,81,79],{corner:.04},true);
+ k.box('艦尾機関ブロック（外側）',[66,50.4,79],[118,81,124],{corner:.04},true);
  // The hyperdrive (canon class 1.75; the class-6 backup is not a separate unit), the inertial
  // compensators and the reactant silos run along the body between the engine tubes.
  part('hyper','ハイパードライブ',[165,66,33],26,{length:46,dir:[1,0,0]},true);
