@@ -6,7 +6,7 @@ function emptyShip(){const s=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect'
 function busFixture(){
  const s=emptyShip();s.parts=[
   {id:1,k:'gen',c:[200,60,0],d:20},
-  {id:2,k:'battery',c:[100,60,0],d:8},
+  {id:2,k:'fuel',c:[100,60,0],d:8},
   {id:3,k:'engine',c:[5,60,0],d:10,nozzleLength:10,reactor:1,dir:[-1,0,0],propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:1e18,machineryLengthM:12,machineryRadiusM:3,machineryOffsetM:5,busFeed:true,legacyCoolingInputW:0}
  ];s.parts.push({id:9000,k:'fuel',c:[270,100,50],d:4});s.nextId=4;s.links=[{kind:'power',from:'p1',to:'p2',cap:6e17},{kind:'power',from:'p2',to:'p3',cap:9e17}];return s;
 }

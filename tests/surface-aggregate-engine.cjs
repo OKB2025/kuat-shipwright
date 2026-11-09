@@ -46,7 +46,7 @@ test('real fleet/trial worker derives virtual casemate guns and rigidly poses th
 });
 
 test('a view refresh after common stats cannot transfer a transient whole simulation through native compartment caches',async()=>{
- const {C,ship,request,messages}=fixture();ship.parts.push({id:ship.nextId++,k:'battery',c:[80,40,30],d:2});
+ const {C,ship,request,messages}=fixture();ship.parts.push({id:ship.nextId++,k:'hdis',c:[80,40,30],d:2});
  await request({type:'update',gen:1,state:C.publicJSON(ship),what:['all'],reset:true,stats:true,statsDelay:0},'stats');
  const first=messages.find(m=>m.type==='geometry'&&m.gen===1),view=await request({type:'update',gen:2,state:first.state,what:['view'],stats:false},'geometry'),seen=new WeakSet(),bad=[];
  function walk(v,path){if(!v||typeof v!=='object'||seen.has(v)||ArrayBuffer.isView(v))return;seen.add(v);if(v._surfaceWorking||v._surfaceAdapter)bad.push(path);if(v instanceof Map)for(const [k,x]of v)walk(x,path+'.'+k);else for(const k of Object.keys(v))walk(v[k],path+'.'+k);}

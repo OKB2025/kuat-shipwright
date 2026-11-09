@@ -5,8 +5,9 @@ const archive=process.env.KS_MANDATOR_LAYOUT_BLUEPRINT||path.join(root,'assets/s
 let native,proof;function current(){if(!native){const bytes=fs.readFileSync(archive);native=JSON.parse(archive.endsWith('.gz')?zlib.gunzipSync(bytes):bytes.toString());}return native;}function currentProof(){return proof??=(layoutEvidence(C,plain(current())));}
 const near=(a,b,eps=1e-8)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=eps,`${a} != ${b}`),damaging=ship=>ship.fits.filter(f=>{const d=C.fitSpec(f);return d.cat==='w'&&!d.msl&&(d.tt||0)+(d.ion||0)>0;}),counts=ship=>Object.fromEntries(Object.entries(damaging(ship).reduce((out,f)=>(out[f.k]=(out[f.k]||0)+1,out),{})).sort());
 
-test('Mandator combines the batteries without changing main/ion or per-barrel PD energy',()=>{
- assert.deepEqual(plain(C.SHIP_REFERENCE.mandator2.batteryCounts),EXPECTED);
+// These checks keep the archived v23 layout (499 guns, 317,520 TT) verifiable. The v24 example follows
+// the user's design instead; tests/mandator-example-refit.cjs covers it.
+test('the archived v23 Mandator combines the batteries without changing main/ion or per-barrel PD energy',()=>{
  let mainIon=0,pointDefence=0,defenceBarrels=0;for(const [k,n]of Object.entries(EXPECTED)){const s=C.fitSpec({k}),volley=n*((s.tt||0)+(s.ion||0));if(k==='pd'||k==='monCalPD'){pointDefence+=volley;defenceBarrels+=n*s.barrels;near(s.boltTT,1e-7,1e-15);}else mainIon+=volley;}
  near(mainIon,317520,1e-8);near(pointDefence,.00005,1e-12);assert.equal(defenceBarrels,500);assert.equal(Object.values(EXPECTED).reduce((a,b)=>a+b,0),499);assert.equal(C.fitSpec({k:'quad175'}).barrels,4);assert.equal(C.fitSpec({k:'ball175QuadIon'}).barrels,4);
 });

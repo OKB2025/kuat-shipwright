@@ -31,7 +31,7 @@ test('posed roots use the custom pivot, and matching posed fit objects rebuild o
 });
 
 test('carried cylinders and boxes rotate their physical axes with the runtime foil',()=>{
- const {ship,wing,hold}=fixture('y'),engine={id:3,k:'engine',c:[21,20,15],d:1,dir:[-1,0,0]},box={id:4,k:'battery',c:[19,20,15],d:2,room:[2,4,1],yaw:23,surfaceNormal:[0,1,0]};
+ const {ship,wing,hold}=fixture('y'),engine={id:3,k:'engine',c:[21,20,15],d:1,dir:[-1,0,0]},box={id:4,k:'hdis',c:[19,20,15],d:2,room:[2,4,1],yaw:23,surfaceNormal:[0,1,0]};
  ship.parts.push(engine,box);wing.wing.members={parts:[3,4],fits:[]};const sourceFrame=C.structFrame(box),frame=C.foilFrame(ship,wing),rotate=v=>C.sub(C.foilAt(frame,wing,C.add(frame.pv,v),0),frame.pv),result=pose(hold,{[wing.id]:0});
  near(result.ship.parts.find(p=>p.id===engine.id).dir,rotate(engine.dir));const posedBox=result.ship.parts.find(p=>p.id===box.id),posedFrame=C.structFrame(posedBox);near(posedFrame.fw,rotate(sourceFrame.fw));near(posedFrame.up,rotate(sourceFrame.up));
  near(posedBox.c,C.foilAt(frame,wing,box.c,0));assert.equal(box.yaw,23);

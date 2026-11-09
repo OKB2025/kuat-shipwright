@@ -9,34 +9,34 @@ const C=vm.runInContext('Core',context),near=(a,b,tol=1e-7)=>assert.ok(Number.is
 let built;
 function mandator(){if(!built){const ship=C.buildDesign('mandator2'),stats=C.shipRefitMeasure(ship);built={ship,stats};}return built;}
 
-test('Mandator declared battery reaches the requested main/ion salvo with the current PD calibration',()=>{
- const ref=C.SHIP_REFERENCE.mandator2,counts=ref.batteryCounts;assert.deepEqual(JSON.parse(JSON.stringify(counts)),{utl:163,ball720:80,quad175:16,ball175Quad:6,ball175QuadIon:14,pd:160,monCalPD:60});
- const volley=k=>{const d=C.fitSpec({k});return (d.tt||0)+(d.ion||0);},mainAndIon=['utl','ball720','quad175','ball175Quad','ball175QuadIon'].reduce((n,k)=>n+counts[k]*volley(k),0),pd=counts.pd*volley('pd')+counts.monCalPD*volley('monCalPD');
- near(mainAndIon,317520,1e-12);near(mainAndIon,ref.mainIonVolleyTT,1e-12);near(pd,.00005,1e-12);near(pd,ref.pointDefenseVolleyTT,1e-12);near(C.fitSpec({k:'pd'}).boltTT,1e-7,1e-15);assert.equal(C.fitSpec({k:'pd'}).barrels,2);assert.equal(C.fitSpec({k:'monCalPD'}).barrels,3);near(C.fitSpec({k:'monCalPD'}).boltTT,1e-7,1e-15);
- for(const k of ['quad175','ball175Quad','ball175QuadIon']){assert.equal(C.fitSpec({k}).barrels,4);near(C.fitSpec({k}).boltTT,175,1e-12);}assert.equal(C.fitSpec({k:'ball720'}).barrels,1);near(C.fitSpec({k:'ball720'}).boltTT,720,1e-12);
+// v24: the example follows the user's design; the ventral keel is filled with 720 TT twins and
+// 175 TT quads until no seat remains, 3% short of the requested 120,000 TT (docs/mandator-ii-refit.md).
+const COUNTS={utl:61,quad175:38,ion:6},MAIN=['utl','quad175','ion'];
+const volleyOf=f=>{const d=C.fitSpec(f);return (d.tt||0)+(d.ion||0);};
+
+test('Mandator declared battery is the user dorsal battery plus the filled ventral keel',()=>{
+ const ref=C.SHIP_REFERENCE.mandator2,counts=ref.batteryCounts;assert.deepEqual(JSON.parse(JSON.stringify(counts)),COUNTS);
+ const mainAndIon=MAIN.reduce((n,k)=>n+counts[k]*volleyOf({k}),0);near(mainAndIon,116540,1e-12);assert.equal(ref.mainIonVolleyTT,120000);assert.ok(Math.abs(mainAndIon/ref.mainIonVolleyTT-1)<=.035);
+ assert.equal(C.fitSpec({k:'quad175'}).barrels,4);near(C.fitSpec({k:'quad175'}).boltTT,175,1e-12);assert.equal(C.fitSpec({k:'utl'}).barrels,2);near(C.fitSpec({k:'utl'}).boltTT,720,1e-12);
 });
 
-test('Mandator II derives its requested output, shield storage and exact complete salvo from physical equipment',()=>{
- const {ship,stats}=mandator(),counts=Object.fromEntries(['utl','ball720','quad175','ball175Quad','ball175QuadIon','pd','monCalPD'].map(k=>[k,ship.fits.filter(f=>f.k===k).length]));
- assert.deepEqual(counts,{utl:163,ball720:80,quad175:16,ball175Quad:6,ball175QuadIon:14,pd:160,monCalPD:60});
- const salvo=f=>(C.fitSpec(f).tt||0)+(C.fitSpec(f).ion||0),mainAndIon=ship.fits.filter(f=>['utl','ball720','quad175','ball175Quad','ball175QuadIon'].includes(f.k)).reduce((n,f)=>n+salvo(f),0),pd=ship.fits.filter(f=>f.k==='pd'||f.k==='monCalPD').reduce((n,f)=>n+salvo(f),0),volley=ship.fits.filter(f=>C.FITS[f.k]?.cat==='w'&&!C.FITS[f.k].msl).reduce((n,f)=>n+salvo(f),0);
- near(mainAndIon,317520,1e-12);near(pd,.00005,1e-12);near(volley,317520.00005,1e-12);near(stats.allGunVolleyTT,317520.00005,1e-12);
- for(const f of ship.fits.filter(f=>f.k==='pd')){near(C.fitSpec(f).boltTT,1e-7,1e-15);assert.equal(C.fitSpec(f).barrels,2);}
+test('Mandator II derives its requested output, shield storage and salvo from physical equipment',()=>{
+ const {ship,stats}=mandator(),counts=Object.fromEntries(MAIN.map(k=>[k,ship.fits.filter(f=>f.k===k).length]));
+ assert.deepEqual(counts,COUNTS);assert.equal(ship.fits.filter(f=>f.k==='stl').length,0,'the user 175 TT mounts carry quads');
+ const mainAndIon=ship.fits.filter(f=>MAIN.includes(f.k)).reduce((n,f)=>n+volleyOf(f),0);near(mainAndIon,116540,1e-12);
+ const below=ship.fits.filter(f=>['utl','quad175'].includes(f.k)&&f.mountMode==='bottom');assert.ok(below.length>=30,'the ventral keel carries guns');
  near(stats.power,7.7e26);near(stats.shieldCapacity,7.7e27);near(stats.shieldDissipationW,184034,1e-12);
- const reactors=ship.parts.filter(C.isReactor);assert.equal(reactors.length,2);assert.equal(reactors.find(p=>p.k==='gen').d,420);assert.ok(reactors.find(p=>p.k==='aux').room,'additional output occupies a real internal auxiliary room');
- for(const reactor of reactors)near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY,1e-12);
- near(ship.shipSystemRefit.baselinePowerW,7.7e26);near(ship.shipSystemRefit.installedPowerW,7.7e26);assert.deepEqual(Array.from(ship.shipSystemRefit.addedReactors),[]);
- assert.ok(ship.fits.filter(f=>['utl','ball720','quad175','ball175Quad','ball175QuadIon','pd','monCalPD'].includes(f.k)).every(f=>!f.float),'all guns have physical hull stations');
+ for(const reactor of ship.parts.filter(C.isReactor))near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY,1e-12);
+ assert.ok(ship.fits.filter(f=>C.FITS[f.k]?.cat==='w').every(f=>!f.float),'all guns have physical hull stations');
  for(const p of ship.parts.filter(p=>p.k==='engine'))assert.equal(stats.info[p.id]?.vent,true,'engine '+p.id+' remains usable');
  assert.ok(!Object.values(stats.info).some(i=>i.overlap),'real source and machinery volumes do not overlap');
- assert.ok(stats.habit>=1,'the added plant and charging rooms leave enough crew accommodation');
- for(const f of ship.fits.filter(f=>['utl','ball720','quad175','ball175Quad','ball175QuadIon','pd','monCalPD'].includes(f.k)))assert.ok((stats.chargeInfo[f.id]?.ratio??1)>=.99999&&!stats.chargeInfo[f.id]?.blocked,'full single-volley storage for gun '+f.id);
+ for(const f of ship.fits.filter(f=>MAIN.includes(f.k)))assert.ok((stats.chargeInfo[f.id]?.ratio??1)>=.99999&&!stats.chargeInfo[f.id]?.blocked,'full single-volley storage for gun '+f.id);
 });
 
 test('Mandator reactor volume and shield dissipation survive saving without reauthoring a custom design',()=>{
  const {ship,stats}=mandator(),blueprint=JSON.parse(JSON.stringify(C.serialize(ship))),loaded=C.deserialize(blueprint);C.syncCompartments(loaded);const measured=C.shipRefitMeasure(loaded);
  near(measured.power,stats.power);near(measured.shieldCapacity,stats.shieldCapacity);near(measured.shieldDissipationW,184034,1e-12);
- assert.equal(loaded.parts.filter(C.isReactor).length,2);assert.deepEqual(Array.from(loaded.parts.filter(p=>p.k==='shield'),p=>p.shieldDissipationW),Array.from(ship.parts.filter(p=>p.k==='shield'),p=>p.shieldDissipationW));
+ assert.equal(loaded.parts.filter(C.isReactor).length,ship.parts.filter(C.isReactor).length);assert.deepEqual(Array.from(loaded.parts.filter(p=>p.k==='shield'),p=>p.shieldDissipationW),Array.from(ship.parts.filter(p=>p.k==='shield'),p=>p.shieldDissipationW));
  const profile=C.fleetProfile(measured,loaded.name,loaded);near(profile.shieldDissipationW,184034,1e-12);near(profile.shieldBuffer*C.TT,7.7e27);
  assert.ok(!Object.values(measured.info).some(i=>i.overlap));
 });
