@@ -3,8 +3,8 @@ const {C,R,P,near,plain,unit,allocate}=require('./helpers/global-energy-runtime.
 C.HEAT.qAllowJPerKg=1e20;
 function world(stirred=false){const p=unit().p,w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[{key:'electrical-loss',p,info:{mass:1000,hyper:1,capital:true,sensor:0}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'electrical-loss'}],[]]}),u=[...w.units.values()][0];u.order={...u.order,type:'hold'};w.stir=stirred?new Map([[u.sys,{t0:w.time,still:0}]]):new Map();return {w,u};}
 
-test('throttle zero and weapon priority remove thrust without disabling live generation',()=>{
- for(const kind of ['idle','weapons']){const u=unit({weaponW:P});allocate(u,{throttle:kind==='idle'?0:1,weapons:kind==='weapons'?P:0},.1,kind==='weapons'?'weapons':'balanced');near(u.propulsion.actualInputW,0);near(C.shipElectricalAvailableW(u),P);assert.equal(u.out,null);assert.equal(u.powerLossDisabled,undefined);}
+test('throttle zero and actual weapon recharge remove thrust without disabling live generation',()=>{
+ for(const kind of ['idle','weapons']){const u=unit({weaponW:P});u.p.wCap=1;u.energy=0;allocate(u,{throttle:kind==='idle'?0:1,weapons:kind==='weapons'?P:0},.1,kind==='weapons'?'weapons':'balanced');near(u.propulsion.actualInputW,0);near(C.shipElectricalAvailableW(u),P);assert.equal(u.out,null);assert.equal(u.powerLossDisabled,undefined);}
 });
 test('reserving the whole plant for superweapon charging is not electrical source loss',()=>{
  const u=unit();u.p.sw=[{k:'sbeam',r:1,rk:'gen',mod:5,chargeW:P,Pshare:1}];u.sw=[{st:'charge',c:0}];near(C.shipElectricalAvailableW(u),P);allocate(u,{},0);near(u.pw.P,0);near(u.propulsion.actualInputW,0);assert.equal(u.out,null);assert.equal(C.syncPowerLossDisabled(u),false);
