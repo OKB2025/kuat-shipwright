@@ -26,7 +26,7 @@ test('mirrored wing identity and editable native panel settings survive save and
 
 
 test('fresh factory combat profiles record the native-wing physical revision through cleaning and JSON',()=>{
- const expected={key:'craft_tie_ln',version:C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision};assert.equal(expected.version,2);
+ const expected={key:'craft_tie_ln',version:C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision};assert.equal(expected.version,3,'v24 smaller engine nozzles');
  const craft=C.craftPowerProfile(ship,stats),fleet=C.fleetProfile(stats,ship.name,ship);
  for(const p of [craft,fleet]){assert.deepEqual(plain(p.referencePhysicalRevision),expected);assert.equal(C.referencePhysicalProfileCurrent(p,'craft_tie_ln'),true);}
  const clean=C.cleanCraftPowerProfile(plain(craft));assert.ok(clean);assert.deepEqual(plain(clean.referencePhysicalRevision),expected);
