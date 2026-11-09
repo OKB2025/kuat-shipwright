@@ -1,0 +1,41 @@
+{
+  "status": "EXPECTED_REGRESSION_FAILURES",
+  "scope": "Exact new lifecycle tests against the previous main KSAudio source with browser API doubles; not a physical iOS recording.",
+  "baselineCommit": "dce8d108bf1845c020da3a3022046ace72abcb73",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/audio-session-recovery.cjs"
+  ],
+  "environment": {
+    "KS_TEST_ROOT": "/workspace/scratch/audio-session-review/baseline-main"
+  },
+  "sourceSha256": {
+    "js/app.js": "86a318472b200e9e57f7d2a6b69d67d0d93cab29ab6a753006e855eb969a8136"
+  },
+  "testSha256": {
+    "tests/audio-session-recovery.cjs": "cb86f28e0685ec6410e3b8ddf422a624a51e963ebf7196d5d2ebe4529ddccea2"
+  },
+  "exitCode": 1,
+  "summary": [
+    "# tests 8",
+    "# pass 2",
+    "# fail 6",
+    "# cancelled 0",
+    "# duration_ms 749.668306"
+  ],
+  "intentionalRegressionFailures": [
+    "not ok 1 - page setup stays silent until a gesture and requests playback before constructing its one audio context",
+    "not ok 3 - a fresh user gesture reclaims a playback session reset by the platform",
+    "not ok 4 - an interrupted unlocked engine recovers on foreground return without rebuilding or restarting the recorded track",
+    "not ok 5 - failed foreground recovery remains retryable by the next user gesture",
+    "not ok 6 - a platform-restored running context resumes the interrupted media slot without a foreground event",
+    "not ok 8 - a rejected recorded-slot resume keeps its retry and resumes at its saved position on a gesture"
+  ],
+  "preservedPasses": [
+    "ok 2 - unsupported or restricted audioSession does not disable the established sound path",
+    "ok 7 - foreground events cannot start never-unlocked, muted, zero-volume or hidden audio"
+  ],
+  "logSha256": "255dac8738ef1def89932be79f288d9c7214dd4e4e0206ae11640029aac8e48a"
+}
