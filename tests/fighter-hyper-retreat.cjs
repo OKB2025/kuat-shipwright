@@ -11,7 +11,16 @@ function retreatFixture(air=[{craft:'xwing',n:6,wingNo:1},{craft:'tie_ln',n:6,wi
  for(const s of w.squads.values()){s.state='out';s.pos=[home.pos[0]+1000000,home.pos[1]+5000,home.pos[2]];s.h=[1,0,0];s.vel=[2000,0,0];s.ops=null;s.t=0;}
  return {w,home,g,wing,from,to};
 }
-function leave(a){const r=Rts.orderJump(a.w,a.g.id,a.to);if(!r.ok)throw Error(r.why);a.g.spool.t=a.g.spool.need-.25;a.g.spool.seq=[];Rts.tick(a.w,.25);return a;}
+function leave(a){
+ // Cohort tests begin in a legitimate forward cruise. Physical acceleration
+ // from rest is covered by the dedicated hyperspace preparation tests.
+ const route=Rts.routePath(a.w.sector,a.home.sys,a.to),from=a.w.sector.systems[route.path[0]].pos,to=a.w.sector.systems[route.path[1]].pos,dir=Core.norm([to[0]-from[0],0,to[1]-from[1]]);
+ a.home.yaw=Math.atan2(dir[2],dir[0]);a.home.velocity=Core.mul(dir,.95*Core.propulsionTerminalSpeed(a.home));Core.allocateShipPower(a.home,Core.fleetSystems(a.home),{throttle:1},0,'balanced');
+ const r=Rts.orderJump(a.w,a.g.id,a.to);if(!r.ok)throw Error(r.why);a.g.spool.t=a.g.spool.need-.25;
+ for(let i=0;i<80&&!a.g.transit;i++)Rts.tick(a.w,.25);
+ if(!a.g.transit)throw Error('Cruising carrier did not complete actual jump preparation: '+JSON.stringify(Rts.groupHyperspaceReadiness(a.w,a.g)));
+ return a;
+}
 function advance(a,predicate,limit=2400){for(let i=0;i<limit&&!predicate();i++)Rts.tick(a.w,.25);if(!predicate())throw Error('Timed out at '+a.w.time);}
 `);
 test('mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind',()=>{
@@ -40,6 +49,6 @@ test('the battle continues and point defence can hit fighters while they spool a
  assert.equal(r.battle,true);assert.equal(r.motherAway,true);assert.equal(r.phase,'spool');assert.ok(r.hurt>0);assert.equal(r.fire,false);
 });
 test('resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs',()=>{
- const r=run(`(()=>{const a=retreatFixture([{craft:'bwing',n:12}]),s=[...a.w.squads.values()][0];s.n=6;s.slots=[0,1,2,3,4,5];s.lostN=6;s.rep=.5;s.ops={k:'launch',u:a.home.id,m:0,t0:0,per:1,t1:100,n:6};a.w.time=2.5;leave(a);const child=[...a.w.squads.values()].find(q=>q.followParent===s.id),childCredit=child.rep;a.g.transit.t1=a.w.time;a.w.sides[0].home=[a.to];a.w.sides[0].supply.rate=1e9;a.w.sides[0].supply.cap=1e9;a.w.timers.sup=0;for(let i=0;i<16;i++)Rts.tick(a.w,.25);const held={n:s.n,credit:s.rep,need:a.home.supplyNeed?.craft};advance(a,()=>a.w.squads.size===1&&s.state==='docked');advance(a,()=>s.n===12);return {held,childCredit,n:s.n,n0:s.n0,unique:new Set(s.slots).size,count:s.slots.length,rep:s.rep};})()`);
+ const r=run(`(()=>{const a=retreatFixture([{craft:'bwing',n:12}]),s=[...a.w.squads.values()][0];s.n=6;s.slots=[0,1,2,3,4,5];s.lostN=6;s.rep=.5;s.ops={k:'launch',u:a.home.id,m:0,t0:0,per:1,t1:100,n:6};a.home.mq=[s.ops.t0+s.ops.n*s.ops.per];a.w.time=2.5;leave(a);const child=[...a.w.squads.values()].find(q=>q.followParent===s.id),childCredit=child.rep;a.g.transit.t1=a.w.time;a.w.sides[0].home=[a.to];a.w.sides[0].supply.rate=1e9;a.w.sides[0].supply.cap=1e9;a.w.timers.sup=0;for(let i=0;i<16;i++)Rts.tick(a.w,.25);const held={n:s.n,credit:s.rep,need:a.home.supplyNeed?.craft};advance(a,()=>a.w.squads.size===1&&s.state==='docked');advance(a,()=>s.n===12);return {held,childCredit,n:s.n,n0:s.n0,unique:new Set(s.slots).size,count:s.slots.length,rep:s.rep};})()`);
  assert.equal(r.held.n,3);assert.equal(r.held.credit,.5);assert.equal(r.held.need,0);assert.equal(r.childCredit,0);assert.equal(r.n,12);assert.equal(r.n0,12);assert.equal(r.count,12);assert.equal(r.unique,12);assert.equal(r.rep,0);
 });

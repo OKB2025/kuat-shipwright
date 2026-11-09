@@ -5,6 +5,8 @@ const {C,R,D}=run('({C:Core,R:Rts,D:YardFleetData.designs})'),app=fs.readFileSyn
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 run(`
 const C=Core,TT_J=C.TT,trial={};let aimPoint=[10000,0,0],downs=0;
+// The isolated gunnery harness resolves the same live unit as the app.
+const trialSystemsUnit=()=>trial.battle?.me||trial.systemsUnit||null;
 Math.random=()=>.1;
 const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
 const trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],trialCraftGasReady=()=>true,trialCraftGasTake=()=>true,sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'',trialThreatDown=q=>{q.alive=false;downs++;};
@@ -31,6 +33,12 @@ test('only explicitly designated point defence automatically intercepts, indepen
  assert.deepEqual(plain(C.weaponRoles({tt:2e-6,aa:6,pointDefense:true})),{pointDefense:true,dualPurpose:false,purePointDefense:true});
  for(const spec of [C.FITS.ion,{tt:5,aa:6,dualPurpose:true,ion:1},{tt:5,aa:6,dualPurpose:true,msl:1}])assert.equal(C.weaponRoles(spec).pointDefense,false);
  assert.equal(C.weaponRoles(C.FITS.quad200).dualPurpose,false);assert.ok(C.FITS.quad200.aa>C.FITS.stl.aa,'a normal gun retains its real tracking capability without becoming automatic point defence');
+});
+
+test('disabling automatic interception preserves deliberate fire for pure and dual-purpose PD mounts',()=>{
+ for(const key of['pd','testPurePd']){cx.key=key;run("reset(key);trial.fire=false;threat('missile');C.setAutomaticPointDefense(trial.systemsUnit,false);var before=trial.energy.E;trialGunnery(.01)");assert.equal(run('trial.gun.pd||0'),0);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.turrets[0].pdTarget'),null);assert.equal(run('trial.energy.E'),run('before'));assert.equal(run('trial.turrets[0].pdCapable'),true);
+ run('trial.fire=true;trialGunnery(.01)');assert.ok(run('trial.gun.shots')>0);assert.equal(run('trial.gun.pd||0'),0);assert.ok(run('trial.bolts.every(b=>!b.pd)'));assert.ok(run('trial.energy.E<before'));
+ }
 });
 
 test('the real small dual-purpose gun fires at ships and switches to automatic missile/craft interception',()=>{
@@ -98,6 +106,9 @@ test('real RTS missile interception reserves the battery for the step and ship f
 
 function tacticalFixture(){
  const p=fleetProfile();p.gunArcs=Array(6).fill(25);p.gunBands.mid=Array(6).fill(25);
+ // This synthetic 25 TT/s battery needs a finite capital-ship thermal mass;
+ // inheriting the cached CR90 mass blacks it out after its first paid shot.
+ p.mass=1e9;p.propulsion={...p.propulsion,massKg:1e12};
  const q=plain(p);delete q.dualPurpose;q.aa=0;q.aaArcs=Array(6).fill(0);q.gunArcs=Array(6).fill(0);q.gunBands.mid=Array(6).fill(0);
  const u=C.fleetUnit('a-defender','own',p,0),e=C.fleetUnit('z-attacker','enemy',q,1);u.pos=[0,0,0];e.pos=[12000,0,0];u.yaw=0;e.yaw=Math.PI;
  for(const x of [u,e])x.order={type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'};
@@ -120,18 +131,19 @@ test('the real tactical fleet clock assigns the battery to aircraft defence and 
 
 test('aircraft arriving after tactical role selection cannot reuse a ship-firing battery for AA in that step',()=>{
  const f=tacticalFixture();f.e.queue=[[0,8]];
- const shots=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(shots,f.u.id)>0);near(f.e.air,8);
+ const shots=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(shots,f.u.id)>0);near(f.e.air,8);assert.equal(f.u.ht.online,true,'the synthetic battery remains physically able to defend on the next step');
  const defended=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(defended,f.u.id),0);assert.ok(f.e.air<8);
 });
 
 test('tactical reservation ignores ceased fire and empty magazines while independent AA remains active',()=>{
  const f=tacticalFixture();
- // Keep this multi-step role-selection fixture thermally online. Its finite
- // gun output is deliberately synthetic; inherited tiny-craft machinery mass
- // otherwise blacked it out before the empty-magazine assertion even on main.
- for(const u of [f.u,f.e]){u.p.mass=1e9;u.p.propulsion={...u.p.propulsion,massKg:1e12};}
+ // Back the independent AA rating with an actual typed, connected PD output
+ // and finite reactor/capacitor budget rather than adding a free AA statistic.
+ const P=f.u.p.grid.P;
+ f.u.p.modules=[{k:'reactor',part:90,port:'p90',domain:'main',size:1,share:1},{k:'weapon',fit:91,port:'f91',domain:'main',size:1,share:.5,pd:true,dualPurpose:true,weaponPowerW:25*C.TT,powerConnected:true},{k:'weapon',fit:92,port:'f92',domain:'main',size:1,share:.5,pd:true,dualPurpose:false,weaponPowerW:C.FITS.testPurePd.power,powerConnected:true}];f.u.mods=[1,1,1];
+ f.u.p.grid.domains=[{id:'main',P,sources:[{moduleIndex:0,P}],modules:[0,1,2]}];f.u.p.grid.powerPaths=[{from:'p90',to:'f91',cap:P,ok:true},{from:'p90',to:'f92',cap:P,ok:true}];
  f.u.p.aa=8;f.u.p.aaArcs=Array(6).fill(8);f.e.queue=[[0,8]];
- tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(f.e.air<8,'the two independent AA points retain their existing role');
+ tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(f.e.air<8,'the two independent AA points retain their existing role');assert.ok(f.u.pointDefenseLastFire?.spentTT>0,'independent interception pays from its real stored weapon energy');
  f.e.air=0;f.e.p.msl=80;f.e.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},{k:'launcher',fit:2,port:'f2',domain:'main',name:'Finite missile cell',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]}];f.e.mods=[1,1];f.e.ammo=[0,0];f.e.p.grid.fixed=1e15;f.e.p.grid.fixedLoads=[{id:'f2',port:'f2',domain:'main',weight:1e15}];
  const empty=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(empty,f.u.id)>0);
  f.e.ammo[1]=6;f.e.order.fire=false;const ceased=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(ceased,f.u.id)>0);

@@ -2374,7 +2374,7 @@ const LOAD_TIPS=[
  '航行不能の艦は惑星の重力に引かれて落ちていきます。牽引ビームで捕まえれば止められます。',
  '戦術図で艦をタップすると、1回目でその任務群、2回目でその艦を選びます。',
  '「命令」で作戦図と戦術図を開きます。3D視点に戻るには「3D視点」を押します。',
- 'ハイパードライブの準備中は砲撃できず、被弾している間は準備が止まります。',
+ 'ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。',
  '母港の星系では、破壊された機器の交換や乗員の補充まで行えます。',
  '船体破断・爆沈・航行不能。艦の最期はその壊れ方で決まります。'
 ];
@@ -7452,7 +7452,7 @@ const GUN_MODES={
  free:{name:'自由照準',short:'自由',note:'照準線の先、または照準に捉えた目標を狙います'},
  enemy:{name:'敵方固定',short:'敵固定',note:'視点を動かしても、捉えた目標（なければ最寄りの敵）を追い続けます'},
  home:{name:'初期位置固定',short:'初期位置',note:'砲塔を初期位置に戻して固定します。射撃は砲身の向きへ'}};
-const trial={on:false,gunMode:'free',gunTarget:null,paused:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'ship',camF:null,rec:null,dust:null,warn:'',designCamera:null,
+const trial={on:false,gunMode:'free',gunTarget:null,paused:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'ship',camF:null,rec:null,dust:null,warn:'',designCamera:null,
  stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],launchers:[],bolts:[],missiles:[],fx:[],wrecks:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null,lead:null,power:null,mslOrder:false,energy:null,powerMode:'propulsion',engF:0,thrustWant:0,sysKey:'coruscant',mode:'trial',vbolts:[],jump:null,navigation:null,flash:0,hitFlash:0,battle:null,battlePlan:null};
 const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]]};
 function trialRot(v,axis,ang){const c=Math.cos(ang),s=Math.sin(ang),d=tv.dot(axis,v),x=tv.cross(axis,v);return [v[0]*c+x[0]*s+axis[0]*d*(1-c),v[1]*c+x[1]*s+axis[1]*d*(1-c),v[2]*c+x[2]*s+axis[2]*d*(1-c)];}
@@ -7590,7 +7590,7 @@ function trialCraftSystemsHTML(){
  return html;
 }
 function trialReset(){
- if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
+ if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
  const bank=trial.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);trial.energy={E:bank,cap:bank};trial.engF=0;trial.thrustWant=0;trial.mainThrustShare=0;trial.steeringWant=0;trial.power=null;trial.propulsion=null;
@@ -7704,7 +7704,9 @@ function trialLauncherPowered(l){
 function trialPropulsionMotion(unit=trialSystemsUnit()){
  return unit&&typeof C.propulsionMotion==='function'?C.propulsionMotion(unit):{acc0:0,acc:0,turn:0};
 }
-function trialThrottleCommand(){return C.clamp(Number(TRIAL_TELEGRAPH[trial.tele]?.[1])||0,-1,1);}
+function trialThrottleCommand(){return Number.isFinite(trial.throttle)?C.clamp(trial.throttle,0,1):C.clamp(Number(TRIAL_TELEGRAPH[trial.tele]?.[1])||0,-.25,1);}
+function trialSetThrottle(value){if(!Number.isFinite(value))return;trial.throttle=C.clamp(value,0,1);}
+function trialThrottleKeys(dt){if(!(dt>0)||!trial.keys)return;const up=trial.keys.has('KeyW')||trial.keys.has('ArrowUp'),down=trial.keys.has('KeyS')||trial.keys.has('ArrowDown');if(up!==down)trialSetThrottle(trialThrottleCommand()+(up?1:-1)*.35*dt);}
 function trialMainOutput(unit=trialSystemsUnit()){
  const p=unit?.propulsion;if(!(p?.actualInputW>0)||!(trialPropulsionMotion(unit).acc>0))return 0;
  return C.clamp(p.outputRatio||0,0,1)*C.clamp(trial.mainThrustShare??1,0,1);
@@ -7716,6 +7718,7 @@ function trialPropulsionWarning(){
 function trialStep(dt){
  if(!(dt>0)||!Number.isFinite(dt))return;
  if(dt>.05+1e-12){const steps=Math.ceil(dt/.05);for(let i=0;i<steps;i++)trialStep(dt/steps);return;}
+ trialThrottleKeys(dt);
  const activeUnit=trialSystemsUnit();if(activeUnit)C.syncPowerLossDisabled(activeUnit);
  const blocked=!!(activeUnit?.out||activeUnit?.dead),p=trial.p,a=trialAttitude(),max=trialMaxRates(),stick=trialStickInput(),cr=!!trial.craft;
  if(Math.abs(stick.x)>.05||Math.abs(stick.y)>.05)trial.level=false;
@@ -7735,7 +7738,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt);
+ const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
  const up=tv.norm(trial.P),floor=trialSys().planet.radius+trialSys().floor;trial.warn='';
  if(tv.len(trial.P)<floor){trial.P=tv.scale(up,floor);const vr=tv.dot(trial.V,up);if(vr<0)trial.V=tv.add(trial.V,up,-vr);trial.warn='大気圏上層：これ以上は降下できません';}
@@ -7743,7 +7746,7 @@ function trialStep(dt){
  trial.vf=tv.dot(trial.V,f);
  const d=trial.dust,H=d.H,mv=tv.scale(trial.V,dt);for(let i=0;i<d.pos.length;i+=3)for(let j=0;j<3;j++){let x=d.pos[i+j]-mv[j];if(x>H)x-=2*H*Math.ceil((x-H)/(2*H));else if(x<-H)x+=2*H*Math.ceil((-H-x)/(2*H));d.pos[i+j]=x;}
  const r=trial.rec,vmax=p.maxSpeed;r.top=Math.max(r.top,trial.vf);
- if(trial.tele===5&&!r.run&&trial.vf<.02*vmax)r.run={t0:trial.t};if(r.run&&trial.tele!==5)r.run=null;if(r.run&&trial.vf>=.98*vmax){r.accel=trial.t-r.run.t0;r.run=null;}
+ if(trialThrottleCommand()>=.999&&!r.run&&trial.vf<.02*vmax)r.run={t0:trial.t};if(r.run&&trialThrottleCommand()<.999)r.run=null;if(r.run&&trial.vf>=.98*vmax){r.accel=trial.t-r.run.t0;r.run=null;}
  if(Math.abs(trial.rudder)===2&&Math.abs(trial.vf)>.05*vmax&&Math.abs(Math.abs(trial.w[1])-max[1])<.03*max[1]){r.turn=2*Math.abs(trial.vf)/Math.abs(trial.w[1]);r.turnSpeed=trial.vf;}
 }
 // ---- gunnery ----
@@ -7864,10 +7867,10 @@ function trialPowerStep(dt,want){
  if(!g||!me||typeof C.allocateShipPower!=='function'){
   trial.engF=0;trial.propulsion=null;trial.power={load:0,engF:0,got:null,P:0};return;
  }
- const mode=trial.powerMode||'propulsion',M=C.POWER_MODES[mode]||C.POWER_MODES.propulsion||C.POWER_MODES.balanced,s=C.fleetSystems(me),regen=me.shield<me.shieldMax*.999||me.underFire||(me.bank||0)<(me.bankMax||0)*.999,input=C.weaponInputFactor(p),lim=x=>C.heatLim(me,x);
+ const mode='balanced',s=C.fleetSystems(me),input=C.weaponInputFactor(p),lim=x=>C.heatLim(me,x);
  if(me.ionDrained){en.E=Math.max(0,en.E-me.ionDrained);me.ionDrained=0;}
  me.energy=en.E;me.maneuver=C.clamp(trial.thrustWant||0,0,1);me.order={...me.order,power:mode};
- const demand={throttle:me.maneuver,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*(regen?M.shields:1)*lim('shield')),weapons:Math.max(0,Math.min(g.Dw*s.weapon*M.weapons,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon'))};
+ const demand={throttle:me.maneuver,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*lim('shield')),weaponFireW:Math.max(0,want||0)*input,weapons:Math.max(0,Math.min(g.Dw*s.weapon,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon'))};
  const solved=C.allocateShipPower(me,s,demand,dt,mode),got=solved.got,P=solved.P||0;
  if(me.p?.surface?.mounts&&typeof C.surfaceManualCharge==='function'){
   const offered=got.weapons,charged=C.surfaceManualCharge(me,offered,dt);got.weapons=dt>0?Math.min(offered,charged*TT_J*input/dt):0;got.draw=Math.max(0,got.draw-offered+got.weapons);en.E=me.energy;
@@ -7876,8 +7879,8 @@ function trialPowerStep(dt,want){
  if(me.pw){me.pw.wpn=got.weapons;me.pw.drawNonCooling=got.draw;}
  C.heatAccrue(me,got,solved.cooling?.fixed||0,dt);
  // The world updates a battle unit's thermal state. Solo practice owns one
- // thermal update here; both use the previous update's acceptance limit.
- if(me===trial.systemsUnit&&dt>0){const ctx={time:trial.t||0,rand:Math.random,ev:(_u,text)=>toast(text),out:(_u,text)=>toast(text),sunk:(_u,text)=>toast(text),hit:()=>{}};C.swDecay(me,dt,ctx);C.heatTick(ctx,me,dt);}
+ // thermal and stored-shield update here; both use the previous update's acceptance limit.
+ if(!trial.battle?.me&&me===trial.systemsUnit&&dt>0){const ctx={time:trial.t||0,rand:Math.random,ev:(_u,text)=>toast(text),out:(_u,text)=>toast(text),sunk:(_u,text)=>toast(text),hit:()=>{}};C.swDecay(me,dt,ctx);C.heatTick(ctx,me,dt);C.shieldRechargeStep(me,s,dt);}
  trial.propulsion=me.propulsion;trial.engF=trialMainOutput(me);trial.power={load:me.load||0,engF:trial.engF,got,demand,P,propulsion:me.propulsion,mainInputW:(me.propulsion?.actualInputW||0)*C.clamp(trial.mainThrustShare??1,0,1),mode};
 }
 const TT_J=C.TT;
@@ -7908,7 +7911,8 @@ function trialShotGeometry(t,bw){
 function trialGunnery(dt){
  if(!(dt>0))return;
  const me=trialSystemsUnit();if(me)C.syncPowerLossDisabled(me);
- const a=trial.aim=trialAim();if(!a){trialPowerStep(dt,0);return;}trialDronesStep(dt);const R=trial.R,center=trial.asset.geometry.center,wantFire=(trial.fire||trial.fireKey||trial.fireTap>0)&&!trial.jump&&!me?.dead&&!me?.out&&!me?.jump;trial.fireTap=Math.max(0,trial.fireTap-dt);
+ const committed=typeof trialJumpCommitted==='function'?trialJumpCommitted():!!trial.jump,autoPD=C.automaticPointDefenseEnabled?.(me)??me?.order?.autoPointDefense!==false;
+ const a=trial.aim=trialAim();if(!a){trialPowerStep(dt,0);return;}trialDronesStep(dt);const R=trial.R,center=trial.asset.geometry.center,wantFire=(trial.fire||trial.fireKey||trial.fireTap>0)&&!committed&&!me?.dead&&!me?.out&&!C.hyperspaceCommitted(me?.jump);trial.fireTap=Math.max(0,trial.fireTap-dt);
  const color=trial.asset.geometry.reference==='venator'||trial.asset.geometry.paint==='republic'?[120,175,255]:[95,255,120],spd=TRIAL_GUN.boltSpeed;
  // Main batteries follow the gun mode; point defence alone chooses close threats.
  const mode=trial.gunMode||'free',home=mode==='home',lock=home?null:mode==='enemy'?trialGunTarget(a.lock):a.lock;trial.heldLock=mode==='enemy'?lock:null;
@@ -7917,7 +7921,7 @@ function trialGunnery(dt){
  trial.lead=null;if(lock){const t=trialIntercept(lockRel,u,spd);if(t)trial.lead=tv.add(lockRel,u,t);}
  let demand=0;const threats=trialThreats();
  for(const t of trial.turrets){
-  const oW=trialApply(R,tv.sub(t.origin,center)),lim=trialLimits(t);let ty=0,te=0;t.arc=true;t.pdTarget=null;const q=t.pdCapable?trialPdPick(t,oW,threats):null;t.pdTarget=q;t.pd=!!(t.pdCapable&&(!t.dualPurpose||q));
+  const oW=trialApply(R,tv.sub(t.origin,center)),lim=trialLimits(t);let ty=0,te=0;t.arc=true;t.pdTarget=null;const q=autoPD&&t.pdCapable?trialPdPick(t,oW,threats):null;t.pdTarget=q;t.pd=!!(autoPD&&t.pdCapable&&(!t.dualPurpose||q));
   if(t.pd){if(q){const rel=tv.sub(q.pos,trial.P),uv=tv.sub(q.vel,trial.V),tt=trialIntercept(tv.sub(rel,oW),uv,spd),aimW=tt?tv.add(rel,uv,tt):rel,dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));[ty,te]=t.authored?C.authoredTurretAngles(t.authored,t._foilTransform?trialApplyT(t._foilTransform.rot,dl):dl):[Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw)),Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1))];}}
   else if(!t.pilot&&!home){let aimW=a.point;
    if(lock){const tt=trialIntercept(tv.sub(lockRel,oW),u,spd);if(tt)aimW=tv.add(lockRel,u,tt);}
@@ -7930,9 +7934,9 @@ function trialGunnery(dt){
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
   const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t),unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
   // Point defence fires on its own at the threat it is tracking.
-  t.firing=(t.pd?!!t.pdTarget&&!trial.jump&&!me?.dead&&!me?.out&&!(trial.battle?.result):wantFire)&&t.ready;if(t.firing)demand+=trialShotEnergyTT(t)*TT_J/Math.max(1e-9,t.cycle)*(t.costK??1);t.bd=bd;t.oW=oW;
+  t.firing=(t.pd?!!t.pdTarget&&!committed&&!me?.dead&&!me?.out&&!(trial.battle?.result):wantFire)&&t.ready;if(t.firing)demand+=trialShotEnergyTT(t)*TT_J/Math.max(1e-9,t.cycle)*(t.costK??1);t.bd=bd;t.oW=oW;
  }
- trialPowerStep(dt,demand);const en=trial.energy;let held=0;
+ trialPowerStep(dt,demand);const en=trial.energy;let held=0,actualFireW=0;
  for(const t of trial.turrets){
   t.reload=Math.max(t.pilot&&t.firing?-3*t.cycle:0,t.reload-dt);t.starved=false;
   // A main battery holds its fire while one of our own ships is across its line.
@@ -7943,6 +7947,7 @@ function trialGunnery(dt){
   if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
   for(let burst=0;!me?.out&&!me?.dead&&C.powerFactor(me||trial.systemsUnit,'weapon')>0&&t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
    const shotTT=trialShotEnergyTT(t),cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+Math.abs(cost)*1e-12<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
+   actualFireW+=cost*TT_J/dt;
    t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=t.trenchAggregate?Math.max(1,Math.min(8,t.barrels||1)):t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),barrels=t.trenchAggregate?Math.max(0,t.aggregateBarrels||0):t.barrels,sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:shotTT/n,pd:true,target:t.pdTarget,...(t.trenchAggregate?{shotMultiplicity:barrels/n*(t.charge??1)}:{})});}continue;}
    trial.gun.shots+=barrels;
@@ -7952,6 +7957,7 @@ function trialGunnery(dt){
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
+ if(me?.pw&&actualFireW>0){me.pw.requestedWeaponFireW=Math.max(me.pw.requestedWeaponFireW||0,actualFireW);me.pw.activeWeaponFire=true;me.pw.activeCombatPower=true;}
  escortsFire(dt,lock||a.lock,wantFire);
  if(trial.bolts.length>TRIAL_GUN.maxBolts)trial.bolts.splice(0,trial.bolts.length-TRIAL_GUN.maxBolts);
  trial.held=held;if(held&&!trial.warn)trial.warn=`味方艦が射線上：主砲 ${held} 基が射撃を控えています`;
@@ -8107,13 +8113,14 @@ function trialLoop(now){
  const real=trial.last?Math.min(.05,(now-trial.last)/1000):0,dt=trial.paused?0:real;trial.last=now;
  trialFoilStep(dt);trialCraftSystemsStep(dt);
  if(trial.cine){trial.cine.t+=dt;if(trial.cine.t>=trial.cine.dur||trial.fire||trial.fireKey)spaceCineEnd();}
- trialCamera(real||.016);trialJumpStep(dt);
+ trialCamera(real||.016);
  // In hyperspace the ship holds still in the tunnel; in a flight everything
  // else waits, while a fleet battle watched in 3D runs on (the far end of the
  // tunnel is where the followed group comes out).
- const tunnel=trial.jump?.phase==='tunnel',ph=trial.jump?.phase;
+ let tunnel=trial.jump?.phase==='tunnel',ph=trial.jump?.phase;
  if(dt>0){escortsStep(dt);if(trial.spectate)voySpectateStep(dt);else if(!tunnel){if(trialCoasting())trialSublight(dt);else if(ph==='exit'||ph==='brake'){}else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}trialSwSyncFrame();if(trial.rts)voyPilotStep(dt);else if(trial.battle)spaceStep(dt);}if(!tunnel){spaceBolts(dt);trialFxStep(dt);trialWrecksStep(dt);trialSwSoloStep(dt);}}
  if(trial.battle&&!tunnel){spaceAttStep(dt);spaceDeaths();trialSwBeamCheck();}
+ trialJumpStep(dt);tunnel=trial.jump?.phase==='tunnel';ph=trial.jump?.phase;
  if(trial.pat)patrolStep(dt,tunnel);
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  trialPoseFoilMounts();
@@ -8263,6 +8270,16 @@ function hitcamStep(now){
  hitcamDraw(g,r.width,r.height,q.p,q.rec,k,{title,sub});
 }
 // ---- HUD ----
+function storedHeatText(h){return h&&Number.isFinite(h.qJ)&&h.capacityJ>0?`蓄熱 ${h.qJ.toExponential(3)} / ${h.capacityJ.toExponential(3)} J（${(h.qJ/h.capacityJ*100).toFixed(1)}%）`:'蓄熱 —';}
+function trialDefenseEnabled(){const u=trialSystemsUnit();return C.automaticPointDefenseEnabled?.(u)??u?.order?.autoPointDefense!==false;}
+function trialSetDefense(enabled){const u=trialSystemsUnit();if(!u)return;C.setAutomaticPointDefense(u,enabled);if(!enabled)for(const t of trial.turrets||[]){t.pdTarget=null;t.pd=false;t.firing=false;}}
+function trialJumpReadiness(){const unit=trialSystemsUnit();return typeof trialHyperspaceReadiness==='function'?trialHyperspaceReadiness():unit&&C.hyperspaceReadiness?.(unit,trial.V,trial.jump?.dir||trialCol(trial.R,0));}
+function trialJumpReadinessText(r=trialJumpReadiness()){if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*90:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 90%`;}
+function trialFlightReadouts(hud){
+ const unit=trialSystemsUnit(),heat=C.heatStatus(unit),el=hud.querySelector('[data-th="heat"]');if(el){const text=storedHeatText(heat);if(sourceText(el)!==text)el.textContent=text;el.dataset.heatJ=String(heat?.qJ??'');el.dataset.capacityJ=String(heat?.capacityJ??'');}
+ const pd=hud.querySelector('[data-trial-cmd="pd-auto"]'),enabled=trialDefenseEnabled();if(pd){pd.setAttribute('aria-pressed',String(enabled));const text=enabled?'自動迎撃 ON':'自動迎撃 OFF';if(sourceText(pd)!==text)pd.textContent=text;}
+ const readiness=trialJumpReadiness();for(const target of hud.querySelectorAll('[data-th="jump-ready"],[data-jump-readiness]')){const text=trialJumpReadinessText(readiness);if(sourceText(target)!==text)target.textContent=text;target.dataset.ready=String(!!readiness?.ready);}
+}
 function trialMissileHudState(){
  const launchers=trial.launchers||[];if(!launchers.length)return {text:'発射管なし',fill:0,ready:false};
  const loaded=launchers.filter(l=>!l.dead&&spaceAmmo(l,false,1)),powered=loaded.filter(trialLauncherPowered),ready=powered.filter(l=>l.reload<=0&&!(l.queue>0)&&spaceAmmo(l,false));
@@ -8275,9 +8292,9 @@ function trialMissileHudState(){
 }
 function trialHudHTML(){
  return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
- <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl></div>
- <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.propulsion||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
- <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'propulsion')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
+ <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl><p class="th-heat" data-th="heat">蓄熱 —</p></div>
+ <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="給電優先順">⚡ 給電優先順</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
+ <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">給電優先順 <kbd>P</kbd></p><p class="th-power-policy">シールド・艦内設備 → 兵装 → 航行</p><p class="note">シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。</p><p class="th-jump-ready" data-th="jump-ready">ジャンプ待機</p></div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
  <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 ${trialCamName(trial.camMode)}</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
  <div class="th-flash" data-th="flash" aria-hidden="true"></div>${trial.mode==='battle'||trial.pat?'<div class="th-cine" aria-hidden="true"><i class="bar top"></i><i class="bar bot"></i><b>敵艦隊　ハイパースペースより出現</b></div>':''}<div class="th-hit" data-th="hit" aria-hidden="true"></div>
@@ -8285,21 +8302,25 @@ function trialHudHTML(){
  ${trial.mode==='battle'||trial.pat?'<div class="th-card th-self" data-th="self"></div><div class="th-hitcam" data-th="hitcam" hidden><canvas></canvas></div>':''}<div class="th-result" data-th="result" hidden></div>
  <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
- <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
- <div class="th-card th-pad"><div class="th-tele-ladder" aria-label="スロットル">${TRIAL_TELEGRAPH.map((t,i)=>`<span data-tele="${i}">${t[0]}</span>`).reverse().join('')}</div><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
-  <div class="th-dpad"><button type="button" class="th-arrow up" data-trial-cmd="tele+" aria-label="出力を上げる">▲</button><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button><button type="button" class="th-arrow down" data-trial-cmd="tele-" aria-label="出力を下げる">▼</button></div>
+ <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="pd-auto" aria-pressed="${trialDefenseEnabled()}" aria-label="点防御の自動迎撃">${trialDefenseEnabled()?'自動迎撃 ON':'自動迎撃 OFF'}</button><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
+ <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
+  <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div>
   <div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div></div>
- <div class="th-stick" data-th-stick role="slider" aria-label="ピッチとロール" aria-valuetext="中立"><span class="lab up">上げ</span><span class="lab down">下げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
+ <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
  <button type="button" class="th-btn th-level" data-trial-cmd="level">水平</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
  <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trialMissileHudState().text}</small></button>
  ${trialSwKinds().length?`<button type="button" class="th-sw" data-trial-cmd="sw" data-th="sw" aria-label="超兵器発射">超兵器<small data-th="swstate">充電</small></button>${(trial.p?.sw?.length||0)>1?`<button type="button" class="th-swmode" data-trial-cmd="swnext" data-th="swmode" aria-label="発射する超兵器を選択">全門</button>`:''}<p class="th-swinfo${trialSwKinds().includes('sbeam')?'':' low'}" data-th="swinfo" aria-live="off" hidden></p>`:''}
  <i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
- <p class="th-keys">W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+((trial.p?.sw?.length||0)>1?' · N 発射する砲を選択':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
+ <p class="th-keys">W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+((trial.p?.sw?.length||0)>1?' · N 発射する砲を選択':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · P 給電優先順 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
 }
 function trialBindHud(hud){
+ const throttle=hud.querySelector('[data-th-throttle]');
+ for(const event of ['pointerdown','pointermove','pointerup','pointercancel','keydown'])throttle?.addEventListener(event,e=>e.stopPropagation());
+ throttle?.addEventListener('input',e=>{trialSetThrottle(e.currentTarget.valueAsNumber/100);trialHudUpdate(true);});
  const stick=hud.querySelector('[data-th-stick]'),knob=stick?.querySelector('.knob'),fire=hud.querySelector('[data-th-fire]');
- let sid=null;const move=e=>{const r=stick.getBoundingClientRect(),R=r.width/2,dx=(e.clientX-r.left-R)/R,dy=(e.clientY-r.top-R)/R,l=Math.hypot(dx,dy),k=l>1?1/l:1;trial.stick={x:dx*k,y:-dy*k};knob.style.transform=`translate(${(dx*k*R*.62).toFixed(1)}px,${(dy*k*R*.62).toFixed(1)}px)`;};
+ // Aircraft joystick: pushing forward lowers the nose; pulling back raises it.
+ let sid=null;const move=e=>{const r=stick.getBoundingClientRect(),R=r.width/2,dx=(e.clientX-r.left-R)/R,dy=(e.clientY-r.top-R)/R,l=Math.hypot(dx,dy),k=l>1?1/l:1;trial.stick={x:dx*k,y:dy*k};knob.style.transform=`translate(${(dx*k*R*.62).toFixed(1)}px,${(dy*k*R*.62).toFixed(1)}px)`;};
  const end=()=>{sid=null;trial.stick={x:0,y:0};knob.style.transform='';stick.classList.remove('on');};
  stick?.addEventListener('pointerdown',e=>{e.preventDefault();sid=e.pointerId;stick.setPointerCapture(e.pointerId);stick.classList.add('on');move(e);});
  stick?.addEventListener('pointermove',e=>{if(e.pointerId===sid)move(e);});
@@ -8313,13 +8334,13 @@ function trialHudUpdate(full){
  const v=trial.vf,p=trial.p,max=trialMaxRates(),deg=x=>x*180/Math.PI;
  set('speed',v>=1e5?`${num(Math.round(v/1000))} km/s`:`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
- set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);
+ set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);trialFlightReadouts(hud);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam','視点 '+trialCamName(trial.camMode));set('camq',trialCamName(trial.camMode));
  const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!u.out&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
  const w=q('warn');if(w){const hint=trialArcHint(),txt=trialPropulsionWarning()||trialCraftSystemsWarning()||trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(sourceText(w) !== String(txt))w.textContent=txt;}
  const bar=q('speedbar');if(bar)bar.style.height=(trialMainOutput()*100).toFixed(1)+'%';
- hud.querySelectorAll('[data-tele]').forEach(e=>e.classList.toggle('on',+e.dataset.tele===trial.tele));set('tele',TRIAL_TELEGRAPH[trial.tele][0]);
+ const throttle=trialThrottleCommand(),lever=hud.querySelector('[data-th-throttle]');if(lever&&Number(lever.value)!==throttle*100)lever.value=String(throttle*100);set('tele',(throttle<0?'後進 ':'')+(Math.abs(throttle)*100).toFixed(1)+'%');
  const row=hud.querySelector('[data-th-row="rudder"]');if(row){row.querySelector('.ord').style.left=((trial.rudder+2)/4*100)+'%';row.querySelector('.act').style.left=(C.clamp(trial.w[1]/(max[1]||1),-1,1)*50+50).toFixed(1)+'%';}set('rudder',TRIAL_RUDDER[trial.rudder+2]);
  const aim=trial.aim,held=trial.heldLock;if(held&&held!==aim?.lock)set('range',`${GUN_MODES.enemy.name} · ${held.ship?'敵艦':'標的'} ${(tv.len(tv.sub(held.pos,trial.P))/1000).toFixed(1)} km`);else set('range',aim?(aim.lock?(aim.lock.ship?'敵艦 ':aim.lock.kind==='craft'?(trial.battle?'敵機 ':'標的機 '):'標的 '):'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
  const all=trial.turrets,ts=all.filter(t=>!t.pd),pdl=all.filter(t=>t.pd&&!t.dead),pdOn=pdl.filter(t=>t.pdTarget).length,pdFire=pdl.filter(t=>t.firing).length,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
@@ -8398,14 +8419,16 @@ function trialHyperText(j,d,left){
 function trialDurText(s) { s = Math.max(0, Math.round(s)); if (s < 60) return `${s} 秒`; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${h ? h + '時間 ' : ''}${m}分 ${x}秒`; }
 function trialHyperUpdate(hud){
  const el=hud.querySelector('[data-th="hyper"]'),j=trial.jump;if(!el)return;el.hidden=!j;if(!j)return;const d=SYSTEMS[j.dest]?.name||'';
- const txt=trialHyperText(j,d,Math.max(0,trialTunnelLeft(j)));
+ const txt=trialHyperText(j,d,Math.max(0,trialTunnelLeft(j)))+(['spool','accel','enter'].includes(j.phase)?' · '+trialJumpReadinessText():'');
  if(sourceText(el) !== String(txt))el.textContent=txt;el.dataset.phase=j.phase;
 }
 // The record line is shown by default on wide screens and folded on phones.
 const trialRecordsOn=()=>trial.showRecords??(window.innerWidth>=900);
 function trialCommand(cmd){
  if(!trial.on)return;if(trial.cine)spaceCineEnd();
- if(cmd==='tele+')trial.tele=Math.min(5,trial.tele+1);else if(cmd==='tele-')trial.tele=Math.max(0,trial.tele-1);
+ if(cmd==='tele+')trialSetThrottle(trialThrottleCommand()+.01);else if(cmd==='tele-')trialSetThrottle(trialThrottleCommand()-.01);
+ else if(cmd==='idle')trialSetThrottle(0);
+ else if(cmd==='pd-auto')trialSetDefense(!trialDefenseEnabled());
  else if(cmd==='rudder+'||cmd==='rudder-')trial.rudder=C.clamp(trial.rudder+(cmd.endsWith('+')?1:-1),-2,2);
  else if(cmd==='level')trial.level=true;
  else if(cmd==='center'){trial.rudder=0;trial.level=false;}
@@ -8415,8 +8438,8 @@ function trialCommand(cmd){
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
  else if(cmd==='power'){const m=$('#thPower'),b=document.querySelector('[data-trial-cmd="power"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
- else if(cmd==='pnext'){const ks=Object.keys(C.POWER_MODES);trialSetPower(ks[(ks.indexOf(trial.powerMode||'propulsion')+1)%ks.length]);}
- else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));const m=$('#thPower');if(m)m.hidden=true;document.querySelector('[data-trial-cmd="power"]')?.setAttribute('aria-expanded','false');}
+ else if(cmd==='pnext'){trialCommand('power');return;}
+ else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));}
  else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
  else if(cmd==='volley'){trialVolley();}
  else if(cmd==='escort'){trialEscortMode();}
@@ -8509,19 +8532,14 @@ function escortsStep(dt){
   // Coming out: hidden until their turn after the flagship's own reversion begins, then in their places.
   if(j.phase==='exit'||j.phase==='brake'||j.phase==='arrive'){escortsPlace();const t=j.age-(j.exit0??j.age);for(const e of es){e.stretch=1;if(e.gone&&t>=order.indexOf(e)*gap+.15){e.gone=false;escortHyperFx(e,false);}}return;}
  }
- const up0=tv.norm(trial.P),pre=JUMP.spool+JUMP.accel+JUMP.enter,order=j?escOrder(es):null,gap=j?ESC_JUMP.gap(es.length):0;
+ const up0=tv.norm(trial.P),preparing=j&&!trialJumpCommitted();
  for(const e of es){
-  // Going in: its turn comes (n-k)·gap before the flagship's; its burst runs ESC_JUMP.burst before that.
-  if(j){if(e.gone)continue;const te=pre-(es.length-order.indexOf(e))*gap,ts=te-ESC_JUMP.burst;
-   if(j.age>=te){e.gone=true;e.stretch=1;escortHyperFx(e,true);continue;}
-   // (once the flagship is accelerating, the ones still waiting ride in their places with it)
-   if(j.age<ts&&j.phase!=='spool'){e.pos=tv.add(trial.P,trialApply(trial.R,e.slot));e.V=[...trial.V];e.R=[...trial.R];e.f=trialCol(trial.R,0);continue;}
-   if(j.age>=ts){if(e.burstV0==null)e.burstV0=Math.max(300,e.p.maxSpeed||0,trial.vf||0);const t=j.age-ts,v0=e.burstV0,v=Math.min(SUBLIGHT,v0*Math.exp(t*Math.log(SUBLIGHT/v0)/ESC_JUMP.burst));e.V=tv.scale(j.dir,v);e.pos=tv.add(e.pos,e.V,dt);e.f=tv.norm(tv.add(e.f,tv.sub(j.dir,e.f),Math.min(1,dt*4)));e.R=trialFrame(e.f,tv.add(tv.scale(up0,.85),trialCol(trial.R,1),.15));e.lvl=1;e.stretch=1+5*(t/ESC_JUMP.burst)**3;continue;}}
+  if(preparing){e.gone=false;e.stretch=1;e.burstV0=null;}
   const want=tv.add(trial.P,trialApply(trial.R,e.slot)),err=tv.sub(want,e.pos),d=tv.len(err),vmax=Number.isFinite(e.p.maxSpeed)&&e.p.maxSpeed>0?e.p.maxSpeed:Infinity;
-  let goal=tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
+  let goal=preparing?tv.scale(j.dir,C.propulsionTerminalSpeed(escortSystemsUnit(e))):tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
   // Clear of the flagship and of each other.
   for(const o of [{pos:trial.P,L:trial.p.len},...es.filter(x=>x!==e).map(x=>({pos:x.pos,L:x.p.len}))]){const r=tv.sub(e.pos,o.pos),l=tv.len(r),min=(e.p.len+o.L)*.62;if(l<min&&l>1)goal=tv.add(goal,r,(min-l)/l*.6);}
-  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=unit.out?tv.scale(tv.norm(e.pos),-C.HULL_FALL.g):need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt);
+  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,preparing?1:planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=unit.out?tv.scale(tv.norm(e.pos),-C.HULL_FALL.g):need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt,{forward:e.f||trialCol(e.R,0)});
   e.V=next.velocity;e.pos=tv.add(e.pos,next.displacement);
   // The bow follows the way it moves (the flagship's heading when it is nearly still), turning at its own rate.
   const sp=tv.len(e.V);e.lvl=motion.acc>0?C.engineLevel(unit):0;const tf=sp>25?tv.norm(e.V):trialCol(trial.R,0),k=(1-Math.exp(-dt*Math.max(0,(e.p.turnRate||0)*6)))*motion.turn;e.f=tv.norm(tv.add(e.f,tv.sub(tf,e.f),k));
@@ -8535,12 +8553,20 @@ function escortsDraw(){const es=trial.escorts||[],tun=trial.jump?.phase==='tunne
 // Supporting fire: while the flagship fires at a target, each escort in range sends a burst at it.
 function escortsFire(dt,lock,firing){
  const es=trial.escorts;if(!es?.length)return;
- for(const e of es){const unit=escortSystemsUnit(e);C.syncPowerLossDisabled(unit);e.gun-=dt;if(unit.out||unit.dead||!firing||!lock||!lock.alive||e.gun>0||trial.jump)continue;const rel=tv.sub(lock.pos,e.pos),d=tv.len(rel);if(d>C.fleetReach(e.p)){e.gun=.5;continue;}
+ for(const e of es){const unit=escortSystemsUnit(e);C.syncPowerLossDisabled(unit);e.gun-=dt;if(unit.out||unit.dead||!firing||!lock||!lock.alive||e.gun>0||trialJumpCommitted())continue;const rel=tv.sub(lock.pos,e.pos),d=tv.len(rel);if(d>C.fleetReach(e.p)){e.gun=.5;continue;}
   const me={pos:trial.P,rot:trial.R,radius:trial.p.len*.5,semi:[trial.p.len*.5,(trial.p.height||trial.p.len*.2)*.5,(trial.p.width||trial.p.len*.5)*.5]};if(trialBoxOnLine(me,e.pos,tv.scale(rel,1/d),d)){e.gun=.4;continue;}
   e.gun=1.1+Math.random()*.9;const spd=TRIAL_GUN.boltSpeed,t=trialIntercept(rel,tv.sub(lock.vel,e.V),spd)||d/spd,aim=C.gunScatter(tv.norm(tv.add(rel,tv.sub(lock.vel,e.V),t)),e.p,C.fleetReach(e.p));
   sndAt('laser_light',e.pos,{gain:.55,pitch:1.15});
   for(let i=0;i<2;i++){const pos=tv.add(tv.add(e.pos,trialApply(e.R,[e.p.len*(.1-.2*i),(e.p.height||e.p.len*.2)*.3,0])),aim,e.p.len*.2);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(aim,spd),e.V),life:C.fleetReach(e.p)/spd,len:Math.max(70,e.p.len*.04),size:Math.max(5,e.p.len*.006),col:[120,235,255],weight:1,tt:0,esc:true});}
   trial.fx.push({pos:e.pos,vel:e.V,life:.1,max:.1,size:Math.max(8,e.p.len*.02),col:[200,240,255]});}
+}
+function trialJumpCommitted(){return C.hyperspaceCommitted(trial.jump);}
+function trialCancelJump(){
+ const j=trial.jump;if(!j||trialJumpCommitted())return false;trial.jump=null;const command=C.clamp(Number(j.priorThrottle)||0,0,1);if(typeof trialSetThrottle==='function')trialSetThrottle(command);else{trial.throttle=command;trial.tele=command>0?5:1;}return true;
+}
+function trialHyperspaceReadiness(){
+ const unit=trialSystemsUnit(),dir=trial.jump?.dir||trialCol(trial.R,0),status=C.hyperspaceReadiness(unit,trial.V,dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}),escorts=(trial.escorts||[]).map(e=>C.hyperspaceReadiness(escortSystemsUnit(e),e.V,dir,{forwardDirection:e.f||trialCol(e.R,0),hyperClass:e.p?.hyperClass??e.p?.hyper})),waiting=escorts.find(e=>!e.ready);
+ return !status.ready?{...status,escorts}:waiting?{...waiting,escorts,escort:true}: {...status,escorts};
 }
 function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
@@ -8548,7 +8574,7 @@ function trialJump(dest){
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
  if(trialSystemsUnit()?.out||trialSystemsUnit()?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;})){toast('戦闘不能のためジャンプできません');return;}
  const plan=Galaxy.itinerary(trial.sysKey,dest);if(!plan?.segments.length){toast('航路がありません');return;}trial.navigation={version:1,final:dest,stop:plan.next,remaining:plan.stops.slice(1),waiting:false};dest=plan.next;
- spaceCineEnd();trial.jump={phase:'spool',t:0,dest,final:plan.final,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
+ spaceCineEnd();trial.jump={phase:'spool',t:0,priorThrottle:C.clamp(trialThrottleCommand(),0,1),dest,final:plan.final,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}
  trialMapShow(false);const way=Galaxy.path(trial.sysKey,dest);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${trialDurText(trial.jump.tunnel)}${way&&way.legs.length>1?`・${way.legs.length - 1} 星系経由`:''}）`);
  if(trial.battle&&!trial.battle.result)spaceDepartEscorts();
 }
@@ -8566,13 +8592,16 @@ function trialStreak(){
  return 0;}
 // The tunnel fades in over the stretched stars and out over the new system's.
 function trialTunnelK(j){return j?.phase==='tunnel'?C.clamp(Math.min(j.t/.35,trialTunnelLeft(j)/JUMP.close),0,1):0;}
-// The sublight burst: speed climbs from the ship's own to a tenth of light by
-// the end of the burst and holds there while the stars stretch. The ship
-// flies straight on its heading, so the planet drops away behind.
+// Real-space preparation uses the ordinary paid flight integrator. Only a
+// spectator following a ship already departed by Core uses a camera burst.
 const trialCoasting=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter';};
 const trialFast=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter'||p==='exit'||p==='brake';};
 function trialSublight(dt){
- const j=trial.jump;if(!trialCoasting())return;const v=j.phase==='accel'?Math.min(SUBLIGHT,j.v0*Math.exp(j.t*Math.log(SUBLIGHT/j.v0)/JUMP.accel)):SUBLIGHT,f=j.dir;
+ const j=trial.jump;if(!trialCoasting())return;
+ if(!j.follow){trialStep(dt);return;}
+ // A followed RTS ship has already passed the physical gate. This is only
+ // its post-departure camera transition, starting at its real entry speed.
+ const start=Math.max(1,j.v0||0),v=j.phase==='accel'?Math.min(SUBLIGHT,start*Math.exp(j.t*Math.log(SUBLIGHT/start)/JUMP.accel)):SUBLIGHT,f=j.dir;
  trial.P=tv.add(trial.P,f,v*dt);trial.V=tv.scale(f,v);trial.vf=v;trial.w=[0,0,0];
 }
 // Reversion: still at sublight while the streaks shrink, then slowing as
@@ -8589,12 +8618,22 @@ function trialReversion(){
  trial.P=tv.add(j.to,j.dir,-trialRevDist(j));trial.V=tv.scale(j.dir,v);trial.vf=v;trial.w=[0,0,0];
 }
 function trialJumpStep(dt){
- const j=trial.jump;if(!j)return;const unit=trialSystemsUnit();if(unit)C.syncPowerLossDisabled(unit);if(!j.follow&&['spool','accel','enter'].includes(j.phase)&&(unit?.out||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trial.jump=null;return;}if(!j.follow&&j.phase==='spool'&&!(trialPowerFactor('hyper')>0))return;j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
- if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
- else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
- else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}}
+ const j=trial.jump;if(!j||!(dt>0))return;const unit=trialSystemsUnit();if(unit)C.syncPowerLossDisabled(unit);
+ const preparing=!j.follow&&['spool','accel','enter'].includes(j.phase);
+ if(preparing&&(unit?.out||unit?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trialCancelJump();return;}
+ if(preparing){
+  if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}
+  j.dir=trialCol(trial.R,0);j.readiness=trialHyperspaceReadiness();
+  if(j.readiness.reason==='hyper-unpowered')return;
+ }
+ j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
+ if(j.phase==='spool'){if(j.t>=JUMP.spool)next('accel');}
+ else if(j.phase==='accel'){if(j.follow?j.t>=JUMP.accel:j.readiness?.ready)next('enter');}
+ else if(j.phase==='enter'){
+  if(!j.follow&&!j.readiness?.ready)next('accel');
+  else if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
+ }
  else if(j.phase==='tunnel'){
-  // The far end: the new system is set up while the tunnel still covers it.
   if(!j.arrived&&!j.follow&&trialTunnelLeft(j)<=JUMP.close){j.arrived=true;trialArrive(j.dest);}
   if(trialTunnelLeft(j)<=0){next('exit');trial.flash=Math.max(trial.flash||0,.7);}}
  else if(j.phase==='exit'){if(j.t>=JUMP.exit)next('brake');}
@@ -8605,7 +8644,7 @@ function trialJumpStep(dt){
 function trialArrive(dest){
  trial.sysKey=dest;const s=trialSys(),R=s.planet.radius,f=galArrivalDir(trial.jump?.from,dest);
  if(trial.navigation){const p=Galaxy.itinerary(dest,trial.navigation.final);trial.navigation=p?.segments.length?{version:1,final:p.final,stop:dest,remaining:p.stops.slice(),waiting:true}:null;}
- Object.assign(trial,{P:[0,R+s.altitude,0],R:trialFrame(f,[0,1,0]),w:[0,0,0],V:tv.scale(f,trial.p.maxSpeed*.3),tele:2,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.p.maxSpeed*.3;trialDust();
+ Object.assign(trial,{P:[0,R+s.altitude,0],R:trialFrame(f,[0,1,0]),w:[0,0,0],V:tv.scale(f,trial.p.maxSpeed*.3),tele:2,throttle:.25,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.p.maxSpeed*.3;trialDust();
  if(trial.pat){trial.targets=[];patrolArrive();}else if(trial.mode==='trial'){trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));}else trial.targets=[];
  // The arrival point; reversion brings the ship in along its heading to it.
  if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;trial.camF=trialFrame(trial.jump.dir,tv.norm(trial.P));}escortsPlace();toast(`${s.name}に到着 — ${s.note}`);
@@ -8762,9 +8801,9 @@ function trialMapSide(){
  const cur=trialSys(),st=GMAP.trial,hc=trialHyperClass(),inBattle=trial.battle&&!trial.battle.result,sel=st?.sel&&SYSTEMS[st.sel]?st.sel:null;
  let h='';
  if(sel){const p=Galaxy.path(cur.key,sel),plan=Galaxy.itinerary(cur.key,sel),t=hc==null||!plan?.segments.length?null:Math.round(trialJumpSecs(hc,cur.key,plan.next));
-  h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p>${navigationPlanHTML(plan,k=>SYSTEMS[k]?.name||k)}<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${t==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[plan?.next]?.name||SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${trialDurText(t)}）`}</button>`);}
+  h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p>${navigationPlanHTML(plan,k=>SYSTEMS[k]?.name||k)}<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${t==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[plan?.next]?.name||SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${trialDurText(t)}）`}<small data-jump-readiness>${trialJumpReadinessText()}</small></button>`);}
  else h+=gmSysCardHTML(cur.key,`<p class="gm-hint">行き先の星系をタップしてください（ドラッグで移動・ピンチで拡大）。</p>`);
- h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
+ h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
  return h+gmLegendHTML()+gmListHTML('data-gm-pick');}
 function trialMapPick(key){const st=GMAP.trial;if(!st||!SYSTEMS[key])return;st.sel=key===st.cur?null:key;gmMark('trial');gmLayout('trial');const side=$('#thMapSide');if(side)side.innerHTML=trialMapSide();}
 function trialMapShow(on){
@@ -8823,9 +8862,9 @@ async function missionFleetGo(){
 const SPACE_RULES={range:TRIAL_GUN.range,engagementDistance:12000,step:.25,damage:.7};
 function spaceBattleInit(plan){
  const O=[...trial.P],E=trialFrame(trialCol(trial.R,0),tv.norm(trial.P)),me=C.fleetUnit('me',trial.asset.key,trial.p,0);
- me.manual=true;me.name=trial.p.name;me.order={...me.order,power:trial.powerMode,volley:trial.volley==='salvo'?'salvo':'stream'};const units=[me],L0=trial.p.len,W0=trial.p.width||L0*.5,H0=trial.p.height||L0*.25;
+ me.manual=true;me.name=trial.p.name;me.order={...me.order,power:trial.powerMode,autoPointDefense:plan.flag?.order?.autoPointDefense!==false,volley:trial.volley==='salvo'?'salvo':'stream'};const units=[me],L0=trial.p.len,W0=trial.p.width||L0*.5,H0=trial.p.height||L0*.25;
  // (v20.6 escorts also stand above and below the flagship's plane by turns, clear of one another)
- plan.escorts.forEach((x,i)=>{const u=C.fleetUnit('a'+i,x.key,x.p,0),row=Math.floor(i/2)+1,side=i%2?1:-1,gy=Math.max(x.p.height||x.p.len*.25,H0)*1.3+120;u.name=x.name;u.order={...u.order,power:x.order?.power||'auto',aim:x.order?.aim||'auto',volley:x.order?.volley==='salvo'?'salvo':'stream'};u.pos=[-row*Math.max(x.p.len,L0)*1.4,(row%2?1:-1)*gy*.5,side*(Math.max(x.p.width||x.p.len*.5,W0)*1.3+row*600)];units.push(u);});
+ plan.escorts.forEach((x,i)=>{const u=C.fleetUnit('a'+i,x.key,x.p,0),row=Math.floor(i/2)+1,side=i%2?1:-1,gy=Math.max(x.p.height||x.p.len*.25,H0)*1.3+120;u.name=x.name;u.order={...u.order,power:x.order?.power||'auto',autoPointDefense:x.order?.autoPointDefense!==false,aim:x.order?.aim||'auto',volley:x.order?.volley==='salvo'?'salvo':'stream'};u.pos=[-row*Math.max(x.p.len,L0)*1.4,(row%2?1:-1)*gy*.5,side*(Math.max(x.p.width||x.p.len*.5,W0)*1.3+row*600)];units.push(u);});
  // The enemy drops out ahead and to starboard on a slant toward the flagship, so
  // the streaks are seen side-on, in an echelon one ship after another. They
  // arrive a little above the flagship's plane, where dorsal batteries bear.
@@ -9133,7 +9172,7 @@ function trialSwScan(w,objs=trialSwObjects()){
  return objs.map(o=>{const d=tv.sub(o.pos,m),r=tv.len(d)||1e-6,c=tv.dot(d,ax)/r,off=Math.acos(C.clamp(c,-1,1)),rng=r<=K.range+o.reach,arc=w.k==='sbeam'?!!trialSwRayTrace(w,[o]).hit:c>0&&off<=K.cone;return {o,w,r,off,rng,arc,ok:rng&&arc,d};});
 }
 function trialSwSoloFire(u,selection=trial.swSelect??'all'){
- if(trial.jump){toast('ハイパードライブ中は超兵器を撃てません');return;}if(trial.paused){toast('一時停止中です（K で再開）');return;}
+ if(typeof trialJumpCommitted==='function'?trialJumpCommitted():trial.jump){toast('ハイパードライブ中は超兵器を撃てません');return;}if(trial.paused){toast('一時停止中です（K で再開）');return;}
  const sw=u.p.sw,objs=trialSwObjects();let fired=0,waiting=0,none=0;
  for(const i of trialSwIndexes(u,selection)){const w=sw[i],x=u.sw[i],K=C.SW_COMBAT[w.k],mi=u.p.modules?.findIndex(m=>m.part===w.id);if(u.dead||u.out||typeof C.powerFactor==='function'&&C.powerFactor(u,'superweapon',mi)<=0||(u.ht?.swLim?.[i]??1)<=0){waiting++;continue;}if(!(x.st==='ready'||w.k==='hion'&&x.st==='charge'&&x.c>=C.ION_BOLT.fireMin)){waiting++;continue;}
   const tg=trialSwScan(w,objs).filter(s=>s.ok).sort((a,b)=>a.off-b.off||a.r-b.r);if(!tg.length)none++;
@@ -9178,7 +9217,7 @@ function trialSwSoloStep(dt){
   if(x.st==='beam'&&(C.powerFactor(u,'superweapon',u.p.modules?.findIndex(m=>m.part===w.id))<=0||(u.ht?.swLim?.[i]??1)<=0)){trialSwSoloBeamEnergy(u,i,x,dt,true);x.st='cool';x.t=K.over.T;x.free=false;x.tgt=null;continue;}
   if(x.st==='cool'){x.t-=dt;if(x.t<=0){x.st='charge';x.c=0;}continue;}
   if(x.st==='beam'){
-   if(trial.jump||x.t<=0){trialSwSoloBeamEnergy(u,i,x,dt,true);x.st='cool';x.t=K.over.T;x.free=false;x.tgt=null;C.swOverload(u,w);continue;}
+   if((typeof trialJumpCommitted==='function'?trialJumpCommitted():trial.jump)||x.t<=0){trialSwSoloBeamEnergy(u,i,x,dt,true);x.st='cool';x.t=K.over.T;x.free=false;x.tgt=null;C.swOverload(u,w);continue;}
    const trace=trialSwRayTrace(w,objs||(objs=trialSwObjects())),ref=trace.hit?.ref||null;
    trialSwSoloBeamEnergy(u,i,x,dt);const spent=Math.min(dt,x.t);x.t-=spent;
    if(x.tgt!==ref){x.tgt=ref;x.burn=0;}x.free=!ref;if(ref){x.burn+=spent;if(x.burn>=TRIAL_SW.burn)trialSwStrike(trace.hit,'beam');}else x.burn=0;
@@ -9200,7 +9239,7 @@ function trialSwSoloStep(dt){
 // cools. Weapons of one kind facing one way (the Onager's twin barrels) share one envelope.
 function trialSwArcPoints(){
  const out=[],u=trial.battle?trial.battle.me:trial.swSolo,sw=u?.p?.sw;
- if(!sw?.length||!u.sw||trial.swArc===false||trial.spectate||trial.cine||u.dead||u.out||trial.jump||!view)return out;
+ if(!sw?.length||!u.sw||trial.swArc===false||trial.spectate||trial.cine||u.dead||u.out||(typeof trialJumpCommitted==='function'?trialJumpCommitted():trial.jump)||!view)return out;
  const eye=view.eye(),R=trial.R,up=trialCol(R,1),groups=new Map(),now=performance.now()/1000;
  sw.forEach((w,i)=>{const key=w.k==='sbeam'?w.k+':'+i:w.k+w.aim;let g=groups.get(key);if(!g)groups.set(key,g={w,mz:[0,0,0],n:0,xs:[]});g.mz=tv.add(g.mz,w.mz||[0,0,0]);g.n++;g.xs.push(u.sw[i]);});
  for(const g of groups.values()){
@@ -9233,7 +9272,7 @@ function trialSwOffText(x){
 }
 function trialSwInfo(q,me){
  const el=q('swinfo');if(!el)return;const sw=me?.p?.sw;trial.swInArc=null;
- if(!sw?.length||me.dead||me.out||trial.jump){if(!el.hidden)el.hidden=true;return;}
+ if(!sw?.length||me.dead||me.out||(typeof trialJumpCommitted==='function'?trialJumpCommitted():trial.jump)){if(!el.hidden)el.hidden=true;return;}
  const objs=trialSwObjects(),lk=trial.heldLock||trial.aim?.lock,lref=lk?(lk.unit||lk):null,inArc=new Set(),lines=[];
  for(const k of ['sbeam','hion']){const ws=sw.filter(w=>w.k===k);if(!ws.length)continue;const K={...C.SW_COMBAT[k],range:Math.max(...ws.map(w=>C.swRange(me,w)))},scans=ws.map(w=>trialSwScan(w,objs)),lab=`<em>${SW_SHORT[k]}</em>`;
   for(const s of scans)for(const x of s)if(x.ok)inArc.add(x.o.ref);
@@ -9262,7 +9301,7 @@ function trialSwMenu(){
 }
 // The line on the trial record.
 function trialSwRecord(){const g=trial.gun;return g?.sw?` · 超兵器 ${g.sw} 射${g.swKills?` / 撃破 ${g.swKills}`:''}${g.swDown?` / 無力化 ${g.swDown}`:''}`:'';}
-window.__trialJump={step:dt=>{trialJumpStep(dt);escortsStep(dt);if(trialCoasting())trialSublight(dt);}};   // (for tests)
+window.__trialJump={step:dt=>{escortsStep(dt);if(trialCoasting())trialSublight(dt);else if(trial.jump?.phase==='spool')trialStep(dt);trialJumpStep(dt);}};   // (for tests)
 window.__trialSw={step:dt=>trialSwSoloStep(dt),solo:()=>trialSwSolo(),scan:w=>trialSwScan(w),arc:()=>trialSwArcPoints().length};   // (for tests)
 // Two vertices per beam keep the luminous core continuous at every view distance.
 // The bounded point sprites below add glow; they do not define the beam's line.
@@ -9526,10 +9565,10 @@ async function spaceBattleLaunch(){
  const b=fleet.battle;if(!b||fleet.busy)return;const friends=b.units.filter(u=>u.team===0),foes=b.units.filter(u=>u.team===1);
  if(!friends.length||!foes.length){toast(!friends.length?'友軍の艦を追加してください':'敵艦を追加してください');return;}
  const flag=fleetFlag()||friends[0],asset=fleet.assets.get(flag.key);if(!asset?.design){toast('旗艦の設計を準備できません');return;}
- const plan={flag:{key:flag.key,name:flag.name},escorts:friends.filter(u=>u!==flag).map(u=>({key:u.key,p:u.p,name:u.name,order:u.order})),foes:foes.map(u=>({key:u.key,p:u.p,name:u.name}))};
+ const plan={flag:{key:flag.key,name:flag.name,order:{...flag.order}},escorts:friends.filter(u=>u!==flag).map(u=>({key:u.key,p:u.p,name:u.name,order:u.order})),foes:foes.map(u=>({key:u.key,p:u.p,name:u.name}))};
  await fleetSetMode('design');await trialStart({design:asset.design,battle:plan,system:fleet.system||'coruscant',returnTo:'tactical'});
 }
-function trialSetPower(k){if(!Object.hasOwn(C.POWER_MODES,k))return;trial.powerMode=k;const b=document.querySelector('[data-th="pwbtn"]');if(b)b.textContent='⚡ '+C.POWER_MODES[k].name;document.querySelectorAll('#thPower [data-trial-cmd^="pmode:"]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.trialCmd==='pmode:'+k)));toast('出力配分：'+C.POWER_MODES[k].name+' — '+C.POWER_MODES[k].note);}
+function trialSetPower(){trial.powerMode='balanced';toast('給電優先順：シールド・艦内設備 → 兵装 → 航行');}
 const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
@@ -9539,13 +9578,14 @@ function bindTrial(){
   // The maps over a fleet battle's 3D view take the keys.
   if(trial.spectate&&voy.orders)return;
   if(shot.on&&(e.code==='Escape'||e.code==='KeyH')){e.preventDefault();e.stopImmediatePropagation();shotSet(false);return;}
-  if(e.target.closest?.('#shotBar')||e.target.matches?.('input,textarea,select')||e.target.isContentEditable)return;
+  if(e.target.closest?.('#shotBar')||e.target.isContentEditable||e.target.matches?.('input,textarea,select')&&!(e.target.matches?.('[data-th-throttle]')&&['KeyW','KeyS'].includes(e.code)))return;
   if(e.target.closest?.('[data-foil-control]')&&['Space','Enter'].includes(e.code))return;
   if(trial.spectate){if(!e.target.matches?.('input,textarea,select')&&voySpectateKey(e)){e.preventDefault();e.stopImmediatePropagation();}return;}
+  if(['KeyW','KeyS','ArrowUp','ArrowDown'].includes(e.code)){e.preventDefault();e.stopImmediatePropagation();trial.keys.add(e.code);return;}
   if(TRIAL_HOLD[e.code]){e.preventDefault();e.stopImmediatePropagation();trial.keys.add(e.code);trialKeyStick();return;}
   if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();trial.fireKey=true;return;}
   const cmd=TRIAL_KEYS[e.code];if(!cmd)return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)trialCommand(cmd);},true);
- window.addEventListener('keyup',e=>{if(!trial.on)return;if(TRIAL_HOLD[e.code]){trial.keys.delete(e.code);trialKeyStick();}if(e.code==='Space')trial.fireKey=false;},true);
+ window.addEventListener('keyup',e=>{if(!trial.on)return;trial.keys.delete(e.code);if(TRIAL_HOLD[e.code])trialKeyStick();if(e.code==='Space')trial.fireKey=false;},true);
  window.addEventListener('blur',()=>{trial.keys.clear();trialKeyStick();trial.fire=trial.fireKey=false;});
  document.addEventListener('visibilitychange',()=>{trial.last=0;});
 }
@@ -9701,17 +9741,17 @@ function fleetArrange(){
 }
 function fleetFit(){if(fleet.mode==='tactical'){fleetMapFit();return;}if(!view)return;const us=fleetDisplay().filter(u=>!u.dead);if(!us.length)return;const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(const u of us){const a=fleet.assets.get(u.key),d=a?.stats.dims||[u.p.len,u.p.width||u.p.len*.5,u.p.height||100],r=Math.hypot(d[0],d[1])/2;for(let k=0;k<3;k++){const rr=k===1?d[2]/2:r;lo[k]=Math.min(lo[k],u.pos[k]-rr);hi[k]=Math.max(hi[k],u.pos[k]+rr);}}view.off=[0,0,0];view.cam.target=lo.map((x,i)=>(x+hi[i])/2);const aspect=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600),size=Math.max(hi[0]-lo[0],hi[2]-lo[2],(hi[1]-lo[1])*2);view.cam.r=Math.max(900,size*.7/Math.tan(view.cam.fov/2)*Math.max(1,1/aspect));requestDraw();}
 function fleetFocus(){if(fleet.mode==='tactical'){fleetMapFocus();return;}const u=fleetSelected();if(u&&view){view.cam.target=[...u.pos];view.cam.r=Math.max(700,u.p.len*2.4);requestDraw();}}
-function fleetPowerName(u){const o=u.order||{},now=C.POWER_MODES[u.mode]?.name;return o.power&&o.power!=='auto'&&C.POWER_MODES[o.power]?C.POWER_MODES[o.power].name:'自動'+(now?`（${now}）`:'');}
+function fleetPowerName(){return '固定優先順';}
 function fleetOrderText(u){const o=u.order,pw=' · 出力 '+fleetPowerName(u);if(o.type==='move')return `移動 → ${(o.point[0]/1000).toFixed(1)}, ${(o.point[2]/1000).toFixed(1)} km / 高度 ${(o.point[1]/1000).toFixed(1)} km`+pw;if(o.type==='attack')return '攻撃 → '+(fleetUnits().find(t=>t.id===o.target)?.name||'目標消失')+(o.aim&&o.aim!=='auto'?`（${C.AIM_KINDS[o.aim]}を照準）`:'')+pw;return '停止・位置保持'+pw;}
 // Combat state for the readouts: sunk, out of the fight, or fighting, and why.
 const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
 function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
 function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)return '';const g={};mods.forEach((m,i)=>{if(m.k==='hull')return;const x=g[m.k]||(g[m.k]={n:0,lost:0,hit:0});x.n++;const v=u.mods[i]??1;if(v<=0)x.lost++;else if(v<1)x.hit++;});
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}
-function fleetPowerHTML(u,editable){const o=u.order,cur=o.power||'auto',m=C.POWER_MODES[cur],combat=fleet.battle.combat;
- return `<div class="fleet-power"><h5>出力配分</h5><div class="chips">${[['auto','自動'],...Object.entries(C.POWER_MODES).map(([k,x])=>[k,x.name])].map(([k,n])=>`<button type="button" class="chip" data-fleet-power="${k}" aria-pressed="${cur===k}" ${editable?'':'disabled'}>${n}</button>`).join('')}</div><p class="note keep">${m?`${esc(m.note)}炉の上限 ${Math.round(m.max*100)}%、その負荷で炉に被弾したときの誘爆率 ${fPct(C.coreDetonation(m.max))}（1発あたり）。`:esc(C.POWER_AUTO_NOTE)}</p>
+function fleetPowerHTML(u,editable){const o=u.order,combat=fleet.battle.combat,autoPD=C.automaticPointDefenseEnabled(u);
+ return `<div class="fleet-power"><h5>給電優先順</h5><p class="note keep">シールド・艦内設備 → 兵装 → 航行</p><p class="note">シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。</p><p class="note" data-fleet-heat>${storedHeatText(C.heatStatus(u))}</p><button type="button" class="chip" data-fleet-pd-auto aria-pressed="${autoPD}" ${editable?'':'disabled'}>${autoPD?'自動迎撃 ON':'自動迎撃 OFF'}</button>
  <label class="fleet-aim">照準<select data-fleet-aim ${editable&&combat?'':'disabled'} aria-label="攻撃で狙う部位">${Object.entries(C.AIM_KINDS).map(([k,n])=>`<option value="${k}" ${(o.aim||'auto')===k?'selected':''}>${n}</option>`).join('')}</select></label><p class="note">部位を狙うと命中率が2割落ち、シールドを抜いた弾がその部位に当たりやすくなります。炉の誘爆は相手の炉心負荷しだいです。</p>
- <h5>射撃</h5><div class="chips">${Object.entries(C.VOLLEY.name).map(([k,n])=>`<button type="button" class="chip" data-fleet-volley="${k}" aria-pressed="${C.volleyMode(u)===k}" ${editable&&combat?'':'disabled'}>${n}</button>`).join('')}</div><p class="note">${C.volleyMode(u)==='salvo'?'斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、待つぶん発射数はわずかに減り、合間は敵が射撃を受けません。':'連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます（ハイパードライブの充填を止めます）。'}</p></div>`;}
+ <h5>射撃</h5><div class="chips">${Object.entries(C.VOLLEY.name).map(([k,n])=>`<button type="button" class="chip" data-fleet-volley="${k}" aria-pressed="${C.volleyMode(u)===k}" ${editable&&combat?'':'disabled'}>${n}</button>`).join('')}</div><p class="note">${C.volleyMode(u)==='salvo'?'斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、待つぶん発射数はわずかに減り、合間は敵が射撃を受けません。':'連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。'}</p></div>`;}
 function fleetOptions(){return `<option value="current">現在の設計</option><optgroup label="作例">${Object.entries(C.DESIGNS).map(([k,d])=>`<option value="${k}" ${fleet.source===k?'selected':''}>${esc(d.name)}</option>`).join('')}</optgroup>${fleet.saves.length?`<optgroup label="保存艦">${fleet.saves.map(r=>`<option value="save:${esc(r.id)}" ${fleet.source==='save:'+r.id?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup>`:''}`;}
 function fleetRoster(){return `<div class="fleet-roster">${fleetDisplay().map(u=>`<button type="button" data-fleet-select="${u.id}" class="fleet-unit ${u.team?'enemy':''} ${fleet.selected===u.id?'selected':''} ${u.dead?'destroyed':''} ${u.out?'disabled':''}" aria-pressed="${u.id===fleet.selected}"><span class="fleet-side">${fleet.mode==='review'?'◆':u.team?'敵':u===fleetFlag()?'旗':'友'}</span><span><b>${esc(u.name)}</b><small>${fleet.mode==='review'?fLen(u.p.len)+' / '+u.p.power.toFixed(3)+' ISD':u.dead||u.out?fleetStatusText(u):u.team?'敵艦 · AI指揮':u===fleetFlag()?'旗艦 · 自ら操艦':'僚艦 · 出力 '+fleetPowerName(u)}</small><span class="fleet-bars"><i style="width:${Math.max(0,u.hp/u.p.hp*100)}%"></i></span></span>${fleet.mode!=='review'?`<em>${Math.round(u.hp/u.p.hp*100)}%</em>`:''}</button>`).join('')||'<p class="note">艦を追加してください。</p>'}</div>`;}
 function fleetControlsHTML(){
@@ -9722,7 +9762,7 @@ function fleetControlsHTML(){
  h+=fleetRoster();
  if(review)h+=`<div class="pgroup"><h4>隊列</h4><div class="chips">${[['line','横列'],['column','縦列'],['wedge','楔形'],['grid','整列']].map(([k,l])=>`<button class="chip" data-fleet-form="${k}" aria-pressed="${fleet.form===k}">${l}</button>`).join('')}</div><label class="fleet-range">艦間隔 <b>${fLen(fleet.gap)}</b><input aria-label="隊列の艦間隔" type="range" min="0" max="5000" step="100" value="${fleet.gap}" data-fleet-setting="gap"></label><p class="note">間隔は最大艦の長さ・幅に加算します。隊列を選び直すと個別配置を整列します。</p></div>`;
  if(!review)h+=`<p class="note fleet-rules">敵艦隊は約22 km前方に出現します。砲の射程は長射程 40 km・中射程 22 km・舷側砲 9 km。シールドは炉からの給電で再生し、パワーセルの蓄電が不足分を肩代わりします。シールドを抜けた砲火は装甲に負荷として溜まり、耐えきれなくなると貫通してモジュールを壊し、火災や誘爆を起こします。全力で機動すると推進が炉の出力を奪い、ほとんど撃てません。戦闘中にハイパードライブで別の星系へ離脱できます。</p>`;
- if(u)h+=`<div class="pgroup fleet-orders"><h4>${esc(u.name)}</h4>${review?`<div class="fleet-coords">${[['0','前後 X',u.pos[0]],['1','上下 Y',u.pos[1]],['2','左右 Z',u.pos[2]],['yaw','方位 °',u.yaw*180/Math.PI]].map(([k,l,v])=>`<label>${l}<input type="number" data-fleet-pos="${k}" value="${Math.round(v)}" step="${k==='yaw'?5:100}" aria-label="${l}"></label>`).join('')}</div><button class="btn sm" data-fleet-action="position">画面上で配置する</button>`:`<p class="note">${u.team?'敵艦はAIが指揮します。戦闘開始の数秒後にハイパースペースから出現します。':u===fleetFlag()?'旗艦 — 出撃するとこの艦を操艦します。出力配分は戦闘中に ⚡ ボタンまたは P キーで切り替えます。':'僚艦 — 出撃後は旗艦を護衛します（旗艦の艦橋と敵のあいだに入り、旗艦を狙う敵を優先して撃ち、射線をふさぎます）。戦闘中に T キーまたは「随伴艦」ボタンで自由攻撃に切り替えられます。出力配分と照準をここで指定できます。'}</p>${u.team===0&&u!==fleetFlag()?`<div class="chips"><button class="chip" data-fleet-action="flagship">旗艦にする</button></div>${fleetPowerHTML(u,editable)}`:''}`}<div class="chips"><button class="chip" data-fleet-action="focus">この艦を見る</button><button class="chip" data-fleet-action="remove" ${lock||busy?'disabled':''}>編成から外す</button></div></div>`;
+ if(u)h+=`<div class="pgroup fleet-orders"><h4>${esc(u.name)}</h4>${review?`<div class="fleet-coords">${[['0','前後 X',u.pos[0]],['1','上下 Y',u.pos[1]],['2','左右 Z',u.pos[2]],['yaw','方位 °',u.yaw*180/Math.PI]].map(([k,l,v])=>`<label>${l}<input type="number" data-fleet-pos="${k}" value="${Math.round(v)}" step="${k==='yaw'?5:100}" aria-label="${l}"></label>`).join('')}</div><button class="btn sm" data-fleet-action="position">画面上で配置する</button>`:`<p class="note">${u.team?'敵艦はAIが指揮します。戦闘開始の数秒後にハイパースペースから出現します。':u===fleetFlag()?'旗艦 — 出撃するとこの艦を操艦します。給電優先順と自動迎撃は戦闘中も確認できます。':'僚艦 — 出撃後は旗艦を護衛します（旗艦の艦橋と敵のあいだに入り、旗艦を狙う敵を優先して撃ち、射線をふさぎます）。戦闘中に T キーまたは「随伴艦」ボタンで自由攻撃に切り替えられます。自動迎撃と照準をここで指定できます。'}</p>${u.team===0?`${u!==fleetFlag()?'<div class="chips"><button class="chip" data-fleet-action="flagship">旗艦にする</button></div>':''}${fleetPowerHTML(u,editable)}`:''}`}<div class="chips"><button class="chip" data-fleet-action="focus">この艦を見る</button><button class="chip" data-fleet-action="remove" ${lock||busy?'disabled':''}>編成から外す</button></div></div>`;
  h+=`<div class="pgroup"><h4>表示</h4><div class="chips"><button class="chip" data-fleet-action="fit">艦隊全体</button>${review?'<button class="chip" data-fleet-action="top">真上</button><button class="chip" data-fleet-action="iso">斜め</button>':`<button class="chip" data-fleet-action="ranges" aria-pressed="${fleet.ranges}">射程円</button>`}<button class="chip" data-fleet-action="labels" aria-pressed="${fleet.labels}">艦名表示</button>${review?`<button class="chip" data-fleet-action="orbit" aria-pressed="${fleet.orbit}">自動周回</button><button class="chip" data-fleet-action="clean">鑑賞表示</button><button class="chip" data-fleet-action="saveReview">配置を保存</button><button class="chip" data-fleet-action="loadReview">保存配置を開く</button>`:''}</div></div><p class="note">${review?'ドラッグで回転、ホイール・2本指で拡大縮小。Shift＋ドラッグで平行移動。':'友軍と敵の艦を追加し、旗艦を選んで「旗艦で出撃」。図は編成の確認用で、1本指で移動、2本指・ホイール・＋/−で拡大縮小。戦闘は出撃後の実空間で行います。'}</p>`;return h;
 }
 function fleetDetailsHTML(){const u=fleetSelected(),asset=u&&fleet.assets.get(u.key),s=asset?.stats?catalogStats(asset.stats,asset.design):null;return `<div class="spec-title"><h3>${fleet.mode==='review'?'観閲艦の諸元':'戦術情報'}</h3></div>${u&&s?`<div class="fleet-readout"><h3>${esc(u.name)}</h3><dl><dt>全長</dt><dd>${fLen(u.p.len)}</dd><dt>主出力</dt><dd>${s.xISD.toFixed(3)} ISD</dd><dt>最大加速度（設計）</dt><dd>${fG(designAccelerationG(s))}</dd><dt>航空容量</dt><dd>${(s.aviation?.capacity||0).toFixed(2)} サイズ</dd><dt>搭載</dt><dd>${s.slots} 機</dd><dt>発艦可能</dt><dd>${s.deployableSlots??s.slots} 機</dd><dt>ハイパードライブ</dt><dd>${s.hyperClass==null?'なし':'クラス '+num(s.hyperClass,2)}</dd>${fleet.mode==='tactical'?`<dt>構造</dt><dd>${fPct(u.hp/u.p.hp)}</dd><dt>シールド</dt><dd>${u.shieldMax?fPct(u.shield/u.shieldMax):'なし'}</dd><dt>パワーセル蓄電</dt><dd>${u.bankMax?fPct((u.bank??0)/u.bankMax):'なし'}</dd><dt>状態</dt><dd class="${u.dead||u.out?'fleet-bad':''}">${fleetStatusText(u)}</dd><dt>装甲</dt><dd>${fPct(u.armor??1)}</dd><dt>兵装エネルギー</dt><dd>${u.p.wCap?fPct((u.energy??0)/u.p.wCap):'—'}</dd><dt>炉心負荷</dt><dd>${fPct(u.load||0)}（誘爆 ${fPct(C.coreDetonation(u.load||0))}）</dd><dt>出力配分</dt><dd>${fleetPowerName(u)}</dd><dt>乗員</dt><dd>${num(Math.round(u.crew??0))} / ${num(u.p.crewNeed||0)} 名</dd>${u.ammo?.some(n=>n>0)||(u.p.modules||[]).some(m=>m.k==='launcher')?`<dt>ミサイル残弾</dt><dd>${num(Math.round((u.ammo||[]).reduce((n,x)=>n+x,0)))} 発</dd>`:''}<dt>出撃中</dt><dd>${Math.floor(u.air)} 機</dd><dt>戦術速度</dt><dd>${(C.len(u.velocity||[0,0,0])/1000).toFixed(2)} km/s</dd><dt>方位</dt><dd>${Math.round(((90-u.yaw*180/Math.PI)%360+360)%360)}°</dd><dt>高度</dt><dd>${(u.pos[1]/1000).toFixed(1)} km</dd>${fleetMapTarget(u)?`<dt>最寄り／指定目標距離</dt><dd>${(C.len(C.sub(fleetMapTarget(u).pos,u.pos))/1000).toFixed(1)} km</dd>`:''}${u.p.slidingHatches?`<dt>発艦ハッチ</dt><dd>${fleetHatchText(u)}</dd>`:''}`:''}</dl>${fleet.mode==='tactical'&&u.p.modules?`<p class="note keep fleet-damage"><b>損傷</b> ${esc(fleetDamageList(u)||'なし')}</p>`:''}</div>`:'<p class="note">艦を選択してください。</p>'}${fleet.mode==='tactical'?`<h4>経過記録</h4><ol class="fleet-log">${fleetLogEvents().slice(-12).map(e=>`<li class="${/撃沈|戦闘不能|誘爆/.test(e.text)?'bad':''}"><time>${fTime(e.time)}</time>${fleetLogSide(e)}${esc(e.text)}</li>`).join('')||'<li>各艦に命令を設定できます。</li>'}</ol><p class="note">青は友軍、赤は敵軍。射撃と損害は同じ時刻の状態から集計します。実行中の命令変更はできません。次のターンで変更できます。</p>`:'<p class="note">艦体・艦橋・兵装は設計画面と共通の部品構成です。艦ごとの拡大率は変えず、実寸比で表示しています。</p>'}`;}
@@ -9758,7 +9798,7 @@ async function fleetLoadReview(){if(fleet.busy)return;const raw=LS.get('yard.rev
 function bindFleet(){
  bindFleetMap();
  const click=e=>{const t=e.target.closest('button');if(!t||t.disabled)return;const d=t.dataset;if(d.mode){fleetSetMode(d.mode);return;}if(fleet.mode==='design')return;
- if(d.fleetSelect){fleet.selected=d.fleetSelect;fleetRender();return;}if(d.fleetPower){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,power:d.fleetPower});return;}if(d.fleetVolley){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,volley:d.fleetVolley});return;}if(d.fleetTeam!=null){if(fleetCanRefit()){fleet.team=+d.fleetTeam;fleetRender();}return;}if(d.fleetForm){fleet.form=d.fleetForm;fleetArrange();fleetFit();fleetRender();return;}
+ if(d.fleetSelect){fleet.selected=d.fleetSelect;fleetRender();return;}if(d.fleetPdAuto!=null){const u=fleetSelected();if(u&&u.team===0&&fleetEditable()){C.setAutomaticPointDefense(u,!C.automaticPointDefenseEnabled(u));fleetRender();}return;}if(d.fleetPower){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,power:d.fleetPower});return;}if(d.fleetVolley){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,volley:d.fleetVolley});return;}if(d.fleetTeam!=null){if(fleetCanRefit()){fleet.team=+d.fleetTeam;fleetRender();}return;}if(d.fleetForm){fleet.form=d.fleetForm;fleetArrange();fleetFit();fleetRender();return;}
  const a=d.fleetAction,u=fleetSelected();if(!a)return;
  if(a==='add')return fleetAdd();if(a==='space')return spaceBattleLaunch();if(a==='flagship'){if(u&&u.team===0){fleet.flagship=u.id;toast(u.name+'を旗艦に指定しました');}fleetRender();return;}if(a==='execute')return fleetExecute();if(a==='pause'){if(fleet.battle.phase==='execute'||fleet.replay){fleet.playing=!fleet.playing;fleet.lastClock=0;fleetRender();}return;}
  if(a==='replay'){if(fleet.battle.last&&fleet.battle.phase!=='execute'){fleet.replay=true;fleet.elapsed=0;fleet.frame=C.fleetSample(fleet.battle.last,0);fleet.playing=true;fleet.lastClock=0;fleetRender();}return;}
@@ -12362,7 +12402,7 @@ function voyUnitState(u,html=false) {
  const w = voy.w, cap = u.captured ? '拿捕艦 · ' : '';
  if (u.dead) return '撃沈';
  if (u.out) return cap + '戦闘不能（' + (html?esc(u.out):u.out) + '）' + (u.towedBy ? ' · 被牽引' : '');
- if (u.jump) return cap + (u.jump.blocked ? '離脱準備（被弾中で停止）' : '離脱準備');
+ if (u.jump) return cap + (u.jump.blocked ? '離脱準備（速度・給電待ち）' : '離脱準備');
  if (u.warp) return 'ハイパースペースから出現';
  if (u.sys == null) return 'ハイパースペース';
  const tr = u.tractor ? (u.tractor.mode === 'capture' ? voyBoardBrief(u) : u.tractor.lock ? ' · 牽引中' : ' · 牽引へ接近') : '';
@@ -12435,7 +12475,7 @@ function voyMorph(a, b) {
 function voyTgStatus(g) {
  const w = voy.w, S = w.sector;
  if (g.transit) return `ハイパースペース → ${S.systems[g.transit.to].name}（${voyClock(g.transit.t1 - w.time)}）`;
- if (g.spool) return g.spool.blocked ? `発進準備（被弾中で停止）→ ${S.systems[g.spool.dest].name}` : `発進準備 あと ${Math.ceil(g.spool.need - g.spool.t)} 秒 → ${S.systems[g.spool.dest].name}`;
+ if (g.spool) return g.spool.blocked ? `発進準備（速度・給電待ち）→ ${S.systems[g.spool.dest].name}` : `発進準備 あと ${Math.ceil(g.spool.need - g.spool.t)} 秒 → ${S.systems[g.spool.dest].name}`;
  if (g.waitJump) return `出発待ち ${voyClock(g.waitJump.at - w.time)} → ${S.systems[g.waitJump.dest].name}`;
  if(g.navigation?.waiting)return `${S.systems[g.sys]?.name||''} · 必須停止・次航程指示待ち`;
  const at = S.systems[g.sys]?.name || '', held = R.groupDisabled(w, g).length;return w.battles.has(g.sys) ? `${at} · 交戦中 · ${voyGroupOrderText(g)}${held ? ` · 航行不能 ${held}` : ''}` : held ? `${at} · 航行不能艦あり（回収か自沈を）` : `${at} · 待機中`;
@@ -12512,7 +12552,7 @@ function voyTgOpsCard(g) {
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　今回の停止まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><div class="vs-route">${voyRouteHTML(from, dest)}</div><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
   <div class="vs-acts">${free ? `<button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>` : ''}${g.spool || g.waitJump ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${free && us.length > 1 ? `<button type="button" class="btn sm ghost" data-vact="split" aria-pressed="${!!voy.split}">${voy.split ? '分割を確定' : '任務群を分割'}</button>` : ''}${voyMergeButtons(g)}${g.sys != null && w.battles.has(g.sys) ? `<button type="button" class="btn sm warn" data-vgo="tac:${g.sys}">戦術図</button>` : ''}</div>
   ${voyLandingHTML(g)}
-  ${g.spool ? '<p class="note">ジャンプにはリアクターの全出力が要ります。発進準備中は砲撃できず、被弾している間は準備が止まります。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
 }
 function voyCtgOpsCard(c) {
  const w = voy.w, S = w.sector, gs = voyCtgGroups(c), ships = gs.reduce((n, g) => n + g.units.filter(id => R.alive(w.units.get(id))).length, 0), dest = voy.sel.dest;
@@ -12732,7 +12772,7 @@ function voyFedBind() {
  });
  window.addEventListener('resize', () => { if (fed.open) voyFedDraw(); });
 }
-function voyPowerAimHTML(list) { const pw = voyCommon(list, u => u.order.power || 'auto'), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません（敵のハイパードライブ充填が進みます）。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置いてハイパードライブの充填を止めます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">出力配分</p><div class="vs-acts">${VOY_POWER.map(([k, n]) => `<button type="button" class="btn sm${pw === k ? ' on' : ''}" data-vpow="${k}">${n}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div><p class="note">${aim === 'auto' ? '自動：ふだんは艦全体を撃ちます。自艦の2.5倍以上の大きさの艦はシールドが弱まると艦橋を狙います。' : aim === 'bridge' || aim === 'weapon' ? '艦橋・砲塔は装甲の外にあります。シールドが弱まると、狙いを保てた分（近いほど・的が大きいほど多い）が装甲を通さず直撃します。' : '狙った部位のある区画に被弾が集まります。'}</p>`; }
+function voyPowerAimHTML(list) { const autoPD = voyCommon(list, u => C.automaticPointDefenseEnabled(u)), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">給電優先順</p><p class="note">シールド・艦内設備 → 兵装 → 航行</p><p class="vs-sub">点防御の自動迎撃</p><div class="vs-acts">${[[true,'自動迎撃 ON'],[false,'自動迎撃 OFF']].map(([enabled,label])=>`<button type="button" class="btn sm${autoPD===enabled?' on':''}" data-vpd="${enabled?1:0}" aria-pressed="${autoPD===enabled}">${label}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div><p class="note">${aim === 'auto' ? '自動：ふだんは艦全体を撃ちます。自艦の2.5倍以上の大きさの艦はシールドが弱まると艦橋を狙います。' : aim === 'bridge' || aim === 'weapon' ? '艦橋・砲塔は装甲の外にあります。シールドが弱まると、狙いを保てた分（近いほど・的が大きいほど多い）が装甲を通さず直撃します。' : '狙った部位のある区画に被弾が集まります。'}</p>`; }
 // v25 Emission management and S-foils of the ships chosen (SENS-005, WING-003/004), and what they radiate now.
 const VOY_EMIT = [['normal', '通常'], ['low', '低放射'], ['high', '高出力'], ['emerg', '緊急散逸']], VOY_FOIL = [['auto', '自動'], ['open', '展開'], ['close', '収納']];
 const VOY_EMIT_NOTE = {normal: '通常：散逸装置を通常に運転し、能動センサーを使います。', low: '低放射：散逸装置を絞って出力を抑え、能動センサーを止めます。廃熱は蓄熱され、蓄熱が限界に近づくと通常運転に戻ります。', high: '高出力：炉を過負荷気味に回し、能動センサーを強めます。廃熱と放射が増えます。', emerg: '緊急散逸：散逸装置を過駆動して蓄熱を一気に放出します。最も目立ちます。蓄熱が抜けると通常に戻ります。'};
@@ -12789,7 +12829,7 @@ function voyTgTacCard(g) {
   <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}${voySensHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
-  ${g.spool ? '<p class="note">離脱にはリアクターの全出力が要ります。準備中は砲撃できず、被弾している間は準備が止まります（距離を取りながら準備します）。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
 }
 function voyCtgTacCard(c) {
  const w = voy.w, sys = voy.tac.sys, gs = voyCtgGroups(c).filter(g => voyGroupIn(g, sys)), ms = gs.flatMap(g => g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys)), trac = ms.filter(u => u.p.trac > 0 && !u.out);
@@ -12849,7 +12889,7 @@ function voyTacSide() {
  } else if (tab === 'help') {
   const ctgs = [...w.ctgs.values()].filter(c => c.side === 0 && voyCtgGroups(c).some(g => !voyGroupIn(g, sys))), gs = [...w.groups.values()].filter(h => h.side === 0 && voyLive(h) && !voyGroupIn(h, sys));
   const ctgEta = c => { const e = voyCtgGroups(c).filter(h => !h.transit && h.sys != null && h.sys !== sys).map(h => R.etaTo(w, h.id, sys)).filter(v => v != null); return e.length ? Math.max(...e) : null; };
-  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群は離脱の準備に ${R.RULES.withdrawSpool} 秒かかり、被弾している間は準備が止まります。</p></div>`;
+  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は ${R.RULES.withdrawSpool} 秒です。発進には通常航行の最大速度の90%以上が必要ですが、砲撃や被弾だけで準備は止まりません。</p></div>`;
  } else {
   const b = w.battles.get(sys);body += `<div class="vs-card vs-list vs-log"><h3>戦闘記録</h3><ul>${(b?.log || []).slice(-40).reverse().map(e => `<li class="${e.side === 0 ? 'own' : e.side === 1 ? 'foe' : ''}"><span>${voyClock(e.t - (b?.t0 || 0))}</span>${esc(e.text)}</li>`).join('') || '<li class="muted">記録はまだありません</li>'}</ul></div>`;
  }
@@ -12996,7 +13036,8 @@ function voySidebarClick(e) {
  if (d.vtmode) { voyApply({turn: d.vtmode}); voyRenderSide(); return; }
  if (d.vspd) { voyApply({speed: d.vspd}); voyRenderSide(); return; }
  if (d.vautoform != null) { voyApply({autoForm: d.vautoform === '1'}); voyRenderSide(); return; }
- if (d.vpow) { voyApply({power: d.vpow}); voyRenderSide(); return; }
+ if (d.vpd != null) { voyApply({autoPointDefense: d.vpd === '1'}); voyRenderSide(); return; }
+ if (d.vpow) { toast('給電優先順：シールド・艦内設備 → 兵装 → 航行'); return; }
  if (d.vemit) { voyApply({emit: d.vemit}); voyRenderSide(); return; }
  if (d.vfoil) { voyApply({foil: d.vfoil}); voyRenderSide(); return; }
  if (d.vvol) { voyApply({volley: d.vvol}); voyRenderSide(); return; }
@@ -13783,8 +13824,8 @@ function voySqNext(dir) {
 // in the tunnel, at their places around the ship.
 function voyFollowDepart(f, mates, ahead = []) {
  const B = trial.battle, P = spaceWorld(f), fw = trialApply(B.E, [Math.cos(f.yaw), 0, Math.sin(f.yaw)]), g = voy.w.groups.get(f.group);
- trial.P = P;trial.R = trialFrame(fw, tv.norm(P));trial.V = [0, 0, 0];spaceCineEnd();
- trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0: Math.max(300, f.p.maxSpeed || 0), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
+ trial.P = P;trial.R = trialFrame(fw, tv.norm(P));trial.V = trialApply(B.E,f.hyperEntryVelocity||[0,0,0]);spaceCineEnd();
+ trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0:tv.len(trial.V), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
 }
 // Picked up while already in hyperspace: straight into the tunnel.
 function voyFollowTransit(u) {
@@ -13940,7 +13981,7 @@ function voySpectateHyperText(f) {
   if (j.phase === 'tunnel' && !j.arrived) { const tr = g?.transit; return {phase: 'tunnel', text: `ハイパースペース航行中${d ? ' · ' + d + 'まで' : ''}${tr ? ' ' + voyClock(Math.max(0, tr.t1 - w.time)) : ''}`}; }
   return {phase: j.phase, text: trialHyperText(j, d, Infinity)};
  }
- if (f && f.side === 0 && f.jump && g?.spool) { const sp = g.spool; return {phase: 'spool', text: `ハイパードライブ充填中 · ${S[sp.dest]?.name || ''}へ あと ${Math.ceil(Math.max(0, sp.need - sp.t))} 秒${sp.blocked ? '（被弾中で停止）' : ''}`}; }
+ if (f && f.side === 0 && f.jump && g?.spool) { const sp = g.spool; return {phase: 'spool', text: `ハイパードライブ充填中 · ${S[sp.dest]?.name || ''}へ あと ${Math.ceil(Math.max(0, sp.need - sp.t))} 秒${sp.blocked ? '（速度・給電待ち）' : ''}`}; }
  return null;
 }
 function voySpectateWhereHTML(f,w=voy.w){return `${esc(R.FACTIONS[w.sides[f.side].faction]?.short||'')} · ${voyUnitState(f,true)} · ${esc(`シールド ${Math.round(f.shield/Math.max(1,f.shieldMax)*100)}%${f.side===0&&crewShare(f)!=null?` · 乗員 ${crewPct(crewShare(f))}%`:''}${voySwBrief(f)}`)}`;}
@@ -14497,7 +14538,7 @@ function patrolArrive() {
 }
 window.__patrol = {get pat() { return trial.pat; }, force(sec = 0) { const P = trial.pat;if (P) P.encAt = trial.t + sec; return !!P; }, spawn: (route, present) => { const P = trial.pat, keys = P?.civKeys.filter(k => fleet.assets.has(k)) || []; return keys.length ? patrolCivSpawn(keys, route, present)?.name : null; }, dissolve: () => patrolBattleDissolve(),
  // (tests) the flight's clock run on without drawing, as trialLoop would, in steps of dt
- run(sec, dt = .05) { for (let t = 0; t < sec && trial.on; t += dt) { if (trial.cine) { trial.cine.t += dt; if (trial.cine.t >= trial.cine.dur) spaceCineEnd(); } trialJumpStep(dt); const ph = trial.jump?.phase, tunnel = ph === 'tunnel'; escortsStep(dt); if (!tunnel) { if (trialCoasting()) trialSublight(dt); else if (ph !== 'exit' && ph !== 'brake') trialStep(dt); if (trial.battle) {trialSwSyncFrame();spaceStep(dt);} spaceBolts(dt); trialFxStep(dt); trialWrecksStep(dt); } if (trial.battle && !tunnel) { spaceAttStep(dt); spaceDeaths(); } patrolStep(dt, tunnel); } return +trial.t.toFixed(1); }};
+ run(sec, dt = .05) { for (let t = 0; t < sec && trial.on; t += dt) { if (trial.cine) { trial.cine.t += dt; if (trial.cine.t >= trial.cine.dur) spaceCineEnd(); } const ph = trial.jump?.phase, tunnel = ph === 'tunnel'; escortsStep(dt); if (!tunnel) { if (trialCoasting()) trialSublight(dt); else if (ph !== 'exit' && ph !== 'brake') trialStep(dt); if (trial.battle) {trialSwSyncFrame();spaceStep(dt);} spaceBolts(dt); trialFxStep(dt); trialWrecksStep(dt); } trialJumpStep(dt);if (trial.battle && !tunnel) { spaceAttStep(dt); spaceDeaths(); } patrolStep(dt, tunnel); } return +trial.t.toFixed(1); }};
 
 // From the drawing board: the order of battle, with the design on the board added to a task group.
 async function voyOpenWithCurrent() {

@@ -1,0 +1,16 @@
+{
+  "worktree": "/workspace/kuat-tie-solar-panel",
+  "commit": "0a385486932a6930915c5e38f7e4ec45c023b10e",
+  "coreSha256": "79cab83c088efe5a5b4a901550c70e6fd9ce468b2e8e358500a6beff41ce29b2",
+  "testSha256": "116a9c545e5f86bc3625d75b4bdf0c2e78bc6f7ca95199a58b3acc7ea42f435b",
+  "command": "node --test tests/boarding-core.cjs",
+  "tests": 7,
+  "pass": 5,
+  "fail": 2,
+  "exitCode": 1,
+  "failedCases": [
+    "an undermanned party is thrown back and the survivors return aboard",
+    "droid crews never surrender: shut down from the bridge, or the stored battle droids throw the boarders back"
+  ],
+  "log": "/workspace/scratch/flight-controls-boarding-core-baseline.tap"
+}

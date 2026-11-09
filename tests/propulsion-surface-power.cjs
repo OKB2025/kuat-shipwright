@@ -18,7 +18,7 @@ function unit(trunkW=100*TT){
 for(const trunkTT of [100,90])test(`fleet charging respects each isolated source and a ${trunkTT} TT/s shared engine/cooling trunk`,()=>{
  const u=unit(trunkTT*TT);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);
  const chargedA=u.surfaceBanks[4],chargedB=u.surfaceBanks[5]-999,engineA=u.propulsion.actualInputW/TT,coolingA=u.pw.coolingReserved/TT;
- near(chargedA,trunkTT-90,'first domain accepted charge');near(chargedB,1,'second domain bank room');
+ near(chargedA,trunkTT-20,'first domain accepted charge before navigation');near(engineA,0,'active weapon recharge has priority over navigation');near(chargedB,1,'second domain bank room');
  assert.ok(engineA+coolingA+chargedA<=trunkTT+1e-8,'the trunk cannot be spent again by the surface banks');
  assert.ok(engineA+coolingA+chargedA<=100+1e-8,'the first reactor cannot supply the second domain grant');
  assert.ok(chargedB<=100+1e-8);near(u.pw.wpn/TT,chargedA+chargedB,'accepted weapon input');
@@ -26,9 +26,9 @@ for(const trunkTT of [100,90])test(`fleet charging respects each isolated source
 
 test('direct surface charging uses the same per-module grants and does not borrow unused charge',()=>{
  const u=unit(),allocation=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:200*TT,shields:0,deferHeat:true},1,'balanced');
- near(allocation.got.weapons/TT,110,'total electrical weapon grant');
+ near(allocation.got.weapons/TT,81,'only usable per-bank electrical input is requested');
  const accepted=C.surfaceManualCharge(u,allocation.got.weapons,1);
- near(u.surfaceBanks[4],10,'first domain charge');near(u.surfaceBanks[5],1000,'second domain charge');near(accepted,11,'unused power stays unused');
+ near(u.surfaceBanks[4],80,'first domain charge');near(u.surfaceBanks[5],1000,'second domain charge');near(accepted,81,'all requested input fits the receiving banks');
 });
 
 test('an explicit zero module grant remains zero when another domain has unused weapon power',()=>{
@@ -39,8 +39,8 @@ test('an explicit zero module grant remains zero when another domain has unused 
 test('repeated charging cannot spend one allocated module input a second time',()=>{
  const u=unit();u.surfaceBanks[5]=0;u.energy=0;
  const {got}=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:200*TT,shields:0,deferHeat:true},1,'balanced');
- near(C.surfaceManualCharge(u,got.weapons,1),110);near(C.surfaceManualCharge(u,got.weapons,1),0);
- near(u.surfaceBanks[4],10);near(u.surfaceBanks[5],100);
+ near(C.surfaceManualCharge(u,got.weapons,1),180);near(C.surfaceManualCharge(u,got.weapons,1),0);
+ near(u.surfaceBanks[4],80);near(u.surfaceBanks[5],100);
 });
 
 test('accepted surface charge retains funding attribution and only actual cooling consumption heats the common reservoir',()=>{

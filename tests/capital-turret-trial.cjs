@@ -3,9 +3,11 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 run(`const C=Core,G=Gfx,TT_J=C.TT,trial={};Math.random=()=>.5;
+ // Resolve the real unit for the isolated gunnery loop's defence policy.
+ const trialSystemsUnit=()=>trial.battle?.me||trial.systemsUnit||null;
  let aimPoint=[10000,0,0],threat=null,deployments={};
  const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
- const toast=()=>{},trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialThreats=()=>threat?[threat]:[],trialPdPick=()=>threat,trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],trialCraftGasReady=()=>true,trialCraftGasTake=()=>true,sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'',trialFoilDeployments=()=>deployments;
+ const toast=()=>{},trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialThreats=()=>threat?[threat]:[],trialPdPick=()=>threat,trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],trialAllyOnLine=()=>false,trialCraftGasReady=()=>true,trialCraftGasTake=()=>true,sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'',trialFoilDeployments=()=>deployments;
 `);
 section('const tv=','function trialProfile(');
 section('const TRIAL_PILOT_CYCLE=','// opts.design');
@@ -73,4 +75,14 @@ test('actual capital trial fire samples independent shared dispersion at each ph
  const proof=plain(run('scatterProof'));assert.equal(proof.calls.length,4);assert.equal(proof.bolts.length,4);assert.equal(proof.shots,4);near(proof.energy,700);
  for(let i=0;i<4;i++){assert.equal(proof.calls[i].range,40000);assert.equal(proof.calls[i].control,1);assert.ok(proof.bolts[i].life<=40000/4500,'a longer platform cannot extend the gun\'s nominal reach');vector(run('tv.norm('+JSON.stringify(proof.bolts[i].vel)+')'),proof.calls[i].result,1e-7);}
  assert.equal(new Set(proof.calls.map(c=>JSON.stringify(c.result))).size,4,'each barrel gets its own physical miss vector');
+});
+
+test('a real RTS carrier spool keeps its manually piloted physical guns fireable before departure',()=>{
+ run(`globalThis.pilotSpoolProof=(()=>{
+  const d=JSON.parse(JSON.stringify(YardFleetData.designs.mc80home)),w=Rts.createWorld({mode:'test',region:'kuat',seed:17,designs:[d],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:d.key}],[]]}),u=[...w.units.values()][0],g=w.groups.get(u.group),edge=w.sector.edges[w.sector.systems[u.sys].links[0]],to=edge.a===u.sys?edge.b:edge.a;
+  u.warp=null;const ordered=Rts.orderJump(w,g.id,to);if(!ordered.ok)throw Error(ordered.why);
+  setup('ball175Quad',{a:2},42);trial.fire=true;trial.battle={me:u,modIndex:new Map([[trial.turrets[0].id,u.p.modules.findIndex(m=>m.k==='weapon')]])};u.manual=true;
+  const before=trial.energy.E;trialGunnery(.001);return {phase:u.jump?.phase,localJump:trial.jump,shots:trial.gun.shots,packets:trial.bolts.length,outputTT:trial.bolts.reduce((n,b)=>n+b.tt,0),spentTT:before-trial.energy.E};
+ })();`);
+ const proof=plain(run('pilotSpoolProof'));assert.equal(proof.phase,'spool');assert.equal(proof.localJump,null);assert.equal(proof.shots,4);assert.equal(proof.packets,4);near(proof.outputTT,700);near(proof.spentTT,700);
 });

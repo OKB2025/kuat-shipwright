@@ -1,0 +1,272 @@
+{
+  "status": "PASS_WITH_KNOWN_BASELINE_FAILURES",
+  "verifiedAt": "2026-11-09T02:35:40.162639+00:00",
+  "baselineCommit": "d71d927e747a887f474a081dd548a783a98150a8",
+  "productCommit": "f3d26fae934bed17db2c9a7cf023a418033c7401",
+  "runtime": {
+    "node": "v24.22.1",
+    "browser": {
+      "browser": "Chromium SwiftShader",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "touch": "Chromium trusted touch protocol input, not iOS/Safari",
+      "safari": "Not tested",
+      "performanceBenchmark": false,
+      "initialConditions": "Explicit production SI heat and shield-hit packets plus controlled initial momentum/positions of existing training drones are recorded below. Jump preparation is first observed from rest with real paid acceleration. A separate explicitly seeded already-fast momentum fixture tests combat entry; all subsequent movement uses normal RAF. The flight/jump functions and simulation clock are never replaced.",
+      "externalTelemetry": "Cloudflare RUM receives a local204 acknowledgement only."
+    }
+  },
+  "sourceSha256": {
+    "index.html": "935e9158d6faff1e157587fe99bdca925ba8d8c4f1ddfb935a1c46bd17993bae",
+    "js/app.js": "86a318472b200e9e57f7d2a6b69d67d0d93cab29ab6a753006e855eb969a8136",
+    "js/core.js": "49dbfda6a056b478e4b06f621db700e270f3f126120df72c38c8e39e030362af",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "75e41d96145804195cd817e3c388fa7055a5b534ef6790c98cb8af52139f9359",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "145c6910c5588273ea55d2584b3dbe3869430efb63509c3a2db7199a7e6438ba"
+  },
+  "nodeAndBrowserUseSameFinalSources": true,
+  "noProductChangesAfterValidation": true,
+  "node": {
+    "tests": 438,
+    "pass": 433,
+    "fail": 5,
+    "cancelled": 0,
+    "rawExitCode": 1,
+    "knownBaselineFailures": [
+      {
+        "test": "an undermanned party is thrown back and the survivors return aboard",
+        "baselineProof": "flight-controls-baseline-boarding.json",
+        "comparison": "Same assertion and actual/expected failure as the recorded baseline; raw failing logs retained."
+      },
+      {
+        "test": "droid crews never surrender: shut down from the bridge, or the stored battle droids throw the boarders back",
+        "baselineProof": "flight-controls-baseline-boarding.json",
+        "comparison": "Same assertion and actual/expected failure as the recorded baseline; raw failing logs retained."
+      },
+      {
+        "test": "the battle continues and point defence can hit fighters while they spool after the last carrier departs",
+        "baselineProof": "flight-controls-baseline-controls.json",
+        "comparison": "Same assertion and actual/expected failure as the recorded baseline; raw failing logs retained."
+      },
+      {
+        "test": "built-in reference speed overlays preserve the catalogue and old physical profiles require regeneration",
+        "baselineProof": "calibrated-propulsion-validation.json",
+        "comparison": "Same assertion and actual/expected failure as the recorded baseline; raw failing logs retained."
+      },
+      {
+        "test": "a hit on an electrically disconnected gun does not inject overload into its nominal main grid",
+        "baselineProof": "calibrated-propulsion-validation.json",
+        "comparison": "Same assertion and actual/expected failure as the recorded baseline; raw failing logs retained."
+      }
+    ],
+    "unexpectedFailures": [],
+    "testSha256": {
+      "tests/boarding-core.cjs": "116a9c545e5f86bc3625d75b4bdf0c2e78bc6f7ca95199a58b3acc7ea42f435b",
+      "tests/capital-turret-trial.cjs": "e83a538701610d242ce699e94549949896d507d653bf54c43f8c674342e34f2f",
+      "tests/catalogue-reference-speed-ui.cjs": "12eb139d9cc9b5001fd9a6879744995be1f77fe31e49903b056ee05dd2b3fc81",
+      "tests/combat-point-defense-targeting.cjs": "647bf93b052e37bf3482385beb325e72b84e0de37dc465fad2a2cda884ceac76",
+      "tests/combat-power-priority.cjs": "ffbff42934e35c22f29b84a66e09a33bebe3668bb86a59c86fe3b130905c36e4",
+      "tests/connected-power-residual.cjs": "529cbffa098bd12795d202712403523587457129870805b46c884968440b04c1",
+      "tests/cturret-aa-trial.cjs": "4df18a3d653f6404e3c0cd64c1f5643c9a2a4136704eb3af0d8d5d2a052c3109",
+      "tests/design-save-identity.cjs": "47ceee9ef726ce23a4f8f6e9d0ead6f8464cb8ec727e6439cbb83feec3b85266",
+      "tests/dual-purpose-weapons.cjs": "cbd89419e5ea93d93df72a347eda0a4866fcd200b1b80e61aae4461634f682f4",
+      "tests/electrical-feed-heat.cjs": "f23494d2620914e30745bd85200e87553bb7d7517f3abdda3dc0cfb1d5acce3c",
+      "tests/engine-speed-publication.cjs": "b95ddfb73f6844e761a9c8ccd3a29cfb6ce068b0ad72e398e698b57b15540a65",
+      "tests/fighter-hyper-retreat.cjs": "00abe10f57709d8f80f456cdd23cbd1c29248a0e94d541bd69831e8e852fdc6c",
+      "tests/fighter-propulsion-planning.cjs": "15e72e79afa690250a96b2aec0dd3b4fde30654c3966dcd8be673fe45ea80649",
+      "tests/flight-controls-ui.cjs": "5aef551417fc010fc9247e5743054a4f32448f65660c9ff768f38c6eedeeab5a",
+      "tests/flight-joystick-ui.cjs": "b005c0c64d301e19b359490b54d214a241e52fd7913a4326339fea734e7cff76",
+      "tests/fuel-energy-accounting.cjs": "10e524629edd801c8ce54b945d1b846df885c5d81c0e1e00166a8b702a360a77",
+      "tests/global-ship-heat.cjs": "52c4613b32baf8afd38ae4a815ba8e11c69d5ee5b102f836b9ef694ed99748e5",
+      "tests/heavy-laser-aa-trial.cjs": "987ca716ccf5bc3c6ce36f710d081c5ad16af7fd90186f8f3315fff0737c0d73",
+      "tests/hyperspace-copy-ui.cjs": "02519336796eb6ec9d6876ffdfb51fec676f037ed7463a43f5c6ab198c550b68",
+      "tests/hyperspace-speed-gate.cjs": "9daab63aeb9a0571bca5bf599d4360e52249c34ed86a2a7e82412e88d2a22d42",
+      "tests/hyperspace-trial-physics.cjs": "59454abc19536a9ba05c7fe2145f1e75b070b4043a94aa7eeecfa230215530d4",
+      "tests/mass-calibrated-propulsion.cjs": "0c477ba473a14abd1ff06b909932055dcffb125551aa2a8a930b3c8243ba6577",
+      "tests/mass-dependent-motion.cjs": "546c10444ca2f6d03aee4db6ba405e8f3692b5179bab4d885b7bbca230e4cede",
+      "tests/mass-heading-inertia.cjs": "631109707d150194356e642ed4c39c360b23780c4307ee30fbbbfc41d4f3a065",
+      "tests/missile-launcher-trial.cjs": "9f3ec04720930c9972ca65b365f3060ee4a0408d7445f500b739bbc91ba3b214",
+      "tests/navigation-itinerary.cjs": "b75a2a2f06f8f53846b436c8c15e93fbbfdc30d1b225962340785a541ad86a24",
+      "tests/point-defense-funding.cjs": "e845b2deea29186b6ffe8ca55ad4cdc19e5efd0be63b4132186916120603b1b3",
+      "tests/point-defense-toggle-aircraft.cjs": "a5b22bc6382a3d29ffaad0deaea41cd192b373ebc53669c4768a7a7b2c6ee24f",
+      "tests/point-defense-toggle-persistence.cjs": "75214b2530bb78cc111fea566e7d1804b5ae1aff4e0bdb48bb4955c3c65d2646",
+      "tests/point-defense-toggle.cjs": "7b12eba9ccd8264ecc64a057001e0730d2ff4c6923fc497596d2c191b6a44c4b",
+      "tests/power-loss-navigation.cjs": "8a8c1208a053bfb5e93252d3775c75c20043df4a6a70e2fb3c13352209d7803b",
+      "tests/power-loss-status.cjs": "10447b78a38dc4e9b73326d58521d3d65189fe1fc1b85bde050c65f4744fba0b",
+      "tests/prepared-ship-cache.cjs": "da1a29e9e7d9bcd50569ed84f91075c7ec7dd9cb4176f557b34ae71db2e0ccd3",
+      "tests/propulsion-boarding.cjs": "a66251e6fc2d03668e47429e4b767f8d2c093e62cff2a7755cd4c821d152c723",
+      "tests/propulsion-motion.cjs": "c56ee858e89e4189ff4228d4804a903d01090de2511608e12c4c002a599e6b43",
+      "tests/propulsion-power-heat.cjs": "57553f89f429f2cbfc775707b3a85b5fa583580a84a454976109761193c811ae",
+      "tests/propulsion-surface-power.cjs": "137eff71bba2e17e1921cdb0688e263361b1c83297535a8a70fe73d4e2dde344",
+      "tests/propulsion-trial.cjs": "a83a82dd3a10f0f321241e9e5315d6266cc5ffb83b12f1e74a1499c733878f80",
+      "tests/reactor-engine-budget-allocation.cjs": "b8d59ed9d86d914a316a5f21bcfe401ae0fda5da6b5aaa6105e4793ce9bde15a",
+      "tests/reactor-engine-input.cjs": "ee7fe24e0af82ef74c05891559812a18fedccc885ee23b751aeb75262e757a4c",
+      "tests/received-power-efficiency.cjs": "a6fc077f528906d3cc3aa76d16315b5561d31bdf5335d21bc4519b8029d00bd0",
+      "tests/reference-sublight-speeds.cjs": "9b693f17029741884ee0c341fc6b0f520794af812a4d9b7119df12418af1669e",
+      "tests/solo-shield-recharge.cjs": "b5c377f56e1a9c3ad6a99bc00630112c08e8d363d6b2c149fadaeb2847af605d",
+      "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db",
+      "tests/surface-energy-ion.cjs": "9bcc74651d3e570833290992ecc10c3f790a2e2a741cf7df6f76a010c51c38fa",
+      "tests/surface-energy-review.cjs": "8e550a96c976c5b1526d9915763b869afd7e322b52821ca7014e01528ff508f5",
+      "tests/surface-manual-runtime.cjs": "7e2f383606a86ea82a4b574d61c67753a0cdc96fe79f15b4ce3d61eb5a25099e",
+      "tests/terminal-speed-calibration.cjs": "824be0cb86a4a3311ad6444f073643151e9e378bdd3d434bd0a85fb397123c6d",
+      "tests/throttle-output-trial.cjs": "b040ee33d8788a554a7ba3d7f985f4fa815fdb5de55e84e8a37bebf2c48250ee",
+      "tests/tie-ln-reactor-calibration.cjs": "47882d64df31726f5423ce0ab97616e9a3ca669932e57d15f1bbc95a6cdbbaf6",
+      "tests/tie-ln-solar-wing.cjs": "94ae725825ad13f12d4ecd31550a85283f57cad9ada365d3b01cc77d19fcbf71",
+      "tests/trial-craft-systems.cjs": "9f0c45f6c3a3d33a5b36b94daa7250d967bc21796a60773358bbd2d048e72a0e"
+    },
+    "sourceStable": true,
+    "testStable": true,
+    "excludedCase": "stock fighter summaries"
+  },
+  "browser": {
+    "status": "PASS",
+    "sourceStable": true,
+    "harnessStable": true,
+    "servedSourceMatches": true,
+    "trustedNativeInputEvents": 309,
+    "screenshots": 10,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "glError": 0,
+    "renderFailures": 0,
+    "scope": "Actual public generic engineering design with installed reactor, engines, shield, hyperdrive, fuel, five40TT guns and a point-defence mount. Native mouse/touch range, manual trigger, PD toggle and star-map jump controls; actual Worker and RAF. No fake power, mass, heat state, recharge flags, profiles or clocks.",
+    "initialConditionNotes": "Explicit production SI heat and shield-hit packets plus controlled initial momentum/positions of existing training drones are recorded below. Jump preparation is first observed from rest with real paid acceleration. A separate explicitly seeded already-fast momentum fixture tests combat entry; all subsequent movement uses normal RAF. The flight/jump functions and simulation clock are never replaced.",
+    "inertiaProbeScope": "Browser-loaded production Core numerical probe with explicitly synthetic healthy control units at the two reference masses. Zero thrust; not actual TIE/Venator flight and no native laboratory mass/profile is replaced.",
+    "entryGate": {
+      "time": 33.94949999999941,
+      "speed": 85.84813991119748,
+      "engineInputW": 0,
+      "actualThrustN": 0,
+      "shieldFraction": 0.7716073614587372,
+      "shots": 77,
+      "phase": "enter",
+      "readiness": {
+        "ready": true,
+        "speedReady": true,
+        "powerReady": true,
+        "hasHyperdrive": true,
+        "healthyMaximumSpeedMps": 46.291115003038904,
+        "requiredForwardSpeedMps": 41.66200350273501,
+        "forwardSpeedMps": 85.84813991119748,
+        "speedFraction": 1.854527373245638,
+        "shieldRechargeW": 1.7317799850970603e+24,
+        "weaponChargeW": 8.36800004184e+23,
+        "weaponFireW": 8.368000023012001e+23,
+        "activeWeaponFire": true,
+        "reason": null,
+        "escorts": []
+      }
+    },
+    "weaponWattsNote": "Readiness weaponFireW is requested/input-equivalent shot activity, not reactor granted watts. Actual finite source ledger and capacitor discharge are recorded separately in the browser proof."
+  },
+  "syntaxChecks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/app.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/gfx.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/engine.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/worker.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/i18n.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/lang-en.js"
+      ],
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-flight-controls.cjs"
+      ],
+      "exitCode": 0,
+      "output": ""
+    }
+  ],
+  "assetsSha256": {
+    "docs/benchmarks/flight-controls-validation.json": "54bd4823fc2f07b3f12eb873442882a5f76285337e0757c995e7071ae69a9218",
+    "docs/benchmarks/flight-controls-validation.log": "9f06ed8f7d763938570d084463ba7753f9563915700d6e0db1911cb7245b3f01",
+    "docs/benchmarks/flight-controls-browser.json": "46263d4eaedf1bdeef53a80ed9d1f83e2914fc79e212f182443e4b6bcc940f2a",
+    "docs/benchmarks/flight-controls-baseline-boarding.json": "a055e11acf4b3d4ceb6c0d87ef8aa7da01fe7e53e526e83becd2b887432b79e2",
+    "docs/benchmarks/flight-controls-baseline-boarding.log": "9c39adb67b5aca67016914ab3805f47b1a653676a333574cc65df6cfde44fd2d",
+    "docs/benchmarks/flight-controls-baseline-controls.json": "53cd98b412bf97ff3c0803b4af01216bd46f88f9e3d4c566bb8c85216fa2d3ac",
+    "docs/benchmarks/flight-controls-baseline-controls.log": "5c8940e109d66937a37fb34e464487cc69c030787f46b23955372f407b1d05b3",
+    "docs/benchmarks/calibrated-propulsion-validation.json": "57fdb507da65119102d76b3b50c7d06103c6414b7551bdcabffa69bc70f8e820",
+    "docs/benchmarks/calibrated-propulsion-validation.log": "333f364e727c4e38d60856e17561f294975aa26ab4a3c4ec27d5011850f2d5da",
+    "docs/benchmarks/flight-controls-browser.continuous37-4.jpg": "6bcb3b8e03a744286471add8139c3ccd839b7c93b109816043bc0b10d22cf18b",
+    "docs/benchmarks/flight-controls-browser.mouse-lever.jpg": "f11bc94867c22ec0c00964d375bd58e58c49804c6a68229c48e5d95e42008879",
+    "docs/benchmarks/flight-controls-browser.touch-lever-compact.jpg": "6ec880fb274a9808df1a650e78e3c1eaaac145a4de9eeefb7663400608bf31e0",
+    "docs/benchmarks/flight-controls-browser.stick-push-down.jpg": "658f43c4edbdc3e2d29d20b46b3f3944763aaada2b8101d8a507c432276c89ea",
+    "docs/benchmarks/flight-controls-browser.stick-pull-up.jpg": "2ae438014d0a2a7d548d236679fc2d5ffa7e5f58e09f5f41d860a12c0fe3946c",
+    "docs/benchmarks/flight-controls-browser.stored-heat.jpg": "d43fce23a552bdcf5b135363cfe35599e4a0137b5797f531b9963225c65858e0",
+    "docs/benchmarks/flight-controls-browser.pd-off-manual.jpg": "90d664f5b11d97459686b6be5ca14ff02b4517ae943e57958050b9bed6f9cfda",
+    "docs/benchmarks/flight-controls-browser.shield-weapon-priority.jpg": "77796927f8f65be6a68185e05d3e8dcf1833ad2bb67b15996b08a179d56dfb30",
+    "docs/benchmarks/flight-controls-browser.jump-below90.jpg": "b6aac592c629730764054cf59bbbfad27bd0585ea5fa0aebd29527e63201c090",
+    "docs/benchmarks/flight-controls-browser.jump-entry.jpg": "8f13afce50f06f20d08162dd6bce831ad1ff0a6075516e7b9a7799c64ba708b9",
+    "scripts/browser-flight-controls.cjs": "cf4e63c484bafc0c400f6550c1713199d4d11075a7c1c7a4d911b6df32aadc56",
+    "docs/flight-controls-power-and-hyperspace.md": "d061c7f5190c60391af8925b4cc788c86eadce946fe4bc6b0594c30e4bc8549e"
+  },
+  "limitations": [
+    "Actual Safari not tested; Chromium trusted touch is not Safari proof.",
+    "One all-stock fighter constructor case excluded; not exhaustive stock-design endurance validation.",
+    "Browser physical fixture is an explicitly documented public generic design with two engineering warnings; not a stock TIE or Venator flight measurement.",
+    "Separate already-fast momentum fixture tests combat entry. Jump-from-rest paid acceleration and below-threshold wait are recorded independently.",
+    "Browser inertia comparison is a synthetic zero-thrust mathematical probe, not replacement of the native design mass or profile.",
+    "No FPS or latency benchmark claimed."
+  ]
+}
