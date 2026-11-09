@@ -142,6 +142,8 @@ function machineryTexture(){
 function makeTextures() {
   const T = {}, R = rng(1977);
   T.armor=armorTexture();
+  // v24 Armour plates are drawn plain, without plate seams or panel detail (one flat tone the paint colours).
+  { const {a, e, g} = pair(64); g.fillStyle = sh(212); g.fillRect(0, 0, 64, 64); T.plain = {a, e}; }
   T.surface=machineryTexture();
   { // hull: 512 px = 96 m
     const S = 512, {a, e, g, ge} = pair(S);
@@ -1321,7 +1323,7 @@ function compile(gl, vs, fs) {
   const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES); for (let k = 0; k < na; k++) { const n = gl.getActiveAttrib(p, k).name; a[n] = gl.getAttribLocation(p, n); }
   return {p, u, a};
 }
-const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'hull', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
+const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'plain', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
 const MESH_SOURCE = {};
 Object.assign(MESH_TEX,{surfaceArmor:'hull',surfaceDevices:'surface',surfaceDetail:'surface'});
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_TEX[k]='reference';
@@ -1739,7 +1741,7 @@ class Renderer {
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')||source.startsWith('refTurBody_')?1:source==='refEngine'?2:0);
-    gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?64:0);
+    gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?0:0);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
     const drive=source==='nozzle'||source==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
     gl.uniform1f(p.u.uEmi, (emi == null ? 1 : emi) * (MESH_EMI[name] == null ? 1 : MESH_EMI[name]) * (drive ? (this.engineK ?? 1) : 1));
@@ -2088,8 +2090,8 @@ function meshOnePart(out,p,ship,opt,glow){
     if(k==='sensor'&&p.skinAsset)return;
     if(isStructuralPart(p)&&p.plate){hullTriangleMesh(out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
     // v24 Solids measured from the user's STL models (the CIS examples, ids from 100000) form the hull itself:
-    // they take the hull's own plating (texture, tone and scale) instead of the deck-plate structure skin.
-    if(isStructuralPart(p)&&measuredHullSolid(ship,p)){const T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));hullTriangleMesh(out.plate,T,opt.coded?d.col:p.paint?hex(p.paint):ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:[189,193,192],42);return;}
+    // they take the hull structure's own plating (texture, tone and scale), without the per-plate structure detail.
+    if(isStructuralPart(p)&&measuredHullSolid(ship,p)){const T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));hullTriangleMesh(out.struct,T,opt.coded?d.col:ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);return;}
     if(isStructuralPart(p)){let T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));if(C.isHullStructure?.(p))T=renderHullTriangles(ship,T,p);hullTriangleMesh(out.struct,T,p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct,T);if(p.stripes&&p.form==='shell')shellStripes(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
     const weaponBody=C.superweaponBodyTriangles?.(p);if(weaponBody){triangleMesh(out.hyper,weaponBody,color,36);return;}
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
