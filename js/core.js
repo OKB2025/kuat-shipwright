@@ -58381,6 +58381,9 @@ const MAN_BRIDGE_V24={"tiers":{"134":[672,247.88,26],"135":[614,162.59,25.1]},"r
 // This reference is rebuilt from physical devices; saved user designs are not
 // recalibrated. Battery stations are distributed over both decks and flanks;
 // the measured hull, structures and non-battery fittings remain unchanged.
+// v24 The Mandator is rebuilt from a saved assembly design: its ship.hull is the assembly placeholder with no
+// sections, so station offsets come from the primary hull structure's own profile (its origin is the ship's).
+function mandatorHull(s){return primaryHullPart(s)?.hullProfile||s.hull;}
 function buildMandatorReference(){
  // v24 The user's file was saved after the yard migrated its engines (machinery offsets 50 m on #272
  // and #273, which no longer meet their casings). The example rebuilds its propulsion from the engines'
@@ -58414,7 +58417,7 @@ for(const f of s.fits)if(f.k==='stl')f.k='quad175';const oldLock=s._lockedCache;
 function clear(f){const a=REFERENCE_ASSETS[FITS[f.k].asset],origin=fitOrigin(f),up=fitUp(f),g=authoredTurretGeometry(f);if(!a||!g)return false;let samples=sampleCache.get(f.k);if(!samples){const m=decodeReference(FITS[f.k].asset),seen=new Set();samples=[];for(const i of new Set(m.idx)){const p=Array.from(m.pos.subarray(i*3,i*3+3)),key=p.join(',');if(!seen.has(key)){seen.add(key);samples.push(p);}}for(let j=0;j<m.idx.length;j+=48){const p=[0,1,2].map(k=>(m.pos[m.idx[j]*3+k]+m.pos[m.idx[j+1]*3+k]+m.pos[m.idx[j+2]*3+k])/3);samples.push(p);}sampleCache.set(f.k,samples);}if(!a.sphereRadiusM){const foot=turretSupportFootprint(f),fr=fitFrameOf(f);for(let i=0;i<foot.length;i++)for(const t of [0,.25,.5,.75]){const a=foot[i],b=foot[(i+1)%foot.length],q=add(origin,add(mul(fr.fw,a[0]+(b[0]-a[0])*t),add(mul(fr.rt,a[1]+(b[1]-a[1])*t),mul(up,.05))));if(inside(q))return false;}}for(const p of samples){const q=referenceFitPoint(f,p);if(dot(sub(q,origin),up)>.04&&inside(q))return false;}for(const q of g.muzzles){if(inside(q))return false;const hit=rayEnv(s,add(q,mul(g.fw,.05)),g.fw,{structOnly:true,maxT:s.hull.L*2});if(hit)return false;}return true;}
 
 function place(k,x,zf,zone,opt={}){if(zone==='ventral'&&opt.tilt==null)return placeOne(k,x,zf,zone,{...opt,tilt:false})||placeOne(k,x,zf,zone,{...opt,tilt:true});return placeOne(k,x,zf,zone,opt);}
-function placeOne(k,x,zf,zone,opt={}){const why=()=>false;let h,n,side=zone==='side';if(side){const sb=sectionBase(s.hull,x);h=sidePoint(s,x,sb.edge+(opt.y??0),1);if(!h||Math.abs(h.n[2])<.85)return false;n=h.n;}else{let z=opt.z??sectionBase(s.hull,x).hw*zf;{const reach=s.hull.H*3+400;h=rayEnv(s,[x,zone==='ventral'?-reach:reach,z],[0,zone==='ventral'?1:-1,0],{maxT:reach*3,structOnly:true});}if(!h)return why('nohit');n=[0,zone==='ventral'?-1:1,0];if(zone==='ventral'&&opt.tilt!==false){if(!(h.n[1]<-.6))return why('steep');n=h.n;}}
+function placeOne(k,x,zf,zone,opt={}){const why=()=>false;let h,n,side=zone==='side';if(side){const sb=sectionBase(mandatorHull(s),x);h=sidePoint(s,x,sb.edge+(opt.y??0),1);if(!h||Math.abs(h.n[2])<.85)return false;n=h.n;}else{let z=opt.z??sectionBase(mandatorHull(s),x).hw*zf;{const reach=s.hull.H*3+400;h=rayEnv(s,[x,zone==='ventral'?-reach:reach,z],[0,zone==='ventral'?1:-1,0],{maxT:reach*3,structOnly:true});}if(!h)return why('nohit');n=[0,zone==='ventral'?-1:1,0];if(zone==='ventral'&&opt.tilt!==false){if(!(h.n[1]<-.6))return why('steep');n=h.n;}}
  const before=s.fits.length,r=placeFit(s,k,h.p,n,opt.ped??(side?0:k==='pd'?.15:.5),!opt.single&&Math.abs(h.p[2])>1,{mountMode:side?'auto':zone==='ventral'?'bottom':'top',tilt:side||zone==='ventral'&&opt.tilt!==false,...(side&&REFERENCE_ASSETS[FITS[k].asset]?.sphereRadiusM?{assetPitch:90}:{})});const f=s.fits.slice(before);if(f.some(q=>(q.base||0)+(q.ped||0)>fitSpec(q).hm*(zone==='ventral'?1:.75)+1e-6)){s.fits.splice(before);return why('base');}if(f.some(q=>!clear(q))){s.fits.splice(before);return why('clear');}if(f.length!==(!opt.single&&Math.abs(h.p[2])>1?2:1)){s.fits.splice(before);return why('count');}
  if(f.some(q=>s.fits.some(o=>!f.includes(o)&&len(sub(o.p,q.p))<(fitSpec(o).fm+fitSpec(q).fm)*.36+2))){s.fits.splice(before);return why('neighbour');}
  for(const q of f){q.batteryZone=zone+'-'+(q.p[2]>1?'stbd-':q.p[2]<-1?'port-':'centre-')+k;}
@@ -58424,16 +58427,20 @@ function fill(k,total,zone,candidates){let n=0;for(const a of candidates){if(n>=
 const xs=(a,b,step)=>{let out=[];for(let x=a;x<=b;x+=step)out.push(x);return out;};
 const candidates=(X,Z,O={})=>Z.flatMap(zf=>X.map(x=>({x,zf,...O})));
 try{
- // The user's dorsal battery is kept. The ventral battery brings the full
- // volley to about the specified 120,000 TT: up to thirteen 720 TT twins (a
- // centre-line mount and mirrored pairs), as many 175 TT quads as the keel then
- // takes, and more 720 TT pairs if the volley is still short. The keel is full at
- // about 116,500 TT (97% of the figure); the check allows ±3.5%.
- const ventral=(k,n,X,Z,exact=true,o={})=>{let made=0;if(n%2)for(const x of X.slice().sort((a,b)=>Math.abs(a-4400)-Math.abs(b-4400)))if(place(k,x,0,'ventral',{...o,z:0})){made=1;break;}if(n%2&&!made&&exact)throw new Error('Mandator II: 腹部中央の '+FITS[k].short+' を配置できません');for(const a of candidates(X,Z)){if(made+2>n)break;const before=s.fits.length;if(place(k,a.x,a.zf,'ventral',o))made+=s.fits.length-before;}if(exact&&made!==n)throw new Error('Mandator II: 腹部の '+FITS[k].short+' を配置できません（'+made+'/'+n+'）');return made;};
+ // The user's dorsal battery is kept. The ventral battery brings the full volley to about the specified
+ // 120,000 TT (the check allows ±3.5%). v24 By the user's decision it is spread thinly over both flanks of
+ // the keel in mirrored pairs: never on the centreline and never under the ventral armour spheres of the
+ // reactors. Each type first takes evenly spaced stations along the keel, alternating its two lanes, and
+ // closes up only if the sparse stations are not enough.
+ const spheres=s.parts.filter(p=>p.form==='ellipsoid'&&/反応炉の腹部球状装甲/.test(p.label||'')),underReactor=(x,z)=>spheres.some(p=>Math.hypot(x-p.c[0],z-p.c[2])<Math.max(p.s[0],p.s[1])/2+60);
  const volley=()=>s.fits.reduce((n,f)=>n+(f.float?0:(FITS[f.k]?.tt||0)+(FITS[f.k]?.ion||0)),0);
- ventral('utl',13,xs(1700,7350,210),[.72,.43,.2],false,{tilt:false});
- ventral('quad175',Math.floor((ref.volleyTT-volley())/FITS.quad175.tt/2)*2,xs(1500,7500,75),[.9,.8,.7,.6,.5,.4,.3,.2,.12],false);
- const short=ref.volleyTT-volley();if(short>FITS.quad175.tt)ventral('utl',Math.round(short/FITS.utl.tt/2)*2,xs(1600,7450,75),[.85,.75,.65,.55,.45,.35,.25,.15],false);
+ const ventral=(k,n,x0,x1,lanes,o={})=>{let made=0;
+  for(const spacing of [(x1-x0)/Math.max(1,n/2*1.15),(x1-x0)/Math.max(1,n),90])for(let x=x0,i=0;x<=x1&&made<n;x+=spacing,i++){
+   const hw=sectionBase(mandatorHull(s),x).hw;for(const zf of (i%2?lanes.slice().reverse():lanes)){const z=hw*zf;if(made+2>n||underReactor(x,z))continue;const before=s.fits.length;if(place(k,x,zf,'ventral',{...o,z})){made+=s.fits.length-before;break;}}}
+  return made;};
+ ventral('utl',14,1700,7350,[.5,.3],{tilt:false});
+ ventral('quad175',Math.floor((ref.volleyTT-volley())/FITS.quad175.tt/2)*2,1600,7450,[.62,.4,.22]);
+ const short=ref.volleyTT-volley();if(short>FITS.quad175.tt)ventral('utl',Math.round(short/FITS.utl.tt/2)*2,1600,7450,[.68,.45,.25],{tilt:false});
 
 }finally{if(oldLock)s._lockedCache=oldLock;else delete s._lockedCache;delete s._rayLock;delete s._building;}
  if(Math.abs(s.fits.reduce((n,f)=>n+(f.float?0:(FITS[f.k]?.tt||0)+(FITS[f.k]?.ion||0)),0)/ref.volleyTT-1)>.035)throw new Error('Mandator II: 斉射合計が指定値の±3.5%に収まりません（'+Math.round(s.fits.reduce((n,f)=>n+(f.float?0:(FITS[f.k]?.tt||0)+(FITS[f.k]?.ion||0)),0))+' TT）');
