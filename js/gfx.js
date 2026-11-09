@@ -142,9 +142,6 @@ function machineryTexture(){
 function makeTextures() {
   const T = {}, R = rng(1977);
   T.armor=armorTexture();
-  // v24 Armour plate parts are drawn plain, without plate seams or panel detail (one flat tone the paint colours).
-  // The hull's own armour skin is unchanged.
-  { const {a, e, g} = pair(64); g.fillStyle = sh(212); g.fillRect(0, 0, 64, 64); T.plain = {a, e}; }
   T.surface=machineryTexture();
   { // hull: 512 px = 96 m
     const S = 512, {a, e, g, ge} = pair(S);
@@ -1324,7 +1321,7 @@ function compile(gl, vs, fs) {
   const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES); for (let k = 0; k < na; k++) { const n = gl.getActiveAttrib(p, k).name; a[n] = gl.getAttribLocation(p, n); }
   return {p, u, a};
 }
-const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'plain', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
+const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'hull', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
 const MESH_SOURCE = {};
 Object.assign(MESH_TEX,{surfaceArmor:'hull',surfaceDevices:'surface',surfaceDetail:'surface'});
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_TEX[k]='reference';
@@ -1742,7 +1739,7 @@ class Renderer {
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')||source.startsWith('refTurBody_')?1:source==='refEngine'?2:0);
-    gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?0:0);
+    gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'||source==='plate'?48:0);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
     const drive=source==='nozzle'||source==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
     gl.uniform1f(p.u.uEmi, (emi == null ? 1 : emi) * (MESH_EMI[name] == null ? 1 : MESH_EMI[name]) * (drive ? (this.engineK ?? 1) : 1));
