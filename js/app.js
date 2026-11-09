@@ -7802,6 +7802,8 @@ function trialStep(dt){
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
  const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
+ // v24 Turning, speeding up and braking throw the batteries' aim off (C.AIM_MODEL), read on the next gunnery step.
+ if(C.aimMotion)trial.aimMotion=C.aimMotion(Math.max(...[0,1,2].map(i=>Math.abs(trial.w[i])/Math.max(1e-6,max[i]||0))),motion.acc0>0?tv.len(acceleration)/motion.acc0:0);
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
  const up=tv.norm(trial.P),floor=trialSys().planet.radius+trialSys().floor;trial.warn='';
  if(tv.len(trial.P)<floor){trial.P=tv.scale(up,floor);const vr=tv.dot(trial.V,up);if(vr<0)trial.V=tv.add(trial.V,up,-vr);trial.warn='大気圏上層：これ以上は降下できません';}
@@ -8004,6 +8006,8 @@ function trialGunnery(dt){
  }
  trialPowerStep(dt,demand);const en=trial.energy;let held=0,actualFireW=0;
  for(const t of trial.turrets){
+  // v24 A battery holding its fire settles its aim (C.AIM_MODEL); each volley below throws it off again.
+  if(C.aimAfter)t.aim=C.aimAfter(t.aim,trial.p,dt,0,trial.aimMotion||0);
   t.reload=Math.max(t.pilot&&t.firing?-3*t.cycle:0,t.reload-dt);t.starved=false;
   // A main battery holds its fire while one of our own ships is across its line.
   if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held)held++;}else t.held=false;}
@@ -8019,8 +8023,9 @@ function trialGunnery(dt){
    trial.gun.shots+=barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
    const pl=t.pilot,hv=t.k==='claserH',hitScale=1;sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
-   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off),control=cellUnit||trial.swSolo,direction=pl?bw:C.gunScatter(trialApply(R,bd),trial.p,t.reach||TRIAL_GUN.range,control?C.fleetSystems(control).fire:1);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(direction,spd),trial.V),life:(t.reach||TRIAL_GUN.range)/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off),control=cellUnit||trial.swSolo,direction=pl?bw:C.gunScatter(trialApply(R,bd),trial.p,t.reach||TRIAL_GUN.range,control?C.fleetSystems(control).fire:1,Math.random,t.aim);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(direction,spd),trial.V),life:(t.reach||TRIAL_GUN.range)/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
+   if(C.aimAfter&&!pl)t.aim=C.aimAfter(t.aim,trial.p,0,1);
   }
  }
  if(me?.pw&&actualFireW>0){me.pw.requestedWeaponFireW=Math.max(me.pw.requestedWeaponFireW||0,actualFireW);me.pw.activeWeaponFire=true;me.pw.activeCombatPower=true;}
