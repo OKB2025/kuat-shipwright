@@ -1,0 +1,78 @@
+TAP version 13
+# Subtest: the real manual jump command uses the first mandatory stop and preserves the selected final destination after arrival
+not ok 1 - the real manual jump command uses the first mandatory stop and preserves the selected final destination after arrival
+  ---
+  duration_ms: 1875.327972
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/navigation-ui.cjs:16:1'
+  failureType: 'testCodeFailure'
+  error: 'trialSystemsUnit is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    trialJump (app:trialJump:5:2)
+    evalmachine.<anonymous>:1:1
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    run (/workspace/kuat-hyperspace-burst/tests/navigation-ui.cjs:13:22)
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/navigation-ui.cjs:18:2)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: a manual main-route command keeps one continuous jump across intermediate systems
+not ok 2 - a manual main-route command keeps one continuous jump across intermediate systems
+  ---
+  duration_ms: 630.269545
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/navigation-ui.cjs:24:1'
+  failureType: 'testCodeFailure'
+  error: 'trialSystemsUnit is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    trialJump (app:trialJump:5:2)
+    evalmachine.<anonymous>:1:26
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    run (/workspace/kuat-hyperspace-burst/tests/navigation-ui.cjs:13:22)
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/navigation-ui.cjs:25:306)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+  ...
+# Subtest: the actual fleet-card jump handler resumes the saved final destination through a fresh first-segment command
+ok 3 - the actual fleet-card jump handler resumes the saved final destination through a fresh first-segment command
+  ---
+  duration_ms: 457.892513
+  type: 'test'
+  ...
+# Subtest: mission movement advances only to this segment and persists a pending plan until another explicit command
+ok 4 - mission movement advances only to this segment and persists a pending plan until another explicit command
+  ---
+  duration_ms: 893.478337
+  type: 'test'
+  ...
+# Subtest: local mission save reload rebuilds pending stops from the real graph and sanitizes old or malformed navigation fields
+ok 5 - local mission save reload rebuilds pending stops from the real graph and sanitizes old or malformed navigation fields
+  ---
+  duration_ms: 353.872825
+  type: 'test'
+  ...
+# Subtest: cloud mission restore applies the same itinerary validation before consumers can read saved fields
+ok 6 - cloud mission restore applies the same itinerary validation before consumers can read saved fields
+  ---
+  duration_ms: 446.463868
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 4
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4866.175624

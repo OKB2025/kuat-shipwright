@@ -1,0 +1,936 @@
+TAP version 13
+# Subtest: all live stored modes use services, real shield recharge, weapons, then navigation at finite reactor output
+ok 1 - all live stored modes use services, real shield recharge, weapons, then navigation at finite reactor output
+  ---
+  duration_ms: 70.609833
+  type: 'test'
+  ...
+# Subtest: full idle shields and weapon stores reserve no power and preserve the uncontested healthy terminal reference
+ok 2 - full idle shields and weapon stores reserve no power and preserve the uncontested healthy terminal reference
+  ---
+  duration_ms: 30.80774
+  type: 'test'
+  ...
+# Subtest: shield depletion and actual firing reduce navigation acceleration and equilibrium without retuning reference resistance
+ok 3 - shield depletion and actual firing reduce navigation acceleration and equilibrium without retuning reference resistance
+  ---
+  duration_ms: 30.499609
+  type: 'test'
+  ...
+# Subtest: only the missing shield and capacitor joules are requested near full, including a depleted shield reserve
+ok 4 - only the missing shield and capacitor joules are requested near full, including a depleted shield reserve
+  ---
+  duration_ms: 11.010664
+  type: 'test'
+  ...
+# Subtest: throttle cannot displace combat consumers and disabling thrust leaves their finite grants unchanged
+ok 5 - throttle cannot displace combat consumers and disabling thrust leaves their finite grants unchanged
+  ---
+  duration_ms: 9.739494
+  type: 'test'
+  ...
+# Subtest: shared finite path losses fund services and shields before guns and leave no fictitious propulsion grant
+ok 6 - shared finite path losses fund services and shields before guns and leave no fictitious propulsion grant
+  ---
+  duration_ms: 7.38419
+  type: 'test'
+  ...
+# Subtest: zero grants retain current combat demand for readiness while idle requests do not
+ok 7 - zero grants retain current combat demand for readiness while idle requests do not
+  ---
+  duration_ms: 2.533411
+  type: 'test'
+  ...
+# Subtest: surface bank room is allocated before navigation and a full surface bank has no standby weapon draw
+ok 8 - surface bank room is allocated before navigation and a full surface bank has no standby weapon draw
+  ---
+  duration_ms: 9.261897
+  type: 'test'
+  ...
+# Subtest: accepted combat source draw produces actual heat and fuel use, without creating electrical energy
+ok 9 - accepted combat source draw produces actual heat and fuel use, without creating electrical energy
+  ---
+  duration_ms: 4.427732
+  type: 'test'
+  ...
+# Subtest: the actual fleet clock pays the same recharge and firing demand as direct control
+ok 10 - the actual fleet clock pays the same recharge and firing demand as direct control
+  ---
+  duration_ms: 6.547811
+  type: 'test'
+  ...
+# Subtest: an actual fleet shot from a full bank remains active even when its charger has no input request
+ok 11 - an actual fleet shot from a full bank remains active even when its charger has no input request
+  ---
+  duration_ms: 5.158059
+  type: 'test'
+  ...
+# Subtest: continuous squad firing remains a real weapon demand with full compatibility banks
+ok 12 - continuous squad firing remains a real weapon demand with full compatibility banks
+  ---
+  duration_ms: 11.24419
+  type: 'test'
+  ...
+# Subtest: numerically full aggregate and surface banks create no unaccepted charge or persistent combat demand
+ok 13 - numerically full aggregate and surface banks create no unaccepted charge or persistent combat demand
+  ---
+  duration_ms: 25.55769
+  type: 'test'
+  ...
+# Subtest: mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind
+ok 14 - mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind
+  ---
+  duration_ms: 44091.962539
+  type: 'test'
+  ...
+# Subtest: self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches
+ok 15 - self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches
+  ---
+  duration_ms: 3437.105022
+  type: 'test'
+  ...
+# Subtest: partial launch preserves aboard aircraft and temporarily splits only the airborne cohort
+ok 16 - partial launch preserves aboard aircraft and temporarily splits only the airborne cohort
+  ---
+  duration_ms: 1102.808324
+  type: 'test'
+  ...
+# Subtest: partial land preserves aboard aircraft and temporarily splits only the airborne cohort
+ok 17 - partial land preserves aboard aircraft and temporarily splits only the airborne cohort
+  ---
+  duration_ms: 896.962997
+  type: 'test'
+  ...
+# Subtest: canceling the carrier jump never starts an independent fighter departure
+ok 18 - canceling the carrier jump never starts an independent fighter departure
+  ---
+  duration_ms: 56.16564
+  type: 'test'
+  ...
+# Subtest: custom aircraft use their own measured drive while drive-less blueprints cannot follow
+ok 19 - custom aircraft use their own measured drive while drive-less blueprints cannot follow
+  ---
+  duration_ms: 246.496467
+  type: 'test'
+  ...
+# Subtest: the battle continues and point defence can hit fighters while they spool after the last carrier departs
+not ok 20 - the battle continues and point defence can hit fighters while they spool after the last carrier departs
+  ---
+  duration_ms: 205.775848
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/fighter-hyper-retreat.cjs:46:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(r.hurt>0)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/fighter-hyper-retreat.cjs:49:99)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs
+ok 21 - resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs
+  ---
+  duration_ms: 5124.483317
+  type: 'test'
+  ...
+# Subtest: joint formation persists through fleet and scenario JSON into the battle order of battle
+ok 22 - joint formation persists through fleet and scenario JSON into the battle order of battle
+  ---
+  duration_ms: 14.390328
+  type: 'test'
+  ...
+# Subtest: legacy task groups stay independent until a joint formation is explicitly selected
+ok 23 - legacy task groups stay independent until a joint formation is explicitly selected
+  ---
+  duration_ms: 310.326441
+  type: 'test'
+  ...
+# Subtest: initial joint deployment spaces whole task groups along the selected formation without changing their internal shapes
+ok 24 - initial joint deployment spaces whole task groups along the selected formation without changing their internal shapes
+  ---
+  duration_ms: 186.455883
+  type: 'test'
+  ...
+# Subtest: joint deployment rotates each group footprint and initial velocity onto the common heading
+ok 25 - joint deployment rotates each group footprint and initial velocity onto the common heading
+  ---
+  duration_ms: 74.770094
+  type: 'test'
+  ...
+# Subtest: joint orders preserve individual ship orders and a task-group order detaches only that group
+ok 26 - joint orders preserve individual ship orders and a task-group order detaches only that group
+  ---
+  duration_ms: 124.343785
+  type: 'test'
+  ...
+# Subtest: the live joint controller tracks separate centres and limits its leader to the slower group
+ok 27 - the live joint controller tracks separate centres and limits its leader to the slower group
+  ---
+  duration_ms: 4266.161107
+  type: 'test'
+  ...
+# Subtest: groups in another system or in transit do not anchor the current joint controller
+ok 28 - groups in another system or in transit do not anchor the current joint controller
+  ---
+  duration_ms: 30.673137
+  type: 'test'
+  ...
+# Subtest: joint pacing honours the speed selected for the slowest task group
+ok 29 - joint pacing honours the speed selected for the slowest task group
+  ---
+  duration_ms: 43.130726
+  type: 'test'
+  ...
+# Subtest: setup and battle expose whole-joint formation separately from internal group formation
+ok 30 - setup and battle expose whole-joint formation separately from internal group formation
+  ---
+  duration_ms: 3.061796
+  type: 'test'
+  ...
+# Subtest: the actual fleet duplication action retains the joint formation and each internal formation
+ok 31 - the actual fleet duplication action retains the joint formation and each internal formation
+  ---
+  duration_ms: 10.169261
+  type: 'test'
+  ...
+# Subtest: continuous throttle accepts non-detent percentages between zero and full output
+ok 32 - continuous throttle accepts non-detent percentages between zero and full output
+  ---
+  duration_ms: 1493.039114
+  type: 'test'
+  ...
+# Subtest: held keyboard throttle depends on elapsed time and retains output on release
+ok 33 - held keyboard throttle depends on elapsed time and retains output on release
+  ---
+  duration_ms: 684.305043
+  type: 'test'
+  ...
+# Subtest: native lever input changes real command without stealing its browser pointer behavior
+ok 34 - native lever input changes real command without stealing its browser pointer behavior
+  ---
+  duration_ms: 597.287679
+  type: 'test'
+  ...
+# Subtest: HUD heat text uses actual joules, capacity and their ratio
+ok 35 - HUD heat text uses actual joules, capacity and their ratio
+  ---
+  duration_ms: 532.132069
+  type: 'test'
+  ...
+# Subtest: PD control changes the actual unit order and clears automatic aim without changing its equipment
+ok 36 - PD control changes the actual unit order and clears automatic aim without changing its equipment
+  ---
+  duration_ms: 488.440889
+  type: 'test'
+  ...
+# Subtest: trial, fleet and task-group controls expose fixed policy and PD rather than mode cycling
+ok 37 - trial, fleet and task-group controls expose fixed policy and PD rather than mode cycling
+  ---
+  duration_ms: 15.172627
+  type: 'test'
+  ...
+# Subtest: new control, heat and readiness labels translate fully into English
+ok 38 - new control, heat and readiness labels translate fully into English
+  ---
+  duration_ms: 670.246011
+  type: 'test'
+  ...
+# Subtest: active flight help and gun-mode descriptions make no obsolete automatic combat-block claims
+ok 39 - active flight help and gun-mode descriptions make no obsolete automatic combat-block claims
+  ---
+  duration_ms: 26.853829
+  type: 'test'
+  ...
+# Subtest: actual rendered ship, group and spectator waiting states translate speed and power reasons
+ok 40 - actual rendered ship, group and spectator waiting states translate speed and power reasons
+  ---
+  duration_ms: 242.402485
+  type: 'test'
+  ...
+# Subtest: actual static notes, firing descriptions and dynamic reinforcement timing translate fully
+ok 41 - actual static notes, firing descriptions and dynamic reinforcement timing translate fully
+  ---
+  duration_ms: 128.58386
+  type: 'test'
+  ...
+# Subtest: real final-burst HUD distinguishes ordinary preparation from near-light entry and translates both
+ok 42 - real final-burst HUD distinguishes ordinary preparation from near-light entry and translates both
+  ---
+  duration_ms: 167.699251
+  type: 'test'
+  ...
+# Subtest: entry acceleration starts at the actual velocity and reaches a finite 0.9c before completion
+ok 43 - entry acceleration starts at the actual velocity and reaches a finite 0.9c before completion
+  ---
+  duration_ms: 46.081284
+  type: 'test'
+  ...
+# Subtest: actual entry displacement and velocity are independent of frame subdivision
+ok 44 - actual entry displacement and velocity are independent of frame subdivision
+  ---
+  duration_ms: 5.140145
+  type: 'test'
+  ...
+# Subtest: entry acceleration owns copied initial state and ignores later helm direction changes
+ok 45 - entry acceleration owns copied initial state and ignores later helm direction changes
+  ---
+  duration_ms: 4.827583
+  type: 'test'
+  ...
+# Subtest: oversized or invalid time steps cannot overshoot the finite entry target
+ok 46 - oversized or invalid time steps cannot overshoot the finite entry target
+  ---
+  duration_ms: 2.566875
+  type: 'test'
+  ...
+# Subtest: reactor loss during entry blocks advancement and cannot finish from its timer
+ok 47 - reactor loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 5.001124
+  type: 'test'
+  ...
+# Subtest: hyperdrive loss during entry blocks advancement and cannot finish from its timer
+ok 48 - hyperdrive loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 2.594663
+  type: 'test'
+  ...
+# Subtest: destroyed loss during entry blocks advancement and cannot finish from its timer
+ok 49 - destroyed loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 18.638155
+  type: 'test'
+  ...
+# Subtest: disabled loss during entry blocks advancement and cannot finish from its timer
+ok 50 - disabled loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 2.49794
+  type: 'test'
+  ...
+# Subtest: a missing hyperdrive cannot acquire the entry acceleration just by creating a state
+ok 51 - a missing hyperdrive cannot acquire the entry acceleration just by creating a state
+  ---
+  duration_ms: 5.625145
+  type: 'test'
+  ...
+# Subtest: normal preparation remains cancellable but the near-light entry phase is committed
+ok 52 - normal preparation remains cancellable but the near-light entry phase is committed
+  ---
+  duration_ms: 0.659392
+  type: 'test'
+  ...
+# Subtest: entry uses actual forward seventy-percent cruise speed even with reduced live engine input
+ok 53 - entry uses actual forward seventy-percent cruise speed even with reduced live engine input
+  ---
+  duration_ms: 40.492509
+  type: 'test'
+  ...
+# Subtest: no-drive, destroyed-drive, powerless and disabled units cannot pass a public readiness query
+ok 54 - no-drive, destroyed-drive, powerless and disabled units cannot pass a public readiness query
+  ---
+  duration_ms: 10.292975
+  type: 'test'
+  ...
+# Subtest: new shield damage does not forbid entry while actual speed remains above seventy percent
+ok 55 - new shield damage does not forbid entry while actual speed remains above seventy percent
+  ---
+  duration_ms: 4.864766
+  type: 'test'
+  ...
+# Subtest: actual firing and late bank spending do not override sufficient actual cruise speed
+ok 56 - actual firing and late bank spending do not override sufficient actual cruise speed
+  ---
+  duration_ms: 25.672981
+  type: 'test'
+  ...
+# Subtest: a charged task group can enter while under fire and regenerating at sufficient actual speed
+ok 57 - a charged task group can enter while under fire and regenerating at sufficient actual speed
+  ---
+  duration_ms: 134.959297
+  type: 'test'
+  ...
+# Subtest: a quiet task group really accelerates from rest and cannot use its charged timer alone
+ok 58 - a quiet task group really accelerates from rest and cannot use its charged timer alone
+  ---
+  duration_ms: 108.347573
+  type: 'test'
+  ...
+# Subtest: a disabled towed hull need not self-accelerate and the tower uses its real loaded cruise
+ok 59 - a disabled towed hull need not self-accelerate and the tower uses its real loaded cruise
+  ---
+  duration_ms: 404.178325
+  type: 'test'
+  ...
+# Subtest: independent carrier-follow aircraft physically accelerate and recheck their own drive before entry
+ok 60 - independent carrier-follow aircraft physically accelerate and recheck their own drive before entry
+  ---
+  duration_ms: 294.002206
+  type: 'test'
+  ...
+# Subtest: raid-launch cannot bypass the physical aircraft speed gate
+ok 61 - raid-launch cannot bypass the physical aircraft speed gate
+  ---
+  duration_ms: 279.863501
+  type: 'test'
+  ...
+# Subtest: raid-return cannot bypass the physical aircraft speed gate
+ok 62 - raid-return cannot bypass the physical aircraft speed gate
+  ---
+  duration_ms: 138.940277
+  type: 'test'
+  ...
+# Subtest: actual final departure preserves a valid partial launch cohort with multiple unequal mouths and its aircraft IDs
+ok 63 - actual final departure preserves a valid partial launch cohort with multiple unequal mouths and its aircraft IDs
+  ---
+  duration_ms: 40.931754
+  type: 'test'
+  ...
+# Subtest: actual final departure preserves a valid partial land cohort with multiple unequal mouths and its aircraft IDs
+ok 64 - actual final departure preserves a valid partial land cohort with multiple unequal mouths and its aircraft IDs
+  ---
+  duration_ms: 66.771443
+  type: 'test'
+  ...
+# Subtest: the real entry burst is committed against cancel and replots, then clears on departure and arrival
+ok 65 - the real entry burst is committed against cancel and replots, then clears on departure and arrival
+  ---
+  duration_ms: 84.055987
+  type: 'test'
+  ...
+# Subtest: power loss aborts an active burst without leaving near-light ordinary motion
+ok 66 - power loss aborts an active burst without leaving near-light ordinary motion
+  ---
+  duration_ms: 12.943991
+  type: 'test'
+  ...
+# Subtest: task-group burst starts are staggered and each ship departs immediately at the target speed
+ok 67 - task-group burst starts are staggered and each ship departs immediately at the target speed
+  ---
+  duration_ms: 127.131957
+  type: 'test'
+  ...
+# Subtest: follow reaches near light speed while still in real space before actual transit
+ok 68 - follow reaches near light speed while still in real space before actual transit
+  ---
+  duration_ms: 517.385837
+  type: 'test'
+  ...
+# Subtest: raid-launch reaches near light speed while still in real space before actual transit
+ok 69 - raid-launch reaches near light speed while still in real space before actual transit
+  ---
+  duration_ms: 682.659613
+  type: 'test'
+  ...
+# Subtest: raid-return reaches near light speed while still in real space before actual transit
+ok 70 - raid-return reaches near light speed while still in real space before actual transit
+  ---
+  duration_ms: 358.973188
+  type: 'test'
+  ...
+# Subtest: recalling a raid after its burst starts does not return a near-light craft to ordinary combat
+ok 71 - recalling a raid after its burst starts does not return a near-light craft to ordinary combat
+  ---
+  duration_ms: 514.74216
+  type: 'test'
+  ...
+# Subtest: a manually piloted member cannot receive a second group-owned hyperdrive clock
+ok 72 - a manually piloted member cannot receive a second group-owned hyperdrive clock
+  ---
+  duration_ms: 26.992126
+  type: 'test'
+  ...
+# Subtest: a waiting member falling below cruise readiness cannot strand an already committed burst at near light speed
+ok 73 - a waiting member falling below cruise readiness cannot strand an already committed burst at near light speed
+  ---
+  duration_ms: 41.843359
+  type: 'test'
+  ...
+# Subtest: an unready middle ship cannot start a later burst that would wait completed in real space
+ok 74 - an unready middle ship cannot start a later burst that would wait completed in real space
+  ---
+  duration_ms: 159.951263
+  type: 'test'
+  ...
+# Subtest: a multi-squadron raid waits for every ordinary cruise gate before starting its synchronized entry
+ok 75 - a multi-squadron raid waits for every ordinary cruise gate before starting its synchronized entry
+  ---
+  duration_ms: 2016.951516
+  type: 'test'
+  ...
+# Subtest: a raid cohort losing one drive during entry rolls every craft back out of the hyperfield
+ok 76 - a raid cohort losing one drive during entry rolls every craft back out of the hyperfield
+  ---
+  duration_ms: 743.581705
+  type: 'test'
+  ...
+# Subtest: a jump from rest commands real engine output without assigning velocity or allowing timer-only entry
+ok 77 - a jump from rest commands real engine output without assigning velocity or allowing timer-only entry
+  ---
+  duration_ms: 15.982278
+  type: 'test'
+  ...
+# Subtest: actual funded thrust reaches seventy percent of the healthy equilibrium before the tunnel opens
+ok 78 - actual funded thrust reaches seventy percent of the healthy equilibrium before the tunnel opens
+  ---
+  duration_ms: 508.915872
+  type: 'test'
+  ...
+# Subtest: shield regeneration and firing can start the burst at seventy percent but cannot bypass the real acceleration
+ok 79 - shield regeneration and firing can start the burst at seventy percent but cannot bypass the real acceleration
+  ---
+  duration_ms: 33.44842
+  type: 'test'
+  ...
+# Subtest: source loss cancels preparation and restores the prior throttle without inventing a stopping impulse
+ok 80 - source loss cancels preparation and restores the prior throttle without inventing a stopping impulse
+  ---
+  duration_ms: 2.494237
+  type: 'test'
+  ...
+# Subtest: preparing escorts use their finite paid acceleration and never receive the old exponential burst seed
+ok 81 - preparing escorts use their finite paid acceleration and never receive the old exponential burst seed
+  ---
+  duration_ms: 15.421781
+  type: 'test'
+  ...
+# Subtest: supporting escort bursts continue during preparation and stop only after committed hyperspace entry
+ok 82 - supporting escort bursts continue during preparation and stop only after committed hyperspace entry
+  ---
+  duration_ms: 24.52932
+  type: 'test'
+  ...
+# Subtest: an active real burst locks voluntary cancellation and steering, and source loss restores ordinary paid speed
+ok 83 - an active real burst locks voluntary cancellation and steering, and source loss restores ordinary paid speed
+  ---
+  duration_ms: 3.715732
+  type: 'test'
+  ...
+# Subtest: real escorts use the same authoritative burst and reach the near-light target before the tunnel
+ok 84 - real escorts use the same authoritative burst and reach the near-light target before the tunnel
+  ---
+  duration_ms: 41.405512
+  type: 'test'
+  ...
+# Subtest: following a Core ship that already reached near-light speed starts the tunnel without replaying a fake burst
+ok 85 - following a Core ship that already reached near-light speed starts the tunnel without replaying a fake burst
+  ---
+  duration_ms: 7.966075
+  type: 'test'
+  ...
+# Subtest: one topology service groups consecutive major edges and isolates every branch edge without mutating the route
+ok 86 - one topology service groups consecutive major edges and isolates every branch edge without mutating the route
+  ---
+  duration_ms: 11.700694
+  type: 'test'
+  ...
+# Subtest: native Galaxy and Rts paths share mandatory-stop rules while preserving each original graph
+ok 87 - native Galaxy and Rts paths share mandatory-stop rules while preserving each original graph
+  ---
+  duration_ms: 62.617874
+  type: 'test'
+  ...
+# Subtest: a branch journey arrives in realspace and cannot continue until a new jump command recharges the drive
+ok 88 - a branch journey arrives in realspace and cannot continue until a new jump command recharges the drive
+  ---
+  duration_ms: 418.083249
+  type: 'test'
+  ...
+# Subtest: an uninterrupted main route passes intermediate systems in one transit, while mixed routes stop at junctions
+ok 89 - an uninterrupted main route passes intermediate systems in one transit, while mixed routes stop at junctions
+  ---
+  duration_ms: 241.627926
+  type: 'test'
+  ...
+# Subtest: fine and coarse updates both end at the same mandatory stop without automatic continuation
+ok 90 - fine and coarse updates both end at the same mandatory stop without automatic continuation
+  ---
+  duration_ms: 1006.583968
+  type: 'test'
+  ...
+# Subtest: ETA distinguishes the current segment from remaining travel and an unreachable destination is rejected atomically
+ok 91 - ETA distinguishes the current segment from remaining travel and an unreachable destination is rejected atomically
+  ---
+  duration_ms: 38.908007
+  type: 'test'
+  ...
+# Subtest: legacy full-route spool and in-flight snapshots migrate to the next unpassed stop without moving the ship
+ok 92 - legacy full-route spool and in-flight snapshots migrate to the next unpassed stop without moving the ship
+  ---
+  duration_ms: 12.932275
+  type: 'test'
+  ...
+# Subtest: carrier-follow craft stop at each actual segment and start a new spool if the carrier has moved on
+ok 93 - carrier-follow craft stop at each actual segment and start a new spool if the carrier has moved on
+  ---
+  duration_ms: 1227.009857
+  type: 'test'
+  ...
+# Subtest: a coarse first update migrates an old in-flight route before advancing past its mandatory stop
+ok 94 - a coarse first update migrates an old in-flight route before advancing past its mandatory stop
+  ---
+  duration_ms: 14.252758
+  type: 'test'
+  ...
+# Subtest: cross-system raids cannot bypass a mandatory intermediate stop, while a single continuous segment remains available
+ok 95 - cross-system raids cannot bypass a mandatory intermediate stop, while a single continuous segment remains available
+  ---
+  duration_ms: 6.457925
+  type: 'test'
+  ...
+# Subtest: the real manual jump command uses the first mandatory stop and preserves the selected final destination after arrival
+ok 96 - the real manual jump command uses the first mandatory stop and preserves the selected final destination after arrival
+  ---
+  duration_ms: 1835.058586
+  type: 'test'
+  ...
+# Subtest: a manual main-route command keeps one continuous jump across intermediate systems
+ok 97 - a manual main-route command keeps one continuous jump across intermediate systems
+  ---
+  duration_ms: 699.160671
+  type: 'test'
+  ...
+# Subtest: the actual fleet-card jump handler resumes the saved final destination through a fresh first-segment command
+ok 98 - the actual fleet-card jump handler resumes the saved final destination through a fresh first-segment command
+  ---
+  duration_ms: 662.218366
+  type: 'test'
+  ...
+# Subtest: mission movement advances only to this segment and persists a pending plan until another explicit command
+ok 99 - mission movement advances only to this segment and persists a pending plan until another explicit command
+  ---
+  duration_ms: 685.760395
+  type: 'test'
+  ...
+# Subtest: local mission save reload rebuilds pending stops from the real graph and sanitizes old or malformed navigation fields
+ok 100 - local mission save reload rebuilds pending stops from the real graph and sanitizes old or malformed navigation fields
+  ---
+  duration_ms: 606.063448
+  type: 'test'
+  ...
+# Subtest: cloud mission restore applies the same itinerary validation before consumers can read saved fields
+ok 101 - cloud mission restore applies the same itinerary validation before consumers can read saved fields
+  ---
+  duration_ms: 728.561106
+  type: 'test'
+  ...
+# Subtest: throttle zero and actual weapon recharge remove thrust without disabling live generation
+ok 102 - throttle zero and actual weapon recharge remove thrust without disabling live generation
+  ---
+  duration_ms: 37.19729
+  type: 'test'
+  ...
+# Subtest: reserving the whole plant for superweapon charging is not electrical source loss
+ok 103 - reserving the whole plant for superweapon charging is not electrical source loss
+  ---
+  duration_ms: 3.278204
+  type: 'test'
+  ...
+# Subtest: known source failure creates the existing disabled state and preserves instantaneous velocity
+ok 104 - known source failure creates the existing disabled state and preserves instantaneous velocity
+  ---
+  duration_ms: 29.154378
+  type: 'test'
+  ...
+# Subtest: live non-reactor generation survives reactor destruction and exhausted fuel
+ok 105 - live non-reactor generation survives reactor destruction and exhausted fuel
+  ---
+  duration_ms: 2.286434
+  type: 'test'
+  ...
+# Subtest: unknown legacy electrical budgets never acquire a new disabled state
+ok 106 - unknown legacy electrical budgets never acquire a new disabled state
+  ---
+  duration_ms: 0.387712
+  type: 'test'
+  ...
+# Subtest: thermal blackout disables immediately and the existing crew restart can restore only its own reason
+ok 107 - thermal blackout disables immediately and the existing crew restart can restore only its own reason
+  ---
+  duration_ms: 2.795978
+  type: 'test'
+  ...
+# Subtest: an unmanned thermal shutdown does not invent recovery workers
+ok 108 - an unmanned thermal shutdown does not invent recovery workers
+  ---
+  duration_ms: 2.084007
+  type: 'test'
+  ...
+# Subtest: restored power preserves distinct disabled reasons, bridge or crew loss and death
+ok 109 - restored power preserves distinct disabled reasons, bridge or crew loss and death
+  ---
+  duration_ms: 16.890769
+  type: 'test'
+  ...
+# Subtest: fully automated unmanned ships restore electrical navigation without a false crew failure
+ok 110 - fully automated unmanned ships restore electrical navigation without a false crew failure
+  ---
+  duration_ms: 8.00182
+  type: 'test'
+  ...
+# Subtest: quiet and stirred worlds apply the existing disabled fall exactly once per tick
+ok 111 - quiet and stirred worlds apply the existing disabled fall exactly once per tick
+  ---
+  duration_ms: 90.502176
+  type: 'test'
+  ...
+# Subtest: a stopped ship in an otherwise quiet world starts falling after loss of power
+ok 112 - a stopped ship in an otherwise quiet world starts falling after loss of power
+  ---
+  duration_ms: 19.728996
+  type: 'test'
+  ...
+# Subtest: aircraft keep their existing disabled drift, cannot shoot or release stores, and restore owned power loss
+ok 113 - aircraft keep their existing disabled drift, cannot shoot or release stores, and restore owned power loss
+  ---
+  duration_ms: 12.447117
+  type: 'test'
+  ...
+# Subtest: an uncommitted jump is cancelled by actual source loss and does not resume on restoration
+ok 114 - an uncommitted jump is cancelled by actual source loss and does not resume on restoration
+  ---
+  duration_ms: 13.975388
+  type: 'test'
+  ...
+# Subtest: a powered launcher loses launch permission without consuming its retained ammunition
+ok 115 - a powered launcher loses launch permission without consuming its retained ammunition
+  ---
+  duration_ms: 1.362659
+  type: 'test'
+  ...
+# Subtest: stored weapon charge cannot fire without electrical power and survives until supply returns
+ok 116 - stored weapon charge cannot fire without electrical power and survives until supply returns
+  ---
+  duration_ms: 1.353944
+  type: 'test'
+  ...
+# Subtest: power diagnostics report exhausted physical fuel as unavailable while retaining installed ratings
+ok 117 - power diagnostics report exhausted physical fuel as unavailable while retaining installed ratings
+  ---
+  duration_ms: 32.056545
+  type: 'test'
+  ...
+# Subtest: power diagnostics use thermal output exactly once and recover with the existing retained ceiling
+ok 118 - power diagnostics use thermal output exactly once and recover with the existing retained ceiling
+  ---
+  duration_ms: 31.020233
+  type: 'test'
+  ...
+# Subtest: power diagnostics follow actual surviving source damage instead of nominal plant output
+ok 119 - power diagnostics follow actual surviving source damage instead of nominal plant output
+  ---
+  duration_ms: 3.411295
+  type: 'test'
+  ...
+# Subtest: independent solar generation remains visible with exhausted reactor fuel and retains each domain rating
+ok 120 - independent solar generation remains visible with exhausted reactor fuel and retains each domain rating
+  ---
+  duration_ms: 4.933776
+  type: 'test'
+  ...
+# Subtest: superweapon source reservations do not appear as a power outage or change diagnostic query allocation
+ok 121 - superweapon source reservations do not appear as a power outage or change diagnostic query allocation
+  ---
+  duration_ms: 11.284069
+  type: 'test'
+  ...
+# Subtest: unknown legacy budgets preserve their previous diagnostic fallback
+ok 122 - unknown legacy budgets preserve their previous diagnostic fallback
+  ---
+  duration_ms: 3.110109
+  type: 'test'
+  ...
+# Subtest: motion uses the actual physical result and the tactical scale exactly once
+ok 123 - motion uses the actual physical result and the tactical scale exactly once
+  ---
+  duration_ms: 46.981589
+  type: 'test'
+  ...
+# Subtest: fleet movement receives this tick's allocation and never rotates drifting velocity
+ok 124 - fleet movement receives this tick's allocation and never rotates drifting velocity
+  ---
+  duration_ms: 28.058976
+  type: 'test'
+  ...
+# Subtest: fleet acceleration is bounded by supplied force rather than legacy p.accel
+ok 125 - fleet acceleration is bounded by supplied force rather than legacy p.accel
+  ---
+  duration_ms: 13.50958
+  type: 'test'
+  ...
+# Subtest: peaceful movement shares current power and uses disabled gravity after a blackout
+ok 126 - peaceful movement shares current power and uses disabled gravity after a blackout
+  ---
+  duration_ms: 8.824689
+  type: 'test'
+  ...
+# Subtest: an aircraft without an engine descriptor drifts instead of acquiring a speed fallback
+ok 127 - an aircraft without an engine descriptor drifts instead of acquiring a speed fallback
+  ---
+  duration_ms: 3.126892
+  type: 'test'
+  ...
+# Subtest: zero aircraft throttle follows the live nose without added speed while paid steering keeps its force bound
+ok 128 - zero aircraft throttle follows the live nose without added speed while paid steering keeps its force bound
+  ---
+  duration_ms: 32.031148
+  type: 'test'
+  ...
+# Subtest: equal simulation time gives equal velocity change and propulsion input energy
+ok 129 - equal simulation time gives equal velocity change and propulsion input energy
+  ---
+  duration_ms: 18.0953
+  type: 'test'
+  ...
+# Subtest: saved craft retain the validated engine profile and mass-bound conversion coefficient
+ok 130 - saved craft retain the validated engine profile and mass-bound conversion coefficient
+  ---
+  duration_ms: 14.030099
+  type: 'test'
+  ...
+# Subtest: nozzle appearance cannot change the game speed coefficient
+ok 131 - nozzle appearance cannot change the game speed coefficient
+  ---
+  duration_ms: 0.695655
+  type: 'test'
+  ...
+# Subtest: legacy combat profiles require independent finite mass and preserve their electrical rating
+ok 132 - legacy combat profiles require independent finite mass and preserve their electrical rating
+  ---
+  duration_ms: 1.731569
+  type: 'test'
+  ...
+# Subtest: a stale result cannot move a unit without a finite valid descriptor
+ok 133 - a stale result cannot move a unit without a finite valid descriptor
+  ---
+  duration_ms: 2.255476
+  type: 'test'
+  ...
+# Subtest: a legacy combined acceleration remains only an upper bound on real powered movement
+ok 134 - a legacy combined acceleration remains only an upper bound on real powered movement
+  ---
+  duration_ms: 3.075641
+  type: 'test'
+  ...
+# Subtest: stationary turning keeps requesting engine power until the heading is reached
+ok 135 - stationary turning keeps requesting engine power until the heading is reached
+  ---
+  duration_ms: 13.834919
+  type: 'test'
+  ...
+# Subtest: a disabled peaceful unit integrates mass resistance and planetary gravity once
+ok 136 - a disabled peaceful unit integrates mass resistance and planetary gravity once
+  ---
+  duration_ms: 8.289464
+  type: 'test'
+  ...
+# Subtest: the real peaceful registry preserves disabled falling motion after its original start time
+ok 137 - the real peaceful registry preserves disabled falling motion after its original start time
+  ---
+  duration_ms: 150.30116
+  type: 'test'
+  ...
+# Subtest: saved power profiles retain verified physical volume without a retired density power ceiling
+ok 138 - saved power profiles retain verified physical volume without a retired density power ceiling
+  ---
+  duration_ms: 6.859898
+  type: 'test'
+  ...
+# Subtest: a blueprint owns the physical machinery and connected reactor supply instead of cached input ratings
+ok 139 - a blueprint owns the physical machinery and connected reactor supply instead of cached input ratings
+  ---
+  duration_ms: 5978.824606
+  type: 'test'
+  ...
+# Subtest: aircraft shields and guns share the current finite plant with propulsion
+ok 140 - aircraft shields and guns share the current finite plant with propulsion
+  ---
+  duration_ms: 12.290126
+  type: 'test'
+  ...
+# Subtest: aircraft foil deployment controls the connected local cooling capacity
+ok 141 - aircraft foil deployment controls the connected local cooling capacity
+  ---
+  duration_ms: 18.249735
+  type: 'test'
+  ...
+# Subtest: boarding resistance uses this tick's actual force without legacy capability multipliers
+ok 142 - boarding resistance uses this tick's actual force without legacy capability multipliers
+  ---
+  duration_ms: 2.279676
+  type: 'test'
+  ...
+# Subtest: a healthy hostile tractor target requests real resistance power while its motion is constrained
+ok 143 - a healthy hostile tractor target requests real resistance power while its motion is constrained
+  ---
+  duration_ms: 67.6922
+  type: 'test'
+  ...
+# Subtest: the LH-3210 convoy freighter receives finite propulsion without an aircraft catalog entry
+ok 144 - the LH-3210 convoy freighter receives finite propulsion without an aircraft catalog entry
+  ---
+  duration_ms: 24.54208
+  type: 'test'
+  ...
+# Subtest: custom craft retains hyperdrive through JSON load and raid registration
+ok 145 - custom craft retains hyperdrive through JSON load and raid registration
+  ---
+  duration_ms: 95.29948
+  type: 'test'
+  ...
+# Subtest: missing and invalid hyperdrives stay unable to jump
+ok 146 - missing and invalid hyperdrives stay unable to jump
+  ---
+  duration_ms: 231.389752
+  type: 'test'
+  ...
+# Subtest: recalling a raid keeps combat active and resolves fired missiles
+ok 147 - recalling a raid keeps combat active and resolves fired missiles
+  ---
+  duration_ms: 30111.733814
+  type: 'test'
+  ...
+# Subtest: a missile progresses after the last raiding squadron leaves
+ok 148 - a missile progresses after the last raiding squadron leaves
+  ---
+  duration_ms: 6390.877953
+  type: 'test'
+  ...
+# Subtest: missiles whose targets leave the system are discarded
+ok 149 - missiles whose targets leave the system are discarded
+  ---
+  duration_ms: 6791.542603
+  type: 'test'
+  ...
+# Subtest: published startup source hashes and sizes match the exact committed files
+ok 150 - published startup source hashes and sizes match the exact committed files
+  ---
+  duration_ms: 303.338527
+  type: 'test'
+  ...
+# Subtest: updating source revisions changes the script URL without changing manifest keys and is idempotent
+ok 151 - updating source revisions changes the script URL without changing manifest keys and is idempotent
+  ---
+  duration_ms: 8.517441
+  type: 'test'
+  ...
+1..151
+# tests 151
+# suites 0
+# pass 150
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 119922.17611

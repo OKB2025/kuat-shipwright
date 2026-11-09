@@ -1,0 +1,205 @@
+TAP version 13
+# Subtest: entry acceleration starts at the actual velocity and reaches a finite 0.9c before completion
+not ok 1 - entry acceleration starts at the actual velocity and reaches a finite 0.9c before completion
+  ---
+  duration_ms: 159.850134
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:11:1'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:12:42)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: actual entry displacement and velocity are independent of frame subdivision
+not ok 2 - actual entry displacement and velocity are independent of frame subdivision
+  ---
+  duration_ms: 10.157154
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:25:1'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:26:57)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: entry acceleration owns copied initial state and ignores later helm direction changes
+not ok 3 - entry acceleration owns copied initial state and ignores later helm direction changes
+  ---
+  duration_ms: 3.552541
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:32:1'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:33:63)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: oversized or invalid time steps cannot overshoot the finite entry target
+not ok 4 - oversized or invalid time steps cannot overshoot the finite entry target
+  ---
+  duration_ms: 3.773772
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:38:1'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:39:25)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: reactor loss during entry blocks advancement and cannot finish from its timer
+not ok 5 - reactor loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 4.879276
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:44:70'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:45:25)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: hyperdrive loss during entry blocks advancement and cannot finish from its timer
+not ok 6 - hyperdrive loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 8.387616
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:44:70'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:45:25)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: destroyed loss during entry blocks advancement and cannot finish from its timer
+not ok 7 - destroyed loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 3.395227
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:44:70'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:45:25)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: disabled loss during entry blocks advancement and cannot finish from its timer
+not ok 8 - disabled loss during entry blocks advancement and cannot finish from its timer
+  ---
+  duration_ms: 4.778253
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:44:70'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:45:25)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a missing hyperdrive cannot acquire the entry acceleration just by creating a state
+not ok 9 - a missing hyperdrive cannot acquire the entry acceleration just by creating a state
+  ---
+  duration_ms: 2.364822
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:50:1'
+  failureType: 'testCodeFailure'
+  error: 'C.hyperspaceBurstStart is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:51:30)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: normal preparation remains cancellable but the near-light entry phase is committed
+not ok 10 - normal preparation remains cancellable but the near-light entry phase is committed
+  ---
+  duration_ms: 8.662114
+  type: 'test'
+  location: '/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:54:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    enter
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hyperspace-burst/tests/hyperspace-entry-burst.cjs:55:213)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 0
+# fail 10
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19725.431992

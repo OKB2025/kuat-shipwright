@@ -1,0 +1,103 @@
+{
+  "status": "PASS_WITH_KNOWN_BASELINE_FAILURES",
+  "baseCommit": "71adef7188026be3dd7fd3f70b15844636a4090f",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-concurrency=2",
+    "tests/hyperspace-entry-burst.cjs",
+    "tests/hyperspace-speed-gate.cjs",
+    "tests/hyperspace-trial-physics.cjs",
+    "tests/hyperspace-copy-ui.cjs",
+    "tests/flight-controls-ui.cjs",
+    "tests/fighter-hyper-retreat.cjs",
+    "tests/navigation-itinerary.cjs",
+    "tests/navigation-ui.cjs",
+    "tests/power-loss-navigation.cjs",
+    "tests/power-loss-status.cjs",
+    "tests/propulsion-motion.cjs",
+    "tests/combat-power-priority.cjs",
+    "tests/source-manifest.cjs",
+    "tests/raid-regressions.cjs",
+    "tests/fleet-ctg-formation.cjs"
+  ],
+  "startedAt": "2026-11-09T06:19:55.147426+00:00",
+  "sources": {
+    "index.html": "7f12d835107a0f5d6e13ee5903da847ce67856f9788e8372e711fa5bf9bb8b6c",
+    "js/core.js": "39f80f4d38e0aed48ffa5083e14ba9ab848a021cb13104086462c2443e1c5094",
+    "js/app.js": "5e5b9d222b27a48af37a1997e316a502f9879e83626de80c771dc81c2f28c668",
+    "js/gfx.js": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/lang-en.js": "4c833ff06f959e9bce67fad2dd4d142f134145cbdc5da71fce73eabae503f044"
+  },
+  "tests": {
+    "tests/hyperspace-entry-burst.cjs": "62249de07c10ddd29406b60568210a91baf9eefc51bb718018eda39165064078",
+    "tests/hyperspace-speed-gate.cjs": "714be6908e2c83f275f396d9dbe473518081355273a1de254e5d7d5ea33e12cb",
+    "tests/hyperspace-trial-physics.cjs": "7e605247a74f92f9a13be26d6efcec22524c1d7218183e9deb488237f5ef2a82",
+    "tests/hyperspace-copy-ui.cjs": "cab3a1a473f8d1a696d1fda4fee8daad3ee781a373c394ec04fb4c74569fde58",
+    "tests/flight-controls-ui.cjs": "533b6849f7e7b93325dc3b48e427b5bdeb5cde73c1233cf67eacfadf7c0f8a1b",
+    "tests/fighter-hyper-retreat.cjs": "8e7c06251dfed9063a5742b8d41a3202da136961cae26c6bd3f9490c4be3da36",
+    "tests/navigation-itinerary.cjs": "0afb088d3efb22c972287077525c4d2167f85d31495af3c1db3344472cdf5bf7",
+    "tests/navigation-ui.cjs": "2004ec84e769d0e1e0b727c228c87130bfe396d1739f8538a7a2b3d6d21cec11",
+    "tests/power-loss-navigation.cjs": "8a8c1208a053bfb5e93252d3775c75c20043df4a6a70e2fb3c13352209d7803b",
+    "tests/power-loss-status.cjs": "10447b78a38dc4e9b73326d58521d3d65189fe1fc1b85bde050c65f4744fba0b",
+    "tests/propulsion-motion.cjs": "c56ee858e89e4189ff4228d4804a903d01090de2511608e12c4c002a599e6b43",
+    "tests/combat-power-priority.cjs": "ffbff42934e35c22f29b84a66e09a33bebe3668bb86a59c86fe3b130905c36e4",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db",
+    "tests/raid-regressions.cjs": "d10c2994a754f7b0e85403b8a4082f31c1b91f1e8ad5e62fc1a0cbc2be9d6fc7",
+    "tests/fleet-ctg-formation.cjs": "9e335d9b7eccd4b9ce040e987cccf260b18830ad10a6d347fd2aaaf5ee1a3bb3"
+  },
+  "scope": "Actual70%paidflight gate and finite0.9c pre-entry burst; trial/escorts, RTSgroups/tow/raid/followfighter, lifecycle/cancel/loss/reentry, navigation and unchanged propulsion/power regressions.",
+  "completedAt": "2026-11-09T06:21:55.347364+00:00",
+  "exitCode": 1,
+  "sourcesAfter": {
+    "index.html": "7f12d835107a0f5d6e13ee5903da847ce67856f9788e8372e711fa5bf9bb8b6c",
+    "js/core.js": "39f80f4d38e0aed48ffa5083e14ba9ab848a021cb13104086462c2443e1c5094",
+    "js/app.js": "5e5b9d222b27a48af37a1997e316a502f9879e83626de80c771dc81c2f28c668",
+    "js/gfx.js": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/lang-en.js": "4c833ff06f959e9bce67fad2dd4d142f134145cbdc5da71fce73eabae503f044"
+  },
+  "testsAfter": {
+    "tests/hyperspace-entry-burst.cjs": "62249de07c10ddd29406b60568210a91baf9eefc51bb718018eda39165064078",
+    "tests/hyperspace-speed-gate.cjs": "714be6908e2c83f275f396d9dbe473518081355273a1de254e5d7d5ea33e12cb",
+    "tests/hyperspace-trial-physics.cjs": "7e605247a74f92f9a13be26d6efcec22524c1d7218183e9deb488237f5ef2a82",
+    "tests/hyperspace-copy-ui.cjs": "cab3a1a473f8d1a696d1fda4fee8daad3ee781a373c394ec04fb4c74569fde58",
+    "tests/flight-controls-ui.cjs": "533b6849f7e7b93325dc3b48e427b5bdeb5cde73c1233cf67eacfadf7c0f8a1b",
+    "tests/fighter-hyper-retreat.cjs": "8e7c06251dfed9063a5742b8d41a3202da136961cae26c6bd3f9490c4be3da36",
+    "tests/navigation-itinerary.cjs": "0afb088d3efb22c972287077525c4d2167f85d31495af3c1db3344472cdf5bf7",
+    "tests/navigation-ui.cjs": "2004ec84e769d0e1e0b727c228c87130bfe396d1739f8538a7a2b3d6d21cec11",
+    "tests/power-loss-navigation.cjs": "8a8c1208a053bfb5e93252d3775c75c20043df4a6a70e2fb3c13352209d7803b",
+    "tests/power-loss-status.cjs": "10447b78a38dc4e9b73326d58521d3d65189fe1fc1b85bde050c65f4744fba0b",
+    "tests/propulsion-motion.cjs": "c56ee858e89e4189ff4228d4804a903d01090de2511608e12c4c002a599e6b43",
+    "tests/combat-power-priority.cjs": "ffbff42934e35c22f29b84a66e09a33bebe3668bb86a59c86fe3b130905c36e4",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db",
+    "tests/raid-regressions.cjs": "d10c2994a754f7b0e85403b8a4082f31c1b91f1e8ad5e62fc1a0cbc2be9d6fc7",
+    "tests/fleet-ctg-formation.cjs": "9e335d9b7eccd4b9ce040e987cccf260b18830ad10a6d347fd2aaaf5ee1a3bb3"
+  },
+  "summary": [
+    "# tests 151",
+    "# pass 150",
+    "# fail 1",
+    "# cancelled 0",
+    "# skipped 0",
+    "# duration_ms 119922.17611"
+  ],
+  "failures": [
+    "the battle continues and point defence can hit fighters while they spool after the last carrier departs"
+  ],
+  "logSha256": "c3dbb2642131c3409c7a7c66bc794ce615e47295acc84add843ee369a9666993",
+  "sourceStable": true,
+  "testStable": true,
+  "knownBaselineFailures": [
+    {
+      "test": "the battle continues and point defence can hit fighters while they spool after the last carrier departs",
+      "assertion": "assert.ok(r.hurt>0)",
+      "baselineProof": "hatches-night-validation.json"
+    }
+  ],
+  "unexpectedFailures": []
+}
