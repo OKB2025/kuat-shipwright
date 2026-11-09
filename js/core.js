@@ -99979,6 +99979,10 @@ function opsPlace(w, s, u) {
 // holds there with the carrier while the mouth is busy (or its doors open), then comes in single file at the mouth's
 // rate; it is aboard once its last craft is in the bay.
 function squadHome(w, s, u, dt, k = 1) {
+ // A jump recall cannot redirect aircraft already passing a launch mouth to
+ // a different landing mouth. Preserve their actual rail progress until the
+ // final departure can split aboard and airborne aircraft by their IDs.
+ if(s.ops?.k==='launch'&&s.ops.u===u.id&&w.groups.get(u.group)?.spool){launchStep(w,s,u);return;}
  if (s.ops?.k === 'land') { opsPlace(w, s, u); if (w.time >= s.ops.t1) dockSquad(w, s, u); return; }
  const ms = mouthsOf(u), c = CRAFT[s.craft], q = u.mq || (u.mq = []), fit = ms.some(m => fitsMouth(c, m)), gateOf = m => add(add(u.pos, shipToWorld(u, m.p)), shipToWorld(u, m.n), RULES.gateD);
  if (s.landM == null || !ms[s.landM]) { let bt = Infinity;ms.forEach((m, i) => { if (fit && !fitsMouth(c, m)) return; const t = Math.max(len(sub(gateOf(m), s.pos)) / Math.max(100, c.speed), (q[i] || 0) - w.time) + s.n * c.size / Math.max(.02, m.r * k); if (t < bt) { bt = t; s.landM = i; } }); }
