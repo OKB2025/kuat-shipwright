@@ -53844,7 +53844,11 @@ for(const k of ['itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumptio
 function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f);d={...d,msl:25*q.cells,fm:2.4,hm:.9*q.rows,wm:.9*q.cols,r:Math.max(2.4,.9*q.cols)/2,mass:FITS.shipMsl.mass*q.cells,cost:FITS.shipMsl.cost*q.cells,power:FITS.shipMsl.power*q.cells,store:{...FITS.shipMsl.store,slots:6*q.cells},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
-const REFERENCE_ASSETS=YardReferenceData.assets;
+// v24 The Executor-only bridge and domes are retired (docs/executor-stl-rebuild.md). Their mesh data stays
+// in data/reference.js, byte for byte, so the archived publications that hash that file still verify; the
+// game no longer offers or draws them (saved parts load as the Imperial bridge and domes).
+const RETIRED_REFERENCE_ASSETS=Object.freeze(['exe_bridge','exe_sensor_port','exe_sensor_stbd']);
+const REFERENCE_ASSETS=Object.fromEntries(Object.entries(YardReferenceData.assets).filter(([id])=>!RETIRED_REFERENCE_ASSETS.includes(id)));
 // The supplied turret uses its authored turntable origin and floor as the mount.
 // The small dual-purpose turret is drawn procedurally. Its footprint keeps the bounds of the supplied model it
 // once used (9 x 3.149 x 5.730 m before calibration, swept radius 4.5 m), so placements and figures are unchanged.
