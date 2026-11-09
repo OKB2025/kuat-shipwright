@@ -1,0 +1,111 @@
+{
+  "baselineCommit": "7f51a3b4e4d3f4483206df372c97e85807d58895",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-concurrency=2",
+    "tests/aviation-hatch-operations.cjs",
+    "tests/imperial-hangar-control.cjs",
+    "tests/fighter-hyper-retreat.cjs",
+    "tests/hangar-hatch-editing-ui.cjs",
+    "tests/venator-hatch-context-ui.cjs",
+    "tests/closed-hatch-armor-area.cjs",
+    "tests/clipped-hangar-hatch.cjs",
+    "tests/aviation-hatch-preclip-source.cjs",
+    "tests/coruscant-trial-start.cjs",
+    "tests/hyperspace-speed-gate.cjs",
+    "tests/hyperspace-trial-physics.cjs",
+    "tests/hyperspace-copy-ui.cjs",
+    "tests/flight-controls-ui.cjs",
+    "tests/navigation-itinerary.cjs",
+    "tests/stellar-lighting.cjs",
+    "tests/compat-renderer.cjs",
+    "tests/source-manifest.cjs"
+  ],
+  "scope": "Operational aviation hatch timing and per-mouth state, real geometry and old saved data, Coruscant actual reset geometry, seventy-percent jump speed and translated UI, stellar lighting and compatibility rendering. No all-stock endurance or Safari claim.",
+  "status": "PASS_WITH_KNOWN_BASELINE_FAILURES",
+  "startedAt": "2026-11-09T04:22:40.443985+00:00",
+  "sources": {
+    "js/core.js": "7f0c92613d74475600a1c67fefa0054a664ab4512bf7c91cef0e067c3de05ce8",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33",
+    "js/gfx.js": "834c32a358374034ee0597c7467e8bd09c30e90bc874ade10b0dbe58f4121b2e",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/lang-en.js": "b3974b1d32721bc3eaa31fa6687e8b576a806beb696e6a5494a460779916f8fa",
+    "index.html": "edcfe75c8a9516d30d04c29431c792e4af53da12655d66a004ffb9f9415f7198"
+  },
+  "tests": {
+    "tests/aviation-hatch-operations.cjs": "5a8b4356ae750e5066e99234ed886c6b157a4645ae73402b4aade54883a157fc",
+    "tests/imperial-hangar-control.cjs": "13ae0cff3228a8d0ebbc937943b3ffc221d6dc770e47345f7eab299ec72ac5e6",
+    "tests/fighter-hyper-retreat.cjs": "00abe10f57709d8f80f456cdd23cbd1c29248a0e94d541bd69831e8e852fdc6c",
+    "tests/hangar-hatch-editing-ui.cjs": "2a57ba00b69647ba722c135136d97e78f83bb1211a4e55364707ad320626d817",
+    "tests/venator-hatch-context-ui.cjs": "9df1965333a0274a1dad9d132b1efd3504e2b354b858511797cb5765d8a26382",
+    "tests/closed-hatch-armor-area.cjs": "b608c997926708be0f0609901bf318a6c92aae6e85e50d120d18f5a4a72baecb",
+    "tests/clipped-hangar-hatch.cjs": "971cbc38c9b7aae1d499885a94a16f55ac3e72c5db6b6cf458abbef506cc2148",
+    "tests/aviation-hatch-preclip-source.cjs": "5ac2b34eca85baca65c30a841f5ff19e054ff47ac0664c307c20f017b3a94080",
+    "tests/coruscant-trial-start.cjs": "a4d8432dba8a349cab96840de8c3109c15582df4f10afce2868074e7a730533e",
+    "tests/hyperspace-speed-gate.cjs": "b0dc24e460e8b25dcaf72e974788f61b4d576e7278b51519ed7862083f8b70ac",
+    "tests/hyperspace-trial-physics.cjs": "576a3b0eee4c25fd08b517205ebc7db1d183035166107992eb09f74d7b52dd10",
+    "tests/hyperspace-copy-ui.cjs": "1dd6497503049a38b7d6cfd7ef72a4e5e6834d67c33ab7983f420c153a4e35c0",
+    "tests/flight-controls-ui.cjs": "533b6849f7e7b93325dc3b48e427b5bdeb5cde73c1233cf67eacfadf7c0f8a1b",
+    "tests/navigation-itinerary.cjs": "0afb088d3efb22c972287077525c4d2167f85d31495af3c1db3344472cdf5bf7",
+    "tests/stellar-lighting.cjs": "679ecd902d4b422d49702bf9482dee274e793546051db7358a64be1f135df405",
+    "tests/compat-renderer.cjs": "bcfdcb19fccac0bbfa3982aec2e3a1840c3475e2221acc4ccb56488fe8eb1b3d",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db"
+  },
+  "finalRtsStarPropagation": true,
+  "completedAt": "2026-11-09T04:24:59.350926+00:00",
+  "exitCode": 1,
+  "sourcesAfter": {
+    "js/core.js": "7f0c92613d74475600a1c67fefa0054a664ab4512bf7c91cef0e067c3de05ce8",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33",
+    "js/gfx.js": "834c32a358374034ee0597c7467e8bd09c30e90bc874ade10b0dbe58f4121b2e",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/lang-en.js": "b3974b1d32721bc3eaa31fa6687e8b576a806beb696e6a5494a460779916f8fa",
+    "index.html": "edcfe75c8a9516d30d04c29431c792e4af53da12655d66a004ffb9f9415f7198"
+  },
+  "testsAfter": {
+    "tests/aviation-hatch-operations.cjs": "5a8b4356ae750e5066e99234ed886c6b157a4645ae73402b4aade54883a157fc",
+    "tests/imperial-hangar-control.cjs": "13ae0cff3228a8d0ebbc937943b3ffc221d6dc770e47345f7eab299ec72ac5e6",
+    "tests/fighter-hyper-retreat.cjs": "00abe10f57709d8f80f456cdd23cbd1c29248a0e94d541bd69831e8e852fdc6c",
+    "tests/hangar-hatch-editing-ui.cjs": "2a57ba00b69647ba722c135136d97e78f83bb1211a4e55364707ad320626d817",
+    "tests/venator-hatch-context-ui.cjs": "9df1965333a0274a1dad9d132b1efd3504e2b354b858511797cb5765d8a26382",
+    "tests/closed-hatch-armor-area.cjs": "b608c997926708be0f0609901bf318a6c92aae6e85e50d120d18f5a4a72baecb",
+    "tests/clipped-hangar-hatch.cjs": "971cbc38c9b7aae1d499885a94a16f55ac3e72c5db6b6cf458abbef506cc2148",
+    "tests/aviation-hatch-preclip-source.cjs": "5ac2b34eca85baca65c30a841f5ff19e054ff47ac0664c307c20f017b3a94080",
+    "tests/coruscant-trial-start.cjs": "a4d8432dba8a349cab96840de8c3109c15582df4f10afce2868074e7a730533e",
+    "tests/hyperspace-speed-gate.cjs": "b0dc24e460e8b25dcaf72e974788f61b4d576e7278b51519ed7862083f8b70ac",
+    "tests/hyperspace-trial-physics.cjs": "576a3b0eee4c25fd08b517205ebc7db1d183035166107992eb09f74d7b52dd10",
+    "tests/hyperspace-copy-ui.cjs": "1dd6497503049a38b7d6cfd7ef72a4e5e6834d67c33ab7983f420c153a4e35c0",
+    "tests/flight-controls-ui.cjs": "533b6849f7e7b93325dc3b48e427b5bdeb5cde73c1233cf67eacfadf7c0f8a1b",
+    "tests/navigation-itinerary.cjs": "0afb088d3efb22c972287077525c4d2167f85d31495af3c1db3344472cdf5bf7",
+    "tests/stellar-lighting.cjs": "679ecd902d4b422d49702bf9482dee274e793546051db7358a64be1f135df405",
+    "tests/compat-renderer.cjs": "bcfdcb19fccac0bbfa3982aec2e3a1840c3475e2221acc4ccb56488fe8eb1b3d",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db"
+  },
+  "summary": [
+    "# tests 96",
+    "# pass 95",
+    "# fail 1",
+    "# cancelled 0",
+    "# skipped 0",
+    "# duration_ms 138725.916903"
+  ],
+  "failures": [
+    "the battle continues and point defence can hit fighters while they spool after the last carrier departs"
+  ],
+  "logSha256": "ed2a00f374de64bcac0d321236064e084e00d8168a6f6cefecf3b2e3c6fb1528",
+  "sourceStable": true,
+  "testStable": true,
+  "knownBaselineFailures": [
+    {
+      "test": "the battle continues and point defence can hit fighters while they spool after the last carrier departs",
+      "assertion": "assert.ok(r.hurt>0)",
+      "baselineProof": "flight-controls-baseline-controls.json",
+      "note": "Same assertion failure was already recorded before PR #77; raw comparison logs are preserved."
+    }
+  ],
+  "unexpectedFailures": []
+}

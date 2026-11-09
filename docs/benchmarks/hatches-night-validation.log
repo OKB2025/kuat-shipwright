@@ -1,0 +1,606 @@
+TAP version 13
+# Subtest: only the selected launch mouth opens and it closes after the final aircraft clears
+ok 1 - only the selected launch mouth opens and it closes after the final aircraft clears
+  ---
+  duration_ms: 103.696387
+  type: 'test'
+  ...
+# Subtest: cancelled launch preparation and a stale old hatch timestamp cannot hold doors open
+ok 2 - cancelled launch preparation and a stale old hatch timestamp cannot hold doors open
+  ---
+  duration_ms: 21.292056
+  type: 'test'
+  ...
+# Subtest: landing waits for its own closed door even when another mouth is fully open, then closes after docking
+ok 3 - landing waits for its own closed door even when another mouth is fully open, then closes after docking
+  ---
+  duration_ms: 39.653689
+  type: 'test'
+  ...
+# Subtest: simultaneous mouths retain independent traffic and finish without duplicating aircraft
+ok 4 - simultaneous mouths retain independent traffic and finish without duplicating aircraft
+  ---
+  duration_ms: 11.548613
+  type: 'test'
+  ...
+# Subtest: recalling a launching squadron preserves its current mouth until the last aircraft clears
+ok 5 - recalling a launching squadron preserves its current mouth until the last aircraft clears
+  ---
+  duration_ms: 14.549498
+  type: 'test'
+  ...
+# Subtest: legacy mouths without stable hatch IDs retain timed launch and closing behavior
+ok 6 - legacy mouths without stable hatch IDs retain timed launch and closing behavior
+  ---
+  duration_ms: 61.55066
+  type: 'test'
+  ...
+# Subtest: the abstract fleet clock closes idle doors after combat, disables launch while out, and stops at full deployment
+ok 7 - the abstract fleet clock closes idle doors after combat, disables launch while out, and stops at full deployment
+  ---
+  duration_ms: 463.869099
+  type: 'test'
+  ...
+# Subtest: Core mouth IDs match detached rendered door and ray IDs without changing the saved design
+ok 8 - Core mouth IDs match detached rendered door and ray IDs without changing the saved design
+  ---
+  duration_ms: 20342.854291
+  type: 'test'
+  ...
+# Subtest: WebGL renderer moves only the operating door and resolves old cached mesh IDs
+ok 9 - WebGL renderer moves only the operating door and resolves old cached mesh IDs
+  ---
+  duration_ms: 12229.575683
+  type: 'test'
+  ...
+# Subtest: compatibility renderer moves only the operating door and resolves old cached mesh IDs
+ok 10 - compatibility renderer moves only the operating door and resolves old cached mesh IDs
+  ---
+  duration_ms: 10869.656339
+  type: 'test'
+  ...
+# Subtest: hatch status describes landing as flight operations and localizes closing progress
+ok 11 - hatch status describes landing as flight operations and localizes closing progress
+  ---
+  duration_ms: 74.271309
+  type: 'test'
+  ...
+# Subtest: a clipped curved bay keeps the hatch candidates of its pre-clipping source, including the missing forward opening
+ok 12 - a clipped curved bay keeps the hatch candidates of its pre-clipping source, including the missing forward opening
+  ---
+  duration_ms: 1048.074624
+  type: 'test'
+  ...
+# Subtest: legacy clipping survives hatch creation, opening edits, removal and regeneration
+ok 13 - legacy clipping survives hatch creation, opening edits, removal and regeneration
+  ---
+  duration_ms: 4136.830399
+  type: 'test'
+  ...
+# Subtest: explicit clipping survives hatch creation, opening edits, removal and regeneration
+ok 14 - explicit clipping survives hatch creation, opening edits, removal and regeneration
+  ---
+  duration_ms: 707.370811
+  type: 'test'
+  ...
+# Subtest: the original candidate and effective clipped body both survive saving and reloading
+ok 15 - the original candidate and effective clipped body both survive saving and reloading
+  ---
+  duration_ms: 3557.714526
+  type: 'test'
+  ...
+# Subtest: pre-clipping candidates still require the actual shell and do not open a remote roof
+ok 16 - pre-clipping candidates still require the actual shell and do not open a remote roof
+  ---
+  duration_ms: 261.513063
+  type: 'test'
+  ...
+# Subtest: hatch creation, type changes and removal retain the real clipped room and its effective capacity
+ok 17 - hatch creation, type changes and removal retain the real clipped room and its effective capacity
+  ---
+  duration_ms: 312.593733
+  type: 'test'
+  ...
+# Subtest: opening and closing an actual sliding hatch does not reclip the usable airspace
+ok 18 - opening and closing an actual sliding hatch does not reclip the usable airspace
+  ---
+  duration_ms: 300.460777
+  type: 'test'
+  ...
+# Subtest: saving, reloading and restoring the ordinary edit snapshots regenerate the same clipped solid with its hatch
+ok 19 - saving, reloading and restoring the ordinary edit snapshots regenerate the same clipped solid with its hatch
+  ---
+  duration_ms: 734.668468
+  type: 'test'
+  ...
+# Subtest: a linked hatch still rejects a moved room and a failed background recomputation retains the last valid clipped shape
+ok 20 - a linked hatch still rejects a moved room and a failed background recomputation retains the last valid clipped shape
+  ---
+  duration_ms: 77.577929
+  type: 'test'
+  ...
+# Subtest: hatchless interior regeneration preserves authored solid cuts in the selected host
+ok 21 - hatchless interior regeneration preserves authored solid cuts in the selected host
+  ---
+  duration_ms: 171.291657
+  type: 'test'
+  ...
+# Subtest: legacy automatically clipped aviation rooms keep the same effective body when a hatch is added or changed
+ok 22 - legacy automatically clipped aviation rooms keep the same effective body when a hatch is added or changed
+  ---
+  duration_ms: 7351.255349
+  type: 'test'
+  ...
+# Subtest: both a legacy root hull and an owned hull retain the clipped aviation room when their real skin is opened
+ok 23 - both a legacy root hull and an owned hull retain the clipped aviation room when their real skin is opened
+  ---
+  duration_ms: 12512.79538
+  type: 'test'
+  ...
+# Subtest: fully closed sliding hatches retain the exact figures without rebuilding an identical closed-door clone
+ok 24 - fully closed sliding hatches retain the exact figures without rebuilding an identical closed-door clone
+  ---
+  duration_ms: 9593.922838
+  type: 'test'
+  ...
+# Subtest: partly open and mixed sliding doors keep the original closed-door armor calculation
+ok 25 - partly open and mixed sliding doors keep the original closed-door armor calculation
+  ---
+  duration_ms: 20539.662741
+  type: 'test'
+  ...
+# Subtest: Canvas2D fallback draws a mesh without WebGL or undeclared rotation variables
+ok 26 - Canvas2D fallback draws a mesh without WebGL or undeclared rotation variables
+  ---
+  duration_ms: 7.297503
+  type: 'test'
+  ...
+# Subtest: fallback fleet lighting follows full ship rotation, including roll
+ok 27 - fallback fleet lighting follows full ship rotation, including roll
+  ---
+  duration_ms: 3.669888
+  type: 'test'
+  ...
+# Subtest: actual Coruscant reset begins on the night side at the existing orbital altitude with a level right-handed frame
+ok 28 - actual Coruscant reset begins on the night side at the existing orbital altitude with a level right-handed frame
+  ---
+  duration_ms: 869.951836
+  type: 'test'
+  ...
+# Subtest: other systems retain their existing start position and attitude, and returning to Coruscant resets deterministically
+ok 29 - other systems retain their existing start position and attitude, and returning to Coruscant resets deterministically
+  ---
+  duration_ms: 460.37615
+  type: 'test'
+  ...
+# Subtest: mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind
+ok 30 - mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind
+  ---
+  duration_ms: 28059.755151
+  type: 'test'
+  ...
+# Subtest: self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches
+ok 31 - self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches
+  ---
+  duration_ms: 2103.153466
+  type: 'test'
+  ...
+# Subtest: partial launch preserves aboard aircraft and temporarily splits only the airborne cohort
+ok 32 - partial launch preserves aboard aircraft and temporarily splits only the airborne cohort
+  ---
+  duration_ms: 978.98064
+  type: 'test'
+  ...
+# Subtest: partial land preserves aboard aircraft and temporarily splits only the airborne cohort
+ok 33 - partial land preserves aboard aircraft and temporarily splits only the airborne cohort
+  ---
+  duration_ms: 921.385134
+  type: 'test'
+  ...
+# Subtest: canceling the carrier jump never starts an independent fighter departure
+ok 34 - canceling the carrier jump never starts an independent fighter departure
+  ---
+  duration_ms: 16.629317
+  type: 'test'
+  ...
+# Subtest: custom aircraft use their own measured drive while drive-less blueprints cannot follow
+ok 35 - custom aircraft use their own measured drive while drive-less blueprints cannot follow
+  ---
+  duration_ms: 85.910626
+  type: 'test'
+  ...
+# Subtest: the battle continues and point defence can hit fighters while they spool after the last carrier departs
+not ok 36 - the battle continues and point defence can hit fighters while they spool after the last carrier departs
+  ---
+  duration_ms: 71.435029
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/fighter-hyper-retreat.cjs:46:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(r.hurt>0)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/fighter-hyper-retreat.cjs:49:99)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs
+ok 37 - resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs
+  ---
+  duration_ms: 2918.295035
+  type: 'test'
+  ...
+# Subtest: continuous throttle accepts non-detent percentages between zero and full output
+ok 38 - continuous throttle accepts non-detent percentages between zero and full output
+  ---
+  duration_ms: 1078.180071
+  type: 'test'
+  ...
+# Subtest: held keyboard throttle depends on elapsed time and retains output on release
+ok 39 - held keyboard throttle depends on elapsed time and retains output on release
+  ---
+  duration_ms: 391.012184
+  type: 'test'
+  ...
+# Subtest: native lever input changes real command without stealing its browser pointer behavior
+ok 40 - native lever input changes real command without stealing its browser pointer behavior
+  ---
+  duration_ms: 372.717556
+  type: 'test'
+  ...
+# Subtest: HUD heat text uses actual joules, capacity and their ratio
+ok 41 - HUD heat text uses actual joules, capacity and their ratio
+  ---
+  duration_ms: 352.55843
+  type: 'test'
+  ...
+# Subtest: PD control changes the actual unit order and clears automatic aim without changing its equipment
+ok 42 - PD control changes the actual unit order and clears automatic aim without changing its equipment
+  ---
+  duration_ms: 400.953151
+  type: 'test'
+  ...
+# Subtest: trial, fleet and task-group controls expose fixed policy and PD rather than mode cycling
+ok 43 - trial, fleet and task-group controls expose fixed policy and PD rather than mode cycling
+  ---
+  duration_ms: 70.90337
+  type: 'test'
+  ...
+# Subtest: new control, heat and readiness labels translate fully into English
+ok 44 - new control, heat and readiness labels translate fully into English
+  ---
+  duration_ms: 493.004656
+  type: 'test'
+  ...
+# Subtest: adding and changing an aviation hatch preserves the last clipped solid in the actual editor proxy and renderer
+ok 45 - adding and changing an aviation hatch preserves the last clipped solid in the actual editor proxy and renderer
+  ---
+  duration_ms: 1161.546123
+  type: 'test'
+  ...
+# Subtest: aviation labels and operating roles retain valid effective geometry while real geometry and host edits discard it
+ok 46 - aviation labels and operating roles retain valid effective geometry while real geometry and host edits discard it
+  ---
+  duration_ms: 2599.657232
+  type: 'test'
+  ...
+# Subtest: a later Worker effective solid replaces the editor cache without changing the requested room
+ok 47 - a later Worker effective solid replaces the editor cache without changing the requested room
+  ---
+  duration_ms: 398.354052
+  type: 'test'
+  ...
+# Subtest: a Worker result that now fully contains the room removes the obsolete clipped proxy
+ok 48 - a Worker result that now fully contains the room removes the obsolete clipped proxy
+  ---
+  duration_ms: 443.609271
+  type: 'test'
+  ...
+# Subtest: new pending placement keeps its full editable request instead of borrowing a previously finalized clip
+ok 49 - new pending placement keeps its full editable request instead of borrowing a previously finalized clip
+  ---
+  duration_ms: 410.769789
+  type: 'test'
+  ...
+# Subtest: active flight help and gun-mode descriptions make no obsolete automatic combat-block claims
+ok 50 - active flight help and gun-mode descriptions make no obsolete automatic combat-block claims
+  ---
+  duration_ms: 20.343182
+  type: 'test'
+  ...
+# Subtest: actual rendered ship, group and spectator waiting states translate speed and power reasons
+ok 51 - actual rendered ship, group and spectator waiting states translate speed and power reasons
+  ---
+  duration_ms: 110.168953
+  type: 'test'
+  ...
+# Subtest: actual static notes, firing descriptions and dynamic reinforcement timing translate fully
+ok 52 - actual static notes, firing descriptions and dynamic reinforcement timing translate fully
+  ---
+  duration_ms: 45.612349
+  type: 'test'
+  ...
+# Subtest: entry uses actual forward seventy-percent cruise speed even with reduced live engine input
+ok 53 - entry uses actual forward seventy-percent cruise speed even with reduced live engine input
+  ---
+  duration_ms: 71.850743
+  type: 'test'
+  ...
+# Subtest: no-drive, destroyed-drive, powerless and disabled units cannot pass a public readiness query
+ok 54 - no-drive, destroyed-drive, powerless and disabled units cannot pass a public readiness query
+  ---
+  duration_ms: 13.28423
+  type: 'test'
+  ...
+# Subtest: new shield damage does not forbid entry while actual speed remains above seventy percent
+ok 55 - new shield damage does not forbid entry while actual speed remains above seventy percent
+  ---
+  duration_ms: 5.313326
+  type: 'test'
+  ...
+# Subtest: actual firing and late bank spending do not override sufficient actual cruise speed
+ok 56 - actual firing and late bank spending do not override sufficient actual cruise speed
+  ---
+  duration_ms: 6.854844
+  type: 'test'
+  ...
+# Subtest: a charged task group can enter while under fire and regenerating at sufficient actual speed
+ok 57 - a charged task group can enter while under fire and regenerating at sufficient actual speed
+  ---
+  duration_ms: 86.197053
+  type: 'test'
+  ...
+# Subtest: a quiet task group really accelerates from rest and cannot use its charged timer alone
+ok 58 - a quiet task group really accelerates from rest and cannot use its charged timer alone
+  ---
+  duration_ms: 143.00916
+  type: 'test'
+  ...
+# Subtest: a disabled towed hull need not self-accelerate and the tower uses its real loaded cruise
+ok 59 - a disabled towed hull need not self-accelerate and the tower uses its real loaded cruise
+  ---
+  duration_ms: 173.005538
+  type: 'test'
+  ...
+# Subtest: independent carrier-follow aircraft physically accelerate and recheck their own drive before entry
+ok 60 - independent carrier-follow aircraft physically accelerate and recheck their own drive before entry
+  ---
+  duration_ms: 345.836501
+  type: 'test'
+  ...
+# Subtest: raid-launch cannot bypass the physical aircraft speed gate
+ok 61 - raid-launch cannot bypass the physical aircraft speed gate
+  ---
+  duration_ms: 127.034122
+  type: 'test'
+  ...
+# Subtest: raid-return cannot bypass the physical aircraft speed gate
+ok 62 - raid-return cannot bypass the physical aircraft speed gate
+  ---
+  duration_ms: 159.268428
+  type: 'test'
+  ...
+# Subtest: actual final departure preserves a valid partial launch cohort with multiple unequal mouths and its aircraft IDs
+ok 63 - actual final departure preserves a valid partial launch cohort with multiple unequal mouths and its aircraft IDs
+  ---
+  duration_ms: 12.040934
+  type: 'test'
+  ...
+# Subtest: actual final departure preserves a valid partial land cohort with multiple unequal mouths and its aircraft IDs
+ok 64 - actual final departure preserves a valid partial land cohort with multiple unequal mouths and its aircraft IDs
+  ---
+  duration_ms: 9.87847
+  type: 'test'
+  ...
+# Subtest: a jump from rest commands real engine output without assigning velocity or allowing timer-only entry
+ok 65 - a jump from rest commands real engine output without assigning velocity or allowing timer-only entry
+  ---
+  duration_ms: 21.237323
+  type: 'test'
+  ...
+# Subtest: actual funded thrust reaches seventy percent of the healthy equilibrium before the tunnel opens
+ok 66 - actual funded thrust reaches seventy percent of the healthy equilibrium before the tunnel opens
+  ---
+  duration_ms: 273.375887
+  type: 'test'
+  ...
+# Subtest: shield regeneration and current weapon fire allow entry only while actual speed stays above seventy percent
+ok 67 - shield regeneration and current weapon fire allow entry only while actual speed stays above seventy percent
+  ---
+  duration_ms: 11.857041
+  type: 'test'
+  ...
+# Subtest: source loss cancels preparation and restores the prior throttle without inventing a stopping impulse
+ok 68 - source loss cancels preparation and restores the prior throttle without inventing a stopping impulse
+  ---
+  duration_ms: 3.243016
+  type: 'test'
+  ...
+# Subtest: preparing escorts use their finite paid acceleration and never receive the old exponential burst seed
+ok 69 - preparing escorts use their finite paid acceleration and never receive the old exponential burst seed
+  ---
+  duration_ms: 7.255459
+  type: 'test'
+  ...
+# Subtest: supporting escort bursts continue during preparation and stop only after committed hyperspace entry
+ok 70 - supporting escort bursts continue during preparation and stop only after committed hyperspace entry
+  ---
+  duration_ms: 12.076094
+  type: 'test'
+  ...
+# Subtest: imperial hangar-control pod moves to the castle wall and keeps every gun fixed
+ok 71 - imperial hangar-control pod moves to the castle wall and keeps every gun fixed
+  ---
+  duration_ms: 2109.18033
+  type: 'test'
+  ...
+# Subtest: imperial2 hangar-control pod moves to the castle wall and keeps every gun fixed
+ok 72 - imperial2 hangar-control pod moves to the castle wall and keeps every gun fixed
+  ---
+  duration_ms: 1867.839295
+  type: 'test'
+  ...
+# Subtest: one topology service groups consecutive major edges and isolates every branch edge without mutating the route
+ok 73 - one topology service groups consecutive major edges and isolates every branch edge without mutating the route
+  ---
+  duration_ms: 3.028238
+  type: 'test'
+  ...
+# Subtest: native Galaxy and Rts paths share mandatory-stop rules while preserving each original graph
+ok 74 - native Galaxy and Rts paths share mandatory-stop rules while preserving each original graph
+  ---
+  duration_ms: 33.6427
+  type: 'test'
+  ...
+# Subtest: a branch journey arrives in realspace and cannot continue until a new jump command recharges the drive
+ok 75 - a branch journey arrives in realspace and cannot continue until a new jump command recharges the drive
+  ---
+  duration_ms: 463.854224
+  type: 'test'
+  ...
+# Subtest: an uninterrupted main route passes intermediate systems in one transit, while mixed routes stop at junctions
+ok 76 - an uninterrupted main route passes intermediate systems in one transit, while mixed routes stop at junctions
+  ---
+  duration_ms: 162.725252
+  type: 'test'
+  ...
+# Subtest: fine and coarse updates both end at the same mandatory stop without automatic continuation
+ok 77 - fine and coarse updates both end at the same mandatory stop without automatic continuation
+  ---
+  duration_ms: 807.019363
+  type: 'test'
+  ...
+# Subtest: ETA distinguishes the current segment from remaining travel and an unreachable destination is rejected atomically
+ok 78 - ETA distinguishes the current segment from remaining travel and an unreachable destination is rejected atomically
+  ---
+  duration_ms: 9.980357
+  type: 'test'
+  ...
+# Subtest: legacy full-route spool and in-flight snapshots migrate to the next unpassed stop without moving the ship
+ok 79 - legacy full-route spool and in-flight snapshots migrate to the next unpassed stop without moving the ship
+  ---
+  duration_ms: 9.555465
+  type: 'test'
+  ...
+# Subtest: carrier-follow craft stop at each actual segment and start a new spool if the carrier has moved on
+ok 80 - carrier-follow craft stop at each actual segment and start a new spool if the carrier has moved on
+  ---
+  duration_ms: 896.860203
+  type: 'test'
+  ...
+# Subtest: a coarse first update migrates an old in-flight route before advancing past its mandatory stop
+ok 81 - a coarse first update migrates an old in-flight route before advancing past its mandatory stop
+  ---
+  duration_ms: 24.720424
+  type: 'test'
+  ...
+# Subtest: cross-system raids cannot bypass a mandatory intermediate stop, while a single continuous segment remains available
+ok 82 - cross-system raids cannot bypass a mandatory intermediate stop, while a single continuous segment remains available
+  ---
+  duration_ms: 11.169195
+  type: 'test'
+  ...
+# Subtest: published startup source hashes and sizes match the exact committed files
+ok 83 - published startup source hashes and sizes match the exact committed files
+  ---
+  duration_ms: 217.139509
+  type: 'test'
+  ...
+# Subtest: updating source revisions changes the script URL without changing manifest keys and is idempotent
+ok 84 - updating source revisions changes the script URL without changing manifest keys and is idempotent
+  ---
+  duration_ms: 12.504793
+  type: 'test'
+  ...
+# Subtest: stellar metadata colors material illumination and a same-direction color change invalidates the light cache
+ok 85 - stellar metadata colors material illumination and a same-direction color change invalidates the light cache
+  ---
+  duration_ms: 3.405713
+  type: 'test'
+  ...
+# Subtest: missing or invalid star colors, white stars, editing and hyperspace preserve their white lighting
+ok 86 - missing or invalid star colors, white stars, editing and hyperspace preserve their white lighting
+  ---
+  duration_ms: 1.213598
+  type: 'test'
+  ...
+# Subtest: software fallback reflects the same stellar hue and restores ordinary white rendering between scenes
+ok 87 - software fallback reflects the same stellar hue and restores ordinary white rendering between scenes
+  ---
+  duration_ms: 6.357531
+  type: 'test'
+  ...
+# Subtest: software fallback retains local nozzle, ray and port emission colors under a red illuminant
+ok 88 - software fallback retains local nozzle, ray and port emission colors under a red illuminant
+  ---
+  duration_ms: 6.766549
+  type: 'test'
+  ...
+# Subtest: real RTS sector descriptors carry their named star into piloted and spectator planet lighting without mutating galaxy data
+ok 89 - real RTS sector descriptors carry their named star into piloted and spectator planet lighting without mutating galaxy data
+  ---
+  duration_ms: 1059.72013
+  type: 'test'
+  ...
+# Subtest: the authentic closed Venator hatch is reachable by tapping its exterior hull without entering edit mode
+ok 90 - the authentic closed Venator hatch is reachable by tapping its exterior hull without entering edit mode
+  ---
+  duration_ms: 308.339645
+  type: 'test'
+  ...
+# Subtest: opening the owned top hatch is one reversible edit and keeps its bay and other hatches intact
+ok 91 - opening the owned top hatch is one reversible edit and keeps its bay and other hatches intact
+  ---
+  duration_ms: 842.493589
+  type: 'test'
+  ...
+# Subtest: the actual Venator hatch opens in the renderer and retains its owner and state after save, reload and strict clipping
+ok 92 - the actual Venator hatch opens in the renderer and retains its owner and state after save, reload and strict clipping
+  ---
+  duration_ms: 45274.139076
+  type: 'test'
+  ...
+# Subtest: the hatch link opens the real aviation bay only after switching to the interior space
+ok 93 - the hatch link opens the real aviation bay only after switching to the interior space
+  ---
+  duration_ms: 154.138504
+  type: 'test'
+  ...
+# Subtest: stale, hidden, opposite-space and unrelated hatch controls cannot change a design
+ok 94 - stale, hidden, opposite-space and unrelated hatch controls cannot change a design
+  ---
+  duration_ms: 1616.146379
+  type: 'test'
+  ...
+# Subtest: the actual document click binding dispatches hatch controls before ordinary part editing
+ok 95 - the actual document click binding dispatches hatch controls before ordinary part editing
+  ---
+  duration_ms: 21.216367
+  type: 'test'
+  ...
+# Subtest: cold exterior hatch information and open requests use metadata without compiling geometry
+ok 96 - cold exterior hatch information and open requests use metadata without compiling geometry
+  ---
+  duration_ms: 155.6439
+  type: 'test'
+  ...
+1..96
+# tests 96
+# suites 0
+# pass 95
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 138725.916903

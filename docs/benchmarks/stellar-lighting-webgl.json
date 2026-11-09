@@ -1,0 +1,271 @@
+{
+  "status": "PASS",
+  "baselineCommit": "7f51a3b4e4d3f4483206df372c97e85807d58895",
+  "sourceSha256": "834c32a358374034ee0597c7467e8bd09c30e90bc874ade10b0dbe58f4121b2e",
+  "baselineSourceSha256": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+  "scope": "Actual production Renderer and WebGL shaders on explicit neutral-albedo/pure-emission fixture geometry and procedural planet samples. White-light pixels are compared with the previous main renderer. This is a numerical shader regression, not a stock ship flight or iOS/Safari validation.",
+  "conditions": {
+    "browser": "Chromium SwiftShader on Linux",
+    "safari": "Not tested"
+  },
+  "startedAt": "2026-11-09T04:13:22.964Z",
+  "errors": [],
+  "measurements": {
+    "mesh": {
+      "previousWhite": [
+        238,
+        237,
+        235
+      ],
+      "white": [
+        238,
+        237,
+        235
+      ],
+      "explicitWhite": [
+        238,
+        237,
+        235
+      ],
+      "red": [
+        238,
+        146,
+        65
+      ]
+    },
+    "emission": {
+      "white": [
+        238,
+        237,
+        235
+      ],
+      "pureWhite": [
+        11,
+        120,
+        229
+      ],
+      "pureRed": [
+        11,
+        120,
+        229
+      ]
+    },
+    "planets": [
+      {
+        "kind": 0,
+        "previousWhite": [
+          70,
+          59,
+          48
+        ],
+        "white": [
+          70,
+          59,
+          48
+        ],
+        "red": [
+          70,
+          38,
+          22
+        ],
+        "error": 0
+      },
+      {
+        "kind": 1,
+        "previousWhite": [
+          176,
+          180,
+          184
+        ],
+        "white": [
+          176,
+          180,
+          184
+        ],
+        "red": [
+          176,
+          53,
+          26
+        ],
+        "error": 0
+      },
+      {
+        "kind": 2,
+        "previousWhite": [
+          182,
+          185,
+          188
+        ],
+        "white": [
+          182,
+          185,
+          188
+        ],
+        "red": [
+          182,
+          55,
+          27
+        ],
+        "error": 0
+      },
+      {
+        "kind": 3,
+        "previousWhite": [
+          161,
+          139,
+          107
+        ],
+        "white": [
+          161,
+          139,
+          107
+        ],
+        "red": [
+          161,
+          33,
+          9
+        ],
+        "error": 0
+      },
+      {
+        "kind": 4,
+        "previousWhite": [
+          182,
+          188,
+          194
+        ],
+        "white": [
+          182,
+          188,
+          194
+        ],
+        "red": [
+          182,
+          54,
+          25
+        ],
+        "error": 0
+      },
+      {
+        "kind": 5,
+        "previousWhite": [
+          133,
+          109,
+          82
+        ],
+        "white": [
+          133,
+          109,
+          82
+        ],
+        "red": [
+          133,
+          25,
+          7
+        ],
+        "error": 0
+      },
+      {
+        "kind": 6,
+        "previousWhite": [
+          134,
+          109,
+          75
+        ],
+        "white": [
+          134,
+          109,
+          75
+        ],
+        "red": [
+          134,
+          25,
+          7
+        ],
+        "error": 0
+      },
+      {
+        "kind": 7,
+        "previousWhite": [
+          175,
+          178,
+          182
+        ],
+        "white": [
+          175,
+          178,
+          182
+        ],
+        "red": [
+          175,
+          51,
+          25
+        ],
+        "error": 0
+      },
+      {
+        "kind": 8,
+        "previousWhite": [
+          46,
+          76,
+          50
+        ],
+        "white": [
+          46,
+          76,
+          50
+        ],
+        "red": [
+          46,
+          17,
+          5
+        ],
+        "error": 0
+      },
+      {
+        "kind": 9,
+        "previousWhite": [
+          43,
+          37,
+          34
+        ],
+        "white": [
+          43,
+          37,
+          34
+        ],
+        "red": [
+          43,
+          7,
+          3
+        ],
+        "error": 0
+      }
+    ],
+    "nightEmission": {
+      "cityWhite": [
+        230,
+        206,
+        154
+      ],
+      "cityRed": [
+        230,
+        206,
+        154
+      ],
+      "lavaWhite": [
+        1,
+        1,
+        1
+      ],
+      "lavaRed": [
+        1,
+        1,
+        1
+      ]
+    },
+    "glError": 0
+  },
+  "sourceStable": true,
+  "completedAt": "2026-11-09T04:13:34.896Z"
+}

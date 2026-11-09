@@ -25,6 +25,14 @@ Where `OES_standard_derivatives` is available, the longitude seam is sampled con
 Without `data/coruscant.js`, the procedural city is drawn as before. The single-file build does not carry the
 `data/` folder, so it draws the procedural city.
 
+### Initial trial position
+
+A new Coruscant trial begins over the evening/night side, with the sun four degrees below the orbital
+horizon at the existing configured altitude. `trialInitialPose` moves the starting position and aligns
+the ship with its local horizontal, facing the sunset. It does not change the planet texture, sunlight,
+day/night shader, altitude, or the subsequent flight physics. Other systems keep their existing initial
+position, and hyperspace arrivals keep their route-based arrival pose.
+
 ## Abregado and Anza
 
 The Abregado system orbits the red dwarf Anza. This was the user's setting on 2026-11-07.
@@ -32,3 +40,8 @@ The Abregado system orbits the red dwarf Anza. This was the user's setting on 20
 The system's sun lies in Anza's direction. The sky shows Anza as a red disc 0.13 rad in angular radius, with a churning
 surface, a darkened limb and a red corona, in place of the white sun disc. The setting lives in the system's `v.star`
 entry in `js/core.js`.
+
+The same star colour now illuminates ship materials, the planet's reflected daylight and its atmosphere.
+Self-emitted city lights, lava, engine exhaust and shields keep their own colours. A white or unspecified star
+keeps the previous white-light rendering. This is light-source colour applied while shading, rather than a
+red filter over the finished image. See [the implementation and verification record](flight-scene-and-hatches.md).

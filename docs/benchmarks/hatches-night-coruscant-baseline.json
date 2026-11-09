@@ -1,0 +1,28 @@
+{
+  "status": "EXPECTED_REGRESSION_FAILURE",
+  "baselineCommit": "7f51a3b4e4d3f4483206df372c97e85807d58895",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "/workspace/kuat-hatches-night/tests/coruscant-trial-start.cjs"
+  ],
+  "environment": {
+    "KS_TEST_ROOT": "/workspace/kuat-recording-music"
+  },
+  "time": "2026-11-09T04:00:09.016743+00:00",
+  "sourceSha256": {
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6",
+    "js/core.js": "49dbfda6a056b478e4b06f621db700e270f3f126120df72c38c8e39e030362af"
+  },
+  "testSha256": "a4d8432dba8a349cab96840de8c3109c15582df4f10afce2868074e7a730533e",
+  "exitCode": 1,
+  "summary": [
+    "# tests 2",
+    "# pass 1",
+    "# fail 1",
+    "# cancelled 0"
+  ],
+  "failureScope": "The real previous trialReset starts above the daylight side rather than the requested dusk/night side. Other-system reset remains a passing regression.",
+  "logSha256": "bd3054e5791ec137b46e43d875f3a1f0e0084122d25f5e6efe1af3b243bf362f"
+}
