@@ -19,6 +19,9 @@ function setup(selected=[1,2,3,4]){
  const xfDrivers=()=>ship.parts.filter(part=>selection.has(part.id)).map(it=>({list:'parts',it,fol:[]}));
  const xfBox=(list,part)=>C.partAABB(part),xfUnion=boxes=>[0,1,2].map(i=>Math.min(...boxes.map(b=>b[i]))).concat([3,4,5].map(i=>Math.max(...boxes.map(b=>b[i]))));
  const xfCheck=()=>new Map(),edGroups=()=>[],edParent=()=>null,fmtM=value=>String(value);
+ // This remapping harness supplies the editability collaborator; view-space
+ // restrictions are exercised by the editor-space interaction tests.
+ const designEntityEditable=()=>true;
  `);
  const extract=(start,end)=>{const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));};
  extract('function copyWingLinks(', 'function multiPaste(');
@@ -38,10 +41,10 @@ for(const action of ['multiPaste','editDuplicate'])test(`ENG-T18 ${action} remap
  run('ship.parts=ship.parts.filter(p=>p.id>=5)');
  for(const id of [7,8]){
   const spec=plain(run(`C.resolveEngineSpec(ship.parts.find(p=>p.id===${id}),ship)`));
-  assert.equal(spec.valid,true,spec.issues.join(', '));assert.equal(spec.reactorId,5);assert.equal(spec.machineryId,6);assert.equal(spec.powerNode,'p6');assert.equal(spec.ratedInputW,1e18);
+  assert.equal(spec.valid,true,spec.issues.join(', '));assert.equal(spec.reactorId,5);assert.equal(spec.machineryId,6);assert.equal(spec.powerNode,'p6');assert.equal(spec.inputLimitModel,'reactor-supply');assert.equal(spec.ratedInputW,run('C.reactorPower(ship.parts.find(p=>p.id===5))'));assert.ok(spec.ratedInputW>0);assert.equal(spec.costBasisInputW,1e18,'old authored input is retained only as its historical price basis');
  }
  const saved=plain(run('C.deserialize(C.serialize(ship)).parts'));
- assert.equal(saved.find(p=>p.id===7).machineryId,6);assert.equal(saved.find(p=>p.id===8).machineryId,6);assert.equal(saved.find(p=>p.id===6).reactor,5);assert.equal(saved.find(p=>p.id===6).ratedInputW,1e18);
+ assert.equal(saved.find(p=>p.id===7).machineryId,6);assert.equal(saved.find(p=>p.id===8).machineryId,6);assert.equal(saved.find(p=>p.id===6).reactor,5);assert.equal(saved.find(p=>p.id===6).ratedInputW,1e18,'saved authored metadata does not cap the source-driven operational input');assert.equal(saved.find(p=>p.id===5).d,8);assert.equal(saved.find(p=>p.id===6).d,2);assert.equal(saved.find(p=>p.id===6).length,2);
 });
 
 test('ENG-T18 copying an outlet alone preserves its intentionally external owner and reactor',()=>{

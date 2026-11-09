@@ -32,14 +32,16 @@ test('a direct pilot cannot recharge or thrust during a common-grid trip',()=>{
  assert.equal(r.black,true);assert.equal(r.after,r.before);assert.equal(r.eng,0);assert.equal(r.P,0);assert.equal(r.shield,0);
 });
 
-test('manual blackout preserves three-axis inertia instead of applying powered lateral damping',()=>{
- const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});const v=trial.V.slice(),p=trial.P.slice();trialStep(.25);return {before:v,after:trial.V,delta:trial.P.map((x,i)=>x-p[i]),thrust:trial.thrust};})()`);
- assert.deepEqual(plain(r.after),plain(r.before));for(let i=0;i<3;i++)close(r.delta[i],r.before[i]*.25);assert.equal(r.thrust,0);
+test('manual blackout retains instantaneous inertia then follows disabled gravity and passive drag',()=>{
+ const r=run(`(()=>{const u=fixture(),v=trial.V.slice(),p=trial.P.slice();C.ionOverload(u,1000,{moduleIndex:1});const instant=trial.V.slice(),drag=C.massDragRate(u);trialStep(.25);return {before:v,instant,position:p,after:trial.V,finalPosition:trial.P,drag,thrust:trial.thrust,out:u.out};})()`);
+ assert.deepEqual(plain(r.instant),plain(r.before));assert.equal(r.out,'電源喪失');let position=plain(r.position),velocity=plain(r.before);const dt=.05,decay=Math.exp(-r.drag*dt),gain=r.drag>0?-Math.expm1(-r.drag*dt)/r.drag:dt,distance=r.drag>0?(dt-gain)/r.drag:dt*dt/2;
+ for(let step=0;step<5;step++){const radius=Math.hypot(...position),acceleration=position.map(x=>-run('C.HULL_FALL.g')*x/radius),next=velocity.map((v,i)=>v*decay+acceleration[i]*gain);position=position.map((p,i)=>p+velocity[i]*gain+acceleration[i]*distance);velocity=next;}
+ for(let i=0;i<3;i++){close(r.after[i],velocity[i]);close(r.finalPosition[i],position[i]);}assert.equal(r.thrust,0);
 });
 
-test('jump start and an existing manual spool both wait for restored electrical power',()=>{
- const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});trialJump('b');const blocked=trial.jump===null;trial.jump={phase:'spool',t:2,age:2};trialJumpStep(1);return {blocked,t:trial.jump.t,age:trial.jump.age,message:notices[0]};})()`);
- assert.equal(r.blocked,true);assert.equal(r.t,2);assert.equal(r.age,2);assert.match(r.message,/給電停止/);
+test('source loss rejects a jump start and cancels a pending manual spool without resuming it',()=>{
+ const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});trialJump('b');const blocked=trial.jump===null;trial.jump={phase:'spool',t:2,age:2};trialJumpStep(1);const cancelled=trial.jump===null;u.p.crewCapacity=1;u.crew=1;u.ht.qJ=.8*u.ht.capacityJ;C.powerTick(u,300);trialJumpStep(1);return {blocked,cancelled,restored:u.out===null,stillCancelled:trial.jump===null,message:notices[0]};})()`);
+ assert.equal(r.blocked,true);assert.equal(r.cancelled,true);assert.equal(r.restored,true);assert.equal(r.stillCancelled,true);assert.match(r.message,/給電停止/);
 });
 
 test('practice ion pulses share finite geometric energy in distance order across several targets',()=>{

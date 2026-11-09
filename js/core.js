@@ -229,7 +229,7 @@ function costBreakdown(total,source){
  return Object.fromEntries(Object.entries(by).filter(([,v])=>v>0));
 }
 function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(36);}
-function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:{model:PROPULSION,profiles:DRIVE_PROFILES,grades:MACHINERY_GRADES,shaftFlux:ENGINE_SHAFT_FLUX},electrical:{model:'source-distance',version:ENGINE_TRANSMISSION_VERSION,lossPerM:ENGINE_FEED_LOSS_PER_M},systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
+function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:{model:PROPULSION,profiles:DRIVE_PROFILES,grades:MACHINERY_GRADES,shaftFlux:ENGINE_SHAFT_FLUX},electrical:{model:'source-distance',version:ENGINE_TRANSMISSION_PRICE_VERSION,lossPerM:ENGINE_FEED_LOSS_PER_M},systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
@@ -83725,7 +83725,7 @@ function surfaceCapacitorSync(u){if(!u.p?.surface?.mounts)return;const banks=sur
 function surfaceMountEnergy(u,id){return surfaceBanks(u)[id]||0;}
 function surfaceManualCharge(u,inputW,dt){surfacePowerStep(u,null,null,0,dt,inputW);return u.surfaceLastFire?.charged||0;}
 const weaponEnergyEpsilon=energy=>Math.max(Number.MIN_VALUE,Math.abs(energy||0)*1e-12);
-function surfaceSpend(u,id,outputTT){surfaceCapacitorSync(u);const m=u.p?.surface?.mounts?.find(m=>m.id===id),banks=surfaceBanks(u);if(!m||!(outputTT>0)||!Number.isFinite(outputTT)||!(surfaceMountState(u,m).operable>0)||(banks[id]||0)+weaponEnergyEpsilon(outputTT)<outputTT)return {ok:false,spent:0,bank:banks[id]||0};banks[id]=Math.max(0,banks[id]-outputTT);u.energy=u.p.surface.mounts.reduce((n,m)=>n+(banks[m.id]||0),0);const total=m.gun+m.ion,gun=total>0?outputTT*m.gun/total:0,ion=total>0?outputTT*m.ion/total:0;u.surfaceLastFire={manual:true,spent:outputTT,gun,ion,cells:[{fit:id,module:m.module,energy:outputTT,gun,ion}]};return {ok:true,spent:outputTT,bank:banks[id]};}
+function surfaceSpend(u,id,outputTT){syncPowerLossDisabled(u);surfaceCapacitorSync(u);const m=u.p?.surface?.mounts?.find(m=>m.id===id),banks=surfaceBanks(u);if(u.out||u.dead||!m||!(outputTT>0)||!Number.isFinite(outputTT)||!(surfaceMountState(u,m).operable>0)||(banks[id]||0)+weaponEnergyEpsilon(outputTT)<outputTT)return {ok:false,spent:0,bank:banks[id]||0};banks[id]=Math.max(0,banks[id]-outputTT);u.energy=u.p.surface.mounts.reduce((n,m)=>n+(banks[m.id]||0),0);const total=m.gun+m.ion,gun=total>0?outputTT*m.gun/total:0,ion=total>0?outputTT*m.ion/total:0;u.surfaceLastFire={manual:true,spent:outputTT,gun,ion,cells:[{fit:id,module:m.module,energy:outputTT,gun,ion}]};return {ok:true,spent:outputTT,bank:banks[id]};}
 function surfaceMountState(u,m){
  const mi=m.module,health=mi<0?1:clamp(u.mods?.[mi]??1,0,1),powered=powerFactor(u,'weapon',mi),capacitorK=surfaceCapacitorFactor(u,m),effectiveCapacity=Math.max(0,m.capacity*capacitorK),H=heatProfile(u.p),h=u.ht,si=H?.src?.findIndex(s=>s.k==='weapon'&&s.m?.includes(mi))??-1,heat=si>=0&&h?h.md[si]>=2?0:clamp(h.lm?.[si]??1,0,1):heatLim(u,'weapon'),crew=clamp(fleetCrewRatio(u),0,1),bank=Math.min(effectiveCapacity,surfaceBanks(u)[m.id]||0);let state='稼働';if(!(health>0))state='破壊';else if(!(capacitorK>0))state='蓄電設備破壊';else if(!(powered>0))state=u.gridState?.local?.[mi]>0||u.gridState?.domains?.[u.p.modules?.[mi]?.domain]?.trip>0?'イオン遮断':'給電停止';else if(!(heat>0))state='過熱';else if(!(crew>0))state='要員不足';else if(!(bank>0)||bank+weaponEnergyEpsilon(m.boltTT)<Math.max(0,m.boltTT||0))state='再充電中';return {health,powered,capacitorK,effectiveCapacity,heat,crewK:crew,bank,state,operable:health*powered*heat*crew*(capacitorK>0?1:0)};
 }
@@ -83863,7 +83863,7 @@ function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const wo
   for(const stage of [outfittingStats,superweaponStats,groundingStats,layoutStats,hatchMotionStats,solarStats,craftSystemsStats,heatStats,wingStats,sensorSuite,shapeStats,surfaceStats])stage(ship,s);
   s.propulsion=propulsionPreview(ship,s,'combat');s.actualThrustN=s.propulsion.actualThrustN;s.actualInputW=s.propulsion.actualInputW;s.actualAccelMps2=s.propulsion.actualAccelMps2;s.freeAccelerationMps2=s.propulsion.freeAccelerationMps2;
   const draftStatus=placementDraftStatus(ship);if(!draftStatus.ok){s.placementDraftStatus=draftStatus;s.provisional=true;}
-  s.thrust=s.actualThrustN;s.aThrust=s.freeAccelerationMps2;s.aEff=s.actualAccelMps2;s.accelG=s.aEff/G0;s.thrustG=s.aThrust/G0;s.structLimited=s.aThrust>s.aStruct;s.MGLT=Math.round(s.accelG/30);
+  s.thrust=s.actualThrustN;s.aThrust=s.freeAccelerationMps2;s.aEff=s.actualAccelMps2;s.accelG=s.aEff/G0;s.thrustG=s.aThrust/G0;s.structLimited=s.aThrust>s.aStruct;s.MGLT=(s.propulsion.maximumSpeedMps||0)/MGLT.ms;
   return s;
  }finally{delete ship._boundsPass;delete ship._lockedCache;}
 });}
@@ -83919,7 +83919,7 @@ function normalizeGroups(list,ship){
  const keep=out.filter(g=>leaves(g)>0),kept=new Set(keep.map(g=>g.id));for(const g of keep)g.groups=g.groups.filter(x=>kept.has(x));
  return {groups:keep,nextId:next};
 }
-function serialize(ship){for(const scope of trenchArmamentScopes(ship))for(const t of scope.trenches)if(t.armament)normalizeTrenchArmament(t.armament);ship=migrateWeaponDesign(ship);if(ship._surfaceSource)return serialize(ship._surfaceSource);migrateLegacyPropulsion(ship);surfaceSync(ship);const o=v3Serialize(ship);for(const key of ['parts','fits'])for(const p of o[key]){const source=ship[key].find(q=>q.id===p.id);if(source?.placement)p.placement=normalizePlacementMetadata(source.placement,source);if(source?.engineMountSupport)p.engineMountSupport=normalizeEngineMountSupport(source.engineMountSupport);}o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=links;return clearDesignLoadouts(o);}
+function serialize(ship){for(const scope of trenchArmamentScopes(ship))for(const t of scope.trenches)if(t.armament)normalizeTrenchArmament(t.armament);ship=migrateWeaponDesign(ship);if(ship._surfaceSource)return serialize(ship._surfaceSource);migrateLegacyPropulsion(ship);surfaceSync(ship);const o=v3Serialize(ship);for(const key of ['parts','fits'])for(const p of o[key]){const source=ship[key].find(q=>q.id===p.id);if(source?.placement)p.placement=normalizePlacementMetadata(source.placement,source);if(source?.engineMountSupport)p.engineMountSupport=normalizeEngineMountSupport(source.engineMountSupport);}o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=persistentEngineFeedLinks(generatedEngineFeedLinks(ship,links));return clearDesignLoadouts(o);}
 // Owned profiles are authored geometry. Validate known fields without widening
 // narrow stations or adding optional defaults from the legacy editor loader.
 function normalizeOwnedHullProfile(raw){
@@ -84543,6 +84543,12 @@ function reactorPower(p){return isReactor(p)?partVolume(p)*REACTOR_POWER_DENSITY
 // historical price metadata only. Physical geometry and thermal paths remain.
 const PROPULSION_MODEL_VERSION=1;
 const ENGINE_INPUT_MODEL_VERSION=2;
+const ENGINE_CONVERSION_MODEL_VERSION=1;
+// The same mass-dependent conversion applies to every real engine. These
+// fixed reference points do not follow a ship's current reactor or throttle.
+// Historical PROPULSION/DRIVE_PROFILES below remain hardware price bases.
+const ENGINE_CONVERSION=(()=>{const reference={referenceSmallMassKg:8081.389573510918,referenceSmallWattsPerNewton:2e9,referenceLargeMassKg:11800135063.56654,referenceLargeWattsPerNewton:7608555058.328145,legacyEstimateWattsPerNewton:2e9};return Object.freeze({...reference,massExponent:Math.log(reference.referenceLargeWattsPerNewton/reference.referenceSmallWattsPerNewton)/Math.log(reference.referenceLargeMassKg/reference.referenceSmallMassKg)});})();
+
 const PROPULSION=Object.freeze({version:PROPULSION_MODEL_VERSION,standardWattsPerNewton:2e9,wasteFraction:.05,referenceInputDensity:3.4e17,referencePower:1e18,referenceVolume:1,ratingCost:2,densityCost:20,maxInputW:1e32,thermalModelVersion:2,overdriveHeatK:.05,heatBufferSeconds:0});
 const DRIVE_PROFILES=Object.freeze({
  standard:Object.freeze({name:'標準入力機関',wattsPerNewton:2e9}),
@@ -84565,7 +84571,13 @@ function engineOperatingVolume(spec){
  if(Number.isFinite(volume)&&volume>0)return volume;
  return Number.isFinite(spec?.normalInputW)&&spec.normalInputW>0?spec.normalInputW/PROPULSION.referenceInputDensity:0;
 }
+function engineConversionMass(value){const mass=typeof value==='number'?value:value?.conversionMassKg;return Number.isFinite(mass)&&mass>0?mass:ENGINE_CONVERSION.referenceLargeMassKg;}
+function engineConversionCoefficient(value){const mass=engineConversionMass(value);return Math.exp(Math.log(ENGINE_CONVERSION.referenceLargeWattsPerNewton)+ENGINE_CONVERSION.massExponent*(Math.log(mass)-Math.log(ENGINE_CONVERSION.referenceLargeMassKg)));}
+function enginePowerPerKgG(value){return engineConversionCoefficient(value)*G0;}
+function engineConversionFields(spec,massKg){return {conversionModelVersion:ENGINE_CONVERSION_MODEL_VERSION,conversionMassKg:engineConversionMass(Number.isFinite(massKg)&&massKg>0?massKg:spec)};}
+function engineConversionCurrent(model){return model?.conversionModelVersion===ENGINE_CONVERSION_MODEL_VERSION&&model.conversionMassKg===model.massKg&&(model.cores||model.engines||[]).every(s=>s.conversionModelVersion===ENGINE_CONVERSION_MODEL_VERSION&&s.conversionMassKg===model.massKg);}
 function engineShaftCoefficient(spec){
+ if(spec?.conversionModelVersion===ENGINE_CONVERSION_MODEL_VERSION)return (1-PROPULSION.wasteFraction)*engineConversionCoefficient(spec);
  if(Number.isFinite(spec?.shaftWattsPerNewton)&&spec.shaftWattsPerNewton>0)return spec.shaftWattsPerNewton;
  const profile=DRIVE_PROFILES[spec?.driveProfileId],base=spec?.profileWattsPerNewton??profile?.wattsPerNewton;
  return Number.isFinite(base)&&base>0?(1-PROPULSION.wasteFraction)*base:0;
@@ -84593,7 +84605,7 @@ function propulsionForceLimit(profile){
  if(!(Number.isFinite(profile?.massKg)&&profile.massKg>0))return 0;
  let acceleration=Infinity;
  if(Number.isFinite(profile.structuralAccelerationLimitMps2))acceleration=Math.max(0,profile.structuralAccelerationLimitMps2)*(Number.isFinite(profile.inertialFactor)?clamp(profile.inertialFactor,0,1):1);
- if(Number.isFinite(profile.accelerationLimitMps2)&&!(profile.inputModelVersion===ENGINE_INPUT_MODEL_VERSION&&Number.isFinite(profile.structuralAccelerationLimitMps2)))acceleration=Math.min(acceleration,Math.max(0,profile.accelerationLimitMps2));
+ if(Number.isFinite(profile.accelerationLimitMps2)&&!(profile.inputModelVersion===ENGINE_INPUT_MODEL_VERSION&&(Number.isFinite(profile.structuralAccelerationLimitMps2)||profile.accelerationLimitBasis==='nominal'&&profile.accelerationLimitMps2===profile.ratedAccelMps2)))acceleration=Math.min(acceleration,Math.max(0,profile.accelerationLimitMps2));
  return acceleration===Infinity?Infinity:profile.massKg*acceleration;
 }
 function limitPropulsionRequests(requests,forceLimitN){
@@ -84615,7 +84627,8 @@ function legacyEngineValues(p){
 }
 // Mechanical shafts remain finite hardware; electrical supply uses numerical
 // source distances and shares the connected power ledger.
-const ENGINE_TRANSMISSION_VERSION=4;
+const ENGINE_TRANSMISSION_VERSION=5;
+const ENGINE_TRANSMISSION_PRICE_VERSION=4;
 const ENGINE_FEED_LOSS_PER_M=1e-5,ENGINE_SHAFT_FLUX=2e21;
 // Electrical distribution has no generated solid, routing grid or damageable
 // cable module. Distances are measured between the actual equipment power points.
@@ -84624,16 +84637,34 @@ function electricalPowerPoint(p,ship){
  if(p.k==='engine'&&integratedEngine(p)){const m=machineryGeometry(p,ship);return sub(m.b,mul(m.dir,m.length/2));}
  return p.c||p.p||null;
 }
+function automaticEngineFeed(l){return l?.kind==='power'&&l.auto===true&&l.capacityBasis==='reactor-supply'&&(l.cap==null&&l.capacityReferenceW==null||Number.isFinite(l.capacityReferenceW)&&l.cap===l.capacityReferenceW);}
+function persistentEngineFeedLinks(links){return links.map(l=>{if(automaticEngineFeed(l))return {kind:l.kind,from:l.from,to:l.to,auto:true,capacityBasis:'reactor-supply'};if(l.capacityBasis==='reactor-supply'){const q={...l};delete q.auto;delete q.capacityBasis;delete q.capacityReferenceW;return q;}return l;});}
+function generatedEngineFeedLinks(ship,links){
+ const owners=propulsionOwners(ship),ids=new Set(owners.map(p=>'p'+p.id)),reactors=ship.parts.filter(isReactor),sources=new Set(reactors.map(p=>'p'+p.id)),target=CRAFT_INTERIOR_TARGETS[ship.reference],feeds=links.filter(l=>l.kind==='power'&&ids.has(l.to));
+ // The old stock constructor copied its target-G nameplate into every
+ // logical electrical edge. Require the complete named-factory pattern;
+ // a changed or otherwise manual finite edge remains authoritative.
+ const oldFactory=!!target&&owners.length>0&&reactors.length>0&&owners.every(p=>{
+  const rows=feeds.filter(l=>l.to==='p'+p.id);return rows.length===reactors.length&&rows.every(l=>sources.has(l.from)&&Number.isFinite(p.ratedInputW)&&p.ratedInputW>0&&Number.isFinite(l.cap)&&Math.abs(l.cap-p.ratedInputW)<=Math.max(1,p.ratedInputW)*1e-12);
+ });
+ const stockFeeds=new Set();
+ if(SHIP_SYSTEM_REFIT_KEYS.includes(ship.reference))for(const p of owners){
+  const rows=feeds.filter(l=>l.to==='p'+p.id),oldCapacity=p.ratedInputW*1.3,tolerance=Math.max(1,oldCapacity)*1e-12;
+  if(p.busFeed===true&&Number.isFinite(oldCapacity)&&oldCapacity>0&&Number.isFinite(p.feedCapacityW)&&Math.abs(p.feedCapacityW-oldCapacity)<=tolerance&&rows.length===1&&rows[0].from==='p'+p.reactor&&sources.has(rows[0].from)&&Number.isFinite(rows[0].cap)&&Math.abs(rows[0].cap-oldCapacity)<=tolerance)stockFeeds.add('p'+p.id);
+ }
+ const capacity=ship.parts.reduce((n,p)=>n+electricalSourcePower(p),0)*maximumPowerModeFactor();
+ return links.map(l=>l.kind==='power'&&ids.has(l.to)&&sources.has(l.from)&&(automaticEngineFeed(l)||oldFactory||stockFeeds.has(l.to))?{...l,cap:capacity,auto:true,capacityBasis:'reactor-supply',capacityReferenceW:capacity}:l);
+}
 function engineTransmission(ship){
  const empty=()=>({version:ENGINE_TRANSMISSION_VERSION,kind:'electrical',model:'source-distance',routes:[],parts:[],engines:{},cores:{},virtualPorts:[],powerLinks:[],volume:0,length:0,massTonnes:0,cost:0,flux:0});
  if(!ship||ship._propulsionRoutingDeferred)return empty();
  if(!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return engineTransmission(surfaceWorkingShip(ship));
  if(ship._boundsPass?.engineTransmission)return ship._boundsPass.engineTransmission;
- const domains=powerDomainGroups(ship),owners=propulsionOwners(ship).filter(p=>resolveEngineSpec(p,ship).valid),ports=new Map(ship.parts.map(p=>['p'+p.id,p])),sources=ship.parts.filter(p=>electricalSourcePower(p)>0),manual=(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),targets=new Map(owners.map(p=>['p'+p.id,{p,spec:resolveEngineSpec(p,ship)}]));
+ const domains=powerDomainGroups(ship),owners=propulsionOwners(ship).filter(p=>resolveEngineSpec(p,ship).valid),ports=new Map(ship.parts.map(p=>['p'+p.id,p])),sources=ship.parts.filter(p=>electricalSourcePower(p)>0),manual=generatedEngineFeedLinks(ship,normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),targets=new Map(owners.map(p=>['p'+p.id,{p,spec:resolveEngineSpec(p,ship)}]));
  const key=JSON.stringify([ENGINE_TRANSMISSION_VERSION,manual,ship.parts.map(p=>[p.id,p.k,electricalPowerPoint(p,ship),electricalSourcePower(p),domains.of(p),p.reactor,p.feedCapacityW]),owners.map(p=>[p.id,targets.get('p'+p.id).spec.ratedInputW])]);
  if(ship._engineTransmission?.key===key){if(ship._boundsPass)ship._boundsPass.engineTransmission=ship._engineTransmission;return ship._engineTransmission;}
  const sourceBudget=sources.reduce((n,p)=>n+electricalSourcePower(p),0)*maximumPowerModeFactor(),res={...empty(),key},edges=new Map(),put=(l,automatic=false)=>{const id=l.from+'>'+l.to,cap=Number.isFinite(l.cap)?Math.max(0,l.cap):sourceBudget,prior=edges.get(id);if(prior)prior.limit=Math.min(sourceBudget,prior.limit+cap);else edges.set(id,{id,from:l.from,to:l.to,limit:Math.min(sourceBudget,cap),automatic});};
- for(const l of manual)if(ports.has(l.from)&&ports.has(l.to))put(l);
+ for(const l of manual)if(ports.has(l.from)&&ports.has(l.to))put(l,l.auto===true&&l.capacityBasis==='reactor-supply'&&l.cap===l.capacityReferenceW);
  for(const p of owners)if(![...edges.values()].some(l=>l.to==='p'+p.id)){const r=reactorFor(ship,p);if(r&&domains.of(r)===domains.of(p))put({from:'p'+r.id,to:'p'+p.id,cap:engineFeedCapacity(p,targets.get('p'+p.id).spec.availableInputW*maximumPowerModeFactor())},true);}
  const relevant=new Set(targets.keys());for(let pass=0;pass<ports.size;pass++){let changed=false;for(const e of edges.values())if(relevant.has(e.to)&&!relevant.has(e.from)){relevant.add(e.from);changed=true;}if(!changed)break;}
  const chosen=[...edges.values()].filter(e=>relevant.has(e.to)),outgoing=new Map();for(const e of chosen){if(!outgoing.has(e.from))outgoing.set(e.from,[]);outgoing.get(e.from).push(e);}
@@ -84655,7 +84686,7 @@ function physicalEngineDriveNetwork(ship){
  const key=JSON.stringify([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,ship.parts,ship.fits,ship.hatches,(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),ship.parts.filter(p=>electricalSourcePower(p)>0).map(p=>[p.id,electricalSourcePower(p)])],(k,v)=>k.startsWith('_')?undefined:v);
  if(ship[privateSlot]?.key===key){if(ship._boundsPass)ship._boundsPass[cacheSlot]=ship[privateSlot];return ship[privateSlot];}
  const previousHullCache=ship._lockedCache;ship._lockedCache=cache(ship);try{
- const transmissionDomains=powerDomainGroups(ship),bodies=engineMachineryPaths(ship),owners=mechanical?ship.parts.filter(p=>p.k==='engine'&&!integratedEngine(p)&&engineOwner(p,ship)):propulsionOwners(ship).filter(p=>p.k==='engineCore'||bodies.some(b=>b.nozzle===p.id)),ports=new Map(ship.parts.map(p=>['p'+p.id,p])),sourcePower=p=>mechanical?p?.k==='engineCore'||legacySharedEngine(p,ship)?resolveEngineSpec(p,ship).availableInputW*(1-PROPULSION.wasteFraction)*maximumPowerModeFactor():0:electricalSourcePower(p),sources=ship.parts.filter(p=>sourcePower(p)>0),shaftCapacity=p=>{const core=engineOwner(p,ship);if(!core||core.k!=='engineCore'&&!legacySharedEngine(core,ship))return 0;const rating=resolveEngineSpec(core,ship).availableInputW*(1-PROPULSION.wasteFraction)*maximumPowerModeFactor();return Math.min(nozzleShaftCapacity(p),Number.isFinite(p.shaftCapacityW)?Math.max(0,p.shaftCapacityW):rating*nozzleInputShare(p,ship));},manual=mechanical?owners.map(p=>({kind:'power',from:'p'+p.machineryId,to:'p'+p.id,cap:shaftCapacity(p)})):(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),edges=new Map(),targets=new Map(owners.map(p=>['p'+p.id,{p,spec:resolveEngineSpec(p,ship),demandW:mechanical?shaftCapacity(p):resolveEngineSpec(p,ship).ratedInputW}]));
+ const transmissionDomains=powerDomainGroups(ship),bodies=engineMachineryPaths(ship),owners=mechanical?ship.parts.filter(p=>p.k==='engine'&&!integratedEngine(p)&&engineOwner(p,ship)):propulsionOwners(ship).filter(p=>p.k==='engineCore'||bodies.some(b=>b.nozzle===p.id)),ports=new Map(ship.parts.map(p=>['p'+p.id,p])),sourcePower=p=>mechanical?p?.k==='engineCore'||legacySharedEngine(p,ship)?resolveEngineSpec(p,ship).availableInputW*(1-PROPULSION.wasteFraction):0:electricalSourcePower(p),sources=ship.parts.filter(p=>sourcePower(p)>0),shaftCapacity=p=>{const core=engineOwner(p,ship);if(!core||core.k!=='engineCore'&&!legacySharedEngine(core,ship))return 0;const rating=resolveEngineSpec(core,ship).availableInputW*(1-PROPULSION.wasteFraction);return Math.min(nozzleShaftCapacity(p),Number.isFinite(p.shaftCapacityW)?Math.max(0,p.shaftCapacityW):rating*nozzleInputShare(p,ship));},manual=mechanical?owners.map(p=>({kind:'power',from:'p'+p.machineryId,to:'p'+p.id,cap:shaftCapacity(p)})):(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),edges=new Map(),targets=new Map(owners.map(p=>['p'+p.id,{p,spec:resolveEngineSpec(p,ship),demandW:mechanical?shaftCapacity(p):resolveEngineSpec(p,ship).ratedInputW}]));
  const put=(l,automatic=false)=>{const id=l.from+'>'+l.to,prev=edges.get(id),cap=Number.isFinite(l.cap)?Math.max(0,l.cap):PROPULSION.maxInputW;if(prev)prev.limit=Math.min(PROPULSION.maxInputW,prev.limit+cap);else edges.set(id,{id,from:l.from,to:l.to,limit:cap,automatic,distributedWiring:!mechanical});};
  for(const l of manual)if(ports.has(l.from)&&ports.has(l.to))put(l);
  for(const e of owners)if(!mechanical&&![...edges.values()].some(l=>l.to==='p'+e.id)){const r=reactorFor(ship,e);if(r&&transmissionDomains.of(r)===transmissionDomains.of(e))put({from:'p'+r.id,to:'p'+e.id,cap:Math.min(resolveEngineSpec(e,ship).ratedInputW,Number.isFinite(e.feedCapacityW)?e.feedCapacityW:Infinity)},true);}
@@ -84686,7 +84717,15 @@ function physicalEngineDriveNetwork(ship){
  const finiteCapInside=(p,P,towards,r)=>{const f=frameAxis(sub(towards,P));return [P,...Array.from({length:32},(_,j)=>{const t=j*Math.PI/16;return add(P,add(mul(f.v,Math.cos(t)*r),mul(f.w,Math.sin(t)*r)));})].every(q=>inPart(p,q));};
  // Oblique pipes need their complete terminal circle inside the paid body.
  // A short interior lead also permits real side exits from a large cylinder.
- const coreContact=(p,P,towards,r)=>{if(p.k!=='engineCore'||finiteCapInside(p,P,towards,r))return P;const m=machineryGeometry(p,ship),outward=mul(m.dir,dot(sub(P,p.c),m.dir)>=0?1:-1),offset=sub(towards,p.c),radial=len(sub(offset,mul(m.dir,dot(offset,m.dir)))),wideFan=mechanical&&(ship.reference==='imperial'||ship.reference==='imperial2')&&ship.parts.filter(q=>q.k==='engine'&&q.machineryId===p.id).length===3&&radial>m.radius,depth=wideFan?Math.min(m.length*.49,Math.max(r+1e-6,m.radius*.4)):r+1e-6;if(depth>=m.length-1e-6)return P;const Q=sub(P,mul(outward,depth));return finiteCapInside(p,Q,towards,r)?Q:P;};
+ const coreContact=(p,P,towards,r)=>{
+  if(p.k!=='engineCore'||finiteCapInside(p,P,towards,r))return P;
+  const m=machineryGeometry(p,ship),inward=mul(m.dir,dot(sub(P,p.c),m.dir)>=0?-1:1);
+  for(const depth of [r+1e-6,2*r+.01,m.length*.25,m.length*.5,m.length*.75,m.length-r]){
+   if(!(depth>0&&depth<m.length))continue;
+   const Q=add(P,mul(inward,depth));if(finiteCapInside(p,Q,towards,r))return Q;
+  }
+  return P;
+ };
  const route=(a,b,r,from,to,contacts=null)=>{
   const terminals=new Set([from.id,to.id]),ownBodies=bodies.filter(p=>terminals.has(p.nozzle)),obstacles=hard.filter(x=>!terminals.has(x.p.id)&&!ownBodies.includes(bodies.find(v=>v.id===x.p.id))&&!terminals.has(x.p.nozzle));
   const terminalContains=(p,q)=>inPart(p,q)||legacySharedEngine(p,ship)&&!!bodyFor(p)&&unclippedInPart(bodyFor(p),q);
@@ -84737,6 +84776,27 @@ function physicalEngineDriveNetwork(ship){
   // obstructs it instead of silently generating elbows or routing detours.
   if(!clear(a,b))return null;return finish([a,b]);
  };
+ // Keep a legal existing contact first. Only a full-radius failure probes
+ // a bounded set of contacts inside the same real machinery/nozzle solids.
+ const routeWithContacts=(originalA,originalB,r,from,to)=>{
+  const original=route(originalA,originalB,r,from,to);if(original)return {path:original,a:originalA,b:originalB};
+  const push=(out,P)=>{if(Array.isArray(P)&&P.length===3&&!out.some(q=>len(sub(P,q))<1e-7))out.push(P);},receivers=[originalB];
+  if(mechanical&&to.k==='engine'){const axis=norm(to.dir||[-1,0,0]),L=partDims(to).l;push(receivers,add(centre(to),mul(axis,Math.min(L*.75,2*r+.01))));}
+  for(const B of receivers){
+   const sources=[originalA];
+   if(mechanical&&from.k==='engineCore'){
+    const m=machineryGeometry(from,ship),F=frameAxis(m.dir),base=sub(originalA,mul(m.dir,dot(sub(originalA,from.c),m.dir))),extras=[];push(extras,base);
+    for(const axis of [F.v,F.w])for(const amount of [-.25,.25,-.5,.5])push(extras,add(base,mul(axis,r*amount)));
+    extras.sort((P,Q)=>len(sub(P,base))-len(sub(Q,base))||P[1]-Q[1]);for(const P of extras)push(sources,P);
+   }
+   for(const A of sources){
+    if(len(sub(A,originalA))<1e-7&&len(sub(B,originalB))<1e-7)continue;
+    if(from.k==='engineCore'&&!finiteCapInside(from,A,B,r)||to.k==='engine'&&!finiteCapInside(to,B,A,r))continue;
+    const candidate=route(A,B,r,from,to);if(candidate)return {path:candidate,a:A,b:B};
+   }
+  }
+  return null;
+ };
  const res={key,version:ENGINE_TRANSMISSION_VERSION,kind:mechanical?'mechanical':'electrical',routes:[],parts:[],engines:{},cores:{},volume:0,length:0,massTonnes:0,cost:0,flux:transportFlux};
  const routeEdges=chosen.slice();
  for(const e of routeEdges){const from=ports.get(e.from),to=ports.get(e.to),requestedCapacityW=plannedCapacity(e),portRadius=Math.sqrt(requestedCapacityW/(Math.PI*transportFlux));if(!(requestedCapacityW>0))continue;let b=roomPorts.get(to.id+'|'+e.id)||wall(to,centre(from),portRadius);b=coreContact(to,b,roomPorts.get(from.id+'|'+e.id)||centre(from),portRadius);if(mechanical&&to.k==='engine')b=add(b,mul(norm(to.dir||[-1,0,0]),Math.min(partDims(to).l*.45,portRadius*2+.01)));let a=roomPorts.get(from.id+'|'+e.id)||wall(from,b,portRadius);a=coreContact(from,a,b,portRadius);
@@ -84746,7 +84806,22 @@ function physicalEngineDriveNetwork(ship){
    const inward=mul(norm(to.dir||[-1,0,0]),-1),hit=rayPart(b,inward,raw(from));
    if(hit&&hit.t>1e-6){const candidate=add(hit.p,mul(inward,portRadius*2+.01));if(finiteCapInside(from,candidate,b,portRadius))a=candidate;}
   }
-  let path=null,radius=Math.sqrt(requestedCapacityW/(Math.PI*transportFlux)),capacityW=requestedCapacityW;if(e.distributedWiring){a=centre(from).slice();b=centre(to).slice();path=[a,b];}else for(const fraction of [1,.5,.25,.125,.0625]){const r=radius*fraction;path=route(a,b,r,from,to);if(path){radius=r;capacityW=requestedCapacityW*fraction*fraction;break;}}
+  const fullRadius=Math.sqrt(requestedCapacityW/(Math.PI*transportFlux));let path=null,radius=fullRadius,capacityW=requestedCapacityW;
+  if(e.distributedWiring){a=centre(from).slice();b=centre(to).slice();path=[a,b];}
+  else{
+   const full=routeWithContacts(a,b,fullRadius,from,to);
+   if(full){path=full.path;a=full.a;b=full.b;}
+   else{
+    let low=0,high=1,best=null;
+    for(const fraction of [.5,.25,.125,.0625]){const candidate=route(a,b,fullRadius*fraction,from,to);if(candidate){low=fraction;best=candidate;break;}high=fraction;}
+    if(best){
+     // Recover a real intermediate cross-section without relaxing any of the
+     // cap, hull, obstruction, shared-terminal or closed-housing checks.
+     for(let pass=0;pass<8;pass++){const middle=(low+high)/2,candidate=route(a,b,fullRadius*middle,from,to);if(candidate){low=middle;best=candidate;}else high=middle;}
+     path=best;radius=fullRadius*low;capacityW=requestedCapacityW*low*low;
+    }
+   }
+  }
   const segments=path?(path.routeSegments||path.slice(1).map((p,i)=>segment(path[i],p,radius))).filter(s=>s.l>1e-8):[],length=segments.reduce((n,s)=>n+s.l,0),area=Math.PI*radius*radius,volume=area*length,id=e.id,engineIds=ancestry(e.to),valid=!!path;
   const row={id,distributedWiring:e.distributedWiring,model:e.distributedWiring?'automatic-internal-distribution':'finite-physical-route',kind:mechanical?'mechanical':'electrical',...(mechanical?{coreId:from.id,nozzleId:to.id}:{}),efficiency:mechanical?1:Math.exp(-ENGINE_FEED_LOSS_PER_M*length),from:e.from,to:e.to,engineIds,authoredCapacityW:e.limit,requestedCapacityW,capacityW:valid?capacityW:0,area,radius,length,lengthM:length,volume,volumeM3:volume,path:path||[a,b],segments,entrySegments:segments.filter(s=>s.exteriorEntry),valid,ok:valid,limited:valid&&capacityW<requestedCapacityW*(1-1e-10),inside:e.distributedWiring?null:valid,clear:e.distributedWiring?null:valid,reason:valid?(capacityW<requestedCapacityW*(1-1e-10)?'transmission-capacity':null):'transmission-blocked',automatic:e.automatic};res.routes.push(row);
   if(valid&&segments.length){const middle=(()=>{let left=length/2;for(const s of segments){if(left<=s.l)return add(s.a,mul(s.u,left));left-=s.l;}return segments[segments.length-1].b;})(),part={id:(mechanical?-8000000:-6000000)-res.parts.length,k:'machinery',distributedWiring:e.distributedWiring,transmission:!mechanical,drivetrain:mechanical,coreId:mechanical?from.id:undefined,nozzleId:mechanical?to.id:undefined,routeId:id,from:e.from,to:e.to,engineIds,capacityW,lengthM:length,volumeM3:volume,valid:true,ok:true,length,volume,c:middle,d:radius*2,seg:segments[0],segments,entrySegments:segments.filter(s=>s.exteriorEntry),sourcePartIds:[from.id,to.id],label:(mechanical?'機関動力伝達路 ':'推進電力伝達路 ')+e.from+' → '+e.to};row.partId=part.id;res.parts.push(part);res.volume+=volume;res.length+=length;res.massTonnes+=volume*PARTS.machinery.dens;res.cost+=partBuildCost(part,volume);}
@@ -84800,7 +84875,7 @@ function engineSceneSupply(ship,part){
  if(cached?.key!==key)ENGINE_SCENE_SUPPLY_CACHE.set(ship,{key,supply});if(ordinary&&ship._boundsPass)ship._boundsPass.engineSceneSupply=supply;
  return supply.get(part?.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]};
 }
-function resolveEngineSpec(part,ship){
+function resolveEngineSpec(part,ship,massKg){
  const owner=engineOwner(part,ship),p=owner||part||{},m=machineryGeometry(p,ship),legacy=p.propulsionModelVersion==null||p.propulsionModelVersion===0?legacyEngineValues(p):null,profileId=legacy?.profile||p.driveProfileId,profile=DRIVE_PROFILES[profileId],gradeId=p.machineryGradeId||(legacy?'legacy-refit':'standard'),grade=MACHINERY_GRADES[gradeId],rating=legacy?.power??p.ratedInputW,issues=[];
  if(!['engine','engineCore'].includes(part?.k))issues.push('invalid-engine');
  if(part?.k==='engine'&&!integratedEngine(part)&&(!owner||owner.k!=='engineCore'&&!legacySharedEngine(owner,ship)))issues.push('invalid-machinery-reference');
@@ -84814,10 +84889,10 @@ function resolveEngineSpec(part,ship){
  if(!Number.isFinite(m.offset)||Math.abs(m.offset)>DESIGN_LIMITS.coordinate)issues.push('invalid-machinery-position');
  if(!Array.isArray(part?.c)||part.c.length!==3||!part.c.every(Number.isFinite)||!Array.isArray(part?.dir||[-1,0,0])||(part?.dir&&(part.dir.length!==3||!part.dir.every(Number.isFinite)||len(part.dir)<1e-9)))issues.push('invalid-engine-position');
  const nozzleLength=part?.k==='engine'?part.nozzleLength??partDims(part).l:m.length;if(!Number.isFinite(part?.d)||part.d<=0||!Number.isFinite(nozzleLength)||nozzleLength<=0)issues.push('invalid-nozzle-shape');
- const supply=engineSceneSupply(ship,p),maxInputW=supply.availableInputW,ratedInputW=supply.nominalInputW,valid=issues.length===0,thermal=engineDensityModel(ratedInputW,m.volume,profile?.wattsPerNewton),wattsPerNewton=thermal.wattsPerNewton;
+ const supply=engineSceneSupply(ship,p),maxInputW=supply.availableInputW,ratedInputW=supply.nominalInputW,valid=issues.length===0,conversion=engineConversionFields(null,massKg),thermal=engineDensityModel(ratedInputW,m.volume,engineConversionCoefficient(conversion)),wattsPerNewton=thermal.wattsPerNewton;
  // Old authored ratings/grades retain only their historical price basis.
  const costInputW=Number.isFinite(rating)&&rating>=0?rating:m.volume*PROPULSION.referenceInputDensity,x=m.volume>0?costInputW/(PROPULSION.referenceInputDensity*m.volume):0,upgradeCost=(PROPULSION.ratingCost*costInputW/PROPULSION.referencePower+PROPULSION.densityCost*m.volume*Math.max(0,x-1)**2)*(grade?.costMultiplier||1),direction=mul(machineryGeometry(part||p,ship).dir,-1),reactor=ship?reactorFor(ship,p):null;
- return {...thermal,version:PROPULSION_MODEL_VERSION,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply',availableInputW:maxInputW,sourceInputLimitW:maxInputW,sourceIds:supply.sourceIds,allocationWeight:m.volume,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,coreId:owner?.id??null,entityKind:p.k,integrated:p.k==='engine'&&!legacySharedEngine(p,ship),legacyShared:legacySharedEngine(p,ship),ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryShape:p.k==='engineCore'?'cylinder':m.shape,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,costBasisInputW:costInputW,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:0,valid,issues,reasons:issues};
+ return {...thermal,...conversion,driveModelVersion:ENGINE_TRANSMISSION_VERSION,version:PROPULSION_MODEL_VERSION,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply',availableInputW:maxInputW,sourceInputLimitW:maxInputW,sourceIds:supply.sourceIds,allocationWeight:m.volume,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,coreId:owner?.id??null,entityKind:p.k,integrated:p.k==='engine'&&!legacySharedEngine(p,ship),legacyShared:legacySharedEngine(p,ship),ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryShape:p.k==='engineCore'?'cylinder':m.shape,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,costBasisInputW:costInputW,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:0,valid,issues,reasons:issues};
 }
 function initializeEngineSpec(p,ship,legacy=false){
  if(!['engine','engineCore'].includes(p?.k))return p;p.legacyCoolingInputW=0;if(p.k==='engineCore'){if(p.propulsionModelVersion==null||p.propulsionModelVersion===0)p.propulsionModelVersion=PROPULSION_MODEL_VERSION;p.driveProfileId=p.driveProfileId||'standard';p.machineryGradeId=p.machineryGradeId||'standard';p.length=p.length??p.d*2;p.dir=p.dir||[-1,0,0];return p;}if(p.k==='engine'&&p.machineryId!=null&&p.machineryId!==p.id){p.propulsionModelVersion=PROPULSION_MODEL_VERSION;return p;}if(p.propulsionModelVersion!=null&&p.propulsionModelVersion!==0)return p;
@@ -84881,8 +84956,8 @@ function resolvePropulsion(requests,actualInputs={},massKg){
 }
 function propulsionProfile(ship,S={}){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return propulsionProfile(surfaceWorkingShip(ship),S);
- const parts=ship?.parts||[],paths=engineMachineryPaths(ship),electrical=engineTransmission(ship),drive=engineDriveRoutes(ship),mods=fleetModules(ship,S),cores=propulsionOwners(ship).map(p=>{const spec=resolveEngineSpec(p,ship),source=parts.find(r=>isReactor(r)&&r.id===spec.reactorId),body=paths.find(r=>r.nozzle===p.id),moduleIndex=mods.findIndex(m=>m.part===p.id),machineryModuleIndex=p.k==='engineCore'?moduleIndex:mods.findIndex(m=>m.part===-p.id),feed=electrical.cores?.[p.id]||electrical.engines[p.id],available=spec.valid&&!!source&&!S.info?.[p.id]?.overlap&&!S.info?.[source?.id]?.overlap&&!S.info?.[body?.id]?.overlap;return {...spec,moduleIndex,machineryModuleIndex,available:available&&feed?.connected===true,connected:feed?.connected===true,outletAvailable:true,pathCapacityW:Math.min(spec.maxInputW,feed?.capacityW||0),transmissionRouteIds:feed?.routeIds||[]};}),byCore=new Map(cores.map(c=>[c.id,c])),engines=parts.filter(p=>p.k==='engine').map(p=>{const spec=resolveEngineSpec(p,ship),core=byCore.get(spec.machineryId),route=drive.routes.find(r=>r.nozzleId===p.id),integrated=integratedEngine(p),moduleIndex=mods.findIndex(m=>m.part===p.id),shaftModuleIndices=route?.partId!=null?[mods.findIndex(m=>m.part===route.partId)].filter(i=>i>=0):[],available=!!core&&core.valid&&engineVented(ship,p)&&!S.info?.[p.id]?.overlap&&(integrated?integratedEngineContact(p,ship):route?.ok===true),shaftCapacityW=integrated?nozzleShaftCapacity(p):route?.capacityW||0;return {...spec,moduleIndex,coreModuleIndex:core?.moduleIndex??-1,machineryModuleIndex:core?.machineryModuleIndex??-1,shaftModuleIndices,nozzleShaftCapacityW:nozzleShaftCapacity(p),shaftCapacityW,ratedShaftCapacityW:integrated?shaftCapacityW:route?.requestedCapacityW||0,shaftRouteId:route?.id||null,available,connected:!!core?.connected&&(integrated||route?.ok===true),outletAvailable:engineVented(ship,p),pathCapacityW:core?.pathCapacityW||0};});
- const ratedThrustN=cores.reduce((n,c)=>n+c.ratedThrustN,0),massKg=Number.isFinite(S.mass)&&S.mass>0?S.mass*1000:0,ratedAccelMps2=massKg>0?ratedThrustN/massKg:0,inertialFactor=S.inertialSupport==null?1:clamp(S.inertialSupport/Math.max(1,S.mass),0,1),structuralAccelerationLimitMps2=Number.isFinite(S.aStruct)?Math.max(0,S.aStruct):1e9,accelerationLimitMps2=Math.min(structuralAccelerationLimitMps2,ratedAccelMps2)*inertialFactor;
+ const massKg=Number.isFinite(S.mass)&&S.mass>0?S.mass*1000:0,parts=ship?.parts||[],paths=engineMachineryPaths(ship),electrical=engineTransmission(ship),drive=engineDriveRoutes(ship),mods=fleetModules(ship,S),cores=propulsionOwners(ship).map(p=>{const spec=resolveEngineSpec(p,ship,massKg),source=parts.find(r=>isReactor(r)&&r.id===spec.reactorId),body=paths.find(r=>r.nozzle===p.id),moduleIndex=mods.findIndex(m=>m.part===p.id),machineryModuleIndex=p.k==='engineCore'?moduleIndex:mods.findIndex(m=>m.part===-p.id),feed=electrical.cores?.[p.id]||electrical.engines[p.id],available=spec.valid&&!!source&&!S.info?.[p.id]?.overlap&&!S.info?.[source?.id]?.overlap&&!S.info?.[body?.id]?.overlap;return {...spec,moduleIndex,machineryModuleIndex,available:available&&feed?.connected===true,connected:feed?.connected===true,outletAvailable:true,pathCapacityW:Math.min(spec.maxInputW,feed?.capacityW||0),transmissionRouteIds:feed?.routeIds||[]};}),byCore=new Map(cores.map(c=>[c.id,c])),engines=parts.filter(p=>p.k==='engine').map(p=>{const spec=resolveEngineSpec(p,ship,massKg),core=byCore.get(spec.machineryId),route=drive.routes.find(r=>r.nozzleId===p.id),integrated=integratedEngine(p),moduleIndex=mods.findIndex(m=>m.part===p.id),shaftModuleIndices=route?.partId!=null?[mods.findIndex(m=>m.part===route.partId)].filter(i=>i>=0):[],available=!!core&&core.valid&&engineVented(ship,p)&&!S.info?.[p.id]?.overlap&&(integrated?integratedEngineContact(p,ship):route?.ok===true),shaftCapacityW=integrated?nozzleShaftCapacity(p):route?.capacityW||0;return {...spec,moduleIndex,coreModuleIndex:core?.moduleIndex??-1,machineryModuleIndex:core?.machineryModuleIndex??-1,shaftModuleIndices,nozzleShaftCapacityW:nozzleShaftCapacity(p),shaftCapacityW,ratedShaftCapacityW:integrated?shaftCapacityW:route?.requestedCapacityW||0,shaftRouteId:route?.id||null,available,connected:!!core?.connected&&(integrated||route?.ok===true),outletAvailable:engineVented(ship,p),pathCapacityW:core?.pathCapacityW||0};});
+ const ratedThrustN=cores.reduce((n,c)=>n+c.ratedThrustN,0),ratedAccelMps2=massKg>0?ratedThrustN/massKg:0,inertialFactor=S.inertialSupport==null?1:clamp(S.inertialSupport/Math.max(1,S.mass),0,1),structuralAccelerationLimitMps2=Number.isFinite(S.aStruct)?Math.max(0,S.aStruct):1e9,accelerationLimitMps2=Math.min(structuralAccelerationLimitMps2,ratedAccelMps2)*inertialFactor;
  const raw={version:PROPULSION_MODEL_VERSION,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,architectureVersion:2,cores,engines,massKg,ratedThrustN,ratedAccelMps2,structuralAccelerationLimitMps2,inertialFactor,accelerationLimitMps2};return reactorSupplyProfile({modules:mods,grid:{P:S.power||0,domains:powerDomainProfile(ship,S,mods),powerPaths:electrical.powerLinks||[]},propulsion:raw},true).propulsion;
 }
 function nozzleThrust(p){return resolveEngineSpec(p).ratedThrustN;}
@@ -87510,9 +87585,9 @@ function tieLnBuild(){
  for(const z of [.318,-.318]){const f={id:s.nextId++,k:'claser',p:[1.07,.6,z],a:3,ped:0,base:0,low:0,float:false};mountFit(s,f);s.fits.push(f);}
  delete s._building;syncCompartments(s);remount(s);return s;
 }
-registerShipExample({key:'craft_tie_ln',physicalRevision:1,name:'TIE/ln 制宙戦闘機',side:'銀河帝国',role:'制宙戦闘機',length:7.24,craft:true,craftType:'tie_ln',
+registerShipExample({key:'craft_tie_ln',physicalRevision:2,name:'TIE/ln 制宙戦闘機',side:'銀河帝国',role:'制宙戦闘機',length:7.24,craft:true,craftType:'tie_ln',
  title:'Star Wars: TIE/ln Fighter',credit:'"Star Wars: TIE/ln Fighter" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tieln-fighter-79d9403f15334c129ea5454daffe6b5c',license:'CC BY 4.0',
- note:'7.24 m（正史：全長 7.24 m・全高 8.82 m）。Daniel 氏のモデル「Star Wars: TIE/ln Fighter」（CC BY 4.0）の実測形状を、正史の全長（六角形の太陽電池翼の前後長）に等倍で合わせた（モデルに合わせると全幅 6.56 m・全高 8.35 m で、正史の全高より約 5% 低い。形状はモデルに従った）。直径 2.47 m の球形操縦席を船体とし、六角形の太陽電池翼は現行の太陽光パネル部品を左右1個ずつ配置した（パネル厚さ 0.08 m）。輪郭と一体形状は部品の六角形プリセットを使い、個別の外枠・桁・支柱・フランジ・中央ハブは配置しない。球形の船体から翼への接続柱、前面窓と窓枠、後部ハッチは保持した。球の中には操縦席1席（正史どおり乗員1名）、I-a2b 反応炉、P-s4 イオン・エンジン2基（推進部を球の中央帯に前後に通し、後方へ噴射）、燃料タンク、慣性補償器を重ならないように詰めた。兵装は機首下の L-s1 レーザー砲 2門（砲口はモデルの砲口の位置）。正史どおりシールド発生器とハイパードライブは持たない。外殻装甲は 0.75 mm（表面の大半を占める太陽電池翼を含めた平均）。実給電モデルに合わせて炉・機関・配電を組み直し、最大加速度の設計目標は正史に合わせた 4,100 G。',
+ note:'7.24 m（正史：全長 7.24 m・全高 8.82 m）。Daniel 氏のモデル「Star Wars: TIE/ln Fighter」（CC BY 4.0）の実測形状を、正史の全長（六角形の太陽電池翼の前後長）に等倍で合わせた（モデルに合わせると全幅 6.56 m・全高 8.35 m で、正史の全高より約 5% 低い。形状はモデルに従った）。直径 2.47 m の球形操縦席を船体とし、六角形の太陽電池翼は現行の太陽光パネル部品を左右1個ずつ配置した（パネル厚さ 0.08 m）。輪郭と一体形状は部品の六角形プリセットを使い、個別の外枠・桁・支柱・フランジ・中央ハブは配置しない。球形の船体から翼への接続柱、前面窓と窓枠、後部ハッチは保持した。球の中には操縦席1席（正史どおり乗員1名）、I-a2b 反応炉、P-s4 イオン・エンジン2基（推進部を球の中央帯に前後に通し、後方へ噴射）、燃料タンク、慣性補償器を重ならないように詰めた。兵装は機首下の L-s1 レーザー砲 2門（砲口はモデルの砲口の位置）。正史どおりシールド発生器とハイパードライブは持たない。外殻装甲は 0.75 mm（表面の大半を占める太陽電池翼を含めた平均）。実給電モデルに合わせて炉・機関・配電を組み直し、現行の太陽光パネルを装備した完成機の質量に合わせ、実際の反応炉を直径約 0.992 m とした。最大加速度の設計目標は正史に合わせた 4,100 G。',
  build(){return tieLnBuild();}});
 }
 
@@ -88130,7 +88205,7 @@ function refitCraftInterior(ship,key){
  if(key==='craft_xwing'){Object.assign(reactors[0],{k:'aux',d:2.1});ship.parts.find(p=>p.k==='fuel').c=[4.1,1.65,0];}
  if(key==='craft_v19')for(const p of reactors.slice(0,2)){p.k='aux';p.d=1.2;p.c[0]=3.95;}
  if(key==='craft_hyena')for(const p of reactors.slice(0,2)){p.k='aux';p.d=1.6;p.c[0]=9.225;}
- if(key==='craft_tie_ln'){Object.assign(reactors[0],{k:'aux',d:1.6});reactors[0].c=[1.22,-.1,0];}
+ if(key==='craft_tie_ln'){Object.assign(reactors[0],{k:'aux',d:0.9916610783799794});reactors[0].c=[1.22,-.1,0];}
  if(key==='craft_tie_in'){Object.assign(reactors[0],{k:'aux',d:1.7});reactors[0].c=[2.95,1.4,0];}
  if(key==='craft_vwing')for(const z of [-1.75,1.75])reactors.push(placePart(ship,'aux',[2.236,.55,z],1.3,{label:'翼根部の推進・兵装用反応炉',autoFit:false}));
  // The four X-wing exhaust tubes project aft of both its fuselage and intake nacelles. Four
@@ -88162,9 +88237,9 @@ function refitCraftInterior(ship,key){
  // Ordinary finite electrical links form redundant crossfeeds. The former nearest-reactor-only
  // layout could spend one wing reactor on guns and strand its engine despite spare power opposite.
  const wire=S=>{
-  const ports=[...engines.map(e=>({id:'p'+e.id,W:e.ratedInputW})),...ship.parts.filter(p=>p.k==='shield'||p.k==='localShield').map(p=>({id:'p'+p.id,W:Math.max(S.draw.shields,shieldLoad(p))})),...ship.fits.filter(f=>fitSpec(f).cat==='w').map(f=>({id:'f'+f.id,W:(fitSpec(f).power||0)*1.5}))];
+  const engineFeedW=reactors.reduce((n,r)=>n+electricalSourcePower(r),0)*maximumPowerModeFactor(),ports=[...engines.map(e=>({id:'p'+e.id,W:engineFeedW,engineFeed:true})),...ship.parts.filter(p=>p.k==='shield'||p.k==='localShield').map(p=>({id:'p'+p.id,W:Math.max(S.draw.shields,shieldLoad(p))})),...ship.fits.filter(f=>fitSpec(f).cat==='w').map(f=>({id:'f'+f.id,W:(fitSpec(f).power||0)*1.5}))];
   const replaced=new Set(ports.map(p=>p.id));ship.links=(ship.links||[]).filter(l=>l.kind!=='power'||!replaced.has(l.to));
-  for(const r of reactors)for(const p of ports)if(p.W>0)ship.links.push({kind:'power',from:'p'+r.id,to:p.id,cap:p.W});
+  for(const r of reactors)for(const p of ports)if(p.W>0)ship.links.push({kind:'power',from:'p'+r.id,to:p.id,cap:p.W,...(p.engineFeed?{auto:true,capacityBasis:'reactor-supply',capacityReferenceW:p.W}:{})});
  };
  let S=computeStats(ship);rate(S);wire(S);
  // Cooling occupies real airframe volume and shares the original finite plant.
@@ -91548,9 +91623,10 @@ function powerFactor(u,kind,moduleIndex){
  if(st?.domains?.main?.trip>0)return 0;return 1;
 }
 function powerStatus(u){
- const st=u?.gridState,thermal=heatStatus(u),ds=u?.p?.grid?.domains||[{id:'main',P:u?.p?.grid?.P||0,modules:[]}];
- const rated=ds.reduce((a,d)=>a+(d.P||0),0),live=ds.reduce((a,d)=>a+powerDomainWatts(u,d.id),0),available=u?.p?.grid?rated>0?clamp(live/rated,0,1):0:1;
- return {available:available*(thermal?.outputFactor??1),blackout:thermal?.online===false||available<=0,thermal,domains:ds.map(d=>({id:d.id,rated:d.P,available:powerDomainWatts(u,d.id),load:st?.domains?.[d.id]?.load||0,restart:st?.domains?.[d.id]?.trip||0,state:st?.domains?.[d.id]?.trip>0?'イオン遮断':powerDomainWatts(u,d.id)<=0?'給電停止':st?.domains?.[d.id]?.load>0?'放電中':'給電中'})),local:Object.entries(st?.local||{}).filter(([,t])=>t>0).map(([i,t])=>({module:+i,name:u.p.modules?.[i]?.name||'設備',restart:t,state:'イオン遮断'}))};
+ const st=u?.gridState,thermal=heatStatus(u),ds=u?.p?.grid?.domains?.length?u.p.grid.domains:[{id:'main',P:u?.p?.grid?.P||0,modules:[]}],sources=shipElectricalSources(u),byDomain=new Map();
+ for(const source of sources||[])byDomain.set(source.domain,(byDomain.get(source.domain)||0)+source.powerW);
+ const domainW=d=>sources?byDomain.get(d.id)||0:powerDomainWatts(u,d.id),rated=ds.reduce((a,d)=>a+(d.P||0),0),live=ds.reduce((a,d)=>a+domainW(d),0),available=(u?.p?.grid?rated>0?clamp(live/rated,0,1):0:1)*(sources?1:thermal?.outputFactor??1);
+ return {available,blackout:thermal?.online===false||available<=0,thermal,domains:ds.map(d=>({id:d.id,rated:d.P,available:domainW(d),load:st?.domains?.[d.id]?.load||0,restart:st?.domains?.[d.id]?.trip||0,state:st?.domains?.[d.id]?.trip>0?'イオン遮断':domainW(d)<=0?'給電停止':st?.domains?.[d.id]?.load>0?'放電中':'給電中'})),local:Object.entries(st?.local||{}).filter(([,t])=>t>0).map(([i,t])=>({module:+i,name:u.p.modules?.[i]?.name||'設備',restart:t,state:'イオン遮断'}))};
 }
 // Explicit external processing ratings follow the installed shield devices,
 // their damage, their electrical connection and the power actually granted.
@@ -91572,7 +91648,7 @@ function powerTick(u,dt,ctx){
  // Retire old ion timers: restoration now uses the vessel's heat and crew work.
  if(u.gridState){u.gridState.domains={};u.gridState.local={};}
  if(u.down?.reason==='ion-grid')u.down=null;
- shipHeatRecoveryTick(u,dt,ctx);shieldTransientTick(u,dt);
+ shipHeatRecoveryTick(u,dt,ctx);syncPowerLossDisabled(u,ctx);shieldTransientTick(u,dt);
 }
 function ionShieldEnergyJ(energyJ,shieldJ){
  const E=Number.isFinite(energyJ)?Math.max(0,energyJ):0,S=Number.isFinite(shieldJ)?Math.max(0,shieldJ):0,B=Math.min(E,S);
@@ -91813,32 +91889,40 @@ function allocateConnectedPower({sources=[],links=[],loads=[],mode='balanced',en
  const delivered=Object.values(byKind).reduce((a,b)=>a+b,0),draw=source.reduce((n,s)=>n+s.used,0),feedLossW=edgeHeat.reduce((a,b)=>a+b,0),edgeLosses=edges.flatMap((l,i)=>edgeHeat[i]>0?[{edgeIndex:i,routeId:l.routeId??null,from:l.from,to:l.to,efficiency:efficiencies[i],inputW:edgeInput[i],outputW:edgeOutput[i],heatW:edgeHeat[i],byKind:edgeByKind[i],byConsumer:edgeByConsumer[i]}]:[]);
  return {...byKind,granted,funding,sourceFunding,delivered,feedLossW,edgeLosses,consumers:loads.map(l=>({id:l.id,kind:l.kind,grantedInputW:granted[l.id]||0,sourceInputW:Object.values(sourceFunding[l.id]||{}).reduce((a,b)=>a+b,0)})),P,draw,load:P>0?draw/P:0,short:byKind.fixed<loads.filter(l=>l.kind==='fixed').reduce((a,l)=>a+positive(l.requestedInputW),0),sources:source.map(s=>({id:s.id,moduleIndex:s.moduleIndex,reactor:s.reactor,domain:s.domain||'main',availableW:s.limit,drawW:s.used})),...(engineFraction!=null?{engineBudgets:source.map(s=>({sourceId:s.id,limitW:s.engineLimit,drawW:s.engineUsed,remainingW:s.engineLeft}))}:{}),domains:Object.entries(domain).map(([id,availableW])=>({id,availableW,drawW:source.filter(s=>(s.domain||'main')===id).reduce((a,s)=>a+s.used,0)}))};
 }
-function reactorSupplySpecs(specs,sources=[],links=[],mode='propulsion'){
- const multiplier=(POWER_MODES[mode]||POWER_MODES.balanced).max,supply=connectedEngineSupply(specs,sources.map(s=>({...s,powerW:Math.min(Math.max(0,s.powerW||0)*multiplier,Number.isFinite(s.maxPowerW)?Math.max(0,s.maxPowerW):Math.max(0,s.powerW||0)*multiplier)})),links);return (specs||[]).map(s=>{const q=supply.get(s.machineryId??s.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]},thermal=engineDensityModel(q.nominalInputW,engineOperatingVolume(s),s.profileWattsPerNewton??DRIVE_PROFILES[s.driveProfileId]?.wattsPerNewton);return {...s,...thermal,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply',availableInputW:q.availableInputW,sourceInputLimitW:q.availableInputW,sourceIds:q.sourceIds,allocationWeight:engineOperatingVolume(s),ratedInputW:q.nominalInputW,ratedThrustN:q.nominalInputW/thermal.wattsPerNewton,maxInputW:q.availableInputW,maxRatedInputW:q.availableInputW};});
+function reactorSupplySpecs(specs,sources=[],links=[],mode='propulsion',massKg){
+ const multiplier=(POWER_MODES[mode]||POWER_MODES.balanced).max,supply=connectedEngineSupply(specs,sources.map(s=>({...s,powerW:Math.min(Math.max(0,s.powerW||0)*multiplier,Number.isFinite(s.maxPowerW)?Math.max(0,s.maxPowerW):Math.max(0,s.powerW||0)*multiplier)})),links);return (specs||[]).map(s=>{const q=supply.get(s.machineryId??s.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]},conversion=engineConversionFields(s,massKg),thermal=engineDensityModel(q.nominalInputW,engineOperatingVolume(s),engineConversionCoefficient(conversion));return {...s,...thermal,...conversion,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply',availableInputW:q.availableInputW,sourceInputLimitW:q.availableInputW,sourceIds:q.sourceIds,allocationWeight:engineOperatingVolume(s),ratedInputW:q.nominalInputW,ratedThrustN:q.nominalInputW/thermal.wattsPerNewton,maxInputW:q.availableInputW,maxRatedInputW:q.availableInputW};});
 }
+function nominalSourceBudgetKey(p){const g=p.grid||{},mods=p.modules||[],domains=g.domains||[],indices=new Set(domains.flatMap(d=>(d.sources||[]).map(s=>s.moduleIndex)));if(!domains.length||domains.some(d=>!d.sources?.length))for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor')indices.add(i);return JSON.stringify([g.P,domains.map(d=>[d.id,d.P,(d.sources||[]).map(s=>[s.moduleIndex,s.P])]),[...indices].sort((a,b)=>a-b).map(i=>{const m=mods[i];return m?[i,m.k,m.part,m.port,m.domain,m.size,m.share]:[i];})]);}
 function nominalProfileSources(p){
- const g=p.grid||{},mods=p.modules||[],domains=g.domains?.length?g.domains:[{id:'main',P:g.P||0}],out=[];
+ const g=p.grid||{},mods=p.modules||[],domains=g.domains?.length?g.domains:[{id:'main',P:g.P||0}],out=[];if(Object.hasOwn(g,'P')&&!(Number.isFinite(g.P)&&g.P>0))return out;
  for(const d of domains){let rows=d.sources;if(!rows?.length){const reactors=mods.map((m,i)=>({m,i})).filter(x=>x.m.k==='reactor'&&(x.m.domain||'main')===d.id),weight=reactors.reduce((n,x)=>n+Math.max(0,x.m.size||x.m.share||1),0);rows=reactors.length?reactors.map(x=>({moduleIndex:x.i,P:(d.P||0)*Math.max(0,x.m.size||x.m.share||1)/weight})):[{moduleIndex:-1,P:d.P||0}];}for(let j=0;j<rows.length;j++){const row=rows[j],m=mods[row.moduleIndex],P=Number.isFinite(row.P)?Math.max(0,row.P):0;out.push({id:m?.port||(m?.part!=null?'p'+m.part:'domain:'+d.id+':'+j),domain:d.id,moduleIndex:row.moduleIndex,powerW:P,maxPowerW:P});}}
  return out;
 }
 // Upgrade cached physical profiles from their existing finite power sources.
 // This does not rebuild a scene or trust a legacy nameplate as a power source.
 function reactorSupplyProfile(p,refresh=false){
- if(!p?.propulsion||!p.grid||p.propulsion.inputModelVersion===ENGINE_INPUT_MODEL_VERSION&&!refresh)return p;
- const previous=p.propulsion,sources=nominalProfileSources(p),sourceBudget=sources.reduce((n,s)=>n+s.powerW,0)*maximumPowerModeFactor(),links=(p.grid.powerPaths||[]).map(l=>previous.inputModelVersion!==ENGINE_INPUT_MODEL_VERSION&&(l.auto===true||l.automatic===true)&&l.model==='source-distance'?{...l,cap:sourceBudget,...(l.groupCap!=null?{groupCap:sourceBudget}:{})}:l),base=reactorSupplySpecs(previous.cores||previous.engines||[],sources,links),byOwner=new Map(base.map(s=>[s.machineryId??s.id,s]));
- const engines=previous.cores?(previous.engines||[]).map(e=>{const c=byOwner.get(e.machineryId),integrated=e.integrated||e.machineryId===e.id,physical=Number.isFinite(e.nozzleShaftCapacityW)?e.nozzleShaftCapacityW:e.shaftCapacityW,cap=Number.isFinite(physical)?Math.max(0,physical):0;return {...e,...(c?{availableInputW:c.availableInputW,sourceInputLimitW:c.availableInputW,allocationWeight:c.allocationWeight,sourceIds:c.sourceIds,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply'}:{}),...(previous.inputModelVersion!==ENGINE_INPUT_MODEL_VERSION?{pathCapacityW:(c?.availableInputW||0)*maximumPowerModeFactor(),...(integrated?{shaftCapacityW:cap,ratedShaftCapacityW:cap}:{})}:{})};}):base;
- const descriptor={...previous,...(previous.cores?{cores:base}:{}),engines,inputModelVersion:ENGINE_INPUT_MODEL_VERSION};
+ if(!p?.propulsion||!p.grid)return p;
+ const sourceBudgetKey=nominalSourceBudgetKey(p);if(p.propulsion.inputModelVersion===ENGINE_INPUT_MODEL_VERSION&&engineConversionCurrent(p.propulsion)&&p.propulsion.sourceBudgetKey===sourceBudgetKey&&!refresh)return p;
+ const previous=p.propulsion,sources=nominalProfileSources(p),sourceBudget=sources.reduce((n,s)=>n+s.powerW,0)*maximumPowerModeFactor(),links=(p.grid.powerPaths||[]).map(l=>previous.inputModelVersion!==ENGINE_INPUT_MODEL_VERSION&&(l.auto===true||l.automatic===true)&&l.model==='source-distance'?{...l,cap:sourceBudget,...(l.groupCap!=null?{groupCap:sourceBudget}:{})}:l),base=reactorSupplySpecs(previous.cores||previous.engines||[],sources,links,'propulsion',previous.massKg),byOwner=new Map(base.map(s=>[s.machineryId??s.id,s]));
+ const engines=previous.cores?(previous.engines||[]).map(e=>{const c=byOwner.get(e.machineryId),integrated=e.integrated||e.machineryId===e.id,physical=Number.isFinite(e.nozzleShaftCapacityW)?e.nozzleShaftCapacityW:e.shaftCapacityW,cap=Number.isFinite(physical)?Math.max(0,physical):0;return {...e,...(c?{availableInputW:c.availableInputW,sourceInputLimitW:c.availableInputW,allocationWeight:c.allocationWeight,sourceIds:c.sourceIds,...engineConversionFields(c),profileWattsPerNewton:c.profileWattsPerNewton,shaftWattsPerNewton:c.shaftWattsPerNewton,wattsPerNewton:c.wattsPerNewton,ratedThrustN:c.ratedThrustN,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply'}:{}),...(previous.inputModelVersion!==ENGINE_INPUT_MODEL_VERSION?{pathCapacityW:(c?.availableInputW||0)*maximumPowerModeFactor(),...(integrated?{shaftCapacityW:cap,ratedShaftCapacityW:cap}:{})}:{})};}):base;
+ const descriptor={...previous,...(previous.cores?{cores:base}:{}),engines,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,...engineConversionFields(previous,previous.massKg)};
  // Old generated electrical capacities followed the retired input rating.
  // Physical/manual new-model limits remain authoritative after this upgrade.
  if(previous.inputModelVersion!==ENGINE_INPUT_MODEL_VERSION)for(const c of base)c.pathCapacityW=c.availableInputW*maximumPowerModeFactor();
  const requested={...descriptor};delete requested.accelerationLimitMps2;delete requested.structuralAccelerationLimitMps2;delete requested.inertialFactor;
  const plan=solveShipPropulsion(requested,{sources,links,throttle:1,mode:'propulsion'}),ratedThrustN=plan.totalThrustN||0,mass=previous.massKg,ratedAccelMps2=mass>0?len(plan.forceVector||[0,0,0])/mass:0;
  descriptor.ratedThrustN=ratedThrustN;descriptor.ratedAccelMps2=ratedAccelMps2;
- descriptor.accelerationLimitMps2=Number.isFinite(previous.structuralAccelerationLimitMps2)?Math.min(ratedAccelMps2,Math.max(0,previous.structuralAccelerationLimitMps2))*(previous.inertialFactor??1):Number.isFinite(previous.accelerationLimitMps2)&&previous.accelerationLimitMps2<previous.ratedAccelMps2?Math.min(previous.accelerationLimitMps2,ratedAccelMps2):ratedAccelMps2;
- return {...p,propulsion:descriptor,grid:{...p.grid,powerPaths:links,De:base.reduce((n,c)=>n+c.ratedInputW,0)},motionResistance:undefined};
+ let authored=null;
+ if(previous.accelerationLimitBasis==='authored'&&Number.isFinite(previous.authoredAccelerationLimitMps2)&&previous.authoredAccelerationLimitMps2>=0){
+  const expected=Math.min(Math.max(0,previous.ratedAccelMps2||0),previous.authoredAccelerationLimitMps2);authored=Number.isFinite(previous.accelerationLimitMps2)&&Math.abs(previous.accelerationLimitMps2-expected)>Math.max(1,expected)*1e-12?Math.max(0,previous.accelerationLimitMps2):previous.authoredAccelerationLimitMps2;
+ }else if(Number.isFinite(previous.accelerationLimitMps2)&&previous.accelerationLimitMps2>=0&&(previous.accelerationLimitMps2<previous.ratedAccelMps2||previous.accelerationLimitBasis!=='nominal'&&previous.ratedAccelMps2===0&&previous.accelerationLimitMps2===0))authored=previous.accelerationLimitMps2;
+ if(Number.isFinite(previous.structuralAccelerationLimitMps2)){descriptor.accelerationLimitBasis='structural';descriptor.accelerationLimitMps2=Math.min(ratedAccelMps2,Math.max(0,previous.structuralAccelerationLimitMps2))*(previous.inertialFactor??1);}
+ else{descriptor.accelerationLimitBasis=authored==null?'nominal':'authored';if(authored!=null)descriptor.authoredAccelerationLimitMps2=authored;else delete descriptor.authoredAccelerationLimitMps2;descriptor.accelerationLimitMps2=authored==null?ratedAccelMps2:Math.min(authored,ratedAccelMps2);}
+ descriptor.sourceBudgetKey=sourceBudgetKey;
+ return {...p,propulsion:descriptor,grid:{...p.grid,powerPaths:links,De:base.reduce((n,c)=>n+c.ratedInputW,0)},motionResistance:previous.conversionModelVersion===ENGINE_CONVERSION_MODEL_VERSION?p.motionResistance:undefined};
 }
 function solveCorePropulsion(profile,context={}){
- const state=id=>context.states instanceof Map?context.states.get(id)||{}:context.states?.[id]||{},finiteMass=Number.isFinite(profile.massKg)&&profile.massKg>0,cores=reactorSupplySpecs(profile.cores||[],context.sources||[],context.links||[],context.mode||'balanced'),outlets=profile.engines||[],outletCaps=new Map(),coreStates=Object.create(null);
+ const state=id=>context.states instanceof Map?context.states.get(id)||{}:context.states?.[id]||{},finiteMass=Number.isFinite(profile.massKg)&&profile.massKg>0,cores=reactorSupplySpecs(profile.cores||[],context.sources||[],context.links||[],context.mode||'balanced',profile.massKg),outlets=profile.engines||[],outletCaps=new Map(),coreStates=Object.create(null);
  for(const e of outlets){const st=state(e.id),healthy=e.available!==false&&e.connected!==false&&e.outletAvailable!==false&&st.available!==false&&st.connected!==false&&st.outletAvailable!==false,damage=Number.isFinite(st.nozzleDamageLimit)?clamp(st.nozzleDamageLimit,0,1):Number.isFinite(st.damageLimit)?clamp(st.damageLimit,0,1):1,shaft=Number.isFinite(st.shaftDamageLimit)?clamp(st.shaftDamageLimit,0,1):1,cap=Number.isFinite(st.shaftCapacityW)?Math.max(0,st.shaftCapacityW):Math.max(0,e.shaftCapacityW||0);outletCaps.set(e.id,healthy?cap*damage*shaft:0);}
  for(const c of cores){const st=state(c.id),capacity=outlets.filter(e=>e.machineryId===c.id).reduce((n,e)=>n+(outletCaps.get(e.id)||0),0);coreStates[c.id]={available:finiteMass&&c.available!==false&&st.available!==false,connected:c.connected!==false&&st.connected!==false,outletAvailable:capacity>0,pathCapacityW:Number.isFinite(c.pathCapacityW)?Math.max(0,c.pathCapacityW):0,usefulPowerCapacityW:capacity,thermalLimit:st.thermalLimit,damageLimit:st.coreDamageLimit??st.damageLimit};}
  const requests=buildPropulsionRequests(cores,coreStates,context.throttle??1),forceBudget=limitPropulsionRequests(requests,propulsionForceLimit(profile)),loads=[...(context.otherLoads||[]),...requests.map(r=>({id:'engine:'+r.id,kind:'engines',port:r.spec.powerNode||'p'+r.id,domain:r.spec.domain||'main',requestedInputW:r.requestedInputW,allocationWeight:engineOperatingVolume(r.spec)}))],power=allocateConnectedPower({sources:context.sources||[],links:context.links||[],loads,engineBudgetFraction:context.throttle??1,mode:context.mode||'balanced'}),coreResults=[],engines=[];let totalRequestedInputW=0,totalActualInputW=0,totalThrustN=0,wasteHeatW=0,usefulPropulsionW=0,forceVector=[0,0,0];
@@ -91851,21 +91935,47 @@ function solveShipPropulsion(profile,context={}){
  if(Array.isArray(profile?.cores))return solveCorePropulsion(profile,context);
  const states=Object.create(null);for(const e of profile?.engines||[])states[e.id]={available:e.available,connected:e.connected,outletAvailable:e.outletAvailable,pathCapacityW:e.pathCapacityW,...(context.states instanceof Map?context.states.get(e.id):context.states?.[e.id])};
  if(!(Number.isFinite(profile?.massKg)&&profile.massKg>0))for(const state of Object.values(states))state.available=false;
- const specs=reactorSupplySpecs(profile?.engines||[],context.sources||[],context.links||[],context.mode||'balanced'),requests=buildPropulsionRequests(specs,states,context.throttle??1),forceBudget=limitPropulsionRequests(requests,propulsionForceLimit(profile)),loads=[...(context.otherLoads||[]),...requests.map(r=>({id:'engine:'+r.id,kind:'engines',port:r.spec.powerNode||'p'+r.id,domain:r.spec.domain||'main',requestedInputW:r.requestedInputW,allocationWeight:engineOperatingVolume(r.spec)}))],power=allocateConnectedPower({sources:context.sources||[],links:context.links||[],loads,engineBudgetFraction:context.throttle??1,mode:context.mode||'balanced'}),inputs=Object.create(null);
+ const specs=reactorSupplySpecs(profile?.engines||[],context.sources||[],context.links||[],context.mode||'balanced',profile?.massKg),requests=buildPropulsionRequests(specs,states,context.throttle??1),forceBudget=limitPropulsionRequests(requests,propulsionForceLimit(profile)),loads=[...(context.otherLoads||[]),...requests.map(r=>({id:'engine:'+r.id,kind:'engines',port:r.spec.powerNode||'p'+r.id,domain:r.spec.domain||'main',requestedInputW:r.requestedInputW,allocationWeight:engineOperatingVolume(r.spec)}))],power=allocateConnectedPower({sources:context.sources||[],links:context.links||[],loads,engineBudgetFraction:context.throttle??1,mode:context.mode||'balanced'}),inputs=Object.create(null);
  for(const r of requests)inputs[r.id]=power.granted['engine:'+r.id]||0;const result=resolvePropulsion(requests,inputs,profile?.massKg),ratedThrustN=profile?.inputModelVersion===ENGINE_INPUT_MODEL_VERSION?profile.ratedThrustN||0:result.ratedThrustN||0,actual=result.freeAccelerationMps2||0;
  const machinery=new Map();for(const e of specs)if(!machinery.has(e.machineryId??e.id))machinery.set(e.machineryId??e.id,e);
  return {...result,version:1,...(Number.isFinite(profile?.accelerationLimitMps2)?{accelerationLimitMps2:Math.max(0,profile.accelerationLimitMps2)}:{}),...(Number.isFinite(profile?.structuralAccelerationLimitMps2)?{structuralAccelerationLimitMps2:Math.max(0,profile.structuralAccelerationLimitMps2),inertialFactor:Number.isFinite(profile.inertialFactor)?clamp(profile.inertialFactor,0,1):1}:{}),ratedInputW:[...machinery.values()].reduce((a,e)=>a+(Number.isFinite(e.ratedInputW)?Math.max(0,e.ratedInputW):0),0),ratedThrustN,ratedAccelMps2:profile?.ratedAccelMps2||0,actualInputW:result.totalActualInputW||0,actualThrustN:result.totalThrustN||0,actualAccelMps2:actual,cappedAccelerationMps2:actual,accelerationMps2:actual,structuralForceLimitN:forceBudget.forceLimitN,structuralInputLimited:forceBudget.inputLimited,outputRatio:ratedThrustN>0?clamp((result.totalThrustN||0)/ratedThrustN,0,1):0,power};
 }
 function propulsionModuleHeat(u,kind,index){const H=heatProfile(u.p),h=u.ht;if(!H||!h)return 1;const i=H.src.findIndex(s=>s.k===kind&&s.m?.includes(index));return i>=0?clamp(h.lm?.[i]??1,0,1):heatLim(u,kind);}
-function shipPowerSources(u,s={}){
+function shipPowerSources(u,s={},options={}){
  const p=u.p,g=p.grid||{},mods=p.modules||[],domains=g.domains?.length?g.domains:[{id:'main',P:g.P||0}],out=[],em=EMCON[emconOf(u)].P;
  for(const d of domains){let sources=d.sources;if(!sources?.length){const rs=mods.map((m,i)=>({m,i})).filter(x=>x.m.k==='reactor'&&(x.m.domain||'main')===d.id),total=rs.reduce((a,x)=>a+Math.max(0,x.m.size||x.m.share||1),0);sources=rs.length?rs.map(x=>({moduleIndex:x.i,P:(d.P||0)*Math.max(0,x.m.size||x.m.share||1)/total})):[{moduleIndex:-1,P:d.P||0}];}
   for(let j=0;j<sources.length;j++){const x=sources[j],mi=x.moduleIndex??-1,m=mods[mi],id=m?.port||(m?.part!=null?'p'+m.part:'domain:'+d.id+':'+j),physical=mi>=0?clamp(u.mods?.[mi]??1,0,1):clamp(s.reactor??1,0,1),connected=mi>=0?powerFactor(u,m?.k||'reactor',mi):u.gridState?.domains?.[d.id]?.trip>0?0:1,thermal=mi>=0?propulsionModuleHeat(u,'reactor',mi):heatLim(u,'reactor');let factor=1;
    if(u.down&&u.down.reason!=='ion-grid')factor*=u.down.black?0:m&&m.k==='reactor'&&m.reactorKind!=='aux'&&g.Paux>0?0:clamp(u.down.aux??1,0,1);
    for(const o of u.over||[])if(o.r===m?.part)factor=Math.min(factor,1-o.k*Math.max(0,o.t)/Math.max(1e-9,o.T));let W=Math.max(0,x.P||0)*physical*connected*thermal*em*clamp(factor,0,1)*shipHeatOutputFactor(u);
-   for(let k=0;k<(p.sw||[]).length;k++){const w=p.sw[k],state=u.sw?.[k];if(w.r===m?.part&&state?.st==='charge'&&state.c<1)W=Math.max(0,W-(w.chargeW>0?w.chargeW:SW_COMBAT[w.k].share*(w.Pshare||0)*(g.P||0))*swChargeRate(u,k));}
+   if(!options.ignoreReservations)for(let k=0;k<(p.sw||[]).length;k++){const w=p.sw[k],state=u.sw?.[k];if(w.r===m?.part&&state?.st==='charge'&&state.c<1)W=Math.max(0,W-(w.chargeW>0?w.chargeW:SW_COMBAT[w.k].share*(w.Pshare||0)*(g.P||0))*swChargeRate(u,k));}
    out.push({id,domain:d.id,powerW:W,maxPowerW:W/Math.max(1,em),moduleIndex:mi,reactor:m?m.k==='reactor':true});}
  }return out;
+}
+// Available generation before throttle, consumer priorities or weapon charging.
+// Unknown legacy snapshots have no provable electrical budget. Reserved fuel
+// still powers its owner; only exhausted physical fuel removes reactor sources.
+function shipElectricalSources(u){
+ if(!u?.p?.grid||!Number.isFinite(u.p.grid.P))return null;
+ const fuel=shipFuelState(u),reactorReady=!fuel.capacityKnown||fuel.capacityJ>fuel.fuelEnergyJ;
+ return shipPowerSources(u,{}, {ignoreReservations:true}).map(s=>({...s,powerW:s.reactor!==false&&!reactorReady?0:Number.isFinite(s.powerW)?Math.max(0,s.powerW):0}));
+}
+function shipElectricalAvailableW(u){const sources=shipElectricalSources(u);return sources?sources.reduce((n,s)=>n+s.powerW,0):null;}
+function stopPowerLossRuntime(u){
+ u.engF=0;u.shF=0;u.maneuver=0;shipHeatClearCooling(u.ht);shipFuelReleaseReservation(u,'cooling');
+ if(u.pw){for(const k of ['P','eng','sh','wpn','draw','drawNonCooling','fixed','cooling','coolingSource','coolingReserved'])u.pw[k]=0;u.pw.weaponInputRemainingJ={};u.pw.weaponInputs={};}
+ if(u.propulsion)u.propulsion={...u.propulsion,forceVector:[0,0,0],accelerationVector:[0,0,0],freeAccelerationMps2:0,cappedAccelerationMps2:0,actualInputW:0,actualThrustN:0,actualAccelMps2:0,accelerationMps2:0,totalActualInputW:0,totalThrustN:0,usefulPropulsionW:0,outputRatio:0};
+}
+function syncPowerLossDisabled(u,ctx=null){
+ if(!u||u.dead)return false;
+ const available=shipElectricalAvailableW(u),owned=u.powerLossDisabled===true&&u.out==='電源喪失';
+ if(u.powerLossDisabled&&!owned)delete u.powerLossDisabled;
+ if(available!==null&&!(available>0)){
+  stopPowerLossRuntime(u);
+  if(!u.out){u.powerLossDisabled=true;u.out='電源喪失';u.order={...u.order,type:'hold'};ctx?.out?.(u,u.out);return true;}
+  return false;
+ }
+ if(owned&&available>0){delete u.powerLossDisabled;u.out=null;const why=fleetOutReason(u);u.out=why;u.fall=null;if(!why)ctx?.ev?.(u,'電源が復旧・航行不能を解除');return true;}
+ return false;
 }
 function shipPowerLoads(u,want={}){
  const p=u.p,g=p.grid||{},mods=p.modules||[],loads=[],add=(kind,total,rows)=>{if(!(total>0))return;const all=rows.reduce((a,r)=>a+Math.max(0,r.weight||0),0);if(!rows.length){loads.push({id:kind,kind,domain:'main',requestedInputW:total});return;}for(const r of rows)loads.push({id:kind+':'+r.id,kind,port:r.port,domain:r.domain||'main',requestedInputW:total*Math.max(0,r.weight||0)/Math.max(1e-30,all)});};
@@ -91891,12 +92001,20 @@ function shipPowerPaths(u){
 }
 function propulsionPreview(ship,S,preset='combat'){
  const X=HEAT_PRESETS[preset]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],p={modules:fleetModules(ship,S),energyModel:{version:ship.surfaces?.mode==='strict'?1:0}};attachShipPowerProfile(p,ship,S);const u={p,mods:p.modules.map(()=>1),order:{emit:'normal'}};
- const result=solveShipPropulsion(p.propulsion,{throttle:X.eng,sources:shipPowerSources(u,{reactor:1}),links:p.grid.powerPaths,mode:X.mode,otherLoads:shipPowerLoads(u,{shields:p.grid.Ds*X.sh,weapons:p.grid.Dw*M.weapons*X.wpn})});result.preset=preset;return result;
+ const result=solveShipPropulsion(p.propulsion,{throttle:X.eng,sources:shipPowerSources(u,{reactor:1}),links:p.grid.powerPaths,mode:X.mode,otherLoads:shipPowerLoads(u,{shields:p.grid.Ds*X.sh,weapons:p.grid.Dw*M.weapons*X.wpn})});result.preset=preset;
+ p.fuel=fuelProfileFromStats(S);const H=heatProfileOf(p,S);if(H)p.heat=H;
+ result.maximumSpeedMps=propulsionTerminalSpeed(p);result.fundedAccelerationMps2=healthyMotionPlan(p)?.accelerationMps2||0;
+ if(S.craft){
+  const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:STORE_DEFAULT[st.fit][0],n:STORE_DEFAULT[st.fit][1]})),ordMass=craftOrdnance({stations,load},load).reduce((n,x)=>n+x.n*x.mass,0),loaded=ordMass>0?reactorSupplyProfile({...p,propulsion:{...p.propulsion,massKg:p.propulsion.massKg+ordMass*1000}}):p;
+  result.loadedMassKg=loaded.propulsion.massKg;result.loadedMaximumSpeedMps=propulsionTerminalSpeed(loaded);result.loadedPlanningAccelerationMps2=Math.min(loaded.propulsion.ratedAccelMps2,loaded.propulsion.accelerationLimitMps2);
+ }
+ return result;
 }
 // Shared by fleet combat and the direct-control trial; weapon stores are spent
 // by their caller after this one allocation has charged them.
 function allocateShipPower(u,s={},want={},dt=0,mode='balanced'){
- const p=u.p,g=p.grid||{},profile=p.propulsion||{engines:[],massKg:0,ratedThrustN:0,ratedAccelMps2:0},states=Object.create(null),H=heatProfile(p),h=heatOf(u);
+ syncPowerLossDisabled(u);
+ const p=u.p=reactorSupplyProfile(u.p),g=p.grid||{},profile=p.propulsion||{engines:[],massKg:0,ratedThrustN:0,ratedAccelMps2:0},states=Object.create(null),H=heatProfile(p),h=heatOf(u);
  if(Array.isArray(profile.cores)){
   for(const c of profile.cores){const mi=c.moduleIndex??-1,body=c.machineryModuleIndex??mi,hi=H?.src.findIndex(s=>s.k==='engine'&&s.id===c.heatNode)??-1,thermal=hi>=0?clamp(h?.lm?.[hi]??1,0,1):mi>=0?propulsionModuleHeat(u,'engine',mi):1,damage=mi>=0?clamp(u.mods?.[mi]??1,0,1):0;states[c.id]={coreDamageLimit:body>=0?Math.min(damage,clamp(u.mods?.[body]??1,0,1)):damage,thermalLimit:thermal,available:!u.dead&&!u.out&&c.available!==false,connected:mi>=0&&powerFactor(u,'engine',mi)>0};}
   for(const e of profile.engines){const mi=e.moduleIndex??-1,previous=states[e.id]||{};states[e.id]={...previous,nozzleDamageLimit:mi>=0?clamp(u.mods?.[mi]??1,0,1):0,shaftDamageLimit:(e.shaftModuleIndices||[]).reduce((n,i)=>Math.min(n,clamp(u.mods?.[i]??1,0,1)),1),available:previous.coreDamageLimit!=null?previous.available:!u.dead&&!u.out&&e.available!==false,connected:previous.coreDamageLimit!=null?previous.connected:e.connected!==false,outletAvailable:e.outletAvailable!==false};}
@@ -92035,10 +92153,10 @@ function referenceSublightSpeed(key,fallbackSpeedMps,hasThrust=true){
 // data, constructor provenance, acceleration, power or thermal snapshots.
 function referenceSpeedProfile(profile,key){
  if(!profile||typeof profile!=='object')return profile;
- profile=reactorSupplyProfile(profile);const speedReference={...sublightReference(key)},out={...profile,speedReference};
- const hasThrust=Number.isFinite(profile.propulsion?.ratedAccelMps2)?Math.min(profile.propulsion.ratedAccelMps2,profile.propulsion.accelerationLimitMps2??Infinity)>0:Number.isFinite(profile.accel)?profile.accel>0:profile.maxSpeed>0;
- if(!hasThrust){out.mglt=0;out.maxSpeed=0;return out;}
- if(speedReference.status==='published'){out.mglt=speedReference.mglt;out.maxSpeed=speedReference.mglt*MGLT.ms;}
+ profile=reactorSupplyProfile(profile);const out={...profile,speedReference:{...sublightReference(key)}},speed=propulsionTerminalSpeed(profile);
+ // Published MGLT remains source metadata. The physical equilibrium follows
+ // paid thrust and common resistance, including after a reactor edit.
+ out.maxSpeed=speed;out.mglt=speed/MGLT.ms;
  const calibration=calibrateMotionResistance(out);if(calibration)out.motionResistance=calibration;
  return out;
 }
@@ -92188,8 +92306,8 @@ function legacyPropulsionProfile(p,massTonnes){
  if(hasLegacyUpperCap&&(!Number.isFinite(p.accel)||p.accel<0||!Number.isFinite(legacyUpperMovementCapMps2)))return null;
  const known=modules.map((m,i)=>({m,i})).filter(({m})=>m?.k==='engine'),weight=m=>Number.isFinite(m.size)&&m.size>0?m.size:Number.isFinite(m.share)&&m.share>0?m.share:1,total=known.reduce((n,{m})=>n+weight(m),0);
  if(!known.length||!Number.isFinite(total)||!(total>0))return null;
- const engines=known.map(({m,i})=>{const ratedInputW=R*weight(m)/total,id='legacy-engine:'+i,node=m.port||(m.part!=null?'p'+m.part:id);return {version:PROPULSION_MODEL_VERSION,id,machineryId:id,moduleIndex:i,machineryModuleIndex:i,powerNode:node,heatNode:node,domain:m.domain||'main',ratedInputW,...engineDensityModel(ratedInputW,ratedInputW/PROPULSION.referenceInputDensity),effectiveMachineryVolumeM3:ratedInputW/PROPULSION.referenceInputDensity,machineryVolumeM3:ratedInputW/PROPULSION.referenceInputDensity,machineryVolumeSource:'ordinary-input-estimate',estimated:true,wattsPerNewton:PROPULSION.standardWattsPerNewton,ratedThrustN:ratedInputW/PROPULSION.standardWattsPerNewton,driveProfileId:'standard',direction:[1,0,0],pathCapacityW:ratedInputW,valid:true,available:true,connected:m.powerConnected!==false,outletAvailable:true,legacyReadOnly:true,requiresBlueprint:true,issues:['legacy-combat-profile-requires-blueprint']};});
- const ratedThrustN=R/PROPULSION.standardWattsPerNewton,ratedAccelMps2=ratedThrustN/massKg;
+ const wattsPerNewton=engineConversionCoefficient(massKg),engines=known.map(({m,i})=>{const ratedInputW=R*weight(m)/total,id='legacy-engine:'+i,node=m.port||(m.part!=null?'p'+m.part:id);return {version:PROPULSION_MODEL_VERSION,id,machineryId:id,moduleIndex:i,machineryModuleIndex:i,powerNode:node,heatNode:node,domain:m.domain||'main',ratedInputW,...engineDensityModel(ratedInputW,ratedInputW/PROPULSION.referenceInputDensity,wattsPerNewton),...engineConversionFields(null,massKg),effectiveMachineryVolumeM3:ratedInputW/PROPULSION.referenceInputDensity,machineryVolumeM3:ratedInputW/PROPULSION.referenceInputDensity,machineryVolumeSource:'ordinary-input-estimate',estimated:true,wattsPerNewton,ratedThrustN:ratedInputW/wattsPerNewton,driveProfileId:'standard',direction:[1,0,0],pathCapacityW:ratedInputW,valid:true,available:true,connected:m.powerConnected!==false,outletAvailable:true,legacyReadOnly:true,requiresBlueprint:true,issues:['legacy-combat-profile-requires-blueprint']};});
+ const ratedThrustN=R/wattsPerNewton,ratedAccelMps2=ratedThrustN/massKg;
  // A saved combined movement cap remains an upper bound only. It never
  // supplies force, electrical input, mass, or a second power multiplier.
  return Number.isFinite(ratedAccelMps2)?{version:PROPULSION_MODEL_VERSION,engines,massKg,ratedThrustN,ratedAccelMps2,accelerationLimitMps2:Math.min(ratedAccelMps2,legacyUpperMovementCapMps2??Infinity),...(hasLegacyUpperCap?{legacyUpperMovementCapMps2,legacyMovementCapSource:'profile.accel'}:{}),legacyReadOnly:true,requiresBlueprint:true}:null;
@@ -92231,6 +92349,7 @@ function missileCellAmmo(u,i){
  u.launcherCellAmmo[i]=row;return row;
 }
 function missileLauncherPowered(u,i){
+ syncPowerLossDisabled(u);
  const m=u.p.modules?.[i];if(!m||m.k!=='launcher'||u.dead||u.out||!(u.mods?.[i]>0)||m.powerConnected===false)return false;
  if(m.launchBlocked)return false;
  if(isConcussionLauncher(m.missileKind)&&(![m.muzzle,m.launchDir].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))||len(m.launchDir)<=1e-9||!(m.cycle>0)||!(m.salvo>0)||!(m.tt>0)))return false;
@@ -92307,7 +92426,7 @@ const fleetAutoAvail=(u,sys)=>{if(!(u.p.autoCrew>0))return 1;const s=sys||fleetS
 const fleetCrewRatio=(u,sys)=>{const need=u.p.crewNeed||0,a=u.p.autoCrew||0;return need+a>0?(Math.max(0,u.crew)+a*fleetAutoAvail(u,sys))/(need+a):1;};
 const fleetCrewEff=u=>{const need=(u.p.crewNeed||0)+(u.p.autoCrew||0);return need>0?clamp((fleetCrewRatio(u)-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
 // Why a ship is out of action, or null.
-function fleetOutReason(u,sys){const p=u.p,s=sys||fleetSystems(u);if(s.hasReactor&&p.grid?.P>0&&s.reactor<=0)return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
+function fleetOutReason(u,sys){const p=u.p,s=sys||fleetSystems(u),available=shipElectricalAvailableW(u);if(available!==null?!(available>0):s.hasReactor&&p.grid?.P>0&&s.reactor<=0)return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
  if(u.gridState&&(Object.values(u.gridState.domains).some(d=>d.trip>0)||Object.keys(u.gridState.local).length))return null;
  if((p.crewNeed||0)+(p.autoCrew||0)>0&&fleetCrewRatio(u,s)<FLEET_MIN_CREW)return (p.autoCrew||0)>0&&fleetAutoAvail(u,s)<.999?'操艦不能（自動化装置の停止）':'乗員不足';return null;}
 const fleetEffective=u=>!u.dead&&!u.out;
@@ -92485,7 +92604,7 @@ function combatFires(ctx,u,dt,Q){
 // The ship breaks up when two sections are gone or a midship section goes;
 // it is out of the fight without power, without a bridge, or short of crew.
 function combatStatus(ctx,u){
- if(u.dead)return;u.crew=Math.max(0,u.crew);let hp=0;for(const x of u.sec)hp+=Math.max(0,x.s);u.hp=hp;
+ if(u.dead)return;syncPowerLossDisabled(u,ctx);u.crew=Math.max(0,u.crew);let hp=0;for(const x of u.sec)hp+=Math.max(0,x.s);u.hp=hp;
  const N=u.sec.length,lost=u.secLost;
  if(lost.length>=2||lost.some(i=>i>0&&i<N-1)){u.dead=true;u.velocity=[0,0,0];u.fate=u.fateHint||'hull';u.fire=u.fire.map(()=>0);ctx.sunk(u,{reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',heat:'ジェネレーター過負荷爆発'}[u.fate]||'船体破断');return;}
  if(!u.out){const why=fleetOutReason(u);if(why){u.out=why;u.order={...u.order,type:'hold'};ctx.out(u,why);}}
@@ -92569,7 +92688,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -92704,6 +92823,7 @@ function swDecay(u,dt,ctx){
  powerTick(u,dt,ctx);
  if(u.down&&u.down.reason!=='ion-grid'){u.down.t-=dt;if(u.down.t<=0){u.down=null;ctx?.ev(u,'主反応炉が再起動');}}
  if(u.over?.length){for(const o of u.over)o.t-=dt;u.over=u.over.filter(o=>o.t>0);}
+ syncPowerLossDisabled(u,ctx);
 }
 function swOverload(u,w){const C=SW_COMBAT[w.k];u.over=u.over||[];u.over.push({r:w.r,k:(w.Pshare||0)*(1-C.over.floor),t:C.over.T,T:C.over.T});heatSwShot(u,w);}
 // The pulse: stopped by shields first, then it guts the middle section.
@@ -92944,33 +93064,39 @@ function hullBoxGap(u,h,x,hx){
 // v18 How hard a ship's drives burn, for the engine glow (0–1): the share of
 // full acceleration it is using, over a cruise floor that rises with speed.
 function engineLevel(u){const main=u?.manual&&Number.isFinite(u.mainThrustShare)?clamp(u.mainThrustShare,0,1):1;return !u||u.out||u.dead||u.ht?.online===false?0:clamp(u.propulsion?.outputRatio??0,0,1)*main;}
-// Resistance is calibrated once from a healthy design and its historical
-// speed reference. Live throttle, funding, damage and heat never reduce drag.
-// For the same calibrated profile its rate remains proportional to actual kg.
-const MOTION_RESISTANCE_VERSION=3;
-const MASS_DRAG={referenceMassKg:1e11,halfLifeSeconds:60,ratePerKg:Math.LN2/(1e11*60)};
-const MOTION_RESISTANCE_CACHE=new WeakMap();
+// One common resistance law is calibrated from the TIE/ln and Venator
+// reference points. It never follows a design's reactor, throttle or name.
+// Drag force is mass * rate(mass) * velocity; the weak positive mass exponent
+// keeps force close to proportional to mass while matching both speed points.
+const MOTION_RESISTANCE_VERSION=4;
+const MOTION_RESISTANCE=(()=>{
+ const smallMass=ENGINE_CONVERSION.referenceSmallMassKg,largeMass=ENGINE_CONVERSION.referenceLargeMassKg,smallAccel=3999.1037971899486*G0*FLEET_RULES.accelScale,largeAccel=2972.473437207956*G0*FLEET_RULES.accelScale,smallSpeed=100*MGLT.ms,largeSpeed=50*MGLT.ms,smallRate=smallAccel/smallSpeed,largeRate=largeAccel/largeSpeed;
+ return Object.freeze({version:MOTION_RESISTANCE_VERSION,model:'global-mass-power-law',referenceMassKg:smallMass,referenceAccelMps2:smallAccel,referenceSpeedMps:smallSpeed,referenceRatePerS:smallRate,referenceLargeMassKg:largeMass,referenceLargeAccelMps2:largeAccel,referenceLargeSpeedMps:largeSpeed,referenceLargeRatePerS:largeRate,massExponent:Math.log(largeRate/smallRate)/Math.log(largeMass/smallMass)});
+})();
+const MASS_DRAG=MOTION_RESISTANCE;
 function motionMassKg(profile){return [profile?.propulsion?.massKg,profile?.heat?.massKg,Number.isFinite(profile?.mass)?profile.mass*1000:null].find(m=>Number.isFinite(m)&&m>0)||0;}
-function healthyMotionAcceleration(profile){
- if(profile?.grid&&profile.propulsion?.inputModelVersion!==ENGINE_INPUT_MODEL_VERSION)profile=reactorSupplyProfile(profile);
- const model=profile?.propulsion;if(model?.version!==PROPULSION_MODEL_VERSION||!(Number.isFinite(model.massKg)&&model.massKg>0))return 0;
- const rated=model.ratedAccelMps2,limit=model.accelerationLimitMps2;
- return Number.isFinite(rated)&&rated>0&&Number.isFinite(limit)&&limit>0?Math.min(rated,limit)*FLEET_RULES.accelScale:0;
-}
-function calibrateMotionResistance(profile){
+const HEALTHY_MOTION_PLANS=new WeakMap();
+function healthyMotionPlan(profile){
  if(!profile||typeof profile!=='object')return null;
- const old=profile.motionResistance,valid=c=>c?.version===MOTION_RESISTANCE_VERSION&&['referenceMassKg','referenceAccelMps2','referenceSpeedMps'].every(k=>Number.isFinite(c[k])&&c[k]>0);
- if(valid(old)){const ratePerKg=old.referenceAccelMps2/old.referenceSpeedMps/old.referenceMassKg;if(Number.isFinite(ratePerKg)&&ratePerKg>0)return Object.isFrozen(old)&&old.ratePerKg===ratePerKg?old:Object.freeze({version:MOTION_RESISTANCE_VERSION,referenceMassKg:old.referenceMassKg,referenceAccelMps2:old.referenceAccelMps2,referenceSpeedMps:old.referenceSpeedMps,ratePerKg});}
- const cached=MOTION_RESISTANCE_CACHE.get(profile);if(cached)return cached;
- const physical=reactorSupplyProfile(profile),mass=motionMassKg(physical),accel=healthyMotionAcceleration(physical),speed=physical.maxSpeed;
- if(!(mass>0&&accel>0&&Number.isFinite(speed)&&speed>0))return null;
- const value={version:MOTION_RESISTANCE_VERSION,referenceMassKg:mass,referenceAccelMps2:accel,referenceSpeedMps:speed,ratePerKg:accel/speed/mass};
- if(!(Number.isFinite(value.ratePerKg)&&value.ratePerKg>0))return null;Object.freeze(value);MOTION_RESISTANCE_CACHE.set(profile,value);return value;
+ const cached=HEALTHY_MOTION_PLANS.get(profile),model=profile.propulsion,g=profile.grid,sourceKey=g?nominalSourceBudgetKey(profile):'',constraintKey=JSON.stringify([model?.accelerationLimitMps2,model?.structuralAccelerationLimitMps2,model?.inertialFactor,model?.authoredAccelerationLimitMps2]);
+ if(cached&&cached.model===model&&cached.grid===g&&cached.heat===profile.heat&&cached.mass===model?.massKg&&cached.sourceKey===sourceKey&&cached.constraintKey===constraintKey)return cached.value;
+ const physical=g?reactorSupplyProfile(profile):profile,p=physical.propulsion;let value;
+ if(p?.version!==PROPULSION_MODEL_VERSION||!(Number.isFinite(p.massKg)&&p.massKg>0))value={accelerationMps2:0,engineInputW:0,sourceDrawW:0};
+ else if(g){
+  const u={p:physical,mods:(physical.modules||[]).map(()=>1),order:{emit:'normal'}},sources=nominalProfileSources(physical).map(s=>({...s,reactor:s.moduleIndex>=0?physical.modules?.[s.moduleIndex]?.k==='reactor':true})),loads=shipPowerLoads(u,{});
+  // A geometry-free legacy profile may still carry a finite known cooling
+  // reserve; use that same reserve when its thermal devices are unavailable.
+  if(!physical.heat&&!loads.some(l=>l.kind==='cooling')&&g.cooling>0)loads.push({id:'cooling',kind:'cooling',domain:'main',requestedInputW:g.cooling});
+  const result=solveShipPropulsion(p,{sources:shipFuelLimitSources(u,sources,.05,'propulsion'),links:physical.grid.powerPaths,throttle:1,mode:'propulsion',otherLoads:loads});value={accelerationMps2:result.actualAccelMps2||0,engineInputW:result.actualInputW||0,sourceDrawW:result.power.draw||0};
+ }else{
+  const rated=p.ratedAccelMps2,limit=p.accelerationLimitMps2;value={accelerationMps2:Number.isFinite(rated)&&rated>0&&Number.isFinite(limit)&&limit>0?Math.min(rated,limit):0,engineInputW:null,sourceDrawW:null};
+ }
+ Object.freeze(value);HEALTHY_MOTION_PLANS.set(profile,{model,grid:g,heat:profile.heat,mass:model?.massKg,sourceKey,constraintKey,value});return value;
 }
-function massDragRate(unit){
- const p=unit?.p||unit||{},mass=motionMassKg(p),calibration=calibrateMotionResistance(p);
- return mass*(calibration?.ratePerKg??MASS_DRAG.ratePerKg);
-}
+function healthyMotionAcceleration(profile){return (healthyMotionPlan(profile)?.accelerationMps2||0)*FLEET_RULES.accelScale;}
+function calibrateMotionResistance(profile){return profile&&typeof profile==='object'&&motionMassKg(profile)>0?MOTION_RESISTANCE:null;}
+function motionResistanceRate(massKg){return Number.isFinite(massKg)&&massKg>0?Math.exp(Math.log(MOTION_RESISTANCE.referenceRatePerS)+MOTION_RESISTANCE.massExponent*(Math.log(massKg)-Math.log(MOTION_RESISTANCE.referenceMassKg))):0;}
+function massDragRate(unit){const p=unit?.p||unit||{};return motionResistanceRate(motionMassKg(p));}
 function propulsionTerminalSpeed(unit,acceleration){
  const p=unit?.p||unit||{},rate=massDragRate(p),a=acceleration===undefined?healthyMotionAcceleration(p):acceleration;
  return Number.isFinite(a)&&a>0&&rate>0?a/rate:0;
@@ -93004,7 +93130,9 @@ function propulsionMotion(u,load=1){
 }
 function fleetTick(b,dt,opts={}){
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
- const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
+ const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+ for(const u of alive)syncPowerLossDisabled(u,{out:(x,why)=>b.events.push({time:b.time,text:`${x.name}：戦闘不能（${why}）`,id:x.id})});
+ const before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
  for(const u of alive)if(u.maneuver===undefined)u.maneuver=u.order?.type==='hold'&&!(len(u.velocity||[0,0,0])>0)?0:1;
  const moveFleet=()=>{
  for(const u of alive){const o=u.order,t=byId.get(o.target),old=byId.get(u.id),s=sys.get(u.id);
@@ -94388,17 +94516,18 @@ function craftCombat(ship,S,options={}){
  if(!ship?.hull||!S||!Array.isArray(ship.fits))return null;let A=0,shipGun=false,armed=false;
  for(const f of ship.fits){if(!FITS[f.k])continue;const d=fitSpec(f);if(d.cat!=='w'||f.float||S.info?.[f.id]?.overlap)continue;A+=(FITS[f.k].aa||0)*(f.scale||1)**2;shipGun||=!d.craft&&!!(d.tt||d.ion||d.msl);armed||=!!(d.tt||d.ion||d.msl||d.store);}
  const planned=S.propulsion?Math.min(S.propulsion.ratedAccelMps2,S.propulsion.accelerationLimitMps2):S.maximumAccelMps2,planningG=Number.isFinite(planned)?planned/G0:S.accelG,G=Math.max(0,Number.isFinite(planningG)?planningG:0),small=!!S.craft,role=CRAFT_ROLE_RTS[S.cls?.role]||(ship.fits.some(f=>f.k==='cbomb')?'bomber':!armed||ship.parts.some(p=>p.k==='troopbay')?'transport':'fighter'),sh=(S.Vsh||0)>0&&(S.shieldPct||0)>0;
- // The same acceleration/nozzle-depth relation as fleetProfile, without rebuilding its battle geometry.
- const speedKey=ship.reference||'',speedReference={...sublightReference(speedKey)},shipSpeed=g=>g>0?sublightMGLT(g,engineDepthRatio(ship))*MGLT.ms:0,speed=referenceSublightSpeed(speedKey,small?craftSpeed(G):Math.round(shipSpeed(G)),G>0);
+ // Worker previews already hold compact funded speed figures. Keep editor
+ // summaries on those values and saved snapshots on the same physical plan.
+ const speedKey=ship.reference||'',speedReference={...sublightReference(speedKey)},shipSpeed=(g,massKg)=>g>0&&motionResistanceRate(massKg)>0?g*G0*FLEET_RULES.accelScale/motionResistanceRate(massKg):0;
  const systems=cleanCraftSystems(S.craftSystems),fireK=systems?.fireK??1,turnK=systems?.turnK??1;
  const air=clamp(1.2*(.55+.05*Math.min(A,12))*Math.pow(Math.max(1,G)/3700,.8)*(sh?1.1:1)*(role==='bomber'?.55:1)*fireK*Math.sqrt(turnK),.05,1.8);
  const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:STORE_DEFAULT[st.fit][0],n:STORE_DEFAULT[st.fit][1]})),ord=craftOrdnance({stations,load},load);
  const gun=armed?Math.round((6+A+(shipGun?(S.alphaTot||0)+(S.ionTot||0)/3:0))*fireK):0,salvo=ord.reduce((n,x)=>n+ordnanceSalvo(x,role)*x.tt,0),ordMass=ord.reduce((n,x)=>n+x.n*x.mass,0);
  const dims=cleanDims(S.dims)||cleanDims([ship.hull.L,ship.hull.W,ship.hull.H]);if(!dims)return null;
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1)*(small?1:Math.cbrt(Math.max(1,Math.max(...dims)/25))),.3,small?3:20);
- const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
+ const loadedMassKg=((S.mass||0)+ordMass)*1000,profile=!options.summaryOnly?craftPowerProfile(ship,S):null,loadedProfile=profile&&ordMass>0?reactorSupplyProfile({...profile,propulsion:{...profile.propulsion,massKg:loadedMassKg}}):profile,speed=profile?.maxSpeed??S.propulsion?.maximumSpeedMps??shipSpeed(G,(S.mass||0)*1000),hasLoadedSummary=Number.isFinite(S.propulsion?.loadedMassKg)&&Math.abs(S.propulsion.loadedMassKg-loadedMassKg)<=Math.max(1,loadedMassKg)*1e-9,Gl=loadedProfile?Math.min(loadedProfile.propulsion.ratedAccelMps2,loadedProfile.propulsion.accelerationLimitMps2)/G0:hasLoadedSummary?S.propulsion.loadedPlanningAccelerationMps2/G0:G*(S.mass>0?S.mass/(S.mass+ordMass)*engineConversionCoefficient(S.mass*1000)/engineConversionCoefficient(loadedMassKg):1),speedLoaded=loadedProfile?propulsionTerminalSpeed(loadedProfile):hasLoadedSummary?S.propulsion.loadedMaximumSpeedMps:ordMass<=0?speed:shipSpeed(Gl,loadedMassKg);
  return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,speedReference,...(!small?{speedMode:'ship'}:{}),aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.crew??S.seats??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
-  heat:craftHeat(S),...(!options?.summaryOnly?{powerProfile:craftPowerProfile(ship,S),fireArcs:craftGunMounts(ship,S)}:{}),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:referenceSublightSpeed(speedKey,small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),Gl>0),accelLoaded:Math.round(Gl)};
+  heat:craftHeat(S),...(!options?.summaryOnly?{powerProfile:profile,fireArcs:craftGunMounts(ship,S)}:{}),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded,accelLoaded:Math.round(Gl)};
 }
 // Aircraft retain the same connected electrical and local thermal model as their editable design.
 // Omit tactical hull geometry: this snapshot is reused by every squadron of the type.
@@ -94413,7 +94542,7 @@ function cleanCraftPowerProfile(raw,blueprint=null){
  let count=0;const copy=(v,depth=0)=>{if(++count>200000||depth>16)throw new Error('power snapshot too large');if(v==null||typeof v==='boolean')return v;if(typeof v==='number')return Number.isFinite(v)&&Math.abs(v)<=1e40?v:null;if(typeof v==='string')return v.slice(0,200);if(Array.isArray(v))return v.slice(0,12000).map(q=>copy(q,depth+1));if(typeof v!=='object')return undefined;const q={};for(const k of Object.keys(v))if(!k.startsWith('_')&&!['__proto__','constructor','prototype'].includes(k))q[k]=copy(v[k],depth+1);return q;};
  try{
   const p={};for(const k of ['profileVersion','referencePhysicalRevision','name','modules','grid','propulsion','heat','foils','surface','energyModel','D','shieldBuffer','shieldDissipationW','wCap','fuel','crewCapacity','crewNeed','crewMax','hp','len','width','height','mglt','maxSpeed','speedReference','motionResistance'])if(Object.hasOwn(raw,k))p[k]=copy(raw[k]);
-  let descriptor=p.propulsion;const mass=descriptor.massKg;descriptor.massKg=Number.isFinite(mass)&&mass>0?mass:0;descriptor.engines=descriptor.engines.slice(0,DESIGN_LIMITS.parts);
+  let descriptor=p.propulsion;const nominalAccelerationOnly=!engineConversionCurrent(descriptor)&&Number.isFinite(descriptor.ratedAccelMps2)&&Number.isFinite(descriptor.accelerationLimitMps2)&&Math.abs(descriptor.accelerationLimitMps2-descriptor.ratedAccelMps2)<=Math.max(1,Math.abs(descriptor.ratedAccelMps2))*1e-12;const mass=descriptor.massKg;descriptor.massKg=Number.isFinite(mass)&&mass>0?mass:0;descriptor.engines=descriptor.engines.slice(0,DESIGN_LIMITS.parts);
   const inputCurrent=q=>q?.inputModelVersion===ENGINE_INPUT_MODEL_VERSION&&q.inputLimitModel==='reactor-supply',finiteW=v=>Number.isFinite(v)&&v>=0?v:0;
   const retiredReasons=new Set(['invalid-rated-input','machinery-density-exceeded','legacy-refit-required','invalid-machinery-grade']);
   const repairRetiredValidity=(old,ref)=>{const reasons=[...old?.issues||[],...old?.reasons||[]];return !inputCurrent(old)&&ref?.valid===true&&reasons.length>0&&reasons.every(reason=>retiredReasons.has(reason));};
@@ -94436,7 +94565,7 @@ function cleanCraftPowerProfile(raw,blueprint=null){
    for(const key of ['cores','engines'])for(const item of descriptor[key]||[]){
     const old=previous[key]?.find(q=>q?.id===item.id);if(!old)continue;
     for(const flag of ['valid','available','connected','outletAvailable'])if(old[flag]===false&&!(flag==='valid'&&repairRetiredValidity(old,item)))item[flag]=false;
-    if(inputCurrent(old))for(const limit of ['pathCapacityW','shaftCapacityW','ratedShaftCapacityW'])if(Number.isFinite(old[limit])&&old[limit]>=0&&Number.isFinite(item[limit]))item[limit]=Math.min(item[limit],old[limit]);
+    if(inputCurrent(old)&&old.driveModelVersion===ENGINE_TRANSMISSION_VERSION)for(const limit of ['pathCapacityW','shaftCapacityW','ratedShaftCapacityW'])if(Number.isFinite(old[limit])&&old[limit]>=0&&Number.isFinite(item[limit]))item[limit]=Math.min(item[limit],old[limit]);
    }
   }
   const unique=new Map(),outlets=new Set(),coreArchitecture=Array.isArray(descriptor.cores)||descriptor.architectureVersion===2||canonical?.hasCore||descriptor.engines.some(e=>e?.entityKind==='engineCore');
@@ -94445,14 +94574,14 @@ function cleanCraftPowerProfile(raw,blueprint=null){
    for(const c of descriptor.cores){
     const record=canonical?.owners?.get(c.id),ref=record?.spec,path=c.pathCapacityW,moduleIndex=c.moduleIndex,bodyIndex=c.machineryModuleIndex,flags={valid:c.valid!==false,available:c.available!==false,connected:c.connected!==false};if(ref){Object.assign(c,ref);c.machineryShape=ref.machineryShape||(ref.entityKind==='engineCore'?'cylinder':'frustum');}c.moduleIndex=moduleIndex;c.machineryModuleIndex=c.entityKind==='engineCore'?moduleIndex:bodyIndex;
     const moduleOK=Number.isInteger(moduleIndex)&&p.modules[moduleIndex]?.k==='engine'&&p.modules[moduleIndex]?.part===c.id,profile=DRIVE_PROFILES[c.driveProfileId],L=c.machineryLengthM,r=c.machineryRadiusM,cylinder=c.entityKind==='engineCore'||c.machineryShape==='cylinder',shapeOK=c.machineryShape==null||['cylinder','frustum'].includes(c.machineryShape),nominal=Number.isFinite(L)&&L>0&&L<=DESIGN_LIMITS.engineLength&&Number.isFinite(r)&&r>0&&r<=DESIGN_LIMITS.engineDiameter?Math.PI*L*r*r*(cylinder?1:(.78*.78+.78+1)/3):0,retained=ref?.effectiveMachineryVolumeM3??(Number.isFinite(c.effectiveMachineryVolumeM3)?Math.min(nominal,Math.max(0,c.effectiveMachineryVolumeM3)):nominal),valid=!!profile&&shapeOK&&(!canonical||!!ref)&&moduleOK&&retained>0&&Number.isFinite(retained)&&Array.isArray(c.direction)&&c.direction.length===3&&c.direction.every(Number.isFinite)&&len(c.direction)>1e-9&&flags.valid&&c.valid!==false;
-    c.valid=valid;c.machineryShape=cylinder?'cylinder':'frustum';c.ratedInputW=valid?finiteW(c.ratedInputW):0;Object.assign(c,engineDensityModel(c.ratedInputW,retained,profile?.wattsPerNewton));c.ratedThrustN=valid?c.ratedInputW/c.wattsPerNewton:0;c.effectiveMachineryVolumeM3=c.machineryVolumeM3=retained;c.machineryId=c.coreId=c.id;c.powerNode=c.heatNode='p'+c.id;c.direction=valid?norm(c.direction):[0,0,0];
+    c.valid=valid;c.machineryShape=cylinder?'cylinder':'frustum';c.ratedInputW=valid?finiteW(c.ratedInputW):0;Object.assign(c,engineDensityModel(c.ratedInputW,retained,engineConversionCoefficient(descriptor.massKg)),engineConversionFields(c,descriptor.massKg));c.ratedThrustN=valid?c.ratedInputW/c.wattsPerNewton:0;c.effectiveMachineryVolumeM3=c.machineryVolumeM3=retained;c.machineryId=c.coreId=c.id;c.powerNode=c.heatNode='p'+c.id;c.direction=valid?norm(c.direction):[0,0,0];
     const cap=finiteW(c.availableInputW??c.sourceInputLimitW??c.maxInputW??c.ratedInputW);c.maxInputW=c.maxRatedInputW=cap;c.pathCapacityW=record?Math.min(finiteW(path),cap,finiteW(record.feedCap)):Number.isFinite(path)?Math.min(Math.max(0,path),cap):cap;c.available=valid&&flags.available&&(!record||record.sourceExists&&record.connected);c.connected=flags.connected&&(!record||record.sourceExists&&record.connected);c.outletAvailable=true;c.domain=p.modules[moduleIndex]?.domain||c.domain||'main';unique.set(c.id,c);
    }
    descriptor.engines=descriptor.engines.filter(e=>e&&Number.isSafeInteger(e.id)&&e.id>0&&!outlets.has(e.id)&&outlets.add(e.id));
    for(const e of descriptor.engines){
     const record=canonical?.get(e.id),ref=record?.spec,ownerId=ref?.machineryId??e.machineryId??e.coreId??e.id,owner=unique.get(ownerId),moduleIndex=e.moduleIndex,shaftCapacity=e.shaftCapacityW,ratedShaft=e.ratedShaftCapacityW,routeId=e.shaftRouteId,shaftIndices=Array.isArray(e.shaftModuleIndices)?e.shaftModuleIndices:[],flags={valid:e.valid!==false,available:e.available!==false,connected:e.connected!==false,outletAvailable:e.outletAvailable!==false};if(ref)Object.assign(e,ref);e.moduleIndex=moduleIndex;
     const moduleOK=Number.isInteger(moduleIndex)&&p.modules[moduleIndex]?.k==='engine'&&p.modules[moduleIndex]?.part===e.id,integrated=record?.integrated??owner?.integrated??ownerId===e.id,shaftModules=shaftIndices.filter((index,i)=>Number.isInteger(index)&&index>=0&&shaftIndices.indexOf(index)===i&&p.modules[index]?.k==='drivetrain'&&p.modules[index]?.coreId===ownerId&&p.modules[index]?.nozzleId===e.id&&(!record||record.shaftPartIds.includes(p.modules[index]?.part))),pipelineOK=integrated||(!record||record.shaftConnected&&routeId===record.shaftRouteId)&&shaftModules.length>0&&shaftModules.length===shaftIndices.length,valid=!!owner?.valid&&flags.valid&&moduleOK&&(!canonical||!!ref)&&Array.isArray(e.direction)&&e.direction.length===3&&e.direction.every(Number.isFinite)&&len(e.direction)>1e-9,physicalModuleCap=shaftModules.length?Math.min(...shaftModules.map(i=>finiteW(p.modules[i].capacityW))):finiteW(owner?.ratedShaftPowerW),limit=record?.shaftCapacityW??(Number.isFinite(shaftCapacity)?Math.max(0,shaftCapacity):physicalModuleCap);
-    if(owner)for(const key of ['entityKind','machineryShape','ratedInputW','driveProfileId','machineryGradeId','wattsPerNewton','profileWattsPerNewton','normalInputW','densityFactor','efficiency','wasteFraction','shaftWattsPerNewton','ratedShaftPowerW','ratedWasteHeatW','thermalStoreJ','thermalModelVersion','ratedThrustN','effectiveMachineryVolumeM3','machineryVolumeM3','machineryLengthM','machineryRadiusM','machineryDiameterM','machineryOffsetM','maxInputW','maxRatedInputW','allowedInputDensityWPerM3','powerNode','heatNode','reactorId','domain','inputModelVersion','inputLimitModel','availableInputW','sourceInputLimitW','allocationWeight','sourceIds'])e[key]=owner[key];
+    if(owner)for(const key of ['entityKind','conversionModelVersion','conversionMassKg','driveModelVersion','machineryShape','ratedInputW','driveProfileId','machineryGradeId','wattsPerNewton','profileWattsPerNewton','normalInputW','densityFactor','efficiency','wasteFraction','shaftWattsPerNewton','ratedShaftPowerW','ratedWasteHeatW','thermalStoreJ','thermalModelVersion','ratedThrustN','effectiveMachineryVolumeM3','machineryVolumeM3','machineryLengthM','machineryRadiusM','machineryDiameterM','machineryOffsetM','maxInputW','maxRatedInputW','allowedInputDensityWPerM3','powerNode','heatNode','reactorId','domain','inputModelVersion','inputLimitModel','availableInputW','sourceInputLimitW','allocationWeight','sourceIds'])e[key]=owner[key];
     e.valid=valid;e.machineryId=e.coreId=ownerId;e.coreModuleIndex=owner?.moduleIndex??-1;e.machineryModuleIndex=owner?.machineryModuleIndex??-1;e.pathCapacityW=owner?.pathCapacityW||0;e.shaftModuleIndices=shaftModules;e.shaftRouteId=record?.shaftRouteId??routeId??null;e.shaftCapacityW=pipelineOK?Math.min(Number.isFinite(shaftCapacity)?Math.max(0,shaftCapacity):limit,limit):0;e.ratedShaftCapacityW=Math.min(Number.isFinite(ratedShaft)?Math.max(0,ratedShaft):limit,record?.ratedShaftCapacityW??limit);e.available=valid&&flags.available&&owner?.available!==false&&pipelineOK&&(!record||record.outletAvailable);e.connected=flags.connected&&owner?.connected===true&&pipelineOK;e.outletAvailable=flags.outletAvailable&&(!record||record.outletAvailable);if(valid)e.direction=norm(e.direction);else{e.ratedInputW=0;e.ratedThrustN=0;}
    }
   }else for(const e of descriptor.engines){
@@ -94460,9 +94589,9 @@ function cleanCraftPowerProfile(raw,blueprint=null){
    if(ref){const path=e.pathCapacityW,flags={available:e.available!==false&&record.sourceExists&&record.outletAvailable,connected:e.connected!==false&&record.sourceExists,outletAvailable:e.outletAvailable!==false&&record.outletAvailable,domain:p.modules[e.moduleIndex]?.domain||'main'};Object.assign(e,ref,flags);e.machineryShape=ref.machineryShape||'frustum';e.pathCapacityW=Math.min(Number.isFinite(path)?Math.max(0,path):finiteW(record.feedCap),finiteW(ref.availableInputW??ref.maxInputW),finiteW(record.feedCap));}
    const profile=DRIVE_PROFILES[e.driveProfileId],L=e.machineryLengthM,r=e.machineryRadiusM,cylinder=e.machineryShape==='cylinder',shapeOK=e.machineryShape==null||['cylinder','frustum'].includes(e.machineryShape),volume=Number.isFinite(L)&&L>0&&L<=DESIGN_LIMITS.engineLength&&Number.isFinite(r)&&r>0&&r<=DESIGN_LIMITS.engineDiameter?Math.PI*L*r*r*(cylinder?1:(.78*.78+.78+1)/3):0;
    const valid=!!profile&&shapeOK&&Number.isFinite(volume)&&volume>0&&Array.isArray(e.direction)&&e.direction.length===3&&e.direction.every(Number.isFinite)&&len(e.direction)>1e-9&&moduleOK&&canonicalOK;
-   e.valid=valid&&e.valid!==false;e.machineryShape=cylinder?'cylinder':'frustum';e.ratedInputW=valid?finiteW(e.ratedInputW):0;Object.assign(e,engineDensityModel(e.ratedInputW,volume,profile?.wattsPerNewton));e.ratedThrustN=e.valid?e.ratedInputW/e.wattsPerNewton:0;e.effectiveMachineryVolumeM3=e.machineryVolumeM3=volume;const cap=finiteW(e.availableInputW??e.sourceInputLimitW??e.maxInputW??e.ratedInputW);e.maxInputW=e.maxRatedInputW=cap;if(e.valid)e.direction=norm(e.direction);if(!unique.has(e.machineryId??e.id))unique.set(e.machineryId??e.id,e);
+   e.valid=valid&&e.valid!==false;e.machineryShape=cylinder?'cylinder':'frustum';e.ratedInputW=valid?finiteW(e.ratedInputW):0;Object.assign(e,engineDensityModel(e.ratedInputW,volume,engineConversionCoefficient(descriptor.massKg)),engineConversionFields(e,descriptor.massKg));e.ratedThrustN=e.valid?e.ratedInputW/e.wattsPerNewton:0;e.effectiveMachineryVolumeM3=e.machineryVolumeM3=volume;const cap=finiteW(e.availableInputW??e.sourceInputLimitW??e.maxInputW??e.ratedInputW);e.maxInputW=e.maxRatedInputW=cap;if(e.valid)e.direction=norm(e.direction);if(!unique.has(e.machineryId??e.id))unique.set(e.machineryId??e.id,e);
   }
-  descriptor.ratedThrustN=[...unique.values()].reduce((n,e)=>n+e.ratedThrustN,0);descriptor.ratedAccelMps2=descriptor.massKg>0?descriptor.ratedThrustN/descriptor.massKg:0;descriptor.accelerationLimitMps2=Number.isFinite(descriptor.accelerationLimitMps2)?clamp(descriptor.accelerationLimitMps2,0,descriptor.ratedAccelMps2):0;
+  descriptor.ratedThrustN=[...unique.values()].reduce((n,e)=>n+e.ratedThrustN,0);descriptor.ratedAccelMps2=descriptor.massKg>0?descriptor.ratedThrustN/descriptor.massKg:0;descriptor.accelerationLimitMps2=nominalAccelerationOnly?descriptor.ratedAccelMps2:Number.isFinite(descriptor.accelerationLimitMps2)?clamp(descriptor.accelerationLimitMps2,0,descriptor.ratedAccelMps2):0;
   if(Object.hasOwn(descriptor,'inertialFactor'))descriptor.inertialFactor=Number.isFinite(descriptor.inertialFactor)?clamp(descriptor.inertialFactor,0,1):0;
   if(Object.hasOwn(descriptor,'structuralAccelerationLimitMps2')){descriptor.structuralAccelerationLimitMps2=Number.isFinite(descriptor.structuralAccelerationLimitMps2)?Math.max(0,descriptor.structuralAccelerationLimitMps2):0;descriptor.accelerationLimitMps2=Math.min(descriptor.ratedAccelMps2,descriptor.structuralAccelerationLimitMps2)*(descriptor.inertialFactor??1);}
   return referenceSpeedProfile(p,blueprint?.reference||raw.speedReference?.key||'');
@@ -94516,8 +94645,8 @@ function cleanDesignCraft(d){
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
- const speedKey=blueprint?.reference||d.ref||'',speedReference={...sublightReference(speedKey)},load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=(needsWeaponRefresh&&blueprint?cleanDims(c.dims):null)||cleanDims(d.dims)||cleanDims(c.dims),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0)),powerProfile=requiresBlueprint?null:cleanCraftPowerProfile(c.powerProfile,blueprint),hasThrust=Number.isFinite(c.accelG)?c.accelG>0:powerProfile?.propulsion?Math.min(powerProfile.propulsion.ratedAccelMps2,powerProfile.propulsion.accelerationLimitMps2??Infinity)>0:true;
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),...(weaponProfileVersion!=null?{weaponProfileVersion}:{}),...(requiresBlueprint?{requiresBlueprint:true,legacyReadOnly:true,...(Number.isSafeInteger(sourceProfileVersion)?{sourceProfileVersion}:{})}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:referenceSublightSpeed(speedKey,shipSpeed?Math.round(num(c.speed,0,20000,0)):Number.isFinite(c.accelG)?craftSpeed(Math.max(0,c.accelG)):Math.round(num(c.speed,500,3200,1500)),hasThrust),speedReference,...(Number.isFinite(c.speedLoaded)||Number.isFinite(c.accelLoaded)?{speedLoaded:referenceSublightSpeed(speedKey,shipSpeed?Math.round(num(c.speedLoaded,0,20000,c.speed||0)):Number.isFinite(c.accelLoaded)?craftSpeed(Math.max(0,c.accelLoaded)):Math.round(num(c.speedLoaded,0,3200,c.speed||0)),Number.isFinite(c.accelLoaded)?c.accelLoaded>0:hasThrust)}:{}),...(Number.isFinite(c.accelLoaded)?{accelLoaded:Math.round(num(c.accelLoaded,0,20000,0))}:{}),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),...(Number.isFinite(c.accelG)?{accelG:Math.round(num(c.accelG,0,20000,0))}:{}),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(powerProfile?{powerProfile}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
+ const speedKey=blueprint?.reference||d.ref||'',speedReference={...sublightReference(speedKey)},load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),storedOrdnanceMass=craftOrdnance({stations,load},load).reduce((n,x)=>n+x.n*x.mass,0),shipSpeed=c.speedMode==='ship',dims=(needsWeaponRefresh&&blueprint?cleanDims(c.dims):null)||cleanDims(d.dims)||cleanDims(c.dims),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0)),powerProfile=requiresBlueprint?null:cleanCraftPowerProfile(c.powerProfile,blueprint),physicalSpeed=powerProfile?.maxSpeed,loadedProfile=powerProfile&&storedOrdnanceMass>0?reactorSupplyProfile({...powerProfile,propulsion:{...powerProfile.propulsion,massKg:powerProfile.propulsion.massKg+storedOrdnanceMass*1000}}):powerProfile,physicalLoadedSpeed=loadedProfile?propulsionTerminalSpeed(loadedProfile):null,hasThrust=Number.isFinite(c.accelG)?c.accelG>0:powerProfile?.propulsion?Math.min(powerProfile.propulsion.ratedAccelMps2,powerProfile.propulsion.accelerationLimitMps2??Infinity)>0:true;
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),...(weaponProfileVersion!=null?{weaponProfileVersion}:{}),...(requiresBlueprint?{requiresBlueprint:true,legacyReadOnly:true,...(Number.isSafeInteger(sourceProfileVersion)?{sourceProfileVersion}:{})}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:Number.isFinite(physicalSpeed)?physicalSpeed:referenceSublightSpeed(speedKey,shipSpeed?Math.round(num(c.speed,0,20000,0)):Number.isFinite(c.accelG)?craftSpeed(Math.max(0,c.accelG)):Math.round(num(c.speed,500,3200,1500)),hasThrust),speedReference,...(Number.isFinite(c.speedLoaded)||Number.isFinite(c.accelLoaded)?{speedLoaded:Number.isFinite(physicalLoadedSpeed)?physicalLoadedSpeed:referenceSublightSpeed(speedKey,shipSpeed?Math.round(num(c.speedLoaded,0,20000,c.speed||0)):Number.isFinite(c.accelLoaded)?craftSpeed(Math.max(0,c.accelLoaded)):Math.round(num(c.speedLoaded,0,3200,c.speed||0)),Number.isFinite(c.accelLoaded)?c.accelLoaded>0:hasThrust)}:{}),...(Number.isFinite(c.accelLoaded)?{accelLoaded:Math.round(num(c.accelLoaded,0,20000,0))}:{}),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),...(Number.isFinite(c.accelG)?{accelG:Math.round(num(c.accelG,0,20000,0))}:{}),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(powerProfile?{powerProfile}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -95983,7 +96112,7 @@ function heatSolve(D,cap,L){
 // Large stock capitals wire every gun and cooler explicitly. Keep a bounded
 // saved graph large enough to preserve those physical power and heat paths.
 const LINK_LIMIT=32000;
-function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,LINK_LIMIT)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>=0)o.cap=+l.cap;out.push(o);}return out.length?out:undefined;}
+function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,LINK_LIMIT)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>=0)o.cap=+l.cap;if(l.kind==='power'&&l.auto===true&&l.capacityBasis==='reactor-supply'){o.auto=true;o.capacityBasis='reactor-supply';if(Number.isFinite(l.capacityReferenceW)&&l.capacityReferenceW>=0)o.capacityReferenceW=l.capacityReferenceW;}out.push(o);}return out.length?out:undefined;}
 const heatSec=(x,X0,L,cuts)=>{const a=(x-X0)/L;let i=0;while(i<cuts.length&&a>=cuts[i])i++;return i;};
 // The ship's network (ENG-001/002/006): sources, real dissipator parts, low-grade skin and finite links,
 // with each source's waste at the three load presets. Ports are 'p<part id>' and 'f<fit id>'.
@@ -96327,7 +96456,7 @@ function shipHeatClearCooling(h){const c=h?.cooling;if(!c)return;c.reserveJ=0;c.
 function shipHeatBlackout(u,ctx,reason='熱限界'){
  const h=heatOf(u);if(!h)return false;const was=h.online;h.online=false;if(was)h.restartWork=0;shipHeatClearCooling(h);
  h.lm=new Array(h.n).fill(0);h.md=new Array(h.n).fill(3);h.swLim=(u.p?.sw||[]).map(()=>0);h.lim={reactor:0,weapon:0,shield:0,engine:0};u.engF=0;u.shF=0;
- if(u.pw){for(const k of ['P','eng','sh','wpn','draw','drawNonCooling','fixed','cooling','coolingSource','coolingReserved'])u.pw[k]=0;u.pw.weaponInputRemainingJ={};u.pw.weaponInputs={};}if(u.propulsion){u.propulsion={...u.propulsion,actualInputW:0,actualThrustN:0,actualAccelMps2:0,accelerationMps2:0,totalActualInputW:0,totalThrustN:0,usefulPropulsionW:0,outputRatio:0};}shipFuelReleaseReservation(u,'cooling');if(was)ctx?.ev?.(u,`${reason}：全艦の電源を即時遮断・復旧作業を開始`);return was;
+ if(u.pw){for(const k of ['P','eng','sh','wpn','draw','drawNonCooling','fixed','cooling','coolingSource','coolingReserved'])u.pw[k]=0;u.pw.weaponInputRemainingJ={};u.pw.weaponInputs={};}if(u.propulsion){u.propulsion={...u.propulsion,actualInputW:0,actualThrustN:0,actualAccelMps2:0,accelerationMps2:0,totalActualInputW:0,totalThrustN:0,usefulPropulsionW:0,outputRatio:0};}shipFuelReleaseReservation(u,'cooling');syncPowerLossDisabled(u,ctx);if(was)ctx?.ev?.(u,`${reason}：全艦の電源を即時遮断・復旧作業を開始`);return was;
 }
 function shipHeatUpdate(u,ctx){
  const h=heatOf(u);if(!h)return null;h.peak=h.qJ/Math.max(1,h.capacityJ);h.peakJ=Math.max(h.peakJ||0,h.qJ);
@@ -96442,7 +96571,7 @@ function craftHeat(S){
 }
 function cleanCraftHeat(h){if(!h||typeof h!=='object')return null;const n=(v,hi)=>Number.isFinite(v)?clamp(v,0,hi):0;const o={up:n(h.up,10),upS:n(h.upS,10),down:Math.max(CRAFT_HEAT.minDown,n(h.down,10)),T:n(h.T,600)};if(o.upS<o.up)o.upS=o.up;return o;}
 // Retained output damage and blackout state follow the craft's actual runtime vessel.
-function squadFireK(s){return s?.drive?.ht?.online===false?0:1;}
+function squadFireK(s){if(s?.drive)syncPowerLossDisabled(s.drive);return s?.disabled||s?.drive?.out||s?.drive?.ht?.online===false?0:1;}
 // One step: S-foils open over T seconds while the squadron is in a battle, shut outside; heat rises while it fires.
 function squadHeatStep(s,H,firing,battle,dt){H=H||CRAFT_HEAT.def;s.foil=H.T>0?clamp((s.foil??0)+(battle?1:-1)*dt/H.T,0,1):1;const h=s.drive&&heatOf(s.drive);s.heat=h?h.qJ/Math.max(1,h.capacityJ):0;}
 // ============================================================
@@ -96968,12 +97097,12 @@ function deriveAntiAir(){const ref=FITS.pd,refRaw=Math.min(1,weaponTraverseDegS(
 deriveAntiAir();
 initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
- PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,reactorSupplyProfile,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
+ PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
  withFrozenStructures,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatReadoutRates, heatProfile, heatProfileOf, heatLegacy, FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swEnergyTT, swRange, swFree, swAxis, swBeamTrace, superweaponSelection, superweaponCommand, superweaponSetAuto, MGLT, engineDepthRatio, sublightMGLT, SUBLIGHT_REFERENCE_VERSION, SUBLIGHT_REFERENCE, sublightReference, referenceSublightMGLT, referenceSublightSpeed, referenceSpeedProfile, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponShape, superweaponBodyTriangles, superweaponMuzzle, superweaponAxis, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, groundingStats, engineMountSamples, engineAppearance, engineSkinMesh, engineCasingSections, engineCasingCapacity, engineCasingFit, fitEngineCasing, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, referencePhysicalProfileCurrent, canopyShape, setCanopyShape, canopyTriangles, canopyMountPosition, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, meshFaceTriangles, meshTriangles, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, placeRotationalCopies, placeLinearCopies, rotationalArray, linearArray, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshPlanarMoves, meshMoveVertices, meshSetVertex, meshAddEdge, meshRemoveEdge, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, weaponPreviewStats, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetWeaponPackets, combatAddWeapons, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, CORVETTE_WEAPON_KEYS, VENATOR_SIDE_WEAPON_KEYS, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, integratedEngine, nozzleShaftCapacity, propulsionOwners, engineOwner, engineMachineryPaths, enginePaths, engineTransmission, engineDriveRoutes, ENGINE_FEED_LOSS_PER_M, ENGINE_SHAFT_FLUX, ENGINE_TRANSMISSION_VERSION, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
-  MOTION_RESISTANCE_VERSION, MASS_DRAG, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
+  MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
@@ -97574,6 +97703,8 @@ function rearmSquad(s) {
 // Gas is a per-craft firing duration shared by the squadron, never multiplied by its headcount.
 // Only the laser share stops when it runs out; carried ordnance remains independent.
 function squadLaserK(s,kind='gun') {
+ if(s?.drive)C.syncPowerLossDisabled(s.drive);
+ if(s?.disabled||s?.drive?.out||s?.drive?.ht?.online===false)return 0;
  const c=CRAFT[s?.craft]?.systems;if(!c?.managed||s.laserGas!==0)return 1;
  const share=kind==='aa'?c.laserAaShare:c.laserGunShare;return 1-clamp(Number.isFinite(share)?share:c.laserUnits>0?1:0,0,1);
 }
@@ -97645,10 +97776,11 @@ function squadSystemsTick(w,dt) {
   else if(s.laserGas===0&&c.laserUnits>0)squadSystemsReturn(w,s,'laser-gas');
  }
 }
-const squadArmed = s => (s.ammo || []).some(n => n > 1e-9);
-// Handling: a craft sheds its stores' mass as it fires them, and its speed rises by (mass at the canon load / mass now)^0.34.
+const squadArmed = s => !s.disabled&&!s.drive?.out&&(s.ammo || []).some(n => n > 1e-9);
+// Retain legacy table handling metadata; real flight below uses current whole
+// vessel mass, its finite power profile and the shared resistance law.
 function squadMassK(s) { const c = CRAFT[s.craft], M = c?.mass;if (!(M > 0)) { s.spK = 1; return; } const left = (s.ldg || []).reduce((n, x, i) => n + (s.ammo?.[i] || 0) * x.mass, 0);s.spK = Math.pow((M + (c.ordMass || 0)) / (M + left), .34); }
-const sqSpeed = s => {const c=CRAFT[s.craft],massK=s.spK||1;return c.speed*(c.speedReference?.status==='published'?Math.min(1,massK):massK);};
+const sqSpeed=s=>{const c=CRAFT[s.craft],base=craftPowerOf(c),profile=s.drive?.p||base;return profile?C.propulsionTerminalSpeed(profile):Math.max(0,c?.speed||0)*(s.spK||1);};
 // Table-only craft have a priced equipment estimate, not an editable design.
 // Keep their established mass, input plant and nominal force; allocate enough
 // of that same mass/volume budget to ordinary machinery and finite cooling.
@@ -97657,7 +97789,7 @@ function estimatedCraftRuntime(c){
  const key=Object.keys(CRAFT).find(k=>CRAFT[k]===c);if(!key||C.CRAFT_PRICE_CATALOG.entries[key]?.reference)return null;
  const original=estimatedCraftBOM(c),bom={...original,parts:original.parts.map(p=>({...p}))},massTonnes=c.mass>0?c.mass:original.hullVolume*.2,speed=CRAFT_PHYSICAL_SPEED.get(c)??c.speed;
  if(!(massTonnes>0)||!Number.isFinite(massTonnes)||!(speed>0)||!Number.isFinite(speed))return null;
- const massKg=massTonnes*1000,a=3700*Math.pow(speed/2070,1/.34)*C.G0,wattsPerNewton=C.PROPULSION.standardWattsPerNewton,R=Math.min(C.PROPULSION.maxInputW,a*massKg*wattsPerNewton),thrust=R/wattsPerNewton,hotel=Math.max(0,c.systems?.power||0),weapons=bom.fits.reduce((sum,row)=>{const d=C.FITS[row.k];return sum+(d?.craft&&d.tt>0&&!d.retired?d.power*Math.max(0,row.count||0):0);},0),P=R+hotel+weapons;
+ const massKg=massTonnes*1000,a=3700*Math.pow(speed/2070,1/.34)*C.G0,wattsPerNewton=C.engineConversionCoefficient(massKg),R=Math.min(C.PROPULSION.maxInputW,a*massKg*C.ENGINE_CONVERSION.legacyEstimateWattsPerNewton),thrust=R/wattsPerNewton,hotel=Math.max(0,c.systems?.power||0),weapons=bom.fits.reduce((sum,row)=>{const d=C.FITS[row.k];return sum+(d?.craft&&d.tt>0&&!d.retired?d.power*Math.max(0,row.count||0):0);},0),P=R+hotel+weapons;
  const count=p=>Number.isFinite(p.count)?Math.max(0,Math.floor(p.count)):1,oldEngineV=bom.parts.filter(p=>p.k==='engine').reduce((n,p)=>n+p.volume*count(p),0),engineVolumeM3=Math.max(oldEngineV,R/C.PROPULSION.referenceInputDensity);
  if(oldEngineV>0){const scale=engineVolumeM3/oldEngineV;for(const p of bom.parts)if(p.k==='engine')p.volume*=scale;}else bom.parts.push({k:'engine',volume:engineVolumeM3/2,count:2});
  const thermal=C.engineDensityModel(R,engineVolumeM3,wattsPerNewton),margin=1.15,powerK=C.HEAT.disPowerK.hdis,baseWasteW=C.HEAT.waste.reactor*P+thermal.ratedWasteHeatW+C.HEAT.waste.weapon*weapons+C.HEAT.waste.hotel*hotel,coolingCapacityW=margin*baseWasteW/(1-margin*powerK),coolingVolumeM3=coolingCapacityW/(C.REACTOR_POWER_DENSITY*C.HEAT.disK.hdis),coolingPowerW=coolingCapacityW*powerK;
@@ -97670,16 +97802,16 @@ function craftPowerOf(c){
  const builtInReference=BUILTIN_CRAFT_REFERENCES.get(c);
  if(builtInReference&&c.powerProfile&&!C.referencePhysicalProfileCurrent(c.powerProfile,builtInReference)){delete c.powerProfile;c._powerResolved=false;}
  if(builtInReference&&c.powerProfile?.referencePhysicalRevision&&c.powerProfile.propulsion?.massKg>0)c.mass=c.powerProfile.propulsion.massKg/1000;
- if(c.requiresBlueprint===true||c.snapshot?.requiresBlueprint===true){delete c.powerProfile;c._powerResolved=true;return null;}if(c.powerProfile){if(c.powerProfile.legacyReadOnly||c.powerProfile.profileVersion===C.FLEET_PROFILE_VERSION){const p=c.powerProfile,reference=p.motionResistance,validReference=p.propulsion?.inputModelVersion===C.ENGINE_INPUT_MODEL_VERSION&&reference?.version===C.MOTION_RESISTANCE_VERSION&&['referenceMassKg','referenceAccelMps2','referenceSpeedMps'].every(k=>Number.isFinite(reference[k])&&reference[k]>0);if(!validReference){const base=Number.isFinite(p.maxSpeed)&&p.maxSpeed>0?p:{...p,maxSpeed:Number.isFinite(c.speed)&&c.speed>0?c.speed:0};c.powerProfile=C.referenceSpeedProfile(base,c.ref||c.speedReference?.key||'');}return c.powerProfile;}delete c.powerProfile;c._powerResolved=false;}if(c._powerResolved)return null;c._powerResolved=true;
+ if(c.requiresBlueprint===true||c.snapshot?.requiresBlueprint===true){delete c.powerProfile;c._powerResolved=true;return null;}if(c.powerProfile){if(c.powerProfile.legacyReadOnly||c.powerProfile.profileVersion===C.FLEET_PROFILE_VERSION){const p=c.powerProfile,reference=p.motionResistance,validReference=p.propulsion?.inputModelVersion===C.ENGINE_INPUT_MODEL_VERSION&&p.propulsion?.conversionModelVersion===C.ENGINE_CONVERSION_MODEL_VERSION&&p.propulsion.conversionMassKg===p.propulsion.massKg&&(p.propulsion.cores||p.propulsion.engines||[]).every(e=>e.conversionModelVersion===C.ENGINE_CONVERSION_MODEL_VERSION&&e.conversionMassKg===p.propulsion.massKg)&&reference?.version===C.MOTION_RESISTANCE_VERSION&&reference.model===C.MOTION_RESISTANCE.model&&reference.referenceRatePerS===C.MOTION_RESISTANCE.referenceRatePerS&&reference.massExponent===C.MOTION_RESISTANCE.massExponent&&Number.isFinite(p.maxSpeed)&&p.maxSpeed>=0&&['referenceMassKg','referenceAccelMps2','referenceSpeedMps'].every(k=>Number.isFinite(reference[k])&&reference[k]>0);if(!validReference){const base=Number.isFinite(p.maxSpeed)&&p.maxSpeed>0?p:{...p,maxSpeed:Number.isFinite(c.speed)&&c.speed>0?c.speed:0};c.powerProfile=C.referenceSpeedProfile(base,c.ref||c.speedReference?.key||'');}c.speed=c.powerProfile.maxSpeed||0;return c.powerProfile;}delete c.powerProfile;c._powerResolved=false;}if(c._powerResolved)return null;c._powerResolved=true;
  if(!BUILTIN_CRAFT.has(c))return null;
  const key=Object.keys(CRAFT).find(k=>CRAFT[k]===c),catalog=C.craftCatalogPrice(key),reference=catalog?.reference||C.CRAFT_PRICE_CATALOG.entries[key]?.reference;
- if(catalog?.powerProfile?.profileVersion===C.FLEET_PROFILE_VERSION){const p=C.cleanCraftPowerProfile(catalog.powerProfile);if(p){c.powerProfile=p;if(p.referencePhysicalRevision||!(c.mass>0))c.mass=p.propulsion.massKg/1000;return p;}}
- if(reference){try{const ship=C.buildDesign(reference),stats=C.computeStats(ship);c.powerProfile=C.craftPowerProfile(ship,stats);if(c.powerProfile.referencePhysicalRevision||!(c.mass>0))c.mass=stats.mass;return c.powerProfile;}catch(e){return null;}}
+ if(catalog?.powerProfile?.profileVersion===C.FLEET_PROFILE_VERSION){const p=C.cleanCraftPowerProfile(catalog.powerProfile);if(p){c.powerProfile=p;if(p.referencePhysicalRevision||!(c.mass>0))c.mass=p.propulsion.massKg/1000;c.speed=p.maxSpeed||0;return p;}}
+ if(reference){try{const ship=C.buildDesign(reference),stats=C.computeStats(ship);c.powerProfile=C.craftPowerProfile(ship,stats);if(c.powerProfile.referencePhysicalRevision||!(c.mass>0))c.mass=stats.mass;c.speed=c.powerProfile.maxSpeed||0;return c.powerProfile;}catch(e){return null;}}
  // Without an editable blueprint, this is an explicitly estimated, read-only
  // aggregate plant. Paid BOM volumes supply its physical thermal properties.
  const plan=estimatedCraftRuntime(c);if(!plan)return null;
  const {bom,massTonnes,massKg,R,thrust,wattsPerNewton,hotel,weapons,P,thermal,engineVolumeM3,coolingVolumeM3,coolingPowerW}=plan;
- const engine={id:2,machineryId:2,version:1,...thermal,ratedInputW:R,ratedThrustN:thrust,driveProfileId:'standard',machineryGradeId:'standard',effectiveMachineryVolumeM3:engineVolumeM3,machineryVolumeM3:engineVolumeM3,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:R,estimated:true,requiresBlueprint:true};
+ const engine={id:2,machineryId:2,version:1,...thermal,conversionModelVersion:C.ENGINE_CONVERSION_MODEL_VERSION,conversionMassKg:massKg,ratedInputW:R,ratedThrustN:thrust,driveProfileId:'standard',machineryGradeId:'standard',effectiveMachineryVolumeM3:engineVolumeM3,machineryVolumeM3:engineVolumeM3,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:R,estimated:true,requiresBlueprint:true};
  const reactorVolumeM3=bom.parts.filter(p=>p.k==='gen'||p.k==='aux').reduce((n,p)=>n+p.volume*(p.count??1),0);
  const p={source:'estimated-table-runtime-v2',estimated:true,legacyReadOnly:true,requiresBlueprint:true,name:c.name,hp:1,D:0,shieldBuffer:0,wCap:0,len:c.dims?.[0]||10,width:c.dims?.[1]||8,height:c.dims?.[2]||3,crewNeed:c.crew||0,crewMax:c.crew||0,energyModel:{version:0},modules:[{k:'reactor',name:'推定反応炉',part:1,port:'p1',domain:'main',size:reactorVolumeM3,share:1},{k:'engine',name:'推定推進機関',part:2,port:'p2',domain:'main',size:engineVolumeM3,share:1},{k:'dissipator',name:'推定散逸装置',part:3,port:'p3',domain:'main',size:coolingVolumeM3,share:1}],grid:{P,fixed:hotel+coolingPowerW,cooling:coolingPowerW,De:R,Ds:0,Dw:weapons,Pgen:P,Paux:0},propulsion:{version:1,engines:[engine],massKg,ratedThrustN:thrust,ratedAccelMps2:thrust/massKg,accelerationLimitMps2:thrust/massKg}};
  // The estimate relies on its priced high-grade device, not an unpriced sink.
@@ -97687,7 +97819,11 @@ function craftPowerOf(c){
  // that physical dissipator; power for it is reserved from the existing plant.
  const heat=C.heatProfile(p);if(!heat)return null;const indices=new Map(),dis=[];for(let i=0;i<heat.dis.length;i++){const d=heat.dis[i];if(d.k==='hdis'&&d.m===2){indices.set(i,dis.length);dis.push(d);}}
  if(!dis.length)return null;p.heat={...heat,mode:'strict',dis,ln:heat.ln.filter(l=>indices.has(l.d)).map(l=>({...l,d:indices.get(l.d)}))};p.heat=C.heatProfile(p);const fuelVolume=bom.parts.filter(row=>row.k==='fuel').reduce((n,row)=>n+row.volume*(row.count??1),0);p.fuel=C.fuelProfileFromStats({fuelVolume});p.crewCapacity=p.crewMax;
- p.maxSpeed=Number.isFinite(c.speed)&&c.speed>0?c.speed:0;c.powerProfile=C.referenceSpeedProfile(p,plan.key);c.mass=massTonnes;return c.powerProfile;
+ p.maxSpeed=Number.isFinite(c.speed)&&c.speed>0?c.speed:0;c.powerProfile=C.referenceSpeedProfile(p,plan.key);c.mass=massTonnes;c.speed=c.powerProfile.maxSpeed||0;return c.powerProfile;
+}
+function squadPowerLossState(s,u){
+ if(u.powerLossDisabled&&u.out==='電源喪失'){if(!s.disabled||s.powerLossDisabled){s.disabled=u.out;s.powerLossDisabled=true;}}
+ else if(s.powerLossDisabled){if(s.disabled==='電源喪失')delete s.disabled;delete s.powerLossDisabled;}
 }
 const SQUAD_POWER_TICKS=new WeakMap();
 function squadPropulsion(s,throttle,dt,prepare=false){
@@ -97695,12 +97831,12 @@ function squadPropulsion(s,throttle,dt,prepare=false){
  let u=s.drive;if(!u||u._profile!==profile){u=s.drive=C.fleetUnit(s.id+':drive',s.craft,profile,s.side);u._profile=profile;}
  const reference=C.calibrateMotionResistance(profile),left=(s.ldg||[]).reduce((n,x,i)=>n+(s.ammo?.[i]||0)*(x.mass||0),0),massKg=profile.propulsion.massKg+left*1000;
  if(u.p===profile||u.p.propulsion.massKg!==massKg){const descriptor={...profile.propulsion,massKg,ratedAccelMps2:massKg>0?profile.propulsion.ratedThrustN/massKg:0};u.p={...profile,...(reference?{motionResistance:reference}:{}),propulsion:descriptor};}
- u.pos=s.pos;u.yaw=Math.atan2(s.h[2],s.h[0]);u.velocity=s.vel||[0,0,0];u.maneuver=Number.isFinite(throttle)?clamp(throttle,0,1):0;u.out=s.disabled||null;
+ u.pos=s.pos;u.yaw=Math.atan2(s.h[2],s.h[0]);u.velocity=s.vel||[0,0,0];u.maneuver=Number.isFinite(throttle)?clamp(throttle,0,1):0;u.out=s.disabled||null;if(s.powerLossDisabled)u.powerLossDisabled=true;C.syncPowerLossDisabled(u);squadPowerLossState(s,u);
  const world=HULLS?.w,time=world?.time,cached=SQUAD_POWER_TICKS.get(u);if(world&&cached?.world===world&&cached.time===time)return C.propulsionMotion(u);
  const wing=world?.wings?.get(s.wing),firing=s.weaponDemand===true||wing?.phase==='run'||!!wing?.engaged||(s.dogfight!=null&&Number.isFinite(time)&&s.dogfight>=time-Math.max(0,dt))||(s.strafeT>time),g=u.p.grid,weapons=firing?Math.max(0,g.Dw||0)*squadLaserK(s):0;
  const allocation=C.allocateShipPower(u,C.fleetSystems(u),{throttle:u.maneuver,shields:(profile.shieldBuffer>0||g.Ds>0)&&u.shield<u.shieldMax*.999?g.Ds:0,weapons},dt,'balanced');s.weaponPowerK=weapons>0?clamp((allocation.got.weapons||0)/weapons,0,1):0;
  const H=C.heatProfile(u.p),nf=Math.max(Math.min(C.DESIGN_LIMITS.parts,u.p.foils?.length||0),...(H?.dis||[]).map(d=>Number.isInteger(d.fo)&&d.fo>=0&&d.fo<C.DESIGN_LIMITS.parts?d.fo+1:0));if(nf>0){u.fo=u.fo||{d:new Array(nf).fill(0),jam:new Array(nf).fill(false),want:new Array(nf).fill(0)};for(let i=0;i<nf;i++)u.fo.d[i]=u.fo.want[i]=Number.isFinite(s.foil)?clamp(s.foil,0,1):0;}
- const motion=C.propulsionMotion(u);if(dt>0){if(u.shield<u.shieldMax){const J=(allocation.got.shields||0)*dt;u.shield=Math.min(u.shieldMax,u.shield+J/C.TT*C.K.deflect);}C.heatTick(null,u,dt);C.powerTick(u,dt);}if(prepare&&world)SQUAD_POWER_TICKS.set(u,{world,time});s.propulsion=u.propulsion;return motion;
+ if(dt>0){if(u.shield<u.shieldMax){const J=(allocation.got.shields||0)*dt;u.shield=Math.min(u.shieldMax,u.shield+J/C.TT*C.K.deflect);}C.heatTick(null,u,dt);C.powerTick(u,dt);}squadPowerLossState(s,u);const motion=C.propulsionMotion(u);if(prepare&&world)SQUAD_POWER_TICKS.set(u,{world,time});s.propulsion=u.propulsion;return motion;
 }
 // v21 Craft of the player's own design fly beside the types above: a carrier's air wing row carries the
 // design's snapshot (C.craftCombat), and the craft is entered here under its own key when the carrier
@@ -98321,16 +98457,17 @@ function towedIn(w, g) { const out = new Set(); for (const id of g.units) { cons
 // whose hyperdrive is gone are left behind when it jumps.
 function groupHyper(w, g) {
  let worst = 0;const towed = towedIn(w, g);
- for (const id of g.units) { const u = w.units.get(id); if (!alive(u) || towed.has(id)) continue; if (u.out) return null; const hc = unitHyper(u); if (hc == null) continue; worst = Math.max(worst, hc); }
+ for (const id of g.units) { const u = w.units.get(id); if (!alive(u) || towed.has(id)) continue;C.syncPowerLossDisabled(u);if (u.out) return null; const hc = unitHyper(u); if (hc == null) continue; worst = Math.max(worst, hc); }
  return worst || null;
 }
 // Disabled ships of a group not in a tow: the group cannot jump while it has any.
-function groupDisabled(w, g) { const towed = towedIn(w, g), out = []; for (const id of g.units) { const u = w.units.get(id); if (alive(u) && u.out && !towed.has(id)) out.push(u); } return out; }
+function groupDisabled(w, g) { const towed = towedIn(w, g), out = []; for (const id of g.units) { const u = w.units.get(id);if(alive(u))C.syncPowerLossDisabled(u);if (alive(u) && u.out && !towed.has(id)) out.push(u); } return out; }
 // Ships the group would leave behind on a jump: their hyperdrive is gone.
 function groupStay(w, g) { const towed = towedIn(w, g); return g.units.map(id => w.units.get(id)).filter(u => alive(u) && !u.out && !towed.has(u.id) && unitHyper(u) == null); }
 // A ship's hyperdrive class while any of its hyperdrive modules survives
 // (wrecked units slow it in proportion), or null.
 function unitHyper(u) {
+ C.syncPowerLossDisabled(u);if(u.out)return null;
  if(C.powerFactor(u,'hyper')<=0||C.powerFactor(u,'reactor')<=0)return null;
  const hc = u.info?.hyper;if (hc == null) return null;const mods = u.p.modules || [];let has = 0, left = 0;
  mods.forEach((m, i) => { if (m.k !== 'hyper') return; has += m.share; left += m.share * Math.max(0, u.mods[i]); });
@@ -99533,7 +99670,8 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
 // per kind (w.missiles: the target's point defence engages them, a salvo of eight taking one fire-control channel).
 // Returns what was released, [{kind, n}].
 function squadRelease(w, sys, s, t, bombs, aim) {
- const out = [];if (!s.ldg?.length || !(s.n > 0)) return out;
+ if(s.drive)C.syncPowerLossDisabled(s.drive);
+ const out = [];if (s.disabled||s.drive?.out||!s.ldg?.length || !(s.n > 0)) return out;
  s.ldg.forEach((x, i) => { if (!!x.bomb !== bombs) return;const o=C.ORDNANCE[x.kind],sp=Math.max(o.speed,bombs?0:sqSpeed(s)),range=o.range||sp*(bombs?8:20);if(len(sub(t.pos,s.pos))>range)return;
   const k = Math.min(s.ammo[i] || 0, x.salvo);if (!(k > 0)) return; s.ammo[i] -= k;
   const n = k * s.n, dir = norm(sub(t.pos, s.pos));
@@ -99797,7 +99935,7 @@ function craftIdle(w, dt) {
 }
 // Disabled ships keep falling out of battle too.
 function driftTick(w, dt) {
- for (const u of w.units.values()) { if (!alive(u) || !u.out || u.sys == null || u.towedBy || w.battles.has(u.sys)||u._fallTime===w.time) continue;u._fallTime=w.time;if (C.hullFall(u, dt, w.rand)) lostToGravity(w, u.sys, u); }
+ for (const u of w.units.values()) { if(alive(u))C.syncPowerLossDisabled(u,combatCtx(w,u.sys));if (!alive(u) || u.manual || !u.out || u.sys == null || u.towedBy || w.battles.has(u.sys)||u._fallTime===w.time) continue;u._fallTime=w.time;if (C.hullFall(u, dt, w.rand)) lostToGravity(w, u.sys, u); }
 }
 function applyDamage(w, sys, u, o, dt, s, ctx) {
  // Damage dealt outside the battle model (the bolts of a piloted ship) arrives here.
@@ -99842,7 +99980,7 @@ function rearTick(w, dt = 0) {
   if (u.status === 'rear' && !u.dead && dt > 0) { const dp = w.sides[u.side]?.supply?.depot || 0; if (dp > 0) u.rear.back += dt * SUPPLY.rearSlow * dp; }
   if (u.status !== 'rear' || u.dead || w.time < u.rear.back) continue;
   const p = u.p, sd = w.sides[u.side], home = sd.start;C.combatInit(u);
-  u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;u.out = null;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
+  u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;u.out = null;delete u.powerLossDisabled;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
   u.shield = u.shieldMax = Math.max(0, p.shieldBuffer ?? p.D * C.K.bufferS);u.bank = u.bankMax = Math.max(0, p.reserve || 0);u.status = 'ready';C.shipHeatRepairComplete(u);
   const g = makeGroup(w, u.side, `${u.name}（修理完了）`, home);g.units = [u.id];g.flag = u.id;u.group = g.id;u.sys = home;u.order = {type: 'group', fire: true, power: 'auto', aim: 'auto'};deployGroup(w, g, null);
   for (const sid of u.squads) { const q = w.squads.get(sid); if (q && q.state === 'docked') { q.sys = home; q.pos = [...u.pos]; } }
@@ -99929,7 +100067,7 @@ function supplyGive(w, u, nd, t) {
  use(nd.plate, k => { const Z = C.combatZones(p, u.sec.length);let a = 0, s = 0; for (let z = 0; z < u.zi.length; z++) { if (u.zi[z] < 1) u.zi[z] = Math.min(1, u.zi[z] + (1 - u.zi[z]) * k); a += Z.A[z] || 0; s += (Z.A[z] || 0) * u.zi[z]; } u.armor = a > 0 ? s / a : 1; });
  use(nd.parts, k => { for (let i = 0; i < mods.length; i++) if (u.mods[i] <= 0 && mods[i].k !== 'hull' && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.max(.02, k); });
  // A disabled ship whose power, bridge and crew are restored is back in the fight.
- if (u.out) { const why = C.fleetOutReason(u);
+ if (u.out) {C.syncPowerLossDisabled(u);const why = C.fleetOutReason(u);
   if (!why) { u.out = null; u.fall = null; u.order = {...u.order, type: 'group'}; blog(w, u.sys, `${u.name}：修理を終えて戦列に復帰`, u); event(w, `${u.name} が修理を終えて戦列に復帰`, {side: u.side, sys: u.sys}); } }
 }
 // v26 Convoy mode: the depot store fills at the train's capacity (less the depots' harassment); ships in a home
@@ -100473,12 +100611,15 @@ function step(w, dt, maxN = 4000) {
 function tick(w, dt) {
  if(w.result){resultBeamTail(w,dt);return;}
  const navigationTime=w.time;w.time += dt;
+ for(const u of w.units.values())if(alive(u))C.syncPowerLossDisabled(u,combatCtx(w,u.sys));
  for (const g of w.groups.values()) {
+  const towed=towedIn(w,g),powerLost=g.units.some(id=>{const u=w.units.get(id);return alive(u)&&u.powerLossDisabled&&!towed.has(id);});
+  if(powerLost&&cancelJump(w,g.id)){g.waitJump=null;g.craftWait=null;}
   normalizeJumpNavigation(w,g,navigationTime);
   if (g.transit && w.time >= g.transit.t1) arriveGroup(w, g);
   if (g.waitJump && w.time >= g.waitJump.at && !g.transit && !g.spool) { const d = g.waitJump.dest; g.waitJump = null; if (g.sys != null && g.sys !== d) orderJump(w, g.id, d); }
   // The spool stands still while any ship of the group is under fire (the reactor cannot feed the drive and the shields at once).
-  if (g.spool) { const towed=towedIn(w,g),blocked = g.units.some(id => { const u = w.units.get(id); return alive(u) && !u.out && u.sys != null && (w.battles.has(u.sys) && u.underFire||!towed.has(id)&&(C.powerFactor(u,'hyper')<=0||C.powerFactor(u,'reactor')<=0)); }); g.spool.blocked = blocked; if (!blocked) g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) { u.jump.t = g.spool.t; u.jump.blocked = blocked; } } spoolSequence(w, g); if (g.spool.t >= g.spool.need) departGroup(w, g); }
+  if (g.spool) { const towed=towedIn(w,g),blocked = g.units.some(id => { const u = w.units.get(id); return alive(u)&&u.sys!=null&&(!towed.has(id)&&u.out||!u.out&&(w.battles.has(u.sys)&&u.underFire||!towed.has(id)&&(C.powerFactor(u,'hyper')<=0||C.powerFactor(u,'reactor')<=0))); }); g.spool.blocked = blocked; if (!blocked) g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) { u.jump.t = g.spool.t; u.jump.blocked = blocked; } } spoolSequence(w, g); if (!blocked&&g.spool.t >= g.spool.need) departGroup(w, g); }
  }
 followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  updateBattles(w);

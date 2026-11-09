@@ -10,12 +10,14 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
 }
 const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
 const plain = value => JSON.parse(JSON.stringify(value));
+const dragSmallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,dragLargeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,dragSmallRate=3999.1037971899486*C.G0*C.FLEET_RULES.accelScale/2000,dragLargeRate=2972.473437207956*C.G0*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(dragLargeRate/dragSmallRate)/Math.log(dragLargeMass/dragSmallMass),expectedDragRate=mass=>dragSmallRate*Math.pow(mass/dragSmallMass,dragExponent);
+const driveWattsPerNewton=C.engineConversionCoefficient(1e6),fullThrustN=1e18/driveWattsPerNewton,fullAcceleration=fullThrustN/1e6,fullGameAcceleration=fullAcceleration*C.FLEET_RULES.accelScale;
 const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} != ${b}`);
 const nearVector=(a,b)=>b.forEach((v,i)=>near(a[i],v));
-function analyticMotion(u,v,a,dt){const k=.001*u.p.propulsion.massKg/1e6,x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
+function analyticMotion(u,v,a,dt){const k=expectedDragRate(u.p.propulsion.massKg),x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
 function profile() {
   const engine = {id: 2, machineryId: 2, ratedInputW: 1e18,
-    wattsPerNewton: 2e9, ratedThrustN: 5e8, driveProfileId: 'standard',
+    wattsPerNewton: driveWattsPerNewton, ratedThrustN: fullThrustN, driveProfileId: 'standard',
     machineryGradeId: 'standard', machineryLengthM: 2, machineryRadiusM: 1,
     effectiveMachineryVolumeM3: 2 * Math.PI * (.78 * .78 + .78 + 1) / 3,
     moduleIndex: 1, powerNode: 'p2', heatNode: 'p2', domain: 'main',
@@ -32,18 +34,18 @@ function profile() {
     grid: {P: 1e18, Pgen: 1e18, Paux: 0, fixed: 0, cooling: 0,
       De: 1e18, Ds: 0, Dw: 0},
     propulsion: {version: 1, engines: [engine], massKg: 1e6,
-      ratedThrustN: 5e8, ratedAccelMps2: 500, accelerationLimitMps2: 500}};
+      ratedThrustN: fullThrustN, ratedAccelMps2: fullAcceleration, accelerationLimitMps2: fullAcceleration}};
 }
 function unit() { return C.fleetUnit('motion-test', 'motion', profile()); }
 
 test('motion uses the actual physical result and the tactical scale exactly once', () => {
   const u = unit();C.allocateShipPower(u, C.fleetSystems(u), {throttle: 0}, 0);
   u.mods[1] = .25;u.ht.lim.engine = .25;
-  u.propulsion = {actualAccelMps2: 125, outputRatio: .25};
-  assert.equal(C.propulsionMotion(u).acc0, 1);
-  assert.equal(C.propulsionMotion(u).acc, .25);
-  assert.equal(C.propulsionMotion(u).turn, .25);
-  assert.equal(C.propulsionMotion(u, .5).acc, .125);
+  u.propulsion = {actualAccelMps2: fullAcceleration * .25, outputRatio: .25};
+  assert.equal(C.propulsionMotion(u).acc0, fullGameAcceleration);
+  near(C.propulsionMotion(u).acc, fullGameAcceleration * .25);
+  near(C.propulsionMotion(u).turn, .25);
+  near(C.propulsionMotion(u, .5).acc, fullGameAcceleration * .125);
   u.propulsion.actualAccelMps2 = 0;
   assert.equal(C.propulsionMotion(u).acc, 0);
   assert.equal(C.propulsionMotion(u).turn, 0);
@@ -58,6 +60,7 @@ test('fleet movement receives this tick\'s allocation and never rotates drifting
   const b = C.fleetBattle([u], false);
   C.fleetTick(b, .25, {collide: false});
   const expected=analyticMotion(u,[40,2,3],[0,0,0],.25);nearVector(u.velocity,expected.v);nearVector(u.pos,expected.dp);
+  assert.equal(u.out,'電源喪失');
   assert.equal(u.yaw, .2);
   assert.equal(u.engF, 0);
 });
@@ -66,23 +69,24 @@ test('fleet acceleration is bounded by supplied force rather than legacy p.accel
   const u = unit();u.order = {...u.order, type: 'move', point: [10000, 0, 0]};
   const b = C.fleetBattle([u], false);
   C.fleetTick(b, .25, {collide: false});
-  near(u.velocity[0],analyticMotion(u,[0,0,0],[1,0,0],.25).v[0]);
+  near(u.velocity[0],analyticMotion(u,[0,0,0],[fullGameAcceleration,0,0],.25).v[0]);
   assert.equal(u.propulsion.actualInputW, 1e18);
-  assert.equal(u.propulsion.actualAccelMps2, 500);
+  near(u.propulsion.actualAccelMps2, fullAcceleration);
 });
 
-test('peaceful movement shares current power and preserves a blackout\'s velocity', () => {
+test('peaceful movement shares current power and uses disabled gravity after a blackout', () => {
   const u = unit();u.sys = 0;u.side = 0;u.info = {mass: 1000};
   u.order = {...u.order, type: 'move', point: [10000, 0, 0]};
-  const w = {time: 10, units: new Map([[u.id, u]]), groups: new Map(),
+  const w = {time: 10, rand:()=>.5, units: new Map([[u.id, u]]), groups: new Map(),
     ctgs: new Map(), battles: new Map(), sides: [], sensors: false};
   R.peaceTick(w, 0, .25);
-  near(u.velocity[0],analyticMotion(u,[0,0,0],[1,0,0],.25).v[0]);
+  near(u.velocity[0],analyticMotion(u,[0,0,0],[fullGameAcceleration,0,0],.25).v[0]);
   assert.equal(u.propulsion.actualInputW, 1e18);
   u.p.grid.P = 0;u.p.grid.Pgen = 0;u.velocity = [40, 2, 3];
   const position = u.pos.slice(), heading = u.yaw;w.time += .25;
   R.peaceTick(w, 0, .25);
-  const expected=analyticMotion(u,[40,2,3],[0,0,0],.25);nearVector(u.velocity,expected.v);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));
+  const expected=analyticMotion(u,[40,2,3],[0,-C.HULL_FALL.g,0],.25);nearVector(u.velocity,expected.v);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));
+  assert.equal(u.out,'電源喪失');
   assert.equal(u.yaw, heading);
   assert.equal(u.propulsion.actualInputW, 0);
 });
@@ -106,10 +110,11 @@ test('zero aircraft throttle preserves drift and powered steering stays within a
   nearVector(s.vel,analyticMotion(s.drive,[40,2,3],[0,0,0],.25).v);
   assert.deepEqual(plain(s.h), [1, 0, 0]);
   assert.equal(s.propulsion.actualInputW, 0);
+  assert.ok(!s.drive.out,'zero throttle does not disable an electrically live craft');
   s.throttle = 1;const before = s.vel.slice();
   R.steer(s, [0, 0, 1000], 1000, .25);
   const coast=analyticMotion(s.drive,before,[0,0,0],.25),dv=Math.hypot(...s.vel.map((v,i)=>v-coast.v[i]));
-  assert.ok(dv > 0 && dv <= coast.gain + 1e-10,'only the funded change beyond passive decay uses the engine budget');
+  assert.ok(dv > 0 && dv <= fullGameAcceleration*coast.gain + 1e-10,'only the funded change beyond passive decay uses the engine budget');
   assert.equal(s.propulsion.actualInputW, 1e18);
   s.drive.mods[1] = 0;const drift = s.vel.slice(), heading = s.h.slice();
   R.steer(s, s.pos.slice(), 1000, .25);
@@ -132,15 +137,15 @@ test('equal simulation time gives equal velocity change and propulsion input ene
   assert.equal(coarse.inputJ, fine.inputJ);
 });
 
-test('saved craft retain the validated engine profile and fixed conversion coefficient', () => {
+test('saved craft retain the validated engine profile and mass-bound conversion coefficient', () => {
   const p = profile();p.propulsion.engines[0].wattsPerNewton = 1;
   const d = C.cleanDesignCraft({name: 'Saved drive', dims: [10, 4, 3], craft: {
     role: 'fighter', speed: 1000, mass: 1000, crew: 1, aa: 1,
     gun: 0, strike: 0, armor: 1, powerProfile: p,
   }});
-  assert.equal(d.craft.powerProfile.propulsion.engines[0].wattsPerNewton, 2e9);
+  assert.equal(d.craft.powerProfile.propulsion.engines[0].wattsPerNewton, driveWattsPerNewton);
   const key = R.registerDesignCraft(d);
-  assert.equal(R.CRAFT[key].powerProfile.propulsion.ratedAccelMps2, 500);
+  near(R.CRAFT[key].powerProfile.propulsion.ratedAccelMps2, fullAcceleration);
   assert.deepEqual(plain(C.cleanDesignCraft(plain(d)).craft.powerProfile),
     plain(d.craft.powerProfile));
   const invalid = plain(p);invalid.propulsion.engines[0].driveProfileId = 'unbounded';
@@ -164,8 +169,8 @@ test('legacy combat profiles require independent finite mass and preserve their 
   assert.equal(C.fleetUnit('no-mass','legacy',p).p.propulsion, undefined);
   const model = C.legacyPropulsionProfile(p, 1000);
   assert.equal(model.massKg, 1e6);
-  assert.equal(model.ratedAccelMps2, 500);
-  assert.equal(model.engines[0].wattsPerNewton, 2e9);
+  near(model.ratedAccelMps2, fullAcceleration);
+  assert.equal(model.engines[0].wattsPerNewton, driveWattsPerNewton);
   assert.equal(model.legacyReadOnly, true);
   p.modules.push({...p.modules[1], share:1, size:1});
   const split = C.legacyPropulsionProfile(p,1000);
@@ -183,10 +188,10 @@ test('a stale result cannot move a unit without a finite valid descriptor', () =
 
 test('a legacy combined acceleration remains only an upper bound on real powered movement',()=>{
  const p=profile();delete p.propulsion;p.mass=1000;p.accel=.2;
- const model=C.legacyPropulsionProfile(p,1000);assert.equal(model.legacyMovementCapSource,'profile.accel');assert.equal(model.ratedAccelMps2,500);assert.equal(model.legacyUpperMovementCapMps2,.2/C.FLEET_RULES.accelScale);
- const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');assert.equal(u.propulsion.actualInputW,Math.min(1e18*throttle,2e17));assert.equal(C.propulsionMotion(u).acc,.2);}
+ const model=C.legacyPropulsionProfile(p,1000);assert.equal(model.legacyMovementCapSource,'profile.accel');near(model.ratedAccelMps2,fullAcceleration);assert.equal(model.legacyUpperMovementCapMps2,.2/C.FLEET_RULES.accelScale);
+ const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');const wattsPerNewton=C.engineConversionCoefficient(u.p.propulsion.engines[0]),input=Math.min(1e18*throttle,1e6*(.2/C.FLEET_RULES.accelScale)*wattsPerNewton);near(u.propulsion.actualInputW,input);near(C.propulsionMotion(u).acc,input/wattsPerNewton/1e6*C.FLEET_RULES.accelScale);}
  u.mods[0]=0;C.allocateShipPower(u,C.fleetSystems(u),{throttle:1},0,'balanced');assert.equal(u.propulsion.actualInputW,0);assert.equal(C.propulsionMotion(u).acc,0);
- delete p.accel;assert.equal(C.legacyPropulsionProfile(p,1000).accelerationLimitMps2,500);for(const invalid of [NaN,Infinity,-1]){p.accel=invalid;assert.equal(C.legacyPropulsionProfile(p,1000),null);}
+ delete p.accel;near(C.legacyPropulsionProfile(p,1000).accelerationLimitMps2,fullAcceleration);for(const invalid of [NaN,Infinity,-1]){p.accel=invalid;assert.equal(C.legacyPropulsionProfile(p,1000),null);}
 });
 
 test('stationary turning keeps requesting engine power until the heading is reached', () => {
@@ -207,7 +212,7 @@ test('a disabled peaceful unit integrates mass resistance and planetary gravity 
   const expected=analyticMotion(u,[.001,0,.002],[0,-C.HULL_FALL.g,0],1);nearVector(u.pos,expected.dp);nearVector(u.velocity,expected.v);assert.equal(u.yaw,.7);
 });
 
-test('the real peaceful registry preserves slow drift after its original start time', () => {
+test('the real peaceful registry preserves disabled falling motion after its original start time', () => {
   const design={key:'slow-drift',p:profile(),info:{mass:1000,hyper:null,capital:false,sensor:0}};
   const w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[design],
     sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:design.key}],[]]});
@@ -216,7 +221,8 @@ test('the real peaceful registry preserves slow drift after its original start t
   const position=u.pos.slice();w.time=2000;w.stir=new Map([[u.sys,{t0:0,still:0}]]);
   for(let i=0;i<40;i++)R.tick(w,.25);
   assert.ok(w.stir.has(u.sys),'slow inertial flight stays registered');
-  const expected=analyticMotion(u,[.001,0,.002],[0,0,0],10);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));nearVector(u.velocity,expected.v);
+  const expected=analyticMotion(u,[.001,0,.002],[0,-C.HULL_FALL.g,0],10);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));nearVector(u.velocity,expected.v);
+  assert.equal(u.out,'電源喪失');
   nearVector(u.velocity,expected.v);
 });
 
@@ -225,7 +231,7 @@ test('saved power profiles retain verified physical volume without a retired den
   p.propulsion.engines[0].effectiveMachineryVolumeM3=1e20;
   p.propulsion.engines[0].maxInputW=1e32;
   const clean=C.cleanCraftPowerProfile(p);
-  assert.equal(clean.propulsion.ratedThrustN,1e18/2e9);
+  near(clean.propulsion.ratedThrustN,fullThrustN);
   const engine=clean.propulsion.engines[0];assert.equal(engine.valid,true);assert.ok(engine.effectiveMachineryVolumeM3<1,'cached claimed volume cannot enlarge the real machinery');assert.equal(engine.availableInputW,1e18);const point=C.engineOperatingPoint(engine,1e18);assert.ok(point.loadFactor>1);near(point.wasteHeatW,5e16);
 });
 

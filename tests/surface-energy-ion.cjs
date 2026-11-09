@@ -29,7 +29,7 @@ test('the whole-vessel heat limit stops both independent electrical domains at o
 
 test('a blackout stops new steering and firing while a real fleet ship retains its inertial velocity',()=>{
  const u=unit(),enemy=unit();enemy.id='foe';enemy.team=1;enemy.pos=[20000,0,0];u.velocity=[100,0,20];u.order={type:'move',point:[0,0,30000],fire:true,power:'auto'};const v=plain(u.velocity),yaw=u.yaw;
- C.ionOverload(u,1000,{moduleIndex:2},ctx);const b=C.fleetBattle([u,enemy]);C.fleetTick(b,.25);assert.deepEqual(plain(u.velocity),v);assert.equal(u.yaw,yaw);close(u.pos[0],25);close(u.pos[2],5);assert.equal(u.firingAt,enemy.id);assert.equal(u.energy,100);
+ C.ionOverload(u,1000,{moduleIndex:2},ctx);assert.equal(u.out,'電源喪失');assert.equal(u.powerLossDisabled,true);const b=C.fleetBattle([u,enemy]),shots=C.fleetTick(b,.25);assert.deepEqual(plain(u.velocity),v);assert.equal(u.yaw,yaw);close(u.pos[0],25);close(u.pos[2],5);assert.equal(u.firingAt,null);assert.equal(shots.filter(s=>s.from===u.id).length,0);assert.equal(u.energy,100);
 });
 
 test('strict superweapon charging is bounded by actual input, efficiency and the intact connected reactor',()=>{

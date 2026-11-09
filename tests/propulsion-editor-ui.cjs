@@ -144,10 +144,27 @@ test('an independent nozzle selection strip displays the connected body source c
  assert.match(facts,/接続機関の最大入力/);assert.ok(facts.includes(capacity+' W'));assert.doesNotMatch(facts,/推力/);
 });
 test('an integrated nozzle selection strip obtains nonzero thrust from its actual connected reactor',()=>{
- const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[70,20,0],d:4});ship.parts[0].reactor=4;const precisePartSize=()=>false;`);
+ const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[70,20,0],d:4});ship.parts[0].reactor=4;S={mass:10};const precisePartSize=()=>false;`);
  const start=app.indexOf('function stripFacts('),end=app.indexOf('function renderSelStrip(',start);run(app.slice(start,end));
- const thrust=run('C.resolveEngineSpec(ship.parts[0],ship).ratedThrustN');assert.ok(thrust>0,'the actual connected source supports positive thrust');
+ const thrust=run('C.resolveEngineSpec(ship.parts[0],ship,S.mass*1000).ratedThrustN');assert.ok(thrust>0,'the actual connected source supports positive thrust');
  const facts=run(`stripFacts({list:'parts',it:ship.parts[0]}).line`);assert.ok(facts.includes('推力 '+thrust+' N'),'the readout must resolve the nozzle in its ship context');assert.doesNotMatch(facts,/接続機関の最大入力/);
+});
+test('engine readouts use confirmed whole-vessel mass and withhold force while the generation is pending',()=>{
+ const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[70,20,0],d:4});ship.parts[0].reactor=4;S={mass:10,propulsion:{preset:"combat",cores:[],engines:[]}};C.computeStats=()=>{throw Error('UI cannot recompute whole-vessel physics')};`);
+ const first=plain(run('engineSpecForUI(selItem())'));
+ assert.equal(first.conversionMassKg,10000);
+ assert.equal(first.wattsPerNewton,run('C.engineConversionCoefficient(S.mass*1000)'));
+ assert.equal(first.ratedThrustN,first.ratedInputW/first.wattsPerNewton);
+ assert.ok(run('enginePerformance(selItem())').includes('>'+first.ratedThrustN+' N<'));
+ run('S={mass:1000000,propulsion:{preset:"combat",cores:[],engines:[]}}');const second=plain(run('engineSpecForUI(selItem())'));
+ assert.equal(second.conversionMassKg,1e9);assert.notEqual(second.wattsPerNewton,first.wattsPerNewton);
+ assert.equal(second.ratedInputW,first.ratedInputW,'the same finite reactor still supplies the same watts');
+ assert.ok(run('enginePerformance(selItem())').includes('>'+second.ratedThrustN+' N<'));
+ run('eng.gen++');assert.equal(run('engineSpecForUI(selItem()).conversionMassKg'),second.conversionMassKg,'lightweight previews retain the last confirmed Core mass');
+ assert.match(run('enginePerformance(selItem())'),/<dt>最大推力<\/dt><dd>計算中…<\/dd>/);
+ assert.match(run('engineSpecControls(selItem())'),/<dt>入力から推力への係数<\/dt><dd>計算中…<\/dd>/);
+ run('eng.statsGen=eng.adoptedGen=eng.gen');assert.ok(run('enginePerformance(selItem())').includes('>'+second.ratedThrustN+' N<'));
+ run('S=null');assert.equal(run('engineMassForUI()'),undefined);assert.match(run('enginePerformance(selItem())'),/<dt>最大推力<\/dt><dd>計算中…<\/dd>/);
 });
 test('gamepad nudges unrestricted machinery dimensions through the same validated action and Undo',()=>{
  const run=setup();run(`const events=[];focused={tagName:'INPUT',type:'number',step:'any',min:'.01',max:'100',value:'2',dataset:{engineStep:'.01'},stepUp(){throw Error('step any');},dispatchEvent(e){events.push(e.type);if(e.type==='change')engineSpecAction('machineryLengthM',this.value);}};`);

@@ -15,14 +15,15 @@ const near = (actual, expected) => assert.ok(
   `${actual} != ${expected}`,
 );
 
+const planningMassKg = 1e6, planningInputW = planningMassKg * 500 * C.engineConversionCoefficient(planningMassKg);
 function powerProfile() {
   const engine = {
-    id: 2, machineryId: 2, ratedInputW: 1e18, effectiveMachineryVolumeM3:1e18/3.4e17, ratedThrustN: 5e8,
-    wattsPerNewton: 2e9, driveProfileId: 'standard', machineryGradeId: 'standard',
+    id: 2, machineryId: 2, ratedInputW: planningInputW, effectiveMachineryVolumeM3:planningInputW/3.4e17, ratedThrustN: 5e8,
+    wattsPerNewton: C.engineConversionCoefficient(planningMassKg), driveProfileId: 'standard', machineryGradeId: 'standard',
     machineryLengthM: 2, machineryRadiusM: 1, moduleIndex: 1,
     powerNode: 'p2', heatNode: 'p2', domain: 'main', direction: [1, 0, 0],
     valid: true, available: true, connected: true, outletAvailable: true,
-    pathCapacityW: 1e18,
+    pathCapacityW: planningInputW,
   };
   return {
     profileVersion: C.FLEET_PROFILE_VERSION, name: 'Planning regression fixture',
@@ -32,7 +33,7 @@ function powerProfile() {
       {k: 'reactor', part: 1, port: 'p1', domain: 'main', size: 1, share: 1},
       {k: 'engine', part: 2, port: 'p2', domain: 'main', size: 1, share: 1},
     ],
-    grid: {P: 1e18, Pgen: 1e18, Paux: 0, fixed: 0, cooling: 0, De: 1e18, Ds: 0, Dw: 0},
+    grid: {P: planningInputW, Pgen: planningInputW, Paux: 0, fixed: 0, cooling: 0, De: planningInputW, Ds: 0, Dw: 0},
     propulsion: {
       version: C.PROPULSION_MODEL_VERSION, engines: [engine], massKg: 1e6,
       ratedThrustN: 5e8, ratedAccelMps2: 500,
@@ -45,7 +46,7 @@ function powerProfile() {
 test('live propulsion retains its planning limits across throttle and power changes', () => {
   const p = powerProfile().propulsion;
   for (const [throttle, powerW, expected] of [
-    [1, 1e18, 150], [.25, 1e18, 125], [0, 1e18, 0], [1, 0, 0],
+    [1, planningInputW, 150], [.25, planningInputW, 125], [0, planningInputW, 0], [1, 0, 0],
   ]) {
     const result = C.solveShipPropulsion(p, {
       throttle, sources: [{id: 'p1', domain: 'main', powerW}],
@@ -59,7 +60,7 @@ test('live propulsion retains its planning limits across throttle and power chan
 });
 
 test('a real architecture-two engine and paid feed retain planning limits while actual watts, force and heat follow the allocation', () => {
-  const rated = 1e18, wattsPerNewton = 2e9;
+  const rated = 1e18;
   const ship = C.newShip({L: 300, W: 160, H: 120, sec: 'rect', plan: 'rect', bowW: 1, bowH: 1, stern: 1}, 'Independent planning limits');
   ship.parts = [
     {id: 1, k: 'gen', c: [200, 60, 0], d: 20},
@@ -70,6 +71,7 @@ test('a real architecture-two engine and paid feed retain planning limits while 
   ship.nextId = 5;
   ship.links = [{kind: 'power', from: 'p1', to: 'p2', cap: rated}];
   const stats = C.computeStats(ship), descriptor = C.propulsionProfile(ship, stats), fleet = C.fleetProfile(stats, ship.name, ship);
+  const wattsPerNewton = C.engineConversionCoefficient(stats.mass * 1000);
   const feed = C.engineTransmission(ship).routes.find(r => r.from === 'p1' && r.to === 'p2');
   assert.equal(descriptor.architectureVersion, 2);
   assert.equal(descriptor.cores.length, 1);

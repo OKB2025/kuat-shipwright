@@ -1,0 +1,145 @@
+{
+  "status": "PASS_WITH_KNOWN_BASELINE_FAILURES",
+  "timestamp": "2026-11-09T00:06:05.104164+00:00",
+  "baselineCommit": "5f17279260d4acc8e79076ecfe70df24fc47021b",
+  "finalSourceSha256": {
+    "index.html": "23d9249092c9ff21ca771f0fb0c9e29615c95b0ed658147a109c511776005eae",
+    "js/app.js": "1103e04eb1686f30372c3c5feadd0590e04bdf064ccec44043d08fb5a0590986",
+    "js/core.js": "79cab83c088efe5a5b4a901550c70e6fd9ce468b2e8e358500a6beff41ce29b2",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "5207db02cba8316bbde8fcaa5f13706a813b0ced84c520cc15c07a7ca54d2567"
+  },
+  "syntaxChecks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "exitCode": 0,
+      "sha256": "79cab83c088efe5a5b4a901550c70e6fd9ce468b2e8e358500a6beff41ce29b2"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/app.js"
+      ],
+      "exitCode": 0,
+      "sha256": "1103e04eb1686f30372c3c5feadd0590e04bdf064ccec44043d08fb5a0590986"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/gfx.js"
+      ],
+      "exitCode": 0,
+      "sha256": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/engine.js"
+      ],
+      "exitCode": 0,
+      "sha256": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/worker.js"
+      ],
+      "exitCode": 0,
+      "sha256": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/lang-en.js"
+      ],
+      "exitCode": 0,
+      "sha256": "5207db02cba8316bbde8fcaa5f13706a813b0ced84c520cc15c07a7ca54d2567"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/refresh-imperial-layouts.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "f54d5e56f8208029b1933467d4c7d508975a8eec0a911268dd7fa1bd3f53a1e7"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-reactor-powered-propulsion.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "175d1c6f7e447d5c4e124807cf588ca92a1597b573da88cdd1429587cc625522"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/validate-propulsion-shaft-mass.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "884efc5c81c52b32e2a9296f48dd406ec2d6dc617c6a943fa9a310169a9a0fca"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/validate-reference-acceleration.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "dd03f9f4474143043735b471902c3a6f3d9f279f1538478f263fc45d27741b33"
+    }
+  ],
+  "browserProof": "calibrated-propulsion-browser.json",
+  "referenceProof": "reference-acceleration-runtime.json",
+  "regressionProof": "calibrated-propulsion-validation.json",
+  "postBrowserTextOnlyChange": {
+    "files": {
+      "index.html": {
+        "browser": "c0a4e651f72131eecd7d6df6083d807fcf79dbc668f1cf8114a85bdb0c0d5953",
+        "final": "23d9249092c9ff21ca771f0fb0c9e29615c95b0ed658147a109c511776005eae"
+      },
+      "js/lang-en.js": {
+        "browser": "416fd062ac5cb714ecfb0c73230bc3206719d32dde4dead2e9681e4826196fdb",
+        "final": "5207db02cba8316bbde8fcaa5f13706a813b0ced84c520cc15c07a7ca54d2567"
+      }
+    },
+    "reason": "Added the exact English translation of the current TIE/ln factory note (native one-part solar wings, 0.992 m reactor and 4100 G target) and refreshed the verified download manifest. Core, App, renderer, Worker, physics and trial controls remain byte-for-byte those used in the browser proof.",
+    "validation": "Final regression suite includes the actual English dictionary/source-note test and verified startup source manifest checks. Browser physics is not claimed to exercise the later description-only text."
+  },
+  "privateUploadValidation": {
+    "status": "PASS",
+    "checks": 10,
+    "scope": "Original uploaded blueprint read/measure/profile, finite funded allocation, genuine SI heat-induced electrical disablement, retained instantaneous motion, existing gravity/resistance and native cooling/crew recovery. Private design names, IDs, numerical traces and input are intentionally omitted."
+  },
+  "limitations": {
+    "knownBaselineFailures": [
+      {
+        "test": "built-in reference speed overlays preserve the catalogue and old physical profiles require regeneration",
+        "baselineProof": "calibrated-propulsion-baseline-catalogue.json"
+      },
+      {
+        "test": "a hit on an electrically disconnected gun does not inject overload into its nominal main grid",
+        "baselineProof": "calibrated-propulsion-baseline-surface.json"
+      }
+    ],
+    "safari": "Not tested",
+    "allStockConstructors": "One named all-stock-fighter constructor regression case is excluded; final public reference proof builds TIE/ln, Venator and Imperial afresh. This is not exhaustive validation of every stock design.",
+    "timings": "Concurrent validation; not a performance benchmark."
+  }
+}

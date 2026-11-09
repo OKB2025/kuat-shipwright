@@ -4556,6 +4556,8 @@ root.KS_EN={
   "約 {0} MGLT・加速 {1} から": "About {0} MGLT · Based on {1} Acceleration",
   "約 {0} MGLT・{1}": "About {0} MGLT · {1}",
   "公表された最高速度": "Published maximum speed",
+  "実給電の推力と共通抵抗から計算": "Calculated from received-power thrust and common resistance",
+  "速度は実給電の推力と艦全体の質量に対する共通抵抗から計算します。公表されたMGLTは校正資料です。1 MGLT＝20 m/s はゲーム内の換算です。": "Speed is calculated from received-power thrust and the common resistance law for the whole ship's mass. Published MGLT values are calibration references. The conversion of 1 MGLT to 20 m/s applies within this game.",
   "設計から計算した速度（仮定）": "Calculated design speed (assumption)",
   "速度とは別に計算": "Calculated independently of speed",
   "速度の資料": "Speed reference",
@@ -4872,6 +4874,7 @@ root.KS_EN={
   "「終了」": "End",
   "作戦を終えるときはここ": "Press here to end the operation",
   "電源喪失": "Power Loss",
+  "電源が復旧・航行不能を解除": "Power restored; navigation restored",
   "{0}：電源喪失で航行不能（チュートリアル）": "{0}: disabled by power loss (tutorial)",
   "作例の艦を準備できません": "Unable to prepare the example ships",
   "艦艇の性能を更新中…": "Updating ship performance…",
@@ -10485,5 +10488,8 @@ Object.assign(root.KS_EN.terms,{
 });
 Object.assign(root.KS_EN.terms,{
  "推力・構造強度・慣性制御の上限": "Limits from Thrust, Structural Strength, and Inertial Control"
+});
+Object.assign(root.KS_EN.messages,{
+ "7.24 m（正史：全長 7.24 m・全高 8.82 m）。Daniel 氏のモデル「Star Wars: TIE/ln Fighter」（CC BY 4.0）の実測形状を、正史の全長（六角形の太陽電池翼の前後長）に等倍で合わせた（モデルに合わせると全幅 6.56 m・全高 8.35 m で、正史の全高より約 5% 低い。形状はモデルに従った）。直径 2.47 m の球形操縦席を船体とし、六角形の太陽電池翼は現行の太陽光パネル部品を左右1個ずつ配置した（パネル厚さ 0.08 m）。輪郭と一体形状は部品の六角形プリセットを使い、個別の外枠・桁・支柱・フランジ・中央ハブは配置しない。球形の船体から翼への接続柱、前面窓と窓枠、後部ハッチは保持した。球の中には操縦席1席（正史どおり乗員1名）、I-a2b 反応炉、P-s4 イオン・エンジン2基（推進部を球の中央帯に前後に通し、後方へ噴射）、燃料タンク、慣性補償器を重ならないように詰めた。兵装は機首下の L-s1 レーザー砲 2門（砲口はモデルの砲口の位置）。正史どおりシールド発生器とハイパードライブは持たない。外殻装甲は 0.75 mm（表面の大半を占める太陽電池翼を含めた平均）。実給電モデルに合わせて炉・機関・配電を組み直し、現行の太陽光パネルを装備した完成機の質量に合わせ、実際の反応炉を直径約 0.992 m とした。最大加速度の設計目標は正史に合わせた 4,100 G。": "7.24 m (canonical length 7.24 m and height 8.82 m). Reconstructed from measurements of Daniel's “Star Wars: TIE/ln Fighter” model (CC BY 4.0), scaled uniformly to the canonical fore-and-aft length of the hexagonal solar wings. Following the model gives a width of 6.56 m and a height of 8.35 m, approximately 5% below the canonical height; the geometry follows the model. A 2.47 m cockpit sphere forms the hull. Each hexagonal solar wing uses one solar-panel part, one on each side, with a panel thickness of 0.08 m. The part's hexagonal preset supplies the outline and integrated shape. No separate outer frames, spars, struts, flanges or central hubs are installed. The columns connecting the sphere to the wings, forward viewport and frame, and rear hatch are retained. The sphere contains one pilot seat, matching the canonical crew of one, an I-a2b reactor, two P-s4 ion engines running fore-and-aft through its central band and exhausting aft, fuel tanks, and an inertial compensator without overlap. Two L-s1 laser cannons beneath the cockpit have muzzles matching the model. As in canon, there is no shield generator or hyperdrive. Hull armor averages 0.75 mm, including the solar wings that make up most of the surface area. The reactor, machinery and electrical distribution are rebuilt for the actual-power model. The actual reactor has a diameter of approximately 0.992 m, calibrated to the completed craft's mass with its current solar panels. The design target for maximum acceleration is the canonical 4,100 G."
 });
 })(typeof window==="undefined"?globalThis:window);
