@@ -8,6 +8,6 @@ test('measured hull solids use the hull plating and skip structure detail',()=>{
  assert.match(gfx,/measuredHullSolid\(ship,p\)\)\{const T=equipmentSkinTriangles\(ship,'p'\+p\.id,C\.structTriangles\(p\)\);hullTriangleMesh\(out\.struct,T,/);
  assert.match(gfx,/if\(p\.form==='reference'\|\|p\.plate\|\|measuredHullSolid\(ship,p\)\)return;/);
 });
-test('armour surfaces are drawn plain, without a plate pattern',()=>{
- assert.match(gfx,/if\(uSkinScale>0\.0&&armorSurface\)tx=vec3\(0\.815\);/);assert.doesNotMatch(gfx,/tx=filteredDeckPlate\(/);
+test('armour plate parts are drawn plain while the hull keeps its armour skin',()=>{
+ assert.match(gfx,/plate: 'plain'/);assert.match(gfx,/T\.plain = \{a, e\}/);assert.match(gfx,/source==='plate'\?0:0\);/);assert.match(gfx,/if\(uSkinScale>0\.0&&armorSurface\)tx=filteredDeckPlate\(tx,armorP\);/);
 });
