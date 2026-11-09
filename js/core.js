@@ -49238,7 +49238,9 @@ function syncHullStructure(ship,p=primaryHullPart(ship),fromProfile=true){
  if(!isHullStructure(p))return null;
  const h=p.hullProfile;
  if(fromProfile)p.s=['L','W','H'].map(k=>clamp(Number(h[k])||1,.02,DESIGN_LIMITS.partSize));
- else for(const [i,k] of ['L','W','H'].entries())h[k]=clamp(Number(p.s[i])||1,.02,DESIGN_LIMITS.partSize);
+ else{const before=['L','W','H'].map(k=>Number(h[k]));for(const [i,k] of ['L','W','H'].entries())h[k]=clamp(Number(p.s[i])||1,.02,DESIGN_LIMITS.partSize);
+  // v24 A resized hull part carries its own cuts with it (docs/hull-part-scaling-v24.md).
+  if(before.every(v=>Number.isFinite(v)&&v>0))scaleHullStructureCuts(ship,p,[h.L/before[0],h.H/before[2],h.W/before[1]]);}
  h.assembly=false;
  if(ship&&p===primaryHullPart(ship)){for(const k of HULL_PROFILE_FIELDS)if(!Object.hasOwn(h,k))delete ship.hull[k];for(const k of Object.keys(h))if(k!=='assembly')ship.hull[k]=JSON.parse(JSON.stringify(h[k]));ship.hull.assembly=true;}
  syncHullHatches(ship,p);return p;
@@ -49261,6 +49263,22 @@ function syncHullHatches(ship,p){
    for(const k of ['k','open','motion','aperture','sill'])if(b[k]!=null&&b[k]!==a[k]){if(k==='k'&&!['open','ray'].includes(b[k]))continue;a[k]=b[k];changed=true;}
    if(changed)invalidateHullHatchGeometry(ship,p);
   }b.a=hullWorldPoint(p,a.a);b.b=hullWorldPoint(p,a.b);b.n=norm(sub(hullWorldPoint(p,add(a.a,a.n)),b.a));b.w=a.w;}
+}
+// v24 Scale a hull part's own cuts with the part: F = [length, height, width] factors along the part's x, y and z.
+// Its hull geometry is defined in fractions of length, width and height, so it scales about the stern (x 0), the keel
+// (y 0) and the centreline (z 0); the cuts, kept in metres in the same frame, are scaled about the same origin.
+// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets, cut boxes, solid cutters
+// (centre and size, a rotated cutter by the length of each of its own axes) and the hull's openings follow.
+function scaleHullStructureCuts(ship,p,F){
+ if(!F.every(v=>Number.isFinite(v)&&v>0)||F.every(v=>Math.abs(v-1)<1e-12))return false;
+ const data=p.hullData;if(!data)return false;const sc=v=>[v[0]*F[0],v[1]*F[1],v[2]*F[2]];
+ for(const c of data.cuts||[])if(c.type!=='planTrapezoid'&&!c.prop&&Number.isFinite(c.inset))c.inset*=F[2];
+ for(const t of data.trenches||[]){if(Number.isFinite(t.height))t.height*=F[1];if(Number.isFinite(t.depth))t.depth*=F[2];}
+ for(const b of data.subs||[])if(Array.isArray(b.b)&&b.b.length===6)b.b=[...sc(b.b.slice(0,3)),...sc(b.b.slice(3))];
+ for(const q of data.solidCuts||[]){if(Array.isArray(q.c))q.c=sc(q.c);if(Array.isArray(q.s)&&Array.isArray(q.rotation)){const k=[[1,0,0],[0,1,0],[0,0,1]].map(e=>len(sc(solidCutRotation(q,e))));q.s=[q.s[0]*k[0],q.s[1]*k[2],q.s[2]*k[1]];}}
+ const hatch=h=>{const {widthAxis:u}=hatchAxes(h);if(Array.isArray(h.a))h.a=sc(h.a);if(Array.isArray(h.b))h.b=sc(h.b);if(Number.isFinite(h.w))h.w*=F[u];if(Array.isArray(h.cut))h.cut=h.cut.map((v,i)=>i<6?v*F[i%3]:v*F[u]);};
+ for(const h of data.hatches||[])hatch(h);for(const h of ship?.hatches||[])if(h.hullOwner===p.id)hatch(h);
+ invalidateHullHatchGeometry(ship,p);delete p._hullShip;return true;
 }
 function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;p.s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize));return syncHullStructure(ship,p,false);}
 function ensurePrimaryHull(ship,options={}){
@@ -53638,11 +53656,11 @@ function engineSceneSupply(ship,part){
  if(cached?.key!==key)ENGINE_SCENE_SUPPLY_CACHE.set(ship,{key,supply});if(ordinary&&ship._boundsPass)ship._boundsPass.engineSceneSupply=supply;
  return supply.get(part?.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]};
 }
-// v24 The Onager's engine bodies sit directly forward of their nozzles, on the axis of the nozzles they
+// v24 The Onager's and the Subjugator's engine bodies sit directly forward of their nozzles, on the axis of the nozzles they
 // drive, so the drive runs from each body straight into its nozzles instead of along the whole hull from
 // the reactor. A body starts at the most forward of its nozzles' throats and moves forward only as far as
 // it needs to lie wholly inside the hull.
-function onagerCoreCenter(ship,group,axis,length,diameter,gap){
+function nozzleCoreCenter(ship,group,axis,length,diameter,gap){
  const ax=norm(axis),throats=group.map(p=>sub(p.c,mul(norm(p.dir||ax),partDims(p).l/2))),mid=mul(throats.reduce((a,b)=>add(a,b),[0,0,0]),1/throats.length),front=Math.max(...throats.map(t=>-dot(t,ax))),start=sub(sub(mid,mul(ax,front+dot(mid,ax))),mul(ax,length/2+gap));
  for(let step=0;step<=200;step+=2){const c=sub(start,mul(ax,step)),body={id:-999999,k:'engineCore',c,d:diameter,length,dir:ax,autoFit:false};if(unclippedSurfSamples(body).concat(unclippedVolSamples(body),[c]).every(q=>insideOriginalEnvelope(ship,q)))return c;}
  return start;
@@ -57295,25 +57313,25 @@ function shipRefitInternalCores(ship,nozzles,requestedByNozzle,externalBodies,ke
    for(const nozzle of group){nozzle.machineryId=placed.id;nozzle.nozzleShare=placed.ratedInputW*(requested>0?requestedByNozzle.get(nozzle.id)/requested:1/group.length);nozzle.ratedInputW=nozzle.nozzleShare;nozzle.busFeed=true;delete nozzle.propulsionMigration;}
    return placed;
   };
-  if(key==='onager'){
-   // v24 One engine body directly forward of each of the five nozzles, on its axis: the drive shaft is a
+  if(key==='onager'||key==='subjugator'){
+   // v24 One engine body directly forward of each nozzle (the Onager's five, the Subjugator's fourteen), on its axis: the drive shaft is a
    // short straight run into the nozzle. Each body is as wide as its nozzle (room for the shaft that
    // carries the nozzle's full rating) and holds at least the machinery volume that rating needs.
    const main=reactors.find(p=>p.k==='gen')||reactors[0];
    for(const nozzle of nozzles.slice().sort((a,b)=>a.c[2]-b.c[2]||a.id-b.id)){const W=requestedByNozzle.get(nozzle.id)||0,d=nozzle.d,length=Math.max(d*.6,W/PROPULSION.referenceInputDensity/(Math.PI*(d/2)**2));
-    build([nozzle],false,main,/主機関/.test(nozzle.label||'')?'主推進機関':'副推進機関',{required:true,sideFeed:true,dimensions:{d,length},center:({axis,length,diameter,gap})=>onagerCoreCenter(ship,[nozzle],axis,length,diameter,gap)});}
+    build([nozzle],false,key==='subjugator'?reactors.find(r=>r.id===nozzle.reactor)||main:main,key==='subjugator'?'亜光速推進機関本体':/主機関/.test(nozzle.label||'')?'主推進機関':'副推進機関',{required:true,sideFeed:true,dimensions:{d,length},center:({axis,length,diameter,gap})=>nozzleCoreCenter(ship,[nozzle],axis,length,diameter,gap)});}
   }else if(key==='imperial'||key==='imperial2'){
    const isd=key==='imperial'||key==='imperial2',primary=nozzles.filter(p=>(key==='onager'?/主機関/:/主イオン/).test(p.label||'')),main=reactors.find(p=>p.k==='gen')||reactors[0];
    // One central main body supplies all three main outlets. Its rating and
    // volume are the sum of those outlets' requests, counted once upstream.
-    const mainCore=primary.length?build(primary,false,main,'主推進機関',{required:true,...(isd?{dimensions:{d:242,length:140}}:{}),center:isd?()=>[286,155,0]:({axis,length,diameter,gap})=>onagerCoreCenter(ship,primary,axis,length,diameter,gap)}):null;
+    const mainCore=primary.length?build(primary,false,main,'主推進機関',{required:true,...(isd?{dimensions:{d:242,length:140}}:{}),center:isd?()=>[286,155,0]:({axis,length,diameter,gap})=>nozzleCoreCenter(ship,primary,axis,length,diameter,gap)}):null;
    for(const side of [-1,1]){const group=nozzles.filter(p=>!primary.includes(p)&&(p.c[2]<0?-1:1)===side);if(!group.length)continue;
     const center=mul(group.reduce((c,p)=>add(c,p.c),[0,0,0]),1/group.length),source=reactors.filter(r=>r!==main).sort((a,b)=>len(sub(a.c,center))-len(sub(b.c,center)))[0]||main;
     // Auxiliary bodies sit between the main runs, independently of the main
     // body: two small outlets per ISD side, one per Onager side. The Onager's
     // long lateral reactor rooms feed these bodies from the side; actual
     // solid clearance still decides whether their complete volume fits.
-    build(group,false,source,'副推進機関',{required:true,sideFeed:key==='onager',...(isd?{dimensions:{d:70,length:20}}:{}),center:isd?()=>[200.5,136.75,side*55]:({axis,length,diameter,gap})=>onagerCoreCenter(ship,group,axis,length,diameter,gap)});}
+    build(group,false,source,'副推進機関',{required:true,sideFeed:key==='onager',...(isd?{dimensions:{d:70,length:20}}:{}),center:isd?()=>[200.5,136.75,side*55]:({axis,length,diameter,gap})=>nozzleCoreCenter(ship,group,axis,length,diameter,gap)});}
   }else if(MONCAL_ENGINE_LAYOUTS[key]){
    for(const plan of MONCAL_ENGINE_LAYOUTS[key]){const group=plan.nozzles.map(id=>nozzles.find(p=>p.id===id));if(group.some(p=>!p))throw new Error(key+': 統合推進機関のノズルがありません');const inputW=Math.PI*(plan.d/2)**2*plan.length*PROPULSION.referenceInputDensity,totalWeight=plan.weights.reduce((a,b)=>a+b,0);for(let i=0;i<group.length;i++)requestedByNozzle.set(group[i].id,inputW*plan.weights[i]/totalWeight);const source=reactors.find(p=>p.id===plan.reactor)||reactors.find(p=>p.k==='gen')||reactors[0];build(group,true,source,'統合推進機関',{required:true,dimensions:{d:plan.d,length:plan.length},center:()=>[plan.aft+plan.length/2,plan.y,plan.z]});}
   }else if(key==='cr90'||key==='hammerhead'){
