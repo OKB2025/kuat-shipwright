@@ -8454,7 +8454,7 @@ function trialSelfUpdate(hud){
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
 function trialHyperText(j,d,left){
  const c=`光速の ${(trial.vf/LIGHT*100).toFixed(trial.vf<LIGHT*.01?2:1)}%`;
- return j.phase==='spool'?(trialHyperReady()?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:trialHyperChargeText(d)):j.phase==='accel'?`ジャンプ準備速度へ加速 · ${c}`:j.phase==='enter'?`ハイパードライブ加速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
+ return j.phase==='spool'?((typeof trialHyperReady!=='function'||trialHyperReady())?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:trialHyperChargeText(d)):j.phase==='accel'?`ジャンプ準備速度へ加速 · ${c}`:j.phase==='enter'?`ハイパードライブ加速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
 }
 // v24 The hyperdrive fills from spare power (C.hyperChargeStep); the spool waits until it is full.
 function trialHyperReady(){const u=typeof trialSystemsUnit==='function'?trialSystemsUnit():null;return !u||typeof C.hyperCharged!=='function'||C.hyperCharged(u)>=1;}
@@ -8637,7 +8637,7 @@ function trialJump(dest){
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
  if(trialSystemsUnit()?.out||trialSystemsUnit()?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;})){toast('戦闘不能のためジャンプできません');return;}
  const plan=Galaxy.itinerary(trial.sysKey,dest);if(!plan?.segments.length){toast('航路がありません');return;}trial.navigation={version:1,final:dest,stop:plan.next,remaining:plan.stops.slice(1),waiting:false};dest=plan.next;
- spaceCineEnd();trial.jump={phase:'spool',t:0,priorThrottle:C.clamp(trialThrottleCommand(),0,1),dest,final:plan.final,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};if(trialHyperReady()){if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}}
+ spaceCineEnd();trial.jump={phase:'spool',t:0,priorThrottle:C.clamp(trialThrottleCommand(),0,1),dest,final:plan.final,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};if((typeof trialHyperReady!=='function'||trialHyperReady())){if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}}
  trialMapShow(false);const way=Galaxy.path(trial.sysKey,dest);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${trialDurText(trial.jump.tunnel)}${way&&way.legs.length>1?`・${way.legs.length - 1} 星系経由`:''}）`);
  if(trial.battle&&!trial.battle.result)spaceDepartEscorts();
 }
@@ -8692,7 +8692,7 @@ function trialJumpStep(dt){
  if((preparing||bursting)&&(unit?.out||unit?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trialCancelJump(true);return;}
  // v24 While the drive charges from spare power the pilot keeps the throttle (a craft can coast and give the
  // drive its engine share); once it is full the ship drives to cruise speed for the entry.
- const charging=!j.follow&&j.phase==='spool'&&!trialHyperReady();
+ const charging=!j.follow&&j.phase==='spool'&&!(typeof trialHyperReady!=='function'||trialHyperReady());
  if(preparing){
   if(!charging){if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}}
   j.dir=trialCol(trial.R,0);j.readiness=trialHyperspaceReadiness();
