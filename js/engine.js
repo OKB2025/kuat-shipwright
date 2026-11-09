@@ -636,7 +636,8 @@ async function handleTrenchArmament(job) {
 
 async function loadExample(key){
  const row=typeof YardFleetData==='undefined'?null:YardFleetData.designs?.[key],asset=row?.model?.preparedBlueprint,hash=globalThis.KS_SOURCE_SHA256?.['js/core.js'];
- const matchingSources=['data/reference.js','data/imperial2.js','js/core.js'].every(file=>row?.model?.sourceSha256?.[file]&&row.model.sourceSha256[file]===globalThis.KS_SOURCE_SHA256?.[file]);
+ // v24 The design file carries its own source stamp (data/examples/manifest.json); older rows use the row's.
+ const stamp=asset?.sourceSha256||row?.model?.sourceSha256,matchingSources=['data/reference.js','data/imperial2.js','js/core.js'].every(file=>stamp?.[file]&&stamp[file]===globalThis.KS_SOURCE_SHA256?.[file]);
  if(asset&&hash&&matchingSources&&asset.coreSha256===hash&&typeof KSAssetCache!=='undefined'&&typeof DecompressionStream!=='undefined')try{
   const url=new URL(asset.url,globalThis.KS_ASSET_BASE).href,blob=await KSAssetCache.getBlob(url,asset.sha256),raw=await new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer(),actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',raw)),v=>v.toString(16).padStart(2,'0')).join('');
   if(actual!==asset.jsonSha256)throw Error('Prepared blueprint checksum mismatch');
