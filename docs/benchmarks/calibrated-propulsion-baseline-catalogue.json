@@ -1,0 +1,26 @@
+{
+  "status": "PRE_EXISTING_CATALOGUE_AVAILABILITY_FAILURE_REPRODUCED",
+  "date": "2026-11-08T23:45:34.461334+00:00",
+  "baselineCommit": "5f17279260d4acc8e79076ecfe70df24fc47021b",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-name-pattern=built-in reference speed overlays",
+    "/workspace/scratch/calibration-regression-baseline-5f/tests/reference-sublight-speeds.cjs"
+  ],
+  "environment": {
+    "KS_TEST_ROOT": "/workspace/scratch/calibration-regression-baseline-5f"
+  },
+  "testSha256": "ef06d70739acc3d44b338190c6ea5710e927ffa7ef2d028f3a07b9031a05f4de",
+  "exitCode": 1,
+  "summary": [
+    "not ok 1 - built-in reference speed overlays preserve the catalogue and old physical profiles require regeneration",
+    "# tests 1",
+    "# pass 0",
+    "# fail 1",
+    "# skipped 0"
+  ],
+  "logSha256": "39e586e5398aead9da897a5ab277abcb9beed6f3c9c184282f83032feac2e3fc",
+  "scope": "Exact main baseline catalogue availability check; arc170 quote is unavailable before this change."
+}

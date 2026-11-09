@@ -1,0 +1,248 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-11-08T22:02:54.923Z",
+  "scope": "One actual fresh production Core.buildDesign('venator'), computeStats, fleetProfile and cold real reactor/propulsion-priority allocation. No all-example sweep, no private upload, no old geometry/mass comparison.",
+  "sourceCoreSha256": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+  "stages": [
+    {
+      "stage": "runtime loaded",
+      "elapsedMs": 900
+    },
+    {
+      "stage": "fresh constructor started",
+      "elapsedMs": 902
+    },
+    {
+      "stage": "fresh constructor complete",
+      "elapsedMs": 46169,
+      "partCount": 110,
+      "fitCount": 59,
+      "hatchCount": 5
+    },
+    {
+      "stage": "stats started",
+      "elapsedMs": 46173
+    },
+    {
+      "stage": "stats complete",
+      "elapsedMs": 53274,
+      "massTonnes": 11800135.06356654,
+      "hp": 21021.223347410327,
+      "powerW": 3.6000002953409026e+24,
+      "warningCount": 1
+    },
+    {
+      "stage": "profile started",
+      "elapsedMs": 53275
+    },
+    {
+      "stage": "profile complete",
+      "elapsedMs": 58706,
+      "profileVersion": 23,
+      "inputModelVersion": 2,
+      "motionVersion": 3,
+      "mglt": 50,
+      "maxSpeedMps": 1000,
+      "coreCount": 8,
+      "nozzleCount": 8
+    },
+    {
+      "stage": "cold allocation complete",
+      "elapsedMs": 58731,
+      "status": "PASS",
+      "engineInputW": 2.617145234601252e+24,
+      "sourceSentW": 2.623671238612741e+24,
+      "sourceP": 3.6000002953409026e+24,
+      "outputRatio": 0.9908244790693187,
+      "shapePreservedByRuntime": true
+    }
+  ],
+  "engineering": {
+    "reference": "venator",
+    "name": "ヴェネター級｜双塔キャリア",
+    "partCount": 110,
+    "fitCount": 59,
+    "hatchCount": 5,
+    "massTonnes": 11800135.06356654,
+    "hp": 21021.223347410327,
+    "powerW": 3.6000002953409026e+24,
+    "draw": {
+      "weapons": 8.025920156202682e+24,
+      "shields": 2.1795317698146423e+23,
+      "engines": 2.647967721868513e+24,
+      "hotel": 2.423962200546552e+22,
+      "systems": 0,
+      "ray": 0,
+      "jump": 2.9673153962137004e+23,
+      "dissipators": 2.218984798477748e+22
+    },
+    "warningCount": 1,
+    "warnings": [
+      {
+        "text": "兵装の充電速度は機械的な最大連射の 41%。余剰電力に応じて再充電します。"
+      }
+    ],
+    "profileVersion": 23,
+    "inputModelVersion": 2,
+    "motionResistance": {
+      "version": 3,
+      "referenceMassKg": 11800135063.56654,
+      "referenceAccelMps2": 223.84330938826108,
+      "referenceSpeedMps": 1000,
+      "ratePerKg": 1.8969554855298867e-11
+    },
+    "mglt": 50,
+    "maxSpeedMps": 1000,
+    "ratedPhysicalAccelMps2": 111921.65469413054,
+    "structuralAccelLimitMps2": 122000.38618631553,
+    "inertialFactor": 1,
+    "healthyPhysicalAccelMps2": 111921.65469413054,
+    "coreCount": 8,
+    "nozzleCount": 8
+  },
+  "allocation": {
+    "sourceTotalW": 3.6000002953409026e+24,
+    "sourceDrawW": 2.647967721868512e+24,
+    "sourceUsedFraction": 0.7355465290643156,
+    "deliveredEngineInputW": 2.617145234601252e+24,
+    "engineSourceSentW": 2.623671238612741e+24,
+    "feedLossW": 6.631749132539514e+21,
+    "fixedGrantedW": 2.0497740206880389e+21,
+    "coolingGrantedW": 2.2140964114033208e+22,
+    "weaponGrantedW": 0,
+    "shieldGrantedW": 0,
+    "engineWasteHeatW": 1.3085726173006275e+23,
+    "engineUsefulPowerW": 2.4862879728711893e+24,
+    "actualThrustN": 1308572617300625.8,
+    "actualPhysicalAccelMps2": 110894.71520888807,
+    "actualGameAccelMps2": 221.78943041777615,
+    "outputRatio": 0.9908244790693187,
+    "structuralInputLimited": true,
+    "unitOut": null,
+    "thermalOnline": true,
+    "engines": [
+      {
+        "id": 28,
+        "coreId": 28,
+        "actualInputW": 6.674861071560851e+23,
+        "actualThrustN": 333743053578042.5,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 29,
+        "coreId": 29,
+        "actualInputW": 5.499916044071746e+23,
+        "actualThrustN": 274995802203587.3,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 30,
+        "coreId": 30,
+        "actualInputW": 5.589544305530693e+22,
+        "actualThrustN": 27947721527653.465,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 31,
+        "coreId": 31,
+        "actualInputW": 3.5199462682059164e+22,
+        "actualThrustN": 17599731341029.582,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 44,
+        "coreId": 44,
+        "actualInputW": 6.674861071560851e+23,
+        "actualThrustN": 333743053578042.5,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 45,
+        "coreId": 45,
+        "actualInputW": 5.499916044071746e+23,
+        "actualThrustN": 274995802203587.3,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 46,
+        "coreId": 46,
+        "actualInputW": 5.589544305530693e+22,
+        "actualThrustN": 27947721527653.465,
+        "reasons": [
+          "power-shortage"
+        ]
+      },
+      {
+        "id": 47,
+        "coreId": 47,
+        "actualInputW": 3.5199462682059164e+22,
+        "actualThrustN": 17599731341029.582,
+        "reasons": [
+          "power-shortage"
+        ]
+      }
+    ],
+    "budgets": [
+      {
+        "sourceId": "p27",
+        "limitW": 2.647967721868513e+24,
+        "drawW": 2.623671238612741e+24,
+        "remainingW": 2.4296483255772e+22
+      },
+      {
+        "sourceId": "p34",
+        "limitW": 4.760175061991707e+23,
+        "drawW": 0,
+        "remainingW": 4.760175061991707e+23
+      },
+      {
+        "sourceId": "p50",
+        "limitW": 4.760150672732189e+23,
+        "drawW": 0,
+        "remainingW": 4.760150672732189e+23
+      }
+    ],
+    "sources": [
+      {
+        "id": "p27",
+        "moduleIndex": 59,
+        "reactor": true,
+        "domain": "main",
+        "availableW": 2.647967721868513e+24,
+        "drawW": 2.647967721868512e+24
+      },
+      {
+        "id": "p34",
+        "moduleIndex": 66,
+        "reactor": true,
+        "domain": "main",
+        "availableW": 4.760175061991707e+23,
+        "drawW": 0
+      },
+      {
+        "id": "p50",
+        "moduleIndex": 78,
+        "reactor": true,
+        "domain": "main",
+        "availableW": 4.760150672732189e+23,
+        "drawW": 0
+      }
+    ]
+  },
+  "shapePreservedByRuntime": true,
+  "sourceCoreSha256After": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+  "sourceStable": true,
+  "completedAt": "2026-11-08T22:03:53.646Z"
+}

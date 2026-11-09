@@ -1,0 +1,227 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T17:34:28.655Z",
+  "sources": {
+    "index.html": "9f1e66693c0ca612542dad8223138061170fa4a89ee4739d427c57fd0bfb364b",
+    "js/core.js": "eaf9471c6064304af829cf1253dfa954b29f158ccdafaf39e041948e364df97a",
+    "js/app.js": "1b369504853cf75d17cc7c39850bd00ecb21830f850df0883abb286c044d1193",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/lang-en.js": "4ce3900b3ddce71c31eef7f12f6ad1920ae7dc775199a01f0b2bf6ae030451a9"
+  },
+  "checks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/app.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/gfx.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/lang-en.js"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/propulsion-boarding.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/propulsion-motion.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/propulsion-trial.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/runtime-foils-renderer.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/surface-manual-runtime.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-mass-drag-throttle.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/aviation-hatch-preclip-source.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/engine-exhaust-output.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/mass-dependent-motion.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/thermal-zero-source-share.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "tests/throttle-output-trial.cjs"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/update-asset-manifest.cjs",
+        "--check"
+      ],
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "HEAD",
+        "--check"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "localization": [
+    {
+      "input": "後進 25%",
+      "output": "Reverse 25%",
+      "status": "PASS"
+    },
+    {
+      "input": "出力0%",
+      "output": "0% Output",
+      "status": "PASS"
+    },
+    {
+      "input": "スロットル",
+      "output": "Throttle",
+      "status": "PASS"
+    },
+    {
+      "input": "出力を上げる",
+      "output": "Increase Engine Output",
+      "status": "PASS"
+    },
+    {
+      "input": "出力を下げる",
+      "output": "Decrease Engine Output",
+      "status": "PASS"
+    },
+    {
+      "input": "熱停止中：冷却・復旧を待っています",
+      "output": "Thermal shutdown: waiting for cooling and restoration",
+      "status": "PASS"
+    },
+    {
+      "input": "推進出力が得られません。機関と出力配分を確認してください。",
+      "output": "No propulsion output. Check the engines and power allocation.",
+      "status": "PASS"
+    },
+    {
+      "input": "上部の「公試」でコルサント低軌道を操艦する。左下の▲▼でスロットル（後進25%〜出力100%）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。砲は充電装置に蓄えた「兵装エネルギー」で撃ち、1斉射ごとに減る。反応炉がシールド維持・推進の残りで再充電するので、推進出力を下げるほど兵装へ回せる電力が増える。重い艦ほど質量に比例する抵抗で減速するため、速度維持にも推進電力が要る。噴射は実際の推進出力に従う。右上の「⚡」で出力配分（巡航・均衡・兵装優先・防御優先・全力）を選ぶ。兵装優先は推進を削って充電に回し、炉を上げるほど「炉心」負荷が高まる。キーボードは W/S スロットル、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、P 出力配分、Z 水平復帰、X 舵中央、V 視点",
+      "output": "Start a Trial using Flight Trial in the top bar to pilot in low Coruscant orbit. ▲▼ controls engine output from 25% reverse to full output; ◀▶ controls the rudder, retaining its order. The right stick controls pitch and roll, returning to neutral when released. Fire uses the guns; Missiles fires eight rounds per launcher and reloads in 20 seconds. Turrets track the center reticle, with larger turrets turning more slowly. Hulls, structures, and other turrets block shots. Aim at a target to lock it: turbolasers and ion guns lead toward ◇ while missiles home. Salvos consume stored weapon energy. Reactors recharge it after supplying shields and propulsion, so lowering engine output leaves more charging power. Heavy ships face resistance proportional to mass, so maintaining speed needs propulsion power. Exhaust follows actual supplied engine output. Use ⚡ to allocate power: cruise, balanced, weapons, shields, or overload. More reactor output increases core load. Keys: W/S throttle, A/D rudder, R/F pitch, Q/E roll, Space guns, M missiles, P power, Z level, X center rudder, V camera.",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · B 超兵器 · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · B Superweapon · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · B 超兵器 · N 発射する砲を選択 · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · B Superweapon · N Select Cannons · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · O Sフォイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · O S-foils · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    },
+    {
+      "input": "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · B 超兵器 · N 発射する砲を選択 · O Sフォイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離",
+      "output": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · B Superweapon · N Select Cannons · O S-foils · G Aiming · P Power · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom",
+      "status": "PASS"
+    }
+  ],
+  "localizationMethod": "Production KSI18n.t in Node VM with English navigator; actual Japanese source labels and help paragraph plus dynamic superweapon/S-foil controls. This is not an English browser interaction test.",
+  "sourcesAfter": {
+    "index.html": "9f1e66693c0ca612542dad8223138061170fa4a89ee4739d427c57fd0bfb364b",
+    "js/core.js": "eaf9471c6064304af829cf1253dfa954b29f158ccdafaf39e041948e364df97a",
+    "js/app.js": "1b369504853cf75d17cc7c39850bd00ecb21830f850df0883abb286c044d1193",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/lang-en.js": "4ce3900b3ddce71c31eef7f12f6ad1920ae7dc775199a01f0b2bf6ae030451a9"
+  },
+  "sourcesStable": true,
+  "completedAt": "2026-11-08T17:34:31.912Z"
+}

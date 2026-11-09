@@ -1,0 +1,109 @@
+{
+  "status": "IDENTICAL_FAILURE_ON_LATEST_MAIN_AND_PRIOR_MAIN",
+  "date": "2026-11-08T17:29:40.856854+00:00",
+  "latestBaseline": "d5dedb7de6b2fdc63bb28f3c41b86f3ab691b697",
+  "testFile": "tests/surface-energy-review.cjs",
+  "testUnchangedFromPriorMain": true,
+  "latestMain": {
+    "label": "latest main after PR72",
+    "baseline": "d5dedb7de6b2fdc63bb28f3c41b86f3ab691b697",
+    "cwd": "/workspace/scratch/surface-energy-review-base-d5dedb7",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "/workspace/scratch/surface-energy-review-base-d5dedb7/tests/surface-energy-review.cjs"
+    ],
+    "coreSha256": "295b6109f9df962ab336fc26cd742c094b55f56667b045decd8dca4ed7605cd3",
+    "testSha256": "d3124c201ab4db98733c0a7b2ad4aafaa6c12429c97b5f5522f20bba0bfdac27",
+    "logSha256": "41bfbb0c6d12f40129ea329376dc51aeda719f18d06c47f1bc4af63797629471",
+    "summary": [
+      "# tests 10",
+      "# pass 9",
+      "# fail 1",
+      "# cancelled 0",
+      "# skipped 0",
+      "# todo 0",
+      "# duration_ms 2495.85404"
+    ],
+    "failures": [
+      "a hit on an electrically disconnected gun does not inject overload into its nominal main grid"
+    ],
+    "observedError": {
+      "operator": "strictEqual",
+      "expected": 1,
+      "actual": 0,
+      "message": "0 !== 1"
+    }
+  },
+  "previousEvidence": {
+    "status": "PREEXISTING_IDENTICAL_FAILURE",
+    "baseline": "48cfbede2a5b333961601c57a18549ccf77fee8b",
+    "createdAt": "2026-11-08T17:27:26.997358+00:00",
+    "testFile": "tests/surface-energy-review.cjs",
+    "testUnchanged": true,
+    "testSha256": "d3124c201ab4db98733c0a7b2ad4aafaa6c12429c97b5f5522f20bba0bfdac27",
+    "runs": [
+      {
+        "label": "current",
+        "cwd": "/workspace/kuat-shipwright",
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "tests/surface-energy-review.cjs"
+        ],
+        "coreSha256": "ec223332b9f5e129c890164392633d96797c8f34c2484ccb6412df0d2780b357",
+        "logSha256": "6a538ff44e787fcdc852ad357a03bbb85a3339eb40269f2243bed25e9be706eb",
+        "summary": [
+          "# tests 10",
+          "# pass 9",
+          "# fail 1",
+          "# cancelled 0",
+          "# skipped 0",
+          "# todo 0",
+          "# duration_ms 2398.805121"
+        ],
+        "failures": [
+          "a hit on an electrically disconnected gun does not inject overload into its nominal main grid"
+        ],
+        "observedError": {
+          "operator": "strictEqual",
+          "expected": 1,
+          "actual": 0,
+          "message": "0 !== 1"
+        }
+      },
+      {
+        "label": "baseline",
+        "cwd": "/workspace/scratch/surface-energy-review-base48",
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "tests/surface-energy-review.cjs"
+        ],
+        "coreSha256": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+        "logSha256": "a31354040aab7140a08ffbbc21c769c430810e7a71392435e603268ebb487fda",
+        "summary": [
+          "# tests 10",
+          "# pass 9",
+          "# fail 1",
+          "# cancelled 0",
+          "# skipped 0",
+          "# todo 0",
+          "# duration_ms 4005.322482"
+        ],
+        "failures": [
+          "a hit on an electrically disconnected gun does not inject overload into its nominal main grid"
+        ],
+        "observedError": {
+          "operator": "strictEqual",
+          "expected": 1,
+          "actual": 0,
+          "message": "0 !== 1"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "status": "PASS",
+  "baselineCommit": "5f17279260d4acc8e79076ecfe70df24fc47021b",
+  "scriptSha256": "884efc5c81c52b32e2a9296f48dd406ec2d6dc617c6a943fa9a310169a9a0fca",
+  "harnessSha256": "175d1c6f7e447d5c4e124807cf588ca92a1597b573da88cdd1429587cc625522",
+  "fixtureBuilderSha256": "3bad980fe1eb1b3282957c1062e6064f9f1834b8eab96450e30fa1ffa6ff3c84",
+  "scope": "Actual public generic laboratory and production Core.computeStats. A second isolated runtime adds only an observer at the existing per-part mass/displaced-hull accounting line; its unchanged final mass is asserted against the unmodified Core. No physical constants, geometry or calculations are replaced.",
+  "cause": "Removing the duplicate maximum-mode multiplier from real connected source/shaft capacity produces slightly thinner/shorter automatic shafts. Authored parts, reactor output, framing and armor remain unchanged.",
+  "models": [
+    {
+      "label": "baseline",
+      "sourceCoreSha256": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+      "massTonnes": 127600647.3736494,
+      "framingMassTonnes": 10357401.600000005,
+      "armorMassTonnes": 337697.09709392674,
+      "hullVolumeM3": 575999999.9999995,
+      "inputSha256": "6b05facb0891c6da4aa62bc4bf5be3989b990f82b7951367d7dd81dc42e322c4",
+      "audit": [
+        {
+          "id": -8000000,
+          "volumeM3": 151061.32290291582,
+          "densityTonnesPerM3": 0.55,
+          "hullDensityTonnesPerM3": 0.2,
+          "hullReplacementSamples": 148,
+          "sampleCount": 518,
+          "shaftMassTonnes": 83083.72759660371,
+          "replacedHullMassTonnes": 8632.075594452333,
+          "netMassTonnes": 74451.65200215137
+        },
+        {
+          "id": -8000001,
+          "volumeM3": 122197.94039805961,
+          "densityTonnesPerM3": 0.55,
+          "hullDensityTonnesPerM3": 0.2,
+          "hullReplacementSamples": 148,
+          "sampleCount": 518,
+          "shaftMassTonnes": 67208.86721893279,
+          "replacedHullMassTonnes": 6982.739451317691,
+          "netMassTonnes": 60226.1277676151
+        }
+      ],
+      "routes": [
+        {
+          "id": "p2>p3",
+          "partId": -8000000,
+          "capacityW": 1.9242255003237482e+24,
+          "requestedCapacityW": 1.9242255003237482e+24,
+          "lengthM": 157.01,
+          "volumeM3": 151061.32290291585
+        },
+        {
+          "id": "p16>p17",
+          "partId": -8000001,
+          "capacityW": 1.9242255003237482e+24,
+          "requestedCapacityW": 1.9242255003237482e+24,
+          "lengthM": 127.00999999999999,
+          "volumeM3": 122197.94039805963
+        }
+      ],
+      "reactorW": 1.9989826850807066e+24,
+      "observerMatchesUnmodifiedCore": true
+    },
+    {
+      "label": "current",
+      "sourceCoreSha256": "79cab83c088efe5a5b4a901550c70e6fd9ce468b2e8e358500a6beff41ce29b2",
+      "massTonnes": 127598669.03050007,
+      "framingMassTonnes": 10357401.600000005,
+      "armorMassTonnes": 337697.09709392674,
+      "hullVolumeM3": 575999999.9999995,
+      "inputSha256": "6b05facb0891c6da4aa62bc4bf5be3989b990f82b7951367d7dd81dc42e322c4",
+      "audit": [
+        {
+          "id": -8000000,
+          "volumeM3": 148865.36849250662,
+          "densityTonnesPerM3": 0.55,
+          "hullDensityTonnesPerM3": 0.2,
+          "hullReplacementSamples": 148,
+          "sampleCount": 518,
+          "shaftMassTonnes": 81875.95267087864,
+          "replacedHullMassTonnes": 8506.592485286094,
+          "netMassTonnes": 73369.36018559255
+        },
+        {
+          "id": -8000001,
+          "volumeM3": 120379.86523010653,
+          "densityTonnesPerM3": 0.55,
+          "hullDensityTonnesPerM3": 0.2,
+          "hullReplacementSamples": 148,
+          "sampleCount": 518,
+          "shaftMassTonnes": 66208.9258765586,
+          "replacedHullMassTonnes": 6878.849441720373,
+          "netMassTonnes": 59330.07643483822
+        }
+      ],
+      "routes": [
+        {
+          "id": "p2>p3",
+          "partId": -8000000,
+          "capacityW": 1.899033550826671e+24,
+          "requestedCapacityW": 1.899033550826671e+24,
+          "lengthM": 156.7801352721797,
+          "volumeM3": 148865.36849250662
+        },
+        {
+          "id": "p16>p17",
+          "partId": -8000001,
+          "capacityW": 1.899033550826671e+24,
+          "requestedCapacityW": 1.899033550826671e+24,
+          "lengthM": 126.7801352721797,
+          "volumeM3": 120379.86523010654
+        }
+      ],
+      "reactorW": 1.9989826850807066e+24,
+      "observerMatchesUnmodifiedCore": true
+    }
+  ],
+  "delta": {
+    "massTonnes": -1978.3431493341923,
+    "shaftHardwareTonnes": -2207.7162680992624,
+    "hullReplacementTonnes": -229.37311876355852,
+    "netFromActualShaftAccountingTonnes": -1978.3431493356766
+  },
+  "completedAt": "2026-11-08T23:59:25.908Z"
+}

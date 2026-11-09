@@ -8,7 +8,7 @@ const near=(a,b,label='value')=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Mat
 function unit(trunkW=100*TT){
  const mod=(k,part,domain,size=1)=>({k,part,port:'p'+part,domain,size,share:k==='weapon'?.5:1,at:.5,powerConnected:true});
  const modules=[mod('reactor',1,'one'),mod('reactor',2,'two'),mod('engine',3,'one'),mod('weapon',4,'one'),mod('weapon',5,'two'),mod('dissipator',6,'one'),mod('other',7,'one')];
- const engine={id:3,machineryId:3,moduleIndex:2,powerNode:'p3',heatNode:'p3',domain:'one',ratedInputW:70*TT,wattsPerNewton:2e9,ratedThrustN:70*TT/2e9,direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true};
+ const engine={id:3,machineryId:3,moduleIndex:2,powerNode:'p3',heatNode:'p3',domain:'one',ratedInputW:70*TT,wattsPerNewton:2e9,ratedThrustN:70*TT/2e9,driveProfileId:'standard',machineryGradeId:'standard',machineryLengthM:2,machineryRadiusM:1,effectiveMachineryVolumeM3:2*Math.PI*(.78*.78+.78+1)/3,direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true};
  const src=(k,id,m,sh=1)=>({k,id,n:id,g:'high',sh,st:1e30,m,pc:[],sec:-1,sw:-1,gen:-1});
  const mount=(id,module)=>({id,module,power:100*TT,capacity:1000,gun:1,ion:0,boltTT:1,band:'mid',arcs:Array(6).fill(1),muzzle:[0,0,0]});
  const p={name:'Isolated surface budgets',hp:1e9,len:100,width:40,height:20,D:0,shieldBuffer:0,reserve:0,wCap:2000,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,energyModel:{version:0},propulsion:{version:1,engines:[engine],massKg:1e9,ratedThrustN:engine.ratedThrustN,ratedAccelMps2:engine.ratedThrustN/1e9,accelerationLimitMps2:1e20},grid:{P:200*TT,fixed:20*TT,cooling:20*TT,De:70*TT,Ds:0,Dw:200*TT,domains:[{id:'one',P:100*TT,sources:[{moduleIndex:0,P:100*TT}],modules:[0,2,3,5,6]},{id:'two',P:100*TT,sources:[{moduleIndex:1,P:100*TT}],modules:[1,4]}],trunks:[{port:'p7',moduleIndex:6}],coolingLoads:[{id:'p6',port:'p6',domain:'one',weight:20*TT}],powerPaths:[{from:'p1',to:'p7',cap:trunkW,ok:true},{from:'p7',to:'p3',cap:70*TT,ok:true},{from:'p7',to:'p4',cap:100*TT,ok:true},{from:'p7',to:'p6',cap:20*TT,ok:true},{from:'p2',to:'p5',cap:100*TT,ok:true}]},surface:{mounts:[mount(4,3),mount(5,4)],patches:[],devices:[]},heat:{v:1,src:[src('engine','p3',[2]),src('weapon','p4',[3],.5),src('weapon','p5',[4],.5),src('reactor','p1',[0],.5),src('reactor','p2',[1],.5),src('hotel','hotel',[])],dis:[{id:'p6',n:'powered cooler',k:'hdis',g:'high',cap:1000*TT,power:20*TT,m:5,sec:-1,src:-1}],ln:[{s:0,d:0,cap:1000*TT,sec:-1}]}};
@@ -43,11 +43,12 @@ test('repeated charging cannot spend one allocated module input a second time',(
  near(u.surfaceBanks[4],10);near(u.surfaceBanks[5],100);
 });
 
-test('accepted surface charge heats only its actual funding reactors, including cooling consumption',()=>{
- const u=unit();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);C.heatTick({time:1},u,1);
- const coolingInput=u.ht.cooling.inputJ;
- near(u.ht.st[3],.04*(80*TT+coolingInput),'first source actual engine, weapon and cooler input');
- near(u.ht.st[4],.04*TT,'second source accepted weapon input');
+test('accepted surface charge retains funding attribution and only actual cooling consumption heats the common reservoir',()=>{
+ const u=unit();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);
+ near(u.ht.reactorE[3],.04*80*TT,'first source accepted engine and weapon input');near(u.ht.reactorE[4],.04*TT,'second source accepted weapon input');
+ C.heatTick({time:1},u,1,1);const coolingInput=u.ht.cooling.inputJ;
+ near(u.ht.actualGeneratedElectricalJ,81*TT+coolingInput,'unused weapon grants are not generated');near(u.ht.reactorHeatJ,.04*(81*TT+coolingInput),'reactor heat follows actual source draw');near(u.ht.cooling.reactorWasteJ,.04*coolingInput,'cooling is charged only when used');
+ assert.equal(u.ht.st,undefined,'source attribution no longer creates retired local heat stores');
 });
 
 test('a connected consumer can use more than sixteen independent finite supply paths',()=>{
@@ -59,5 +60,5 @@ test('a connected consumer can use more than sixteen independent finite supply p
 test('a design preview throttle cannot redefine its game speed or planning acceleration',()=>{
  const stats={hp:1,armorHull:0,vuln:0,shieldP:0,alphaBest:0,alphaMean:0,ionBest:0,ionMean:0,mslSalvo:0,aa:0,rc:1,accuracy:1,tractors:0,slots:0,launch:0,hullLen:100,dims:[100,40,20],alphaRate:Array(6).fill(0),ionRate:Array(6).fill(0),draw:{},propulsion:{ratedAccelMps2:500,accelerationLimitMps2:400},ratedAccelMps2:500,maximumAccelMps2:400};
  const full=C.fleetProfile({...stats,accelG:400/9.80665},'planning'),stopped=C.fleetProfile({...stats,accelG:0},'planning');
- assert.ok(full.maxSpeed>0);near(stopped.accel,full.accel);near(stopped.maxSpeed,full.maxSpeed);near(stopped.turnRate,full.turnRate);
+ assert.equal(full.maxSpeed,0,'displayed acceleration without actual engines and a source cannot create powered terminal speed');near(stopped.accel,full.accel);near(stopped.maxSpeed,full.maxSpeed);near(stopped.turnRate,full.turnRate);
 });

@@ -1,0 +1,24 @@
+{
+  "baselineCommit": "5f17279260d4acc8e79076ecfe70df24fc47021b",
+  "timestamp": "2026-11-08T23:51:35.649588+00:00",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-name-pattern=a hit on an electrically disconnected gun",
+    "/workspace/scratch/calibration-regression-baseline-5f/tests/surface-energy-review.cjs"
+  ],
+  "environment": {
+    "KS_TEST_ROOT": "/workspace/scratch/calibration-regression-baseline-5f"
+  },
+  "exitCode": 1,
+  "coreSha256": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb",
+  "testSha256": "d3124c201ab4db98733c0a7b2ad4aafaa6c12429c97b5f5522f20bba0bfdac27",
+  "logSha256": "d19ee35ca0fc4b19c79af6893ef46089bd1054cc26817a3c1c0d2341d0730b3d",
+  "summary": [
+    "not ok 1 - a hit on an electrically disconnected gun does not inject overload into its nominal main grid",
+    "# tests 1",
+    "# pass 0",
+    "# fail 1"
+  ]
+}

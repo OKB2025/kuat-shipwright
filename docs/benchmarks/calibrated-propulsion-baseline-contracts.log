@@ -1,0 +1,231 @@
+TAP version 13
+# Subtest: ENG-T18 multiPaste remaps copied reactors and shared machinery without relying on originals
+not ok 1 - ENG-T18 multiPaste remaps copied reactors and shared machinery without relying on originals
+  ---
+  duration_ms: 1080.675237
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:30:52'
+  failureType: 'testCodeFailure'
+  error: 'designEntityEditable is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    designClipboardEditable (evalmachine.<anonymous>:12:22)
+    multiPaste (evalmachine.<anonymous>:3:51)
+    evalmachine.<anonymous>:1:1
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    run (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:10:21)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:31:20)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+  ...
+# Subtest: ENG-T18 editDuplicate remaps copied reactors and shared machinery without relying on originals
+not ok 2 - ENG-T18 editDuplicate remaps copied reactors and shared machinery without relying on originals
+  ---
+  duration_ms: 412.812376
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:30:52'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 1.4039494303996185e+21
+    - 1000000000000000000
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1000000000000000000
+  actual: 1.4039494303996185e+21
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:41:161)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: ENG-T18 copying an outlet alone preserves its intentionally external owner and reactor
+not ok 3 - ENG-T18 copying an outlet alone preserves its intentionally external owner and reactor
+  ---
+  duration_ms: 238.784126
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:47:1'
+  failureType: 'testCodeFailure'
+  error: 'designEntityEditable is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    designClipboardEditable (evalmachine.<anonymous>:12:22)
+    multiPaste (evalmachine.<anonymous>:3:51)
+    evalmachine.<anonymous>:1:1
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    run (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:10:21)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:49:24)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+  ...
+# Subtest: pasting a complete engine assembly selects the pasted parts for the next move
+not ok 4 - pasting a complete engine assembly selects the pasted parts for the next move
+  ---
+  duration_ms: 331.025326
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:58:1'
+  failureType: 'testCodeFailure'
+  error: 'designEntityEditable is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    designClipboardEditable (evalmachine.<anonymous>:12:22)
+    multiPaste (evalmachine.<anonymous>:3:51)
+    evalmachine.<anonymous>:1:28
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    run (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:10:21)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs:59:20)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+  ...
+# Subtest: fleet charging respects each isolated source and a 100 TT/s shared engine/cooling trunk
+not ok 5 - fleet charging respects each isolated source and a 100 TT/s shared engine/cooling trunk
+  ---
+  duration_ms: 21.186032
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:18:31'
+  failureType: 'testCodeFailure'
+  error: 'first domain accepted charge: 79.99999999999999 != 10'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:6:40)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:21:2)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: fleet charging respects each isolated source and a 90 TT/s shared engine/cooling trunk
+not ok 6 - fleet charging respects each isolated source and a 90 TT/s shared engine/cooling trunk
+  ---
+  duration_ms: 2.485893
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:18:31'
+  failureType: 'testCodeFailure'
+  error: 'first domain accepted charge: 69.99999999999999 != 0'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:6:40)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:21:2)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: direct surface charging uses the same per-module grants and does not borrow unused charge
+not ok 7 - direct surface charging uses the same per-module grants and does not borrow unused charge
+  ---
+  duration_ms: 2.299994
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:27:1'
+  failureType: 'testCodeFailure'
+  error: 'total electrical weapon grant: 180 != 110'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:6:40)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:29:2)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: an explicit zero module grant remains zero when another domain has unused weapon power
+ok 8 - an explicit zero module grant remains zero when another domain has unused weapon power
+  ---
+  duration_ms: 1.268873
+  type: 'test'
+  ...
+# Subtest: repeated charging cannot spend one allocated module input a second time
+not ok 9 - repeated charging cannot spend one allocated module input a second time
+  ---
+  duration_ms: 1.821052
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:39:1'
+  failureType: 'testCodeFailure'
+  error: 'value: 180 != 110'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:6:40)
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:42:2)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: accepted surface charge heats only its actual funding reactors, including cooling consumption
+not ok 10 - accepted surface charge heats only its actual funding reactors, including cooling consumption
+  ---
+  duration_ms: 4.3744
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:46:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading '3')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs:49:14)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a connected consumer can use more than sixteen independent finite supply paths
+ok 11 - a connected consumer can use more than sixteen independent finite supply paths
+  ---
+  duration_ms: 1.444927
+  type: 'test'
+  ...
+# Subtest: a design preview throttle cannot redefine its game speed or planning acceleration
+ok 12 - a design preview throttle cannot redefine its game speed or planning acceleration
+  ---
+  duration_ms: 2.412535
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 3
+# fail 9
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2191.162791

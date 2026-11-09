@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: built-in reference speed overlays preserve the catalogue and old physical profiles require regeneration
+not ok 1 - built-in reference speed overlays preserve the catalogue and old physical profiles require regeneration
+  ---
+  duration_ms: 20.150276
+  type: 'test'
+  location: '/workspace/scratch/calibration-regression-baseline-5f/tests/reference-sublight-speeds.cjs:37:1'
+  failureType: 'testCodeFailure'
+  error: 'arc170'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/calibration-regression-baseline-5f/tests/reference-sublight-speeds.cjs:40:200)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 840.990064

@@ -3641,6 +3641,9 @@ Renderer.prototype.loadFleet=function(key,data){
  catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
 };
 Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);this.fleetCache.delete(k);}};
+// Runtime drive effects represent delivered propulsion output, never an idle
+// brightness or an assumed command when the caller has no live result.
+function fleetEngineOutput(u){return !u.wreck&&Number.isFinite(u.glow)?C.clamp(u.glow,0,1):0;}
 Renderer.prototype.drawFleet=function(m,opt){
  const gl=this.gl,old=this.meshes,off=this.off,shields=[];gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
@@ -3651,7 +3654,7 @@ Renderer.prototype.drawFleet=function(m,opt){
   const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz),px=L/Math.max(1,dist)*focal,ahead=rx*vd[0]+ry*vd[1]+rz*vd[2];
   if(opt.lod&&(px<2.2||ahead<-L)){this.lodSkipped++;continue;}const lod=opt.lod&&px<44&&(!u.turrets||a.surfaceTurrets);
   this.meshes=a.meshes;this.off=u.pos;this.modelCenter=u.center||a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';
-  this.engineTint=a.engine&&a.engine!=='blue'?C.engineGlowRGB(a.engine):null;this.engineK=u.wreck?0:.3+.95*C.clamp(u.glow??.6,0,1);
+  this.engineTint=a.engine&&a.engine!=='blue'?C.engineGlowRGB(a.engine):null;this.engineK=1.25*fleetEngineOutput(u);
   // A piece of a broken ship: the part of the model inside its box, turned about its own centre, scorched, its torn edges glowing.
   this.clip=u.clip?u.clip.hi:null;this.clipLo=u.clip?u.clip.lo:null;this.seam=u.seam||null;this.char=u.char||0;if(u.clip)gl.disable(gl.CULL_FACE);this.setLights(a.lights);this.sourceRed=a.reference==='venator';this.hullLength=a.length;const R=u.rot||yawMatrix(this.modelYaw),rv=v=>[R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];
   // A ship dropping out of (or into) hyperspace is drawn stretched along its
@@ -3678,14 +3681,14 @@ Renderer.prototype.drawFleet=function(m,opt){
  for(const {u,a,names} of shields){if((u.stretch||1)!==1)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.drawRays(m,names,1);}
  }finally{this.shTile=null;this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;this.engineTint=null;this.engineK=1;}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
- // v18 Drive glow: each nozzle glows in its design's engine colour, sized and
- // lit by how hard the drives burn (u.glow 0–1); above a third of full thrust a
- // plume trails aft and lengthens with it.
+ // Drive glow and the aft plume rise continuously from zero with actual
+ // output. Removing idle floors also extinguishes a just-stopped drive.
  const gp=[],gc=[],gs=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.wreck||(u.stretch||1)>1.05)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;
-  const R=u.rot||yawMatrix(u.yaw||0),t=C.clamp(u.glow??.6,0,1),rgb=C.engineGlowRGB(a.engine),al=Math.min(255,70+170*t),sk=.6+4.4*t*t,pl=t>.25?(t-.25)/.75:0;
+  const t=fleetEngineOutput(u);if(!(t>0))continue;
+  const R=u.rot||yawMatrix(u.yaw||0),rgb=C.engineGlowRGB(a.engine),al=Math.round(240*t),sk=5*t,pl=t;
   for(const group of [{glow:a.glow},...(a.foils||[]).map(f=>({glow:f.glow,T:foilTransform(f,u.foils?.[f.id])}))]){const aft=mat3Point(R,group.T?group.T.direction([-1,0,0]):[-1,0,0]);for(let i=0;i<(group.glow||[]).length;i+=4){const p=group.glow.slice(i,i+3),q=group.T?group.T.point(p):p,x=q[0]-a.center[0],y=q[1]-a.center[1],z=q[2]-a.center[2],px=u.pos[0]+R[0]*x+R[3]*y+R[6]*z,py=u.pos[1]+R[1]*x+R[4]*y+R[7]*z,pz=u.pos[2]+R[2]*x+R[5]*y+R[8]*z,sz=group.glow[i+3];
    gp.push(px,py,pz);gc.push(rgb[0],rgb[1],rgb[2],al);gs.push(sz*sk);
-   if(pl>0)for(let j=1;j<=4;j++){const d=sz*j*(.8+2.4*pl);gp.push(px+aft[0]*d,py+aft[1]*d,pz+aft[2]*d);gc.push(rgb[0],rgb[1],rgb[2],Math.round(235*pl*(1-.18*j)));gs.push(sz*sk*(1-.17*j));}}}}
+   for(let j=1;j<=4;j++){const d=sz*j*3.2*pl;gp.push(px+aft[0]*d,py+aft[1]*d,pz+aft[2]*d);gc.push(rgb[0],rgb[1],rgb[2],Math.round(235*pl*(1-.18*j)));gs.push(sz*sk*(1-.17*j));}}}}
  this.setPoints('fleetGlow',new Float32Array(gp),new Uint8Array(gc),new Float32Array(gs));gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);this.drawLines('trialBeams',m,1);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
  gl.depthMask(true);
 };

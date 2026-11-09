@@ -1,0 +1,5827 @@
+{
+  "status": "PASS",
+  "date": "2026-11-08T21:57:01.348Z",
+  "sourceSha256": {
+    "index.html": "f72ac3002cb3ffb83e68b0d6c8048c687141d2a66e4faba13dab45ac13070976",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/core.js": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214"
+  },
+  "harnessSha256": "13a6f0c448c9bb2b2f5f00e39386f65ed42c54b2f8971c515c51e161538b6b11",
+  "fixtureBuilderSha256": "3bad980fe1eb1b3282957c1062e6064f9f1834b8eab96450e30fa1ffa6ff3c84",
+  "scope": "Actual Worker-built generic1200m physical laboratory, native public trial and throttle controls, live RAF simulation, actual shared-reactor input, paid acceleration and calibrated resistance. Initial velocities are explicitly seeded during native pause. No fake profile, power, geometry, damage, clock or effects; no private upload.",
+  "conditions": {
+    "graphics": "Chromium SwiftShader",
+    "safari": "Not tested",
+    "performanceBenchmark": false,
+    "referenceAnchors": "Only production catalogue/reference rules tested on independent copies of the real generic engineering profile; not full TIE/ln or Venator ship builds.",
+    "externalTelemetry": "External Cloudflare RUM receives a local204 acknowledgement only."
+  },
+  "stages": [
+    {
+      "name": "Actual Worker/public trial and lightweight100/50MGLT reference anchors ready",
+      "at": "2026-11-08T21:57:31.958Z"
+    },
+    {
+      "name": "Full output near old nominal speed follows paid force and fixed resistance",
+      "at": "2026-11-08T21:57:50.845Z"
+    },
+    {
+      "name": "Native25% immediately produces negative net acceleration at high speed",
+      "at": "2026-11-08T21:58:08.405Z"
+    },
+    {
+      "name": "The same25% paid input accelerates from rest toward its lower force equilibrium",
+      "at": "2026-11-08T21:58:41.905Z"
+    },
+    {
+      "name": "Seeded overspeed coasts continuously under full paid output without a velocity clamp",
+      "at": "2026-11-08T21:58:58.603Z"
+    }
+  ],
+  "errors": [],
+  "consoleErrors": [],
+  "seeds": [
+    {
+      "phase": "full-nominal",
+      "multiplier": 1,
+      "time": 3.4330999999999947,
+      "velocity": [
+        848.3855985479157,
+        0,
+        0
+      ],
+      "nominal": 848.3855985479157
+    },
+    {
+      "phase": "quarter-rest",
+      "multiplier": 0,
+      "time": 17.899500000000042,
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "nominal": 848.3855985479157
+    },
+    {
+      "phase": "overspeed",
+      "multiplier": 1.5,
+      "time": 22.9494999999998,
+      "velocity": [
+        1272.5783978218735,
+        0,
+        0
+      ],
+      "nominal": 848.3855985479157
+    }
+  ],
+  "screenshots": [
+    "docs/benchmarks/reactor-powered-propulsion-browser.engine-editor.jpg",
+    "docs/benchmarks/reactor-powered-propulsion-browser.full-nominal.jpg",
+    "docs/benchmarks/reactor-powered-propulsion-browser.quarter-deceleration.jpg",
+    "docs/benchmarks/reactor-powered-propulsion-browser.idle-coast.jpg",
+    "docs/benchmarks/reactor-powered-propulsion-browser.quarter-acceleration.jpg",
+    "docs/benchmarks/reactor-powered-propulsion-browser.overspeed.jpg"
+  ],
+  "engine": "worker",
+  "renderer": "webgl",
+  "fixture": {
+    "name": "Generic shared-reactor propulsion laboratory",
+    "inputSha256": "6b05facb0891c6da4aa62bc4bf5be3989b990f82b7951367d7dd81dc42e322c4",
+    "parts": 12,
+    "fits": 5,
+    "hull": [
+      1200,
+      800,
+      600
+    ],
+    "reactorDiameterM": 90,
+    "coolerRoomM": [
+      40,
+      40,
+      40
+    ],
+    "inertialRoomM": [
+      140,
+      140,
+      140
+    ],
+    "engineBodies": [
+      {
+        "diameterM": 40,
+        "lengthM": 60,
+        "z": -100
+      },
+      {
+        "diameterM": 40,
+        "lengthM": 120,
+        "z": 100
+      }
+    ],
+    "nozzleDiameterM": 50
+  },
+  "editor": {
+    "title": "機関の内部機構標準入力機関",
+    "fields": [
+      "driveProfileId",
+      "machineryDiameterM",
+      "machineryLengthM"
+    ],
+    "readout": "接続炉からの最大入力2.0×10²⁴ W変換効率95.00%推進の廃熱率5.00%最大推力3.3×10¹⁴ N機関への実入力2.3×10²³ Wノズルへ出す動力2.2×10²³ W推進廃熱1.2×10²² W持続運転能力未判定（熱平衡未解決）給電経路の容量不足給電不足"
+  },
+  "freshDefaultMode": "propulsion",
+  "initialRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 18,
+    "lastFrame": 19736,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 189
+  },
+  "explicitChoicePreserved": true,
+  "referenceAnchors": [
+    {
+      "key": "tie_ln",
+      "mglt": 100,
+      "maxSpeed": 2000,
+      "metresPerSecondPerMGLT": 20,
+      "reference": {
+        "version": 1,
+        "key": "tie_ln",
+        "status": "published",
+        "mglt": 100,
+        "model": "TIE/ln space superiority starfighter",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 2000,
+        "ratePerKg": 6.092383694615044e-14
+      },
+      "healthyTerminal": 1999.9999999999998,
+      "scope": "Reference-rule fixture using a copy of real generic engineering; no catalogue ship was built or physically validated."
+    },
+    {
+      "key": "venator",
+      "mglt": 50,
+      "maxSpeed": 1000,
+      "metresPerSecondPerMGLT": 20,
+      "reference": {
+        "version": 1,
+        "key": "venator",
+        "status": "published",
+        "mglt": 50,
+        "model": "Venator-class Star Destroyer",
+        "scope": "class",
+        "continuity": "canon",
+        "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+      },
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 1000,
+        "ratePerKg": 1.2184767389230088e-13
+      },
+      "healthyTerminal": 999.9999999999999,
+      "scope": "Reference-rule fixture using a copy of real generic engineering; no catalogue ship was built or physically validated."
+    }
+  ],
+  "fullNominal": {
+    "before": {
+      "time": 3.583099999999994,
+      "telegraph": 5,
+      "powerMode": "propulsion",
+      "velocity": [
+        848.3064662646909,
+        0,
+        0
+      ],
+      "speed": 848.3064662646909,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 15.019568078195302,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -0.526823782657555,
+      "equilibrium": 819.559730339696,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 1.9165066100503198e+24,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 6.3883553668344e+23,
+          "engine:16": 1.27767107336688e+24
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 6.3883553668344e+23
+          },
+          "engine:16": {
+            "p1": 1.27767107336688e+24
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 6.436875374996665e+23
+          },
+          "engine:16": {
+            "p1": 1.287375074999333e+24
+          }
+        },
+        "delivered": 1.9841616571767814e+24,
+        "feedLossW": 1.4821027903924859e+22,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 6.436875374996665e+23,
+            "outputW": 6.3883553668344e+23,
+            "heatW": 4.852000816226535e+21,
+            "byKind": {
+              "engines": 4.852000816226535e+21
+            },
+            "byConsumer": {
+              "engine:2": 4.852000816226535e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.287375074999333e+24,
+            "outputW": 1.27767107336688e+24,
+            "heatW": 9.70400163245307e+21,
+            "byKind": {
+              "engines": 9.70400163245307e+21
+            },
+            "byConsumer": {
+              "engine:16": 9.70400163245307e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 6.3883553668344e+23,
+            "sourceInputW": 6.436875374996665e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 1.27767107336688e+24,
+            "sourceInputW": 1.287375074999333e+24
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 1.9989826850807064e+24,
+        "load": 0.9999999999999999,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 1.9989826850807066e+24,
+            "drawW": 1.9310626124989994e+24,
+            "remainingW": 6.792007258170723e+22
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ]
+      },
+      "requestedInputW": 3.9678294266963304e+24,
+      "actualInputW": 1.9165066100503198e+24,
+      "actualThrustN": 958253305025159.8,
+      "wasteHeatW": 9.582533050251603e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 6.3883553668344e+23,
+          "wasteHeatW": 3.194177683417201e+22,
+          "usefulPropulsionW": 6.068937598492679e+23,
+          "shaftPowerW": 6.068937598492679e+23,
+          "shaftOutputW": 6.068937598492679e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 1.27767107336688e+24,
+          "wasteHeatW": 6.388355366834402e+22,
+          "usefulPropulsionW": 1.2137875196985358e+24,
+          "shaftPowerW": 1.2137875196985358e+24,
+          "shaftOutputW": 1.2137875196985358e+24,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.9660226808923233,
+      "mainOutput": 0.9660226808923233,
+      "online": true,
+      "heat": {
+        "peak": 0.00125846792889336,
+        "qJ": 5.127522206377214e+21,
+        "actualGeneratedElectricalJ": 3.745351338095117e+24,
+        "reactorHeatJ": 1.4981405352380483e+23,
+        "operatingHeatJ": 5.5178972503148856e+23,
+        "rejectedHeatJ": 5.466622028251112e+23,
+        "coolingInputJ": 5.144765584892309e+21
+      },
+      "draw": {
+        "phase": "full-nominal",
+        "time": 3.583099999999994,
+        "telegraph": 5,
+        "glow": 0.9660226808923233,
+        "nozzleDraws": 1,
+        "nozzleEmission": 1.8112925291061401,
+        "plumeCount": 10,
+        "plumeAlpha": 232,
+        "plumeSize": 96.60226440429688
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 6.866400000000029,
+      "telegraph": 5,
+      "powerMode": "propulsion",
+      "velocity": [
+        846.6277570230773,
+        0,
+        0
+      ],
+      "speed": 846.6277570230773,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 15.019568078195302,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -0.49605910888879734,
+      "equilibrium": 819.559730339696,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 1.9165066100503198e+24,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 6.3883553668344e+23,
+          "engine:16": 1.27767107336688e+24
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 6.3883553668344e+23
+          },
+          "engine:16": {
+            "p1": 1.27767107336688e+24
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 6.436875374996665e+23
+          },
+          "engine:16": {
+            "p1": 1.287375074999333e+24
+          }
+        },
+        "delivered": 1.9841616571767814e+24,
+        "feedLossW": 1.4821027903924859e+22,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 6.436875374996665e+23,
+            "outputW": 6.3883553668344e+23,
+            "heatW": 4.852000816226535e+21,
+            "byKind": {
+              "engines": 4.852000816226535e+21
+            },
+            "byConsumer": {
+              "engine:2": 4.852000816226535e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.287375074999333e+24,
+            "outputW": 1.27767107336688e+24,
+            "heatW": 9.70400163245307e+21,
+            "byKind": {
+              "engines": 9.70400163245307e+21
+            },
+            "byConsumer": {
+              "engine:16": 9.70400163245307e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 6.3883553668344e+23,
+            "sourceInputW": 6.436875374996665e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 1.27767107336688e+24,
+            "sourceInputW": 1.287375074999333e+24
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 1.9989826850807064e+24,
+        "load": 0.9999999999999999,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 1.9989826850807066e+24,
+            "drawW": 1.9310626124989994e+24,
+            "remainingW": 6.792007258170723e+22
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ]
+      },
+      "requestedInputW": 3.9678294266963304e+24,
+      "actualInputW": 1.9165066100503198e+24,
+      "actualThrustN": 958253305025159.8,
+      "wasteHeatW": 9.582533050251603e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 6.3883553668344e+23,
+          "wasteHeatW": 3.194177683417201e+22,
+          "usefulPropulsionW": 6.068937598492679e+23,
+          "shaftPowerW": 6.068937598492679e+23,
+          "shaftOutputW": 6.068937598492679e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 1.27767107336688e+24,
+          "wasteHeatW": 6.388355366834402e+22,
+          "usefulPropulsionW": 1.2137875196985358e+24,
+          "shaftPowerW": 1.2137875196985358e+24,
+          "shaftOutputW": 1.2137875196985358e+24,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.9660226808923233,
+      "mainOutput": 0.9660226808923233,
+      "online": true,
+      "heat": {
+        "peak": 0.003156135917734986,
+        "qJ": 1.2859411537615909e+22,
+        "actualGeneratedElectricalJ": 1.0284159141216486e+25,
+        "reactorHeatJ": 4.1136636564866437e+23,
+        "operatingHeatJ": 1.3082233947880556e+24,
+        "rejectedHeatJ": 1.2953639832504396e+24,
+        "coolingInputJ": 1.3755310233288568e+22
+      },
+      "draw": {
+        "phase": "full-nominal",
+        "time": 6.866400000000029,
+        "telegraph": 5,
+        "glow": 0.9660226808923233,
+        "nozzleDraws": 1,
+        "nozzleEmission": 1.8112925291061401,
+        "plumeCount": 10,
+        "plumeAlpha": 232,
+        "plumeSize": 96.60226440429688
+      },
+      "sameUnit": true
+    },
+    "ode": {
+      "duration": 3.2833000000000347,
+      "decay": 0.9416034834008932,
+      "expectedVelocity": [
+        846.6277570230768,
+        0,
+        0
+      ]
+    }
+  },
+  "fullSharedSource": {
+    "sourceAvailableW": 1.9989826850807066e+24,
+    "sourceDrawW": 1.9989826850807064e+24,
+    "mandatorySourceW": 6.7920072581706955e+22,
+    "afterMandatorySourceW": 1.9310626124989997e+24,
+    "engineSourceW": 1.9310626124989994e+24,
+    "engineReceivedW": 1.9165066100503198e+24,
+    "engineFractionAfterMandatory": 0.9999999999999999,
+    "feedDeliveryFraction": 0.992462179965339,
+    "note": "Each engine may list the connected reactor potential; those potentials are not additive. The actual per-source ledger is shared once."
+  },
+  "quarterHigh": {
+    "before": {
+      "time": 9.182900000000053,
+      "telegraph": 2,
+      "powerMode": "propulsion",
+      "velocity": [
+        834.2281674343178,
+        0,
+        0
+      ],
+      "speed": 834.2281674343178,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 3.886960517407728,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -11.401427002967928,
+      "equilibrium": 212.09639963697896,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 4.959786783370412e+23,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 1.653262261123471e+23,
+          "engine:16": 3.306524522246942e+23
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 1.653262261123471e+23
+          },
+          "engine:16": {
+            "p1": 3.306524522246942e+23
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 1.665818904233922e+23
+          },
+          "engine:16": {
+            "p1": 3.331637808467844e+23
+          }
+        },
+        "delivered": 5.636337254635029e+23,
+        "feedLossW": 4.032018388380614e+21,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.665818904233922e+23,
+            "outputW": 1.653262261123471e+23,
+            "heatW": 1.2556643110451203e+21,
+            "byKind": {
+              "engines": 1.2556643110451203e+21
+            },
+            "byConsumer": {
+              "engine:2": 1.2556643110451203e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 3.331637808467844e+23,
+            "outputW": 3.306524522246942e+23,
+            "heatW": 2.5113286220902407e+21,
+            "byKind": {
+              "engines": 2.5113286220902407e+21
+            },
+            "byConsumer": {
+              "engine:16": 2.5113286220902407e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 1.653262261123471e+23,
+            "sourceInputW": 1.665818904233922e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 3.306524522246942e+23,
+            "sourceInputW": 3.331637808467844e+23
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 5.676657438518836e+23,
+        "load": 0.2839773191076764,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 4.9974567127017666e+23,
+            "drawW": 4.9974567127017666e+23,
+            "remainingW": 67108864
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ]
+      },
+      "requestedInputW": 9.994913425403533e+23,
+      "actualInputW": 4.959786783370412e+23,
+      "actualThrustN": 247989339168520.62,
+      "wasteHeatW": 2.479893391685207e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 1.653262261123471e+23,
+          "wasteHeatW": 8.266311305617356e+21,
+          "usefulPropulsionW": 1.5705991480672973e+23,
+          "shaftPowerW": 1.5705991480672973e+23,
+          "shaftOutputW": 1.5705991480672973e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 3.306524522246942e+23,
+          "wasteHeatW": 1.6532622611234712e+22,
+          "usefulPropulsionW": 3.1411982961345946e+23,
+          "shaftPowerW": 3.1411982961345946e+23,
+          "shaftOutputW": 3.1411982961345946e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.25,
+      "mainOutput": 0.25,
+      "online": true,
+      "heat": {
+        "peak": 0.0040537077486630544,
+        "qJ": 1.651649281019899e+22,
+        "actualGeneratedElectricalJ": 1.343185191889034e+25,
+        "reactorHeatJ": 5.372740767556164e+23,
+        "operatingHeatJ": 1.758300553905431e+24,
+        "rejectedHeatJ": 1.741784061095232e+24,
+        "coolingInputJ": 1.8678645907273737e+22
+      },
+      "draw": {
+        "phase": "quarter-high",
+        "time": 9.182900000000053,
+        "telegraph": 2,
+        "glow": 0.25,
+        "nozzleDraws": 1,
+        "nozzleEmission": 0.46875,
+        "plumeCount": 10,
+        "plumeAlpha": 60,
+        "plumeSize": 25
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 12.4328000000001,
+      "telegraph": 2,
+      "powerMode": "propulsion",
+      "velocity": [
+        798.2565189131761,
+        0,
+        0
+      ],
+      "speed": 798.2565189131761,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 3.886960517407728,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -10.742196682287991,
+      "equilibrium": 212.09639963697896,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 4.959786783370412e+23,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 1.653262261123471e+23,
+          "engine:16": 3.306524522246942e+23
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 1.653262261123471e+23
+          },
+          "engine:16": {
+            "p1": 3.306524522246942e+23
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 1.665818904233922e+23
+          },
+          "engine:16": {
+            "p1": 3.331637808467844e+23
+          }
+        },
+        "delivered": 5.636337254635029e+23,
+        "feedLossW": 4.032018388380614e+21,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.665818904233922e+23,
+            "outputW": 1.653262261123471e+23,
+            "heatW": 1.2556643110451203e+21,
+            "byKind": {
+              "engines": 1.2556643110451203e+21
+            },
+            "byConsumer": {
+              "engine:2": 1.2556643110451203e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 3.331637808467844e+23,
+            "outputW": 3.306524522246942e+23,
+            "heatW": 2.5113286220902407e+21,
+            "byKind": {
+              "engines": 2.5113286220902407e+21
+            },
+            "byConsumer": {
+              "engine:16": 2.5113286220902407e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 1.653262261123471e+23,
+            "sourceInputW": 1.665818904233922e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 3.306524522246942e+23,
+            "sourceInputW": 3.331637808467844e+23
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 5.676657438518836e+23,
+        "load": 0.2839773191076764,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 4.9974567127017666e+23,
+            "drawW": 4.9974567127017666e+23,
+            "remainingW": 67108864
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ]
+      },
+      "requestedInputW": 9.994913425403533e+23,
+      "actualInputW": 4.959786783370412e+23,
+      "actualThrustN": 247989339168520.62,
+      "wasteHeatW": 2.479893391685207e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 1.653262261123471e+23,
+          "wasteHeatW": 8.266311305617356e+21,
+          "usefulPropulsionW": 1.5705991480672973e+23,
+          "shaftPowerW": 1.5705991480672973e+23,
+          "shaftOutputW": 1.5705991480672973e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 3.306524522246942e+23,
+          "wasteHeatW": 1.6532622611234712e+22,
+          "usefulPropulsionW": 3.1411982961345946e+23,
+          "shaftPowerW": 3.1411982961345946e+23,
+          "shaftOutputW": 3.1411982961345946e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.25,
+      "mainOutput": 0.25,
+      "online": true,
+      "heat": {
+        "peak": 0.004037226513870666,
+        "qJ": 1.6449341398989966e+22,
+        "actualGeneratedElectricalJ": 1.5246325096055314e+25,
+        "reactorHeatJ": 6.098530038422098e+23,
+        "operatingHeatJ": 2.0932250477074622e+24,
+        "rejectedHeatJ": 2.0767757063084717e+24,
+        "coolingInputJ": 2.103352650469119e+22
+      },
+      "draw": {
+        "phase": "quarter-high",
+        "time": 12.4328000000001,
+        "telegraph": 2,
+        "glow": 0.25,
+        "nozzleDraws": 1,
+        "nozzleEmission": 0.46875,
+        "plumeCount": 10,
+        "plumeAlpha": 60,
+        "plumeSize": 25
+      },
+      "sameUnit": true
+    },
+    "ode": {
+      "duration": 3.2499000000000464,
+      "decay": 0.9421800165445713,
+      "expectedVelocity": [
+        798.256518913179,
+        0,
+        0
+      ]
+    }
+  },
+  "quarterSharedSource": {
+    "sourceAvailableW": 1.9989826850807066e+24,
+    "sourceDrawW": 5.676657438518836e+23,
+    "mandatorySourceW": 6.7920072581706955e+22,
+    "afterMandatorySourceW": 1.9310626124989997e+24,
+    "engineSourceW": 4.9974567127017666e+23,
+    "engineReceivedW": 4.959786783370412e+23,
+    "engineFractionAfterMandatory": 0.2587930955917855,
+    "feedDeliveryFraction": 0.992462179965339,
+    "note": "Each engine may list the connected reactor potential; those potentials are not additive. The actual per-source ledger is shared once."
+  },
+  "idle": {
+    "before": {
+      "time": 14.116200000000116,
+      "telegraph": 1,
+      "powerMode": "propulsion",
+      "velocity": [
+        777.6175760330767,
+        0,
+        0
+      ],
+      "speed": 777.6175760330767,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 0,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -14.250919963074598,
+      "equilibrium": 0,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 0,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 0,
+          "engine:16": 0
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {},
+          "engine:16": {}
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {},
+          "engine:16": {}
+        },
+        "delivered": 6.76550471264617e+22,
+        "feedLossW": 265025455245253150000,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 0,
+            "sourceInputW": 0
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 0,
+            "sourceInputW": 0
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 6.7920072581706955e+22,
+        "load": 0.033977319107676394,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 6.7920072581706955e+22
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 0,
+            "drawW": 0,
+            "remainingW": 0
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 6.7920072581706955e+22
+          }
+        ]
+      },
+      "requestedInputW": 0,
+      "actualInputW": 0,
+      "actualThrustN": 0,
+      "wasteHeatW": 0,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 0,
+          "actualInputW": 0,
+          "wasteHeatW": 0,
+          "usefulPropulsionW": 0,
+          "shaftPowerW": 0,
+          "shaftOutputW": 0,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 0,
+          "reasons": [
+            "feed-capacity"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 0,
+          "actualInputW": 0,
+          "wasteHeatW": 0,
+          "usefulPropulsionW": 0,
+          "shaftPowerW": 0,
+          "shaftOutputW": 0,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 0,
+          "reasons": [
+            "feed-capacity"
+          ]
+        }
+      ],
+      "output": 0,
+      "mainOutput": 0,
+      "online": true,
+      "heat": {
+        "peak": 0.003973944165656636,
+        "qJ": 1.6191502769741407e+22,
+        "actualGeneratedElectricalJ": 1.5819815486053024e+25,
+        "reactorHeatJ": 6.327926194421092e+23,
+        "operatingHeatJ": 2.3015205567327068e+24,
+        "rejectedHeatJ": 2.2853290539629648e+24,
+        "coolingInputJ": 2.238672305157971e+22
+      },
+      "draw": {
+        "phase": "idle",
+        "time": 14.116200000000116,
+        "telegraph": 1,
+        "glow": 0,
+        "nozzleDraws": 1,
+        "nozzleEmission": 0,
+        "plumeCount": 0,
+        "plumeAlpha": 0,
+        "plumeSize": 0
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 16.33280000000013,
+      "telegraph": 1,
+      "powerMode": "propulsion",
+      "velocity": [
+        746.6619866702938,
+        0,
+        0
+      ],
+      "speed": 746.6619866702938,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 0,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -13.683615879402423,
+      "equilibrium": 0,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 0,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 0,
+          "engine:16": 0
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {},
+          "engine:16": {}
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {},
+          "engine:16": {}
+        },
+        "delivered": 6.76550471264617e+22,
+        "feedLossW": 265025455245253150000,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 0,
+            "sourceInputW": 0
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 0,
+            "sourceInputW": 0
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 6.7920072581706955e+22,
+        "load": 0.033977319107676394,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 6.7920072581706955e+22
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 0,
+            "drawW": 0,
+            "remainingW": 0
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 6.7920072581706955e+22
+          }
+        ]
+      },
+      "requestedInputW": 0,
+      "actualInputW": 0,
+      "actualThrustN": 0,
+      "wasteHeatW": 0,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 0,
+          "actualInputW": 0,
+          "wasteHeatW": 0,
+          "usefulPropulsionW": 0,
+          "shaftPowerW": 0,
+          "shaftOutputW": 0,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 0,
+          "reasons": [
+            "feed-capacity"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 0,
+          "actualInputW": 0,
+          "wasteHeatW": 0,
+          "usefulPropulsionW": 0,
+          "shaftPowerW": 0,
+          "shaftOutputW": 0,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 0,
+          "reasons": [
+            "feed-capacity"
+          ]
+        }
+      ],
+      "output": 0,
+      "mainOutput": 0,
+      "online": true,
+      "heat": {
+        "peak": 0.0036065208731711315,
+        "qJ": 1.469446732838826e+22,
+        "actualGeneratedElectricalJ": 1.5948118401997658e+25,
+        "reactorHeatJ": 6.379247360798866e+23,
+        "operatingHeatJ": 2.422929866974777e+24,
+        "rejectedHeatJ": 2.408235399646388e+24,
+        "coolingInputJ": 2.2470476538158627e+22
+      },
+      "draw": {
+        "phase": "idle",
+        "time": 16.33280000000013,
+        "telegraph": 1,
+        "glow": 0,
+        "nozzleDraws": 1,
+        "nozzleEmission": 0,
+        "plumeCount": 0,
+        "plumeAlpha": 0,
+        "plumeSize": 0
+      },
+      "sameUnit": true
+    },
+    "ode": {
+      "duration": 2.216600000000014,
+      "decay": 0.960191757083609,
+      "expectedVelocity": [
+        746.6619866702969,
+        0,
+        0
+      ]
+    }
+  },
+  "quarterRest": {
+    "before": {
+      "time": 17.94950000000004,
+      "telegraph": 2,
+      "powerMode": "propulsion",
+      "velocity": [
+        0.194259010637092,
+        0,
+        0
+      ],
+      "speed": 0.194259010637092,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 3.886960517407728,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": 3.883400451768757,
+      "equilibrium": 212.09639963697896,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 4.959786783370412e+23,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 1.653262261123471e+23,
+          "engine:16": 3.306524522246942e+23
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 1.653262261123471e+23
+          },
+          "engine:16": {
+            "p1": 3.306524522246942e+23
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 1.665818904233922e+23
+          },
+          "engine:16": {
+            "p1": 3.331637808467844e+23
+          }
+        },
+        "delivered": 5.636337254635029e+23,
+        "feedLossW": 4.032018388380614e+21,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.665818904233922e+23,
+            "outputW": 1.653262261123471e+23,
+            "heatW": 1.2556643110451203e+21,
+            "byKind": {
+              "engines": 1.2556643110451203e+21
+            },
+            "byConsumer": {
+              "engine:2": 1.2556643110451203e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 3.331637808467844e+23,
+            "outputW": 3.306524522246942e+23,
+            "heatW": 2.5113286220902407e+21,
+            "byKind": {
+              "engines": 2.5113286220902407e+21
+            },
+            "byConsumer": {
+              "engine:16": 2.5113286220902407e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 1.653262261123471e+23,
+            "sourceInputW": 1.665818904233922e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 3.306524522246942e+23,
+            "sourceInputW": 3.331637808467844e+23
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 5.676657438518836e+23,
+        "load": 0.2839773191076764,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 4.9974567127017666e+23,
+            "drawW": 4.9974567127017666e+23,
+            "remainingW": 67108864
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ]
+      },
+      "requestedInputW": 9.994913425403533e+23,
+      "actualInputW": 4.959786783370412e+23,
+      "actualThrustN": 247989339168520.62,
+      "wasteHeatW": 2.479893391685207e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 1.653262261123471e+23,
+          "wasteHeatW": 8.266311305617356e+21,
+          "usefulPropulsionW": 1.5705991480672973e+23,
+          "shaftPowerW": 1.5705991480672973e+23,
+          "shaftOutputW": 1.5705991480672973e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 3.306524522246942e+23,
+          "wasteHeatW": 1.6532622611234712e+22,
+          "usefulPropulsionW": 3.1411982961345946e+23,
+          "shaftPowerW": 3.1411982961345946e+23,
+          "shaftOutputW": 3.1411982961345946e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.25,
+      "mainOutput": 0.25,
+      "online": true,
+      "heat": {
+        "peak": 0.003352407172851522,
+        "qJ": 1.365910233304884e+22,
+        "actualGeneratedElectricalJ": 1.6366865094174526e+25,
+        "reactorHeatJ": 6.546746037669538e+23,
+        "operatingHeatJ": 2.566296659073022e+24,
+        "rejectedHeatJ": 2.552637556739974e+24,
+        "coolingInputJ": 2.2863852719265334e+22
+      },
+      "draw": {
+        "phase": "quarter-rest",
+        "time": 17.94950000000004,
+        "telegraph": 2,
+        "glow": 0.25,
+        "nozzleDraws": 1,
+        "nozzleEmission": 0.46875,
+        "plumeCount": 10,
+        "plumeAlpha": 60,
+        "plumeSize": 25
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 21.21599999999988,
+      "telegraph": 2,
+      "powerMode": "propulsion",
+      "velocity": [
+        12.507165152308234,
+        0,
+        0
+      ],
+      "speed": 12.507165152308234,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 3.886960517407728,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": 3.657749379383092,
+      "equilibrium": 212.09639963697896,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 4.959786783370412e+23,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 1.653262261123471e+23,
+          "engine:16": 3.306524522246942e+23
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 1.653262261123471e+23
+          },
+          "engine:16": {
+            "p1": 3.306524522246942e+23
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 1.665818904233922e+23
+          },
+          "engine:16": {
+            "p1": 3.331637808467844e+23
+          }
+        },
+        "delivered": 5.636337254635029e+23,
+        "feedLossW": 4.032018388380614e+21,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.665818904233922e+23,
+            "outputW": 1.653262261123471e+23,
+            "heatW": 1.2556643110451203e+21,
+            "byKind": {
+              "engines": 1.2556643110451203e+21
+            },
+            "byConsumer": {
+              "engine:2": 1.2556643110451203e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 3.331637808467844e+23,
+            "outputW": 3.306524522246942e+23,
+            "heatW": 2.5113286220902407e+21,
+            "byKind": {
+              "engines": 2.5113286220902407e+21
+            },
+            "byConsumer": {
+              "engine:16": 2.5113286220902407e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 1.653262261123471e+23,
+            "sourceInputW": 1.665818904233922e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 3.306524522246942e+23,
+            "sourceInputW": 3.331637808467844e+23
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 5.676657438518836e+23,
+        "load": 0.2839773191076764,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 4.9974567127017666e+23,
+            "drawW": 4.9974567127017666e+23,
+            "remainingW": 67108864
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 5.676657438518836e+23
+          }
+        ]
+      },
+      "requestedInputW": 9.994913425403533e+23,
+      "actualInputW": 4.959786783370412e+23,
+      "actualThrustN": 247989339168520.62,
+      "wasteHeatW": 2.479893391685207e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 1.653262261123471e+23,
+          "wasteHeatW": 8.266311305617356e+21,
+          "usefulPropulsionW": 1.5705991480672973e+23,
+          "shaftPowerW": 1.5705991480672973e+23,
+          "shaftOutputW": 1.5705991480672973e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 4.9974567127017666e+23,
+          "actualInputW": 3.306524522246942e+23,
+          "wasteHeatW": 1.6532622611234712e+22,
+          "usefulPropulsionW": 3.1411982961345946e+23,
+          "shaftPowerW": 3.1411982961345946e+23,
+          "shaftOutputW": 3.1411982961345946e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 6.449138752085398,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.25,
+      "mainOutput": 0.25,
+      "online": true,
+      "heat": {
+        "peak": 0.003435947917678904,
+        "qJ": 1.3999482103089045e+22,
+        "actualGeneratedElectricalJ": 1.8190586150348658e+25,
+        "reactorHeatJ": 7.27623446013898e+23,
+        "operatingHeatJ": 2.900299502168497e+24,
+        "rejectedHeatJ": 2.8863000200654085e+24,
+        "coolingInputJ": 2.5210625154352027e+22
+      },
+      "draw": {
+        "phase": "quarter-rest",
+        "time": 21.21599999999988,
+        "telegraph": 2,
+        "glow": 0.25,
+        "nozzleDraws": 1,
+        "nozzleEmission": 0.46875,
+        "plumeCount": 10,
+        "plumeAlpha": 60,
+        "plumeSize": 25
+      },
+      "sameUnit": true
+    },
+    "ode": {
+      "duration": 3.2664999999998408,
+      "decay": 0.941893432009342,
+      "expectedVelocity": [
+        12.50716515230761,
+        0,
+        0
+      ]
+    }
+  },
+  "overspeed": {
+    "seed": {
+      "phase": "overspeed",
+      "multiplier": 1.5,
+      "time": 22.9494999999998,
+      "velocity": [
+        1272.5783978218735,
+        0,
+        0
+      ],
+      "nominal": 848.3855985479157
+    },
+    "before": {
+      "time": 23.14949999999979,
+      "telegraph": 5,
+      "powerMode": "propulsion",
+      "velocity": [
+        1270.9209980868695,
+        0,
+        0
+      ],
+      "speed": 1270.9209980868695,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 15.019568078195302,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -8.27182087872876,
+      "equilibrium": 819.559730339696,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 1.9165066100503198e+24,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 6.3883553668344e+23,
+          "engine:16": 1.27767107336688e+24
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 6.3883553668344e+23
+          },
+          "engine:16": {
+            "p1": 1.27767107336688e+24
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 6.436875374996665e+23
+          },
+          "engine:16": {
+            "p1": 1.287375074999333e+24
+          }
+        },
+        "delivered": 1.9841616571767814e+24,
+        "feedLossW": 1.4821027903924859e+22,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 6.436875374996665e+23,
+            "outputW": 6.3883553668344e+23,
+            "heatW": 4.852000816226535e+21,
+            "byKind": {
+              "engines": 4.852000816226535e+21
+            },
+            "byConsumer": {
+              "engine:2": 4.852000816226535e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.287375074999333e+24,
+            "outputW": 1.27767107336688e+24,
+            "heatW": 9.70400163245307e+21,
+            "byKind": {
+              "engines": 9.70400163245307e+21
+            },
+            "byConsumer": {
+              "engine:16": 9.70400163245307e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 6.3883553668344e+23,
+            "sourceInputW": 6.436875374996665e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 1.27767107336688e+24,
+            "sourceInputW": 1.287375074999333e+24
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 1.9989826850807064e+24,
+        "load": 0.9999999999999999,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 1.9989826850807066e+24,
+            "drawW": 1.9310626124989994e+24,
+            "remainingW": 6.792007258170723e+22
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ]
+      },
+      "requestedInputW": 3.9678294266963304e+24,
+      "actualInputW": 1.9165066100503198e+24,
+      "actualThrustN": 958253305025159.8,
+      "wasteHeatW": 9.582533050251603e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 6.3883553668344e+23,
+          "wasteHeatW": 3.194177683417201e+22,
+          "usefulPropulsionW": 6.068937598492679e+23,
+          "shaftPowerW": 6.068937598492679e+23,
+          "shaftOutputW": 6.068937598492679e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 1.27767107336688e+24,
+          "wasteHeatW": 6.388355366834402e+22,
+          "usefulPropulsionW": 1.2137875196985358e+24,
+          "shaftPowerW": 1.2137875196985358e+24,
+          "shaftOutputW": 1.2137875196985358e+24,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.9660226808923233,
+      "mainOutput": 0.9660226808923233,
+      "online": true,
+      "heat": {
+        "peak": 0.0039060696322346855,
+        "qJ": 1.5914953666360932e+22,
+        "actualGeneratedElectricalJ": 2.0942358025451887e+25,
+        "reactorHeatJ": 8.376943210180174e+23,
+        "operatingHeatJ": 3.233284107025859e+24,
+        "rejectedHeatJ": 3.2173691533594985e+24,
+        "coolingInputJ": 2.8425634576674704e+22
+      },
+      "draw": {
+        "phase": "overspeed",
+        "time": 23.14949999999979,
+        "telegraph": 5,
+        "glow": 0.9660226808923233,
+        "nozzleDraws": 1,
+        "nozzleEmission": 1.8112925291061401,
+        "plumeCount": 10,
+        "plumeAlpha": 232,
+        "plumeSize": 96.60226440429688
+      },
+      "sameUnit": true
+    },
+    "after": {
+      "time": 25.432799999999666,
+      "telegraph": 5,
+      "powerMode": "propulsion",
+      "velocity": [
+        1252.423655718372,
+        0,
+        0
+      ],
+      "speed": 1252.423655718372,
+      "nominalSpeed": 848.3855985479157,
+      "acceleration": 15.019568078195302,
+      "dragRate": 0.018326386134138024,
+      "netAcceleration": -7.932831440028323,
+      "equilibrium": 819.559730339696,
+      "massKg": 127600647373.6494,
+      "calibration": {
+        "version": 3,
+        "referenceMassKg": 127600647373.6494,
+        "referenceAccelMps2": 15.54784206963091,
+        "referenceSpeedMps": 848.3855985479157,
+        "ratePerKg": 1.4362298711912786e-13
+      },
+      "inputModel": {
+        "version": 1,
+        "inputModelVersion": 2,
+        "architectureVersion": 2,
+        "cores": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 2,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 6,
+            "machineryModuleIndex": 6,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p2"
+            ]
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 16,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 14,
+            "machineryModuleIndex": 14,
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24,
+            "transmissionRouteIds": [
+              "p1>p16"
+            ]
+          }
+        ],
+        "engines": [
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 2.563539605329271e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 6.330111836088905e+23,
+            "ratedWasteHeatW": 3.3316378084678478e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 75398.22368615503,
+            "id": 3,
+            "machineryId": 2,
+            "coreId": 2,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 6.66327561693569e+23,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 333163780846784.5,
+            "effectiveMachineryVolumeM3": 75398.22368615503,
+            "machineryVolumeM3": 75398.22368615503,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 60,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 2.563539605329271e+22,
+            "cost": 51270.79210658542,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 7,
+            "coreModuleIndex": 6,
+            "machineryModuleIndex": 6,
+            "shaftModuleIndices": [
+              16
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p2>p3",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          },
+          {
+            "thermalModelVersion": 2,
+            "normalInputW": 5.127079210658542e+22,
+            "densityFactor": 25.992481657328764,
+            "efficiency": 0.95,
+            "wasteFraction": 0.050000000000000044,
+            "profileWattsPerNewton": 2000000000,
+            "shaftWattsPerNewton": 1900000000,
+            "wattsPerNewton": 2000000000,
+            "ratedShaftPowerW": 1.266022367217781e+24,
+            "ratedWasteHeatW": 6.6632756169356956e+22,
+            "thermalStoreJ": 0,
+            "version": 1,
+            "inputModelVersion": 2,
+            "inputLimitModel": "reactor-supply",
+            "availableInputW": 1.9989826850807066e+24,
+            "sourceInputLimitW": 1.9989826850807066e+24,
+            "sourceIds": [
+              "p1"
+            ],
+            "allocationWeight": 150796.44737231007,
+            "id": 17,
+            "machineryId": 16,
+            "coreId": 16,
+            "entityKind": "engineCore",
+            "integrated": false,
+            "legacyShared": false,
+            "ratedInputW": 1.332655123387138e+24,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "ratedThrustN": 666327561693569,
+            "effectiveMachineryVolumeM3": 150796.44737231007,
+            "machineryVolumeM3": 150796.44737231007,
+            "machineryShape": "cylinder",
+            "machineryLengthM": 120,
+            "machineryRadiusM": 20,
+            "machineryDiameterM": 40,
+            "machineryOffsetM": 0,
+            "maxInputW": 1.9989826850807066e+24,
+            "maxRatedInputW": 1.9989826850807066e+24,
+            "inputDensityWPerM3": 8837443763491780000,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "costBasisInputW": 5.127079210658542e+22,
+            "cost": 102541.58421317083,
+            "powerNode": "p16",
+            "heatNode": "p16",
+            "reactorId": 1,
+            "domain": "main",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 0,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "moduleIndex": 15,
+            "coreModuleIndex": 14,
+            "machineryModuleIndex": 14,
+            "shaftModuleIndices": [
+              17
+            ],
+            "nozzleShaftCapacityW": 1.9242255003237482e+24,
+            "shaftCapacityW": 1.9242255003237482e+24,
+            "ratedShaftCapacityW": 1.9242255003237482e+24,
+            "shaftRouteId": "p16>p17",
+            "available": true,
+            "connected": true,
+            "outletAvailable": true,
+            "pathCapacityW": 1.9839147133481652e+24
+          }
+        ],
+        "massKg": 127600647373.6494,
+        "ratedThrustN": 991957356674082.5,
+        "ratedAccelMps2": 7773.921034815455,
+        "structuralAccelerationLimitMps2": 117304.98362461015,
+        "inertialFactor": 1,
+        "accelerationLimitMps2": 7773.921034815455
+      },
+      "power": {
+        "engines": 1.9165066100503198e+24,
+        "shields": 0,
+        "weapons": 0,
+        "fixed": 5.759999999999995e+22,
+        "cooling": 1.0055047126461754e+22,
+        "granted": {
+          "fixed:hotel": 5.759999999999995e+22,
+          "cooling:p8": 1.0055047126461754e+22,
+          "engine:2": 6.3883553668344e+23,
+          "engine:16": 1.27767107336688e+24
+        },
+        "funding": {
+          "fixed:hotel": {
+            "p1": 5.759999999999995e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0055047126461754e+22
+          },
+          "engine:2": {
+            "p1": 6.3883553668344e+23
+          },
+          "engine:16": {
+            "p1": 1.27767107336688e+24
+          }
+        },
+        "sourceFunding": {
+          "fixed:hotel": {
+            "p1": 5.784489523748459e+22
+          },
+          "cooling:p8": {
+            "p1": 1.0075177344222366e+22
+          },
+          "engine:2": {
+            "p1": 6.436875374996665e+23
+          },
+          "engine:16": {
+            "p1": 1.287375074999333e+24
+          }
+        },
+        "delivered": 1.9841616571767814e+24,
+        "feedLossW": 1.4821027903924859e+22,
+        "edgeLosses": [
+          {
+            "edgeIndex": 5,
+            "routeId": "p1>hotel",
+            "from": "p1",
+            "to": "hotel",
+            "efficiency": 0.9957663465984472,
+            "inputW": 5.784489523748459e+22,
+            "outputW": 5.759999999999995e+22,
+            "heatW": 244895237484641780000,
+            "byKind": {
+              "fixed": 244895237484641780000
+            },
+            "byConsumer": {
+              "fixed:hotel": 244895237484641780000
+            }
+          },
+          {
+            "edgeIndex": 11,
+            "routeId": "p1>p8",
+            "from": "p1",
+            "to": "p8",
+            "efficiency": 0.9980019986673331,
+            "inputW": 1.0075177344222366e+22,
+            "outputW": 1.0055047126461754e+22,
+            "heatW": 20130217760611370000,
+            "byKind": {
+              "cooling": 20130217760611370000
+            },
+            "byConsumer": {
+              "cooling:p8": 20130217760611370000
+            }
+          },
+          {
+            "edgeIndex": 12,
+            "routeId": "p1>p2",
+            "from": "p1",
+            "to": "p2",
+            "efficiency": 0.9924621799653391,
+            "inputW": 6.436875374996665e+23,
+            "outputW": 6.3883553668344e+23,
+            "heatW": 4.852000816226535e+21,
+            "byKind": {
+              "engines": 4.852000816226535e+21
+            },
+            "byConsumer": {
+              "engine:2": 4.852000816226535e+21
+            }
+          },
+          {
+            "edgeIndex": 13,
+            "routeId": "p1>p16",
+            "from": "p1",
+            "to": "p16",
+            "efficiency": 0.9924621799653391,
+            "inputW": 1.287375074999333e+24,
+            "outputW": 1.27767107336688e+24,
+            "heatW": 9.70400163245307e+21,
+            "byKind": {
+              "engines": 9.70400163245307e+21
+            },
+            "byConsumer": {
+              "engine:16": 9.70400163245307e+21
+            }
+          }
+        ],
+        "consumers": [
+          {
+            "id": "fixed:hotel",
+            "kind": "fixed",
+            "grantedInputW": 5.759999999999995e+22,
+            "sourceInputW": 5.784489523748459e+22
+          },
+          {
+            "id": "cooling:p8",
+            "kind": "cooling",
+            "grantedInputW": 1.0055047126461754e+22,
+            "sourceInputW": 1.0075177344222366e+22
+          },
+          {
+            "id": "engine:2",
+            "kind": "engines",
+            "grantedInputW": 6.3883553668344e+23,
+            "sourceInputW": 6.436875374996665e+23
+          },
+          {
+            "id": "engine:16",
+            "kind": "engines",
+            "grantedInputW": 1.27767107336688e+24,
+            "sourceInputW": 1.287375074999333e+24
+          }
+        ],
+        "P": 1.9989826850807066e+24,
+        "draw": 1.9989826850807064e+24,
+        "load": 0.9999999999999999,
+        "short": false,
+        "sources": [
+          {
+            "id": "p1",
+            "moduleIndex": 5,
+            "reactor": true,
+            "domain": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ],
+        "engineBudgets": [
+          {
+            "sourceId": "p1",
+            "limitW": 1.9989826850807066e+24,
+            "drawW": 1.9310626124989994e+24,
+            "remainingW": 6.792007258170723e+22
+          }
+        ],
+        "domains": [
+          {
+            "id": "main",
+            "availableW": 1.9989826850807066e+24,
+            "drawW": 1.9989826850807064e+24
+          }
+        ]
+      },
+      "requestedInputW": 3.9678294266963304e+24,
+      "actualInputW": 1.9165066100503198e+24,
+      "actualThrustN": 958253305025159.8,
+      "wasteHeatW": 9.582533050251603e+22,
+      "cores": [
+        {
+          "id": 2,
+          "heatNode": "p2",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 6.3883553668344e+23,
+          "wasteHeatW": 3.194177683417201e+22,
+          "usefulPropulsionW": 6.068937598492679e+23,
+          "shaftPowerW": 6.068937598492679e+23,
+          "shaftOutputW": 6.068937598492679e+23,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        },
+        {
+          "id": 16,
+          "heatNode": "p16",
+          "requestedInputW": 1.9839147133481652e+24,
+          "actualInputW": 1.27767107336688e+24,
+          "wasteHeatW": 6.388355366834402e+22,
+          "usefulPropulsionW": 1.2137875196985358e+24,
+          "shaftPowerW": 1.2137875196985358e+24,
+          "shaftOutputW": 1.2137875196985358e+24,
+          "efficiency": 0.95,
+          "wasteFraction": 0.050000000000000044,
+          "loadFactor": 24.92005722694444,
+          "reasons": [
+            "feed-capacity",
+            "power-shortage"
+          ]
+        }
+      ],
+      "output": 0.9660226808923233,
+      "mainOutput": 0.9660226808923233,
+      "online": true,
+      "heat": {
+        "peak": 0.004949479668835503,
+        "qJ": 2.016624049711251e+22,
+        "actualGeneratedElectricalJ": 2.548942631903716e+25,
+        "reactorHeatJ": 1.0195770527614129e+24,
+        "operatingHeatJ": 3.7410961179046045e+24,
+        "rejectedHeatJ": 3.720929877407493e+24,
+        "coolingInputJ": 3.420983576852031e+22
+      },
+      "draw": {
+        "phase": "overspeed",
+        "time": 25.432799999999666,
+        "telegraph": 5,
+        "glow": 0.9660226808923233,
+        "nozzleDraws": 1,
+        "nozzleEmission": 1.8112925291061401,
+        "plumeCount": 10,
+        "plumeAlpha": 232,
+        "plumeSize": 96.60226440429688
+      },
+      "sameUnit": true
+    },
+    "ode": {
+      "duration": 2.283299999999876,
+      "decay": 0.9590187645900196,
+      "expectedVelocity": [
+        1252.4236557183754,
+        0,
+        0
+      ]
+    }
+  },
+  "nativeInput": [
+    {
+      "type": "click",
+      "command": "btnTrialQuick",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "power",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "pmode:weapons",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "power",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "pmode:propulsion",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele-",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "click",
+      "command": "tele+",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    },
+    {
+      "type": "keydown",
+      "code": "KeyK",
+      "trusted": true
+    }
+  ],
+  "finalRenderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 573,
+    "lastFrame": 116765.4,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 744
+  },
+  "glError": 0,
+  "servedSourceSha256": {
+    "index.html": "f72ac3002cb3ffb83e68b0d6c8048c687141d2a66e4faba13dab45ac13070976",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/core.js": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32"
+  },
+  "servedSourceMatches": {
+    "index.html": true,
+    "js/app.js": true,
+    "js/core.js": true,
+    "js/gfx.js": true,
+    "js/engine.js": true,
+    "js/design-ui.css": true
+  },
+  "sourceSha256After": {
+    "index.html": "f72ac3002cb3ffb83e68b0d6c8048c687141d2a66e4faba13dab45ac13070976",
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "js/core.js": "ca0e32c82360f7949af07f8e4cef4a77fecb3dfd94cb0b59ae49da21ddbe8a32",
+    "js/gfx.js": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/design-ui.css": "0283992a58e46f542fabf4e60bbbc9292a3c072c38bb161683501034c09fbf60",
+    "js/i18n.js": "2a24faf5ebb4657fb08078a31015faa20f65858b4d9c49c47c9a63d895612422",
+    "js/lang-en.js": "a4af8c4cfd0456720b5ae2352be8750834ffbd938aa8c82f00f0d4398cc7a214"
+  },
+  "sourceStable": true,
+  "harnessStable": true,
+  "completedAt": "2026-11-08T21:58:59.151Z"
+}

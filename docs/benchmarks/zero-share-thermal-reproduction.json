@@ -1,0 +1,117 @@
+{
+  "status": "THERMAL_CAUSE_REPRODUCED_AND_ZERO_SHARE_FIX_CONFIRMED",
+  "date": "2026-11-08T17:09:41.864704+00:00",
+  "scope": "Controlled private uploaded-design reproduction of the thermal failure on main48cfbed before separately requested motion changes. The original uploaded blueprint and generated physical profile are not redistributed. This is not a measurement of the user session.",
+  "baseline": "48cfbede2a5b333961601c57a18549ccf77fee8b",
+  "input": {
+    "blueprintSha256": "ebbd256e1ffd65ea18fd48d34c90787d79ebe9f40f03f23dbe9e124e87b897cd",
+    "partCount": 75,
+    "fitCount": 51,
+    "privateInputRedistributed": false
+  },
+  "profileSha256": "4bab3e8e0377868b8d6c17643e1502728132c22bb72460a2d81c629ca098ca7d",
+  "baselineCoreSha256": "5287bfc1899cf6b81c824ad1751b47099d2da30a6f7a45e16fba13ac2a4b9ac5",
+  "fixedCoreSha256": "e16d25989edaa8e55c2799ce37e555f3d12c320522a4193c3fd24b904b78a4f9",
+  "appSha256": "8ce23e2eca2a085f45b036fe3ff8087b419b4584a07744a9c1a3308772d8a007",
+  "change": "Two heatTick source-weight defaults use nullish instead of truthy fallback, preserving explicit zero. No capacity, temperature threshold, efficiency, density, output or routing changes.",
+  "aggregateDesign": {
+    "massTonnes": 103741065.42314956,
+    "heatCapacityJ": 3.3125559600265885e+24,
+    "dissipatorRatedW": 2.3602295773568813e+26,
+    "skinRatedW": 1.0297757855375325e+25,
+    "automaticCrewFraction": 0.9499932899416225
+  },
+  "conditions": {
+    "powerMode": "balanced",
+    "bank": "full",
+    "fireInput": false,
+    "thrustRequest": 1,
+    "dtS": 0.05,
+    "thermalPath": "production App trialPowerStep and Core allocation/heat functions",
+    "initialHeatJ": 0,
+    "sameUnitIdAndPhysicalProfile": true,
+    "simulationDurationBeforeS": 20,
+    "simulationDurationFixedS": 240,
+    "motionTargetControl": "Constant rated thrust demand, not a simulation of a future mass-resistance rule."
+  },
+  "sourceAttribution": {
+    "group": "shield",
+    "inactiveSourceWeight": 0,
+    "activeSourceWeight": 1,
+    "totalGenerationW": 4.088508963287285e+23,
+    "beforeInactiveGenerationW": 2.0442544816436424e+23,
+    "afterInactiveGenerationW": 0,
+    "afterActiveGenerationW": 4.088508963287285e+23,
+    "explanation": "An explicit0 source was treated as1 and stole half the shared shield waste, despite its static rated generation being0."
+  },
+  "before": {
+    "tripEventClockS": 16.05,
+    "firstTripObservedByOneSecondSamplingS": 17,
+    "maxHeatFill": 1.0275994832201276,
+    "last": {
+      "timeS": 20,
+      "heatFill": 0.8810381069258572,
+      "online": false,
+      "events": [
+        {
+          "t": 16.05,
+          "text": "熱限界：全艦の電源を即時遮断・復旧作業を開始"
+        }
+      ]
+    }
+  },
+  "after": {
+    "tripEvent": null,
+    "maxHeatFill": 0.6715334420565094,
+    "last": {
+      "timeS": 240,
+      "heatFill": 0.6715334420565094,
+      "online": true,
+      "events": []
+    },
+    "limitingThresholdReached": false
+  },
+  "regression": {
+    "file": "tests/thermal-zero-source-share.cjs",
+    "cases": 6,
+    "baselinePass": 1,
+    "baselineFail": 5,
+    "fixedPass": 6,
+    "fixedFail": 0,
+    "relatedCommand": "node --test --test-reporter=tap --test-concurrency=2 tests/thermal-zero-source-share.cjs tests/propulsion-power-heat.cjs tests/thermal-strict-only.cjs tests/engine-density-thermal.cjs",
+    "relatedPass": 28,
+    "relatedFail": 0,
+    "relatedFiles": 4,
+    "relatedPerFileCases": {
+      "tests/thermal-zero-source-share.cjs": 6,
+      "tests/propulsion-power-heat.cjs": 8,
+      "tests/thermal-strict-only.cjs": 6,
+      "tests/engine-density-thermal.cjs": 8
+    },
+    "relatedCommandCorrection": "The previously reported extra global-energy-model.cjs path did not exist and was a metadata error. The original TAP contained only these4files/28cases. This corrected4file command was subsequently executed and recorded explicitly.",
+    "relatedCommandEvidence": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-concurrency=2",
+        "tests/thermal-zero-source-share.cjs",
+        "tests/propulsion-power-heat.cjs",
+        "tests/thermal-strict-only.cjs",
+        "tests/engine-density-thermal.cjs"
+      ],
+      "startedAt": "2026-11-08T17:21:12.803850+00:00",
+      "completedAt": "2026-11-08T17:21:24.157095+00:00",
+      "exitCode": 0,
+      "summary": [
+        "# tests 28",
+        "# pass 28",
+        "# fail 0",
+        "# duration_ms 11263.892911"
+      ],
+      "coreSha256Before": "ec223332b9f5e129c890164392633d96797c8f34c2484ccb6412df0d2780b357",
+      "coreSha256After": "ec223332b9f5e129c890164392633d96797c8f34c2484ccb6412df0d2780b357",
+      "logSha256": "412a7d4a0c2b64371add14fa559f9ef7b6b423d18bb3be0552bff4de52efd57a"
+    }
+  }
+}

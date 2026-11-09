@@ -4,7 +4,7 @@ for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core
 const {C,R}=vm.runInContext('({C:Core,R:Rts})',cx),plain=x=>JSON.parse(JSON.stringify(x)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(a),Math.abs(b))*1e-10,`${a} != ${b}`);
 function profile(tractor=false){
  const modules=[{k:'reactor',part:1,port:'p1',name:'reactor',share:1,size:1,domain:'main',at:.5},{k:'engine',part:2,port:'p2',name:'engine',share:1,size:1,domain:'main',at:.1,powerConnected:true}];if(tractor)modules.push({k:'weapon',part:3,port:'p3',name:C.FITS.trc.short,share:1,size:1,domain:'main',at:.5,powerConnected:true});
- const e={id:2,machineryId:2,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:1e18,wattsPerNewton:2e9,ratedThrustN:5e8,direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true};
+ const e={id:2,machineryId:2,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:1e18,wattsPerNewton:2e9,ratedThrustN:5e8,driveProfileId:'standard',machineryGradeId:'standard',effectiveMachineryVolumeM3:1e18/3.4e17,direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true};
  const src=(k,id,m)=>({k,id,n:id,g:'high',sh:1,st:1e30,m,pc:[],sec:-1,sw:-1,gen:-1});
  return {profileVersion:4,name:'boarding power',hp:1e9,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:0,crewMax:0,len:10,width:4,height:3,maxSpeed:1000,accel:999999,turnRate:.1,trac:tractor?1:0,acc:1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,grid:{P:1e18,Pgen:1e18,Paux:0,fixed:0,cooling:0,De:1e18,Ds:0,Dw:0,domains:[{id:'main',P:1e18,sources:[{moduleIndex:0,P:1e18}],modules:modules.map((_,i)=>i)}]},propulsion:{version:1,engines:[e],massKg:1e6,ratedThrustN:5e8,ratedAccelMps2:500,accelerationLimitMps2:500},heat:{v:1,src:[src('reactor','p1',[0]),src('engine','p2',[1]),src('hotel','hotel',[])],dis:[],ln:[]}};
 }
@@ -34,7 +34,7 @@ test('hostile capture resistance consumes real input and clears for a non-captur
 });
 test('an unstirred peaceful tow receives one current fixed-projector allocation before moving its target',()=>{
  const {w,a,t}=world(false,{fixed:true});assert.equal(w.stir.size,0);R.tick(w,.25);assert.ok(a.tractor?.lock);assert.equal(a._peacePowerTime,w.time);near(a.propulsion.power.granted['fixed:p3'],1e17);
- const h=a.ht,total=h.st.reduce((n,v)=>n+v,0)+Object.values(h.e).reduce((n,v)=>n+v,0)+h.reactorE.reduce((n,v)=>n+v,0)+h.engineE.reduce((n,v)=>n+v,0);near(total,1.04*1e17*.25);near(t._tractorResistance,0);
+ const h=a.ht,total=h.qJ+Object.values(h.e).reduce((n,v)=>n+v,0)+h.reactorE.reduce((n,v)=>n+v,0)+h.engineE.reduce((n,v)=>n+v,0);near(total,1.04*1e17*.25);near(t._tractorResistance,0);
 });
 test('a friendly tow also releases on local projector cutoff before applying its locked offset',()=>{
  const {w,a,t}=world(false);a.gridState={domains:{},local:{2:10}};const position=plain(t.pos);R.tick(w,.25);assert.equal(a.tractor,null);assert.equal(t.towedBy,null);assert.ok(Math.hypot(...t.pos.map((v,i)=>v-position[i]))<1,'the beam did not snap the target to its old offset');
