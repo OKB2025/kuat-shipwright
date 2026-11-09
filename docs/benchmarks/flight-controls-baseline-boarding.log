@@ -1,0 +1,56 @@
+✔ a Star Destroyer's stormtroopers take a disabled CR90: lock, reel in, dock alongside, fight, capture (1865.935267ms)
+✖ an undermanned party is thrown back and the survivors return aboard (29.212538ms)
+✖ droid crews never surrender: shut down from the bridge, or the stored battle droids throw the boarders back (15704.013157ms)
+✔ the lock breaks when the projectors are destroyed mid-docking, or when the target's engines overpower them (445.128204ms)
+✔ sabotage wrecks the systems of the compartments taken and the party withdraws (2518.705326ms)
+✔ the enemy AI boards with troops and a tractor beam; the old 拿捕 order is a boarding with a default party (3813.462772ms)
+✔ the battle result waits for a boarding under way, and regiments shrink by the troops spent (3873.975245ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 5
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29176.652546
+
+✖ failing tests:
+
+test at tests/boarding-core.cjs:34:1
+✖ an undermanned party is thrown back and the survivors return aboard (29.212538ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(run(w,2400,()=>!t.boarding&&!u.tractor&&w.time>60))
+  
+      at TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/boarding-core.cjs:36:57)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/boarding-core.cjs:40:1
+✖ droid crews never surrender: shut down from the bridge, or the stored battle droids throw the boarders back (15704.013157ms)
+  AssertionError [ERR_ASSERTION]: false == true
+      at TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/boarding-core.cjs:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

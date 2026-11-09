@@ -101,20 +101,30 @@ test('an aircraft without an engine descriptor drifts instead of acquiring a spe
   assert.deepEqual(plain(s.h), [1, 0, 0]);
 });
 
-test('zero aircraft throttle preserves drift and powered steering stays within acceleration', () => {
+test('zero aircraft throttle follows the live nose without added speed while paid steering keeps its force bound', () => {
   R.CRAFT.motionPowered = {name: 'Powered', role: 'fighter', speed: 1000,
     powerProfile: profile()};
   const s = {id: 'powered', craft: 'motionPowered', side: 0,
     h: [1, 0, 0], pos: [0, 0, 0], vel: [40, 2, 3], throttle: 0};
   R.steer(s, [0, 0, 1000], 1000, .25);
-  nearVector(s.vel,analyticMotion(s.drive,[40,2,3],[0,0,0],.25).v);
+  const mass=s.drive.p.propulsion.massKg,maximumRate=8,smallRate=Math.LN2/.3,largeRate=Math.LN2/90,
+    exponent=Math.log((maximumRate/largeRate-1)/(maximumRate/smallRate-1))/Math.log(dragLargeMass/dragSmallMass),
+    pivot=dragSmallMass/Math.pow(maximumRate/smallRate-1,1/exponent),alignment=maximumRate/(1+Math.pow(mass/pivot,exponent)),
+    initial=[40,2,3],speed=Math.hypot(...initial),side=Math.hypot(initial[1],initial[2]),theta0=Math.atan2(side,initial[0]),
+    expectedAt=t=>{const theta=theta0*Math.exp(-alignment*t),magnitude=speed*Math.exp(-expectedDragRate(mass)*t);return [magnitude*Math.cos(theta),magnitude*Math.sin(theta)*initial[1]/side,magnitude*Math.sin(theta)*initial[2]/side];};
+  nearVector(s.vel,expectedAt(.25));near(Math.hypot(...s.vel),speed*Math.exp(-expectedDragRate(mass)*.25));
+  // Independently integrate the continuously curving coast, including its
+  // displacement, rather than projecting the whole frame onto its final nose.
+  const N=2048,h=.25/N,position=[0,0,0];for(let n=0;n<=N;n++){const v=expectedAt(n*h),weight=n===0||n===N?1:n%2?4:2;for(let i=0;i<3;i++)position[i]+=v[i]*weight*h/3;}nearVector(s.pos,position);
   assert.deepEqual(plain(s.h), [1, 0, 0]);
   assert.equal(s.propulsion.actualInputW, 0);
   assert.ok(!s.drive.out,'zero throttle does not disable an electrically live craft');
   s.throttle = 1;const before = s.vel.slice();
   R.steer(s, [0, 0, 1000], 1000, .25);
-  const coast=analyticMotion(s.drive,before,[0,0,0],.25),dv=Math.hypot(...s.vel.map((v,i)=>v-coast.v[i]));
-  assert.ok(dv > 0 && dv <= fullGameAcceleration*coast.gain + 1e-10,'only the funded change beyond passive decay uses the engine budget');
+  const coast=analyticMotion(s.drive,before,[0,0,0],.25),fundedChange=fullGameAcceleration*coast.gain,
+    coastSpeed=Math.hypot(...coast.v),actualSpeed=Math.hypot(...s.vel);
+  assert.ok(actualSpeed>0&&actualSpeed<=coastSpeed+fundedChange+1e-10,'nose following cannot add speed beyond the funded thrust and passive drag');
+  assert.ok(actualSpeed>=Math.max(0,coastSpeed-fundedChange)-1e-10,'directional control cannot discard an unfunded magnitude change');
   assert.equal(s.propulsion.actualInputW, 1e18);
   s.drive.mods[1] = 0;const drift = s.vel.slice(), heading = s.h.slice();
   R.steer(s, s.pos.slice(), 1000, .25);
@@ -265,13 +275,22 @@ test('a blueprint owns the physical machinery and connected reactor supply inste
 });
 
 test('aircraft shields and guns share the current finite plant with propulsion', () => {
-  const p=profile();p.grid.Ds=2e17;p.grid.Dw=1e18;
+  const p=profile();p.grid.Ds=2e17;p.grid.Dw=1e18;p.D=p.grid.Ds/C.TT*C.K.deflect;p.shieldBuffer=100;
+  p.modules.push({k:'shield',part:3,port:'p3',name:'Shield',share:1,size:1,domain:'main',powerConnected:true},
+    {k:'weapon',fit:4,port:'f4',name:'Gun',share:1,size:1,domain:'main',powerConnected:true,weaponPowerW:1e18});
   R.CRAFT.motionBudget={name:'Budget',role:'fighter',speed:1000,shield:true,powerProfile:p};
   const s={id:'budget',craft:'motionBudget',side:0,h:[1,0,0],pos:[0,0,0],vel:[0,0,0],weaponDemand:true};
+  R.squadPropulsion(s,.5,0);s.drive.shield=0;
   R.squadPropulsion(s,.5,0);
-  assert.ok(s.propulsion.actualInputW>0&&s.propulsion.actualInputW<1e18);
-  assert.ok(s.weaponPowerK>0&&s.weaponPowerK<1);
-  assert.ok(s.drive.pw.eng+s.drive.pw.wpn+s.drive.pw.sh<=1e18*(1+1e-12));
+  near(s.drive.pw.sh,2e17);near(s.drive.pw.wpn,8e17);near(s.propulsion.actualInputW,0);near(s.weaponPowerK,.8);
+  near(s.drive.pw.eng+s.drive.pw.wpn+s.drive.pw.sh,1e18);
+  // With genuinely more connected source power, the same higher-priority
+  // demands leave their actual remainder for navigation at half throttle.
+  s.drive.p.grid.P=s.drive.p.grid.Pgen=2e18;
+  for(const domain of s.drive.p.grid.domains||[]){domain.P=2e18;for(const source of domain.sources||[])source.P=2e18;}
+  R.squadPropulsion(s,.5,0);
+  near(s.drive.pw.sh,2e17);near(s.drive.pw.wpn,1e18);near(s.weaponPowerK,1);near(s.propulsion.actualInputW,8e17);
+  near(s.drive.pw.eng+s.drive.pw.wpn+s.drive.pw.sh,2e18);assert.ok(s.drive.propulsion.power.draw<=s.drive.pw.P*(1+1e-12));
   const d=C.cleanDesignCraft({name:'Shielded',dims:[10,4,3],craft:{role:'fighter',speed:1000,aa:1,armor:1,crew:1,shield:true,powerProfile:profile()}});
   assert.equal(R.CRAFT[R.registerDesignCraft(d)].shield,true);
 });

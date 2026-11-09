@@ -1,0 +1,84 @@
+{
+  "status": "COMPATIBILITY_FIX_VALIDATED_IOS_CAPTURE_UNVERIFIED",
+  "verifiedAt": "2026-11-09T03:41:33.415768+00:00",
+  "baselineCommit": "dce8d108bf1845c020da3a3022046ace72abcb73",
+  "reportedSymptom": "BGM remains audible during play, but the saved iPhone/iPad OS screen recording is silent. This exact symptom has not been reproduced in this Linux environment.",
+  "sourceSha256": {
+    "index.html": "1f686665371a08b6fe18b19513a6da9e19ea6b507d02ca13c1a9b7c527c55c78",
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6"
+  },
+  "sourceStable": true,
+  "node": {
+    "tests": 23,
+    "pass": 23,
+    "fail": 0,
+    "baselineNewRegressionTests": 8,
+    "baselinePass": 2,
+    "baselineFail": 6
+  },
+  "browser": {
+    "status": "PASS",
+    "recordings": [
+      {
+        "name": "recorded-before",
+        "file": "docs/benchmarks/recording-music-browser.recorded-before.webm",
+        "sha256": "c770295df7679c2ff23ae426d10089d5140ab6df959eaed1924f5e7a5b551156",
+        "rms": 0.04125913167625018,
+        "peak": 0.16752243041992188,
+        "duration": 1.8
+      },
+      {
+        "name": "recorded-recovered",
+        "file": "docs/benchmarks/recording-music-browser.recorded-recovered.webm",
+        "sha256": "3238fe379389c86e72c475ba6640e8f7853a2428fbf236fbb79928b279257e2a",
+        "rms": 0.051730944474523526,
+        "peak": 0.23770427703857422,
+        "duration": 1.8
+      },
+      {
+        "name": "recorded-unmuted",
+        "file": "docs/benchmarks/recording-music-browser.recorded-unmuted.webm",
+        "sha256": "d8c2e5d82274a09851e5811cac7ddee2b6eae58e861139b146c651c4e70dcee5",
+        "rms": 0.06035634412158494,
+        "peak": 0.2745463252067566,
+        "duration": 1.74
+      },
+      {
+        "name": "synth",
+        "file": "docs/benchmarks/recording-music-browser.synth.webm",
+        "sha256": "c3c6c518a355bc049c0602934bfef8bce30b79d664abd95bc8664a1d31301c1e",
+        "rms": 0.049831137810882456,
+        "peak": 0.1769796758890152,
+        "duration": 1.8
+      },
+      {
+        "name": "effects-only",
+        "file": "docs/benchmarks/recording-music-browser.effects-only.webm",
+        "sha256": "b8c7564df366cebe24ff49506b66fb923eae5e347a1b1ea6313f22dd1d92a5cd",
+        "rms": 0.09785313069592581,
+        "peak": 0.6172394752502441,
+        "duration": 1.8
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [],
+    "captureScope": "A test-only parallel tap of the real master output recorded with MediaRecorder in Chromium. Not an iOS screen recording.",
+    "sourceAndHarnessStable": true
+  },
+  "iosScreenRecording": "UNVERIFIED: neither the user symptom nor its resolution has been demonstrated on an actual iOS device. Playback session selection is a compatibility measure; interruption recovery tests verify a distinct bug.",
+  "assetsSha256": {
+    "docs/benchmarks/recording-music-baseline.json": "5f468188763ddae2eb4fe35e7bd24969b1eae32cada7cedd57133292a622ec90",
+    "docs/benchmarks/recording-music-baseline.log": "255dac8738ef1def89932be79f288d9c7214dd4e4e0206ae11640029aac8e48a",
+    "docs/benchmarks/recording-music-browser.effects-only.webm": "b8c7564df366cebe24ff49506b66fb923eae5e347a1b1ea6313f22dd1d92a5cd",
+    "docs/benchmarks/recording-music-browser.json": "93d8d71c89b062987305323089981107b3ca7987105fd188578702a4b4814b87",
+    "docs/benchmarks/recording-music-browser.recorded-before.webm": "c770295df7679c2ff23ae426d10089d5140ab6df959eaed1924f5e7a5b551156",
+    "docs/benchmarks/recording-music-browser.recorded-recovered.webm": "3238fe379389c86e72c475ba6640e8f7853a2428fbf236fbb79928b279257e2a",
+    "docs/benchmarks/recording-music-browser.recorded-unmuted.webm": "d8c2e5d82274a09851e5811cac7ddee2b6eae58e861139b146c651c4e70dcee5",
+    "docs/benchmarks/recording-music-browser.synth.webm": "c3c6c518a355bc049c0602934bfef8bce30b79d664abd95bc8664a1d31301c1e",
+    "docs/benchmarks/recording-music-validation.json": "18a6b6b01f39d14501f4b7f142735a8e70de158fcd05463430ab2552425ea6bb",
+    "docs/benchmarks/recording-music-validation.log": "5a82b9e7c4de28888315cf00b2359b392012163b58407ac5f557caeda818b1a3",
+    "scripts/browser-audio-recovery.cjs": "30f14c38cb94adc070897769b0b6b9f32715de73160cda3f83706d41e1f4073d",
+    "tests/audio-session-recovery.cjs": "cb86f28e0685ec6410e3b8ddf422a624a51e963ebf7196d5d2ebe4529ddccea2",
+    "docs/audio.md": "6067a912b1d8e16b0d4fd102f86cf373a328f5bcfcb6dbf269047d305ae9d30d"
+  }
+}

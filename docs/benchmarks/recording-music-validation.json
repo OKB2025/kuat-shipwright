@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-11-09T03:38:52.296823+00:00",
+  "completedAt": "2026-11-09T03:38:53.133446+00:00",
+  "baselineCommit": "dce8d108bf1845c020da3a3022046ace72abcb73",
+  "runtime": {
+    "node": "v24.22.1"
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/audio-session-recovery.cjs",
+    "tests/bgm-loops.cjs",
+    "tests/splash-entry.cjs",
+    "tests/source-manifest.cjs"
+  ],
+  "sources": {
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6",
+    "index.html": "1f686665371a08b6fe18b19513a6da9e19ea6b507d02ca13c1a9b7c527c55c78"
+  },
+  "tests": {
+    "tests/audio-session-recovery.cjs": "cb86f28e0685ec6410e3b8ddf422a624a51e963ebf7196d5d2ebe4529ddccea2",
+    "tests/bgm-loops.cjs": "a68e7ca95b537f1cda08d45a3afa395bd5d55f497d06c46628878825d1ebfa5f",
+    "tests/splash-entry.cjs": "43cde8ce72089e18d4a9db66dd39e0e3e457110764c7e32ba2daee04623efbc7",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db"
+  },
+  "scope": "Eight functional lifecycle regressions on actual KSAudio/createEngine with browser API doubles, plus unchanged recorded-loop metadata, splash-entry and exact served-asset manifest checks. No iOS screen-capture success claim.",
+  "exitCode": 0,
+  "summary": [
+    "# tests 23",
+    "# pass 23",
+    "# fail 0",
+    "# cancelled 0",
+    "# skipped 0",
+    "# duration_ms 692.314113"
+  ],
+  "failures": [],
+  "sourcesAfter": {
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6",
+    "index.html": "1f686665371a08b6fe18b19513a6da9e19ea6b507d02ca13c1a9b7c527c55c78"
+  },
+  "testsAfter": {
+    "tests/audio-session-recovery.cjs": "cb86f28e0685ec6410e3b8ddf422a624a51e963ebf7196d5d2ebe4529ddccea2",
+    "tests/bgm-loops.cjs": "a68e7ca95b537f1cda08d45a3afa395bd5d55f497d06c46628878825d1ebfa5f",
+    "tests/splash-entry.cjs": "43cde8ce72089e18d4a9db66dd39e0e3e457110764c7e32ba2daee04623efbc7",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db"
+  },
+  "sourceStable": true,
+  "testStable": true,
+  "logSha256": "5a82b9e7c4de28888315cf00b2359b392012163b58407ac5f557caeda818b1a3",
+  "baselineProof": "recording-music-baseline.json",
+  "baselineNote": "The same new tests intentionally fail six lifecycle/session assertions on previous main. Existing browser-fallback and quiet/hidden checks pass there. All eight pass with the fix."
+}

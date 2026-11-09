@@ -14,7 +14,8 @@ function fixture(surface=false){
 }
 `);
 function extract(name){const a=app.indexOf('function '+name+'('),b=app.indexOf('\n}',a)+2;assert.ok(a>=0&&b>a,name);run(app.slice(a,b));}
-for(const name of ['trialSystemsUnit','trialPowerFactor','trialPropulsionMotion','trialThrottleCommand','trialMainOutput','trialPowerStep','trialStep','trialJump','trialJumpStep','trialIonPracticeStep'])extract(name);
+for(const line of app.split('\n'))if(line.startsWith('function trialSetThrottle(')||line.startsWith('function trialJumpCommitted('))run(line);
+for(const name of ['trialSystemsUnit','trialPowerFactor','trialPropulsionMotion','trialThrottleCommand','trialMainOutput','trialPowerStep','trialStep','trialJump','trialCancelJump','trialJumpStep','trialIonPracticeStep'])extract(name);
 for(const line of app.split('\n'))if(line.startsWith('function trialSwSoloEnergy(')||line.startsWith('function trialSwSoloBeamEnergy('))run(line);
 
 test('manual charging uses the same input/output/loss boundary as common combat',()=>{
@@ -40,8 +41,8 @@ test('manual blackout retains instantaneous inertia then follows disabled gravit
 });
 
 test('source loss rejects a jump start and cancels a pending manual spool without resuming it',()=>{
- const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});trialJump('b');const blocked=trial.jump===null;trial.jump={phase:'spool',t:2,age:2};trialJumpStep(1);const cancelled=trial.jump===null;u.p.crewCapacity=1;u.crew=1;u.ht.qJ=.8*u.ht.capacityJ;C.powerTick(u,300);trialJumpStep(1);return {blocked,cancelled,restored:u.out===null,stillCancelled:trial.jump===null,message:notices[0]};})()`);
- assert.equal(r.blocked,true);assert.equal(r.cancelled,true);assert.equal(r.restored,true);assert.equal(r.stillCancelled,true);assert.match(r.message,/給電停止/);
+ const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});trialJump('b');const blocked=trial.jump===null,before=trial.V.slice();trial.jump={phase:'spool',t:2,age:2,priorThrottle:.25};trialJumpStep(1);const cancelled=trial.jump===null,after=trial.V.slice(),command=trial.throttle;u.p.crewCapacity=1;u.crew=1;u.ht.qJ=.8*u.ht.capacityJ;C.powerTick(u,300);trialJumpStep(1);return {blocked,cancelled,restored:u.out===null,stillCancelled:trial.jump===null,before,after,command,message:notices[0]};})()`);
+ assert.equal(r.blocked,true);assert.equal(r.cancelled,true);assert.equal(r.restored,true);assert.equal(r.stillCancelled,true);assert.deepEqual(plain(r.after),plain(r.before));assert.equal(r.command,.25);assert.match(r.message,/給電停止/);
 });
 
 test('practice ion pulses share finite geometric energy in distance order across several targets',()=>{

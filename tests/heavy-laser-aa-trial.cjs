@@ -5,6 +5,8 @@ const C=run('Core'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 run(`
 const C=Core,TT_J=C.TT,trial={};let aimPoint=[10000,0,0],downs=0;
+// The isolated gunnery harness resolves the same live unit as the app.
+const trialSystemsUnit=()=>trial.battle?.me||trial.systemsUnit||null;
 Math.random=()=>.1;
 const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
 const trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],trialCraftGasReady=()=>true,trialCraftGasTake=()=>true,sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'',trialThreatDown=q=>{q.alive=false;downs++;};

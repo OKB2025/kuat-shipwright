@@ -5,6 +5,8 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 run(`
 const C=Core,G=Gfx,TT_J=C.TT,trial={},notices=[],sounds=[],powerDemands=[];
+// The isolated gunnery harness resolves the same live unit as the app.
+const trialSystemsUnit=()=>trial.battle?.me||trial.systemsUnit||null;
 Math.random=()=>.5;
 let aimPoint=[10000,0,0],salvo=null;
 const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};

@@ -1,0 +1,49 @@
+{
+  "baselineCommit": "d71d927e747a887f474a081dd548a783a98150a8",
+  "sourceTree": "PR76 tested source tree identical to merged main",
+  "timestamp": "2026-11-09T01:11:06.883563+00:00",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-concurrency=2",
+    "tests/combat-point-defense-targeting.cjs",
+    "tests/fighter-hyper-retreat.cjs",
+    "tests/throttle-output-trial.cjs",
+    "tests/connected-power-residual.cjs",
+    "tests/received-power-efficiency.cjs"
+  ],
+  "sha256": {
+    "js/core.js": "79cab83c088efe5a5b4a901550c70e6fd9ce468b2e8e358500a6beff41ce29b2",
+    "js/app.js": "1103e04eb1686f30372c3c5feadd0590e04bdf064ccec44043d08fb5a0590986",
+    "tests/combat-point-defense-targeting.cjs": "647bf93b052e37bf3482385beb325e72b84e0de37dc465fad2a2cda884ceac76",
+    "tests/fighter-hyper-retreat.cjs": "4bb43a66933a4a5aa1954ac91f6e718b4a4fe0dd01525130a36e953ea241a25c",
+    "tests/throttle-output-trial.cjs": "663b5ac06763bdb06487466e4b174128aae7a0f5be231b83a6994c629714d853",
+    "tests/connected-power-residual.cjs": "529cbffa098bd12795d202712403523587457129870805b46c884968440b04c1",
+    "tests/received-power-efficiency.cjs": "477be85ab93325021efe6d758b4aefebe200a1fd658d8133b389dacd91346c75"
+  },
+  "summary": [
+    "# tests 46",
+    "# pass 31",
+    "# fail 15",
+    "# skipped 0"
+  ],
+  "failures": [
+    "not ok 14 - partial launch preserves aboard aircraft and temporarily splits only the airborne cohort",
+    "not ok 15 - partial land preserves aboard aircraft and temporarily splits only the airborne cohort",
+    "not ok 18 - the battle continues and point defence can hit fighters while they spool after the last carrier departs",
+    "not ok 24 - line loss and conversion loss both use actual power and conserve source energy",
+    "not ok 25 - structural and inertial bounds reduce requested input before power is allocated",
+    "not ok 26 - the legacy architecture also caps electrical requests instead of discarding force afterward",
+    "not ok 29 - quarter throttle requests quarter engine input independently of current speed",
+    "not ok 30 - full throttle keeps requesting real power at the old nominal maximum speed",
+    "not ok 31 - direct full-to-quarter output approaches force balance around the Venator 1000 m/s reference",
+    "not ok 32 - direct full-to-quarter output approaches force balance around the TIE/ln 2000 m/s reference",
+    "not ok 33 - actual power shortage lowers the force-balance speed even with a full throttle command",
+    "not ok 34 - a vessel above its nominal full-output equilibrium slows naturally instead of snapping to a ceiling",
+    "not ok 35 - idle does not command a powered brake or a main-engine plume",
+    "not ok 36 - a large unpowered vessel loses speed in all axes while a small craft nearly keeps its drift",
+    "not ok 41 - partial electrical supply limits both actual thrust and exhaust below the requested full output"
+  ],
+  "logSha256": "5c8940e109d66937a37fb34e464487cc69c030787f46b23955372f407b1d05b3"
+}
