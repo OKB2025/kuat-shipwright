@@ -23,7 +23,7 @@ for(const [key,target] of Object.entries(C.CRAFT_INTERIOR_TARGETS))test(`${key}:
  assert.equal(Math.min(...u.ht.lm),1,'no immediate thermal limiter during the checked run');
  const loaded=C.deserialize(C.serialize(ship)),L=C.computeStats(loaded);
  near(L.mass,S.mass,'saved physical mass');near(L.power,S.power,'saved reactor power');near(L.propulsion.ratedInputW,S.propulsion.ratedInputW,'saved engine rating');near(L.propulsion.actualInputW,S.propulsion.actualInputW,'saved actual input');
- assert.deepEqual(plain(L.dims),plain(S.dims));assert.deepEqual(plain(loaded.links),plain(ship.links));
+ assert.deepEqual(plain(L.dims),plain(S.dims));assert.deepEqual(plain(C.serialize(loaded).links),plain(C.serialize(ship).links),"saved power and heat links");
 });
 
 test('loading a modified fighter preserves its authored machinery and does not refit it again',()=>{

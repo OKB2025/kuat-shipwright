@@ -3286,7 +3286,7 @@ function specHTML(S, opt = {}) {
     ${superweaponCatalogHTML(S)}
     ${engagementCapacityHTML(S)}
     <div><dt>最大加速</dt><dd>${fG(S.accelG)}<small>推力・構造強度・慣性制御の上限</small></dd></div>
-    <div><dt>ハイパードライブ</dt><dd>${S.hyperClass ? 'クラス ' + S.hyperClass.toFixed(1) : 'なし'}<small>${S.hyperClass ? (S.jumpOK ? '跳躍電力 可' : '跳躍電力 不足') : ''}</small></dd></div>
+    <div><dt>ハイパードライブ</dt><dd>${S.hyperClass ? 'クラス ' + S.hyperClass.toFixed(1) : 'なし'}<small>${S.hyperClass ? (S.jumpOK ? (S.jumpChargeS!=null ? `余剰電力で充電 ${num(S.jumpChargeS,S.jumpChargeS<100?1:0)} 秒` : '跳躍電力 可') : '充電用の余剰電力なし') : ''}</small></dd></div>
     <div><dt>シールド強度（最大）</dt><dd>${fPct(S.shieldPct)}<small>${fW(S.shieldP)} · 蓄積 ${sci(S.shieldCapacity)} J</small></dd></div>
     <div><dt>装甲</dt><dd>外殻 ${S.armorHull.toFixed(2)} m<small>集中防御 ${S.armorCit.toFixed(1)} m${S.plateArea>0?` · 装甲外板 ${S.armorPlate.toFixed(1)} m（表面の ${fPct(S.plateShare||0)}）`:''}</small></dd></div>
     <div><dt>格納容量</dt><dd>${(S.aviation?.capacity||0).toFixed(2)} サイズ<small>TIE/LN 約 ${num(Math.floor((S.aviation?.capacity||0)/Math.max(.05,C.stowSize(C.craftDims('tie_ln')))))} 機分 · 搭載は編成画面で</small></dd></div>
@@ -5689,7 +5689,7 @@ function v3RenderPanel(){
   if(st.tab==='bridge'){
     panel.innerHTML=`<div class="pgroup panel-nav">${seg('group',layoutGroups(),'command')}</div>`+bridgeSubHTML()+bridgePanel();
   }
-  if(st.tab==='armor')panel.insertAdjacentHTML('beforeend',`<div class="pgroup sliders"><h4>シールドの目標強度</h4>${slider('shieldTarget','標準に対して',(ship.shieldTarget||1)*100,10,300,5,Math.round((ship.shieldTarget||1)*100)+'%')}<p class="note">目標強度 × 外表面積で必要電力が決まります。発生器の容量と給電が不足すると実効強度が下がります。</p></div>`);
+  if(st.tab==='armor')panel.insertAdjacentHTML('beforeend',`<div class="pgroup sliders"><h4>シールドの目標強度</h4>${slider('shieldTarget','標準に対して',(ship.shieldTarget||1)*100,1,300,1,Math.round((ship.shieldTarget||1)*100)+'%')}<p class="note">目標強度 × 外表面積で必要電力が決まります。発生器の容量と給電が不足すると実効強度が下がります。</p></div>`);
 }
 function trenchPanelHTML(){
   const t=st.trench,q=trenchArmamentState(),pending=!!q.pending;
@@ -7876,6 +7876,8 @@ function trialPowerStep(dt,want){
  }else en.E=Math.min(en.cap,en.E+got.weapons*Math.max(0,dt)/TT_J/input);
  me.energy=en.E;got.load=P>0?got.draw/P:0;me.load=P>0?(got.draw+(solved.cooling?.draw||0))/P:0;
  if(me.pw){me.pw.wpn=got.weapons;me.pw.drawNonCooling=got.draw;}
+ // v24 Spare power left after this step's loads charges the hyperdrive.
+ if(typeof C.hyperChargeStep==='function'){const jw=C.hyperChargeStep(me,P,got.draw+(solved.cooling?.draw||0),dt);if(me.pw)me.pw.hyper=jw;if(P>0)me.load+=jw/P;}
  C.heatAccrue(me,got,solved.cooling?.fixed||0,dt);
  // The world updates a battle unit's thermal state. Solo practice owns one
  // thermal update here; both use the previous update's acceptance limit.
@@ -8394,8 +8396,11 @@ function trialSelfUpdate(hud){
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
 function trialHyperText(j,d,left){
  const c=`光速の ${(trial.vf/LIGHT*100).toFixed(trial.vf<LIGHT*.01?2:1)}%`;
- return j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='accel'?`亜光速へ加速 · ${c}`:j.phase==='enter'?`亜光速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
+ return j.phase==='spool'?(trialHyperReady()?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:trialHyperChargeText(d)):j.phase==='accel'?`亜光速へ加速 · ${c}`:j.phase==='enter'?`亜光速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
 }
+// v24 The hyperdrive fills from spare power (C.hyperChargeStep); the spool waits until it is full.
+function trialHyperReady(){const u=typeof trialSystemsUnit==='function'?trialSystemsUnit():null;return !u||typeof C.hyperCharged!=='function'||C.hyperCharged(u)>=1;}
+function trialHyperChargeText(d){const u=typeof trialSystemsUnit==='function'?trialSystemsUnit():null,f=u&&typeof C.hyperCharged==='function'?C.hyperCharged(u):1,w=u?.pw?.hyper||0,left=w>0?(1-f)*C.hyperChargeNeedJ(u.p)/w:null,pct=Math.floor(f*100);return left!=null?`ハイパードライブ充電 ${pct}% · ${d}へ あと約 ${Math.ceil(left)} 秒`:`ハイパードライブ充電 ${pct}% · ${d}へ（余剰電力なし）`;}
 // Jump durations as text (the voyage map and the piloted jump both use it).
 function trialDurText(s) { s = Math.max(0, Math.round(s)); if (s < 60) return `${s} 秒`; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${h ? h + '時間 ' : ''}${m}分 ${x}秒`; }
 function trialHyperUpdate(hud){
@@ -8592,7 +8597,7 @@ function trialReversion(){
 }
 function trialJumpStep(dt){
  const j=trial.jump;if(!j)return;const unit=trialSystemsUnit();if(unit)C.syncPowerLossDisabled(unit);if(!j.follow&&['spool','accel','enter'].includes(j.phase)&&(unit?.out||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trial.jump=null;return;}if(!j.follow&&j.phase==='spool'&&!(trialPowerFactor('hyper')>0))return;j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
- if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
+ if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool&&trialHyperReady()){if(unit)unit.hyperE=0;j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
  else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
  else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}}
  else if(j.phase==='tunnel'){

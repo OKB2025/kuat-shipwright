@@ -63,17 +63,16 @@ test('reference bracing metadata survives placement, save/load and a folded edit
  }
 });
 
-test('fresh TIE/ln collectors use native bracing while the other stock TIE types retain their separate frames',()=>{
+test('fresh stock TIE collectors are one native-braced panel per side, and old saves keep their separate frames',()=>{
  let count=0;
- for(const key of ['craft_tie_ln','craft_tie_in','craft_tie_sa']){
-  const ship=C.buildDesign(key),panels=ship.parts.filter(p=>p.k==='solarPanel'),before=plain(C.serialize(ship).parts.filter(p=>p.k==='struct'));
-  for(const p of panels){count++;if(key==='craft_tie_ln'){const shape=C.solarPanelPreset('hex');assert.equal(p.panelBracing,shape.panelBracing);near(p.panelFrame,p.s[0]*shape.frameRatio);near(p.panelRib,p.s[0]*shape.ribRatio);assert.ok(C.aeroPanelRibs(p).length>0);}else{assert.equal(p.panelBracing,'none');assert.equal(p.panelFrame,0);assert.equal(p.panelRib,0);assert.equal(C.aeroPanelRibs(p).length,0);}}
-  if(key==='craft_tie_ln'){const saved=C.serialize(ship),loaded=C.deserialize(saved);for(const p of panels){const q=loaded.parts.find(q=>q.id===p.id);for(const field of ['panelBracing','panelFrame','panelRib'])assert.equal(q[field],p[field],field);}assert.deepEqual(plain(C.serialize(loaded).parts.filter(p=>p.k==='struct')),before);continue;}
-  const old=C.serialize(ship);for(const p of old.parts.filter(p=>p.k==='solarPanel')){delete p.panelBracing;delete p.panelSparX;p.panelFrame=.06;p.panelRib=.035;}
-  const loaded=C.deserialize(old);for(const p of loaded.parts.filter(p=>p.k==='solarPanel')){assert.equal(p.panelBracing,'none',key+' '+p.label);assert.equal(p.panelFrame,0);assert.equal(p.panelRib,0);}
+ for(const [key,preset] of [['craft_tie_ln','hex'],['craft_tie_in','interceptor'],['craft_tie_sa','bomber']]){
+  const ship=C.buildDesign(key),panels=ship.parts.filter(p=>p.k==='solarPanel'),before=plain(C.serialize(ship).parts.filter(p=>p.k==='struct')),shape=C.solarPanelPreset(preset);
+  assert.equal(panels.length,2,key+' has one collector per side');assert.equal(ship.parts.some(p=>['翼中央パネル','翼中央部','上翼板','下翼板'].includes(p.label)),false,key+' has no separate wing pieces');
+  for(const p of panels){count++;assert.equal(p.panelBracing,shape.panelBracing,key);near(p.panelFrame,p.s[0]*shape.frameRatio);near(p.panelRib,p.s[0]*shape.ribRatio);assert.ok(C.aeroPanelRibs(p).length>0);}
+  const saved=C.serialize(ship),loaded=C.deserialize(saved);for(const p of panels){const q=loaded.parts.find(q=>q.id===p.id);for(const field of ['panelBracing','panelFrame','panelRib'])assert.equal(q[field],p[field],field);}
   assert.deepEqual(plain(C.serialize(loaded).parts.filter(p=>p.k==='struct')),before);
  }
- assert.equal(count,14);
+ assert.equal(count,6);
  const {ship,p}=panel('interceptor');delete p.label;const loaded=C.deserialize(C.serialize(ship)).parts[0];assert.equal(loaded.panelBracing,'spar');near(loaded.panelSparX,p.panelSparX);
 });
 
@@ -87,24 +86,19 @@ test('an old TIE/ln save retains its separate physical frame without adding nati
  assert.deepEqual(plain(C.serialize(loaded).parts.filter(q=>q.k==='struct')),physicalFrames);near(C.solarArea(q),C.solarArea(p));
 });
 
-test('the interceptor rear collector uses its vertical broad face and keeps the original box bounds',()=>{
- const ship=C.buildDesign('craft_tie_in'),panels=ship.parts.filter(p=>p.label==='翼中央パネル');assert.equal(panels.length,2);
- for(const p of panels){
-  near(p.s[0],1.7);near(p.s[1],1.9);near(p.s[2],.44);near(Math.abs(p.roll),90);near(C.solarArea(p),1.7*1.9);
-  const expected=[p.c[0]-.85,p.c[1]-.95,p.c[2]-.22,p.c[0]+.85,p.c[1]+.95,p.c[2]+.22],bounds=C.partAABB(p);
-  expected.forEach((v,i)=>near(bounds[i],v,1e-6));
-  const changed=C.solarPanelPreset('interceptor'),copy={...plain(p),...changed,s:[p.s[0],p.s[0]*changed.aspect,p.s[2]]};near(copy.s[2],.44);
- }
-});
-
+// An old TIE/in save: rear collectors stored as unoriented boxes beside their separate frames.
+function oldRearCollectors(){
+ const ship=C.newShip({L:12,W:8,H:4,assembly:true}),ids=[];
+ for(const z of [3,-3]){const p=C.placePart(ship,'solarPanel',[5,2,z],[1.7,.44,1.9],{form:'box',label:'翼中央パネル',wing:{solar:true},allowOverlap:true},false);assert.ok(p);ids.push(p.id);
+  assert.ok(C.placePart(ship,'struct',[5,2,z],[1.8,.1,.1],{form:'box',light:true,label:'翼外枠',allowOverlap:true},false));}
+ const saved=C.serialize(ship);for(const p of saved.parts.filter(p=>ids.includes(p.id))){p.s=[1.7,.44,1.9];p.roll=0;delete p.pitch;delete p.yaw;delete p.surfaceNormal;delete p.panelBracing;delete p.panelSparX;p.panelFrame=.06;p.panelRib=.035;}
+ return saved;
+}
 test('old unoriented rear collectors reframe on load without moving or reshaping their box',()=>{
- const ship=C.buildDesign('craft_tie_in'),saved=C.serialize(ship),expected=new Map();
- for(const p of saved.parts.filter(p=>p.label==='翼中央パネル')){
-  p.s=[1.7,.44,1.9];p.roll=0;delete p.panelBracing;delete p.panelSparX;p.panelFrame=.06;p.panelRib=.035;
-  expected.set(p.id,[p.c[0]-.85,p.c[1]-.95,p.c[2]-.22,p.c[0]+.85,p.c[1]+.95,p.c[2]+.22]);
- }
+ const saved=oldRearCollectors(),expected=new Map();
+ for(const p of saved.parts.filter(p=>p.label==='翼中央パネル'))expected.set(p.id,[p.c[0]-.85,p.c[1]-.95,p.c[2]-.22,p.c[0]+.85,p.c[1]+.95,p.c[2]+.22]);
  const before=JSON.stringify(saved),loaded=C.deserialize(saved);assert.equal(JSON.stringify(saved),before);
- for(const p of loaded.parts.filter(p=>p.label==='翼中央パネル')){near(C.solarArea(p),3.23);near(p.s[2],.44);assert.equal(p.panelBracing,'none');C.partAABB(p).forEach((v,i)=>near(v,expected.get(p.id)[i],1e-6));}
+ for(const p of loaded.parts.filter(p=>p.label==='翼中央パネル')){near(C.solarArea(p),3.23);near(p.s[2],.44);near(Math.abs(p.roll),90);assert.equal(p.panelBracing,'none');C.partAABB(p).forEach((v,i)=>near(v,expected.get(p.id)[i],1e-6));}
  const again=C.deserialize(C.serialize(loaded));for(const p of again.parts.filter(p=>p.label==='翼中央パネル'))near(C.solarArea(p),3.23);
  const custom=plain(saved),p=custom.parts.find(p=>p.label==='翼中央パネル');p.outline=[[-.5,-.5],[.5,-.5],[.2,.5],[-.5,.5]];const kept=C.deserialize(custom).parts.find(q=>q.id===p.id);near(kept.s[1],.44);near(kept.s[2],1.9);near(kept.roll||0,0);
 });

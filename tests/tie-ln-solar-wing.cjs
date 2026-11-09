@@ -43,7 +43,7 @@ test('a stale built-in TIE profile rebuilds once and replaces its old mass witho
 
 test('factory revision checks preserve saved custom craft and unrelated built-in snapshots',()=>{
  const stale=plain(C.craftPowerProfile(ship,stats));delete stale.referencePhysicalRevision;stale.propulsion.massKg=12345;
- const custom={name:'Saved old TIE design',design:true,ref:'craft_tie_ln',mass:12.345,powerProfile:stale},other=R.CRAFT.tie_in,fields=['powerProfile','mass','speed','_powerResolved'],before=new Map(fields.map(k=>[k,{has:Object.hasOwn(other,k),value:other[k]}])),build=C.buildDesign;
+ const custom={name:'Saved old TIE design',design:true,ref:'craft_tie_ln',mass:12.345,powerProfile:stale},other=R.CRAFT.bwing,fields=['powerProfile','mass','speed','_powerResolved'],before=new Map(fields.map(k=>[k,{has:Object.hasOwn(other,k),value:other[k]}])),build=C.buildDesign;
  C.buildDesign=()=>{throw Error('An unrelated or user-authored design must not run the TIE/ln factory');};
  try{const before=plain(stale),normalized=R.craftPowerOf(custom);assert.ok(normalized);near(normalized.propulsion.massKg,12345);near(custom.mass,12.345);assert.deepEqual(plain(stale),before,'normalizing does not mutate the saved source');for(const key of ['id','machineryId','machineryLengthM','machineryRadiusM','machineryOffsetM','effectiveMachineryVolumeM3'])assert.deepEqual(plain(normalized.propulsion.engines.map(e=>e[key])),plain(stale.propulsion.engines.map(e=>e[key])),key);other.powerProfile=stale;other._powerResolved=true;const unrelated=R.craftPowerOf(other);assert.ok(unrelated);near(unrelated.propulsion.massKg,12345);assert.deepEqual(plain(stale),before);}
  finally{C.buildDesign=build;for(const [k,old]of before)if(old.has)other[k]=old.value;else delete other[k];}

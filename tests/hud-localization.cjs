@@ -80,6 +80,16 @@ test('every hyperspace phase translates its composed destination, speed and coun
     }
   }
   assert.equal(c.KSI18n.t('ハイパースペース航行中 · コルサントまで 12 秒'), 'In Hyperspace · To Coruscant · 12 s');
+  // v24 A drive that is still charging from spare power waits in the spool phase.
+  for (const hyper of [2e9, 0]) {
+    c.hyperUnit = {p:{grid:{P:1e12,Dj:1e9},modules:[]},hyperE:4e9,pw:{hyper}};
+    vm.runInContext('var trialSystemsUnit=()=>hyperUnit', c);
+    c.jump = {phase:'spool',t:9};
+    const text = vm.runInContext("trialHyperText(jump,'コルサント',Infinity)", c);
+    assert.match(text, /充電 40%/);
+    translated(text);
+  }
+  vm.runInContext('trialSystemsUnit=()=>null', c);
 });
 
 test('orbit labels cover ring systems and all loading tips retain English military terminology', () => {
