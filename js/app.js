@@ -8552,7 +8552,7 @@ function escortsDraw(){const es=trial.escorts||[],tun=trial.jump?.phase==='tunne
 // Supporting fire: while the flagship fires at a target, each escort in range sends a burst at it.
 function escortsFire(dt,lock,firing){
  const es=trial.escorts;if(!es?.length)return;
- for(const e of es){const unit=escortSystemsUnit(e);C.syncPowerLossDisabled(unit);e.gun-=dt;if(unit.out||unit.dead||!firing||!lock||!lock.alive||e.gun>0||trial.jump)continue;const rel=tv.sub(lock.pos,e.pos),d=tv.len(rel);if(d>C.fleetReach(e.p)){e.gun=.5;continue;}
+ for(const e of es){const unit=escortSystemsUnit(e);C.syncPowerLossDisabled(unit);e.gun-=dt;if(unit.out||unit.dead||!firing||!lock||!lock.alive||e.gun>0||trialJumpCommitted())continue;const rel=tv.sub(lock.pos,e.pos),d=tv.len(rel);if(d>C.fleetReach(e.p)){e.gun=.5;continue;}
   const me={pos:trial.P,rot:trial.R,radius:trial.p.len*.5,semi:[trial.p.len*.5,(trial.p.height||trial.p.len*.2)*.5,(trial.p.width||trial.p.len*.5)*.5]};if(trialBoxOnLine(me,e.pos,tv.scale(rel,1/d),d)){e.gun=.4;continue;}
   e.gun=1.1+Math.random()*.9;const spd=TRIAL_GUN.boltSpeed,t=trialIntercept(rel,tv.sub(lock.vel,e.V),spd)||d/spd,aim=C.gunScatter(tv.norm(tv.add(rel,tv.sub(lock.vel,e.V),t)),e.p,C.fleetReach(e.p));
   sndAt('laser_light',e.pos,{gain:.55,pitch:1.15});
@@ -8802,7 +8802,7 @@ function trialMapSide(){
  if(sel){const p=Galaxy.path(cur.key,sel),plan=Galaxy.itinerary(cur.key,sel),t=hc==null||!plan?.segments.length?null:Math.round(trialJumpSecs(hc,cur.key,plan.next));
   h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p>${navigationPlanHTML(plan,k=>SYSTEMS[k]?.name||k)}<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${t==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[plan?.next]?.name||SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${trialDurText(t)}）`}<small data-jump-readiness>${trialJumpReadinessText()}</small></button>`);}
  else h+=gmSysCardHTML(cur.key,`<p class="gm-hint">行き先の星系をタップしてください（ドラッグで移動・ピンチで拡大）。</p>`);
- h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
+ h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
  return h+gmLegendHTML()+gmListHTML('data-gm-pick');}
 function trialMapPick(key){const st=GMAP.trial;if(!st||!SYSTEMS[key])return;st.sel=key===st.cur?null:key;gmMark('trial');gmLayout('trial');const side=$('#thMapSide');if(side)side.innerHTML=trialMapSide();}
 function trialMapShow(on){

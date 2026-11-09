@@ -93210,20 +93210,18 @@ function propulsionMotion(u,load=1){
  const live=!u?.out&&!u?.dead&&powerFactor(u,'engine')>0&&powerFactor(u,'reactor')>0&&heatLim(u,'engine')>0;
  const acc=live?actual*scale*loadK:0;return {acc0,acc,turn:acc0>0?clamp(acc/acc0,0,1):0};
 }
-// Hyperdrive entry uses the healthy design's common-law cruise speed. Live
-// combat demand must clear, and this frame's paid thrust must sustain it.
+// Hyperdrive entry uses actual forward speed against the healthy design's
+// common-law cruise speed. Combat demand affects motion through paid power;
+// it does not independently forbid entry while the required speed is held.
 const HYPERSPACE_ENTRY_SPEED_FRACTION=.9;
 function hyperspaceCommitted(jump){return !!jump&&!['spool','accel','enter'].includes(jump.phase);}
 function hyperspaceReadiness(u,velocity=u?.velocity,direction=null,options={}){
  if(u)syncPowerLossDisabled(u);
- const valid=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)&&len(v)>1e-12,load=Number.isFinite(options.load)?Math.max(0,options.load):1,forward=valid(options.forwardDirection)?norm(options.forwardDirection):[Math.cos(u?.yaw||0),0,Math.sin(u?.yaw||0)],dir=valid(direction)?norm(direction):forward,v=valid(velocity)?velocity:[0,0,0],healthyMaximumSpeedMps=propulsionTerminalSpeed(u)*load,requiredForwardSpeedMps=healthyMaximumSpeedMps*HYPERSPACE_ENTRY_SPEED_FRACTION,forwardSpeedMps=dot(v,dir),pw=u?.pw||{},positive=x=>Number.isFinite(x)?Math.max(0,x):0;
- // A hit or stored-energy shot may happen after the allocator ran. Re-read
- // physical field/bank headroom instead of trusting that earlier idle zero.
- const step=Number.isFinite(options.dt)&&options.dt>0?options.dt:.05,query=u?{...u,surfaceBanks:u.surfaceBanks?{...u.surfaceBanks}:undefined,ht:u.ht?{...u.ht,e:{...u.ht.e}}:undefined}:null,pending=query&&typeof shipCombatPowerDemand==='function'?shipCombatPowerDemand(query,{shields:positive(u.p?.grid?.Ds)*fleetSystems(u).shield,weapons:positive(u.p?.grid?.Dw)},step):null;
- const shieldRechargeW=Math.max(positive(pending?.requestedShieldRechargeW),Number.isFinite(pw.requestedShieldRechargeW)?positive(pw.requestedShieldRechargeW):(u?.shield<(u?.shieldMax||0)*.999||(u?.bank||0)<(u?.bankMax||0)*.999)?positive(pw.wantSh):0),weaponChargeW=Math.max(positive(pending?.requestedWeaponChargeW),Number.isFinite(pw.requestedWeaponChargeW)?positive(pw.requestedWeaponChargeW):positive(pw.wantWpn)),weaponFireW=positive(pw.requestedWeaponFireW),activeWeaponFire=pw.activeWeaponFire===true||weaponFireW>0;
- const hyperModules=(u?.p?.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='hyper'),knownHyper=options.hyperClass??u?.info?.hyper??u?.p?.hyperClass??u?.p?.hyper,hasHyperdrive=hyperModules.length>0||Number.isFinite(knownHyper)&&knownHyper>0,hyperReady=!!u&&hasHyperdrive&&powerFactor(u,'hyper')>0&&(!hyperModules.length||hyperModules.some(x=>(u.mods?.[x.i]??1)>0&&powerFactor(u,'hyper',x.i)>0)),healthyAccelerationMps2=healthyMotionAcceleration(u?.p)*load,requiredAccelerationMps2=healthyAccelerationMps2*HYPERSPACE_ENTRY_SPEED_FRACTION,fundedForwardAccelerationMps2=propulsionMotion(u,load).acc*Math.max(0,dot(forward,dir)),speedReady=requiredForwardSpeedMps>0&&forwardSpeedMps+Math.max(1e-6,requiredForwardSpeedMps*1e-9)>=requiredForwardSpeedMps,powerReady=hyperReady&&!u?.dead&&!u?.out&&requiredAccelerationMps2>0&&fundedForwardAccelerationMps2+Math.max(1e-9,requiredAccelerationMps2*1e-9)>=requiredAccelerationMps2;
- const reason=u?.dead||u?.out?'disabled':!hasHyperdrive?'hyper-unavailable':!hyperReady?'hyper-unpowered':shieldRechargeW>0?'shield-recharge':weaponChargeW>0||activeWeaponFire?'weapon-recharge':!powerReady?'propulsion-power':!speedReady?'accelerating':null;
- return {ready:reason===null,speedReady,powerReady,hasHyperdrive,healthyMaximumSpeedMps,requiredForwardSpeedMps,forwardSpeedMps,speedFraction:healthyMaximumSpeedMps>0?forwardSpeedMps/healthyMaximumSpeedMps:0,requiredAccelerationMps2,fundedForwardAccelerationMps2,shieldRechargeW,weaponChargeW,weaponFireW,activeWeaponFire,reason};
+ const valid=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)&&len(v)>1e-12,load=Number.isFinite(options.load)?Math.max(0,options.load):1,forward=valid(options.forwardDirection)?norm(options.forwardDirection):[Math.cos(u?.yaw||0),0,Math.sin(u?.yaw||0)],dir=valid(direction)?norm(direction):forward,v=valid(velocity)?velocity:[0,0,0],healthyMaximumSpeedMps=propulsionTerminalSpeed(u)*load,requiredForwardSpeedMps=healthyMaximumSpeedMps*HYPERSPACE_ENTRY_SPEED_FRACTION,forwardSpeedMps=Math.min(dot(v,dir),dot(v,forward)),pw=u?.pw||{},positive=x=>Number.isFinite(x)?Math.max(0,x):0;
+ const shieldRechargeW=positive(pw.requestedShieldRechargeW),weaponChargeW=positive(pw.requestedWeaponChargeW),weaponFireW=positive(pw.requestedWeaponFireW),activeWeaponFire=pw.activeWeaponFire===true||weaponFireW>0;
+ const hyperModules=(u?.p?.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='hyper'),knownHyper=options.hyperClass??u?.info?.hyper??u?.p?.hyperClass??u?.p?.hyper,hasHyperdrive=hyperModules.length>0||Number.isFinite(knownHyper)&&knownHyper>0,hyperReady=!!u&&hasHyperdrive&&powerFactor(u,'hyper')>0&&(!hyperModules.length||hyperModules.some(x=>(u.mods?.[x.i]??1)>0&&powerFactor(u,'hyper',x.i)>0)),speedReady=requiredForwardSpeedMps>0&&forwardSpeedMps+Math.max(1e-6,requiredForwardSpeedMps*1e-9)>=requiredForwardSpeedMps,powerReady=hyperReady&&!u?.dead&&!u?.out&&shipElectricalAvailableW(u)!==0;
+ const reason=u?.dead||u?.out?'disabled':!hasHyperdrive?'hyper-unavailable':!powerReady?'hyper-unpowered':!speedReady?'accelerating':null;
+ return {ready:reason===null,speedReady,powerReady,hasHyperdrive,healthyMaximumSpeedMps,requiredForwardSpeedMps,forwardSpeedMps,speedFraction:healthyMaximumSpeedMps>0?forwardSpeedMps/healthyMaximumSpeedMps:0,shieldRechargeW,weaponChargeW,weaponFireW,activeWeaponFire,reason};
 }
 function fleetTick(b,dt,opts={}){
  const pdStep={abstractPointDefense:true};
@@ -98573,9 +98571,8 @@ function unitHyper(u) {
  if (!has) return hc;if (left <= 1e-6) return null;return hc / clamp(left / has, .25, 1);
 }
 const inBattleGroup = (w, g) => g.units.some(id => { const u = w.units.get(id); return alive(u) && w.battles.has(u.sys); });
-// A jump is plotted along the lanes. The reactor goes to the hyperdrive for the
-// spool: the guns fall silent, and the spool stands still while any ship of the
-// group is taking fire.
+// A jump is plotted along the lanes. Preparation keeps normal combat and
+// power allocation active; departure requires the actual forward cruise speed.
 function orderJump(w, gid, dest) {
  const g = w.groups.get(gid);if (!g || g.transit || g.sys == null || dest == null || dest === g.sys || !w.sector.systems[dest]) return {ok: false, why: '移動できません'};
  if (g.spool?.left) return {ok: false, why: '艦が順にジャンプしている最中です'};
@@ -100738,8 +100735,9 @@ function tick(w, dt) {
   normalizeJumpNavigation(w,g,navigationTime);
   if (g.transit && w.time >= g.transit.t1) arriveGroup(w, g);
   if (g.waitJump && w.time >= g.waitJump.at && !g.transit && !g.spool) { const d = g.waitJump.dest; g.waitJump = null; if (g.sys != null && g.sys !== d) orderJump(w, g.id, d); }
-  // The spool stands still while any ship of the group is under fire (the reactor cannot feed the drive and the shields at once).
-  if (g.spool) { const towed=towedIn(w,g),blocked = g.units.some(id => { const u = w.units.get(id); return alive(u)&&u.sys!=null&&(!towed.has(id)&&u.out||!u.out&&(w.battles.has(u.sys)&&u.underFire||!towed.has(id)&&(C.powerFactor(u,'hyper')<=0||C.powerFactor(u,'reactor')<=0))); }); g.spool.blocked = blocked; if (!blocked) g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) { u.jump.t = g.spool.t; u.jump.blocked = blocked; } }  }
+  // Real disabled or unpowered drives pause preparation. Incoming fire itself
+  // does not pause it; its electrical and motion effects use the shared solver.
+  if (g.spool) { const towed=towedIn(w,g),blocked = g.units.some(id => { const u = w.units.get(id); return alive(u)&&u.sys!=null&&!towed.has(id)&&(u.out||C.powerFactor(u,'hyper')<=0||C.powerFactor(u,'reactor')<=0); }); g.spool.blocked = blocked; if (!blocked) g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) { u.jump.t = g.spool.t; u.jump.blocked = blocked; } }  }
  }
 hatchTick(w, dt);
  updateBattles(w);
