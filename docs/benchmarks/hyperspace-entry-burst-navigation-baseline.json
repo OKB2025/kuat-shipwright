@@ -1,0 +1,36 @@
+{
+  "status": "EXPECTED_FIXTURE_FAILURES",
+  "baseCommit": "71adef7188026be3dd7fd3f70b15844636a4090f",
+  "command": [
+    "KS_TEST_ROOT=/workspace/kuat-hatches-night",
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/navigation-ui.cjs"
+  ],
+  "testSha256": "a7c9bcdca61f32edf2c4db8597feddc0d8cc514cff318eaf47891bf3de9f0872",
+  "sourceSha256": {
+    "js/core.js": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33"
+  },
+  "exitCode": 1,
+  "summary": [
+    "# tests 6",
+    "# pass 4",
+    "# fail 2"
+  ],
+  "cause": "The isolated navigation UI harness omits trialSystemsUnit and throttle dependencies that already exist in main. Correcting only the harness makes its existing navigation assertions executable. Paid motion is tested separately with real Core units.",
+  "logSha256": "3c2b78adc0912c520ad14d1baa334ba57ee15238be2c0880602ec475d4f2f1d1",
+  "fixedHarnessOnSameBaseline": {
+    "exitCode": 0,
+    "testSha256": "2004ec84e769d0e1e0b727c228c87130bfe396d1739f8538a7a2b3d6d21cec11",
+    "summary": [
+      "# tests 6",
+      "# pass 6",
+      "# fail 0"
+    ],
+    "log": "docs/benchmarks/hyperspace-entry-burst-navigation-fixed-baseline.log",
+    "logSha256": "1992e69085ad47bb31f8e19f3bdfe5663a8dec1b783e71935b7a557e83e8988e",
+    "assertionsChanged": false
+  }
+}

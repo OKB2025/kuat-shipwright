@@ -1,0 +1,27 @@
+{
+  "baselineCommit": "71adef7188026be3dd7fd3f70b15844636a4090f",
+  "status": "EXPECTED_REGRESSION_FAILURES",
+  "command": [
+    "KS_TEST_ROOT=/workspace/kuat-hatches-night",
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/hyperspace-entry-burst.cjs"
+  ],
+  "completedAt": "2026-11-09T06:08:36.877634+00:00",
+  "sourceSha256": {
+    "js/core.js": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33"
+  },
+  "testSha256": "62249de07c10ddd29406b60568210a91baf9eefc51bb718018eda39165064078",
+  "exitCode": 1,
+  "summary": [
+    "# tests 10",
+    "# pass 0",
+    "# fail 10",
+    "# cancelled 0",
+    "# skipped 0"
+  ],
+  "scope": "The new ten shared-helper and commitment regressions against unchanged pre-burst main. Missing helpers and the former cancellable enter phase are expected failures; this is not a test of final product code.",
+  "logSha256": "7626d198ece67b66c7a079eabccf6e6882adc770dd883adc157c752f0a56c735"
+}

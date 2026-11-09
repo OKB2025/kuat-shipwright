@@ -1,0 +1,180 @@
+{
+  "status": "PASS_WITH_KNOWN_BASELINE_FAILURES",
+  "checkedAt": "2026-11-09T06:35:51.553082+00:00",
+  "baseCommit": "71adef7188026be3dd7fd3f70b15844636a4090f",
+  "validatedWorkingTreeBaseCommit": "269bfa7035af411ec8069e1333638232900f97ca",
+  "nodeVersion": "v24.22.1",
+  "sourceSha256": {
+    "index.html": "2bdcb3112593627ff6fd320f1ba2d8ad3a7deb29f60a700a34b1f0085d0dad4a",
+    "js/core.js": "39f80f4d38e0aed48ffa5083e14ba9ab848a021cb13104086462c2443e1c5094",
+    "js/app.js": "68e8e8217f9bc5a9176e82126ba2bb6fde5cb6a75530277f75d660b6bb82718d",
+    "js/gfx.js": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/lang-en.js": "4c833ff06f959e9bce67fad2dd4d142f134145cbdc5da71fce73eabae503f044"
+  },
+  "testSha256": {
+    "tests/hyperspace-entry-burst.cjs": "62249de07c10ddd29406b60568210a91baf9eefc51bb718018eda39165064078",
+    "tests/hyperspace-speed-gate.cjs": "714be6908e2c83f275f396d9dbe473518081355273a1de254e5d7d5ea33e12cb",
+    "tests/hyperspace-trial-physics.cjs": "7e605247a74f92f9a13be26d6efcec22524c1d7218183e9deb488237f5ef2a82",
+    "tests/hyperspace-copy-ui.cjs": "cab3a1a473f8d1a696d1fda4fee8daad3ee781a373c394ec04fb4c74569fde58",
+    "tests/flight-controls-ui.cjs": "4783e9601ea2b94eb21c7ddeb98566c4414830728eb73e1be246762063dc06b9",
+    "tests/fighter-hyper-retreat.cjs": "8e7c06251dfed9063a5742b8d41a3202da136961cae26c6bd3f9490c4be3da36",
+    "tests/navigation-itinerary.cjs": "0afb088d3efb22c972287077525c4d2167f85d31495af3c1db3344472cdf5bf7",
+    "tests/navigation-ui.cjs": "2004ec84e769d0e1e0b727c228c87130bfe396d1739f8538a7a2b3d6d21cec11",
+    "tests/power-loss-navigation.cjs": "8a8c1208a053bfb5e93252d3775c75c20043df4a6a70e2fb3c13352209d7803b",
+    "tests/power-loss-status.cjs": "10447b78a38dc4e9b73326d58521d3d65189fe1fc1b85bde050c65f4744fba0b",
+    "tests/propulsion-motion.cjs": "c56ee858e89e4189ff4228d4804a903d01090de2511608e12c4c002a599e6b43",
+    "tests/combat-power-priority.cjs": "ffbff42934e35c22f29b84a66e09a33bebe3668bb86a59c86fe3b130905c36e4",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db",
+    "tests/raid-regressions.cjs": "d10c2994a754f7b0e85403b8a4082f31c1b91f1e8ad5e62fc1a0cbc2be9d6fc7",
+    "tests/fleet-ctg-formation.cjs": "9e335d9b7eccd4b9ce040e987cccf260b18830ad10a6d347fd2aaaf5ee1a3bb3"
+  },
+  "syntax": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "exitCode": 0,
+      "sha256": "39f80f4d38e0aed48ffa5083e14ba9ab848a021cb13104086462c2443e1c5094"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/app.js"
+      ],
+      "exitCode": 0,
+      "sha256": "68e8e8217f9bc5a9176e82126ba2bb6fde5cb6a75530277f75d660b6bb82718d"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/lang-en.js"
+      ],
+      "exitCode": 0,
+      "sha256": "4c833ff06f959e9bce67fad2dd4d142f134145cbdc5da71fce73eabae503f044"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/gfx.js"
+      ],
+      "exitCode": 0,
+      "sha256": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/engine.js"
+      ],
+      "exitCode": 0,
+      "sha256": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/worker.js"
+      ],
+      "exitCode": 0,
+      "sha256": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-hyperspace-entry-burst.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "93992e14a04e9ee59b3e1fb08d0116226ab2d651be6507f1f69604cd48c185bb"
+    }
+  ],
+  "node": {
+    "files": 15,
+    "tests": 152,
+    "pass": 151,
+    "fail": 1,
+    "cancelled": 0,
+    "skipped": 0,
+    "exitCode": 1,
+    "knownBaselineFailures": [
+      {
+        "test": "the battle continues and point defence can hit fighters while they spool after the last carrier departs",
+        "assertion": "assert.ok(r.hurt>0)",
+        "baselineProof": "hatches-night-validation.json"
+      }
+    ],
+    "unexpectedFailures": [],
+    "logSha256": "fdb5bffca1ace741c962fcaf7a6d82a9cf2c1542e7db9530dac518cd16662ca2",
+    "sourceStable": true,
+    "testStable": true
+  },
+  "browser": {
+    "status": "PASS",
+    "stages": 3,
+    "screenshots": 4,
+    "trajectoryFrames": 622,
+    "burstFrames": 25,
+    "entrySpeedMps": 269813212.2,
+    "burstSeconds": 1.25,
+    "gate": {
+      "ready": true,
+      "speedReady": true,
+      "powerReady": true,
+      "hasHyperdrive": true,
+      "healthyMaximumSpeedMps": 13979.170418433503,
+      "requiredForwardSpeedMps": 9785.41929290345,
+      "forwardSpeedMps": 9789.992033564484,
+      "speedFraction": 0.7003271110176181,
+      "shieldRechargeW": 0,
+      "weaponChargeW": 0,
+      "weaponFireW": 0,
+      "activeWeaponFire": false,
+      "reason": null,
+      "escorts": []
+    },
+    "sourceStable": true,
+    "harnessStable": true,
+    "harnessSha256": "93992e14a04e9ee59b3e1fb08d0116226ab2d651be6507f1f69604cd48c185bb",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "powerPopoverPhaseCorrect": true,
+    "errors": 0,
+    "consoleErrors": 0,
+    "glError": 0,
+    "renderFailures": 0
+  },
+  "artifactSha256": {
+    "docs/benchmarks/hyperspace-entry-burst-baseline.json": "5498cd1e272309f98e0793617ca766457a7d465e2a693f10079ee3854893feb7",
+    "docs/benchmarks/hyperspace-entry-burst-baseline.log": "7626d198ece67b66c7a079eabccf6e6882adc770dd883adc157c752f0a56c735",
+    "docs/benchmarks/hyperspace-entry-burst-browser.from-rest.jpg": "69510d3115ac1ba48dc03014afb5fa277b6b25647174263098889073c071e456",
+    "docs/benchmarks/hyperspace-entry-burst-browser.json": "6ae4a2a7d0ecfb6749144da7b327612dbfb69e5416946e41b02567d06bdce24f",
+    "docs/benchmarks/hyperspace-entry-burst-browser.near-light-acceleration.jpg": "07f309227789158ebcfb67a037624c9597d3287fbd58dc6e45edef7413bcc3c6",
+    "docs/benchmarks/hyperspace-entry-burst-browser.preparing.jpg": "7c722b337ea830a3267115c70be82aa31d1069928f7ecac2ec9998d3e6e5e5cd",
+    "docs/benchmarks/hyperspace-entry-burst-browser.tunnel.jpg": "1d608b3c73bf9ee55403fb9aab83d5731f87836db51cc10e48204fda8c1d4452",
+    "docs/benchmarks/hyperspace-entry-burst-navigation-baseline.json": "9cb033bc6cc75121d7dd4fc833b98743d09795704e66cfebaf3086d36f8bd82b",
+    "docs/benchmarks/hyperspace-entry-burst-navigation-baseline.log": "3c2b78adc0912c520ad14d1baa334ba57ee15238be2c0880602ec475d4f2f1d1",
+    "docs/benchmarks/hyperspace-entry-burst-navigation-fixed-baseline.log": "1992e69085ad47bb31f8e19f3bdfe5663a8dec1b783e71935b7a557e83e8988e",
+    "docs/benchmarks/hyperspace-entry-burst-validation.json": "9d882579f2c62cb9c6748a94ecf58f080502894d3346cbeb23418f4e759ff4e6",
+    "docs/benchmarks/hyperspace-entry-burst-validation.log": "fdb5bffca1ace741c962fcaf7a6d82a9cf2c1542e7db9530dac518cd16662ca2",
+    "docs/calibrated-propulsion-and-power-loss.md": "2f718a69df9a73d4da3b7befa79d7c2bcc9f49223e3ba98b8c5c0cd3f928da6e",
+    "docs/flight-controls-power-and-hyperspace.md": "ab3fad5454bd1349df46b00b72138587d5501744e06e6ca49dcace75bbdad2a4",
+    "docs/flight-scene-and-hatches.md": "dd6278a7fcfc08a4ea5edfc747c29097dd1eb743f876209b86c46c49f297617e",
+    "scripts/browser-hyperspace-entry-burst.cjs": "93992e14a04e9ee59b3e1fb08d0116226ab2d651be6507f1f69604cd48c185bb"
+  },
+  "limits": [
+    "Actual native browser test uses one unchanged public X-wing; task groups, escorts, towing, raids and carrier-follow aircraft are covered separately by Node regressions.",
+    "Linux Chromium SwiftShader, normal IndexedDB cache; no cold-start, FPS, memory or all-stock endurance benchmark.",
+    "Real Safari and iPhone/iPad not tested.",
+    "One unchanged point-defence assertion failure remains; raw exit code1 is retained.",
+    "Near-light acceleration is a hyperdrive transition, not a new conventional-engine or relativistic energy model."
+  ]
+}
