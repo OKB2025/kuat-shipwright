@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: the real manual jump command uses the first mandatory stop and preserves the selected final destination after arrival
+ok 1 - the real manual jump command uses the first mandatory stop and preserves the selected final destination after arrival
+  ---
+  duration_ms: 2059.780133
+  type: 'test'
+  ...
+# Subtest: a manual main-route command keeps one continuous jump across intermediate systems
+ok 2 - a manual main-route command keeps one continuous jump across intermediate systems
+  ---
+  duration_ms: 1363.628132
+  type: 'test'
+  ...
+# Subtest: the actual fleet-card jump handler resumes the saved final destination through a fresh first-segment command
+ok 3 - the actual fleet-card jump handler resumes the saved final destination through a fresh first-segment command
+  ---
+  duration_ms: 784.844117
+  type: 'test'
+  ...
+# Subtest: mission movement advances only to this segment and persists a pending plan until another explicit command
+ok 4 - mission movement advances only to this segment and persists a pending plan until another explicit command
+  ---
+  duration_ms: 756.56602
+  type: 'test'
+  ...
+# Subtest: local mission save reload rebuilds pending stops from the real graph and sanitizes old or malformed navigation fields
+ok 5 - local mission save reload rebuilds pending stops from the real graph and sanitizes old or malformed navigation fields
+  ---
+  duration_ms: 608.489496
+  type: 'test'
+  ...
+# Subtest: cloud mission restore applies the same itinerary validation before consumers can read saved fields
+ok 6 - cloud mission restore applies the same itinerary validation before consumers can read saved fields
+  ---
+  duration_ms: 713.772656
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6690.095872

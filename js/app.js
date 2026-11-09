@@ -2411,7 +2411,7 @@ const LOAD_TIPS=[
  '航行不能の艦は惑星の重力に引かれて落ちていきます。牽引ビームで捕まえれば止められます。',
  '戦術図で艦をタップすると、1回目でその任務群、2回目でその艦を選びます。',
  '「命令」で作戦図と戦術図を開きます。3D視点に戻るには「3D視点」を押します。',
- 'ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。',
+ 'ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になれば、突入前の加速を開始します。準備中も砲撃でき、被弾だけで準備が止まることはありません。充填後は1.25秒かけて光速の90%へ加速してからジャンプします。突入前の加速中は操縦と射撃を固定します。',
  '母港の星系では、破壊された機器の交換や乗員の補充まで行えます。',
  '船体破断・爆沈・航行不能。艦の最期はその壊れ方で決まります。'
 ];
@@ -7682,7 +7682,7 @@ async function trialStart(opts={}){
  requestAnimationFrame(()=>{requestDraw();});loadHideSoon();
 }
 function trialStop(){
- if(!trial.on)return;const msp=msPatrolCollect();if(shot.on)shotSet(false);trial.foilUnit=null;trial.systemsRuntime=null;trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
+ if(!trial.on)return;if(trial.jump&&!trial.jump.follow)trialCancelJump(true);const msp=msPatrolCollect();if(shot.on)shotSet(false);trial.foilUnit=null;trial.systemsRuntime=null;trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
  document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';hud.classList.remove('spectate');if(view)view.renderScale=1;
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
@@ -8311,7 +8311,7 @@ function storedHeatText(h){return h&&Number.isFinite(h.qJ)&&h.capacityJ>0?`蓄�
 function trialDefenseEnabled(){const u=trialSystemsUnit();return C.automaticPointDefenseEnabled?.(u)??u?.order?.autoPointDefense!==false;}
 function trialSetDefense(enabled){const u=trialSystemsUnit();if(!u)return;C.setAutomaticPointDefense(u,enabled);if(!enabled)for(const t of trial.turrets||[]){t.pdTarget=null;t.pd=false;t.firing=false;}}
 function trialJumpReadiness(){const unit=trialSystemsUnit();return typeof trialHyperspaceReadiness==='function'?trialHyperspaceReadiness():unit&&C.hyperspaceReadiness?.(unit,trial.V,trial.jump?.dir||trialCol(trial.R,0));}
-function trialJumpReadinessText(r=trialJumpReadiness()){if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*70:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 70%`;}
+function trialJumpReadinessText(r=trialJumpReadiness()){const j=trial.jump;if(j&&(j.follow||C.hyperspaceCommitted(j)))return trialHyperText(j,SYSTEMS[j.dest]?.name||'',Math.max(0,trialTunnelLeft(j)));if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*70:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 70%`;}
 function trialFlightReadouts(hud){
  const unit=trialSystemsUnit(),heat=C.heatStatus(unit),el=hud.querySelector('[data-th="heat"]');if(el){const text=storedHeatText(heat);if(sourceText(el)!==text)el.textContent=text;el.dataset.heatJ=String(heat?.qJ??'');el.dataset.capacityJ=String(heat?.capacityJ??'');}
  const pd=hud.querySelector('[data-trial-cmd="pd-auto"]'),enabled=trialDefenseEnabled();if(pd){pd.setAttribute('aria-pressed',String(enabled));const text=enabled?'自動迎撃 ON':'自動迎撃 OFF';if(sourceText(pd)!==text)pd.textContent=text;}
@@ -8450,13 +8450,13 @@ function trialSelfUpdate(hud){
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
 function trialHyperText(j,d,left){
  const c=`光速の ${(trial.vf/LIGHT*100).toFixed(trial.vf<LIGHT*.01?2:1)}%`;
- return j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='accel'?`亜光速へ加速 · ${c}`:j.phase==='enter'?`亜光速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
+ return j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='accel'?`ジャンプ準備速度へ加速 · ${c}`:j.phase==='enter'?`ハイパードライブ加速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
 }
 // Jump durations as text (the voyage map and the piloted jump both use it).
 function trialDurText(s) { s = Math.max(0, Math.round(s)); if (s < 60) return `${s} 秒`; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${h ? h + '時間 ' : ''}${m}分 ${x}秒`; }
 function trialHyperUpdate(hud){
  const el=hud.querySelector('[data-th="hyper"]'),j=trial.jump;if(!el)return;el.hidden=!j;if(!j)return;const d=SYSTEMS[j.dest]?.name||'';
- const txt=trialHyperText(j,d,Math.max(0,trialTunnelLeft(j)))+(['spool','accel','enter'].includes(j.phase)?' · '+trialJumpReadinessText():'');
+ const txt=trialHyperText(j,d,Math.max(0,trialTunnelLeft(j)))+(['spool','accel'].includes(j.phase)?' · '+trialJumpReadinessText():'');
  if(sourceText(el) !== String(txt))el.textContent=txt;el.dataset.phase=j.phase;
 }
 // The record line is shown by default on wide screens and folded on phones.
@@ -8531,7 +8531,7 @@ function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new
 // the planet and the ships there rushing in and halting. Another ship
 // dropping out is seen from outside as a long streak that snaps back to the
 // ship's true length.
-const JUMP={spool:1.8,accel:1.4,enter:1.25,close:.45,exit:1.1,brake:1.3,arrive:.4},SUBLIGHT=3e7,LIGHT=2.998e8,STREAK=1.9;
+const JUMP={spool:1.8,accel:1.4,enter:C.HYPERSPACE_BURST_SECONDS,close:.45,exit:1.1,brake:1.3,arrive:.4},SUBLIGHT=C.HYPERSPACE_BURST_SPEED_MPS,LIGHT=299792458,STREAK=1.9;
 // v22 Along the lanes of the galaxy map: the quickest way's cost (a grid square on a major route counts 1, on a
 // hyperlane 2), so neighbouring systems are a few seconds apart and the far side of the galaxy under half a minute.
 const jumpSeconds=(hc,from,to)=>{const p=Galaxy.path(from,to),d=p?p.cost:3;return C.clamp((3+2.2*hc)*(.45+.2*Math.pow(d,.8)),3.5,40);};
@@ -8573,11 +8573,15 @@ function escortPowerStep(e,dt,throttle){
 }
 function escortsStep(dt){
  const es=trial.escorts;if(!es?.length||!(dt>0))return;const j=trial.jump;
- if(!j)for(const e of es){e.gone=false;e.stretch=1;e.burstV0=null;}
+ if(!j)for(const e of es){e.gone=false;e.stretch=1;e.burstV0=null;e.burst=null;}
  if(j){const order=escOrder(es),n=es.length,gap=ESC_JUMP.gap(n);
   if(j.phase==='tunnel'){escortsPlace();return;}
   // Coming out: hidden until their turn after the flagship's own reversion begins, then in their places.
   if(j.phase==='exit'||j.phase==='brake'||j.phase==='arrive'){escortsPlace();const t=j.age-(j.exit0??j.age);for(const e of es){e.stretch=1;if(e.gone&&t>=order.indexOf(e)*gap+.15){e.gone=false;escortHyperFx(e,false);}}return;}
+  if(j.phase==='enter'&&!j.follow){for(const e of es){
+   const unit=escortSystemsUnit(e);escortPowerStep(e,dt,1);const next=C.hyperspaceBurstStep(unit,e.burst,dt,{forwardDirection:e.f||trialCol(e.R,0),hyperClass:e.p?.hyperClass??e.p?.hyper});
+   if(next.blocked){trialCancelJump(true);return;}e.V=next.velocity;e.pos=tv.add(e.pos,next.displacement);e.f=j.dir.slice();e.R=trialFrame(e.f,trialCol(trial.R,1));e.lvl=C.engineLevel(unit);e.stretch=1+Math.min(12,tv.len(e.V)/SUBLIGHT*12);
+  }return;}
  }
  const up0=tv.norm(trial.P),preparing=j&&!trialJumpCommitted();
  for(const e of es){
@@ -8608,8 +8612,13 @@ function escortsFire(dt,lock,firing){
   trial.fx.push({pos:e.pos,vel:e.V,life:.1,max:.1,size:Math.max(8,e.p.len*.02),col:[200,240,255]});}
 }
 function trialJumpCommitted(){return C.hyperspaceCommitted(trial.jump);}
-function trialCancelJump(){
- const j=trial.jump;if(!j||trialJumpCommitted())return false;trial.jump=null;const command=C.clamp(Number(j.priorThrottle)||0,0,1);if(typeof trialSetThrottle==='function')trialSetThrottle(command);else{trial.throttle=command;trial.tele=command>0?5:1;}return true;
+function trialCancelJump(force=false){
+ const j=trial.jump;if(!j||trialJumpCommitted()&&!force)return false;
+ // A collapsed hyperdrive field cannot leave a reusable near-light cruise.
+ if(j.burst?.startVelocity){trial.V=j.burst.startVelocity.slice();trial.vf=tv.dot(trial.V,trialCol(trial.R,0));}
+ const unit=trialSystemsUnit();if(j.burst&&unit?.hyperBurst===j.burst){delete unit.hyperBurst;unit.velocity=trial.battle?.E?trialApplyT(trial.battle.E,trial.V):trial.V.slice();}
+ for(const e of trial.escorts||[])if(e.burst?.startVelocity){e.V=e.burst.startVelocity.slice();e.burst=null;e.stretch=1;}
+ trial.jump=null;const command=C.clamp(Number(j.priorThrottle)||0,0,1);if(typeof trialSetThrottle==='function')trialSetThrottle(command);else{trial.throttle=command;trial.tele=command>0?5:1;}return true;
 }
 function trialHyperspaceReadiness(){
  const unit=trialSystemsUnit(),dir=trial.jump?.dir||trialCol(trial.R,0),status=C.hyperspaceReadiness(unit,trial.V,dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}),escorts=(trial.escorts||[]).map(e=>C.hyperspaceReadiness(escortSystemsUnit(e),e.V,dir,{forwardDirection:e.f||trialCol(e.R,0),hyperClass:e.p?.hyperClass??e.p?.hyper})),waiting=escorts.find(e=>!e.ready);
@@ -8632,20 +8641,26 @@ const trialTunnelLeft=j=>j.end!=null?j.end-j.t:Infinity;
 // end): none on the way up to sublight, growing to STREAK by the tunnel and a
 // little more as it closes over them; the same in reverse coming out.
 function trialStreak(){
- const j=trial.jump;if(!j)return 0;
+ const j=trial.jump;if(!j){const u=trial.battle?.spectate&&trial.rts?.w?.units.get(trial.battle.follow),b=u?.hyperBurst;return b?STREAK*C.clamp(b.t/Math.max(.001,b.duration),0,1)**2.5:0;}
  if(j.phase==='enter')return STREAK*(j.t/JUMP.enter)**2.5;
  if(j.phase==='tunnel')return STREAK+2.5*Math.max(0,Math.min(j.t,trialTunnelLeft(j),.4));
  if(j.phase==='exit')return STREAK*Math.max(0,1-j.t/JUMP.exit)**2.5;
  return 0;}
 // The tunnel fades in over the stretched stars and out over the new system's.
 function trialTunnelK(j){return j?.phase==='tunnel'?C.clamp(Math.min(j.t/.35,trialTunnelLeft(j)/JUMP.close),0,1):0;}
-// Real-space preparation uses the ordinary paid flight integrator. Only a
-// spectator following a ship already departed by Core uses a camera burst.
+// Ordinary flight reaches the launch gate; only the hyperdrive then supplies
+// the short, shared real-space burst before the ship leaves the system.
 const trialCoasting=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter';};
-const trialFast=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter'||p==='exit'||p==='brake';};
+const trialFast=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter'||p==='exit'||p==='brake'||!!(trial.battle?.spectate&&trial.rts?.w?.units.get(trial.battle.follow)?.hyperBurst);};
 function trialSublight(dt){
  const j=trial.jump;if(!trialCoasting())return;
- if(!j.follow){trialStep(dt);return;}
+ if(!j.follow){
+  if(j.phase!=='enter'){trialStep(dt);return;}
+  trial.w=[0,0,0];trial.mainThrustShare=1;trial.thrustWant=1;trialGunnery(dt);
+  const unit=trialSystemsUnit(),next=C.hyperspaceBurstStep(unit,j.burst,dt,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()});
+  if(next.blocked){trialCancelJump(true);return;}
+  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.vf=tv.dot(trial.V,j.dir);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;return;
+ }
  // A followed RTS ship has already passed the physical gate. This is only
  // its post-departure camera transition, starting at its real entry speed.
  const start=Math.max(1,j.v0||0),v=j.phase==='accel'?Math.min(SUBLIGHT,start*Math.exp(j.t*Math.log(SUBLIGHT/start)/JUMP.accel)):SUBLIGHT,f=j.dir;
@@ -8666,8 +8681,8 @@ function trialReversion(){
 }
 function trialJumpStep(dt){
  const j=trial.jump;if(!j||!(dt>0))return;const unit=trialSystemsUnit();if(unit)C.syncPowerLossDisabled(unit);
- const preparing=!j.follow&&['spool','accel','enter'].includes(j.phase);
- if(preparing&&(unit?.out||unit?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trialCancelJump();return;}
+ const preparing=!j.follow&&['spool','accel'].includes(j.phase),bursting=!j.follow&&j.phase==='enter';
+ if((preparing||bursting)&&(unit?.out||unit?.dead||(trial.escorts||[]).some(e=>{const u=escortSystemsUnit(e);C.syncPowerLossDisabled(u);return u.out||u.dead;}))){trialCancelJump(true);return;}
  if(preparing){
   if(typeof trialSetThrottle==='function')trialSetThrottle(1);else{trial.throttle=1;trial.tele=5;}
   j.dir=trialCol(trial.R,0);j.readiness=trialHyperspaceReadiness();
@@ -8675,17 +8690,18 @@ function trialJumpStep(dt){
  }
  j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
  if(j.phase==='spool'){if(j.t>=JUMP.spool)next('accel');}
- else if(j.phase==='accel'){if(j.follow?j.t>=JUMP.accel:j.readiness?.ready)next('enter');}
+ else if(j.phase==='accel'){if(j.follow?j.t>=JUMP.accel:j.readiness?.ready){next('enter');if(!j.follow){j.burst=C.hyperspaceBurstStart(trial.V,j.dir);if(unit)unit.hyperBurst=j.burst;for(const e of trial.escorts||[])e.burst=C.hyperspaceBurstStart(e.V,j.dir);trial.w=[0,0,0];}}}
  else if(j.phase==='enter'){
-  if(!j.follow&&!j.readiness?.ready)next('accel');
-  else if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
+  if(!j.follow&&!j.burst){next('accel');return;}
+  if(bursting&&!C.hyperspaceReadiness(unit,trial.V,j.dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}).powerReady){trialCancelJump(true);return;}
+  if(j.follow?j.t>=JUMP.enter:j.burst.t>=j.burst.duration&&(trial.escorts||[]).every(e=>e.burst?.t>=e.burst?.duration)){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
  }
  else if(j.phase==='tunnel'){
   if(!j.arrived&&!j.follow&&trialTunnelLeft(j)<=JUMP.close){j.arrived=true;trialArrive(j.dest);}
   if(trialTunnelLeft(j)<=0){next('exit');trial.flash=Math.max(trial.flash||0,.7);}}
  else if(j.phase==='exit'){if(j.t>=JUMP.exit)next('brake');}
  else if(j.phase==='brake'){if(j.t>=JUMP.brake){trial.P=j.to.slice();trial.V=tv.scale(j.dir,j.v1);trial.vf=j.v1;next('arrive');}}
- else if(j.phase==='arrive'){if(j.t>=JUMP.arrive){trial.jump=null;if(trial.battle?.result&&!trial.battle.rts)spaceShowResult();}}
+ else if(j.phase==='arrive'){if(j.t>=JUMP.arrive){if(j.burst&&unit?.hyperBurst===j.burst){delete unit.hyperBurst;unit.velocity=trial.battle?.E?trialApplyT(trial.battle.E,trial.V):trial.V.slice();}trial.jump=null;if(trial.battle?.result&&!trial.battle.rts)spaceShowResult();}}
  trialReversion();
 }
 function trialArrive(dest){
@@ -8850,7 +8866,7 @@ function trialMapSide(){
  if(sel){const p=Galaxy.path(cur.key,sel),plan=Galaxy.itinerary(cur.key,sel),t=hc==null||!plan?.segments.length?null:Math.round(trialJumpSecs(hc,cur.key,plan.next));
   h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p>${navigationPlanHTML(plan,k=>SYSTEMS[k]?.name||k)}<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${t==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[plan?.next]?.name||SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${trialDurText(t)}）`}<small data-jump-readiness>${trialJumpReadinessText()}</small></button>`);}
  else h+=gmSysCardHTML(cur.key,`<p class="gm-hint">行き先の星系をタップしてください（ドラッグで移動・ピンチで拡大）。</p>`);
- h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
+ h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の70%へ実際の推力で加速し、充填後はハイパードライブで1.25秒かけて光速の90%へ加速してからジャンプします。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
  return h+gmLegendHTML()+gmListHTML('data-gm-pick');}
 function trialMapPick(key){const st=GMAP.trial;if(!st||!SYSTEMS[key])return;st.sel=key===st.cur?null:key;gmMark('trial');gmLayout('trial');const side=$('#thMapSide');if(side)side.innerHTML=trialMapSide();}
 function trialMapShow(on){
@@ -9590,10 +9606,11 @@ function spaceDrawUnits(){
   const aw=B.rts?B.arrive?.get(u.id):null,tt=B.rts?(aw?aw.t:null):u.warp?(u.warp.at!=null?u.warp.t-u.warp.at:u.warp.t):null;
   if(tt!=null&&tt<.9){if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
   else if(u.absent&&!u.depart)continue;
+  if(u.hyperBurst){const k=C.clamp(tv.len(u.velocity||[0,0,0])/SUBLIGHT,0,1);stretch=1+12*k;flash=.35*k;}
   if(u.depart&&u.depart.t>0){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
   out.push({key:u.key,foils:unitFoilDeployments(u),turrets:spaceSurfaceTurrets(u,B.b.units.find(t=>t.id===u.firingAt)),pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:u.hatchOpen||0,hatchOpenById:u.hatchOpenById,hatchLegacy:u.hatchLegacy,dead:false,stretch,flash});}   // Carriers use the actual launch/landing door state, including the piloted ship.
  // Ships that jumped out, seen from outside: stretched along their heading and gone.
- for(const g of B.ghosts||[]){const t=g.t,stretch=1+25*t*t;out.push({key:g.key,pos:tv.sub(tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
+ for(const g of B.ghosts||[]){const t=g.t,stretch=g.burstDone?13:1+25*t*t;out.push({key:g.key,pos:tv.sub(g.burstDone?g.w:tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
  out.push(...spaceWreckDraw());
  // v21.2 Small craft near the camera, with their 3D models (voyCraftDraw).
  if(B.cfDraw?.length)out.push(...B.cfDraw);
@@ -12449,6 +12466,7 @@ function voyUnitState(u,html=false) {
  const w = voy.w, cap = u.captured ? '拿捕艦 · ' : '';
  if (u.dead) return '撃沈';
  if (u.out) return cap + '戦闘不能（' + (html?esc(u.out):u.out) + '）' + (u.towedBy ? ' · 被牽引' : '');
+ if(u.hyperBurst)return cap+'ハイパードライブ加速';
  if (u.jump) return cap + (u.jump.blocked ? '離脱準備（速度・給電待ち）' : '離脱準備');
  if (u.warp) return 'ハイパースペースから出現';
  if (u.sys == null) return 'ハイパースペース';
@@ -12522,6 +12540,7 @@ function voyMorph(a, b) {
 function voyTgStatus(g) {
  const w = voy.w, S = w.sector;
  if (g.transit) return `ハイパースペース → ${S.systems[g.transit.to].name}（${voyClock(g.transit.t1 - w.time)}）`;
+ if(g.spool&&g.units?.some(id=>w.units.get(id)?.hyperBurst))return `ハイパードライブ加速 → ${S.systems[g.spool.dest].name}`;
  if (g.spool) return g.spool.blocked ? `発進準備（速度・給電待ち）→ ${S.systems[g.spool.dest].name}` : `発進準備 あと ${Math.ceil(g.spool.need - g.spool.t)} 秒 → ${S.systems[g.spool.dest].name}`;
  if (g.waitJump) return `出発待ち ${voyClock(g.waitJump.at - w.time)} → ${S.systems[g.waitJump.dest].name}`;
  if(g.navigation?.waiting)return `${S.systems[g.sys]?.name||''} · 必須停止・次航程指示待ち`;
@@ -12599,7 +12618,7 @@ function voyTgOpsCard(g) {
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　今回の停止まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><div class="vs-route">${voyRouteHTML(from, dest)}</div><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
   <div class="vs-acts">${free ? `<button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>` : ''}${g.spool || g.waitJump ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${free && us.length > 1 ? `<button type="button" class="btn sm ghost" data-vact="split" aria-pressed="${!!voy.split}">${voy.split ? '分割を確定' : '任務群を分割'}</button>` : ''}${voyMergeButtons(g)}${g.sys != null && w.battles.has(g.sys) ? `<button type="button" class="btn sm warn" data-vgo="tac:${g.sys}">戦術図</button>` : ''}</div>
   ${voyLandingHTML(g)}
-  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になれば、突入前の加速を開始します。準備中も砲撃でき、被弾だけで準備が止まることはありません。充填後は1.25秒かけて光速の90%へ加速してからジャンプします。突入前の加速中は操縦と射撃を固定します。</p>' : ''}</div>`;
 }
 function voyCtgOpsCard(c) {
  const w = voy.w, S = w.sector, gs = voyCtgGroups(c), ships = gs.reduce((n, g) => n + g.units.filter(id => R.alive(w.units.get(id))).length, 0), dest = voy.sel.dest;
@@ -12876,7 +12895,7 @@ function voyTgTacCard(g) {
   <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}${voySensHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
-  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になれば、突入前の加速を開始します。準備中も砲撃でき、被弾だけで準備が止まることはありません。充填後は1.25秒かけて光速の90%へ加速してからジャンプします。突入前の加速中は操縦と射撃を固定します。</p>' : ''}</div>`;
 }
 function voyCtgTacCard(c) {
  const w = voy.w, sys = voy.tac.sys, gs = voyCtgGroups(c).filter(g => voyGroupIn(g, sys)), ms = gs.flatMap(g => g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys)), trac = ms.filter(u => u.p.trac > 0 && !u.out);
@@ -12936,7 +12955,7 @@ function voyTacSide() {
  } else if (tab === 'help') {
   const ctgs = [...w.ctgs.values()].filter(c => c.side === 0 && voyCtgGroups(c).some(g => !voyGroupIn(g, sys))), gs = [...w.groups.values()].filter(h => h.side === 0 && voyLive(h) && !voyGroupIn(h, sys));
   const ctgEta = c => { const e = voyCtgGroups(c).filter(h => !h.transit && h.sys != null && h.sys !== sys).map(h => R.etaTo(w, h.id, sys)).filter(v => v != null); return e.length ? Math.max(...e) : null; };
-  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は ${R.RULES.withdrawSpool} 秒です。発進には通常航行の最大速度の70%以上が必要ですが、砲撃や被弾だけで準備は止まりません。</p></div>`;
+  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は ${R.RULES.withdrawSpool} 秒です。発進準備には通常航行の最大速度の70%以上が必要ですが、砲撃や被弾だけで準備は止まりません。充填後はハイパードライブで1.25秒かけて光速の90%へ加速してから突入します。</p></div>`;
  } else {
   const b = w.battles.get(sys);body += `<div class="vs-card vs-list vs-log"><h3>戦闘記録</h3><ul>${(b?.log || []).slice(-40).reverse().map(e => `<li class="${e.side === 0 ? 'own' : e.side === 1 ? 'foe' : ''}"><span>${voyClock(e.t - (b?.t0 || 0))}</span>${esc(e.text)}</li>`).join('') || '<li class="muted">記録はまだありません</li>'}</ul></div>`;
  }
@@ -13234,6 +13253,7 @@ function voyOrdersClose() {
 // on the same clock, at real speed while flying.
 async function voyPilot(id) {
  const w = voy.w, u = w.units.get(id);if (!u || !R.alive(u) || u.out || u.sys == null) { toast('この艦は操艦できません'); return; }
+ if(u.jump||u.hyperBurst){toast('発進準備中の艦は操艦できません。準備を取り消すか、3D視点で追尾してください。');return;}
  voyStop3D();voy.orders = false;$('#voyage').hidden = false;voyToast(true);
  // The clock waits while the ship's model and guns are made ready.
  loadShow(`${u.name}の3Dモデルと砲塔を準備中…`, '操艦準備');voy.loading = true;
@@ -13872,7 +13892,9 @@ function voySqNext(dir) {
 function voyFollowDepart(f, mates, ahead = []) {
  const B = trial.battle, P = spaceWorld(f), fw = trialApply(B.E, [Math.cos(f.yaw), 0, Math.sin(f.yaw)]), g = voy.w.groups.get(f.group);
  trial.P = P;trial.R = trialFrame(fw, tv.norm(P));trial.V = trialApply(B.E,f.hyperEntryVelocity||[0,0,0]);spaceCineEnd();
- trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0:tv.len(trial.V), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
+ const burstDone=tv.len(trial.V)>=SUBLIGHT*(1-1e-9);
+ trial.jump = {phase: burstDone?'tunnel':'accel', t: 0, ...(burstDone?{end:null}:{}), follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0:tv.len(trial.V), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
+ if(burstDone){trial.flash=Math.max(trial.flash||0,.8);shotSoon('hyper',1.1);}
 }
 // Picked up while already in hyperspace: straight into the tunnel.
 function voyFollowTransit(u) {
@@ -13933,13 +13955,13 @@ function voyBoardFx(w, sys, dt) {
   if (u.boarding && !u.dead && u.boarding.aboard > 0) emit(Math.min(30, 4 + u.boarding.aboard / 40), () => trial.fx.push({pos: u.manual ? trial.P : spaceHullPoint(u, .35), vel: [0, 0, 0], life: .18, max: .18, size: Math.max(3, u.p.len * .008), col: [255, 130, 70]}));
  }
 }
-function voyGhost(u) { const B = trial.battle, p = spaceWorld(u); B.ghosts.push({key: u.key, w: p, rot: spaceRot(B.E, u.yaw), f: trialApply(B.E, [Math.cos(u.yaw), 0, Math.sin(u.yaw)]), L: u.p.len, t: 0}); sndAt('hyperspace_out', p, {gain: .45, far: 90000}); }
+function voyGhost(u) { const B = trial.battle, p = spaceWorld(u); B.ghosts.push({key: u.key, w: p, rot: spaceRot(B.E, u.yaw), f: trialApply(B.E, [Math.cos(u.yaw), 0, Math.sin(u.yaw)]), L: u.p.len, t: 0,burstDone:tv.len(u.hyperEntryVelocity||[0,0,0])>=SUBLIGHT*(1-1e-9)}); sndAt('hyperspace_out', p, {gain: .45, far: 90000}); }
 // Ships coming out of hyperspace, each when its turn comes (warp.t from 0), timed on the screen's clock;
 // and the streaks of ships that jumped out, fading.
 function voyWarpFx(B, w, sys, dt, skip) {
  for (const u of R.systemUnits(w, sys)) if (u.warp && u.warp.t >= 0 && !B.arrive.has(u.id) && !skip?.(u)) { B.arrive.set(u.id, {t: 0}); sndAt('hyperspace_in', spaceWorld(u), {gain: .5, far: 90000}); }
  for (const [id, a] of B.arrive) { a.t += dt; if (a.t > 1.2 && !w.units.get(id)?.warp) B.arrive.delete(id); }
- for (const g of B.ghosts) g.t += dt;B.ghosts = B.ghosts.filter(g => g.t < .8);
+ for (const g of B.ghosts) g.t += dt;B.ghosts = B.ghosts.filter(g => g.t < (g.burstDone?.15:.8));
 }
 function voySpectateStep(dt) {
  const B = trial.battle;if (!B?.spectate) return;const w = trial.rts.w, sys = trial.rts.sys, here = R.systemUnits(w, sys), before = new Map(here.map(u => [u.id, {dead: u.dead}])), t0 = w.time;
@@ -14028,6 +14050,7 @@ function voySpectateHyperText(f) {
   if (j.phase === 'tunnel' && !j.arrived) { const tr = g?.transit; return {phase: 'tunnel', text: `ハイパースペース航行中${d ? ' · ' + d + 'まで' : ''}${tr ? ' ' + voyClock(Math.max(0, tr.t1 - w.time)) : ''}`}; }
   return {phase: j.phase, text: trialHyperText(j, d, Infinity)};
  }
+ if(f?.hyperBurst)return {phase:'enter',text:`ハイパードライブ加速 · 光速の ${(tv.len(f.velocity||[0,0,0])/LIGHT*100).toFixed(1)}% — ハイパースペースへ突入`};
  if (f && f.side === 0 && f.jump && g?.spool) { const sp = g.spool; return {phase: 'spool', text: `ハイパードライブ充填中 · ${S[sp.dest]?.name || ''}へ あと ${Math.ceil(Math.max(0, sp.need - sp.t))} 秒${sp.blocked ? '（速度・給電待ち）' : ''}`}; }
  return null;
 }

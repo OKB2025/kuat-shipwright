@@ -6,6 +6,9 @@ function setup(){
  vm.runInContext(`const C=Core,R=Rts;let messages=[],renders=0,hidden=0,MS=null,msLoaded=false,msLoading=null;const MS_KEY='mission',MS_CLOUD='cloud',MS_RULES={hyper:1800,minJump:1200,foeMax:4},SYSTEMS=Object.fromEntries(Galaxy.SYSTEMS.map(s=>[s.key,{...s,planet:{radius:100},altitude:50}]));
  const esc=x=>String(x??''),num=String,tv={scale:(v,k)=>v.map(x=>x*k),norm:v=>v.map(x=>x/(Math.hypot(...v)||1))},trial={on:true,sysKey:'kuat',mode:'test',jump:null,navigation:null,p:{maxSpeed:100},R:[1,0,0,0,1,0,0,0,1]},GMAP={trial:{sel:'coruscant'}},msUI={foe:'f',cloud:{pulled:false},battle:null};
  const toast=x=>messages.push(x),trialPowerFactor=()=>1,trialHyperClass=()=>2,trialCol=()=>[1,0,0],trialFrame=()=>[1,0,0,0,1,0,0,0,1],galArrivalDir=()=>[1,0,0],spaceCineEnd=()=>{},trialMapShow=()=>{},escortsPlace=()=>{},trialDust=()=>{},trialSys=()=>SYSTEMS[trial.sysKey],gmSysCardHTML=(k,h)=>'<section data-key="'+k+'">'+h+'</section>',gmLegendHTML=()=>'',gmListHTML=()=>'';
+ // This harness isolates route selection; actual power and burst motion use
+ // real units in hyperspace-trial-physics.cjs. Supply the command dependencies.
+ const trialSystemsUnit=()=>null,trialThrottleCommand=()=>trial.throttle??0,trialSetThrottle=v=>{trial.throttle=v;},trialJumpReadinessText=()=>'';
  const voyObTgs=ob=>ob.ctgs.flatMap(c=>c.tgs),voyObShips=ob=>voyObTgs(ob).flatMap(t=>t.ships),msSortieTgs=st=>voyObTgs(st.ob),msReadyShips=t=>t.ships,msHyper=()=>2,msAt=(st,id)=>st.at[id]||st.home,msSave=()=>{msNavigationNormalize(MS);},msScreenRender=()=>renders++,hideTitle=()=>hidden++,renderTitle=()=>renders++;let titleVisible=()=>false;
  let stored=null;const LS={get:()=>stored,set:(k,v)=>{stored=v;}},unpack=async x=>JSON.parse(x),msLoad=()=>MS;`,c);
  vm.runInContext(app.split('\n').find(l=>l.startsWith('const jumpSeconds=')),c);
