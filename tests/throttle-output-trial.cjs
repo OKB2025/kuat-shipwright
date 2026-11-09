@@ -129,3 +129,18 @@ test('direct output drives actual automatically wired hardware and retains its f
  setup();cx.hardwareProfile=profile;run('trial.p=hardwareProfile;trial.battle=null;trial.systemsUnit=null;trialSetThrottle(1);trial.V=[0,0,0];trialStep(.1)');const unit=run('trial.systemsUnit');assert.ok(unit.propulsion.actualInputW>0);assert.ok(unit.propulsion.actualThrustN>0);assert.ok(run('trialMainOutput()')>0);assert.ok(C.shipFuelState(unit).consumedKg>0);assert.ok(accountedHeatJ(unit)>0,'source-attributed or already-solved heat is retained before and after the thermal interval');
  const fuel=C.shipFuelState(unit).consumedKg;run('trialSetThrottle(0);trialStep(.1);trialSetThrottle(.25);trialStep(.1)');assert.equal(run('trial.systemsUnit'),unit);assert.ok(C.shipFuelState(unit).consumedKg>fuel);assert.ok(run('trialMainOutput()')>0&&run('trialMainOutput()')<=.25+1e-8);
 });
+
+test('zero-throttle flight follows the actual three-dimensional nose with mass-dependent inertia and no invented thrust',()=>{
+ const maximumRate=8,smallRate=Math.LN2/.3,largeRate=Math.LN2/90,smallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,largeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,exponent=Math.log((maximumRate/largeRate-1)/(maximumRate/smallRate-1))/Math.log(largeMass/smallMass),pivot=smallMass/Math.pow(maximumRate/smallRate-1,1/exponent),duration=.4,angles=[];
+ for(const massKg of[1e4,1e11]){
+  const u=setup({massKg,tele:1,velocity:[100,0,0]}),drag=rate(massKg),alignment=maximumRate/(1+Math.pow(massKg/pivot,exponent)),theta=t=>Math.PI/2*Math.exp(-alignment*t),velocity=t=>[Math.sin(theta(t)),Math.cos(theta(t)),0].map(x=>x*100*Math.exp(-drag*t));
+  // The ship points upward while its stale fleet yaw still points along X.
+  // The actual trial frame, rather than the camera or old yaw, owns the nose.
+  run('trial.R=[0,1,0,0,0,1,1,0,0];trialStep(.4)');
+  const expected=velocity(duration);for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),expected[i],'zero-throttle nose direction');
+  const steps=2048,h=duration/steps,displacement=[0,0,0];for(let j=0;j<=steps;j++){const weight=j===0||j===steps?1:j%2?4:2,v=velocity(j*h);for(let i=0;i<3;i++)displacement[i]+=weight*v[i]*h/3;}
+  for(let i=0;i<3;i++)near(run(`trial.P[${i}]`),[10000,10000,0][i]+displacement[i],'curved path follows the changing velocity');
+  near(run('tv.len(trial.V)'),100*Math.exp(-drag*duration),'alignment preserves speed apart from existing resistance');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);angles.push(Math.atan2(expected[0],expected[1]));
+ }
+ assert.ok(angles[0]<angles[1],'small vessels align faster while large vessels retain more of their old direction');
+});

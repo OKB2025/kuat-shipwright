@@ -10533,4 +10533,26 @@ Object.assign(root.KS_EN.messages,{
  "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル{0} · G 主砲照準 · P 給電優先順 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles{0} · G Aiming · P Power Priority · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom"
 });
 Object.assign(root.KS_EN.messages,{"スロットル出力（0%から100%）": "Throttle output (0% to 100%)"});
+Object.assign(root.KS_EN.messages,{
+ "通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。": "The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed. Jumping during battle withdraws from the battle area, followed by the escorts.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed. Jumping during battle withdraws from the battle area, followed by the escorts."
+});
+Object.assign(root.KS_EN.messages,{
+ "ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。": "A working hyperdrive can jump once forward speed reaches at least 90% of maximum sublight speed. Guns remain available during preparation; incoming fire alone does not stop it.",
+ "離脱準備（速度・給電待ち）": "Withdrawal preparation (waiting for speed or power)",
+ "発進準備（速度・給電待ち）→ {0}": "Departure preparation (waiting for speed or power) → {0}",
+ "（速度・給電待ち）": "(waiting for speed or power)",
+ "到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は {0} 秒です。発進には通常航行の最大速度の90%以上が必要ですが、砲撃や被弾だけで準備は止まりません。": "Arrival time depends on the slowest hyperdrive in the task group. The base preparation time in combat is {0} seconds. Departure requires at least 90% of maximum sublight speed; firing and incoming hits alone do not stop preparation.",
+ "ハイパードライブ充填中 · {0}へ あと {1} 秒（速度・給電待ち）": "Hyperdrive charging · {0}: {1} seconds remaining (waiting for speed or power)",
+ "ハイパードライブ充填中 · {0}へ あと {1} 秒": "Hyperdrive charging · {0}: {1} seconds remaining",
+ "連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。": "Continuous fire: each gun fires as soon as it reloads, maximizing the number of shots and maintaining constant pressure on the enemy.",
+ "斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません。": "Salvo fire: guns of the same type fire together. Simultaneous hits penetrate armor more easily, especially with larger calibers, and the first salvo can fire as soon as the target enters range. Waiting slightly reduces the number of shots, and the enemy receives no fire between salvos."
+});
+Object.assign(root.KS_EN.messages,{
+ "操縦桿（ピッチとロール）": "Joystick (Pitch and Roll)",
+ "上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。": "Push up to lower the nose; pull down to raise it. Move left or right to roll; release to center."
+});
 })(typeof window==="undefined"?globalThis:window);

@@ -2374,7 +2374,7 @@ const LOAD_TIPS=[
  '航行不能の艦は惑星の重力に引かれて落ちていきます。牽引ビームで捕まえれば止められます。',
  '戦術図で艦をタップすると、1回目でその任務群、2回目でその艦を選びます。',
  '「命令」で作戦図と戦術図を開きます。3D視点に戻るには「3D視点」を押します。',
- 'ハイパードライブの準備中は砲撃できず、被弾している間は準備が止まります。',
+ 'ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。',
  '母港の星系では、破壊された機器の交換や乗員の補充まで行えます。',
  '船体破断・爆沈・航行不能。艦の最期はその壊れ方で決まります。'
 ];
@@ -7879,8 +7879,8 @@ function trialPowerStep(dt,want){
  if(me.pw){me.pw.wpn=got.weapons;me.pw.drawNonCooling=got.draw;}
  C.heatAccrue(me,got,solved.cooling?.fixed||0,dt);
  // The world updates a battle unit's thermal state. Solo practice owns one
- // thermal update here; both use the previous update's acceptance limit.
- if(me===trial.systemsUnit&&dt>0){const ctx={time:trial.t||0,rand:Math.random,ev:(_u,text)=>toast(text),out:(_u,text)=>toast(text),sunk:(_u,text)=>toast(text),hit:()=>{}};C.swDecay(me,dt,ctx);C.heatTick(ctx,me,dt);}
+ // thermal and stored-shield update here; both use the previous update's acceptance limit.
+ if(!trial.battle?.me&&me===trial.systemsUnit&&dt>0){const ctx={time:trial.t||0,rand:Math.random,ev:(_u,text)=>toast(text),out:(_u,text)=>toast(text),sunk:(_u,text)=>toast(text),hit:()=>{}};C.swDecay(me,dt,ctx);C.heatTick(ctx,me,dt);C.shieldRechargeStep(me,s,dt);}
  trial.propulsion=me.propulsion;trial.engF=trialMainOutput(me);trial.power={load:me.load||0,engF:trial.engF,got,demand,P,propulsion:me.propulsion,mainInputW:(me.propulsion?.actualInputW||0)*C.clamp(trial.mainThrustShare??1,0,1),mode};
 }
 const TT_J=C.TT;
@@ -7912,7 +7912,7 @@ function trialGunnery(dt){
  if(!(dt>0))return;
  const me=trialSystemsUnit();if(me)C.syncPowerLossDisabled(me);
  const committed=typeof trialJumpCommitted==='function'?trialJumpCommitted():!!trial.jump,autoPD=C.automaticPointDefenseEnabled?.(me)??me?.order?.autoPointDefense!==false;
- const a=trial.aim=trialAim();if(!a){trialPowerStep(dt,0);return;}trialDronesStep(dt);const R=trial.R,center=trial.asset.geometry.center,wantFire=(trial.fire||trial.fireKey||trial.fireTap>0)&&!committed&&!me?.dead&&!me?.out&&!me?.jump;trial.fireTap=Math.max(0,trial.fireTap-dt);
+ const a=trial.aim=trialAim();if(!a){trialPowerStep(dt,0);return;}trialDronesStep(dt);const R=trial.R,center=trial.asset.geometry.center,wantFire=(trial.fire||trial.fireKey||trial.fireTap>0)&&!committed&&!me?.dead&&!me?.out&&!C.hyperspaceCommitted(me?.jump);trial.fireTap=Math.max(0,trial.fireTap-dt);
  const color=trial.asset.geometry.reference==='venator'||trial.asset.geometry.paint==='republic'?[120,175,255]:[95,255,120],spd=TRIAL_GUN.boltSpeed;
  // Main batteries follow the gun mode; point defence alone chooses close threats.
  const mode=trial.gunMode||'free',home=mode==='home',lock=home?null:mode==='enemy'?trialGunTarget(a.lock):a.lock;trial.heldLock=mode==='enemy'?lock:null;
@@ -8306,7 +8306,7 @@ function trialHudHTML(){
  <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
   <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div>
   <div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div></div>
- <div class="th-stick" data-th-stick role="slider" aria-label="ピッチとロール" aria-valuetext="中立"><span class="lab up">上げ</span><span class="lab down">下げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
+ <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
  <button type="button" class="th-btn th-level" data-trial-cmd="level">水平</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
  <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trialMissileHudState().text}</small></button>
@@ -8319,7 +8319,8 @@ function trialBindHud(hud){
  for(const event of ['pointerdown','pointermove','pointerup','pointercancel','keydown'])throttle?.addEventListener(event,e=>e.stopPropagation());
  throttle?.addEventListener('input',e=>{trialSetThrottle(e.currentTarget.valueAsNumber/100);trialHudUpdate(true);});
  const stick=hud.querySelector('[data-th-stick]'),knob=stick?.querySelector('.knob'),fire=hud.querySelector('[data-th-fire]');
- let sid=null;const move=e=>{const r=stick.getBoundingClientRect(),R=r.width/2,dx=(e.clientX-r.left-R)/R,dy=(e.clientY-r.top-R)/R,l=Math.hypot(dx,dy),k=l>1?1/l:1;trial.stick={x:dx*k,y:-dy*k};knob.style.transform=`translate(${(dx*k*R*.62).toFixed(1)}px,${(dy*k*R*.62).toFixed(1)}px)`;};
+ // Aircraft joystick: pushing forward lowers the nose; pulling back raises it.
+ let sid=null;const move=e=>{const r=stick.getBoundingClientRect(),R=r.width/2,dx=(e.clientX-r.left-R)/R,dy=(e.clientY-r.top-R)/R,l=Math.hypot(dx,dy),k=l>1?1/l:1;trial.stick={x:dx*k,y:dy*k};knob.style.transform=`translate(${(dx*k*R*.62).toFixed(1)}px,${(dy*k*R*.62).toFixed(1)}px)`;};
  const end=()=>{sid=null;trial.stick={x:0,y:0};knob.style.transform='';stick.classList.remove('on');};
  stick?.addEventListener('pointerdown',e=>{e.preventDefault();sid=e.pointerId;stick.setPointerCapture(e.pointerId);stick.classList.add('on');move(e);});
  stick?.addEventListener('pointermove',e=>{if(e.pointerId===sid)move(e);});
@@ -9750,7 +9751,7 @@ function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)
 function fleetPowerHTML(u,editable){const o=u.order,combat=fleet.battle.combat,autoPD=C.automaticPointDefenseEnabled(u);
  return `<div class="fleet-power"><h5>給電優先順</h5><p class="note keep">シールド・艦内設備 → 兵装 → 航行</p><p class="note">シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。</p><p class="note" data-fleet-heat>${storedHeatText(C.heatStatus(u))}</p><button type="button" class="chip" data-fleet-pd-auto aria-pressed="${autoPD}" ${editable?'':'disabled'}>${autoPD?'自動迎撃 ON':'自動迎撃 OFF'}</button>
  <label class="fleet-aim">照準<select data-fleet-aim ${editable&&combat?'':'disabled'} aria-label="攻撃で狙う部位">${Object.entries(C.AIM_KINDS).map(([k,n])=>`<option value="${k}" ${(o.aim||'auto')===k?'selected':''}>${n}</option>`).join('')}</select></label><p class="note">部位を狙うと命中率が2割落ち、シールドを抜いた弾がその部位に当たりやすくなります。炉の誘爆は相手の炉心負荷しだいです。</p>
- <h5>射撃</h5><div class="chips">${Object.entries(C.VOLLEY.name).map(([k,n])=>`<button type="button" class="chip" data-fleet-volley="${k}" aria-pressed="${C.volleyMode(u)===k}" ${editable&&combat?'':'disabled'}>${n}</button>`).join('')}</div><p class="note">${C.volleyMode(u)==='salvo'?'斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、待つぶん発射数はわずかに減り、合間は敵が射撃を受けません。':'連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます（ハイパードライブの充填を止めます）。'}</p></div>`;}
+ <h5>射撃</h5><div class="chips">${Object.entries(C.VOLLEY.name).map(([k,n])=>`<button type="button" class="chip" data-fleet-volley="${k}" aria-pressed="${C.volleyMode(u)===k}" ${editable&&combat?'':'disabled'}>${n}</button>`).join('')}</div><p class="note">${C.volleyMode(u)==='salvo'?'斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、待つぶん発射数はわずかに減り、合間は敵が射撃を受けません。':'連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。'}</p></div>`;}
 function fleetOptions(){return `<option value="current">現在の設計</option><optgroup label="作例">${Object.entries(C.DESIGNS).map(([k,d])=>`<option value="${k}" ${fleet.source===k?'selected':''}>${esc(d.name)}</option>`).join('')}</optgroup>${fleet.saves.length?`<optgroup label="保存艦">${fleet.saves.map(r=>`<option value="save:${esc(r.id)}" ${fleet.source==='save:'+r.id?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup>`:''}`;}
 function fleetRoster(){return `<div class="fleet-roster">${fleetDisplay().map(u=>`<button type="button" data-fleet-select="${u.id}" class="fleet-unit ${u.team?'enemy':''} ${fleet.selected===u.id?'selected':''} ${u.dead?'destroyed':''} ${u.out?'disabled':''}" aria-pressed="${u.id===fleet.selected}"><span class="fleet-side">${fleet.mode==='review'?'◆':u.team?'敵':u===fleetFlag()?'旗':'友'}</span><span><b>${esc(u.name)}</b><small>${fleet.mode==='review'?fLen(u.p.len)+' / '+u.p.power.toFixed(3)+' ISD':u.dead||u.out?fleetStatusText(u):u.team?'敵艦 · AI指揮':u===fleetFlag()?'旗艦 · 自ら操艦':'僚艦 · 出力 '+fleetPowerName(u)}</small><span class="fleet-bars"><i style="width:${Math.max(0,u.hp/u.p.hp*100)}%"></i></span></span>${fleet.mode!=='review'?`<em>${Math.round(u.hp/u.p.hp*100)}%</em>`:''}</button>`).join('')||'<p class="note">艦を追加してください。</p>'}</div>`;}
 function fleetControlsHTML(){
@@ -12401,7 +12402,7 @@ function voyUnitState(u,html=false) {
  const w = voy.w, cap = u.captured ? '拿捕艦 · ' : '';
  if (u.dead) return '撃沈';
  if (u.out) return cap + '戦闘不能（' + (html?esc(u.out):u.out) + '）' + (u.towedBy ? ' · 被牽引' : '');
- if (u.jump) return cap + (u.jump.blocked ? '離脱準備（被弾中で停止）' : '離脱準備');
+ if (u.jump) return cap + (u.jump.blocked ? '離脱準備（速度・給電待ち）' : '離脱準備');
  if (u.warp) return 'ハイパースペースから出現';
  if (u.sys == null) return 'ハイパースペース';
  const tr = u.tractor ? (u.tractor.mode === 'capture' ? voyBoardBrief(u) : u.tractor.lock ? ' · 牽引中' : ' · 牽引へ接近') : '';
@@ -12474,7 +12475,7 @@ function voyMorph(a, b) {
 function voyTgStatus(g) {
  const w = voy.w, S = w.sector;
  if (g.transit) return `ハイパースペース → ${S.systems[g.transit.to].name}（${voyClock(g.transit.t1 - w.time)}）`;
- if (g.spool) return g.spool.blocked ? `発進準備（被弾中で停止）→ ${S.systems[g.spool.dest].name}` : `発進準備 あと ${Math.ceil(g.spool.need - g.spool.t)} 秒 → ${S.systems[g.spool.dest].name}`;
+ if (g.spool) return g.spool.blocked ? `発進準備（速度・給電待ち）→ ${S.systems[g.spool.dest].name}` : `発進準備 あと ${Math.ceil(g.spool.need - g.spool.t)} 秒 → ${S.systems[g.spool.dest].name}`;
  if (g.waitJump) return `出発待ち ${voyClock(g.waitJump.at - w.time)} → ${S.systems[g.waitJump.dest].name}`;
  if(g.navigation?.waiting)return `${S.systems[g.sys]?.name||''} · 必須停止・次航程指示待ち`;
  const at = S.systems[g.sys]?.name || '', held = R.groupDisabled(w, g).length;return w.battles.has(g.sys) ? `${at} · 交戦中 · ${voyGroupOrderText(g)}${held ? ` · 航行不能 ${held}` : ''}` : held ? `${at} · 航行不能艦あり（回収か自沈を）` : `${at} · 待機中`;
@@ -12551,7 +12552,7 @@ function voyTgOpsCard(g) {
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　今回の停止まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><div class="vs-route">${voyRouteHTML(from, dest)}</div><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
   <div class="vs-acts">${free ? `<button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>` : ''}${g.spool || g.waitJump ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${free && us.length > 1 ? `<button type="button" class="btn sm ghost" data-vact="split" aria-pressed="${!!voy.split}">${voy.split ? '分割を確定' : '任務群を分割'}</button>` : ''}${voyMergeButtons(g)}${g.sys != null && w.battles.has(g.sys) ? `<button type="button" class="btn sm warn" data-vgo="tac:${g.sys}">戦術図</button>` : ''}</div>
   ${voyLandingHTML(g)}
-  ${g.spool ? '<p class="note">ジャンプにはリアクターの全出力が要ります。発進準備中は砲撃できず、被弾している間は準備が止まります。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
 }
 function voyCtgOpsCard(c) {
  const w = voy.w, S = w.sector, gs = voyCtgGroups(c), ships = gs.reduce((n, g) => n + g.units.filter(id => R.alive(w.units.get(id))).length, 0), dest = voy.sel.dest;
@@ -12771,7 +12772,7 @@ function voyFedBind() {
  });
  window.addEventListener('resize', () => { if (fed.open) voyFedDraw(); });
 }
-function voyPowerAimHTML(list) { const autoPD = voyCommon(list, u => C.automaticPointDefenseEnabled(u)), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません（敵のハイパードライブ充填が進みます）。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置いてハイパードライブの充填を止めます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">給電優先順</p><p class="note">シールド・艦内設備 → 兵装 → 航行</p><p class="vs-sub">点防御の自動迎撃</p><div class="vs-acts">${[[true,'自動迎撃 ON'],[false,'自動迎撃 OFF']].map(([enabled,label])=>`<button type="button" class="btn sm${autoPD===enabled?' on':''}" data-vpd="${enabled?1:0}" aria-pressed="${autoPD===enabled}">${label}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div><p class="note">${aim === 'auto' ? '自動：ふだんは艦全体を撃ちます。自艦の2.5倍以上の大きさの艦はシールドが弱まると艦橋を狙います。' : aim === 'bridge' || aim === 'weapon' ? '艦橋・砲塔は装甲の外にあります。シールドが弱まると、狙いを保てた分（近いほど・的が大きいほど多い）が装甲を通さず直撃します。' : '狙った部位のある区画に被弾が集まります。'}</p>`; }
+function voyPowerAimHTML(list) { const autoPD = voyCommon(list, u => C.automaticPointDefenseEnabled(u)), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">給電優先順</p><p class="note">シールド・艦内設備 → 兵装 → 航行</p><p class="vs-sub">点防御の自動迎撃</p><div class="vs-acts">${[[true,'自動迎撃 ON'],[false,'自動迎撃 OFF']].map(([enabled,label])=>`<button type="button" class="btn sm${autoPD===enabled?' on':''}" data-vpd="${enabled?1:0}" aria-pressed="${autoPD===enabled}">${label}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div><p class="note">${aim === 'auto' ? '自動：ふだんは艦全体を撃ちます。自艦の2.5倍以上の大きさの艦はシールドが弱まると艦橋を狙います。' : aim === 'bridge' || aim === 'weapon' ? '艦橋・砲塔は装甲の外にあります。シールドが弱まると、狙いを保てた分（近いほど・的が大きいほど多い）が装甲を通さず直撃します。' : '狙った部位のある区画に被弾が集まります。'}</p>`; }
 // v25 Emission management and S-foils of the ships chosen (SENS-005, WING-003/004), and what they radiate now.
 const VOY_EMIT = [['normal', '通常'], ['low', '低放射'], ['high', '高出力'], ['emerg', '緊急散逸']], VOY_FOIL = [['auto', '自動'], ['open', '展開'], ['close', '収納']];
 const VOY_EMIT_NOTE = {normal: '通常：散逸装置を通常に運転し、能動センサーを使います。', low: '低放射：散逸装置を絞って出力を抑え、能動センサーを止めます。廃熱は蓄熱され、蓄熱が限界に近づくと通常運転に戻ります。', high: '高出力：炉を過負荷気味に回し、能動センサーを強めます。廃熱と放射が増えます。', emerg: '緊急散逸：散逸装置を過駆動して蓄熱を一気に放出します。最も目立ちます。蓄熱が抜けると通常に戻ります。'};
@@ -12828,7 +12829,7 @@ function voyTgTacCard(g) {
   <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}${voySensHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
-  ${g.spool ? '<p class="note">離脱にはリアクターの全出力が要ります。準備中は砲撃できず、被弾している間は準備が止まります（距離を取りながら準備します）。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
 }
 function voyCtgTacCard(c) {
  const w = voy.w, sys = voy.tac.sys, gs = voyCtgGroups(c).filter(g => voyGroupIn(g, sys)), ms = gs.flatMap(g => g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys)), trac = ms.filter(u => u.p.trac > 0 && !u.out);
@@ -12888,7 +12889,7 @@ function voyTacSide() {
  } else if (tab === 'help') {
   const ctgs = [...w.ctgs.values()].filter(c => c.side === 0 && voyCtgGroups(c).some(g => !voyGroupIn(g, sys))), gs = [...w.groups.values()].filter(h => h.side === 0 && voyLive(h) && !voyGroupIn(h, sys));
   const ctgEta = c => { const e = voyCtgGroups(c).filter(h => !h.transit && h.sys != null && h.sys !== sys).map(h => R.etaTo(w, h.id, sys)).filter(v => v != null); return e.length ? Math.max(...e) : null; };
-  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群は離脱の準備に ${R.RULES.withdrawSpool} 秒かかり、被弾している間は準備が止まります。</p></div>`;
+  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は ${R.RULES.withdrawSpool} 秒です。発進には通常航行の最大速度の90%以上が必要ですが、砲撃や被弾だけで準備は止まりません。</p></div>`;
  } else {
   const b = w.battles.get(sys);body += `<div class="vs-card vs-list vs-log"><h3>戦闘記録</h3><ul>${(b?.log || []).slice(-40).reverse().map(e => `<li class="${e.side === 0 ? 'own' : e.side === 1 ? 'foe' : ''}"><span>${voyClock(e.t - (b?.t0 || 0))}</span>${esc(e.text)}</li>`).join('') || '<li class="muted">記録はまだありません</li>'}</ul></div>`;
  }
@@ -13980,7 +13981,7 @@ function voySpectateHyperText(f) {
   if (j.phase === 'tunnel' && !j.arrived) { const tr = g?.transit; return {phase: 'tunnel', text: `ハイパースペース航行中${d ? ' · ' + d + 'まで' : ''}${tr ? ' ' + voyClock(Math.max(0, tr.t1 - w.time)) : ''}`}; }
   return {phase: j.phase, text: trialHyperText(j, d, Infinity)};
  }
- if (f && f.side === 0 && f.jump && g?.spool) { const sp = g.spool; return {phase: 'spool', text: `ハイパードライブ充填中 · ${S[sp.dest]?.name || ''}へ あと ${Math.ceil(Math.max(0, sp.need - sp.t))} 秒${sp.blocked ? '（被弾中で停止）' : ''}`}; }
+ if (f && f.side === 0 && f.jump && g?.spool) { const sp = g.spool; return {phase: 'spool', text: `ハイパードライブ充填中 · ${S[sp.dest]?.name || ''}へ あと ${Math.ceil(Math.max(0, sp.need - sp.t))} 秒${sp.blocked ? '（速度・給電待ち）' : ''}`}; }
  return null;
 }
 function voySpectateWhereHTML(f,w=voy.w){return `${esc(R.FACTIONS[w.sides[f.side].faction]?.short||'')} · ${voyUnitState(f,true)} · ${esc(`シールド ${Math.round(f.shield/Math.max(1,f.shieldMax)*100)}%${f.side===0&&crewShare(f)!=null?` · 乗員 ${crewPct(crewShare(f))}%`:''}${voySwBrief(f)}`)}`;}
