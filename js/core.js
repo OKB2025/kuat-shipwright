@@ -53682,7 +53682,7 @@ function resolveEngineSpec(part,ship,massKg){
  const supply=engineSceneSupply(ship,p),maxInputW=supply.availableInputW,ratedInputW=supply.nominalInputW,valid=issues.length===0,conversion=engineConversionFields(null,massKg),thermal=engineDensityModel(ratedInputW,m.volume,engineConversionCoefficient(conversion)),wattsPerNewton=thermal.wattsPerNewton;
  // Old authored ratings/grades retain only their historical price basis.
  const costInputW=Number.isFinite(rating)&&rating>=0?rating:m.volume*PROPULSION.referenceInputDensity,x=m.volume>0?costInputW/(PROPULSION.referenceInputDensity*m.volume):0,upgradeCost=(PROPULSION.ratingCost*costInputW/PROPULSION.referencePower+PROPULSION.densityCost*m.volume*Math.max(0,x-1)**2)*(grade?.costMultiplier||1),direction=mul(machineryGeometry(part||p,ship).dir,-1),reactor=ship?reactorFor(ship,p):null;
- return {...thermal,...conversion,driveModelVersion:ENGINE_TRANSMISSION_VERSION,version:PROPULSION_MODEL_VERSION,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply',availableInputW:maxInputW,sourceInputLimitW:maxInputW,sourceIds:supply.sourceIds,allocationWeight:m.volume,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,coreId:owner?.id??null,entityKind:p.k,integrated:p.k==='engine'&&!legacySharedEngine(p,ship),legacyShared:legacySharedEngine(p,ship),ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryShape:p.k==='engineCore'?'cylinder':m.shape,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,costBasisInputW:costInputW,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:0,valid,issues,reasons:issues};
+ return {...thermal,...conversion,driveModelVersion:ENGINE_TRANSMISSION_VERSION,version:PROPULSION_MODEL_VERSION,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,inputLimitModel:'reactor-supply',availableInputW:maxInputW,sourceInputLimitW:maxInputW,sourceIds:supply.sourceIds,allocationWeight:m.volume,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,coreId:owner?.id??null,entityKind:p.k,integrated:p.k==='engine'&&!legacySharedEngine(p,ship),legacyShared:legacySharedEngine(p,ship),ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,issues,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryShape:p.k==='engineCore'?'cylinder':m.shape,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,costBasisInputW:costInputW,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:0,valid,issues,reasons:issues};
 }
 function initializeEngineSpec(p,ship,legacy=false){
  if(!['engine','engineCore'].includes(p?.k))return p;p.legacyCoolingInputW=0;if(p.k==='engineCore'){if(p.propulsionModelVersion==null||p.propulsionModelVersion===0)p.propulsionModelVersion=PROPULSION_MODEL_VERSION;p.driveProfileId=p.driveProfileId||'standard';p.machineryGradeId=p.machineryGradeId||'standard';p.length=p.length??p.d*2;p.dir=p.dir||[-1,0,0];return p;}if(p.k==='engine'&&p.machineryId!=null&&p.machineryId!==p.id){p.propulsionModelVersion=PROPULSION_MODEL_VERSION;return p;}if(p.propulsionModelVersion!=null&&p.propulsionModelVersion!==0)return p;
@@ -55344,22 +55344,35 @@ function isdBridgeLayout(cx,baseY,cz=0){const center=[cx,baseY+ISD_BRIDGE_RISE,c
  return {center,tower:{c:add(center,T.offset),s:T.s.slice(),opt:{form:'loft',loft:T.loft.map(r=>r.slice()),wallInset:T.wallInset,corner:T.corner,skin:T.skin}},
   sensors:['isd_sensor_port','isd_sensor_stbd','isd_mast'].map(id=>{const a=REFERENCE_ASSETS[id];return {id,c:add(center,sub(a.c,base)),d:Math.max(...a.size),title:a.title,skinSize:a.size.slice(),equipmentId:id==='isd_mast'?'isdMast':'isdSensor'};})};}
 // v24 Interior rooms keep their height within the hull's depth at their station (old frame -> measured frame).
-function executorY(x,y){const F=EXECUTOR_BLUEPRINT.interiorFrame,i=Math.max(0,Math.min(F.length-2,Math.floor(x/500))),t=clamp((x-F[i][0])/500,0,1),g=k=>F[i][k]+(F[i+1][k]-F[i][k])*t,ob=g(1),ot=g(2),nb=g(3),nt=g(4);return nb+(y-ob)*(nt-nb)/Math.max(1,ot-ob);}
+// Interior rooms keep their place in the hull's depth: y in the source model's depth (ob..ot) maps onto the wedge's
+// keel and ridge at x (v24: the flat wedge replaced the measured stations the frame's own new columns describe).
+let EXECUTOR_WEDGE_HULL=null;
+function executorY(x,y){const F=EXECUTOR_BLUEPRINT.interiorFrame,i=Math.max(0,Math.min(F.length-2,Math.floor(x/500))),t=clamp((x-F[i][0])/500,0,1),g=k=>F[i][k]+(F[i+1][k]-F[i][k])*t,ob=g(1),ot=g(2);EXECUTOR_WEDGE_HULL||={...JSON.parse(JSON.stringify(EXECUTOR_BLUEPRINT.hull)),stations:EXECUTOR_WEDGE_STATIONS.map(r=>r.slice())};const q=sectionBase(EXECUTOR_WEDGE_HULL,x),nb=q.ybot,nt=q.ytop;return nb+(y-ob)*(nt-nb)/Math.max(1,ot-ob);}
 // v24 70 TT quad turbolasers in the Executor's side trench: about as many as its two 13 km rows can hold
 // beside the point-defence lasers and ion cannons (trenchArmamentPacking: about 1,000 a side).
 const EXECUTOR_TRENCH_QUADS=1880,EXECUTOR_TRENCH_FROM=.325;
+// v24 By the user's decision the Executor's hull is a plain wedge of flat faces (docs/executor-stl-rebuild.md). Each
+// face was fitted as a straight line on Executor_Complete.stl (sections every 250 m, the city and the ventral fittings
+// left out): forward of the shoulder (x 6,200 m) the plan edge, the dorsal ridge, the keel and the side band are
+// linear in x, so the stations there only sample those lines; aft of it the stern block is flat-topped and flat-bottomed
+// (deck and keel widths), stepped down at each row of engine mouths (x 1,425 and 4,960 m) so the engine bodies stay
+// inside and their exhaust leaves clear of the hull. The side band is 140 m (the trench and its margin), centred where the model's band is (y 622 m).
+const EXECUTOR_WEDGE_STATIONS=[[0.0, 0.11989, 0.07853, 0.46023, 0.3, 0, 0.3636, 0.2273], [0.052632, 0.24881, 0.15706, 0.42096, 0.3, 0, 0.2273, 0.2045], [0.073947, 0.26345, 0.15564, 0.42025, 0.3, 0, 0.1835, 0.2], [0.075, 0.26438, 0.53901, 0.22642, 0.3, 0.6, 0.053, 0.7483], [0.110526, 0.29677, 0.51403, 0.21393, 0.3, 0.6, 0.0417, 0.7083], [0.115789, 0.30144, 0.32484, 0.30495, 0.3, 0.6, 0.0659, 0.5275], [0.26, 0.43877, 0.282, 0.28353, 0.3, 0.6, 0.0759, 0.2278], [0.261053, 0.44095, 0.46405, 0.18894, 0.3, 0.8, 0.0462, 0.5277], [0.284211, 0.46026, 0.46405, 0.18894, 0.3, 0.8, 0.0462, 0.4969], [0.3, 0.66952, 0.66395, 0.06757, 0.2, 0.95, 0.129, 0.3978], [0.326316, 0.99704, 0.8505, -0.04329, 0, 0, 0.1175, 0.4851], [0.394737, 0.89738, 0.77393, -0.04418, 0, 0, 0.1291, 0.4848], [0.473684, 0.78237, 0.68558, -0.04519, 0, 0, 0.1458, 0.4843], [0.552632, 0.66737, 0.59723, -0.04621, 0, 0, 0.1674, 0.4837], [0.631579, 0.55237, 0.50889, -0.04723, 0, 0, 0.1964, 0.4829], [0.710526, 0.43737, 0.42054, -0.04825, 0, 0, 0.2377, 0.4817], [0.789474, 0.32237, 0.33219, -0.04926, 0, 0, 0.3009, 0.4799], [0.868421, 0.20736, 0.24384, -0.05028, 0, 0, 0.4099, 0.4768], [0.947368, 0.09236, 0.15549, -0.0513, 0, 0, 0.6428, 0.4702], [1.0, 0.01569, 0.09659, -0.05198, 0, 0, 0.98, 0.459]];
+// The ventral recess (the model's triangular recess under the forward hull, with the tongue from aft at its base),
+// cut 100 m deep into the flat bottom; the air group is stowed and launched there through open doors.
+const EXECUTOR_RECESS_CUTS=[{"shape":"poly","c":[14300,135,705],"s":[800,290,870],"rotation":[0,0,0],"verts":[[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[0.5,-0.5,-0.2828],[0.5,0.5,-0.2828],[0.5,-0.5,-0.5],[0.5,0.5,-0.5]],"mirror":true},{"shape":"poly","c":[15800,135,0],"s":[2200,1246,870],"rotation":[0,0,0],"verts":[[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[0.5,-0.5,0],[0.5,0.5,0]],"mirror":false}];
 function executorDesign(opt={}){
- // v24 The side trench carries the trench batteries, so it must run straight and its walls must be vertical
- // over its whole height: the measured station height, centre and chine are smoothed (median of three
- // neighbours; single stations caught on the city alternated up and down), and each station's side band
- // (belt) is widened to at least the trench height and a margin.
- const b=EXECUTOR_BLUEPRINT,hullSpec=JSON.parse(JSON.stringify(b.hull));{const st=hullSpec.stations,med=(a,b,c)=>a+b+c-Math.max(a,b,c)-Math.min(a,b,c),src=st.map(r=>r.slice());for(let i=1;i+1<st.length;i++)if(st[i][0]>=EXECUTOR_TRENCH_FROM-.02)for(const k of [2,3,7])st[i][k]=med(src[i-1][k],src[i][k],src[i+1][k]);}for(const st of hullSpec.stations){const h=(st[2]||0)*hullSpec.H;if(h>0&&st.length>6&&st[0]>=EXECUTOR_TRENCH_FROM-.02)st[6]=+Math.min(.98,Math.max(st[6],(b.trench.height+60)/h)).toFixed(4);}
+ const b=EXECUTOR_BLUEPRINT,hullSpec={...JSON.parse(JSON.stringify(b.hull)),stations:EXECUTOR_WEDGE_STATIONS.map(r=>r.slice())};
  const s=newShip(hullSpec,'エグゼクター級｜超大型指揮戦艦');s._building=true;s.reference='executor';s.detail=1;s.paint='neutral';s.lights='blue';s.armor={hull:1.2,cit:1};s.shieldTarget=1;
  const {part,solid,room,gun,trench,bridge}=dreadnoughtTools(s);
  // The side trench runs between the upper plate tip and the lower hull tip.
  // v24 The trench batteries need straight walls: the trench starts where the hull's stern flare ends (x 0.325 L)
  // rather than on the flare itself, where its wall turned 66 degrees across the ship.
  s.trenches.push({id:s.nextId++,side:'both',from:Math.max(b.trench.from,EXECUTOR_TRENCH_FROM),to:b.trench.to,level:.5,height:b.trench.height,depth:b.trench.depth,taper:false,chine:true});
+ for(const q of EXECUTOR_RECESS_CUTS)s.solidCuts.push(normalizeSolidCut({...q,id:s.nextId++,structures:false}));
+ // The inner engines under the shoulder (mouths x 5,676-5,750 m) exhaust through channels open to the stern, as in the
+ // model, where the stern block and the wedge plates' aft edges would otherwise stand behind them.
+ for(const e of b.engines)if(e.mouth[0]>5600&&e.mouth[2]>0&&e.mouth[2]<1800){const d=e.diameter*1.35;s.solidCuts.push(normalizeSolidCut({id:s.nextId++,shape:'box',c:[(5300+e.mouth[0])/2,e.mouth[1],e.mouth[2]],s:[e.mouth[0]-5300,d,d],rotation:[0,0,0],mirror:true,structures:false}));}
  // City and ventral blocks are nested flat-topped terraces traced from the
  // source model. Each is an ordinary outline structure standing on the one
  // below it; off-centre terraces are placed as mirrored pairs.
@@ -55386,18 +55399,22 @@ function executorDesign(opt={}){
   room('pump','主炉供給・冷却区画',[8300,executorY(8300,400),sg*600],[260,180,160]);
   room('integrity','縦通構造維持幹線',[10400,executorY(10400,480),sg*850],[1600,230,150]);
   part('inertial','主慣性補償装置',[10100,executorY(10100,380),sg*450],300,{length:800});
-  room('hangar',(sg<0?'左舷':'右舷')+'航空機格納庫',[12000,executorY(12000,410),sg*400],[292.480170941796,360,120],{airRole:'storage'});
-  room('hangar','中央発着ベイへの移送路',[12000,executorY(12000,410),sg*185],[1500,70,100],{airRole:'flight'});
+  // v24 The air group lives over the ventral recess (EXECUTOR_RECESS_CUTS): the hangars in its two aft lobes beside
+  // the tongue, joined by transfer passages to the docking bay over the recess's forward triangle.
+  room('hangar',(sg<0?'左舷':'右舷')+'航空機格納庫',[14350,630,sg*705],[700,250,120],{airRole:'storage'});
+  room('hangar','中央発着ベイへの移送路',[14750,630,sg*365],[200,430,100],{airRole:'flight'});
   room('service','航空整備・補給施設',[13700,executorY(13700,440),sg*450],[650,250,90]);
   room('cargo','輸送・物資集積区画',[15000,executorY(15000,420),sg*350],[600,180,70]);
   // v19.1: automation carries most of the posts, so the crew comes to the official ~280,000. v22: 20 m longer
   // (1,480 m before) for the posts of the canon armament, so the crew stays there and the army still fits.
   // v24 The remeasured ship is larger and has about 7.5 million posts; the automation rooms grow upward
-  // into the city's depth so automation again carries the posts and the crew fits.
-  room('automation','艦内運用の自動化装置',[9500,executorY(9500,693),sg*311],[1700,560,140]);
+  // into the city's depth so automation again carries the posts and the crew fits. v24 (flat wedge) They stand
+  // under the wedge's dorsal ridge (y 870-1,010 m).
+  room('automation','艦内運用の自動化装置',[9500,940,sg*311],[1700,560,140]);
  }
  // v20 The docking bay also parks the landing force: shuttles, landing craft, walker barges and the walkers.
- const bay=room('hangar','中央腹部ドッキングベイ',[12000,executorY(12000,330),0],[1700,300,250],{airRole:'mixed'});openBay(s,bay,'bottom','ray');
+ // v24 The docking bay opens through plain doors in the roof of the ventral recess (not a ray-shielded aperture).
+ const bay=room('hangar','中央腹部ドッキングベイ',[15250,695,0],[1100,300,250],{airRole:'mixed'});openBay(s,bay,'bottom','open');
  // One embarked army of four corps (36,864 troops) and four prefabricated
  // garrison bases, each with 484 support staff: 38,800 embarked in all.
  for(const [x,sg,n] of [[7200,-1,1],[7200,1,2],[8800,-1,3],[8800,1,4]])room('cargo',`プレハブ駐屯基地 ${n}（分解収納）`,[x+(n<3?200:-200),executorY(x+(n<3?200:-200),420),sg*1300],[97,20,15]);
@@ -57762,7 +57779,7 @@ function constructShipSystems(ship,key){
   }
   let requestedInputW=propulsion.ordinary?propulsion.inputW:(propulsion.targetG?measured.mass*1000*G0*propulsion.targetG:propulsion.oldThrustN)*DRIVE_PROFILES.standard.wattsPerNewton;
   const bodyCaps=propulsion.engines.map(e=>Math.min(PROPULSION.maxInputW,machineryGeometry(e,ship).volume*(propulsion.ordinary?PROPULSION.referenceInputDensity:MACHINERY_GRADES.advanced.allowedInputDensityWPerM3))),bodyCapacityW=bodyCaps.reduce((a,b)=>a+b,0);let installedInputW=Math.min(requestedInputW,bodyCapacityW*(1-1e-10));
-  propulsion.engines.forEach((e,i)=>{e.ratedInputW=installedInputW*bodyCaps[i]/Math.max(1,bodyCapacityW);const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3*(1+1e-12))||'advanced';e.feedCapacityW=e.ratedInputW*1.3;if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 実装機関の実容量が不足しています');});propulsion.inputW=installedInputW;
+  propulsion.engines.forEach((e,i)=>{e.ratedInputW=installedInputW*bodyCaps[i]/Math.max(1,bodyCapacityW);const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3*(1+1e-12))||'advanced';e.feedCapacityW=e.ratedInputW*1.3;{const spec=resolveEngineSpec(e,ship);if(!spec.valid)throw new Error(key+': 実装機関の実容量が不足しています（機関 #'+e.id+'：'+(spec.issues||[]).join(', ')+'）');};});propulsion.inputW=installedInputW;
   wirePower();refitShipThermal(ship,key,{stats:measured,powerW:baselinePowerW,E:installedInputW,W,S:Q,H,margin:1.15});syncCompartments(ship);wirePower();straightenShipMachineryRooms(ship);syncCompartments(ship);wirePower();
   const volumeCalibration=ENGINE_INPUT_MODEL_VERSION>=2?{measured,basis:'authored-geometry-reactor-supply',targetG:null}:SHIP_ENGINE_ACCEL_TARGETS[key]?shipRefitTargetEngineVolume(ship,key,propulsion,wirePower,{powerW:baselinePowerW,W,S:Q,H,margin:1.15},shipRefitMeasure(ship)):SHIP_MILITARY_ACCEL_TARGETS[key]?shipRefitMilitaryEngineVolume(ship,key,propulsion,wirePower,{powerW:baselinePowerW,W,S:Q,H,margin:1.15},shipRefitMeasure(ship)):{measured};measured=volumeCalibration.measured;if(volumeCalibration.trace)requestedInputW=installedInputW=propulsion.inputW;
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
