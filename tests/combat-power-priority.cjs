@@ -71,3 +71,14 @@ test('an actual fleet shot from a full bank remains active even when its charger
  C.fleetPowerStep(u,C.fleetSystems(u),target,10,1);assert.ok(u.surfaceLastFire.spent>0);near(u.pw.requestedWeaponChargeW,0);near(u.pw.requestedWeaponFireW,u.surfaceLastFire.spent*TT);assert.equal(u.pw.activeWeaponFire,true);assert.equal(u.pw.activeCombatPower,true);
  C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);assert.equal(u.pw.activeWeaponFire,false);assert.equal(u.pw.activeCombatPower,false);
 });
+
+test('continuous squad firing remains a real weapon demand with full compatibility banks',()=>{
+ const R=vm.runInContext('Rts',cx),key='continuous-priority-test',p=unit().p;p.profileVersion=C.FLEET_PROFILE_VERSION;
+ R.CRAFT[key]={name:key,design:true,mass:p.propulsion.massKg/1000,speed:p.maxSpeed,powerProfile:p};
+ const s={id:key,craft:key,side:0,pos:[0,0,0],h:[1,0,0],vel:[0,0,0],n:1,ammo:[],ldg:[],weaponDemand:true};
+ try{
+  R.squadPropulsion(s,1,.01);near(s.drive.energy,p.wCap,'compatibility bank starts full');near(s.drive.pw.wpn/TT,40,'continuous shots are paid directly');near(s.weaponPowerK,1);near(s.drive.propulsion.actualInputW/TT,45);assert.equal(s.drive.pw.activeWeaponFire,true);
+  s.weaponDemand=false;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn,0);near(s.drive.propulsion.actualInputW/TT,85);assert.equal(s.drive.pw.activeCombatPower,false);
+  s.weaponDemand=true;s.drive.p.grid.P=30*TT;s.drive.p.grid.domains[0].P=30*TT;s.drive.p.grid.domains[0].sources[0].P=30*TT;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn/TT,15);near(s.weaponPowerK,15/40);near(s.drive.propulsion.actualInputW,0);
+ }finally{delete R.CRAFT[key];}
+});
