@@ -2411,7 +2411,7 @@ const LOAD_TIPS=[
  '航行不能の艦は惑星の重力に引かれて落ちていきます。牽引ビームで捕まえれば止められます。',
  '戦術図で艦をタップすると、1回目でその任務群、2回目でその艦を選びます。',
  '「命令」で作戦図と戦術図を開きます。3D視点に戻るには「3D視点」を押します。',
- 'ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。',
+ 'ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。',
  '母港の星系では、破壊された機器の交換や乗員の補充まで行えます。',
  '船体破断・爆沈・航行不能。艦の最期はその壊れ方で決まります。'
 ];
@@ -7628,7 +7628,7 @@ function trialCraftSystemsHTML(){
  return html;
 }
 function trialReset(){
- if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
+ if(trial.cine)spaceCineEnd();const pose=trialInitialPose(trialSys());Object.assign(trial,{P:pose.P,V:[0,0,0],R:pose.R,w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
  const bank=trial.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);trial.energy={E:bank,cap:bank};trial.engF=0;trial.thrustWant=0;trial.mainThrustShare=0;trial.steeringWant=0;trial.power=null;trial.propulsion=null;
@@ -8166,7 +8166,7 @@ function trialLoop(now){
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  trialPoseFoilMounts();
  const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
- const me=trial.battle?.me,unit={key:trial.asset.key,foils:trialFoilDeployments(),pos:[0,0,0],yaw:0,rot:trial.R,glow:trialMainOutput(),hatchOpen:0,dead:!!me?.dead,noInner:trial.camMode==='cockpit'&&!!trialCockpitEye(),
+ const me=trial.battle?.me,unit={key:trial.asset.key,foils:trialFoilDeployments(),pos:[0,0,0],yaw:0,rot:trial.R,glow:trialMainOutput(),hatchOpen:me?.hatchOpen||0,hatchOpenById:me?.hatchOpenById,hatchLegacy:me?.hatchLegacy,dead:!!me?.dead,noInner:trial.camMode==='cockpit'&&!!trialCockpitEye(),
   turrets:trial.turrets.flatMap(trialTurretDrawParts),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  // The stars stretch around the direction of travel; the tunnel covers them.
  const j=trial.jump,dir=j?.dir||trialCol(trial.R,0),hk=trialTunnelK(j);
@@ -8315,7 +8315,7 @@ function storedHeatText(h){return h&&Number.isFinite(h.qJ)&&h.capacityJ>0?`蓄�
 function trialDefenseEnabled(){const u=trialSystemsUnit();return C.automaticPointDefenseEnabled?.(u)??u?.order?.autoPointDefense!==false;}
 function trialSetDefense(enabled){const u=trialSystemsUnit();if(!u)return;C.setAutomaticPointDefense(u,enabled);if(!enabled)for(const t of trial.turrets||[]){t.pdTarget=null;t.pd=false;t.firing=false;}}
 function trialJumpReadiness(){const unit=trialSystemsUnit();return typeof trialHyperspaceReadiness==='function'?trialHyperspaceReadiness():unit&&C.hyperspaceReadiness?.(unit,trial.V,trial.jump?.dir||trialCol(trial.R,0));}
-function trialJumpReadinessText(r=trialJumpReadiness()){if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*90:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 90%`;}
+function trialJumpReadinessText(r=trialJumpReadiness()){if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*70:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 70%`;}
 function trialFlightReadouts(hud){
  const unit=trialSystemsUnit(),heat=C.heatStatus(unit),el=hud.querySelector('[data-th="heat"]');if(el){const text=storedHeatText(heat);if(sourceText(el)!==text)el.textContent=text;el.dataset.heatJ=String(heat?.qJ??'');el.dataset.capacityJ=String(heat?.capacityJ??'');}
  const pd=hud.querySelector('[data-trial-cmd="pd-auto"]'),enabled=trialDefenseEnabled();if(pd){pd.setAttribute('aria-pressed',String(enabled));const text=enabled?'自動迎撃 ON':'自動迎撃 OFF';if(sourceText(pd)!==text)pd.textContent=text;}
@@ -8516,6 +8516,16 @@ for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s
 for(const s of Object.values(SYSTEMS)){const l=Math.hypot(...s.sun);s.sun=s.sun.map(x=>x/l);}
 const trialSys=()=>SYSTEMS[trial.sysKey]||SYSTEMS.coruscant;
 const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring,look:s.planet.look||null,star:s.star?{dir:s.sun,ang:s.star.ang,color:s.star.color}:null};};
+function trialInitialPose(s){
+ const radius=s.planet.radius+s.altitude;
+ if(s.key!=='coruscant')return {P:[0,radius,0],R:[1,0,0,0,1,0,0,0,1]};
+ // Begin above the evening/night side, with the sun four degrees below the
+ // orbital horizon. Move the starting location, retaining the real planet lighting.
+ const sun=tv.norm(s.sun),base=Math.abs(sun[1])<.99?[0,1,0]:[0,0,1],edge=tv.norm(tv.add(base,sun,-tv.dot(base,sun)));
+ const dusk=Math.acos(C.clamp(s.planet.radius/radius,0,1))+4*Math.PI/180;
+ const up=tv.norm(tv.add(tv.scale(edge,Math.cos(dusk)),sun,-Math.sin(dusk))),forward=tv.norm(tv.add(sun,up,-tv.dot(sun,up)));
+ return {P:tv.scale(up,radius),R:trialFrame(forward,up)};
+}
 function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};}
 
 // ---------- hyperspace ----------
@@ -8850,7 +8860,7 @@ function trialMapSide(){
  if(sel){const p=Galaxy.path(cur.key,sel),plan=Galaxy.itinerary(cur.key,sel),t=hc==null||!plan?.segments.length?null:Math.round(trialJumpSecs(hc,cur.key,plan.next));
   h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p>${navigationPlanHTML(plan,k=>SYSTEMS[k]?.name||k)}<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${t==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[plan?.next]?.name||SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${trialDurText(t)}）`}<small data-jump-readiness>${trialJumpReadinessText()}</small></button>`);}
  else h+=gmSysCardHTML(cur.key,`<p class="gm-hint">行き先の星系をタップしてください（ドラッグで移動・ピンチで拡大）。</p>`);
- h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
+ h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
  return h+gmLegendHTML()+gmListHTML('data-gm-pick');}
 function trialMapPick(key){const st=GMAP.trial;if(!st||!SYSTEMS[key])return;st.sel=key===st.cur?null:key;gmMark('trial');gmLayout('trial');const side=$('#thMapSide');if(side)side.innerHTML=trialMapSide();}
 function trialMapShow(on){
@@ -9591,7 +9601,7 @@ function spaceDrawUnits(){
   if(tt!=null&&tt<.9){if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
   else if(u.absent&&!u.depart)continue;
   if(u.depart&&u.depart.t>0){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
-  out.push({key:u.key,foils:unitFoilDeployments(u),turrets:spaceSurfaceTurrets(u,B.b.units.find(t=>t.id===u.firingAt)),pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:B.rts?u.hatchOpen||0:0,dead:false,stretch,flash});}   // v23 a fleet battle's carriers open their sliding hatch doors for launches and landings (Rts hatchTick)
+  out.push({key:u.key,foils:unitFoilDeployments(u),turrets:spaceSurfaceTurrets(u,B.b.units.find(t=>t.id===u.firingAt)),pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:u.hatchOpen||0,hatchOpenById:u.hatchOpenById,hatchLegacy:u.hatchLegacy,dead:false,stretch,flash});}   // Carriers use the actual launch/landing door state, including the piloted ship.
  // Ships that jumped out, seen from outside: stretched along their heading and gone.
  for(const g of B.ghosts||[]){const t=g.t,stretch=1+25*t*t;out.push({key:g.key,pos:tv.sub(tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
  out.push(...spaceWreckDraw());
@@ -9668,7 +9678,7 @@ function fleetMapFocus(){const u=fleetSelected();if(!u)return;fleetMap.center=[u
 function fleetMapPick(x,y){let best=null,distance=27;for(const u of fleetDisplay().filter(u=>!u.dead)){const p=fleetMapProject(u.pos),d=Math.hypot(x-p[0],y-p[1]);if(d<distance){best=u;distance=d;}}return best;}
 function fleetMapTap(x,y){const hit=fleetMapPick(x,y),u=fleetSelected();if(hit){if(hit.team===1&&u?.team===0&&!u.dead&&fleetEditable()&&fleet.battle.combat&&fleet.command==='attack'){fleetSetOrder({type:'attack',target:hit.id,fire:true});return;}fleet.selected=hit.id;fleet.command='select';fleetRender();return;}if(!u||u.dead||u.team!==0||!fleetEditable())return;if(fleet.command==='attack'){toast('攻撃する敵艦の記号を選んでください');return;}fleetSetOrder({type:'move',point:fleetMapWorld(x,y)});}
 function fleetMapTarget(u,us=fleetDisplay()){if(!u)return null;return us.find(t=>t.id===u.order.target&&!t.dead)||us.filter(t=>t.team!==u.team&&!t.dead).sort((a,b)=>C.len(C.sub(a.pos,u.pos))-C.len(C.sub(b.pos,u.pos)))[0]||null;}
-function fleetHatchText(u){if(!(u?.p.slidingHatches>0))return '';const open=u.hatchOpen||0;if(open<=.001)return 'ハッチ閉鎖';if(open>=.999)return u.hatchTarget?'ハッチ全開・発艦中':'ハッチ全開・発艦完了';return `ハッチ${u.hatchTarget?'開放':'閉鎖'}中 ${Math.round(open*100)}%`;}
+function fleetHatchText(u){if(!(u?.p.slidingHatches>0))return '';const open=u.hatchOpen||0;if(open<=.001)return 'ハッチ閉鎖';if(open>=.999)return u.hatchTarget?'ハッチ全開・発着艦中':'ハッチ閉鎖中 100%';return `ハッチ${u.hatchTarget?'開放':'閉鎖'}中 ${Math.round(open*100)}%`;}
 function fleetMapToolsHTML(){const u=fleetSelected(),editable=!!(u&&!u.dead&&u.team===0&&fleetEditable()),b=fleet.battle,t=fleetMapTarget(u),d=t?C.len(C.sub(t.pos,u.pos)):null;return `<div class="fleet-map-readout"><span class="fleet-map-key"><i></i>友軍 <i class="enemy"></i>敵軍</span><b>${u?esc(u.name):'艦の記号を選択'}</b><small>${u?(u.dead?'撃沈':`${u.team?'敵艦':'友軍'} · 構造 ${fPct(u.hp/u.p.hp)}${t?' · '+(u.order.target===t.id?'目標':'最寄敵')+' '+(d/1000).toFixed(1)+' km':''}${u.p.slidingHatches?' · '+fleetHatchText(u):''}`):'艦の記号を選択して旗艦・僚艦を確認'}</small></div><div class="fleet-map-toolbar"><div class="fleet-map-commands">${u&&u.team===0&&!u.dead&&u!==fleetFlag()?'<button class="chip" data-fleet-action="flagship">旗艦にする</button>':''}<button class="chip primary" data-fleet-action="space" ${fleetFlag()&&fleetUnits().some(x=>x.team===1)&&!fleet.busy?'':'disabled'}>旗艦で出撃</button></div><div class="fleet-map-zoom"><button class="chip" data-fleet-action="zoomOut" aria-label="状況図を縮小">−</button><button class="chip" data-fleet-action="zoomIn" aria-label="状況図を拡大">＋</button></div></div>`;}
 function fleetMapRefreshTools(){const el=$('#fleetMapTools');if(el&&fleet.mode==='tactical')el.innerHTML=fleetMapToolsHTML();}
 function fleetMapNiceStep(raw){const power=10**Math.floor(Math.log10(Math.max(.001,raw))),v=raw/power;return (v<=1?1:v<=2?2:v<=5?5:10)*power;}
@@ -12599,7 +12609,7 @@ function voyTgOpsCard(g) {
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　今回の停止まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><div class="vs-route">${voyRouteHTML(from, dest)}</div><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
   <div class="vs-acts">${free ? `<button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>` : ''}${g.spool || g.waitJump ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${free && us.length > 1 ? `<button type="button" class="btn sm ghost" data-vact="split" aria-pressed="${!!voy.split}">${voy.split ? '分割を確定' : '任務群を分割'}</button>` : ''}${voyMergeButtons(g)}${g.sys != null && w.battles.has(g.sys) ? `<button type="button" class="btn sm warn" data-vgo="tac:${g.sys}">戦術図</button>` : ''}</div>
   ${voyLandingHTML(g)}
-  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
 }
 function voyCtgOpsCard(c) {
  const w = voy.w, S = w.sector, gs = voyCtgGroups(c), ships = gs.reduce((n, g) => n + g.units.filter(id => R.alive(w.units.get(id))).length, 0), dest = voy.sel.dest;
@@ -12876,7 +12886,7 @@ function voyTgTacCard(g) {
   <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}${voySensHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
-  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の90%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
+  ${g.spool ? '<p class="note">ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。</p>' : ''}</div>`;
 }
 function voyCtgTacCard(c) {
  const w = voy.w, sys = voy.tac.sys, gs = voyCtgGroups(c).filter(g => voyGroupIn(g, sys)), ms = gs.flatMap(g => g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys)), trac = ms.filter(u => u.p.trac > 0 && !u.out);
@@ -12936,7 +12946,7 @@ function voyTacSide() {
  } else if (tab === 'help') {
   const ctgs = [...w.ctgs.values()].filter(c => c.side === 0 && voyCtgGroups(c).some(g => !voyGroupIn(g, sys))), gs = [...w.groups.values()].filter(h => h.side === 0 && voyLive(h) && !voyGroupIn(h, sys));
   const ctgEta = c => { const e = voyCtgGroups(c).filter(h => !h.transit && h.sys != null && h.sys !== sys).map(h => R.etaTo(w, h.id, sys)).filter(v => v != null); return e.length ? Math.max(...e) : null; };
-  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は ${R.RULES.withdrawSpool} 秒です。発進には通常航行の最大速度の90%以上が必要ですが、砲撃や被弾だけで準備は止まりません。</p></div>`;
+  body += `<div class="vs-card vs-list"><h3>増援を呼ぶ</h3><ul class="vs-send">${ctgs.map(c => { const eta = ctgEta(c); return `<li><div><b>${esc(c.name)}</b><small>全任務群の到着まで ${eta == null ? '—' : voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${c.id}" ${eta == null ? 'disabled' : ''}>合同で呼ぶ</button></li>`; }).join('')}${gs.map(h => { const eta = R.etaTo(w, h.id, sys); return `<li><div><b>${esc(h.name)}</b><small>${h.transit ? '航行中' : esc(w.sector.systems[h.sys]?.name || '')} · ${h.units.filter(id => R.alive(w.units.get(id))).length} 隻 · ${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>呼び寄せる</button></li>`; }).join('') || '<li class="muted">ほかの部隊はありません</li>'}</ul><p class="note">到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は ${R.RULES.withdrawSpool} 秒です。発進には通常航行の最大速度の70%以上が必要ですが、砲撃や被弾だけで準備は止まりません。</p></div>`;
  } else {
   const b = w.battles.get(sys);body += `<div class="vs-card vs-list vs-log"><h3>戦闘記録</h3><ul>${(b?.log || []).slice(-40).reverse().map(e => `<li class="${e.side === 0 ? 'own' : e.side === 1 ? 'foe' : ''}"><span>${voyClock(e.t - (b?.t0 || 0))}</span>${esc(e.text)}</li>`).join('') || '<li class="muted">記録はまだありません</li>'}</ul></div>`;
  }
@@ -13800,7 +13810,7 @@ async function voySpectate(sys, followId) {
 // worlds take a look of their kind from their name.
 function voySysDesc(w, id) {
  const sy = w.sector.systems[id], radius = sy.planet?.radius || 6e6, gal = SYSTEMS[sy.planet?.gal], look = sy.planet?.look || voyWorldLook(sy);
- return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: look?.kind ?? sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : gal?.planet.axis || [0, 0, 1], ring: sy.planet?.ring || null, look: look?.look || look || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: gal ? gal.sun.slice() : [-0.384, 0.5, 0.776], map: [0, 0]};
+ return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: look?.kind ?? sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : gal?.planet.axis || [0, 0, 1], ring: sy.planet?.ring || null, look: look?.look || look || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: gal ? gal.sun.slice() : [-0.384, 0.5, 0.776], star: gal?.star ? {...gal.star,color:gal.star.color.slice()} : null, map: [0, 0]};
 }
 function voyWorldLook(sy) {
  if (sy.planet?.gal || !sy.planet) return null;const h = Galaxy.hash(sy.name), seed = (h % 997) / 13, k = sy.planet.kind;

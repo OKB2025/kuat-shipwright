@@ -1,0 +1,31 @@
+TAP version 13
+# Subtest: entry uses actual forward seventy-percent cruise speed even with reduced live engine input
+not ok 1 - entry uses actual forward seventy-percent cruise speed even with reduced live engine input
+  ---
+  duration_ms: 239.455825
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/hyperspace-speed-gate.cjs:8:1'
+  failureType: 'testCodeFailure'
+  error: '12.744901326806273 != 9.912701031960433'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-hatches-night/tests/hyperspace-speed-gate.cjs:2:228)
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/hyperspace-speed-gate.cjs:8:207)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6534.99657

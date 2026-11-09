@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: owned and legacy hull fleet doors cover the real roof when closed and clear it when open
+not ok 1 - owned and legacy hull fleet doors cover the real roof when closed and clear it when open
+  ---
+  duration_ms: 21919.41702
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:18:1'
+  failureType: 'testCodeFailure'
+  error: 'closed door must be at the real 100m roof, not the 90m opening sill'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:21:138)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: rest panels come from roof material, stay independent of current opening, and follow owner transforms
+not ok 2 - rest panels come from roof material, stay independent of current opening, and follow owner transforms
+  ---
+  duration_ms: 9906.780456
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:26:1'
+  failureType: 'testCodeFailure'
+  error: 'sill caps and hole walls cannot become the sliding roof'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:29:215)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: owned fleet bodies contain one roof layer outside the opening, without a permanently parked door copy
+not ok 3 - owned fleet bodies contain one roof layer outside the opening, without a permanently parked door copy
+  ---
+  duration_ms: 21526.819655
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:35:1'
+  failureType: 'testCodeFailure'
+  error: 'the static body must contain only its original roof area, not another translated panel'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:39:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: owned authored reference door halves remain complete after moving skins are detached from the body
+not ok 4 - owned authored reference door halves remain complete after moving skins are detached from the body
+  ---
+  duration_ms: 29499.869554
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:42:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    animated reference skin must not remain parked in the static body
+    
+    1986 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1986
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/owned-hatch-roof-panels.cjs:44:150)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 0
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 84851.163704
