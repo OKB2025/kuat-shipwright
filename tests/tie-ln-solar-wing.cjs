@@ -37,8 +37,10 @@ test('a stale built-in TIE profile rebuilds once and replaces its old mass witho
  const fresh=C.craftPowerProfile(ship,stats),stale=plain(fresh);stale.referencePhysicalRevision={key:'craft_tie_ln',version:1};stale.propulsion.massKg=12345;
  const craft=R.CRAFT.tie_ln,fields=['powerProfile','mass','speed','_powerResolved'],before=new Map(fields.map(k=>[k,{has:Object.hasOwn(craft,k),value:craft[k]}])),build=C.buildDesign;let builds=0;
  C.buildDesign=key=>{assert.equal(key,'craft_tie_ln');builds++;return ship;};
+ // v24 The shipped catalogue is current; make its TIE/ln row as stale as the snapshot under test.
+ const catalogRow=C.CRAFT_PRICE_CATALOG.entries.tie_ln.powerProfile,catalogRevision=catalogRow.referencePhysicalRevision;catalogRow.referencePhysicalRevision={key:'craft_tie_ln',version:1};
  try{craft.powerProfile=stale;craft.mass=12.345;craft._powerResolved=true;const p=R.craftPowerOf(craft);assert.ok(p);assert.notEqual(p,stale);assert.equal(builds,1);near(p.propulsion.massKg,stats.mass*1000);near(craft.mass,stats.mass);assert.equal(C.referencePhysicalProfileCurrent(p,'craft_tie_ln'),true);assert.equal(R.craftPowerOf(craft),p);assert.equal(builds,1);}
- finally{C.buildDesign=build;for(const [k,old]of before)if(old.has)craft[k]=old.value;else delete craft[k];}
+ finally{C.buildDesign=build;catalogRow.referencePhysicalRevision=catalogRevision;for(const [k,old]of before)if(old.has)craft[k]=old.value;else delete craft[k];}
 });
 
 test('factory revision checks preserve saved custom craft and unrelated built-in snapshots',()=>{
@@ -51,6 +53,9 @@ test('factory revision checks preserve saved custom craft and unrelated built-in
 
 test('catalogue revision invalidates only stale TIE physics while preserving all quote metadata',()=>{
  const before=plain(C.CRAFT_PRICE_CATALOG),oldReady=cx.__catalogRevisionProbe.get();cx.__catalogRevisionProbe.set(true);
- try{const raw=C.CRAFT_PRICE_CATALOG.entries.tie_ln,row=C.craftCatalogPrice('tie_ln');assert.ok(row);assert.equal(row.powerProfile,null);for(const key of Object.keys(raw))if(key!=='powerProfile')assert.deepEqual(plain(row[key]),plain(raw[key]),key);assert.ok(C.craftCatalogPrice('tie_in').powerProfile);assert.deepEqual(plain(C.CRAFT_PRICE_CATALOG),before);}
- finally{cx.__catalogRevisionProbe.set(oldReady);}
+ // v24 The shipped catalogue is current; mark its TIE/ln row as one made before the TIE/ln revision.
+ const raw=C.CRAFT_PRICE_CATALOG.entries.tie_ln,revision=raw.powerProfile.referencePhysicalRevision;
+ try{assert.ok(C.craftCatalogPrice('tie_ln').powerProfile,'the regenerated row is current');raw.powerProfile.referencePhysicalRevision={key:'craft_tie_ln',version:1};const row=C.craftCatalogPrice('tie_ln');assert.ok(row);assert.equal(row.powerProfile,null);for(const key of Object.keys(raw))if(key!=='powerProfile')assert.deepEqual(plain(row[key]),plain(raw[key]),key);assert.ok(C.craftCatalogPrice('tie_in').powerProfile);}
+ finally{raw.powerProfile.referencePhysicalRevision=revision;cx.__catalogRevisionProbe.set(oldReady);}
+ assert.deepEqual(plain(C.CRAFT_PRICE_CATALOG),before);
 });
