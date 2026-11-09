@@ -12,20 +12,21 @@ function profile(massKg=1e11){
   propulsion:{version:C.PROPULSION_MODEL_VERSION,massKg,ratedThrustN:massKg*500,ratedAccelMps2:500,accelerationLimitMps2:500,engines:[{id:2,machineryId:2,version:C.PROPULSION_MODEL_VERSION,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:input,ratedThrustN:massKg*500,wattsPerNewton:C.engineConversionCoefficient(massKg),effectiveMachineryVolumeM3:input/3.4e17,driveProfileId:'standard',machineryGradeId:'standard',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:input}]}};
 }
 const unit=mass=>C.fleetUnit('mass-motion','mass-motion',profile(mass));
-const expectedRate=mass=>mass*.001/1e11,legacyRate=mass=>mass*Math.LN2/(1e11*60);
+const smallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,largeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,smallRate=3999.1037971899486*C.G0*C.FLEET_RULES.accelScale/2000,largeRate=2972.473437207956*C.G0*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(largeRate/smallRate)/Math.log(largeMass/smallMass);
+const expectedRate=mass=>smallRate*Math.pow(mass/smallMass,dragExponent);
 
-test('resistance uses measured mass in kilograms and scales linearly without hull or class checks',()=>{
- const a=unit(1e11),b=unit(1e11);b.p.propulsion={...b.p.propulsion,massKg:2e11};near(C.massDragRate(b),2*C.massDragRate(a));near(C.massDragRate(a),expectedRate(1e11));
+test('resistance uses one measured-mass law with nearly proportional drag force and no class checks',()=>{
+ const a=unit(1e11),b=unit(1e11);b.p.propulsion={...b.p.propulsion,massKg:2e11};near(C.massDragRate(b),Math.pow(2,dragExponent)*C.massDragRate(a));near(2e11*C.massDragRate(b)/(1e11*C.massDragRate(a)),Math.pow(2,1+dragExponent));near(C.massDragRate(a),expectedRate(1e11));
  a.p.len=1e8;a.p.shipClass='fighter';near(C.massDragRate(a),expectedRate(1e11));
- near(C.massDragRate({propulsion:{massKg:0},heat:{massKg:1e11}}),legacyRate(1e11));
- near(C.massDragRate({propulsion:{massKg:NaN},heat:{massKg:1e11}}),legacyRate(1e11));
- near(C.massDragRate({mass:1e8}),legacyRate(1e11));assert.equal(C.massDragRate({len:1e8,width:1e8,height:1e8}),0,'unknown mass does not create an assumed force');
+ near(C.massDragRate({propulsion:{massKg:0},heat:{massKg:1e11}}),expectedRate(1e11));
+ near(C.massDragRate({propulsion:{massKg:NaN},heat:{massKg:1e11}}),expectedRate(1e11));
+ near(C.massDragRate({mass:1e8}),expectedRate(1e11));assert.equal(C.massDragRate({len:1e8,width:1e8,height:1e8}),0,'unknown mass does not create an assumed force');
 });
-test('a mass-only legacy snapshot retains its fallback coast until a physical speed reference exists',()=>{
- const u={propulsion:{massKg:1e11}},v=[1200,120,-300],out=C.integratePropulsionMotion(u,v,[0,0,0],60),k=legacyRate(1e11);
- for(let i=0;i<3;i++){near(out.velocity[i],v[i]/2);near(out.displacement[i],v[i]*.5/k);}
+test('mass-only hulks use the same drag law without inventing a drive or historical half-life',()=>{
+ const u={propulsion:{massKg:1e11}},v=[1200,120,-300],out=C.integratePropulsionMotion(u,v,[0,0,0],60),k=expectedRate(1e11);
+ const decay=Math.exp(-k*60);for(let i=0;i<3;i++){near(out.velocity[i],v[i]*decay);near(out.displacement[i],v[i]*(1-decay)/k);}
  assert.deepEqual(v,[1200,120,-300],'integration does not mutate the caller');
- const tiny=C.integratePropulsionMotion({propulsion:{massKg:1e4}},v,[0,0,0],60);assert.ok(tiny.velocity[0]>v[0]*.9999999,'a ten-tonne craft practically preserves drift');
+ const tiny=C.integratePropulsionMotion({propulsion:{massKg:1e4}},v,[0,0,0],60);assert.ok(tiny.velocity[0]>out.velocity[0],'a smaller known mass experiences the lower common drag rate');near(tiny.velocity[0],v[0]*Math.exp(-expectedRate(1e4)*60));
 });
 test('equal integration time gives identical velocity and displacement for powered and unpowered motion',()=>{
  const u=unit(1e11),v=[1000,20,-15],a=[4,-.5,2],one=C.integratePropulsionMotion(u,v,a,12);let velocity=v.slice(),position=[0,0,0];
@@ -35,12 +36,12 @@ test('equal integration time gives identical velocity and displacement for power
  const slow=C.integratePropulsionMotion(u,[1,0,0],[0,0,0],1e7);assert.ok(slow.velocity.every(Number.isFinite));assert.ok(slow.velocity[0]>=0);assert.ok(slow.displacement.every(Number.isFinite));
 });
 test('funded acceleration has a finite mass-dependent equilibrium rather than a free constant-speed coast',()=>{
- const u=unit(1e11),k=expectedRate(1e11),full=C.integratePropulsionMotion(u,[0,0,0],[1,0,0],10000),quarter=C.integratePropulsionMotion(u,[0,0,0],[.25,0,0],10000);
- near(full.velocity[0],(1-Math.exp(-k*10000))/k);near(quarter.velocity[0],full.velocity[0]/4);
+ const u=unit(1e11),k=expectedRate(1e11),full=C.integratePropulsionMotion(u,[0,0,0],[1,0,0],10/k),quarter=C.integratePropulsionMotion(u,[0,0,0],[.25,0,0],10/k);
+ near(full.velocity[0],(1-Math.exp(-10))/k);near(quarter.velocity[0],full.velocity[0]/4);
  assert.ok(full.velocity[0]<1/k&&full.velocity[0]>.99/k);
 });
 test('holding velocity requests actual engine electricity and heat through the existing solver',()=>{
- const u=unit(1e11),v=[10,0,0],dt=.25,required=C.propulsionTargetAcceleration(u,v,v,dt),rated=C.propulsionMotion(u).acc0;
+ const u=unit(1e11),v=[.25/expectedRate(1e11),0,0],dt=.25,required=C.propulsionTargetAcceleration(u,v,v,dt),rated=C.propulsionMotion(u).acc0;
  assert.ok(required[0]>0);C.allocateShipPower(u,C.fleetSystems(u),{throttle:C.len(required)/rated,shields:0,weapons:0},dt,'balanced');
  assert.ok(u.propulsion.actualInputW>0);assert.ok(u.propulsion.wasteHeatW>0);const a=C.propulsionMotion(u).acc,q=C.integratePropulsionMotion(u,v,[a,0,0],dt);near(q.velocity[0],v[0]);
 });
@@ -71,12 +72,12 @@ test('a disabled vessel gravity integration uses the same drag once per tick',()
  const u=unit(1e11);u.velocity=[1000,0,0];u.out='disabled';const before=u.pos.slice(),expected=C.integratePropulsionMotion(u,u.velocity,[0,-C.HULL_FALL.g,0],.25);
  C.hullFall(u,.25,()=>.5);for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],before[i]+expected.displacement[i]);}
 });
-test('releasing a pilot into an otherwise quiet world wakes the same passive motion clock',()=>{
+test('releasing a powerless pilot into a quiet world uses the disabled drift clock once',()=>{
  const p=profile(1e11),w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[{key:'mass-motion',p,info:{mass:1e8,hyper:null,capital:true,sensor:0}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mass-motion'}],[]]}),u=[...w.units.values()][0];
  u.manual=false;u.order={...u.order,type:'hold'};u.velocity=[1000,20,0];u.p.grid.P=0;u.p.grid.Pgen=0;w.stir=new Map();
  const before=u.pos.slice(),expected=C.integratePropulsionMotion(u,u.velocity,[0,-C.HULL_FALL.g,0],.25);R.tick(w,.25);
  assert.equal(u.out,'電源喪失');
- assert.ok(w.stir.has(u.sys));for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],before[i]+expected.displacement[i]);}
+ assert.equal(w.stir.has(u.sys),false,'disabled gravity continues without retaining an active maneuver registry entry');for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],before[i]+expected.displacement[i]);}
 });
 test('a disabled stirred world advances gravity and mass resistance once, not in both peace and drift passes',()=>{
  const p=profile(1e11),w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[{key:'mass-fall',p,info:{mass:1e8,hyper:null,capital:true,sensor:0}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mass-fall'}],[]]}),u=[...w.units.values()][0];

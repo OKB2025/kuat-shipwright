@@ -5,11 +5,12 @@ const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x)),near=(
 function direct(){const s=C.newShip({L:40,W:24,H:24},'Finite factory feeds');s.reference='craft_tie_ln';s.parts=[{id:1,k:'gen',c:[30,12,0],d:2},{id:2,k:'engine',c:[1,12,0],d:1,nozzleLength:1,bodyLength:2,bodyRadius:.52,reactor:1,dir:[-1,0,0]}];s.nextId=3;C.migrateLegacyPropulsion(s);s.parts[1].ratedInputW=1e15;s.links=[{kind:'power',from:'p1',to:'p2',cap:1e15}];return s;}
 test('proven old stock-craft nameplate feeds expand to finite connected source power',()=>{
  const s=direct(),P=C.reactorPower(s.parts[0]),before=plain(s.parts),a=C.engineTransmission(s);assert.ok(a.engines[2].capacityW>.99*P);assert.deepEqual(plain(s.parts),before);
- const saved=C.serialize(s),link=saved.links.find(l=>l.kind==='power');assert.equal(link.auto,true);assert.equal(link.capacityBasis,'reactor-supply');near(link.cap,link.capacityReferenceW);const loaded=C.deserialize(saved);assert.ok(C.engineTransmission(loaded).engines[2].capacityW>.99*P);
+ const saved=C.serialize(s),link=saved.links.find(l=>l.kind==='power');assert.equal(link.auto,true);assert.equal(link.capacityBasis,'reactor-supply');assert.equal(link.cap,undefined,'automatic capacities are derived at runtime');assert.equal(link.capacityReferenceW,undefined);const loaded=C.deserialize(saved);assert.ok(C.engineTransmission(loaded).engines[2].capacityW>.99*P);
 });
 test('different manual electrical and mechanical restrictions remain authoritative',()=>{
  const s=direct();s.links[0].cap=2e15;const a=C.engineTransmission(s);assert.ok(a.engines[2].capacityW<=2e15);const saved=C.serialize(s);assert.equal(saved.links[0].auto,undefined);near(saved.links[0].cap,2e15);
  const automatic=C.deserialize(C.serialize(direct()));automatic.links[0].cap=3e15;assert.ok(C.engineTransmission(automatic).engines[2].capacityW<=3e15,'editing an automatically generated link makes the new finite cap authoritative');
+ automatic.links[0].cap=0;delete automatic._engineTransmission;near(C.engineTransmission(automatic).engines[2].capacityW,0);const stopped=C.serialize(automatic);near(stopped.links[0].cap,0);assert.equal(stopped.links[0].auto,undefined);near(C.engineTransmission(C.deserialize(stopped)).engines[2].capacityW,0);
 });
 test('proven stock-capital bus feeds discard only the old 1.3 nameplate copy',()=>{
  const s=direct();s.reference='imperial';s.parts[1].busFeed=true;s.parts[1].feedCapacityW=1.3e15;s.links[0].cap=1.3e15;

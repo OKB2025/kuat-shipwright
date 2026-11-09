@@ -10,10 +10,11 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
 }
 const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
 const plain = value => JSON.parse(JSON.stringify(value));
-const driveWattsPerNewton=C.engineConversionCoefficient(1e6),fullThrustN=1e18/driveWattsPerNewton,fullAcceleration=fullThrustN/1e6,fullGameAcceleration=fullAcceleration*C.FLEET_RULES.accelScale,referenceDragRate=fullGameAcceleration/1000;
+const dragSmallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,dragLargeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,dragSmallRate=3999.1037971899486*C.G0*C.FLEET_RULES.accelScale/2000,dragLargeRate=2972.473437207956*C.G0*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(dragLargeRate/dragSmallRate)/Math.log(dragLargeMass/dragSmallMass),expectedDragRate=mass=>dragSmallRate*Math.pow(mass/dragSmallMass,dragExponent);
+const driveWattsPerNewton=C.engineConversionCoefficient(1e6),fullThrustN=1e18/driveWattsPerNewton,fullAcceleration=fullThrustN/1e6,fullGameAcceleration=fullAcceleration*C.FLEET_RULES.accelScale;
 const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} != ${b}`);
 const nearVector=(a,b)=>b.forEach((v,i)=>near(a[i],v));
-function analyticMotion(u,v,a,dt){const k=referenceDragRate*u.p.propulsion.massKg/1e6,x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
+function analyticMotion(u,v,a,dt){const k=expectedDragRate(u.p.propulsion.massKg),x=k*dt,e=Math.exp(-x),g=-Math.expm1(-x)/k,h=x<1e-3?dt*dt*(.5-x/6+x*x/24-x*x*x/120):(dt-g)/k;return {v:v.map((n,i)=>n*e+a[i]*g),dp:v.map((n,i)=>n*g+a[i]*h),gain:g};}
 function profile() {
   const engine = {id: 2, machineryId: 2, ratedInputW: 1e18,
     wattsPerNewton: driveWattsPerNewton, ratedThrustN: fullThrustN, driveProfileId: 'standard',

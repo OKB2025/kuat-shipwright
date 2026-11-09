@@ -5,7 +5,10 @@ const cx=vm.createContext({console,Math});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
 const C=vm.runInContext('Core',cx),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-9,`${a} != ${b}`);
-const wattsPerNewton=C.engineConversionCoefficient?C.engineConversionCoefficient(1e6):C.PROPULSION.standardWattsPerNewton,fullThrustN=1e18/wattsPerNewton,fullAcceleration=fullThrustN/1e6,fullGameAcceleration=fullAcceleration*C.FLEET_RULES.accelScale,dragRate=fullGameAcceleration/1000;
+const wattsPerNewton=C.engineConversionCoefficient?C.engineConversionCoefficient(1e6):C.PROPULSION.standardWattsPerNewton,fullThrustN=1e18/wattsPerNewton,fullAcceleration=fullThrustN/1e6,fullGameAcceleration=fullAcceleration*C.FLEET_RULES.accelScale;
+// One common resistance curve follows the measured cold reference designs;
+// this fixture's own thrust and declared maximum speed do not redefine drag.
+const smallRate=3999.1037971899486*9.80665*C.FLEET_RULES.accelScale/2000,largeRate=2972.473437207956*9.80665*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(largeRate/smallRate)/Math.log(11800135063.56654/8081.389573510918),dragRate=smallRate*Math.pow(1e6/8081.389573510918,dragExponent);
 const calibratedGain=dt=>-Math.expm1(-dragRate*dt)/dragRate;
 function fall(position,velocity,dt,steps=1){let p=position.slice(),v=velocity.slice();const h=dt/steps,decay=Math.exp(-dragRate*h),gain=-Math.expm1(-dragRate*h)/dragRate,distance=(h-gain)/dragRate;for(let j=0;j<steps;j++){const length=Math.hypot(...p),a=p.map(n=>-C.HULL_FALL.g*n/length),next=v.map((n,i)=>n*decay+a[i]*gain);p=p.map((n,i)=>n+v[i]*gain+a[i]*distance);v=next;}return {position:p,velocity:v};}
 vm.runInContext(`

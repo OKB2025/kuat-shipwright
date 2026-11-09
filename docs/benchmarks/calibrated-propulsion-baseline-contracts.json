@@ -1,0 +1,39 @@
+{
+  "status": "BASELINE_CHECK_COMPLETE",
+  "date": "2026-11-08T23:52:39.434038+00:00",
+  "baselineCommit": "5f17279260d4acc8e79076ecfe70df24fc47021b",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-copy-ui.cjs",
+    "/workspace/scratch/calibration-regression-baseline-5f/tests/propulsion-surface-power.cjs"
+  ],
+  "environment": {
+    "KS_TEST_ROOT": "/workspace/scratch/calibration-regression-baseline-5f"
+  },
+  "fileSha256": {
+    "js/app.js": "61732b6e817a0d095e11faf2918e07c13c365e6c17ffdcd797d3e38640ac19bc",
+    "tests/propulsion-copy-ui.cjs": "72041088dd6f5d1d59c4f0b9655e374005c9b5eafe7cf4d0450ee2b44a91375f",
+    "tests/propulsion-surface-power.cjs": "5bd8c31e11ef9148020338bca0b4fc02619e5d34a0ea38e2c869b299fb8dbcc4",
+    "js/core.js": "1051be25cee7c4c541974e5187c99cde6b366420345e6e5e38f4398f349841bb"
+  },
+  "exitCode": 1,
+  "summary": [
+    "not ok 1 - ENG-T18 multiPaste remaps copied reactors and shared machinery without relying on originals",
+    "not ok 2 - ENG-T18 editDuplicate remaps copied reactors and shared machinery without relying on originals",
+    "not ok 3 - ENG-T18 copying an outlet alone preserves its intentionally external owner and reactor",
+    "not ok 4 - pasting a complete engine assembly selects the pasted parts for the next move",
+    "not ok 5 - fleet charging respects each isolated source and a 100 TT/s shared engine/cooling trunk",
+    "not ok 6 - fleet charging respects each isolated source and a 90 TT/s shared engine/cooling trunk",
+    "not ok 7 - direct surface charging uses the same per-module grants and does not borrow unused charge",
+    "not ok 9 - repeated charging cannot spend one allocated module input a second time",
+    "not ok 10 - accepted surface charge heats only its actual funding reactors, including cooling consumption",
+    "# tests 12",
+    "# pass 3",
+    "# fail 9",
+    "# skipped 0"
+  ],
+  "logSha256": "8216a1fb7cabd86a0be9a27f8e8d9b1bdb4e1635ceca2885be0396958eb18399",
+  "scope": "Prior harness and retired nameplate/local-heat assumptions reproduced on exact main. These tests are repaired to use real physical engine bodies, current finite-source input and current common thermal ledger; they pass in the final suite."
+}

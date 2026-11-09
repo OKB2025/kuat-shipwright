@@ -150,13 +150,13 @@ test('an integrated nozzle selection strip obtains nonzero thrust from its actua
  const facts=run(`stripFacts({list:'parts',it:ship.parts[0]}).line`);assert.ok(facts.includes('推力 '+thrust+' N'),'the readout must resolve the nozzle in its ship context');assert.doesNotMatch(facts,/接続機関の最大入力/);
 });
 test('engine readouts use confirmed whole-vessel mass and withhold force while the generation is pending',()=>{
- const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[70,20,0],d:4});ship.parts[0].reactor=4;S={mass:10};C.computeStats=()=>{throw Error('UI cannot recompute whole-vessel physics')};`);
+ const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[70,20,0],d:4});ship.parts[0].reactor=4;S={mass:10,propulsion:{preset:"combat",cores:[],engines:[]}};C.computeStats=()=>{throw Error('UI cannot recompute whole-vessel physics')};`);
  const first=plain(run('engineSpecForUI(selItem())'));
  assert.equal(first.conversionMassKg,10000);
  assert.equal(first.wattsPerNewton,run('C.engineConversionCoefficient(S.mass*1000)'));
  assert.equal(first.ratedThrustN,first.ratedInputW/first.wattsPerNewton);
  assert.ok(run('enginePerformance(selItem())').includes('>'+first.ratedThrustN+' N<'));
- run('S={mass:1000000}');const second=plain(run('engineSpecForUI(selItem())'));
+ run('S={mass:1000000,propulsion:{preset:"combat",cores:[],engines:[]}}');const second=plain(run('engineSpecForUI(selItem())'));
  assert.equal(second.conversionMassKg,1e9);assert.notEqual(second.wattsPerNewton,first.wattsPerNewton);
  assert.equal(second.ratedInputW,first.ratedInputW,'the same finite reactor still supplies the same watts');
  assert.ok(run('enginePerformance(selItem())').includes('>'+second.ratedThrustN+' N<'));
