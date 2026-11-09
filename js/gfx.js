@@ -2087,6 +2087,9 @@ function meshOnePart(out,p,ship,opt,glow){
     if(isStructuralPart(p)&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
     if(isStructuralPart(p)&&p.plate){hullTriangleMesh(out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
+    // v24 Solids measured from the user's STL models (the CIS examples, ids from 100000) form the hull itself:
+    // they take the hull's own plating (texture, tone and scale) instead of the deck-plate structure skin.
+    if(isStructuralPart(p)&&measuredHullSolid(ship,p)){const T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));hullTriangleMesh(out.plate,T,opt.coded?d.col:p.paint?hex(p.paint):ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:[189,193,192],42);return;}
     if(isStructuralPart(p)){let T=equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p));if(C.isHullStructure?.(p))T=renderHullTriangles(ship,T,p);hullTriangleMesh(out.struct,T,p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct,T);if(p.stripes&&p.form==='shell')shellStripes(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
     const weaponBody=C.superweaponBodyTriangles?.(p);if(weaponBody){triangleMesh(out.hyper,weaponBody,color,36);return;}
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
@@ -2884,7 +2887,7 @@ function meshParts(ship,opt){
     function structDetailFor(p){
       if(launcherRecessHost(ship,'p'+p.id))return;
       if(ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))return;
-      if(p.form==='reference'||p.plate)return;
+      if(p.form==='reference'||p.plate||measuredHullSolid(ship,p))return;
       if(p.form==='ellipsoid'){if(!ship.hullSkin?.enabled)bulbDetail(p,g);return;}
       if(p.form==='dome'||p.form==='cylinder'||p.form==='cone')return;
       structuralDetail(p,g,Math.max(1,ship.hull.L/3200),managed.filter(q=>q.host==='p'+p.id));const T=C.structTriangles(p),col=p.paint?hex(p.paint):ship.paint==='dark'?[92,103,114]:ship.paint==='cis'?DETAIL_CIS:[156,163,166];
@@ -3031,6 +3034,9 @@ function plateDetail(ship,g){
   }x=x1;
  }}
 }
+// v24 The measured solids of the STL-rebuilt CIS examples (buildMeasuredSolids in core.js) carry ids from 100000.
+const MEASURED_HULL_REFERENCES=new Set(['recusant','recusantDn','munificent','providence','providenceDn','lucrehulk','lh3210']);
+function measuredHullSolid(ship,p){return p?.id>=100000&&MEASURED_HULL_REFERENCES.has(ship?.reference)&&['loft','roundloft','outline'].includes(p.form);}
 function structuralDetail(p,g,ds=1,managed=[]){
  if(p.skin==='plain'||p.s[2]<10||p.s[0]<30)return;
  const T=C.structTriangles(p),service=p.skin==='service';
