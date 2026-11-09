@@ -1,0 +1,37 @@
+TAP version 13
+# Subtest: actual Coruscant reset begins on the night side at the existing orbital altitude with a level right-handed frame
+not ok 1 - actual Coruscant reset begins on the night side at the existing orbital altitude with a level right-handed frame
+  ---
+  duration_ms: 664.993915
+  type: 'test'
+  location: '/workspace/kuat-hatches-night/tests/coruscant-trial-start.cjs:15:1'
+  failureType: 'testCodeFailure'
+  error: '0.4193039544933489 != -0.2960282610527731'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-hatches-night/tests/coruscant-trial-start.cjs:14:26)
+    TestContext.<anonymous> (/workspace/kuat-hatches-night/tests/coruscant-trial-start.cjs:18:46)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: other systems retain their existing start position and attitude, and returning to Coruscant resets deterministically
+ok 2 - other systems retain their existing start position and attitude, and returning to Coruscant resets deterministically
+  ---
+  duration_ms: 230.355915
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1045.194969

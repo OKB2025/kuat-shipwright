@@ -1,0 +1,31 @@
+{
+  "status": "EXPECTED_SEVENTY_PERCENT_REGRESSION_FAILURE",
+  "baselineCommit": "7f51a3b4e4d3f4483206df372c97e85807d58895",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-name-pattern=entry uses actual forward seventy-percent",
+    "/workspace/kuat-hatches-night/tests/hyperspace-speed-gate.cjs"
+  ],
+  "environment": {
+    "KS_TEST_ROOT": "/workspace/kuat-recording-music"
+  },
+  "recordedAt": "2026-11-09T04:09:53.288544+00:00",
+  "sourceSha256": {
+    "js/core.js": "49dbfda6a056b478e4b06f621db700e270f3f126120df72c38c8e39e030362af",
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6",
+    "js/lang-en.js": "145c6910c5588273ea55d2584b3dbe3869430efb63509c3a2db7199a7e6438ba"
+  },
+  "testSha256": "b0dc24e460e8b25dcaf72e974788f61b4d576e7278b51519ed7862083f8b70ac",
+  "exitCode": 1,
+  "summary": [
+    "# tests 1",
+    "# pass 0",
+    "# fail 1",
+    "# cancelled 0",
+    "# skipped 0"
+  ],
+  "expectedFailure": "The old .9 gate fails the explicit requiredForwardSpeedMps === .7 * healthy maximum assertion. The new acceptance also requires .699 rejection and .7/.701/.8/.899 acceptance.",
+  "logSha256": "ff91964c311339ac38a929fc4bf3506555b0c4ab9ab334ab4e3d028728e335a3"
+}

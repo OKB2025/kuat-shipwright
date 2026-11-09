@@ -83109,8 +83109,22 @@ function translatedSlidingPanels(base,b,axis,open){
  return out;
 }
 const SLIDING_PANEL_CACHE=new WeakMap();
+const SLIDING_HULL_SOURCE_CACHE=new WeakMap();
+function slidingHatchSourceTriangles(ship,p){
+ if(!isHullStructure(p)||p._placementGeometry||p.placement?.materializedGeometry)return unpiercedStructTriangles(p);
+ // Owned hull geometry already contains its open portals and sill caps. A door
+ // must be cut from the original roof, independently of those runtime holes.
+ // Keep authored cuts and the owner's transform while omitting only portals in
+ // this private source; neither the blueprint nor its physical material changes.
+ const local=hullStructureShip(ship,p),key=JSON.stringify([local.hull,local.cuts,local.subs,local.trenches,local.solidCuts,p.c,p.s,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.hullMirrorZ]),cached=SLIDING_HULL_SOURCE_CACHE.get(p);
+ if(cached?.key===key)return cached.tris;
+ const source={...local,hatches:[],_cache:null,_lockedCache:null,_solidHull:null},base=hullGeo(source).tris,tris=new Float32Array(base.length);
+ for(let i=0;i<base.length;i+=3)tris.set(hullWorldPoint(p,Array.from(base.subarray(i,i+3))),i);
+ if(p.hullMirrorZ)for(let i=0;i<tris.length;i+=9)for(let j=0;j<3;j++)[tris[i+3+j],tris[i+6+j]]=[tris[i+6+j],tris[i+3+j]];
+ SLIDING_HULL_SOURCE_CACHE.set(p,{key,tris});return tris;
+}
 function slidingHatchPanels(ship,h){
- const spec=slidingHatchSpec(ship,h);if(!spec||h.skinAsset)return [];const base=v3HullGeo(ship).tris,structures=ship.parts.filter(p=>isShapePart(p)).map(p=>({p,base:unpiercedStructTriangles(p)}));
+ const spec=slidingHatchSpec(ship,h);if(!spec||h.skinAsset)return [];const base=v3HullGeo(ship).tris,structures=ship.parts.filter(p=>isShapePart(p)).map(p=>({p,base:slidingHatchSourceTriangles(ship,p)}));
  const key=JSON.stringify([spec.b,ship.solidCuts,ship.subs]),cached=SLIDING_PANEL_CACHE.get(h);if(cached?.base===base&&cached.key===key&&structures.every((q,i)=>cached.structures[i]===q.base)&&structures.length===cached.structures.length)return cached.panels;
  const pieces=slidingPanelsFromMesh(base,spec.b,spec.axis).map(a=>[a]);
  for(const q of structures){if(!boxesOverlap(partAABB(q.p),spec.b))continue;const parts=slidingPanelsFromMesh(q.base,spec.b,spec.axis);for(let side=0;side<2;side++)pieces[side].push(parts[side]);}
@@ -92351,7 +92365,7 @@ function airMouths(ship,S){
   if(h.portal){const b=openingBounds(ship,h);if(b){const l=(b[ax.longAxis]+b[ax.longAxis+3])/2,v=(b[ax.widthAxis]+b[ax.widthAxis+3])/2;try{m=openingSurfacePoint(ship,h,l,v);}catch(e){m=null;}dir=[0,0,0];dir[ax.longAxis]=1;}}
   if(!m&&h.a&&h.b)m=mul(add(h.a,h.b),.5);if(!m)continue;if(!dir)dir=h.a&&h.b&&len(sub(h.b,h.a))>1e-6?norm(sub(h.b,h.a)):[1,0,0];
   const pin=sub(m,mul(n,8)),bay=bays.find(p=>p.id===h.bay)||bays.find(p=>inBox(pin,partAABB(p)))||bays.slice().sort((p,q)=>len(sub(p.c,m))-len(sub(q.c,m)))[0],inner=bay?bay.c:sub(m,mul(n,20));
-  out.push({p:r1(sub(m,c)),n:r3(n),ax:r3(dir),o:hi.opening||[h.w,h.w],r:+(A*(h.k==='ray'?K.launchRay:K.launchOpen)).toPrecision(4),in:r1(sub(inner,c)),d:+Math.max(5,dot(sub(m,inner),n)).toFixed(1),sl:slide?1:0});
+  out.push({hatchId:h.id,p:r1(sub(m,c)),n:r3(n),ax:r3(dir),o:hi.opening||[h.w,h.w],r:+(A*(h.k==='ray'?K.launchRay:K.launchOpen)).toPrecision(4),in:r1(sub(inner,c)),d:+Math.max(5,dot(sub(m,inner),n)).toFixed(1),sl:slide?1:0});
  }
  return out;
 }
@@ -93271,7 +93285,7 @@ function propulsionMotion(u,load=1){
 // Hyperdrive entry uses actual forward speed against the healthy design's
 // common-law cruise speed. Combat demand affects motion through paid power;
 // it does not independently forbid entry while the required speed is held.
-const HYPERSPACE_ENTRY_SPEED_FRACTION=.9;
+const HYPERSPACE_ENTRY_SPEED_FRACTION=.7;
 function hyperspaceCommitted(jump){return !!jump&&!['spool','accel','enter'].includes(jump.phase);}
 function hyperspaceReadiness(u,velocity=u?.velocity,direction=null,options={}){
  if(u)syncPowerLossDisabled(u);
@@ -93329,9 +93343,9 @@ function fleetTick(b,dt,opts={}){
   const vk=volleyStep(u,dt,!!t&&(F.gun+F.ion>0)),accounted=F?.runtime||p.energyModel?.version===1;if(accounted)raw*=vk;
   const fire=fleetPowerStep(u,s,t&&byId.get(t.id),raw,dt,vk);u.firingAt=t?t.id:null;
   const missilePackets=fleetMissileStep(u,dt,!!(b.combat&&!u.out&&t&&((p.msl||0)+(p.imsl||0)>0)),{legacyContinuous:true,distance});
-  if(!b.combat||u.out)continue;
-  const requested=o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
+  const requested=!!b.combat&&!u.out&&o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
   const hatchSeconds=u.hatchTarget?(p.hatchOpenSeconds||4):(p.hatchCloseSeconds||4);u.hatchOpen=sliding?clamp(oldOpen+(u.hatchTarget?1:-1)*dt/hatchSeconds,0,1):0;
+  if(!b.combat||u.out)continue;
   const launchDt=requested?(sliding?Math.max(0,dt-(1-oldOpen)*(p.hatchOpenSeconds||4)):dt):0;
   if(launchDt>0){const n=Math.min(p.slots-u.launched,p.launch*s.hangar*crewEff*launchDt);if(n>0){u.launched+=n;u.queue.push([b.time+dt-launchDt+25,n]);}if(u.launched>=p.slots-1e-9){u.launched=p.slots;u.hatchTarget=0;}}
   // v22 Each craft that arrives brings its stores (p.airOrd TT); they are spent as the craft attack, and lost with them.
@@ -100007,6 +100021,9 @@ const airCtlRoom = (w, u) => u ? airCtlOf(w, u).room : 0;
 function wingPrio(w, a) { return (a.list.some(s => s.state === 'out' || s.state === 'return') ? 0 : 4) + (wingOrder(w, a.wing).type === 'strike' ? 0 : 2) + (a.wing.no || 1) * 1e-3; }
 // A carrier's hatch mouths (Core airMouths, ship-centred); a design without them has one in its belly.
 function mouthsOf(u) { const m = u.p.mouths;if (m?.length) return m;return u.p._mouths || (u.p._mouths = [{p: [0, -(u.p.height || u.p.len * .2) * .5, 0], n: [0, -1, 0], ax: [1, 0, 0], o: [60, 40], r: u.p.launch || 1, in: [0, 0, 0], d: Math.max(10, (u.p.height || 60) * .3), sl: 0}]); }
+const hatchKey = (m, i) => String(m.hatchId ?? 'mouth:' + i);
+function mouthOpen(u, m, i) { return m.sl ? u.hatchOpenById ? u.hatchOpenById[hatchKey(m,i)] || 0 : u.hatchOpen || 0 : 1; }
+function requestHatch(w, u, m, i) { if (m.sl) { (u.hatchRequests || (u.hatchRequests = {}))[hatchKey(m,i)] = w.time; u.hatchWant = w.time; } }
 // A craft passes a mouth whose opening takes its two smaller dimensions (a craft no mouth takes uses any: the order of
 // battle has already said it cannot be launched).
 const fitsMouth = (c, m) => { const d = (c.dims || [10, 8, 3]).slice().sort((a, b) => a - b); return d[0] <= (m.o?.[1] ?? 40) + .5 && d[1] <= (m.o?.[0] ?? 60) + .5; };
@@ -100016,9 +100033,9 @@ const fitsMouth = (c, m) => { const d = (c.dims || [10, 8, 3]).slice().sort((a, 
 function launchSquad(w, u, s, k = 1) {
  if(s.followParent||s.followSplit)return false;
  const ms = mouthsOf(u), c = CRAFT[s.craft], q = u.mq || (u.mq = []), fit = ms.some(m => fitsMouth(c, m));let best = -1, bt = Infinity;
- for (let i = 0; i < ms.length; i++) { const m = ms[i];if (fit && !fitsMouth(c, m)) continue;const door = m.sl ? (1 - (u.hatchOpen || 0)) * (u.p.hatchOpenSeconds || 4) : 0, t = Math.max(w.time + door, q[i] || 0) + s.n * c.size / Math.max(.02, m.r * k);if (t < bt) { bt = t; best = i; } }
- if (best < 0) return false;const m = ms[best];if (m.sl) u.hatchWant = w.time;
- if ((q[best] || 0) > w.time || m.sl && (u.hatchOpen || 0) < .999) return false;
+ for (let i = 0; i < ms.length; i++) { const m = ms[i];if (fit && !fitsMouth(c, m)) continue;const door = m.sl ? (1 - mouthOpen(u,m,i)) * (u.p.hatchOpenSeconds || 4) : 0, t = Math.max(w.time + door, q[i] || 0) + s.n * c.size / Math.max(.02, m.r * k);if (t < bt) { bt = t; best = i; } }
+ if (best < 0) return false;const m = ms[best];requestHatch(w,u,m,best);
+ if ((q[best] || 0) > w.time || m.sl && mouthOpen(u,m,best) < .999) return false;
  const per = c.size / Math.max(.02, m.r * k);q[best] = w.time + s.n * per;
  s.state = 'out';s.ops = {k: 'launch', u: u.id, m: best, t0: w.time, per, n: s.n, t1: w.time + (s.n - 1) * per + RULES.exitD / RULES.hatchV};
  s.runs = 0;s.ran = false;s.fired = false;s.launched = w.time;s.wait = null;s.landM = null;s.runOn = null;if (!s.ldg) squadStores(s);rearmSquad(s);opsPlace(w, s, u);return true;
@@ -100028,7 +100045,7 @@ function launchStep(w, s, u) { if (!u || !alive(u) || u.sys !== s.sys) { s.ops =
 // mouth's normal to where it forms (RULES.exitD); holding, at the gate (stacked out behind others holding there);
 // landing, on the line in, at the middle of the craft still outside.
 function opsPlace(w, s, u) {
- const o = s.ops, m = mouthsOf(u)[o.m];if (!m) { s.ops = null; return; }if (m.sl) u.hatchWant = w.time;
+ const o = s.ops, m = mouthsOf(u)[o.m];if (!m) { s.ops = null; return; }requestHatch(w,u,m,o.m);
  const n = shipToWorld(u, m.n), at = add(u.pos, shipToWorld(u, m.p)), V = RULES.hatchV;
  const d = o.k === 'launch' ? clamp((w.time - o.t0) * V, 0, RULES.exitD) : o.k === 'hold' ? RULES.gateD + 300 * (o.stack || 0) : clamp((o.t0 + (o.n - 1) / 2 * o.per - w.time) * V, 0, RULES.gateD + 300 * (o.stack || 0));
  s.pos = add(at, n, d);s.h = o.k === 'launch' ? n : scale(n, -1);s.vel = [...(u.velocity || [0, 0, 0])];
@@ -100037,18 +100054,18 @@ function opsPlace(w, s, u) {
 // holds there with the carrier while the mouth is busy (or its doors open), then comes in single file at the mouth's
 // rate; it is aboard once its last craft is in the bay.
 function squadHome(w, s, u, dt, k = 1) {
- // A jump recall cannot redirect aircraft already passing a launch mouth to
+ // A recall cannot redirect aircraft already passing a launch mouth to
  // a different landing mouth. Preserve their actual rail progress until the
  // final departure can split aboard and airborne aircraft by their IDs.
- if(s.ops?.k==='launch'&&s.ops.u===u.id&&w.groups.get(u.group)?.spool){launchStep(w,s,u);return;}
+ if(s.ops?.k==='launch'&&s.ops.u===u.id){launchStep(w,s,u);return;}
  if (s.ops?.k === 'land') { opsPlace(w, s, u); if (w.time >= s.ops.t1) dockSquad(w, s, u); return; }
  const ms = mouthsOf(u), c = CRAFT[s.craft], q = u.mq || (u.mq = []), fit = ms.some(m => fitsMouth(c, m)), gateOf = m => add(add(u.pos, shipToWorld(u, m.p)), shipToWorld(u, m.n), RULES.gateD);
  if (s.landM == null || !ms[s.landM]) { let bt = Infinity;ms.forEach((m, i) => { if (fit && !fitsMouth(c, m)) return; const t = Math.max(len(sub(gateOf(m), s.pos)) / Math.max(100, c.speed), (q[i] || 0) - w.time) + s.n * c.size / Math.max(.02, m.r * k); if (t < bt) { bt = t; s.landM = i; } }); }
  const i = s.landM ?? 0, m = ms[i];
  if (!s.ops && len(sub(gateOf(m), s.pos)) > 300) { steer(s, gateOf(m), c.speed, dt); return; }
- if (m.sl) u.hatchWant = w.time;
+ requestHatch(w,u,m,i);
  if (!s.ops) { let n = 0;for (const id of u.squads) { const x = w.squads.get(id); if (x && x !== s && x.ops?.k === 'hold' && x.ops.m === i) n++; } s.ops = {k: 'hold', u: u.id, m: i, stack: n}; }
- if ((q[i] || 0) > w.time || m.sl && (u.hatchOpen || 0) < .999) { opsPlace(w, s, u); return; }
+ if ((q[i] || 0) > w.time || m.sl && mouthOpen(u,m,i) < .999) { opsPlace(w, s, u); return; }
  const per = c.size / Math.max(.02, m.r * k), t0 = w.time + (RULES.gateD + 300 * (s.ops.stack || 0)) / RULES.hatchV;q[i] = t0 + s.n * per;
  s.ops = {k: 'land', u: u.id, m: i, t0, per, n: s.n, stack: s.ops.stack || 0, t1: t0 + (s.n - 1) * per + (m.d || 10) / RULES.hatchV};opsPlace(w, s, u);
 }
@@ -100065,9 +100082,17 @@ function opsCut(w, sys, s, aboard, why, by) {
 // above or below dives on its middle and strafes aft along it), where the wing breaks away.
 function runGoal(t, ap, side=1) { const s = C.hullShape(t.p), v = ap[1] ? [-1, 0, 0] : [-ap[0], 0, -ap[2]],q=scale(v,Math.abs(v[0])*s.hx+Math.abs(v[2])*s.hz+3500);q[1]=(side<0?-1:1)*(s.hy+RULES.skim+50);return add(t.pos,shipToWorld(t,q)); }
 function runExit(t,r){const q=add(t.pos,r.dir,r.extent+r.clear);q[1]=t.pos[1]+r.side*(C.hullShape(t.p).hy+RULES.hullM+350);return q;}
-// Sliding hatch doors (the Venator's flight deck) open while a launch or a landing wants them, over p.hatchOpenSeconds,
-// and close again a few seconds after the traffic stops; the 3D view draws them.
-function hatchTick(w, dt) { for (const u of w.units.values()) { if (!(u.p.slidingHatches > 0) || !alive(u)) continue; const want = w.time - (u.hatchWant ?? -1e9) < 6;u.hatchTarget = want ? 1 : 0;u.hatchOpen = clamp((u.hatchOpen || 0) + (want ? 1 : -1) * dt / Math.max(.5, u.p.hatchOpenSeconds || 4), 0, 1); } }
+// Update after air traffic has requested the mouths it needs this tick. Idle doors
+// close immediately at their normal animation rate; aircraft away on a mission do
+// not hold them open. Keep the scalar maximum for old profiles and status displays.
+function hatchTick(w, dt) { for (const u of w.units.values()) {
+ if (!(u.p.slidingHatches > 0) || !alive(u)) continue;
+ const opens={},targets={},ms=mouthsOf(u);let open=0,target=0,legacy=false;
+ ms.forEach((m,i)=>{if(!m.sl)return;const key=hatchKey(m,i),want=u.sys!=null&&u.hatchRequests?.[key]===w.time,seconds=want?u.p.hatchOpenSeconds:u.p.hatchCloseSeconds;
+  opens[key]=clamp(mouthOpen(u,m,i)+(want?1:-1)*dt/Math.max(.5,seconds||4),0,1);targets[key]=want?1:0;open=Math.max(open,opens[key]);target=Math.max(target,targets[key]);if(m.hatchId==null)legacy=true;
+ });
+ u.hatchOpenById=opens;u.hatchTargets=targets;u.hatchOpen=open;u.hatchTarget=target;u.hatchLegacy=legacy;
+} }
 
 // ---- damage: the core's combat model (shields, armour zones, penetrations, fires) ----
 function combatCtx(w, sys) {
@@ -100801,7 +100826,6 @@ function tick(w, dt) {
   // does not pause it; its electrical and motion effects use the shared solver.
   if (g.spool) { const towed=towedIn(w,g),blocked = g.units.some(id => { const u = w.units.get(id); return alive(u)&&u.sys!=null&&!towed.has(id)&&(u.out||C.powerFactor(u,'hyper')<=0||C.powerFactor(u,'reactor')<=0); }); g.spool.blocked = blocked; if (!blocked) g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) { u.jump.t = g.spool.t; u.jump.blocked = blocked; } }  }
  }
-hatchTick(w, dt);
  updateBattles(w);
  if ((w.timers.det -= dt) <= 0) { w.timers.det = RULES.detectEvery; detect(w); }
  if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); aiBoarding(w, sys, systemUnits(w, sys)); } }
@@ -100823,6 +100847,7 @@ hatchTick(w, dt);
  for(const u of quiet)if(alive(u)&&u.sys!=null){const s=C.fleetSystems(u);if(!u.manual&&u._peacePowerTime!==w.time)C.fleetPowerStep(u,s,null,0,dt);C.combatResolve(combatCtx(w,u.sys),u,quietIncoming.get(u.id)||C.combatIncoming(),dt,s);if(u.warp){u.warp.t+=dt;if(u.warp.t>1)delete u.warp;}}
  for (const s of w.squads.values()) if (s.state === 'docked' && s.t > 0 && !w.battles.has(s.sys)) s.t -= dt;
  squadSystemsTick(w, dt);craftIdle(w, dt);driftTick(w, dt);supplyTick(w, dt);convoyTick(w, dt);rearTick(w, dt);followTick(w,dt);raidTick(w,dt);jumpDepartures(w);
+ hatchTick(w, dt);
  // v26 PLAN-007 landings in progress are fought out on the fleet battle's clock (Ground.landingTick).
  if (w.landings?.length && groundHooks.landing) groundHooks.landing(w, dt);
  checkResult(w);

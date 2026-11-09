@@ -1020,7 +1020,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform float uPix;uniform float uKind;uniform vec3 uAxis;uniform vec2 uRing;uniform vec4 uLook;uniform vec4 uStar;uniform vec3 uStarCol;uniform sampler2D uCorDay;uniform sampler2D uCorAux;uniform float uCorOn;varying vec2 vP;
+uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform vec3 uSunCol;uniform float uPix;uniform float uKind;uniform vec3 uAxis;uniform vec2 uRing;uniform vec4 uLook;uniform vec4 uStar;uniform vec3 uStarCol;uniform sampler2D uCorDay;uniform sampler2D uCorAux;uniform float uCorOn;varying vec2 vP;
 float h3(vec3 p){p=fract(p*0.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
 float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
@@ -1059,11 +1059,11 @@ vec3 coruscant(vec3 n,float view,float foot,float sun,float day,float night){
  if(uCorOn>0.5){vec3 td,ta;corTex(n,td,ta);
   // From orbit the supplied surface shows; close in, the city grid keeps its own detail, tinted by it.
   float near=1.0-smoothstep(1500.0,9000.0,foot);vec3 tl=vec3(1.0,0.66,0.32)*ta.r*1.7;
-  vec3 texc=td*(0.05+1.05*max(0.0,sun))*day+tl*night+tl*0.05*day;
-  vec3 proc=dayc*(0.05+1.05*max(0.0,sun))*day*(0.5+1.4*dot(td,vec3(0.333)))+lightc*night*0.95*(0.25+2.5*ta.r);
+  vec3 texc=td*(vec3(0.05)+uSunCol*(1.05*max(0.0,sun)))*day+tl*night+tl*0.05*day;
+  vec3 proc=dayc*(vec3(0.05)+uSunCol*(1.05*max(0.0,sun)))*day*(0.5+1.4*dot(td,vec3(0.333)))+lightc*night*0.95*(0.25+2.5*ta.r);
   vec3 col=mix(texc,proc,near*0.7);
-  vec3 cc=vec3(0.86,0.85,0.83)*(0.04+1.0*max(0.0,sun))*(0.15+0.85*day);return mix(col,cc,ta.g*0.85);}
- return dayc*(0.05+1.05*max(0.0,sun))*day+lightc*night*0.95+lightc*0.08*day;}
+  vec3 cc=vec3(0.86,0.85,0.83)*(vec3(0.04)+uSunCol*max(0.0,sun))*(0.15+0.85*day);return mix(col,cc,ta.g*0.85);}
+ return dayc*(vec3(0.05)+uSunCol*(1.05*max(0.0,sun)))*day+lightc*night*0.95+lightc*0.08*day;}
 // Kuat: oceans, green and ochre continents, ice caps and cloud bands; the
 // shipyard cities light the coasts at night.
 vec3 kuat(vec3 n,float view,float foot,float sun,float day,float night,vec3 rd,vec3 sd,float wet,float cityK){
@@ -1074,7 +1074,7 @@ vec3 kuat(vec3 n,float view,float foot,float sun,float day,float night,vec3 rd,v
  vec3 g=mix(ocean,ground,land);g=mix(g,vec3(0.82,0.86,0.9),ice);
  float cl=smoothstep(0.52-wet,0.78-wet,fbm(n*6.0+vec3(0.0,3.0,1.0)+sd)+0.25*fbm(n*22.0));
  vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),40.0)*(1.0-land)*(1.0-cl)*0.8;
- vec3 dayc=mix(g,vec3(0.92,0.94,0.97),cl*0.85)*(0.04+1.1*max(0.0,sun))+vec3(1.0,0.95,0.85)*spec*day;
+ vec3 dayc=mix(g,vec3(0.92,0.94,0.97),cl*0.85)*(vec3(0.04)+uSunCol*(1.1*max(0.0,sun)))+uSunCol*vec3(1.0,0.95,0.85)*spec*day;
  float city=(land+coast*1.5)*(1.0-ice)*smoothstep(0.55,0.9,vn(n*140.0))*mix(0.35,1.0,smoothstep(0.6,0.9,vn(n*420.0)))*(1.0-cl*0.7);
  return dayc*day+vec3(1.0,0.72,0.42)*city*night*0.9*cityK;}
 // A gas giant: cloud bands by latitude, sheared into eddies, with pale storms.
@@ -1084,7 +1084,7 @@ vec3 gasGiant(vec3 n,float sun){
  float band=0.5+0.5*sin(b*6.2831853),fine=fbm(vec3(b*6.0,n.x*3.0+n.z*3.0,warp*4.0));
  vec3 col=mix(vec3(0.50,0.32,0.20),vec3(0.82,0.66,0.46),band);col=mix(col,vec3(0.93,0.88,0.76),smoothstep(0.55,0.85,fine)*0.6);
  float storm=smoothstep(0.82,0.9,fbm(n*5.0+vec3(9.0,1.0,4.0)));col=mix(col,vec3(0.95,0.9,0.82),storm*0.7);
- return col*(0.02+1.05*max(0.0,sun));}
+ return col*(vec3(0.02)+uSunCol*(1.05*max(0.0,sun)));}
 // An ice world: snowfields, blue-grey pressure ridges and cracks, thin cloud.
 vec3 iceWorld(vec3 n,float sun,float day,vec3 rd){
  float f=fbm(n*5.0+vec3(3.0)),cr=1.0-smoothstep(0.0,0.03,abs(fbm(n*14.0+vec3(2.0))-0.5));
@@ -1093,14 +1093,14 @@ vec3 iceWorld(vec3 n,float sun,float day,vec3 rd){
  vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),30.0)*(0.3+0.5*uLook.y)*(1.0-cl);
  g=mix(g,g*vec3(0.78,0.95,1.18)+vec3(0.0,0.03,0.06),uLook.y);
  float city=uLook.z*smoothstep(0.6,0.9,vn(n*150.0))*mix(0.3,1.0,smoothstep(0.6,0.9,vn(n*430.0)))*(1.0-cl*0.6);
- return g*(0.03+1.0*max(0.0,sun))+vec3(1.0)*spec*day+vec3(0.75,0.85,1.0)*city*(1.0-day)*0.8;}
+ return g*(vec3(0.03)+uSunCol*max(0.0,sun))+uSunCol*spec*day+vec3(0.75,0.85,1.0)*city*(1.0-day)*0.8;}
 // A barren world: dust plains, dark basalt and the rims of craters.
 vec3 barren(vec3 n,float sun){
  float f=fbm(n*4.0+vec3(7.0)),m=fbm(n*11.0+vec3(1.0,9.0,3.0));
  vec3 g=mix(vec3(0.40,0.28,0.19),vec3(0.70,0.55,0.38),smoothstep(0.3,0.75,f));g=mix(g,vec3(0.20,0.17,0.15),smoothstep(0.6,0.74,m));
  vec3 q=n*16.0,fr=fract(q)-0.5;float h=h3(floor(q)),r=length(fr)*2.0,ring=step(0.62,h)*smoothstep(0.5,0.68,r)*(1.0-smoothstep(0.68,0.86,r));g*=1.0+0.4*ring-0.25*step(0.62,h)*(1.0-smoothstep(0.0,0.5,r));
  float gy=dot(g,vec3(0.33));g=uLook.y<0.5?g:uLook.y<1.5?vec3(gy)*vec3(0.95,0.97,1.02):uLook.y<2.5?vec3(gy)*vec3(0.5,0.5,0.56):g*vec3(1.25,0.62,0.55);
- return g*(0.03+1.05*max(0.0,sun));}
+ return g*(vec3(0.03)+uSunCol*(1.05*max(0.0,sun)));}
 // v22 A desert: dune fields and mesas (palette in uLook.y: tan, pale, red, white salt over red soil).
 vec3 desert(vec3 n,float sun,float day){
  vec3 sd=vec3(uLook.x*1.7,uLook.x*2.3,uLook.x*0.9);float p=uLook.y;
@@ -1110,7 +1110,7 @@ vec3 desert(vec3 n,float sun,float day){
  vec3 g=mix(b,a,p>2.5?smoothstep(0.27,0.34,f):smoothstep(0.3,0.7,f));g*=0.88+0.12*dune;
  float mesa=smoothstep(0.62,0.7,fbm(n*7.0+sd+vec3(3.0)));g=mix(g,b*0.72,mesa*0.6);
  float cl=smoothstep(0.72,0.9,fbm(n*6.0+vec3(1.0,4.0,2.0)+sd))*uLook.z;g=mix(g,vec3(0.95),cl);
- return g*(0.03+1.05*max(0.0,sun));}
+ return g*(vec3(0.03)+uSunCol*(1.05*max(0.0,sun)));}
 // v22 An ocean world: open sea with shallow shelves, islands (uLook.y) and storm cloud (uLook.z).
 vec3 oceanWorld(vec3 n,float sun,float day,vec3 rd){
  vec3 sd=vec3(uLook.x*1.3,uLook.x*0.7,uLook.x*2.1);
@@ -1119,7 +1119,7 @@ vec3 oceanWorld(vec3 n,float sun,float day,vec3 rd){
  vec3 g=mix(sea,mix(vec3(0.16,0.30,0.10),vec3(0.70,0.66,0.50),smoothstep(0.0,0.02,th+0.02-cont)),land);
  float cl=smoothstep(0.6-0.22*uLook.z,0.82-0.2*uLook.z,fbm(n*5.0+vec3(2.0,0.0,5.0)+sd)+0.25*fbm(n*19.0));
  vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),50.0)*(1.0-land)*(1.0-cl)*0.9;
- return mix(g,vec3(0.90,0.92,0.95),cl*0.9)*(0.04+1.1*max(0.0,sun))+vec3(1.0,0.95,0.85)*spec*day;}
+ return mix(g,vec3(0.90,0.92,0.95),cl*0.9)*(vec3(0.04)+uSunCol*(1.1*max(0.0,sun)))+uSunCol*vec3(1.0,0.95,0.85)*spec*day;}
 // v22 Forest, jungle, swamp or a dark world (uLook.y), with lakes and cloud (uLook.z).
 vec3 forest(vec3 n,float sun,float day,vec3 rd){
  vec3 sd=vec3(uLook.x*1.1,uLook.x*2.7,uLook.x*1.9);float v=uLook.y;
@@ -1133,7 +1133,7 @@ vec3 forest(vec3 n,float sun,float day,vec3 rd){
  float cl=smoothstep(0.58-0.16*swamp-0.12*uLook.z,0.82,fbm(n*6.0+vec3(0.0,3.0,1.0)+sd)+0.2*fbm(n*20.0));
  vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),40.0)*water*(1.0-cl)*0.6;
  vec3 cloud=swamp>0.5?vec3(0.68,0.72,0.64):vec3(0.92,0.94,0.96);
- vec3 dayc=mix(g,cloud,cl*0.85)*(0.04+1.1*max(0.0,sun))+vec3(1.0,0.95,0.85)*spec*day;
+ vec3 dayc=mix(g,cloud,cl*0.85)*(vec3(0.04)+uSunCol*(1.1*max(0.0,sun)))+uSunCol*vec3(1.0,0.95,0.85)*spec*day;
  float glow=v>2.5?smoothstep(0.62,0.9,vn(n*300.0))*(1.0-cl):0.0;
  return dayc*day+vec3(0.25,0.55,0.95)*glow*(1.0-day)*0.6;}
 // v22 A volcanic world: dark crust and ash, rivers of lava glowing by day and night (uLook.y: how much).
@@ -1143,7 +1143,7 @@ vec3 lava(vec3 n,float sun,float day){
  vec3 rock=mix(vec3(0.07,0.06,0.06),vec3(0.20,0.17,0.15),fbm(n*14.0+sd));
  float ash=smoothstep(0.7,0.88,fbm(n*6.0+vec3(4.0,1.0,2.0)+sd));vec3 g=mix(rock,vec3(0.35,0.32,0.30),ash*0.6);
  vec3 hot=mix(vec3(1.0,0.22,0.03),vec3(1.0,0.72,0.2),1.0-smoothstep(0.0,w*0.5,r))*flow;
- return g*(0.03+1.0*max(0.0,sun))+hot*(0.55+0.45*(1.0-day));}
+ return g*(vec3(0.03)+uSunCol*max(0.0,sun))+hot*(0.55+0.45*(1.0-day));}
 // The colour of each kind of world's air, and how much of it there is.
 vec3 airCol(){return uKind<0.5?vec3(0.30,0.52,1.0):uKind<2.5?vec3(0.35,0.62,1.0):uKind<3.5?vec3(0.86,0.66,0.42):uKind<4.5?vec3(0.62,0.80,1.0):uKind<5.5?vec3(0.82,0.52,0.30):uKind<6.5?vec3(0.88,0.72,0.52):uKind<7.5?vec3(0.34,0.60,1.0):uKind<8.5?(uLook.y>1.5&&uLook.y<2.5?vec3(0.55,0.68,0.52):vec3(0.40,0.66,0.98)):vec3(0.95,0.45,0.22);}
 float airK(){return uKind>8.5?0.55:uKind>7.5?1.0:uKind>6.5?1.0:uKind>5.5?0.65:uKind>4.5?0.35:uKind>3.5?0.75:1.0;}
@@ -1161,23 +1161,23 @@ vec4 ring(vec3 rp,float dist){
  float lit=(shadow?0.04:0.25+0.75*abs(dot(uAxis,uSun)))*(0.85+0.3*vn(vec3(ang*400.0,u*20.0,0.0)));
  vec3 metal=mix(vec3(0.42,0.44,0.47),vec3(0.62,0.62,0.6),step(0.5,h3(vec3(floor(ang*720.0/6.2831853),floor(u*6.0),3.0))));
  float dots=step(0.93,h3(vec3(floor(ang*9000.0/6.2831853),floor(u*30.0),1.0)))*track*(1.0-smoothstep(segL*0.01,segL*0.05,foot))+track*0.06;
- return vec4(metal*lit+vec3(1.0,0.82,0.55)*dots*(shadow?1.0:0.35),a);}
+ return vec4(metal*lit*uSunCol+vec3(1.0,0.82,0.55)*dots*(shadow?1.0:0.35),a);}
 void main(){
  vec4 a=uInv*vec4(vP,-1.0,1.0),b=uInv*vec4(vP,1.0,1.0);vec3 rd=normalize(b.xyz/b.w-a.xyz/a.w);
  vec3 o=(uEye-uPC)/uR;float B=dot(o,rd),Cc=dot(o,o)-1.0,h=B*B-Cc;
  bool hit=h>=0.0&&B<=0.0;float tp=hit?-B-sqrt(h):1e9;
  vec4 base;
- if(!hit){float limb=B>0.0?length(o):sqrt(max(0.0,dot(o,o)-B*B));
+ if(!hit){float limb=B>0.0?length(o):sqrt(max(0.0,dot(o,o)-B*B));vec3 starGlow=vec3(0.0);float starAlpha=0.0;
   // A system star seen as a disc (the red dwarf Anza at Abregado): uStar = its direction and the cosine of its
   // angular radius, uStarCol its colour. Its surface churns in slow cells and darkens toward the limb.
   if(uStar.w>0.0){float sd=dot(rd,uStar.xyz),a0=acos(clamp(uStar.w,-1.0,1.0)),a=acos(clamp(sd,-1.0,1.0));
    if(a<a0){vec3 t=normalize(cross(uStar.xyz,abs(uStar.y)<0.9?vec3(0,1,0):vec3(1,0,0))),b2=cross(uStar.xyz,t);vec2 q=vec2(dot(rd,t),dot(rd,b2))/max(1e-4,sin(a0));float mu=sqrt(max(0.0,1.0-dot(q,q)));
     vec3 sp=vec3(q*2.4,mu*2.4);float f1=fbm(sp*1.1+vec3(1.7)),f2=fbm(sp*2.6+vec3(f1*2.2,f1,0.4)),f3=fbm(sp*6.0+vec3(f2*2.5));
     vec3 sc=uStarCol*mix(0.42,1.0,smoothstep(0.25,0.8,f2))*(0.62+0.45*f1+0.2*f3)*pow(mu,0.45);gl_FragColor=vec4(1.0-exp(-sc*1.7),1.0);return;}
-   float g=exp(-(a-a0)/max(1e-3,a0*0.32));gl_FragColor=vec4(uStarCol*g*0.9,g*0.8);return;}vec3 cp=B>0.0?o:o-rd*B;float glow=exp(-max(0.0,limb-1.0)*110.0)*smoothstep(-0.35,0.35,dot(normalize(cp),uSun)+0.2);
-  float sd=dot(rd,uSun),disc=smoothstep(0.99990,0.99996,sd)*3.0+pow(max(0.0,sd),900.0)*0.6+pow(max(0.0,sd),60.0)*0.12;
+   float g=exp(-(a-a0)/max(1e-3,a0*0.32));starGlow=uStarCol*g*0.9;starAlpha=g*0.8;}vec3 cp=B>0.0?o:o-rd*B;float glow=exp(-max(0.0,limb-1.0)*110.0)*smoothstep(-0.35,0.35,dot(normalize(cp),uSun)+0.2);
+  float sd=dot(rd,uSun),disc=uStar.w>0.0?0.0:smoothstep(0.99990,0.99996,sd)*3.0+pow(max(0.0,sd),900.0)*0.6+pow(max(0.0,sd),60.0)*0.12;
   vec3 air=airCol();glow*=airK();
-  vec3 c=air*glow+vec3(1.0,0.86,0.66)*glow*pow(max(0.0,sd),6.0)+vec3(1.0,0.95,0.86)*disc;base=vec4(c,clamp(max(glow*0.9,disc),0.0,1.0));}
+  vec3 c=(air*glow+vec3(1.0,0.86,0.66)*glow*pow(max(0.0,sd),6.0)+vec3(1.0,0.95,0.86)*disc)*uSunCol+starGlow;base=vec4(c,clamp(max(max(glow*0.9,disc),starAlpha),0.0,1.0));}
  else{
   vec3 n=normalize(o+rd*tp);float dist=tp*uR,view=clamp(-dot(rd,n),0.0,1.0);
   float foot=dist*uPix/max(0.12,view);
@@ -1206,7 +1206,7 @@ void main(){
   vec3 col=barren(n,sun);
 #endif
   float haze=pow(1.0-view,3.0);
-  vec3 air=mix(vec3(0.05,0.07,0.13),airCol()*0.95,day);col=mix(col,air,haze*0.75*airK());
+  vec3 air=mix(vec3(0.05,0.07,0.13),airCol()*uSunCol*0.95,day);col=mix(col,air,haze*0.75*airK());
   col=1.0-exp(-col*1.25);
   base=vec4(col,1.0);}
  if(uRing.y>0.0){float dn=dot(rd,uAxis);if(abs(dn)>1e-6){float tr=-dot(o,uAxis)/dn;vec3 rp=o+rd*tr;float r=length(rp);
@@ -1778,7 +1778,7 @@ class Renderer {
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(p.p);
     gl.uniformMatrix4fv(p.u.uInv, false, inv); gl.uniform3fv(p.u.uEye, m.eye); gl.uniform3fv(p.u.uPC, planet.center); gl.uniform1f(p.u.uR, planet.radius);
-    gl.uniform3fv(p.u.uSun, planet.sun); gl.uniform1f(p.u.uPix, 2 * Math.tan(this.cam.fov / 2) / Math.max(1, this.canvas.height));
+    gl.uniform3fv(p.u.uSun, planet.sun); gl.uniform3fv(p.u.uSunCol, stellarLightColor(planet)); gl.uniform1f(p.u.uPix, 2 * Math.tan(this.cam.fov / 2) / Math.max(1, this.canvas.height));
     gl.uniform1f(p.u.uKind, planet.kind || 0); gl.uniform3fv(p.u.uAxis, planet.axis || [0, 1, 0]); gl.uniform2fv(p.u.uRing, planet.ring || [0, 0]); if (p.u.uLook) gl.uniform4fv(p.u.uLook, planet.look || [0, 0, 0, 0]);
     const cor = pk === 0 && this.corTex?.day && this.corTex?.aux;
     if (p.u.uCorOn) gl.uniform1f(p.u.uCorOn, cor ? 1 : 0);
@@ -1833,12 +1833,15 @@ const LOOKS = {
 const SHADOW_CASTERS = ['hull', 'struct', 'plate', 'refHull', 'refStruct', 'refHatches', 'gen', 'shield', 'hyper', 'engine', 'refEngine', 'nozzle', 'hangar', 'fits', 'refFits'];
 SHADOW_CASTERS.push('surfaceArmor','surfaceDevices','surfaceDetail');
 const SHADOW_SKIP = /^(hatchOpen|hatchRay|trialTarget|slideRay_|slideDoor_|refSlideDoor_|preview)/;
+// Star metadata describes the illuminant, independent of painted materials and
+// locally emitted port lights, nozzles and shields. Missing metadata remains white.
+function stellarLightColor(planet){const c=planet?.star?.color;return Array.isArray(c)&&c.length===3&&c.every(v=>Number.isFinite(v)&&v>=0)&&c.some(v=>v>0)?c.map(v=>Math.min(1,v)):[1,1,1];}
 Renderer.prototype.pickLook = function (opt) {
  if (this.keyOverride && !(opt.fleet && (opt.planet || opt.sky || opt.hyper)) && opt.mode !== 'xray' && opt.mode !== 'cut') { const k = this.keyOverride.join(); if (this._kov?.k !== k) this._kov = {...LOOKS.studio, k, L1: C.norm(this.keyOverride)}; return this._kov; }
  if (!opt.fleet) return opt.mode === 'xray' || opt.mode === 'cut' ? LOOKS.flat : LOOKS.studio;
  if (!(opt.planet || opt.sky || opt.hyper)) return LOOKS.studio;
- const hk = opt.hyper ? (opt.hyper.k ?? 1) : 0, base = hk >= 1 ? LOOKS.tunnel : LOOKS.space, L = hk < 1 && opt.planet?.sun ? C.norm(opt.planet.sun) : LOOKS.studio.L1, key = base === LOOKS.tunnel ? 't' : L.map(v => v.toFixed(5)).join();
- if (this._look?.key !== key) this._look = {...base, key, L1: L, L2: C.norm([-L[0], -L[1] - .5, -L[2]])};
+ const hk = opt.hyper ? (opt.hyper.k ?? 1) : 0, base = hk >= 1 ? LOOKS.tunnel : LOOKS.space, L = hk < 1 && opt.planet?.sun ? C.norm(opt.planet.sun) : LOOKS.studio.L1, sunColor=hk>=1?[1,1,1]:stellarLightColor(opt.planet),key = (base === LOOKS.tunnel ? 't' : L.map(v => v.toFixed(5)).join())+'|'+sunColor.join();
+ if (this._look?.key !== key) {const tint=a=>a.map((v,i)=>v*sunColor[i]);this._look = {...base,key,sunColor,L1:L,L2:C.norm([-L[0],-L[1]-.5,-L[2]]),C1:tint(base.C1),C2:tint(base.C2),sky:tint(base.sky),gnd:tint(base.gnd)};}
  return this._look;
 };
 // The shadow map: one RGBA texture (depth packed into its bytes) with a depth buffer, laid out as one
@@ -3446,7 +3449,7 @@ function meshReferenceHatches(ship,owned=false){
  }
  // Ventral approach bay belongs to the hull skin; its doors are independently operated.
  if(!ship._referenceDoorOnly&&ship.hullSkin?.enabled&&ship.reference==='venator')appendReference(g,'ven_bay',(v,a)=>v.map((n,i)=>n*a.size[i]+a.c[i]));
- if(!owned)for(const p of ship.parts.filter(q=>C.isHullStructure?.(q))){const part=meshReferenceHatches(C.hullStructureShip(ship,p),true),origin=C.hullWorldPoint(p,[0,0,0]);for(let i=0;i<part.n;i++){const point=C.hullWorldPoint(p,Array.from(part.pos.subarray(i*3,i*3+3))),normal=C.norm(C.sub(C.hullWorldPoint(p,Array.from(part.nor.subarray(i*3,i*3+3),v=>v/127)),origin));part.pos.set(point,i*3);part.nor.set(normal.map(v=>v*127),i*3);}if(p.hullMirrorZ)for(let i=0;i<part.ni;i+=3)[part.idx[i+1],part.idx[i+2]]=[part.idx[i+2],part.idx[i+1]];appendGeo(g,part);}
+ if(!owned)for(const p of ship.parts.filter(q=>C.isHullStructure?.(q))){const local=C.hullStructureShip(ship,p),part=meshReferenceHatches(ship._referenceDoorOnly?{...local,_referenceDoorOnly:true}:local,true),origin=C.hullWorldPoint(p,[0,0,0]);for(let i=0;i<part.n;i++){const point=C.hullWorldPoint(p,Array.from(part.pos.subarray(i*3,i*3+3))),normal=C.norm(C.sub(C.hullWorldPoint(p,Array.from(part.nor.subarray(i*3,i*3+3),v=>v/127)),origin));part.pos.set(point,i*3);part.nor.set(normal.map(v=>v*127),i*3);}if(p.hullMirrorZ)for(let i=0;i<part.ni;i+=3)[part.idx[i+1],part.idx[i+2]]=[part.idx[i+2],part.idx[i+1]];appendGeo(g,part);}
  return g;
 }
 
@@ -3493,7 +3496,11 @@ function splitFoilGeometry(meshes,ranges,foils,owners){
 // Fleet geometry is built by the background engine; the renderer only uploads it.
 function fleetGeometry(ship,opts){
  const sliding=ship.hatches.some(h=>C.isSlidingHatch(ship,h)),model=sliding?C.surfaceRenderClone(ship):ship;
- if(sliding)for(const h of model.hatches)if(C.isSlidingHatch(model,h)){h.open=1;h._doorDetached=true;}
+ if(sliding)for(const h of model.hatches)if(C.isSlidingHatch(model,h)){h.open=1;h._doorDetached=true;
+  // Public owned-hull handles normally synchronize only editable settings.
+  // Their render-only local counterparts must also omit the moving door skin.
+  const local=h.hullOwner&&model.parts.find(p=>p.id===h.hullOwner)?.hullData?.hatches?.find(q=>q.id===h.hullHatch);if(local){local.open=1;local._doorDetached=true;}
+ }
  const meshes={},b=shipBounds(ship),center=Array.isArray(opts?.center)&&opts.center.length===3&&opts.center.every(Number.isFinite)?opts.center.slice():[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],doors=[],rays=[],put=(name,geo,tex,emi)=>{meshes[name]={geo,tex,emi};};
  const owners=new Map(),foils=model.parts.filter(C.isFoil).map((wing,i)=>{const members=C.wingMembers(model,wing),frame=C.foilFrame(model,wing),partIds=[],fitIds=[];for(const p of [wing,...members.structs,...members.parts])if(!owners.has(p.id)){owners.set(p.id,i);partIds.push(p.id);}for(const f of members.fits)if(!owners.has(f.id)){owners.set(f.id,i);fitIds.push(f.id);}return {id:wing.id,pivot:frame.pv,axis:frame.ax,sg:frame.sg,open:wing.wing.open,stow:wing.wing.stow,T:wing.wing.T,partIds,fitIds,meshes:[],kinds:{},glow:[]};});
  if(model.surfaces?.patches?.length&&typeof C.surfacePatches==='function'){const patches=new Map(C.surfacePatches(model).map(p=>[p.id,p]));for(const [kind,list]of [['part',model.parts],['fit',surfaceRenderFits(model)]])for(const q of list){const host=patches.get(q.surfacePatch)?.host,owner=/^p\d+$/.test(host||'')?owners.get(+host.slice(1)):null;if(owner==null||owners.has(q.id))continue;owners.set(q.id,owner);foils[owner][kind==='part'?'partIds':'fitIds'].push(q.id);}}
@@ -3502,9 +3509,10 @@ function fleetGeometry(ship,opts){
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
  const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp((b[3]-b[0])*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
-  if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
-  if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
-  else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,axis:panel.axis,side:panel.side,travel:panel.travel});}
+  if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name,hatchId:hatch.id});}
+  if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r'),rest={open:0,_doorDetached:false,_slideSide:side},owner=hatch.hullOwner&&model.parts.find(p=>p.id===hatch.hullOwner),local=owner?.hullData?.hatches?.find(h=>h.id===hatch.hullHatch),source={...model,_referenceDoorOnly:true,hatches:[{...hatch,...rest}],...(local?{parts:[{...owner,hullData:{...owner.hullData,hatches:[{...local,...rest}]}}]}:{})};
+   put(name,meshReferenceHatches(source),'reference',0);doors.push({name,hatchId:hatch.id,axis:spec.slideAxis,side,travel:spec.travel});}}
+  else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,hatchId:hatch.id,axis:panel.axis,side:panel.side,travel:panel.travel});}
  }
  for(const launcher of launchers||[]){const owner=owners.get(launcher.id);if(owner!=null)launcher.foilId=foils[owner].id;}
  const eyes=opts?.trial?trialEyes(ship,b,meshes):null;splitFoilGeometry(meshes,ranges,foils,owners);
@@ -3644,6 +3652,7 @@ Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(cons
 // Runtime drive effects represent delivered propulsion output, never an idle
 // brightness or an assumed command when the caller has no live result.
 function fleetEngineOutput(u){return !u.wreck&&Number.isFinite(u.glow)?C.clamp(u.glow,0,1):0;}
+function fleetHatchOpening(u,item,mode){const id=item.hatchId??/^(?:refSlideDoor|slideDoor|slideRay)_([^_]+)/.exec(item.name||'')?.[1],fallback=u.hatchOpenById&&!u.hatchLegacy?0:u.hatchOpen??0;return mode==='review'?0:C.clamp(u.hatchOpenById?.[id]??fallback,0,1);}
 Renderer.prototype.drawFleet=function(m,opt){
  const gl=this.gl,old=this.meshes,off=this.off,shields=[];gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
@@ -3670,8 +3679,8 @@ Renderer.prototype.drawFleet=function(m,opt){
    this.off=u.pos;this.modelCenter=center;this.modelRot=u.rot||null;this.unitScl=scale;
   }
   if(lod||u.wreck){if(u.wreck&&!lod){gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);}this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;gl.enable(gl.CULL_FACE);continue;}
-  const open=opt.mode==='review'?0:C.clamp(u.hatchOpen??0,0,1);for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*open;const q=rv(delta);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
-  gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);shields.push({u,a,names:['hatchRay',...(open>0?(a.rays||[]).map(r=>r.name):[])]});gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);
+  for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*fleetHatchOpening(u,door,opt.mode);const q=rv(delta);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
+  gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);shields.push({u,a,names:['hatchRay',...(a.rays||[]).filter(r=>fleetHatchOpening(u,r,opt.mode)>0).map(r=>r.name)]});gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);
   if(!lod&&sx<1.02){for(const t of fleetTurretList(a,u)){const q=rv([t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]]);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.modelCenter=t.restPivot||(a.turrets||[]).find(rest=>rest.mesh===t.mesh)?.pivot||t.pivot;this.modelRot=mat3Mul(R,t.rot);this.drawMesh(t.mesh,m,1);}this.off=u.pos;this.modelCenter=center;this.modelRot=u.rot||null;}
   this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;
   this.shTile=null;for(const t of u.targets||[]){this.off=t.pos;this.modelCenter=[0,0,0];this.modelRot=t.rot||MAT3_I;this.drawMesh('trialTarget',m,1);}
@@ -3745,11 +3754,12 @@ class CompatRenderer {
   if(this.fleetCache.has(key))return this.fleetCache.get(key);
   const meshes={},extra=[];
   for(const [name,m] of Object.entries(data.meshes)){if(!m.geo)continue;const item={geo:m.geo,count:m.geo.ni};if(name.startsWith('slideDoor')||name.startsWith('refSlideDoor'))extra.push({name,...item});else meshes[name]=item;}
-  const asset={meshes,extra,foils:data.foils||[],turrets:data.turrets||[],surfaceTurrets:!!data.surfaceTurrets,center:data.center,bounds:data.bounds,length:data.length,glow:data.glow||[],lights:data.lights};this.fleetCache.set(key,asset);return asset;
+  const asset={meshes,extra,doors:data.doors||[],rays:data.rays||[],foils:data.foils||[],turrets:data.turrets||[],surfaceTurrets:!!data.surfaceTurrets,center:data.center,bounds:data.bounds,length:data.length,glow:data.glow||[],lights:data.lights};this.fleetCache.set(key,asset);return asset;
  }
  pruneFleet(keys){for(const key of this.fleetCache.keys())if(!keys.has(key))this.fleetCache.delete(key);}
  draw(opt={}){
   if(this.disposed)return false;this.resize();const w=this.canvas.width,h=this.canvas.height,ctx=this.ctx,m=this.matrices();
+  const sunColor=stellarLightColor(opt.planet);this.solarLight=sunColor.some(v=>v!==1)&&!opt.hyper?sunColor:null;this.solarDirection=this.solarLight?C.norm(opt.planet.sun):null;
   if(this._surfaceSelection!==this.surfaceSelection)this.setSurfaceSelection(this.surfaceShip,this.surfaceSelection||[]);
   const image=ctx.createImageData(w,h),pixels=image.data,depth=new Float32Array(w*h);depth.fill(Infinity);
   for(let y=0;y<h;y++){const t=y/h;for(let x=0;x<w;x++){const k=(y*w+x)*4;pixels[k]=Math.round(10-4*t);pixels[k+1]=Math.round(17-5*t);pixels[k+2]=Math.round(25-7*t);pixels[k+3]=255;}}
@@ -3762,7 +3772,8 @@ class CompatRenderer {
    const R=unit.rot||yawMatrix(unit.yaw||0),sx=unit.stretch||1,center=sx!==1&&a.bounds?[a.center[0]+a.bounds[3]*(sx-1),a.center[1],a.center[2]]:unit.center||a.center;
    const base={off:unit.pos,center:[center[0]/sx,center[1],center[2]],rot:mat3Mul(R,[sx,0,0,0,1,0,0,0,1])};
    for(const name of names)this.rasterMesh(a.meshes[name]?.geo,name,name==='hatchRay'?.5:1,null,base);
-   if(!lod)for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,base);
+   if(!lod)for(const e of a.extra||[]){const door=a.doors.find(d=>d.name===e.name),delta=[0,0,0];if(door)delta[door.axis]=door.side*door.travel*fleetHatchOpening(unit,door,opt.mode);this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,{...base,off:C.add(unit.pos,mat3Point(R,delta))});}
+   if(!lod)for(const ray of a.rays||[])if(fleetHatchOpening(unit,ray,opt.mode)>0)this.rasterMesh(a.meshes[ray.name]?.geo,'hatchRay',.5,null,base);
    for(const foil of a.foils||[]){const pose=fleetFoilPose(a,unit,foil,center);for(const name of foil.meshes){const source=foil.kinds?.[name]||name;if(names.includes(source))this.rasterMesh(a.meshes[name]?.geo,source,1,null,pose);}}
    if(!lod)for(const t of fleetTurretList(a,unit)){const v=C.sub(t.pivot,a.center),rest=t.restPivot||(a.turrets||[]).find(q=>q.mesh===t.mesh)?.pivot||t.pivot;
     this.rasterMesh(a.meshes[t.mesh]?.geo,t.mesh.startsWith('ref')?'refFits':'fits',1,null,{off:C.add(unit.pos,mat3Point(R,v)),center:rest,rot:mat3Mul(R,t.rot)});
@@ -3798,7 +3809,7 @@ class CompatRenderer {
    // Normals follow the same full ship/turret rotation as the vertices.
    const wx=R[0]*nx+R[3]*ny+R[6]*nz,wy=R[1]*nx+R[4]*ny+R[7]*nz,wz=R[2]*nx+R[5]*ny+R[8]*nz;
    const portFace=name==='surfaceDevices'&&g.col[ai+3]===253&&g.col[bi+3]===253&&g.col[ci+3]===253;if(portFace&&!this.portColor)continue;
-   const port=portFace&&this.portColor,light=Math.max(.24,Math.min(1.15,.48+wx*.20+wy*.48+wz*.12)),color=[0,1,2].map(j=>Math.min(255,Math.max(0,(g.col[ai+j]+g.col[bi+j]+g.col[ci+j])/3*(port?Math.max(light,this.portColor[j]):light)*colScale)));
+   const port=portFace&&this.portColor,light=Math.max(.24,Math.min(1.15,.48+wx*.20+wy*.48+wz*.12)),solar=this.solarLight&&!['nozzle','refEngine','hatchRay'].includes(name),direct=solar?Math.max(0,C.dot(C.norm([wx,wy,wz]),this.solarDirection))*.9:0,color=[0,1,2].map(j=>Math.min(255,Math.max(0,(g.col[ai+j]+g.col[bi+j]+g.col[ci+j])/3*(port?Math.max(light,this.portColor[j]):solar?.24+direct*this.solarLight[j]:light)*colScale)));
    const inv=1/det,az=projected[ai+2],bz=projected[bi+2],cz=projected[ci+2];
    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
     const u=((bx-x-.5)*(cy-y-.5)-(by-y-.5)*(cx-x-.5))*inv,v=((cx-x-.5)*(ay-y-.5)-(cy-y-.5)*(ax-x-.5))*inv,q=1-u-v;if(u<-.00001||v<-.00001||q<-.00001)continue;
