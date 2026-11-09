@@ -50068,7 +50068,8 @@ function turretSupportEligible(f){
  if(isAnchoredFit(f)&&f.placement.supportEligible===true)return !!(d?.cat==='w'&&fitHasPedestal(f)&&!d.casemate&&!d.wallOnly&&!isSurfaceBattery(f));
  return !!(d?.cat==='w'&&fitHasPedestal(f)&&!d.casemate&&!d.wallOnly&&!f.tilt&&!isSurfaceBattery(f)&&f.mountMode!=='auto'&&f.mountMode!=='trench'&&(explicit||(!f.localMount&&f.mountAxis==null)));
 }
-function validTurretSupport(s){return !!(s?.version===1&&Number.isFinite(s.top)&&s.top>1e-6&&s.top<=DESIGN_LIMITS.coordinate&&Array.isArray(s.polys)&&s.polys.length>0&&s.polys.length<=4096&&s.polys.every(p=>Array.isArray(p)&&p.length>=3&&p.length<=128&&p.every(q=>Array.isArray(q)&&q.length===3&&q.every(Number.isFinite)&&q.every(v=>Math.abs(v)<=DESIGN_LIMITS.coordinate)&&q[2]<=s.top+1e-5)));}
+// v24 A support may top out at the mount point itself (a fitting on a ridge or apex): it then fills down to the slopes.
+function validTurretSupport(s){return !!(s?.version===1&&Number.isFinite(s.top)&&s.top>=0&&(s.top>1e-6||s.polys?.some?.(p=>p?.some?.(q=>q?.[2]<s.top-1e-6)))&&s.top<=DESIGN_LIMITS.coordinate&&Array.isArray(s.polys)&&s.polys.length>0&&s.polys.length<=4096&&s.polys.every(p=>Array.isArray(p)&&p.length>=3&&p.length<=128&&p.every(q=>Array.isArray(q)&&q.length===3&&q.every(Number.isFinite)&&q.every(v=>Math.abs(v)<=DESIGN_LIMITS.coordinate)&&q[2]<=s.top+1e-5)));}
 function supportArea(p){let a=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i][0]*q[1]-q[0]*p[i][1];}return a/2;}
 function supportClip(poly,a,b,c){
  const out=[];if(!poly.length)return out;let p=poly.at(-1),hp=a*p[0]+b*p[1]+c,inside=hp>=-1e-8;
@@ -50112,7 +50113,7 @@ function mountTurretSupport(ship,f,big){
  let top=0;const polys=[];for(let i=0;i<candidates.length;i++){const own=candidates[i];let pieces=[own.poly];for(let j=0;j<candidates.length&&pieces.length;j++){if(i===j)continue;const other=candidates[j],da=other.A-own.A,db=other.B-own.B,dd=other.D-own.D,coplanar=Math.abs(da)+Math.abs(db)+Math.abs(dd)<1e-7;if(coplanar&&j>i)continue;const cover=coplanar?other.poly:supportClip(other.poly,da,db,dd-1e-7);if(cover.length<3||Math.abs(supportArea(cover))<1e-7)continue;pieces=pieces.flatMap(p=>supportSubtract(p,cover));}
   for(const poly of pieces){const p=poly.map(q=>[q[0],q[1],own.A*q[0]+own.B*q[1]+own.D]);for(const q of p)top=Math.max(top,q[2]);polys.push(p);}
  }
- if(top<=1e-5||!polys.length)return;f.mountSupport={version:1,top,polys};f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
+ if(!polys.length||top<=1e-5&&!polys.some(p=>p.some(q=>q[2]<-1e-3)))return;top=Math.max(0,top);f.mountSupport={version:1,top,polys};f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
 }
 function turretSupportGeometry(f){
  if(!turretSupportEligible(f)||!validTurretSupport(f.mountSupport))return null;const s=f.mountSupport,fr=fitFrameOf(f),key=JSON.stringify([f.p,fr.up,fr.fw,fr.rt]),cached=TURRET_SUPPORT_GEOMETRY.get(s);if(cached?.key===key)return cached.geometry;
@@ -63001,8 +63002,13 @@ function fitAttachmentSurface(ship,host,point,normal,surfaceId){
  host._solidCutShip=ship;let T=structTriangles(host);
  if(surfaceId){const patch=placementSurfacePatch(ship,host.id,surfaceId);if(!patch)return placementFailure('surface-missing','取り付ける面が失われています。面を選び直してください');T=patch.triangles;}
  const epsilon=placementEpsilon(T)*4,n=norm(normal),reach=epsilon*8,h=rayTris(T,add(point,mul(n,reach)),mul(n,-1));
- if(!h||len(sub(h.p,point))>epsilon||dot(h.n,n)<.98)return placementFailure('surface-missing','指定した取付位置は追加元の実形状の面上にありません');
- return {ok:true,hit:{...h,p:point.slice(),n:h.n.slice(),part:host},epsilon};
+ if(h&&len(sub(h.p,point))<=epsilon&&dot(h.n,n)>=.98)return {ok:true,hit:{...h,p:point.slice(),n:h.n.slice(),part:host},epsilon};
+ // v24 A point on a ridge or apex (a wedge's vertex, the crest between two slopes), or on a slope when the fitting is
+ // set upright (top placement), has no face along the requested direction. The fitting then stands along that
+ // direction on the highest point of the host under it, and its support (mountTurretSupport for guns, the base
+ // height for other fittings) fills down to the slopes, so it neither tilts nor sinks into the host.
+ if(h&&len(sub(h.p,point))<=epsilon&&dot(h.n,n)>=.2)return {ok:true,hit:{...h,p:point.slice(),n:n.slice(),part:host},epsilon,supported:true};
+ return placementFailure('surface-missing','指定した取付位置は追加元の実形状の面上にありません');
 }
 function fitAttachmentHit(ship,f){
  if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と追加元の接触が失われています'};return null;}
