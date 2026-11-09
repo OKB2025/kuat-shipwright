@@ -28,12 +28,12 @@ test('mass-only hulks use the same drag law without inventing a drive or histori
  assert.deepEqual(v,[1200,120,-300],'integration does not mutate the caller');
  const tiny=C.integratePropulsionMotion({propulsion:{massKg:1e4}},v,[0,0,0],60);assert.ok(tiny.velocity[0]>out.velocity[0],'a smaller known mass experiences the lower common drag rate');near(tiny.velocity[0],v[0]*Math.exp(-expectedRate(1e4)*60));
 });
-test('equal integration time gives identical velocity and displacement for powered and unpowered motion',()=>{
- const u=unit(1e11),v=[1000,20,-15],a=[4,-.5,2],one=C.integratePropulsionMotion(u,v,a,12);let velocity=v.slice(),position=[0,0,0];
- for(let i=0;i<120;i++){const q=C.integratePropulsionMotion(u,velocity,a,.1);velocity=q.velocity;position=C.add(position,q.displacement);}
+test('the unoriented thrust and drag model retains exact velocity and displacement under time subdivision',()=>{
+ const u=unit(1e11),v=[1000,20,-15],a=[4,-.5,2],one=C.integratePropulsionMotion(u.p,v,a,12);let velocity=v.slice(),position=[0,0,0];
+ for(let i=0;i<120;i++){const q=C.integratePropulsionMotion(u.p,velocity,a,.1);velocity=q.velocity;position=C.add(position,q.displacement);}
  for(let i=0;i<3;i++){near(velocity[i],one.velocity[i]);near(position[i],one.displacement[i]);}
- for(const dt of [0,-1,NaN,Infinity]){const q=C.integratePropulsionMotion(u,v,a,dt);assert.deepEqual(plain(q.velocity),v);assert.deepEqual(plain(q.displacement),[0,0,0]);}
- const slow=C.integratePropulsionMotion(u,[1,0,0],[0,0,0],1e7);assert.ok(slow.velocity.every(Number.isFinite));assert.ok(slow.velocity[0]>=0);assert.ok(slow.displacement.every(Number.isFinite));
+ for(const dt of [0,-1,NaN,Infinity]){const q=C.integratePropulsionMotion(u.p,v,a,dt);assert.deepEqual(plain(q.velocity),v);assert.deepEqual(plain(q.displacement),[0,0,0]);}
+ const slow=C.integratePropulsionMotion(u.p,[1,0,0],[0,0,0],1e7);assert.ok(slow.velocity.every(Number.isFinite));assert.ok(slow.velocity[0]>=0);assert.ok(slow.displacement.every(Number.isFinite));
 });
 test('funded acceleration has a finite mass-dependent equilibrium rather than a free constant-speed coast',()=>{
  const u=unit(1e11),k=expectedRate(1e11),full=C.integratePropulsionMotion(u,[0,0,0],[1,0,0],10/k),quarter=C.integratePropulsionMotion(u,[0,0,0],[.25,0,0],10/k);

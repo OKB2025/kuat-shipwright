@@ -7738,7 +7738,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt);
+ const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
  const up=tv.norm(trial.P),floor=trialSys().planet.radius+trialSys().floor;trial.warn='';
  if(tv.len(trial.P)<floor){trial.P=tv.scale(up,floor);const vr=tv.dot(trial.V,up);if(vr<0)trial.V=tv.add(trial.V,up,-vr);trial.warn='大気圏上層：これ以上は降下できません';}
@@ -8538,7 +8538,7 @@ function escortsStep(dt){
   let goal=preparing?tv.scale(j.dir,C.propulsionTerminalSpeed(escortSystemsUnit(e))):tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
   // Clear of the flagship and of each other.
   for(const o of [{pos:trial.P,L:trial.p.len},...es.filter(x=>x!==e).map(x=>({pos:x.pos,L:x.p.len}))]){const r=tv.sub(e.pos,o.pos),l=tv.len(r),min=(e.p.len+o.L)*.62;if(l<min&&l>1)goal=tv.add(goal,r,(min-l)/l*.6);}
-  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,preparing?1:planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=unit.out?tv.scale(tv.norm(e.pos),-C.HULL_FALL.g):need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt);
+  const unit=escortSystemsUnit(e),planned=C.propulsionMotion(unit),required=C.propulsionTargetAcceleration(unit,e.V,goal,dt),need=tv.len(required),motion=escortPowerStep(e,dt,preparing?1:planned.acc0>0?C.clamp(need/planned.acc0,0,1):0),acceleration=unit.out?tv.scale(tv.norm(e.pos),-C.HULL_FALL.g):need>0?tv.scale(required,Math.min(1,Math.max(0,motion.acc)/need)):[0,0,0],next=C.integratePropulsionMotion(unit,e.V,acceleration,dt,{forward:e.f||trialCol(e.R,0)});
   e.V=next.velocity;e.pos=tv.add(e.pos,next.displacement);
   // The bow follows the way it moves (the flagship's heading when it is nearly still), turning at its own rate.
   const sp=tv.len(e.V);e.lvl=motion.acc>0?C.engineLevel(unit):0;const tf=sp>25?tv.norm(e.V):trialCol(trial.R,0),k=(1-Math.exp(-dt*Math.max(0,(e.p.turnRate||0)*6)))*motion.turn;e.f=tv.norm(tv.add(e.f,tv.sub(tf,e.f),k));

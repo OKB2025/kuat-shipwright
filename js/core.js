@@ -93195,11 +93195,65 @@ function propulsionTargetAcceleration(unit,velocity,targetVelocity,dt){
  const f=propulsionDragFactors(unit,dt);if(!(f.gain>0))return [0,0,0];
  return [0,1,2].map(i=>(targetVelocity[i]-velocity[i]*f.decay)/f.gain);
 }
-function integratePropulsionMotion(unit,velocity,acceleration,dt){
- const f=propulsionDragFactors(unit,dt),a=Array.isArray(acceleration)&&acceleration.length===3&&acceleration.every(Number.isFinite)?acceleration:[0,0,0];
- // Historical maxSpeed is a calibration reference, never a velocity clip.
- // The same paid force and resistance determine acceleration and equilibrium.
- return {velocity:add(mul(velocity,f.decay),mul(a,f.gain)),displacement:add(mul(velocity,f.gain),mul(a,f.distanceGain)),dragRate:f.rate,appliedAcceleration:a,thrustFraction:1};
+// Directional inertia is a handling response, separate from paid thrust and
+// resistance. The reference half-lives are gameplay calibration, not new G or
+// speed limits; smaller whole vessels follow their nose more promptly.
+const INERTIA_MOVEMENT=(()=>{
+ const referenceMassKg=ENGINE_CONVERSION.referenceSmallMassKg,referenceLargeMassKg=ENGINE_CONVERSION.referenceLargeMassKg,referenceHalfLifeS=.3,referenceLargeHalfLifeS=90,maximumRatePerS=8,smallRate=Math.LN2/referenceHalfLifeS,largeRate=Math.LN2/referenceLargeHalfLifeS,massExponent=Math.log((maximumRatePerS/largeRate-1)/(maximumRatePerS/smallRate-1))/Math.log(referenceLargeMassKg/referenceMassKg),pivotMassKg=referenceMassKg/Math.pow(maximumRatePerS/smallRate-1,1/massExponent);
+ return Object.freeze({version:1,referenceMassKg,referenceLargeMassKg,referenceHalfLifeS,referenceLargeHalfLifeS,maximumRatePerS,massExponent,pivotMassKg});
+})();
+function inertiaAlignmentRate(massOrUnit){
+ const mass=typeof massOrUnit==='number'?massOrUnit:motionMassKg(massOrUnit?.p||massOrUnit),m=INERTIA_MOVEMENT;
+ return Number.isFinite(mass)&&mass>0?m.maximumRatePerS/(1+Math.exp(m.massExponent*(Math.log(mass)-Math.log(m.pivotMassKg)))):0;
+}
+function inertiaForward(unit,options){
+ const valid=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)&&len(v)>1e-12;
+ if(options.forward!==undefined)return valid(options.forward)?norm(options.forward):null;
+ return Number.isFinite(unit?.yaw)?[Math.cos(unit.yaw),0,Math.sin(unit.yaw)]:null;
+}
+function inertiaControlLive(unit){
+ const p=unit?.p;if(!p||unit.dead||unit.out||unit.powerLossDisabled||unit.ht?.online===false||!(p.propulsion?.massKg>0)||!(p.propulsion.engines?.length))return false;
+ if(!(powerFactor(unit,'reactor')>0&&powerFactor(unit,'engine')>0&&heatLim(unit,'engine')>0))return false;
+ const controls=p.propulsion.cores||p.propulsion.engines,live=controls.some(e=>{const mi=e.moduleIndex??(p.modules||[]).findIndex(m=>m.k==='engine'&&m.part===(e.machineryId??e.id)),body=e.machineryModuleIndex??mi;return e.available!==false&&e.connected!==false&&mi>=0&&(unit.mods?.[mi]??1)>0&&(unit.mods?.[body]??1)>0&&powerFactor(unit,'engine',mi)>0;});if(!live)return false;
+ const available=shipElectricalAvailableW(unit);return available==null||available>0;
+}
+function inertiaTurnVelocity(velocity,forward,rate,time){
+ const speed=len(velocity);if(!(speed>1e-12)||!(time>0)||!(rate>0))return velocity.slice();
+ const along=dot(velocity,forward),side=sub(velocity,mul(forward,along)),sideLength=len(side),angle=Math.atan2(sideLength,along);
+ if(!(angle>1e-12))return velocity.slice();
+ // At exactly 180 degrees use a deterministic perpendicular plane instead
+ // of normalizing a zero cross product or snapping to the opposite heading.
+ const tangent=sideLength>speed*1e-12?mul(side,1/sideLength):norm(cross(Math.abs(forward[1])<.9?[0,1,0]:[0,0,1],forward)),remaining=angle*Math.exp(-rate*time);
+ return add(mul(forward,speed*Math.cos(remaining)),mul(tangent,speed*Math.sin(remaining)));
+}
+const INERTIA_GAUSS_NODES=[-.8611363115940526,-.3399810435848563,.3399810435848563,.8611363115940526],INERTIA_GAUSS_WEIGHTS=[.34785484513745385,.6521451548625461,.6521451548625461,.34785484513745385];
+function integratePropulsionMotion(unit,velocity,acceleration,dt,options={}){
+ const f=propulsionDragFactors(unit,dt),a=Array.isArray(acceleration)&&acceleration.length===3&&acceleration.every(Number.isFinite)?acceleration:[0,0,0],baseVelocity=add(mul(velocity,f.decay),mul(a,f.gain)),baseDisplacement=add(mul(velocity,f.gain),mul(a,f.distanceGain)),forward=inertiaForward(unit,options),result={velocity:baseVelocity,displacement:baseDisplacement,dragRate:f.rate,appliedAcceleration:a,thrustFraction:1,alignmentRate:0};
+ if(!forward||!(f.time>0))return result;
+ const force=len(a),parallel=v=>len(cross(v,forward))<=Math.max(1,len(v))*1e-12;
+ // Straight flight keeps the exact original force/drag solution and does not
+ // allocate quadrature work for the common case of large aligned fleets.
+ if(parallel(velocity)&&parallel(a)&&dot(velocity,forward)>=0&&dot(baseVelocity,forward)>=0)return result;
+ const rate=inertiaControlLive(unit)?inertiaAlignmentRate(unit):0;result.alignmentRate=rate;if(!(rate>0))return result;
+ let position=[0,0,0];
+ if(!(force>0)){
+  // Without thrust the angular decay is exact. Integrate that curved path,
+  // then use the exact straight tail once the residual angle is negligible.
+  const curvedTime=Math.min(f.time,32/rate),count=Math.max(1,Math.ceil(curvedTime*rate/.25)),h=curvedTime/count;
+  for(let n=0;n<count;n++)for(let j=0;j<4;j++){const t=(n+.5)*h+INERTIA_GAUSS_NODES[j]*h/2,v=inertiaTurnVelocity(mul(velocity,Math.exp(-f.rate*t)),forward,rate,t);position=add(position,mul(v,INERTIA_GAUSS_WEIGHTS[j]*h/2));}
+  if(curvedTime<f.time){const tail=propulsionDragFactors(unit,f.time-curvedTime);position=add(position,mul(inertiaTurnVelocity(mul(velocity,Math.exp(-f.rate*curvedTime)),forward,rate,curvedTime),tail.gain));}
+  result.velocity=inertiaTurnVelocity(baseVelocity,forward,rate,f.time);result.displacement=position;return result;
+ }
+ // Symmetric direction/force/direction steps preserve the existing paid
+ // magnitude change. Quadrature follows the same continuous curved velocity,
+ // rather than moving along the final heading for the entire frame.
+ const count=Math.max(1,Math.min(256,Math.ceil(rate*f.time/.08))),h=f.time/count;let current=velocity.slice();
+ for(let n=0;n<count;n++){
+  const start=current,at=t=>{const q=propulsionDragFactors(unit,t),half=inertiaTurnVelocity(start,forward,rate,t/2),v=add(mul(half,q.decay),mul(a,q.gain));return inertiaTurnVelocity(v,forward,rate,t/2);};
+  for(let j=0;j<4;j++)position=add(position,mul(at((1+INERTIA_GAUSS_NODES[j])*h/2),INERTIA_GAUSS_WEIGHTS[j]*h/2));
+  current=at(h);
+ }
+ result.velocity=current;result.displacement=position;return result;
 }
 // Physical acceleration arrives from the shared power solver. The tactical scale is applied only here.
 // A missing result never grants an unpowered unit its design acceleration.
@@ -97199,7 +97253,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
   HYPERSPACE_ENTRY_SPEED_FRACTION, hyperspaceReadiness, hyperspaceCommitted,
-  MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
+  MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, INERTIA_MOVEMENT, inertiaAlignmentRate, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
@@ -99850,7 +99904,7 @@ function steer(s, goal, speed, dt, flyThrough = false) {
  const before=s.vel||[0,0,0],rated=descriptor?Math.min(descriptor.ratedAccelMps2,descriptor.accelerationLimitMps2)*C.FLEET_RULES.accelScale:0,change=len(C.propulsionTargetAcceleration(s.drive||profile,before,scale(want,v),dt)),ang=Math.acos(clamp(dot(s.h,want),-1,1)),request=rated>0?clamp(Math.max(change/rated,ang/Math.max(1e-9,1.3*dt)),0,1):0;
  const motion=squadPropulsion(s,s.hyperPreparing?1:s.throttle==null?request:Number.isFinite(s.throttle)?clamp(s.throttle,0,1):0,dt),maxA=1.3*dt*(CRAFT[s.craft]?.systems?.turnK??1)*motion.turn;
  if (ang > 1e-4) { const turn=Math.min(ang,maxA);let axis=C.cross(s.h,want);if(len(axis)<1e-8)axis=C.cross(s.h,Math.abs(s.h[1])<.9?[0,1,0]:[1,0,0]);axis=norm(axis);s.h=norm(add(scale(s.h,Math.cos(turn)),C.cross(axis,s.h),Math.sin(turn))); }
- const required=C.propulsionTargetAcceleration(s.drive||profile,before,scale(s.h,v),dt),need=len(required),applied=scale(required,Math.min(1,motion.acc/Math.max(1e-12,need))),advance=C.integratePropulsionMotion(s.drive||profile,before,applied,dt),p0=s.pos;s.vel=advance.velocity;s.pos=add(s.pos,advance.displacement);if(HULLS){hullContact(s,p0);s._motionTime=HULLS.w.time;}
+ const required=C.propulsionTargetAcceleration(s.drive||profile,before,scale(s.h,v),dt),need=len(required),applied=scale(required,Math.min(1,motion.acc/Math.max(1e-12,need))),advance=C.integratePropulsionMotion(s.drive||profile,before,applied,dt,{forward:s.h}),p0=s.pos;s.vel=advance.velocity;s.pos=add(s.pos,advance.displacement);if(HULLS){hullContact(s,p0);s._motionTime=HULLS.w.time;}
 }
 // ---------- craft and hulls (v23) ----------
 // Craft fly round the ships of their system (the battle's, or HULLS set for the system they are in): they look ahead
