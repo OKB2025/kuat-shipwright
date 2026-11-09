@@ -87522,10 +87522,6 @@ registerShipExample({key:'craft_hyena',name:'ハイエナ級ボマー',side:'独
 // overlap. Four laser cannons at the wingtips (on the outer faces of the prongs, muzzles at the model's
 // cannon tips). The cockpit hardpoints stay empty, no shield generator and no hyperdrive (canon).
 {
-// v24 A TIE's wing is one solar panel part, as on the TIE/ln: the measured planform as the panel's
-// preset outline (solarPanelPreset), folded along its knee lines, with the preset frame and spar.
-function tieSolarWing(M,preset,cx,y,z,thickness,paint){const d=solarPanelPreset(preset),L=preset==='interceptor'?9.12:7.9;
- return M('solarPanel',[cx,y,z],L,{s:[L,L*d.aspect,thickness],form:'outline',outline:d.outline,roll:90,light:true,paint,wing:{solar:true},panelFold:d.panelFold,panelKnee:d.panelKnee,panelSparX:d.panelSparX,panelBracing:d.panelBracing,panelFrame:L*d.frameRatio,panelRib:L*d.ribRatio,label:'太陽電池翼'});}
 const TIN={D:3.11,OX:-1.37,OY:1.552,
  // side-view outlines in model metres (x from the stern, y up from the ball axis)
  mid:[[0,-1.30],[.12,-1.45],[8.9,-1.45],[9.12,-1.3],[9.12,-.95],[4.25,-.95],[4.25,-.5],[4.9,-.45],[4.9,.45],[4.25,.5],[4.25,.95],[9.12,.95],[9.12,1.3],[8.9,1.45],[.12,1.45],[0,1.30]],
@@ -87545,7 +87541,8 @@ function tieInBuild(){
  const PANEL='#1d2025',GLASS='#2e3e4a';
  // Wings (starboard, mirrored to port): each is one folded solar panel on the measured planform
  // (middle section with the forward notch, upper and lower plates bent inward), with its outer hub.
- tieSolarWing(M,'interceptor',gx(4.56),gy(0),TIN.plateBase[1],.25,PANEL);
+ const [mz0,mz1]=TIN.midZ;
+ tieSolarWing(M,'interceptor',gx(4.56),gy(0),TIN.plateBase[1],.08,PANEL);
  M('struct',[gx(3.12),gy(0),4.26],[1.35,.28,1.4],{form:'box',light:true,label:'翼外側ハブ'});
  // Wing arms (round lofts along z).
  const z0=TIN.pylon[0][0],z1=TIN.pylon.at(-1)[0],Lz=z1-z0,Wm=Math.max(...TIN.pylon.map(r=>r[1])),Hy=Math.max(...TIN.pylon.map(r=>r[2]));
@@ -87564,7 +87561,7 @@ function tieInBuild(){
  for(const sz of [1,-1])for(const sy of [1,-1]){const f={id:s.nextId++,k:'claser',p:[gx(8.27),gy(sy*1.2),sz*(mz1+.1)],a:sz>0?4:5,ped:0,base:0,low:0,float:false,localMount:true};mountFit(s,f);s.fits.push(f);}
  delete s._building;syncCompartments(s);remount(s);return s;
 }
-registerShipExample({key:'craft_tie_in',name:'TIE/in インターセプター',side:'銀河帝国',role:'迎撃機',length:9.6,craft:true,craftType:'tie_in',
+registerShipExample({key:'craft_tie_in',physicalRevision:1,name:'TIE/in インターセプター',side:'銀河帝国',role:'迎撃機',length:9.6,craft:true,craftType:'tie_in',
  title:'Star Wars: TIE/in Interceptor',credit:'"Star Wars: TIE/in Interceptor" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tiein-interceptor-80171ec2930b4949836bcf24d9694c41',license:'CC BY 4.0',
  note:'9.6 m（正史：全長 9.6 m・全幅 7.6 m・全高 5.6 m）。Daniel 氏のモデル「Star Wars: TIE/in Interceptor」（CC BY 4.0）の実測形状を、正史の全長（翼端の砲身を含む短剣形の翼の前後長）に等倍で合わせた（モデルに合わせると全幅 8.9 m・全高 7.1 m と正史より幅広く背が高く、操縦席の球も直径 3.11 m と TIE/ln より大きくなる。形状はモデルに従った）。球形操縦席を船体とし、折れ曲がった短剣形の翼（前方に切り欠きのある垂直の中央部と、モデルに合わせて内側へ 41.5° 傾けた上下の翼板、外枠・支持腕の帯・後部の暗色パネル・外側ハブ）と翼支持腕、ドーム状の前面窓、後部ハッチを構造物として組み直した。翼と支持腕は軽構造。球の中には操縦席1席（乗員1名）、I-a3a 反応炉、P-s5.6 イオン・エンジン2基、燃料タンク、慣性補償器を重ならないように詰めた。兵装は正史どおり翼端の L-s9.3 レーザー砲 4門（短剣の外側面に取り付け、砲口はモデルの砲口の位置）で、操縦席のハードポイントは空けたまま。シールド発生器とハイパードライブは持たない（正史）。外殻装甲は 1 mm。実給電モデルに合わせて炉・機関・配電を組み直し、最大加速度の設計目標は正史に合わせた 4,240 G。',
  build(){return tieInBuild();}});
@@ -87677,7 +87674,8 @@ function tieSaBuild(){
  {const A=[[2.45,-1.0],[3.45,-.5],[4.25,-.5],[4.25,.5],[3.45,.5],[2.45,1.0]],zl=2.45,zh=4.25;
   for(const sg of [1,-1])P('struct',[gx(5.485),gy(0),sg*(zl+zh)/2],[zh-zl,2.0,.99],{form:'outline',outline:A.map(([z,y])=>[sg*(z-(zl+zh)/2)/(zh-zl),y/2.0]),surfaceNormal:[1,0,0],light:true,label:'翼支持腕'});}
  // Wings (starboard, mirrored to port). v24 Each bent wing is one folded solar panel on the measured planform, with the preset frame and spar.
- tieSolarWing(M,'bomber',gx(3.95),gy(0),TSA.plateBase[1],.3,PANEL);
+ const [mz0,mz1]=TSA.midZ;
+ tieSolarWing(M,'bomber',gx(3.95),gy(0),TSA.plateBase[1],.08,PANEL);
  // Interior: the pilot forward in the cockpit pod; a reactor and an ion engine in the rear of each pod.
  const ck=P('cockpit',[2.45,1.14,1.6],1.2,{label:'操縦席'});ck.seats=1;
  const gC=P('gen',[-.25,1.14,1.6],1.1,{label:'太陽イオン化反応炉（操縦席ポッド）'}),gO=P('gen',[-.25,1.14,-1.6],1.1,{label:'太陽イオン化反応炉（兵装ポッド）'});
@@ -87692,7 +87690,7 @@ function tieSaBuild(){
  fit('cbomb',[gx(4.5),gy(-1),-.95],3);
  delete s._building;syncCompartments(s);remount(s);return s;
 }
-registerShipExample({key:'craft_tie_sa',name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
+registerShipExample({key:'craft_tie_sa',physicalRevision:1,name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
  title:'Star Wars: TIE/sa Bomber',credit:'"Star Wars: TIE/sa Bomber" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tiesa-bomber-03c30934651e4f5798b67e74049ec6bc',license:'CC BY 4.0',
  note:'7.9 m（正史：全長 7.9 m・全幅 10.6 m・全高 5.4 m）。Daniel 氏のモデル「Star Wars: TIE/sa Bomber」（CC BY 4.0）の実測形状を、正史の全長（翼の前後長）に等倍で合わせた（全高は翼板の厚みを含めて 5.6 m でほぼ正史どおり、全幅はモデルに従い 9.5 m で正史より約 1 m 狭い）。船体は中心線上にしか置けないため、2つのポッドをつなぐ中央部を船体とし、右舷の操縦席ポッドと左舷の兵装ポッド（実測した半径のロフト）、操縦席ポッドの背部・腹部の隆起とドーム状の窓、兵装ポッドのミサイル発射口、両ポッド後端の機関部外殻、ガセット付きの翼支持腕、折れ曲がった翼（垂直の中央部と内側へ 39.2° 傾けた上下の翼板、外枠と縦梁）を構造物として組み直した。ポッドは通常の構造物、翼と支持腕は軽構造。操縦席ポッドの前部に操縦席1席（乗員1名）、両ポッドの後部に反応炉とイオン・エンジンを1組ずつ、燃料タンクと慣性補償器を収めた。兵装は正史の搭載に合わせ、操縦席ポッド機首下のレーザー砲 2門、兵装ポッド機首下の魚雷発射管1基（前部兵装庫からミサイル発射口を通して前方へ撃つ。正史は震盪ミサイル8発かプロトン魚雷4発で、弾倉は6発分）、兵装ポッド下の爆弾倉（主兵装庫と爆弾シュート）。搭載する弾は編成画面で選び、お任せでは正史の一例どおりプロトン魚雷4発とプロトン爆弾8発（TIE Fighter Deluxe Book and Model Set）。発射機は弾を抱える外置き。主兵装庫の積み替え（プロトン爆弾・熱爆弾・機雷・兵員6名）は爆弾倉1基で代表させた。シールド発生器とハイパードライブは持たない。外殻装甲は 2.8 mm（戦闘機より厚い）。実給電モデルでは機関と配電を組み直し、最大加速度の設計目標は正史に合わせた 2,380 G。搭載弾の質量は実際の選択から加算し、加速度と速度へ反映する。',
  build(){return tieSaBuild();}});
@@ -88197,7 +88195,6 @@ const CRAFT_SYSTEM_RECIPES=Object.freeze({
 // A new stock craft is built around an actual-power plant, not the old nozzle-volume law.
 // These are construction targets for ordinary, editable engine hardware. They are never applied
 // while loading player designs. Missing published figures are explicit game assumptions.
-const CRAFT_ENGINE_OVERDRIVE=4;
 const CRAFT_INTERIOR_TARGETS=Object.freeze({
  craft_arc170:{g:3551,reactors:[1.7,1.7],basis:'game assumption; previous authored heavy-fighter target'},
  craft_awing:{g:5100,reactors:[1.37],basis:'published acceleration'},
@@ -88251,23 +88248,7 @@ function refitCraftInterior(ship,key){
  // systems. Setting component input ratings is construction, not a multiplier on derived stats.
  const weights=engines.map(e=>e.d*e.d*e.nozzleLength),sum=weights.reduce((a,b)=>a+b,0),rate=S=>{
   const input=S.mass*1000*G0*target.g*DRIVE_PROFILES.standard.wattsPerNewton;
-  // v24 Thrust per watt falls as an engine is driven past its volume's normal
-  // rating (engine-density-thermal.md), so a stock fighter's machinery is sized
-  // to need at most CRAFT_ENGINE_OVERDRIVE times that rating, inside its
-  // nozzle tube (radius up to half the nozzle bore, length up to 90% of the
-  // tube). The rated input is then solved for the thrust share at that density.
-  const wpn=DRIVE_PROFILES.standard.wattsPerNewton,thrust=input/wpn;
-  engines.forEach((e,i)=>{const T=thrust*weights[i]/sum,x=CRAFT_ENGINE_OVERDRIVE,normal=T*wpn*(.95+.05*x)/x,need=normal/PROPULSION.referenceInputDensity,r0=e.machineryRadiusM||e.d*.35,L0=e.machineryLengthM||.3,cap=Math.max(L0,(e.nozzleLength||partDims(e).l)*.9);
-   // Grow the body only into free space: its route must not cross another compartment.
-   const clear=(r,L)=>{e.machineryRadiusM=r;e.machineryLengthM=L;const route=enginePaths(ship).find(q=>q.nozzle===e.id);return !route||!ship.parts.some(p=>!isShapePart(p)&&p.id!==route.reactor&&p.id!==route.nozzle&&!route.sourcePartIds?.includes(p.id)&&!(route.transmission&&flexibleCompartment(ship,p))&&overlapParts(route,p));};
-   let best={r:r0,L:L0,V:0};for(const r of [e.d*.5,e.d*.45,e.d*.4,r0]){if(r<r0-1e-9)continue;if(!clear(r,L0))continue;let lo=L0,hi=cap;if(clear(r,hi))lo=hi;else for(let n=0;n<24;n++){const mid=(lo+hi)/2;if(clear(r,mid))lo=mid;else hi=mid;}
-    e.machineryRadiusM=r;e.machineryLengthM=lo;const V=machineryGeometry(e,ship).volume;if(V>=need){const perL=V/lo;best={r,L:Math.max(L0,need/perL),V:need};break;}if(V>best.V)best={r,L:lo,V};}
-   e.machineryRadiusM=best.r;e.machineryLengthM=best.L;
-   // Solve the rated input for the thrust share on the engine's own curve.
-   const V=machineryGeometry(e,ship).volume,grades=Object.keys(MACHINERY_GRADES).filter(k=>!MACHINERY_GRADES[k].legacy),gradeFor=P=>grades.find(k=>P/V<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||null,thrustAt=P=>{const g=gradeFor(P);return g?resolveEngineSpec({...e,ratedInputW:P,machineryGradeId:g},ship).ratedThrustN||0:0;};
-   let lo=0,hi=Math.min(PROPULSION.maxInputW,V*Math.max(...grades.map(k=>MACHINERY_GRADES[k].allowedInputDensityWPerM3)));if(thrustAt(hi)<T)throw new Error(key+': 機関の実容積では '+target.g+' G の推力に届きません');
-   for(let n=0;n<80;n++){const mid=(lo+hi)/2;if(thrustAt(mid)<T)lo=mid;else hi=mid;}e.ratedInputW=hi;});
-  engines.forEach((e,i)=>{const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||'advanced';if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 機関の実容量が不足しています');});
+  engines.forEach((e,i)=>{e.ratedInputW=input*weights[i]/sum;const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||'advanced';if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 機関の実容量が不足しています');});
  };
  // Ordinary finite electrical links form redundant crossfeeds. The former nearest-reactor-only
  // layout could spend one wing reactor on guns and strand its engine despite spare power opposite.
@@ -88281,25 +88262,11 @@ function refitCraftInterior(ship,key){
  // Select the final machinery ratings after that equipment's mass is installed.
  refitCraftThermal(ship,key,computeStats(ship));S=computeStats(ship);rate(S);wire(S);
  refitCraftThermal(ship,key,computeStats(ship),false);
- // Larger machinery adds its own mass; settle the ratings on the completed craft.
- // A drive already at its grade's highest input density inside all free space keeps that rating.
- // The machinery keeps its size here; only each drive's rated input is solved again.
- const grades=Object.keys(MACHINERY_GRADES).filter(k=>!MACHINERY_GRADES[k].legacy);
- for(let round=0;round<4;round++){
- for(let pass=0;pass<6;pass++){S=computeStats(ship);if(Math.abs(S.ratedAccelMps2/G0/target.g-1)<=1e-8)break;const thrust=S.mass*1000*G0*target.g;let reached=true;
-  engines.forEach((e,i)=>{const T=thrust*weights[i]/sum,V=machineryGeometry(e,ship).volume,gradeFor=P=>grades.find(k=>P/V<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||null,thrustAt=P=>{const g=gradeFor(P);return g?resolveEngineSpec({...e,ratedInputW:P,machineryGradeId:g},ship).ratedThrustN||0:0;};
-   let lo=0,hi=Math.min(PROPULSION.maxInputW,V*Math.max(...grades.map(k=>MACHINERY_GRADES[k].allowedInputDensityWPerM3)));if(thrustAt(hi)<T)reached=false;else for(let n=0;n<80;n++){const mid=(lo+hi)/2;if(thrustAt(mid)<T)lo=mid;else hi=mid;}
-   e.ratedInputW=hi;e.machineryGradeId=gradeFor(hi)||e.machineryGradeId;});
-  wire(S);if(!reached)break;}
- // Cooling and heat transports follow the settled ratings; their mass is settled in the next round.
- refitCraftThermal(ship,key,computeStats(ship));S=computeStats(ship);if(Math.abs(S.ratedAccelMps2/G0/target.g-1)<=1e-8)break;}
  // Keep only physically installable redundant feeds in NEW stock craft. A
  // failed alternative is removable only when the remaining real conductors
  // already carry the engine's full acceptance (within one-percent line loss).
  const physicalFeeds=engineTransmission(ship),unusedFeeds=new Set(physicalFeeds.routes.filter(r=>!r.ok&&!r.automatic&&r.engineIds?.length&&r.engineIds.every(id=>{const owner=ship.parts.find(p=>p.id===id),spec=owner&&resolveEngineSpec(owner,ship);return spec?.valid&&spec.ratedInputW>0&&(physicalFeeds.engines[id]?.capacityW||0)>=spec.ratedInputW*.99;})).map(r=>r.from+'>'+r.to));
  if(unusedFeeds.size)ship.links=ship.links.filter(l=>l.kind!=='power'||!unusedFeeds.has(l.from+'>'+l.to));
- // Saved designs keep no heat links from runtime feed-loss nodes; the built craft matches its saved copy.
- ship.links=ship.links.filter(l=>!(l.kind==='heat'&&String(l.from).startsWith('feed:')));
  syncCompartments(ship);ship._craftInteriorRefit=true;return ship;
 }
 function refitCraftThermal(ship,key,S,install=true){
@@ -96706,6 +96673,10 @@ const SOLAR_PANEL_PRESETS=(()=>{
  const bomber=make(7.9,1.1,2.704,1.31,h=>[[0,-.922],[.094,-1.1],[.941,-h],[6.959,-h],[7.806,-1.1],[7.9,-.922],[7.9,.922],[7.806,1.1],[6.959,h],[.941,h],[.094,1.1],[0,.922]],5.49,'spar',.56);
  return Object.freeze({hex,interceptor,bomber});
 })();
+// v24 A TIE's wing is one solar panel part, as on the TIE/ln: the measured planform as the panel's
+// preset outline (solarPanelPreset), folded along its knee lines, with the preset frame and spar.
+function tieSolarWing(M,preset,cx,y,z,thickness,paint){const d=solarPanelPreset(preset),L=preset==='interceptor'?9.12:7.9;
+ return M('solarPanel',[cx,y,z],[L,L*d.aspect,thickness],{form:'outline',outline:d.outline,roll:90,paint,wing:{solar:true},panelFold:d.panelFold,panelKnee:d.panelKnee,panelSparX:d.panelSparX,panelBracing:d.panelBracing,panelFrame:L*d.frameRatio,panelRib:L*d.ribRatio,label:'太陽電池翼'});}
 function solarPanelPreset(key='hex'){key=({tie_ln:'hex',tie_in:'interceptor',tie_sa:'bomber'})[key]||key;const d=Object.hasOwn(SOLAR_PANEL_PRESETS,key)?SOLAR_PANEL_PRESETS[key]:SOLAR_PANEL_PRESETS.hex;return {...d,outline:d.outline.map(q=>q.slice())};}
 function solarPanelClipLine(P,a,b){
  const dx=b[0]-a[0],dz=b[1]-a[1],ts=[0,1];if(Math.hypot(dx,dz)<1e-10)return [];
