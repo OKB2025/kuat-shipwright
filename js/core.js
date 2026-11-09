@@ -55319,19 +55319,19 @@ function isdBridgeLayout(cx,baseY,cz=0){const center=[cx,baseY+ISD_BRIDGE_RISE,c
 function executorY(x,y){const F=EXECUTOR_BLUEPRINT.interiorFrame,i=Math.max(0,Math.min(F.length-2,Math.floor(x/500))),t=clamp((x-F[i][0])/500,0,1),g=k=>F[i][k]+(F[i+1][k]-F[i][k])*t,ob=g(1),ot=g(2),nb=g(3),nt=g(4);return nb+(y-ob)*(nt-nb)/Math.max(1,ot-ob);}
 // v24 70 TT quad turbolasers in the Executor's side trench: about as many as its two 13 km rows can hold
 // beside the point-defence lasers and ion cannons (trenchArmamentPacking: about 1,000 a side).
-const EXECUTOR_TRENCH_QUADS=1880;
+const EXECUTOR_TRENCH_QUADS=1880,EXECUTOR_TRENCH_FROM=.325;
 function executorDesign(opt={}){
  // v24 The side trench carries the trench batteries, so it must run straight and its walls must be vertical
  // over its whole height: the measured station height, centre and chine are smoothed (median of three
  // neighbours; single stations caught on the city alternated up and down), and each station's side band
  // (belt) is widened to at least the trench height and a margin.
- const b=EXECUTOR_BLUEPRINT,hullSpec=JSON.parse(JSON.stringify(b.hull));{const st=hullSpec.stations,med=(a,b,c)=>a+b+c-Math.max(a,b,c)-Math.min(a,b,c),src=st.map(r=>r.slice());for(let i=1;i+1<st.length;i++)for(const k of [2,3,7])st[i][k]=med(src[i-1][k],src[i][k],src[i+1][k]);}for(const st of hullSpec.stations){const h=(st[2]||0)*hullSpec.H;if(h>0&&st.length>6)st[6]=+Math.min(.98,Math.max(st[6],(b.trench.height+60)/h)).toFixed(4);}
+ const b=EXECUTOR_BLUEPRINT,hullSpec=JSON.parse(JSON.stringify(b.hull));{const st=hullSpec.stations,med=(a,b,c)=>a+b+c-Math.max(a,b,c)-Math.min(a,b,c),src=st.map(r=>r.slice());for(let i=1;i+1<st.length;i++)if(st[i][0]>=EXECUTOR_TRENCH_FROM-.02)for(const k of [2,3,7])st[i][k]=med(src[i-1][k],src[i][k],src[i+1][k]);}for(const st of hullSpec.stations){const h=(st[2]||0)*hullSpec.H;if(h>0&&st.length>6&&st[0]>=EXECUTOR_TRENCH_FROM-.02)st[6]=+Math.min(.98,Math.max(st[6],(b.trench.height+60)/h)).toFixed(4);}
  const s=newShip(hullSpec,'エグゼクター級｜超大型指揮戦艦');s._building=true;s.reference='executor';s.detail=1;s.paint='neutral';s.lights='blue';s.armor={hull:1.2,cit:1};s.shieldTarget=1;
  const {part,solid,room,gun,trench,bridge}=dreadnoughtTools(s);
  // The side trench runs between the upper plate tip and the lower hull tip.
  // v24 The trench batteries need straight walls: the trench starts where the hull's stern flare ends (x 0.325 L)
  // rather than on the flare itself, where its wall turned 66 degrees across the ship.
- s.trenches.push({id:s.nextId++,side:'both',from:Math.max(b.trench.from,.325),to:b.trench.to,level:.5,height:b.trench.height,depth:b.trench.depth,taper:false,chine:true});
+ s.trenches.push({id:s.nextId++,side:'both',from:Math.max(b.trench.from,EXECUTOR_TRENCH_FROM),to:b.trench.to,level:.5,height:b.trench.height,depth:b.trench.depth,taper:false,chine:true});
  // City and ventral blocks are nested flat-topped terraces traced from the
  // source model. Each is an ordinary outline structure standing on the one
  // below it; off-centre terraces are placed as mirrored pairs.
