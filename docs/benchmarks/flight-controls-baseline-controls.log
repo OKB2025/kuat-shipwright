@@ -1,0 +1,547 @@
+TAP version 13
+# Subtest: only the actual twin and spherical point-defence definitions automatically intercept
+ok 1 - only the actual twin and spherical point-defence definitions automatically intercept
+  ---
+  duration_ms: 3.934118
+  type: 'test'
+  ...
+# Subtest: installed normal guns retain their output and tracking but contribute no automatic interception profile
+ok 2 - installed normal guns retain their output and tracking but contribute no automatic interception profile
+  ---
+  duration_ms: 2986.180034
+  type: 'test'
+  ...
+# Subtest: the real RTS missile step leaves missiles alone when only ordinary guns are installed
+ok 3 - the real RTS missile step leaves missiles alone when only ordinary guns are installed
+  ---
+  duration_ms: 72.987604
+  type: 'test'
+  ...
+# Subtest: dedicated point defence still intercepts in the same real RTS missile step
+ok 4 - dedicated point defence still intercepts in the same real RTS missile step
+  ---
+  duration_ms: 1714.571656
+  type: 'test'
+  ...
+# Subtest: normal guns can explicitly target a small craft unit through the ordinary attack order and electrical/thermal path
+ok 5 - normal guns can explicitly target a small craft unit through the ordinary attack order and electrical/thermal path
+  ---
+  duration_ms: 11.508125
+  type: 'test'
+  ...
+# Subtest: explicit ordinary fire still respects range, firing arcs and loss of electrical power
+ok 6 - explicit ordinary fire still respects range, firing arcs and loss of electrical power
+  ---
+  duration_ms: 21.165838
+  type: 'test'
+  ...
+# Subtest: point-defence interception retains its electrical loss and firing-arc constraints
+ok 7 - point-defence interception retains its electrical loss and firing-arc constraints
+  ---
+  duration_ms: 16.106858
+  type: 'test'
+  ...
+# Subtest: old profiles cannot reuse mixed ordinary-gun AA totals or cached point-defence flags without rebuilding
+ok 8 - old profiles cannot reuse mixed ordinary-gun AA totals or cached point-defence flags without rebuilding
+  ---
+  duration_ms: 3.887337
+  type: 'test'
+  ...
+# Subtest: rounding residue in a spent source cannot hide another connected reactor
+ok 9 - rounding residue in a spent source cannot hide another connected reactor
+  ---
+  duration_ms: 5.048011
+  type: 'test'
+  ...
+# Subtest: rounding residue in a saturated trunk cannot hide an alternate supply path
+ok 10 - rounding residue in a saturated trunk cannot hide an alternate supply path
+  ---
+  duration_ms: 1.029137
+  type: 'test'
+  ...
+# Subtest: scarce parallel supply stays proportional and conserved under reordered loads and sources
+ok 11 - scarce parallel supply stays proportional and conserved under reordered loads and sources
+  ---
+  duration_ms: 1.293887
+  type: 'test'
+  ...
+# Subtest: mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind
+ok 12 - mixed wings let drive-equipped aircraft follow while aircraft without drives are left behind
+  ---
+  duration_ms: 13370.215726
+  type: 'test'
+  ...
+# Subtest: self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches
+ok 13 - self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches
+  ---
+  duration_ms: 1684.388547
+  type: 'test'
+  ...
+# Subtest: partial launch preserves aboard aircraft and temporarily splits only the airborne cohort
+not ok 14 - partial launch preserves aboard aircraft and temporarily splits only the airborne cohort
+  ---
+  duration_ms: 390.344826
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/fighter-hyper-retreat.cjs:25:37'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    3 !== 6
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 6
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/fighter-hyper-retreat.cjs:27:264)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: partial land preserves aboard aircraft and temporarily splits only the airborne cohort
+not ok 15 - partial land preserves aboard aircraft and temporarily splits only the airborne cohort
+  ---
+  duration_ms: 408.78423
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/fighter-hyper-retreat.cjs:25:37'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    3 !== 6
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 6
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/fighter-hyper-retreat.cjs:27:264)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: canceling the carrier jump never starts an independent fighter departure
+ok 16 - canceling the carrier jump never starts an independent fighter departure
+  ---
+  duration_ms: 6622.938299
+  type: 'test'
+  ...
+# Subtest: custom aircraft use their own measured drive while drive-less blueprints cannot follow
+ok 17 - custom aircraft use their own measured drive while drive-less blueprints cannot follow
+  ---
+  duration_ms: 54.358766
+  type: 'test'
+  ...
+# Subtest: the battle continues and point defence can hit fighters while they spool after the last carrier departs
+not ok 18 - the battle continues and point defence can hit fighters while they spool after the last carrier departs
+  ---
+  duration_ms: 40.63901
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/fighter-hyper-retreat.cjs:37:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(r.hurt>0)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/fighter-hyper-retreat.cjs:40:99)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs
+ok 19 - resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs
+  ---
+  duration_ms: 2161.630229
+  type: 'test'
+  ...
+# Subtest: fixed profile efficiency applies below normal input and above the historical acceptance rating
+ok 20 - fixed profile efficiency applies below normal input and above the historical acceptance rating
+  ---
+  duration_ms: 3.685983
+  type: 'test'
+  ...
+# Subtest: the mechanical capacity inverse uses fixed efficiency and the finite connected supply
+ok 21 - the mechanical capacity inverse uses fixed efficiency and the finite connected supply
+  ---
+  duration_ms: 0.85821
+  type: 'test'
+  ...
+# Subtest: a shared body converts total received input once before splitting physical outlets
+ok 22 - a shared body converts total received input once before splitting physical outlets
+  ---
+  duration_ms: 2.090881
+  type: 'test'
+  ...
+# Subtest: core allocation respects finite shaft capacity without an authored input ceiling
+ok 23 - core allocation respects finite shaft capacity without an authored input ceiling
+  ---
+  duration_ms: 4.514758
+  type: 'test'
+  ...
+# Subtest: line loss and conversion loss both use actual power and conserve source energy
+not ok 24 - line loss and conversion loss both use actual power and conserve source energy
+  ---
+  duration_ms: 2.047548
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:26:1'
+  failureType: 'testCodeFailure'
+  error: 'value: 53844566.8959564 != 84745382.11778668'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:4:180)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:28:236)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: structural and inertial bounds reduce requested input before power is allocated
+not ok 25 - structural and inertial bounds reduce requested input before power is allocated
+  ---
+  duration_ms: 1.146717
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:30:1'
+  failureType: 'testCodeFailure'
+  error: 'value: 314777839262928000 != 200000000000000000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:4:180)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:31:230)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: the legacy architecture also caps electrical requests instead of discarding force afterward
+not ok 26 - the legacy architecture also caps electrical requests instead of discarding force afterward
+  ---
+  duration_ms: 1.246779
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:34:1'
+  failureType: 'testCodeFailure'
+  error: 'value: 314777839262927940 != 200000000000000000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:4:180)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/received-power-efficiency.cjs:35:181)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: unknown volume fails closed and known legacy input gains an explicit ordinary estimate
+ok 27 - unknown volume fails closed and known legacy input gains an explicit ordinary estimate
+  ---
+  duration_ms: 1.055785
+  type: 'test'
+  ...
+# Subtest: external drive emission is proportional to useful propulsion output, not electrical input
+ok 28 - external drive emission is proportional to useful propulsion output, not electrical input
+  ---
+  duration_ms: 4.474835
+  type: 'test'
+  ...
+# Subtest: quarter throttle requests quarter engine input independently of current speed
+not ok 29 - quarter throttle requests quarter engine input independently of current speed
+  ---
+  duration_ms: 23.430887
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:50:1'
+  failureType: 'testCodeFailure'
+  error: 'quarter thrust: 79421092.85246721 != 125000000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:51:151)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: full throttle keeps requesting real power at the old nominal maximum speed
+not ok 30 - full throttle keeps requesting real power at the old nominal maximum speed
+  ---
+  duration_ms: 4.371134
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:54:1'
+  failureType: 'testCodeFailure'
+  error: 'value: 317684371.40986884 != 500000000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:55:97)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: direct full-to-quarter output approaches force balance around the Venator 1000 m/s reference
+not ok 31 - direct full-to-quarter output approaches force balance around the Venator 1000 m/s reference
+  ---
+  duration_ms: 10.639658
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:58:64'
+  failureType: 'testCodeFailure'
+  error: 'full output and drag balance without a velocity clamp: 1040.6455037812782 != 1000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:60:23)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: direct full-to-quarter output approaches force balance around the TIE/ln 2000 m/s reference
+not ok 32 - direct full-to-quarter output approaches force balance around the TIE/ln 2000 m/s reference
+  ---
+  duration_ms: 7.826992
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:58:64'
+  failureType: 'testCodeFailure'
+  error: 'full output and drag balance without a velocity clamp: 2018.4615188230719 != 2000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:60:23)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: actual power shortage lowers the force-balance speed even with a full throttle command
+not ok 33 - actual power shortage lowers the force-balance speed even with a full throttle command
+  ---
+  duration_ms: 290.292603
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:66:1'
+  failureType: 'testCodeFailure'
+  error: 'half-funded terminal motion: 1432.22447935051 != 1000.3354626279025'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:68:23)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a vessel above its nominal full-output equilibrium slows naturally instead of snapping to a ceiling
+not ok 34 - a vessel above its nominal full-output equilibrium slows naturally instead of snapping to a ceiling
+  ---
+  duration_ms: 3.29364
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:71:1'
+  failureType: 'testCodeFailure'
+  error: 'overspeed decay: 2418.963151299154 != 2361.934967214384'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:72:108)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: idle does not command a powered brake or a main-engine plume
+not ok 35 - idle does not command a powered brake or a main-engine plume
+  ---
+  duration_ms: 3.590599
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:75:1'
+  failureType: 'testCodeFailure'
+  error: 'the small mass has only its passive resistance, not full reverse thrust'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:76:205)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a large unpowered vessel loses speed in all axes while a small craft nearly keeps its drift
+not ok 36 - a large unpowered vessel loses speed in all axes while a small craft nearly keeps its drift
+  ---
+  duration_ms: 55.679353
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:79:1'
+  failureType: 'testCodeFailure'
+  error: 'small-craft drift: 63.832367075162516 != 100'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:82:127)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: weapon priority cannot preserve a heavy vessel speed using an unfunded throttle command
+ok 37 - weapon priority cannot preserve a heavy vessel speed using an unfunded throttle command
+  ---
+  duration_ms: 11.068825
+  type: 'test'
+  ...
+# Subtest: a fresh power choice prioritizes propulsion while throttle commands retain explicit weapon or shield priorities
+ok 38 - a fresh power choice prioritizes propulsion while throttle commands retain explicit weapon or shield priorities
+  ---
+  duration_ms: 4.944308
+  type: 'test'
+  ...
+# Subtest: thermal blackout suppresses engine output and steering while mass resistance remains active
+ok 39 - thermal blackout suppresses engine output and steering while mass resistance remains active
+  ---
+  duration_ms: 4.792459
+  type: 'test'
+  ...
+# Subtest: steering-only power is not rendered as forward main-engine thrust
+ok 40 - steering-only power is not rendered as forward main-engine thrust
+  ---
+  duration_ms: 2.516852
+  type: 'test'
+  ...
+# Subtest: partial electrical supply limits both actual thrust and exhaust below the requested full output
+not ok 41 - partial electrical supply limits both actual thrust and exhaust below the requested full output
+  ---
+  duration_ms: 1.805809
+  type: 'test'
+  location: '/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:104:1'
+  failureType: 'testCodeFailure'
+  error: 'value: 79421092.85246721 != 125000000'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    near (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:5:53)
+    TestContext.<anonymous> (/workspace/kuat-tie-solar-panel/tests/throttle-output-trial.cjs:105:93)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: actual draw payload receives funded main-engine output instead of speed or steering allocation
+ok 42 - actual draw payload receives funded main-engine output instead of speed or steering allocation
+  ---
+  duration_ms: 8.692077
+  type: 'test'
+  ...
+# Subtest: reverse output uses paid propulsion and changes the acceleration direction
+ok 43 - reverse output uses paid propulsion and changes the acceleration direction
+  ---
+  duration_ms: 1.428452
+  type: 'test'
+  ...
+# Subtest: position and velocity agree across frame partitions under constant output and resistance
+ok 44 - position and velocity agree across frame partitions under constant output and resistance
+  ---
+  duration_ms: 21.853233
+  type: 'test'
+  ...
+# Subtest: the HUD velocity is recomputed after the planetary floor removes inward motion
+ok 45 - the HUD velocity is recomputed after the planetary floor removes inward motion
+  ---
+  duration_ms: 1.97458
+  type: 'test'
+  ...
+# Subtest: direct output drives actual automatically wired hardware and retains its fuel and heat ledgers
+ok 46 - direct output drives actual automatically wired hardware and retains its fuel and heat ledgers
+  ---
+  duration_ms: 1159.261311
+  type: 'test'
+  ...
+1..46
+# tests 46
+# suites 0
+# pass 31
+# fail 15
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27290.37394
