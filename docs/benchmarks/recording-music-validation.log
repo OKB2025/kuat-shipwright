@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: page setup stays silent until a gesture and requests playback before constructing its one audio context
+ok 1 - page setup stays silent until a gesture and requests playback before constructing its one audio context
+  ---
+  duration_ms: 82.153653
+  type: 'test'
+  ...
+# Subtest: unsupported or restricted audioSession does not disable the established sound path
+ok 2 - unsupported or restricted audioSession does not disable the established sound path
+  ---
+  duration_ms: 123.661123
+  type: 'test'
+  ...
+# Subtest: a fresh user gesture reclaims a playback session reset by the platform
+ok 3 - a fresh user gesture reclaims a playback session reset by the platform
+  ---
+  duration_ms: 52.001357
+  type: 'test'
+  ...
+# Subtest: an interrupted unlocked engine recovers on foreground return without rebuilding or restarting the recorded track
+ok 4 - an interrupted unlocked engine recovers on foreground return without rebuilding or restarting the recorded track
+  ---
+  duration_ms: 93.782426
+  type: 'test'
+  ...
+# Subtest: failed foreground recovery remains retryable by the next user gesture
+ok 5 - failed foreground recovery remains retryable by the next user gesture
+  ---
+  duration_ms: 27.810723
+  type: 'test'
+  ...
+# Subtest: a platform-restored running context resumes the interrupted media slot without a foreground event
+ok 6 - a platform-restored running context resumes the interrupted media slot without a foreground event
+  ---
+  duration_ms: 26.266656
+  type: 'test'
+  ...
+# Subtest: foreground events cannot start never-unlocked, muted, zero-volume or hidden audio
+ok 7 - foreground events cannot start never-unlocked, muted, zero-volume or hidden audio
+  ---
+  duration_ms: 96.600399
+  type: 'test'
+  ...
+# Subtest: a rejected recorded-slot resume keeps its retry and resumes at its saved position on a gesture
+ok 8 - a rejected recorded-slot resume keeps its retry and resumes at its saved position on a gesture
+  ---
+  duration_ms: 30.32857
+  type: 'test'
+  ...
+# Subtest: every scene has recorded tracks and every data file is used
+ok 9 - every scene has recorded tracks and every data file is used
+  ---
+  duration_ms: 5.934323
+  type: 'test'
+  ...
+# Subtest: loop points lie inside each file and leave the 1.5 s run-on for the splice
+ok 10 - loop points lie inside each file and leave the 1.5 s run-on for the splice
+  ---
+  duration_ms: 187.134848
+  type: 'test'
+  ...
+# Subtest: the player keeps the loop meta and splices at the loop end
+ok 11 - the player keeps the loop meta and splices at the loop end
+  ---
+  duration_ms: 2.440381
+  type: 'test'
+  ...
+# Subtest: published startup source hashes and sizes match the exact committed files
+ok 12 - published startup source hashes and sizes match the exact committed files
+  ---
+  duration_ms: 244.672945
+  type: 'test'
+  ...
+# Subtest: updating source revisions changes the script URL without changing manifest keys and is idempotent
+ok 13 - updating source revisions changes the script URL without changing manifest keys and is idempotent
+  ---
+  duration_ms: 6.470314
+  type: 'test'
+  ...
+# Subtest: the first ready pointerdown or touchstart enters even if release and click never arrive
+ok 14 - the first ready pointerdown or touchstart enters even if release and click never arrive
+  ---
+  duration_ms: 20.019854
+  type: 'test'
+  ...
+# Subtest: window capture dismisses the ready splash before document audio capture or target handlers
+ok 15 - window capture dismisses the ready splash before document audio capture or target handlers
+  ---
+  duration_ms: 8.537772
+  type: 'test'
+  ...
+# Subtest: early gestures respect readiness, splash containment and primary single-touch input
+ok 16 - early gestures respect readiness, splash containment and primary single-touch input
+  ---
+  duration_ms: 2.213575
+  type: 'test'
+  ...
+# Subtest: pointer, touch and click compatibility events commit entry and start splash audio only once
+ok 17 - pointer, touch and click compatibility events commit entry and start splash audio only once
+  ---
+  duration_ms: 3.282491
+  type: 'test'
+  ...
+# Subtest: a primary pointer release enters before pending audio and repeated compatibility events stay one-shot
+ok 18 - a primary pointer release enters before pending audio and repeated compatibility events stay one-shot
+  ---
+  duration_ms: 1.271438
+  type: 'test'
+  ...
+# Subtest: a touchend without a synthesized click opens the ready splash and preserves saved data
+ok 19 - a touchend without a synthesized click opens the ready splash and preserves saved data
+  ---
+  duration_ms: 0.863848
+  type: 'test'
+  ...
+# Subtest: throwing and rejected audio cannot retain the splash or produce an unhandled rejection
+ok 20 - throwing and rejected audio cannot retain the splash or produce an unhandled rejection
+  ---
+  duration_ms: 19.466353
+  type: 'test'
+  ...
+# Subtest: keyboard entry remains accessible and commits the same one-shot transition
+ok 21 - keyboard entry remains accessible and commits the same one-shot transition
+  ---
+  duration_ms: 2.470637
+  type: 'test'
+  ...
+# Subtest: pageshow reconciles a restored entered splash without audio or saved-data changes
+ok 22 - pageshow reconciles a restored entered splash without audio or saved-data changes
+  ---
+  duration_ms: 4.507328
+  type: 'test'
+  ...
+# Subtest: pageshow never bypasses actual startup readiness
+ok 23 - pageshow never bypasses actual startup readiness
+  ---
+  duration_ms: 1.962117
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 692.314113

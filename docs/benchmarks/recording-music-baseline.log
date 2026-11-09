@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: page setup stays silent until a gesture and requests playback before constructing its one audio context
+not ok 1 - page setup stays silent until a gesture and requests playback before constructing its one audio context
+  ---
+  duration_ms: 92.510758
+  type: 'test'
+  location: '/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:77:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    'auto' !== 'playback'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'playback'
+  actual: 'auto'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:80:9)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: unsupported or restricted audioSession does not disable the established sound path
+ok 2 - unsupported or restricted audioSession does not disable the established sound path
+  ---
+  duration_ms: 97.648795
+  type: 'test'
+  ...
+# Subtest: a fresh user gesture reclaims a playback session reset by the platform
+not ok 3 - a fresh user gesture reclaims a playback session reset by the platform
+  ---
+  duration_ms: 39.195701
+  type: 'test'
+  location: '/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:93:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    'auto' !== 'playback'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'playback'
+  actual: 'auto'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:95:54)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: an interrupted unlocked engine recovers on foreground return without rebuilding or restarting the recorded track
+not ok 4 - an interrupted unlocked engine recovers on foreground return without rebuilding or restarting the recorded track
+  ---
+  duration_ms: 62.75184
+  type: 'test'
+  location: '/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:98:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    interruption rearms pointerdown
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:101:53)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: failed foreground recovery remains retryable by the next user gesture
+not ok 5 - failed foreground recovery remains retryable by the next user gesture
+  ---
+  duration_ms: 37.515556
+  type: 'test'
+  location: '/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:108:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:110:49)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a platform-restored running context resumes the interrupted media slot without a foreground event
+not ok 6 - a platform-restored running context resumes the interrupted media slot without a foreground event
+  ---
+  duration_ms: 26.583237
+  type: 'test'
+  location: '/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:115:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:116:69)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: foreground events cannot start never-unlocked, muted, zero-volume or hidden audio
+ok 7 - foreground events cannot start never-unlocked, muted, zero-volume or hidden audio
+  ---
+  duration_ms: 88.36817
+  type: 'test'
+  ...
+# Subtest: a rejected recorded-slot resume keeps its retry and resumes at its saved position on a gesture
+not ok 8 - a rejected recorded-slot resume keeps its retry and resumes at its saved position on a gesture
+  ---
+  duration_ms: 24.479996
+  type: 'test'
+  location: '/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:132:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    failed element resume retains a gesture recovery
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/kuat-recording-music/tests/audio-session-recovery.cjs:135:72)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 2
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 749.668306

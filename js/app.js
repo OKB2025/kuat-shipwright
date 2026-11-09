@@ -1770,7 +1770,20 @@ function trackStinger(name) {
  fadeTo(s, 1, t, .02); playOn(s, r); eng.duck(t + .05, Math.max(1, dur - 1.5), .3); stT = {id, end: nowS() + dur}; return true;
 }
 function pauseEls() { for (const s of els || []) if (!s.el.paused) { s.was = 1; s.el.pause(); } }
-function resumeEls() { for (const s of els || []) if (s.was) { s.was = 0; const p = s.el.play(); if (p && p.catch) p.catch(() => {}); } }
+function resumeEls() {
+ if (!ctx || ctx.state !== 'running' || quiet() || isHidden()) return;
+ for (const s of els || []) if (s.was && !s.resuming) {
+  const attempt = s.resuming = {}, tok = s.tok;
+  const settle = ok => {
+   if (s.resuming === attempt) s.resuming = null;
+   if (s.tok !== tok || !s.was) return;
+   if (ok && !s.el.paused) { s.was = 0; if (quiet() || isHidden()) pauseEls(); }
+   else attach(); // Keep the same position and retry inside the next gesture if iOS refused play().
+  };
+  try { const p = s.el.play(); if (p && p.then) p.then(() => settle(true), () => settle(false)); else settle(true); }
+  catch (e) { settle(false); }
+ }
+}
 // Start loading tracks ahead of need (e.g. the title music while the title screen waits for a tap): no audio
 // context is needed to fetch and decode the data, only to play it. Returns how many were asked for.
 // Not while sound is off or the browser asks to save data (a phone on mobile data): the track then loads when it is
@@ -1796,12 +1809,25 @@ function saveS() { try { W.localStorage.setItem(KEY, JSON.stringify(S)); } catch
 let S = loadS(), ctx = null, eng = null, timer = 0, everRan = false, want = {scene: null, opts: {}}, curScene = null, curFac = 'none', intensity = 0, vtok = 0;
 const subs = new Set(), quiet = () => S.muted || S.master <= 0;
 function tick() { if (eng && ctx.state === 'running') { eng.advance(ctx.currentTime + .12); trackTick(); } }
+// iOS otherwise chooses an ambient Web Audio session. Declare media playback before
+// creating/resuming the context; recorded music and synthesized sounds keep one output bus.
+// Optional API: older Safari and browsers without it retain the existing Web Audio path.
+function playbackSession() { try { const a = W.navigator && W.navigator.audioSession; if (a && a.type !== 'playback') a.type = 'playback'; } catch (e) {} }
+function rememberTrack() { if (cur && cur.slot.el.paused) cur.slot.was = 1; }
+function audioRunning() {
+ everRan = true; detach();
+ if (!quiet() && !isHidden()) { tick(); resumeEls(); }
+}
 function ensure() {
  if (ctx) return true; if (!AC) return false;
+ playbackSession();
  try { ctx = new AC({latencyHint: 'interactive'}); } catch (e) { try { ctx = new AC(); } catch (e2) { return false; } }
  eng = createEngine(ctx, ctx.destination); eng.apply(S); eng.setIntensity(intensity); configure();
  timer = setInterval(tick,25);
- if (ctx.addEventListener) ctx.addEventListener('statechange', () => { if (ctx.state === 'running') { everRan = true; detach(); } });
+ if (ctx.addEventListener) ctx.addEventListener('statechange', () => {
+  if (ctx.state === 'running') audioRunning();
+  else if (ctx.state !== 'closed') { if (ctx.state === 'interrupted') { pauseEls(); rememberTrack(); } attach(); }
+ });
  if (want.scene) startScene(want.scene, want.opts);
  for (const h of loops) if (!h.L) h.L = eng.loop(h.name, h.o);
  if (isHidden()) eng.setHidden(true);
@@ -1809,25 +1835,35 @@ function ensure() {
 }
 function unlock() {
  if (!ensure()) return Promise.resolve(false);
- if (hasTracks() && (!els || needPrime)) prime(); // inside the gesture (iOS)
- const done = () => { if (ctx.state === 'running') { everRan = true; detach(); tick(); if (quiet()) applyS(); } return ctx.state === 'running'; };
- if (ctx.state !== 'running' && !isHidden()) { try { const p = ctx.resume(); if (p && p.then) return p.then(done, () => false); } catch (e) {} }
+ playbackSession();
+ if (!quiet() && !isHidden() && hasTracks() && (!els || needPrime)) prime(); // inside the gesture (iOS)
+ if (!quiet() && !isHidden()) rememberTrack();
+ const done = () => { if (ctx.state === 'running') { audioRunning(); if (quiet()) applyS(); } else attach(); return ctx.state === 'running'; };
+ if (ctx.state !== 'running' && !isHidden()) { try { const p = ctx.resume(); if (p && p.then) return p.then(done, () => { attach(); return false; }); } catch (e) { attach(); } }
  return Promise.resolve(done());
 }
 const EVTS = ['pointerdown', 'pointerup', 'touchend', 'keydown', 'click'];
 const onGesture = () => { unlock(); };
 function attach() { if (hasDoc) for (const e of EVTS) document.addEventListener(e, onGesture, true); }
 function detach() { if (hasDoc) for (const e of EVTS) document.removeEventListener(e, onGesture, true); }
+// Opening Control Centre for screen recording can interrupt audio without hiding the page.
+// Recover only a previously unlocked, audible foreground session, with a gesture retry if needed.
+function wakeAudio() {
+ if (!ctx || !everRan || quiet() || isHidden() || ctx.state === 'closed') return;
+ playbackSession(); rememberTrack();
+ const done = () => { if (quiet() || isHidden()) return; eng.setHidden(false); if (ctx.state === 'running') audioRunning(); else attach(); };
+ if (ctx.state !== 'running') { try { const p = ctx.resume(); if (p && p.then) { p.then(done, () => attach()); return; } } catch (e) { attach(); return; } }
+ done();
+}
 function onVis() {
  if (!ctx) return; const tok = ++vtok;
  if (isHidden()) { eng.setHidden(true); setTimeout(() => { if (tok === vtok && isHidden()) { pauseEls(); if (ctx.state === 'running') ctx.suspend().catch(() => {}); } },320); }
- else { const go = () => { if (tok === vtok) { eng.setHidden(false); tick(); if (!quiet()) resumeEls(); } }; if (ctx.state !== 'running' && everRan && !quiet()) ctx.resume().then(go, go); else go(); }
+ else { eng.setHidden(false); wakeAudio(); }
 }
 function applyS() {
  if (!eng) return; eng.apply(S);
  if (quiet()) setTimeout(() => { if (quiet()) { pauseEls(); if (ctx.state === 'running') ctx.suspend().catch(() => {}); } },260);
- else if (ctx.state !== 'running' && everRan && !isHidden()) ctx.resume().then(() => { tick(); resumeEls(); }, () => {});
- else if (!isHidden()) resumeEls();
+ else wakeAudio();
 }
 // a scene plays its recorded track list (classic) or the synthesized score; synth also covers a track that is still loading
 function startScene(scene, o, force) {
@@ -1925,6 +1961,7 @@ const API = {__ks: 1, version: '1.4.0', unlock, configure, preload, trackInfo, l
 W.KSAudio = API;
 attach();
 if (hasDoc) document.addEventListener('visibilitychange', onVis);
+if (W.addEventListener) { W.addEventListener('pageshow', wakeAudio); W.addEventListener('focus', wakeAudio); }
 })();
 
 /* ============================================================

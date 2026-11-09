@@ -1,0 +1,1885 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-11-09T03:39:34.876Z",
+  "sourceSha256": {
+    "index.html": "1f686665371a08b6fe18b19513a6da9e19ea6b507d02ca13c1a9b7c527c55c78",
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6"
+  },
+  "harnessSha256": "30f14c38cb94adc070897769b0b6b9f32715de73160cda3f83706d41e1f4073d",
+  "scope": "Real public recorded BGM, synthesized music and effects in the actual application. The production AudioNode connection to its normal destination is retained. A test-only parallel tap of the existing final master gain feeds MediaRecorder and an AnalyserNode. No BGM replacement, generated test tone or simulation clock changes.",
+  "conditions": {
+    "browser": "Chromium on Linux",
+    "safari": "Not tested",
+    "iOSScreenRecording": "Not tested; these audio files are test-tap MediaRecorder output, not OS screen recordings.",
+    "interruption": "Controlled pause of the actual playing HTMLAudioElement and actual AudioContext.suspend followed by a trusted browser pointer gesture. This tests recovery with both real layers stopped, not reproduction of an iOS audio-session interruption."
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "stages": [
+    {
+      "name": "Public recorded BGM reaches the existing final output and the parallel recording tap",
+      "at": "2026-11-09T03:39:45.795Z"
+    },
+    {
+      "name": "Trusted pointer input restores the actually suspended context and paused recorded BGM without resetting its position",
+      "at": "2026-11-09T03:39:48.089Z"
+    },
+    {
+      "name": "Mute stops the context and recorded player and retains user settings across recovery gestures",
+      "at": "2026-11-09T03:39:49.120Z"
+    },
+    {
+      "name": "Synthesized fallback music remains audible after changing source",
+      "at": "2026-11-09T03:39:55.685Z"
+    },
+    {
+      "name": "Real effect synthesis remains audible with music volume at zero",
+      "at": "2026-11-09T03:39:58.035Z"
+    }
+  ],
+  "recordings": [
+    {
+      "name": "recorded-before",
+      "file": "docs/benchmarks/recording-music-browser.recorded-before.webm",
+      "sha256": "c770295df7679c2ff23ae426d10089d5140ab6df959eaed1924f5e7a5b551156",
+      "mimeType": "audio/webm;codecs=opus",
+      "bytes": 29276,
+      "duration": 1.8,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rms": 0.04125913167625018,
+      "peak": 0.16752243041992188,
+      "analyserSamples": [
+        {
+          "rms": 0.0330684310343107,
+          "peak": 0.12925834953784943
+        },
+        {
+          "rms": 0.03555058766626876,
+          "peak": 0.11380647867918015
+        },
+        {
+          "rms": 0.02884872934648462,
+          "peak": 0.08171159029006958
+        },
+        {
+          "rms": 0.03060202562033674,
+          "peak": 0.10179832577705383
+        },
+        {
+          "rms": 0.033621970793458425,
+          "peak": 0.10224627703428268
+        },
+        {
+          "rms": 0.038829347039484076,
+          "peak": 0.1251879334449768
+        },
+        {
+          "rms": 0.0354656845727279,
+          "peak": 0.1079082265496254
+        },
+        {
+          "rms": 0.03382775490412707,
+          "peak": 0.09446263313293457
+        },
+        {
+          "rms": 0.03456061501716218,
+          "peak": 0.10134287178516388
+        },
+        {
+          "rms": 0.029165279172611788,
+          "peak": 0.08378009498119354
+        },
+        {
+          "rms": 0.03383064639340619,
+          "peak": 0.09377066791057587
+        },
+        {
+          "rms": 0.03290051041167416,
+          "peak": 0.11470097303390503
+        },
+        {
+          "rms": 0.036344234566983366,
+          "peak": 0.11107870191335678
+        },
+        {
+          "rms": 0.030164302863410996,
+          "peak": 0.08418679237365723
+        },
+        {
+          "rms": 0.03356171452821866,
+          "peak": 0.09634459018707275
+        },
+        {
+          "rms": 0.035390991098308955,
+          "peak": 0.10830572247505188
+        },
+        {
+          "rms": 0.030756832640466636,
+          "peak": 0.10266877710819244
+        },
+        {
+          "rms": 0.029963587952757605,
+          "peak": 0.09361649304628372
+        },
+        {
+          "rms": 0.031893180523646966,
+          "peak": 0.10179993510246277
+        },
+        {
+          "rms": 0.02581375043164875,
+          "peak": 0.08078533411026001
+        },
+        {
+          "rms": 0.023779573212654948,
+          "peak": 0.06463286280632019
+        },
+        {
+          "rms": 0.02415054984742349,
+          "peak": 0.09073984622955322
+        },
+        {
+          "rms": 0.032322955060396744,
+          "peak": 0.09918421506881714
+        },
+        {
+          "rms": 0.034760184170933336,
+          "peak": 0.10448932647705078
+        },
+        {
+          "rms": 0.03097517470350685,
+          "peak": 0.10448932647705078
+        },
+        {
+          "rms": 0.028973794653659363,
+          "peak": 0.09280112385749817
+        },
+        {
+          "rms": 0.026809757060265525,
+          "peak": 0.08538198471069336
+        },
+        {
+          "rms": 0.02550871381423138,
+          "peak": 0.07164207845926285
+        },
+        {
+          "rms": 0.027982947574063857,
+          "peak": 0.08568127453327179
+        },
+        {
+          "rms": 0.02660078584200059,
+          "peak": 0.07213695347309113
+        },
+        {
+          "rms": 0.024766556549843256,
+          "peak": 0.07179168611764908
+        },
+        {
+          "rms": 0.028660146444849797,
+          "peak": 0.06663445383310318
+        },
+        {
+          "rms": 0.029490221917382854,
+          "peak": 0.08278301358222961
+        },
+        {
+          "rms": 0.03643506892958026,
+          "peak": 0.09611885249614716
+        },
+        {
+          "rms": 0.029974992560451608,
+          "peak": 0.08422725647687912
+        },
+        {
+          "rms": 0.031152689724061405,
+          "peak": 0.0912429541349411
+        },
+        {
+          "rms": 0.034046062344093714,
+          "peak": 0.09306450188159943
+        },
+        {
+          "rms": 0.038394802506961874,
+          "peak": 0.11085796356201172
+        },
+        {
+          "rms": 0.036052901972065274,
+          "peak": 0.12004052102565765
+        },
+        {
+          "rms": 0.04082527044314978,
+          "peak": 0.10233144462108612
+        },
+        {
+          "rms": 0.04151678422086802,
+          "peak": 0.1026485413312912
+        },
+        {
+          "rms": 0.04137113596745076,
+          "peak": 0.10868321359157562
+        },
+        {
+          "rms": 0.04007448932055745,
+          "peak": 0.10016670823097229
+        },
+        {
+          "rms": 0.04111104736475671,
+          "peak": 0.11383752524852753
+        },
+        {
+          "rms": 0.03460781877464803,
+          "peak": 0.08587715029716492
+        }
+      ],
+      "state": {
+        "audio": {
+          "unlocked": true,
+          "ctxState": "running",
+          "scene": "title",
+          "faction": "none",
+          "requested": "title",
+          "intensity": 0,
+          "voices": 0,
+          "players": 1,
+          "loops": 0,
+          "pendingNodes": 5,
+          "hidden": false,
+          "musicSource": "classic",
+          "track": {
+            "id": "meridian",
+            "scene": "title",
+            "time": 4.18,
+            "playing": true,
+            "pass": 0,
+            "loop": [
+              77.9823,
+              149.9823
+            ],
+            "seam": null
+          },
+          "trackPending": null,
+          "stingerTrack": null,
+          "tracksAvailable": true,
+          "tracksReady": [
+            "meridian"
+          ],
+          "settings": {
+            "master": 0.7,
+            "music": 0.55,
+            "sfx": 0.7,
+            "muted": false,
+            "musicSource": "classic"
+          },
+          "stats": {
+            "started": 0,
+            "thinned": 0,
+            "stolen": 0,
+            "dropped": 0,
+            "peakVoices": 0
+          },
+          "time": 5.021
+        },
+        "ctx": "running",
+        "masterGain": 0.699999988079071,
+        "elements": [
+          {
+            "paused": false,
+            "time": 4.179882,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          }
+        ],
+        "audioSessionSupported": false,
+        "audioSessionType": null
+      }
+    },
+    {
+      "name": "recorded-recovered",
+      "file": "docs/benchmarks/recording-music-browser.recorded-recovered.webm",
+      "sha256": "3238fe379389c86e72c475ba6640e8f7853a2428fbf236fbb79928b279257e2a",
+      "mimeType": "audio/webm;codecs=opus",
+      "bytes": 29276,
+      "duration": 1.8,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rms": 0.051730944474523526,
+      "peak": 0.23770427703857422,
+      "analyserSamples": [
+        {
+          "rms": 0.03792758037382717,
+          "peak": 0.12670831382274628
+        },
+        {
+          "rms": 0.035473661235119414,
+          "peak": 0.1057775616645813
+        },
+        {
+          "rms": 0.043177869231052574,
+          "peak": 0.12540891766548157
+        },
+        {
+          "rms": 0.04437365328572153,
+          "peak": 0.13581372797489166
+        },
+        {
+          "rms": 0.045169677803535466,
+          "peak": 0.11493422091007233
+        },
+        {
+          "rms": 0.04264746739513806,
+          "peak": 0.10366255044937134
+        },
+        {
+          "rms": 0.04891810085566439,
+          "peak": 0.14096596837043762
+        },
+        {
+          "rms": 0.04569723316901845,
+          "peak": 0.1122240275144577
+        },
+        {
+          "rms": 0.04629787775582408,
+          "peak": 0.11915764957666397
+        },
+        {
+          "rms": 0.04419629327424022,
+          "peak": 0.12807875871658325
+        },
+        {
+          "rms": 0.053468366415106286,
+          "peak": 0.1543729305267334
+        },
+        {
+          "rms": 0.04861344065685964,
+          "peak": 0.14809030294418335
+        },
+        {
+          "rms": 0.05324671834292882,
+          "peak": 0.1578134447336197
+        },
+        {
+          "rms": 0.047442037680568164,
+          "peak": 0.1442403495311737
+        },
+        {
+          "rms": 0.0470748904504255,
+          "peak": 0.1318502128124237
+        },
+        {
+          "rms": 0.047855615484015505,
+          "peak": 0.11545336246490479
+        },
+        {
+          "rms": 0.04688610525325951,
+          "peak": 0.11801400035619736
+        },
+        {
+          "rms": 0.047613177484680934,
+          "peak": 0.11647601425647736
+        },
+        {
+          "rms": 0.039426569766028666,
+          "peak": 0.11735845357179642
+        },
+        {
+          "rms": 0.042516993988180526,
+          "peak": 0.11400403082370758
+        },
+        {
+          "rms": 0.035621990993406,
+          "peak": 0.09735986590385437
+        },
+        {
+          "rms": 0.03775813033494971,
+          "peak": 0.0934114158153534
+        },
+        {
+          "rms": 0.03192269672527843,
+          "peak": 0.08670686185359955
+        },
+        {
+          "rms": 0.03471919916675925,
+          "peak": 0.09423784911632538
+        },
+        {
+          "rms": 0.03216962843101059,
+          "peak": 0.06591510772705078
+        },
+        {
+          "rms": 0.04681048476553304,
+          "peak": 0.12981626391410828
+        },
+        {
+          "rms": 0.053832471968356374,
+          "peak": 0.11751622706651688
+        },
+        {
+          "rms": 0.0500067450993712,
+          "peak": 0.10458455979824066
+        },
+        {
+          "rms": 0.04295347866439416,
+          "peak": 0.10331249237060547
+        },
+        {
+          "rms": 0.034662233882625744,
+          "peak": 0.08268727362155914
+        },
+        {
+          "rms": 0.05569051471761894,
+          "peak": 0.14485383033752441
+        },
+        {
+          "rms": 0.051701122700284104,
+          "peak": 0.142799973487854
+        },
+        {
+          "rms": 0.05226507748374053,
+          "peak": 0.12518945336341858
+        },
+        {
+          "rms": 0.03665788139604622,
+          "peak": 0.09631141275167465
+        },
+        {
+          "rms": 0.040144991298450575,
+          "peak": 0.11692726612091064
+        },
+        {
+          "rms": 0.06216747772586821,
+          "peak": 0.14688454568386078
+        },
+        {
+          "rms": 0.054277868065700924,
+          "peak": 0.1146216094493866
+        },
+        {
+          "rms": 0.04259942110024355,
+          "peak": 0.10404152423143387
+        },
+        {
+          "rms": 0.031215068265060597,
+          "peak": 0.07783515751361847
+        },
+        {
+          "rms": 0.03839098431501766,
+          "peak": 0.10836400836706161
+        },
+        {
+          "rms": 0.047905650319050995,
+          "peak": 0.11684447526931763
+        },
+        {
+          "rms": 0.0372144429647431,
+          "peak": 0.09592225402593613
+        },
+        {
+          "rms": 0.03605047594475424,
+          "peak": 0.08888385444879532
+        },
+        {
+          "rms": 0.034134348357286466,
+          "peak": 0.0931856632232666
+        },
+        {
+          "rms": 0.02929889384465493,
+          "peak": 0.08514758944511414
+        }
+      ],
+      "state": {
+        "audio": {
+          "unlocked": true,
+          "ctxState": "running",
+          "scene": "title",
+          "faction": "none",
+          "requested": "title",
+          "intensity": 0,
+          "voices": 0,
+          "players": 0,
+          "loops": 0,
+          "pendingNodes": 0,
+          "hidden": false,
+          "musicSource": "classic",
+          "track": {
+            "id": "meridian",
+            "scene": "title",
+            "time": 6.45,
+            "playing": true,
+            "pass": 0,
+            "loop": [
+              77.9823,
+              149.9823
+            ],
+            "seam": null
+          },
+          "trackPending": null,
+          "stingerTrack": null,
+          "tracksAvailable": true,
+          "tracksReady": [
+            "meridian"
+          ],
+          "settings": {
+            "master": 0.7,
+            "music": 0.55,
+            "sfx": 0.7,
+            "muted": false,
+            "musicSource": "classic"
+          },
+          "stats": {
+            "started": 0,
+            "thinned": 0,
+            "stolen": 0,
+            "dropped": 0,
+            "peakVoices": 0
+          },
+          "time": 7.311
+        },
+        "ctx": "running",
+        "masterGain": 0.699999988079071,
+        "elements": [
+          {
+            "paused": false,
+            "time": 6.450948,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          }
+        ],
+        "audioSessionSupported": false,
+        "audioSessionType": null
+      }
+    },
+    {
+      "name": "recorded-unmuted",
+      "file": "docs/benchmarks/recording-music-browser.recorded-unmuted.webm",
+      "sha256": "d8c2e5d82274a09851e5811cac7ddee2b6eae58e861139b146c651c4e70dcee5",
+      "mimeType": "audio/webm;codecs=opus",
+      "bytes": 28310,
+      "duration": 1.74,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rms": 0.06035634412158494,
+      "peak": 0.2745463252067566,
+      "analyserSamples": [
+        {
+          "rms": 0.041811075125163556,
+          "peak": 0.1309564709663391
+        },
+        {
+          "rms": 0.035915743602816436,
+          "peak": 0.0822887271642685
+        },
+        {
+          "rms": 0.04287341142273251,
+          "peak": 0.12274578958749771
+        },
+        {
+          "rms": 0.05305945839202999,
+          "peak": 0.1455252766609192
+        },
+        {
+          "rms": 0.04739866747482935,
+          "peak": 0.14312604069709778
+        },
+        {
+          "rms": 0.0462496549991191,
+          "peak": 0.12747108936309814
+        },
+        {
+          "rms": 0.039136669539977825,
+          "peak": 0.1026642769575119
+        },
+        {
+          "rms": 0.051895831508648946,
+          "peak": 0.15445250272750854
+        },
+        {
+          "rms": 0.06115277351092498,
+          "peak": 0.1783992350101471
+        },
+        {
+          "rms": 0.06574251126682729,
+          "peak": 0.20039501786231995
+        },
+        {
+          "rms": 0.06098837430156365,
+          "peak": 0.15825417637825012
+        },
+        {
+          "rms": 0.05269391353519782,
+          "peak": 0.15120556950569153
+        },
+        {
+          "rms": 0.05005733544704245,
+          "peak": 0.14241552352905273
+        },
+        {
+          "rms": 0.058575748855242804,
+          "peak": 0.16649143397808075
+        },
+        {
+          "rms": 0.0570855740201309,
+          "peak": 0.16204649209976196
+        },
+        {
+          "rms": 0.061836320665040745,
+          "peak": 0.18595510721206665
+        },
+        {
+          "rms": 0.05410380555799445,
+          "peak": 0.16254906356334686
+        },
+        {
+          "rms": 0.050521366475747,
+          "peak": 0.14742177724838257
+        },
+        {
+          "rms": 0.05550563329074668,
+          "peak": 0.1648872196674347
+        },
+        {
+          "rms": 0.05856761105559793,
+          "peak": 0.1648872196674347
+        },
+        {
+          "rms": 0.05371344406290416,
+          "peak": 0.1456833779811859
+        },
+        {
+          "rms": 0.041395223175792334,
+          "peak": 0.11541816592216492
+        },
+        {
+          "rms": 0.03953175933293972,
+          "peak": 0.11396179348230362
+        },
+        {
+          "rms": 0.05282333498252258,
+          "peak": 0.14766234159469604
+        },
+        {
+          "rms": 0.05411711267297881,
+          "peak": 0.1667105257511139
+        },
+        {
+          "rms": 0.061306185409807305,
+          "peak": 0.16491088271141052
+        },
+        {
+          "rms": 0.061812028185995356,
+          "peak": 0.16491088271141052
+        },
+        {
+          "rms": 0.051216920083741985,
+          "peak": 0.17598024010658264
+        },
+        {
+          "rms": 0.05325355276653969,
+          "peak": 0.1314851939678192
+        },
+        {
+          "rms": 0.061061857094818775,
+          "peak": 0.16473010182380676
+        },
+        {
+          "rms": 0.0578221536085795,
+          "peak": 0.17069153487682343
+        },
+        {
+          "rms": 0.0474628172943405,
+          "peak": 0.14803549647331238
+        },
+        {
+          "rms": 0.03664153073066397,
+          "peak": 0.09838144481182098
+        },
+        {
+          "rms": 0.04202842186069661,
+          "peak": 0.10603930056095123
+        },
+        {
+          "rms": 0.04320638279749492,
+          "peak": 0.13263851404190063
+        },
+        {
+          "rms": 0.0456857887953198,
+          "peak": 0.13263851404190063
+        },
+        {
+          "rms": 0.04849047871100623,
+          "peak": 0.11412401497364044
+        },
+        {
+          "rms": 0.03889722236649517,
+          "peak": 0.1323687732219696
+        },
+        {
+          "rms": 0.03742146597574274,
+          "peak": 0.1323687732219696
+        },
+        {
+          "rms": 0.04339778737684171,
+          "peak": 0.10957338660955429
+        },
+        {
+          "rms": 0.06632956521195416,
+          "peak": 0.14883935451507568
+        },
+        {
+          "rms": 0.0628336237858706,
+          "peak": 0.1569591462612152
+        },
+        {
+          "rms": 0.037853446447355284,
+          "peak": 0.10467909276485443
+        },
+        {
+          "rms": 0.041376146463042815,
+          "peak": 0.1485477089881897
+        },
+        {
+          "rms": 0.05017616872922526,
+          "peak": 0.1485477089881897
+        }
+      ],
+      "state": {
+        "audio": {
+          "unlocked": true,
+          "ctxState": "running",
+          "scene": "title",
+          "faction": "none",
+          "requested": "title",
+          "intensity": 0,
+          "voices": 0,
+          "players": 0,
+          "loops": 0,
+          "pendingNodes": 0,
+          "hidden": false,
+          "musicSource": "classic",
+          "track": {
+            "id": "meridian",
+            "scene": "title",
+            "time": 8.94,
+            "playing": true,
+            "pass": 0,
+            "loop": [
+              77.9823,
+              149.9823
+            ],
+            "seam": null
+          },
+          "trackPending": null,
+          "stingerTrack": null,
+          "tracksAvailable": true,
+          "tracksReady": [
+            "meridian"
+          ],
+          "settings": {
+            "master": 0.7,
+            "music": 0.55,
+            "sfx": 0.7,
+            "muted": false,
+            "musicSource": "classic"
+          },
+          "stats": {
+            "started": 0,
+            "thinned": 0,
+            "stolen": 0,
+            "dropped": 0,
+            "peakVoices": 0
+          },
+          "time": 10.092
+        },
+        "ctx": "running",
+        "masterGain": 0.699999988079071,
+        "elements": [
+          {
+            "paused": false,
+            "time": 8.939683,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          }
+        ],
+        "audioSessionSupported": false,
+        "audioSessionType": null
+      }
+    },
+    {
+      "name": "synth",
+      "file": "docs/benchmarks/recording-music-browser.synth.webm",
+      "sha256": "c3c6c518a355bc049c0602934bfef8bce30b79d664abd95bc8664a1d31301c1e",
+      "mimeType": "audio/webm;codecs=opus",
+      "bytes": 29276,
+      "duration": 1.8,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rms": 0.049831137810882456,
+      "peak": 0.1769796758890152,
+      "analyserSamples": [
+        {
+          "rms": 0.04833494687842869,
+          "peak": 0.12687265872955322
+        },
+        {
+          "rms": 0.04458460897147445,
+          "peak": 0.1190706193447113
+        },
+        {
+          "rms": 0.04275213620475235,
+          "peak": 0.09885454177856445
+        },
+        {
+          "rms": 0.04165224425559104,
+          "peak": 0.10036782175302505
+        },
+        {
+          "rms": 0.047682548952844774,
+          "peak": 0.1337262988090515
+        },
+        {
+          "rms": 0.058848832027698986,
+          "peak": 0.15078873932361603
+        },
+        {
+          "rms": 0.05471831777823299,
+          "peak": 0.1280176043510437
+        },
+        {
+          "rms": 0.049485159580264976,
+          "peak": 0.12109393626451492
+        },
+        {
+          "rms": 0.04593664225445999,
+          "peak": 0.13259899616241455
+        },
+        {
+          "rms": 0.043958117084391186,
+          "peak": 0.1297045797109604
+        },
+        {
+          "rms": 0.04669635178376731,
+          "peak": 0.12236891686916351
+        },
+        {
+          "rms": 0.04993599894027249,
+          "peak": 0.11323502659797668
+        },
+        {
+          "rms": 0.055708863541817644,
+          "peak": 0.13562488555908203
+        },
+        {
+          "rms": 0.05942756204613417,
+          "peak": 0.13619709014892578
+        },
+        {
+          "rms": 0.058072370819343244,
+          "peak": 0.13755488395690918
+        },
+        {
+          "rms": 0.04797975954576886,
+          "peak": 0.12557902932167053
+        },
+        {
+          "rms": 0.04290353342084504,
+          "peak": 0.10550281405448914
+        },
+        {
+          "rms": 0.040489706412079156,
+          "peak": 0.10295554250478745
+        },
+        {
+          "rms": 0.034017913359827484,
+          "peak": 0.08396118879318237
+        },
+        {
+          "rms": 0.02688494528655021,
+          "peak": 0.07768167555332184
+        },
+        {
+          "rms": 0.031043793770172967,
+          "peak": 0.08531282097101212
+        },
+        {
+          "rms": 0.03628466856058262,
+          "peak": 0.08848955482244492
+        },
+        {
+          "rms": 0.044972308326583936,
+          "peak": 0.09982675313949585
+        },
+        {
+          "rms": 0.05476746889237797,
+          "peak": 0.11300171911716461
+        },
+        {
+          "rms": 0.05801152595195272,
+          "peak": 0.11744533479213715
+        },
+        {
+          "rms": 0.05119077287441377,
+          "peak": 0.13073872029781342
+        },
+        {
+          "rms": 0.04855959201064477,
+          "peak": 0.12968403100967407
+        },
+        {
+          "rms": 0.043777797577229036,
+          "peak": 0.1286391019821167
+        },
+        {
+          "rms": 0.04054919450378572,
+          "peak": 0.10620121657848358
+        },
+        {
+          "rms": 0.04283107275224869,
+          "peak": 0.12016206979751587
+        },
+        {
+          "rms": 0.049847621705098544,
+          "peak": 0.14470332860946655
+        },
+        {
+          "rms": 0.061182300828186625,
+          "peak": 0.15681760013103485
+        },
+        {
+          "rms": 0.06602463440443886,
+          "peak": 0.17013642191886902
+        },
+        {
+          "rms": 0.058416489747911735,
+          "peak": 0.15176206827163696
+        },
+        {
+          "rms": 0.048763755685639024,
+          "peak": 0.11342164874076843
+        },
+        {
+          "rms": 0.04774974296821122,
+          "peak": 0.1167517825961113
+        },
+        {
+          "rms": 0.04615527557383031,
+          "peak": 0.12517303228378296
+        },
+        {
+          "rms": 0.048222470507493606,
+          "peak": 0.11799250543117523
+        },
+        {
+          "rms": 0.05587781352956628,
+          "peak": 0.1412426233291626
+        },
+        {
+          "rms": 0.06310156049279421,
+          "peak": 0.1610756814479828
+        },
+        {
+          "rms": 0.06315733137027708,
+          "peak": 0.1513981819152832
+        },
+        {
+          "rms": 0.052568525517409606,
+          "peak": 0.14030992984771729
+        },
+        {
+          "rms": 0.04283103059184674,
+          "peak": 0.11257808655500412
+        },
+        {
+          "rms": 0.03427956423646144,
+          "peak": 0.08988427370786667
+        },
+        {
+          "rms": 0.03357781486730053,
+          "peak": 0.0892472118139267
+        }
+      ],
+      "state": {
+        "audio": {
+          "unlocked": true,
+          "ctxState": "running",
+          "scene": "title",
+          "faction": "none",
+          "requested": "title",
+          "intensity": 0,
+          "voices": 0,
+          "players": 1,
+          "loops": 0,
+          "pendingNodes": 16,
+          "hidden": false,
+          "musicSource": "synth",
+          "track": null,
+          "trackPending": null,
+          "stingerTrack": null,
+          "tracksAvailable": true,
+          "tracksReady": [
+            "meridian"
+          ],
+          "settings": {
+            "master": 0.7,
+            "music": 0.55,
+            "sfx": 0.7,
+            "muted": false,
+            "musicSource": "synth"
+          },
+          "stats": {
+            "started": 0,
+            "thinned": 0,
+            "stolen": 0,
+            "dropped": 0,
+            "peakVoices": 0
+          },
+          "time": 14.411
+        },
+        "ctx": "running",
+        "masterGain": 0.699999988079071,
+        "elements": [
+          {
+            "paused": true,
+            "time": 11.148481,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          }
+        ],
+        "audioSessionSupported": false,
+        "audioSessionType": null
+      }
+    },
+    {
+      "name": "effects-only",
+      "file": "docs/benchmarks/recording-music-browser.effects-only.webm",
+      "sha256": "b8c7564df366cebe24ff49506b66fb923eae5e347a1b1ea6313f22dd1d92a5cd",
+      "mimeType": "audio/webm;codecs=opus",
+      "bytes": 29276,
+      "duration": 1.8,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rms": 0.09785313069592581,
+      "peak": 0.6172394752502441,
+      "analyserSamples": [
+        {
+          "rms": 0.002314437629049311,
+          "peak": 0.004961497616022825
+        },
+        {
+          "rms": 0.002082281488848049,
+          "peak": 0.004932803101837635
+        },
+        {
+          "rms": 0.0021285734327008165,
+          "peak": 0.0046217236667871475
+        },
+        {
+          "rms": 0.0020264463580046154,
+          "peak": 0.00431486964225769
+        },
+        {
+          "rms": 0.0016004716908995075,
+          "peak": 0.0035153888165950775
+        },
+        {
+          "rms": 0.0011807900763025638,
+          "peak": 0.00262233754619956
+        },
+        {
+          "rms": 0.0008939272242875596,
+          "peak": 0.0019655406940728426
+        },
+        {
+          "rms": 0.02539201575824087,
+          "peak": 0.4294701814651489
+        },
+        {
+          "rms": 0.1704305831187763,
+          "peak": 0.5864366292953491
+        },
+        {
+          "rms": 0.14056751740555815,
+          "peak": 0.4878116250038147
+        },
+        {
+          "rms": 0.10819104360260832,
+          "peak": 0.3518158495426178
+        },
+        {
+          "rms": 0.08521054293748354,
+          "peak": 0.2815045714378357
+        },
+        {
+          "rms": 0.05689911764624856,
+          "peak": 0.17963656783103943
+        },
+        {
+          "rms": 0.042918731292254535,
+          "peak": 0.1466009020805359
+        },
+        {
+          "rms": 0.028845852568205304,
+          "peak": 0.11450600624084473
+        },
+        {
+          "rms": 0.15445007197034905,
+          "peak": 0.5906252861022949
+        },
+        {
+          "rms": 0.19392963595003515,
+          "peak": 0.5396138429641724
+        },
+        {
+          "rms": 0.1483192727771614,
+          "peak": 0.473167359828949
+        },
+        {
+          "rms": 0.1124943477128704,
+          "peak": 0.34332916140556335
+        },
+        {
+          "rms": 0.0714812224514912,
+          "peak": 0.23558351397514343
+        },
+        {
+          "rms": 0.04724870263189256,
+          "peak": 0.1386648565530777
+        },
+        {
+          "rms": 0.030151268587456252,
+          "peak": 0.08424990624189377
+        },
+        {
+          "rms": 0.023579472097819687,
+          "peak": 0.18134759366512299
+        },
+        {
+          "rms": 0.1599864221134283,
+          "peak": 0.5069406032562256
+        },
+        {
+          "rms": 0.14680485192468498,
+          "peak": 0.5050562620162964
+        },
+        {
+          "rms": 0.10679541310930475,
+          "peak": 0.3633754849433899
+        },
+        {
+          "rms": 0.08337067490204014,
+          "peak": 0.2481212615966797
+        },
+        {
+          "rms": 0.05678548694877473,
+          "peak": 0.15449172258377075
+        },
+        {
+          "rms": 0.039088802095775255,
+          "peak": 0.12368875741958618
+        },
+        {
+          "rms": 0.022766345773550804,
+          "peak": 0.09159959107637405
+        },
+        {
+          "rms": 0.138510510006535,
+          "peak": 0.5729308128356934
+        },
+        {
+          "rms": 0.17745826304016427,
+          "peak": 0.5012104511260986
+        },
+        {
+          "rms": 0.14004385928074423,
+          "peak": 0.48710158467292786
+        },
+        {
+          "rms": 0.10145472835032773,
+          "peak": 0.32123881578445435
+        },
+        {
+          "rms": 0.07126008503526678,
+          "peak": 0.22277948260307312
+        },
+        {
+          "rms": 0.04563099895630328,
+          "peak": 0.15255381166934967
+        },
+        {
+          "rms": 0.03218815604752363,
+          "peak": 0.12603673338890076
+        },
+        {
+          "rms": 0.02974895491562177,
+          "peak": 0.3382531404495239
+        },
+        {
+          "rms": 0.18945987352223964,
+          "peak": 0.5814428329467773
+        },
+        {
+          "rms": 0.14510368224266826,
+          "peak": 0.5794031620025635
+        },
+        {
+          "rms": 0.12321238648369873,
+          "peak": 0.3916810154914856
+        },
+        {
+          "rms": 0.07631319232181176,
+          "peak": 0.23281730711460114
+        },
+        {
+          "rms": 0.05634432063807251,
+          "peak": 0.16888999938964844
+        },
+        {
+          "rms": 0.040816686253078556,
+          "peak": 0.14123785495758057
+        },
+        {
+          "rms": 0.025585155621976663,
+          "peak": 0.09301446378231049
+        }
+      ],
+      "state": {
+        "audio": {
+          "unlocked": true,
+          "ctxState": "running",
+          "scene": "title",
+          "faction": "none",
+          "requested": "title",
+          "intensity": 0,
+          "voices": 2,
+          "players": 1,
+          "loops": 0,
+          "pendingNodes": 21,
+          "hidden": false,
+          "musicSource": "synth",
+          "track": null,
+          "trackPending": null,
+          "stingerTrack": null,
+          "tracksAvailable": true,
+          "tracksReady": [
+            "meridian"
+          ],
+          "settings": {
+            "master": 0.7,
+            "music": 0,
+            "sfx": 1,
+            "muted": false,
+            "musicSource": "synth"
+          },
+          "stats": {
+            "started": 6,
+            "thinned": 0,
+            "stolen": 0,
+            "dropped": 0,
+            "peakVoices": 2
+          },
+          "time": 16.762
+        },
+        "ctx": "running",
+        "masterGain": 0.699999988079071,
+        "elements": [
+          {
+            "paused": true,
+            "time": 11.148481,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          },
+          {
+            "paused": true,
+            "time": 0,
+            "ended": false
+          }
+        ],
+        "audioSessionSupported": false,
+        "audioSessionType": null
+      }
+    }
+  ],
+  "initial": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "running",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 1,
+      "loops": 0,
+      "pendingNodes": 7,
+      "hidden": false,
+      "musicSource": "classic",
+      "track": {
+        "id": "meridian",
+        "scene": "title",
+        "time": 2.29,
+        "playing": true,
+        "pass": 0,
+        "loop": [
+          77.9823,
+          149.9823
+        ],
+        "seam": null
+      },
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": false,
+        "musicSource": "classic"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 3.132
+    },
+    "ctx": "running",
+    "masterGain": 0.699999988079071,
+    "elements": [
+      {
+        "paused": false,
+        "time": 2.292971,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "beforeInterruption": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "running",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 1,
+      "loops": 0,
+      "pendingNodes": 5,
+      "hidden": false,
+      "musicSource": "classic",
+      "track": {
+        "id": "meridian",
+        "scene": "title",
+        "time": 4.18,
+        "playing": true,
+        "pass": 0,
+        "loop": [
+          77.9823,
+          149.9823
+        ],
+        "seam": null
+      },
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": false,
+        "musicSource": "classic"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 5.021
+    },
+    "ctx": "running",
+    "masterGain": 0.699999988079071,
+    "elements": [
+      {
+        "paused": false,
+        "time": 4.182494,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "interrupted": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "suspended",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 1,
+      "loops": 0,
+      "pendingNodes": 5,
+      "hidden": false,
+      "musicSource": "classic",
+      "track": {
+        "id": "meridian",
+        "scene": "title",
+        "time": 4.19,
+        "playing": false,
+        "pass": 0,
+        "loop": [
+          77.9823,
+          149.9823
+        ],
+        "seam": null
+      },
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": false,
+        "musicSource": "classic"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 5.03
+    },
+    "ctx": "suspended",
+    "masterGain": 0.699999988079071,
+    "elements": [
+      {
+        "paused": true,
+        "time": 4.191202,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "afterInterruption": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "running",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 1,
+      "loops": 0,
+      "pendingNodes": 0,
+      "hidden": false,
+      "musicSource": "classic",
+      "track": {
+        "id": "meridian",
+        "scene": "title",
+        "time": 4.6,
+        "playing": true,
+        "pass": 0,
+        "loop": [
+          77.9823,
+          149.9823
+        ],
+        "seam": null
+      },
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": false,
+        "musicSource": "classic"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 5.462
+    },
+    "ctx": "running",
+    "masterGain": 0.699999988079071,
+    "elements": [
+      {
+        "paused": false,
+        "time": 4.602783,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "muted": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "suspended",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 0,
+      "loops": 0,
+      "pendingNodes": 0,
+      "hidden": false,
+      "musicSource": "classic",
+      "track": {
+        "id": "meridian",
+        "scene": "title",
+        "time": 6.72,
+        "playing": false,
+        "pass": 0,
+        "loop": [
+          77.9823,
+          149.9823
+        ],
+        "seam": null
+      },
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": true,
+        "musicSource": "classic"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 7.581
+    },
+    "ctx": "suspended",
+    "masterGain": 0.001021259231492877,
+    "elements": [
+      {
+        "paused": true,
+        "time": 6.722177,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "mutedAfterGesture": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "suspended",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 0,
+      "loops": 0,
+      "pendingNodes": 0,
+      "hidden": false,
+      "musicSource": "classic",
+      "track": {
+        "id": "meridian",
+        "scene": "title",
+        "time": 6.72,
+        "playing": false,
+        "pass": 0,
+        "loop": [
+          77.9823,
+          149.9823
+        ],
+        "seam": null
+      },
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": true,
+        "musicSource": "classic"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 7.863
+    },
+    "ctx": "suspended",
+    "masterGain": 0,
+    "elements": [
+      {
+        "paused": true,
+        "time": 6.722177,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "synth": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "running",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 0,
+      "players": 1,
+      "loops": 0,
+      "pendingNodes": 7,
+      "hidden": false,
+      "musicSource": "synth",
+      "track": null,
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0.55,
+        "sfx": 0.7,
+        "muted": false,
+        "musicSource": "synth"
+      },
+      "stats": {
+        "started": 0,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 0
+      },
+      "time": 12.521
+    },
+    "ctx": "running",
+    "masterGain": 0.699999988079071,
+    "elements": [
+      {
+        "paused": true,
+        "time": 11.148481,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "final": {
+    "audio": {
+      "unlocked": true,
+      "ctxState": "running",
+      "scene": "title",
+      "faction": "none",
+      "requested": "title",
+      "intensity": 0,
+      "voices": 2,
+      "players": 1,
+      "loops": 0,
+      "pendingNodes": 21,
+      "hidden": false,
+      "musicSource": "synth",
+      "track": null,
+      "trackPending": null,
+      "stingerTrack": null,
+      "tracksAvailable": true,
+      "tracksReady": [
+        "meridian"
+      ],
+      "settings": {
+        "master": 0.7,
+        "music": 0,
+        "sfx": 1,
+        "muted": false,
+        "musicSource": "synth"
+      },
+      "stats": {
+        "started": 6,
+        "thinned": 0,
+        "stolen": 0,
+        "dropped": 0,
+        "peakVoices": 2
+      },
+      "time": 16.771
+    },
+    "ctx": "running",
+    "masterGain": 0.699999988079071,
+    "elements": [
+      {
+        "paused": true,
+        "time": 11.148481,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      },
+      {
+        "paused": true,
+        "time": 0,
+        "ended": false
+      }
+    ],
+    "audioSessionSupported": false,
+    "audioSessionType": null
+  },
+  "sourceSha256After": {
+    "index.html": "1f686665371a08b6fe18b19513a6da9e19ea6b507d02ca13c1a9b7c527c55c78",
+    "js/app.js": "777c0d58441ce688a7afa96fd4c09ed71933fdca4229f0aa768a2ed8a933d8b6"
+  },
+  "sourceStable": true,
+  "harnessStable": true,
+  "completedAt": "2026-11-09T03:39:58.045Z"
+}

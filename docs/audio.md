@@ -62,3 +62,40 @@ In a scene with several tracks, each one loops back `LOOP_PASSES` times (1, prov
   timeline with an error of 2–3 ms at the splice, and correlation stays at or above 0.95 throughout.
 - **Coverage:** `tests/bgm-loops.cjs` checks every scene's tracks, the loop points with their run-on, and the
   player wiring.
+
+## iPhone / iPad screen recording and interruptions
+
+The reported symptom is that BGM remains audible while playing, but is absent from the saved iOS screen
+recording. This is distinct from interrupted playback. The changes below improve session compatibility
+and fix independently reproducible recovery failures; the original OS-capture symptom has not been
+reproduced or verified as resolved on an actual iPhone/iPad. An ambient session alone is not evidence
+that iOS excludes the audio from a recording.
+
+All game audio, including the streamed recorded BGM, passes through the same Web Audio master output.
+The player requests `navigator.audioSession.type = 'playback'` before creating or resuming its audio context
+when the optional API is supported. This declares music/media playback instead of relying on the platform's
+automatic session choice. Browsers without the API, or those that reject the request, keep the existing audio path.
+See [the Audio Session specification](https://www.w3.org/TR/audio-session/) and
+[WebKit's description of ambient Web Audio on iOS](https://bugs.webkit.org/show_bug.cgi?id=252746).
+
+Opening Control Centre to start screen recording can interrupt audio without navigating away from the game.
+After an interruption, the player restores gesture listeners and retries on foreground focus, `pageshow`, or
+return to a visible document. A media `play()` rejection retains the resume request for the next user gesture.
+The existing context, players, track position, loop splice, and volume settings are retained. A previously
+unopened audio system is not started by a focus event, and a muted/hidden game is not automatically made audible.
+This is playback only: the game neither requests microphone permission nor implements an OS screen recorder.
+
+The regression tests exercise optional session handling, interruption recovery, rejected playback, and mute/
+visibility guards. The real Chromium browser check records a test-only parallel tap of the existing final
+output while leaving normal playback connected. It checks nonzero recorded music before and after an actual
+context suspension and trusted gesture recovery, silence under mute, synthesized music, and effects. These
+short MediaRecorder files are **not iOS screen recordings**. The browser's audio-session API may also differ
+from Safari; API behavior is separately covered by controlled unit tests.
+
+Evidence: [Node results](benchmarks/recording-music-validation.json),
+[previous-code comparison](benchmarks/recording-music-baseline.json), and
+[browser audio results](benchmarks/recording-music-browser.json). Run the browser harness with
+`node scripts/browser-audio-recovery.cjs` against a local server on port 8003 (or set `KS_AUDIO_URL`).
+Actual iPhone/iPad Safari and its OS screen-recording output remain unverified in this Linux environment.
+The session change and recovery fix address reproducible gaps in the player; they do not prove that every
+iOS version includes the game's audio in its saved screen recordings.
