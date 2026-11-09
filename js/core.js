@@ -50903,10 +50903,10 @@ function simulate(A, B, tmax) {
     for (let k = 0; k < 2; k++) { sd[k].air -= loss[k]; sd[k].lostF += loss[k]; }
     for (let k = 0; k < 2; k++) {
       const Y = sd[1 - k], o = out[k];
-      const sf = o.gun + 2 * o.ion + 0.5 * o.msl + 0.3 * o.fd, direct = 0.5 * o.msl + 0.7 * o.fd;
+      const sf = o.gun + 2 * o.ion, direct = o.msl + o.fd;
       let leak = 0;
       if (sf > Y.p.D) { const over = sf - Y.p.D, ab = Math.min(over, Y.buf); Y.buf -= ab; leak = over - ab; } else Y.buf = Math.min(Y.buf0, Y.buf + (Y.p.D - sf));
-      const hs = sf > 0 ? (o.gun + 0.2 * o.ion + 0.5 * o.msl + 0.3 * o.fd) / sf : 0;
+      const hs = sf > 0 ? (o.gun + 0.2 * o.ion) / sf : 0;
       Y.hp -= (leak * hs + direct) * Y.p.dr * Y.p.crit;
       if (!Y.shDown && Y.buf0 > 0 && Y.buf <= 1e-6) { Y.shDown = true; ev(t, 1 - k, 'シールド飽和'); }
       if (Y.shDown && Y.buf > Y.buf0 * 0.5) Y.shDown = false;
@@ -60404,7 +60404,7 @@ function combatAddWeapons(incoming,target,u,amount,gun,ion,seconds,aim){
  const packets=fleetWeaponPackets(u,gun,ion,target);if(!packets){combatAdd(incoming,target,u.pos,amount,aim,u.id);return null;}
  const used={sf:0,hull:0,direct:0,ion:0};
  for(const p of packets){const a={sf:(p.gun+COMBAT.ionShield*p.ion)*seconds,hull:(p.gun+COMBAT.ionHull*p.ion)*seconds,ion:p.ion*seconds};for(const k of Object.keys(a))used[k]+=a[k];combatAdd(incoming,target,p.point,a,aim,u.id);}
- const rest=Object.fromEntries(['sf','hull','direct','ion'].map(k=>[k,Math.max(0,(amount[k]||0)-used[k])]));if(Object.values(rest).some(v=>v>0))combatAdd(incoming,target,u.pos,rest,aim,u.id);return packets;
+ const rest=Object.fromEntries(['sf','hull','direct','ion','ionDirect'].map(k=>[k,Math.max(0,(amount[k]||0)-(used[k]||0))]));if(Object.values(rest).some(v=>v>0))combatAdd(incoming,target,u.pos,rest,aim,u.id);return packets;
 }
 function fleetFire(u,t,d){
  if(u.p.surface?.mounts&&typeof surfaceFleetFire==='function')return surfaceFleetFire(u,t,d);
@@ -60468,7 +60468,12 @@ function fleetHeading(u,t,d,sd){
 // conversion is shared with the yard; legacy effect ratings remain identified
 // as such until a design adopts the explicit energy model.
 const ENERGY_MODEL={version:1,eta:.75,superEta:.88,unit:'TT',assumption:true};
-const SHIELD_MODEL={version:2,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.82,beamHeat:.06,beamStore:.12,assumption:true};
+// v24 A field does two things to a beam (docs/shield-deflection-v24.md). It deflects a share of the hit,
+// deflectMax×f at strength f (the field's energy over its capacity), at no cost to its energy. It absorbs
+// what it did not deflect, and only that draws on its energy. A share (1−f)^leakK of the undeflected part,
+// and anything beyond the field's energy or its transient buffer, goes through to the hull: little while
+// the field is strong, everything once it is gone.
+const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.82,beamHeat:.06,beamStore:.12,deflectMax:.82,leakK:2,assumption:true};
 const ION_MODEL={version:2,unit:'J',blockedExternal:.95,shieldCost:.05,hullHeat:1,assumption:true};
 function weaponEnergy(spec,outputTT,shots=1){
  if(spec?.energyUnit==='effect')return {outputJ:null,inputJ:null,lossJ:null,eta:null,unit:'effect',outputEffect:Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0),assumption:false};
@@ -60547,13 +60552,17 @@ function ionShieldEnergyJ(energyJ,shieldJ){
  const E=Number.isFinite(energyJ)?Math.max(0,energyJ):0,S=Number.isFinite(shieldJ)?Math.max(0,shieldJ):0,B=Math.min(E,S);
  return {incomingJ:E,shieldBeforeJ:S,blockedJ:B,externalJ:.95*B,shieldDebitJ:.05*B,shieldWorkJ:.05*B,heatJ:Math.max(0,E-S),shieldAfterJ:S-.05*B};
 }
-function shieldPacketEnergyJ(energyJ,ionJ,shieldJ,transientRoomJ){
+function shieldPacketEnergyJ(energyJ,ionJ,shieldJ,transientRoomJ,capacityJ){
  const E=Number.isFinite(energyJ)?Math.max(0,energyJ):0,I=Number.isFinite(ionJ)?clamp(ionJ,0,E):0,S=Number.isFinite(shieldJ)?Math.max(0,shieldJ):0,R=Number.isFinite(transientRoomJ)?Math.max(0,transientRoomJ):0,ion=ionShieldEnergyJ(I,S),normalJ=E-I;
+ // v24 Deflection and absorption by the field's strength before this hit. Without a stated capacity (older
+ // callers) the field counts as full while it has energy.
+ const f=Number.isFinite(capacityJ)&&capacityJ>0?clamp(S/capacityJ,0,1):S>0?1:0,deflectedJ=normalJ*SHIELD_MODEL.deflectMax*f,restJ=normalJ-deflectedJ,passJ=restJ*Math.pow(1-f,SHIELD_MODEL.leakK),toAbsorbJ=restJ-passJ;
  // Ion redirection consumes only five percent of the intercepted energy from
- // defence. The normal portion then uses the remaining defence and its own
- // finite 12% transient buffer; an ion packet never fills that buffer.
- const blockedBeamJ=Math.min(normalJ,ion.shieldAfterJ,R/SHIELD_MODEL.beamStore),shieldProcessingHeatJ=SHIELD_MODEL.beamHeat*blockedBeamJ,storedJ=SHIELD_MODEL.beamStore*blockedBeamJ,beamLeakJ=normalJ-blockedBeamJ;
- return {incomingJ:E,ionIncomingJ:I,beamIncomingJ:normalJ,shieldBeforeJ:S,blockedJ:ion.blockedJ+blockedBeamJ,blockedIonJ:ion.blockedJ,blockedBeamJ,externalJ:ion.externalJ+SHIELD_MODEL.beamExternal*blockedBeamJ,shieldWorkJ:ion.shieldWorkJ,shieldDebitJ:ion.shieldDebitJ+blockedBeamJ,shieldAfterJ:ion.shieldAfterJ-blockedBeamJ,storedDeltaJ:storedJ,shieldProcessingHeatJ,ionLeakJ:ion.heatJ,beamLeakJ,leakedJ:ion.heatJ+beamLeakJ,onboardHeatJ:shieldProcessingHeatJ+ion.heatJ};
+ // defence. The absorbed share of the normal portion then uses the remaining
+ // defence and its own finite 12% transient buffer; an ion packet never fills
+ // that buffer. The deflected share costs nothing and leaves the ship.
+ const absorbedJ=Math.min(toAbsorbJ,ion.shieldAfterJ,R/SHIELD_MODEL.beamStore),blockedBeamJ=deflectedJ+absorbedJ,shieldProcessingHeatJ=SHIELD_MODEL.beamHeat*absorbedJ,storedJ=SHIELD_MODEL.beamStore*absorbedJ,beamLeakJ=normalJ-blockedBeamJ;
+ return {incomingJ:E,ionIncomingJ:I,beamIncomingJ:normalJ,shieldBeforeJ:S,shieldStrength:f,deflectedJ,absorbedJ,blockedJ:ion.blockedJ+blockedBeamJ,blockedIonJ:ion.blockedJ,blockedBeamJ,externalJ:ion.externalJ+deflectedJ+SHIELD_MODEL.beamExternal*absorbedJ,shieldWorkJ:ion.shieldWorkJ,shieldDebitJ:ion.shieldDebitJ+absorbedJ,shieldAfterJ:ion.shieldAfterJ-absorbedJ,storedDeltaJ:storedJ,shieldProcessingHeatJ,ionLeakJ:ion.heatJ,beamLeakJ,leakedJ:ion.heatJ+beamLeakJ,onboardHeatJ:shieldProcessingHeatJ+ion.heatJ};
 }
 function shieldEnergyLedger(u){
  if(u.shieldLedger?.version===2)return u.shieldLedger;
@@ -60579,7 +60588,7 @@ function ionPulseInteractionJ(pulseJ,incidentJ,shieldJ){
  return {...hit,initialPulseJ:initialJ,remainingPulseJ:Math.max(0,initialJ-takeJ+hit.externalJ),pulseConsumedJ:hit.shieldWorkJ+hit.heatJ};
 }
 function shieldReceive(u,packet={},ctx){
- const energyJ=packet.energyJ??Math.max(0,packet.energy??packet.sf??0)*TT,ionJ=packet.ionJ??Math.max(0,packet.ion||0)*TT,capacityJ=Math.max(0,u.shieldMax||0)*TT,stateJ=Math.max(0,u.shieldTransient||0)*TT,roomJ=Math.max(0,capacityJ*SHIELD_MODEL.transientShare-stateJ),l=shieldEnergyLedger(u),split=shieldPacketEnergyJ(energyJ,ionJ,Math.max(0,u.shield||0)*TT,roomJ);
+ const energyJ=packet.energyJ??Math.max(0,packet.energy??packet.sf??0)*TT,ionJ=packet.ionJ??Math.max(0,packet.ion||0)*TT,capacityJ=Math.max(0,u.shieldMax||0)*TT,stateJ=Math.max(0,u.shieldTransient||0)*TT,roomJ=Math.max(0,capacityJ*SHIELD_MODEL.transientShare-stateJ),l=shieldEnergyLedger(u),split=shieldPacketEnergyJ(energyJ,ionJ,Math.max(0,u.shield||0)*TT,roomJ,capacityJ);
  u.shield=split.shieldAfterJ/TT;u.shieldTransient=(stateJ+split.storedDeltaJ)/TT;
  const rec={...split,incoming:split.incomingJ/TT,external:split.externalJ/TT,storedDelta:split.storedDeltaJ/TT,onboardHeat:split.onboardHeatJ/TT,leaked:split.leakedJ/TT,blocked:split.blockedJ/TT,ionLeak:split.ionLeakJ/TT,beamLeak:split.beamLeakJ/TT,shieldWork:split.shieldWorkJ/TT,shieldDebit:split.shieldDebitJ/TT,unit:'J',legacyUnit:'TT'};
  l.incomingJ+=split.incomingJ;l.externalJ+=split.externalJ;l.shieldWorkJ+=split.shieldWorkJ;l.shieldDebitJ+=split.shieldDebitJ;l.shieldProcessingHeatJ+=split.shieldProcessingHeatJ;l.hullIonHeatJ+=split.ionLeakJ;l.ionLeakJ+=split.ionLeakJ;l.beamLeakJ+=split.beamLeakJ;l.transientJ=u.shieldTransient*TT;shieldLedgerAliases(l);u.lastShieldHit=rec;
@@ -61427,7 +61436,7 @@ function combatFaces(t,from){
  const w=[Math.max(0,v0)*Z.faceA[0],Math.max(0,-v0)*Z.faceA[1],Math.max(0,v2)*Z.faceA[2],Math.max(0,-v2)*Z.faceA[3],Math.max(0,v1)*Z.faceA[4],Math.max(0,-v1)*Z.faceA[5]],sum=w[0]+w[1]+w[2]+w[3]+w[4]+w[5];
  return sum>0?w.map(x=>x/sum):Z.faceShare;
 }
-function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[]};}
+function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[]};}
 // v21.1 A module's hit quantum: standard parts on the hull are capped (COMBAT.fitQ), the rest scale with the ship.
 const exposedMod=m=>!!m&&(COMBAT.exposed[m.k]===1&&(m.k==='bridge'||m.fit!=null)||m.ext===1);   // v23 m.ext: an external dissipator on the hull
 const modQ=(m,Q)=>exposedMod(m)?Math.min(Q,COMBAT.fitQ):Q;
@@ -61465,8 +61474,8 @@ function combatAdd(inc,t,from,amt,aim,src){
  if(Array.isArray(amt.hits))inc.hits=(inc.hits||[]).concat(amt.hits.map(h=>({...h,point:h.point?.slice()})));
  else if(amt.hit?.point)inc.hits=(inc.hits||[]).concat([{...amt.hit,energy:amt.sf||0,ion:amt.ion||0,hull:amt.hull||0,direct:amt.direct||0,src}]);
  else if(t.p.surface&&typeof surfaceRayHit==='function'){const point=surfaceRayHit(t,from,aim?aimPoint(t,aim):undefined);if(point)inc.hits=(inc.hits||[]).concat([{point,energy:amt.sf||0,ion:amt.ion||0,hull:amt.hull||0,direct:amt.direct||0,src}]);}
- inc.sf+=amt.sf||0;inc.hull+=amt.hull||0;inc.direct+=amt.direct||0;inc.ion+=amt.ion||0;
- const w=(amt.hull||0)+(amt.direct||0)+.1*(amt.sf||0);if(!(w>0))return;const k=aim||'auto';inc.aim[k]=(inc.aim[k]||0)+w;
+ inc.sf+=amt.sf||0;inc.hull+=amt.hull||0;inc.direct+=amt.direct||0;inc.ion+=amt.ion||0;inc.ionDirect=(inc.ionDirect||0)+(amt.ionDirect||0);
+ const w=(amt.hull||0)+(amt.direct||0)+.1*((amt.sf||0)+(amt.ionDirect||0));if(!(w>0))return;const k=aim||'auto';inc.aim[k]=(inc.aim[k]||0)+w;
  if(from&&COMBAT.exposed[k]){const h=aimHold(t,k,len(sub(from,t.pos)));if(h>0){inc.snipe=inc.snipe||{};inc.snipe[k]=(inc.snipe[k]||0)+w*h;}}
  if(from){const fw=combatFaces(t,from);for(let f=0;f<6;f++)inc.face[f]+=fw[f]*w;}
  if(src!=null)inc.by[src]=(inc.by[src]||0)+w;
@@ -61578,7 +61587,9 @@ function combatResolve(ctx,u,o,dt,s){
  // Defence credit, own operating power and received enemy energy have separate
  // books. A blocked ion packet mostly leaves the ship rather than becoming heat.
  const received=shieldReceive(u,{energy:o.sf,ion:o.ion},ctx),leak=received.leaked,beamIncoming=Math.max(0,(o.sf||0)-(o.ion||0)),beamLeak=Math.max(0,received.beamLeak||0);
- u.underFire=o.sf>0;if(had&&u.shield<=0&&u.shieldMax>0)ctx.ev(u,'シールド消失');
+ // v24 Ion torpedoes and ion bombs are physical rounds: they pass the field and work on the ship itself.
+ if(o.ionDirect>0)ionOverloadJ(u,o.ionDirect*TT,{kind:'ion-ordnance'},ctx);
+ u.underFire=o.sf>0||o.direct>0||o.ionDirect>0;if(had&&u.shield<=0&&u.shieldMax>0)ctx.ev(u,'シールド消失');
  // shieldReceive already deposits all ion penetration into the global heat store.
  u.ionK=(u.ionK||0)*Math.exp(-dt/COMBAT.ionTau);if(u.penHot>0)u.penHot=Math.max(0,u.penHot-dt);
  // Armour: the hull hit spreads over the faces by bearing and over the sections
@@ -61624,7 +61635,7 @@ function combatResolve(ctx,u,o,dt,s){
 // incoming record (x.face present), added into o for target t.
 function combatMerge(o,t,x){
  if(Array.isArray(x?.hits))o.hits=(o.hits||[]).concat(x.hits.map(h=>({...h,point:h.point?.slice()})));
- if(!x)return o;o.sf+=x.sf||0;o.hull+=x.hull||0;o.direct+=x.direct||0;o.ion+=x.ion||0;const w=(x.hull||0)+(x.direct||0)+.1*(x.sf||0);
+ if(!x)return o;o.sf+=x.sf||0;o.hull+=x.hull||0;o.direct+=x.direct||0;o.ion+=x.ion||0;o.ionDirect=(o.ionDirect||0)+(x.ionDirect||0);const w=(x.hull||0)+(x.direct||0)+.1*(x.sf||0);
  for(const [k,v] of Object.entries(x.aim&&Object.keys(x.aim).length?x.aim:{auto:w}))o.aim[k]=(o.aim[k]||0)+v;
  if(x.snipe){o.snipe=o.snipe||{};for(const k in x.snipe)o.snipe[k]=(o.snipe[k]||0)+x.snipe[k];}
  if(Array.isArray(x.face))for(let f=0;f<6;f++)o.face[f]+=x.face[f]||0;else if(x.from&&w>0){const fw=combatFaces(t,x.from);for(let f=0;f<6;f++)o.face[f]+=fw[f]*w;}
@@ -62220,10 +62231,12 @@ function fleetTick(b,dt,opts={}){
   // The craft aloft release their stores over about a minute of attacks; point defence takes its share as it does missiles'.
   let ord=0,iord=0;if(u.ordPool>0&&u.air>0){const rel=Math.min(u.ordPool,u.air*p.airOrd/60*dt*(1-.5*airEnemy/(u.air+airEnemy+1)));u.ordPool-=rel;const fundedOrdAA=rel>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,r=rel/dt*(1-.7*fundedOrdAA/(fundedOrdAA+rel/dt*.5+1e-9)),ik=clamp(p.airIon||0,0,1);ord=r*(1-ik);iord=r*ik;}
   if(u.ordPool>0&&u.air>0)u.ordPool*=Math.max(0,(u.air-loss)/u.air);u.air-=loss;u.lost+=loss;
-  const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*(ion+imsl+iord)+.5*(msl+ord)+.3*fd)*hd,hull:(gun+COMBAT.ionHull*(ion+imsl+iord)+.5*(msl+ord)+.3*fd)*hd,direct:(.5*(msl+ord)+.7*fd)*hd,ion:(ion+imsl+iord)*hd};
+  // v24 Missiles, bombs and the craft (which fly inside the field) strike the hull directly; ion torpedoes and ion bombs
+  // work on the ship itself without the field; only the guns' fire meets the field (docs/shield-deflection-v24.md).
+  const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+ord+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd};
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
-  if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
+  if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
   else combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);
   // What misses may strike a ship of our own close to the target.
   const miss=Math.max(0,1-hit);if(miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
@@ -68566,7 +68579,7 @@ function battleTick(w, sys, dt) {
   if (m.n < .5) { m.n = 0; continue; }
   if (!(m.launchClearance>0) && d < Math.max(300, t.p.len * .4)) {
    // v22 a round's own hit (craft stores) or the ship missile's; ion rounds work on the ion channel
-   const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {sf: C.COMBAT.ionShield * tt, hull: C.COMBAT.ionHull * tt, ion: tt} : {sf: .5 * tt, hull: .5 * tt, direct: .5 * tt};
+   const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {ionDirect: tt} : {direct: tt};
    C.combatAdd(inc.get(t.id), t, m.pos, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
   else if (m.life <= 0) m.n = 0;
  }
@@ -68694,7 +68707,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt,pdStep={}) {
      if (!s.fired && dd <= releaseRange) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
      if(!(gate>0))s.strafeT=null;
      if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const energy=squadWeaponEnergy(s,t),factor=s.n*RULES.damage*C.squadFireK(s)*(s.drive?.pw?1:0),gun=energy.gun*factor,ion=energy.ion*factor,tt=gun+ion,x=inc.get(t.id);
-      if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:.7*gun+C.COMBAT.ionShield*ion,hull:.7*gun+C.COMBAT.ionHull*ion,direct:.3*gun,ion},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
+      if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:C.COMBAT.ionShield*ion,hull:C.COMBAT.ionHull*ion,direct:gun,ion},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
      }
      if(r.lineReady&&!s.ran&&(dd<Math.max(900,t.p.len*.45)||dd<Math.max(1800,t.p.len*.6)&&dot(sub(s.pos,t.pos),r.dir)>0||w.time>=r.until)){const rel=squadRelease(w,sys,s,t,true,aimK);s.ran=true;s.runs=(s.runs||0)+1;
       if(rel.length||s.relG?.length){(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[]),...rel]});s.relG=null;}

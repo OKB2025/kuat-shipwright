@@ -8,8 +8,9 @@ test('ion uses pre-hit shield energy and exactly the three specified SI examples
 test('ion bypasses the normal transient store and does not double-deposit penetrating energy',()=>{
  const u=unit();u.shieldTransient=35/TT;const r=C.shieldReceive(u,{energyJ:150,ionJ:150},ctx);near(r.ionLeakJ,50);near(u.ht.qJ,50);near(u.shieldTransient*TT,35);near(u.ionLedger.heatJ,50);assert.equal(u.down,undefined);
 });
-test('ordinary fire retains 82/12/6 partition and sends only its processing heat into global Q',()=>{
- const u=unit(),r=C.shieldReceive(u,{energyJ:100,ionJ:0},ctx);near(r.externalJ,82);near(r.storedDeltaJ,12);near(r.onboardHeatJ,6);near(u.ht.qJ,6);near(u.shieldTransient*TT,12);near(u.shield*TT,0);
+// v24 A full field deflects 82% of a beam at no cost; the absorbed rest keeps the 82/12/6 partition (docs/shield-deflection-v24.md).
+test('ordinary fire: the deflected share leaves freely, the absorbed share keeps the 82/12/6 partition and only its processing heat enters global Q',()=>{
+ const u=unit(),r=C.shieldReceive(u,{energyJ:100,ionJ:0},ctx),a=100-100*C.SHIELD_MODEL.deflectMax;near(r.absorbedJ,a);near(r.externalJ,82+.82*a);near(r.storedDeltaJ,.12*a);near(r.onboardHeatJ,.06*a);near(u.ht.qJ,.06*a);near(u.shieldTransient*TT,.12*a);near(u.shield*TT,100-a);near(r.beamLeakJ,0);
 });
 test('subjugator pulse retains redirected and unhit energy across successive shields',()=>{
  const first=C.ionPulseInteractionJ(100,100,100),second=C.ionPulseInteractionJ(first.remainingPulseJ,first.remainingPulseJ,100);near(first.remainingPulseJ,95);near(first.shieldDebitJ,5);near(second.remainingPulseJ,90.25);

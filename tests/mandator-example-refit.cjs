@@ -22,8 +22,10 @@ test('Mandator declared battery is the user dorsal battery plus the filled ventr
 
 test('Mandator II derives its requested output, shield storage and salvo from physical equipment',()=>{
  const {ship,stats}=mandator(),counts=Object.fromEntries(MAIN.map(k=>[k,ship.fits.filter(f=>f.k===k).length]));
- assert.deepEqual(counts,COUNTS);assert.equal(ship.fits.filter(f=>f.k==='stl').length,0,'the user 175 TT mounts carry quads');
- const mainAndIon=ship.fits.filter(f=>MAIN.includes(f.k)).reduce((n,f)=>n+volleyOf(f),0);near(mainAndIon,116540,1e-12);
+ // v24 The ventral guns are spread in mirrored pairs to both flanks clear of the reactor spheres (docs/mandator-ii-refit.md):
+ // four more quad 175 TT mounts than the declared battery.
+ assert.deepEqual(counts,{...COUNTS,quad175:42});assert.equal(ship.fits.filter(f=>f.k==='stl').length,0,'the user 175 TT mounts carry quads');
+ const mainAndIon=ship.fits.filter(f=>MAIN.includes(f.k)).reduce((n,f)=>n+volleyOf(f),0);near(mainAndIon,119340,1e-12);
  const below=ship.fits.filter(f=>['utl','quad175'].includes(f.k)&&f.mountMode==='bottom');assert.ok(below.length>=30,'the ventral keel carries guns');
  near(stats.power,7.7e26);near(stats.shieldCapacity,7.7e27);near(stats.shieldDissipationW,184034,1e-12);
  for(const reactor of ship.parts.filter(C.isReactor))near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY,1e-12);
