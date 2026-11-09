@@ -10492,4 +10492,45 @@ Object.assign(root.KS_EN.terms,{
 Object.assign(root.KS_EN.messages,{
  "7.24 m（正史：全長 7.24 m・全高 8.82 m）。Daniel 氏のモデル「Star Wars: TIE/ln Fighter」（CC BY 4.0）の実測形状を、正史の全長（六角形の太陽電池翼の前後長）に等倍で合わせた（モデルに合わせると全幅 6.56 m・全高 8.35 m で、正史の全高より約 5% 低い。形状はモデルに従った）。直径 2.47 m の球形操縦席を船体とし、六角形の太陽電池翼は現行の太陽光パネル部品を左右1個ずつ配置した（パネル厚さ 0.08 m）。輪郭と一体形状は部品の六角形プリセットを使い、個別の外枠・桁・支柱・フランジ・中央ハブは配置しない。球形の船体から翼への接続柱、前面窓と窓枠、後部ハッチは保持した。球の中には操縦席1席（正史どおり乗員1名）、I-a2b 反応炉、P-s4 イオン・エンジン2基（推進部を球の中央帯に前後に通し、後方へ噴射）、燃料タンク、慣性補償器を重ならないように詰めた。兵装は機首下の L-s1 レーザー砲 2門（砲口はモデルの砲口の位置）。正史どおりシールド発生器とハイパードライブは持たない。外殻装甲は 0.75 mm（表面の大半を占める太陽電池翼を含めた平均）。実給電モデルに合わせて炉・機関・配電を組み直し、現行の太陽光パネルを装備した完成機の質量に合わせ、実際の反応炉を直径約 0.992 m とした。最大加速度の設計目標は正史に合わせた 4,100 G。": "7.24 m (canonical length 7.24 m and height 8.82 m). Reconstructed from measurements of Daniel's “Star Wars: TIE/ln Fighter” model (CC BY 4.0), scaled uniformly to the canonical fore-and-aft length of the hexagonal solar wings. Following the model gives a width of 6.56 m and a height of 8.35 m, approximately 5% below the canonical height; the geometry follows the model. A 2.47 m cockpit sphere forms the hull. Each hexagonal solar wing uses one solar-panel part, one on each side, with a panel thickness of 0.08 m. The part's hexagonal preset supplies the outline and integrated shape. No separate outer frames, spars, struts, flanges or central hubs are installed. The columns connecting the sphere to the wings, forward viewport and frame, and rear hatch are retained. The sphere contains one pilot seat, matching the canonical crew of one, an I-a2b reactor, two P-s4 ion engines running fore-and-aft through its central band and exhausting aft, fuel tanks, and an inertial compensator without overlap. Two L-s1 laser cannons beneath the cockpit have muzzles matching the model. As in canon, there is no shield generator or hyperdrive. Hull armor averages 0.75 mm, including the solar wings that make up most of the surface area. The reactor, machinery and electrical distribution are rebuilt for the actual-power model. The actual reactor has a diameter of approximately 0.992 m, calibrated to the completed craft's mass with its current solar panels. The design target for maximum acceleration is the canonical 4,100 G."
 });
+Object.assign(root.KS_EN.messages,{
+ "給電優先順": "Power Priority",
+ "固定優先順": "Fixed Priority",
+ "シールド・艦内設備 → 兵装 → 航行": "Shields and onboard systems → Weapons → Navigation",
+ "給電優先順：シールド・艦内設備 → 兵装 → 航行": "Power priority: shields and onboard systems → weapons → navigation",
+ "シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。": "Shield regeneration and weapon use or charging reduce the power available for propulsion.",
+ "スロットル出力（後進25%から前進100%）": "Throttle output (25% reverse to 100% forward)",
+ "自動迎撃 ON": "Auto Interception ON",
+ "自動迎撃 OFF": "Auto Interception OFF",
+ "点防御の自動迎撃": "Automatic Point Defense",
+ "蓄熱 —": "Stored heat —",
+ "蓄熱 {0} / {1} J（{2}%）": "Stored heat {0} / {1} J ({2}%)",
+ "後進 {0}%": "Reverse {0}%",
+ "旗艦 — 出撃するとこの艦を操艦します。給電優先順と自動迎撃は戦闘中も確認できます。": "Flagship — You will pilot this ship after departure. Power priority and automatic interception remain available during battle.",
+ "自動迎撃と照準をここで指定できます。": "Set automatic interception and aiming here.",
+ "航行不能": "Navigation disabled",
+ "ハイパードライブ給電停止": "Hyperdrive unpowered",
+ "シールド再生中": "Shields regenerating",
+ "兵装使用・充電中": "Weapons firing or charging",
+ "推進電力不足": "Insufficient propulsion power",
+ "ジャンプ速度へ加速中": "Accelerating to jump speed",
+ "ジャンプ速度に到達": "Jump speed reached",
+ "ジャンプ待機": "Jump standby",
+ "航行不能 · {0}% / 90%": "Navigation disabled · {0}% / 90%",
+ "ハイパードライブ給電停止 · {0}% / 90%": "Hyperdrive unpowered · {0}% / 90%",
+ "シールド再生中 · {0}% / 90%": "Shields regenerating · {0}% / 90%",
+ "兵装使用・充電中 · {0}% / 90%": "Weapons firing or charging · {0}% / 90%",
+ "推進電力不足 · {0}% / 90%": "Insufficient propulsion power · {0}% / 90%",
+ "ジャンプ速度へ加速中 · {0}% / 90%": "Accelerating to jump speed · {0}% / 90%",
+ "ジャンプ速度に到達 · {0}% / 90%": "Jump speed reached · {0}% / 90%",
+ "ジャンプ待機 · {0}% / 90%": "Jump standby · {0}% / 90%",
+ "通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block the jump."
+});
+Object.assign(root.KS_EN.messages,{
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry. Jumping during battle withdraws from the battle area, followed by the escorts.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry.",
+ "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の90%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 90% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry. Jumping during battle withdraws from the battle area, followed by the escorts.",
+ "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル{0} · G 主砲照準 · P 給電優先順 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles{0} · G Aiming · P Power Priority · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom"
+});
+Object.assign(root.KS_EN.messages,{"スロットル出力（0%から100%）": "Throttle output (0% to 100%)"});
 })(typeof window==="undefined"?globalThis:window);
