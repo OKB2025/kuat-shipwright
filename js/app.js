@@ -10584,7 +10584,7 @@ function tutPartStep(o){
 const TUT_STEPS=[
  {title:'船体を用意する',text:'全長 1,600 m・全幅 1,000 m のくさび形船体（艦種：デストロイヤー）を用意しました。インペリアル級の要点は<b>平たい三角形の船体</b>・<b>艦尾寄りの艦橋</b>・<b>艦尾の大型エンジン</b>の3つです。寸法は「船体」タブでいつでも変えられます。',
   focus:['#tabs [data-tab="edit"]'],setup(){selectInitialHull();st.view='normal';tutCam('iso');},done:()=>true},
- {title:'艦橋本体を置く',text:'「配置 → 指揮・艦橋 → 艦橋本体」で<b>インペリアル級 艦橋本体</b>を選んであります。甲板の<b>艦尾寄り（後ろから約1/5）の中心線</b>をタップしてください。前面の円筒ポッドが指揮所なので、置くだけで艦橋として働きます。',
+ {title:'艦橋本体を置く',text:'「配置 → 指揮・艦橋 → 艦橋本体」で<b>大型統合艦橋</b>を選んであります。甲板の<b>艦尾寄り（後ろから約1/5）の中心線</b>をタップしてください。前面の円筒ポッドが指揮所なので、置くだけで艦橋として働きます。',
   focus:['#tabs [data-tab="mod"]','[data-group="command"]','[data-cmdsub="body"]','[data-equipment="isdBridge"]'],
   setup(){st.tab='bridge';st.bridgeMode='body';st.bridgeEquipment='isdBridge';st.equipmentId=null;st.partTool='place';st.sel=null;st.view='normal';tutCam('iso');},
   done:()=>!!tutBridge(),auto:()=>tutTap(...tutDeck(TUT_HULL.L*.2,0))},

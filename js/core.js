@@ -52726,9 +52726,11 @@ function migratePropulsionDistribution(o){
 function deserialize(o,internalOptions=null){
   // v24 Saved power cells become thermal energy converters with the same ID, size and links.
   const cells=Array.isArray(o?.parts)?o.parts.filter(p=>p?.k==='battery').length:0;if(cells)o={...o,parts:o.parts.map(p=>p?.k==='battery'?{...p,k:'hdis',label:'熱エネルギー変換装置'}:p)};
-  // v24 The Executor-only bridge body and domes are retired: saved parts become the Imperial-class bridge and domes in place.
-  if(Array.isArray(o?.parts)&&o.parts.some(p=>/^exe_(bridge|sensor_port|sensor_stbd)$/.test(p?.skinAsset||'')))o={...o,parts:o.parts.map(p=>{const id=p?.skinAsset;if(id==='exe_bridge'){const e=equipmentOptions('isdBridge');return {...p,skinAsset:'isd_bridge',equipmentId:'isdBridge',s:e.s.slice(),label:e.label};}
-   if(id==='exe_sensor_port'||id==='exe_sensor_stbd'){const k=id==='exe_sensor_port'?'isd_sensor_port':'isd_sensor_stbd',a=REFERENCE_ASSETS[k];return {...p,skinAsset:k,equipmentId:'isdSensor',skinSize:a.size.slice(),d:Math.max(...a.size),label:a.title};}return p;})};
+  // v24 Retired command equipment (the Executor-only bridge and domes, the hammerhead ISD-I bridge, domes and
+  // antenna) becomes the one Imperial-class set in place: 大型統合艦橋, ISD-72x複合センサドーム, 外装式指向性通信装置.
+  {const RETIRED={exe_bridge:['isd_bridge','isdBridge'],isdh_bridge:['isd_bridge','isdBridge'],exe_sensor_port:['isd_sensor_port','isdSensor'],exe_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_sensor_port:['isd_sensor_port','isdSensor'],isdh_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_mast:['isd_mast','isdMast']};
+   if(Array.isArray(o?.parts)&&o.parts.some(p=>Object.hasOwn(RETIRED,p?.skinAsset||'')))o={...o,parts:o.parts.map(p=>{const r=RETIRED[p?.skinAsset];if(!r)return p;const [k,id]=r,e=equipmentOptions(id);
+    if(e.k==='struct')return {...p,skinAsset:k,equipmentId:id,s:e.s.slice(),label:e.label};const a=REFERENCE_ASSETS[k];return {...p,skinAsset:k,equipmentId:id,skinSize:a.size.slice(),d:Math.max(...a.size),label:e.label};})};}
   o=migrateRetiredRadiators(migratePropulsionDistribution(migrateWeaponDesign(migrateAeroParts(migrateExternalDissipators(o)))));
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(cells)s.retiredCells=cells;
@@ -53861,7 +53863,8 @@ function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGrou
 // v24 The Executor-only bridge and domes are retired (docs/executor-stl-rebuild.md). Their mesh data stays
 // in data/reference.js, byte for byte, so the archived publications that hash that file still verify; the
 // game no longer offers or draws them (saved parts load as the Imperial bridge and domes).
-const RETIRED_REFERENCE_ASSETS=Object.freeze(['exe_bridge','exe_sensor_port','exe_sensor_stbd']);
+// v24 Also retired: the unused hammerhead ISD-I bridge, domes and antenna (isdh_*), merged into the Imperial set.
+const RETIRED_REFERENCE_ASSETS=Object.freeze(['exe_bridge','exe_sensor_port','exe_sensor_stbd','isdh_bridge','isdh_sensor_port','isdh_sensor_stbd','isdh_mast']);
 const REFERENCE_ASSETS=Object.fromEntries(Object.entries(YardReferenceData.assets).filter(([id])=>!RETIRED_REFERENCE_ASSETS.includes(id)));
 // The supplied turret uses its authored turntable origin and floor as the mount.
 // The small dual-purpose turret is drawn procedurally. Its footprint keeps the bounds of the supplied model it
@@ -54126,14 +54129,13 @@ const LEGACY_ENGINES = {
 const EQUIPMENT = {
  exposedTurbine:{...LEGACY_ENGINES.venInner,name:'タービン露出型エンジン',engineStyle:'exposed',bodyLength:176,assets:Object.values(LEGACY_ENGINES).filter(d=>d.assets[0].startsWith('ven_')).flatMap(d=>d.assets)},
  internalTurbine:{...LEGACY_ENGINES.isdMain,catalogHidden:true,name:'ノズル',engineStyle:'internal',bodyLength:168,assets:Object.values(LEGACY_ENGINES).filter(d=>/^isdh?_/.test(d.assets[0])).flatMap(d=>d.assets)},
- isdBridge:{name:'インペリアル級 艦橋本体',k:'struct',group:'bridge',assets:['isd_bridge']},
- venAirBridge:{name:'ヴェネター 航空指揮艦橋本体',k:'struct',group:'bridge',assets:['ven_bridge_port'],mirror:'venNavBridge'},
- venNavBridge:{name:'ヴェネター 航行艦橋本体',k:'struct',group:'bridge',assets:['ven_bridge_stbd'],mirror:'venAirBridge'},
- isdSensor:{name:'ISD 球形センサー',k:'sensor',group:'support',assets:['isd_sensor_port','isd_sensor_stbd']},
- isdMast:{name:'ISD 通信マスト',k:'sensor',group:'support',assets:['isd_mast']},
- isdhBridge:{name:'インペリアルI級 艦橋本体（ハンマーヘッド）',k:'struct',group:'bridge',assets:['isdh_bridge']},
- isdhSensor:{name:'インペリアルI級 標的追跡ドーム',k:'sensor',group:'support',assets:['isdh_sensor_port','isdh_sensor_stbd']},
- isdhMast:{name:'インペリアルI級 通信アンテナ',k:'sensor',group:'support',assets:['isdh_mast']},
+ // v24 One set of Imperial-class command equipment (the user's names). The second, unused set from the
+ // hammerhead ISD-I model (isdh_*) is retired and loads as these (see RETIRED_EQUIPMENT_ASSETS).
+ isdBridge:{name:'大型統合艦橋',k:'struct',group:'bridge',assets:['isd_bridge'],oldNames:['インペリアル級 艦橋本体','インペリアルI級 艦橋本体（ハンマーヘッド）','エグゼクター級 艦橋本体']},
+ venAirBridge:{name:'分散式艦橋航空',k:'struct',group:'bridge',assets:['ven_bridge_port'],mirror:'venNavBridge',oldNames:['ヴェネター 航空指揮艦橋本体']},
+ venNavBridge:{name:'分散式艦橋航行',k:'struct',group:'bridge',assets:['ven_bridge_stbd'],mirror:'venAirBridge',oldNames:['ヴェネター 航行艦橋本体']},
+ isdSensor:{name:'ISD-72x複合センサドーム',k:'sensor',group:'support',assets:['isd_sensor_port','isd_sensor_stbd'],oldNames:['ISD 球形センサー','インペリアルI級 標的追跡ドーム']},
+ isdMast:{name:'外装式指向性通信装置',k:'sensor',group:'support',assets:['isd_mast'],oldNames:['ISD 通信マスト','インペリアルI級 通信アンテナ']},
  // v24 The Executor-only bridge and domes are retired; saved parts load as the Imperial-class ones.
 };
 const EQUIPMENT_MIRRORS={isd_engine_0:'isd_engine_2',isd_engine_2:'isd_engine_0',isd_engine_3:'isd_engine_5',isd_engine_5:'isd_engine_3',isd_engine_4:'isd_engine_6',isd_engine_6:'isd_engine_4'};
@@ -54260,7 +54262,7 @@ function adoptEquipment(ship,standardExample=false){
    p.engineLength=engineBaseline(d.engineStyle,p.d,'length');
   }
   p.equipmentId=d.id;
-  if(!p.label||p.label===REFERENCE_ASSETS[p.skinAsset].title)p.label=d.name;
+  if(!p.label||p.label===REFERENCE_ASSETS[p.skinAsset].title||d.oldNames?.includes(p.label))p.label=d.name;
   enforceEquipment(p);
  }
  return ship;
@@ -55294,7 +55296,7 @@ function dreadnoughtTools(s){
   }
  };
  const bridge=(center)=>{
-  const e=equipmentOptions('isdBridge'),p=part('struct','インペリアル級 艦橋本体',center,e.s,e);
+  const e=equipmentOptions('isdBridge'),p=part('struct',e.label,center,e.s,e);
   {const h=rayPart([p.c[0]+p.s[0],p.c[1]+2,p.c[2]+80],[-1,0,0],p);if(h){const r=placeFit(s,'podAir',h.p,h.n,0,false);if(r.fit){r.fit.width=14;r.fit.height=5.6;}}}
   const base=REFERENCE_ASSETS.isd_bridge.c;
   for(const id of ['isd_sensor_port','isd_sensor_stbd','isd_mast']){const a=REFERENCE_ASSETS[id],q=part('sensor',a.title,add(center,sub(a.c,base)),Math.max(...a.size),{skinAsset:id,skinSize:a.size.slice(),equipmentId:id==='isd_mast'?'isdMast':'isdSensor'});}
@@ -55532,6 +55534,25 @@ function measuredSolidLabel(c,L,prefix=''){const x=(c.rows[0][0]+c.rows.at(-1)[0
 const MEASURED_SOLID_ID=100000;
 // The structure (not the hull) a pod meets first along a ray: pods mount on structure walls.
 function rayStructs(s,o,dir){let best=null;for(const p of s.parts){if(!isShapePart(p)||isHullStructure?.(p))continue;const h=rayPart(o,dir,p);if(h&&(!best||h.t<best.t))best={...h,part:p};}return best;}
+// v24 Measured CIS hulls: the hull structure is only one measured body of the ship, not a full-length
+// hull stretched with thread-thin sections. sliceHull returns the part of a measured hull profile between
+// t0 and t1 (fractions of L) as a profile of its own; centralHullShip starts a design from such a slice
+// and moves its hull structure to x0 in the ship's frame, so every other part keeps its measured place.
+function sliceHull(hp,t0,t1){
+ const at=t=>{const st=hp.stations,i=st.findIndex(r=>r[0]>=t);if(i<=0)return st[Math.max(0,i)].slice();const a=st[i-1],b=st[i],u=(t-a[0])/Math.max(1e-9,b[0]-a[0]);return a.map((v,k)=>v+(b[k]-v)*u);};
+ const rows=[at(t0),...hp.stations.filter(r=>r[0]>t0+1e-6&&r[0]<t1-1e-6).map(r=>r.slice()),at(t1)].map(r=>{r[0]=+((r[0]-t0)/(t1-t0)).toFixed(6);return r;});
+ rows[0][0]=0;rows[rows.length-1][0]=1;
+ // Saved hulls need stations at least 0.1% of the length apart: thin the slice a little more than that.
+ const kept=[rows[0]];for(const r of rows.slice(1,-1))if(r[0]-kept.at(-1)[0]>=.0015&&1-r[0]>=.0015)kept.push(r);kept.push(rows.at(-1));
+ return {...hp,L:hp.L*(t1-t0),stations:kept};
+}
+function centralHullShip(hp,t0,t1,name){
+ const s=newShip(sliceHull(hp,t0,t1),name),hull=ensurePrimaryHull(s);hull.c=[hp.L*(t0+t1)/2,hull.c[1],0];s._cache=null;return s;
+}
+function measuredHullBody(s,hp,t0,t1,label,paint){
+ // It takes an id after the measured solids (100000 up), so the ids of later parts do not move.
+ const h=normalizeBow(Object.assign({},HULLS.wedge,sliceHull(hp,t0,t1))),keep=s.nextId;s.nextId=Math.max(MEASURED_SOLID_ID,...s.parts.map(p=>p.id+1));const p=placePart(s,'struct',[hp.L*(t0+t1)/2,h.H/2,0],[h.L,h.W,h.H],{form:'hull',hullProfile:h,label,paint,skin:'armor'},false);s.nextId=keep;return p;
+}
 function buildMeasuredSolids(s,k,parts,{L,scale=1,paint,roundPaint,prefix='',nextId=null,slabs=null}={}){const made=[],resume=nextId??s.nextId;s.nextId=Math.max(s.nextId,MEASURED_SOLID_ID,...s.parts.map(p=>p.id+1));// Saved lofts need stations at least 0.2% of the length apart: thin the
 // measured rows (keeping both ends) a little more than that.
 const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),out=[rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(rows.at(-1));return out;};
@@ -59074,9 +59095,12 @@ const MUN_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管
 const MUN_GREY=CIS_PAINT.grey,MUN_PANEL=CIS_PAINT.panel,MUN_STEEL=CIS_PAINT.steel,MUN_DARK=CIS_PAINT.dark,MUN_PLATE=CIS_PAINT.plate,MUN_BLUE=CIS_PAINT.blueLight;
 function munificentBuild(opt={}){
  const D=MUNI,L=825,SZ=1.061,Z=v=>v*SZ;
- // The rod: 24 m wide, 15 m deep, centred 100 m above the keel line.
- const rod=(t,f)=>[t,f,Math.max(.005,.1*f),100/150-.5];
- const s=newShip({L,W:24,H:150,sec:'ellipse',plan:'rect',bowW:.5,bowH:.5,stern:1,bowFree:true,stations:[rod(0,.03),rod(.1,.03),rod(.106,1),rod(.92,1),rod(.926,.03),rod(1,.03)]},'ミュニフィセント級スター・フリゲート');
+ // v24 The hull structure is the central connecting section only (the five ring frames measured
+ // between the aft and forward bodies, x 276-404 m, 32 m wide, 41 m deep, centred 113.7 m up);
+ // the aft body, the forward body, the fins and the prow are measured structures built from it.
+ const CORE={x0:276,x1:404,W:32,H:41,y:113.7},HH=270,sec=t=>[t,1,CORE.H/HH,CORE.y/HH-.5];
+ const s=newShip({L:CORE.x1-CORE.x0,W:CORE.W,H:HH,sec:'ellipse',plan:'rect',bowW:1,bowH:1,stern:1,bowFree:true,stations:[sec(0),sec(1)]},'ミュニフィセント級スター・フリゲート');
+ {const hull=ensurePrimaryHull(s);hull.c=[(CORE.x0+CORE.x1)/2,HH/2,0];s._cache=null;}
  s._building=true;s.reference='munificent';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.33,cit:.35};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
  // v24 Structures measured from the supplied CIS_Munificent_D.stl: every solid
@@ -59086,7 +59110,7 @@ function munificentBuild(opt={}){
  if(opt.stage==='dock'){delete s._building;return s;}
  // ---- middle: twin main reactors under the armour shells (either can run the ship alone) ----
  const r=part('gen','第一主反応炉',[505,129,Z(27)],54);
- part('aux','第二主反応炉',[505,129,Z(-27)],54);
+ part('gen','第二主反応炉',[505,129,Z(-27)],54);
  // ---- stern: energy cells feeding the seven ion drive thrusters ----
  const ra=part('aux','艦尾エネルギー・セル',[215,104,0],64);
  const eo=equipmentOptions('exposedTurbine');
@@ -59146,13 +59170,15 @@ function munificentBuild(opt={}){
   // plane is set to the model's height (mountOffset from the surface hit). The bow gun (2.5 PT × 2, fixed) stands for
   // the two forward heavy turbolaser cannons of the list; the 18 ventral twins (9 a side, barrels outboard) for its
   // twin turbolaser cannons.
-  const hang=(kind,x,y,z,o={})=>{const f={id:s.nextId++,k:kind,p:[x,0,z],a:3,mountAxis:3,mountOffset:0,ped:0,base:0,low:0,float:false,batteryZone:'ventral',...o};mountFit(s,f);
-   if(f.float||f._onPlate)throw new Error('作例の砲座が不足しています: '+kind+' '+x.toFixed(0)+','+z.toFixed(0));f.mountOffset=f.p[1]-y;f.p=[x,0,z];mountFit(s,f);s.fits.push(f);return f;};
-  // v24 Hung 6 m lower than in the earlier model so both barrels clear the measured lower prow blade ahead.
-  hang('munBow',641.0,84.0,0);
-  // The ventral twins hang from small mounting blocks just under the armour plates (plates take no fittings).
+  const hang=(kind,x,y,z,o={},y0=0)=>{const f={id:s.nextId++,k:kind,p:[x,y0,z],a:3,mountAxis:3,mountOffset:0,ped:0,base:0,low:0,float:false,batteryZone:'ventral',...o};mountFit(s,f);
+   if(f.float||f._onPlate)throw new Error('作例の砲座が不足しています: '+kind+' '+x.toFixed(0)+','+z.toFixed(0));if(y!=null){f.mountOffset=f.p[1]-y;f.p=[x,y0,z];mountFit(s,f);}s.fits.push(f);return f;};
+  // v24 The bow gun sits where the model has it: its housing under the forward hull plate (x 625-640 m,
+  // y 86-118 m) between that plate and the lower prow blade, its barrels running forward to x 760 m.
+  hang('munBow',641.0,118.0,0,{},100);
+  // v24 The ventral twins mount directly on the underside of the forward hull plate: hung 21 m below it they
+  // touched nothing (the mounting blocks of the earlier hand-built hull are not in the measured model).
   for(const zc of [41.1,65.0,88.9,112.8,136.6,160.5,184.4,208.3,232.2])
-   for(const sg of [1,-1])hang('munTwin',(zc+420.46)*1.0282,97.5,sg*60*1.0282*1.061,{assetYaw:sg>0?-90:90,batteryZone:sg>0?'ventral-twin-stbd':'ventral-twin-port'});
+   for(const sg of [1,-1])hang('munTwin',(zc+420.46)*1.0282,null,sg*60*1.0282*1.061,{assetYaw:sg>0?-90:90,batteryZone:sg>0?'ventral-twin-stbd':'ventral-twin-port'});
   // By the user's decision (2026-11-05) the two long-range ion cannons and the remaining 8 flank twin turbolasers of
   // the list are left off: the model's bow gun and ventral twins take their place.
   // 20 light turbolaser turrets on top: the dorsal spine and the central neck
@@ -59577,7 +59603,9 @@ const PROV_GLASS='#2b3238',PROV_GREY=CIS_PAINT.grey,PROV_PANEL=CIS_PAINT.panel,P
 const PROV_DN_K=2177.35/1088;
 function providenceBuild(opt={}){
  const K=opt.scale||1,dn=K!==1,D=PROV,L=1088*K,SY=.928,Y=v=>v*SY*K,M=v=>v*K;
- const s=newShip({L,W:D.W*K,H:D.H*K,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice())},dn?'プロヴィデンス級ドレッドノート':'プロヴィデンス級キャリア／デストロイヤー');
+ // v24 The hull structure is the measured main body only (12.8-100% of the length): the thread-thin
+ // section that ran it back to the stern is gone; the engine block there is measured structure.
+ const s=centralHullShip({L,W:D.W*K,H:D.H*K,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice())},.128,1,dn?'プロヴィデンス級ドレッドノート':'プロヴィデンス級キャリア／デストロイヤー');
  s._building=true;s.reference=dn?'providenceDn':'providence';s.paint='cis';s.lights='warm';s.detail=1;s.armor=dn?{hull:.65*3,cit:.35*3}:{hull:.65,cit:.35};/* v18 a dreadnought carries three times the plating: slower than the base ship, far tougher */s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
  // v24 The hull (stations) is fitted to the model's main body solids; every
@@ -59585,8 +59613,11 @@ function providenceBuild(opt={}){
  s.hullBands=[[.886,.892,CIS_PAINT.gold],[.899,.905,CIS_PAINT.gold]];
  buildMeasuredSolids(s,k,D.parts,{L,scale:K,paint:PROV_PANEL,roundPaint:PROV_STEEL,nextId:24});
  // ---- aft half: the expansive hangar decks in the measured through-slot (open on both beams) ----
- const dock=part('hangar','後部格納甲板（舷側貫通発着口）',[M(353),Y(120),0],M(30),{room:[M(156),M(206),M(15)],airRole:'mixed'});
- openBay(s,dock,'port','open');openBay(s,dock,'stbd','open');
+ // v24 The through-slot of the model is x 297-420 m, 133-148 m up in the measuring frame (before the 0.928
+ // height scale), open from beam to beam (outer skin |z| 114 m): the deck fills it, and its two beam mouths
+ // are the ray-shielded hangar openings.
+ const dock=part('hangar','後部格納甲板（舷側貫通発着口）',[M(358.5),Y(140.5),0],M(30),{room:[M(123),M(228),M(15)],airRole:'mixed'});
+ openBay(s,dock,'port','ray');openBay(s,dock,'stbd','ray');
  if(opt.stage==='dock'){delete s._building;return s;}
  // ---- stern: auxiliary reactor for the radial ion drives; port-side hyperdrive module ----
  const ra=part('aux','艦尾補助炉',[M(216),Y(120),0],M(100));
@@ -59683,9 +59714,10 @@ function providenceBuild(opt={}){
  for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:dn?size.map(M):size};if(typeof role==='string')o.airRole=role;placePart(s,kind,dn?c.map(M):c,dn?M(30):30,{label,...o},mirror===1||role===1);}
  // v19.1: the dreadnought hands most posts to automation (droid control) so its crew fits beside the conduits.
  if(dn)placePart(s,'automation',[1511,245,101],30,{label:'艦内運用の自動化装置',room:[299,42,21]},true);
- // v24 In the measured hull a bulkhead parts the vehicle bays from the hangar decks, so the two lower
- // vehicle bays (the heavy lift platforms) open through the keel with their own ramps.
- for(const label of ['MTT・装甲車両格納区画（重量物昇降台） 2','MTT・装甲車両格納区画（重量物昇降台） 3']){const bay=s.parts.find(p=>p.label===label);if(bay)openBay(s,bay,'bottom','ray');}
+ // v24 The two lower vehicle bays are the heavy lift platforms: they lower vehicles through the keel on
+ // plain (unshielded) elevator doors. A machinery block separates them from the hangar decks, whose only
+ // ray-shielded mouths are the beam openings of the through-slot above.
+ for(const label of ['MTT・装甲車両格納区画（重量物昇降台） 2','MTT・装甲車両格納区画（重量物昇降台） 3']){const bay=s.parts.find(p=>p.label===label);if(bay)openBay(s,bay,'bottom','open');}
  if(opt.stage==='rooms'){delete s._building;return s;}
  // Canon complement: 120 Vulture droids, 120 droid tri-fighters, 10 Hyena bombers;
  // HMP gunships and Sheathipede shuttles are a game setting. 48,247 troops.
@@ -59740,12 +59772,17 @@ const REC_GREY=CIS_PAINT.grey,REC_PANEL=CIS_PAINT.panel,REC_STEEL=CIS_PAINT.stee
 // opt.scale 1 builds the light destroyer, 2 the dreadnought.
 function recusantBuild(opt={}){
  const K=opt.scale||1,dn=K!==1,D=RECU,L=1187*K,SZ=.921,Z=v=>v*SZ*K,M=v=>v*K;
- const s=newShip({L,W:D.W*K,H:D.H*K,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice())},dn?'レキューザント級ドレッドノート':'レキューザント級軽デストロイヤー');
+ // v24 The hull structure is the forward dome (the main body, 45.7-100% of the length); the aft dome is a
+ // second measured hull-shaped structure. The thread-thin sections that joined them are gone: the measured
+ // spine structures carry the ship between the domes.
+ const RH={L,W:D.W*K,H:D.H*K,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice())};
+ const s=centralHullShip(RH,.457,1,dn?'レキューザント級ドレッドノート':'レキューザント級軽デストロイヤー');
  s._building=true;s.reference=dn?'recusantDn':'recusant';s.paint='cis';s.lights='warm';s.detail=1;s.armor=dn?{hull:.38*3,cit:.35*3}:{hull:.38,cit:.35};/* v18 a dreadnought carries three times the plating: slower than the base ship, far tougher */s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
- // v24 The hull (stations) is fitted to the model's two domes; every other
+ // v24 The hull stations are fitted to the model's two domes; every other
  // solid of the supplied Recusant.stl is a measured loft (buildMeasuredSolids).
  buildMeasuredSolids(s,k,D.parts,{L,scale:K,paint:REC_PANEL,roundPaint:REC_GREY,nextId:14});
+ if(!measuredHullBody(s,RH,.27,.43,'艦尾ドーム（船体構造物）',REC_GREY))throw new Error('レキューザント級の艦尾ドームを置けません');
  // ---- mid-ship: the hollow ribbed interior that shelters fighters (open through the keel) ----
  const dock=part('hangar','艦載機待機空洞（中央部の中空構造）',[M(735),M(41),0],M(30),{room:[M(290),Z(32),M(18)],airRole:'mixed'});
  openBay(s,dock,'bottom','open');
@@ -63641,19 +63678,25 @@ function groundingStats(ship,S){
  const engineEntries=engineDriveRoutes(ship).routes.filter(r=>r.ok).flatMap(r=>r.entrySegments||[]);
  let pending=parts.filter(p=>!grounded.has(p.id)),changed=true;
  while(changed&&pending.length){changed=false;const g=parts.filter(p=>grounded.has(p.id));for(const p of pending)if(g.some(q=>touch(p,q))||p.k==='engine'&&engineEntries.some(e=>e.engineId===p.id&&e.hullContact&&(hullOK&&inHull(ship,e.hullContact)||g.some(q=>isShapePart(q)&&safeIn(q,e.hullContact))))){grounded.add(p.id);g.push(p);changed=true;}pending=pending.filter(p=>!grounded.has(p.id));}
- const loose=pending.map(p=>p.id),looseSet=new Set(loose),looseFits=[];
- for(const f of ship.fits){if(f.float)continue;const up=FITS[f.k]?.window?(f.n||AXES[f.a]):fitUp(f),probes=[tol,tol*3,(f.mountOffset||0)+tol,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)));
+ // v24 A fitting that touches nothing at all (no hull, no structure, no compartment under its mount) is
+ // floating in space; it was previously passed because only fittings on loose parts were reported.
+ const loose=pending.map(p=>p.id),looseSet=new Set(loose),looseFits=[],floatingFits=[];
+ // v24 A fitting hung clear of its surface (mountOffset) is held by nothing unless its own body reaches a
+ // solid: probe the base face of its body, not the surface it was cast onto.
+ const bodyProbes=(f,up)=>{let b;try{b=fitAABB(f);}catch(e){return [];}const c=[0,1,2].map(i=>(b[i]+b[i+3])/2),h=[0,1,2].map(i=>(b[i+3]-b[i])/2),reach=Math.abs(up[0])*h[0]+Math.abs(up[1])*h[1]+Math.abs(up[2])*h[2],base=sub(c,mul(up,reach+tol)),fr=frameAxis(up),half=Math.min(...[0,1,2].map(i=>h[i]).filter(v=>v>0))*.6;return [base,...[[1,0],[-1,0],[0,1],[0,-1]].map(([a,e])=>add(base,add(mul(fr.v,a*half),mul(fr.w,e*half))))];};
+ for(const f of ship.fits){if(f.float)continue;const up=FITS[f.k]?.window?(f.n||AXES[f.a]):fitUp(f),hung=(f.mountOffset||0)>tol,probes=[...(hung?[]:[tol,tol*3,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)))),...(hung?bodyProbes(f,up):[])];
   if(hullOK&&probes.some(q=>inHull(ship,q)))continue;let onGround=false,onLoose=false;
   for(const p of parts){const b=box.get(p.id);if(!b)continue;for(const q of probes){if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!safeIn(p,q))continue;if(looseSet.has(p.id))onLoose=true;else onGround=true;}if(onGround)break;}
-  if(!onGround&&onLoose)looseFits.push(f.id);}
- S.ungrounded={parts:loose,fits:looseFits};S.placementDiagnostics=placementDiagnostics(ship);
+  if(!onGround&&onLoose)looseFits.push(f.id);else if(!onGround)floatingFits.push(f.id);}
+ S.ungrounded={parts:loose,fits:looseFits,floatingFits};S.placementDiagnostics=placementDiagnostics(ship);
  if(S.floating){const n=parts.filter(p=>S.info?.[p.id]?.floating&&!looseSet.has(p.id)).length;S.warnings=S.warnings.filter(w=>!/浮いている区画/.test(w.text));if(n)S.warnings.unshift({lv:'bad',text:`船体から離れて浮いている区画が ${n} 個あります。`});}
  if(loose.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない部品が ${loose.length} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。`});
  if(looseFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない構造物の上に取り付けた装備が ${looseFits.length} 基あります。`});
+ if(floatingFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`どこにも取り付いていない（浮いている）装備が ${floatingFits.length} 基あります。船体・構造物・区画の表面に取り付けてください。`});
  return S;
 }
 function inspectionTargets(ship,S,w){
- if(w.code==='ungrounded')return [...(S.ungrounded?.parts||[]).map(id=>({list:'parts',id})),...(S.ungrounded?.fits||[]).map(id=>({list:'fits',id}))];
+ if(w.code==='ungrounded')return [...(S.ungrounded?.parts||[]).map(id=>({list:'parts',id})),...(S.ungrounded?.fits||[]).map(id=>({list:'fits',id})),...(S.ungrounded?.floatingFits||[]).map(id=>({list:'fits',id}))];
  const target=(p)=>p.windowId?{list:'fits',id:p.windowId}:p.weaponId?{list:'fits',id:p.weaponId}:p.nozzle?{list:'parts',id:p.nozzle}:{list:'parts',id:p.id};
  const parts=(pred,fallback)=>{const a=allOccupied(ship).filter(pred).map(target);return a.length?a:[{part:fallback}];};
  const txt=w.text;
