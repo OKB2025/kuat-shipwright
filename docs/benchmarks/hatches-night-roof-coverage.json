@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "scope": "Same actual public Venator design and old Worker-produced generic door63 meshes exported by the native browser harness. Compare the original owned-hull loft roof, the old closed GPU mesh source, and repaired production Core.slidingHatchPanels rest geometry. This probe is not the final regenerated Worker/browser image; that is separately tested by browser-hatches-night.cjs.",
+  "baselineCommit": "d73ea03fb220e1d359dcd6fb1dc4ac6c3bca9ec9",
+  "oldExportSourceSha256": {
+    "js/core.js": "7f0c92613d74475600a1c67fefa0054a664ab4512bf7c91cef0e067c3de05ce8",
+    "js/gfx.js": "834c32a358374034ee0597c7467e8bd09c30e90bc874ade10b0dbe58f4121b2e",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33"
+  },
+  "correctedCoreSha256": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+  "sourceDesignSha256": "b5501d4d7d151197f52232a091058aa6f2a114fbca856861299ab86f016b9b79",
+  "sourceDesignUnchanged": true,
+  "hatchId": 63,
+  "hullOwner": 174,
+  "ownerPose": {
+    "c": [
+      568.5,
+      57,
+      0
+    ],
+    "s": [
+      1137,
+      716.14,
+      114
+    ],
+    "yaw": 0,
+    "pitch": 0,
+    "roll": 0
+  },
+  "samples": [
+    {
+      "ownerLocalXZ": [
+        657,
+        -20
+      ],
+      "worldXZ": [
+        657,
+        -20
+      ],
+      "expectedOriginalRoofY": 102.75226299196252,
+      "oldActualWorkerClosedDoorY": 50.18000030517581,
+      "correctedCoreRestPanelY": 102.7525234339312,
+      "oldRoofDeficitM": 52.572262686786715,
+      "correctedErrorM": 0.00026044196867758274
+    },
+    {
+      "ownerLocalXZ": [
+        657,
+        20
+      ],
+      "worldXZ": [
+        657,
+        20
+      ],
+      "expectedOriginalRoofY": 102.75226299196252,
+      "oldActualWorkerClosedDoorY": 50.18000030517581,
+      "correctedCoreRestPanelY": 102.75214331560588,
+      "oldRoofDeficitM": 52.572262686786715,
+      "correctedErrorM": -0.00011967635664689169
+    },
+    {
+      "ownerLocalXZ": [
+        757,
+        -20
+      ],
+      "worldXZ": [
+        757,
+        -20
+      ],
+      "expectedOriginalRoofY": 96.84394373780151,
+      "oldActualWorkerClosedDoorY": 50.18000030517581,
+      "correctedCoreRestPanelY": 96.84592971634584,
+      "oldRoofDeficitM": 46.6639434326257,
+      "correctedErrorM": 0.001985978544325917
+    },
+    {
+      "ownerLocalXZ": [
+        757,
+        20
+      ],
+      "worldXZ": [
+        757,
+        20
+      ],
+      "expectedOriginalRoofY": 96.84394373780151,
+      "oldActualWorkerClosedDoorY": 50.18000030517581,
+      "correctedCoreRestPanelY": 96.84223922519402,
+      "oldRoofDeficitM": 46.6639434326257,
+      "correctedErrorM": -0.0017045126074890504
+    },
+    {
+      "ownerLocalXZ": [
+        857,
+        -20
+      ],
+      "worldXZ": [
+        857,
+        -20
+      ],
+      "expectedOriginalRoofY": 90.9790492403527,
+      "oldActualWorkerClosedDoorY": 50.18000030517581,
+      "correctedCoreRestPanelY": 90.97913301004584,
+      "oldRoofDeficitM": 40.799048935176884,
+      "correctedErrorM": 0.00008376969314838334
+    },
+    {
+      "ownerLocalXZ": [
+        857,
+        20
+      ],
+      "worldXZ": [
+        857,
+        20
+      ],
+      "expectedOriginalRoofY": 90.9790492403527,
+      "oldActualWorkerClosedDoorY": 50.18000030517578,
+      "correctedCoreRestPanelY": 90.9784970397856,
+      "oldRoofDeficitM": 40.79904893517691,
+      "correctedErrorM": -0.0005522005670997032
+    }
+  ],
+  "precisionNote": "Raw Float32 rest panels are compared to the original analytic loft. Final rendered metal adds its existing skin offset; both panel animation and final native coverage are tested separately."
+}

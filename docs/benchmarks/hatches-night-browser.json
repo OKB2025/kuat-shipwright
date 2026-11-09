@@ -1,0 +1,2396 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-11-09T04:58:05.264Z",
+  "sourceSha256": {
+    "index.html": "be50d36e07af424e473f723b6989095bedef2b67d1beb2b698f6880070f8007a",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33",
+    "js/core.js": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+    "js/gfx.js": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa"
+  },
+  "harnessSha256": "4f2187b9a2da49ca7ff4ee334c22ad92ac1c88b991147c07b47760db53eeb905",
+  "scope": "Native application with public TIE/ln and Venator designs, actual Worker fleet geometry, and actual RTS wing launch/recall orders. Flight and hatch fractions are never assigned by this harness.",
+  "conditions": {
+    "browser": "Chromium SwiftShader on Linux",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "cache": "Task-specific persistent Chromium profile preserves the normal IndexedDB asset cache across runs; fixture worlds and actual operation state are recreated each run. No cold-start/performance claim.",
+    "safari": "Not tested",
+    "hatchWorld": "An explicit isolated test world with one real public Venator, six B-wings and one real CR90 opposing contact at 30km. Arrival warp is cleared and both sides are ordered to hold fire before the world is run; the real detection/combat path activates flight operations. This is not a saved campaign or endurance benchmark.",
+    "renderObservation": "Test-only wrappers retain the original draw/drawMesh calls and observe the actual runtime hatch map and door offsets."
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "screenshots": [
+    "docs/benchmarks/hatches-night-browser.coruscant-dusk-start.jpg",
+    "docs/benchmarks/hatches-night-browser.coruscant-dusk-flight.jpg",
+    "docs/benchmarks/hatches-night-browser.carrier-idle-closed.jpg",
+    "docs/benchmarks/hatches-night-browser.carrier-launch-open.jpg",
+    "docs/benchmarks/hatches-night-browser.carrier-airborne-closed.jpg",
+    "docs/benchmarks/hatches-night-browser.carrier-landing-open.jpg",
+    "docs/benchmarks/hatches-night-browser.carrier-docked-closed.jpg",
+    "docs/benchmarks/hatches-night-browser.lighting-kuat.jpg",
+    "docs/benchmarks/hatches-night-browser.lighting-abregado.jpg"
+  ],
+  "stages": [
+    {
+      "name": "Actual public TIE/ln trial begins at the existing altitude on the evening/night side with the sun below the orbital horizon",
+      "at": "2026-11-09T04:59:24.592Z"
+    },
+    {
+      "name": "Actual loaded Core and unmodified trial unit use the shared 70 percent hyperspace speed threshold",
+      "at": "2026-11-09T04:59:24.644Z"
+    },
+    {
+      "name": "Native throttle input produces paid motion while the real sun direction and night-side location remain coherent",
+      "at": "2026-11-09T05:00:04.611Z"
+    },
+    {
+      "name": "Real Venator geometry is rendered with closed roof metal above its six embarked aircraft; open-door and stationary-body rays independently clear the original aperture",
+      "at": "2026-11-09T05:04:34.401Z"
+    },
+    {
+      "name": "An actual launch order opens its selected physical hatch; unused hatches remain closed in the live renderer",
+      "at": "2026-11-09T05:05:41.340Z"
+    },
+    {
+      "name": "After the last aircraft clears the hatch, doors close while the squadron remains airborne",
+      "at": "2026-11-09T05:07:20.268Z"
+    },
+    {
+      "name": "A production recall order reopens the selected hatch for actual landing traffic",
+      "at": "2026-11-09T05:10:05.635Z"
+    },
+    {
+      "name": "All six aircraft finish landing and their physical doors close again",
+      "at": "2026-11-09T05:12:33.407Z"
+    },
+    {
+      "name": "Actual Abregado trial uses its red stellar color for renderer illumination; the white-light control keeps white illumination",
+      "at": "2026-11-09T05:12:51.723Z"
+    }
+  ],
+  "progress": [
+    {
+      "at": "2026-11-09T04:58:44.531Z",
+      "stage": null,
+      "trialOn": false,
+      "time": 0,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 15,
+        "lastFrame": 34687.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 54
+      }
+    },
+    {
+      "at": "2026-11-09T04:58:59.523Z",
+      "stage": null,
+      "trialOn": false,
+      "time": 0,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 30,
+        "lastFrame": 49586.8,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 169
+      }
+    },
+    {
+      "at": "2026-11-09T04:59:15.513Z",
+      "stage": null,
+      "trialOn": true,
+      "time": 0,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 37,
+        "lastFrame": 63086.2,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 189
+      }
+    },
+    {
+      "at": "2026-11-09T04:59:29.540Z",
+      "stage": null,
+      "trialOn": true,
+      "time": 0.3334000000000088,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 51,
+        "lastFrame": 81152.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 203
+      }
+    },
+    {
+      "at": "2026-11-09T04:59:44.561Z",
+      "stage": null,
+      "trialOn": true,
+      "time": 1.633400000000007,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 77,
+        "lastFrame": 96168.2,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 229
+      }
+    },
+    {
+      "at": "2026-11-09T04:59:59.537Z",
+      "stage": null,
+      "trialOn": true,
+      "time": 2.6834000000000033,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 98,
+        "lastFrame": 111034.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 250
+      }
+    },
+    {
+      "at": "2026-11-09T05:00:14.545Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 116,
+        "lastFrame": 125683.7,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 489
+      }
+    },
+    {
+      "at": "2026-11-09T05:00:29.621Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 126,
+        "lastFrame": 140866.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 1150
+      }
+    },
+    {
+      "at": "2026-11-09T05:00:44.653Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 136,
+        "lastFrame": 156032.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 1809
+      }
+    },
+    {
+      "at": "2026-11-09T05:00:59.570Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 146,
+        "lastFrame": 171198.5,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 2514
+      }
+    },
+    {
+      "at": "2026-11-09T05:01:14.592Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 155,
+        "lastFrame": 184881.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 3051
+      }
+    },
+    {
+      "at": "2026-11-09T05:01:29.594Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 165,
+        "lastFrame": 200064.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 3757
+      }
+    },
+    {
+      "at": "2026-11-09T05:01:44.632Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 175,
+        "lastFrame": 215230.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 4473
+      }
+    },
+    {
+      "at": "2026-11-09T05:01:59.605Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 185,
+        "lastFrame": 230396.2,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 5197
+      }
+    },
+    {
+      "at": "2026-11-09T05:02:14.629Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 195,
+        "lastFrame": 245545.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 5962
+      }
+    },
+    {
+      "at": "2026-11-09T05:02:29.612Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 205,
+        "lastFrame": 260711.7,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 6782
+      }
+    },
+    {
+      "at": "2026-11-09T05:02:44.621Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 215,
+        "lastFrame": 275877.7,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 7465
+      }
+    },
+    {
+      "at": "2026-11-09T05:02:59.808Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 225,
+        "lastFrame": 291177.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 8206
+      }
+    },
+    {
+      "at": "2026-11-09T05:03:14.730Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 235,
+        "lastFrame": 306359.8,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 8893
+      }
+    },
+    {
+      "at": "2026-11-09T05:03:29.739Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 244,
+        "lastFrame": 320009.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 9688
+      }
+    },
+    {
+      "at": "2026-11-09T05:03:44.796Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 254,
+        "lastFrame": 335258.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 10372
+      }
+    },
+    {
+      "at": "2026-11-09T05:03:59.777Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 264,
+        "lastFrame": 350908.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 11017
+      }
+    },
+    {
+      "at": "2026-11-09T05:04:14.790Z",
+      "stage": "Worker carrier fleetAsset",
+      "trialOn": false,
+      "time": 2.9334000000000024,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 274,
+        "lastFrame": 366074.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 11823
+      }
+    },
+    {
+      "at": "2026-11-09T05:04:29.808Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 0.7000000000000003,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 292,
+        "lastFrame": 381423.5,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 11960
+      },
+      "worldTime": 0.5
+    },
+    {
+      "at": "2026-11-09T05:04:44.888Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 1.699999999999998,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 321,
+        "lastFrame": 396472.9,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 11989
+      },
+      "worldTime": 1.5
+    },
+    {
+      "at": "2026-11-09T05:04:59.830Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 2.7499999999999942,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 342,
+        "lastFrame": 411055.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12010
+      },
+      "worldTime": 2.75
+    },
+    {
+      "at": "2026-11-09T05:05:14.862Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 3.4999999999999916,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 357,
+        "lastFrame": 423288.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12025
+      },
+      "worldTime": 3.5
+    },
+    {
+      "at": "2026-11-09T05:05:30.005Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 4.399999999999995,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 375,
+        "lastFrame": 441304.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12043
+      },
+      "worldTime": 4.25
+    },
+    {
+      "at": "2026-11-09T05:05:44.896Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 4.900000000000002,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 394,
+        "lastFrame": 456387.2,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12062
+      },
+      "worldTime": 4.75
+    },
+    {
+      "at": "2026-11-09T05:05:59.908Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 5.45000000000001,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 405,
+        "lastFrame": 470003.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12073
+      },
+      "worldTime": 5.25
+    },
+    {
+      "at": "2026-11-09T05:06:14.907Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 6.483200000000036,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 426,
+        "lastFrame": 486235.9,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12094
+      },
+      "worldTime": 6.25
+    },
+    {
+      "at": "2026-11-09T05:06:29.961Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 8.033200000000058,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 457,
+        "lastFrame": 501468.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12125
+      },
+      "worldTime": 8
+    },
+    {
+      "at": "2026-11-09T05:06:44.943Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 9.58320000000008,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 488,
+        "lastFrame": 516434.7,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12156
+      },
+      "worldTime": 9.5
+    },
+    {
+      "at": "2026-11-09T05:07:00.013Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 11.149900000000112,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 520,
+        "lastFrame": 531617.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12188
+      },
+      "worldTime": 11
+    },
+    {
+      "at": "2026-11-09T05:07:15.005Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 12.749900000000135,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 552,
+        "lastFrame": 545983.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12220
+      },
+      "worldTime": 12.5
+    },
+    {
+      "at": "2026-11-09T05:07:30.009Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 13.349900000000144,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 573,
+        "lastFrame": 561566.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12241
+      },
+      "worldTime": 13.25
+    },
+    {
+      "at": "2026-11-09T05:07:45.020Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 13.899900000000152,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 584,
+        "lastFrame": 575582.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12252
+      },
+      "worldTime": 13.75
+    },
+    {
+      "at": "2026-11-09T05:08:00.033Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 14.749900000000164,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 601,
+        "lastFrame": 590698.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12269
+      },
+      "worldTime": 14.5
+    },
+    {
+      "at": "2026-11-09T05:08:15.042Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 15.399900000000173,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 614,
+        "lastFrame": 606514.5,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12282
+      },
+      "worldTime": 15.25
+    },
+    {
+      "at": "2026-11-09T05:08:30.057Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 16.04990000000018,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 627,
+        "lastFrame": 620863.9,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12295
+      },
+      "worldTime": 16
+    },
+    {
+      "at": "2026-11-09T05:08:45.089Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 16.74990000000014,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 641,
+        "lastFrame": 636296.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12309
+      },
+      "worldTime": 16.5
+    },
+    {
+      "at": "2026-11-09T05:09:00.097Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 17.499900000000096,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 656,
+        "lastFrame": 651179.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12324
+      },
+      "worldTime": 17.25
+    },
+    {
+      "at": "2026-11-09T05:09:15.110Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 18.249900000000054,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 671,
+        "lastFrame": 666045.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12339
+      },
+      "worldTime": 18
+    },
+    {
+      "at": "2026-11-09T05:09:30.132Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 19.099900000000005,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 688,
+        "lastFrame": 681661.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12356
+      },
+      "worldTime": 19
+    },
+    {
+      "at": "2026-11-09T05:09:45.157Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 19.69989999999997,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 700,
+        "lastFrame": 696377.5,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12368
+      },
+      "worldTime": 19.5
+    },
+    {
+      "at": "2026-11-09T05:10:00.194Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 20.04989999999995,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 712,
+        "lastFrame": 710393.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12380
+      },
+      "worldTime": 20
+    },
+    {
+      "at": "2026-11-09T05:10:15.151Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 20.349899999999934,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 722,
+        "lastFrame": 726393.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12390
+      },
+      "worldTime": 20.25
+    },
+    {
+      "at": "2026-11-09T05:10:30.212Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 21.09989999999989,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 737,
+        "lastFrame": 741775.8,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12405
+      },
+      "worldTime": 21
+    },
+    {
+      "at": "2026-11-09T05:10:45.214Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 21.84989999999985,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 752,
+        "lastFrame": 756558.4,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12420
+      },
+      "worldTime": 21.75
+    },
+    {
+      "at": "2026-11-09T05:11:01.244Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 22.599899999999806,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 767,
+        "lastFrame": 769941.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12435
+      },
+      "worldTime": 22.5
+    },
+    {
+      "at": "2026-11-09T05:11:15.250Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 23.74989999999974,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 790,
+        "lastFrame": 786857.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12458
+      },
+      "worldTime": 23.5
+    },
+    {
+      "at": "2026-11-09T05:11:30.254Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 24.983299999999694,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 815,
+        "lastFrame": 801656.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12483
+      },
+      "worldTime": 24.75
+    },
+    {
+      "at": "2026-11-09T05:11:45.285Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 26.333299999999618,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 842,
+        "lastFrame": 816889.3,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12510
+      },
+      "worldTime": 26.25
+    },
+    {
+      "at": "2026-11-09T05:12:00.268Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 27.649999999999498,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 869,
+        "lastFrame": 831605.5,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12537
+      },
+      "worldTime": 27.5
+    },
+    {
+      "at": "2026-11-09T05:12:15.292Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 29.19999999999941,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 900,
+        "lastFrame": 846504.9,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12568
+      },
+      "worldTime": 29
+    },
+    {
+      "at": "2026-11-09T05:12:30.305Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 30.74999999999932,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 931,
+        "lastFrame": 861587.6,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12599
+      },
+      "worldTime": 30.5
+    },
+    {
+      "at": "2026-11-09T05:12:46.024Z",
+      "stage": "Native RTS pilot active",
+      "trialOn": true,
+      "time": 0.06669999999995344,
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 962,
+        "lastFrame": 874387.1,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 12630
+      },
+      "worldTime": 30.75
+    }
+  ],
+  "craft": {
+    "name": "TIE/ln 制宙戦闘機",
+    "key": "craft_tie_ln",
+    "parts": 25,
+    "reference": "craft_tie_ln"
+  },
+  "coruscantInitial": {
+    "time": 0.05,
+    "system": "coruscant",
+    "position": [
+      -3550063.9399271733,
+      4740617.469601665,
+      -2088538.251825008
+    ],
+    "velocity": [
+      0,
+      0,
+      0
+    ],
+    "speed": 0,
+    "altitude": 160000,
+    "configuredAltitude": 160000,
+    "planetRadius": 6120000,
+    "sun": [
+      0.7872413264555074,
+      0.40712480288105646,
+      0.46314197477623875
+    ],
+    "up": [
+      -0.5652968057208875,
+      0.7548753932486727,
+      -0.3325697853224535
+    ],
+    "forward": [
+      0.6506316760772853,
+      0.6558682342267094,
+      0.3827731461547435
+    ],
+    "pitch": 8.326672684688674e-17,
+    "sunDot": -0.2917235386257977,
+    "solarAltitudeDegrees": -16.961169974920864,
+    "orbitalHorizonDepressionDegrees": 12.96116997492086,
+    "sunBelowOrbitalHorizonDegrees": 4.0000000000000036,
+    "throttle": 0,
+    "frame": [
+      0.6506316760772853,
+      0.6558682342267094,
+      0.3827731461547435,
+      -0.5652968057208875,
+      0.7548753932486727,
+      -0.33256978532245357,
+      -0.5070679870851871,
+      2.7755575615628914e-17,
+      0.8619060601210414
+    ],
+    "renderHealth": {
+      "mode": "webgl",
+      "lost": false,
+      "error": null,
+      "frames": 40,
+      "lastFrame": 73069.1,
+      "failures": 0,
+      "recoveries": 1,
+      "automaticRetries": 0,
+      "loops": 192
+    }
+  },
+  "hyperspaceThreshold": {
+    "constant": 0.7,
+    "velocity": [
+      0,
+      0,
+      0
+    ],
+    "readiness": {
+      "ready": false,
+      "speedReady": false,
+      "powerReady": false,
+      "hasHyperdrive": false,
+      "healthyMaximumSpeedMps": 1999.9999999999977,
+      "requiredForwardSpeedMps": 1399.9999999999984,
+      "forwardSpeedMps": 0,
+      "speedFraction": 0,
+      "shieldRechargeW": 0,
+      "weaponChargeW": 0,
+      "weaponFireW": 0,
+      "activeWeaponFire": false,
+      "reason": "hyper-unavailable"
+    },
+    "scope": "The actual current trial unit at its real velocity, without assigning speed or changing entry flags. Exact boundary cases are covered by Node regressions."
+  },
+  "coruscantMoving": {
+    "time": 2.9334000000000024,
+    "system": "coruscant",
+    "position": [
+      -3550009.3179959753,
+      4740672.531153202,
+      -2088506.1171945822
+    ],
+    "velocity": [
+      46.7051910169699,
+      47.08109409336933,
+      27.477132707569357
+    ],
+    "speed": 71.78437929514833,
+    "altitude": 160000.00056114327,
+    "configuredAltitude": 160000,
+    "planetRadius": 6120000,
+    "sun": [
+      0.7872413264555074,
+      0.40712480288105646,
+      0.46314197477623875
+    ],
+    "up": [
+      -0.5652881079106318,
+      0.7548841609442044,
+      -0.33256466831337034
+    ],
+    "forward": [
+      0.6506316760772853,
+      0.6558682342267094,
+      0.3827731461547435
+    ],
+    "pitch": 0.000013368177517634901,
+    "sunDot": -0.29171075190210793,
+    "solarAltitudeDegrees": -16.960404034769326,
+    "orbitalHorizonDepressionDegrees": 12.96116999716508,
+    "sunBelowOrbitalHorizonDegrees": 3.999234037604247,
+    "throttle": 0.4141900000000028,
+    "frame": [
+      0.6506316760772853,
+      0.6558682342267094,
+      0.3827731461547435,
+      -0.5652968057208875,
+      0.7548753932486727,
+      -0.33256978532245357,
+      -0.5070679870851871,
+      2.7755575615628914e-17,
+      0.8619060601210414
+    ],
+    "renderHealth": {
+      "mode": "webgl",
+      "lost": false,
+      "error": null,
+      "frames": 105,
+      "lastFrame": 114850.8,
+      "failures": 0,
+      "recoveries": 1,
+      "automaticRetries": 0,
+      "loops": 257
+    }
+  },
+  "carrier": {
+    "name": "ヴェネター級｜双塔キャリア",
+    "parts": 110,
+    "mouths": [
+      {
+        "hatchId": 40,
+        "p": [
+          -98,
+          -72,
+          -124.9
+        ],
+        "n": [
+          0,
+          0,
+          -1
+        ],
+        "ax": [
+          1,
+          0,
+          0
+        ],
+        "o": [
+          60.8,
+          45
+        ],
+        "r": 0.1642,
+        "in": [
+          -98,
+          -72,
+          -115
+        ],
+        "d": 9.9,
+        "sl": 1
+      },
+      {
+        "hatchId": 56,
+        "p": [
+          -98,
+          -72,
+          124.9
+        ],
+        "n": [
+          0,
+          0,
+          1
+        ],
+        "ax": [
+          1,
+          0,
+          0
+        ],
+        "o": [
+          60.8,
+          45
+        ],
+        "r": 0.1642,
+        "in": [
+          -98,
+          -72,
+          115
+        ],
+        "d": 9.9,
+        "sl": 1
+      },
+      {
+        "hatchId": 63,
+        "p": [
+          288,
+          -30.5,
+          0
+        ],
+        "n": [
+          0,
+          1,
+          0
+        ],
+        "ax": [
+          1,
+          0,
+          0
+        ],
+        "o": [
+          526,
+          79.5
+        ],
+        "r": 2.414,
+        "in": [
+          288,
+          -65,
+          0
+        ],
+        "d": 34.5,
+        "sl": 1
+      },
+      {
+        "hatchId": 65,
+        "p": [
+          -24,
+          -124.1,
+          0
+        ],
+        "n": [
+          0,
+          -1,
+          0
+        ],
+        "ax": [
+          1,
+          0,
+          0
+        ],
+        "o": [
+          90,
+          67.7
+        ],
+        "r": 0.3305,
+        "in": [
+          -24,
+          -102,
+          0
+        ],
+        "d": 22.1,
+        "sl": 1
+      },
+      {
+        "hatchId": 102,
+        "p": [
+          288,
+          -102.5,
+          0
+        ],
+        "n": [
+          0,
+          -1,
+          0
+        ],
+        "ax": [
+          1,
+          0,
+          0
+        ],
+        "o": [
+          526,
+          71.2
+        ],
+        "r": 2.159,
+        "in": [
+          288,
+          -65,
+          0
+        ],
+        "d": 37.4,
+        "sl": 1
+      }
+    ],
+    "slidingHatches": 5,
+    "doors": [
+      {
+        "name": "slideDoor_40_l",
+        "hatchId": 40,
+        "axis": 1,
+        "side": -1,
+        "travel": 22.5
+      },
+      {
+        "name": "slideDoor_40_r",
+        "hatchId": 40,
+        "axis": 1,
+        "side": 1,
+        "travel": 22.5
+      },
+      {
+        "name": "slideDoor_56_l",
+        "hatchId": 56,
+        "axis": 1,
+        "side": -1,
+        "travel": 22.5
+      },
+      {
+        "name": "slideDoor_56_r",
+        "hatchId": 56,
+        "axis": 1,
+        "side": 1,
+        "travel": 22.5
+      },
+      {
+        "name": "slideDoor_63_l",
+        "hatchId": 63,
+        "axis": 2,
+        "side": -1,
+        "travel": 39.77201886792453
+      },
+      {
+        "name": "slideDoor_63_r",
+        "hatchId": 63,
+        "axis": 2,
+        "side": 1,
+        "travel": 39.77201886792453
+      },
+      {
+        "name": "slideDoor_65_l",
+        "hatchId": 65,
+        "axis": 2,
+        "side": -1,
+        "travel": 33.85531914893617
+      },
+      {
+        "name": "slideDoor_65_r",
+        "hatchId": 65,
+        "axis": 2,
+        "side": 1,
+        "travel": 33.85531914893617
+      },
+      {
+        "name": "slideDoor_102_l",
+        "hatchId": 102,
+        "axis": 2,
+        "side": -1,
+        "travel": 35.585490566037734
+      },
+      {
+        "name": "slideDoor_102_r",
+        "hatchId": 102,
+        "axis": 2,
+        "side": 1,
+        "travel": 35.585490566037734
+      }
+    ],
+    "aircraft": "bwing",
+    "aircraftCount": 6,
+    "opposingContact": {
+      "key": "cr90",
+      "range": 30000,
+      "fire": false,
+      "autoPointDefense": false
+    }
+  },
+  "idle": {
+    "worldTime": 0.5,
+    "trialTime": 0.7000000000000003,
+    "unitId": "u3",
+    "scalar": 0,
+    "target": 0,
+    "byId": {
+      "40": 0,
+      "56": 0,
+      "63": 0,
+      "65": 0,
+      "102": 0
+    },
+    "squads": [
+      {
+        "id": "s4",
+        "n": 6,
+        "state": "docked",
+        "pos": [
+          -28345.039767536542,
+          18.415154167450964,
+          -9770.130018394462
+        ],
+        "ops": null,
+        "lost": 0
+      }
+    ],
+    "wingOrder": {
+      "type": "standby"
+    },
+    "rendered": {
+      "key": "trial-198zbys",
+      "hatchOpen": 0,
+      "hatchOpenById": {
+        "40": 0,
+        "56": 0,
+        "63": 0,
+        "65": 0,
+        "102": 0
+      },
+      "rot": [
+        0.9455990515103633,
+        0,
+        0.32533434153605945,
+        0,
+        1,
+        0,
+        -0.32533434153605945,
+        0,
+        0.9455990515103633
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "doorOffsets": {
+      "slideDoor_40_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_40_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_r": [
+        0,
+        0,
+        0
+      ]
+    },
+    "unitOut": null
+  },
+  "roofGeometry": {
+    "hatchId": 63,
+    "ownerId": 174,
+    "scope": "Read-only numerical rays through actual Worker geometry. Reference heights come independently from the original owned hull loft via originalSurface and hullWorldPoint. The operational unit and its hatch state are not assigned. Door skin may lie above the raw roof; 0.05m permits float packing without accepting the much lower hangar floor.",
+    "doorMeshes": [
+      {
+        "name": "slideDoor_63_l",
+        "vertices": 5256,
+        "indices": 11688
+      },
+      {
+        "name": "slideDoor_63_r",
+        "vertices": 5184,
+        "indices": 11520
+      }
+    ],
+    "samples": [
+      {
+        "x": 725.5,
+        "z": -10.975040801886793,
+        "authoredRoof": [
+          725.5,
+          100.40230756822592,
+          -10.975040801886793
+        ],
+        "closed": {
+          "point": [
+            725.5,
+            100.5839808037872,
+            -10.975040801886793
+          ],
+          "normal": [
+            0.058866352036250694,
+            0.9810325608099087,
+            -0.18468856821334917
+          ]
+        },
+        "open": null,
+        "body": null,
+        "closedCovers": true,
+        "openClears": true,
+        "bodyClears": true
+      },
+      {
+        "x": 725.5,
+        "z": 10.975040801886793,
+        "authoredRoof": [
+          725.5,
+          100.40230756822592,
+          10.975040801886793
+        ],
+        "closed": {
+          "point": [
+            725.5,
+            100.57990467433251,
+            10.975040801886793
+          ],
+          "normal": [
+            0.05748760458511164,
+            0.9811115212170781,
+            0.18470343324956529
+          ]
+        },
+        "open": null,
+        "body": null,
+        "closedCovers": true,
+        "openClears": true,
+        "bodyClears": true
+      },
+      {
+        "x": 857,
+        "z": -8.029875,
+        "authoredRoof": [
+          857,
+          93.13416759343035,
+          -8.029875
+        ],
+        "closed": {
+          "point": [
+            857,
+            93.31747551506021,
+            -8.029875
+          ],
+          "normal": [
+            0.0575842036511427,
+            0.9824878358115132,
+            -0.1772052820100822
+          ]
+        },
+        "open": null,
+        "body": {
+          "point": [
+            857,
+            50.22999954223633,
+            -8.029875
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ]
+        },
+        "closedCovers": true,
+        "openClears": true,
+        "bodyClears": true
+      },
+      {
+        "x": 857,
+        "z": 8.029875,
+        "authoredRoof": [
+          857,
+          93.13416759343035,
+          8.029875
+        ],
+        "closed": {
+          "point": [
+            857,
+            93.31157707168404,
+            8.029875
+          ],
+          "normal": [
+            0.058943085282184525,
+            0.9824097870178304,
+            0.1771912048296928
+          ]
+        },
+        "open": null,
+        "body": null,
+        "closedCovers": true,
+        "openClears": true,
+        "bodyClears": true
+      },
+      {
+        "x": 988.5,
+        "z": -5.084709198113209,
+        "authoredRoof": [
+          988.5,
+          85.84815267123643,
+          -5.084709198113209
+        ],
+        "closed": {
+          "point": [
+            988.5,
+            86.03283985943176,
+            -5.084709198113209
+          ],
+          "normal": [
+            0.05909170777753037,
+            0.9849926449559798,
+            -0.16216553103097467
+          ]
+        },
+        "open": null,
+        "body": null,
+        "closedCovers": true,
+        "openClears": true,
+        "bodyClears": true
+      },
+      {
+        "x": 988.5,
+        "z": 5.084709198113209,
+        "authoredRoof": [
+          988.5,
+          85.84815267123643,
+          5.084709198113209
+        ],
+        "closed": {
+          "point": [
+            988.5,
+            86.01976316820151,
+            5.084709198113209
+          ],
+          "normal": [
+            0.05707794443703675,
+            0.9851082555843326,
+            0.16218456473547557
+          ]
+        },
+        "open": null,
+        "body": null,
+        "closedCovers": true,
+        "openClears": true,
+        "bodyClears": true
+      }
+    ]
+  },
+  "launch": {
+    "worldTime": 4.75,
+    "trialTime": 4.75,
+    "unitId": "u3",
+    "scalar": 1,
+    "target": 1,
+    "byId": {
+      "40": 0,
+      "56": 0,
+      "63": 1,
+      "65": 0,
+      "102": 0
+    },
+    "squads": [
+      {
+        "id": "s4",
+        "n": 6,
+        "state": "out",
+        "pos": [
+          -28072.70724070156,
+          -12.084845832549036,
+          -9676.433728032078
+        ],
+        "ops": {
+          "k": "launch",
+          "u": "u3",
+          "m": 2,
+          "t0": 4.75,
+          "per": 0.4266777133388567,
+          "n": 6,
+          "t1": 8.508388566694283
+        },
+        "lost": 0
+      }
+    ],
+    "wingOrder": {
+      "type": "cap",
+      "point": [
+        -27145.039767536542,
+        18.415154167450964,
+        -9770.130018394462
+      ],
+      "radius": 600
+    },
+    "rendered": {
+      "key": "trial-198zbys",
+      "hatchOpen": 1,
+      "hatchOpenById": {
+        "40": 0,
+        "56": 0,
+        "63": 1,
+        "65": 0,
+        "102": 0
+      },
+      "rot": [
+        0.9455990515103633,
+        0,
+        0.32533434153605945,
+        0,
+        1,
+        0,
+        -0.32533434153605945,
+        0,
+        0.9455990515103633
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "doorOffsets": {
+      "slideDoor_40_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_40_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_l": [
+        12.939203569955959,
+        0,
+        -37.60838331816171
+      ],
+      "slideDoor_63_r": [
+        -12.939203569955959,
+        0,
+        37.60838331816171
+      ],
+      "slideDoor_65_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_r": [
+        0,
+        0,
+        0
+      ]
+    },
+    "unitOut": null
+  },
+  "airborne": {
+    "worldTime": 12.75,
+    "trialTime": 12.799900000000136,
+    "unitId": "u3",
+    "scalar": 0,
+    "target": 0,
+    "byId": {
+      "40": 0,
+      "56": 0,
+      "63": 0,
+      "65": 0,
+      "102": 0
+    },
+    "squads": [
+      {
+        "id": "s4",
+        "n": 6,
+        "state": "out",
+        "pos": [
+          -28212.185067546478,
+          352.55494925632553,
+          -9348.761408779592
+        ],
+        "ops": null,
+        "lost": 0
+      }
+    ],
+    "wingOrder": {
+      "type": "cap",
+      "point": [
+        -27145.039767536542,
+        18.415154167450964,
+        -9770.130018394462
+      ],
+      "radius": 600
+    },
+    "rendered": {
+      "key": "trial-198zbys",
+      "hatchOpen": 0,
+      "hatchOpenById": {
+        "40": 0,
+        "56": 0,
+        "63": 0,
+        "65": 0,
+        "102": 0
+      },
+      "rot": [
+        0.9455990515103633,
+        0,
+        0.32533434153605945,
+        0,
+        1,
+        0,
+        -0.32533434153605945,
+        0,
+        0.9455990515103633
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "doorOffsets": {
+      "slideDoor_40_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_40_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_r": [
+        0,
+        0,
+        0
+      ]
+    },
+    "unitOut": null
+  },
+  "landing": {
+    "worldTime": 20,
+    "trialTime": 20.04989999999995,
+    "unitId": "u3",
+    "scalar": 1,
+    "target": 1,
+    "byId": {
+      "40": 0,
+      "56": 0,
+      "63": 1,
+      "65": 0,
+      "102": 0
+    },
+    "squads": [
+      {
+        "id": "s4",
+        "n": 6,
+        "state": "return",
+        "pos": [
+          -28072.70724070156,
+          687.915154167451,
+          -9676.433728032078
+        ],
+        "ops": {
+          "k": "land",
+          "u": "u3",
+          "m": 2,
+          "t0": 24.375,
+          "per": 0.4266777133388567,
+          "n": 6,
+          "stack": 0,
+          "t1": 26.724013566694282
+        },
+        "lost": 0
+      }
+    ],
+    "wingOrder": {
+      "type": "standby"
+    },
+    "rendered": {
+      "key": "trial-198zbys",
+      "hatchOpen": 1,
+      "hatchOpenById": {
+        "40": 0,
+        "56": 0,
+        "63": 1,
+        "65": 0,
+        "102": 0
+      },
+      "rot": [
+        0.9455990515103633,
+        0,
+        0.32533434153605945,
+        0,
+        1,
+        0,
+        -0.32533434153605945,
+        0,
+        0.9455990515103633
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "doorOffsets": {
+      "slideDoor_40_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_40_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_l": [
+        12.939203569955959,
+        0,
+        -37.60838331816171
+      ],
+      "slideDoor_63_r": [
+        -12.939203569955959,
+        0,
+        37.60838331816171
+      ],
+      "slideDoor_65_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_r": [
+        0,
+        0,
+        0
+      ]
+    },
+    "unitOut": null
+  },
+  "docked": {
+    "worldTime": 30.75,
+    "trialTime": 30.79999999999932,
+    "unitId": "u3",
+    "scalar": 0,
+    "target": 0,
+    "byId": {
+      "40": 0,
+      "56": 0,
+      "63": 0,
+      "65": 0,
+      "102": 0
+    },
+    "squads": [
+      {
+        "id": "s4",
+        "n": 6,
+        "state": "docked",
+        "pos": [
+          -28345.039767536542,
+          18.415154167450964,
+          -9770.130018394462
+        ],
+        "ops": null,
+        "lost": 0
+      }
+    ],
+    "wingOrder": {
+      "type": "standby"
+    },
+    "rendered": {
+      "key": "trial-198zbys",
+      "hatchOpen": 0,
+      "hatchOpenById": {
+        "40": 0,
+        "56": 0,
+        "63": 0,
+        "65": 0,
+        "102": 0
+      },
+      "rot": [
+        0.9455990515103633,
+        0,
+        0.32533434153605945,
+        0,
+        1,
+        0,
+        -0.32533434153605945,
+        0,
+        0.9455990515103633
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    "doorOffsets": {
+      "slideDoor_40_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_40_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_56_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_63_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_65_r": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_l": [
+        0,
+        0,
+        0
+      ],
+      "slideDoor_102_r": [
+        0,
+        0,
+        0
+      ]
+    },
+    "unitOut": null
+  },
+  "stellarLighting": [
+    {
+      "system": "kuat",
+      "ship": "TIE/ln 制宙戦闘機",
+      "star": null,
+      "planetStar": null,
+      "look": {
+        "sunColor": [
+          1,
+          1,
+          1
+        ],
+        "C1": [
+          1.95,
+          1.88,
+          1.76
+        ],
+        "C2": [
+          0.04,
+          0.05,
+          0.065
+        ],
+        "sky": [
+          0.035,
+          0.04,
+          0.05
+        ],
+        "gnd": [
+          0.025,
+          0.025,
+          0.03
+        ]
+      },
+      "position": [
+        0,
+        5380000,
+        0
+      ],
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "scope": "Same unchanged public TIE/ln launched normally in each actual star system; these are independent visual scenes, not a controlled identical-sun pixel comparison."
+    },
+    {
+      "system": "abregado",
+      "ship": "TIE/ln 制宙戦闘機",
+      "star": {
+        "name": "アンザ",
+        "kind": "赤色矮星",
+        "ang": 0.13,
+        "color": [
+          1,
+          0.16,
+          0.05
+        ]
+      },
+      "planetStar": {
+        "dir": [
+          0.6222441255753677,
+          0.3010858672138876,
+          0.7226060813133302
+        ],
+        "ang": 0.13,
+        "color": [
+          1,
+          0.16,
+          0.05
+        ]
+      },
+      "look": {
+        "sunColor": [
+          1,
+          0.16,
+          0.05
+        ],
+        "C1": [
+          1.95,
+          0.3008,
+          0.08800000000000001
+        ],
+        "C2": [
+          0.04,
+          0.008,
+          0.0032500000000000003
+        ],
+        "sky": [
+          0.035,
+          0.0064,
+          0.0025000000000000005
+        ],
+        "gnd": [
+          0.025,
+          0.004,
+          0.0015
+        ]
+      },
+      "position": [
+        0,
+        5135000,
+        0
+      ],
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "scope": "Same unchanged public TIE/ln launched normally in each actual star system; these are independent visual scenes, not a controlled identical-sun pixel comparison."
+    }
+  ],
+  "renderHealth": {
+    "mode": "webgl",
+    "lost": false,
+    "error": null,
+    "frames": 976,
+    "lastFrame": 883320.1,
+    "failures": 0,
+    "recoveries": 1,
+    "automaticRetries": 0,
+    "loops": 12644
+  },
+  "glError": 0,
+  "sourceSha256After": {
+    "index.html": "be50d36e07af424e473f723b6989095bedef2b67d1beb2b698f6880070f8007a",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33",
+    "js/core.js": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+    "js/gfx.js": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa"
+  },
+  "sourceStable": true,
+  "harnessStable": true,
+  "completedAt": "2026-11-09T05:12:52.112Z"
+}

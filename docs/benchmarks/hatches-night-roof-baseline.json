@@ -1,0 +1,27 @@
+{
+  "status": "EXPECTED_REGRESSION_FAILURES",
+  "baselineCommit": "d73ea03fb220e1d359dcd6fb1dc4ac6c3bca9ec9",
+  "command": "KS_TEST_ROOT=/workspace/scratch/owned-hatch-roof-baseline node --test --test-reporter=tap tests/owned-hatch-roof-panels.cjs",
+  "sourceSha256": {
+    "data/reference.js": "a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe",
+    "data/imperial2.js": "18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626",
+    "data/fleet.js": "b36f7364955f4d5b16257e6d414966a4fa715beb8378223b32a61dff77243a82",
+    "js/core.js": "7f0c92613d74475600a1c67fefa0054a664ab4512bf7c91cef0e067c3de05ce8",
+    "js/gfx.js": "834c32a358374034ee0597c7467e8bd09c30e90bc874ade10b0dbe58f4121b2e"
+  },
+  "testSha256": "9498a09112820d8a5bf148f5bd1e795ac057067ad6f73953bf7c044f68aaf5a4",
+  "tests": 4,
+  "pass": 0,
+  "fail": 4,
+  "cancelled": 0,
+  "exitCode": 1,
+  "failures": [
+    "closed door must be at the real 100m roof, not the 90m opening sill",
+    "sill caps and hole walls cannot become the sliding roof",
+    "the static body must contain only its original roof area, not another translated panel",
+    "animated reference skin must not remain parked in the static body"
+  ],
+  "log": "docs/benchmarks/hatches-night-roof-baseline.log",
+  "logSha256": "6b5fb34c1ba16847611c6fd21eaa6fdee7e1e11d3eb50550a2966b1eff3ef419",
+  "scope": "The same final four owned/legacy geometric regressions run against exact pre-roof-fix d73ea03 source. Failures demonstrate the missing original roof, sill/wall material being used as a door, a stationary duplicated roof copy, and a parked reference skin, independent of flight scheduling."
+}

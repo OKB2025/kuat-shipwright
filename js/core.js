@@ -83109,8 +83109,22 @@ function translatedSlidingPanels(base,b,axis,open){
  return out;
 }
 const SLIDING_PANEL_CACHE=new WeakMap();
+const SLIDING_HULL_SOURCE_CACHE=new WeakMap();
+function slidingHatchSourceTriangles(ship,p){
+ if(!isHullStructure(p)||p._placementGeometry||p.placement?.materializedGeometry)return unpiercedStructTriangles(p);
+ // Owned hull geometry already contains its open portals and sill caps. A door
+ // must be cut from the original roof, independently of those runtime holes.
+ // Keep authored cuts and the owner's transform while omitting only portals in
+ // this private source; neither the blueprint nor its physical material changes.
+ const local=hullStructureShip(ship,p),key=JSON.stringify([local.hull,local.cuts,local.subs,local.trenches,local.solidCuts,p.c,p.s,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.hullMirrorZ]),cached=SLIDING_HULL_SOURCE_CACHE.get(p);
+ if(cached?.key===key)return cached.tris;
+ const source={...local,hatches:[],_cache:null,_lockedCache:null,_solidHull:null},base=hullGeo(source).tris,tris=new Float32Array(base.length);
+ for(let i=0;i<base.length;i+=3)tris.set(hullWorldPoint(p,Array.from(base.subarray(i,i+3))),i);
+ if(p.hullMirrorZ)for(let i=0;i<tris.length;i+=9)for(let j=0;j<3;j++)[tris[i+3+j],tris[i+6+j]]=[tris[i+6+j],tris[i+3+j]];
+ SLIDING_HULL_SOURCE_CACHE.set(p,{key,tris});return tris;
+}
 function slidingHatchPanels(ship,h){
- const spec=slidingHatchSpec(ship,h);if(!spec||h.skinAsset)return [];const base=v3HullGeo(ship).tris,structures=ship.parts.filter(p=>isShapePart(p)).map(p=>({p,base:unpiercedStructTriangles(p)}));
+ const spec=slidingHatchSpec(ship,h);if(!spec||h.skinAsset)return [];const base=v3HullGeo(ship).tris,structures=ship.parts.filter(p=>isShapePart(p)).map(p=>({p,base:slidingHatchSourceTriangles(ship,p)}));
  const key=JSON.stringify([spec.b,ship.solidCuts,ship.subs]),cached=SLIDING_PANEL_CACHE.get(h);if(cached?.base===base&&cached.key===key&&structures.every((q,i)=>cached.structures[i]===q.base)&&structures.length===cached.structures.length)return cached.panels;
  const pieces=slidingPanelsFromMesh(base,spec.b,spec.axis).map(a=>[a]);
  for(const q of structures){if(!boxesOverlap(partAABB(q.p),spec.b))continue;const parts=slidingPanelsFromMesh(q.base,spec.b,spec.axis);for(let side=0;side<2;side++)pieces[side].push(parts[side]);}

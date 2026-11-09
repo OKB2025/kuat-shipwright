@@ -3449,7 +3449,7 @@ function meshReferenceHatches(ship,owned=false){
  }
  // Ventral approach bay belongs to the hull skin; its doors are independently operated.
  if(!ship._referenceDoorOnly&&ship.hullSkin?.enabled&&ship.reference==='venator')appendReference(g,'ven_bay',(v,a)=>v.map((n,i)=>n*a.size[i]+a.c[i]));
- if(!owned)for(const p of ship.parts.filter(q=>C.isHullStructure?.(q))){const part=meshReferenceHatches(C.hullStructureShip(ship,p),true),origin=C.hullWorldPoint(p,[0,0,0]);for(let i=0;i<part.n;i++){const point=C.hullWorldPoint(p,Array.from(part.pos.subarray(i*3,i*3+3))),normal=C.norm(C.sub(C.hullWorldPoint(p,Array.from(part.nor.subarray(i*3,i*3+3),v=>v/127)),origin));part.pos.set(point,i*3);part.nor.set(normal.map(v=>v*127),i*3);}if(p.hullMirrorZ)for(let i=0;i<part.ni;i+=3)[part.idx[i+1],part.idx[i+2]]=[part.idx[i+2],part.idx[i+1]];appendGeo(g,part);}
+ if(!owned)for(const p of ship.parts.filter(q=>C.isHullStructure?.(q))){const local=C.hullStructureShip(ship,p),part=meshReferenceHatches(ship._referenceDoorOnly?{...local,_referenceDoorOnly:true}:local,true),origin=C.hullWorldPoint(p,[0,0,0]);for(let i=0;i<part.n;i++){const point=C.hullWorldPoint(p,Array.from(part.pos.subarray(i*3,i*3+3))),normal=C.norm(C.sub(C.hullWorldPoint(p,Array.from(part.nor.subarray(i*3,i*3+3),v=>v/127)),origin));part.pos.set(point,i*3);part.nor.set(normal.map(v=>v*127),i*3);}if(p.hullMirrorZ)for(let i=0;i<part.ni;i+=3)[part.idx[i+1],part.idx[i+2]]=[part.idx[i+2],part.idx[i+1]];appendGeo(g,part);}
  return g;
 }
 
@@ -3496,7 +3496,11 @@ function splitFoilGeometry(meshes,ranges,foils,owners){
 // Fleet geometry is built by the background engine; the renderer only uploads it.
 function fleetGeometry(ship,opts){
  const sliding=ship.hatches.some(h=>C.isSlidingHatch(ship,h)),model=sliding?C.surfaceRenderClone(ship):ship;
- if(sliding)for(const h of model.hatches)if(C.isSlidingHatch(model,h)){h.open=1;h._doorDetached=true;}
+ if(sliding)for(const h of model.hatches)if(C.isSlidingHatch(model,h)){h.open=1;h._doorDetached=true;
+  // Public owned-hull handles normally synchronize only editable settings.
+  // Their render-only local counterparts must also omit the moving door skin.
+  const local=h.hullOwner&&model.parts.find(p=>p.id===h.hullOwner)?.hullData?.hatches?.find(q=>q.id===h.hullHatch);if(local){local.open=1;local._doorDetached=true;}
+ }
  const meshes={},b=shipBounds(ship),center=Array.isArray(opts?.center)&&opts.center.length===3&&opts.center.every(Number.isFinite)?opts.center.slice():[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],doors=[],rays=[],put=(name,geo,tex,emi)=>{meshes[name]={geo,tex,emi};};
  const owners=new Map(),foils=model.parts.filter(C.isFoil).map((wing,i)=>{const members=C.wingMembers(model,wing),frame=C.foilFrame(model,wing),partIds=[],fitIds=[];for(const p of [wing,...members.structs,...members.parts])if(!owners.has(p.id)){owners.set(p.id,i);partIds.push(p.id);}for(const f of members.fits)if(!owners.has(f.id)){owners.set(f.id,i);fitIds.push(f.id);}return {id:wing.id,pivot:frame.pv,axis:frame.ax,sg:frame.sg,open:wing.wing.open,stow:wing.wing.stow,T:wing.wing.T,partIds,fitIds,meshes:[],kinds:{},glow:[]};});
  if(model.surfaces?.patches?.length&&typeof C.surfacePatches==='function'){const patches=new Map(C.surfacePatches(model).map(p=>[p.id,p]));for(const [kind,list]of [['part',model.parts],['fit',surfaceRenderFits(model)]])for(const q of list){const host=patches.get(q.surfacePatch)?.host,owner=/^p\d+$/.test(host||'')?owners.get(+host.slice(1)):null;if(owner==null||owners.has(q.id))continue;owners.set(q.id,owner);foils[owner][kind==='part'?'partIds':'fitIds'].push(q.id);}}
@@ -3506,7 +3510,8 @@ function fleetGeometry(ship,opts){
  const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp((b[3]-b[0])*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name,hatchId:hatch.id});}
-  if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,hatchId:hatch.id,axis:spec.slideAxis,side,travel:spec.travel});}}
+  if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r'),rest={open:0,_doorDetached:false,_slideSide:side},owner=hatch.hullOwner&&model.parts.find(p=>p.id===hatch.hullOwner),local=owner?.hullData?.hatches?.find(h=>h.id===hatch.hullHatch),source={...model,_referenceDoorOnly:true,hatches:[{...hatch,...rest}],...(local?{parts:[{...owner,hullData:{...owner.hullData,hatches:[{...local,...rest}]}}]}:{})};
+   put(name,meshReferenceHatches(source),'reference',0);doors.push({name,hatchId:hatch.id,axis:spec.slideAxis,side,travel:spec.travel});}}
   else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,hatchId:hatch.id,axis:panel.axis,side:panel.side,travel:panel.travel});}
  }
  for(const launcher of launchers||[]){const owner=owners.get(launcher.id);if(owner!=null)launcher.foilId=foils[owner].id;}

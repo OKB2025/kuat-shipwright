@@ -1,14 +1,14 @@
 {
   "status": "PASS",
   "baselineCommit": "7f51a3b4e4d3f4483206df372c97e85807d58895",
-  "sourceSha256": "834c32a358374034ee0597c7467e8bd09c30e90bc874ade10b0dbe58f4121b2e",
+  "sourceSha256": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
   "baselineSourceSha256": "49f2fcf53bbb9058394cb4c90ed9bf0393bebdce1a2706c6eea67b15e7434f37",
   "scope": "Actual production Renderer and WebGL shaders on explicit neutral-albedo/pure-emission fixture geometry and procedural planet samples. White-light pixels are compared with the previous main renderer. This is a numerical shader regression, not a stock ship flight or iOS/Safari validation.",
   "conditions": {
     "browser": "Chromium SwiftShader on Linux",
     "safari": "Not tested"
   },
-  "startedAt": "2026-11-09T04:13:22.964Z",
+  "startedAt": "2026-11-09T04:56:32.829Z",
   "errors": [],
   "measurements": {
     "mesh": {
@@ -267,5 +267,5 @@
     "glError": 0
   },
   "sourceStable": true,
-  "completedAt": "2026-11-09T04:13:34.896Z"
+  "completedAt": "2026-11-09T04:56:57.987Z"
 }

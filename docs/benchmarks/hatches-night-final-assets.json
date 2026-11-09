@@ -1,0 +1,193 @@
+{
+  "status": "PASS_WITH_KNOWN_BASELINE_FAILURES",
+  "checkedAt": "2026-11-09T05:18:16.715580+00:00",
+  "baseCommit": "7f51a3b4e4d3f4483206df372c97e85807d58895",
+  "validatedWorkingTreeBaseCommit": "d73ea03fb220e1d359dcd6fb1dc4ac6c3bca9ec9",
+  "runtime": "v24.22.1",
+  "sourceSha256": {
+    "js/core.js": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+    "js/app.js": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33",
+    "js/gfx.js": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "js/engine.js": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99",
+    "js/worker.js": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa",
+    "js/lang-en.js": "b3974b1d32721bc3eaa31fa6687e8b576a806beb696e6a5494a460779916f8fa",
+    "index.html": "be50d36e07af424e473f723b6989095bedef2b67d1beb2b698f6880070f8007a"
+  },
+  "testSha256": {
+    "tests/aviation-hatch-operations.cjs": "5a8b4356ae750e5066e99234ed886c6b157a4645ae73402b4aade54883a157fc",
+    "tests/imperial-hangar-control.cjs": "13ae0cff3228a8d0ebbc937943b3ffc221d6dc770e47345f7eab299ec72ac5e6",
+    "tests/fighter-hyper-retreat.cjs": "00abe10f57709d8f80f456cdd23cbd1c29248a0e94d541bd69831e8e852fdc6c",
+    "tests/hangar-hatch-editing-ui.cjs": "2a57ba00b69647ba722c135136d97e78f83bb1211a4e55364707ad320626d817",
+    "tests/venator-hatch-context-ui.cjs": "1b45eafaef3c1f7ddc7120a1325f00440b62edd564bb1101bc2eeb9f1e9e9cc6",
+    "tests/closed-hatch-armor-area.cjs": "b608c997926708be0f0609901bf318a6c92aae6e85e50d120d18f5a4a72baecb",
+    "tests/clipped-hangar-hatch.cjs": "971cbc38c9b7aae1d499885a94a16f55ac3e72c5db6b6cf458abbef506cc2148",
+    "tests/aviation-hatch-preclip-source.cjs": "5ac2b34eca85baca65c30a841f5ff19e054ff47ac0664c307c20f017b3a94080",
+    "tests/coruscant-trial-start.cjs": "a4d8432dba8a349cab96840de8c3109c15582df4f10afce2868074e7a730533e",
+    "tests/hyperspace-speed-gate.cjs": "b0dc24e460e8b25dcaf72e974788f61b4d576e7278b51519ed7862083f8b70ac",
+    "tests/hyperspace-trial-physics.cjs": "576a3b0eee4c25fd08b517205ebc7db1d183035166107992eb09f74d7b52dd10",
+    "tests/hyperspace-copy-ui.cjs": "1dd6497503049a38b7d6cfd7ef72a4e5e6834d67c33ab7983f420c153a4e35c0",
+    "tests/flight-controls-ui.cjs": "533b6849f7e7b93325dc3b48e427b5bdeb5cde73c1233cf67eacfadf7c0f8a1b",
+    "tests/navigation-itinerary.cjs": "0afb088d3efb22c972287077525c4d2167f85d31495af3c1db3344472cdf5bf7",
+    "tests/stellar-lighting.cjs": "679ecd902d4b422d49702bf9482dee274e793546051db7358a64be1f135df405",
+    "tests/compat-renderer.cjs": "bcfdcb19fccac0bbfa3982aec2e3a1840c3475e2221acc4ccb56488fe8eb1b3d",
+    "tests/source-manifest.cjs": "0a63541485c2644547ccbea4243dc67fabb9aff73a04eace314c6ca47cb0b7db",
+    "tests/owned-hatch-roof-panels.cjs": "9498a09112820d8a5bf148f5bd1e795ac057067ad6f73953bf7c044f68aaf5a4",
+    "tests/hull-structure.cjs": "65715da00ca1627f7bd6cbac53d11379fb92a5f793d5c03a800f5b731feff4a2"
+  },
+  "syntax": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/core.js"
+      ],
+      "exitCode": 0,
+      "sha256": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/app.js"
+      ],
+      "exitCode": 0,
+      "sha256": "0d9b6a32e2362d5d2d4a1115cfc8d7d2675923d728f0ac71078ee310e0dbee33"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/gfx.js"
+      ],
+      "exitCode": 0,
+      "sha256": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/engine.js"
+      ],
+      "exitCode": 0,
+      "sha256": "a12bea461be5448a04dc956c153b2f9d31306eb30031ee6c0bba20b4fafbee99"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/worker.js"
+      ],
+      "exitCode": 0,
+      "sha256": "43be67e173aaa819e9e10818d2be32cb25704e6bb4a409ec695afb29de8ff7aa"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "js/lang-en.js"
+      ],
+      "exitCode": 0,
+      "sha256": "b3974b1d32721bc3eaa31fa6687e8b576a806beb696e6a5494a460779916f8fa"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-hatches-night.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "4f2187b9a2da49ca7ff4ee334c22ad92ac1c88b991147c07b47760db53eeb905"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/browser-stellar-lighting.cjs"
+      ],
+      "exitCode": 0,
+      "sha256": "dae97ab1fa61e1cba6c7e16fd9ac21e5332ee62c058d2879ca251170333f966a"
+    }
+  ],
+  "node": {
+    "files": 19,
+    "tests": 119,
+    "pass": 118,
+    "fail": 1,
+    "cancelled": 0,
+    "exitCode": 1,
+    "knownBaselineFailures": [
+      {
+        "test": "the battle continues and point defence can hit fighters while they spool after the last carrier departs",
+        "assertion": "assert.ok(r.hurt>0)",
+        "baselineProof": "flight-controls-baseline-controls.json",
+        "note": "Same assertion failure was already recorded before PR #77; raw comparison logs are preserved."
+      }
+    ],
+    "unexpectedFailures": [],
+    "logSha256": "a0630f5b976ff5156d997972ee156da0464af620826a9f8a80297380f2458b88",
+    "sourceStable": true,
+    "testStable": true
+  },
+  "nativeBrowser": {
+    "status": "PASS",
+    "stages": 9,
+    "screenshots": 9,
+    "sourceStable": true,
+    "harnessStable": true,
+    "harnessSha256": "4f2187b9a2da49ca7ff4ee334c22ad92ac1c88b991147c07b47760db53eeb905",
+    "docked": 6,
+    "lost": 0,
+    "allHatchesClosed": true,
+    "independentRoofSamples": 6,
+    "errors": 0,
+    "consoleErrors": 0,
+    "glError": 0,
+    "renderFailures": 0,
+    "jumpScope": "The actual current trial unit at its real velocity, without assigning speed or changing entry flags. Exact boundary cases are covered by Node regressions."
+  },
+  "roofGeometry": {
+    "sourceDesignUnchanged": true,
+    "correctedCoreSha256": "cb13f08808b0a472161f0ccd42f901f86d8d7d64737d7adac3bd609bda9edabb",
+    "oldSourceFailures": 4,
+    "finalGeometryTests": 4
+  },
+  "numericalWebGL": {
+    "status": "PASS",
+    "sourceSha256": "851822f4ef744864b064f0693535914453a6710332f3502d3d13732c8548c746",
+    "sourceStable": true,
+    "planetKinds": 10,
+    "glError": 0
+  },
+  "artifactSha256": {
+    "docs/benchmarks/hatches-night-browser.carrier-airborne-closed.jpg": "8844814bf6cc694d5a814204302d87cbf163e2b30cf500b442762a3ac6b09db5",
+    "docs/benchmarks/hatches-night-browser.carrier-docked-closed.jpg": "cf043e2a81fc47c9fa3c60f9c7242a40211b0c0722af35f6f8b1a7536531d0a3",
+    "docs/benchmarks/hatches-night-browser.carrier-idle-closed.jpg": "56a3c1afdddc98a7dac3ffbcf22510b8b1408bc48e5f9a9f3b1e49f58d53af9d",
+    "docs/benchmarks/hatches-night-browser.carrier-landing-open.jpg": "07e5a8d8ce589c79ecdc02c5e08efd9ecbfa4f15b15aa223092befdf7d62cc8c",
+    "docs/benchmarks/hatches-night-browser.carrier-launch-open.jpg": "4fed4b74b9ee9d8353a102c0091b948dfe8d712c85eb178ba8f04d9bf7b2ac34",
+    "docs/benchmarks/hatches-night-browser.coruscant-dusk-flight.jpg": "cd2862d3d28f261c0cde56d90486315aa5bd70ae8b8497b3427a5838bd10d74c",
+    "docs/benchmarks/hatches-night-browser.coruscant-dusk-start.jpg": "f6273e15607adae4efc0a1521475ea6c71e204ea1c464f2187a8ac0938a25b15",
+    "docs/benchmarks/hatches-night-browser.json": "1b9e112b7b36bd2d7a02f33273a98aacc4afa46fab8f0ecbd5404afef9f69779",
+    "docs/benchmarks/hatches-night-browser.lighting-abregado.jpg": "9b18bb9ffffd5e1de3958fcc41a756ca0ac51e2973429a9cd80c2dd01ba350b2",
+    "docs/benchmarks/hatches-night-browser.lighting-kuat.jpg": "15fd82616d40b6f848e912b7820fc19b94361675480150344f295bfc77fb0eed",
+    "docs/benchmarks/hatches-night-coruscant-baseline.json": "daccbb9d5b539bf33c6ea3f5529e532881452a12e3708718f7e7bc88622b0703",
+    "docs/benchmarks/hatches-night-coruscant-baseline.log": "bd3054e5791ec137b46e43d875f3a1f0e0084122d25f5e6efe1af3b243bf362f",
+    "docs/benchmarks/hatches-night-jump70-baseline.json": "e3c7df20c9f822f768c413b00bdcf6c8f5ebaa0714d18a61abe6d23816bbb045",
+    "docs/benchmarks/hatches-night-jump70-baseline.log": "ff91964c311339ac38a929fc4bf3506555b0c4ab9ab334ab4e3d028728e335a3",
+    "docs/benchmarks/hatches-night-roof-baseline.json": "d27c26a5c598c508cd10fb70f6f2f7394bd06ded5af711fd7e749f9a2a6bd429",
+    "docs/benchmarks/hatches-night-roof-baseline.log": "6b5fb34c1ba16847611c6fd21eaa6fdee7e1e11d3eb50550a2966b1eff3ef419",
+    "docs/benchmarks/hatches-night-roof-coverage.json": "b923f5b659853c71d3592143e3aa520d6faf61b52d921af7290f02250dbba048",
+    "docs/benchmarks/hatches-night-validation.json": "29088855def386faad6dfad5f5c003083be79c5b030ca009291c8b9f4ae353a6",
+    "docs/benchmarks/hatches-night-validation.log": "a0630f5b976ff5156d997972ee156da0464af620826a9f8a80297380f2458b88",
+    "docs/benchmarks/stellar-lighting-webgl.json": "10b5718cfd7763f2f7cf93032950de616388ef61beb7a5e5b801203ab46210f8",
+    "docs/flight-scene-and-hatches.md": "5df465a29870fec2b048423502c9afcaa5b64b7976c68ac9fc5bffbacfa90647",
+    "scripts/browser-hatches-night.cjs": "4f2187b9a2da49ca7ff4ee334c22ad92ac1c88b991147c07b47760db53eeb905",
+    "scripts/browser-stellar-lighting.cjs": "dae97ab1fa61e1cba6c7e16fd9ac21e5332ee62c058d2879ca251170333f966a"
+  },
+  "limits": [
+    "Linux Chromium SwiftShader; real Safari and iPhone/iPad untested.",
+    "Native hatch test uses a controlled RTS world, hold-fire orders and disabled enemy automatic point defence; not an all-stock endurance benchmark.",
+    "Normal IndexedDB cache used; no cold-start, FPS or memory performance benchmark.",
+    "The actual native TIE/ln has no hyperdrive. Browser validation observes the common 70% constant and required speed; Node regressions cover entry thresholds and paid acceleration.",
+    "One unchanged point-defence assertion failure remains; raw exit code 1 is retained."
+  ]
+}

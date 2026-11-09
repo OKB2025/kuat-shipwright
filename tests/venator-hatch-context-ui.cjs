@@ -35,8 +35,12 @@ test('opening the owned top hatch is one reversible edit and keeps its bay and o
  r.run('designUI.info={source:ship,list:"parts",id:363};designUIHatchAction(56,"close")');assert.equal(r.s.hatches.find(h=>h.id===56).open,0);assert.equal(r.run('undoStack.length'),2);
 });
 test('the actual Venator hatch opens in the renderer and retains its owner and state after save, reload and strict clipping',()=>{
- const r=setup();selected(r);const top=r.s.hatches.find(h=>h.id===56),bounds=Array.from(C.openingBounds(r.s,top)),closed=G.meshHatches({...r.s,hatches:[top]}).open.ni;
- r.run('designUIHatchAction(56,"open")');const opened=G.meshHatches({...r.s,hatches:[top]}).open.ni;assert.ok(closed>opened&&opened>0,'the real roof door is displaced to expose its opening');
+ const r=setup();selected(r);const top=r.s.hatches.find(h=>h.id===56),bounds=Array.from(C.openingBounds(r.s,top)),closed=G.meshHatches({...r.s,hatches:[top]}).open,sourceOwner=r.s.parts.find(p=>p.id===top.hullOwner),source=C.hullStructureShip(r.s,sourceOwner),ray=[700,200,20],localRay=C.hullLocalPoint(sourceOwner,ray),roof=C.hullWorldPoint(sourceOwner,[localRay[0],C.originalSurface(source,localRay[0],1,localRay[2],1),localRay[2]]);
+ const triangles=g=>{const T=new Float32Array(g.ni*3);for(let i=0;i<g.ni;i++)for(let a=0;a<3;a++)T[i*3+a]=g.pos[g.idx[i]*3+a];return T;},closedHit=C.rayTris(triangles(closed),ray,[0,-1,0]);
+ r.run('designUIHatchAction(56,"open")');const opened=G.meshHatches({...r.s,hatches:[top]}).open,openedHit=C.rayTris(triangles(opened),ray,[0,-1,0]);
+ // A rigid sliding roof keeps its triangles. Test actual coverage instead of
+ // treating a changing triangle count as evidence that the door has opened.
+ assert.ok(closed.ni>0&&opened.ni>0);assert.ok(closedHit&&Math.abs(closedHit.p[1]-roof[1])<.5,'the closed mesh covers the original roof with its normal skin offset');assert.ok(!openedHit||openedHit.p[1]<roof[1]-1,'the opened mesh clears the original roof ray instead of drawing a sill as a roof');
  const copy=C.deserialize(C.serialize(r.s),{deferPlacementGeometry:true});C.syncCompartments(copy);const hatch=copy.hatches.find(h=>h.id===56),owner=copy.parts.find(p=>p.id===363);
  assert.equal(hatch.open,1);assert.equal(hatch.hullOwner,363);assert.equal(hatch.hullHatch,56);assert.equal(owner.hullData.hatches.find(h=>h.id===56).open,1);assert.equal(C.aviationHatchActive(copy,hatch),true);assert.deepEqual(Array.from(C.openingBounds(copy,hatch)),bounds);assert.ok(copy.parts.find(p=>p.id===55)._clip,'the regression includes the effective clipped aviation compartment');
  const bay=C.rayTris(C.hullStructureGeometry(copy,owner).tris,[700,200,20],[0,-1,0]);assert.ok(bay&&bay.p[1]<60,'opening the actual hatch reveals the deeper bay instead of the roof');
