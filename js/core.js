@@ -235,19 +235,19 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "1j8gp1w",
+ "modelSignature": "z480k",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "11dvrfs",
-   "build": 223458,
+   "signature": "14kjuev",
+   "build": 223459,
    "crew": 3000,
-   "total": 226458,
+   "total": 226459,
    "by": {
     "hull": 20,
     "armor": 29,
     "power": 56747,
-    "drive": 62952,
+    "drive": 62953,
     "defense": 16503,
     "command": 32505,
     "weapons": 34201,
@@ -267,6 +267,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
+    "navDemand": 0.7093187320126337,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -284,8 +285,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 6.139623293182842e-14,
-    "upS": 6.139623293182842e-14,
+    "up": 6.151870696198841e-14,
+    "upS": 6.151870696198841e-14,
     "down": 0.01,
     "T": 0
    },
@@ -414,7 +415,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": 0,
       "r": 0.036,
-      "share": 0.23995132144268713,
+      "share": 0.23937429130679272,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -431,7 +432,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.58,
       "z": 0,
       "r": 0.038,
-      "share": 0.27262982391910145,
+      "share": 0.2719742091744146,
       "domain": "main",
       "port": "p25",
       "powerConnected": true
@@ -448,7 +449,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.6,
       "z": 0,
       "r": 0.035,
-      "share": 0.20999438404879872,
+      "share": 0.20948939375645023,
       "domain": "main",
       "port": "p26",
       "powerConnected": true
@@ -465,7 +466,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.86,
       "z": 0,
       "r": 0.018,
-      "share": 0.029582229157888617,
+      "share": 0.029511090405209925,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -473,10 +474,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷反応炉",
-      "w": 0.3925497519424428,
+      "w": 0.3925546828372676,
       "hits": 1,
-      "crew": 0.00012297365046300127,
-      "size": 0.24594730092600256,
+      "crew": 0.00012297596751467883,
+      "size": 0.24595193502935767,
       "at": 0.551,
       "part": 28,
       "y": 0.02,
@@ -490,10 +491,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷反応炉",
-      "w": 0.3925497519424428,
+      "w": 0.3925546828372676,
       "hits": 1,
-      "crew": 0.00012297365046300127,
-      "size": 0.24594730092600256,
+      "crew": 0.00012297596751467883,
+      "size": 0.24595193502935767,
       "at": 0.551,
       "part": 29,
       "y": 0.02,
@@ -584,7 +585,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.46,
       "z": 0,
       "r": 0.017,
-      "share": 0.023665783326310894,
+      "share": 0.023608872324167942,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -652,7 +653,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.1,
       "z": 0,
       "r": 0.021,
-      "share": 0.04792321123577956,
+      "share": 0.04780796645644009,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -669,7 +670,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.36,
       "z": 0,
       "r": 0.021,
-      "share": 0.04744738502537637,
+      "share": 0.04733328450338542,
       "domain": "main",
       "port": "p44",
       "powerConnected": true
@@ -686,7 +687,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": 0,
       "r": 0.011,
-      "share": 0.007348944986688411,
+      "share": 0.007331272390851667,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -703,7 +704,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.14,
       "z": 0,
       "r": 0.011,
-      "share": 0.007348944986688411,
+      "share": 0.007331272390851667,
       "domain": "main",
       "port": "p46",
       "powerConnected": true
@@ -720,9 +721,26 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.2,
       "z": 0,
       "r": 0.011,
-      "share": 0.007348944986688411,
+      "share": 0.007331272390851667,
       "domain": "main",
       "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0.0000016000000000000006,
+      "size": 0.008000000000000002,
+      "at": 0.529,
+      "part": 48,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.0024047799879787345,
+      "domain": "main",
+      "port": "p48",
       "powerConnected": true
      },
      {
@@ -732,14 +750,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.527,
-      "part": 48,
-      "y": -0.36,
+      "at": 0.551,
+      "part": 49,
+      "y": -0.52,
       "z": 0,
       "r": 0.009,
-      "share": 0.0032084778473187997,
+      "share": 0.0032007621639996943,
       "domain": "main",
-      "port": "p48",
+      "port": "p49",
       "powerConnected": true
      },
      {
@@ -750,13 +768,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.024388999999999997,
       "at": 0.551,
-      "part": 49,
-      "y": -0.57,
+      "part": 50,
+      "y": -0.15,
       "z": 0,
       "r": 0.011,
-      "share": 0.007348944986688411,
+      "share": 0.007331272390851667,
       "domain": "main",
-      "port": "p49",
+      "port": "p50",
       "powerConnected": true
      },
      {
@@ -767,13 +785,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.012167,
       "at": 0.551,
-      "part": 50,
+      "part": 51,
       "y": -0.36,
       "z": -0.03,
       "r": 0.009,
-      "share": 0.003666186135267453,
+      "share": 0.0036573697642171567,
       "domain": "main",
-      "port": "p50",
+      "port": "p51",
       "powerConnected": true
      },
      {
@@ -784,13 +802,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.012167,
       "at": 0.551,
-      "part": 51,
+      "part": 52,
       "y": -0.36,
       "z": 0.03,
       "r": 0.009,
-      "share": 0.003666186135267453,
+      "share": 0.0036573697642171567,
       "domain": "main",
-      "port": "p51",
+      "port": "p52",
       "powerConnected": true
      },
      {
@@ -800,14 +818,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.012167,
-      "at": 0.551,
-      "part": 52,
-      "y": -0.19,
+      "at": 0.576,
+      "part": 53,
+      "y": -0.36,
       "z": 0,
       "r": 0.009,
-      "share": 0.003666186135267453,
+      "share": 0.0036573697642171567,
       "domain": "main",
-      "port": "p52",
+      "port": "p53",
       "powerConnected": true
      },
      {
@@ -817,14 +835,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.012167,
-      "at": 0.576,
-      "part": 53,
-      "y": -0.36,
+      "at": 0.525,
+      "part": 54,
+      "y": -0.44,
       "z": 0,
       "r": 0.009,
-      "share": 0.003666186135267453,
+      "share": 0.0036573697642171567,
       "domain": "main",
-      "port": "p53",
+      "port": "p54",
       "powerConnected": true
      },
      {
@@ -835,13 +853,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.059319000000000004,
       "at": 0.508,
-      "part": 54,
+      "part": 55,
       "y": -0.36,
       "z": 0,
       "r": 0.015,
-      "share": 0.017874126354724258,
+      "share": 0.017831143013363814,
       "domain": "main",
-      "port": "p54",
+      "port": "p55",
       "powerConnected": true
      },
      {
@@ -851,14 +869,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.059319000000000004,
-      "at": 0.551,
-      "part": 55,
-      "y": -0.07,
+      "at": 0.594,
+      "part": 56,
+      "y": -0.36,
       "z": 0,
       "r": 0.015,
-      "share": 0.017874126354724258,
+      "share": 0.017831143013363814,
       "domain": "main",
-      "port": "p55",
+      "port": "p56",
       "powerConnected": true
      },
      {
@@ -868,14 +886,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.592,
-      "part": 56,
-      "y": -0.49,
+      "at": 0.53,
+      "part": 57,
+      "y": -0.09,
       "z": 0,
       "r": 0.015,
-      "share": 0.015262868933155444,
+      "share": 0.015226165091385848,
       "domain": "main",
-      "port": "p56",
+      "port": "p57",
       "powerConnected": true
      },
      {
@@ -885,14 +903,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.592,
-      "part": 57,
-      "y": -0.22,
+      "at": 0.571,
+      "part": 58,
+      "y": -0.09,
       "z": 0,
       "r": 0.015,
-      "share": 0.015262868933155444,
+      "share": 0.015226165091385848,
       "domain": "main",
-      "port": "p57",
+      "port": "p58",
       "powerConnected": true
      },
      {
@@ -902,14 +920,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.51,
-      "part": 58,
+      "at": 0.49,
+      "part": 59,
       "y": -0.09,
       "z": 0,
       "r": 0.015,
-      "share": 0.015262868933155444,
+      "share": 0.015226165091385848,
       "domain": "main",
-      "port": "p58",
+      "port": "p59",
       "powerConnected": true
      },
      {
@@ -1103,35 +1121,35 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": 0,
       "r": 0.064,
-      "share": 0.0951888256595965,
+      "share": 0.09523809523809525,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.0239069385822872,
+      "w": 1.0221192349349748,
       "hits": 1,
       "crew": 0,
-      "size": 17.834208532597692,
+      "size": 17.787522122826495,
       "at": 0.394,
       "y": 0,
       "z": 0,
       "r": 0.103,
-      "share": 0.3952405587170202,
+      "share": 0.3944099378881988,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.039926748407632,
+      "w": 1.0408131126327074,
       "hits": 1,
       "crew": 0,
-      "size": 18.254386220538475,
+      "size": 18.277729425424074,
       "at": 0.584,
       "y": -0.1,
       "z": 0,
       "r": 0.104,
-      "share": 0.40455250905328505,
+      "share": 0.4052795031055901,
       "domain": "main"
      },
      {
@@ -1145,13 +1163,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.37,
       "z": 0,
       "r": 0.066,
-      "share": 0.10501810657009829,
+      "share": 0.10507246376811594,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 21.78240085586832,
+      "w": 21.805865969288767,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -1163,7 +1181,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0003797481992157285,
+    "D": 0.00037975558890793323,
     "shieldBuffer": 0.0731817485234382,
     "wCap": 0,
     "fuel": {
@@ -1171,8 +1189,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.25132741228718347,
      "massKg": 62.83185307179587,
-     "capacityJ": 3.015928947446202e+24,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 3.6638117235279887e+22,
+     "specificEnergyJPerKg": 583113746357516000000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 3,
@@ -1187,16 +1205,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 2576053855663570000,
+     "P": 2576102393296512500,
      "fixed": 53142694427638510,
      "cooling": 15334344646982956,
-     "De": 2576053855663570000,
-     "Ds": 1588866465518608100,
+     "De": 2576102393296512500,
+     "Ds": 1588897383990792700,
      "Dw": 1371911111111111.2,
      "domains": [
       {
        "id": "main",
-       "P": 2576053855663570000,
+       "P": 2576102393296512500,
        "reactors": [
         9,
         10
@@ -1204,11 +1222,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 9,
-         "P": 1288026927831785000
+         "P": 1288051196648256300
         },
         {
          "moduleIndex": 10,
-         "P": 1288026927831785000
+         "P": 1288051196648256300
         }
        ],
        "modules": [
@@ -1261,7 +1279,8 @@ const CRAFT_PRICE_CATALOG={
         46,
         47,
         48,
-        49
+        49,
+        50
        ],
        "protection": 1
       }
@@ -1379,7 +1398,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p24",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p24",
@@ -1391,7 +1410,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p25",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p25",
@@ -1403,7 +1422,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p26",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p26",
@@ -1415,7 +1434,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p27",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p27",
@@ -1427,7 +1446,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p33",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p33",
@@ -1439,7 +1458,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p34",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p34",
@@ -1451,7 +1470,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p35",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p35",
@@ -1463,7 +1482,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p36",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p29>p36",
@@ -1475,7 +1494,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p38",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p38",
@@ -1487,7 +1506,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p44",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p44",
@@ -1499,7 +1518,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p45",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p45",
@@ -1511,7 +1530,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p46",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p46",
@@ -1523,7 +1542,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p47",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p47",
@@ -1535,46 +1554,46 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p48",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p48",
        "model": "source-distance",
-       "lengthM": 2.297577855046484,
-       "efficiency": 0.9999770244853907
+       "lengthM": 2.2939921534303473,
+       "efficiency": 0.9999770603415837
       },
       {
        "kind": "power",
        "from": "p28",
        "to": "p49",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p49",
        "model": "source-distance",
-       "lengthM": 2.435872738876151,
-       "efficiency": 0.9999756415692826
-      },
-      {
-       "kind": "power",
-       "from": "p29",
-       "to": "p50",
-       "cap": 2125707777105540.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p29>p50",
-       "model": "source-distance",
-       "lengthM": 1.9739918946135522,
-       "efficiency": 0.9999802602758848
+       "lengthM": 2.3921504969378495,
+       "efficiency": 0.9999760787811476
       },
       {
        "kind": "power",
        "from": "p28",
-       "to": "p51",
-       "cap": 2125707777105540.5,
+       "to": "p50",
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
-       "routeId": "p28>p51",
+       "routeId": "p28>p50",
+       "model": "source-distance",
+       "lengthM": 2.1827038278245636,
+       "efficiency": 0.9999781731999299
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p51",
+       "cap": 2043949785678404.2,
+       "auto": true,
+       "ok": true,
+       "routeId": "p29>p51",
        "model": "source-distance",
        "lengthM": 1.9739918946135522,
        "efficiency": 0.9999802602758848
@@ -1583,19 +1602,19 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p52",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p52",
        "model": "source-distance",
-       "lengthM": 2.196361536723861,
-       "efficiency": 0.9999780366258312
+       "lengthM": 1.9739918946135522,
+       "efficiency": 0.9999802602758848
       },
       {
        "kind": "power",
        "from": "p28",
        "to": "p53",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p53",
@@ -1607,10 +1626,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p54",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p54",
+       "model": "source-distance",
+       "lengthM": 2.354876854529765,
+       "efficiency": 0.9999764515087248
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p55",
+       "cap": 2043949785678404.2,
+       "auto": true,
+       "ok": true,
+       "routeId": "p28>p55",
        "model": "source-distance",
        "lengthM": 2.3413918937247566,
        "efficiency": 0.9999765863551664
@@ -1618,50 +1649,50 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p28",
-       "to": "p55",
-       "cap": 2125707777105540.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p28>p55",
-       "model": "source-distance",
-       "lengthM": 2.1669970004593915,
-       "efficiency": 0.9999783302647876
-      },
-      {
-       "kind": "power",
-       "from": "p28",
        "to": "p56",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p56",
        "model": "source-distance",
-       "lengthM": 2.427419411638623,
-       "efficiency": 0.9999757261004995
+       "lengthM": 2.3413918937247566,
+       "efficiency": 0.9999765863551664
       },
       {
        "kind": "power",
        "from": "p28",
        "to": "p57",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p57",
        "model": "source-distance",
-       "lengthM": 2.26857774828195,
-       "efficiency": 0.9999773144798375
+       "lengthM": 2.1848306570533103,
+       "efficiency": 0.9999781519321019
       },
       {
        "kind": "power",
        "from": "p28",
        "to": "p58",
-       "cap": 2125707777105540.5,
+       "cap": 2043949785678404.2,
        "auto": true,
        "ok": true,
        "routeId": "p28>p58",
        "model": "source-distance",
-       "lengthM": 2.2304098278119207,
-       "efficiency": 0.9999776961504564
+       "lengthM": 2.1848306570533103,
+       "efficiency": 0.9999781519321019
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p59",
+       "cap": 2043949785678404.2,
+       "auto": true,
+       "ok": true,
+       "routeId": "p28>p59",
+       "model": "source-distance",
+       "lengthM": 2.3043725827218133,
+       "efficiency": 0.9999769565396774
       },
       {
        "kind": "power",
@@ -1835,11 +1866,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p30",
-       "cap": 1803237698964499000,
+       "cap": 1803271675307558700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p28>p30",
-       "groupCap": 3606475397928998000,
+       "groupCap": 3606543350615117300,
        "routeId": "p28>p30",
        "model": "source-distance",
        "lengthM": 0.751065909225016,
@@ -1849,11 +1880,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p31",
-       "cap": 1803237698964499000,
+       "cap": 1803271675307558700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p28>p31",
-       "groupCap": 3606475397928998000,
+       "groupCap": 3606543350615117300,
        "routeId": "p28>p31",
        "model": "source-distance",
        "lengthM": 4.3452157598904115,
@@ -1863,11 +1894,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p30",
-       "cap": 1803237698964499000,
+       "cap": 1803271675307558700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p29>p30",
-       "groupCap": 3606475397928998000,
+       "groupCap": 3606543350615117300,
        "routeId": "p29>p30",
        "model": "source-distance",
        "lengthM": 4.3452157598904115,
@@ -1877,11 +1908,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p31",
-       "cap": 1803237698964499000,
+       "cap": 1803271675307558700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p29>p31",
-       "groupCap": 3606475397928998000,
+       "groupCap": 3606543350615117300,
        "routeId": "p29>p31",
        "model": "source-distance",
        "lengthM": 0.751065909225016,
@@ -1962,23 +1993,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 41.21478148785488,
+       "densityFactor": 41.21555805078708,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2279609239.4911427,
-       "shaftWattsPerNewton": 2165628777.5165854,
-       "wattsPerNewton": 2279609239.4911427,
-       "ratedShaftPowerW": 1223625581440195600,
-       "ratedWasteHeatW": 64401346391589304,
+       "profileWattsPerNewton": 2279612935.6285534,
+       "shaftWattsPerNewton": 2165632288.8471255,
+       "wattsPerNewton": 2279612935.6285534,
+       "ratedShaftPowerW": 1223648636815843300,
+       "ratedWasteHeatW": 64402559832412870,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32449.806655412765,
+       "conversionMassKg": 32450.365591719154,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2576053855663570000,
-       "sourceInputLimitW": 2576053855663570000,
+       "availableInputW": 2576102393296512500,
+       "sourceInputLimitW": 2576102393296512500,
        "sourceIds": [
         "p28",
         "p29"
@@ -1990,10 +2021,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1288026927831785000,
+       "ratedInputW": 1288051196648256300,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 565020927.9373249,
+       "ratedThrustN": 565030657.8441591,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2001,12 +2032,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2576053855663570000,
-       "maxRatedInputW": 2576053855663570000,
-       "inputDensityWPerM3": 14013025705870660000,
+       "maxInputW": 2576102393296512500,
+       "maxRatedInputW": 2576102393296512500,
+       "inputDensityWPerM3": 14013289737267608000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1130013056248866200,
-       "cost": 7961.332206873244,
+       "costBasisInputW": 1130032520319347300,
+       "cost": 7961.614128282103,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -2021,11 +2052,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 11,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 36,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2576053855663570000,
+       "pathCapacityW": 2576102393296512500,
        "transmissionRouteIds": [
         "p28>p30",
         "p29>p30"
@@ -2034,23 +2065,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 41.21478148785488,
+       "densityFactor": 41.21555805078708,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2279609239.4911427,
-       "shaftWattsPerNewton": 2165628777.5165854,
-       "wattsPerNewton": 2279609239.4911427,
-       "ratedShaftPowerW": 1223625581440195600,
-       "ratedWasteHeatW": 64401346391589304,
+       "profileWattsPerNewton": 2279612935.6285534,
+       "shaftWattsPerNewton": 2165632288.8471255,
+       "wattsPerNewton": 2279612935.6285534,
+       "ratedShaftPowerW": 1223648636815843300,
+       "ratedWasteHeatW": 64402559832412870,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32449.806655412765,
+       "conversionMassKg": 32450.365591719154,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2576053855663570000,
-       "sourceInputLimitW": 2576053855663570000,
+       "availableInputW": 2576102393296512500,
+       "sourceInputLimitW": 2576102393296512500,
        "sourceIds": [
         "p28",
         "p29"
@@ -2062,10 +2093,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1288026927831785000,
+       "ratedInputW": 1288051196648256300,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 565020927.9373249,
+       "ratedThrustN": 565030657.8441591,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2073,12 +2104,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2576053855663570000,
-       "maxRatedInputW": 2576053855663570000,
-       "inputDensityWPerM3": 14013025705870660000,
+       "maxInputW": 2576102393296512500,
+       "maxRatedInputW": 2576102393296512500,
+       "inputDensityWPerM3": 14013289737267608000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1130013056248866200,
-       "cost": 7961.332206873244,
+       "costBasisInputW": 1130032520319347300,
+       "cost": 7961.614128282103,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -2093,11 +2124,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 12,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 37,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2576053855663570000,
+       "pathCapacityW": 2576102393296512500,
        "transmissionRouteIds": [
         "p28>p31",
         "p29>p31"
@@ -2108,23 +2139,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 41.21478148785488,
+       "densityFactor": 41.21555805078708,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2279609239.4911427,
-       "shaftWattsPerNewton": 2165628777.5165854,
-       "wattsPerNewton": 2279609239.4911427,
-       "ratedShaftPowerW": 1223625581440195600,
-       "ratedWasteHeatW": 64401346391589304,
+       "profileWattsPerNewton": 2279612935.6285534,
+       "shaftWattsPerNewton": 2165632288.8471255,
+       "wattsPerNewton": 2279612935.6285534,
+       "ratedShaftPowerW": 1223648636815843300,
+       "ratedWasteHeatW": 64402559832412870,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32449.806655412765,
+       "conversionMassKg": 32450.365591719154,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2576053855663570000,
-       "sourceInputLimitW": 2576053855663570000,
+       "availableInputW": 2576102393296512500,
+       "sourceInputLimitW": 2576102393296512500,
        "sourceIds": [
         "p28",
         "p29"
@@ -2136,10 +2167,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1288026927831785000,
+       "ratedInputW": 1288051196648256300,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 565020927.9373249,
+       "ratedThrustN": 565030657.8441591,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2147,12 +2178,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2576053855663570000,
-       "maxRatedInputW": 2576053855663570000,
-       "inputDensityWPerM3": 14013025705870660000,
+       "maxInputW": 2576102393296512500,
+       "maxRatedInputW": 2576102393296512500,
+       "inputDensityWPerM3": 14013289737267608000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1130013056248866200,
-       "cost": 7961.332206873244,
+       "costBasisInputW": 1130032520319347300,
+       "cost": 7961.614128282103,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -2168,7 +2199,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 11,
        "coreModuleIndex": 11,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 36,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 769690200129499200000,
        "shaftCapacityW": 769690200129499200000,
@@ -2177,28 +2208,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2576053855663570000
+       "pathCapacityW": 2576102393296512500
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 41.21478148785488,
+       "densityFactor": 41.21555805078708,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2279609239.4911427,
-       "shaftWattsPerNewton": 2165628777.5165854,
-       "wattsPerNewton": 2279609239.4911427,
-       "ratedShaftPowerW": 1223625581440195600,
-       "ratedWasteHeatW": 64401346391589304,
+       "profileWattsPerNewton": 2279612935.6285534,
+       "shaftWattsPerNewton": 2165632288.8471255,
+       "wattsPerNewton": 2279612935.6285534,
+       "ratedShaftPowerW": 1223648636815843300,
+       "ratedWasteHeatW": 64402559832412870,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32449.806655412765,
+       "conversionMassKg": 32450.365591719154,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2576053855663570000,
-       "sourceInputLimitW": 2576053855663570000,
+       "availableInputW": 2576102393296512500,
+       "sourceInputLimitW": 2576102393296512500,
        "sourceIds": [
         "p28",
         "p29"
@@ -2210,10 +2241,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1288026927831785000,
+       "ratedInputW": 1288051196648256300,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 565020927.9373249,
+       "ratedThrustN": 565030657.8441591,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2221,12 +2252,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2576053855663570000,
-       "maxRatedInputW": 2576053855663570000,
-       "inputDensityWPerM3": 14013025705870660000,
+       "maxInputW": 2576102393296512500,
+       "maxRatedInputW": 2576102393296512500,
+       "inputDensityWPerM3": 14013289737267608000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1130013056248866200,
-       "cost": 7961.332206873244,
+       "costBasisInputW": 1130032520319347300,
+       "cost": 7961.614128282103,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -2242,7 +2273,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 12,
        "coreModuleIndex": 12,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 37,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 769690200129499200000,
        "shaftCapacityW": 769690200129499200000,
@@ -2251,22 +2282,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2576053855663570000
+       "pathCapacityW": 2576102393296512500
       }
      ],
-     "massKg": 32449.806655412765,
-     "ratedThrustN": 1130013061.0010712,
-     "ratedAccelMps2": 34823.4142964479,
-     "structuralAccelerationLimitMps2": 264418.85291098553,
+     "massKg": 32450.365591719154,
+     "ratedThrustN": 1130032520.3188794,
+     "ratedAccelMps2": 34823.41414998563,
+     "structuralAccelerationLimitMps2": 264418.85291098565,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34823.4142964479,
+     "accelerationLimitMps2": 34823.41414998563,
      "conversionModelVersion": 1,
-     "conversionMassKg": 32449.806655412765,
+     "conversionMassKg": 32450.365591719154,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2576053855663570000,[[\"main\",2576053855663570000,[[9,1288026927831785000],[10,1288026927831785000]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.24594730092600256,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.24594730092600256,0.5]]]"
+     "sourceBudgetKey": "[2576102393296512500,[[\"main\",2576102393296512500,[[9,1288051196648256300],[10,1288051196648256300]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.24595193502935767,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.24595193502935767,0.5]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1673.0210050716457,
+    "maxSpeed": 1673.020857116033,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -2322,7 +2353,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         11,
-        35
+        36
        ],
        "pc": [],
        "sec": 0,
@@ -2337,7 +2368,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         12,
-        36
+        37
        ],
        "pc": [],
        "sec": 0,
@@ -2392,7 +2423,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>hotel",
        "n": "送電損失 p28>hotel",
        "g": "high",
-       "sh": 0.00865805,
+       "sh": 0.00865788,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2405,7 +2436,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p9",
        "n": "送電損失 p28>p9",
        "g": "high",
-       "sh": 0.000231143,
+       "sh": 0.000231139,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2418,7 +2449,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p10",
        "n": "送電損失 p29>p10",
        "g": "high",
-       "sh": 0.000236493,
+       "sh": 0.000236489,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2431,7 +2462,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p11",
        "n": "送電損失 p28>p11",
        "g": "high",
-       "sh": 0.000286719,
+       "sh": 0.000286713,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2444,7 +2475,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p12",
        "n": "送電損失 p29>p12",
        "g": "high",
-       "sh": 0.000286719,
+       "sh": 0.000286713,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2457,7 +2488,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p13",
        "n": "送電損失 p28>p13",
        "g": "high",
-       "sh": 0.000152411,
+       "sh": 0.000152408,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2470,7 +2501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p14",
        "n": "送電損失 p29>p14",
        "g": "high",
-       "sh": 0.000141632,
+       "sh": 0.000141629,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2483,7 +2514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p15",
        "n": "送電損失 p28>p15",
        "g": "high",
-       "sh": 0.000146218,
+       "sh": 0.000146216,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2496,7 +2527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p16",
        "n": "送電損失 p29>p16",
        "g": "high",
-       "sh": 0.000153939,
+       "sh": 0.000153936,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2701,8 +2732,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p29>p50",
-       "n": "送電損失 p29>p50",
+       "id": "feed:p28>p50",
+       "n": "送電損失 p28>p50",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -2710,12 +2741,12 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p29>p50"
+       "routeId": "p28>p50"
       },
       {
        "k": "feed",
-       "id": "feed:p28>p51",
-       "n": "送電損失 p28>p51",
+       "id": "feed:p29>p51",
+       "n": "送電損失 p29>p51",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -2723,7 +2754,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p28>p51"
+       "routeId": "p29>p51"
       },
       {
        "k": "feed",
@@ -2818,6 +2849,19 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p28>p59",
+       "n": "送電損失 p28>p59",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p28>p59"
+      },
+      {
+       "k": "feed",
        "id": "feed:p28>p32",
        "n": "送電損失 p28>p32",
        "g": "high",
@@ -2834,7 +2878,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f39",
        "n": "送電損失 p28>f39",
        "g": "high",
-       "sh": 0.0000347125,
+       "sh": 0.0000347119,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2847,7 +2891,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f40",
        "n": "送電損失 p28>f40",
        "g": "high",
-       "sh": 0.000053564,
+       "sh": 0.000053563,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2860,7 +2904,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f41",
        "n": "送電損失 p28>f41",
        "g": "high",
-       "sh": 0.0000763436,
+       "sh": 0.0000763421,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -2873,7 +2917,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f42",
        "n": "送電損失 p28>f42",
        "g": "high",
-       "sh": 0.0000743143,
+       "sh": 0.0000743129,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -2886,7 +2930,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f43",
        "n": "送電損失 p28>f43",
        "g": "high",
-       "sh": 0.000360479,
+       "sh": 0.000360473,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2912,7 +2956,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f39",
        "n": "送電損失 p29>f39",
        "g": "high",
-       "sh": 0.0000428512,
+       "sh": 0.0000428504,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2925,7 +2969,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f40",
        "n": "送電損失 p29>f40",
        "g": "high",
-       "sh": 0.00002777,
+       "sh": 0.0000277695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2938,7 +2982,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f41",
        "n": "送電損失 p29>f41",
        "g": "high",
-       "sh": 0.0000610749,
+       "sh": 0.0000610737,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -2951,7 +2995,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f42",
        "n": "送電損失 p29>f42",
        "g": "high",
-       "sh": 0.0000594514,
+       "sh": 0.0000594503,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -2964,7 +3008,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f43",
        "n": "送電損失 p29>f43",
        "g": "high",
-       "sh": 0.000288384,
+       "sh": 0.000288378,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2977,7 +3021,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p37",
        "n": "送電損失 p28>p37",
        "g": "high",
-       "sh": 0.00122715,
+       "sh": 0.00122713,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2990,7 +3034,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p37",
        "n": "送電損失 p29>p37",
        "g": "high",
-       "sh": 3.76294e-8,
+       "sh": 3.76287e-8,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3069,7 +3113,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 92624674457815180,
-       "m": 37,
+       "m": 38,
        "sec": 3,
        "src": -1,
        "power": 926246744578151.9
@@ -3080,7 +3124,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 94768764144338690,
-       "m": 38,
+       "m": 39,
        "sec": 3,
        "src": -1,
        "power": 947687641443386.9
@@ -3091,7 +3135,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 56302108139799160,
-       "m": 39,
+       "m": 40,
        "sec": 3,
        "src": -1,
        "power": 563021081397991.6
@@ -3102,7 +3146,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 56302108139799170,
-       "m": 40,
+       "m": 41,
        "sec": 3,
        "src": -1,
        "power": 563021081397991.8
@@ -3113,7 +3157,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 58346944951915280,
-       "m": 41,
+       "m": 42,
        "sec": 3,
        "src": -1,
        "power": 583469449519152.8
@@ -3124,7 +3168,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 54220569778512504,
-       "m": 42,
+       "m": 43,
        "sec": 3,
        "src": -1,
        "power": 542205697785125.06
@@ -3135,7 +3179,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 56198646940734390,
-       "m": 43,
+       "m": 44,
        "sec": 3,
        "src": -1,
        "power": 561986469407343.94
@@ -3146,7 +3190,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 59165935499205170,
-       "m": 44,
+       "m": 45,
        "sec": 3,
        "src": -1,
        "power": 591659354992051.8
@@ -3156,7 +3200,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 966635878348972000000,
+       "cap": 966635878348973000000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -3166,271 +3210,271 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 48420999293773210,
+       "cap": 48421911635215624,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 6690638900196853,
+       "cap": 6690764964244143,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 6845514800664373,
+       "cap": 6845643782860906,
        "sec": 3
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 4066919285689823,
+       "cap": 4066995913992860.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 4066919285689823.5,
+       "cap": 4066995913992861,
        "sec": 4
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 4214625766708869,
+       "cap": 4214705178075989,
        "sec": 4
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 3916561709657323,
+       "cap": 3916635504944731,
        "sec": 4
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 4059445882655742.5,
+       "cap": 4059522370146004.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 4273784625259966,
+       "cap": 4273865151289713.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 48420999293773180,
+       "cap": 48421911635215620,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 6690638900196849,
+       "cap": 6690764964244143,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 6845514800664369,
+       "cap": 6845643782860905,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 4066919285689820.5,
+       "cap": 4066995913992860,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 4066919285689821,
+       "cap": 4066995913992860.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 4214625766708866.5,
+       "cap": 4214705178075988.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 3916561709657320.5,
+       "cap": 3916635504944730.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 4059445882655740,
+       "cap": 4059522370146004,
        "sec": 4
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 4273784625259963.5,
+       "cap": 4273865151289712.5,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 715585763191334900,
+       "cap": 715599447806964000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 98877057753136540,
+       "cap": 98878948643927700,
        "sec": 1
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 101165878534459150,
+       "cap": 101167813195870460,
        "sec": 1
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 60102632810846520,
+       "cap": 60103782192892140,
        "sec": 3
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 60102632810846530,
+       "cap": 60103782192892150,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 62285500915386300,
+       "cap": 62286692041849600,
        "sec": 2
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 57880585716278360,
+       "cap": 57881692604660810,
        "sec": 2
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 59992187737597760,
+       "cap": 59993335007529860,
        "sec": 2
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 63159775250142920,
+       "cap": 63160983095927430,
        "sec": 2
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 20751328057036704,
+       "cap": 20751719050548824,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 2867343606165734.5,
+       "cap": 2867397632237894,
        "sec": 1
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 2933717300752904,
+       "cap": 2933772577428586.5,
        "sec": 1
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 1742920995223898.5,
+       "cap": 1742953835088383.2,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 1742920995223898.8,
+       "cap": 1742953835088383.5,
        "sec": 2
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 1806222159769894.8,
+       "cap": 1806256192345736.5,
        "sec": 2
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 1678483676052080.5,
+       "cap": 1678515301797947.5,
        "sec": 2
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 1739718189822842.2,
+       "cap": 1739750969340532,
        "sec": 2
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 1831575310245488,
+       "cap": 1831609820521712.2,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 20751328057036704,
+       "cap": 20751719050548824,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2867343606165734.5,
+       "cap": 2867397632237894,
        "sec": 1
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2933717300752904,
+       "cap": 2933772577428586.5,
        "sec": 1
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 1742920995223898.5,
+       "cap": 1742953835088383.2,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 1742920995223898.8,
+       "cap": 1742953835088383.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 1806222159769894.8,
+       "cap": 1806256192345736.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 6,
-       "cap": 1678483676052080.5,
+       "cap": 1678515301797947.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 1739718189822842.2,
+       "cap": 1739750969340532,
        "sec": 2
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 1831575310245488,
+       "cap": 1831609820521712.2,
        "sec": 2
       },
       {
@@ -3598,7 +3642,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 9,
-       "cap": 966635878348972000000,
+       "cap": 966635878348973000000,
        "sec": -1
       },
       {
@@ -4090,2269 +4134,2323 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 17,
        "d": 0,
-       "cap": 42796514248.49659,
+       "cap": 41150494469.70826,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 5913467858.98824,
+       "cap": 5686026787.488691,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 6050353689.057412,
+       "cap": 5817647777.93982,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 3594514192.1078105,
+       "cap": 3456263646.25751,
        "sec": 4
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 3594514192.107811,
+       "cap": 3456263646.2575107,
        "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 3725063387.9468937,
+       "cap": 3581791719.179705,
        "sec": 4
       },
       {
        "s": 17,
        "d": 6,
-       "cap": 3461621847.0737047,
+       "cap": 3328482545.2631774,
        "sec": 4
       },
       {
        "s": 17,
        "d": 7,
-       "cap": 3587908884.408721,
+       "cap": 3449912388.854539,
        "sec": 4
       },
       {
        "s": 17,
        "d": 8,
-       "cap": 3777350473.5055013,
+       "cap": 3632067762.9860587,
        "sec": 4
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 50709298501.417206,
+       "cap": 48758940866.74732,
        "sec": 3
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 7006827824.78027,
+       "cap": 6737334446.904106,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 7169022913.316851,
+       "cap": 6893291262.804665,
        "sec": 3
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 4259115405.4463367,
+       "cap": 4095303274.4676323,
        "sec": 3
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 4259115405.4463377,
+       "cap": 4095303274.467633,
        "sec": 3
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 4413802259.20468,
+       "cap": 4244040633.8506546,
        "sec": 3
       },
       {
        "s": 18,
        "d": 6,
-       "cap": 4101652170.1520157,
+       "cap": 3943896317.4538617,
        "sec": 3
       },
       {
        "s": 18,
        "d": 7,
-       "cap": 4251288821.3030124,
+       "cap": 4087777712.791358,
        "sec": 3
       },
       {
        "s": 18,
        "d": 8,
-       "cap": 4475756871.067811,
+       "cap": 4303612376.026742,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 88167306468.67949,
+       "cap": 84776256219.88412,
        "sec": 3
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 12182640155.895819,
+       "cap": 11714077072.97675,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 12464645715.060074,
+       "cap": 11985236264.48084,
        "sec": 3
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 7405244093.979461,
+       "cap": 7120427013.441789,
        "sec": 3
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 7405244093.979462,
+       "cap": 7120427013.44179,
        "sec": 3
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 7674195226.119585,
+       "cap": 7379033871.268831,
        "sec": 3
       },
       {
        "s": 19,
        "d": 6,
-       "cap": 7131465719.321877,
+       "cap": 6857178576.271035,
        "sec": 3
       },
       {
        "s": 19,
        "d": 7,
-       "cap": 7391636158.883531,
+       "cap": 7107342460.464933,
        "sec": 3
       },
       {
        "s": 19,
        "d": 8,
-       "cap": 7781914548.07258,
+       "cap": 7482610142.377481,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 73398292969.64836,
+       "cap": 70575281701.58496,
        "sec": 3
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 10141911181.373037,
+       "cap": 9751837674.397152,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 10376677643.904821,
+       "cap": 9977574657.60079,
        "sec": 3
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 6164782585.421806,
+       "cap": 5927675562.905582,
        "sec": 3
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 6164782585.421807,
+       "cap": 5927675562.905583,
        "sec": 3
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 6388681383.990095,
+       "cap": 6142962869.221245,
        "sec": 3
       },
       {
        "s": 20,
        "d": 6,
-       "cap": 5936865161.642846,
+       "cap": 5708524193.887352,
        "sec": 3
       },
       {
        "s": 20,
        "d": 7,
-       "cap": 6153454132.201589,
+       "cap": 5916782819.424604,
        "sec": 3
       },
       {
        "s": 20,
        "d": 8,
-       "cap": 6478356510.381832,
+       "cap": 6229188952.290223,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 35471195394.55122,
+       "cap": 34106918648.606937,
        "sec": 3
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 4901281741.48994,
+       "cap": 4712770905.278787,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 5014737337.357761,
+       "cap": 4821862824.3824625,
        "sec": 3
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 2979254677.5283837,
+       "cap": 2864667959.161907,
        "sec": 3
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 2979254677.528384,
+       "cap": 2864667959.1619077,
        "sec": 3
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 3087458257.084453,
+       "cap": 2968709862.5812044,
        "sec": 3
       },
       {
        "s": 21,
        "d": 6,
-       "cap": 2869109016.838028,
+       "cap": 2758758670.036565,
        "sec": 3
       },
       {
        "s": 21,
        "d": 7,
-       "cap": 2973779975.577774,
+       "cap": 2859403822.6709356,
        "sec": 3
       },
       {
        "s": 21,
        "d": 8,
-       "cap": 3130795558.28828,
+       "cap": 3010380344.5079613,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 62486243836.2077,
+       "cap": 60082926765.58432,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 8634123620.647373,
+       "cap": 8302041942.930165,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 8833987593.347544,
+       "cap": 8494218839.757252,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 5248270664.675642,
+       "cap": 5046414100.649655,
        "sec": 4
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 5248270664.675643,
+       "cap": 5046414100.649656,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 5438882657.896757,
+       "cap": 5229694863.362266,
        "sec": 4
       },
       {
        "s": 22,
        "d": 6,
-       "cap": 5054237491.143097,
+       "cap": 4859843741.483747,
        "sec": 4
       },
       {
        "s": 22,
        "d": 7,
-       "cap": 5238626401.007299,
+       "cap": 5037140770.199326,
        "sec": 4
       },
       {
        "s": 22,
        "d": 8,
-       "cap": 5515225874.980484,
+       "cap": 5303101802.8658495,
        "sec": 4
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 68658052311.3437,
+       "cap": 66017357991.67663,
        "sec": 3
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 9486921837.755207,
+       "cap": 9122040228.610775,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 9706526509.925467,
+       "cap": 9333198567.236025,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 5766645900.238827,
+       "cap": 5544851827.152718,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 5766645900.238828,
+       "cap": 5544851827.152718,
        "sec": 3
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 5976084768.672802,
+       "cap": 5746235354.493078,
        "sec": 3
       },
       {
        "s": 23,
        "d": 6,
-       "cap": 5553447939.205136,
+       "cap": 5339853787.697246,
        "sec": 3
       },
       {
        "s": 23,
        "d": 7,
-       "cap": 5756049066.13913,
+       "cap": 5534662563.595317,
        "sec": 3
       },
       {
        "s": 23,
        "d": 8,
-       "cap": 6059968456.831275,
+       "cap": 5826892746.95315,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 68658052311.3437,
+       "cap": 66017357991.67663,
        "sec": 3
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 9486921837.755207,
+       "cap": 9122040228.610775,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 9706526509.925467,
+       "cap": 9333198567.236025,
        "sec": 3
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 5766645900.238827,
+       "cap": 5544851827.152718,
        "sec": 3
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 5766645900.238828,
+       "cap": 5544851827.152718,
        "sec": 3
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 5976084768.672802,
+       "cap": 5746235354.493078,
        "sec": 3
       },
       {
        "s": 24,
        "d": 6,
-       "cap": 5553447939.205136,
+       "cap": 5339853787.697246,
        "sec": 3
       },
       {
        "s": 24,
        "d": 7,
-       "cap": 5756049066.13913,
+       "cap": 5534662563.595317,
        "sec": 3
       },
       {
        "s": 24,
        "d": 8,
-       "cap": 6059968456.831275,
+       "cap": 5826892746.95315,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 55134096167.3888,
+       "cap": 53013554007.104614,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 7618230394.352122,
+       "cap": 7325221533.030886,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 7794578320.14731,
+       "cap": 7494786846.29549,
        "sec": 4
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 4630757776.018588,
+       "cap": 4452651707.71018,
        "sec": 4
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 4630757776.018589,
+       "cap": 4452651707.710181,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 4798942312.641687,
+       "cap": 4614367608.309316,
        "sec": 4
       },
       {
        "s": 25,
        "d": 6,
-       "cap": 4459554596.047509,
+       "cap": 4288033265.4302974,
        "sec": 4
       },
       {
        "s": 25,
        "d": 7,
-       "cap": 4622248258.916746,
+       "cap": 4444469479.727641,
        "sec": 4
       },
       {
        "s": 25,
        "d": 8,
-       "cap": 4866302966.98755,
+       "cap": 4679137468.25726,
        "sec": 4
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 40612703939.948494,
+       "cap": 39050676865.33509,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 5611716833.314928,
+       "cap": 5395881570.495122,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 5741617685.93796,
+       "cap": 5520786236.4788065,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 3411094180.3431087,
+       "cap": 3279898250.3299117,
        "sec": 4
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 3411094180.343109,
+       "cap": 3279898250.329912,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 3534981742.9942493,
+       "cap": 3399020906.7252393,
        "sec": 4
       },
       {
        "s": 26,
        "d": 6,
-       "cap": 3284983034.154486,
+       "cap": 3158637532.840852,
        "sec": 4
       },
       {
        "s": 26,
        "d": 7,
-       "cap": 3404825926.7078304,
+       "cap": 3273871083.3729134,
        "sec": 4
       },
       {
        "s": 26,
        "d": 8,
-       "cap": 3584600735.638004,
+       "cap": 3446731476.575003,
        "sec": 4
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 42026541484.764595,
+       "cap": 40410136043.042885,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 5807075801.81771,
+       "cap": 5583726732.517028,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 5941498852.785712,
+       "cap": 5712979666.140108,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 3529843550.6929355,
+       "cap": 3394080337.2047453,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 3529843550.692936,
+       "cap": 3394080337.204746,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 3658043972.8786426,
+       "cap": 3517349973.9217715,
        "sec": 4
       },
       {
        "s": 27,
        "d": 6,
-       "cap": 3399342136.0413976,
+       "cap": 3268598207.732113,
        "sec": 4
       },
       {
        "s": 27,
        "d": 7,
-       "cap": 3523357082.2758217,
+       "cap": 3387843348.342136,
        "sec": 4
       },
       {
        "s": 27,
        "d": 8,
-       "cap": 3709390336.219985,
+       "cap": 3566721477.1346006,
        "sec": 4
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 47102578220.2283,
+       "cap": 45290940596.37337,
        "sec": 3
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 6508464235.275527,
+       "cap": 6258138687.764929,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 6659123129.610609,
+       "cap": 6403003009.24097,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 3956184022.707566,
+       "cap": 3804023098.757274,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 3956184022.7075663,
+       "cap": 3804023098.7572746,
        "sec": 3
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 4099868708.6353297,
+       "cap": 3942181450.6108937,
        "sec": 3
       },
       {
        "s": 28,
        "d": 6,
-       "cap": 3809920426.5536237,
+       "cap": 3663385025.53233,
        "sec": 3
       },
       {
        "s": 28,
        "d": 7,
-       "cap": 3948914107.6682587,
+       "cap": 3797032795.8348637,
        "sec": 3
       },
       {
        "s": 28,
        "d": 8,
-       "cap": 4157416772.553143,
+       "cap": 3997516127.4549446,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 86072389690.55609,
+       "cap": 82761913163.99626,
        "sec": 3
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 11893172117.383242,
+       "cap": 11435742420.56081,
        "sec": 3
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 12168477027.507854,
+       "cap": 11700458680.296013,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 7229290322.452055,
+       "cap": 6951240694.665438,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 7229290322.452057,
+       "cap": 6951240694.665439,
        "sec": 3
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 7491850987.855899,
+       "cap": 7203702872.938363,
        "sec": 3
       },
       {
        "s": 29,
        "d": 6,
-       "cap": 6962017113.184335,
+       "cap": 6694247224.215707,
        "sec": 3
       },
       {
        "s": 29,
        "d": 7,
-       "cap": 7216005721.397845,
+       "cap": 6938467039.805621,
        "sec": 3
       },
       {
        "s": 29,
        "d": 8,
-       "cap": 7597010823.487652,
+       "cap": 7304818099.507358,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 40982608791.588585,
+       "cap": 39344856012.778404,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 5662828950.492423,
+       "cap": 5436530183.20899,
        "sec": 3
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 5793912953.976045,
+       "cap": 5562375789.30179,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 3442162791.0068045,
+       "cap": 3304606597.2379622,
        "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 3442162791.006805,
+       "cap": 3304606597.237963,
        "sec": 4
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 3567178734.830257,
+       "cap": 3424626636.324515,
        "sec": 4
       },
       {
        "s": 30,
        "d": 6,
-       "cap": 3314903011.009164,
+       "cap": 3182432390.4741244,
        "sec": 4
       },
       {
        "s": 30,
        "d": 7,
-       "cap": 3435837445.446929,
+       "cap": 3298534026.0273314,
        "sec": 4
       },
       {
        "s": 30,
        "d": 8,
-       "cap": 3617249662.566527,
+       "cap": 3472696622.601575,
        "sec": 4
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 43449387482.40534,
+       "cap": 41028375153.62551,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 6003679525.814558,
+       "cap": 5669152781.198745,
        "sec": 3
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 6142653588.912118,
+       "cap": 5800383169.652419,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 3649349548.3544884,
+       "cap": 3446006745.140724,
        "sec": 4
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 3649349548.354489,
+       "cap": 3446006745.1407247,
        "sec": 4
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 3781890310.0294423,
+       "cap": 3571162297.5716844,
        "sec": 4
       },
       {
        "s": 31,
        "d": 6,
-       "cap": 3514429892.0641356,
+       "cap": 3318604850.7844367,
        "sec": 4
       },
       {
        "s": 31,
        "d": 7,
-       "cap": 3642643474.7712092,
+       "cap": 3439674335.9003406,
        "sec": 4
       },
       {
        "s": 31,
        "d": 8,
-       "cap": 3834975050.2391295,
+       "cap": 3621289140.835879,
        "sec": 4
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 35210762623.76087,
+       "cap": 37436141828.938675,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 4865296081.289819,
+       "cap": 5172790947.050808,
        "sec": 3
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 4977918675.76412,
+       "cap": 5292531478.23254,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 2957380716.3627553,
+       "cap": 3144292133.712924,
        "sec": 4
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 2957380716.3627553,
+       "cap": 3144292133.7129245,
        "sec": 4
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 3064789855.3108954,
+       "cap": 3258489710.2423606,
        "sec": 4
       },
       {
        "s": 32,
        "d": 6,
-       "cap": 2848043755.218187,
+       "cap": 3028044893.3935375,
        "sec": 4
       },
       {
        "s": 32,
        "d": 7,
-       "cap": 2951946210.1761274,
+       "cap": 3138514157.6279774,
        "sec": 4
       },
       {
        "s": 32,
        "d": 8,
-       "cap": 3107808970.073427,
+       "cap": 3304227705.150734,
        "sec": 4
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 35210762623.76087,
+       "cap": 33856502522.846992,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 4865296081.289819,
+       "cap": 4678169308.932518,
        "sec": 3
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 4977918675.76412,
+       "cap": 4786460265.157807,
        "sec": 3
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 2957380716.3627553,
+       "cap": 2843635304.1949573,
        "sec": 4
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 2957380716.3627553,
+       "cap": 2843635304.1949573,
        "sec": 4
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 3064789855.3108954,
+       "cap": 2946913322.4143224,
        "sec": 4
       },
       {
        "s": 33,
        "d": 6,
-       "cap": 2848043755.218187,
+       "cap": 2738503610.7867184,
        "sec": 4
       },
       {
        "s": 33,
        "d": 7,
-       "cap": 2951946210.1761274,
+       "cap": 2838409817.4770455,
        "sec": 4
       },
       {
        "s": 33,
        "d": 8,
-       "cap": 3107808970.073427,
+       "cap": 2988277855.8398337,
        "sec": 4
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 39177201756.3641,
+       "cap": 33856502522.846992,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 5413364323.22862,
+       "cap": 4678169308.932518,
        "sec": 3
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 5538673682.562616,
+       "cap": 4786460265.157807,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 3290525179.285339,
+       "cap": 2843635304.1949573,
        "sec": 4
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 3290525179.2853394,
+       "cap": 2843635304.1949573,
        "sec": 4
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 3410033795.2165656,
+       "cap": 2946913322.4143224,
        "sec": 4
       },
       {
        "s": 34,
        "d": 6,
-       "cap": 3168871574.90422,
+       "cap": 2738503610.7867184,
        "sec": 4
       },
       {
        "s": 34,
        "d": 7,
-       "cap": 3284478484.199671,
+       "cap": 2838409817.4770455,
        "sec": 4
       },
       {
        "s": 34,
        "d": 8,
-       "cap": 3457898948.1654134,
+       "cap": 2988277855.8398337,
        "sec": 4
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 41016831267.76129,
+       "cap": 39439260834.385864,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 5667557688.719262,
+       "cap": 5449574700.691598,
        "sec": 3
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 5798751153.735911,
+       "cap": 5575722263.207607,
        "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 3445037164.736814,
+       "cap": 3312535735.32386,
        "sec": 4
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 3445037164.736815,
+       "cap": 3312535735.3238606,
        "sec": 4
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 3570157502.967672,
+       "cap": 3432843752.853531,
        "sec": 4
       },
       {
        "s": 35,
        "d": 6,
-       "cap": 3317671116.61918,
+       "cap": 3190068381.3645964,
        "sec": 4
       },
       {
        "s": 35,
        "d": 7,
-       "cap": 3438706537.2050467,
+       "cap": 3306448593.4663916,
        "sec": 4
       },
       {
        "s": 35,
        "d": 8,
-       "cap": 3620270242.3694735,
+       "cap": 3481029079.201417,
        "sec": 4
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 41764124239.16601,
+       "cap": 40389093060.02755,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 5770815934.05182,
+       "cap": 5580819089.081493,
        "sec": 3
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 5904399636.228945,
+       "cap": 5710004716.143565,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 3507802911.867049,
+       "cap": 3392312919.8713217,
        "sec": 4
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 3507802911.8670497,
+       "cap": 3392312919.871322,
        "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 3635202839.877266,
-       "sec": 3
+       "cap": 3515518365.741057,
+       "sec": 4
       },
       {
        "s": 36,
        "d": 6,
-       "cap": 3378116358.980713,
-       "sec": 3
+       "cap": 3266896133.368988,
+       "sec": 4
       },
       {
        "s": 36,
        "d": 7,
-       "cap": 3501356945.5021043,
-       "sec": 3
+       "cap": 3386079178.8287783,
+       "sec": 4
       },
       {
        "s": 36,
        "d": 8,
-       "cap": 3686228592.2246156,
-       "sec": 3
+       "cap": 3564864159.470938,
+       "sec": 4
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 38653422825.63591,
+       "cap": 40157811768.42884,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 5340990441.232257,
+       "cap": 5548861475.049825,
        "sec": 3
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 5464624479.223744,
+       "cap": 5677307342.527831,
        "sec": 3
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 3246532559.019644,
+       "cap": 3372887415.256778,
        "sec": 4
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 3246532559.0196443,
+       "cap": 3372887415.2567782,
        "sec": 4
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 3364443406.5483556,
-       "sec": 4
+       "cap": 3495387346.0358324,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 6,
-       "cap": 3126505400.4275384,
-       "sec": 4
+       "cap": 3248188806.7122235,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 7,
-       "cap": 3240566705.120799,
-       "sec": 4
+       "cap": 3366689370.6750994,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 8,
-       "cap": 3411668627.1511774,
-       "sec": 4
+       "cap": 3544450569.446745,
+       "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 43298604797.10441,
+       "cap": 40157811768.42884,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 5982844918.630391,
+       "cap": 5548861475.049825,
        "sec": 3
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 6121336699.1542425,
+       "cap": 5677307342.527831,
        "sec": 3
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 3636685187.442025,
+       "cap": 3372887415.256778,
        "sec": 4
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 3636685187.4420257,
+       "cap": 3372887415.2567782,
        "sec": 4
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 3768765992.070052,
+       "cap": 3495387346.0358324,
        "sec": 4
       },
       {
        "s": 38,
        "d": 6,
-       "cap": 3502233743.6916895,
+       "cap": 3248188806.7122235,
        "sec": 4
       },
       {
        "s": 38,
        "d": 7,
-       "cap": 3630002385.988488,
+       "cap": 3366689370.6750994,
        "sec": 4
       },
       {
        "s": 38,
        "d": 8,
-       "cap": 3821666511.968681,
+       "cap": 3544450569.446745,
        "sec": 4
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 40465330760.31871,
+       "cap": 37472619252.13939,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 5591353339.317324,
+       "cap": 5177831265.718436,
        "sec": 3
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 5720782814.764484,
+       "cap": 5297688470.9434,
        "sec": 3
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 3398716186.597183,
+       "cap": 3147355902.285877,
        "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 3398716186.5971837,
+       "cap": 3147355902.2858777,
        "sec": 4
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 3522154192.7732983,
+       "cap": 3261664751.8558583,
        "sec": 4
       },
       {
        "s": 39,
        "d": 6,
-       "cap": 3273062665.703051,
+       "cap": 3030995391.752898,
        "sec": 4
       },
       {
        "s": 39,
        "d": 7,
-       "cap": 3392470678.861077,
+       "cap": 3141572296.195577,
        "sec": 4
       },
       {
        "s": 39,
        "d": 8,
-       "cap": 3571593130.704942,
+       "cap": 3307447313.434704,
        "sec": 4
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 39784525218.97985,
+       "cap": 37472619252.13939,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 5497282087.075797,
+       "cap": 5177831265.718436,
        "sec": 3
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 5624533987.239589,
+       "cap": 5297688470.9434,
        "sec": 3
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 3341534773.031612,
+       "cap": 3147355902.285877,
        "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 3341534773.0316124,
+       "cap": 3147355902.2858777,
        "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 3462896006.893316,
-       "sec": 3
+       "cap": 3261664751.8558583,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 6,
-       "cap": 3217995299.1922326,
-       "sec": 3
+       "cap": 3030995391.752898,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 7,
-       "cap": 3335394342.3131733,
-       "sec": 3
+       "cap": 3141572296.195577,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 8,
-       "cap": 3511503163.587309,
+       "cap": 3307447313.434704,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 0,
+       "cap": 39522891403.83903,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 1,
+       "cap": 5461130470.902663,
        "sec": 3
       },
       {
        "s": 41,
+       "d": 2,
+       "cap": 5587545528.099484,
+       "sec": 3
+      },
+      {
+       "s": 41,
+       "d": 3,
+       "cap": 3319559935.1698565,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 4,
+       "cap": 3319559935.169857,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 5,
+       "cap": 3440123064.681926,
+       "sec": 3
+      },
+      {
+       "s": 41,
+       "d": 6,
+       "cap": 3196832890.376273,
+       "sec": 3
+      },
+      {
+       "s": 41,
+       "d": 7,
+       "cap": 3313459885.587215,
+       "sec": 3
+      },
+      {
+       "s": 41,
+       "d": 8,
+       "cap": 3488410567.54622,
+       "sec": 3
+      },
+      {
+       "s": 42,
        "d": 0,
        "cap": 9500210862559662,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 1,
        "cap": 1312704844678583.5,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 2,
        "cap": 1343091530897995.2,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 3,
        "cap": 797930471047349.5,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 4,
        "cap": 797930471047349.6,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 5,
        "cap": 826910515571710.6,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 6,
        "cap": 768430281089977.2,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 7,
        "cap": 796464187704994.2,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 8,
        "cap": 838517496815817.9,
        "sec": 3
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 0,
        "cap": 4519494948.5353565,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 1,
        "cap": 624487498.2537252,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 2,
        "cap": 638943227.3799689,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 3,
        "cap": 379596072.6927798,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 4,
        "cap": 379596072.69277984,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 5,
        "cap": 393382626.1420672,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 6,
        "cap": 365562072.6666735,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 7,
        "cap": 378898523.9483605,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 8,
        "cap": 398904366.01283395,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 0,
        "cap": 6973621196.438452,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 1,
        "cap": 963589804.6847723,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 2,
        "cap": 985895124.2376605,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 3,
        "cap": 585720141.024393,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 4,
        "cap": 585720141.0243931,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 5,
        "cap": 606992916.5124903,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 6,
        "cap": 564065553.2513524,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 7,
        "cap": 584643817.062308,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 8,
        "cap": 615513010.6031978,
        "sec": 4
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 0,
        "cap": 9939968420.235369,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 1,
        "cap": 1373468956.6331878,
        "sec": 2
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 2,
        "cap": 1405262219.5182152,
        "sec": 2
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 3,
        "cap": 834866067.5534955,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 4,
        "cap": 834866067.5534956,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 5,
        "cap": 865187576.3659381,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 6,
        "cap": 804000336.1703272,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 7,
        "cap": 833331911.0669729,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 8,
        "cap": 877331835.9713091,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 0,
        "cap": 9675765448.562727,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 1,
        "cap": 1336962343.6842082,
        "sec": 2
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 2,
        "cap": 1367910546.0843058,
        "sec": 2
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 3,
        "cap": 812675444.1358948,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 4,
        "cap": 812675444.1358949,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 5,
        "cap": 842191011.4810045,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 6,
        "cap": 782630119.5799434,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 7,
        "cap": 811182065.3144122,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 8,
        "cap": 854012478.3630133,
        "sec": 3
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 0,
        "cap": 46935494929.40794,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 1,
        "cap": 6485377269.259951,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 2,
        "cap": 6635501743.085412,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 3,
        "cap": 3942150560.621598,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 4,
        "cap": 3942150560.6215982,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 5,
        "cap": 4085325565.103624,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 6,
        "cap": 3796405793.8798876,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 7,
        "cap": 3934906433.583174,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 8,
        "cap": 4142669493.2763658,
        "sec": 4
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 0,
        "cap": 9500210862559662,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 1,
        "cap": 1312704844678583.5,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 2,
        "cap": 1343091530897995.2,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 3,
        "cap": 797930471047349.5,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 4,
        "cap": 797930471047349.6,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 5,
        "cap": 826910515571710.6,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 6,
        "cap": 768430281089977.2,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 7,
        "cap": 796464187704994.2,
        "sec": 3
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 8,
        "cap": 838517496815817.9,
        "sec": 3
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 0,
        "cap": 6973621196.438452,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 1,
        "cap": 963589804.6847723,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 2,
        "cap": 985895124.2376605,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 3,
        "cap": 585720141.024393,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 4,
        "cap": 585720141.0243931,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 5,
        "cap": 606992916.5124903,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 6,
        "cap": 564065553.2513524,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 7,
        "cap": 584643817.062308,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 8,
        "cap": 615513010.6031978,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 0,
        "cap": 4519494948.5353565,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 1,
        "cap": 624487498.2537252,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 2,
        "cap": 638943227.3799689,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 3,
        "cap": 379596072.6927798,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 4,
        "cap": 379596072.69277984,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 5,
        "cap": 393382626.1420672,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 6,
        "cap": 365562072.6666735,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 7,
        "cap": 378898523.9483605,
        "sec": 4
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 8,
        "cap": 398904366.01283395,
        "sec": 4
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 0,
        "cap": 9939968420.235369,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 1,
        "cap": 1373468956.6331878,
        "sec": 2
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 2,
        "cap": 1405262219.5182152,
        "sec": 2
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 3,
        "cap": 834866067.5534955,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 4,
        "cap": 834866067.5534956,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 5,
        "cap": 865187576.3659381,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 6,
        "cap": 804000336.1703272,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 7,
        "cap": 833331911.0669729,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 8,
        "cap": 877331835.9713091,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 0,
        "cap": 9675765448.562727,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 1,
        "cap": 1336962343.6842082,
        "sec": 2
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 2,
        "cap": 1367910546.0843058,
        "sec": 2
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 3,
        "cap": 812675444.1358948,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 4,
        "cap": 812675444.1358949,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 5,
        "cap": 842191011.4810045,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 6,
        "cap": 782630119.5799434,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 7,
        "cap": 811182065.3144122,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 8,
        "cap": 854012478.3630133,
        "sec": 3
       },
       {
-       "s": 52,
+       "s": 53,
        "d": 0,
        "cap": 46935494929.40794,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 1,
-       "cap": 6485377269.259951,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 2,
-       "cap": 6635501743.085412,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 3,
-       "cap": 3942150560.621598,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 4,
-       "cap": 3942150560.6215982,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 5,
-       "cap": 4085325565.103624,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 6,
-       "cap": 3796405793.8798876,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 7,
-       "cap": 3934906433.583174,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 8,
-       "cap": 4142669493.2763658,
        "sec": 4
       },
       {
        "s": 53,
+       "d": 1,
+       "cap": 6485377269.259951,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 2,
+       "cap": 6635501743.085412,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 3,
+       "cap": 3942150560.621598,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 4,
+       "cap": 3942150560.6215982,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 5,
+       "cap": 4085325565.103624,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 6,
+       "cap": 3796405793.8798876,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 7,
+       "cap": 3934906433.583174,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 8,
+       "cap": 4142669493.2763658,
+       "sec": 4
+      },
+      {
+       "s": 54,
        "d": 0,
        "cap": 133154162691.2764,
        "sec": 4
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 1,
        "cap": 18398761562.526432,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 2,
        "cap": 18824658820.918247,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 3,
        "cap": 11183726897.777405,
        "sec": 4
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 4,
        "cap": 11183726897.777407,
        "sec": 4
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 5,
        "cap": 11589908783.550571,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 6,
        "cap": 10770254697.019415,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 7,
        "cap": 11163175592.807014,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 8,
        "cap": 11752591264.107224,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 0,
        "cap": 258719947471.9184,
        "sec": 4
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 1,
        "cap": 35748988456.64891,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 2,
        "cap": 36576511337.58986,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 3,
        "cap": 21730099735.911724,
        "sec": 4
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 4,
        "cap": 21730099735.911724,
        "sec": 4
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 5,
        "cap": 22519315439.17838,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 6,
        "cap": 20926718873.465626,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 7,
        "cap": 21690168332.830116,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 8,
        "cap": 22835409220.803547,
        "sec": 3
       },
       {
-       "s": 55,
-       "d": 0,
-       "cap": 11364757902851.008,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 1,
-       "cap": 1570341224368.592,
-       "sec": 3
-      },
-      {
-       "s": 55,
-       "d": 2,
-       "cap": 1606691715673.4204,
-       "sec": 3
-      },
-      {
-       "s": 55,
-       "d": 3,
-       "cap": 954535300105.7184,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 4,
-       "cap": 954535300105.7185,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 5,
-       "cap": 989203076936.9866,
-       "sec": 3
-      },
-      {
-       "s": 55,
-       "d": 6,
-       "cap": 919245292146.5349,
-       "sec": 3
-      },
-      {
-       "s": 55,
-       "d": 7,
-       "cap": 952781238491.3048,
-       "sec": 3
-      },
-      {
-       "s": 55,
-       "d": 8,
-       "cap": 1003088087883.6456,
-       "sec": 3
-      },
-      {
        "s": 56,
        "d": 0,
-       "cap": 65748474420834.39,
+       "cap": 11364972035970.297,
        "sec": 4
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 9084886867363.805,
+       "cap": 1570370812510.0725,
        "sec": 3
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 9295185174478.707,
+       "cap": 1606721988725.5835,
        "sec": 3
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 5522268076387.291,
+       "cap": 954553285321.3322,
        "sec": 4
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 5522268076387.292,
+       "cap": 954553285321.3324,
        "sec": 4
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 5722831384264.358,
+       "cap": 989221715357.8209,
        "sec": 3
       },
       {
        "s": 56,
        "d": 6,
-       "cap": 5318104978022.184,
+       "cap": 919262612432.9397,
        "sec": 3
       },
       {
        "s": 56,
        "d": 7,
-       "cap": 5512120312908.854,
+       "cap": 952799190657.1443,
        "sec": 3
       },
       {
        "s": 56,
        "d": 8,
-       "cap": 5803160265430.441,
+       "cap": 1003106987923.8414,
        "sec": 3
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 65748474420834.39,
+       "cap": 65749713244048.805,
        "sec": 4
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 9084886867363.805,
+       "cap": 9085058043483.871,
        "sec": 3
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 9295185174478.707,
+       "cap": 9295360313008.96,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 5522268076387.291,
+       "cap": 5522372126161.062,
        "sec": 4
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 5522268076387.292,
+       "cap": 5522372126161.0625,
        "sec": 4
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 5722831384264.358,
+       "cap": 5722939213022.871,
        "sec": 3
       },
       {
        "s": 57,
        "d": 6,
-       "cap": 5318104978022.184,
+       "cap": 5318205180984.4795,
        "sec": 3
       },
       {
        "s": 57,
        "d": 7,
-       "cap": 5512120312908.854,
+       "cap": 5512224171479.937,
        "sec": 3
       },
       {
        "s": 57,
        "d": 8,
-       "cap": 5803160265430.441,
+       "cap": 5803269607734.077,
        "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 11364757902851.008,
+       "cap": 65749713244048.805,
        "sec": 4
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 1570341224368.592,
+       "cap": 9085058043483.871,
        "sec": 3
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 1606691715673.4204,
+       "cap": 9295360313008.96,
        "sec": 3
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 954535300105.7184,
+       "cap": 5522372126161.062,
        "sec": 4
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 954535300105.7185,
+       "cap": 5522372126161.0625,
        "sec": 4
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 989203076936.9866,
+       "cap": 5722939213022.871,
        "sec": 3
       },
       {
        "s": 58,
        "d": 6,
-       "cap": 919245292146.5349,
+       "cap": 5318205180984.4795,
        "sec": 3
       },
       {
        "s": 58,
        "d": 7,
-       "cap": 952781238491.3048,
+       "cap": 5512224171479.937,
        "sec": 3
       },
       {
        "s": 58,
        "d": 8,
-       "cap": 1003088087883.6456,
+       "cap": 5803269607734.077,
+       "sec": 3
+      },
+      {
+       "s": 59,
+       "d": 0,
+       "cap": 11364972035970.297,
+       "sec": 4
+      },
+      {
+       "s": 59,
+       "d": 1,
+       "cap": 1570370812510.0725,
+       "sec": 3
+      },
+      {
+       "s": 59,
+       "d": 2,
+       "cap": 1606721988725.5835,
+       "sec": 3
+      },
+      {
+       "s": 59,
+       "d": 3,
+       "cap": 954553285321.3322,
+       "sec": 4
+      },
+      {
+       "s": 59,
+       "d": 4,
+       "cap": 954553285321.3324,
+       "sec": 4
+      },
+      {
+       "s": 59,
+       "d": 5,
+       "cap": 989221715357.8209,
+       "sec": 3
+      },
+      {
+       "s": 59,
+       "d": 6,
+       "cap": 919262612432.9397,
+       "sec": 3
+      },
+      {
+       "s": 59,
+       "d": 7,
+       "cap": 952799190657.1443,
+       "sec": 3
+      },
+      {
+       "s": 59,
+       "d": 8,
+       "cap": 1003106987923.8414,
        "sec": 3
       }
      ]
@@ -6367,7 +6465,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 83.65105025358228,
+    "mglt": 83.65104285580165,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -6475,7 +6573,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1om72vd",
+   "signature": "qf1wpp",
    "build": 156585,
    "crew": 1000,
    "total": 157585,
@@ -6503,6 +6601,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 1.331,
+    "navDemand": 1.0611814919290252,
     "navReady": true,
     "targetDemand": 4,
     "targetCapacity": 4.920750000000001,
@@ -6520,8 +6619,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 2.322330623714879e-14,
-    "upS": 2.322330623714879e-14,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -6681,10 +6780,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "核融合炉",
-      "w": 0.3300411363454383,
+      "w": 0.3300566363483152,
       "hits": 1,
-      "crew": 0.00009480300749369877,
-      "size": 0.18960601498739754,
+      "crew": 0.00009480968604364144,
+      "size": 0.18961937208728288,
       "at": 0.289,
       "part": 14,
       "y": -0.03,
@@ -6741,7 +6840,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.04,
       "z": 0,
       "r": 0.054,
-      "share": 0.5842216798061506,
+      "share": 0.5814099614877428,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -6792,7 +6891,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": 0.22,
       "r": 0.024,
-      "share": 0.05064282920362862,
+      "share": 0.050399097456776835,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -6809,7 +6908,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": -0.22,
       "r": 0.024,
-      "share": 0.05064282920362862,
+      "share": 0.050399097456776835,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -6860,7 +6959,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": 0,
       "r": 0.019,
-      "share": 0.529228661516074,
+      "share": 0.5291904753199876,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -6877,7 +6976,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": -0.1,
       "r": 0.027,
-      "share": 0.07258063056987549,
+      "share": 0.07223131746563974,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -6894,9 +6993,26 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.33,
       "z": -0.16,
       "r": 0.021,
-      "share": 0.03494697251828506,
+      "share": 0.0347787811515505,
       "domain": "main",
       "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.022500000000000006,
+      "hits": 1,
+      "crew": 6.75e-7,
+      "size": 0.003375,
+      "at": 0.695,
+      "part": 31,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.004812759292569723,
+      "domain": "main",
+      "port": "p31",
       "powerConnected": true
      },
      {
@@ -6906,14 +7022,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.695,
-      "part": 31,
+      "at": 0.673,
+      "part": 32,
       "y": 0.09,
       "z": 0,
       "r": 0.016,
-      "share": 0.015257508031272267,
+      "share": 0.015184077317713304,
       "domain": "main",
-      "port": "p31",
+      "port": "p32",
       "powerConnected": true
      },
      {
@@ -6924,13 +7040,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.668,
-      "part": 32,
+      "part": 33,
       "y": 0.09,
-      "z": 0,
+      "z": -0.08,
       "r": 0.02,
-      "share": 0.02820375005442638,
+      "share": 0.028068012194266623,
       "domain": "main",
-      "port": "p32",
+      "port": "p33",
       "powerConnected": true
      },
      {
@@ -6941,13 +7057,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.695,
-      "part": 33,
+      "part": 34,
       "y": 0.09,
       "z": -0.05,
       "r": 0.013,
-      "share": 0.008356666682793,
+      "share": 0.00831644805756048,
       "domain": "main",
-      "port": "p33",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -6958,13 +7074,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.695,
-      "part": 34,
+      "part": 35,
       "y": 0.09,
       "z": 0.05,
       "r": 0.013,
-      "share": 0.008356666682793,
+      "share": 0.00831644805756048,
       "domain": "main",
-      "port": "p34",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -6975,13 +7091,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.713,
-      "part": 35,
+      "part": 36,
       "y": 0.09,
       "z": 0,
       "r": 0.013,
-      "share": 0.008356666682793,
+      "share": 0.00831644805756048,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -6992,13 +7108,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.677,
-      "part": 36,
+      "part": 37,
       "y": 0.09,
-      "z": -0.05,
+      "z": 0.05,
       "r": 0.013,
-      "share": 0.008356666682793,
+      "share": 0.00831644805756048,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -7009,13 +7125,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.638,
-      "part": 37,
+      "part": 38,
       "y": 0.09,
       "z": 0,
       "r": 0.02,
-      "share": 0.03145499777446365,
+      "share": 0.03130361244162684,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -7026,13 +7142,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.638,
-      "part": 38,
+      "part": 39,
       "y": 0.09,
       "z": -0.08,
       "r": 0.02,
-      "share": 0.03145499777446365,
+      "share": 0.03130361244162684,
       "domain": "main",
-      "port": "p38",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -7042,14 +7158,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.015625,
-      "at": 0.67,
-      "part": 39,
-      "y": 0.09,
-      "z": 0.07,
+      "at": 0.721,
+      "part": 40,
+      "y": -0.06,
+      "z": 0,
       "r": 0.018,
-      "share": 0.022389046110878025,
+      "share": 0.022281293021156123,
       "domain": "main",
-      "port": "p39",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -7060,13 +7176,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.015625,
       "at": 0.721,
-      "part": 40,
+      "part": 41,
       "y": -0.06,
-      "z": 0,
+      "z": 0.07,
       "r": 0.018,
-      "share": 0.022389046110878025,
+      "share": 0.022281293021156123,
       "domain": "main",
-      "port": "p40",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -7076,31 +7192,31 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.015625,
-      "at": 0.721,
-      "part": 41,
-      "y": -0.06,
+      "at": 0.644,
+      "part": 42,
+      "y": 0.09,
       "z": 0.07,
       "r": 0.018,
-      "share": 0.022389046110878025,
+      "share": 0.022281293021156123,
       "domain": "main",
-      "port": "p41",
+      "port": "p42",
       "powerConnected": true
      },
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.06252559039622221,
+      "w": 0.06253197949809969,
       "hits": 1,
-      "crew": 7.817298690409435e-7,
-      "size": 0.01563459738081887,
+      "crew": 7.818496922844516e-7,
+      "size": 0.01563699384568903,
       "at": 0.742,
-      "part": 42,
+      "part": 43,
       "y": -0.05,
       "z": -0.13,
       "r": 0.018,
-      "share": 0.4707713384839261,
+      "share": 0.47080952468001247,
       "domain": "main",
-      "port": "p42",
+      "port": "p43",
       "powerConnected": true
      },
      {
@@ -7198,7 +7314,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 6.490730546309277,
+      "w": 6.50424367977213,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -7210,7 +7326,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0001456487121813503,
+    "D": 0.00014565927382667606,
     "shieldBuffer": 0.014246437348554762,
     "wCap": 0,
     "fuel": {
@@ -7218,8 +7334,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.04993561522880978,
      "massKg": 12.483903807202445,
-     "capacityJ": 5.9922738274571735e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 5.627898077704168e+21,
+     "specificEnergyJPerKg": 450812355223148800000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -7234,23 +7350,23 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 992967404249425400,
-     "fixed": 23597984428688150,
-     "cooling": 5217720652532518,
-     "De": 992967404249425400,
-     "Ds": 609394211766769700,
+     "P": 993037355431102500,
+     "fixed": 23598360937550750,
+     "cooling": 5218097161395118,
+     "De": 993037355431102500,
+     "Ds": 609438401690812700,
      "Dw": 139466666666666.69,
      "domains": [
       {
        "id": "main",
-       "P": 992967404249425400,
+       "P": 993037355431102500,
        "reactors": [
         4
        ],
        "sources": [
         {
          "moduleIndex": 4,
-         "P": 992967404249425400
+         "P": 993037355431102500
         }
        ],
        "modules": [
@@ -7289,7 +7405,8 @@ const CRAFT_PRICE_CATALOG={
         32,
         33,
         34,
-        35
+        35,
+        36
        ],
        "protection": 1
       }
@@ -7299,7 +7416,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "hotel",
-       "cap": 23597984428688150,
+       "cap": 23598360937550750,
        "auto": true,
        "ok": true,
        "routeId": "p14>hotel",
@@ -7311,7 +7428,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p17",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p17",
@@ -7323,7 +7440,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p20",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p20",
@@ -7335,7 +7452,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p21",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p21",
@@ -7347,7 +7464,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p22",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p22",
@@ -7359,7 +7476,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p23",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p23",
@@ -7371,7 +7488,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p29",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p29",
@@ -7383,7 +7500,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p30",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p30",
@@ -7395,7 +7512,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p31",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p31",
@@ -7407,31 +7524,31 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p32",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p32",
        "model": "source-distance",
-       "lengthM": 2.6147506573285337,
-       "efficiency": 0.9999738528352697
+       "lengthM": 2.6497011152203562,
+       "efficiency": 0.9999735033398905
       },
       {
        "kind": "power",
        "from": "p14",
        "to": "p33",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p33",
        "model": "source-distance",
-       "lengthM": 2.8063278496996746,
-       "efficiency": 0.9999719371152731
+       "lengthM": 2.6215724289059796,
+       "efficiency": 0.9999737846193401
       },
       {
        "kind": "power",
        "from": "p14",
        "to": "p34",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p34",
@@ -7443,10 +7560,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p35",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p35",
+       "model": "source-distance",
+       "lengthM": 2.8063278496996746,
+       "efficiency": 0.9999719371152731
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p36",
+       "cap": 1123731473216702.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p14>p36",
        "model": "source-distance",
        "lengthM": 2.929347367588897,
        "efficiency": 0.9999707069553737
@@ -7454,11 +7583,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p36",
-       "cap": 1179899221434407.5,
+       "to": "p37",
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
-       "routeId": "p14>p36",
+       "routeId": "p14>p37",
        "model": "source-distance",
        "lengthM": 2.680625300186507,
        "efficiency": 0.9999731941062825
@@ -7466,11 +7595,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p37",
-       "cap": 1179899221434407.5,
+       "to": "p38",
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
-       "routeId": "p14>p37",
+       "routeId": "p14>p38",
        "model": "source-distance",
        "lengthM": 2.4120663340795585,
        "efficiency": 0.9999758796275601
@@ -7478,11 +7607,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p38",
-       "cap": 1179899221434407.5,
+       "to": "p39",
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
-       "routeId": "p14>p38",
+       "routeId": "p14>p39",
        "model": "source-distance",
        "lengthM": 2.420016528869173,
        "efficiency": 0.999975800127533
@@ -7490,20 +7619,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p39",
-       "cap": 1179899221434407.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p14>p39",
-       "model": "source-distance",
-       "lengthM": 2.6345492973182343,
-       "efficiency": 0.9999736548540663
-      },
-      {
-       "kind": "power",
-       "from": "p14",
        "to": "p40",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p40",
@@ -7515,13 +7632,25 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p41",
-       "cap": 1179899221434407.5,
+       "cap": 1123731473216702.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p41",
        "model": "source-distance",
        "lengthM": 2.980348134027298,
        "efficiency": 0.9999701969627791
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p42",
+       "cap": 1123731473216702.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p14>p42",
+       "model": "source-distance",
+       "lengthM": 2.460228647910596,
+       "efficiency": 0.9999753980161546
       },
       {
        "kind": "power",
@@ -7610,24 +7739,24 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p42",
-       "cap": 2456353335427958,
+       "to": "p43",
+       "cap": 2456729844290557.5,
        "auto": false,
        "ok": true,
-       "routeId": "p14>p42",
+       "routeId": "p14>p43",
        "model": "source-distance",
-       "lengthM": 3.1420089186803715,
-       "efficiency": 0.999968580404419
+       "lengthM": 3.1420265523292445,
+       "efficiency": 0.9999685802280881
       },
       {
        "kind": "power",
        "from": "p14",
        "to": "p15",
-       "cap": 1390154365949195500,
+       "cap": 1390252297603543300,
        "auto": true,
        "ok": true,
        "capacityGroup": "p14>p15",
-       "groupCap": 1390154365949195500,
+       "groupCap": 1390252297603543300,
        "routeId": "p14>p15",
        "model": "source-distance",
        "lengthM": 1.770950309861911,
@@ -7637,11 +7766,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p16",
-       "cap": 1390154365949195500,
+       "cap": 1390252297603543300,
        "auto": true,
        "ok": true,
        "capacityGroup": "p14>p16",
-       "groupCap": 1390154365949195500,
+       "groupCap": 1390252297603543300,
        "routeId": "p14>p16",
        "model": "source-distance",
        "lengthM": 1.770950309861911,
@@ -7677,9 +7806,9 @@ const CRAFT_PRICE_CATALOG={
        "domain": "main"
       },
       {
-       "id": "p42",
-       "port": "p42",
-       "weight": 2456353335427958,
+       "id": "p43",
+       "port": "p43",
+       "weight": 2456729844290557.5,
        "domain": "main"
       }
      ]
@@ -7692,23 +7821,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 23654318826442468,
-       "densityFactor": 20.989135462641528,
+       "densityFactor": 20.990614075959254,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2035703863.7469592,
-       "shaftWattsPerNewton": 1933918670.559611,
-       "wattsPerNewton": 2035703863.7469592,
-       "ratedShaftPowerW": 471659517018477060,
-       "ratedWasteHeatW": 24824185106235656,
+       "profileWattsPerNewton": 2035716201.253955,
+       "shaftWattsPerNewton": 1933930391.191257,
+       "wattsPerNewton": 2035716201.253955,
+       "ratedShaftPowerW": 471692743829773630,
+       "ratedWasteHeatW": 24825933885777584,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9752.632257671099,
+       "conversionMassKg": 9753.26018074665,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 992967404249425400,
-       "sourceInputLimitW": 992967404249425400,
+       "availableInputW": 993037355431102500,
+       "sourceInputLimitW": 993037355431102500,
        "sourceIds": [
         "p14"
        ],
@@ -7719,10 +7848,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 496483702124712700,
+       "ratedInputW": 496518677715551200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 243887979.46813068,
+       "ratedThrustN": 243903682.35498986,
        "effectiveMachineryVolumeM3": 0.0695715259601249,
        "machineryVolumeM3": 0.0695715259601249,
        "machineryShape": "frustum",
@@ -7730,12 +7859,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3045,
        "machineryDiameterM": 0.609,
        "machineryOffsetM": 1.265,
-       "maxInputW": 992967404249425400,
-       "maxRatedInputW": 992967404249425400,
-       "inputDensityWPerM3": 7136306057298119000,
+       "maxInputW": 993037355431102500,
+       "maxRatedInputW": 993037355431102500,
+       "inputDensityWPerM3": 7136808785826146000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 487767320761420000,
-       "cost": 1878.2195613658,
+       "costBasisInputW": 487798725652747100,
+       "cost": 1878.4735127052754,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 14,
@@ -7750,11 +7879,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 5,
-       "machineryModuleIndex": 29,
+       "machineryModuleIndex": 30,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 992967404249425400,
+       "pathCapacityW": 993037355431102500,
        "transmissionRouteIds": [
         "p14>p15"
        ]
@@ -7762,23 +7891,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 23654318826442468,
-       "densityFactor": 20.989135462641528,
+       "densityFactor": 20.990614075959254,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2035703863.7469592,
-       "shaftWattsPerNewton": 1933918670.559611,
-       "wattsPerNewton": 2035703863.7469592,
-       "ratedShaftPowerW": 471659517018477060,
-       "ratedWasteHeatW": 24824185106235656,
+       "profileWattsPerNewton": 2035716201.253955,
+       "shaftWattsPerNewton": 1933930391.191257,
+       "wattsPerNewton": 2035716201.253955,
+       "ratedShaftPowerW": 471692743829773630,
+       "ratedWasteHeatW": 24825933885777584,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9752.632257671099,
+       "conversionMassKg": 9753.26018074665,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 992967404249425400,
-       "sourceInputLimitW": 992967404249425400,
+       "availableInputW": 993037355431102500,
+       "sourceInputLimitW": 993037355431102500,
        "sourceIds": [
         "p14"
        ],
@@ -7789,10 +7918,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 496483702124712700,
+       "ratedInputW": 496518677715551200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 243887979.46813068,
+       "ratedThrustN": 243903682.35498986,
        "effectiveMachineryVolumeM3": 0.0695715259601249,
        "machineryVolumeM3": 0.0695715259601249,
        "machineryShape": "frustum",
@@ -7800,12 +7929,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3045,
        "machineryDiameterM": 0.609,
        "machineryOffsetM": 1.265,
-       "maxInputW": 992967404249425400,
-       "maxRatedInputW": 992967404249425400,
-       "inputDensityWPerM3": 7136306057298119000,
+       "maxInputW": 993037355431102500,
+       "maxRatedInputW": 993037355431102500,
+       "inputDensityWPerM3": 7136808785826146000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 487767320761420000,
-       "cost": 1878.2195613658,
+       "costBasisInputW": 487798725652747100,
+       "cost": 1878.4735127052754,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -7820,11 +7949,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 6,
-       "machineryModuleIndex": 30,
+       "machineryModuleIndex": 31,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 992967404249425400,
+       "pathCapacityW": 993037355431102500,
        "transmissionRouteIds": [
         "p14>p16"
        ]
@@ -7834,23 +7963,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 23654318826442468,
-       "densityFactor": 20.989135462641528,
+       "densityFactor": 20.990614075959254,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2035703863.7469592,
-       "shaftWattsPerNewton": 1933918670.559611,
-       "wattsPerNewton": 2035703863.7469592,
-       "ratedShaftPowerW": 471659517018477060,
-       "ratedWasteHeatW": 24824185106235656,
+       "profileWattsPerNewton": 2035716201.253955,
+       "shaftWattsPerNewton": 1933930391.191257,
+       "wattsPerNewton": 2035716201.253955,
+       "ratedShaftPowerW": 471692743829773630,
+       "ratedWasteHeatW": 24825933885777584,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9752.632257671099,
+       "conversionMassKg": 9753.26018074665,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 992967404249425400,
-       "sourceInputLimitW": 992967404249425400,
+       "availableInputW": 993037355431102500,
+       "sourceInputLimitW": 993037355431102500,
        "sourceIds": [
         "p14"
        ],
@@ -7861,10 +7990,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 496483702124712700,
+       "ratedInputW": 496518677715551200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 243887979.46813068,
+       "ratedThrustN": 243903682.35498986,
        "effectiveMachineryVolumeM3": 0.0695715259601249,
        "machineryVolumeM3": 0.0695715259601249,
        "machineryShape": "frustum",
@@ -7872,12 +8001,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3045,
        "machineryDiameterM": 0.609,
        "machineryOffsetM": 1.265,
-       "maxInputW": 992967404249425400,
-       "maxRatedInputW": 992967404249425400,
-       "inputDensityWPerM3": 7136306057298119000,
+       "maxInputW": 993037355431102500,
+       "maxRatedInputW": 993037355431102500,
+       "inputDensityWPerM3": 7136808785826146000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 487767320761420000,
-       "cost": 1878.2195613658,
+       "costBasisInputW": 487798725652747100,
+       "cost": 1878.4735127052754,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 14,
@@ -7893,7 +8022,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 5,
        "coreModuleIndex": 5,
-       "machineryModuleIndex": 29,
+       "machineryModuleIndex": 30,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 582578512478017950000,
        "shaftCapacityW": 582578512478017950000,
@@ -7902,28 +8031,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 992967404249425400
+       "pathCapacityW": 993037355431102500
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 23654318826442468,
-       "densityFactor": 20.989135462641528,
+       "densityFactor": 20.990614075959254,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2035703863.7469592,
-       "shaftWattsPerNewton": 1933918670.559611,
-       "wattsPerNewton": 2035703863.7469592,
-       "ratedShaftPowerW": 471659517018477060,
-       "ratedWasteHeatW": 24824185106235656,
+       "profileWattsPerNewton": 2035716201.253955,
+       "shaftWattsPerNewton": 1933930391.191257,
+       "wattsPerNewton": 2035716201.253955,
+       "ratedShaftPowerW": 471692743829773630,
+       "ratedWasteHeatW": 24825933885777584,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9752.632257671099,
+       "conversionMassKg": 9753.26018074665,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 992967404249425400,
-       "sourceInputLimitW": 992967404249425400,
+       "availableInputW": 993037355431102500,
+       "sourceInputLimitW": 993037355431102500,
        "sourceIds": [
         "p14"
        ],
@@ -7934,10 +8063,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 496483702124712700,
+       "ratedInputW": 496518677715551200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 243887979.46813068,
+       "ratedThrustN": 243903682.35498986,
        "effectiveMachineryVolumeM3": 0.0695715259601249,
        "machineryVolumeM3": 0.0695715259601249,
        "machineryShape": "frustum",
@@ -7945,12 +8074,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3045,
        "machineryDiameterM": 0.609,
        "machineryOffsetM": 1.265,
-       "maxInputW": 992967404249425400,
-       "maxRatedInputW": 992967404249425400,
-       "inputDensityWPerM3": 7136306057298119000,
+       "maxInputW": 993037355431102500,
+       "maxRatedInputW": 993037355431102500,
+       "inputDensityWPerM3": 7136808785826146000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 487767320761420000,
-       "cost": 1878.2195613658,
+       "costBasisInputW": 487798725652747100,
+       "cost": 1878.4735127052754,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -7966,7 +8095,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 6,
        "coreModuleIndex": 6,
-       "machineryModuleIndex": 30,
+       "machineryModuleIndex": 31,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 582578512478017950000,
        "shaftCapacityW": 582578512478017950000,
@@ -7975,22 +8104,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 992967404249425400
+       "pathCapacityW": 993037355431102500
       }
      ],
-     "massKg": 9752.632257671099,
-     "ratedThrustN": 487767320.7428944,
-     "ratedAccelMps2": 50013.91499810041,
+     "massKg": 9753.26018074665,
+     "ratedThrustN": 487798725.9604371,
+     "ratedAccelMps2": 50013.915031547345,
      "structuralAccelerationLimitMps2": 452325.1607968794,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 50013.91499810041,
+     "accelerationLimitMps2": 50013.915031547345,
      "conversionModelVersion": 1,
-     "conversionMassKg": 9752.632257671099,
+     "conversionMassKg": 9753.26018074665,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[992967404249425400,[[\"main\",992967404249425400,[[4,992967404249425400]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.18960601498739754,1]]]"
+     "sourceBudgetKey": "[993037355431102500,[[\"main\",993037355431102500,[[4,993037355431102500]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.18961937208728288,1]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 2476.9166247,
+    "maxSpeed": 2476.915457492309,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -8033,7 +8162,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         5,
-        29
+        30
        ],
        "pc": [],
        "sec": 1,
@@ -8048,7 +8177,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         6,
-        30
+        31
        ],
        "pc": [],
        "sec": 1,
@@ -8102,7 +8231,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.0106316,
+       "sh": 0.0106309,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8346,10 +8475,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p14>p42",
+       "n": "送電損失 p14>p42",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p42"
+      },
+      {
+       "k": "feed",
        "id": "feed:p14>p18",
        "n": "送電損失 p14>p18",
        "g": "high",
-       "sh": 0.360242,
+       "sh": 0.360243,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -8362,7 +8504,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p19",
        "n": "送電損失 p14>p19",
        "g": "high",
-       "sh": 0.360242,
+       "sh": 0.360243,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -8375,7 +8517,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f25",
        "n": "送電損失 p14>f25",
        "g": "high",
-       "sh": 0.00000433135,
+       "sh": 0.00000433104,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8388,7 +8530,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f26",
        "n": "送電損失 p14>f26",
        "g": "high",
-       "sh": 0.00000433135,
+       "sh": 0.00000433104,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8401,7 +8543,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f27",
        "n": "送電損失 p14>f27",
        "g": "high",
-       "sh": 0.0000732136,
+       "sh": 0.0000732084,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -8414,7 +8556,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f28",
        "n": "送電損失 p14>f28",
        "g": "high",
-       "sh": 0.0000732136,
+       "sh": 0.0000732084,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -8427,7 +8569,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p24",
        "n": "送電損失 p14>p24",
        "g": "high",
-       "sh": 0.00339913,
+       "sh": 0.00339889,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -8437,16 +8579,16 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p14>p42",
-       "n": "送電損失 p14>p42",
+       "id": "feed:p14>p43",
+       "n": "送電損失 p14>p43",
        "g": "high",
-       "sh": 0.00240406,
+       "sh": 0.00240427,
        "m": [],
        "pc": [],
        "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p14>p42"
+       "routeId": "p14>p43"
       },
       {
        "k": "feed",
@@ -8488,15 +8630,15 @@ const CRAFT_PRICE_CATALOG={
        "power": 2761367317104560.5
       },
       {
-       "id": "p42",
-       "n": "機体内高エネルギー散逸装置 1 #42",
+       "id": "p43",
+       "n": "機体内高エネルギー散逸装置 1 #43",
        "k": "hdis",
        "g": "high",
-       "cap": 163756889028530530,
-       "m": 28,
+       "cap": 163781989619370500,
+       "m": 29,
        "sec": 4,
        "src": -1,
-       "power": 2456353335427958
+       "power": 2456729844290557.5
       },
       {
        "id": "skin",
@@ -8513,85 +8655,85 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 35314057650816916,
+       "cap": 35313997160809148,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 31413351914744464,
+       "cap": 31418113124160930,
        "sec": 3
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 260352836687396000,
+       "cap": 260352635696173760,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 231594889540368900,
+       "cap": 231630209495333760,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 7567164056130264,
+       "cap": 7567151094215298,
        "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 6731313343889447,
+       "cap": 6732333584982000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 7567164056130264,
+       "cap": 7567151094215298,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 6731313343889447,
+       "cap": 6732333584982000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 1804304955201.6729,
+       "cap": 1804174766593.5552,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 1605005776444.8442,
+       "cap": 1605135965052.9622,
        "sec": 3
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 25874354042088.996,
+       "cap": 25872487092641.8,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 23016335226264.492,
+       "cap": 23018202175711.69,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 35396976643032228,
+       "cap": 35397541406326130,
        "sec": 4
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 35396976643032228,
+       "cap": 35397541406326130,
        "sec": 4
       },
       {
@@ -8603,349 +8745,361 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 0,
-       "cap": 347852732812.3266,
+       "cap": 347833183328.67596,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 309429757927.75867,
+       "cap": 309459794437.6951,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 14542488685.749172,
+       "cap": 13849210848.755447,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 12936160418.570894,
+       "cap": 12321348703.324913,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 24916973063.900772,
+       "cap": 23729116874.80846,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 22164704244.58337,
+       "cap": 21111291222.975395,
        "sec": 4
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 24916973063.900772,
+       "cap": 23729116874.80846,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 22164704244.58337,
+       "cap": 21111291222.975395,
        "sec": 4
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 24378630013.144512,
+       "cap": 23216438021.828384,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 21685825270.338043,
+       "cap": 20655171737.9467,
        "sec": 4
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 31397531789.85895,
+       "cap": 29900730699.166286,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 27929436065.42478,
+       "cap": 26602044943.358456,
        "sec": 4
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 26361496398.18157,
+       "cap": 25104776066.622467,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 23449669011.235527,
+       "cap": 22335185983.79476,
        "sec": 4
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 11835820666.408516,
+       "cap": 11271576655.08642,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 10528464428.247179,
+       "cap": 10028082316.04452,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 26258726767.323063,
+       "cap": 25006905728.37679,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 23358251066.228233,
+       "cap": 22248112822.846695,
        "sec": 4
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 24490865482.13143,
+       "cap": 23635073510.623272,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 21785663479.79741,
+       "cap": 21027622839.555298,
        "sec": 4
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 26285233675.51199,
+       "cap": 23384171682.2897,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 23381830085.194107,
+       "cap": 20804400812.613773,
        "sec": 4
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 26285233675.51199,
+       "cap": 25032148984.080116,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 23381830085.194107,
+       "cap": 22270571211.22164,
        "sec": 4
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 27437468762.118168,
+       "cap": 25032148984.080116,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 24406792059.88349,
+       "cap": 22270571211.22164,
        "sec": 4
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 25107867102.8523,
+       "cap": 26129454060.71259,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 22334512587.8586,
+       "cap": 23246820228.64002,
        "sec": 4
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 22592460899.65247,
+       "cap": 23910910503.969128,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 20096952094.217068,
+       "cap": 21273029153.12849,
        "sec": 4
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 22666924975.969486,
+       "cap": 21515420183.76557,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 20163191048.049065,
+       "cap": 19141812300.919193,
        "sec": 4
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 24676305512.484596,
+       "cap": 21586334366.05287,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 21950620251.12528,
+       "cap": 19204903142.5213,
        "sec": 4
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 27866991961.415855,
+       "cap": 26538500784.423294,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 24788871161.313885,
+       "cap": 23610740409.64045,
        "sec": 4
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 27915155737.36271,
+       "cap": 26584368469.299946,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 24831714882.596825,
+       "cap": 23651547914.541004,
        "sec": 4
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 598648456584059.4,
+       "cap": 21945018515.16673,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 532523190221915.8,
+       "cap": 19524016810.718815,
        "sec": 4
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 598648456584059.4,
+       "cap": 598605261441747.1,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 532523190221915.8,
+       "cap": 532566385364228.06,
        "sec": 4
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 2031932101.4115982,
+       "cap": 598605261441747.1,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 1807489776.4412582,
-       "sec": 3
+       "cap": 532566385364228.06,
+       "sec": 4
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2031932101.4115982,
+       "cap": 2031785488.4949126,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 1807489776.4412582,
+       "cap": 1807636389.3579443,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 34345968484.457813,
+       "cap": 2031785488.4949126,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 30552195545.561646,
-       "sec": 4
-      },
-      {
-       "s": 31,
-       "d": 0,
-       "cap": 34345968484.457813,
-       "sec": 4
-      },
-      {
-       "s": 31,
-       "d": 1,
-       "cap": 30552195545.561646,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 0,
-       "cap": 86625873949.28165,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 1,
-       "cap": 77057388595.73192,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 0,
-       "cap": 61266919468.1086,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 1,
-       "cap": 54499523136.48903,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 0,
-       "cap": 19543402366032.047,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 1,
-       "cap": 17384685220997.607,
+       "cap": 1807636389.3579443,
        "sec": 3
       },
       {
+       "s": 31,
+       "d": 0,
+       "cap": 34343490270.440525,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 1,
+       "cap": 30554673759.57894,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 0,
+       "cap": 34343490270.440525,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 1,
+       "cap": 30554673759.57894,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 0,
+       "cap": 86619623508.12206,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 1,
+       "cap": 77063639036.89151,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 0,
+       "cap": 61272232945.47904,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 1,
+       "cap": 54512604089.672295,
+       "sec": 4
+      },
+      {
        "s": 35,
        "d": 0,
-       "cap": 19543402366032.047,
+       "cap": 19543368889829.1,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 17384685220997.607,
+       "cap": 17387320155569.416,
+       "sec": 3
+      },
+      {
+       "s": 36,
+       "d": 0,
+       "cap": 19543368889829.1,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 1,
+       "cap": 17387320155569.416,
        "sec": 3
       }
      ]
@@ -8960,7 +9114,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 123.84583123499999,
+    "mglt": 123.84577287461545,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -9024,7 +9178,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1sjknnt",
+   "signature": "10ud89e",
    "build": 201851,
    "crew": 2000,
    "total": 203851,
@@ -9052,6 +9206,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
+    "navDemand": 1.1628172115581585,
     "navReady": true,
     "targetDemand": 6,
     "targetCapacity": 7.44775,
@@ -9069,8 +9224,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 4.267973199418434e-14,
-    "upS": 4.267973199418434e-14,
+    "up": 4.2680088661241876e-14,
+    "upS": 4.2680088661241876e-14,
     "down": 0.01,
     "T": 0
    },
@@ -9221,7 +9376,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.22,
       "z": 0,
       "r": 0.021,
-      "share": 0.5208917288102506,
+      "share": 0.5180818652437471,
       "domain": "main",
       "port": "p9",
       "powerConnected": true
@@ -9238,7 +9393,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.47,
       "z": 0,
       "r": 0.013,
-      "share": 0.10487607731579779,
+      "share": 0.10431034080598499,
       "domain": "main",
       "port": "p10",
       "powerConnected": true
@@ -9246,16 +9401,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 0.31802261125807935,
+      "w": 0.31802067347739565,
       "hits": 1,
-      "crew": 0.00008972254458351159,
-      "size": 0.17944508916702318,
+      "crew": 0.00008972172421467767,
+      "size": 0.17944344842935533,
       "at": 0.141,
       "part": 11,
       "y": -0.05,
       "z": 0.8,
       "r": 0.012,
-      "share": 0.29658258746948735,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -9263,16 +9418,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 0.31802261125807935,
+      "w": 0.31802067347739565,
       "hits": 1,
-      "crew": 0.00008972254458351159,
-      "size": 0.17944508916702318,
+      "crew": 0.00008972172421467767,
+      "size": 0.17944344842935533,
       "at": 0.141,
       "part": 12,
       "y": -0.05,
       "z": -0.8,
       "r": 0.012,
-      "share": 0.29658258746948735,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -9314,16 +9469,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "主反応炉",
-      "w": 0.3926205077260239,
+      "w": 0.3926181154041921,
       "hits": 1,
-      "crew": 0.00012307619284432318,
-      "size": 0.24615238568864636,
+      "crew": 0.00012307506750984585,
+      "size": 0.2461501350196917,
       "at": 0.469,
       "part": 15,
       "y": 0.06,
       "z": 0,
       "r": 0.013,
-      "share": 0.40683482506102525,
+      "share": 0.4068348250610251,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -9331,7 +9486,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "shield",
       "name": "チェンパット偏向シールド発生器",
-      "w": 0.7159476927320382,
+      "w": 0.7159476944435316,
       "hits": 1,
       "crew": 0.0002424524130407923,
       "size": 0.6061310326019808,
@@ -9348,7 +9503,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hyper",
       "name": "ハイパードライブ",
-      "w": 0.5389112205367016,
+      "w": 0.5389112218249842,
       "hits": 1,
       "crew": 0.00011875220230569416,
       "size": 0.3958406743523139,
@@ -9365,7 +9520,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "fuel",
       "name": "反応物タンク",
-      "w": 0.5288846003441744,
+      "w": 0.5288846016084882,
       "hits": 1,
       "crew": 0.00007696902001294993,
       "size": 0.38484510006474965,
@@ -9408,7 +9563,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.012,
-      "share": 0.08320932832706468,
+      "share": 0.08276046948149715,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -9425,7 +9580,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.19,
       "z": 0,
       "r": 0.01,
-      "share": 0.05288254819163195,
+      "share": 0.0525972821041728,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -9442,7 +9597,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.32,
       "z": 0.01,
       "r": 0.006,
-      "share": 0.012422608360822858,
+      "share": 0.012355596671630277,
       "domain": "main",
       "port": "p28",
       "powerConnected": true
@@ -9459,9 +9614,26 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.19,
       "z": -0.01,
       "r": 0.006,
-      "share": 0.012422608360822858,
+      "share": 0.012355596671630277,
       "domain": "main",
       "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0.0000021296000000000003,
+      "size": 0.010648,
+      "at": 0.853,
+      "part": 30,
+      "y": 0.19,
+      "z": 0,
+      "r": 0.005,
+      "share": 0.005394333238735463,
+      "domain": "main",
+      "port": "p30",
       "powerConnected": true
      },
      {
@@ -9471,14 +9643,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.853,
-      "part": 30,
-      "y": 0.19,
+      "at": 0.866,
+      "part": 31,
+      "y": 0,
       "z": 0,
       "r": 0.005,
-      "share": 0.005423589889952101,
+      "share": 0.005394333238735463,
       "domain": "main",
-      "port": "p30",
+      "port": "p31",
       "powerConnected": true
      },
      {
@@ -9489,13 +9661,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.029791,
       "at": 0.866,
-      "part": 31,
-      "y": -0.08,
-      "z": 0,
+      "part": 32,
+      "y": 0.19,
+      "z": -0.09,
       "r": 0.007,
-      "share": 0.015174132833542736,
+      "share": 0.01509227850442977,
       "domain": "main",
-      "port": "p31",
+      "port": "p32",
       "powerConnected": true
      },
      {
@@ -9506,13 +9678,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.017576,
       "at": 0.866,
-      "part": 32,
+      "part": 33,
       "y": 0.19,
-      "z": -0.07,
+      "z": 0.07,
       "r": 0.006,
-      "share": 0.008952386918275558,
+      "share": 0.008904094759956283,
       "domain": "main",
-      "port": "p32",
+      "port": "p33",
       "powerConnected": true
      },
      {
@@ -9522,14 +9694,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.017576,
-      "at": 0.866,
-      "part": 33,
+      "at": 0.881,
+      "part": 34,
       "y": 0.19,
-      "z": 0.07,
+      "z": 0,
       "r": 0.006,
-      "share": 0.008952386918275558,
+      "share": 0.008904094759956283,
       "domain": "main",
-      "port": "p33",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -9539,14 +9711,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.017576,
-      "at": 0.881,
-      "part": 34,
-      "y": 0.19,
+      "at": 0.85,
+      "part": 35,
+      "y": 0.08,
       "z": 0,
       "r": 0.006,
-      "share": 0.008952386918275558,
+      "share": 0.008904094759956283,
       "domain": "main",
-      "port": "p34",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -9557,13 +9729,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.017576,
       "at": 0.85,
-      "part": 35,
-      "y": 0.08,
-      "z": 0,
+      "part": 36,
+      "y": 0.19,
+      "z": -0.04,
       "r": 0.006,
-      "share": 0.008952386918275558,
+      "share": 0.008904094759956283,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -9574,13 +9746,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.845,
-      "part": 36,
+      "part": 37,
       "y": 0.19,
-      "z": -0.05,
+      "z": 0.05,
       "r": 0.007,
-      "share": 0.02183850643610972,
+      "share": 0.021720702254957074,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -9590,14 +9762,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.845,
-      "part": 37,
-      "y": 0.19,
-      "z": 0.05,
+      "at": 0.855,
+      "part": 38,
+      "y": -0.11,
+      "z": 0,
       "r": 0.007,
-      "share": 0.02183850643610972,
+      "share": 0.021720702254957074,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -9608,13 +9780,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.07408799999999999,
       "at": 0.866,
-      "part": 38,
+      "part": 39,
       "y": 0.01,
       "z": -0.12,
       "r": 0.009,
-      "share": 0.0377369391215976,
+      "share": 0.037533373496565825,
       "domain": "main",
-      "port": "p38",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -9625,13 +9797,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.07408799999999999,
       "at": 0.866,
-      "part": 39,
+      "part": 40,
       "y": 0.01,
       "z": 0.12,
       "r": 0.009,
-      "share": 0.0377369391215976,
+      "share": 0.037533373496565825,
       "domain": "main",
-      "port": "p39",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -9642,13 +9814,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.07408799999999999,
       "at": 0.891,
-      "part": 40,
+      "part": 41,
       "y": 0.01,
       "z": 0,
       "r": 0.009,
-      "share": 0.0377369391215976,
+      "share": 0.037533373496565825,
       "domain": "main",
-      "port": "p40",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -9734,7 +9906,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.06,
       "z": 0,
       "r": 0.064,
-      "share": 0.19131352206787408,
+      "share": 0.19133034379671152,
       "domain": "main"
      },
      {
@@ -9743,12 +9915,12 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.3234596268575856,
       "hits": 1,
       "crew": 0,
-      "size": 60.96292651808877,
+      "size": 60.96292651808878,
       "at": 0.395,
       "y": -0.03,
       "z": 0,
       "r": 0.084,
-      "share": 0.4257956743449973,
+      "share": 0.4258331135144641,
       "domain": "main"
      },
      {
@@ -9762,27 +9934,27 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.076,
-      "share": 0.32011605415860733,
+      "share": 0.32014420117822917,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.6484218271112093,
+      "w": 0.6478162498186093,
       "hits": 1,
       "crew": 0,
-      "size": 8.98772032498769,
-      "at": 0.82,
+      "size": 8.97513248139527,
+      "at": 0.819,
       "y": 0.12,
       "z": 0,
       "r": 0.044,
-      "share": 0.06277474942852118,
+      "share": 0.06269234151059527,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 24.438377943351018,
+      "w": 24.467050838803996,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -9794,7 +9966,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0004640232062117124,
+    "D": 0.00046401879534294197,
     "shieldBuffer": 0.08471702163444517,
     "wCap": 0,
     "fuel": {
@@ -9802,8 +9974,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.38484510006474965,
      "massKg": 96.21127501618741,
-     "capacityJ": 4.618141200776996e+24,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 4.7201566344414405e+22,
+     "specificEnergyJPerKg": 490603272188969600000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 2,
@@ -9818,16 +9990,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 3168610153522620400,
+     "P": 3168581181662438400,
      "fixed": 78501605106228670,
      "cooling": 21809721660215256,
-     "De": 3168610153522620400,
-     "Ds": 1941473094789804800,
+     "De": 3168581181662438000,
+     "Ds": 1941454639714869200,
      "Dw": 3278933333333333.5,
      "domains": [
       {
        "id": "main",
-       "P": 3168610153522620400,
+       "P": 3168581181662438400,
        "reactors": [
         8,
         9,
@@ -9836,15 +10008,15 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 8,
-         "P": 939754598013828400
+         "P": 939746005464571900
         },
         {
          "moduleIndex": 9,
-         "P": 939754598013828400
+         "P": 939746005464571900
         },
         {
          "moduleIndex": 12,
-         "P": 1289100957494963500
+         "P": 1289089170733294300
         }
        ],
        "modules": [
@@ -9888,7 +10060,8 @@ const CRAFT_PRICE_CATALOG={
         37,
         38,
         39,
-        40
+        40,
+        41
        ],
        "protection": 1
       }
@@ -9934,7 +10107,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p9",
-       "cap": 4009456984793442,
+       "cap": 3818736202737894.5,
        "auto": true,
        "ok": true,
        "routeId": "p15>p9",
@@ -9946,7 +10119,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p10",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p10",
@@ -9958,7 +10131,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p17",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p17",
@@ -9970,7 +10143,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p18",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p18",
@@ -9982,7 +10155,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p20",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p20",
@@ -9994,7 +10167,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p27",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p27",
@@ -10006,7 +10179,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p28",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p28",
@@ -10018,7 +10191,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p29",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p29",
@@ -10030,7 +10203,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p30",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p30",
@@ -10042,31 +10215,31 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p31",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p31",
        "model": "source-distance",
-       "lengthM": 9.302943405180965,
-       "efficiency": 0.9999069748930518
+       "lengthM": 9.300627075633129,
+       "efficiency": 0.9999069980541928
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p32",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p32",
        "model": "source-distance",
-       "lengthM": 9.309269359085064,
-       "efficiency": 0.9999069116393995
+       "lengthM": 9.312269111231698,
+       "efficiency": 0.9999068816446709
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p33",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p33",
@@ -10078,7 +10251,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p34",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p34",
@@ -10090,7 +10263,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p35",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p35",
@@ -10102,19 +10275,19 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p36",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p36",
        "model": "source-distance",
-       "lengthM": 8.815674959978956,
-       "efficiency": 0.9999118471360923
+       "lengthM": 8.940090603567729,
+       "efficiency": 0.9999106030901063
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p37",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p37",
@@ -10126,19 +10299,19 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p38",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p38",
        "model": "source-distance",
-       "lengthM": 9.319043942379498,
-       "efficiency": 0.9999068139026703
+       "lengthM": 9.05964265299686,
+       "efficiency": 0.9999094076772024
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p39",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p39",
@@ -10150,10 +10323,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p40",
-       "cap": 3920639374812380.5,
+       "cap": 3734143445174539,
        "auto": true,
        "ok": true,
        "routeId": "p15>p40",
+       "model": "source-distance",
+       "lengthM": 9.319043942379498,
+       "efficiency": 0.9999068139026703
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p41",
+       "cap": 3734143445174539,
+       "auto": true,
+       "ok": true,
+       "routeId": "p15>p41",
        "model": "source-distance",
        "lengthM": 9.888446794112816,
        "efficiency": 0.9999011204209667
@@ -10450,11 +10635,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p11",
        "to": "p13",
-       "cap": 1315656437219359500,
+       "cap": 1315644407650400500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p11>p13",
-       "groupCap": 4436054214931668500,
+       "groupCap": 4436013654327413000,
        "routeId": "p11>p13",
        "model": "source-distance",
        "lengthM": 0.552,
@@ -10464,11 +10649,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p11",
        "to": "p14",
-       "cap": 1315656437219359500,
+       "cap": 1315644407650400500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p11>p14",
-       "groupCap": 4436054214931668500,
+       "groupCap": 4436013654327413000,
        "routeId": "p11>p14",
        "model": "source-distance",
        "lengthM": 8.016028505438339,
@@ -10478,11 +10663,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p13",
-       "cap": 1315656437219359500,
+       "cap": 1315644407650400500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p12>p13",
-       "groupCap": 4436054214931668500,
+       "groupCap": 4436013654327413000,
        "routeId": "p12>p13",
        "model": "source-distance",
        "lengthM": 8.016028505438339,
@@ -10492,11 +10677,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p14",
-       "cap": 1315656437219359500,
+       "cap": 1315644407650400500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p12>p14",
-       "groupCap": 4436054214931668500,
+       "groupCap": 4436013654327413000,
        "routeId": "p12>p14",
        "model": "source-distance",
        "lengthM": 0.552,
@@ -10506,11 +10691,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p13",
-       "cap": 1804741340492948700,
+       "cap": 1804724839026612000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p13",
-       "groupCap": 4436054214931668500,
+       "groupCap": 4436013654327413000,
        "routeId": "p15>p13",
        "model": "source-distance",
        "lengthM": 9.171684496318003,
@@ -10520,11 +10705,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p14",
-       "cap": 1804741340492948700,
+       "cap": 1804724839026612000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p14",
-       "groupCap": 4436054214931668500,
+       "groupCap": 4436013654327413000,
        "routeId": "p15>p14",
        "model": "source-distance",
        "lengthM": 9.171684496318003,
@@ -10569,23 +10754,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 11.977508447743329,
+       "densityFactor": 11.977398932629994,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2354479484.687908,
-       "shaftWattsPerNewton": 2236755510.4535127,
-       "wattsPerNewton": 2354479484.687908,
-       "ratedShaftPowerW": 1505089822923244500,
-       "ratedWasteHeatW": 79215253838065580,
+       "profileWattsPerNewton": 2354477632.542322,
+       "shaftWattsPerNewton": 2236753750.915206,
+       "wattsPerNewton": 2354477632.542322,
+       "ratedShaftPowerW": 1505076061289657900,
+       "ratedWasteHeatW": 79214529541561020,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 45740.902306886346,
+       "conversionMassKg": 45740.52006135812,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 3168610153522620400,
-       "sourceInputLimitW": 3168610153522620400,
+       "availableInputW": 3168581181662438400,
+       "sourceInputLimitW": 3168581181662438400,
        "sourceIds": [
         "p11",
         "p12",
@@ -10598,10 +10783,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1584305076761310200,
+       "ratedInputW": 1584290590831219000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 672889735.1047906,
+       "ratedThrustN": 672884111.9295454,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10609,12 +10794,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 3168610153522620400,
-       "maxRatedInputW": 3168610153522620400,
-       "inputDensityWPerM3": 4072352872232732000,
+       "maxInputW": 3168581181662438400,
+       "maxRatedInputW": 3168581181662438400,
+       "inputDensityWPerM3": 4072315637094198000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1345695058823481600,
-       "cost": 2301.1861249915682,
+       "costBasisInputW": 1345683813179153000,
+       "cost": 2301.1435676045567,
        "powerNode": "p13",
        "heatNode": "p13",
        "reactorId": 11,
@@ -10629,11 +10814,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 33,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 3168610153522620400,
+       "pathCapacityW": 3168581181662438400,
        "transmissionRouteIds": [
         "p11>p13",
         "p12>p13",
@@ -10643,23 +10828,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 11.977508447743329,
+       "densityFactor": 11.977398932629994,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2354479484.687908,
-       "shaftWattsPerNewton": 2236755510.4535127,
-       "wattsPerNewton": 2354479484.687908,
-       "ratedShaftPowerW": 1505089822923244500,
-       "ratedWasteHeatW": 79215253838065580,
+       "profileWattsPerNewton": 2354477632.542322,
+       "shaftWattsPerNewton": 2236753750.915206,
+       "wattsPerNewton": 2354477632.542322,
+       "ratedShaftPowerW": 1505076061289657900,
+       "ratedWasteHeatW": 79214529541561020,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 45740.902306886346,
+       "conversionMassKg": 45740.52006135812,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 3168610153522620400,
-       "sourceInputLimitW": 3168610153522620400,
+       "availableInputW": 3168581181662438400,
+       "sourceInputLimitW": 3168581181662438400,
        "sourceIds": [
         "p11",
         "p12",
@@ -10672,10 +10857,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1584305076761310200,
+       "ratedInputW": 1584290590831219000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 672889735.1047906,
+       "ratedThrustN": 672884111.9295454,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10683,12 +10868,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 3168610153522620400,
-       "maxRatedInputW": 3168610153522620400,
-       "inputDensityWPerM3": 4072352872232732000,
+       "maxInputW": 3168581181662438400,
+       "maxRatedInputW": 3168581181662438400,
+       "inputDensityWPerM3": 4072315637094198000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1345695058823481600,
-       "cost": 2301.1861249915682,
+       "costBasisInputW": 1345683813179153000,
+       "cost": 2301.1435676045567,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -10703,11 +10888,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 11,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 34,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 3168610153522620400,
+       "pathCapacityW": 3168581181662438400,
        "transmissionRouteIds": [
         "p11>p14",
         "p12>p14",
@@ -10719,23 +10904,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 11.977508447743329,
+       "densityFactor": 11.977398932629994,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2354479484.687908,
-       "shaftWattsPerNewton": 2236755510.4535127,
-       "wattsPerNewton": 2354479484.687908,
-       "ratedShaftPowerW": 1505089822923244500,
-       "ratedWasteHeatW": 79215253838065580,
+       "profileWattsPerNewton": 2354477632.542322,
+       "shaftWattsPerNewton": 2236753750.915206,
+       "wattsPerNewton": 2354477632.542322,
+       "ratedShaftPowerW": 1505076061289657900,
+       "ratedWasteHeatW": 79214529541561020,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 45740.902306886346,
+       "conversionMassKg": 45740.52006135812,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 3168610153522620400,
-       "sourceInputLimitW": 3168610153522620400,
+       "availableInputW": 3168581181662438400,
+       "sourceInputLimitW": 3168581181662438400,
        "sourceIds": [
         "p11",
         "p12",
@@ -10748,10 +10933,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1584305076761310200,
+       "ratedInputW": 1584290590831219000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 672889735.1047906,
+       "ratedThrustN": 672884111.9295454,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10759,12 +10944,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 3168610153522620400,
-       "maxRatedInputW": 3168610153522620400,
-       "inputDensityWPerM3": 4072352872232732000,
+       "maxInputW": 3168581181662438400,
+       "maxRatedInputW": 3168581181662438400,
+       "inputDensityWPerM3": 4072315637094198000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1345695058823481600,
-       "cost": 2301.1861249915682,
+       "costBasisInputW": 1345683813179153000,
+       "cost": 2301.1435676045567,
        "powerNode": "p13",
        "heatNode": "p13",
        "reactorId": 11,
@@ -10780,7 +10965,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 10,
        "coreModuleIndex": 10,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 33,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 1.9704069123315178e+21,
        "shaftCapacityW": 1.9704069123315178e+21,
@@ -10789,28 +10974,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 3168610153522620400
+       "pathCapacityW": 3168581181662438400
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 11.977508447743329,
+       "densityFactor": 11.977398932629994,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2354479484.687908,
-       "shaftWattsPerNewton": 2236755510.4535127,
-       "wattsPerNewton": 2354479484.687908,
-       "ratedShaftPowerW": 1505089822923244500,
-       "ratedWasteHeatW": 79215253838065580,
+       "profileWattsPerNewton": 2354477632.542322,
+       "shaftWattsPerNewton": 2236753750.915206,
+       "wattsPerNewton": 2354477632.542322,
+       "ratedShaftPowerW": 1505076061289657900,
+       "ratedWasteHeatW": 79214529541561020,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 45740.902306886346,
+       "conversionMassKg": 45740.52006135812,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 3168610153522620400,
-       "sourceInputLimitW": 3168610153522620400,
+       "availableInputW": 3168581181662438400,
+       "sourceInputLimitW": 3168581181662438400,
        "sourceIds": [
         "p11",
         "p12",
@@ -10823,10 +11008,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1584305076761310200,
+       "ratedInputW": 1584290590831219000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 672889735.1047906,
+       "ratedThrustN": 672884111.9295454,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10834,12 +11019,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 3168610153522620400,
-       "maxRatedInputW": 3168610153522620400,
-       "inputDensityWPerM3": 4072352872232732000,
+       "maxInputW": 3168581181662438400,
+       "maxRatedInputW": 3168581181662438400,
+       "inputDensityWPerM3": 4072315637094198000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1345695058823481600,
-       "cost": 2301.1861249915682,
+       "costBasisInputW": 1345683813179153000,
+       "cost": 2301.1435676045567,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -10855,7 +11040,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 11,
        "coreModuleIndex": 11,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 34,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 1.9704069123315178e+21,
        "shaftCapacityW": 1.9704069123315178e+21,
@@ -10864,22 +11049,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 3168610153522620400
+       "pathCapacityW": 3168581181662438400
       }
      ],
-     "massKg": 45740.902306886346,
-     "ratedThrustN": 1345695058.8234746,
-     "ratedAccelMps2": 29419.949999999862,
+     "massKg": 45740.52006135812,
+     "ratedThrustN": 1345683813.17839,
+     "ratedAccelMps2": 29419.949999983324,
      "structuralAccelerationLimitMps2": 184308.36109363998,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 29419.949999999862,
+     "accelerationLimitMps2": 29419.949999983324,
      "conversionModelVersion": 1,
-     "conversionMassKg": 45740.902306886346,
+     "conversionMassKg": 45740.52006135812,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[3168610153522620400,[[\"main\",3168610153522620400,[[8,939754598013828400],[9,939754598013828400],[12,1289100957494963500]]]],[[8,\"reactor\",11,\"p11\",\"main\",0.17944508916702318,0.29658258746948735],[9,\"reactor\",12,\"p12\",\"main\",0.17944508916702318,0.29658258746948735],[12,\"reactor\",15,\"p15\",\"main\",0.24615238568864636,0.40683482506102525]]]"
+     "sourceBudgetKey": "[3168581181662438400,[[\"main\",3168581181662438400,[[8,939746005464571900],[9,939746005464571900],[12,1289089170733294300]]]],[[8,\"reactor\",11,\"p11\",\"main\",0.17944344842935533,0.2965825874694874],[9,\"reactor\",12,\"p12\",\"main\",0.17944344842935533,0.2965825874694874],[12,\"reactor\",15,\"p15\",\"main\",0.2461501350196917,0.4068348250610251]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1394.0080887130473,
+    "maxSpeed": 1394.0080902933187,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -10949,7 +11134,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         10,
-        32
+        33
        ],
        "pc": [],
        "sec": 0,
@@ -10964,7 +11149,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         11,
-        33
+        34
        ],
        "pc": [],
        "sec": 0,
@@ -11020,7 +11205,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>hotel",
        "n": "送電損失 p15>hotel",
        "g": "high",
-       "sh": 0.00169495,
+       "sh": 0.00169497,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11033,7 +11218,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p3",
        "n": "送電損失 p15>p3",
        "g": "high",
-       "sh": 0.0000917245,
+       "sh": 0.0000917253,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11046,7 +11231,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p4",
        "n": "送電損失 p15>p4",
        "g": "high",
-       "sh": 0.0000917245,
+       "sh": 0.0000917253,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11303,6 +11488,19 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p15>p41",
+       "n": "送電損失 p15>p41",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p41"
+      },
+      {
+       "k": "feed",
        "id": "feed:p11>p16",
        "n": "送電損失 p11>p16",
        "g": "high",
@@ -11319,7 +11517,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>f21",
        "n": "送電損失 p11>f21",
        "g": "high",
-       "sh": 0.0000411286,
+       "sh": 0.000041129,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11332,7 +11530,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>f22",
        "n": "送電損失 p11>f22",
        "g": "high",
-       "sh": 0.0000415862,
+       "sh": 0.0000415866,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11345,7 +11543,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>f23",
        "n": "送電損失 p11>f23",
        "g": "high",
-       "sh": 0.0000646585,
+       "sh": 0.0000646591,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11358,7 +11556,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>f24",
        "n": "送電損失 p11>f24",
        "g": "high",
-       "sh": 0.000439227,
+       "sh": 0.000439231,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11371,7 +11569,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>f25",
        "n": "送電損失 p11>f25",
        "g": "high",
-       "sh": 0.000443549,
+       "sh": 0.000443553,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11384,7 +11582,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>f26",
        "n": "送電損失 p11>f26",
        "g": "high",
-       "sh": 0.000269274,
+       "sh": 0.000269276,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -11488,7 +11686,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p16",
        "n": "送電損失 p15>p16",
        "g": "high",
-       "sh": 0.0385388,
+       "sh": 0.0385387,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11501,7 +11699,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f21",
        "n": "送電損失 p15>f21",
        "g": "high",
-       "sh": 0.0000190965,
+       "sh": 0.0000190967,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11514,7 +11712,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f22",
        "n": "送電損失 p15>f22",
        "g": "high",
-       "sh": 0.0000190965,
+       "sh": 0.0000190967,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11527,7 +11725,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f23",
        "n": "送電損失 p15>f23",
        "g": "high",
-       "sh": 0.0000233987,
+       "sh": 0.0000233989,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11540,7 +11738,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f24",
        "n": "送電損失 p15>f24",
        "g": "high",
-       "sh": 0.000149925,
+       "sh": 0.000149926,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11553,7 +11751,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f25",
        "n": "送電損失 p15>f25",
        "g": "high",
-       "sh": 0.000149925,
+       "sh": 0.000149926,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11566,7 +11764,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f26",
        "n": "送電損失 p15>f26",
        "g": "high",
-       "sh": 0.000025697,
+       "sh": 0.0000256973,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11579,7 +11777,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>p19",
        "n": "送電損失 p11>p19",
        "g": "high",
-       "sh": 0.00720622,
+       "sh": 0.00720628,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11592,7 +11790,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p19",
        "n": "送電損失 p12>p19",
        "g": "high",
-       "sh": 0.0000010703,
+       "sh": 0.00000107031,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11710,7 +11908,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 108547887067231790,
-       "m": 34,
+       "m": 35,
        "sec": 3,
        "src": -1,
        "power": 1085478870672318
@@ -11721,7 +11919,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 108547887067231790,
-       "m": 35,
+       "m": 36,
        "sec": 3,
        "src": -1,
        "power": 1085478870672318
@@ -11741,109 +11939,109 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 54169325769115896,
+       "cap": 54168830477471850,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 4491091608706672.5,
+       "cap": 4491050544873684,
        "sec": 0
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 4491091608706672.5,
+       "cap": 4491050544873684,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 54169325769115910,
+       "cap": 54168830477471860,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 4491091608706674,
+       "cap": 4491050544873685.5,
        "sec": 0
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 4491091608706674,
+       "cap": 4491050544873685.5,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 74306345362298930,
+       "cap": 74305665949892780,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 6160619490681309,
+       "cap": 6160563161692295,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 6160619490681309,
+       "cap": 6160563161692295,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1345496041931924200,
+       "cap": 1345483517881753000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 111552911129525600,
+       "cap": 111551872780684580,
        "sec": 3
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 111552911129525600,
+       "cap": 111551872780684580,
        "sec": 3
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 39135758753612880,
+       "cap": 39135400919838540,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 3244682765443033,
+       "cap": 3244653098020771.5,
        "sec": 0
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 3244682765443033,
+       "cap": 3244653098020771.5,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 39135758753612880,
+       "cap": 39135400919838540,
        "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 3244682765443033,
+       "cap": 3244653098020771.5,
        "sec": 0
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 3244682765443033,
+       "cap": 3244653098020771.5,
        "sec": 0
       },
       {
@@ -11963,631 +12161,631 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 12,
        "d": 0,
-       "cap": 412886874008.7442,
+       "cap": 393246781145.7764,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 34231786142.389435,
+       "cap": 32603457655.764927,
        "sec": 3
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 34231786142.389435,
+       "cap": 32603457655.764927,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 276926086191.1419,
+       "cap": 263753339874.05496,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 22959496066.574673,
+       "cap": 21867364872.24438,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 22959496066.574673,
+       "cap": 21867364872.24438,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 85755717287.85756,
+       "cap": 81676512166.33978,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 7109868488.149076,
+       "cap": 6771668157.402357,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 7109868488.149076,
+       "cap": 6771668157.402357,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 227011261575.446,
+       "cap": 216212850342.38077,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 18821138300.463676,
+       "cap": 17925859406.225834,
        "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 18821138300.463676,
+       "cap": 17925859406.225834,
        "sec": 3
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 176554299544.63208,
+       "cap": 168156011643.769,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 14637832793.888266,
+       "cap": 13941544261.890827,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 14637832793.888266,
+       "cap": 13941544261.890827,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 469224852679.61945,
+       "cap": 446904889851.1452,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 38902677272.52271,
+       "cap": 37052165080.57003,
        "sec": 3
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 38902677272.52271,
+       "cap": 37052165080.57003,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 374161841680.6211,
+       "cap": 356363810842.2011,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 31021156043.779533,
+       "cap": 29545549954.631874,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 31021156043.779533,
+       "cap": 29545549954.631874,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 373438471371.772,
+       "cap": 355674849619.5556,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 30961182575.80788,
+       "cap": 29488429288.61259,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 30961182575.80788,
+       "cap": 29488429288.61259,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 453692937904.71875,
+       "cap": 432111793061.80304,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 37614951218.66671,
+       "cap": 35825693236.69711,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 37614951218.66671,
+       "cap": 35825693236.69711,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 469264857676.0763,
+       "cap": 446831713236.18695,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 38905994022.387,
+       "cap": 37046098125.20873,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 38905994022.387,
+       "cap": 37046098125.20873,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 469583940525.05457,
+       "cap": 447391007621.49225,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 38932448667.80084,
+       "cap": 37092468322.45555,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 38932448667.80084,
+       "cap": 37092468322.45555,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 469583940525.05457,
+       "cap": 447246896701.58075,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 38932448667.80084,
+       "cap": 37080520318.04627,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 38932448667.80084,
+       "cap": 37080520318.04627,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 487580995424.2951,
+       "cap": 464387872486.34344,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 40424555521.482506,
+       "cap": 38501651030.28937,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 40424555521.482506,
+       "cap": 38501651030.28937,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 450757011619.6596,
+       "cap": 429315522136.37695,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 37371538296.03203,
+       "cap": 35593858915.14069,
        "sec": 3
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 37371538296.03203,
+       "cap": 35593858915.14069,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 444686843073.83954,
+       "cap": 429511168386.219,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 36868270392.42613,
+       "cap": 35610079630.80338,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 36868270392.42613,
+       "cap": 35610079630.80338,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 444686843073.83954,
+       "cap": 423534097751.33936,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 36868270392.42613,
+       "cap": 35114530325.143394,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 36868270392.42613,
+       "cap": 35114530325.143394,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 470076973146.0424,
+       "cap": 435254579357.16693,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 38973325208.82287,
+       "cap": 36086256589.82481,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 38973325208.82287,
+       "cap": 36086256589.82481,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 470076973146.0424,
+       "cap": 447716476878.1578,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 38973325208.82287,
+       "cap": 37119452454.65119,
        "sec": 3
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 38973325208.82287,
+       "cap": 37119452454.65119,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 498797723586.37897,
+       "cap": 447716476878.1578,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 41354516398.98339,
+       "cap": 37119452454.65119,
        "sec": 3
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 41354516398.98339,
+       "cap": 37119452454.65119,
        "sec": 3
       },
       {
        "s": 31,
+       "d": 0,
+       "cap": 475071046310.448,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 1,
+       "cap": 39387375776.43611,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 2,
+       "cap": 39387375776.43611,
+       "sec": 3
+      },
+      {
+       "s": 32,
        "d": 0,
        "cap": 49114477746621320,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 1,
        "cap": 4072002295432330.5,
        "sec": 2
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 2,
        "cap": 4072002295432330.5,
        "sec": 2
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 0,
        "cap": 25694686990.851124,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 1,
        "cap": 2130305140.3078115,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 2,
        "cap": 2130305140.3078115,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 0,
        "cap": 25980515331.009727,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 1,
        "cap": 2154002707.9217825,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 2,
        "cap": 2154002707.9217825,
        "sec": 3
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 0,
        "cap": 40396416935.437325,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 1,
        "cap": 3349201906.145854,
        "sec": 3
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 2,
        "cap": 3349201906.145854,
        "sec": 3
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 0,
        "cap": 274416180127.6396,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 1,
        "cap": 22751403794.788185,
        "sec": 3
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 2,
        "cap": 22751403794.788185,
        "sec": 3
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 0,
        "cap": 277116017299.37537,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 1,
        "cap": 22975242949.04567,
        "sec": 3
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 2,
        "cap": 22975242949.04567,
        "sec": 3
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 0,
        "cap": 168243751295.57855,
        "sec": 3
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 1,
        "cap": 13948818615.196833,
        "sec": 2
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 2,
        "cap": 13948818615.196833,
        "sec": 2
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 0,
        "cap": 49114477746621320,
        "sec": 3
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 1,
        "cap": 4072002295432330.5,
        "sec": 2
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 2,
        "cap": 4072002295432330.5,
        "sec": 2
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 0,
        "cap": 25980515331.009727,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 1,
        "cap": 2154002707.9217825,
        "sec": 3
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 2,
        "cap": 2154002707.9217825,
        "sec": 3
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 0,
        "cap": 25694686990.851124,
        "sec": 4
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 1,
        "cap": 2130305140.3078115,
        "sec": 3
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 2,
        "cap": 2130305140.3078115,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 0,
        "cap": 40396416935.437325,
        "sec": 4
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 1,
        "cap": 3349201906.145854,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 2,
        "cap": 3349201906.145854,
        "sec": 3
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 0,
        "cap": 277116017299.37537,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 1,
        "cap": 22975242949.04567,
        "sec": 3
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 2,
        "cap": 22975242949.04567,
        "sec": 3
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 0,
        "cap": 274416180127.6396,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 1,
        "cap": 22751403794.788185,
        "sec": 3
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 2,
        "cap": 22751403794.788185,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 0,
        "cap": 168243751295.57855,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 1,
-       "cap": 13948818615.196833,
-       "sec": 2
-      },
-      {
-       "s": 44,
-       "d": 2,
        "cap": 13948818615.196833,
        "sec": 2
       },
       {
        "s": 45,
+       "d": 2,
+       "cap": 13948818615.196833,
+       "sec": 2
+      },
+      {
+       "s": 46,
        "d": 0,
        "cap": 10511574633859534,
        "sec": 4
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 1,
        "cap": 871497733489160.4,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 2,
        "cap": 871497733489160.4,
-       "sec": 3
-      },
-      {
-       "s": 46,
-       "d": 0,
-       "cap": 14914132456.322157,
-       "sec": 4
-      },
-      {
-       "s": 46,
-       "d": 1,
-       "cap": 1236506716.2035213,
-       "sec": 3
-      },
-      {
-       "s": 46,
-       "d": 2,
-       "cap": 1236506716.2035213,
        "sec": 3
       },
       {
@@ -12610,38 +12808,38 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 48,
+       "d": 0,
+       "cap": 14914132456.322157,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 1,
+       "cap": 1236506716.2035213,
+       "sec": 3
+      },
+      {
+       "s": 48,
+       "d": 2,
+       "cap": 1236506716.2035213,
+       "sec": 3
+      },
+      {
+       "s": 49,
        "d": 0,
        "cap": 18274902123.514683,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 1,
        "cap": 1515142719.824037,
        "sec": 3
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 2,
        "cap": 1515142719.824037,
-       "sec": 3
-      },
-      {
-       "s": 49,
-       "d": 0,
-       "cap": 117095298141.29561,
-       "sec": 4
-      },
-      {
-       "s": 49,
-       "d": 1,
-       "cap": 9708182692.596985,
-       "sec": 3
-      },
-      {
-       "s": 49,
-       "d": 2,
-       "cap": 9708182692.596985,
        "sec": 3
       },
       {
@@ -12664,38 +12862,38 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 51,
+       "d": 0,
+       "cap": 117095298141.29561,
+       "sec": 4
+      },
+      {
+       "s": 51,
+       "d": 1,
+       "cap": 9708182692.596985,
+       "sec": 3
+      },
+      {
+       "s": 51,
+       "d": 2,
+       "cap": 9708182692.596985,
+       "sec": 3
+      },
+      {
+       "s": 52,
        "d": 0,
        "cap": 20071081105.617905,
        "sec": 4
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 1,
        "cap": 1664061028.1050358,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 2,
        "cap": 1664061028.1050358,
-       "sec": 3
-      },
-      {
-       "s": 52,
-       "d": 0,
-       "cap": 3752395352037.144,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 1,
-       "cap": 311105058791.26404,
-       "sec": 3
-      },
-      {
-       "s": 52,
-       "d": 2,
-       "cap": 311105058791.26404,
        "sec": 3
       },
       {
@@ -12718,128 +12916,146 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 54,
+       "d": 0,
+       "cap": 3752395352037.144,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 1,
+       "cap": 311105058791.26404,
+       "sec": 3
+      },
+      {
+       "s": 54,
+       "d": 2,
+       "cap": 311105058791.26404,
+       "sec": 3
+      },
+      {
+       "s": 55,
        "d": 0,
        "cap": 1667840643390.8472,
        "sec": 4
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 1,
        "cap": 138277983191.4239,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 2,
        "cap": 138277983191.4239,
        "sec": 3
       },
       {
-       "s": 55,
-       "d": 0,
-       "cap": 9344182905215.096,
-       "sec": 3
-      },
-      {
-       "s": 55,
-       "d": 1,
-       "cap": 774711164298.0448,
-       "sec": 0
-      },
-      {
-       "s": 55,
-       "d": 2,
-       "cap": 774711164298.0448,
-       "sec": 0
-      },
-      {
        "s": 56,
        "d": 0,
-       "cap": 135689205073911.75,
+       "cap": 9344097467642.305,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 11249773587674.283,
+       "cap": 774704080806.4048,
        "sec": 0
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 11249773587674.283,
+       "cap": 774704080806.4048,
        "sec": 0
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 135689205073911.75,
+       "cap": 135687964413657.84,
        "sec": 3
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 11249773587674.283,
+       "cap": 11249670726529.596,
        "sec": 0
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 11249773587674.283,
+       "cap": 11249670726529.596,
        "sec": 0
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 9344182905215.096,
+       "cap": 135687964413657.84,
        "sec": 3
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 774711164298.0448,
+       "cap": 11249670726529.596,
        "sec": 0
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 774711164298.0448,
+       "cap": 11249670726529.596,
        "sec": 0
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 212963469849811.47,
+       "cap": 9344097467642.305,
        "sec": 3
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 17656458499781.598,
-       "sec": 2
+       "cap": 774704080806.4048,
+       "sec": 0
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 17656458499781.598,
-       "sec": 2
+       "cap": 774704080806.4048,
+       "sec": 0
       },
       {
        "s": 60,
        "d": 0,
-       "cap": 212963469849811.47,
+       "cap": 212961522640286.22,
        "sec": 3
       },
       {
        "s": 60,
        "d": 1,
-       "cap": 17656458499781.598,
+       "cap": 17656297059774.086,
        "sec": 2
       },
       {
        "s": 60,
        "d": 2,
-       "cap": 17656458499781.598,
+       "cap": 17656297059774.086,
+       "sec": 2
+      },
+      {
+       "s": 61,
+       "d": 0,
+       "cap": 212961522640286.22,
+       "sec": 3
+      },
+      {
+       "s": 61,
+       "d": 1,
+       "cap": 17656297059774.086,
+       "sec": 2
+      },
+      {
+       "s": 61,
+       "d": 2,
+       "cap": 17656297059774.086,
        "sec": 2
       }
      ]
@@ -12854,7 +13070,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 69.70040443565236,
+    "mglt": 69.70040451466593,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -12940,15 +13156,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1jqkakd",
-   "build": 183419,
+   "signature": "f6ue0b",
+   "build": 183418,
    "crew": 0,
-   "total": 183419,
+   "total": 183418,
    "by": {
     "hull": 20,
     "armor": 11,
     "power": 59472,
-    "drive": 44314,
+    "drive": 44313,
     "command": 13501,
     "weapons": 49100,
     "systems": 17001
@@ -12957,7 +13173,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 22807701999999996,
+    "power": 32807702000000000,
     "crew": 0,
     "suitSeats": 0,
     "lifeSupportCapacity": 0,
@@ -12966,6 +13182,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 0,
     "ejectionSurvival": 0,
     "navCapacity": 2.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 9,
     "targetCapacity": 10.718749999999998,
@@ -12983,8 +13200,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 5.666099967000963e-14,
+    "upS": 5.666099967000963e-14,
     "down": 0.01,
     "T": 0
    },
@@ -13263,7 +13480,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.32,
       "z": 0.23,
       "r": 0.02,
-      "share": 0.243753204070736,
+      "share": 0.23810395862691738,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -13314,7 +13531,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.017,
-      "share": 0.15683036676046808,
+      "share": 0.15319565254921663,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -13322,16 +13539,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "反応炉",
-      "w": 0.31354260968977127,
+      "w": 0.3134921379078302,
       "hits": 1,
-      "crew": 0.000019113400507166614,
-      "size": 0.09556700253583306,
+      "crew": 0.0000191087855910613,
+      "size": 0.09554392795530649,
       "at": 0.743,
       "part": 17,
       "y": 0.06,
       "z": 0.84,
       "r": 0.018,
-      "share": 0.3836506915292254,
+      "share": 0.3836538451679339,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -13339,16 +13556,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "反応炉",
-      "w": 0.31698492913964527,
+      "w": 0.31693383975010425,
       "hits": 1,
-      "crew": 0.000019429025967904425,
-      "size": 0.09714512983952212,
+      "crew": 0.00001942432900763278,
+      "size": 0.0971216450381639,
       "at": 0.743,
       "part": 18,
       "y": 0.06,
       "z": -0.84,
       "r": 0.019,
-      "share": 0.3899860333869387,
+      "share": 0.38998912191842006,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -13424,16 +13641,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "主反応炉",
-      "w": 0.09263290876785532,
+      "w": 0.09261578717455489,
       "hits": 1,
-      "crew": 0.00001409671620669326,
-      "size": 0.02819343241338652,
+      "crew": 0.000014092808085509813,
+      "size": 0.028185616171019626,
       "at": 0.556,
       "part": 23,
       "y": 0.26,
       "z": 0.23,
       "r": 0.012,
-      "share": 0.11318163754191801,
+      "share": 0.11317851645682311,
       "domain": "main",
       "port": "p23",
       "powerConnected": true
@@ -13441,18 +13658,35 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "主反応炉",
-      "w": 0.09263290876785532,
+      "w": 0.09261578717455489,
       "hits": 1,
-      "crew": 0.00001409671620669326,
-      "size": 0.02819343241338652,
+      "crew": 0.000014092808085509813,
+      "size": 0.028185616171019626,
       "at": 0.556,
       "part": 24,
       "y": 0.09,
       "z": -0.23,
       "r": 0.012,
-      "share": 0.11318163754191801,
+      "share": 0.11317851645682311,
       "domain": "main",
       "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0.0000024334000000000003,
+      "size": 0.012167,
+      "at": 0.676,
+      "part": 34,
+      "y": 0.09,
+      "z": 0.23,
+      "r": 0.009,
+      "share": 0.023176086916909634,
+      "domain": "main",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -13463,13 +13697,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.639,
-      "part": 34,
+      "part": 35,
       "y": 0.19,
       "z": 0.23,
       "r": 0.009,
-      "share": 0.020763872935561575,
+      "share": 0.02028264761167533,
       "domain": "main",
-      "port": "p34",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -13480,13 +13714,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.617,
-      "part": 35,
-      "y": 0.08,
+      "part": 36,
+      "y": 0.38,
       "z": 0.23,
       "r": 0.014,
-      "share": 0.08360734899626243,
+      "share": 0.08166965780903265,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -13497,13 +13731,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.009260999999999998,
       "at": 0.629,
-      "part": 36,
-      "y": 0.38,
+      "part": 37,
+      "y": 0.2,
       "z": 0.23,
       "r": 0.008,
-      "share": 0.018059187383192687,
+      "share": 0.017640646086751054,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -13514,13 +13748,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.009260999999999998,
       "at": 0.629,
-      "part": 37,
-      "y": 0.29,
-      "z": 0.23,
+      "part": 38,
+      "y": 0.2,
+      "z": 0.2,
       "r": 0.008,
-      "share": 0.018059187383192687,
+      "share": 0.017640646086751054,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -13531,13 +13765,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.009260999999999998,
       "at": 0.629,
-      "part": 38,
-      "y": 0.29,
-      "z": 0.2,
+      "part": 39,
+      "y": 0.2,
+      "z": 0.27,
       "r": 0.008,
-      "share": 0.018059187383192687,
+      "share": 0.017640646086751054,
       "domain": "main",
-      "port": "p38",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -13548,13 +13782,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.009260999999999998,
       "at": 0.629,
-      "part": 39,
-      "y": 0.29,
-      "z": 0.27,
+      "part": 40,
+      "y": 0.11,
+      "z": 0.23,
       "r": 0.008,
-      "share": 0.018059187383192687,
+      "share": 0.017640646086751054,
       "domain": "main",
-      "port": "p39",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -13564,14 +13798,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.543,
-      "part": 40,
+      "at": 0.597,
+      "part": 41,
       "y": 0.08,
-      "z": -0.34,
+      "z": 0.23,
       "r": 0.014,
-      "share": 0.08360734899626243,
+      "share": 0.08166965780903265,
       "domain": "main",
-      "port": "p40",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -13582,13 +13816,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.543,
-      "part": 41,
+      "part": 42,
       "y": 0.08,
-      "z": -0.13,
+      "z": -0.34,
       "r": 0.014,
-      "share": 0.08360734899626243,
+      "share": 0.08166965780903265,
       "domain": "main",
-      "port": "p41",
+      "port": "p42",
       "powerConnected": true
      },
      {
@@ -13599,13 +13833,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.559,
-      "part": 42,
+      "part": 43,
       "y": 0.24,
       "z": -0.23,
       "r": 0.013,
-      "share": 0.06389843992791903,
+      "share": 0.062417524130294645,
       "domain": "main",
-      "port": "p42",
+      "port": "p43",
       "powerConnected": true
      },
      {
@@ -13616,13 +13850,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.559,
-      "part": 43,
+      "part": 44,
       "y": 0.24,
       "z": -0.28,
       "r": 0.013,
-      "share": 0.06389843992791903,
+      "share": 0.062417524130294645,
       "domain": "main",
-      "port": "p43",
+      "port": "p44",
       "powerConnected": true
      },
      {
@@ -13633,13 +13867,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.559,
-      "part": 44,
+      "part": 45,
       "y": 0.24,
       "z": -0.19,
       "r": 0.013,
-      "share": 0.06389843992791903,
+      "share": 0.062417524130294645,
       "domain": "main",
-      "port": "p44",
+      "port": "p45",
       "powerConnected": true
      },
      {
@@ -13649,14 +13883,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.577,
-      "part": 45,
-      "y": 0.24,
-      "z": -0.23,
+      "at": 0.541,
+      "part": 46,
+      "y": 0.11,
+      "z": -0.14,
       "r": 0.013,
-      "share": 0.06389843992791903,
+      "share": 0.062417524130294645,
       "domain": "main",
-      "port": "p45",
+      "port": "p46",
       "powerConnected": true
      },
      {
@@ -13814,7 +14048,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.23,
       "z": 0,
       "r": 0.044,
-      "share": 0.0454076367389061,
+      "share": 0.045376418013062914,
       "domain": "main"
      },
      {
@@ -13828,21 +14062,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.1,
       "z": 0.02,
       "r": 0.086,
-      "share": 0.3512211902304782,
+      "share": 0.35097971811619116,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.8061035856947463,
+      "w": 0.80692824418429,
       "hits": 1,
       "crew": 0,
-      "size": 12.458030531412483,
-      "at": 0.606,
+      "size": 12.477152604369373,
+      "at": 0.607,
       "y": 0.1,
       "z": 0.01,
       "r": 0.093,
-      "share": 0.4482284141726866,
+      "share": 0.44860776899278104,
       "domain": "main"
      },
      {
@@ -13856,13 +14090,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.04,
       "z": 0,
       "r": 0.066,
-      "share": 0.15514275885792916,
+      "share": 0.15503609487796494,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 25.278781023483642,
+      "w": 25.310934335962518,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -13882,8 +14116,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.07952156404399165,
      "massKg": 19.88039101099791,
-     "capacityJ": 9.542587685278997e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 3.8430812303758286e+21,
+     "specificEnergyJPerKg": 193310143057539500000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 0,
@@ -13898,16 +14132,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 1304532372928002600,
-     "fixed": 41631285001630920,
+     "P": 1304206673891683600,
+     "fixed": 51631285001630930,
      "cooling": 13057654821960880,
-     "De": 1304532372928002600,
+     "De": 1304206673891683600,
      "Ds": 0,
      "Dw": 3278933333333333.5,
      "domains": [
       {
        "id": "main",
-       "P": 1304532372928002600,
+       "P": 1304206673891683600,
        "reactors": [
         13,
         14,
@@ -13917,19 +14151,19 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 13,
-         "P": 500484746996089500
+         "P": 500363905332225900
         },
         {
          "moduleIndex": 14,
-         "P": 508749405543042300
+         "P": 508626415551160800
         },
         {
          "moduleIndex": 19,
-         "P": 147649110194435400
+         "P": 147608176504148400
         },
         {
          "moduleIndex": 20,
-         "P": 147649110194435400
+         "P": 147608176504148400
         }
        ],
        "modules": [
@@ -13978,7 +14212,8 @@ const CRAFT_PRICE_CATALOG={
         42,
         43,
         44,
-        45
+        45,
+        46
        ],
        "protection": 1
       }
@@ -13988,7 +14223,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "hotel",
-       "cap": 41631285001630920,
+       "cap": 51631285001630920,
        "auto": true,
        "ok": true,
        "routeId": "p24>hotel",
@@ -14048,7 +14283,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p13",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p23>p13",
@@ -14060,7 +14295,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p15",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p24>p15",
@@ -14072,7 +14307,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p16",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p24>p16",
@@ -14084,10 +14319,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p34",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p23>p34",
+       "model": "source-distance",
+       "lengthM": 1.5175783340572575,
+       "efficiency": 0.999984824331811
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p35",
+       "cap": 3037134411860643,
+       "auto": true,
+       "ok": true,
+       "routeId": "p23>p35",
        "model": "source-distance",
        "lengthM": 1.034191955103113,
        "efficiency": 0.9999896581339265
@@ -14095,71 +14342,83 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p23",
-       "to": "p35",
-       "cap": 2601955312601932.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p23>p35",
-       "model": "source-distance",
-       "lengthM": 0.8105862076300088,
-       "efficiency": 0.9999918941707762
-      },
-      {
-       "kind": "power",
-       "from": "p23",
        "to": "p36",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p23>p36",
        "model": "source-distance",
-       "lengthM": 0.9228374721477234,
-       "efficiency": 0.9999907716678599
+       "lengthM": 0.7797756087490809,
+       "efficiency": 0.999992202274315
       },
       {
        "kind": "power",
        "from": "p23",
        "to": "p37",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p23>p37",
        "model": "source-distance",
-       "lengthM": 0.9032762589595722,
-       "efficiency": 0.9999909672782057
+       "lengthM": 0.9074166628401753,
+       "efficiency": 0.9999909258745417
       },
       {
        "kind": "power",
        "from": "p23",
        "to": "p38",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p23>p38",
        "model": "source-distance",
-       "lengthM": 0.9151595489312233,
-       "efficiency": 0.9999908484463864
+       "lengthM": 0.9192464305070759,
+       "efficiency": 0.9999908075779455
       },
       {
        "kind": "power",
        "from": "p23",
        "to": "p39",
-       "cap": 2601955312601932.5,
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
        "routeId": "p23>p39",
        "model": "source-distance",
-       "lengthM": 0.9151595489312233,
-       "efficiency": 0.9999908484463864
+       "lengthM": 0.9192464305070759,
+       "efficiency": 0.9999908075779455
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p40",
+       "cap": 3037134411860643,
+       "auto": true,
+       "ok": true,
+       "routeId": "p23>p40",
+       "model": "source-distance",
+       "lengthM": 0.9349438485812932,
+       "efficiency": 0.9999906506052201
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p41",
+       "cap": 3037134411860643,
+       "auto": true,
+       "ok": true,
+       "routeId": "p23>p41",
+       "model": "source-distance",
+       "lengthM": 0.5891731494221369,
+       "efficiency": 0.999994108285862
       },
       {
        "kind": "power",
        "from": "p24",
-       "to": "p40",
-       "cap": 2601955312601932.5,
+       "to": "p42",
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
-       "routeId": "p24>p40",
+       "routeId": "p24>p42",
        "model": "source-distance",
        "lengthM": 0.5170589908318005,
        "efficiency": 0.9999948294234592
@@ -14167,23 +14426,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p24",
-       "to": "p41",
-       "cap": 2601955312601932.5,
+       "to": "p43",
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
-       "routeId": "p24>p41",
-       "model": "source-distance",
-       "lengthM": 0.5170589908318007,
-       "efficiency": 0.9999948294234592
-      },
-      {
-       "kind": "power",
-       "from": "p24",
-       "to": "p42",
-       "cap": 2601955312601932.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p24>p42",
+       "routeId": "p24>p43",
        "model": "source-distance",
        "lengthM": 0.2637517772451971,
        "efficiency": 0.9999973624857058
@@ -14191,11 +14438,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p24",
-       "to": "p43",
-       "cap": 2601955312601932.5,
+       "to": "p44",
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
-       "routeId": "p24>p43",
+       "routeId": "p24>p44",
        "model": "source-distance",
        "lengthM": 0.34603612528174,
        "efficiency": 0.9999965396447342
@@ -14203,11 +14450,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p24",
-       "to": "p44",
-       "cap": 2601955312601932.5,
+       "to": "p45",
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
-       "routeId": "p24>p44",
+       "routeId": "p24>p45",
        "model": "source-distance",
        "lengthM": 0.3460361252817401,
        "efficiency": 0.9999965396447342
@@ -14215,14 +14462,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p24",
-       "to": "p45",
-       "cap": 2601955312601932.5,
+       "to": "p46",
+       "cap": 3037134411860643,
        "auto": true,
        "ok": true,
-       "routeId": "p24>p45",
+       "routeId": "p24>p46",
        "model": "source-distance",
-       "lengthM": 0.36981752257025335,
-       "efficiency": 0.9999963018316126
+       "lengthM": 0.486486382132121,
+       "efficiency": 0.9999951351480121
       },
       {
        "kind": "power",
@@ -14708,11 +14955,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p19",
-       "cap": 700678645794525200,
+       "cap": 700509467465116300,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p19",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p17>p19",
        "model": "source-distance",
        "lengthM": 0.5554500000000004,
@@ -14722,11 +14969,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 700678645794525200,
+       "cap": 700509467465116300,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p20",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p17>p20",
        "model": "source-distance",
        "lengthM": 7.879601811164063,
@@ -14736,11 +14983,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 700678645794525200,
+       "cap": 700509467465116300,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p21",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p17>p21",
        "model": "source-distance",
        "lengthM": 3.7946706049405656,
@@ -14750,11 +14997,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p22",
-       "cap": 700678645794525200,
+       "cap": 700509467465116300,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p22",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p17>p22",
        "model": "source-distance",
        "lengthM": 5.605981180846043,
@@ -14764,11 +15011,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p19",
-       "cap": 712249167760259200,
+       "cap": 712076981771625100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p19",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p18>p19",
        "model": "source-distance",
        "lengthM": 7.879601811164063,
@@ -14778,11 +15025,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 712249167760259200,
+       "cap": 712076981771625100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p20",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p18>p20",
        "model": "source-distance",
        "lengthM": 0.5554500000000004,
@@ -14792,11 +15039,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 712249167760259200,
+       "cap": 712076981771625100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p21",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p18>p21",
        "model": "source-distance",
        "lengthM": 5.615543161618473,
@@ -14806,11 +15053,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p22",
-       "cap": 712249167760259200,
+       "cap": 712076981771625100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p22",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p18>p22",
        "model": "source-distance",
        "lengthM": 3.780505918524662,
@@ -14820,11 +15067,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p19",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p23>p19",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p23>p19",
        "model": "source-distance",
        "lengthM": 3.3571589480541424,
@@ -14834,11 +15081,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p20",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p23>p20",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p23>p20",
        "model": "source-distance",
        "lengthM": 5.329663798261576,
@@ -14848,11 +15095,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p21",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p23>p21",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p23>p21",
        "model": "source-distance",
        "lengthM": 0.17999999999999972,
@@ -14862,11 +15109,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "p22",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p23>p22",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p23>p22",
        "model": "source-distance",
        "lengthM": 2.206558406206371,
@@ -14876,11 +15123,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p19",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p24>p19",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p24>p19",
        "model": "source-distance",
        "lengthM": 5.319587973001292,
@@ -14890,11 +15137,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p20",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p24>p20",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p24>p20",
        "model": "source-distance",
        "lengthM": 3.3411399555391266,
@@ -14904,11 +15151,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p21",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p24>p21",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p24>p21",
        "model": "source-distance",
        "lengthM": 2.206558406206371,
@@ -14918,11 +15165,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p22",
-       "cap": 206708754272209540,
+       "cap": 206651447105807780,
        "auto": true,
        "ok": true,
        "capacityGroup": "p24>p22",
-       "groupCap": 1826345322099203600,
+       "groupCap": 1825889343448356900,
        "routeId": "p24>p22",
        "model": "source-distance",
        "lengthM": 0.17999999999999972,
@@ -14934,7 +15181,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 26573630179670040,
+       "weight": 36573630179670050,
        "domain": "main"
       },
       {
@@ -14991,23 +15238,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 22647805528015364,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939307,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 292604558633852000,
-       "ratedWasteHeatW": 15400239928097488,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 292531504852476200,
+       "ratedWasteHeatW": 15396394992235604,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15021,10 +15268,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 308004798561949500,
+       "ratedInputW": 307927899844711800,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 137743623.5297073,
+       "ratedThrustN": 137712187.2540553,
        "effectiveMachineryVolumeM3": 0.06661119272945695,
        "machineryVolumeM3": 0.06661119272945695,
        "machineryShape": "frustum",
@@ -15032,12 +15279,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.23099999999999998,
        "machineryDiameterM": 0.46199999999999997,
        "machineryOffsetM": 1,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419365000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 210870623922900030,
-       "cost": 166.3902779820134,
+       "costBasisInputW": 210822579949712300,
+       "cost": 166.30556094230107,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 17,
@@ -15052,11 +15299,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 15,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 34,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600,
+       "pathCapacityW": 1304206673891683600,
        "transmissionRouteIds": [
         "p17>p19",
         "p18>p19",
@@ -15067,23 +15314,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 22647805528015364,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939307,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 292604558633852000,
-       "ratedWasteHeatW": 15400239928097488,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 292531504852476200,
+       "ratedWasteHeatW": 15396394992235604,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15097,10 +15344,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 308004798561949500,
+       "ratedInputW": 307927899844711800,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 137743623.5297073,
+       "ratedThrustN": 137712187.2540553,
        "effectiveMachineryVolumeM3": 0.06661119272945695,
        "machineryVolumeM3": 0.06661119272945695,
        "machineryShape": "frustum",
@@ -15108,12 +15355,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.23099999999999998,
        "machineryDiameterM": 0.46199999999999997,
        "machineryOffsetM": 1,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419365000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 210870623922900030,
-       "cost": 166.3902779820134,
+       "costBasisInputW": 210822579949712300,
+       "cost": 166.30556094230107,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 18,
@@ -15128,11 +15375,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 16,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 35,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600,
+       "pathCapacityW": 1304206673891683600,
        "transmissionRouteIds": [
         "p17>p20",
         "p18>p20",
@@ -15143,23 +15390,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 25313777578832610,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939306,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 327048318506949250,
-       "ratedWasteHeatW": 17213069395102608,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 326966665246073540,
+       "ratedWasteHeatW": 17208771855056518,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15173,10 +15420,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 344261387902051840,
+       "ratedInputW": 344175437101130050,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 153958026.73333073,
+       "ratedThrustN": 153922889.95644617,
        "effectiveMachineryVolumeM3": 0.07445228699656649,
        "machineryVolumeM3": 0.07445228699656649,
        "machineryShape": "frustum",
@@ -15184,12 +15431,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.315,
        "machineryDiameterM": 0.63,
        "machineryOffsetM": 0.95,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419364000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 372509056723304770,
-       "cost": 983.0221993696742,
+       "costBasisInputW": 372424185654966850,
+       "cost": 982.5423437587791,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 23,
@@ -15204,11 +15451,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 17,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 36,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600,
+       "pathCapacityW": 1304206673891683600,
        "transmissionRouteIds": [
         "p17>p21",
         "p18>p21",
@@ -15219,23 +15466,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 25313777578832610,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939306,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 327048318506949250,
-       "ratedWasteHeatW": 17213069395102608,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 326966665246073540,
+       "ratedWasteHeatW": 17208771855056518,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15249,10 +15496,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 344261387902051840,
+       "ratedInputW": 344175437101130050,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 153958026.73333073,
+       "ratedThrustN": 153922889.95644617,
        "effectiveMachineryVolumeM3": 0.07445228699656649,
        "machineryVolumeM3": 0.07445228699656649,
        "machineryShape": "frustum",
@@ -15260,12 +15507,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.315,
        "machineryDiameterM": 0.63,
        "machineryOffsetM": 0.95,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419364000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 372509056723304770,
-       "cost": 983.0221993696742,
+       "costBasisInputW": 372424185654966850,
+       "cost": 982.5423437587791,
        "powerNode": "p22",
        "heatNode": "p22",
        "reactorId": 24,
@@ -15280,11 +15527,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 18,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 37,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600,
+       "pathCapacityW": 1304206673891683600,
        "transmissionRouteIds": [
         "p17>p22",
         "p18>p22",
@@ -15297,23 +15544,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 22647805528015364,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939307,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 292604558633852000,
-       "ratedWasteHeatW": 15400239928097488,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 292531504852476200,
+       "ratedWasteHeatW": 15396394992235604,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15327,10 +15574,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 308004798561949500,
+       "ratedInputW": 307927899844711800,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 137743623.5297073,
+       "ratedThrustN": 137712187.2540553,
        "effectiveMachineryVolumeM3": 0.06661119272945695,
        "machineryVolumeM3": 0.06661119272945695,
        "machineryShape": "frustum",
@@ -15338,12 +15585,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.23099999999999998,
        "machineryDiameterM": 0.46199999999999997,
        "machineryOffsetM": 1,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419365000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 210870623922900030,
-       "cost": 166.3902779820134,
+       "costBasisInputW": 210822579949712300,
+       "cost": 166.30556094230107,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 17,
@@ -15359,7 +15606,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 15,
        "coreModuleIndex": 15,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 34,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 335277051176409800000,
        "shaftCapacityW": 335277051176409800000,
@@ -15368,28 +15615,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600
+       "pathCapacityW": 1304206673891683600
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 22647805528015364,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939307,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 292604558633852000,
-       "ratedWasteHeatW": 15400239928097488,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 292531504852476200,
+       "ratedWasteHeatW": 15396394992235604,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15403,10 +15650,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 308004798561949500,
+       "ratedInputW": 307927899844711800,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 137743623.5297073,
+       "ratedThrustN": 137712187.2540553,
        "effectiveMachineryVolumeM3": 0.06661119272945695,
        "machineryVolumeM3": 0.06661119272945695,
        "machineryShape": "frustum",
@@ -15414,12 +15661,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.23099999999999998,
        "machineryDiameterM": 0.46199999999999997,
        "machineryOffsetM": 1,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419365000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 210870623922900030,
-       "cost": 166.3902779820134,
+       "costBasisInputW": 210822579949712300,
+       "cost": 166.30556094230107,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 18,
@@ -15435,7 +15682,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 16,
        "coreModuleIndex": 16,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 35,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 335277051176409800000,
        "shaftCapacityW": 335277051176409800000,
@@ -15444,28 +15691,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600
+       "pathCapacityW": 1304206673891683600
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 25313777578832610,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939306,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 327048318506949250,
-       "ratedWasteHeatW": 17213069395102608,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 326966665246073540,
+       "ratedWasteHeatW": 17208771855056518,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15479,10 +15726,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 344261387902051840,
+       "ratedInputW": 344175437101130050,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 153958026.73333073,
+       "ratedThrustN": 153922889.95644617,
        "effectiveMachineryVolumeM3": 0.07445228699656649,
        "machineryVolumeM3": 0.07445228699656649,
        "machineryShape": "frustum",
@@ -15490,12 +15737,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.315,
        "machineryDiameterM": 0.63,
        "machineryOffsetM": 0.95,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419364000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 372509056723304770,
-       "cost": 983.0221993696742,
+       "costBasisInputW": 372424185654966850,
+       "cost": 982.5423437587791,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 23,
@@ -15511,7 +15758,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 17,
        "coreModuleIndex": 17,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 36,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 623449062104894500000,
        "shaftCapacityW": 623449062104894500000,
@@ -15520,28 +15767,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600
+       "pathCapacityW": 1304206673891683600
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 25313777578832610,
-       "densityFactor": 13.599763481761938,
+       "densityFactor": 13.596368065939306,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2236073007.731801,
-       "shaftWattsPerNewton": 2124269357.3452108,
-       "wattsPerNewton": 2236073007.731801,
-       "ratedShaftPowerW": 327048318506949250,
-       "ratedWasteHeatW": 17213069395102608,
+       "profileWattsPerNewton": 2236025046.037776,
+       "shaftWattsPerNewton": 2124223793.735887,
+       "wattsPerNewton": 2236025046.037776,
+       "ratedShaftPowerW": 326966665246073540,
+       "ratedWasteHeatW": 17208771855056518,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 26439.187496747603,
+       "conversionMassKg": 26433.16369129016,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1304532372928002600,
-       "sourceInputLimitW": 1304532372928002600,
+       "availableInputW": 1304206673891683600,
+       "sourceInputLimitW": 1304206673891683600,
        "sourceIds": [
         "p17",
         "p18",
@@ -15555,10 +15802,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 344261387902051840,
+       "ratedInputW": 344175437101130050,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 153958026.73333073,
+       "ratedThrustN": 153922889.95644617,
        "effectiveMachineryVolumeM3": 0.07445228699656649,
        "machineryVolumeM3": 0.07445228699656649,
        "machineryShape": "frustum",
@@ -15566,12 +15813,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.315,
        "machineryDiameterM": 0.63,
        "machineryOffsetM": 0.95,
-       "maxInputW": 1304532372928002600,
-       "maxRatedInputW": 1304532372928002600,
-       "inputDensityWPerM3": 4623919583799059000,
+       "maxInputW": 1304206673891683600,
+       "maxRatedInputW": 1304206673891683600,
+       "inputDensityWPerM3": 4622765142419364000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 372509056723304770,
-       "cost": 983.0221993696742,
+       "costBasisInputW": 372424185654966850,
+       "cost": 982.5423437587791,
        "powerNode": "p22",
        "heatNode": "p22",
        "reactorId": 24,
@@ -15587,7 +15834,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 18,
        "coreModuleIndex": 18,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 37,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 623449062104894500000,
        "shaftCapacityW": 623449062104894500000,
@@ -15596,22 +15843,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1304532372928002600
+       "pathCapacityW": 1304206673891683600
       }
      ],
-     "massKg": 26439.187496747603,
-     "ratedThrustN": 583379581.8156142,
-     "ratedAccelMps2": 22064.95876196567,
-     "structuralAccelerationLimitMps2": 2008856.0964314698,
+     "massKg": 26433.16369129016,
+     "ratedThrustN": 583246441.0583819,
+     "ratedAccelMps2": 22064.95022200328,
+     "structuralAccelerationLimitMps2": 2010117.003871321,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 22064.95876196567,
+     "accelerationLimitMps2": 22064.95022200328,
      "conversionModelVersion": 1,
-     "conversionMassKg": 26439.187496747603,
+     "conversionMassKg": 26433.16369129016,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[1304532372928002600,[[\"main\",1304532372928002600,[[13,500484746996089500],[14,508749405543042300],[19,147649110194435400],[20,147649110194435400]]]],[[13,\"reactor\",17,\"p17\",\"main\",0.09556700253583306,0.3836506915292254],[14,\"reactor\",18,\"p18\",\"main\",0.09714512983952212,0.3899860333869387],[19,\"reactor\",23,\"p23\",\"main\",0.02819343241338652,0.11318163754191801],[20,\"reactor\",24,\"p24\",\"main\",0.02819343241338652,0.11318163754191801]]]"
+     "sourceBudgetKey": "[1304206673891683600,[[\"main\",1304206673891683600,[[13,500363905332225900],[14,508626415551160800],[19,147608176504148400],[20,147608176504148400]]]],[[13,\"reactor\",17,\"p17\",\"main\",0.09554392795530649,0.3836538451679339],[14,\"reactor\",18,\"p18\",\"main\",0.0971216450381639,0.38998912191842006],[19,\"reactor\",23,\"p23\",\"main\",0.028185616171019626,0.11317851645682311],[20,\"reactor\",24,\"p24\",\"main\",0.028185616171019626,0.11317851645682311]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1053.865701627188,
+    "maxSpeed": 1045.5160481882956,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -15622,7 +15869,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "反応炉 #17",
        "g": "high",
-       "sh": 0.383651,
+       "sh": 0.383654,
        "m": [
         13
        ],
@@ -15636,7 +15883,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "反応炉 #18",
        "g": "high",
-       "sh": 0.389986,
+       "sh": 0.389989,
        "m": [
         14
        ],
@@ -15650,7 +15897,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p23",
        "n": "主反応炉 #23",
        "g": "high",
-       "sh": 0.113182,
+       "sh": 0.113179,
        "m": [
         19
        ],
@@ -15664,7 +15911,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p24",
        "n": "主反応炉 #24",
        "g": "high",
-       "sh": 0.113182,
+       "sh": 0.113179,
        "m": [
         20
        ],
@@ -15681,7 +15928,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.236104,
        "m": [
         15,
-        33
+        34
        ],
        "pc": [],
        "sec": 3,
@@ -15696,7 +15943,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.236104,
        "m": [
         16,
-        34
+        35
        ],
        "pc": [],
        "sec": 3,
@@ -15711,7 +15958,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.263896,
        "m": [
         17,
-        35
+        36
        ],
        "pc": [],
        "sec": 0,
@@ -15726,7 +15973,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.263896,
        "m": [
         18,
-        36
+        37
        ],
        "pc": [],
        "sec": 0,
@@ -15785,7 +16032,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>hotel",
        "n": "送電損失 p24>hotel",
        "g": "high",
-       "sh": 0.0139607,
+       "sh": 0.018854,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -15798,7 +16045,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p3",
        "n": "送電損失 p17>p3",
        "g": "high",
-       "sh": 0.000310459,
+       "sh": 0.00031058,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -15811,7 +16058,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p4",
        "n": "送電損失 p18>p4",
        "g": "high",
-       "sh": 0.000310459,
+       "sh": 0.00031058,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -15824,7 +16071,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p5",
        "n": "送電損失 p17>p5",
        "g": "high",
-       "sh": 0.000488505,
+       "sh": 0.000488697,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -15837,7 +16084,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p6",
        "n": "送電損失 p24>p6",
        "g": "high",
-       "sh": 0.000478611,
+       "sh": 0.000478798,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -15892,7 +16139,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
        "routeId": "p23>p34"
@@ -15964,29 +16211,29 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p24>p40",
-       "n": "送電損失 p24>p40",
+       "id": "feed:p23>p40",
+       "n": "送電損失 p23>p40",
        "g": "high",
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p24>p40"
+       "routeId": "p23>p40"
       },
       {
        "k": "feed",
-       "id": "feed:p24>p41",
-       "n": "送電損失 p24>p41",
+       "id": "feed:p23>p41",
+       "n": "送電損失 p23>p41",
        "g": "high",
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p24>p41"
+       "routeId": "p23>p41"
       },
       {
        "k": "feed",
@@ -15996,7 +16243,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 2,
        "sw": -1,
        "gen": -1,
        "routeId": "p24>p42"
@@ -16042,10 +16289,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p24>p46",
+       "n": "送電損失 p24>p46",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p24>p46"
+      },
+      {
+       "k": "feed",
        "id": "feed:p17>f25",
        "n": "送電損失 p17>f25",
        "g": "high",
-       "sh": 0.00000745956,
+       "sh": 0.00000746248,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16058,7 +16318,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f26",
        "n": "送電損失 p17>f26",
        "g": "high",
-       "sh": 0.0000846423,
+       "sh": 0.0000846755,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16071,7 +16331,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f27",
        "n": "送電損失 p17>f27",
        "g": "high",
-       "sh": 0.00000762049,
+       "sh": 0.00000762348,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16084,7 +16344,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f28",
        "n": "送電損失 p17>f28",
        "g": "high",
-       "sh": 0.0000846567,
+       "sh": 0.0000846898,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16097,7 +16357,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f29",
        "n": "送電損失 p17>f29",
        "g": "high",
-       "sh": 0.00026318,
+       "sh": 0.000263283,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16110,7 +16370,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f30",
        "n": "送電損失 p17>f30",
        "g": "high",
-       "sh": 0.000973506,
+       "sh": 0.000973887,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16123,7 +16383,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f31",
        "n": "送電損失 p17>f31",
        "g": "high",
-       "sh": 0.000517991,
+       "sh": 0.000518194,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16136,7 +16396,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f32",
        "n": "送電損失 p17>f32",
        "g": "high",
-       "sh": 0.00064745,
+       "sh": 0.000647704,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16149,7 +16409,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f33",
        "n": "送電損失 p17>f33",
        "g": "high",
-       "sh": 0.000885373,
+       "sh": 0.000885719,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16513,7 +16773,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p14",
        "n": "送電損失 p17>p14",
        "g": "high",
-       "sh": 0.00848554,
+       "sh": 0.00848886,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16526,7 +16786,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p14",
        "n": "送電損失 p18>p14",
        "g": "high",
-       "sh": 5.18024e-7,
+       "sh": 5.18226e-7,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16565,7 +16825,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p19",
        "n": "送電損失 p17>p19",
        "g": "high",
-       "sh": 0.0120599,
+       "sh": 0.0120617,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16578,7 +16838,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.171088,
+       "sh": 0.171113,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16591,7 +16851,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.0920898,
+       "sh": 0.0921031,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16604,7 +16864,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.136048,
+       "sh": 0.136068,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16617,7 +16877,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p19",
        "n": "送電損失 p18>p19",
        "g": "high",
-       "sh": 0.177782,
+       "sh": 0.177809,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16630,7 +16890,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.0125318,
+       "sh": 0.0125337,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16643,7 +16903,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.141613,
+       "sh": 0.141634,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16656,7 +16916,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.0953359,
+       "sh": 0.0953502,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16669,7 +16929,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p19",
        "n": "送電損失 p23>p19",
        "g": "high",
-       "sh": 0.0220126,
+       "sh": 0.0220151,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16682,7 +16942,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p20",
        "n": "送電損失 p23>p20",
        "g": "high",
-       "sh": 0.0349465,
+       "sh": 0.0349504,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16695,7 +16955,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p21",
        "n": "送電損失 p23>p21",
        "g": "high",
-       "sh": 0.00131915,
+       "sh": 0.0013193,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16708,7 +16968,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p22",
        "n": "送電損失 p23>p22",
        "g": "high",
-       "sh": 0.0161712,
+       "sh": 0.0161731,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16721,7 +16981,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p19",
        "n": "送電損失 p24>p19",
        "g": "high",
-       "sh": 0.0279382,
+       "sh": 0.0255761,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16734,7 +16994,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p20",
        "n": "送電損失 p24>p20",
        "g": "high",
-       "sh": 0.0175474,
+       "sh": 0.0160638,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16747,7 +17007,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p21",
        "n": "送電損失 p24>p21",
        "g": "high",
-       "sh": 0.0129527,
+       "sh": 0.0118576,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16760,7 +17020,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p22",
        "n": "送電損失 p24>p22",
        "g": "high",
-       "sh": 0.00105661,
+       "sh": 0.000967273,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16787,7 +17047,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 68952759896907220,
-       "m": 37,
+       "m": 38,
        "sec": 3,
        "src": -1,
        "power": 689527598969072.1
@@ -16798,7 +17058,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 68952759896907220,
-       "m": 38,
+       "m": 39,
        "sec": 3,
        "src": -1,
        "power": 689527598969072.1
@@ -16809,7 +17069,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 81177624878048780,
-       "m": 39,
+       "m": 40,
        "sec": 2,
        "src": -1,
        "power": 811776248780487.9
@@ -16820,7 +17080,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 81177624878048780,
-       "m": 40,
+       "m": 41,
        "sec": 2,
        "src": -1,
        "power": 811776248780487.9
@@ -16830,7 +17090,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 728694445566608400000,
+       "cap": 726301482009380900000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -16840,241 +17100,241 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 16591508768024466,
+       "cap": 16587502760773360,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 1706650858052603.2,
+       "cap": 1706238788492923.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 1706650858052603.2,
+       "cap": 1706238788492923.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 2009228685841310.8,
+       "cap": 2008743559093819,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 2009228685841310.8,
+       "cap": 2008743559093819,
        "sec": 4
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 16865489454887568,
+       "cap": 16861412228676524,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 1734833308537510.8,
+       "cap": 1734413913188429,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 1734833308537510.8,
+       "cap": 1734413913188429,
        "sec": 4
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 2042407697051718,
+       "cap": 2041913945701166.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 2042407697051718,
+       "cap": 2041913945701166.5,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 4894697632815424,
+       "cap": 4893340645044307,
        "sec": 2
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 503482837621833.5,
+       "cap": 503343253912098.4,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 503482837621833.5,
+       "cap": 503343253912098.4,
        "sec": 3
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 592746990636903.9,
+       "cap": 592582659665309.8,
        "sec": 2
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 592746990636903.9,
+       "cap": 592582659665309.8,
        "sec": 2
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 4894697632815424,
+       "cap": 4893340645044307,
        "sec": 2
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 503482837621833.5,
+       "cap": 503343253912098.4,
        "sec": 3
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 503482837621833.5,
+       "cap": 503343253912098.4,
        "sec": 3
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 592746990636903.9,
+       "cap": 592582659665309.8,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 592746990636903.9,
+       "cap": 592582659665309.8,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 12355458095896904,
+       "cap": 12254434060971154,
        "sec": 2
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 1270918362869670.2,
+       "cap": 1260526736749311.2,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 1270918362869670.2,
+       "cap": 1260526736749311.2,
        "sec": 3
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 1496243722019393,
+       "cap": 1484009729814691,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 1496243722019393,
+       "cap": 1484009729814691,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 12355458095896904,
+       "cap": 12254434060971154,
        "sec": 2
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 1270918362869670.2,
+       "cap": 1260526736749311.2,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 1270918362869670.2,
+       "cap": 1260526736749311.2,
        "sec": 3
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 1496243722019393,
+       "cap": 1484009729814691,
        "sec": 2
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 1496243722019393,
+       "cap": 1484009729814691,
        "sec": 2
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 13809873002363604,
+       "cap": 13696956987297034,
        "sec": 0
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 1420523711171061.5,
+       "cap": 1408908841378590.8,
        "sec": 2
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 1420523711171061.5,
+       "cap": 1408908841378590.8,
        "sec": 2
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 1672373101935698.5,
+       "cap": 1658698993104808,
        "sec": 0
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 1672373101935698.5,
+       "cap": 1658698993104808,
        "sec": 0
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 13809873002363604,
+       "cap": 13696956987297034,
        "sec": 0
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 1420523711171061.5,
+       "cap": 1408908841378590.8,
        "sec": 2
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 1420523711171061.5,
+       "cap": 1408908841378590.8,
        "sec": 2
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 1672373101935698.5,
+       "cap": 1658698993104808,
        "sec": 0
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 1672373101935698.5,
+       "cap": 1658698993104808,
        "sec": 0
       },
       {
@@ -17140,67 +17400,67 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 10,
        "d": 0,
-       "cap": 62446927502446380,
+       "cap": 77446927502446380,
        "sec": 0
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 62446927502446380,
+       "cap": 77446927502446380,
        "sec": 0
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 62446927502446380,
+       "cap": 77446927502446380,
        "sec": 0
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 62446927502446380,
+       "cap": 77446927502446380,
        "sec": 2
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 62446927502446380,
+       "cap": 77446927502446380,
        "sec": 2
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 728694445566608400000,
+       "cap": 726301482009380900000,
        "sec": -1
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 1120278113001.4841,
+       "cap": 1389373365035.525,
        "sec": 1
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 115235065691.93015,
+       "cap": 142914986138.15607,
        "sec": 2
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 115235065691.93015,
+       "cap": 142914986138.15607,
        "sec": 2
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 135665475167.67923,
+       "cap": 168252861111.29462,
        "sec": 1
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 135665475167.67923,
+       "cap": 168252861111.29462,
        "sec": 1
       },
       {
@@ -17326,2131 +17586,2161 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 16,
        "d": 0,
-       "cap": 16108448717.162867,
+       "cap": 18802599600.246273,
        "sec": 2
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 1656961895.9563584,
+       "cap": 1934090093.3146842,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 1656961895.9563584,
+       "cap": 1934090093.3146842,
        "sec": 3
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 1950730201.7826693,
+       "cap": 2276991382.363682,
        "sec": 2
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 1950730201.7826693,
+       "cap": 2276991382.363682,
        "sec": 2
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 15903606454.172934,
+       "cap": 18563497305.553905,
        "sec": 2
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 1635891224.8808649,
+       "cap": 1909495335.712801,
        "sec": 3
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 1635891224.8808649,
+       "cap": 1909495335.712801,
        "sec": 3
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 1925923841.0938077,
+       "cap": 2248036138.0840144,
        "sec": 2
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 1925923841.0938077,
+       "cap": 2248036138.0840144,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 34786010787.816246,
+       "cap": 40603998809.41206,
        "sec": 2
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 3578190265.2318306,
+       "cap": 4176645438.177416,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 3578190265.2318306,
+       "cap": 4176645438.177416,
        "sec": 3
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 4212579562.117049,
+       "cap": 4917136850.445164,
        "sec": 2
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 4212579562.117049,
+       "cap": 4917136850.445164,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 27876856479.765312,
+       "cap": 47748187557.89933,
        "sec": 2
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 2867494553.761766,
+       "cap": 4911517475.926838,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 2867494553.761766,
+       "cap": 4911517475.926838,
        "sec": 3
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 3375882235.5065937,
-       "sec": 2
+       "cap": 5782296804.926779,
+       "sec": 3
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 3375882235.5065937,
-       "sec": 2
+       "cap": 5782296804.926779,
+       "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 21849542076.459316,
+       "cap": 32539282938.157207,
        "sec": 2
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 2247507460.2444234,
+       "cap": 3347085302.6849055,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 2247507460.2444234,
+       "cap": 3347085302.6849055,
        "sec": 3
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 2645975560.5304112,
+       "cap": 3940501229.2825246,
        "sec": 2
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 2645975560.5304112,
+       "cap": 3940501229.2825246,
        "sec": 2
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 24875287379.379955,
+       "cap": 24534489282.311943,
        "sec": 2
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 2558744424.264845,
+       "cap": 2523688940.5884757,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 2558744424.264845,
+       "cap": 2523688940.5884757,
        "sec": 3
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 3012392764.8773804,
+       "cap": 2971122177.4773464,
        "sec": 2
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 3012392764.8773804,
+       "cap": 2971122177.4773464,
        "sec": 2
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 24348012949.664703,
+       "cap": 28550508544.929424,
        "sec": 2
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 2504507442.5361557,
+       "cap": 2936788364.898276,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 2504507442.5361557,
+       "cap": 2936788364.898276,
        "sec": 3
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 2948539927.6033993,
+       "cap": 3457461377.737016,
        "sec": 2
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 2948539927.6033993,
+       "cap": 3457461377.737016,
        "sec": 2
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 24668328214.585884,
+       "cap": 28922712786.422127,
        "sec": 2
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 2537456002.511523,
+       "cap": 2975074375.9534345,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 2537456002.511523,
+       "cap": 2975074375.9534345,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 2987330047.76612,
+       "cap": 3502535243.4990144,
        "sec": 2
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 2987330047.76612,
+       "cap": 3502535243.4990144,
        "sec": 2
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 24668328214.585884,
+       "cap": 28922712786.422127,
        "sec": 2
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 2537456002.511523,
+       "cap": 2975074375.9534345,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 2537456002.511523,
+       "cap": 2975074375.9534345,
        "sec": 3
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 2987330047.76612,
+       "cap": 3502535243.4990144,
        "sec": 2
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 2987330047.76612,
+       "cap": 3502535243.4990144,
        "sec": 2
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 13937467292.777712,
+       "cap": 29416606237.390957,
        "sec": 2
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 1433648431.0661879,
+       "cap": 3025877693.100033,
        "sec": 3
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 1433648431.0661879,
+       "cap": 3025877693.100033,
        "sec": 3
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 1687824747.2341459,
+       "cap": 3562345650.3348413,
        "sec": 2
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 1687824747.2341459,
+       "cap": 3562345650.3348413,
        "sec": 2
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 13937467292.777712,
+       "cap": 18537481723.75714,
        "sec": 2
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1433648431.0661879,
+       "cap": 1906819297.2875466,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 1433648431.0661879,
+       "cap": 1906819297.2875466,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 1687824747.2341459,
+       "cap": 2244885655.8731594,
        "sec": 2
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 1687824747.2341459,
+       "cap": 2244885655.8731594,
        "sec": 2
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 7109510693.700201,
+       "cap": 16268519802.80468,
        "sec": 2
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 731304952.1524813,
+       "cap": 1673427273.48649,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 731304952.1524813,
+       "cap": 1673427273.48649,
        "sec": 3
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 860960448.3714988,
+       "cap": 1970114781.0600598,
        "sec": 2
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 860960448.3714988,
+       "cap": 1970114781.0600598,
        "sec": 2
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 9327506895.487514,
+       "cap": 8298582022.047011,
        "sec": 2
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 959454493.8164039,
+       "cap": 853616288.1004094,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 959454493.8164039,
+       "cap": 853616288.1004094,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 1129559383.8888483,
+       "cap": 1004956769.3709612,
        "sec": 2
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 1129559383.8888483,
+       "cap": 1004956769.3709612,
        "sec": 2
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 9327506895.487514,
+       "cap": 10887539855.872438,
        "sec": 2
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 959454493.8164039,
+       "cap": 1119924022.3961296,
        "sec": 3
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 959454493.8164039,
+       "cap": 1119924022.3961296,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 1129559383.8888483,
+       "cap": 1318479090.8719854,
        "sec": 2
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 1129559383.8888483,
+       "cap": 1318479090.8719854,
        "sec": 2
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 9968540362.158491,
+       "cap": 10887539855.872438,
        "sec": 2
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 1025393061.0215081,
+       "cap": 1119924022.3961296,
        "sec": 3
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 1025393061.0215081,
+       "cap": 1119924022.3961296,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 1207188419.7907465,
+       "cap": 1318479090.8719854,
        "sec": 2
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 1207188419.7907465,
+       "cap": 1318479090.8719854,
        "sec": 2
       },
       {
        "s": 31,
+       "d": 0,
+       "cap": 15306598844.139648,
+       "sec": 2
+      },
+      {
+       "s": 31,
+       "d": 1,
+       "cap": 1574481285.3646436,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 2,
+       "cap": 1574481285.3646436,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 3,
+       "cap": 1853626328.40128,
+       "sec": 2
+      },
+      {
+       "s": 31,
+       "d": 4,
+       "cap": 1853626328.40128,
+       "sec": 2
+      },
+      {
+       "s": 32,
        "d": 0,
        "cap": 793743709.1998442,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 1,
        "cap": 81646786.99929145,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 2,
        "cap": 81646786.99929145,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 3,
        "cap": 96122218.4207846,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 4,
        "cap": 96122218.4207846,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 0,
        "cap": 9005783555.427687,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 1,
        "cap": 926361095.13606,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 2,
        "cap": 926361095.13606,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 3,
        "cap": 1090598746.0836434,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 4,
        "cap": 1090598746.0836434,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 0,
        "cap": 810867296.3762108,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 1,
        "cap": 83408168.99028951,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 2,
        "cap": 83408168.99028951,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 3,
        "cap": 98195881.70483544,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 4,
        "cap": 98195881.70483544,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 0,
        "cap": 9007308755.85092,
        "sec": 3
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 1,
        "cap": 926517981.6885371,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 2,
        "cap": 926517981.6885371,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 3,
        "cap": 1090783447.57673,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 4,
        "cap": 1090783447.57673,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 0,
        "cap": 28003671794.73646,
        "sec": 3
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 1,
        "cap": 2880539145.976721,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 2,
        "cap": 2880539145.976721,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 3,
        "cap": 3391239547.0209684,
        "sec": 3
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 4,
        "cap": 3391239547.0209684,
        "sec": 3
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 0,
        "cap": 103580890835.07375,
        "sec": 3
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 1,
        "cap": 10654631757.313065,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 2,
        "cap": 10654631757.313065,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 3,
        "cap": 12543626989.00034,
        "sec": 3
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 4,
        "cap": 12543626989.00034,
        "sec": 3
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 0,
        "cap": 55115897106.579704,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 1,
        "cap": 5669381513.425997,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 2,
        "cap": 5669381513.425997,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 3,
        "cap": 6674525087.545958,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 4,
        "cap": 6674525087.545958,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 0,
        "cap": 68890169122.06621,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 1,
        "cap": 7086243203.520446,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 2,
        "cap": 7086243203.520446,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 3,
        "cap": 8342586916.463764,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 4,
        "cap": 8342586916.463764,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 0,
        "cap": 94204108348.2142,
        "sec": 2
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 1,
        "cap": 9690108632.821058,
        "sec": 3
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 2,
        "cap": 9690108632.821058,
        "sec": 3
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 3,
        "cap": 11408100339.983242,
        "sec": 2
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 4,
        "cap": 11408100339.983242,
        "sec": 2
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 0,
        "cap": 9005783555.427687,
        "sec": 3
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 1,
        "cap": 926361095.13606,
        "sec": 4
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 2,
        "cap": 926361095.13606,
        "sec": 4
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 3,
        "cap": 1090598746.0836434,
        "sec": 4
       },
       {
-       "s": 40,
+       "s": 41,
        "d": 4,
        "cap": 1090598746.0836434,
        "sec": 4
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 0,
        "cap": 793743709.1998442,
        "sec": 3
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 1,
        "cap": 81646786.99929145,
        "sec": 4
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 2,
        "cap": 81646786.99929145,
        "sec": 4
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 3,
        "cap": 96122218.4207846,
        "sec": 4
       },
       {
-       "s": 41,
+       "s": 42,
        "d": 4,
        "cap": 96122218.4207846,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 0,
        "cap": 9007308755.85092,
        "sec": 3
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 1,
        "cap": 926517981.6885371,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 2,
        "cap": 926517981.6885371,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 3,
        "cap": 1090783447.57673,
        "sec": 4
       },
       {
-       "s": 42,
+       "s": 43,
        "d": 4,
        "cap": 1090783447.57673,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 0,
        "cap": 810867296.3762108,
        "sec": 3
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 1,
        "cap": 83408168.99028951,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 2,
        "cap": 83408168.99028951,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 3,
        "cap": 98195881.70483544,
        "sec": 4
       },
       {
-       "s": 43,
+       "s": 44,
        "d": 4,
        "cap": 98195881.70483544,
        "sec": 4
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 0,
        "cap": 103580890835.07375,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 1,
        "cap": 10654631757.313065,
        "sec": 4
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 2,
        "cap": 10654631757.313065,
        "sec": 4
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 3,
        "cap": 12543626989.00034,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 4,
        "cap": 12543626989.00034,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 0,
        "cap": 28003671794.73646,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 1,
        "cap": 2880539145.976721,
        "sec": 4
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 2,
        "cap": 2880539145.976721,
        "sec": 4
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 3,
        "cap": 3391239547.0209684,
        "sec": 3
       },
       {
-       "s": 45,
+       "s": 46,
        "d": 4,
        "cap": 3391239547.0209684,
        "sec": 3
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 0,
        "cap": 68890169122.06621,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 1,
        "cap": 7086243203.520446,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 2,
        "cap": 7086243203.520446,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 3,
        "cap": 8342586916.463764,
        "sec": 4
       },
       {
-       "s": 46,
+       "s": 47,
        "d": 4,
        "cap": 8342586916.463764,
        "sec": 4
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 0,
        "cap": 55115897106.579704,
        "sec": 4
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 1,
        "cap": 5669381513.425997,
        "sec": 4
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 2,
        "cap": 5669381513.425997,
        "sec": 4
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 3,
        "cap": 6674525087.545958,
        "sec": 4
       },
       {
-       "s": 47,
+       "s": 48,
        "d": 4,
        "cap": 6674525087.545958,
        "sec": 4
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 0,
        "cap": 68826681247.68864,
        "sec": 2
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 1,
        "cap": 7079712656.0701,
        "sec": 3
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 2,
        "cap": 7079712656.0701,
        "sec": 3
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 3,
        "cap": 8334898546.455586,
        "sec": 2
       },
       {
-       "s": 48,
+       "s": 49,
        "d": 4,
        "cap": 8334898546.455586,
        "sec": 2
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 0,
        "cap": 4442024720.539232,
        "sec": 3
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 1,
        "cap": 456919584.9993705,
        "sec": 3
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 2,
        "cap": 456919584.9993705,
        "sec": 3
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 3,
        "cap": 537928383.5189362,
        "sec": 3
       },
       {
-       "s": 49,
+       "s": 50,
        "d": 4,
        "cap": 537928383.5189362,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 0,
        "cap": 6484715497.207926,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 1,
        "cap": 667036700.6565294,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 2,
        "cap": 667036700.6565294,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 3,
        "cap": 785297864.0266991,
        "sec": 3
       },
       {
-       "s": 50,
+       "s": 51,
        "d": 4,
        "cap": 785297864.0266991,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 0,
        "cap": 4545959035.741337,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 1,
        "cap": 467610571.0152193,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 2,
        "cap": 467610571.0152193,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 3,
        "cap": 550514810.1343262,
        "sec": 3
       },
       {
-       "s": 51,
+       "s": 52,
        "d": 4,
        "cap": 550514810.1343262,
        "sec": 3
       },
       {
-       "s": 52,
+       "s": 53,
        "d": 0,
        "cap": 6556345690.388768,
        "sec": 3
       },
       {
-       "s": 52,
+       "s": 53,
        "d": 1,
        "cap": 674404790.7057092,
        "sec": 3
       },
       {
-       "s": 52,
+       "s": 53,
        "d": 2,
        "cap": 674404790.7057092,
        "sec": 3
       },
       {
-       "s": 52,
+       "s": 53,
        "d": 3,
        "cap": 793972267.3569539,
        "sec": 3
       },
       {
-       "s": 52,
+       "s": 53,
        "d": 4,
        "cap": 793972267.3569539,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 0,
        "cap": 29289828433.991978,
        "sec": 2
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 1,
        "cap": 3012836959.434516,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 2,
        "cap": 3012836959.434516,
        "sec": 3
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 3,
        "cap": 3546992881.4650145,
        "sec": 2
       },
       {
-       "s": 53,
+       "s": 54,
        "d": 4,
        "cap": 3546992881.4650145,
        "sec": 2
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 0,
        "cap": 60134768577.105064,
        "sec": 2
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 1,
        "cap": 6185637233.227405,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 2,
        "cap": 6185637233.227405,
        "sec": 3
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 3,
        "cap": 7282309507.282659,
        "sec": 2
       },
       {
-       "s": 54,
+       "s": 55,
        "d": 4,
        "cap": 7282309507.282659,
        "sec": 2
       },
       {
-       "s": 55,
+       "s": 56,
        "d": 0,
        "cap": 47626523861.536575,
        "sec": 3
       },
       {
-       "s": 55,
+       "s": 56,
        "d": 1,
        "cap": 4899002794.188459,
        "sec": 4
       },
       {
-       "s": 55,
+       "s": 56,
        "d": 2,
        "cap": 4899002794.188459,
        "sec": 4
       },
       {
-       "s": 55,
+       "s": 56,
        "d": 3,
        "cap": 5767563353.486325,
        "sec": 3
       },
       {
-       "s": 55,
+       "s": 56,
        "d": 4,
        "cap": 5767563353.486325,
        "sec": 3
       },
       {
-       "s": 56,
+       "s": 57,
        "d": 0,
        "cap": 52364466400.32574,
        "sec": 3
       },
       {
-       "s": 56,
+       "s": 57,
        "d": 1,
        "cap": 5386361346.824251,
        "sec": 4
       },
       {
-       "s": 56,
+       "s": 57,
        "d": 2,
        "cap": 5386361346.824251,
        "sec": 4
       },
       {
-       "s": 56,
+       "s": 57,
        "d": 3,
        "cap": 6341327330.82571,
        "sec": 3
       },
       {
-       "s": 56,
+       "s": 57,
        "d": 4,
        "cap": 6341327330.82571,
        "sec": 3
       },
       {
-       "s": 57,
+       "s": 58,
        "d": 0,
        "cap": 40651530966.596504,
        "sec": 1
       },
       {
-       "s": 57,
+       "s": 58,
        "d": 1,
        "cap": 4181534734.140677,
        "sec": 2
       },
       {
-       "s": 57,
+       "s": 58,
        "d": 2,
        "cap": 4181534734.140677,
        "sec": 2
       },
       {
-       "s": 57,
+       "s": 58,
        "d": 3,
        "cap": 4922892986.011264,
        "sec": 2
       },
       {
-       "s": 57,
+       "s": 58,
        "d": 4,
        "cap": 4922892986.011264,
        "sec": 2
       },
       {
-       "s": 58,
+       "s": 59,
        "d": 0,
        "cap": 6505161198.275046,
        "sec": 3
       },
       {
-       "s": 58,
+       "s": 59,
        "d": 1,
        "cap": 669139804.946655,
        "sec": 3
       },
       {
-       "s": 58,
+       "s": 59,
        "d": 2,
        "cap": 669139804.946655,
        "sec": 3
       },
       {
-       "s": 58,
+       "s": 59,
        "d": 3,
        "cap": 787773834.6970315,
        "sec": 3
       },
       {
-       "s": 58,
+       "s": 59,
        "d": 4,
        "cap": 787773834.6970315,
        "sec": 3
       },
       {
-       "s": 59,
+       "s": 60,
        "d": 0,
        "cap": 4471820462.256619,
        "sec": 3
       },
       {
-       "s": 59,
+       "s": 60,
        "d": 1,
        "cap": 459984461.67088175,
        "sec": 3
       },
       {
-       "s": 59,
+       "s": 60,
        "d": 2,
        "cap": 459984461.67088175,
        "sec": 3
       },
       {
-       "s": 59,
+       "s": 60,
        "d": 3,
        "cap": 541536642.4067516,
        "sec": 3
       },
       {
-       "s": 59,
+       "s": 60,
        "d": 4,
        "cap": 541536642.4067516,
        "sec": 3
       },
       {
-       "s": 60,
+       "s": 61,
        "d": 0,
        "cap": 6515711384.2267275,
        "sec": 3
       },
       {
-       "s": 60,
+       "s": 61,
        "d": 1,
        "cap": 670225027.7650737,
        "sec": 3
       },
       {
-       "s": 60,
+       "s": 61,
        "d": 2,
        "cap": 670225027.7650737,
        "sec": 3
       },
       {
-       "s": 60,
+       "s": 61,
        "d": 3,
        "cap": 789051460.2916329,
        "sec": 3
       },
       {
-       "s": 60,
+       "s": 61,
        "d": 4,
        "cap": 789051460.2916329,
        "sec": 3
       },
       {
-       "s": 61,
+       "s": 62,
        "d": 0,
        "cap": 4487154414.088175,
        "sec": 3
       },
       {
-       "s": 61,
+       "s": 62,
        "d": 1,
        "cap": 461561756.56410426,
        "sec": 3
       },
       {
-       "s": 61,
+       "s": 62,
        "d": 2,
        "cap": 461561756.56410426,
        "sec": 3
       },
       {
-       "s": 61,
+       "s": 62,
        "d": 3,
        "cap": 543393581.1769403,
        "sec": 3
       },
       {
-       "s": 61,
+       "s": 62,
        "d": 4,
        "cap": 543393581.1769403,
        "sec": 3
       },
       {
-       "s": 62,
+       "s": 63,
        "d": 0,
        "cap": 60124018137.34042,
        "sec": 2
       },
       {
-       "s": 62,
+       "s": 63,
        "d": 1,
        "cap": 6184531411.719229,
        "sec": 3
       },
       {
-       "s": 62,
+       "s": 63,
        "d": 2,
        "cap": 6184531411.719229,
        "sec": 3
       },
       {
-       "s": 62,
+       "s": 63,
        "d": 3,
        "cap": 7281007630.987829,
        "sec": 2
       },
       {
-       "s": 62,
+       "s": 63,
        "d": 4,
        "cap": 7281007630.987829,
        "sec": 2
       },
       {
-       "s": 63,
+       "s": 64,
        "d": 0,
        "cap": 29267749765.70894,
        "sec": 2
       },
       {
-       "s": 63,
+       "s": 64,
        "d": 1,
        "cap": 3010565883.3861146,
        "sec": 3
       },
       {
-       "s": 63,
+       "s": 64,
        "d": 2,
        "cap": 3010565883.3861146,
        "sec": 3
       },
       {
-       "s": 63,
+       "s": 64,
        "d": 3,
        "cap": 3544319158.7626557,
        "sec": 2
       },
       {
-       "s": 63,
+       "s": 64,
        "d": 4,
        "cap": 3544319158.7626557,
        "sec": 2
       },
       {
-       "s": 64,
+       "s": 65,
        "d": 0,
        "cap": 52277670387.25421,
        "sec": 3
       },
       {
-       "s": 64,
+       "s": 65,
        "d": 1,
        "cap": 5377433256.422399,
        "sec": 4
       },
       {
-       "s": 64,
+       "s": 65,
        "d": 2,
        "cap": 5377433256.422399,
        "sec": 4
       },
       {
-       "s": 64,
+       "s": 65,
        "d": 3,
        "cap": 6330816349.472642,
        "sec": 3
       },
       {
-       "s": 64,
+       "s": 65,
        "d": 4,
        "cap": 6330816349.472642,
        "sec": 3
       },
       {
-       "s": 65,
+       "s": 66,
        "d": 0,
        "cap": 47531076289.91397,
        "sec": 3
       },
       {
-       "s": 65,
+       "s": 66,
        "d": 1,
        "cap": 4889184779.305889,
        "sec": 4
       },
       {
-       "s": 65,
+       "s": 66,
        "d": 2,
        "cap": 4889184779.305889,
        "sec": 4
       },
       {
-       "s": 65,
+       "s": 66,
        "d": 3,
        "cap": 5756004669.970597,
        "sec": 3
       },
       {
-       "s": 65,
+       "s": 66,
        "d": 4,
        "cap": 5756004669.970597,
        "sec": 3
       },
       {
-       "s": 66,
+       "s": 67,
        "d": 0,
        "cap": 19502536123.771828,
        "sec": 1
       },
       {
-       "s": 66,
+       "s": 67,
        "d": 1,
        "cap": 2006087600.3020775,
        "sec": 2
       },
       {
-       "s": 66,
+       "s": 67,
        "d": 2,
        "cap": 2006087600.3020775,
        "sec": 2
       },
       {
-       "s": 66,
+       "s": 67,
        "d": 3,
        "cap": 2361753567.7079043,
        "sec": 2
       },
       {
-       "s": 66,
+       "s": 67,
        "d": 4,
        "cap": 2361753567.7079043,
        "sec": 2
       },
       {
-       "s": 67,
+       "s": 68,
        "d": 0,
        "cap": 467363503136.34174,
        "sec": 2
       },
       {
-       "s": 67,
+       "s": 68,
        "d": 1,
        "cap": 48074369534.5725,
        "sec": 3
       },
       {
-       "s": 67,
+       "s": 68,
        "d": 2,
        "cap": 48074369534.5725,
        "sec": 3
       },
       {
-       "s": 67,
+       "s": 68,
        "d": 3,
        "cap": 56597634991.85575,
        "sec": 2
       },
       {
-       "s": 67,
+       "s": 68,
        "d": 4,
        "cap": 56597634991.85575,
        "sec": 2
       },
       {
-       "s": 68,
+       "s": 69,
        "d": 0,
        "cap": 635876231880.7821,
        "sec": 2
       },
       {
-       "s": 68,
+       "s": 69,
        "d": 1,
        "cap": 65408079031.730446,
        "sec": 3
       },
       {
-       "s": 68,
+       "s": 69,
        "d": 2,
        "cap": 65408079031.730446,
        "sec": 3
       },
       {
-       "s": 68,
+       "s": 69,
        "d": 3,
        "cap": 77004495709.38408,
        "sec": 2
       },
       {
-       "s": 68,
+       "s": 69,
        "d": 4,
        "cap": 77004495709.38408,
        "sec": 2
       },
       {
-       "s": 69,
+       "s": 70,
        "d": 0,
        "cap": 126540412589.12914,
        "sec": 1
       },
       {
-       "s": 69,
+       "s": 70,
        "d": 1,
        "cap": 13016314956.224552,
        "sec": 2
       },
       {
-       "s": 69,
+       "s": 70,
        "d": 2,
        "cap": 13016314956.224552,
        "sec": 2
       },
       {
-       "s": 69,
+       "s": 70,
        "d": 3,
        "cap": 15324020886.04907,
        "sec": 2
       },
       {
-       "s": 69,
+       "s": 70,
        "d": 4,
        "cap": 15324020886.04907,
        "sec": 2
       },
       {
-       "s": 70,
+       "s": 71,
        "d": 0,
        "cap": 269700430475.69125,
        "sec": 1
       },
       {
-       "s": 70,
+       "s": 71,
        "d": 1,
        "cap": 27742170861.251972,
        "sec": 2
       },
       {
-       "s": 70,
+       "s": 71,
        "d": 2,
        "cap": 27742170861.251972,
        "sec": 2
       },
       {
-       "s": 70,
+       "s": 71,
        "d": 3,
        "cap": 32660672942.526566,
        "sec": 2
       },
       {
-       "s": 70,
+       "s": 71,
        "d": 4,
        "cap": 32660672942.526566,
        "sec": 2
       },
       {
-       "s": 71,
-       "d": 0,
-       "cap": 4031880978509.6943,
-       "sec": 3
-      },
-      {
-       "s": 71,
-       "d": 1,
-       "cap": 414731006549.6144,
-       "sec": 4
-      },
-      {
-       "s": 71,
-       "d": 2,
-       "cap": 414731006549.6144,
-       "sec": 4
-      },
-      {
-       "s": 71,
-       "d": 3,
-       "cap": 488260051161.34985,
-       "sec": 3
-      },
-      {
-       "s": 71,
-       "d": 4,
-       "cap": 488260051161.34985,
-       "sec": 3
-      },
-      {
        "s": 72,
        "d": 0,
-       "cap": 57194082748029.18,
+       "cap": 4030907483894.9893,
        "sec": 3
       },
       {
        "s": 72,
        "d": 1,
-       "cap": 5883149734132.224,
+       "cap": 414630870061.5635,
        "sec": 4
       },
       {
        "s": 72,
        "d": 2,
-       "cap": 5883149734132.224,
+       "cap": 414630870061.5635,
        "sec": 4
       },
       {
        "s": 72,
        "d": 3,
-       "cap": 6926192989705.105,
+       "cap": 488142161141.0555,
        "sec": 3
       },
       {
        "s": 72,
        "d": 4,
-       "cap": 6926192989705.105,
+       "cap": 488142161141.0555,
        "sec": 3
       },
       {
        "s": 73,
        "d": 0,
-       "cap": 27544175784824.586,
+       "cap": 57180273279980.64,
        "sec": 3
       },
       {
        "s": 73,
        "d": 1,
-       "cap": 2833274049682.4536,
-       "sec": 3
+       "cap": 5881729252075.78,
+       "sec": 4
       },
       {
        "s": 73,
        "d": 2,
-       "cap": 2833274049682.4536,
-       "sec": 3
+       "cap": 5881729252075.78,
+       "sec": 4
       },
       {
        "s": 73,
        "d": 3,
-       "cap": 3335594664023.7188,
+       "cap": 6924520665643.005,
        "sec": 3
       },
       {
        "s": 73,
        "d": 4,
-       "cap": 3335594664023.7188,
+       "cap": 6924520665643.005,
        "sec": 3
       },
       {
        "s": 74,
        "d": 0,
-       "cap": 40691471999213.76,
+       "cap": 27537525264401,
        "sec": 3
       },
       {
        "s": 74,
        "d": 1,
-       "cap": 4185643184947.7017,
+       "cap": 2832589957804.729,
        "sec": 3
       },
       {
        "s": 74,
        "d": 2,
-       "cap": 4185643184947.7017,
+       "cap": 2832589957804.729,
        "sec": 3
       },
       {
        "s": 74,
        "d": 3,
-       "cap": 4927729837776.752,
+       "cap": 3334789287213.3477,
        "sec": 3
       },
       {
        "s": 74,
        "d": 4,
-       "cap": 4927729837776.752,
+       "cap": 3334789287213.3477,
        "sec": 3
       },
       {
        "s": 75,
        "d": 0,
-       "cap": 58138546225998.7,
+       "cap": 40681647074056.8,
        "sec": 3
       },
       {
        "s": 75,
        "d": 1,
-       "cap": 5980299995004.368,
-       "sec": 4
+       "cap": 4184632564564.476,
+       "sec": 3
       },
       {
        "s": 75,
        "d": 2,
-       "cap": 5980299995004.368,
-       "sec": 4
+       "cap": 4184632564564.476,
+       "sec": 3
       },
       {
        "s": 75,
        "d": 3,
-       "cap": 7040567344635.563,
+       "cap": 4926540041132.117,
        "sec": 3
       },
       {
        "s": 75,
        "d": 4,
-       "cap": 7040567344635.563,
+       "cap": 4926540041132.117,
        "sec": 3
       },
       {
        "s": 76,
        "d": 0,
-       "cap": 4098460669078.3604,
+       "cap": 58124491252665.23,
        "sec": 3
       },
       {
        "s": 76,
        "d": 1,
-       "cap": 421579587207.7446,
-       "sec": 4
-      },
-      {
-       "s": 76,
-       "d": 2,
-       "cap": 421579587207.7446,
+       "cap": 5978854259560.119,
        "sec": 4
       },
       {
        "s": 76,
+       "d": 2,
+       "cap": 5978854259560.119,
+       "sec": 4
+      },
+      {
+       "s": 76,
        "d": 3,
-       "cap": 496322839546.383,
+       "cap": 7038865289928.2295,
        "sec": 3
       },
       {
        "s": 76,
        "d": 4,
-       "cap": 496322839546.383,
+       "cap": 7038865289928.2295,
        "sec": 3
       },
       {
        "s": 77,
        "d": 0,
-       "cap": 41433973357140.95,
+       "cap": 4097469867636.778,
        "sec": 3
       },
       {
        "s": 77,
        "d": 1,
-       "cap": 4262019034626.534,
-       "sec": 3
+       "cap": 421477670489.13403,
+       "sec": 4
       },
       {
        "s": 77,
        "d": 2,
-       "cap": 4262019034626.534,
-       "sec": 3
+       "cap": 421477670489.13403,
+       "sec": 4
       },
       {
        "s": 77,
        "d": 3,
-       "cap": 5017646616804.02,
+       "cap": 496202853672.5101,
        "sec": 3
       },
       {
        "s": 77,
        "d": 4,
-       "cap": 5017646616804.02,
+       "cap": 496202853672.5101,
        "sec": 3
       },
       {
        "s": 78,
        "d": 0,
-       "cap": 27894508902469.125,
+       "cap": 41423956708489.78,
        "sec": 3
       },
       {
        "s": 78,
        "d": 1,
-       "cap": 2869310333313.547,
+       "cap": 4260988693006.9536,
        "sec": 3
       },
       {
        "s": 78,
        "d": 2,
-       "cap": 2869310333313.547,
+       "cap": 4260988693006.9536,
        "sec": 3
       },
       {
        "s": 78,
        "d": 3,
-       "cap": 3378019940676.5693,
+       "cap": 5016433602479.204,
        "sec": 3
       },
       {
        "s": 78,
        "d": 4,
-       "cap": 3378019940676.5693,
+       "cap": 5016433602479.204,
        "sec": 3
       },
       {
        "s": 79,
        "d": 0,
-       "cap": 7189000931988.542,
-       "sec": 2
-      },
-      {
-       "s": 79,
-       "d": 1,
-       "cap": 739481549306.988,
+       "cap": 27887765414641.77,
        "sec": 3
       },
       {
        "s": 79,
+       "d": 1,
+       "cap": 2868616678538.2197,
+       "sec": 3
+      },
+      {
+       "s": 79,
        "d": 2,
-       "cap": 739481549306.988,
+       "cap": 2868616678538.2197,
        "sec": 3
       },
       {
        "s": 79,
        "d": 3,
-       "cap": 870586701730.7534,
+       "cap": 3377203305530.557,
        "sec": 3
       },
       {
        "s": 79,
        "d": 4,
-       "cap": 870586701730.7534,
+       "cap": 3377203305530.557,
        "sec": 3
       },
       {
        "s": 80,
        "d": 0,
-       "cap": 11412798955344.031,
+       "cap": 7187007880101.976,
        "sec": 2
       },
       {
        "s": 80,
        "d": 1,
-       "cap": 1173953701393.1814,
+       "cap": 739276538191.9708,
        "sec": 3
       },
       {
        "s": 80,
        "d": 2,
-       "cap": 1173953701393.1814,
+       "cap": 739276538191.9708,
        "sec": 3
       },
       {
        "s": 80,
        "d": 3,
-       "cap": 1382087872021.016,
+       "cap": 870345343510.7839,
        "sec": 3
       },
       {
        "s": 80,
        "d": 4,
-       "cap": 1382087872021.016,
+       "cap": 870345343510.7839,
        "sec": 3
       },
       {
        "s": 81,
        "d": 0,
-       "cap": 385457091675.587,
+       "cap": 11409634913399.379,
        "sec": 2
       },
       {
        "s": 81,
        "d": 1,
-       "cap": 39649237778.68876,
+       "cap": 1173628238834.2751,
        "sec": 3
       },
       {
        "s": 81,
        "d": 2,
-       "cap": 39649237778.68876,
+       "cap": 1173628238834.2751,
        "sec": 3
       },
       {
        "s": 81,
        "d": 3,
-       "cap": 46678783502.08464,
-       "sec": 2
+       "cap": 1381704707118.5784,
+       "sec": 3
       },
       {
        "s": 81,
        "d": 4,
-       "cap": 46678783502.08464,
-       "sec": 2
+       "cap": 1381704707118.5784,
+       "sec": 3
       },
       {
        "s": 82,
        "d": 0,
-       "cap": 4725138709134.711,
+       "cap": 385350228984.78723,
        "sec": 2
       },
       {
        "s": 82,
        "d": 1,
-       "cap": 486041513470.0565,
+       "cap": 39638245571.44003,
        "sec": 3
       },
       {
        "s": 82,
        "d": 2,
-       "cap": 486041513470.0565,
+       "cap": 39638245571.44003,
        "sec": 3
       },
       {
        "s": 82,
        "d": 3,
-       "cap": 572213435903.3986,
+       "cap": 46665842449.71846,
        "sec": 2
       },
       {
        "s": 82,
        "d": 4,
-       "cap": 572213435903.3986,
+       "cap": 46665842449.71846,
        "sec": 2
       },
       {
        "s": 83,
        "d": 0,
-       "cap": 11391223427553.69,
+       "cap": 4723828729249.103,
        "sec": 2
       },
       {
        "s": 83,
        "d": 1,
-       "cap": 1171734379839.5388,
+       "cap": 485906765128.1749,
        "sec": 3
       },
       {
        "s": 83,
        "d": 2,
-       "cap": 1171734379839.5388,
+       "cap": 485906765128.1749,
        "sec": 3
       },
       {
        "s": 83,
        "d": 3,
-       "cap": 1379475079540.5598,
-       "sec": 3
+       "cap": 572054797578.166,
+       "sec": 2
       },
       {
        "s": 83,
        "d": 4,
-       "cap": 1379475079540.5598,
-       "sec": 3
+       "cap": 572054797578.166,
+       "sec": 2
       },
       {
        "s": 84,
        "d": 0,
-       "cap": 7154698526286.02,
+       "cap": 11388065367128.135,
        "sec": 2
       },
       {
        "s": 84,
        "d": 1,
-       "cap": 735953104067.6798,
+       "cap": 1171409532557.088,
        "sec": 3
       },
       {
        "s": 84,
        "d": 2,
-       "cap": 735953104067.6798,
+       "cap": 1171409532557.088,
        "sec": 3
       },
       {
        "s": 84,
        "d": 3,
-       "cap": 866432686656.2653,
+       "cap": 1379092638998.9937,
        "sec": 3
       },
       {
        "s": 84,
        "d": 4,
-       "cap": 866432686656.2653,
+       "cap": 1379092638998.9937,
        "sec": 3
       },
       {
        "s": 85,
        "d": 0,
-       "cap": 4725138709134.711,
+       "cap": 7152714984270.859,
        "sec": 2
       },
       {
        "s": 85,
        "d": 1,
-       "cap": 486041513470.0565,
+       "cap": 735749071165.7004,
        "sec": 3
       },
       {
        "s": 85,
        "d": 2,
-       "cap": 486041513470.0565,
+       "cap": 735749071165.7004,
        "sec": 3
       },
       {
        "s": 85,
        "d": 3,
-       "cap": 572213435903.3986,
-       "sec": 2
+       "cap": 866192480079.9886,
+       "sec": 3
       },
       {
        "s": 85,
        "d": 4,
-       "cap": 572213435903.3986,
-       "sec": 2
+       "cap": 866192480079.9886,
+       "sec": 3
       },
       {
        "s": 86,
        "d": 0,
-       "cap": 385457091675.587,
+       "cap": 4723828729249.103,
        "sec": 2
       },
       {
        "s": 86,
        "d": 1,
-       "cap": 39649237778.68876,
+       "cap": 485906765128.1749,
        "sec": 3
       },
       {
        "s": 86,
        "d": 2,
-       "cap": 39649237778.68876,
+       "cap": 485906765128.1749,
        "sec": 3
       },
       {
        "s": 86,
        "d": 3,
-       "cap": 46678783502.08464,
+       "cap": 572054797578.166,
        "sec": 2
       },
       {
        "s": 86,
        "d": 4,
-       "cap": 46678783502.08464,
+       "cap": 572054797578.166,
+       "sec": 2
+      },
+      {
+       "s": 87,
+       "d": 0,
+       "cap": 385350228984.78723,
+       "sec": 2
+      },
+      {
+       "s": 87,
+       "d": 1,
+       "cap": 39638245571.44003,
+       "sec": 3
+      },
+      {
+       "s": 87,
+       "d": 2,
+       "cap": 39638245571.44003,
+       "sec": 3
+      },
+      {
+       "s": 87,
+       "d": 3,
+       "cap": 46665842449.71846,
+       "sec": 2
+      },
+      {
+       "s": 87,
+       "d": 4,
+       "cap": 46665842449.71846,
        "sec": 2
       }
      ]
@@ -19465,7 +19755,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 52.6932850813594,
+    "mglt": 52.27580240941478,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -19573,10 +19863,10 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "x4fnsr",
-   "build": 95506,
+   "signature": "9jejda",
+   "build": 95507,
    "crew": 1000,
-   "total": 96506,
+   "total": 96507,
    "by": {
     "hull": 11,
     "armor": 7,
@@ -19584,7 +19874,7 @@ const CRAFT_PRICE_CATALOG={
     "drive": 32867,
     "defense": 1500,
     "command": 14502,
-    "weapons": 19600,
+    "weapons": 19601,
     "systems": 12000,
     "crew": 1000
    },
@@ -19601,6 +19891,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 1.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 4,
     "targetCapacity": 4.920750000000001,
@@ -19726,7 +20017,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.28,
       "z": 0,
       "r": 0.048,
-      "share": 0.7332166204610195,
+      "share": 0.7310032566753409,
       "domain": "main",
       "port": "p9",
       "powerConnected": true
@@ -19734,10 +20025,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "I-a3a 太陽イオン化反応炉",
-      "w": 0.5230124468000039,
+      "w": 0.523030689423394,
       "hits": 1,
-      "crew": 0.000041177610734256214,
-      "size": 0.20588805367128107,
+      "crew": 0.00004117976515964217,
+      "size": 0.2058988257982108,
       "at": 0.448,
       "part": 10,
       "y": -0.04,
@@ -19811,7 +20102,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.31,
       "z": 0,
       "r": 0.02,
-      "share": 0.04931151591747049,
+      "share": 0.04916265905784282,
       "domain": "main",
       "port": "p14",
       "powerConnected": true
@@ -19828,9 +20119,26 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.05,
       "z": 0,
       "r": 0.015,
-      "share": 0.021880321781907266,
+      "share": 0.02181427157177889,
       "domain": "main",
       "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.022500000000000006,
+      "hits": 1,
+      "crew": 6.75e-7,
+      "size": 0.003375,
+      "at": 0.318,
+      "part": 20,
+      "y": 0.24,
+      "z": 0.14,
+      "r": 0.008,
+      "share": 0.003018703782637819,
+      "domain": "main",
+      "port": "p20",
       "powerConnected": true
      },
      {
@@ -19840,14 +20148,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.318,
-      "part": 20,
+      "at": 0.302,
+      "part": 21,
       "y": 0.24,
       "z": 0.14,
       "r": 0.011,
-      "share": 0.00955273550919466,
+      "share": 0.009523898630378516,
       "domain": "main",
-      "port": "p20",
+      "port": "p21",
       "powerConnected": true
      },
      {
@@ -19858,13 +20166,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.318,
-      "part": 21,
+      "part": 22,
       "y": 0.24,
       "z": 0.18,
       "r": 0.014,
-      "share": 0.017658385896645243,
+      "share": 0.017605080460343762,
       "domain": "main",
-      "port": "p21",
+      "port": "p22",
       "powerConnected": true
      },
      {
@@ -19874,14 +20182,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.305,
-      "part": 22,
-      "y": 0.24,
+      "at": 0.318,
+      "part": 23,
+      "y": 0.21,
       "z": 0.14,
       "r": 0.009,
-      "share": 0.005232114339746737,
+      "share": 0.005216320136398151,
       "domain": "main",
-      "port": "p22",
+      "port": "p23",
       "powerConnected": true
      },
      {
@@ -19892,13 +20200,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.318,
-      "part": 23,
-      "y": 0.21,
+      "part": 24,
+      "y": 0.28,
       "z": 0.14,
       "r": 0.009,
-      "share": 0.005232114339746737,
+      "share": 0.005216320136398151,
       "domain": "main",
-      "port": "p23",
+      "port": "p24",
       "powerConnected": true
      },
      {
@@ -19908,14 +20216,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.318,
-      "part": 24,
-      "y": 0.28,
+      "at": 0.331,
+      "part": 25,
+      "y": 0.24,
       "z": 0.14,
       "r": 0.009,
-      "share": 0.005232114339746737,
+      "share": 0.005216320136398151,
       "domain": "main",
-      "port": "p24",
+      "port": "p25",
       "powerConnected": true
      },
      {
@@ -19925,14 +20233,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.331,
-      "part": 25,
-      "y": 0.24,
+      "at": 0.305,
+      "part": 26,
+      "y": 0.21,
       "z": 0.14,
       "r": 0.009,
-      "share": 0.005232114339746737,
+      "share": 0.005216320136398151,
       "domain": "main",
-      "port": "p25",
+      "port": "p26",
       "powerConnected": true
      },
      {
@@ -19943,13 +20251,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.293,
-      "part": 26,
+      "part": 27,
       "y": 0.24,
       "z": 0.19,
       "r": 0.018,
-      "share": 0.038464832358820526,
+      "share": 0.03834871842388043,
       "domain": "main",
-      "port": "p26",
+      "port": "p27",
       "powerConnected": true
      },
      {
@@ -19960,13 +20268,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.344,
-      "part": 27,
+      "part": 28,
       "y": 0.17,
       "z": 0.14,
       "r": 0.018,
-      "share": 0.038464832358820526,
+      "share": 0.03834871842388043,
       "domain": "main",
-      "port": "p27",
+      "port": "p28",
       "powerConnected": true
      },
      {
@@ -19977,13 +20285,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.03930400000000001,
       "at": 0.318,
-      "part": 28,
+      "part": 29,
       "y": 0.17,
       "z": 0.19,
       "r": 0.018,
-      "share": 0.03526114917856753,
+      "share": 0.035154706214162036,
       "domain": "main",
-      "port": "p28",
+      "port": "p29",
       "powerConnected": true
      },
      {
@@ -19994,30 +20302,30 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.03930400000000001,
       "at": 0.368,
-      "part": 29,
+      "part": 30,
       "y": 0.24,
       "z": 0.14,
       "r": 0.018,
-      "share": 0.03526114917856753,
+      "share": 0.035154706214162036,
       "domain": "main",
-      "port": "p29",
+      "port": "p30",
       "powerConnected": true
      },
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.021209191211256716,
+      "w": 0.021211523422492308,
       "hits": 1,
-      "crew": 1.544387100726538e-7,
-      "size": 0.0030887742014530754,
+      "crew": 1.5446418442427296e-7,
+      "size": 0.003089283688485459,
       "at": 0.318,
-      "part": 30,
+      "part": 31,
       "y": 0.32,
       "z": 0.18,
       "r": 0.008,
-      "share": 0.000422032367947186,
+      "share": 0.0004221019519453444,
       "domain": "main",
-      "port": "p30",
+      "port": "p31",
       "powerConnected": true
      },
      {
@@ -20069,7 +20377,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.87,
       "r": 0.08,
-      "share": 0.49978898381602666,
+      "share": 0.4997889490240276,
       "domain": "main",
       "port": "p1",
       "powerConnected": true
@@ -20087,7 +20395,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": -0.87,
       "r": 0.08,
-      "share": 0.4997889838160261,
+      "share": 0.49978894902402704,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -20103,21 +20411,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.093,
-      "share": 0.24238657551274084,
+      "share": 0.24253731343283583,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.0253051152325985,
+      "w": 1.0247311165489232,
       "hits": 1,
       "crew": 0,
-      "size": 17.87075074690041,
+      "size": 17.855745918397556,
       "at": 0.335,
       "y": -0.01,
       "z": 0,
       "r": 0.135,
-      "share": 0.7402113113735239,
+      "share": 0.740049751243781,
       "domain": "main"
      },
      {
@@ -20131,13 +20439,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.039,
-      "share": 0.01740211311373524,
+      "share": 0.017412935323383085,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 13.861346145194966,
+      "w": 13.87451409088554,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -20157,8 +20465,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.06173857882834664,
      "massKg": 15.43464470708666,
-     "capacityJ": 7.408629459401597e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 7.549419699742368e+21,
+     "specificEnergyJPerKg": 489121702702759940000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -20173,31 +20481,31 @@ const CRAFT_PRICE_CATALOG={
      "version": 2
     },
     "grid": {
-     "P": 1133104331734023800,
-     "fixed": 19745796986423784,
-     "cooling": 1171125539516735,
-     "De": 1078236501270947500,
+     "P": 1133160745402737700,
+     "fixed": 19745877031988172,
+     "cooling": 1171205585081124.5,
+     "De": 1078292914939661300,
      "Ds": 0,
      "Dw": 278933333333333.38,
      "domains": [
       {
        "id": "main",
-       "P": 1133104331734023800,
+       "P": 1133160745402737700,
        "reactors": [
         5
        ],
        "sources": [
         {
-         "moduleIndex": 24,
-         "P": 27433915231538176
-        },
-        {
          "moduleIndex": 25,
          "P": 27433915231538176
         },
         {
+         "moduleIndex": 26,
+         "P": 27433915231538176
+        },
+        {
          "moduleIndex": 5,
-         "P": 1078236501270947500
+         "P": 1078292914939661300
         }
        ],
        "modules": [
@@ -20230,7 +20538,8 @@ const CRAFT_PRICE_CATALOG={
         26,
         27,
         28,
-        29
+        29,
+        30
        ],
        "protection": 1
       }
@@ -20240,7 +20549,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "hotel",
-       "cap": 19745796986423784,
+       "cap": 19745877031988172,
        "auto": true,
        "ok": true,
        "routeId": "p10>hotel",
@@ -20276,7 +20585,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p9",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p9",
@@ -20288,7 +20597,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p13",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p13",
@@ -20300,7 +20609,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p14",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p14",
@@ -20312,7 +20621,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p19",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p19",
@@ -20324,7 +20633,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p20",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p20",
@@ -20336,10 +20645,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p21",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p21",
+       "model": "source-distance",
+       "lengthM": 1.8251619106260135,
+       "efficiency": 0.9999817485474535
+      },
+      {
+       "kind": "power",
+       "from": "p10",
+       "to": "p22",
+       "cap": 1234117314499260.8,
+       "auto": true,
+       "ok": true,
+       "routeId": "p10>p22",
        "model": "source-distance",
        "lengthM": 1.7846627132318307,
        "efficiency": 0.9999821535321178
@@ -20347,20 +20668,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p10",
-       "to": "p22",
-       "cap": 1316386465761585.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p10>p22",
-       "model": "source-distance",
-       "lengthM": 1.8037117286307145,
-       "efficiency": 0.9999819630453816
-      },
-      {
-       "kind": "power",
-       "from": "p10",
        "to": "p23",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p23",
@@ -20372,7 +20681,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p24",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p24",
@@ -20384,7 +20693,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p25",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p25",
@@ -20396,10 +20705,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p26",
-       "cap": 1316386465761585.5,
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
        "routeId": "p10>p26",
+       "model": "source-distance",
+       "lengthM": 1.7370238916031067,
+       "efficiency": 0.9999826299119456
+      },
+      {
+       "kind": "power",
+       "from": "p10",
+       "to": "p27",
+       "cap": 1234117314499260.8,
+       "auto": true,
+       "ok": true,
+       "routeId": "p10>p27",
        "model": "source-distance",
        "lengthM": 1.987221678625714,
        "efficiency": 0.9999801279806649
@@ -20407,11 +20728,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p10",
-       "to": "p27",
-       "cap": 1316386465761585.5,
+       "to": "p28",
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
-       "routeId": "p10>p27",
+       "routeId": "p10>p28",
        "model": "source-distance",
        "lengthM": 1.3928567765567283,
        "efficiency": 0.9999860715292365
@@ -20419,11 +20740,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p10",
-       "to": "p28",
-       "cap": 1316386465761585.5,
+       "to": "p29",
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
-       "routeId": "p10>p28",
+       "routeId": "p10>p29",
        "model": "source-distance",
        "lengthM": 1.6868277920404326,
        "efficiency": 0.9999831318643482
@@ -20431,11 +20752,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p10",
-       "to": "p29",
-       "cap": 1316386465761585.5,
+       "to": "p30",
+       "cap": 1234117314499260.8,
        "auto": true,
        "ok": true,
-       "routeId": "p10>p29",
+       "routeId": "p10>p30",
        "model": "source-distance",
        "lengthM": 1.3996699610979726,
        "efficiency": 0.9999860033983423
@@ -20491,24 +20812,24 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p10",
-       "to": "p30",
-       "cap": 485277658728280.6,
+       "to": "p31",
+       "cap": 485357704292670.25,
        "auto": false,
        "ok": true,
-       "routeId": "p10>p30",
+       "routeId": "p10>p31",
        "model": "source-distance",
-       "lengthM": 1.9580991867553594,
-       "efficiency": 0.9999804191998388
+       "lengthM": 1.9581130538242677,
+       "efficiency": 0.9999804190611709
       },
       {
        "kind": "power",
        "from": "p10",
        "to": "p11",
-       "cap": 1509531101779326500,
+       "cap": 1509610080915525600,
        "auto": true,
        "ok": true,
        "capacityGroup": "p10>p11",
-       "groupCap": 1586346064427633200,
+       "groupCap": 1586425043563832600,
        "routeId": "p10>p11",
        "model": "source-distance",
        "lengthM": 1.7199598832530953,
@@ -20518,11 +20839,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "p12",
-       "cap": 1509531101779326500,
+       "cap": 1509610080915525600,
        "auto": true,
        "ok": true,
        "capacityGroup": "p10>p12",
-       "groupCap": 1586346064427633200,
+       "groupCap": 1586425043563832600,
        "routeId": "p10>p12",
        "model": "source-distance",
        "lengthM": 1.7199598832530953,
@@ -20534,15 +20855,15 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 19745796986423784,
+       "weight": 19745877031988172,
        "domain": "main"
       }
      ],
      "coolingLoads": [
       {
-       "id": "p30",
-       "port": "p30",
-       "weight": 485277658728280.6,
+       "id": "p31",
+       "port": "p31",
+       "weight": 485357704292670.25,
        "domain": "main"
       },
       {
@@ -20567,23 +20888,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 17579012207522640,
-       "densityFactor": 30.66829036075003,
+       "densityFactor": 30.669894935229188,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2083018633.518916,
-       "shaftWattsPerNewton": 1978867701.84297,
-       "wattsPerNewton": 2083018633.518916,
-       "ratedShaftPowerW": 512162338103700030,
-       "ratedWasteHeatW": 26955912531773710,
+       "profileWattsPerNewton": 2083027978.3160076,
+       "shaftWattsPerNewton": 1978876579.400207,
+       "wattsPerNewton": 2083027978.3160076,
+       "ratedShaftPowerW": 512189134596339100,
+       "ratedWasteHeatW": 26957322873491556,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12448.784283286983,
+       "conversionMassKg": 12449.37758029188,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1078236501270947500,
-       "sourceInputLimitW": 1078236501270947500,
+       "availableInputW": 1078292914939661300,
+       "sourceInputLimitW": 1078292914939661300,
        "sourceIds": [
         "p10"
        ],
@@ -20594,10 +20915,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 539118250635473700,
+       "ratedInputW": 539146457469830660,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 258815855.96991155,
+       "ratedThrustN": 258828236.1457744,
        "effectiveMachineryVolumeM3": 0.05170297708094894,
        "machineryVolumeM3": 0.05170297708094894,
        "machineryShape": "frustum",
@@ -20605,12 +20926,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26249999999999996,
        "machineryDiameterM": 0.5249999999999999,
        "machineryOffsetM": 0.3,
-       "maxInputW": 1078236501270947500,
-       "maxRatedInputW": 1078236501270947500,
-       "inputDensityWPerM3": 10427218722655010000,
+       "maxInputW": 1078292914939661300,
+       "maxRatedInputW": 1078292914939661300,
+       "inputDensityWPerM3": 10427764277977924000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 517622890460792450,
-       "cost": 2932.09407189676,
+       "costBasisInputW": 517647559866542000,
+       "cost": 2932.3832008818554,
        "powerNode": "p11",
        "heatNode": "p11",
        "reactorId": 10,
@@ -20625,11 +20946,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 6,
-       "machineryModuleIndex": 22,
+       "machineryModuleIndex": 23,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1078236501270947500,
+       "pathCapacityW": 1078292914939661300,
        "transmissionRouteIds": [
         "p10>p11"
        ]
@@ -20637,23 +20958,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 17579012207522640,
-       "densityFactor": 30.66829036075003,
+       "densityFactor": 30.669894935229188,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2083018633.518916,
-       "shaftWattsPerNewton": 1978867701.84297,
-       "wattsPerNewton": 2083018633.518916,
-       "ratedShaftPowerW": 512162338103700030,
-       "ratedWasteHeatW": 26955912531773710,
+       "profileWattsPerNewton": 2083027978.3160076,
+       "shaftWattsPerNewton": 1978876579.400207,
+       "wattsPerNewton": 2083027978.3160076,
+       "ratedShaftPowerW": 512189134596339100,
+       "ratedWasteHeatW": 26957322873491556,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12448.784283286983,
+       "conversionMassKg": 12449.37758029188,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1078236501270947500,
-       "sourceInputLimitW": 1078236501270947500,
+       "availableInputW": 1078292914939661300,
+       "sourceInputLimitW": 1078292914939661300,
        "sourceIds": [
         "p10"
        ],
@@ -20664,10 +20985,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 539118250635473700,
+       "ratedInputW": 539146457469830660,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 258815855.96991155,
+       "ratedThrustN": 258828236.1457744,
        "effectiveMachineryVolumeM3": 0.05170297708094894,
        "machineryVolumeM3": 0.05170297708094894,
        "machineryShape": "frustum",
@@ -20675,12 +20996,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26249999999999996,
        "machineryDiameterM": 0.5249999999999999,
        "machineryOffsetM": 0.3,
-       "maxInputW": 1078236501270947500,
-       "maxRatedInputW": 1078236501270947500,
-       "inputDensityWPerM3": 10427218722655010000,
+       "maxInputW": 1078292914939661300,
+       "maxRatedInputW": 1078292914939661300,
+       "inputDensityWPerM3": 10427764277977924000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 517622890460792450,
-       "cost": 2932.09407189676,
+       "costBasisInputW": 517647559866542000,
+       "cost": 2932.3832008818554,
        "powerNode": "p12",
        "heatNode": "p12",
        "reactorId": 10,
@@ -20695,11 +21016,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 23,
+       "machineryModuleIndex": 24,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1078236501270947500,
+       "pathCapacityW": 1078292914939661300,
        "transmissionRouteIds": [
         "p10>p12"
        ]
@@ -20709,23 +21030,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 17579012207522640,
-       "densityFactor": 30.66829036075003,
+       "densityFactor": 30.669894935229188,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2083018633.518916,
-       "shaftWattsPerNewton": 1978867701.84297,
-       "wattsPerNewton": 2083018633.518916,
-       "ratedShaftPowerW": 512162338103700030,
-       "ratedWasteHeatW": 26955912531773710,
+       "profileWattsPerNewton": 2083027978.3160076,
+       "shaftWattsPerNewton": 1978876579.400207,
+       "wattsPerNewton": 2083027978.3160076,
+       "ratedShaftPowerW": 512189134596339100,
+       "ratedWasteHeatW": 26957322873491556,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12448.784283286983,
+       "conversionMassKg": 12449.37758029188,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1078236501270947500,
-       "sourceInputLimitW": 1078236501270947500,
+       "availableInputW": 1078292914939661300,
+       "sourceInputLimitW": 1078292914939661300,
        "sourceIds": [
         "p10"
        ],
@@ -20736,10 +21057,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 539118250635473700,
+       "ratedInputW": 539146457469830660,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 258815855.96991155,
+       "ratedThrustN": 258828236.1457744,
        "effectiveMachineryVolumeM3": 0.05170297708094894,
        "machineryVolumeM3": 0.05170297708094894,
        "machineryShape": "frustum",
@@ -20747,12 +21068,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26249999999999996,
        "machineryDiameterM": 0.5249999999999999,
        "machineryOffsetM": 0.3,
-       "maxInputW": 1078236501270947500,
-       "maxRatedInputW": 1078236501270947500,
-       "inputDensityWPerM3": 10427218722655010000,
+       "maxInputW": 1078292914939661300,
+       "maxRatedInputW": 1078292914939661300,
+       "inputDensityWPerM3": 10427764277977924000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 517622890460792450,
-       "cost": 2932.09407189676,
+       "costBasisInputW": 517647559866542000,
+       "cost": 2932.3832008818554,
        "powerNode": "p11",
        "heatNode": "p11",
        "reactorId": 10,
@@ -20768,7 +21089,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 6,
        "coreModuleIndex": 6,
-       "machineryModuleIndex": 22,
+       "machineryModuleIndex": 23,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 432950737572843160000,
        "shaftCapacityW": 432950737572843160000,
@@ -20777,28 +21098,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1078236501270947500
+       "pathCapacityW": 1078292914939661300
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 17579012207522640,
-       "densityFactor": 30.66829036075003,
+       "densityFactor": 30.669894935229188,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2083018633.518916,
-       "shaftWattsPerNewton": 1978867701.84297,
-       "wattsPerNewton": 2083018633.518916,
-       "ratedShaftPowerW": 512162338103700030,
-       "ratedWasteHeatW": 26955912531773710,
+       "profileWattsPerNewton": 2083027978.3160076,
+       "shaftWattsPerNewton": 1978876579.400207,
+       "wattsPerNewton": 2083027978.3160076,
+       "ratedShaftPowerW": 512189134596339100,
+       "ratedWasteHeatW": 26957322873491556,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12448.784283286983,
+       "conversionMassKg": 12449.37758029188,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1078236501270947500,
-       "sourceInputLimitW": 1078236501270947500,
+       "availableInputW": 1078292914939661300,
+       "sourceInputLimitW": 1078292914939661300,
        "sourceIds": [
         "p10"
        ],
@@ -20809,10 +21130,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 539118250635473700,
+       "ratedInputW": 539146457469830660,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 258815855.96991155,
+       "ratedThrustN": 258828236.1457744,
        "effectiveMachineryVolumeM3": 0.05170297708094894,
        "machineryVolumeM3": 0.05170297708094894,
        "machineryShape": "frustum",
@@ -20820,12 +21141,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26249999999999996,
        "machineryDiameterM": 0.5249999999999999,
        "machineryOffsetM": 0.3,
-       "maxInputW": 1078236501270947500,
-       "maxRatedInputW": 1078236501270947500,
-       "inputDensityWPerM3": 10427218722655010000,
+       "maxInputW": 1078292914939661300,
+       "maxRatedInputW": 1078292914939661300,
+       "inputDensityWPerM3": 10427764277977924000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 517622890460792450,
-       "cost": 2932.09407189676,
+       "costBasisInputW": 517647559866542000,
+       "cost": 2932.3832008818554,
        "powerNode": "p12",
        "heatNode": "p12",
        "reactorId": 10,
@@ -20841,7 +21162,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 7,
        "coreModuleIndex": 7,
-       "machineryModuleIndex": 23,
+       "machineryModuleIndex": 24,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 432950737572843160000,
        "shaftCapacityW": 432950737572843160000,
@@ -20850,22 +21171,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1078236501270947500
+       "pathCapacityW": 1078292914939661300
       }
      ],
-     "massKg": 12448.784283286983,
-     "ratedThrustN": 517622808.9585989,
-     "ratedAccelMps2": 41580.18945299979,
-     "structuralAccelerationLimitMps2": 734971.5690599439,
+     "massKg": 12449.37758029188,
+     "ratedThrustN": 517647568.88446015,
+     "ratedAccelMps2": 41580.19672436698,
+     "structuralAccelerationLimitMps2": 734971.5690599438,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 41580.18945299979,
+     "accelerationLimitMps2": 41580.19672436698,
      "conversionModelVersion": 1,
-     "conversionMassKg": 12448.784283286983,
+     "conversionMassKg": 12449.37758029188,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[1133104331734023800,[[\"main\",1133104331734023800,[[24,27433915231538176],[25,27433915231538176],[5,1078236501270947500]]]],[[5,\"reactor\",10,\"p10\",\"main\",0.20588805367128107,1],[24,\"dissipator\",1,\"p1\",\"main\",3.657860004649165,0.49978898381602666],[25,\"dissipator\",2,\"p2\",\"main\",3.657860004649161,0.4997889838160261]]]"
+     "sourceBudgetKey": "[1133160745402737700,[[\"main\",1133160745402737700,[[25,27433915231538176],[26,27433915231538176],[5,1078292914939661300]]]],[[5,\"reactor\",10,\"p10\",\"main\",0.2058988257982108,1],[25,\"dissipator\",1,\"p1\",\"main\",3.657860004649165,0.4997889490240276],[26,\"dissipator\",2,\"p2\",\"main\",3.657860004649161,0.49978894902402704]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 2058.0032734693305,
+    "maxSpeed": 2058.0026758095373,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -20893,7 +21214,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         6,
-        22
+        23
        ],
        "pc": [],
        "sec": 0,
@@ -20908,7 +21229,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         7,
-        23
+        24
        ],
        "pc": [],
        "sec": 0,
@@ -20949,7 +21270,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>hotel",
        "n": "送電損失 p10>hotel",
        "g": "high",
-       "sh": 0.0197225,
+       "sh": 0.0197215,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -21141,10 +21462,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p10>p30",
+       "n": "送電損失 p10>p30",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p10>p30"
+      },
+      {
+       "k": "feed",
        "id": "feed:p10>f15",
        "n": "送電損失 p10>f15",
        "g": "high",
-       "sh": 0.000266723,
+       "sh": 0.00026671,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21157,7 +21491,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f16",
        "n": "送電損失 p10>f16",
        "g": "high",
-       "sh": 0.000263707,
+       "sh": 0.000263693,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21170,7 +21504,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f17",
        "n": "送電損失 p10>f17",
        "g": "high",
-       "sh": 0.000266723,
+       "sh": 0.00026671,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21183,7 +21517,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f18",
        "n": "送電損失 p10>f18",
        "g": "high",
-       "sh": 0.000263707,
+       "sh": 0.000263693,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21193,23 +21527,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p10>p30",
-       "n": "送電損失 p10>p30",
+       "id": "feed:p10>p31",
+       "n": "送電損失 p10>p31",
        "g": "high",
-       "sh": 0.000510494,
+       "sh": 0.000510555,
        "m": [],
        "pc": [],
        "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p10>p30"
+       "routeId": "p10>p31"
       },
       {
        "k": "feed",
        "id": "feed:p10>p11",
        "n": "送電損失 p10>p11",
        "g": "high",
-       "sh": 0.489353,
+       "sh": 0.489354,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -21222,7 +21556,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>p12",
        "n": "送電損失 p10>p12",
        "g": "high",
-       "sh": 0.489353,
+       "sh": 0.489354,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -21233,15 +21567,15 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
-       "id": "p30",
-       "n": "機体内高エネルギー散逸装置 1 #30",
+       "id": "p31",
+       "n": "機体内高エネルギー散逸装置 1 #31",
        "k": "hdis",
        "g": "high",
-       "cap": 32351843915218708,
-       "m": 21,
+       "cap": 32357180286178016,
+       "m": 22,
        "sec": 2,
        "src": -1,
-       "power": 485277658728280.6
+       "power": 485357704292670.25
       },
       {
        "id": "p1",
@@ -21249,7 +21583,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 34292394039422720,
-       "m": 24,
+       "m": 25,
        "sec": 4,
        "src": -1,
        "power": 342923940394227.2
@@ -21260,7 +21594,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 34292394039422720,
-       "m": 25,
+       "m": 26,
        "sec": 4,
        "src": -1,
        "power": 342923940394227.2
@@ -21270,7 +21604,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 734561583963052800000,
+       "cap": 734561354578036700000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -21280,493 +21614,511 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 16588438098006960,
+       "cap": 16591165232129866,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 17583456981499256,
+       "cap": 17583447342486942,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 17583456981499256,
+       "cap": 17583447342486942,
        "sec": 3
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 10184325209042840,
+       "cap": 10186008329058136,
        "sec": 1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 10795208273425000,
+       "cap": 10795211703230972,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 10795208273425000,
+       "cap": 10795211703230972,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 10184325209042840,
+       "cap": 10186008329058136,
        "sec": 1
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 10795208273425000,
+       "cap": 10795211703230972,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 10795208273425000,
+       "cap": 10795211703230972,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 33526013367781.906,
+       "cap": 33529770746049.535,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 35536993316109.055,
+       "cap": 35535114626975.24,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 35536993316109.055,
+       "cap": 35535114626975.24,
        "sec": 4
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 29618695479635676,
+       "cap": 29618815547982256,
        "sec": 2
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 29618695479635676,
+       "cap": 29618815547982256,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 29618695479635676,
+       "cap": 29618815547982256,
        "sec": 3
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 734561583963052800000,
+       "cap": 734561354578036700000,
        "sec": -1
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 187620104541.77167,
+       "cap": 187641892447.0826,
        "sec": 2
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 198874060208.89935,
+       "cap": 198864352739.8781,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 198874060208.89935,
+       "cap": 198864352739.8781,
        "sec": 3
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 11726697927.286314,
+       "cap": 10995055989.962145,
        "sec": 2
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 12430096632.439981,
+       "cap": 11652646774.489172,
        "sec": 3
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 12430096632.439981,
+       "cap": 11652646774.489172,
        "sec": 3
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 10271392859.95159,
+       "cap": 9630549050.579954,
        "sec": 3
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 10887498474.900816,
+       "cap": 10206531593.222622,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 10887498474.900816,
+       "cap": 10206531593.222622,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 13634901844.768204,
+       "cap": 12784204908.35964,
        "sec": 2
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 14452759724.452385,
+       "cap": 13548800863.388645,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 14452759724.452385,
+       "cap": 13548800863.388645,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 9515869509.551136,
+       "cap": 8922163655.911642,
        "sec": 2
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 10086656813.268991,
+       "cap": 9455779183.06547,
        "sec": 3
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 10086656813.268991,
+       "cap": 9455779183.06547,
        "sec": 3
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 10819282098.527864,
+       "cap": 10144254860.331114,
        "sec": 3
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 11468251575.356354,
+       "cap": 10750961048.834135,
        "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 11468251575.356354,
+       "cap": 10750961048.834135,
        "sec": 3
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 11294764277.776403,
-       "sec": 3
+       "cap": 10830388549.818743,
+       "sec": 2
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 11972254447.410398,
+       "cap": 11478130926.911665,
        "sec": 3
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 11972254447.410398,
+       "cap": 11478130926.911665,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 11415320502.036407,
-       "sec": 2
-      },
-      {
-       "s": 12,
-       "d": 1,
-       "cap": 12100041956.433472,
+       "cap": 10590071169.02124,
        "sec": 3
       },
       {
        "s": 12,
+       "d": 1,
+       "cap": 11223440677.515913,
+       "sec": 3
+      },
+      {
+       "s": 12,
        "d": 2,
-       "cap": 12100041956.433472,
+       "cap": 11223440677.515913,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 10373008582.383223,
+       "cap": 9725824853.241888,
        "sec": 3
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 10995209380.1388,
+       "cap": 10307505637.883152,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 10995209380.1388,
+       "cap": 10307505637.883152,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 11304255191.859432,
+       "cap": 10598969934.247892,
        "sec": 3
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 11982314651.903917,
+       "cap": 11232871658.859705,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 11982314651.903917,
+       "cap": 11232871658.859705,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 10250655786.909729,
+       "cap": 9611105786.962439,
        "sec": 3
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 10865517536.75586,
+       "cap": 10185925469.589872,
        "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 10865517536.75586,
+       "cap": 10185925469.589872,
        "sec": 3
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 12576705687.363415,
+       "cap": 10307387989.734686,
        "sec": 2
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 13331090131.342808,
+       "cap": 10923850821.827772,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 13331090131.342808,
+       "cap": 10923850821.827772,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 8815122133.004759,
-       "sec": 3
-      },
-      {
-       "s": 17,
-       "d": 1,
-       "cap": 9343876734.903322,
-       "sec": 3
-      },
-      {
-       "s": 17,
-       "d": 2,
-       "cap": 9343876734.903322,
-       "sec": 3
-      },
-      {
-       "s": 18,
-       "d": 0,
-       "cap": 10675592349.75166,
-       "sec": 3
-      },
-      {
-       "s": 18,
-       "d": 1,
-       "cap": 11315942931.145157,
-       "sec": 3
-      },
-      {
-       "s": 18,
-       "d": 2,
-       "cap": 11315942931.145157,
-       "sec": 3
-      },
-      {
-       "s": 19,
-       "d": 0,
-       "cap": 8858241163.309431,
-       "sec": 3
-      },
-      {
-       "s": 19,
-       "d": 1,
-       "cap": 9389582159.969063,
-       "sec": 3
-      },
-      {
-       "s": 19,
-       "d": 2,
-       "cap": 9389582159.969063,
-       "sec": 3
-      },
-      {
-       "s": 20,
-       "d": 0,
-       "cap": 2864110162.683385,
-       "sec": 4
-      },
-      {
-       "s": 20,
-       "d": 1,
-       "cap": 3035907150.4066935,
-       "sec": 4
-      },
-      {
-       "s": 20,
-       "d": 2,
-       "cap": 3035907150.4066935,
-       "sec": 4
-      },
-      {
-       "s": 21,
-       "d": 0,
-       "cap": 2831718190.943097,
-       "sec": 4
-      },
-      {
-       "s": 21,
-       "d": 1,
-       "cap": 3001572221.56793,
-       "sec": 4
-      },
-      {
-       "s": 21,
-       "d": 2,
-       "cap": 3001572221.56793,
-       "sec": 4
-      },
-      {
-       "s": 22,
-       "d": 0,
-       "cap": 2864110162.683385,
-       "sec": 4
-      },
-      {
-       "s": 22,
-       "d": 1,
-       "cap": 3035907150.4066935,
-       "sec": 4
-      },
-      {
-       "s": 22,
-       "d": 2,
-       "cap": 3035907150.4066935,
-       "sec": 4
-      },
-      {
-       "s": 23,
-       "d": 0,
-       "cap": 2831718190.943097,
-       "sec": 4
-      },
-      {
-       "s": 23,
-       "d": 1,
-       "cap": 3001572221.56793,
-       "sec": 4
-      },
-      {
-       "s": 23,
-       "d": 2,
-       "cap": 3001572221.56793,
-       "sec": 4
-      },
-      {
-       "s": 24,
-       "d": 0,
-       "cap": 4568379995.503685,
-       "sec": 3
-      },
-      {
-       "s": 24,
-       "d": 1,
-       "cap": 4842403645.9304695,
-       "sec": 3
-      },
-      {
-       "s": 24,
-       "d": 2,
-       "cap": 4842403645.9304695,
-       "sec": 3
-      },
-      {
-       "s": 25,
-       "d": 0,
-       "cap": 12482401177338.268,
+       "cap": 11792030805.200073,
        "sec": 2
       },
       {
+       "s": 17,
+       "d": 1,
+       "cap": 12497286949.00122,
+       "sec": 3
+      },
+      {
+       "s": 17,
+       "d": 2,
+       "cap": 12497286949.00122,
+       "sec": 3
+      },
+      {
+       "s": 18,
+       "d": 0,
+       "cap": 8265136700.180255,
+       "sec": 3
+      },
+      {
+       "s": 18,
+       "d": 1,
+       "cap": 8759456850.241936,
+       "sec": 3
+      },
+      {
+       "s": 18,
+       "d": 2,
+       "cap": 8759456850.241936,
+       "sec": 3
+      },
+      {
+       "s": 19,
+       "d": 0,
+       "cap": 10009530077.380766,
+       "sec": 3
+      },
+      {
+       "s": 19,
+       "d": 1,
+       "cap": 10608178664.740473,
+       "sec": 3
+      },
+      {
+       "s": 19,
+       "d": 2,
+       "cap": 10608178664.740473,
+       "sec": 3
+      },
+      {
+       "s": 20,
+       "d": 0,
+       "cap": 8305565485.450623,
+       "sec": 3
+      },
+      {
+       "s": 20,
+       "d": 1,
+       "cap": 8802303594.697567,
+       "sec": 3
+      },
+      {
+       "s": 20,
+       "d": 2,
+       "cap": 8802303594.697567,
+       "sec": 3
+      },
+      {
+       "s": 21,
+       "d": 0,
+       "cap": 2864431153.5856824,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 1,
+       "cap": 3035746654.9555445,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 2,
+       "cap": 3035746654.9555445,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 0,
+       "cap": 2832035551.5631614,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 1,
+       "cap": 3001413541.257898,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 2,
+       "cap": 3001413541.257898,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 0,
+       "cap": 2864431153.5856824,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 1,
+       "cap": 3035746654.9555445,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 2,
+       "cap": 3035746654.9555445,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 0,
+       "cap": 2832035551.5631614,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 1,
+       "cap": 3001413541.257898,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 2,
+       "cap": 3001413541.257898,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 0,
+       "cap": 4569677980.84735,
+       "sec": 3
+      },
+      {
        "s": 25,
        "d": 1,
-       "cap": 13231128984585.55,
+       "cap": 4842980648.082939,
        "sec": 3
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 13231128984585.55,
+       "cap": 4842980648.082939,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 12482401177338.268,
+       "cap": 12484453280253.885,
        "sec": 2
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 13231128984585.55,
+       "cap": 13231121731460.33,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 13231128984585.55,
+       "cap": 13231121731460.33,
+       "sec": 3
+      },
+      {
+       "s": 27,
+       "d": 0,
+       "cap": 12484453280253.885,
+       "sec": 2
+      },
+      {
+       "s": 27,
+       "d": 1,
+       "cap": 13231121731460.33,
+       "sec": 3
+      },
+      {
+       "s": 27,
+       "d": 2,
+       "cap": 13231121731460.33,
        "sec": 3
       }
      ]
@@ -21781,7 +22133,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 102.90016367346652,
+    "mglt": 102.90013379047687,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -21889,15 +22241,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "11w5f9z",
-   "build": 85049,
+   "signature": "6nhdbo",
+   "build": 85050,
    "crew": 1000,
-   "total": 86049,
+   "total": 86050,
    "by": {
     "hull": 6,
     "armor": 6,
     "power": 15325,
-    "drive": 29911,
+    "drive": 29912,
     "defense": 1500,
     "command": 14501,
     "weapons": 11800,
@@ -21917,6 +22269,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 1.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 2,
     "targetCapacity": 2.31525,
@@ -21998,7 +22351,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.17,
       "z": 0,
       "r": 0.055,
-      "share": 0.7272592641926459,
+      "share": 0.7249792335709864,
       "domain": "main",
       "port": "p8",
       "powerConnected": true
@@ -22006,10 +22359,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "I-a2b 太陽イオン化反応炉",
-      "w": 0.3460866329839146,
+      "w": 0.3461277704556957,
       "hits": 1,
-      "crew": 0.000022165133207852696,
-      "size": 0.11082566603926348,
+      "crew": 0.000022169085301996807,
+      "size": 0.11084542650998404,
       "at": 0.498,
       "part": 9,
       "y": -0.32,
@@ -22083,7 +22436,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.12,
       "z": 0,
       "r": 0.023,
-      "share": 0.05024019056395709,
+      "share": 0.05008268253543992,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -22100,9 +22453,26 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.01,
       "z": 0,
       "r": 0.02,
-      "share": 0.034912347349622494,
+      "share": 0.03480289364452666,
       "domain": "main",
       "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.016900000000000005,
+      "hits": 1,
+      "crew": 4.3940000000000003e-7,
+      "size": 0.002197,
+      "at": 0.55,
+      "part": 17,
+      "y": 0.11,
+      "z": 0.17,
+      "r": 0.009,
+      "share": 0.003135100140925216,
+      "domain": "main",
+      "port": "p17",
       "powerConnected": true
      },
      {
@@ -22113,13 +22483,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.55,
-      "part": 17,
+      "part": 18,
       "y": 0.07,
       "z": 0.17,
       "r": 0.015,
-      "share": 0.015242391019671996,
+      "share": 0.015194604597438186,
       "domain": "main",
-      "port": "p17",
+      "port": "p18",
       "powerConnected": true
      },
      {
@@ -22129,14 +22499,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.009260999999999998,
-      "at": 0.55,
-      "part": 18,
+      "at": 0.53,
+      "part": 19,
       "y": 0.11,
       "z": 0.17,
       "r": 0.015,
-      "share": 0.013256929304393534,
+      "share": 0.013215367503463093,
       "domain": "main",
-      "port": "p18",
+      "port": "p19",
       "powerConnected": true
      },
      {
@@ -22146,14 +22516,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.533,
-      "part": 19,
+      "at": 0.55,
+      "part": 20,
       "y": 0.11,
-      "z": 0.17,
+      "z": 0.21,
       "r": 0.012,
-      "share": 0.00834838696719826,
+      "share": 0.008322213938040899,
       "domain": "main",
-      "port": "p19",
+      "port": "p20",
       "powerConnected": true
      },
      {
@@ -22164,13 +22534,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.55,
-      "part": 20,
-      "y": 0.11,
-      "z": 0.21,
+      "part": 21,
+      "y": 0.14,
+      "z": 0.17,
       "r": 0.012,
-      "share": 0.00834838696719826,
+      "share": 0.008322213938040899,
       "domain": "main",
-      "port": "p20",
+      "port": "p21",
       "powerConnected": true
      },
      {
@@ -22180,14 +22550,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.55,
-      "part": 21,
-      "y": 0.14,
+      "at": 0.568,
+      "part": 22,
+      "y": 0.11,
       "z": 0.17,
       "r": 0.012,
-      "share": 0.00834838696719826,
+      "share": 0.008322213938040899,
       "domain": "main",
-      "port": "p21",
+      "port": "p22",
       "powerConnected": true
      },
      {
@@ -22197,14 +22567,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.568,
-      "part": 22,
-      "y": 0.11,
+      "at": 0.533,
+      "part": 23,
+      "y": 0.08,
       "z": 0.17,
       "r": 0.012,
-      "share": 0.00834838696719826,
+      "share": 0.008322213938040899,
       "domain": "main",
-      "port": "p22",
+      "port": "p23",
       "powerConnected": true
      },
      {
@@ -22215,13 +22585,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.523,
-      "part": 23,
-      "y": 0.06,
-      "z": 0.17,
+      "part": 24,
+      "y": 0.11,
+      "z": 0.23,
       "r": 0.019,
-      "share": 0.03142383242522913,
+      "share": 0.03132531556376438,
       "domain": "main",
-      "port": "p23",
+      "port": "p24",
       "powerConnected": true
      },
      {
@@ -22231,14 +22601,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.021952000000000006,
-      "at": 0.523,
-      "part": 24,
-      "y": 0.11,
+      "at": 0.55,
+      "part": 25,
+      "y": 0.06,
       "z": 0.23,
       "r": 0.019,
-      "share": 0.03142383242522913,
+      "share": 0.03132531556376438,
       "domain": "main",
-      "port": "p24",
+      "port": "p25",
       "powerConnected": true
      },
      {
@@ -22248,14 +22618,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.021952000000000006,
-      "at": 0.55,
-      "part": 25,
+      "at": 0.577,
+      "part": 26,
       "y": 0.06,
-      "z": 0.23,
+      "z": 0.17,
       "r": 0.019,
-      "share": 0.03142383242522913,
+      "share": 0.03132531556376438,
       "domain": "main",
-      "port": "p25",
+      "port": "p26",
       "powerConnected": true
      },
      {
@@ -22265,14 +22635,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.021952000000000006,
-      "at": 0.577,
-      "part": 26,
+      "at": 0.523,
+      "part": 27,
       "y": 0.06,
-      "z": 0.17,
+      "z": 0.23,
       "r": 0.019,
-      "share": 0.03142383242522913,
+      "share": 0.03132531556376438,
       "domain": "main",
-      "port": "p26",
+      "port": "p27",
       "powerConnected": true
      },
      {
@@ -22378,7 +22748,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 12.395803850260123,
+      "w": 12.405968532743193,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -22398,8 +22768,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.042411500823462206,
      "massKg": 10.602875205865551,
-     "capacityJ": 5.0893800988154645e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 2.805125770500859e+21,
+     "specificEnergyJPerKg": 264562745107954570000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -22414,31 +22784,31 @@ const CRAFT_PRICE_CATALOG={
      "version": 3
     },
     "grid": {
-     "P": 640966353999118100,
+     "P": 641069839657626500,
      "fixed": 16782589004940868,
      "cooling": 787435084800000,
-     "De": 580394424399118100,
+     "De": 580497910057626500,
      "Ds": 0,
      "Dw": 139466666666666.69,
      "domains": [
       {
        "id": "main",
-       "P": 640966353999118100,
+       "P": 641069839657626500,
        "reactors": [
         3
        ],
        "sources": [
         {
-         "moduleIndex": 21,
-         "P": 30285964800000000
-        },
-        {
          "moduleIndex": 22,
          "P": 30285964800000000
         },
         {
+         "moduleIndex": 23,
+         "P": 30285964800000000
+        },
+        {
          "moduleIndex": 3,
-         "P": 580394424399118100
+         "P": 580497910057626500
         }
        ],
        "modules": [
@@ -22467,7 +22837,8 @@ const CRAFT_PRICE_CATALOG={
         22,
         23,
         24,
-        25
+        25,
+        26
        ],
        "protection": 1
       }
@@ -22513,7 +22884,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p8",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p8",
@@ -22525,7 +22896,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p12",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p12",
@@ -22537,7 +22908,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p13",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p13",
@@ -22549,7 +22920,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p16",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p16",
@@ -22561,22 +22932,10 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p17",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p17",
-       "model": "source-distance",
-       "lengthM": 1.7617366432018156,
-       "efficiency": 0.9999823827887528
-      },
-      {
-       "kind": "power",
-       "from": "p9",
-       "to": "p18",
-       "cap": 1198756357495776.2,
-       "auto": true,
-       "ok": true,
-       "routeId": "p9>p18",
        "model": "source-distance",
        "lengthM": 1.9064102391667956,
        "efficiency": 0.9999809360793271
@@ -22584,20 +22943,32 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p9",
+       "to": "p18",
+       "cap": 1118839266996057.9,
+       "auto": true,
+       "ok": true,
+       "routeId": "p9>p18",
+       "model": "source-distance",
+       "lengthM": 1.7617366432018156,
+       "efficiency": 0.9999823827887528
+      },
+      {
+       "kind": "power",
+       "from": "p9",
        "to": "p19",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p19",
        "model": "source-distance",
-       "lengthM": 1.8853424092190787,
-       "efficiency": 0.9999811467536325
+       "lengthM": 1.8826282160851624,
+       "efficiency": 0.9999811738950525
       },
       {
        "kind": "power",
        "from": "p9",
        "to": "p20",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p20",
@@ -22609,7 +22980,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p21",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p21",
@@ -22621,7 +22992,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p22",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p22",
@@ -22633,19 +23004,19 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p23",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p23",
        "model": "source-distance",
-       "lengthM": 1.6901692222969866,
-       "efficiency": 0.9999830984506098
+       "lengthM": 1.765443853539387,
+       "efficiency": 0.9999823457173033
       },
       {
        "kind": "power",
        "from": "p9",
        "to": "p24",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p24",
@@ -22657,7 +23028,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p25",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p25",
@@ -22669,13 +23040,25 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p26",
-       "cap": 1198756357495776.2,
+       "cap": 1118839266996057.9,
        "auto": true,
        "ok": true,
        "routeId": "p9>p26",
        "model": "source-distance",
        "lengthM": 1.7761171132557672,
        "efficiency": 0.9999822389865961
+      },
+      {
+       "kind": "power",
+       "from": "p9",
+       "to": "p27",
+       "cap": 1118839266996057.9,
+       "auto": true,
+       "ok": true,
+       "routeId": "p9>p27",
+       "model": "source-distance",
+       "lengthM": 1.7581490266754978,
+       "efficiency": 0.9999824186642867
       },
       {
        "kind": "power",
@@ -22705,11 +23088,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p10",
-       "cap": 812552194158765300,
+       "cap": 812697074080677000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p9>p10",
-       "groupCap": 897352895598765300,
+       "groupCap": 897497775520677000,
        "routeId": "p9>p10",
        "model": "source-distance",
        "lengthM": 1.3271846141362549,
@@ -22719,11 +23102,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "p11",
-       "cap": 812552194158765300,
+       "cap": 812697074080677000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p9>p11",
-       "groupCap": 897352895598765300,
+       "groupCap": 897497775520677000,
        "routeId": "p9>p11",
        "model": "source-distance",
        "lengthM": 1.3271846141362549,
@@ -22762,23 +23145,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 11250567812814488,
-       "densityFactor": 25.794005869554606,
+       "densityFactor": 25.798605000026516,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 1980639573.1168084,
-       "shaftWattsPerNewton": 1881607594.460968,
-       "wattsPerNewton": 1980639573.1168084,
-       "ratedShaftPowerW": 275687351589581100,
-       "ratedWasteHeatW": 14509860609977964,
+       "profileWattsPerNewton": 1980669955.9637465,
+       "shaftWattsPerNewton": 1881636458.165559,
+       "wattsPerNewton": 1980669955.9637465,
+       "ratedShaftPowerW": 275736507277372580,
+       "ratedWasteHeatW": 14512447751440676,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 7287.9851991057685,
+       "conversionMassKg": 7289.172939892746,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 580394424399118100,
-       "sourceInputLimitW": 580394424399118100,
+       "availableInputW": 580497910057626500,
+       "sourceInputLimitW": 580497910057626500,
        "sourceIds": [
         "p9"
        ],
@@ -22789,10 +23172,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 290197212199559040,
+       "ratedInputW": 290248955028813250,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 146516921.1695058,
+       "ratedThrustN": 146540797.5492742,
        "effectiveMachineryVolumeM3": 0.03308990533180732,
        "machineryVolumeM3": 0.03308990533180732,
        "machineryShape": "frustum",
@@ -22800,12 +23183,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.21,
        "machineryDiameterM": 0.42,
        "machineryOffsetM": 0.28,
-       "maxInputW": 580394424399118100,
-       "maxRatedInputW": 580394424399118100,
-       "inputDensityWPerM3": 8769961995648565000,
+       "maxInputW": 580497910057626500,
+       "maxRatedInputW": 580497910057626500,
+       "inputDensityWPerM3": 8771525700009015000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 293029952216523260,
-       "cost": 1455.0428420770502,
+       "costBasisInputW": 293077708025096600,
+       "cost": 1455.535722480614,
        "powerNode": "p10",
        "heatNode": "p10",
        "reactorId": 9,
@@ -22820,11 +23203,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 4,
-       "machineryModuleIndex": 19,
+       "machineryModuleIndex": 20,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 580394424399118100,
+       "pathCapacityW": 580497910057626500,
        "transmissionRouteIds": [
         "p9>p10"
        ]
@@ -22832,23 +23215,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 11250567812814488,
-       "densityFactor": 25.794005869554606,
+       "densityFactor": 25.798605000026516,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 1980639573.1168084,
-       "shaftWattsPerNewton": 1881607594.460968,
-       "wattsPerNewton": 1980639573.1168084,
-       "ratedShaftPowerW": 275687351589581100,
-       "ratedWasteHeatW": 14509860609977964,
+       "profileWattsPerNewton": 1980669955.9637465,
+       "shaftWattsPerNewton": 1881636458.165559,
+       "wattsPerNewton": 1980669955.9637465,
+       "ratedShaftPowerW": 275736507277372580,
+       "ratedWasteHeatW": 14512447751440676,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 7287.9851991057685,
+       "conversionMassKg": 7289.172939892746,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 580394424399118100,
-       "sourceInputLimitW": 580394424399118100,
+       "availableInputW": 580497910057626500,
+       "sourceInputLimitW": 580497910057626500,
        "sourceIds": [
         "p9"
        ],
@@ -22859,10 +23242,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 290197212199559040,
+       "ratedInputW": 290248955028813250,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 146516921.1695058,
+       "ratedThrustN": 146540797.5492742,
        "effectiveMachineryVolumeM3": 0.03308990533180732,
        "machineryVolumeM3": 0.03308990533180732,
        "machineryShape": "frustum",
@@ -22870,12 +23253,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.21,
        "machineryDiameterM": 0.42,
        "machineryOffsetM": 0.28,
-       "maxInputW": 580394424399118100,
-       "maxRatedInputW": 580394424399118100,
-       "inputDensityWPerM3": 8769961995648565000,
+       "maxInputW": 580497910057626500,
+       "maxRatedInputW": 580497910057626500,
+       "inputDensityWPerM3": 8771525700009015000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 293029952216523260,
-       "cost": 1455.0428420770502,
+       "costBasisInputW": 293077708025096600,
+       "cost": 1455.535722480614,
        "powerNode": "p11",
        "heatNode": "p11",
        "reactorId": 9,
@@ -22890,11 +23273,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 5,
-       "machineryModuleIndex": 20,
+       "machineryModuleIndex": 21,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 580394424399118100,
+       "pathCapacityW": 580497910057626500,
        "transmissionRouteIds": [
         "p9>p11"
        ]
@@ -22904,23 +23287,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 11250567812814488,
-       "densityFactor": 25.794005869554606,
+       "densityFactor": 25.798605000026516,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 1980639573.1168084,
-       "shaftWattsPerNewton": 1881607594.460968,
-       "wattsPerNewton": 1980639573.1168084,
-       "ratedShaftPowerW": 275687351589581100,
-       "ratedWasteHeatW": 14509860609977964,
+       "profileWattsPerNewton": 1980669955.9637465,
+       "shaftWattsPerNewton": 1881636458.165559,
+       "wattsPerNewton": 1980669955.9637465,
+       "ratedShaftPowerW": 275736507277372580,
+       "ratedWasteHeatW": 14512447751440676,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 7287.9851991057685,
+       "conversionMassKg": 7289.172939892746,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 580394424399118100,
-       "sourceInputLimitW": 580394424399118100,
+       "availableInputW": 580497910057626500,
+       "sourceInputLimitW": 580497910057626500,
        "sourceIds": [
         "p9"
        ],
@@ -22931,10 +23314,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 290197212199559040,
+       "ratedInputW": 290248955028813250,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 146516921.1695058,
+       "ratedThrustN": 146540797.5492742,
        "effectiveMachineryVolumeM3": 0.03308990533180732,
        "machineryVolumeM3": 0.03308990533180732,
        "machineryShape": "frustum",
@@ -22942,12 +23325,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.21,
        "machineryDiameterM": 0.42,
        "machineryOffsetM": 0.28,
-       "maxInputW": 580394424399118100,
-       "maxRatedInputW": 580394424399118100,
-       "inputDensityWPerM3": 8769961995648565000,
+       "maxInputW": 580497910057626500,
+       "maxRatedInputW": 580497910057626500,
+       "inputDensityWPerM3": 8771525700009015000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 293029952216523260,
-       "cost": 1455.0428420770502,
+       "costBasisInputW": 293077708025096600,
+       "cost": 1455.535722480614,
        "powerNode": "p10",
        "heatNode": "p10",
        "reactorId": 9,
@@ -22963,7 +23346,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 4,
        "coreModuleIndex": 4,
-       "machineryModuleIndex": 19,
+       "machineryModuleIndex": 20,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 277088472046619750000,
        "shaftCapacityW": 277088472046619750000,
@@ -22972,28 +23355,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 580394424399118100
+       "pathCapacityW": 580497910057626500
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 11250567812814488,
-       "densityFactor": 25.794005869554606,
+       "densityFactor": 25.798605000026516,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 1980639573.1168084,
-       "shaftWattsPerNewton": 1881607594.460968,
-       "wattsPerNewton": 1980639573.1168084,
-       "ratedShaftPowerW": 275687351589581100,
-       "ratedWasteHeatW": 14509860609977964,
+       "profileWattsPerNewton": 1980669955.9637465,
+       "shaftWattsPerNewton": 1881636458.165559,
+       "wattsPerNewton": 1980669955.9637465,
+       "ratedShaftPowerW": 275736507277372580,
+       "ratedWasteHeatW": 14512447751440676,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 7287.9851991057685,
+       "conversionMassKg": 7289.172939892746,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 580394424399118100,
-       "sourceInputLimitW": 580394424399118100,
+       "availableInputW": 580497910057626500,
+       "sourceInputLimitW": 580497910057626500,
        "sourceIds": [
         "p9"
        ],
@@ -23004,10 +23387,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 290197212199559040,
+       "ratedInputW": 290248955028813250,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 146516921.1695058,
+       "ratedThrustN": 146540797.5492742,
        "effectiveMachineryVolumeM3": 0.03308990533180732,
        "machineryVolumeM3": 0.03308990533180732,
        "machineryShape": "frustum",
@@ -23015,12 +23398,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.21,
        "machineryDiameterM": 0.42,
        "machineryOffsetM": 0.28,
-       "maxInputW": 580394424399118100,
-       "maxRatedInputW": 580394424399118100,
-       "inputDensityWPerM3": 8769961995648565000,
+       "maxInputW": 580497910057626500,
+       "maxRatedInputW": 580497910057626500,
+       "inputDensityWPerM3": 8771525700009015000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 293029952216523260,
-       "cost": 1455.0428420770502,
+       "costBasisInputW": 293077708025096600,
+       "cost": 1455.535722480614,
        "powerNode": "p11",
        "heatNode": "p11",
        "reactorId": 9,
@@ -23036,7 +23419,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 5,
        "coreModuleIndex": 5,
-       "machineryModuleIndex": 20,
+       "machineryModuleIndex": 21,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 277088472046619750000,
        "shaftCapacityW": 277088472046619750000,
@@ -23045,22 +23428,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 580394424399118100
+       "pathCapacityW": 580497910057626500
       }
      ],
-     "massKg": 7287.9851991057685,
-     "ratedThrustN": 293029953.26474947,
-     "ratedAccelMps2": 40207.26514382933,
-     "structuralAccelerationLimitMps2": 5064221.962106181,
+     "massKg": 7289.172939892746,
+     "ratedThrustN": 293077705.39052325,
+     "ratedAccelMps2": 40207.26463856346,
+     "structuralAccelerationLimitMps2": 5061946.176238806,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 40207.26514382933,
+     "accelerationLimitMps2": 40207.26463856346,
      "conversionModelVersion": 1,
-     "conversionMassKg": 7287.9851991057685,
+     "conversionMassKg": 7289.172939892746,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[640966353999118100,[[\"main\",640966353999118100,[[21,30285964800000000],[22,30285964800000000],[3,580394424399118100]]]],[[3,\"reactor\",9,\"p9\",\"main\",0.11082566603926348,1],[21,\"dissipator\",1,\"p1\",\"main\",4.03812459791652,0.4999999999999999],[22,\"dissipator\",2,\"p2\",\"main\",4.0381245979165215,0.5000000000000001]]]"
+     "sourceBudgetKey": "[641069839657626500,[[\"main\",641069839657626500,[[22,30285964800000000],[23,30285964800000000],[3,580497910057626500]]]],[[3,\"reactor\",9,\"p9\",\"main\",0.11084542650998404,1],[22,\"dissipator\",1,\"p1\",\"main\",4.03812459791652,0.4999999999999999],[23,\"dissipator\",2,\"p2\",\"main\",4.0381245979165215,0.5000000000000001]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1999.714216616124,
+    "maxSpeed": 1999.7151921336813,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -23088,7 +23471,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         4,
-        19
+        20
        ],
        "pc": [],
        "sec": 0,
@@ -23103,7 +23486,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         5,
-        20
+        21
        ],
        "pc": [],
        "sec": 0,
@@ -23142,7 +23525,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>hotel",
        "n": "送電損失 p9>hotel",
        "g": "high",
-       "sh": 0.00215767,
+       "sh": 0.00215728,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -23334,10 +23717,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p9>p27",
+       "n": "送電損失 p9>p27",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p9>p27"
+      },
+      {
+       "k": "feed",
        "id": "feed:p9>f14",
        "n": "送電損失 p9>f14",
        "g": "high",
-       "sh": 0.0000445659,
+       "sh": 0.0000445577,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -23350,7 +23746,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>f15",
        "n": "送電損失 p9>f15",
        "g": "high",
-       "sh": 0.0000445659,
+       "sh": 0.0000445577,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -23392,7 +23788,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 39371754240000000,
-       "m": 21,
+       "m": 22,
        "sec": 1,
        "src": -1,
        "power": 393717542400000
@@ -23403,7 +23799,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 39371754240000000,
-       "m": 22,
+       "m": 23,
        "sec": 1,
        "src": -1,
        "power": 393717542400000
@@ -23413,7 +23809,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 717973358376577000000,
+       "cap": 717973013183874500000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -23423,37 +23819,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 13929466185578834,
+       "cap": 13931949841383036,
        "sec": 1
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 13929466185578834,
+       "cap": 13931949841383036,
        "sec": 1
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 8465876456017690,
+       "cap": 8467428720293760,
        "sec": 0
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 8465876456017690,
+       "cap": 8467428720293760,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 8465876456017690,
+       "cap": 8467428720293760,
        "sec": 0
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 8465876456017690,
+       "cap": 8467428720293760,
        "sec": 0
       },
       {
@@ -23483,7 +23879,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 4,
        "d": 2,
-       "cap": 717973358376577000000,
+       "cap": 717973013183874500000,
        "sec": -1
       },
       {
@@ -23501,217 +23897,229 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 6,
        "d": 0,
-       "cap": 18534555504.55547,
+       "cap": 17298918470.91844,
        "sec": 1
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 18534555504.55547,
+       "cap": 17298918470.91844,
        "sec": 1
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 16119289187.639292,
+       "cap": 15044669908.463339,
        "sec": 0
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 16119289187.639292,
+       "cap": 15044669908.463339,
        "sec": 0
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 9594681630.668167,
+       "cap": 8955036188.623623,
        "sec": 0
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 9594681630.668167,
+       "cap": 8955036188.623623,
        "sec": 0
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 12311193472.674147,
+       "cap": 11490447241.162537,
        "sec": 1
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 12311193472.674147,
+       "cap": 11490447241.162537,
        "sec": 1
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 15839057987.905947,
+       "cap": 15997097273.767838,
        "sec": 2
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 15839057987.905947,
+       "cap": 15997097273.767838,
        "sec": 2
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 17139747079.036966,
+       "cap": 14783120788.712215,
        "sec": 2
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 17139747079.036966,
+       "cap": 14783120788.712215,
        "sec": 2
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 16950336706.87661,
+       "cap": 15797539094.907667,
        "sec": 2
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 16950336706.87661,
+       "cap": 15797539094.907667,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 17471083176.108448,
+       "cap": 16306344297.70122,
        "sec": 2
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 17471083176.108448,
+       "cap": 16306344297.70122,
        "sec": 2
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 18213143225.11183,
+       "cap": 16998933676.771046,
        "sec": 2
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 18213143225.11183,
+       "cap": 16998933676.771046,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 17400989996.85905,
+       "cap": 16240923997.06845,
        "sec": 2
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 17400989996.85905,
+       "cap": 16240923997.06845,
        "sec": 2
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 15195629837.235653,
+       "cap": 14814228533.815426,
        "sec": 2
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 15195629837.235653,
+       "cap": 14814228533.815426,
        "sec": 2
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 17429385728.48101,
+       "cap": 16267426679.915611,
        "sec": 2
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 17429385728.48101,
+       "cap": 16267426679.915611,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 16086960942.927467,
+       "cap": 15014496880.065634,
        "sec": 2
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 16086960942.927467,
+       "cap": 15014496880.065634,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 15968345800.11434,
+       "cap": 14903789413.440052,
        "sec": 2
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 15968345800.11434,
+       "cap": 14903789413.440052,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 301116898.6206903,
-       "sec": 1
+       "cap": 14753016571.692724,
+       "sec": 2
       },
       {
        "s": 20,
        "d": 1,
+       "cap": 14753016571.692724,
+       "sec": 2
+      },
+      {
+       "s": 21,
+       "d": 0,
        "cap": 301116898.6206903,
        "sec": 1
       },
       {
        "s": 21,
-       "d": 0,
-       "cap": 301116898.6294,
-       "sec": 1
-      },
-      {
-       "s": 21,
        "d": 1,
-       "cap": 301116898.6294,
+       "cap": 301116898.6206903,
        "sec": 1
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 8087997105551.721,
+       "cap": 301116898.6294,
        "sec": 1
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 8087997105551.721,
+       "cap": 301116898.6294,
        "sec": 1
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 8087997105551.721,
+       "cap": 8089439214006.414,
        "sec": 1
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 8087997105551.721,
+       "cap": 8089439214006.414,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 0,
+       "cap": 8089439214006.414,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 1,
+       "cap": 8089439214006.414,
        "sec": 1
       }
      ]
@@ -23726,7 +24134,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 99.9857108308062,
+    "mglt": 99.98575960668407,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -23790,15 +24198,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "uurigw",
-   "build": 134929,
+   "signature": "6ip0py",
+   "build": 134930,
    "crew": 1000,
-   "total": 135929,
+   "total": 135930,
    "by": {
     "hull": 60,
     "armor": 26,
     "power": 44985,
-    "drive": 37555,
+    "drive": 37556,
     "defense": 1500,
     "command": 14502,
     "weapons": 24300,
@@ -23818,6 +24226,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 1.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 4,
     "targetCapacity": 4.920750000000001,
@@ -23835,8 +24244,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 4.4061143941770844e-14,
-    "upS": 4.4061143941770844e-14,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -23943,7 +24352,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.37,
       "r": 0.061,
-      "share": 0.6273805793808002,
+      "share": 0.6244108290478034,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -23951,10 +24360,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "太陽イオン化反応炉（操縦席ポッド）",
-      "w": 0.34799446454154864,
+      "w": 0.3480076835570397,
       "hits": 1,
-      "crew": 0.00010264280409934792,
-      "size": 0.20528560819869585,
+      "crew": 0.00010264865268247599,
+      "size": 0.20529730536495197,
       "at": 0.446,
       "part": 14,
       "y": 0,
@@ -23968,10 +24377,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "太陽イオン化反応炉（兵装ポッド）",
-      "w": 0.34799446454154864,
+      "w": 0.3480076835570397,
       "hits": 1,
-      "crew": 0.00010264280409934792,
-      "size": 0.20528560819869585,
+      "crew": 0.00010264865268247599,
+      "size": 0.20529730536495197,
       "at": 0.446,
       "part": 15,
       "y": 0,
@@ -24045,7 +24454,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.37,
       "r": 0.033,
-      "share": 0.10211272450859381,
+      "share": 0.10162936670699928,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -24062,9 +24471,26 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.31,
       "z": 0.37,
       "r": 0.018,
-      "share": 0.016911522361377163,
+      "share": 0.01683147047450851,
       "domain": "main",
       "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.03610000000000001,
+      "hits": 1,
+      "crew": 0.0000013718000000000004,
+      "size": 0.0068590000000000005,
+      "at": 0.667,
+      "part": 25,
+      "y": 0.02,
+      "z": 0.37,
+      "r": 0.012,
+      "share": 0.004733570707476891,
+      "domain": "main",
+      "port": "p25",
       "powerConnected": true
      },
      {
@@ -24074,14 +24500,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.667,
-      "part": 25,
+      "at": 0.648,
+      "part": 26,
       "y": 0.02,
       "z": 0.37,
       "r": 0.014,
-      "share": 0.0073834060479701525,
+      "share": 0.007348456173380073,
       "domain": "main",
-      "port": "p25",
+      "port": "p26",
       "powerConnected": true
      },
      {
@@ -24092,13 +24518,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.667,
-      "part": 26,
+      "part": 27,
       "y": -0.05,
       "z": 0.37,
       "r": 0.017,
-      "share": 0.013648345345811094,
+      "share": 0.013583739938076635,
       "domain": "main",
-      "port": "p26",
+      "port": "p27",
       "powerConnected": true
      },
      {
@@ -24109,13 +24535,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.017576,
       "at": 0.667,
-      "part": 27,
+      "part": 28,
       "y": 0.02,
       "z": 0.32,
       "r": 0.016,
-      "share": 0.012187335152058923,
+      "share": 0.012129645539380934,
       "domain": "main",
-      "port": "p27",
+      "port": "p28",
       "powerConnected": true
      },
      {
@@ -24126,13 +24552,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.017576,
       "at": 0.667,
-      "part": 28,
+      "part": 29,
       "y": 0.02,
       "z": 0.41,
       "r": 0.016,
-      "share": 0.012187335152058923,
+      "share": 0.012129645539380934,
       "domain": "main",
-      "port": "p28",
+      "port": "p29",
       "powerConnected": true
      },
      {
@@ -24143,13 +24569,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.017576,
       "at": 0.667,
-      "part": 29,
+      "part": 30,
       "y": 0.09,
       "z": 0.37,
       "r": 0.016,
-      "share": 0.012187335152058923,
+      "share": 0.012129645539380934,
       "domain": "main",
-      "port": "p29",
+      "port": "p30",
       "powerConnected": true
      },
      {
@@ -24160,13 +24586,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.017576,
       "at": 0.69,
-      "part": 30,
+      "part": 31,
       "y": 0.02,
       "z": 0.37,
       "r": 0.016,
-      "share": 0.012187335152058923,
+      "share": 0.012129645539380934,
       "domain": "main",
-      "port": "p30",
+      "port": "p31",
       "powerConnected": true
      },
      {
@@ -24177,13 +24603,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.667,
-      "part": 31,
+      "part": 32,
       "y": -0.05,
       "z": 0.32,
       "r": 0.018,
-      "share": 0.015221687600022618,
+      "share": 0.015149634665480787,
       "domain": "main",
-      "port": "p31",
+      "port": "p32",
       "powerConnected": true
      },
      {
@@ -24194,13 +24620,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.667,
-      "part": 32,
+      "part": 33,
       "y": -0.05,
       "z": 0.41,
       "r": 0.018,
-      "share": 0.015221687600022618,
+      "share": 0.015149634665480787,
       "domain": "main",
-      "port": "p32",
+      "port": "p33",
       "powerConnected": true
      },
      {
@@ -24211,13 +24637,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.110592,
       "at": 0.625,
-      "part": 33,
+      "part": 34,
       "y": 0.15,
       "z": 0.37,
       "r": 0.03,
-      "share": 0.0766853532735833,
+      "share": 0.07632235773163497,
       "domain": "main",
-      "port": "p33",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -24228,30 +24654,30 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.110592,
       "at": 0.667,
-      "part": 34,
+      "part": 35,
       "y": -0.22,
       "z": 0.37,
       "r": 0.03,
-      "share": 0.0766853532735833,
+      "share": 0.07632235773163497,
       "domain": "main",
-      "port": "p34",
+      "port": "p35",
       "powerConnected": true
      },
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.053435884803319164,
+      "w": 0.05343906305220813,
       "hits": 1,
-      "crew": 6.176173842842936e-7,
-      "size": 0.012352347685685872,
+      "crew": 6.176724868888507e-7,
+      "size": 0.012353449737777014,
       "at": 0.686,
-      "part": 35,
+      "part": 36,
       "y": 0.13,
       "z": 0.3,
       "r": 0.015,
-      "share": 0.0016835008172249746,
+      "share": 0.001683650762964563,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -24303,7 +24729,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.99,
       "r": 0.098,
-      "share": 0.4991582495913874,
+      "share": 0.4991581746185176,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -24321,7 +24747,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": -0.99,
       "r": 0.098,
-      "share": 0.4991582495913876,
+      "share": 0.49915817461851786,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -24385,7 +24811,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 17.489005378020433,
+      "w": 17.510683147788356,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -24405,8 +24831,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.14313881527918496,
      "massKg": 35.78470381979624,
-     "capacityJ": 1.7176657833502196e+24,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 1.745246068444377e+22,
+     "specificEnergyJPerKg": 487707283322238860000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -24421,36 +24847,36 @@ const CRAFT_PRICE_CATALOG={
      "version": 2
     },
     "grid": {
-     "P": 2205100126162658300,
-     "fixed": 49304497447295450,
-     "cooling": 2654861565990519.5,
-     "De": 2150162984189844700,
+     "P": 2205222642368857900,
+     "fixed": 49304670590822200,
+     "cooling": 2655034709517273.5,
+     "De": 2150285500396044300,
      "Ds": 0,
      "Dw": 2139466666666666.8,
      "domains": [
       {
        "id": "main",
-       "P": 2205100126162658300,
+       "P": 2205222642368858000,
        "reactors": [
         5,
         6
        ],
        "sources": [
         {
-         "moduleIndex": 25,
-         "P": 27468570986406840
-        },
-        {
          "moduleIndex": 26,
          "P": 27468570986406840
         },
         {
+         "moduleIndex": 27,
+         "P": 27468570986406840
+        },
+        {
          "moduleIndex": 5,
-         "P": 1075081492094922400
+         "P": 1075142750198022100
         },
         {
          "moduleIndex": 6,
-         "P": 1075081492094922400
+         "P": 1075142750198022100
         }
        ],
        "modules": [
@@ -24485,7 +24911,8 @@ const CRAFT_PRICE_CATALOG={
         28,
         29,
         30,
-        31
+        31,
+        32
        ],
        "protection": 1
       }
@@ -24495,7 +24922,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "hotel",
-       "cap": 49304497447295450,
+       "cap": 49304670590822200,
        "auto": true,
        "ok": true,
        "routeId": "p14>hotel",
@@ -24531,7 +24958,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p13",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p13",
@@ -24543,7 +24970,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p18",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p15>p18",
@@ -24555,7 +24982,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p19",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p19",
@@ -24567,7 +24994,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p24",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p24",
@@ -24579,7 +25006,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p25",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p25",
@@ -24591,10 +25018,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p26",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p26",
+       "model": "source-distance",
+       "lengthM": 1.5971274213412028,
+       "efficiency": 0.9999840288533267
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p27",
+       "cap": 3081541911926387.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p14>p27",
        "model": "source-distance",
        "lengthM": 1.7547481300745131,
        "efficiency": 0.9999824526726554
@@ -24602,20 +25041,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p27",
-       "cap": 3286966496486363,
-       "auto": true,
-       "ok": true,
-       "routeId": "p14>p27",
-       "model": "source-distance",
-       "lengthM": 1.7604613031816407,
-       "efficiency": 0.9999823955419285
-      },
-      {
-       "kind": "power",
-       "from": "p14",
        "to": "p28",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p28",
@@ -24627,10 +25054,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p29",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p29",
+       "model": "source-distance",
+       "lengthM": 1.7604613031816407,
+       "efficiency": 0.9999823955419285
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p30",
+       "cap": 3081541911926387.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p14>p30",
        "model": "source-distance",
        "lengthM": 1.7666533332830188,
        "efficiency": 0.9999823336227195
@@ -24638,11 +25077,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p30",
-       "cap": 3286966496486363,
+       "to": "p31",
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
-       "routeId": "p14>p30",
+       "routeId": "p14>p31",
        "model": "source-distance",
        "lengthM": 1.932931452483507,
        "efficiency": 0.9999806708722851
@@ -24650,20 +25089,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p31",
-       "cap": 3286966496486363,
-       "auto": true,
-       "ok": true,
-       "routeId": "p14>p31",
-       "model": "source-distance",
-       "lengthM": 1.766185720698704,
-       "efficiency": 0.9999823382987627
-      },
-      {
-       "kind": "power",
-       "from": "p14",
        "to": "p32",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p32",
@@ -24675,10 +25102,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p33",
-       "cap": 3286966496486363,
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
        "routeId": "p14>p33",
+       "model": "source-distance",
+       "lengthM": 1.766185720698704,
+       "efficiency": 0.9999823382987627
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p34",
+       "cap": 3081541911926387.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p14>p34",
        "model": "source-distance",
        "lengthM": 1.4684045764025662,
        "efficiency": 0.999985316062046
@@ -24686,11 +25125,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p34",
-       "cap": 3286966496486363,
+       "to": "p35",
+       "cap": 3081541911926387.5,
        "auto": true,
        "ok": true,
-       "routeId": "p14>p34",
+       "routeId": "p14>p35",
        "model": "source-distance",
        "lengthM": 1.853926643640465,
        "efficiency": 0.9999814609054147
@@ -24794,36 +25233,36 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p14",
-       "to": "p35",
-       "cap": 1940678720343941.8,
+       "to": "p36",
+       "cap": 1940851863870695.8,
        "auto": false,
        "ok": true,
-       "routeId": "p14>p35",
+       "routeId": "p14>p36",
        "model": "source-distance",
-       "lengthM": 1.957356407828426,
-       "efficiency": 0.9999804266274827
+       "lengthM": 1.9573643014012492,
+       "efficiency": 0.9999804265485485
       },
       {
        "kind": "power",
        "from": "p15",
-       "to": "p35",
-       "cap": 1940678720343941.8,
+       "to": "p36",
+       "cap": 1940851863870695.8,
        "auto": false,
        "ok": true,
-       "routeId": "p15>p35",
+       "routeId": "p15>p36",
        "model": "source-distance",
-       "lengthM": 3.485394340281599,
-       "efficiency": 0.9999651466639888
+       "lengthM": 3.4853905101724254,
+       "efficiency": 0.9999651467022885
       },
       {
        "kind": "power",
        "from": "p14",
        "to": "p16",
-       "cap": 1505114088932891100,
+       "cap": 1505199850277230800,
        "auto": true,
        "ok": true,
        "capacityGroup": "p14>p16",
-       "groupCap": 3087140176627721000,
+       "groupCap": 3087311699316401000,
        "routeId": "p14>p16",
        "model": "source-distance",
        "lengthM": 1.6200000000000006,
@@ -24833,11 +25272,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p17",
-       "cap": 1505114088932891100,
+       "cap": 1505199850277230800,
        "auto": true,
        "ok": true,
        "capacityGroup": "p14>p17",
-       "groupCap": 3087140176627721000,
+       "groupCap": 3087311699316401000,
        "routeId": "p14>p17",
        "model": "source-distance",
        "lengthM": 3.5866976454672064,
@@ -24847,11 +25286,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p16",
-       "cap": 1505114088932891100,
+       "cap": 1505199850277230800,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p16",
-       "groupCap": 3087140176627721000,
+       "groupCap": 3087311699316401000,
        "routeId": "p15>p16",
        "model": "source-distance",
        "lengthM": 3.5866976454672064,
@@ -24861,11 +25300,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p17",
-       "cap": 1505114088932891100,
+       "cap": 1505199850277230800,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p17",
-       "groupCap": 3087140176627721000,
+       "groupCap": 3087311699316401000,
        "routeId": "p15>p17",
        "model": "source-distance",
        "lengthM": 1.6200000000000006,
@@ -24877,15 +25316,15 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 49304497447295450,
+       "weight": 49304670590822200,
        "domain": "main"
       }
      ],
      "coolingLoads": [
       {
-       "id": "p35",
-       "port": "p35",
-       "weight": 1940678720343941.8,
+       "id": "p36",
+       "port": "p36",
+       "weight": 1940851863870695.8,
        "domain": "main"
       },
       {
@@ -24910,23 +25349,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 34.400871457647,
+       "densityFactor": 34.40283161801249,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2323050100.280932,
-       "shaftWattsPerNewton": 2206897595.2668853,
-       "wattsPerNewton": 2323050100.280932,
-       "ratedShaftPowerW": 1021327417490176300,
-       "ratedWasteHeatW": 53754074604746170,
+       "profileWattsPerNewton": 2323061591.2392426,
+       "shaftWattsPerNewton": 2206908511.6772804,
+       "wattsPerNewton": 2323061591.2392426,
+       "ratedShaftPowerW": 1021385612688121000,
+       "ratedWasteHeatW": 53757137509901150,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39655.51933818162,
+       "conversionMassKg": 39657.60320888996,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2150162984189844700,
-       "sourceInputLimitW": 2150162984189844700,
+       "availableInputW": 2150285500396044300,
+       "sourceInputLimitW": 2150285500396044300,
        "sourceIds": [
         "p14",
         "p15"
@@ -24938,10 +25377,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1075081492094922400,
+       "ratedInputW": 1075142750198022100,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 462788767.21811134,
+       "ratedThrustN": 462812847.6027554,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -24949,12 +25388,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2150162984189844700,
-       "maxRatedInputW": 2150162984189844700,
-       "inputDensityWPerM3": 11696296295599980000,
+       "maxInputW": 2150285500396044300,
+       "maxRatedInputW": 2150285500396044300,
+       "inputDensityWPerM3": 11696962750124247000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 925552960948313500,
-       "cost": 5275.318591443189,
+       "costBasisInputW": 925601598130136200,
+       "cost": 5275.8920462665665,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -24969,11 +25408,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 23,
+       "machineryModuleIndex": 24,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2150162984189844700,
+       "pathCapacityW": 2150285500396044300,
        "transmissionRouteIds": [
         "p14>p16",
         "p15>p16"
@@ -24982,23 +25421,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 34.400871457647,
+       "densityFactor": 34.40283161801249,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2323050100.280932,
-       "shaftWattsPerNewton": 2206897595.2668853,
-       "wattsPerNewton": 2323050100.280932,
-       "ratedShaftPowerW": 1021327417490176300,
-       "ratedWasteHeatW": 53754074604746170,
+       "profileWattsPerNewton": 2323061591.2392426,
+       "shaftWattsPerNewton": 2206908511.6772804,
+       "wattsPerNewton": 2323061591.2392426,
+       "ratedShaftPowerW": 1021385612688121000,
+       "ratedWasteHeatW": 53757137509901150,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39655.51933818162,
+       "conversionMassKg": 39657.60320888996,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2150162984189844700,
-       "sourceInputLimitW": 2150162984189844700,
+       "availableInputW": 2150285500396044300,
+       "sourceInputLimitW": 2150285500396044300,
        "sourceIds": [
         "p14",
         "p15"
@@ -25010,10 +25449,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1075081492094922400,
+       "ratedInputW": 1075142750198022100,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 462788767.21811134,
+       "ratedThrustN": 462812847.6027554,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -25021,12 +25460,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2150162984189844700,
-       "maxRatedInputW": 2150162984189844700,
-       "inputDensityWPerM3": 11696296295599980000,
+       "maxInputW": 2150285500396044300,
+       "maxRatedInputW": 2150285500396044300,
+       "inputDensityWPerM3": 11696962750124247000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 925552960948313500,
-       "cost": 5275.318591443189,
+       "costBasisInputW": 925601598130136200,
+       "cost": 5275.8920462665665,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 15,
@@ -25041,11 +25480,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 24,
+       "machineryModuleIndex": 25,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2150162984189844700,
+       "pathCapacityW": 2150285500396044300,
        "transmissionRouteIds": [
         "p14>p17",
         "p15>p17"
@@ -25056,23 +25495,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 34.400871457647,
+       "densityFactor": 34.40283161801249,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2323050100.280932,
-       "shaftWattsPerNewton": 2206897595.2668853,
-       "wattsPerNewton": 2323050100.280932,
-       "ratedShaftPowerW": 1021327417490176300,
-       "ratedWasteHeatW": 53754074604746170,
+       "profileWattsPerNewton": 2323061591.2392426,
+       "shaftWattsPerNewton": 2206908511.6772804,
+       "wattsPerNewton": 2323061591.2392426,
+       "ratedShaftPowerW": 1021385612688121000,
+       "ratedWasteHeatW": 53757137509901150,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39655.51933818162,
+       "conversionMassKg": 39657.60320888996,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2150162984189844700,
-       "sourceInputLimitW": 2150162984189844700,
+       "availableInputW": 2150285500396044300,
+       "sourceInputLimitW": 2150285500396044300,
        "sourceIds": [
         "p14",
         "p15"
@@ -25084,10 +25523,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1075081492094922400,
+       "ratedInputW": 1075142750198022100,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 462788767.21811134,
+       "ratedThrustN": 462812847.6027554,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -25095,12 +25534,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2150162984189844700,
-       "maxRatedInputW": 2150162984189844700,
-       "inputDensityWPerM3": 11696296295599980000,
+       "maxInputW": 2150285500396044300,
+       "maxRatedInputW": 2150285500396044300,
+       "inputDensityWPerM3": 11696962750124247000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 925552960948313500,
-       "cost": 5275.318591443189,
+       "costBasisInputW": 925601598130136200,
+       "cost": 5275.8920462665665,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -25116,7 +25555,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 7,
        "coreModuleIndex": 7,
-       "machineryModuleIndex": 23,
+       "machineryModuleIndex": 24,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 769690200129499200000,
        "shaftCapacityW": 769690200129499200000,
@@ -25125,28 +25564,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2150162984189844700
+       "pathCapacityW": 2150285500396044300
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 34.400871457647,
+       "densityFactor": 34.40283161801249,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2323050100.280932,
-       "shaftWattsPerNewton": 2206897595.2668853,
-       "wattsPerNewton": 2323050100.280932,
-       "ratedShaftPowerW": 1021327417490176300,
-       "ratedWasteHeatW": 53754074604746170,
+       "profileWattsPerNewton": 2323061591.2392426,
+       "shaftWattsPerNewton": 2206908511.6772804,
+       "wattsPerNewton": 2323061591.2392426,
+       "ratedShaftPowerW": 1021385612688121000,
+       "ratedWasteHeatW": 53757137509901150,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39655.51933818162,
+       "conversionMassKg": 39657.60320888996,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2150162984189844700,
-       "sourceInputLimitW": 2150162984189844700,
+       "availableInputW": 2150285500396044300,
+       "sourceInputLimitW": 2150285500396044300,
        "sourceIds": [
         "p14",
         "p15"
@@ -25158,10 +25597,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1075081492094922400,
+       "ratedInputW": 1075142750198022100,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 462788767.21811134,
+       "ratedThrustN": 462812847.6027554,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -25169,12 +25608,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2150162984189844700,
-       "maxRatedInputW": 2150162984189844700,
-       "inputDensityWPerM3": 11696296295599980000,
+       "maxInputW": 2150285500396044300,
+       "maxRatedInputW": 2150285500396044300,
+       "inputDensityWPerM3": 11696962750124247000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 925552960948313500,
-       "cost": 5275.318591443189,
+       "costBasisInputW": 925601598130136200,
+       "cost": 5275.8920462665665,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 15,
@@ -25190,7 +25629,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 8,
        "coreModuleIndex": 8,
-       "machineryModuleIndex": 24,
+       "machineryModuleIndex": 25,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 769690200129499200000,
        "shaftCapacityW": 769690200129499200000,
@@ -25199,22 +25638,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2150162984189844700
+       "pathCapacityW": 2150285500396044300
       }
      ],
-     "massKg": 39655.51933818162,
-     "ratedThrustN": 925553438.693276,
-     "ratedAccelMps2": 23339.839047376267,
-     "structuralAccelerationLimitMps2": 2586028.151598807,
+     "massKg": 39657.60320888996,
+     "ratedThrustN": 925601598.2087853,
+     "ratedAccelMps2": 23339.827001983194,
+     "structuralAccelerationLimitMps2": 2586025.1763009015,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 23339.839047376267,
+     "accelerationLimitMps2": 23339.827001983194,
      "conversionModelVersion": 1,
-     "conversionMassKg": 39655.51933818162,
+     "conversionMassKg": 39657.60320888996,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2205100126162658300,[[\"main\",2205100126162658300,[[25,27468570986406840],[26,27468570986406840],[5,1075081492094922400],[6,1075081492094922400]]]],[[5,\"reactor\",14,\"p14\",\"main\",0.20528560819869585,0.5],[6,\"reactor\",15,\"p15\",\"main\",0.20528560819869585,0.5],[25,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.4991582495913874],[26,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.4991582495913876]]]"
+     "sourceBudgetKey": "[2205222642368857900,[[\"main\",2205222642368858000,[[26,27468570986406840],[27,27468570986406840],[5,1075142750198022100],[6,1075142750198022100]]]],[[5,\"reactor\",14,\"p14\",\"main\",0.20529730536495197,0.5],[6,\"reactor\",15,\"p15\",\"main\",0.20529730536495197,0.5],[26,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.4991581746185176],[27,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.49915817461851786]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1112.8105595486682,
+    "maxSpeed": 1112.809726202622,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -25256,7 +25695,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         7,
-        23
+        24
        ],
        "pc": [],
        "sec": 0,
@@ -25271,7 +25710,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         8,
-        24
+        25
        ],
        "pc": [],
        "sec": 0,
@@ -25312,7 +25751,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.0196904,
+       "sh": 0.0196892,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -25445,7 +25884,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p14>p30"
@@ -25458,7 +25897,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
        "routeId": "p14>p31"
@@ -25484,7 +25923,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p14>p33"
@@ -25497,17 +25936,30 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 2,
        "sw": -1,
        "gen": -1,
        "routeId": "p14>p34"
       },
       {
        "k": "feed",
+       "id": "feed:p14>p35",
+       "n": "送電損失 p14>p35",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p35"
+      },
+      {
+       "k": "feed",
        "id": "feed:p14>f20",
        "n": "送電損失 p14>f20",
        "g": "high",
-       "sh": 0.0000419834,
+       "sh": 0.0000419811,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25520,7 +25972,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f21",
        "n": "送電損失 p14>f21",
        "g": "high",
-       "sh": 0.0000419546,
+       "sh": 0.0000419522,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25533,7 +25985,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f22",
        "n": "送電損失 p14>f22",
        "g": "high",
-       "sh": 0.000923741,
+       "sh": 0.000923688,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25546,7 +25998,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f23",
        "n": "送電損失 p14>f23",
        "g": "high",
-       "sh": 0.000660637,
+       "sh": 0.0006606,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -25608,29 +26060,29 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p14>p35",
-       "n": "送電損失 p14>p35",
+       "id": "feed:p14>p36",
+       "n": "送電損失 p14>p36",
        "g": "high",
-       "sh": 0.000679,
+       "sh": 0.000679025,
        "m": [],
        "pc": [],
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p14>p35"
+       "routeId": "p14>p36"
       },
       {
        "k": "feed",
-       "id": "feed:p15>p35",
-       "n": "送電損失 p15>p35",
+       "id": "feed:p15>p36",
+       "n": "送電損失 p15>p36",
        "g": "high",
-       "sh": 2.36662e-8,
+       "sh": 2.36671e-8,
        "m": [],
        "pc": [],
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p15>p35"
+       "routeId": "p15>p36"
       },
       {
        "k": "feed",
@@ -25650,7 +26102,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p17",
        "n": "送電損失 p14>p17",
        "g": "high",
-       "sh": 0.329053,
+       "sh": 0.329054,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -25687,15 +26139,15 @@ const CRAFT_PRICE_CATALOG={
      ],
      "dis": [
       {
-       "id": "p35",
-       "n": "機体内高エネルギー散逸装置 1 #35",
+       "id": "p36",
+       "n": "機体内高エネルギー散逸装置 1 #36",
        "k": "hdis",
        "g": "high",
-       "cap": 129378581356262780,
-       "m": 22,
+       "cap": 129390124258046380,
+       "m": 23,
        "sec": 4,
        "src": -1,
-       "power": 1940678720343941.8
+       "power": 1940851863870695.8
       },
       {
        "id": "p11",
@@ -25703,7 +26155,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 35709142282328892,
-       "m": 25,
+       "m": 26,
        "sec": 0,
        "src": -1,
        "power": 357091422823288.94
@@ -25714,7 +26166,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "high",
        "cap": 35709142282328892,
-       "m": 26,
+       "m": 27,
        "sec": 0,
        "src": -1,
        "power": 357091422823288.94
@@ -25734,109 +26186,109 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 33249726519789916,
+       "cap": 33252676186344530,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 9177092550383172,
+       "cap": 9177087911580268,
        "sec": 0
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 9177092550383172,
+       "cap": 9177087911580268,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 33249726519789920,
+       "cap": 33252676186344530,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 9177092550383174,
+       "cap": 9177087911580268,
        "sec": 0
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 9177092550383174,
+       "cap": 9177087911580268,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 40621842081465130,
+       "cap": 40625495919171900,
        "sec": 0
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 11211833701151618,
+       "cap": 11211841880410488,
        "sec": 0
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 11211833701151618,
+       "cap": 11211841880410488,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 40621842081465130,
+       "cap": 40625495919171900,
        "sec": 0
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 11211833701151618,
+       "cap": 11211841880410488,
        "sec": 0
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 11211833701151618,
+       "cap": 11211841880410488,
        "sec": 0
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 516942509765113.25,
+       "cap": 516958912731016.5,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 142678745117443.3,
+       "cap": 142670543634491.75,
        "sec": 4
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 142678745117443.3,
+       "cap": 142670543634491.75,
        "sec": 4
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 73956746170943170,
+       "cap": 73957005886233300,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 73956746170943170,
+       "cap": 73957005886233300,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 73956746170943170,
+       "cap": 73957005886233300,
        "sec": 3
       },
       {
@@ -25848,523 +26300,541 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 6,
        "d": 0,
-       "cap": 1125195073814.5005,
+       "cap": 1125234728575.449,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 310559526662.12006,
+       "cap": 310542765563.6531,
        "sec": 1
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 310559526662.12006,
+       "cap": 310542765563.6531,
        "sec": 1
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 85772860213.09364,
+       "cap": 80414890376.93166,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 23673742880.80648,
+       "cap": 22192936118.99565,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 23673742880.80648,
+       "cap": 22192936118.99565,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 38121557115.51398,
+       "cap": 35740219328.421394,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 10521742415.101234,
+       "cap": 9863601140.493336,
        "sec": 1
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 10521742415.101234,
+       "cap": 9863601140.493336,
        "sec": 1
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 38121557115.51398,
+       "cap": 35740219328.421394,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 10521742415.101234,
+       "cap": 9863601140.493336,
        "sec": 1
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 10521742415.101234,
+       "cap": 9863601140.493336,
        "sec": 1
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 89827927701.42606,
+       "cap": 84216650126.28804,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 24792962000.287872,
+       "cap": 23242147413.8411,
        "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 24792962000.287872,
+       "cap": 23242147413.8411,
        "sec": 3
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 55626450225.037094,
+       "cap": 52151634978.60536,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 15353181376.111774,
+       "cap": 14392830707.798698,
        "sec": 2
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 15353181376.111774,
+       "cap": 14392830707.798698,
        "sec": 2
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 55744621265.78549,
+       "cap": 47567975825.91691,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 15385797180.547867,
+       "cap": 13127830478.48736,
        "sec": 2
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 15385797180.547867,
+       "cap": 13127830478.48736,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 55926115043.87735,
+       "cap": 52262424233.66695,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 15435890380.498741,
+       "cap": 14423406374.179985,
        "sec": 2
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 15435890380.498741,
+       "cap": 14423406374.179985,
        "sec": 2
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 55926115043.87735,
+       "cap": 52432580647.16526,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 15435890380.498741,
+       "cap": 14470366214.544188,
        "sec": 2
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 15435890380.498741,
+       "cap": 14470366214.544188,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 56122820945.92231,
+       "cap": 52432580647.16526,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 15490182203.536709,
+       "cap": 14470366214.544188,
        "sec": 2
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 15490182203.536709,
+       "cap": 14470366214.544188,
        "sec": 2
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 61405072276.93587,
+       "cap": 52616998929.476746,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 16948110265.298174,
+       "cap": 14521262051.612787,
        "sec": 2
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 16948110265.298174,
+       "cap": 14521262051.612787,
        "sec": 2
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 56107966019.40483,
+       "cap": 57569284077.384315,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 15486082168.746983,
+       "cap": 15887995842.026457,
        "sec": 2
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 15486082168.746983,
+       "cap": 15887995842.026457,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 56107966019.40483,
+       "cap": 52603071945.06125,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 15486082168.746983,
+       "cap": 14517418476.448853,
        "sec": 2
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 15486082168.746983,
+       "cap": 14517418476.448853,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 46648161504.10667,
+       "cap": 52603071945.06125,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 12875128316.427225,
-       "sec": 1
+       "cap": 14517418476.448853,
+       "sec": 2
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 12875128316.427225,
+       "cap": 14517418476.448853,
+       "sec": 2
+      },
+      {
+       "s": 20,
+       "d": 0,
+       "cap": 43734192660.926346,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 1,
+       "cap": 12069781347.587543,
        "sec": 1
       },
       {
        "s": 20,
+       "d": 2,
+       "cap": 12069781347.587543,
+       "sec": 1
+      },
+      {
+       "s": 21,
        "d": 0,
-       "cap": 58895282795.54399,
+       "cap": 55216273515.373314,
        "sec": 4
       },
       {
-       "s": 20,
+       "s": 21,
        "d": 1,
-       "cap": 16255395684.954103,
+       "cap": 15238610972.566853,
        "sec": 2
       },
       {
-       "s": 20,
+       "s": 21,
        "d": 2,
-       "cap": 16255395684.954103,
+       "cap": 15238610972.566853,
        "sec": 2
       },
       {
-       "s": 21,
-       "d": 0,
-       "cap": 2723917533.924184,
-       "sec": 4
-      },
-      {
-       "s": 21,
-       "d": 1,
-       "cap": 751815004.96118,
-       "sec": 3
-      },
-      {
-       "s": 21,
-       "d": 2,
-       "cap": 751815004.96118,
-       "sec": 3
-      },
-      {
        "s": 22,
        "d": 0,
-       "cap": 2722047922.1796403,
+       "cap": 2724003965.8302245,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 751298982.6714101,
+       "cap": 751771789.00816,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 751298982.6714101,
+       "cap": 751771789.00816,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 59932125285.324486,
+       "cap": 2722134294.761525,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 16541569451.923944,
+       "cap": 751255796.3804678,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 16541569451.923944,
+       "cap": 751255796.3804678,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 42862521262.71196,
+       "cap": 59934026975.72331,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 11830272478.67901,
-       "sec": 1
+       "cap": 16540618606.724535,
+       "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 11830272478.67901,
+       "cap": 16540618606.724535,
+       "sec": 3
+      },
+      {
+       "s": 25,
+       "d": 0,
+       "cap": 42863881322.02517,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 1,
+       "cap": 11829592449.022408,
        "sec": 1
       },
       {
        "s": 25,
-       "d": 0,
-       "cap": 4244456411.0546784,
-       "sec": 4
-      },
-      {
-       "s": 25,
-       "d": 1,
-       "cap": 1171491419.249186,
-       "sec": 3
-      },
-      {
-       "s": 25,
        "d": 2,
-       "cap": 1171491419.249186,
-       "sec": 3
+       "cap": 11829592449.022408,
+       "sec": 1
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 3752456312.4854646,
+       "cap": 4244591090.7772264,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1035696905.6708575,
+       "cap": 1171424079.3879123,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 1035696905.6708575,
+       "cap": 1171424079.3879123,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 43863660877.49795,
+       "cap": 3752575380.6831546,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 12106592071.722206,
+       "cap": 1035637371.5720128,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 12106592071.722206,
+       "cap": 1035637371.5720128,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 23651468425.837856,
+       "cap": 43865052703.70719,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 6527924810.665505,
-       "sec": 1
+       "cap": 12105896158.617584,
+       "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 6527924810.665505,
-       "sec": 1
+       "cap": 12105896158.617584,
+       "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 36712674118.61954,
+       "cap": 23652218904.32013,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 10132883588.022884,
-       "sec": 2
+       "cap": 6527549571.424371,
+       "sec": 1
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 10132883588.022884,
-       "sec": 2
+       "cap": 6527549571.424371,
+       "sec": 1
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 65372442372.44933,
+       "cap": 36717262645.38255,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 18043124461.17372,
+       "cap": 10133245976.383467,
        "sec": 2
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 18043124461.17372,
+       "cap": 10133245976.383467,
        "sec": 2
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 23565552789488.85,
-       "sec": 1
+       "cap": 65380277428.23759,
+       "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 6504211660849.652,
-       "sec": 0
+       "cap": 18043677154.888317,
+       "sec": 2
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 6504211660849.652,
-       "sec": 0
+       "cap": 18043677154.888317,
+       "sec": 2
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 52173877506475.09,
+       "cap": 23567643348725.85,
        "sec": 1
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 14400253857856.455,
+       "cap": 6504208373124.724,
        "sec": 0
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 14400253857856.455,
+       "cap": 6504208373124.724,
        "sec": 0
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 52173877506475.09,
+       "cap": 52178505981882.67,
        "sec": 1
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 14400253857856.455,
+       "cap": 14400246578869.23,
        "sec": 0
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 14400253857856.455,
+       "cap": 14400246578869.23,
        "sec": 0
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 23565552789488.85,
+       "cap": 52178505981882.67,
        "sec": 1
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 6504211660849.652,
+       "cap": 14400246578869.23,
        "sec": 0
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 6504211660849.652,
+       "cap": 14400246578869.23,
+       "sec": 0
+      },
+      {
+       "s": 35,
+       "d": 0,
+       "cap": 23567643348725.85,
+       "sec": 1
+      },
+      {
+       "s": 35,
+       "d": 1,
+       "cap": 6504208373124.724,
+       "sec": 0
+      },
+      {
+       "s": 35,
+       "d": 2,
+       "cap": 6504208373124.724,
        "sec": 0
       }
      ]
@@ -26379,7 +26849,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 55.64052797743341,
+    "mglt": 55.640486310131095,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -26443,15 +26913,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1cz9iuv",
-   "build": 136775,
+   "signature": "ojuakw",
+   "build": 136776,
    "crew": 1000,
-   "total": 137775,
+   "total": 137776,
    "by": {
     "hull": 4,
     "armor": 14,
     "power": 42110,
-    "drive": 39845,
+    "drive": 39846,
     "defense": 1500,
     "command": 14501,
     "weapons": 21800,
@@ -26471,6 +26941,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 1.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 4,
     "targetCapacity": 4.920750000000001,
@@ -26488,8 +26959,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 6.935470767810883e-14,
-    "upS": 6.935470767810883e-14,
+    "up": 6.928798172268825e-14,
+    "upS": 6.928798172268825e-14,
     "down": 0.01,
     "T": 0
    },
@@ -26658,7 +27129,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.83,
       "z": 0,
       "r": 0.067,
-      "share": 0.6622838705884894,
+      "share": 0.6588703269992058,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -26666,10 +27137,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷ナセル反応炉",
-      "w": 0.22596746062338519,
+      "w": 0.22597936469622623,
       "hits": 1,
-      "crew": 0.000021483194151931403,
-      "size": 0.107415970759657,
+      "crew": 0.000021484891791552178,
+      "size": 0.10742445895776087,
       "at": 0.658,
       "part": 16,
       "y": 0.72,
@@ -26683,10 +27154,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷ナセル反応炉",
-      "w": 0.22596746062338519,
+      "w": 0.22597936469622623,
       "hits": 1,
-      "crew": 0.000021483194151931403,
-      "size": 0.107415970759657,
+      "crew": 0.000021484891791552178,
+      "size": 0.10742445895776087,
       "at": 0.658,
       "part": 17,
       "y": 0.72,
@@ -26700,10 +27171,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "腹部ポッド反応炉",
-      "w": 0.03923046191378216,
+      "w": 0.03923252859309484,
       "hits": 1,
-      "crew": 0.000003885126257221392,
-      "size": 0.007770252514442783,
+      "crew": 0.0000038854332667014215,
+      "size": 0.007770866533402843,
       "at": 0.633,
       "part": 18,
       "y": -0.43,
@@ -26811,7 +27282,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.66,
       "z": 0,
       "r": 0.027,
-      "share": 0.044704161264723034,
+      "share": 0.04447374707244639,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -26828,7 +27299,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.67,
       "z": 0,
       "r": 0.031,
-      "share": 0.06406941051110385,
+      "share": 0.06373918394930486,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -26845,9 +27316,26 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.59,
       "z": 0,
       "r": 0.024,
-      "share": 0.03084889054854227,
+      "share": 0.03068988919391934,
       "domain": "main",
       "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 8.192000000000001e-7,
+      "size": 0.004096000000000001,
+      "at": 0.56,
+      "part": 31,
+      "y": 0.72,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.005154200095874929,
+      "domain": "main",
+      "port": "p31",
       "powerConnected": true
      },
      {
@@ -26858,13 +27346,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.6,
-      "part": 31,
+      "part": 32,
       "y": 0.74,
       "z": 0,
       "r": 0.018,
-      "share": 0.013468325333588015,
+      "share": 0.013398906889862361,
       "domain": "main",
-      "port": "p31",
+      "port": "p32",
       "powerConnected": true
      },
      {
@@ -26875,13 +27363,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.537,
-      "part": 32,
+      "part": 33,
       "y": 0.72,
       "z": 0,
       "r": 0.023,
-      "share": 0.02489641693660903,
+      "share": 0.024768095822047417,
       "domain": "main",
-      "port": "p32",
+      "port": "p33",
       "powerConnected": true
      },
      {
@@ -26891,14 +27379,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.558,
-      "part": 33,
+      "at": 0.642,
+      "part": 34,
       "y": 0.72,
       "z": 0,
       "r": 0.015,
-      "share": 0.007376716129365637,
+      "share": 0.007338695058384419,
       "domain": "main",
-      "port": "p33",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -26908,14 +27396,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.642,
-      "part": 34,
+      "at": 0.558,
+      "part": 35,
       "y": 0.72,
-      "z": 0,
+      "z": -0.02,
       "r": 0.015,
-      "share": 0.007376716129365637,
+      "share": 0.007338695058384419,
       "domain": "main",
-      "port": "p34",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -26926,13 +27414,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.558,
-      "part": 35,
+      "part": 36,
       "y": 0.72,
-      "z": -0.02,
+      "z": 0.02,
       "r": 0.015,
-      "share": 0.007376716129365637,
+      "share": 0.007338695058384419,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -26942,14 +27430,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.558,
-      "part": 36,
+      "at": 0.642,
+      "part": 37,
       "y": 0.72,
-      "z": 0.02,
+      "z": -0.02,
       "r": 0.015,
-      "share": 0.007376716129365637,
+      "share": 0.007338695058384419,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -26960,13 +27448,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.6,
-      "part": 37,
+      "part": 38,
       "y": 0.78,
       "z": -0.09,
       "r": 0.023,
-      "share": 0.027766404744827593,
+      "share": 0.027623291138829702,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -26977,13 +27465,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.6,
-      "part": 38,
+      "part": 39,
       "y": 0.78,
       "z": 0.09,
       "r": 0.023,
-      "share": 0.027766404744827593,
+      "share": 0.027623291138829702,
       "domain": "main",
-      "port": "p38",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -26994,13 +27482,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.537,
-      "part": 39,
+      "part": 40,
       "y": 0.72,
       "z": -0.03,
       "r": 0.023,
-      "share": 0.02489641693660903,
+      "share": 0.024768095822047417,
       "domain": "main",
-      "port": "p39",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -27011,13 +27499,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.537,
-      "part": 40,
+      "part": 41,
       "y": 0.72,
       "z": 0.03,
       "r": 0.023,
-      "share": 0.02489641693660903,
+      "share": 0.024768095822047417,
       "domain": "main",
-      "port": "p40",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -27028,13 +27516,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.019683000000000003,
       "at": 0.569,
-      "part": 41,
+      "part": 42,
       "y": 0.78,
       "z": -0.09,
       "r": 0.023,
-      "share": 0.02489641693660903,
+      "share": 0.024768095822047417,
       "domain": "main",
-      "port": "p41",
+      "port": "p42",
       "powerConnected": true
      },
      {
@@ -27240,7 +27728,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 11.812651475391762,
+      "w": 11.828027000286758,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -27260,8 +27748,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.12566370614359174,
      "massKg": 31.415926535897935,
-     "capacityJ": 1.507964473723101e+24,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 7.795566791712011e+21,
+     "specificEnergyJPerKg": 248140597820798830000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -27276,16 +27764,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 1165768516387088000,
+     "P": 1165860637456612000,
      "fixed": 25106167993921110,
      "cooling": 6903635570963246,
-     "De": 1165768516387088000,
+     "De": 1165860637456612000,
      "Ds": 0,
      "Dw": 139466666666666.69,
      "domains": [
       {
        "id": "main",
-       "P": 1165768516387088000,
+       "P": 1165860637456612000,
        "reactors": [
         5,
         6,
@@ -27294,15 +27782,15 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 5,
-         "P": 562537837564056960
+         "P": 562582290289032600
         },
         {
          "moduleIndex": 6,
-         "P": 562537837564056960
+         "P": 562582290289032600
         },
         {
          "moduleIndex": 7,
-         "P": 40692841258974040
+         "P": 40696056878546930
         }
        ],
        "modules": [
@@ -27345,7 +27833,8 @@ const CRAFT_PRICE_CATALOG={
         36,
         37,
         38,
-        39
+        39,
+        40
        ],
        "protection": 1
       }
@@ -27427,7 +27916,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p15",
@@ -27439,7 +27928,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p22",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p22",
@@ -27451,7 +27940,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p24",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p24",
@@ -27463,7 +27952,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p29",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p29",
@@ -27475,7 +27964,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p30",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p30",
@@ -27487,10 +27976,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p31",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p31",
+       "model": "source-distance",
+       "lengthM": 1.9704123933836795,
+       "efficiency": 0.9999802960701911
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p32",
+       "cap": 1394787110773395,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p32",
        "model": "source-distance",
        "lengthM": 1.9131515883483983,
        "efficiency": 0.9999808686671228
@@ -27498,11 +27999,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p32",
-       "cap": 1476833411407124.2,
+       "to": "p33",
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p32",
+       "routeId": "p16>p33",
        "model": "source-distance",
        "lengthM": 2.016073659368625,
        "efficiency": 0.9999798394666326
@@ -27510,20 +28011,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p33",
-       "cap": 1476833411407124.2,
-       "auto": true,
-       "ok": true,
-       "routeId": "p16>p33",
-       "model": "source-distance",
-       "lengthM": 1.9740752265301338,
-       "efficiency": 0.9999802594425821
-      },
-      {
-       "kind": "power",
-       "from": "p16",
        "to": "p34",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p34",
@@ -27535,7 +28024,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p35",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p17>p35",
@@ -27547,7 +28036,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p16>p36",
@@ -27559,22 +28048,34 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p37",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
        "routeId": "p17>p37",
        "model": "source-distance",
-       "lengthM": 1.349194203960275,
-       "efficiency": 0.9999865081489763
+       "lengthM": 1.756783708940859,
+       "efficiency": 0.9999824323172242
       },
       {
        "kind": "power",
-       "from": "p16",
+       "from": "p17",
        "to": "p38",
-       "cap": 1476833411407124.2,
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p38",
+       "routeId": "p17>p38",
+       "model": "source-distance",
+       "lengthM": 1.349194203960275,
+       "efficiency": 0.9999865081489763
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p39",
+       "cap": 1394787110773395,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p39",
        "model": "source-distance",
        "lengthM": 1.349194203960275,
        "efficiency": 0.9999865081489763
@@ -27582,11 +28083,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p17",
-       "to": "p39",
-       "cap": 1476833411407124.2,
+       "to": "p40",
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
-       "routeId": "p17>p39",
+       "routeId": "p17>p40",
        "model": "source-distance",
        "lengthM": 1.8410958693126223,
        "efficiency": 0.9999815892107875
@@ -27594,11 +28095,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p40",
-       "cap": 1476833411407124.2,
+       "to": "p41",
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p40",
+       "routeId": "p16>p41",
        "model": "source-distance",
        "lengthM": 1.8410958693126223,
        "efficiency": 0.9999815892107875
@@ -27606,11 +28107,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p17",
-       "to": "p41",
-       "cap": 1476833411407124.2,
+       "to": "p42",
+       "cap": 1394787110773395,
        "auto": true,
        "ok": true,
-       "routeId": "p17>p41",
+       "routeId": "p17>p42",
        "model": "source-distance",
        "lengthM": 1.4301978884056568,
        "efficiency": 0.9999856981233888
@@ -27799,11 +28300,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p19",
-       "cap": 787552972589679700,
+       "cap": 787615206404645500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p19",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p16>p19",
        "model": "source-distance",
        "lengthM": 0.5000000000000004,
@@ -27813,11 +28314,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p20",
-       "cap": 787552972589679700,
+       "cap": 787615206404645500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p20",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p16>p20",
        "model": "source-distance",
        "lengthM": 3.7930989968625917,
@@ -27827,11 +28328,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 787552972589679700,
+       "cap": 787615206404645500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p21",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p16>p21",
        "model": "source-distance",
        "lengthM": 3.8617256505350035,
@@ -27841,11 +28342,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p19",
-       "cap": 787552972589679700,
+       "cap": 787615206404645500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p19",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p17>p19",
        "model": "source-distance",
        "lengthM": 3.7930989968625917,
@@ -27855,11 +28356,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 787552972589679700,
+       "cap": 787615206404645500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p20",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p17>p20",
        "model": "source-distance",
        "lengthM": 0.5000000000000004,
@@ -27869,11 +28370,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 787552972589679700,
+       "cap": 787615206404645500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p21",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p17>p21",
        "model": "source-distance",
        "lengthM": 3.8617256505350035,
@@ -27883,11 +28384,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p19",
-       "cap": 56969977762563656,
+       "cap": 56974479629965700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p19",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p18>p19",
        "model": "source-distance",
        "lengthM": 3.8617256505350035,
@@ -27897,11 +28398,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 56969977762563656,
+       "cap": 56974479629965700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p20",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p18>p20",
        "model": "source-distance",
        "lengthM": 3.8617256505350035,
@@ -27911,11 +28412,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 56969977762563656,
+       "cap": 56974479629965700,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p21",
-       "groupCap": 1632075922941922800,
+       "groupCap": 1632204892439256800,
        "routeId": "p18>p21",
        "model": "source-distance",
        "lengthM": 0.19999999999999973,
@@ -27990,23 +28491,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 20001009445003536,
-       "densityFactor": 24.380856060579667,
+       "densityFactor": 24.382782678518517,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2078703838.1670585,
-       "shaftWattsPerNewton": 1974768646.2587054,
-       "wattsPerNewton": 2078703838.1670585,
-       "ratedShaftPowerW": 463259645727679360,
-       "ratedWasteHeatW": 24382086617246304,
+       "profileWattsPerNewton": 2078717969.84849,
+       "shaftWattsPerNewton": 1974782071.3560655,
+       "wattsPerNewton": 2078717969.84849,
+       "ratedShaftPowerW": 463296253316091500,
+       "ratedWasteHeatW": 24384013332425892,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12177.559890644023,
+       "conversionMassKg": 12178.439388571132,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1165768516387088000,
-       "sourceInputLimitW": 1165768516387088000,
+       "availableInputW": 1165860637456612000,
+       "sourceInputLimitW": 1165860637456612000,
        "sourceIds": [
         "p16",
         "p17",
@@ -28019,10 +28520,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 487641732344925630,
+       "ratedInputW": 487680266648517440,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 234589325.99793252,
+       "ratedThrustN": 234606268.73017442,
        "effectiveMachineryVolumeM3": 0.05882649836765746,
        "machineryVolumeM3": 0.05882649836765746,
        "machineryShape": "frustum",
@@ -28030,12 +28531,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.27999999999999997,
        "machineryDiameterM": 0.5599999999999999,
        "machineryOffsetM": 1.625,
-       "maxInputW": 1165768516387088000,
-       "maxRatedInputW": 1165768516387088000,
-       "inputDensityWPerM3": 8289491060597087000,
+       "maxInputW": 1165860637456612000,
+       "maxRatedInputW": 1165860637456612000,
+       "inputDensityWPerM3": 8290146110696295000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 526027857702452900,
-       "cost": 2639.49356864575,
+       "costBasisInputW": 526065848926856400,
+       "cost": 2639.889629632626,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 16,
@@ -28050,11 +28551,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 28,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1165768516387088000,
+       "pathCapacityW": 1165860637456612000,
        "transmissionRouteIds": [
         "p16>p19",
         "p17>p19",
@@ -28064,23 +28565,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 20001009445003536,
-       "densityFactor": 24.380856060579667,
+       "densityFactor": 24.382782678518517,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2078703838.1670585,
-       "shaftWattsPerNewton": 1974768646.2587054,
-       "wattsPerNewton": 2078703838.1670585,
-       "ratedShaftPowerW": 463259645727679360,
-       "ratedWasteHeatW": 24382086617246304,
+       "profileWattsPerNewton": 2078717969.84849,
+       "shaftWattsPerNewton": 1974782071.3560655,
+       "wattsPerNewton": 2078717969.84849,
+       "ratedShaftPowerW": 463296253316091500,
+       "ratedWasteHeatW": 24384013332425892,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12177.559890644023,
+       "conversionMassKg": 12178.439388571132,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1165768516387088000,
-       "sourceInputLimitW": 1165768516387088000,
+       "availableInputW": 1165860637456612000,
+       "sourceInputLimitW": 1165860637456612000,
        "sourceIds": [
         "p16",
         "p17",
@@ -28093,10 +28594,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 487641732344925630,
+       "ratedInputW": 487680266648517440,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 234589325.99793252,
+       "ratedThrustN": 234606268.73017442,
        "effectiveMachineryVolumeM3": 0.05882649836765746,
        "machineryVolumeM3": 0.05882649836765746,
        "machineryShape": "frustum",
@@ -28104,12 +28605,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.27999999999999997,
        "machineryDiameterM": 0.5599999999999999,
        "machineryOffsetM": 1.625,
-       "maxInputW": 1165768516387088000,
-       "maxRatedInputW": 1165768516387088000,
-       "inputDensityWPerM3": 8289491060597087000,
+       "maxInputW": 1165860637456612000,
+       "maxRatedInputW": 1165860637456612000,
+       "inputDensityWPerM3": 8290146110696295000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 526027857702452900,
-       "cost": 2639.49356864575,
+       "costBasisInputW": 526065848926856400,
+       "cost": 2639.889629632626,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 17,
@@ -28124,11 +28625,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 28,
+       "machineryModuleIndex": 29,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1165768516387088000,
+       "pathCapacityW": 1165860637456612000,
        "transmissionRouteIds": [
         "p16>p20",
         "p17>p20",
@@ -28138,23 +28639,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 7812894314454507,
-       "densityFactor": 24.38085606057967,
+       "densityFactor": 24.382782678518517,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2078703838.1670585,
-       "shaftWattsPerNewton": 1974768646.2587054,
-       "wattsPerNewton": 2078703838.1670585,
-       "ratedShaftPowerW": 180960799112374800,
-       "ratedWasteHeatW": 9524252584861838,
+       "profileWattsPerNewton": 2078717969.84849,
+       "shaftWattsPerNewton": 1974782071.3560655,
+       "wattsPerNewton": 2078717969.84849,
+       "ratedShaftPowerW": 180975098951598270,
+       "ratedWasteHeatW": 9525005207978866,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12177.559890644023,
+       "conversionMassKg": 12178.439388571132,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1165768516387088000,
-       "sourceInputLimitW": 1165768516387088000,
+       "availableInputW": 1165860637456612000,
+       "sourceInputLimitW": 1165860637456612000,
        "sourceIds": [
         "p16",
         "p17",
@@ -28167,10 +28668,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 190485051697236600,
+       "ratedInputW": 190500104159577150,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 91636455.4679424,
+       "ratedThrustN": 91643073.7227244,
        "effectiveMachineryVolumeM3": 0.022979100924866196,
        "machineryVolumeM3": 0.022979100924866196,
        "machineryShape": "frustum",
@@ -28178,12 +28679,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.175,
        "machineryDiameterM": 0.35,
        "machineryOffsetM": 0.55,
-       "maxInputW": 1165768516387088000,
-       "maxRatedInputW": 1165768516387088000,
-       "inputDensityWPerM3": 8289491060597088000,
+       "maxInputW": 1165860637456612000,
+       "maxRatedInputW": 1165860637456612000,
+       "inputDensityWPerM3": 8290146110696295000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 69546952340468520,
-       "cost": 51.89929391160141,
+       "costBasisInputW": 69551975218694950,
+       "cost": 51.9077169756662,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 18,
@@ -28198,11 +28699,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 29,
+       "machineryModuleIndex": 30,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1165768516387088000,
+       "pathCapacityW": 1165860637456612000,
        "transmissionRouteIds": [
         "p16>p21",
         "p17>p21",
@@ -28214,23 +28715,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 20001009445003536,
-       "densityFactor": 24.380856060579667,
+       "densityFactor": 24.382782678518517,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2078703838.1670585,
-       "shaftWattsPerNewton": 1974768646.2587054,
-       "wattsPerNewton": 2078703838.1670585,
-       "ratedShaftPowerW": 463259645727679360,
-       "ratedWasteHeatW": 24382086617246304,
+       "profileWattsPerNewton": 2078717969.84849,
+       "shaftWattsPerNewton": 1974782071.3560655,
+       "wattsPerNewton": 2078717969.84849,
+       "ratedShaftPowerW": 463296253316091500,
+       "ratedWasteHeatW": 24384013332425892,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12177.559890644023,
+       "conversionMassKg": 12178.439388571132,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1165768516387088000,
-       "sourceInputLimitW": 1165768516387088000,
+       "availableInputW": 1165860637456612000,
+       "sourceInputLimitW": 1165860637456612000,
        "sourceIds": [
         "p16",
         "p17",
@@ -28243,10 +28744,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 487641732344925630,
+       "ratedInputW": 487680266648517440,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 234589325.99793252,
+       "ratedThrustN": 234606268.73017442,
        "effectiveMachineryVolumeM3": 0.05882649836765746,
        "machineryVolumeM3": 0.05882649836765746,
        "machineryShape": "frustum",
@@ -28254,12 +28755,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.27999999999999997,
        "machineryDiameterM": 0.5599999999999999,
        "machineryOffsetM": 1.625,
-       "maxInputW": 1165768516387088000,
-       "maxRatedInputW": 1165768516387088000,
-       "inputDensityWPerM3": 8289491060597087000,
+       "maxInputW": 1165860637456612000,
+       "maxRatedInputW": 1165860637456612000,
+       "inputDensityWPerM3": 8290146110696295000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 526027857702452900,
-       "cost": 2639.49356864575,
+       "costBasisInputW": 526065848926856400,
+       "cost": 2639.889629632626,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 16,
@@ -28275,7 +28776,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 8,
        "coreModuleIndex": 8,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 28,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 492601728082879450000,
        "shaftCapacityW": 492601728082879450000,
@@ -28284,28 +28785,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1165768516387088000
+       "pathCapacityW": 1165860637456612000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 20001009445003536,
-       "densityFactor": 24.380856060579667,
+       "densityFactor": 24.382782678518517,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2078703838.1670585,
-       "shaftWattsPerNewton": 1974768646.2587054,
-       "wattsPerNewton": 2078703838.1670585,
-       "ratedShaftPowerW": 463259645727679360,
-       "ratedWasteHeatW": 24382086617246304,
+       "profileWattsPerNewton": 2078717969.84849,
+       "shaftWattsPerNewton": 1974782071.3560655,
+       "wattsPerNewton": 2078717969.84849,
+       "ratedShaftPowerW": 463296253316091500,
+       "ratedWasteHeatW": 24384013332425892,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12177.559890644023,
+       "conversionMassKg": 12178.439388571132,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1165768516387088000,
-       "sourceInputLimitW": 1165768516387088000,
+       "availableInputW": 1165860637456612000,
+       "sourceInputLimitW": 1165860637456612000,
        "sourceIds": [
         "p16",
         "p17",
@@ -28318,10 +28819,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 487641732344925630,
+       "ratedInputW": 487680266648517440,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 234589325.99793252,
+       "ratedThrustN": 234606268.73017442,
        "effectiveMachineryVolumeM3": 0.05882649836765746,
        "machineryVolumeM3": 0.05882649836765746,
        "machineryShape": "frustum",
@@ -28329,12 +28830,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.27999999999999997,
        "machineryDiameterM": 0.5599999999999999,
        "machineryOffsetM": 1.625,
-       "maxInputW": 1165768516387088000,
-       "maxRatedInputW": 1165768516387088000,
-       "inputDensityWPerM3": 8289491060597087000,
+       "maxInputW": 1165860637456612000,
+       "maxRatedInputW": 1165860637456612000,
+       "inputDensityWPerM3": 8290146110696295000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 526027857702452900,
-       "cost": 2639.49356864575,
+       "costBasisInputW": 526065848926856400,
+       "cost": 2639.889629632626,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 17,
@@ -28350,7 +28851,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 9,
        "coreModuleIndex": 9,
-       "machineryModuleIndex": 28,
+       "machineryModuleIndex": 29,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 492601728082879450000,
        "shaftCapacityW": 492601728082879450000,
@@ -28359,28 +28860,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1165768516387088000
+       "pathCapacityW": 1165860637456612000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 7812894314454507,
-       "densityFactor": 24.38085606057967,
+       "densityFactor": 24.382782678518517,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2078703838.1670585,
-       "shaftWattsPerNewton": 1974768646.2587054,
-       "wattsPerNewton": 2078703838.1670585,
-       "ratedShaftPowerW": 180960799112374800,
-       "ratedWasteHeatW": 9524252584861838,
+       "profileWattsPerNewton": 2078717969.84849,
+       "shaftWattsPerNewton": 1974782071.3560655,
+       "wattsPerNewton": 2078717969.84849,
+       "ratedShaftPowerW": 180975098951598270,
+       "ratedWasteHeatW": 9525005207978866,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 12177.559890644023,
+       "conversionMassKg": 12178.439388571132,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1165768516387088000,
-       "sourceInputLimitW": 1165768516387088000,
+       "availableInputW": 1165860637456612000,
+       "sourceInputLimitW": 1165860637456612000,
        "sourceIds": [
         "p16",
         "p17",
@@ -28393,10 +28894,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 190485051697236600,
+       "ratedInputW": 190500104159577150,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 91636455.4679424,
+       "ratedThrustN": 91643073.7227244,
        "effectiveMachineryVolumeM3": 0.022979100924866196,
        "machineryVolumeM3": 0.022979100924866196,
        "machineryShape": "frustum",
@@ -28404,12 +28905,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.175,
        "machineryDiameterM": 0.35,
        "machineryOffsetM": 0.55,
-       "maxInputW": 1165768516387088000,
-       "maxRatedInputW": 1165768516387088000,
-       "inputDensityWPerM3": 8289491060597088000,
+       "maxInputW": 1165860637456612000,
+       "maxRatedInputW": 1165860637456612000,
+       "inputDensityWPerM3": 8290146110696295000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 69546952340468520,
-       "cost": 51.89929391160141,
+       "costBasisInputW": 69551975218694950,
+       "cost": 51.9077169756662,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 18,
@@ -28425,7 +28926,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 10,
        "coreModuleIndex": 10,
-       "machineryModuleIndex": 29,
+       "machineryModuleIndex": 30,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 192422550032374800000,
        "shaftCapacityW": 192422550032374800000,
@@ -28434,22 +28935,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1165768516387088000
+       "pathCapacityW": 1165860637456612000
       }
      ],
-     "massKg": 12177.559890644023,
-     "ratedThrustN": 560801333.8861911,
-     "ratedAccelMps2": 46052.028396678455,
-     "structuralAccelerationLimitMps2": 970215.1604645721,
+     "massKg": 12178.439388571132,
+     "ratedThrustN": 560841836.6106884,
+     "ratedAccelMps2": 46052.02840168593,
+     "structuralAccelerationLimitMps2": 970204.6310508811,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 46052.028396678455,
+     "accelerationLimitMps2": 46052.02840168593,
      "conversionModelVersion": 1,
-     "conversionMassKg": 12177.559890644023,
+     "conversionMassKg": 12178.439388571132,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[1165768516387088000,[[\"main\",1165768516387088000,[[5,562537837564056960],[6,562537837564056960],[7,40692841258974040]]]],[[5,\"reactor\",16,\"p16\",\"main\",0.107415970759657,0.48254677464395423],[6,\"reactor\",17,\"p17\",\"main\",0.107415970759657,0.48254677464395423],[7,\"reactor\",18,\"p18\",\"main\",0.007770252514442783,0.034906450712091606]]]"
+     "sourceBudgetKey": "[1165860637456612000,[[\"main\",1165860637456612000,[[5,562582290289032600],[6,562582290289032600],[7,40696056878546930]]]],[[5,\"reactor\",16,\"p16\",\"main\",0.10742445895776087,0.48254677464395423],[6,\"reactor\",17,\"p17\",\"main\",0.10742445895776087,0.48254677464395423],[7,\"reactor\",18,\"p18\",\"main\",0.007770866533402843,0.034906450712091606]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 2271.778534179526,
+    "maxSpeed": 2271.777902665271,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -28505,7 +29006,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.418301,
        "m": [
         8,
-        27
+        28
        ],
        "pc": [],
        "sec": 0,
@@ -28520,7 +29021,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.418301,
        "m": [
         9,
-        28
+        29
        ],
        "pc": [],
        "sec": 0,
@@ -28535,7 +29036,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.163399,
        "m": [
         10,
-        29
+        30
        ],
        "pc": [],
        "sec": 4,
@@ -28576,7 +29077,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.0141938,
+       "sh": 0.0141927,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28589,7 +29090,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p5",
        "n": "送電損失 p16>p5",
        "g": "high",
-       "sh": 0.000154661,
+       "sh": 0.000154649,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28602,7 +29103,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p6",
        "n": "送電損失 p17>p6",
        "g": "high",
-       "sh": 0.000154661,
+       "sh": 0.000154649,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28615,7 +29116,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p7",
        "n": "送電損失 p16>p7",
        "g": "high",
-       "sh": 0.00102397,
+       "sh": 0.00102389,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28628,7 +29129,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p8",
        "n": "送電損失 p17>p8",
        "g": "high",
-       "sh": 0.00102397,
+       "sh": 0.00102389,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28641,7 +29142,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p9",
        "n": "送電損失 p18>p9",
        "g": "high",
-       "sh": 0.000303973,
+       "sh": 0.000303949,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28807,8 +29308,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p16>p38",
-       "n": "送電損失 p16>p38",
+       "id": "feed:p17>p38",
+       "n": "送電損失 p17>p38",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -28816,12 +29317,12 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p16>p38"
+       "routeId": "p17>p38"
       },
       {
        "k": "feed",
-       "id": "feed:p17>p39",
-       "n": "送電損失 p17>p39",
+       "id": "feed:p16>p39",
+       "n": "送電損失 p16>p39",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -28829,12 +29330,12 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p17>p39"
+       "routeId": "p16>p39"
       },
       {
        "k": "feed",
-       "id": "feed:p16>p40",
-       "n": "送電損失 p16>p40",
+       "id": "feed:p17>p40",
+       "n": "送電損失 p17>p40",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -28842,12 +29343,12 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p16>p40"
+       "routeId": "p17>p40"
       },
       {
        "k": "feed",
-       "id": "feed:p17>p41",
-       "n": "送電損失 p17>p41",
+       "id": "feed:p16>p41",
+       "n": "送電損失 p16>p41",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -28855,14 +29356,27 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p17>p41"
+       "routeId": "p16>p41"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p17>p42",
+       "n": "送電損失 p17>p42",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p17>p42"
       },
       {
        "k": "feed",
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.0000108258,
+       "sh": 0.0000108249,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28875,7 +29389,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f26",
        "n": "送電損失 p16>f26",
        "g": "high",
-       "sh": 0.0000174774,
+       "sh": 0.000017476,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28888,7 +29402,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f27",
        "n": "送電損失 p16>f27",
        "g": "high",
-       "sh": 0.0000380823,
+       "sh": 0.0000380793,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28901,7 +29415,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f28",
        "n": "送電損失 p16>f28",
        "g": "high",
-       "sh": 0.0000725447,
+       "sh": 0.0000725389,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29018,7 +29532,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.00379064,
+       "sh": 0.00379034,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29031,7 +29545,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p23",
        "n": "送電損失 p17>p23",
        "g": "high",
-       "sh": 9.69157e-8,
+       "sh": 9.69081e-8,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29057,7 +29571,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p19",
        "n": "送電損失 p16>p19",
        "g": "high",
-       "sh": 0.0394099,
+       "sh": 0.0394101,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29070,7 +29584,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.298977,
+       "sh": 0.298978,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29135,7 +29649,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p19",
        "n": "送電損失 p18>p19",
        "g": "high",
-       "sh": 0.0225731,
+       "sh": 0.0225732,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29148,7 +29662,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.0225731,
+       "sh": 0.0225732,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29188,7 +29702,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 24556372880710910,
-       "m": 30,
+       "m": 31,
        "sec": 2,
        "src": -1,
        "power": 245563728807109.12
@@ -29199,7 +29713,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 24556372880710910,
-       "m": 31,
+       "m": 32,
        "sec": 2,
        "src": -1,
        "power": 245563728807109.12
@@ -29210,7 +29724,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 72940876158797020,
-       "m": 32,
+       "m": 33,
        "sec": 2,
        "src": -1,
        "power": 729408761587970.2
@@ -29221,7 +29735,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 72940876158797020,
-       "m": 33,
+       "m": 34,
        "sec": 2,
        "src": -1,
        "power": 729408761587970.2
@@ -29232,7 +29746,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 71171758369703260,
-       "m": 34,
+       "m": 35,
        "sec": 3,
        "src": -1,
        "power": 711717583697032.6
@@ -29242,7 +29756,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 349089035745285500000,
+       "cap": 349089035676047800000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -29252,217 +29766,217 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 13909944323191218,
+       "cap": 13911043511349126,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 1207849905086871.2,
+       "cap": 1207945351501418.8,
        "sec": 4
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 1207849905086871.2,
+       "cap": 1207945351501418.8,
        "sec": 4
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 3587729782950163,
+       "cap": 3588013291640030.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 3587729782950163,
+       "cap": 3588013291640030.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 3500712503809444,
+       "cap": 3500989136241539,
        "sec": 4
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 13909944323191218,
+       "cap": 13911043511349126,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 1207849905086871.2,
+       "cap": 1207945351501418.8,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 1207849905086871.2,
+       "cap": 1207945351501418.8,
        "sec": 4
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 3587729782950163,
+       "cap": 3588013291640030.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 3587729782950163,
+       "cap": 3588013291640030.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 3500712503809444,
+       "cap": 3500989136241539,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 1006217037267883.5,
+       "cap": 1006296550300139.5,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 87373401698992.47,
+       "cap": 87380306098192.92,
        "sec": 4
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 87373401698992.47,
+       "cap": 87380306098192.92,
        "sec": 4
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 259529064160168.12,
+       "cap": 259549572601275.4,
        "sec": 4
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 259529064160168.12,
+       "cap": 259549572601275.4,
        "sec": 4
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 253234411444549,
+       "cap": 253254422471176.22,
        "sec": 4
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 14747501601141430,
+       "cap": 14748692625143168,
        "sec": 0
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 1280577980424335.5,
+       "cap": 1280681401271610.8,
        "sec": 0
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 1280577980424335.5,
+       "cap": 1280681401271610.8,
        "sec": 0
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 3803757189042558.5,
+       "cap": 3804064384541258.5,
        "sec": 1
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 3803757189042558.5,
+       "cap": 3804064384541258.5,
        "sec": 1
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 3711500352232999,
+       "cap": 3711800096970889,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 14747501601141430,
+       "cap": 14748692625143168,
        "sec": 0
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 1280577980424335.5,
+       "cap": 1280681401271610.8,
        "sec": 0
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 1280577980424335.5,
+       "cap": 1280681401271610.8,
        "sec": 0
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 3803757189042558.5,
+       "cap": 3804064384541258.5,
        "sec": 1
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 3803757189042558.5,
+       "cap": 3804064384541258.5,
        "sec": 1
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 3711500352232999,
+       "cap": 3711800096970889,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 5760742812945877,
+       "cap": 5761208056696555,
        "sec": 2
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 500225773603256.6,
+       "cap": 500266172371723.3,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 500225773603256.6,
+       "cap": 500266172371723.3,
        "sec": 3
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 1485842651969751.2,
+       "cap": 1485962650211430.2,
        "sec": 3
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 1485842651969751.2,
+       "cap": 1485962650211430.2,
        "sec": 3
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 1449804825091016.8,
+       "cap": 1449921912879254.5,
        "sec": 3
       },
       {
@@ -29540,7 +30054,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 6,
-       "cap": 349089035745285500000,
+       "cap": 349089035676047800000,
        "sec": -1
       },
       {
@@ -29762,976 +30276,976 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 14,
        "d": 0,
-       "cap": 26655833476.31859,
+       "cap": 25174953838.745335,
        "sec": 3
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 2314620762.406934,
+       "cap": 2186030720.050993,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 2314620762.406934,
+       "cap": 2186030720.050993,
        "sec": 3
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 6875220017.44489,
+       "cap": 6493263349.809063,
        "sec": 4
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 6875220017.44489,
+       "cap": 6493263349.809063,
        "sec": 4
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 6708467509.422976,
+       "cap": 6335774870.010589,
        "sec": 4
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 24435775322.161037,
+       "cap": 23078232248.707645,
        "sec": 3
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 2121845222.226242,
+       "cap": 2003964932.1025617,
        "sec": 4
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 2121845222.226242,
+       "cap": 2003964932.1025617,
        "sec": 4
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 6302610338.032091,
+       "cap": 5952465319.25253,
        "sec": 4
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 6302610338.032091,
+       "cap": 5952465319.25253,
        "sec": 4
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 6149745981.940941,
+       "cap": 5808093427.388666,
        "sec": 4
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 21557656014.39031,
+       "cap": 20360008458.035286,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 1871927893.159462,
+       "cap": 1767931899.095047,
        "sec": 4
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 1871927893.159462,
+       "cap": 1767931899.095047,
        "sec": 4
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 5560269885.802013,
+       "cap": 5251366003.257457,
        "sec": 4
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 5560269885.802013,
+       "cap": 5251366003.257457,
        "sec": 4
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 5425410354.560308,
+       "cap": 5123998668.195847,
        "sec": 4
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 21892389139.393883,
+       "cap": 20676145298.316444,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 1900993960.130767,
+       "cap": 1795383184.5679467,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 1900993960.130767,
+       "cap": 1795383184.5679467,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 5646606104.98537,
+       "cap": 5332905765.819516,
        "sec": 4
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 5646606104.98537,
+       "cap": 5332905765.819516,
        "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 5509652563.509021,
+       "cap": 5203560754.425186,
        "sec": 4
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 28171924219.115818,
+       "cap": 26606817318.05383,
        "sec": 3
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 2446268310.178757,
+       "cap": 2310364515.168826,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 2446268310.178757,
+       "cap": 2310364515.168826,
        "sec": 3
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 7266258528.110961,
+       "cap": 6862577498.771462,
        "sec": 3
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 7266258528.110961,
+       "cap": 6862577498.771462,
        "sec": 3
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 7090021719.627204,
+       "cap": 6696131624.092359,
        "sec": 4
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 21832346299.746956,
+       "cap": 21236573794.750996,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 1895780226.9565966,
+       "cap": 1844047182.8197496,
        "sec": 4
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 1895780226.9565966,
+       "cap": 1844047182.8197496,
        "sec": 4
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 5631119523.655563,
+       "cap": 5477454583.640445,
        "sec": 4
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 5631119523.655563,
+       "cap": 5477454583.640445,
        "sec": 4
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 5494541595.79898,
+       "cap": 5344603665.839908,
        "sec": 4
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 23006852104.301212,
+       "cap": 20619438171.98323,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 1997766740.4604392,
+       "cap": 1790459103.2367852,
        "sec": 4
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 1997766740.4604392,
+       "cap": 1790459103.2367852,
        "sec": 4
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 5934054557.566642,
+       "cap": 5318279550.119142,
        "sec": 4
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 5934054557.566642,
+       "cap": 5318279550.119142,
        "sec": 4
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 5790129202.784926,
+       "cap": 5189289284.921257,
        "sec": 4
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 22527582812.137894,
+       "cap": 21728693654.062256,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 1956150084.3761027,
+       "cap": 1886779699.3237476,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 1956150084.3761027,
+       "cap": 1886779699.3237476,
        "sec": 4
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 5810438770.64498,
+       "cap": 5604384859.924051,
        "sec": 4
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 5810438770.64498,
+       "cap": 5604384859.924051,
        "sec": 4
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 5669511609.731677,
+       "cap": 5468455358.185763,
        "sec": 4
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 21483673891.96299,
+       "cap": 20290136453.5206,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 1865503762.5176897,
+       "cap": 1761864664.6000397,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 1865503762.5176897,
+       "cap": 1761864664.6000397,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 5541188007.552091,
+       "cap": 5233344229.354751,
        "sec": 4
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 5541188007.552091,
+       "cap": 5233344229.354751,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 5406791290.7436495,
+       "cap": 5106413996.813446,
        "sec": 4
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 21162787136.691387,
+       "cap": 19987076740.20853,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 1837640025.0437555,
+       "cap": 1735548912.5413244,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 1837640025.0437555,
+       "cap": 1735548912.5413244,
        "sec": 4
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 5458423120.641454,
+       "cap": 5155177391.7169285,
        "sec": 4
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 5458423120.641454,
+       "cap": 5155177391.7169285,
        "sec": 4
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 5326033794.495927,
+       "cap": 5030143028.135042,
        "sec": 4
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 21162787136.691387,
+       "cap": 19987076740.20853,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 1837640025.0437555,
+       "cap": 1735548912.5413244,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 1837640025.0437555,
+       "cap": 1735548912.5413244,
        "sec": 4
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 5458423120.641454,
+       "cap": 5155177391.7169285,
        "sec": 4
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 5458423120.641454,
+       "cap": 5155177391.7169285,
        "sec": 4
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 5326033794.495927,
+       "cap": 5030143028.135042,
        "sec": 4
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 15396667114.876675,
+       "cap": 18934161626.15558,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 1336947329.282441,
+       "cap": 1644120550.8581612,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 1336947329.282441,
+       "cap": 1644120550.8581612,
        "sec": 4
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 3971193549.216124,
+       "cap": 4883603701.281086,
        "sec": 4
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 3971193549.216124,
+       "cap": 4883603701.281086,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 3874875688.479743,
+       "cap": 4765156122.395258,
        "sec": 4
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 15396667114.876675,
+       "cap": 14541296719.605743,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1336947329.282441,
+       "cap": 1262672477.6556382,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 1336947329.282441,
+       "cap": 1262672477.6556382,
        "sec": 4
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 3971193549.216124,
+       "cap": 3750571685.370783,
        "sec": 4
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 3971193549.216124,
+       "cap": 3750571685.370783,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 3874875688.479743,
+       "cap": 3659604816.897534,
        "sec": 4
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 21010074327.71502,
+       "cap": 14541296719.605743,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1824379429.0599077,
+       "cap": 1262672477.6556382,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 1824379429.0599077,
+       "cap": 1262672477.6556382,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 5419034588.216559,
+       "cap": 3750571685.370783,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 5419034588.216559,
+       "cap": 3750571685.370783,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 5287600596.817046,
+       "cap": 3659604816.897534,
        "sec": 4
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 21010074327.71502,
+       "cap": 19842847976.175293,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 1824379429.0599077,
+       "cap": 1723025016.334357,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 1824379429.0599077,
+       "cap": 1723025016.334357,
        "sec": 4
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 5419034588.216559,
+       "cap": 5117977111.093417,
        "sec": 4
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 5419034588.216559,
+       "cap": 5117977111.093417,
        "sec": 4
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 5287600596.817046,
+       "cap": 4993845008.104987,
        "sec": 4
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 16321054310.024958,
+       "cap": 19842847976.175293,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 1417215154.9459743,
+       "cap": 1723025016.334357,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 1417215154.9459743,
+       "cap": 1723025016.334357,
        "sec": 4
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 4209616607.8535285,
+       "cap": 5117977111.093417,
        "sec": 4
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 4209616607.8535285,
+       "cap": 5117977111.093417,
        "sec": 4
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 4107516002.2890315,
+       "cap": 4993845008.104987,
        "sec": 4
       },
       {
        "s": 30,
+       "d": 0,
+       "cap": 15414329070.579123,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 1,
+       "cap": 1338480979.6711977,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 2,
+       "cap": 1338480979.6711977,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 3,
+       "cap": 3975749018.528332,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 4,
+       "cap": 3975749018.528332,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 5,
+       "cap": 3879320668.8285284,
+       "sec": 4
+      },
+      {
+       "s": 31,
        "d": 0,
        "cap": 4405579421.1982355,
        "sec": 4
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 1,
        "cap": 382552119.7000848,
        "sec": 4
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 2,
        "cap": 382552119.7000848,
        "sec": 4
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 3,
        "cap": 1136311413.8589904,
        "sec": 4
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 4,
        "cap": 1136311413.8589904,
        "sec": 4
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 5,
        "cap": 1108751164.488915,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 0,
        "cap": 7112209332.164022,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 1,
        "cap": 617578414.9250604,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 2,
        "cap": 617578414.9250604,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 3,
        "cap": 1834420372.2683856,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 4,
        "cap": 1834420372.2683856,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 5,
        "cap": 1789928094.6298394,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 0,
        "cap": 15498312043.676023,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 1,
        "cap": 1345773519.7221942,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 2,
        "cap": 1345773519.7221942,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 3,
        "cap": 3997410371.502844,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 4,
        "cap": 3997410371.502844,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 5,
        "cap": 3900456644.4439907,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 0,
        "cap": 29523081460.064777,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 1,
        "cap": 2563594095.7691936,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 2,
        "cap": 2563594095.7691936,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 3,
        "cap": 7614756477.647629,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 4,
        "cap": 7614756477.647629,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 5,
        "cap": 7430067153.174816,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 0,
        "cap": 7112154068.6689415,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 1,
        "cap": 617573616.1993619,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 2,
        "cap": 617573616.1993619,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 3,
        "cap": 1834406118.402043,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 4,
        "cap": 1834406118.402043,
        "sec": 4
       },
       {
-       "s": 34,
+       "s": 35,
        "d": 5,
        "cap": 1789914186.4786825,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 0,
        "cap": 4405584384.357982,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 1,
        "cap": 382552550.66888595,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 2,
        "cap": 382552550.66888595,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 3,
        "cap": 1136312693.984606,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 4,
        "cap": 1136312693.984606,
        "sec": 4
       },
       {
-       "s": 35,
+       "s": 36,
        "d": 5,
        "cap": 1108752413.5661924,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 0,
        "cap": 29523081460.064777,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 1,
        "cap": 2563594095.7691936,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 2,
        "cap": 2563594095.7691936,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 3,
        "cap": 7614756477.647629,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 4,
        "cap": 7614756477.647629,
        "sec": 4
       },
       {
-       "s": 36,
+       "s": 37,
        "d": 5,
        "cap": 7430067153.174816,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 0,
        "cap": 15498312043.676023,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 1,
        "cap": 1345773519.7221942,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 2,
        "cap": 1345773519.7221942,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 3,
        "cap": 3997410371.502844,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 4,
        "cap": 3997410371.502844,
        "sec": 4
       },
       {
-       "s": 37,
+       "s": 38,
        "d": 5,
        "cap": 3900456644.4439907,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 0,
        "cap": 5150574123.124477,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 1,
        "cap": 447242657.5702891,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 2,
        "cap": 447242657.5702891,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 3,
        "cap": 1328464568.3316932,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 4,
        "cap": 1328464568.3316932,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 5,
        "cap": 1296243810.5922358,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 0,
        "cap": 5150703689.442457,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 1,
        "cap": 447253908.2741911,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 2,
        "cap": 447253908.2741911,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 3,
        "cap": 1328497986.793125,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 4,
        "cap": 1328497986.793125,
        "sec": 4
       },
       {
-       "s": 39,
+       "s": 40,
        "d": 5,
        "cap": 1296276418.5178237,
        "sec": 4
       },
       {
-       "s": 40,
-       "d": 0,
-       "cap": 43340342178.532036,
-       "sec": 4
-      },
-      {
-       "s": 40,
-       "d": 1,
-       "cap": 3763395954.0366173,
-       "sec": 4
-      },
-      {
-       "s": 40,
-       "d": 2,
-       "cap": 3763395954.0366173,
-       "sec": 4
-      },
-      {
-       "s": 40,
-       "d": 3,
-       "cap": 11178580792.586323,
-       "sec": 4
-      },
-      {
-       "s": 40,
-       "d": 4,
-       "cap": 11178580792.586323,
-       "sec": 4
-      },
-      {
-       "s": 40,
-       "d": 5,
-       "cap": 10907453995.3988,
-       "sec": 4
-      },
-      {
        "s": 41,
        "d": 0,
        "cap": 43340342178.532036,
@@ -30770,37 +31284,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 42,
        "d": 0,
-       "cap": 83803625628.97615,
-       "sec": 3
+       "cap": 43340342178.532036,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 7276966672.909885,
-       "sec": 3
+       "cap": 3763395954.0366173,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 7276966672.909885,
-       "sec": 3
+       "cap": 3763395954.0366173,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 21615094683.52098,
-       "sec": 3
+       "cap": 11178580792.586323,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 21615094683.52098,
-       "sec": 3
+       "cap": 11178580792.586323,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 21090839279.26298,
+       "cap": 10907453995.3988,
        "sec": 4
       },
       {
@@ -30841,362 +31355,398 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 44,
+       "d": 0,
+       "cap": 83803625628.97615,
+       "sec": 3
+      },
+      {
+       "s": 44,
+       "d": 1,
+       "cap": 7276966672.909885,
+       "sec": 3
+      },
+      {
+       "s": 44,
+       "d": 2,
+       "cap": 7276966672.909885,
+       "sec": 3
+      },
+      {
+       "s": 44,
+       "d": 3,
+       "cap": 21615094683.52098,
+       "sec": 3
+      },
+      {
+       "s": 44,
+       "d": 4,
+       "cap": 21615094683.52098,
+       "sec": 3
+      },
+      {
+       "s": 44,
+       "d": 5,
+       "cap": 21090839279.26298,
+       "sec": 4
+      },
+      {
+       "s": 45,
        "d": 0,
        "cap": 111266672366.4864,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 1,
        "cap": 9661680631.828732,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 2,
        "cap": 9661680631.828732,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 3,
        "cap": 28698515610.407413,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 4,
        "cap": 28698515610.407413,
        "sec": 3
       },
       {
-       "s": 44,
+       "s": 45,
        "d": 5,
        "cap": 28002457965.357674,
        "sec": 4
       },
       {
-       "s": 45,
-       "d": 0,
-       "cap": 3042792713716.5815,
-       "sec": 4
-      },
-      {
-       "s": 45,
-       "d": 1,
-       "cap": 264216506196.51254,
-       "sec": 4
-      },
-      {
-       "s": 45,
-       "d": 2,
-       "cap": 264216506196.51254,
-       "sec": 4
-      },
-      {
-       "s": 45,
-       "d": 3,
-       "cap": 784813927985.6022,
-       "sec": 4
-      },
-      {
-       "s": 45,
-       "d": 4,
-       "cap": 784813927985.6022,
-       "sec": 4
-      },
-      {
-       "s": 45,
-       "d": 5,
-       "cap": 765778945761.0238,
-       "sec": 4
-      },
-      {
        "s": 46,
        "d": 0,
-       "cap": 23082847907787.703,
+       "cap": 3043033160525.0063,
        "sec": 4
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 2004365726185.7173,
+       "cap": 264237385047.49756,
        "sec": 4
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 2004365726185.7173,
+       "cap": 264237385047.49756,
        "sec": 4
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 5953655815574.062,
+       "cap": 784875945356.4669,
        "sec": 4
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 5953655815574.062,
+       "cap": 784875945356.4669,
        "sec": 4
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 5809255049252.8125,
+       "cap": 765839458954.2612,
        "sec": 4
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 23500466331087.21,
+       "cap": 23084671954849.387,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 2040629018203.6338,
+       "cap": 2004524114675.214,
        "sec": 4
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 2040629018203.6338,
+       "cap": 2004524114675.214,
        "sec": 4
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 6061370269375.455,
+       "cap": 5954126283881.962,
        "sec": 4
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 6061370269375.455,
+       "cap": 5954126283881.962,
        "sec": 4
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 5914356982251.088,
+       "cap": 5809714106759.3,
        "sec": 4
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 23082847907787.703,
+       "cap": 23502323379087.996,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 2004365726185.7173,
+       "cap": 2040790272281.966,
        "sec": 4
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 2004365726185.7173,
+       "cap": 2040790272281.966,
        "sec": 4
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 5953655815574.062,
+       "cap": 6061849249468.112,
        "sec": 4
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 5953655815574.062,
+       "cap": 6061849249468.112,
        "sec": 4
       },
       {
        "s": 48,
        "d": 5,
-       "cap": 5809255049252.8125,
+       "cap": 5914824345096.363,
        "sec": 4
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 3042792713716.5815,
+       "cap": 23084671954849.387,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 264216506196.51254,
+       "cap": 2004524114675.214,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 264216506196.51254,
+       "cap": 2004524114675.214,
        "sec": 4
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 784813927985.6022,
+       "cap": 5954126283881.962,
        "sec": 4
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 784813927985.6022,
+       "cap": 5954126283881.962,
        "sec": 4
       },
       {
        "s": 49,
        "d": 5,
-       "cap": 765778945761.0238,
+       "cap": 5809714106759.3,
        "sec": 4
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 23500466331087.21,
+       "cap": 3043033160525.0063,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 2040629018203.6338,
+       "cap": 264237385047.49756,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 2040629018203.6338,
+       "cap": 264237385047.49756,
        "sec": 4
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 6061370269375.455,
+       "cap": 784875945356.4669,
        "sec": 4
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 6061370269375.455,
+       "cap": 784875945356.4669,
        "sec": 4
       },
       {
        "s": 50,
        "d": 5,
-       "cap": 5914356982251.088,
+       "cap": 765839458954.2612,
        "sec": 4
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 1699975863070.545,
+       "cap": 23502323379087.996,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 147614946339.96194,
+       "cap": 2040790272281.966,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 147614946339.96194,
+       "cap": 2040790272281.966,
        "sec": 4
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 438467178050.88654,
+       "cap": 6061849249468.112,
        "sec": 4
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 438467178050.88654,
+       "cap": 6061849249468.112,
        "sec": 4
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 427832536331.8206,
+       "cap": 5914824345096.363,
        "sec": 4
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 1699975863070.545,
+       "cap": 1700110198140.0464,
        "sec": 4
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 147614946339.96194,
+       "cap": 147626611131.508,
        "sec": 4
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 147614946339.96194,
+       "cap": 147626611131.508,
        "sec": 4
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 438467178050.88654,
+       "cap": 438501826495.08923,
        "sec": 4
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 438467178050.88654,
+       "cap": 438501826495.08923,
        "sec": 4
       },
       {
        "s": 52,
        "d": 5,
-       "cap": 427832536331.8206,
+       "cap": 427866344408.0125,
        "sec": 4
       },
       {
        "s": 53,
        "d": 0,
-       "cap": 88043902716.54106,
+       "cap": 1700110198140.0464,
        "sec": 4
       },
       {
        "s": 53,
        "d": 1,
-       "cap": 7645165003.453766,
+       "cap": 147626611131.508,
        "sec": 4
       },
       {
        "s": 53,
        "d": 2,
-       "cap": 7645165003.453766,
+       "cap": 147626611131.508,
        "sec": 4
       },
       {
        "s": 53,
        "d": 3,
-       "cap": 22708770405.116367,
+       "cap": 438501826495.08923,
        "sec": 4
       },
       {
        "s": 53,
        "d": 4,
-       "cap": 22708770405.116367,
+       "cap": 438501826495.08923,
        "sec": 4
       },
       {
        "s": 53,
        "d": 5,
-       "cap": 22157988843.284363,
+       "cap": 427866344408.0125,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 0,
+       "cap": 88050860099.90605,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 1,
+       "cap": 7645769137.779669,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 2,
+       "cap": 7645769137.779669,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 3,
+       "cap": 22710564891.918755,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 4,
+       "cap": 22710564891.918755,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 5,
+       "cap": 22159739806.36327,
        "sec": 4
       }
      ]
@@ -31211,7 +31761,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 113.5889267089763,
+    "mglt": 113.58889513326355,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -31275,15 +31825,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "124zm63",
-   "build": 118283,
+   "signature": "1k2vv5n",
+   "build": 118264,
    "crew": 0,
-   "total": 118283,
+   "total": 118264,
    "by": {
     "hull": 2,
     "armor": 1,
     "power": 15823,
-    "drive": 33357,
+    "drive": 33338,
     "command": 13500,
     "weapons": 38600,
     "systems": 17000
@@ -31292,7 +31842,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 15052662000000000,
+    "power": 16302662000000000,
     "crew": 0,
     "suitSeats": 0,
     "lifeSupportCapacity": 0,
@@ -31301,6 +31851,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 0,
     "ejectionSurvival": 0,
     "navCapacity": 2.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 7,
     "targetCapacity": 8.192000000000002,
@@ -31318,8 +31869,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 1.2989385674896521e-14,
+    "upS": 1.2989385674896521e-14,
     "down": 0.01,
     "T": 0
    },
@@ -31514,16 +32065,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "ドロイド・ブレイン",
-      "w": 0.11560000000000004,
+      "w": 0.09375000000000003,
       "hits": 1,
       "crew": 0,
-      "size": 0.03930400000000001,
+      "size": 0.015625,
       "at": 0.219,
       "part": 12,
       "y": 0.33,
       "z": 0,
-      "r": 0.023,
-      "share": 0.15292821872516119,
+      "r": 0.017,
+      "share": 0.06580984921548051,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -31574,7 +32125,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.13,
       "z": 0,
       "r": 0.019,
-      "share": 0.088010248651778,
+      "share": 0.09526935805249793,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -31582,10 +32133,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "胴体内反応炉",
-      "w": 0.37710930220255345,
+      "w": 0.37671470770008475,
       "hits": 1,
-      "crew": 0.00002521122655316302,
-      "size": 0.1260561327658151,
+      "crew": 0.000025171666635715745,
+      "size": 0.12585833317857872,
       "at": 0.384,
       "part": 16,
       "y": -0.24,
@@ -31632,19 +32183,36 @@ const CRAFT_PRICE_CATALOG={
      },
      {
       "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 8.192000000000001e-7,
+      "size": 0.004096000000000001,
+      "at": 0.192,
+      "part": 26,
+      "y": 0.56,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.017251657112742926,
+      "domain": "main",
+      "port": "p26",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
       "name": "航法コンピューター",
       "w": 0.048400000000000006,
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
       "at": 0.192,
-      "part": 26,
-      "y": 0.56,
+      "part": 27,
+      "y": 0.41,
       "z": 0,
       "r": 0.015,
-      "share": 0.04143038044436993,
+      "share": 0.044847569564571935,
       "domain": "main",
-      "port": "p26",
+      "port": "p27",
       "powerConnected": true
      },
      {
@@ -31655,13 +32223,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.162,
-      "part": 27,
+      "part": 28,
       "y": 0.34,
       "z": 0,
       "r": 0.021,
-      "share": 0.1274972489106982,
+      "share": 0.1380132569019434,
       "domain": "main",
-      "port": "p27",
+      "port": "p28",
       "powerConnected": true
      },
      {
@@ -31672,13 +32240,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.175,
-      "part": 28,
+      "part": 29,
       "y": 0.56,
       "z": 0,
       "r": 0.012,
-      "share": 0.022691771107397205,
+      "share": 0.02456339459997967,
       "domain": "main",
-      "port": "p28",
+      "port": "p29",
       "powerConnected": true
      },
      {
@@ -31688,14 +32256,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.192,
-      "part": 29,
-      "y": 0.44,
+      "at": 0.209,
+      "part": 30,
+      "y": 0.56,
       "z": 0,
       "r": 0.012,
-      "share": 0.022691771107397205,
+      "share": 0.02456339459997967,
       "domain": "main",
-      "port": "p29",
+      "port": "p30",
       "powerConnected": true
      },
      {
@@ -31705,14 +32273,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.209,
-      "part": 30,
-      "y": 0.56,
-      "z": 0,
+      "at": 0.192,
+      "part": 31,
+      "y": 0.44,
+      "z": 0.06,
       "r": 0.012,
-      "share": 0.022691771107397205,
+      "share": 0.02456339459997967,
       "domain": "main",
-      "port": "p30",
+      "port": "p31",
       "powerConnected": true
      },
      {
@@ -31722,14 +32290,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.192,
-      "part": 31,
+      "at": 0.209,
+      "part": 32,
       "y": 0.44,
-      "z": 0.06,
+      "z": 0,
       "r": 0.012,
-      "share": 0.022691771107397205,
+      "share": 0.02456339459997967,
       "domain": "main",
-      "port": "p31",
+      "port": "p32",
       "powerConnected": true
      },
      {
@@ -31740,13 +32308,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.192,
-      "part": 32,
+      "part": 33,
       "y": 0.07,
       "z": 0,
       "r": 0.023,
-      "share": 0.1668226485304621,
+      "share": 0.1805822262472785,
       "domain": "main",
-      "port": "p32",
+      "port": "p33",
       "powerConnected": true
      },
      {
@@ -31757,13 +32325,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.257,
-      "part": 33,
+      "part": 34,
       "y": 0.32,
       "z": 0,
       "r": 0.023,
-      "share": 0.1668226485304621,
+      "share": 0.1805822262472785,
       "domain": "main",
-      "port": "p33",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -31773,14 +32341,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.233,
-      "part": 34,
-      "y": 0.56,
-      "z": 0,
+      "at": 0.213,
+      "part": 35,
+      "y": 0.41,
+      "z": -0.08,
       "r": 0.015,
-      "share": 0.04143038044436993,
+      "share": 0.044847569564571935,
       "domain": "main",
-      "port": "p34",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -31791,13 +32359,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.213,
-      "part": 35,
-      "y": 0.25,
-      "z": -0.15,
+      "part": 36,
+      "y": 0.41,
+      "z": 0.08,
       "r": 0.015,
-      "share": 0.04143038044436993,
+      "share": 0.044847569564571935,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -31807,14 +32375,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.213,
-      "part": 36,
-      "y": 0.25,
-      "z": 0.15,
+      "at": 0.233,
+      "part": 37,
+      "y": 0.56,
+      "z": 0,
       "r": 0.015,
-      "share": 0.04143038044436993,
+      "share": 0.044847569564571935,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -31824,14 +32392,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.253,
-      "part": 37,
-      "y": 0.56,
-      "z": 0,
+      "at": 0.213,
+      "part": 38,
+      "y": 0.25,
+      "z": -0.15,
       "r": 0.015,
-      "share": 0.04143038044436993,
+      "share": 0.044847569564571935,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -31945,15 +32513,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.14414051953631088,
+      "w": 0.1469259508967045,
       "hits": 1,
       "crew": 0,
-      "size": 0.9419812017074095,
-      "at": 0.166,
+      "size": 0.969417547388208,
+      "at": 0.167,
       "y": 0.11,
       "z": 0,
-      "r": 0.065,
-      "share": 0.1825778678146366,
+      "r": 0.066,
+      "share": 0.18690176322418137,
       "domain": "main"
      },
      {
@@ -31967,7 +32535,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.05,
       "z": 0,
       "r": 0.096,
-      "share": 0.5829323879463156,
+      "share": 0.5798488664987405,
       "domain": "main"
      },
      {
@@ -31976,32 +32544,32 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.14639743956833332,
       "hits": 1,
       "crew": 0,
-      "size": 0.9641915767823415,
+      "size": 0.9641915767823416,
       "at": 0.606,
       "y": 0.01,
       "z": 0,
       "r": 0.065,
-      "share": 0.18688275512788047,
+      "share": 0.18589420654911837,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.05883031035045631,
+      "w": 0.058830310350456314,
       "hits": 1,
       "crew": 0,
-      "size": 0.24562061847571842,
+      "size": 0.24562061847571845,
       "at": 0.819,
       "y": 0,
       "z": 0,
       "r": 0.041,
-      "share": 0.04760698911116738,
+      "share": 0.0473551637279597,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 10.79007362624557,
+      "w": 10.793758128360325,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -32021,8 +32589,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.015707963267948967,
      "massKg": 3.926990816987242,
-     "capacityJ": 1.8849555921538762e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 1.1787689499584169e+21,
+     "specificEnergyJPerKg": 300171048238600100000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 0,
@@ -32037,23 +32605,23 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 660156435176974500,
-     "fixed": 18877018943328600,
+     "P": 659120558004445000,
+     "fixed": 20079660943328600,
      "cooling": 2138580161525952,
-     "De": 660156435176974500,
+     "De": 659120558004445000,
      "Ds": 0,
      "Dw": 2278933333333333.5,
      "domains": [
       {
        "id": "main",
-       "P": 660156435176974500,
+       "P": 659120558004445000,
        "reactors": [
         11
        ],
        "sources": [
         {
          "moduleIndex": 11,
-         "P": 660156435176974500
+         "P": 659120558004445000
         }
        ],
        "modules": [
@@ -32093,7 +32661,8 @@ const CRAFT_PRICE_CATALOG={
         33,
         34,
         35,
-        36
+        36,
+        37
        ],
        "protection": 1
       }
@@ -32103,7 +32672,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 18877018943328600,
+       "cap": 20079660943328600,
        "auto": true,
        "ok": true,
        "routeId": "p16>hotel",
@@ -32163,7 +32732,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p12",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p12",
@@ -32175,7 +32744,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p14",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p14",
@@ -32187,7 +32756,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p15",
@@ -32199,7 +32768,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p26",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p26",
@@ -32211,10 +32780,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p27",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p27",
+       "model": "source-distance",
+       "lengthM": 1.587392831028287,
+       "efficiency": 0.9999841261976798
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p28",
+       "cap": 1181156526078153,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p28",
        "model": "source-distance",
        "lengthM": 1.7703253938188879,
        "efficiency": 0.9999822969027635
@@ -32222,11 +32803,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p28",
-       "cap": 1179813683958037.5,
+       "to": "p29",
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p28",
+       "routeId": "p16>p29",
        "model": "source-distance",
        "lengthM": 1.7674207195798062,
        "efficiency": 0.9999823259489921
@@ -32234,20 +32815,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p29",
-       "cap": 1179813683958037.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p16>p29",
-       "model": "source-distance",
-       "lengthM": 1.5989921825950242,
-       "efficiency": 0.9999840102060121
-      },
-      {
-       "kind": "power",
-       "from": "p16",
        "to": "p30",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p30",
@@ -32259,7 +32828,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p31",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p31",
@@ -32271,10 +32840,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p32",
-       "cap": 1179813683958037.5,
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
        "routeId": "p16>p32",
+       "model": "source-distance",
+       "lengthM": 1.4856823348212764,
+       "efficiency": 0.9999851432870138
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p33",
+       "cap": 1181156526078153,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p33",
        "model": "source-distance",
        "lengthM": 1.482767682410161,
        "efficiency": 0.9999851724331054
@@ -32282,11 +32863,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p33",
-       "cap": 1179813683958037.5,
+       "to": "p34",
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p33",
+       "routeId": "p16>p34",
        "model": "source-distance",
        "lengthM": 1.1088845746965732,
        "efficiency": 0.9999889112157341
@@ -32294,11 +32875,35 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p34",
-       "cap": 1179813683958037.5,
+       "to": "p35",
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p34",
+       "routeId": "p16>p35",
+       "model": "source-distance",
+       "lengthM": 1.4562444849680976,
+       "efficiency": 0.9999854376611822
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p36",
+       "cap": 1181156526078153,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p36",
+       "model": "source-distance",
+       "lengthM": 1.4562444849680976,
+       "efficiency": 0.9999854376611822
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p37",
+       "cap": 1181156526078153,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p37",
        "model": "source-distance",
        "lengthM": 1.3943328153636776,
        "efficiency": 0.9999860567690542
@@ -32306,38 +32911,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p35",
-       "cap": 1179813683958037.5,
+       "to": "p38",
+       "cap": 1181156526078153,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p35",
+       "routeId": "p16>p38",
        "model": "source-distance",
        "lengthM": 1.420050703320131,
        "efficiency": 0.9999857995937935
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p36",
-       "cap": 1179813683958037.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p16>p36",
-       "model": "source-distance",
-       "lengthM": 1.420050703320131,
-       "efficiency": 0.9999857995937935
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p37",
-       "cap": 1179813683958037.5,
-       "auto": true,
-       "ok": true,
-       "routeId": "p16>p37",
-       "model": "source-distance",
-       "lengthM": 1.2712765238137609,
-       "efficiency": 0.9999872873155687
       },
       {
        "kind": "power",
@@ -32439,11 +33020,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p17",
-       "cap": 924219009247764200,
+       "cap": 922768781206223000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p17",
-       "groupCap": 924219009247764200,
+       "groupCap": 922768781206223000,
        "routeId": "p16>p17",
        "model": "source-distance",
        "lengthM": 1.759090674183682,
@@ -32453,11 +33034,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p18",
-       "cap": 924219009247764200,
+       "cap": 922768781206223000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p18",
-       "groupCap": 924219009247764200,
+       "groupCap": 922768781206223000,
        "routeId": "p16>p18",
        "model": "source-distance",
        "lengthM": 1.759090674183682,
@@ -32469,7 +33050,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 15738438781802648,
+       "weight": 16941080781802648,
        "domain": "main"
       },
       {
@@ -32520,23 +33101,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 6612833747754297,
-       "densityFactor": 49.91479147658612,
+       "densityFactor": 49.83646823332591,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2025237489.2705822,
-       "shaftWattsPerNewton": 1923975614.807053,
-       "wattsPerNewton": 2025237489.2705822,
-       "ratedShaftPowerW": 313574306709062850,
-       "ratedWasteHeatW": 16503910879424376,
+       "profileWattsPerNewton": 2024963881.8629808,
+       "shaftWattsPerNewton": 1923715687.7698317,
+       "wattsPerNewton": 2024963881.8629808,
+       "ratedShaftPowerW": 313082265052111360,
+       "ratedWasteHeatW": 16478013950111142,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9232.941661576191,
+       "conversionMassKg": 9219.699197325324,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 660156435176974500,
-       "sourceInputLimitW": 660156435176974500,
+       "availableInputW": 659120558004445000,
+       "sourceInputLimitW": 659120558004445000,
        "sourceIds": [
         "p16"
        ],
@@ -32547,10 +33128,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 330078217588487230,
+       "ratedInputW": 329560279002222500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 162982474.56764665,
+       "ratedThrustN": 162748719.5964329,
        "effectiveMachineryVolumeM3": 0.019449511022806756,
        "machineryVolumeM3": 0.019449511022806756,
        "machineryShape": "frustum",
@@ -32558,12 +33139,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.161,
        "machineryDiameterM": 0.322,
        "machineryOffsetM": 0,
-       "maxInputW": 660156435176974500,
-       "maxRatedInputW": 660156435176974500,
-       "inputDensityWPerM3": 16971029102039282000,
+       "maxInputW": 659120558004445000,
+       "maxRatedInputW": 659120558004445000,
+       "inputDensityWPerM3": 16944399199330808000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 325959218443786200,
-       "cost": 3177.3679588536015,
+       "costBasisInputW": 325491707280421440,
+       "cost": 3168.075076055953,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 16,
@@ -32578,11 +33159,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 12,
-       "machineryModuleIndex": 26,
+       "machineryModuleIndex": 27,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 660156435176974500,
+       "pathCapacityW": 659120558004445000,
        "transmissionRouteIds": [
         "p16>p17"
        ]
@@ -32590,23 +33171,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 6612833747754297,
-       "densityFactor": 49.91479147658612,
+       "densityFactor": 49.83646823332591,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2025237489.2705822,
-       "shaftWattsPerNewton": 1923975614.807053,
-       "wattsPerNewton": 2025237489.2705822,
-       "ratedShaftPowerW": 313574306709062850,
-       "ratedWasteHeatW": 16503910879424376,
+       "profileWattsPerNewton": 2024963881.8629808,
+       "shaftWattsPerNewton": 1923715687.7698317,
+       "wattsPerNewton": 2024963881.8629808,
+       "ratedShaftPowerW": 313082265052111360,
+       "ratedWasteHeatW": 16478013950111142,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9232.941661576191,
+       "conversionMassKg": 9219.699197325324,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 660156435176974500,
-       "sourceInputLimitW": 660156435176974500,
+       "availableInputW": 659120558004445000,
+       "sourceInputLimitW": 659120558004445000,
        "sourceIds": [
         "p16"
        ],
@@ -32617,10 +33198,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 330078217588487230,
+       "ratedInputW": 329560279002222500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 162982474.56764665,
+       "ratedThrustN": 162748719.5964329,
        "effectiveMachineryVolumeM3": 0.019449511022806756,
        "machineryVolumeM3": 0.019449511022806756,
        "machineryShape": "frustum",
@@ -32628,12 +33209,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.161,
        "machineryDiameterM": 0.322,
        "machineryOffsetM": 0,
-       "maxInputW": 660156435176974500,
-       "maxRatedInputW": 660156435176974500,
-       "inputDensityWPerM3": 16971029102039282000,
+       "maxInputW": 659120558004445000,
+       "maxRatedInputW": 659120558004445000,
+       "inputDensityWPerM3": 16944399199330808000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 325959218443786200,
-       "cost": 3177.3679588536015,
+       "costBasisInputW": 325491707280421440,
+       "cost": 3168.075076055953,
        "powerNode": "p18",
        "heatNode": "p18",
        "reactorId": 16,
@@ -32648,11 +33229,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 13,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 28,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 660156435176974500,
+       "pathCapacityW": 659120558004445000,
        "transmissionRouteIds": [
         "p16>p18"
        ]
@@ -32662,23 +33243,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 6612833747754297,
-       "densityFactor": 49.91479147658612,
+       "densityFactor": 49.83646823332591,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2025237489.2705822,
-       "shaftWattsPerNewton": 1923975614.807053,
-       "wattsPerNewton": 2025237489.2705822,
-       "ratedShaftPowerW": 313574306709062850,
-       "ratedWasteHeatW": 16503910879424376,
+       "profileWattsPerNewton": 2024963881.8629808,
+       "shaftWattsPerNewton": 1923715687.7698317,
+       "wattsPerNewton": 2024963881.8629808,
+       "ratedShaftPowerW": 313082265052111360,
+       "ratedWasteHeatW": 16478013950111142,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9232.941661576191,
+       "conversionMassKg": 9219.699197325324,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 660156435176974500,
-       "sourceInputLimitW": 660156435176974500,
+       "availableInputW": 659120558004445000,
+       "sourceInputLimitW": 659120558004445000,
        "sourceIds": [
         "p16"
        ],
@@ -32689,10 +33270,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 330078217588487230,
+       "ratedInputW": 329560279002222500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 162982474.56764665,
+       "ratedThrustN": 162748719.5964329,
        "effectiveMachineryVolumeM3": 0.019449511022806756,
        "machineryVolumeM3": 0.019449511022806756,
        "machineryShape": "frustum",
@@ -32700,12 +33281,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.161,
        "machineryDiameterM": 0.322,
        "machineryOffsetM": 0,
-       "maxInputW": 660156435176974500,
-       "maxRatedInputW": 660156435176974500,
-       "inputDensityWPerM3": 16971029102039282000,
+       "maxInputW": 659120558004445000,
+       "maxRatedInputW": 659120558004445000,
+       "inputDensityWPerM3": 16944399199330808000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 325959218443786200,
-       "cost": 3177.3679588536015,
+       "costBasisInputW": 325491707280421440,
+       "cost": 3168.075076055953,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 16,
@@ -32721,7 +33302,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 12,
        "coreModuleIndex": 12,
-       "machineryModuleIndex": 26,
+       "machineryModuleIndex": 27,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 162866446347402100000,
        "shaftCapacityW": 162866446347402100000,
@@ -32730,28 +33311,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 660156435176974500
+       "pathCapacityW": 659120558004445000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 6612833747754297,
-       "densityFactor": 49.91479147658612,
+       "densityFactor": 49.83646823332591,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2025237489.2705822,
-       "shaftWattsPerNewton": 1923975614.807053,
-       "wattsPerNewton": 2025237489.2705822,
-       "ratedShaftPowerW": 313574306709062850,
-       "ratedWasteHeatW": 16503910879424376,
+       "profileWattsPerNewton": 2024963881.8629808,
+       "shaftWattsPerNewton": 1923715687.7698317,
+       "wattsPerNewton": 2024963881.8629808,
+       "ratedShaftPowerW": 313082265052111360,
+       "ratedWasteHeatW": 16478013950111142,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9232.941661576191,
+       "conversionMassKg": 9219.699197325324,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 660156435176974500,
-       "sourceInputLimitW": 660156435176974500,
+       "availableInputW": 659120558004445000,
+       "sourceInputLimitW": 659120558004445000,
        "sourceIds": [
         "p16"
        ],
@@ -32762,10 +33343,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 330078217588487230,
+       "ratedInputW": 329560279002222500,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 162982474.56764665,
+       "ratedThrustN": 162748719.5964329,
        "effectiveMachineryVolumeM3": 0.019449511022806756,
        "machineryVolumeM3": 0.019449511022806756,
        "machineryShape": "frustum",
@@ -32773,12 +33354,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.161,
        "machineryDiameterM": 0.322,
        "machineryOffsetM": 0,
-       "maxInputW": 660156435176974500,
-       "maxRatedInputW": 660156435176974500,
-       "inputDensityWPerM3": 16971029102039282000,
+       "maxInputW": 659120558004445000,
+       "maxRatedInputW": 659120558004445000,
+       "inputDensityWPerM3": 16944399199330808000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 325959218443786200,
-       "cost": 3177.3679588536015,
+       "costBasisInputW": 325491707280421440,
+       "cost": 3168.075076055953,
        "powerNode": "p18",
        "heatNode": "p18",
        "reactorId": 16,
@@ -32794,7 +33375,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 13,
        "coreModuleIndex": 13,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 28,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 162866446347402100000,
        "shaftCapacityW": 162866446347402100000,
@@ -32803,22 +33384,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 660156435176974500
+       "pathCapacityW": 659120558004445000
       }
      ],
-     "massKg": 9232.941661576191,
-     "ratedThrustN": 325959215.16670495,
-     "ratedAccelMps2": 35303.9396450664,
-     "structuralAccelerationLimitMps2": 175901.7615290543,
+     "massKg": 9219.699197325324,
+     "ratedThrustN": 325491713.4481289,
+     "ratedAccelMps2": 35303.94066897057,
+     "structuralAccelerationLimitMps2": 176448.43124733446,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 35303.9396450664,
+     "accelerationLimitMps2": 35303.94066897057,
      "conversionModelVersion": 1,
-     "conversionMassKg": 9232.941661576191,
+     "conversionMassKg": 9219.699197325324,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[660156435176974500,[[\"main\",660156435176974500,[[11,660156435176974500]]]],[[11,\"reactor\",16,\"p16\",\"main\",0.1260561327658151,1]]]"
+     "sourceBudgetKey": "[659120558004445000,[[\"main\",659120558004445000,[[11,659120558004445000]]]],[[11,\"reactor\",16,\"p16\",\"main\",0.12585833317857872,1]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1742.4252752088216,
+    "maxSpeed": 1739.1415631514978,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -32846,7 +33427,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         12,
-        26
+        27
        ],
        "pc": [],
        "sec": 1,
@@ -32861,7 +33442,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         13,
-        27
+        28
        ],
        "pc": [],
        "sec": 1,
@@ -32918,7 +33499,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.013745,
+       "sh": 0.0147685,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -32931,7 +33512,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.000381503,
+       "sh": 0.000382435,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -32944,7 +33525,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p5",
        "n": "送電損失 p16>p5",
        "g": "high",
-       "sh": 0.000381503,
+       "sh": 0.000382435,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -32957,7 +33538,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p6",
        "n": "送電損失 p16>p6",
        "g": "high",
-       "sh": 0.000354028,
+       "sh": 0.000354893,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -32970,7 +33551,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p7",
        "n": "送電損失 p16>p7",
        "g": "high",
-       "sh": 0.000354028,
+       "sh": 0.000354893,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33175,10 +33756,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p16>p38",
+       "n": "送電損失 p16>p38",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p16>p38"
+      },
+      {
+       "k": "feed",
        "id": "feed:p16>f19",
        "n": "送電損失 p16>f19",
        "g": "high",
-       "sh": 0.000196804,
+       "sh": 0.000197285,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33191,7 +33785,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f20",
        "n": "送電損失 p16>f20",
        "g": "high",
-       "sh": 0.000196804,
+       "sh": 0.000197285,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33204,7 +33798,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f21",
        "n": "送電損失 p16>f21",
        "g": "high",
-       "sh": 0.000194295,
+       "sh": 0.000194769,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33217,7 +33811,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.000194295,
+       "sh": 0.000194769,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33230,7 +33824,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.000602003,
+       "sh": 0.000603474,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33243,7 +33837,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.000602003,
+       "sh": 0.000603474,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33256,7 +33850,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.0000815886,
+       "sh": 0.0000817879,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33269,7 +33863,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p13",
        "n": "送電損失 p16>p13",
        "g": "high",
-       "sh": 0.00177332,
+       "sh": 0.00177765,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -33282,7 +33876,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.490471,
+       "sh": 0.489953,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33295,7 +33889,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p18",
        "n": "送電損失 p16>p18",
        "g": "high",
-       "sh": 0.490471,
+       "sh": 0.489953,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33322,7 +33916,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 28,
+       "m": 29,
        "sec": 3,
        "src": -1,
        "power": 220424817679557.97
@@ -33333,7 +33927,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 29,
+       "m": 30,
        "sec": 3,
        "src": -1,
        "power": 220424817679557.97
@@ -33344,7 +33938,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 30,
+       "m": 31,
        "sec": 3,
        "src": -1,
        "power": 220424817679557.97
@@ -33355,7 +33949,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 31,
+       "m": 32,
        "sec": 3,
        "src": -1,
        "power": 220424817679557.97
@@ -33365,7 +33959,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 192375711077272600000,
+       "cap": 191944495680734200000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -33375,91 +33969,91 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 15440398667699594,
+       "cap": 15416170536816748,
        "sec": 1
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 4061777555198790,
+       "cap": 4055404061849151.5,
        "sec": 2
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 4061777555198790,
+       "cap": 4055404061849151.5,
        "sec": 2
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 4061777555198790,
+       "cap": 4055404061849151.5,
        "sec": 2
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 4061777555198790,
+       "cap": 4055404061849151.5,
        "sec": 2
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 9374134982124702,
+       "cap": 9341412413595016,
        "sec": 1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 9374134982124702,
+       "cap": 9341412413595016,
        "sec": 1
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 2465975904459640,
+       "cap": 2457367849883926.5,
        "sec": 2
       },
       {
@@ -33525,67 +34119,67 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 5,
        "d": 0,
-       "cap": 28315528414992900,
+       "cap": 30119491414992900,
        "sec": 0
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 28315528414992900,
+       "cap": 30119491414992900,
        "sec": 2
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 28315528414992900,
+       "cap": 30119491414992900,
        "sec": 2
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 28315528414992900,
+       "cap": 30119491414992900,
        "sec": 2
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 28315528414992900,
+       "cap": 30119491414992900,
        "sec": 2
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 192375711077272600000,
+       "cap": 191944495680734200000,
        "sec": -1
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 130289225497.75253,
+       "cap": 138589863177.9645,
        "sec": 1
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 34274105429.549088,
+       "cap": 36457685306.5281,
        "sec": 2
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 34274105429.549088,
+       "cap": 36457685306.5281,
        "sec": 2
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 34274105429.549088,
+       "cap": 36457685306.5281,
        "sec": 2
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 34274105429.549088,
+       "cap": 36457685306.5281,
        "sec": 2
       },
       {
@@ -33711,541 +34305,541 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 11,
        "d": 0,
-       "cap": 11846882777.11526,
+       "cap": 11860366680.041197,
        "sec": 0
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 3116461148.3653483,
+       "cap": 3120008246.820495,
        "sec": 2
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 3116461148.3653483,
+       "cap": 3120008246.820495,
        "sec": 2
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 3116461148.3653483,
+       "cap": 3120008246.820495,
        "sec": 2
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 3116461148.3653483,
+       "cap": 3120008246.820495,
        "sec": 2
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 12202766148.427938,
+       "cap": 12216655111.226755,
        "sec": 1
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 3210080433.785113,
+       "cap": 3213734087.979887,
        "sec": 2
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 3210080433.785113,
+       "cap": 3213734087.979887,
        "sec": 2
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 3210080433.785113,
+       "cap": 3213734087.979887,
        "sec": 2
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 3210080433.785113,
+       "cap": 3213734087.979887,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 16268945352.276354,
+       "cap": 16287462365.060616,
        "sec": 0
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 4279736456.343514,
+       "cap": 4284607573.245033,
        "sec": 1
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 4279736456.343514,
+       "cap": 4284607573.245033,
        "sec": 1
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 4279736456.343514,
+       "cap": 4284607573.245033,
        "sec": 1
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 4279736456.343514,
+       "cap": 4284607573.245033,
        "sec": 1
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 14280546284.024023,
+       "cap": 14296800137.75465,
        "sec": 0
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 3756664812.9214478,
+       "cap": 3760940579.350112,
        "sec": 2
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 3756664812.9214478,
+       "cap": 3760940579.350112,
        "sec": 2
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 3756664812.9214478,
+       "cap": 3760940579.350112,
        "sec": 2
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 3756664812.9214478,
+       "cap": 3760940579.350112,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 15265968216.66837,
+       "cap": 13704086510.962118,
        "sec": 0
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 4015891583.845993,
+       "cap": 3605020323.806279,
        "sec": 2
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 4015891583.845993,
+       "cap": 3605020323.806279,
        "sec": 2
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 4015891583.845993,
+       "cap": 3605020323.806279,
        "sec": 2
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 4015891583.845993,
+       "cap": 3605020323.806279,
        "sec": 2
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 15240920689.91735,
+       "cap": 15283343659.422106,
        "sec": 0
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 4009302538.8245482,
+       "cap": 4020462397.3921747,
        "sec": 2
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 4009302538.8245482,
+       "cap": 4020462397.3921747,
        "sec": 2
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 4009302538.8245482,
+       "cap": 4020462397.3921747,
        "sec": 2
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 4009302538.8245482,
+       "cap": 4020462397.3921747,
        "sec": 2
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 13788529970.164248,
+       "cap": 15258267624.03927,
        "sec": 0
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 3627234163.918327,
+       "cap": 4013865852.841519,
        "sec": 2
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 3627234163.918327,
+       "cap": 4013865852.841519,
        "sec": 2
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 3627234163.918327,
+       "cap": 4013865852.841519,
        "sec": 2
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 3627234163.918327,
+       "cap": 4013865852.841519,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 13339541775.228735,
+       "cap": 13354724595.02679,
        "sec": 0
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 3509122565.119175,
+       "cap": 3513116583.538491,
        "sec": 2
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 3509122565.119175,
+       "cap": 3513116583.538491,
        "sec": 2
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 3509122565.119175,
+       "cap": 3513116583.538491,
        "sec": 2
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 3509122565.119175,
+       "cap": 3513116583.538491,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 13831272506.203733,
+       "cap": 13847015004.827599,
        "sec": 0
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 3638478088.202526,
+       "cap": 3642619336.686409,
        "sec": 2
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 3638478088.202526,
+       "cap": 3642619336.686409,
        "sec": 2
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 3638478088.202526,
+       "cap": 3642619336.686409,
        "sec": 2
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 3638478088.202526,
+       "cap": 3642619336.686409,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 12786302979.664856,
+       "cap": 12826018361.877464,
        "sec": 0
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 3363586625.869922,
+       "cap": 3374034221.9157925,
        "sec": 2
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 3363586625.869922,
+       "cap": 3374034221.9157925,
        "sec": 2
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 3363586625.869922,
+       "cap": 3374034221.9157925,
        "sec": 2
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 3363586625.869922,
+       "cap": 3374034221.9157925,
        "sec": 2
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 9562226649.033236,
+       "cap": 12800856113.295284,
+       "sec": 0
+      },
+      {
+       "s": 21,
+       "d": 1,
+       "cap": 3367414997.97417,
+       "sec": 2
+      },
+      {
+       "s": 21,
+       "d": 2,
+       "cap": 3367414997.97417,
+       "sec": 2
+      },
+      {
+       "s": 21,
+       "d": 3,
+       "cap": 3367414997.97417,
+       "sec": 2
+      },
+      {
+       "s": 21,
+       "d": 4,
+       "cap": 3367414997.97417,
+       "sec": 2
+      },
+      {
+       "s": 22,
+       "d": 0,
+       "cap": 9573110198.597889,
        "sec": 1
       },
       {
-       "s": 21,
-       "d": 1,
-       "cap": 2515455618.514383,
-       "sec": 2
-      },
-      {
-       "s": 21,
-       "d": 2,
-       "cap": 2515455618.514383,
-       "sec": 2
-      },
-      {
-       "s": 21,
-       "d": 3,
-       "cap": 2515455618.514383,
-       "sec": 2
-      },
-      {
-       "s": 21,
-       "d": 4,
-       "cap": 2515455618.514383,
-       "sec": 2
-      },
-      {
-       "s": 22,
-       "d": 0,
-       "cap": 12023710744.704485,
-       "sec": 1
-      },
-      {
        "s": 22,
        "d": 1,
-       "cap": 3162977814.5047946,
+       "cap": 2518318663.5881524,
        "sec": 2
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 3162977814.5047946,
+       "cap": 2518318663.5881524,
        "sec": 2
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 3162977814.5047946,
+       "cap": 2518318663.5881524,
        "sec": 2
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 3162977814.5047946,
+       "cap": 2518318663.5881524,
        "sec": 2
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 12245481506.207027,
+       "cap": 12571880822.009144,
        "sec": 0
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 12245481506.207027,
+       "cap": 12571880822.009144,
        "sec": 0
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 3221317208.5098705,
+       "cap": 3307180368.1011243,
        "sec": 2
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 10962569650.030941,
+       "cap": 12037395909.953552,
        "sec": 1
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 2883832231.9324617,
+       "cap": 3166577857.3692403,
        "sec": 2
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 2883832231.9324617,
+       "cap": 3166577857.3692403,
        "sec": 2
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 2883832231.9324617,
+       "cap": 3166577857.3692403,
        "sec": 2
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 2883832231.9324617,
+       "cap": 3166577857.3692403,
        "sec": 2
       },
       {
        "s": 26,
+       "d": 0,
+       "cap": 12259419086.836254,
+       "sec": 0
+      },
+      {
+       "s": 26,
+       "d": 1,
+       "cap": 3224983652.1938663,
+       "sec": 2
+      },
+      {
+       "s": 26,
+       "d": 2,
+       "cap": 3224983652.1938663,
+       "sec": 2
+      },
+      {
+       "s": 26,
+       "d": 3,
+       "cap": 3224983652.1938663,
+       "sec": 2
+      },
+      {
+       "s": 26,
+       "d": 4,
+       "cap": 3224983652.1938663,
+       "sec": 2
+      },
+      {
+       "s": 27,
        "d": 0,
        "cap": 2855947145.335192,
        "sec": 2
       },
       {
-       "s": 26,
+       "s": 27,
        "d": 1,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 26,
+       "s": 27,
        "d": 2,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 26,
+       "s": 27,
        "d": 3,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 26,
+       "s": 27,
        "d": 4,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 0,
        "cap": 2855947145.335192,
        "sec": 2
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 1,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 2,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 3,
        "cap": 751290317.2651575,
        "sec": 4
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 4,
        "cap": 751290317.2651575,
-       "sec": 4
-      },
-      {
-       "s": 28,
-       "d": 0,
-       "cap": 2819532411.996603,
-       "sec": 2
-      },
-      {
-       "s": 28,
-       "d": 1,
-       "cap": 741710995.5302433,
-       "sec": 4
-      },
-      {
-       "s": 28,
-       "d": 2,
-       "cap": 741710995.5302433,
-       "sec": 4
-      },
-      {
-       "s": 28,
-       "d": 3,
-       "cap": 741710995.5302433,
-       "sec": 4
-      },
-      {
-       "s": 28,
-       "d": 4,
-       "cap": 741710995.5302433,
        "sec": 4
       },
       {
@@ -34281,32 +34875,32 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 30,
        "d": 0,
-       "cap": 8736292115.48702,
-       "sec": 1
+       "cap": 2819532411.996603,
+       "sec": 2
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 2298183874.265993,
-       "sec": 2
+       "cap": 741710995.5302433,
+       "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 2298183874.265993,
-       "sec": 2
+       "cap": 741710995.5302433,
+       "sec": 4
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 2298183874.265993,
-       "sec": 2
+       "cap": 741710995.5302433,
+       "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 2298183874.265993,
-       "sec": 2
+       "cap": 741710995.5302433,
+       "sec": 4
       },
       {
        "s": 31,
@@ -34340,122 +34934,152 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 32,
+       "d": 0,
+       "cap": 8736292115.48702,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 1,
+       "cap": 2298183874.265993,
+       "sec": 2
+      },
+      {
+       "s": 32,
+       "d": 2,
+       "cap": 2298183874.265993,
+       "sec": 2
+      },
+      {
+       "s": 32,
+       "d": 3,
+       "cap": 2298183874.265993,
+       "sec": 2
+      },
+      {
+       "s": 32,
+       "d": 4,
+       "cap": 2298183874.265993,
+       "sec": 2
+      },
+      {
+       "s": 33,
        "d": 0,
        "cap": 1184024996.5916398,
        "sec": 1
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 1,
        "cap": 311471630.97614217,
        "sec": 2
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 2,
        "cap": 311471630.97614217,
        "sec": 2
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 3,
        "cap": 311471630.97614217,
        "sec": 2
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 4,
        "cap": 311471630.97614217,
        "sec": 2
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 0,
        "cap": 14905153749.812382,
        "sec": 0
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 1,
        "cap": 3920975116.039206,
        "sec": 2
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 2,
        "cap": 3920975116.039206,
        "sec": 2
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 3,
        "cap": 3920975116.039206,
        "sec": 2
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 4,
        "cap": 3920975116.039206,
-       "sec": 2
-      },
-      {
-       "s": 34,
-       "d": 0,
-       "cap": 11882859804222.209,
-       "sec": 1
-      },
-      {
-       "s": 34,
-       "d": 1,
-       "cap": 3125925326353.9307,
-       "sec": 2
-      },
-      {
-       "s": 34,
-       "d": 2,
-       "cap": 3125925326353.9307,
-       "sec": 2
-      },
-      {
-       "s": 34,
-       "d": 3,
-       "cap": 3125925326353.9307,
-       "sec": 2
-      },
-      {
-       "s": 34,
-       "d": 4,
-       "cap": 3125925326353.9307,
        "sec": 2
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 11882859804222.209,
+       "cap": 11864213946120.012,
        "sec": 1
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 3125925326353.9307,
+       "cap": 3121020315183.762,
        "sec": 2
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 3125925326353.9307,
+       "cap": 3121020315183.762,
        "sec": 2
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 3125925326353.9307,
+       "cap": 3121020315183.762,
        "sec": 2
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 3125925326353.9307,
+       "cap": 3121020315183.762,
+       "sec": 2
+      },
+      {
+       "s": 36,
+       "d": 0,
+       "cap": 11864213946120.012,
+       "sec": 1
+      },
+      {
+       "s": 36,
+       "d": 1,
+       "cap": 3121020315183.762,
+       "sec": 2
+      },
+      {
+       "s": 36,
+       "d": 2,
+       "cap": 3121020315183.762,
+       "sec": 2
+      },
+      {
+       "s": 36,
+       "d": 3,
+       "cap": 3121020315183.762,
+       "sec": 2
+      },
+      {
+       "s": 36,
+       "d": 4,
+       "cap": 3121020315183.762,
        "sec": 2
       }
      ]
@@ -34470,7 +35094,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 87.12126376044108,
+    "mglt": 86.9570781575749,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -34578,15 +35202,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1rscmrj",
-   "build": 242493,
+   "signature": "189a4yj",
+   "build": 242494,
    "crew": 1000,
-   "total": 243493,
+   "total": 243494,
    "by": {
     "hull": 7,
     "armor": 3,
     "power": 113541,
-    "drive": 32140,
+    "drive": 32141,
     "defense": 37501,
     "command": 20501,
     "weapons": 14800,
@@ -34606,6 +35230,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 2,
     "targetCapacity": 2.31525,
@@ -34623,8 +35248,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 1.9945171383515093e-14,
+    "upS": 1.9945171383515093e-14,
     "down": 0.01,
     "T": 0
    },
@@ -34687,7 +35312,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.27,
       "z": 0,
       "r": 0.046,
-      "share": 0.5319852985157654,
+      "share": 0.529958551735918,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -34704,7 +35329,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.41,
       "z": 0,
       "r": 0.025,
-      "share": 0.08756959646350047,
+      "share": 0.08723597559438981,
       "domain": "main",
       "port": "p14",
       "powerConnected": true
@@ -34712,16 +35337,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "上部機関用反応炉",
-      "w": 0.027724240190512724,
+      "w": 0.02772603313127144,
       "hits": 1,
-      "crew": 0.0000023081258420006483,
-      "size": 0.004616251684001297,
+      "crew": 0.0000023083497471343633,
+      "size": 0.004616699494268727,
       "at": 0.348,
       "part": 15,
       "y": 0.25,
       "z": 0,
       "r": 0.011,
-      "share": 0.02691457767904128,
+      "share": 0.0269145375661907,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -34729,16 +35354,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "下部機関用反応炉",
-      "w": 0.0640540845361606,
+      "w": 0.06405822694648954,
       "hits": 1,
-      "crew": 0.000008105694796944612,
-      "size": 0.016211389593889226,
+      "crew": 0.000008106481108784435,
+      "size": 0.01621296221756887,
       "at": 0.589,
       "part": 16,
       "y": 0.06,
       "z": 0,
       "r": 0.016,
-      "share": 0.0945188292098786,
+      "share": 0.09451868834124905,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -34746,16 +35371,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "補助反応炉（機首）",
-      "w": 0.04262879171693236,
+      "w": 0.042631548542642964,
       "hits": 1,
-      "crew": 0.0000044007281253786435,
-      "size": 0.008801456250757287,
+      "crew": 0.000004401155028280309,
+      "size": 0.008802310056560618,
       "at": 0.703,
       "part": 17,
       "y": 0.07,
       "z": 0,
       "r": 0.013,
-      "share": 0.051315979752724394,
+      "share": 0.051315903272600785,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -34763,16 +35388,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷補助反応炉",
-      "w": 0.048306716107949364,
+      "w": 0.048309840127927356,
       "hits": 1,
-      "crew": 0.000005308615576574547,
-      "size": 0.010617231153149094,
+      "crew": 0.000005309130551217128,
+      "size": 0.010618261102434256,
       "at": 0.431,
       "part": 18,
       "y": 0.09,
       "z": 0.27,
       "r": 0.014,
-      "share": 0.06190266739530921,
+      "share": 0.0619025751370365,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -34780,16 +35405,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷補助反応炉",
-      "w": 0.048306716107949364,
+      "w": 0.048309840127927356,
       "hits": 1,
-      "crew": 0.000005308615576574547,
-      "size": 0.010617231153149094,
+      "crew": 0.000005309130551217128,
+      "size": 0.010618261102434256,
       "at": 0.431,
       "part": 19,
       "y": 0.09,
       "z": -0.27,
       "r": 0.014,
-      "share": 0.06190266739530921,
+      "share": 0.0619025751370365,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -34925,7 +35550,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.19,
       "z": 0,
       "r": 0.016,
-      "share": 0.036774155322263115,
+      "share": 0.036773893816865404,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -34942,7 +35567,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": 0.22,
       "r": 0.015,
-      "share": 0.01918216545447345,
+      "share": 0.019109085630324513,
       "domain": "main",
       "port": "p28",
       "powerConnected": true
@@ -34959,7 +35584,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": -0.22,
       "r": 0.015,
-      "share": 0.019104902673408634,
+      "share": 0.019032117203432945,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -34967,16 +35592,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "翼根部の推進・兵装用反応炉",
-      "w": 0.23089002977155082,
+      "w": 0.23090512248964026,
       "hits": 1,
-      "crew": 0.000012078162732665568,
-      "size": 0.06039081366332783,
+      "crew": 0.000012079347032076272,
+      "size": 0.060396735160381354,
       "at": 0.283,
       "part": 32,
       "y": 0.05,
       "z": -0.71,
       "r": 0.025,
-      "share": 0.3521023888440325,
+      "share": 0.3521022322044891,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -34984,16 +35609,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "翼根部の推進・兵装用反応炉",
-      "w": 0.23055788419125062,
+      "w": 0.23057328548103445,
       "hits": 1,
-      "crew": 0.000012052109646230252,
-      "size": 0.060260548231151255,
+      "crew": 0.000012053317289596758,
+      "size": 0.06026658644798379,
       "at": 0.283,
       "part": 33,
       "y": 0.05,
       "z": 0.71,
       "r": 0.025,
-      "share": 0.35134288972370475,
+      "share": 0.3513434883413973,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -35010,7 +35635,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.11,
       "z": 0,
       "r": 0.023,
-      "share": 0.07059576556809816,
+      "share": 0.0703268112550087,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -35027,9 +35652,26 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": -0.17,
       "r": 0.018,
-      "share": 0.03399127645826202,
+      "share": 0.033861777183945806,
       "domain": "main",
       "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.019600000000000006,
+      "hits": 1,
+      "crew": 5.488000000000003e-7,
+      "size": 0.0027440000000000008,
+      "at": 0.557,
+      "part": 36,
+      "y": 0.17,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.003809779679066273,
+      "domain": "main",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -35040,13 +35682,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.518,
-      "part": 36,
+      "part": 37,
       "y": 0.18,
       "z": 0,
       "r": 0.014,
-      "share": 0.014840260434112674,
+      "share": 0.01478372231147874,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -35057,13 +35699,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.009260999999999998,
       "at": 0.52,
-      "part": 37,
+      "part": 38,
       "y": 0.19,
       "z": -0.06,
       "r": 0.013,
-      "share": 0.012907179928654906,
+      "share": 0.012858006416848667,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -35074,13 +35716,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.557,
-      "part": 38,
+      "part": 39,
       "y": 0.16,
       "z": -0.1,
       "r": 0.011,
-      "share": 0.008128136631456152,
+      "share": 0.008097170221688956,
       "domain": "main",
-      "port": "p38",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -35091,13 +35733,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.557,
-      "part": 39,
+      "part": 40,
       "y": 0.16,
       "z": 0.1,
       "r": 0.011,
-      "share": 0.008128136631456152,
+      "share": 0.008097170221688956,
       "domain": "main",
-      "port": "p39",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -35108,13 +35750,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.589,
-      "part": 40,
+      "part": 41,
       "y": 0.16,
       "z": 0,
       "r": 0.011,
-      "share": 0.008128136631456152,
+      "share": 0.008097170221688956,
       "domain": "main",
-      "port": "p40",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -35125,13 +35767,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.509,
-      "part": 41,
+      "part": 42,
       "y": 0.2,
       "z": 0.05,
       "r": 0.011,
-      "share": 0.008128136631456152,
+      "share": 0.008097170221688956,
       "domain": "main",
-      "port": "p41",
+      "port": "p42",
       "powerConnected": true
      },
      {
@@ -35142,13 +35784,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.619,
-      "part": 42,
+      "part": 43,
       "y": 0.12,
       "z": 0,
       "r": 0.022,
-      "share": 0.0597554626326616,
+      "share": 0.059527807485410485,
       "domain": "main",
-      "port": "p42",
+      "port": "p43",
       "powerConnected": true
      },
      {
@@ -35159,13 +35801,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.495,
-      "part": 43,
+      "part": 44,
       "y": 0.12,
       "z": -0.2,
       "r": 0.022,
-      "share": 0.0597554626326616,
+      "share": 0.059527807485410485,
       "domain": "main",
-      "port": "p43",
+      "port": "p44",
       "powerConnected": true
      },
      {
@@ -35176,13 +35818,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.013824,
       "at": 0.515,
-      "part": 44,
+      "part": 45,
       "y": 0.17,
       "z": 0.14,
       "r": 0.015,
-      "share": 0.019266694237525694,
+      "share": 0.019193292377336788,
       "domain": "main",
-      "port": "p44",
+      "port": "p45",
       "powerConnected": true
      },
      {
@@ -35193,13 +35835,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.013824,
       "at": 0.578,
-      "part": 45,
+      "part": 46,
       "y": 0.12,
       "z": -0.14,
       "r": 0.015,
-      "share": 0.019266694237525694,
+      "share": 0.019193292377336788,
       "domain": "main",
-      "port": "p45",
+      "port": "p46",
       "powerConnected": true
      },
      {
@@ -35210,30 +35852,30 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.013824,
       "at": 0.578,
-      "part": 46,
+      "part": 47,
       "y": 0.12,
       "z": 0.14,
       "r": 0.015,
-      "share": 0.019266694237525694,
+      "share": 0.019193292377336788,
       "domain": "main",
-      "port": "p46",
+      "port": "p47",
       "powerConnected": true
      },
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.03589543768370934,
+      "w": 0.03590606871315395,
       "hits": 1,
-      "crew": 3.400391204151213e-7,
-      "size": 0.006800782408302426,
+      "crew": 3.4019019394059815e-7,
+      "size": 0.006803803878811963,
       "at": 0.619,
-      "part": 47,
+      "part": 48,
       "y": 0.12,
       "z": -0.15,
       "r": 0.012,
-      "share": 0.016005953830132993,
+      "share": 0.016012951128973316,
       "domain": "main",
-      "port": "p47",
+      "port": "p48",
       "powerConnected": true
      },
      {
@@ -35285,7 +35927,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": 0.68,
       "r": 0.029,
-      "share": 0.218147048198407,
+      "share": 0.2181454969287694,
       "domain": "main",
       "port": "p1",
       "powerConnected": true
@@ -35303,7 +35945,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": -0.68,
       "r": 0.029,
-      "share": 0.21814701030990025,
+      "share": 0.21814545904053206,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -35321,7 +35963,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": 0.68,
       "r": 0.03,
-      "share": 0.25546294406771486,
+      "share": 0.255461127440298,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -35339,7 +35981,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": -0.68,
       "r": 0.03,
-      "share": 0.25546288827158187,
+      "share": 0.2554610716445618,
       "domain": "main",
       "port": "p4",
       "powerConnected": true
@@ -35403,7 +36045,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 7.9403436990180385,
+      "w": 7.9521373381704805,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -35415,7 +36057,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.00013215830369337715,
+    "D": 0.00013217166224923247,
     "shieldBuffer": 0.02551298707898365,
     "wCap": 0,
     "fuel": {
@@ -35423,8 +36065,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.07853981633974483,
      "massKg": 19.634954084936208,
-     "capacityJ": 9.42477796076938e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 2.155129603641689e+21,
+     "specificEnergyJPerKg": 109759849415440630000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -35439,16 +36081,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 898224281708733800,
-     "fixed": 19610739587115816,
-     "cooling": 4322885348881596,
-     "De": 898224281708733700,
-     "Ds": 552950342653089900,
+     "P": 898312754875445800,
+     "fixed": 19611214290684016,
+     "cooling": 4323360052449793.5,
+     "De": 898312754875445800,
+     "Ds": 553006234850788600,
      "Dw": 278933333333333.38,
      "domains": [
       {
        "id": "main",
-       "P": 898224281708733800,
+       "P": 898312754875445800,
        "reactors": [
         4,
         5,
@@ -35461,31 +36103,31 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 4,
-         "P": 24175327203250776
+         "P": 24177672387283444
         },
         {
          "moduleIndex": 5,
-         "P": 84899107474993700
+         "P": 84907343311041100
         },
         {
          "moduleIndex": 6,
-         "P": 46093259053570800
+         "P": 46097730437731910
         },
         {
          "moduleIndex": 7,
-         "P": 55602478957006280
+         "P": 55607872805235540
         },
         {
          "moduleIndex": 8,
-         "P": 55602478957006280
+         "P": 55607872805235540
         },
         {
          "moduleIndex": 19,
-         "P": 316266915307360400
+         "P": 316297926209408500
         },
         {
          "moduleIndex": 20,
-         "P": 315584714755545600
+         "P": 315616336919509700
         }
        ],
        "modules": [
@@ -35534,7 +36176,8 @@ const CRAFT_PRICE_CATALOG={
         42,
         43,
         44,
-        45
+        45,
+        46
        ],
        "protection": 1
       }
@@ -35544,7 +36187,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 19610739587115816,
+       "cap": 19611214290684016,
        "auto": true,
        "ok": true,
        "routeId": "p16>hotel",
@@ -35604,7 +36247,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p13",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p15>p13",
@@ -35616,7 +36259,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p14",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p15>p14",
@@ -35628,7 +36271,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p25",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p15>p25",
@@ -35640,7 +36283,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p26",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p15>p26",
@@ -35652,7 +36295,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p28",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p15>p28",
@@ -35664,7 +36307,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p29",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p15>p29",
@@ -35676,7 +36319,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p34",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p16>p34",
@@ -35688,7 +36331,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p35",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p19>p35",
@@ -35700,10 +36343,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p16>p36",
+       "model": "source-distance",
+       "lengthM": 0.4060788100849391,
+       "efficiency": 0.9999959392201442
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p37",
+       "cap": 891418831394728,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p37",
        "model": "source-distance",
        "lengthM": 0.6706325372363027,
        "efficiency": 0.999993293697115
@@ -35711,11 +36366,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p37",
-       "cap": 933844742243610.2,
+       "to": "p38",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p37",
+       "routeId": "p16>p38",
        "model": "source-distance",
        "lengthM": 0.6830380662891349,
        "efficiency": 0.9999931696426642
@@ -35723,20 +36378,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p38",
-       "cap": 933844742243610.2,
-       "auto": true,
-       "ok": true,
-       "routeId": "p16>p38",
-       "model": "source-distance",
-       "lengthM": 0.4660557906517202,
-       "efficiency": 0.9999953394529538
-      },
-      {
-       "kind": "power",
-       "from": "p16",
        "to": "p39",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p16>p39",
@@ -35748,10 +36391,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 933844742243610.2,
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
        "routeId": "p16>p40",
+       "model": "source-distance",
+       "lengthM": 0.4660557906517202,
+       "efficiency": 0.9999953394529538
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p41",
+       "cap": 891418831394728,
+       "auto": true,
+       "ok": true,
+       "routeId": "p16>p41",
        "model": "source-distance",
        "lengthM": 0.30200662244394577,
        "efficiency": 0.9999969799383359
@@ -35759,11 +36414,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p41",
-       "cap": 933844742243610.2,
+       "to": "p42",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p41",
+       "routeId": "p16>p42",
        "model": "source-distance",
        "lengthM": 0.7703531657623017,
        "efficiency": 0.9999922964980145
@@ -35771,11 +36426,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p42",
-       "cap": 933844742243610.2,
+       "to": "p43",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p42",
+       "routeId": "p16>p43",
        "model": "source-distance",
        "lengthM": 0.30610455730027886,
        "efficiency": 0.999996938959112
@@ -35783,11 +36438,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p19",
-       "to": "p43",
-       "cap": 933844742243610.2,
+       "to": "p44",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p19>p43",
+       "routeId": "p19>p44",
        "model": "source-distance",
        "lengthM": 0.5435071296680479,
        "efficiency": 0.9999945649434733
@@ -35795,11 +36450,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p44",
-       "cap": 933844742243610.2,
+       "to": "p45",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p44",
+       "routeId": "p16>p45",
        "model": "source-distance",
        "lengthM": 0.7580422151832973,
        "efficiency": 0.9999924196065795
@@ -35807,11 +36462,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p45",
-       "cap": 933844742243610.2,
+       "to": "p46",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p45",
+       "routeId": "p16>p46",
        "model": "source-distance",
        "lengthM": 0.3880670045237036,
        "efficiency": 0.9999961193374846
@@ -35819,11 +36474,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p46",
-       "cap": 933844742243610.2,
+       "to": "p47",
+       "cap": 891418831394728,
        "auto": true,
        "ok": true,
-       "routeId": "p16>p46",
+       "routeId": "p16>p47",
        "model": "source-distance",
        "lengthM": 0.3880670045237036,
        "efficiency": 0.9999961193374846
@@ -36263,14 +36918,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p15",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p15>p47",
+       "routeId": "p15>p48",
        "model": "source-distance",
-       "lengthM": 2.209379327594743,
-       "efficiency": 0.9999779064507901
+       "lengthM": 2.20947114362193,
+       "efficiency": 0.9999779055326501
       },
       {
        "kind": "power",
@@ -36287,14 +36942,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p16>p47",
+       "routeId": "p16>p48",
        "model": "source-distance",
-       "lengthM": 0.4800687171676568,
-       "efficiency": 0.9999951993243517
+       "lengthM": 0.4801193336015535,
+       "efficiency": 0.9999951988181897
       },
       {
        "kind": "power",
@@ -36311,14 +36966,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p17",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p17>p47",
+       "routeId": "p17>p48",
        "model": "source-distance",
-       "lengthM": 0.7703529796158383,
-       "efficiency": 0.999992296499876
+       "lengthM": 0.7703032094558608,
+       "efficiency": 0.9999922969975737
       },
       {
        "kind": "power",
@@ -36335,14 +36990,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p18",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p18>p47",
+       "routeId": "p18>p48",
        "model": "source-distance",
-       "lengthM": 1.8148300011855103,
-       "efficiency": 0.9999818518646676
+       "lengthM": 1.8149173464645711,
+       "efficiency": 0.9999818509912306
       },
       {
        "kind": "power",
@@ -36359,14 +37014,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p19",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p19>p47",
+       "routeId": "p19>p48",
        "model": "source-distance",
-       "lengthM": 1.5225841760648242,
-       "efficiency": 0.9999847742741519
+       "lengthM": 1.5226406058220041,
+       "efficiency": 0.9999847737098629
       },
       {
        "kind": "power",
@@ -36383,14 +37038,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p32",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p32>p47",
+       "routeId": "p32>p48",
        "model": "source-distance",
-       "lengthM": 3.0010755547308365,
-       "efficiency": 0.9999699896947709
+       "lengthM": 3.0011090154304623,
+       "efficiency": 0.999969989360174
       },
       {
        "kind": "power",
@@ -36407,24 +37062,24 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p33",
-       "to": "p47",
-       "cap": 1068471681442077.8,
+       "to": "p48",
+       "cap": 1068946385010274.9,
        "auto": false,
        "ok": true,
-       "routeId": "p33>p47",
+       "routeId": "p33>p48",
        "model": "source-distance",
-       "lengthM": 3.4047903731658717,
-       "efficiency": 0.9999659526758916
+       "lengthM": 3.404876403409968,
+       "efficiency": 0.9999659518156185
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p20",
-       "cap": 33845458084551084,
+       "cap": 33848741342196820,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p15>p20",
        "model": "source-distance",
        "lengthM": 0.12206555615733701,
@@ -36434,11 +37089,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p21",
-       "cap": 33845458084551084,
+       "cap": 33848741342196820,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p15>p21",
        "model": "source-distance",
        "lengthM": 1.7769246702423378,
@@ -36448,11 +37103,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p20",
-       "cap": 118858750464991170,
+       "cap": 118870280635457540,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p16>p20",
        "model": "source-distance",
        "lengthM": 2.064000968992021,
@@ -36462,11 +37117,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 118858750464991170,
+       "cap": 118870280635457540,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p16>p21",
        "model": "source-distance",
        "lengthM": 0.35390276896527817,
@@ -36476,11 +37131,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 64530562674999110,
+       "cap": 64536822612824670,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p17>p20",
        "model": "source-distance",
        "lengthM": 2.9394557319340597,
@@ -36490,11 +37145,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 64530562674999110,
+       "cap": 64536822612824670,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p17>p21",
        "model": "source-distance",
        "lengthM": 1.2185986171188086,
@@ -36504,11 +37159,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 77843470539808780,
+       "cap": 77851021927329740,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p18>p20",
        "model": "source-distance",
        "lengthM": 1.0761505470890214,
@@ -36518,11 +37173,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 77843470539808780,
+       "cap": 77851021927329740,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p18>p21",
        "model": "source-distance",
        "lengthM": 1.1961643226905347,
@@ -36532,11 +37187,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p20",
-       "cap": 77843470539808780,
+       "cap": 77851021927329740,
        "auto": true,
        "ok": true,
        "capacityGroup": "p19>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p19>p20",
        "model": "source-distance",
        "lengthM": 1.0761505470890214,
@@ -36546,11 +37201,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p21",
-       "cap": 77843470539808780,
+       "cap": 77851021927329740,
        "auto": true,
        "ok": true,
        "capacityGroup": "p19>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p19>p21",
        "model": "source-distance",
        "lengthM": 1.1961643226905347,
@@ -36560,11 +37215,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p20",
-       "cap": 442773681430304500,
+       "cap": 442817096693171900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p32>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p32>p20",
        "model": "source-distance",
        "lengthM": 1.8747789202996707,
@@ -36574,11 +37229,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p21",
-       "cap": 442773681430304500,
+       "cap": 442817096693171900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p32>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p32>p21",
        "model": "source-distance",
        "lengthM": 2.7507129882968098,
@@ -36588,11 +37243,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p20",
-       "cap": 441818600657763840,
+       "cap": 441862871687313540,
        "auto": true,
        "ok": true,
        "capacityGroup": "p33>p20",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p33>p20",
        "model": "source-distance",
        "lengthM": 1.8747789202996707,
@@ -36602,11 +37257,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p21",
-       "cap": 441818600657763840,
+       "cap": 441862871687313540,
        "auto": true,
        "ok": true,
        "capacityGroup": "p33>p21",
-       "groupCap": 1257513994392227300,
+       "groupCap": 1257637856825624000,
        "routeId": "p33>p21",
        "model": "source-distance",
        "lengthM": 2.7507129882968098,
@@ -36618,7 +37273,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 19610739587115816,
+       "weight": 19611214290684016,
        "domain": "main"
       }
      ],
@@ -36630,9 +37285,9 @@ const CRAFT_PRICE_CATALOG={
        "domain": "main"
       },
       {
-       "id": "p47",
-       "port": "p47",
-       "weight": 1068471681442077.8,
+       "id": "p48",
+       "port": "p48",
+       "weight": 1068946385010274.9,
        "domain": "main"
       },
       {
@@ -36669,23 +37324,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 15313272856330830,
-       "densityFactor": 28.36380715711391,
+       "densityFactor": 28.36660093133077,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2014847414.790975,
-       "shaftWattsPerNewton": 1914105044.0514262,
-       "wattsPerNewton": 2014847414.790975,
-       "ratedShaftPowerW": 412625582329172800,
-       "ratedWasteHeatW": 21717135912061748,
+       "profileWattsPerNewton": 2014864493.037882,
+       "shaftWattsPerNewton": 1914121268.385988,
+       "wattsPerNewton": 2014864493.037882,
+       "ratedShaftPowerW": 412666225064710460,
+       "ratedWasteHeatW": 21719275003405830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8741.980400017881,
+       "conversionMassKg": 8742.76760491224,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 898224281708733800,
-       "sourceInputLimitW": 898224281708733800,
+       "availableInputW": 898312754875445800,
+       "sourceInputLimitW": 898312754875445800,
        "sourceIds": [
         "p15",
         "p16",
@@ -36702,10 +37357,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 434342718241234560,
+       "ratedInputW": 434385500068116300,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 215571022.92348737,
+       "ratedThrustN": 215590428.8199441,
        "effectiveMachineryVolumeM3": 0.045039037812737735,
        "machineryVolumeM3": 0.045039037812737735,
        "machineryShape": "frustum",
@@ -36713,12 +37368,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.24499999999999997,
        "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 898224281708733800,
-       "maxRatedInputW": 898224281708733800,
-       "inputDensityWPerM3": 9643694433418730000,
+       "maxInputW": 898312754875445800,
+       "maxRatedInputW": 898312754875445800,
+       "inputDensityWPerM3": 9644644316652460000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 321018365985310700,
-       "cost": 1258.72964672574,
+       "costBasisInputW": 321047273305771100,
+       "cost": 1258.967485026761,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -36733,11 +37388,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 36,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 898224281708733800,
+       "pathCapacityW": 898312754875445800,
        "transmissionRouteIds": [
         "p15>p20",
         "p16>p20",
@@ -36751,23 +37406,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 16354700231106086,
-       "densityFactor": 28.3638071571139,
+       "densityFactor": 28.366600931330765,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2014847414.790975,
-       "shaftWattsPerNewton": 1914105044.0514262,
-       "wattsPerNewton": 2014847414.790975,
-       "ratedShaftPowerW": 440687485294124160,
-       "ratedWasteHeatW": 23194078173374976,
+       "profileWattsPerNewton": 2014864493.037882,
+       "shaftWattsPerNewton": 1914121268.385988,
+       "wattsPerNewton": 2014864493.037882,
+       "ratedShaftPowerW": 440730892066962940,
+       "ratedWasteHeatW": 23196362740366492,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8741.980400017881,
+       "conversionMassKg": 8742.76760491224,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 898224281708733800,
-       "sourceInputLimitW": 898224281708733800,
+       "availableInputW": 898312754875445800,
+       "sourceInputLimitW": 898312754875445800,
        "sourceIds": [
         "p15",
         "p16",
@@ -36784,10 +37439,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 463881563467499140,
+       "ratedInputW": 463927254807329400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 230231609.63065943,
+       "ratedThrustN": 230252335.2862554,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryShape": "frustum",
@@ -36795,12 +37450,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.252,
        "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 898224281708733800,
-       "maxRatedInputW": 898224281708733800,
-       "inputDensityWPerM3": 9643694433418725000,
+       "maxInputW": 898312754875445800,
+       "maxRatedInputW": 898312754875445800,
+       "inputDensityWPerM3": 9644644316652462000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 570568871748977500,
-       "cost": 3870.616609733809,
+       "costBasisInputW": 570620250794440260,
+       "cost": 3871.333921780763,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -36815,11 +37470,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 37,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 898224281708733800,
+       "pathCapacityW": 898312754875445800,
        "transmissionRouteIds": [
         "p15>p21",
         "p16>p21",
@@ -36835,23 +37490,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 15313272856330830,
-       "densityFactor": 28.36380715711391,
+       "densityFactor": 28.36660093133077,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2014847414.790975,
-       "shaftWattsPerNewton": 1914105044.0514262,
-       "wattsPerNewton": 2014847414.790975,
-       "ratedShaftPowerW": 412625582329172800,
-       "ratedWasteHeatW": 21717135912061748,
+       "profileWattsPerNewton": 2014864493.037882,
+       "shaftWattsPerNewton": 1914121268.385988,
+       "wattsPerNewton": 2014864493.037882,
+       "ratedShaftPowerW": 412666225064710460,
+       "ratedWasteHeatW": 21719275003405830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8741.980400017881,
+       "conversionMassKg": 8742.76760491224,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 898224281708733800,
-       "sourceInputLimitW": 898224281708733800,
+       "availableInputW": 898312754875445800,
+       "sourceInputLimitW": 898312754875445800,
        "sourceIds": [
         "p15",
         "p16",
@@ -36868,10 +37523,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 434342718241234560,
+       "ratedInputW": 434385500068116300,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 215571022.92348737,
+       "ratedThrustN": 215590428.8199441,
        "effectiveMachineryVolumeM3": 0.045039037812737735,
        "machineryVolumeM3": 0.045039037812737735,
        "machineryShape": "frustum",
@@ -36879,12 +37534,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.24499999999999997,
        "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 898224281708733800,
-       "maxRatedInputW": 898224281708733800,
-       "inputDensityWPerM3": 9643694433418730000,
+       "maxInputW": 898312754875445800,
+       "maxRatedInputW": 898312754875445800,
+       "inputDensityWPerM3": 9644644316652460000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 321018365985310700,
-       "cost": 1258.72964672574,
+       "costBasisInputW": 321047273305771100,
+       "cost": 1258.967485026761,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -36900,7 +37555,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 9,
        "coreModuleIndex": 9,
-       "machineryModuleIndex": 35,
+       "machineryModuleIndex": 36,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 377148198063454550000,
        "shaftCapacityW": 377148198063454550000,
@@ -36909,28 +37564,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 898224281708733800
+       "pathCapacityW": 898312754875445800
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 16354700231106086,
-       "densityFactor": 28.3638071571139,
+       "densityFactor": 28.366600931330765,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2014847414.790975,
-       "shaftWattsPerNewton": 1914105044.0514262,
-       "wattsPerNewton": 2014847414.790975,
-       "ratedShaftPowerW": 440687485294124160,
-       "ratedWasteHeatW": 23194078173374976,
+       "profileWattsPerNewton": 2014864493.037882,
+       "shaftWattsPerNewton": 1914121268.385988,
+       "wattsPerNewton": 2014864493.037882,
+       "ratedShaftPowerW": 440730892066962940,
+       "ratedWasteHeatW": 23196362740366492,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8741.980400017881,
+       "conversionMassKg": 8742.76760491224,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 898224281708733800,
-       "sourceInputLimitW": 898224281708733800,
+       "availableInputW": 898312754875445800,
+       "sourceInputLimitW": 898312754875445800,
        "sourceIds": [
         "p15",
         "p16",
@@ -36947,10 +37602,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 463881563467499140,
+       "ratedInputW": 463927254807329400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 230231609.63065943,
+       "ratedThrustN": 230252335.2862554,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryShape": "frustum",
@@ -36958,12 +37613,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.252,
        "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 898224281708733800,
-       "maxRatedInputW": 898224281708733800,
-       "inputDensityWPerM3": 9643694433418725000,
+       "maxInputW": 898312754875445800,
+       "maxRatedInputW": 898312754875445800,
+       "inputDensityWPerM3": 9644644316652462000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 570568871748977500,
-       "cost": 3870.616609733809,
+       "costBasisInputW": 570620250794440260,
+       "cost": 3871.333921780763,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -36979,7 +37634,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 10,
        "coreModuleIndex": 10,
-       "machineryModuleIndex": 36,
+       "machineryModuleIndex": 37,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 399007399747132460000,
        "shaftCapacityW": 399007399747132460000,
@@ -36988,22 +37643,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 898224281708733800
+       "pathCapacityW": 898312754875445800
       }
      ],
-     "massKg": 8741.980400017881,
-     "ratedThrustN": 445793622.6957876,
-     "ratedAccelMps2": 50994.58043796069,
-     "structuralAccelerationLimitMps2": 2387332.886129198,
+     "massKg": 8742.76760491224,
+     "ratedThrustN": 445833753.4347308,
+     "ratedAccelMps2": 50994.57901457122,
+     "structuralAccelerationLimitMps2": 2386216.662820547,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 50994.58043796069,
+     "accelerationLimitMps2": 50994.57901457122,
      "conversionModelVersion": 1,
-     "conversionMassKg": 8741.980400017881,
+     "conversionMassKg": 8742.76760491224,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[898224281708733800,[[\"main\",898224281708733800,[[4,24175327203250776],[5,84899107474993700],[6,46093259053570800],[7,55602478957006280],[8,55602478957006280],[19,316266915307360400],[20,315584714755545600]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004616251684001297,0.02691457767904128],[5,\"reactor\",16,\"p16\",\"main\",0.016211389593889226,0.0945188292098786],[6,\"reactor\",17,\"p17\",\"main\",0.008801456250757287,0.051315979752724394],[7,\"reactor\",18,\"p18\",\"main\",0.010617231153149094,0.06190266739530921],[8,\"reactor\",19,\"p19\",\"main\",0.010617231153149094,0.06190266739530921],[19,\"reactor\",32,\"p32\",\"main\",0.06039081366332783,0.3521023888440325],[20,\"reactor\",33,\"p33\",\"main\",0.060260548231151255,0.35134288972370475]]]"
+     "sourceBudgetKey": "[898312754875445800,[[\"main\",898312754875445800,[[4,24177672387283444],[5,84907343311041100],[6,46097730437731910],[7,55607872805235540],[8,55607872805235540],[19,316297926209408500],[20,315616336919509700]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004616699494268727,0.0269145375661907],[5,\"reactor\",16,\"p16\",\"main\",0.01621296221756887,0.09451868834124905],[6,\"reactor\",17,\"p17\",\"main\",0.008802310056560618,0.051315903272600785],[7,\"reactor\",18,\"p18\",\"main\",0.010618261102434256,0.0619025751370365],[8,\"reactor\",19,\"p19\",\"main\",0.010618261102434256,0.0619025751370365],[19,\"reactor\",32,\"p32\",\"main\",0.060396735160381354,0.3521022322044891],[20,\"reactor\",33,\"p33\",\"main\",0.06026658644798379,0.3513434883413973]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 2538.2268715445794,
+    "maxSpeed": 2538.224625192769,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -37042,7 +37697,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "補助反応炉（機首） #17",
        "g": "high",
-       "sh": 0.0545078,
+       "sh": 0.0545077,
        "m": [
         6
        ],
@@ -37056,7 +37711,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "右舷補助反応炉 #18",
        "g": "high",
-       "sh": 0.065753,
+       "sh": 0.0657529,
        "m": [
         7
        ],
@@ -37070,7 +37725,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p19",
        "n": "左舷補助反応炉 #19",
        "g": "high",
-       "sh": 0.065753,
+       "sh": 0.0657529,
        "m": [
         8
        ],
@@ -37131,7 +37786,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.483557,
        "m": [
         9,
-        35
+        36
        ],
        "pc": [],
        "sec": 0,
@@ -37146,7 +37801,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.516443,
        "m": [
         10,
-        36
+        37
        ],
        "pc": [],
        "sec": 1,
@@ -37185,7 +37840,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00380805,
+       "sh": 0.00380767,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37198,7 +37853,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p1",
        "n": "送電損失 p33>p1",
        "g": "high",
-       "sh": 0.0000694815,
+       "sh": 0.0000694746,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37211,7 +37866,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p2",
        "n": "送電損失 p32>p2",
        "g": "high",
-       "sh": 0.0000718368,
+       "sh": 0.0000718297,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37224,7 +37879,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p3",
        "n": "送電損失 p33>p3",
        "g": "high",
-       "sh": 0.0000965329,
+       "sh": 0.0000965233,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37237,7 +37892,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p4",
        "n": "送電損失 p32>p4",
        "g": "high",
-       "sh": 0.0000965329,
+       "sh": 0.0000965233,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37442,21 +38097,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p19>p43",
-       "n": "送電損失 p19>p43",
-       "g": "high",
-       "sh": 0,
-       "m": [],
-       "pc": [],
-       "sec": 3,
-       "sw": -1,
-       "gen": -1,
-       "routeId": "p19>p43"
-      },
-      {
-       "k": "feed",
-       "id": "feed:p16>p44",
-       "n": "送電損失 p16>p44",
+       "id": "feed:p16>p43",
+       "n": "送電損失 p16>p43",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -37464,7 +38106,20 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p16>p44"
+       "routeId": "p16>p43"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p19>p44",
+       "n": "送電損失 p19>p44",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p19>p44"
       },
       {
        "k": "feed",
@@ -37494,10 +38149,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p16>p47",
+       "n": "送電損失 p16>p47",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p16>p47"
+      },
+      {
+       "k": "feed",
        "id": "feed:p15>p22",
        "n": "送電損失 p15>p22",
        "g": "high",
-       "sh": 0.0118806,
+       "sh": 0.0118805,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37510,7 +38178,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p23",
        "n": "送電損失 p15>p23",
        "g": "high",
-       "sh": 0.00320127,
+       "sh": 0.00320125,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37523,7 +38191,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p24",
        "n": "送電損失 p15>p24",
        "g": "high",
-       "sh": 0.00320127,
+       "sh": 0.00320125,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37536,7 +38204,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f30",
        "n": "送電損失 p15>f30",
        "g": "high",
-       "sh": 0.0000989857,
+       "sh": 0.0000989758,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37549,7 +38217,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f31",
        "n": "送電損失 p15>f31",
        "g": "high",
-       "sh": 0.0000989857,
+       "sh": 0.0000989758,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37562,7 +38230,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p22",
        "n": "送電損失 p16>p22",
        "g": "high",
-       "sh": 0.018253,
+       "sh": 0.0182533,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37575,7 +38243,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.00391662,
+       "sh": 0.00391668,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37588,7 +38256,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p24",
        "n": "送電損失 p16>p24",
        "g": "high",
-       "sh": 0.00391662,
+       "sh": 0.00391668,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37627,7 +38295,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.00510061,
+       "sh": 0.0051006,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37640,7 +38308,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p23",
        "n": "送電損失 p17>p23",
        "g": "high",
-       "sh": 0.0054046,
+       "sh": 0.00540458,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37653,7 +38321,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p24",
        "n": "送電損失 p17>p24",
        "g": "high",
-       "sh": 0.0054046,
+       "sh": 0.00540458,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37692,7 +38360,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.025709,
+       "sh": 0.0257089,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37705,7 +38373,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p23",
        "n": "送電損失 p18>p23",
        "g": "high",
-       "sh": 0.00442755,
+       "sh": 0.00442753,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37718,7 +38386,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p24",
        "n": "送電損失 p18>p24",
        "g": "high",
-       "sh": 0.00716901,
+       "sh": 0.00716899,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37757,7 +38425,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p22",
        "n": "送電損失 p19>p22",
        "g": "high",
-       "sh": 0.025709,
+       "sh": 0.0257089,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37770,7 +38438,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p23",
        "n": "送電損失 p19>p23",
        "g": "high",
-       "sh": 0.00716901,
+       "sh": 0.00716899,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37783,7 +38451,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p24",
        "n": "送電損失 p19>p24",
        "g": "high",
-       "sh": 0.00442755,
+       "sh": 0.00442753,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37835,7 +38503,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p23",
        "n": "送電損失 p32>p23",
        "g": "high",
-       "sh": 0.08389,
+       "sh": 0.0838899,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37848,7 +38516,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p24",
        "n": "送電損失 p32>p24",
        "g": "high",
-       "sh": 0.065697,
+       "sh": 0.0656969,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37887,7 +38555,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p22",
        "n": "送電損失 p33>p22",
        "g": "high",
-       "sh": 0.0862133,
+       "sh": 0.086214,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37900,7 +38568,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p23",
        "n": "送電損失 p33>p23",
        "g": "high",
-       "sh": 0.025906,
+       "sh": 0.0259062,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37913,7 +38581,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p24",
        "n": "送電損失 p33>p24",
        "g": "high",
-       "sh": 0.03308,
+       "sh": 0.0330802,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37926,7 +38594,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f30",
        "n": "送電損失 p33>f30",
        "g": "high",
-       "sh": 0.0000057725,
+       "sh": 0.00000577192,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37939,7 +38607,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f31",
        "n": "送電損失 p33>f31",
        "g": "high",
-       "sh": 0.000140467,
+       "sh": 0.000140453,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37952,7 +38620,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p27",
        "n": "送電損失 p15>p27",
        "g": "high",
-       "sh": 0.000991479,
+       "sh": 0.00099138,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37962,23 +38630,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p15>p47",
-       "n": "送電損失 p15>p47",
+       "id": "feed:p15>p48",
+       "n": "送電損失 p15>p48",
        "g": "high",
-       "sh": 0.000651374,
+       "sh": 0.000651626,
        "m": [],
        "pc": [],
        "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p15>p47"
+       "routeId": "p15>p48"
       },
       {
        "k": "feed",
        "id": "feed:p16>p27",
        "n": "送電損失 p16>p27",
        "g": "high",
-       "sh": 5.83965e-9,
+       "sh": 5.83907e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37988,16 +38656,16 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p16>p47",
-       "n": "送電損失 p16>p47",
+       "id": "feed:p16>p48",
+       "n": "送電損失 p16>p48",
        "g": "high",
-       "sh": 3.12705e-9,
+       "sh": 3.12859e-9,
        "m": [],
        "pc": [],
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p16>p47"
+       "routeId": "p16>p48"
       },
       {
        "k": "feed",
@@ -38014,8 +38682,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p17>p47",
-       "n": "送電損失 p17>p47",
+       "id": "feed:p17>p48",
+       "n": "送電損失 p17>p48",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -38023,7 +38691,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p17>p47"
+       "routeId": "p17>p48"
       },
       {
        "k": "feed",
@@ -38040,8 +38708,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p18>p47",
-       "n": "送電損失 p18>p47",
+       "id": "feed:p18>p48",
+       "n": "送電損失 p18>p48",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -38049,7 +38717,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p18>p47"
+       "routeId": "p18>p48"
       },
       {
        "k": "feed",
@@ -38066,8 +38734,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p19>p47",
-       "n": "送電損失 p19>p47",
+       "id": "feed:p19>p48",
+       "n": "送電損失 p19>p48",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -38075,7 +38743,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p19>p47"
+       "routeId": "p19>p48"
       },
       {
        "k": "feed",
@@ -38092,8 +38760,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p32>p47",
-       "n": "送電損失 p32>p47",
+       "id": "feed:p32>p48",
+       "n": "送電損失 p32>p48",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -38101,7 +38769,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p32>p47"
+       "routeId": "p32>p48"
       },
       {
        "k": "feed",
@@ -38118,8 +38786,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p33>p47",
-       "n": "送電損失 p33>p47",
+       "id": "feed:p33>p48",
+       "n": "送電損失 p33>p48",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -38127,14 +38795,14 @@ const CRAFT_PRICE_CATALOG={
        "sec": 3,
        "sw": -1,
        "gen": -1,
-       "routeId": "p33>p47"
+       "routeId": "p33>p48"
       },
       {
        "k": "feed",
        "id": "feed:p15>p20",
        "n": "送電損失 p15>p20",
        "g": "high",
-       "sh": 0.000188996,
+       "sh": 0.000188995,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38147,7 +38815,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p21",
        "n": "送電損失 p15>p21",
        "g": "high",
-       "sh": 0.00293837,
+       "sh": 0.00293836,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38160,7 +38828,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.0112229,
+       "sh": 0.0112228,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38186,7 +38854,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.00867746,
+       "sh": 0.00867744,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38199,7 +38867,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.003842,
+       "sh": 0.00384199,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38212,7 +38880,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.00383227,
+       "sh": 0.00383226,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38225,7 +38893,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.00454934,
+       "sh": 0.00454933,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38238,7 +38906,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p20",
        "n": "送電損失 p19>p20",
        "g": "high",
-       "sh": 0.00383227,
+       "sh": 0.00383226,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38251,7 +38919,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p21",
        "n": "送電損失 p19>p21",
        "g": "high",
-       "sh": 0.00454934,
+       "sh": 0.00454933,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38277,7 +38945,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p21",
        "n": "送電損失 p32>p21",
        "g": "high",
-       "sh": 0.059506,
+       "sh": 0.0595059,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38290,7 +38958,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p20",
        "n": "送電損失 p33>p20",
        "g": "high",
-       "sh": 0.078843,
+       "sh": 0.0788431,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38325,15 +38993,15 @@ const CRAFT_PRICE_CATALOG={
        "power": 2454845489858827.5
       },
       {
-       "id": "p47",
-       "n": "機体内高エネルギー散逸装置 1 #47",
+       "id": "p48",
+       "n": "機体内高エネルギー散逸装置 1 #48",
        "k": "hdis",
        "g": "high",
-       "cap": 71231445429471860,
-       "m": 34,
+       "cap": 71263092334018330,
+       "m": 35,
        "sec": 4,
        "src": -1,
-       "power": 1068471681442077.8
+       "power": 1068946385010274.9
       },
       {
        "id": "p1",
@@ -38341,7 +39009,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 17617270153410932,
-       "m": 37,
+       "m": 38,
        "sec": 1,
        "src": -1,
        "power": 176172701534109.3
@@ -38352,7 +39020,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 18214465751831650,
-       "m": 38,
+       "m": 39,
        "sec": 1,
        "src": -1,
        "power": 182144657518316.47
@@ -38363,7 +39031,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22062540926413260,
-       "m": 39,
+       "m": 40,
        "sec": 1,
        "src": -1,
        "power": 220625409264132.6
@@ -38374,7 +39042,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22062540926413260,
-       "m": 40,
+       "m": 41,
        "sec": 1,
        "src": -1,
        "power": 220625409264132.6
@@ -38384,7 +39052,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 237996458530971350000,
+       "cap": 237996649884986900000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -38394,3571 +39062,3607 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 844458376544162.1,
+       "cap": 844455413968093,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 367550570991690.5,
+       "cap": 367712577346551.94,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 90904202001802.12,
+       "cap": 90903883086600.48,
        "sec": 2
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 93985700374744.61,
+       "cap": 93985370648858.16,
        "sec": 2
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 113841569073026.44,
+       "cap": 113841169687671.78,
        "sec": 2
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 113841569073026.44,
+       "cap": 113841169687671.78,
        "sec": 2
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 2965575682414800,
+       "cap": 2965565278416461.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 1290767035613186.2,
+       "cap": 1291335970826240,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 319238103823544.6,
+       "cap": 319236983854588.3,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 330059734461631,
+       "cap": 330058576527625.3,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 399789733003206.7,
+       "cap": 399788330438523.3,
        "sec": 3
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 399789733003206.7,
+       "cap": 399788330438523.3,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 1610064607720136.2,
+       "cap": 1610058959201501.5,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 700780739866460.6,
+       "cap": 701089625070792.2,
        "sec": 4
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 173320133237483.94,
+       "cap": 173319525186106.6,
        "sec": 3
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 179195391991297,
+       "cap": 179194763328008.6,
        "sec": 3
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 217053067792289.9,
+       "cap": 217052306314587.56,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 217053067792289.9,
+       "cap": 217052306314587.56,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1942227243383523,
+       "cap": 1942220429553367.8,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 845354551662616.1,
+       "cap": 845727161094594.6,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 209076755669680.75,
+       "cap": 209076022174922.44,
        "sec": 2
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 216164103319500.53,
+       "cap": 216163344960513.1,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 261831965937750.38,
+       "cap": 261831047364215.22,
        "sec": 2
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 261831965937750.38,
+       "cap": 261831047364215.22,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 1942227243383523.2,
+       "cap": 1942220429553367.8,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 845354551662616.1,
+       "cap": 845727161094594.6,
        "sec": 4
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 209076755669680.78,
+       "cap": 209076022174922.44,
        "sec": 2
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 216164103319500.56,
+       "cap": 216163344960513.1,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 261831965937750.44,
+       "cap": 261831047364215.22,
        "sec": 2
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 261831965937750.44,
+       "cap": 261831047364215.22,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 231639607434334720,
+       "cap": 231639412611244700,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 100821156307552210,
+       "cap": 100865864576647150,
        "sec": 4
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 24935525836101056,
+       "cap": 24935504863797370,
        "sec": 4
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 25780797898341780,
+       "cap": 25780776215112540,
        "sec": 4
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 31227372600294730,
+       "cap": 31227346336162750,
        "sec": 4
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 31227372600294730,
+       "cap": 31227346336162750,
        "sec": 4
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 11047389084321098,
+       "cap": 11047361877353414,
        "sec": 3
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 4808376917908683,
+       "cap": 4810501349873700,
        "sec": 3
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 1189228642651885.8,
+       "cap": 1189225713877946.2,
        "sec": 1
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 1229541477996018,
+       "cap": 1229538449941605.8,
        "sec": 1
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 1489300292888465.2,
+       "cap": 1489296625112791.8,
        "sec": 1
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 1489300292888465.2,
+       "cap": 1489296625112791.8,
        "sec": 1
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 11023559418413388,
+       "cap": 11023555956058010,
        "sec": 3
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 4798005054055827,
+       "cap": 4800135217416205,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 1186663428280782.2,
+       "cap": 1186663055565369.2,
        "sec": 1
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 1226889307205555,
+       "cap": 1226888921855721,
        "sec": 1
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 1486087811808555.2,
+       "cap": 1486087345047871.8,
        "sec": 1
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 1486087811808555.2,
+       "cap": 1486087345047871.8,
        "sec": 1
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 6502088397111562,
+       "cap": 6502075276631363,
        "sec": 2
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 2830034456851432,
+       "cap": 2831286079198197.5,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 699936401251024.2,
+       "cap": 699934988858400.2,
        "sec": 0
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 723663058920550.9,
+       "cap": 723661598650210.6,
        "sec": 0
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 876547578825502.2,
+       "cap": 876545810051464,
        "sec": 0
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 876547578825502.2,
+       "cap": 876545810051464,
        "sec": 0
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 6944283407511398,
+       "cap": 6944269394731591,
        "sec": 3
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 3022499867908476,
+       "cap": 3023836610776960.5,
        "sec": 3
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 747537781811755.2,
+       "cap": 747536273364919.4,
        "sec": 1
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 772878045601984.4,
+       "cap": 772876486021357.5,
        "sec": 1
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 936159959042738.2,
+       "cap": 936158069977647,
        "sec": 1
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 936159959042738.2,
+       "cap": 936158069977647,
        "sec": 1
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 54371122439984.4,
+       "cap": 54365657824665.164,
        "sec": 3
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 23665035072608.203,
+       "cap": 23673169509223.73,
        "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 5852939155599.198,
+       "cap": 5852350901034.332,
        "sec": 1
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 6051343872738.156,
+       "cap": 6050735677340.582,
        "sec": 1
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 7329779729535.032,
+       "cap": 7329043043868.099,
        "sec": 1
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 7329779729535.032,
+       "cap": 7329043043868.099,
        "sec": 1
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 29416109380673724,
+       "cap": 29416821436026024,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 29416109380673724,
+       "cap": 29416821436026024,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 29416109380673724,
+       "cap": 29416821436026024,
        "sec": 3
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 29416109380673724,
+       "cap": 29416821436026024,
        "sec": 3
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 29416109380673724,
+       "cap": 29416821436026024,
        "sec": 3
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 29416109380673724,
+       "cap": 29416821436026024,
        "sec": 3
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 237996458530971350000,
+       "cap": 237996649884986900000,
        "sec": -1
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 138029541247.54242,
+       "cap": 138019009322.1265,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 60077368060.30981,
+       "cap": 60099473342.4428,
        "sec": 4
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 14858595341.46795,
+       "cap": 14857461601.42573,
        "sec": 3
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 15362276539.48382,
+       "cap": 15361104367.57576,
        "sec": 3
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 18607784575.902653,
+       "cap": 18606364765.349506,
        "sec": 3
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 18607784575.902653,
+       "cap": 18606364765.349506,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 1963338100.6927376,
+       "cap": 1963140773.7482052,
        "sec": 3
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 854543053.8714283,
+       "cap": 854836787.9092453,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 211349295.90443054,
+       "cap": 211328054.06596413,
        "sec": 1
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 218513678.81644523,
+       "cap": 218491716.9156579,
        "sec": 1
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 264677923.99478683,
+       "cap": 264651322.31777123,
        "sec": 1
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 264677923.99478683,
+       "cap": 264651322.31777123,
        "sec": 1
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 2029891934.6145256,
+       "cap": 2029687918.621026,
        "sec": 3
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 883510615.0196124,
+       "cap": 883814306.1434572,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 218513678.81644517,
+       "cap": 218491716.91565785,
        "sec": 1
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 225920922.16615525,
+       "cap": 225898215.7941548,
        "sec": 1
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 273650057.0115593,
+       "cap": 273622553.5827805,
        "sec": 1
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 273650057.0115593,
+       "cap": 273622553.5827805,
        "sec": 1
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 2727730053.1206784,
+       "cap": 2727455900.321066,
        "sec": 3
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 1187244707.831101,
+       "cap": 1187652802.169155,
        "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 293634512.53810984,
+       "cap": 293605000.5548462,
        "sec": 1
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 303588224.82753736,
+       "cap": 303557712.4380615,
        "sec": 1
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 367725725.60143024,
+       "cap": 367688767.0185793,
        "sec": 1
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 367725725.60143024,
+       "cap": 367688767.0185793,
        "sec": 1
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 2727730053.1206784,
+       "cap": 2727455900.321066,
        "sec": 3
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 1187244707.831101,
+       "cap": 1187652802.169155,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 293634512.53810984,
+       "cap": 293605000.5548462,
        "sec": 1
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 303588224.82753736,
+       "cap": 303557712.4380615,
        "sec": 1
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 367725725.60143024,
+       "cap": 367688767.0185793,
        "sec": 1
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 367725725.60143024,
+       "cap": 367688767.0185793,
        "sec": 1
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 5109802855.592255,
+       "cap": 4877166923.605344,
        "sec": 3
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 2224042071.6931396,
+       "cap": 2123730382.8761249,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 550059735.1820477,
+       "cap": 525016957.06341565,
        "sec": 2
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 568705827.9000834,
+       "cap": 542814142.0486163,
        "sec": 2
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 688853341.8485572,
+       "cap": 657491654.575661,
        "sec": 2
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 688853341.8485572,
+       "cap": 657491654.575661,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 5174241526.260106,
+       "cap": 4938671870.481797,
        "sec": 3
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 2252089007.878248,
+       "cap": 2150512309.028069,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 556996425.1336472,
+       "cap": 531637837.7015447,
        "sec": 2
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 575877659.8839405,
+       "cap": 549659459.3185464,
        "sec": 2
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 697540329.3680949,
+       "cap": 665783146.3207277,
        "sec": 2
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 697540329.3680949,
+       "cap": 665783146.3207277,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 5990499298.728892,
+       "cap": 5717767565.859484,
        "sec": 3
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 2607365263.8555818,
+       "cap": 2489764425.1353593,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 644864890.2884399,
+       "cap": 615505881.9279306,
        "sec": 2
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 666724717.0778787,
+       "cap": 636370488.0949793,
        "sec": 2
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 807580170.4863509,
+       "cap": 770813161.8708171,
        "sec": 2
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 807580170.4863509,
+       "cap": 770813161.8708171,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 5990499298.728892,
+       "cap": 5717767565.859484,
        "sec": 3
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 2607365263.8555818,
+       "cap": 2489764425.1353593,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 644864890.2884399,
+       "cap": 615505881.9279306,
        "sec": 2
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 666724717.0778787,
+       "cap": 636370488.0949793,
        "sec": 2
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 807580170.4863509,
+       "cap": 770813161.8708171,
        "sec": 2
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 807580170.4863509,
+       "cap": 770813161.8708171,
        "sec": 2
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 9727892444.499651,
+       "cap": 9285006996.851145,
        "sec": 3
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 4234065907.610324,
+       "cap": 4043095463.6782107,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 1047187551.6772199,
+       "cap": 999511846.971136,
        "sec": 1
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 1082685434.7849226,
+       "cap": 1033393604.4955816,
        "sec": 1
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 1311418739.4144037,
+       "cap": 1251713281.2410262,
        "sec": 1
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 1311418739.4144037,
+       "cap": 1251713281.2410262,
        "sec": 1
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 9727892444.499651,
+       "cap": 9285006996.851145,
        "sec": 3
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 4234065907.610324,
+       "cap": 4043095463.6782107,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 1047187551.6772199,
+       "cap": 999511846.971136,
        "sec": 1
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 1082685434.7849226,
+       "cap": 1033393604.4955816,
        "sec": 1
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 1311418739.4144037,
+       "cap": 1251713281.2410262,
        "sec": 1
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 1311418739.4144037,
+       "cap": 1251713281.2410262,
        "sec": 1
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 2169059194.6445403,
+       "cap": 2070307614.2917554,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 944083175.264334,
+       "cap": 901501886.49294,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 233494747.23757675,
+       "cap": 222864343.35062176,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 241409823.41512182,
+       "cap": 230419066.85403273,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 292411217.63885546,
+       "cap": 279098501.2657777,
        "sec": 3
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 292411217.63885546,
+       "cap": 279098501.2657777,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 2048019565.4242034,
+       "cap": 1954778602.1630747,
        "sec": 3
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 891400667.6733505,
+       "cap": 851195535.0794083,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 220465080.87332422,
+       "cap": 210427883.54712898,
        "sec": 2
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 227938473.44530138,
+       "cap": 217561032.14194697,
        "sec": 2
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 276093845.8261076,
+       "cap": 263524016.62627587,
        "sec": 2
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 276093845.8261076,
+       "cap": 263524016.62627587,
        "sec": 2
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 4882988655.236695,
+       "cap": 2822119972.548264,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 2125321174.1743379,
+       "cap": 1228873652.2045817,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 525643654.4625016,
+       "cap": 303795392.62517035,
        "sec": 3
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 543462083.4273324,
+       "cap": 314093541.5277186,
        "sec": 3
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 658276483.1498616,
+       "cap": 380450445.7661913,
        "sec": 3
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 658276483.1498616,
+       "cap": 380450445.7661913,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 4973315096.85231,
+       "cap": 4660678979.345913,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 2164635764.583556,
+       "cap": 2029462125.924551,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 535367109.54661435,
+       "cap": 501712476.5081387,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 553515147.1583642,
+       "cap": 518719679.1016351,
        "sec": 3
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 670453405.2195867,
+       "cap": 628306880.1161484,
        "sec": 3
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 670453405.2195867,
+       "cap": 628306880.1161484,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 3393434317.515589,
+       "cap": 4746893094.80685,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1476992538.258545,
+       "cap": 2067003497.6481643,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 365296203.16123706,
+       "cap": 510993248.1659917,
        "sec": 3
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 377679125.30229604,
+       "cap": 528315053.18856794,
        "sec": 3
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 457469424.16886127,
+       "cap": 639929418.8379284,
        "sec": 3
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 457469424.16886127,
+       "cap": 639929418.8379284,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 3393434317.515589,
+       "cap": 3238940146.7223587,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 1476992538.258545,
+       "cap": 1410375266.1446,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 365296203.16123706,
+       "cap": 348665224.41795933,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 377679125.30229604,
+       "cap": 360484384.56772083,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 457469424.16886127,
+       "cap": 436642040.2453178,
        "sec": 3
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 457469424.16886127,
+       "cap": 436642040.2453178,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2198965226.6940813,
+       "cap": 3238940146.7223587,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 957099777.9308711,
+       "cap": 1410375266.1446,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 236714069.88747367,
+       "cap": 348665224.41795933,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 244738275.64637116,
+       "cap": 360484384.56772083,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 296442854.61213124,
+       "cap": 436642040.2453178,
        "sec": 3
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 296442854.61213124,
+       "cap": 436642040.2453178,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 5609068580.095476,
+       "cap": 2098852103.0813127,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 2441347515.294411,
+       "cap": 913931397.119826,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 603804660.3713158,
+       "cap": 225937098.6776315,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 624272614.9601742,
+       "cap": 233595983.37856823,
        "sec": 3
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 756159434.1801023,
+       "cap": 282946588.3739772,
        "sec": 3
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 756159434.1801023,
+       "cap": 282946588.3739772,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 2228802991.0853,
+       "cap": 5353702388.172643,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 970086667.0940633,
+       "cap": 2331234628.7778497,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 239926043.6647978,
+       "cap": 576315016.6662182,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 248059129.89072326,
+       "cap": 595851118.9260902,
        "sec": 3
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 300465288.41144836,
+       "cap": 721733476.9225411,
        "sec": 3
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 300465288.41144836,
+       "cap": 721733476.9225411,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 3957369629.0786853,
-       "sec": 3
-      },
-      {
-       "s": 32,
-       "d": 1,
-       "cap": 1722445424.4216716,
+       "cap": 2127331432.260112,
        "sec": 4
       },
       {
        "s": 32,
+       "d": 1,
+       "cap": 926332534.4211174,
+       "sec": 4
+      },
+      {
+       "s": 32,
        "d": 2,
-       "cap": 426002675.9752941,
-       "sec": 2
+       "cap": 229002839.70697638,
+       "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 440443444.65242285,
-       "sec": 2
-      },
-      {
-       "s": 32,
-       "d": 4,
-       "cap": 533493633.8957589,
+       "cap": 236765647.83263668,
        "sec": 3
       },
       {
        "s": 32,
+       "d": 4,
+       "cap": 286785891.304608,
+       "sec": 3
+      },
+      {
+       "s": 32,
        "d": 5,
-       "cap": 533493633.8957589,
+       "cap": 286785891.304608,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 5519430856.209833,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 1,
-       "cap": 2402332689.3282194,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 2,
-       "cap": 594155344.3299158,
+       "cap": 3777200961.5400023,
        "sec": 3
       },
       {
        "s": 33,
+       "d": 1,
+       "cap": 1644757411.4034014,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 2,
+       "cap": 406607890.6273682,
+       "sec": 2
+      },
+      {
+       "s": 33,
        "d": 3,
-       "cap": 614296203.4597436,
-       "sec": 3
+       "cap": 420391208.95371985,
+       "sec": 2
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 744075358.2579274,
+       "cap": 509205066.95142066,
        "sec": 3
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 744075358.2579274,
+       "cap": 509205066.95142066,
        "sec": 3
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 2825585328.1014376,
+       "cap": 5268145634.928462,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 1229836223.5206203,
+       "cap": 2293979501.124645,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 304168431.0009668,
+       "cap": 567105008.6947707,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 314479225.27218616,
+       "cap": 586328907.2945936,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 380917610.9036651,
+       "cap": 710199557.3065492,
        "sec": 3
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 380917610.9036651,
+       "cap": 710199557.3065492,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 2825585328.1014376,
+       "cap": 2696943833.5490556,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 1229836223.5206203,
+       "cap": 1174366522.6009007,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 304168431.0009668,
+       "cap": 290320439.517408,
        "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 314479225.27218616,
+       "cap": 300161810.3485067,
        "sec": 3
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 380917610.9036651,
+       "cap": 363575430.4072455,
        "sec": 3
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 380917610.9036651,
+       "cap": 363575430.4072455,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 1406027596249763.8,
+       "cap": 2696943833.5490556,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 611973615498440.9,
+       "cap": 1174366522.6009007,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 151355969908971.1,
+       "cap": 290320439.517408,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 156486680753343.06,
+       "cap": 300161810.3485067,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 189546805577430.38,
+       "cap": 363575430.4072455,
        "sec": 3
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 189546805577430.38,
+       "cap": 363575430.4072455,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 378865566714599.3,
-       "sec": 3
-      },
-      {
-       "s": 37,
-       "d": 1,
-       "cap": 164901265998347.28,
+       "cap": 1405886282265484.5,
        "sec": 4
       },
       {
        "s": 37,
+       "d": 1,
+       "cap": 612183970588571.8,
+       "sec": 4
+      },
+      {
+       "s": 37,
        "d": 2,
-       "cap": 40784096605322.82,
-       "sec": 2
+       "cap": 151340757750113.53,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 42166608354655.805,
-       "sec": 2
+       "cap": 156470952928083.53,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 51074927764987.11,
-       "sec": 2
+       "cap": 189527755016563.03,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 51074927764987.11,
-       "sec": 2
+       "cap": 189527755016563.03,
+       "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 378865566714599.3,
+       "cap": 378827488512662.56,
        "sec": 3
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 164901265998347.28,
+       "cap": 164957947887555.1,
        "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 40784096605322.82,
+       "cap": 40779997565444.87,
        "sec": 2
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 42166608354655.805,
+       "cap": 42162370364273.516,
        "sec": 2
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 51074927764987.11,
+       "cap": 51069794436481.68,
        "sec": 2
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 51074927764987.11,
+       "cap": 51069794436481.68,
        "sec": 2
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 3356375620.047897,
+       "cap": 378827488512662.56,
        "sec": 3
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 1460862737.4385204,
-       "sec": 3
+       "cap": 164957947887555.1,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 361306910.8360035,
+       "cap": 40779997565444.87,
        "sec": 2
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 373554602.7287495,
+       "cap": 42162370364273.516,
        "sec": 2
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 452473535.22429335,
+       "cap": 51069794436481.68,
        "sec": 2
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 452473535.22429335,
+       "cap": 51069794436481.68,
        "sec": 2
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 3356375620.047897,
+       "cap": 3356038284.697672,
        "sec": 3
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 1460862737.4385204,
+       "cap": 1461364883.127518,
        "sec": 3
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 361306910.8360035,
+       "cap": 361270597.3815208,
        "sec": 2
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 373554602.7287495,
+       "cap": 373517058.30970806,
        "sec": 2
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 452473535.22429335,
+       "cap": 452428058.99166894,
        "sec": 2
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 452473535.22429335,
+       "cap": 452428058.99166894,
        "sec": 2
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 635826845320433.6,
-       "sec": 4
-      },
-      {
-       "s": 41,
-       "d": 1,
-       "cap": 276743681560424.5,
-       "sec": 4
-      },
-      {
-       "s": 41,
-       "d": 2,
-       "cap": 68445448100963.445,
+       "cap": 3356038284.697672,
        "sec": 3
       },
       {
        "s": 41,
-       "d": 3,
-       "cap": 70765632782352.06,
+       "d": 1,
+       "cap": 1461364883.127518,
        "sec": 3
       },
       {
        "s": 41,
+       "d": 2,
+       "cap": 361270597.3815208,
+       "sec": 2
+      },
+      {
+       "s": 41,
+       "d": 3,
+       "cap": 373517058.30970806,
+       "sec": 2
+      },
+      {
+       "s": 41,
        "d": 4,
-       "cap": 85715918913909.02,
-       "sec": 3
+       "cap": 452428058.99166894,
+       "sec": 2
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 85715918913909.02,
-       "sec": 3
+       "cap": 452428058.99166894,
+       "sec": 2
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 136433331352291.34,
+       "cap": 635762941009406.2,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 59382617585072.555,
+       "cap": 276838807298860.78,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 14686766639443.592,
+       "cap": 68438568933724.68,
        "sec": 3
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 15184623135695.922,
+       "cap": 70758520423003.5,
        "sec": 3
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 18392599264118.637,
+       "cap": 85707303963498.23,
        "sec": 3
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 18392599264118.637,
+       "cap": 85707303963498.23,
        "sec": 3
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 136433331352291.34,
+       "cap": 136419619005753.27,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 59382617585072.555,
+       "cap": 59403029307993.23,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 14686766639443.592,
+       "cap": 14685290533629.215,
        "sec": 3
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 15184623135695.922,
+       "cap": 15183096992396.312,
        "sec": 3
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 18392599264118.637,
+       "cap": 18390750700484.33,
        "sec": 3
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 18392599264118.637,
+       "cap": 18390750700484.33,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 5010928115.309498,
-       "sec": 3
-      },
-      {
-       "s": 44,
-       "d": 1,
-       "cap": 2181006833.6553516,
+       "cap": 136419619005753.27,
        "sec": 4
       },
       {
        "s": 44,
+       "d": 1,
+       "cap": 59403029307993.23,
+       "sec": 4
+      },
+      {
+       "s": 44,
        "d": 2,
-       "cap": 539416073.3827269,
-       "sec": 2
+       "cap": 14685290533629.215,
+       "sec": 3
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 557701364.0058705,
-       "sec": 2
+       "cap": 15183096992396.312,
+       "sec": 3
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 675524022.2655827,
-       "sec": 2
+       "cap": 18390750700484.33,
+       "sec": 3
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 675524022.2655827,
-       "sec": 2
+       "cap": 18390750700484.33,
+       "sec": 3
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 5010928115.309498,
+       "cap": 5010424487.771319,
        "sec": 3
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 2181006833.6553516,
+       "cap": 2181756516.1211486,
        "sec": 4
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 539416073.3827269,
+       "cap": 539361858.9172945,
        "sec": 2
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 557701364.0058705,
+       "cap": 557645311.7619488,
        "sec": 2
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 675524022.2655827,
+       "cap": 675456128.1564505,
        "sec": 2
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 675524022.2655827,
+       "cap": 675456128.1564505,
        "sec": 2
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 278153231292338.3,
-       "sec": 4
-      },
-      {
-       "s": 46,
-       "d": 1,
-       "cap": 121066214539866.25,
-       "sec": 4
-      },
-      {
-       "s": 46,
-       "d": 2,
-       "cap": 29942621480444.723,
+       "cap": 5010424487.771319,
        "sec": 3
       },
       {
        "s": 46,
-       "d": 3,
-       "cap": 30957625598425.91,
-       "sec": 3
-      },
-      {
-       "s": 46,
-       "d": 4,
-       "cap": 37497881686766.88,
+       "d": 1,
+       "cap": 2181756516.1211486,
        "sec": 4
       },
       {
        "s": 46,
+       "d": 2,
+       "cap": 539361858.9172945,
+       "sec": 2
+      },
+      {
+       "s": 46,
+       "d": 3,
+       "cap": 557645311.7619488,
+       "sec": 2
+      },
+      {
+       "s": 46,
+       "d": 4,
+       "cap": 675456128.1564505,
+       "sec": 2
+      },
+      {
+       "s": 46,
        "d": 5,
-       "cap": 37497881686766.88,
-       "sec": 4
+       "cap": 675456128.1564505,
+       "sec": 2
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 294728608767989.3,
+       "cap": 278125275268246.8,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 128280648814898.53,
+       "cap": 121107828906607.52,
        "sec": 4
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 31726926668426.836,
+       "cap": 29939612072128.375,
        "sec": 3
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 32802415708034.53,
+       "cap": 30954514176268.332,
        "sec": 3
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 39732410980594.22,
-       "sec": 3
+       "cap": 37494112930678.93,
+       "sec": 4
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 39732410980594.22,
-       "sec": 3
+       "cap": 37494112930678.93,
+       "sec": 4
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 294728608767989.3,
+       "cap": 294698986821665.4,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 128280648814898.53,
+       "cap": 128324743015628.95,
        "sec": 4
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 31726926668426.836,
+       "cap": 31723737927019.19,
        "sec": 3
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 32802415708034.53,
+       "cap": 32799118873697.816,
        "sec": 3
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 39732410980594.22,
+       "cap": 39728417641263.14,
        "sec": 3
       },
       {
        "s": 48,
        "d": 5,
-       "cap": 39732410980594.22,
+       "cap": 39728417641263.14,
        "sec": 3
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 6231387142.170613,
+       "cap": 294698986821665.4,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 2712211715.570933,
+       "cap": 128324743015628.95,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 670795969.6503599,
+       "cap": 31723737927019.19,
        "sec": 3
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 693534816.0791857,
+       "cap": 32799118873697.816,
        "sec": 3
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 840054299.264904,
+       "cap": 39728417641263.14,
        "sec": 3
       },
       {
        "s": 49,
        "d": 5,
-       "cap": 840054299.264904,
+       "cap": 39728417641263.14,
        "sec": 3
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 6231387142.170613,
+       "cap": 6230760851.373053,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 2712211715.570933,
+       "cap": 2713143990.3053894,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 670795969.6503599,
+       "cap": 670728550.7381262,
        "sec": 3
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 693534816.0791857,
+       "cap": 693465111.7800967,
        "sec": 3
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 840054299.264904,
+       "cap": 839969868.902117,
        "sec": 3
       },
       {
        "s": 50,
        "d": 5,
-       "cap": 840054299.264904,
+       "cap": 839969868.902117,
        "sec": 3
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 1162208503428468,
+       "cap": 6230760851.373053,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 505851337273332.1,
+       "cap": 2713143990.3053894,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 125109347598908.56,
+       "cap": 670728550.7381262,
        "sec": 3
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 129350342432769.9,
+       "cap": 693465111.7800967,
        "sec": 3
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 156677514600260.94,
+       "cap": 839969868.902117,
        "sec": 3
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 156677514600260.94,
+       "cap": 839969868.902117,
        "sec": 3
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 200157263844949.78,
+       "cap": 1162091694686861,
        "sec": 4
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 87118463926443.62,
+       "cap": 506025214710120.5,
        "sec": 4
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 21546516501086.277,
+       "cap": 125096773378866.98,
        "sec": 3
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 22276906890953.617,
+       "cap": 129337341967981.16,
        "sec": 3
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 26983232815716.156,
+       "cap": 156661767595085.38,
        "sec": 3
       },
       {
        "s": 52,
        "d": 5,
-       "cap": 26983232815716.156,
+       "cap": 156661767595085.38,
        "sec": 3
       },
       {
        "s": 53,
        "d": 0,
-       "cap": 324089263519158.75,
+       "cap": 200137146871064.06,
        "sec": 4
       },
       {
        "s": 53,
        "d": 1,
-       "cap": 141059875971890.16,
+       "cap": 87148409355245.12,
        "sec": 4
       },
       {
        "s": 53,
        "d": 2,
-       "cap": 34887540577342.09,
+       "cap": 21544350950351.55,
        "sec": 3
       },
       {
        "s": 53,
        "d": 3,
-       "cap": 36070169071489.3,
+       "cap": 22274667931719.406,
        "sec": 3
       },
       {
        "s": 53,
        "d": 4,
-       "cap": 43690525552875.61,
+       "cap": 26980520843242.72,
        "sec": 3
       },
       {
        "s": 53,
        "d": 5,
-       "cap": 43690525552875.61,
+       "cap": 26980520843242.72,
        "sec": 3
       },
       {
        "s": 54,
        "d": 0,
-       "cap": 2782193056.7428527,
-       "sec": 3
+       "cap": 324056690655573.3,
+       "sec": 4
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 1210949734.1950686,
-       "sec": 3
+       "cap": 141108362805590.9,
+       "sec": 4
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 299497342.51340824,
-       "sec": 2
+       "cap": 34884034175779.39,
+       "sec": 3
       },
       {
        "s": 54,
        "d": 3,
-       "cap": 309649794.8019985,
-       "sec": 2
+       "cap": 36066543808856.67,
+       "sec": 3
       },
       {
        "s": 54,
        "d": 4,
-       "cap": 375067891.84786093,
-       "sec": 2
+       "cap": 43686134399915.6,
+       "sec": 3
       },
       {
        "s": 54,
        "d": 5,
-       "cap": 375067891.84786093,
-       "sec": 2
+       "cap": 43686134399915.6,
+       "sec": 3
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 4591915859.014902,
+       "cap": 2781913430.0933256,
        "sec": 3
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 1998631718.041182,
+       "cap": 1211365976.7160358,
        "sec": 3
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 494310268.47223127,
+       "cap": 299467241.2814947,
        "sec": 2
       },
       {
        "s": 55,
        "d": 3,
-       "cap": 511066548.75942576,
+       "cap": 309618673.1893421,
        "sec": 2
       },
       {
        "s": 55,
        "d": 4,
-       "cap": 619036912.8444929,
+       "cap": 375030195.33442575,
        "sec": 2
       },
       {
        "s": 55,
        "d": 5,
-       "cap": 619036912.8444929,
+       "cap": 375030195.33442575,
        "sec": 2
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 1162208503428468,
-       "sec": 4
-      },
-      {
-       "s": 56,
-       "d": 1,
-       "cap": 505851337273332.1,
-       "sec": 4
-      },
-      {
-       "s": 56,
-       "d": 2,
-       "cap": 125109347598908.56,
+       "cap": 4591454344.655409,
        "sec": 3
       },
       {
        "s": 56,
-       "d": 3,
-       "cap": 129350342432769.9,
+       "d": 1,
+       "cap": 1999318712.2914886,
        "sec": 3
       },
       {
        "s": 56,
+       "d": 2,
+       "cap": 494260587.40359914,
+       "sec": 2
+      },
+      {
+       "s": 56,
+       "d": 3,
+       "cap": 511015183.5867722,
+       "sec": 2
+      },
+      {
+       "s": 56,
        "d": 4,
-       "cap": 156677514600260.94,
-       "sec": 3
+       "cap": 618974696.0197283,
+       "sec": 2
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 156677514600260.94,
-       "sec": 3
+       "cap": 618974696.0197283,
+       "sec": 2
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 324089263519158.75,
+       "cap": 1162091694686861,
        "sec": 4
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 141059875971890.16,
+       "cap": 506025214710120.5,
        "sec": 4
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 34887540577342.09,
+       "cap": 125096773378866.98,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 36070169071489.3,
+       "cap": 129337341967981.16,
        "sec": 3
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 43690525552875.61,
+       "cap": 156661767595085.38,
        "sec": 3
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 43690525552875.61,
+       "cap": 156661767595085.38,
        "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 200157263844949.78,
+       "cap": 324056690655573.3,
        "sec": 4
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 87118463926443.62,
+       "cap": 141108362805590.9,
        "sec": 4
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 21546516501086.277,
+       "cap": 34884034175779.39,
        "sec": 3
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 22276906890953.617,
+       "cap": 36066543808856.67,
        "sec": 3
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 26983232815716.156,
+       "cap": 43686134399915.6,
        "sec": 3
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 26983232815716.156,
+       "cap": 43686134399915.6,
        "sec": 3
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 4591915859.014902,
-       "sec": 3
+       "cap": 200137146871064.06,
+       "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 1998631718.041182,
-       "sec": 3
+       "cap": 87148409355245.12,
+       "sec": 4
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 494310268.47223127,
-       "sec": 2
+       "cap": 21544350950351.55,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 511066548.75942576,
-       "sec": 2
+       "cap": 22274667931719.406,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 619036912.8444929,
-       "sec": 2
+       "cap": 26980520843242.72,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 619036912.8444929,
-       "sec": 2
+       "cap": 26980520843242.72,
+       "sec": 3
       },
       {
        "s": 60,
        "d": 0,
-       "cap": 2782193056.7428527,
+       "cap": 4591454344.655409,
        "sec": 3
       },
       {
        "s": 60,
        "d": 1,
-       "cap": 1210949734.1950686,
+       "cap": 1999318712.2914886,
        "sec": 3
       },
       {
        "s": 60,
        "d": 2,
-       "cap": 299497342.51340824,
+       "cap": 494260587.40359914,
        "sec": 2
       },
       {
        "s": 60,
        "d": 3,
-       "cap": 309649794.8019985,
+       "cap": 511015183.5867722,
        "sec": 2
       },
       {
        "s": 60,
        "d": 4,
-       "cap": 375067891.84786093,
+       "cap": 618974696.0197283,
        "sec": 2
       },
       {
        "s": 60,
        "d": 5,
-       "cap": 375067891.84786093,
+       "cap": 618974696.0197283,
        "sec": 2
       },
       {
        "s": 61,
        "d": 0,
-       "cap": 1739484715418850,
-       "sec": 4
-      },
-      {
-       "s": 61,
-       "d": 1,
-       "cap": 757110851336413.9,
-       "sec": 4
-      },
-      {
-       "s": 61,
-       "d": 2,
-       "cap": 187251940819859.9,
+       "cap": 2781913430.0933256,
        "sec": 3
       },
       {
        "s": 61,
-       "d": 3,
-       "cap": 193599464237482.34,
+       "d": 1,
+       "cap": 1211365976.7160358,
        "sec": 3
       },
       {
        "s": 61,
+       "d": 2,
+       "cap": 299467241.2814947,
+       "sec": 2
+      },
+      {
+       "s": 61,
+       "d": 3,
+       "cap": 309618673.1893421,
+       "sec": 2
+      },
+      {
+       "s": 61,
        "d": 4,
-       "cap": 234500213251745.4,
-       "sec": 3
+       "cap": 375030195.33442575,
+       "sec": 2
       },
       {
        "s": 61,
        "d": 5,
-       "cap": 234500213251745.4,
-       "sec": 3
+       "cap": 375030195.33442575,
+       "sec": 2
       },
       {
        "s": 62,
        "d": 0,
-       "cap": 667447555941438.8,
-       "sec": 3
+       "cap": 1739309887046786.5,
+       "sec": 4
       },
       {
        "s": 62,
        "d": 1,
-       "cap": 290506598202303.06,
+       "cap": 757371094780475.1,
        "sec": 4
       },
       {
        "s": 62,
        "d": 2,
-       "cap": 71849352361462.02,
-       "sec": 2
+       "cap": 187233120906302.12,
+       "sec": 3
       },
       {
        "s": 62,
        "d": 3,
-       "cap": 74284923627952.27,
-       "sec": 2
+       "cap": 193580006360753.12,
+       "sec": 3
       },
       {
        "s": 62,
        "d": 4,
-       "cap": 89978711980194.7,
-       "sec": 2
+       "cap": 234476644610889.9,
+       "sec": 3
       },
       {
        "s": 62,
        "d": 5,
-       "cap": 89978711980194.7,
-       "sec": 2
+       "cap": 234476644610889.9,
+       "sec": 3
       },
       {
        "s": 63,
        "d": 0,
-       "cap": 522703349544145.3,
+       "cap": 667380473564336.6,
        "sec": 3
       },
       {
        "s": 63,
        "d": 1,
-       "cap": 227506671637796.94,
+       "cap": 290606454699545.5,
        "sec": 4
       },
       {
        "s": 63,
        "d": 2,
-       "cap": 56267937169896.33,
+       "cap": 71842131081967.1,
        "sec": 2
       },
       {
        "s": 63,
        "d": 3,
-       "cap": 58175324870570.805,
+       "cap": 74277457559321.94,
        "sec": 2
       },
       {
        "s": 63,
        "d": 4,
-       "cap": 70465722319376.12,
+       "cap": 89969668594187.1,
        "sec": 2
       },
       {
        "s": 63,
        "d": 5,
-       "cap": 70465722319376.12,
+       "cap": 89969668594187.1,
        "sec": 2
       },
       {
        "s": 64,
        "d": 0,
-       "cap": 5953529203.550547,
+       "cap": 522650814805056.8,
        "sec": 3
       },
       {
        "s": 64,
        "d": 1,
-       "cap": 2591274027.188564,
-       "sec": 3
+       "cap": 227584873026232.22,
+       "sec": 4
       },
       {
        "s": 64,
        "d": 2,
-       "cap": 640885135.816856,
-       "sec": 1
+       "cap": 56262281913619.805,
+       "sec": 2
       },
       {
        "s": 64,
        "d": 3,
-       "cap": 662610055.6750548,
-       "sec": 1
+       "cap": 58169477910691.69,
+       "sec": 2
       },
       {
        "s": 64,
        "d": 4,
-       "cap": 802596226.0306091,
-       "sec": 1
+       "cap": 70458640102780.5,
+       "sec": 2
       },
       {
        "s": 64,
        "d": 5,
-       "cap": 802596226.0306091,
-       "sec": 1
+       "cap": 70458640102780.5,
+       "sec": 2
       },
       {
        "s": 65,
        "d": 0,
-       "cap": 244669816.4091634,
+       "cap": 5952930839.09844,
        "sec": 3
       },
       {
        "s": 65,
        "d": 1,
-       "cap": 106492555.72979344,
+       "cap": 2592164731.734869,
        "sec": 3
       },
       {
        "s": 65,
        "d": 2,
-       "cap": 26338200.94913734,
+       "cap": 640820723.1180944,
        "sec": 1
       },
       {
        "s": 65,
        "d": 3,
-       "cap": 27231021.32029455,
+       "cap": 662543459.4949793,
        "sec": 1
       },
       {
        "s": 65,
        "d": 4,
-       "cap": 32983977.16038504,
+       "cap": 802515560.4229281,
        "sec": 1
       },
       {
        "s": 65,
        "d": 5,
-       "cap": 32983977.16038504,
+       "cap": 802515560.4229281,
        "sec": 1
       },
       {
        "s": 66,
        "d": 0,
-       "cap": 1739484715418850,
-       "sec": 4
-      },
-      {
-       "s": 66,
-       "d": 1,
-       "cap": 757110851336413.9,
-       "sec": 4
-      },
-      {
-       "s": 66,
-       "d": 2,
-       "cap": 187251940819859.9,
+       "cap": 244645225.66380256,
        "sec": 3
       },
       {
        "s": 66,
-       "d": 3,
-       "cap": 193599464237482.34,
+       "d": 1,
+       "cap": 106529160.6594693,
        "sec": 3
       },
       {
        "s": 66,
+       "d": 2,
+       "cap": 26335553.806133322,
+       "sec": 1
+      },
+      {
+       "s": 66,
+       "d": 3,
+       "cap": 27228284.44362938,
+       "sec": 1
+      },
+      {
+       "s": 66,
        "d": 4,
-       "cap": 234500213251745.4,
-       "sec": 3
+       "cap": 32980662.078062087,
+       "sec": 1
       },
       {
        "s": 66,
        "d": 5,
-       "cap": 234500213251745.4,
-       "sec": 3
+       "cap": 32980662.078062087,
+       "sec": 1
       },
       {
        "s": 67,
        "d": 0,
-       "cap": 522703349544145.3,
-       "sec": 3
+       "cap": 1739309887046786.5,
+       "sec": 4
       },
       {
        "s": 67,
        "d": 1,
-       "cap": 227506671637796.94,
+       "cap": 757371094780475.1,
        "sec": 4
       },
       {
        "s": 67,
        "d": 2,
-       "cap": 56267937169896.33,
-       "sec": 2
+       "cap": 187233120906302.12,
+       "sec": 3
       },
       {
        "s": 67,
        "d": 3,
-       "cap": 58175324870570.805,
-       "sec": 2
+       "cap": 193580006360753.12,
+       "sec": 3
       },
       {
        "s": 67,
        "d": 4,
-       "cap": 70465722319376.12,
-       "sec": 2
+       "cap": 234476644610889.9,
+       "sec": 3
       },
       {
        "s": 67,
        "d": 5,
-       "cap": 70465722319376.12,
-       "sec": 2
+       "cap": 234476644610889.9,
+       "sec": 3
       },
       {
        "s": 68,
        "d": 0,
-       "cap": 667447555941438.8,
+       "cap": 522650814805056.8,
        "sec": 3
       },
       {
        "s": 68,
        "d": 1,
-       "cap": 290506598202303.06,
+       "cap": 227584873026232.22,
        "sec": 4
       },
       {
        "s": 68,
        "d": 2,
-       "cap": 71849352361462.02,
+       "cap": 56262281913619.805,
        "sec": 2
       },
       {
        "s": 68,
        "d": 3,
-       "cap": 74284923627952.27,
+       "cap": 58169477910691.69,
        "sec": 2
       },
       {
        "s": 68,
        "d": 4,
-       "cap": 89978711980194.7,
+       "cap": 70458640102780.5,
        "sec": 2
       },
       {
        "s": 68,
        "d": 5,
-       "cap": 89978711980194.7,
+       "cap": 70458640102780.5,
        "sec": 2
       },
       {
        "s": 69,
        "d": 0,
-       "cap": 244669816.4091634,
+       "cap": 667380473564336.6,
        "sec": 3
       },
       {
        "s": 69,
        "d": 1,
-       "cap": 106492555.72979344,
-       "sec": 3
+       "cap": 290606454699545.5,
+       "sec": 4
       },
       {
        "s": 69,
        "d": 2,
-       "cap": 26338200.94913734,
-       "sec": 1
+       "cap": 71842131081967.1,
+       "sec": 2
       },
       {
        "s": 69,
        "d": 3,
-       "cap": 27231021.32029455,
-       "sec": 1
+       "cap": 74277457559321.94,
+       "sec": 2
       },
       {
        "s": 69,
        "d": 4,
-       "cap": 32983977.16038504,
-       "sec": 1
+       "cap": 89969668594187.1,
+       "sec": 2
       },
       {
        "s": 69,
        "d": 5,
-       "cap": 32983977.16038504,
+       "cap": 89969668594187.1,
+       "sec": 2
+      },
+      {
+       "s": 70,
+       "d": 0,
+       "cap": 244645225.66380256,
+       "sec": 3
+      },
+      {
+       "s": 70,
+       "d": 1,
+       "cap": 106529160.6594693,
+       "sec": 3
+      },
+      {
+       "s": 70,
+       "d": 2,
+       "cap": 26335553.806133322,
        "sec": 1
       },
       {
        "s": 70,
-       "d": 0,
-       "cap": 5953529203.550547,
-       "sec": 3
-      },
-      {
-       "s": 70,
-       "d": 1,
-       "cap": 2591274027.188564,
-       "sec": 3
-      },
-      {
-       "s": 70,
-       "d": 2,
-       "cap": 640885135.816856,
-       "sec": 1
-      },
-      {
-       "s": 70,
        "d": 3,
-       "cap": 662610055.6750548,
+       "cap": 27228284.44362938,
        "sec": 1
       },
       {
        "s": 70,
        "d": 4,
-       "cap": 802596226.0306091,
+       "cap": 32980662.078062087,
        "sec": 1
       },
       {
        "s": 70,
        "d": 5,
-       "cap": 802596226.0306091,
+       "cap": 32980662.078062087,
        "sec": 1
       },
       {
        "s": 71,
        "d": 0,
-       "cap": 28016202803.03611,
+       "cap": 5952930839.09844,
        "sec": 3
       },
       {
        "s": 71,
        "d": 1,
-       "cap": 12194054346.900549,
-       "sec": 4
+       "cap": 2592164731.734869,
+       "sec": 3
       },
       {
        "s": 71,
        "d": 2,
-       "cap": 3015886430.4870343,
-       "sec": 2
+       "cap": 640820723.1180944,
+       "sec": 1
       },
       {
        "s": 71,
        "d": 3,
-       "cap": 3118119868.80863,
-       "sec": 2
+       "cap": 662543459.4949793,
+       "sec": 1
       },
       {
        "s": 71,
        "d": 4,
-       "cap": 3776868789.694524,
-       "sec": 2
+       "cap": 802515560.4229281,
+       "sec": 1
       },
       {
        "s": 71,
        "d": 5,
-       "cap": 3776868789.694524,
+       "cap": 802515560.4229281,
+       "sec": 1
+      },
+      {
+       "s": 72,
+       "d": 0,
+       "cap": 28013387011.046654,
+       "sec": 3
+      },
+      {
+       "s": 72,
+       "d": 1,
+       "cap": 12198245837.082874,
+       "sec": 4
+      },
+      {
+       "s": 72,
+       "d": 2,
+       "cap": 3015583316.288734,
        "sec": 2
       },
       {
        "s": 72,
-       "d": 0,
-       "cap": 18405871172.599567,
-       "sec": 4
-      },
-      {
-       "s": 72,
-       "d": 1,
-       "cap": 8011156792.326137,
-       "sec": 4
-      },
-      {
-       "s": 72,
-       "d": 2,
-       "cap": 1981354057.899664,
-       "sec": 3
-      },
-      {
-       "s": 72,
        "d": 3,
-       "cap": 2048518602.2352462,
-       "sec": 3
+       "cap": 3117806479.5527596,
+       "sec": 2
       },
       {
        "s": 72,
        "d": 4,
-       "cap": 2481298442.4640145,
-       "sec": 3
+       "cap": 3776489192.3251724,
+       "sec": 2
       },
       {
        "s": 72,
        "d": 5,
-       "cap": 2481298442.4640145,
-       "sec": 3
+       "cap": 3776489192.3251724,
+       "sec": 2
       },
       {
        "s": 73,
        "d": 0,
-       "cap": 11273347819.808634,
+       "cap": 18412963019.142586,
        "sec": 4
       },
       {
        "s": 73,
        "d": 1,
-       "cap": 4906725474.28026,
+       "cap": 8017804109.444069,
        "sec": 4
       },
       {
        "s": 73,
        "d": 2,
-       "cap": 1213552634.34333,
+       "cap": 1982117480.54857,
        "sec": 3
       },
       {
        "s": 73,
        "d": 3,
-       "cap": 1254690011.7786975,
+       "cap": 2049307903.6180136,
        "sec": 3
       },
       {
        "s": 73,
        "d": 4,
-       "cap": 1519761826.2312076,
+       "cap": 2482254495.433003,
        "sec": 3
       },
       {
        "s": 73,
        "d": 5,
-       "cap": 1519761826.2312076,
+       "cap": 2482254495.433003,
        "sec": 3
       },
       {
        "s": 74,
        "d": 0,
-       "cap": 3999385371.9629607,
+       "cap": 11272214782.519157,
        "sec": 4
       },
       {
        "s": 74,
        "d": 1,
-       "cap": 1740732779.6267364,
+       "cap": 4908412074.246745,
        "sec": 4
       },
       {
        "s": 74,
        "d": 2,
-       "cap": 430525584.0125598,
+       "cap": 1213430665.2167287,
        "sec": 3
       },
       {
        "s": 74,
        "d": 3,
-       "cap": 445119671.606206,
+       "cap": 1254563908.105432,
        "sec": 3
       },
       {
        "s": 74,
        "d": 4,
-       "cap": 539157782.9273418,
+       "cap": 1519609081.2926352,
        "sec": 3
       },
       {
        "s": 74,
        "d": 5,
-       "cap": 539157782.9273418,
+       "cap": 1519609081.2926352,
        "sec": 3
       },
       {
        "s": 75,
        "d": 0,
-       "cap": 26693702138.31217,
+       "cap": 4001181912.2851477,
        "sec": 4
       },
       {
        "s": 75,
        "d": 1,
-       "cap": 11618435834.54069,
+       "cap": 1742288448.9368293,
        "sec": 4
       },
       {
        "s": 75,
        "d": 2,
-       "cap": 2873521962.4293303,
+       "cap": 430718977.87173474,
        "sec": 3
       },
       {
        "s": 75,
        "d": 3,
-       "cap": 2970929486.5794783,
+       "cap": 445319621.1894208,
        "sec": 3
       },
       {
        "s": 75,
        "d": 4,
-       "cap": 3598582263.141939,
+       "cap": 539399974.8160857,
        "sec": 3
       },
       {
        "s": 75,
        "d": 5,
-       "cap": 3598582263.141939,
+       "cap": 539399974.8160857,
        "sec": 3
       },
       {
        "s": 76,
        "d": 0,
-       "cap": 6417693667.676497,
+       "cap": 26691019265.3626,
        "sec": 4
       },
       {
        "s": 76,
        "d": 1,
-       "cap": 2793301644.608525,
+       "cap": 11622429466.055609,
        "sec": 4
       },
       {
        "s": 76,
        "d": 2,
-       "cap": 690851482.7452141,
+       "cap": 2873233156.691443,
        "sec": 3
       },
       {
        "s": 76,
        "d": 3,
-       "cap": 714270177.0755607,
+       "cap": 2970630890.816578,
        "sec": 3
       },
       {
        "s": 76,
        "d": 4,
-       "cap": 865170311.825441,
+       "cap": 3598220584.609656,
        "sec": 3
       },
       {
        "s": 76,
        "d": 5,
-       "cap": 865170311.825441,
+       "cap": 3598220584.609656,
        "sec": 3
       },
       {
        "s": 77,
        "d": 0,
-       "cap": 20512340085.047543,
+       "cap": 6419484867.623077,
        "sec": 4
       },
       {
        "s": 77,
        "d": 1,
-       "cap": 8927997542.624512,
+       "cap": 2795322626.7077503,
        "sec": 4
       },
       {
        "s": 77,
        "d": 2,
-       "cap": 2208111090.391096,
+       "cap": 691044301.7239729,
        "sec": 3
       },
       {
        "s": 77,
        "d": 3,
-       "cap": 2282962313.794185,
+       "cap": 714469532.2908874,
        "sec": 3
       },
       {
        "s": 77,
        "d": 4,
-       "cap": 2765271854.129365,
+       "cap": 865411783.7772933,
        "sec": 3
       },
       {
        "s": 77,
        "d": 5,
-       "cap": 2765271854.129365,
+       "cap": 865411783.7772933,
        "sec": 3
       },
       {
        "s": 78,
        "d": 0,
-       "cap": 15118994136.14853,
+       "cap": 20510278475.081963,
        "sec": 4
       },
       {
        "s": 78,
        "d": 1,
-       "cap": 6580543318.550173,
+       "cap": 8931066383.633675,
        "sec": 4
       },
       {
        "s": 78,
        "d": 2,
-       "cap": 1627528526.2027743,
+       "cap": 2207889162.331685,
        "sec": 3
       },
       {
        "s": 78,
        "d": 3,
-       "cap": 1682698984.7181234,
+       "cap": 2282732862.749709,
        "sec": 3
       },
       {
        "s": 78,
        "d": 4,
-       "cap": 2038194022.4321089,
+       "cap": 2764993928.159516,
        "sec": 3
       },
       {
        "s": 78,
        "d": 5,
-       "cap": 2038194022.4321089,
+       "cap": 2764993928.159516,
        "sec": 3
       },
       {
        "s": 79,
        "d": 0,
-       "cap": 20512340085.047543,
+       "cap": 15124918922.581594,
        "sec": 4
       },
       {
        "s": 79,
        "d": 1,
-       "cap": 8927997542.624512,
+       "cap": 6586046850.059336,
        "sec": 4
       },
       {
        "s": 79,
        "d": 2,
-       "cap": 2208111090.391096,
+       "cap": 1628166317.238649,
        "sec": 3
       },
       {
        "s": 79,
        "d": 3,
-       "cap": 2282962313.794185,
+       "cap": 1683358395.789112,
        "sec": 3
       },
       {
        "s": 79,
        "d": 4,
-       "cap": 2765271854.129365,
+       "cap": 2038992743.8406444,
        "sec": 3
       },
       {
        "s": 79,
        "d": 5,
-       "cap": 2765271854.129365,
+       "cap": 2038992743.8406444,
        "sec": 3
       },
       {
        "s": 80,
        "d": 0,
-       "cap": 12684369804.380537,
+       "cap": 20510278475.081963,
        "sec": 4
       },
       {
        "s": 80,
        "d": 1,
-       "cap": 5520872897.666153,
+       "cap": 8931066383.633675,
        "sec": 4
       },
       {
        "s": 80,
        "d": 2,
-       "cap": 1365446239.851073,
+       "cap": 2207889162.331685,
        "sec": 3
       },
       {
        "s": 80,
        "d": 3,
-       "cap": 1411732553.066364,
+       "cap": 2282732862.749709,
        "sec": 3
       },
       {
        "s": 80,
        "d": 4,
-       "cap": 1709981926.0987358,
+       "cap": 2764993928.159516,
        "sec": 3
       },
       {
        "s": 80,
        "d": 5,
-       "cap": 1709981926.0987358,
+       "cap": 2764993928.159516,
        "sec": 3
       },
       {
        "s": 81,
        "d": 0,
-       "cap": 50928001000.53745,
-       "sec": 3
-      },
-      {
-       "s": 81,
-       "d": 1,
-       "cap": 22166416210.84566,
+       "cap": 12689200095.768843,
        "sec": 4
       },
       {
        "s": 81,
+       "d": 1,
+       "cap": 5525429045.159244,
+       "sec": 4
+      },
+      {
+       "s": 81,
        "d": 2,
-       "cap": 5482294236.273382,
-       "sec": 2
+       "cap": 1365966210.753472,
+       "sec": 3
       },
       {
        "s": 81,
        "d": 3,
-       "cap": 5668134718.858923,
-       "sec": 2
+       "cap": 1412270150.1010478,
+       "sec": 3
       },
       {
        "s": 81,
        "d": 4,
-       "cap": 6865611976.495852,
-       "sec": 2
+       "cap": 1710633098.4548852,
+       "sec": 3
       },
       {
        "s": 81,
        "d": 5,
-       "cap": 6865611976.495852,
-       "sec": 2
+       "cap": 1710633098.4548852,
+       "sec": 3
       },
       {
        "s": 82,
        "d": 0,
-       "cap": 25001225771.795704,
+       "cap": 50922882439.02987,
        "sec": 3
       },
       {
        "s": 82,
        "d": 1,
-       "cap": 10881785370.54883,
+       "cap": 22174035523.77325,
        "sec": 4
       },
       {
        "s": 82,
        "d": 2,
-       "cap": 2691330373.384156,
+       "cap": 5481743233.687384,
        "sec": 2
       },
       {
        "s": 82,
        "d": 3,
-       "cap": 2782561911.4649754,
+       "cap": 5667565038.219162,
        "sec": 2
       },
       {
        "s": 82,
        "d": 4,
-       "cap": 3370419252.939182,
+       "cap": 6864921942.3987255,
        "sec": 2
       },
       {
        "s": 82,
        "d": 5,
-       "cap": 3370419252.939182,
+       "cap": 6864921942.3987255,
        "sec": 2
       },
       {
        "s": 83,
        "d": 0,
-       "cap": 50928001000.53745,
+       "cap": 25010098344.78418,
        "sec": 3
       },
       {
        "s": 83,
        "d": 1,
-       "cap": 22166416210.84566,
+       "cap": 10890483464.173521,
        "sec": 4
       },
       {
        "s": 83,
        "d": 2,
-       "cap": 5482294236.273382,
+       "cap": 2692285487.5610332,
        "sec": 2
       },
       {
        "s": 83,
        "d": 3,
-       "cap": 5668134718.858923,
+       "cap": 2783549402.3936114,
        "sec": 2
       },
       {
        "s": 83,
        "d": 4,
-       "cap": 6865611976.495852,
+       "cap": 3371615365.9256577,
        "sec": 2
       },
       {
        "s": 83,
        "d": 5,
-       "cap": 6865611976.495852,
+       "cap": 3371615365.9256577,
        "sec": 2
       },
       {
        "s": 84,
        "d": 0,
-       "cap": 28364417837.85079,
+       "cap": 50922882439.02987,
        "sec": 3
       },
       {
        "s": 84,
        "d": 1,
-       "cap": 12345614966.61729,
+       "cap": 22174035523.77325,
        "sec": 4
       },
       {
        "s": 84,
        "d": 2,
-       "cap": 3053371060.5695724,
+       "cap": 5481743233.687384,
        "sec": 2
       },
       {
        "s": 84,
        "d": 3,
-       "cap": 3156875164.3176947,
+       "cap": 5667565038.219162,
        "sec": 2
       },
       {
        "s": 84,
        "d": 4,
-       "cap": 3823811714.3420935,
+       "cap": 6864921942.3987255,
        "sec": 2
       },
       {
        "s": 84,
        "d": 5,
-       "cap": 3823811714.3420935,
+       "cap": 6864921942.3987255,
        "sec": 2
       },
       {
        "s": 85,
        "d": 0,
-       "cap": 32212255772.23878,
+       "cap": 28374884533.589462,
        "sec": 3
       },
       {
        "s": 85,
        "d": 1,
-       "cap": 14020386712.805107,
-       "sec": 3
+       "cap": 12355657564.830563,
+       "sec": 4
       },
       {
        "s": 85,
        "d": 2,
-       "cap": 3467582875.590287,
+       "cap": 3054497778.771615,
        "sec": 2
       },
       {
        "s": 85,
        "d": 3,
-       "cap": 3585128057.8136873,
+       "cap": 3158040076.3570943,
        "sec": 2
       },
       {
        "s": 85,
        "d": 4,
-       "cap": 4342539362.923284,
+       "cap": 3825222731.271994,
        "sec": 2
       },
       {
        "s": 85,
        "d": 5,
-       "cap": 4342539362.923284,
+       "cap": 3825222731.271994,
        "sec": 2
       },
       {
        "s": 86,
        "d": 0,
-       "cap": 468914247072.86975,
+       "cap": 32212142763.40291,
        "sec": 3
       },
       {
        "s": 86,
        "d": 1,
-       "cap": 204094960799.71518,
-       "sec": 4
+       "cap": 14026566520.223068,
+       "sec": 3
       },
       {
        "s": 86,
        "d": 2,
-       "cap": 50477651263.1418,
+       "cap": 3467570710.422258,
        "sec": 2
       },
       {
        "s": 86,
        "d": 3,
-       "cap": 52188758085.62121,
+       "cap": 3585115480.2670813,
        "sec": 2
       },
       {
        "s": 86,
        "d": 4,
-       "cap": 63214404795.09602,
+       "cap": 4342524128.18401,
        "sec": 2
       },
       {
        "s": 86,
        "d": 5,
-       "cap": 63214404795.09602,
+       "cap": 4342524128.18401,
        "sec": 2
       },
       {
        "s": 87,
        "d": 0,
-       "cap": 1912777473226.7654,
+       "cap": 468912602001.70294,
        "sec": 3
       },
       {
        "s": 87,
        "d": 1,
-       "cap": 832536537018.736,
+       "cap": 204184920340.6718,
        "sec": 4
       },
       {
        "s": 87,
        "d": 2,
-       "cap": 205906548671.2112,
+       "cap": 50477474174.62471,
        "sec": 2
       },
       {
        "s": 87,
        "d": 3,
-       "cap": 212886431677.01508,
+       "cap": 52188574994.10353,
        "sec": 2
       },
       {
        "s": 87,
        "d": 4,
-       "cap": 257861837703.36023,
-       "sec": 3
+       "cap": 63214183022.7884,
+       "sec": 2
       },
       {
        "s": 87,
        "d": 5,
-       "cap": 257861837703.36023,
-       "sec": 3
+       "cap": 63214183022.7884,
+       "sec": 2
       },
       {
        "s": 88,
        "d": 0,
-       "cap": 327976121391.0643,
-       "sec": 4
+       "cap": 1912770762713.9387,
+       "sec": 3
       },
       {
        "s": 88,
        "d": 1,
-       "cap": 142751631148.7751,
+       "cap": 832903496616.3977,
        "sec": 4
       },
       {
        "s": 88,
        "d": 2,
-       "cap": 35305952808.1331,
-       "sec": 3
+       "cap": 205905826298.35016,
+       "sec": 2
       },
       {
        "s": 88,
        "d": 3,
-       "cap": 36502764767.73085,
-       "sec": 3
+       "cap": 212885684816.93835,
+       "sec": 2
       },
       {
        "s": 88,
        "d": 4,
-       "cap": 44214513485.48679,
+       "cap": 257860933058.05066,
        "sec": 3
       },
       {
        "s": 88,
        "d": 5,
-       "cap": 44214513485.48679,
+       "cap": 257860933058.05066,
        "sec": 3
       },
       {
        "s": 89,
        "d": 0,
-       "cap": 1478951275817.3386,
+       "cap": 327974970766.9063,
        "sec": 4
       },
       {
        "s": 89,
        "d": 1,
-       "cap": 643713652436.1589,
+       "cap": 142814552208.4555,
        "sec": 4
       },
       {
        "s": 89,
        "d": 2,
-       "cap": 159206053562.89154,
+       "cap": 35305828945.81639,
        "sec": 3
       },
       {
        "s": 89,
        "d": 3,
-       "cap": 164602868937.90485,
+       "cap": 36502636706.69154,
        "sec": 3
       },
       {
        "s": 89,
        "d": 4,
-       "cap": 199377658506.52933,
+       "cap": 44214358369.65967,
        "sec": 3
       },
       {
        "s": 89,
        "d": 5,
-       "cap": 199377658506.52933,
+       "cap": 44214358369.65967,
        "sec": 3
       },
       {
        "s": 90,
        "d": 0,
-       "cap": 613128296840.9856,
+       "cap": 1478946087277.822,
        "sec": 4
       },
       {
        "s": 90,
        "d": 1,
-       "cap": 266864136652.0706,
+       "cap": 643997384011.1758,
        "sec": 4
       },
       {
        "s": 90,
        "d": 2,
-       "cap": 66001996187.36219,
+       "cap": 159205495027.31726,
        "sec": 3
       },
       {
        "s": 90,
        "d": 3,
-       "cap": 68239351990.32365,
+       "cap": 164602291468.9213,
        "sec": 3
       },
       {
        "s": 90,
        "d": 4,
-       "cap": 82655923955.77339,
+       "cap": 199376959038.6856,
        "sec": 3
       },
       {
        "s": 90,
        "d": 5,
-       "cap": 82655923955.77339,
+       "cap": 199376959038.6856,
        "sec": 3
       },
       {
        "s": 91,
        "d": 0,
-       "cap": 653161770032.9951,
-       "sec": 3
+       "cap": 613126145830.0303,
+       "sec": 4
       },
       {
        "s": 91,
        "d": 1,
-       "cap": 284288708826.6283,
-       "sec": 3
+       "cap": 266981763148.7609,
+       "sec": 4
       },
       {
        "s": 91,
        "d": 2,
-       "cap": 70311516981.94908,
-       "sec": 2
+       "cap": 66001764635.47068,
+       "sec": 3
       },
       {
        "s": 91,
        "d": 3,
-       "cap": 72694958235.57451,
-       "sec": 2
+       "cap": 68239112589.21547,
+       "sec": 3
       },
       {
        "s": 91,
        "d": 4,
-       "cap": 88052842892.46767,
-       "sec": 2
+       "cap": 82655633977.64178,
+       "sec": 3
       },
       {
        "s": 91,
        "d": 5,
-       "cap": 88052842892.46767,
-       "sec": 2
+       "cap": 82655633977.64178,
+       "sec": 3
       },
       {
        "s": 92,
        "d": 0,
-       "cap": 726002825112.4716,
-       "sec": 4
+       "cap": 653159478574.3718,
+       "sec": 3
       },
       {
        "s": 92,
        "d": 1,
-       "cap": 315992783449.77655,
-       "sec": 4
+       "cap": 284414015603.655,
+       "sec": 3
       },
       {
        "s": 92,
        "d": 2,
-       "cap": 78152706280.19136,
-       "sec": 3
+       "cap": 70311270311.15587,
+       "sec": 2
       },
       {
        "s": 92,
        "d": 3,
-       "cap": 80801950560.87584,
-       "sec": 3
+       "cap": 72694703203.0595,
+       "sec": 2
       },
       {
        "s": 92,
        "d": 4,
-       "cap": 97872557201.08485,
-       "sec": 3
+       "cap": 88052533980.56343,
+       "sec": 2
       },
       {
        "s": 92,
        "d": 5,
-       "cap": 97872557201.08485,
-       "sec": 3
+       "cap": 88052533980.56343,
+       "sec": 2
       },
       {
        "s": 93,
        "d": 0,
-       "cap": 653161770032.9951,
-       "sec": 3
+       "cap": 726000278108.7881,
+       "sec": 4
       },
       {
        "s": 93,
        "d": 1,
-       "cap": 284288708826.6283,
-       "sec": 3
+       "cap": 316132064525.76874,
+       "sec": 4
       },
       {
        "s": 93,
        "d": 2,
-       "cap": 70311516981.94908,
-       "sec": 2
+       "cap": 78152432100.49965,
+       "sec": 3
       },
       {
        "s": 93,
        "d": 3,
-       "cap": 72694958235.57451,
-       "sec": 2
+       "cap": 80801667086.95729,
+       "sec": 3
       },
       {
        "s": 93,
        "d": 4,
-       "cap": 88052842892.46767,
-       "sec": 2
+       "cap": 97872213839.1101,
+       "sec": 3
       },
       {
        "s": 93,
        "d": 5,
-       "cap": 88052842892.46767,
-       "sec": 2
+       "cap": 97872213839.1101,
+       "sec": 3
       },
       {
        "s": 94,
        "d": 0,
-       "cap": 726002825112.4716,
-       "sec": 4
+       "cap": 653159478574.3718,
+       "sec": 3
       },
       {
        "s": 94,
        "d": 1,
-       "cap": 315992783449.77655,
-       "sec": 4
+       "cap": 284414015603.655,
+       "sec": 3
       },
       {
        "s": 94,
        "d": 2,
-       "cap": 78152706280.19136,
-       "sec": 3
+       "cap": 70311270311.15587,
+       "sec": 2
       },
       {
        "s": 94,
        "d": 3,
-       "cap": 80801950560.87584,
-       "sec": 3
+       "cap": 72694703203.0595,
+       "sec": 2
       },
       {
        "s": 94,
        "d": 4,
-       "cap": 97872557201.08485,
-       "sec": 3
+       "cap": 88052533980.56343,
+       "sec": 2
       },
       {
        "s": 94,
        "d": 5,
-       "cap": 97872557201.08485,
-       "sec": 3
+       "cap": 88052533980.56343,
+       "sec": 2
       },
       {
        "s": 95,
        "d": 0,
-       "cap": 6472255635712.682,
-       "sec": 3
+       "cap": 726000278108.7881,
+       "sec": 4
       },
       {
        "s": 95,
        "d": 1,
-       "cap": 2817049745241.0264,
-       "sec": 3
+       "cap": 316132064525.76874,
+       "sec": 4
       },
       {
        "s": 95,
        "d": 2,
-       "cap": 696724966035.5035,
-       "sec": 2
+       "cap": 78152432100.49965,
+       "sec": 3
       },
       {
        "s": 95,
        "d": 3,
-       "cap": 720342761494.3345,
-       "sec": 2
+       "cap": 80801667086.95729,
+       "sec": 3
       },
       {
        "s": 95,
        "d": 4,
-       "cap": 872525819480.3842,
-       "sec": 2
+       "cap": 97872213839.1101,
+       "sec": 3
       },
       {
        "s": 95,
        "d": 5,
-       "cap": 872525819480.3842,
-       "sec": 2
+       "cap": 97872213839.1101,
+       "sec": 3
       },
       {
        "s": 96,
        "d": 0,
-       "cap": 9496180843389.584,
+       "cap": 6472239696159.128,
        "sec": 3
       },
       {
        "s": 96,
        "d": 1,
-       "cap": 4133213416050.0723,
-       "sec": 4
+       "cap": 2818294371157.0073,
+       "sec": 3
       },
       {
        "s": 96,
        "d": 2,
-       "cap": 1022244275870.4591,
+       "cap": 696723250175.449,
        "sec": 2
       },
       {
        "s": 96,
        "d": 3,
-       "cap": 1056896624205.0513,
+       "cap": 720340987469.5322,
        "sec": 2
       },
       {
        "s": 96,
        "d": 4,
-       "cap": 1280181661335.1462,
+       "cap": 872523670666.6151,
        "sec": 2
       },
       {
        "s": 96,
        "d": 5,
-       "cap": 1280181661335.1462,
+       "cap": 872523670666.6151,
        "sec": 2
       },
       {
        "s": 97,
        "d": 0,
-       "cap": 6458294718043.254,
+       "cap": 9496157456661.432,
        "sec": 3
       },
       {
        "s": 97,
        "d": 1,
-       "cap": 2810973254790.467,
-       "sec": 3
+       "cap": 4135039547996.2993,
+       "sec": 4
       },
       {
        "s": 97,
        "d": 2,
-       "cap": 695222102051.6732,
+       "cap": 1022241758337.4232,
        "sec": 2
       },
       {
        "s": 97,
        "d": 3,
-       "cap": 718788952968.6793,
+       "cap": 1056894021331.9126,
        "sec": 2
       },
       {
        "s": 97,
        "d": 4,
-       "cap": 870643745932.0216,
+       "cap": 1280178508566.5754,
        "sec": 2
       },
       {
        "s": 97,
        "d": 5,
-       "cap": 870643745932.0216,
+       "cap": 1280178508566.5754,
        "sec": 2
       },
       {
        "s": 98,
        "d": 0,
-       "cap": 9475697196514.295,
+       "cap": 6458292689577.62,
        "sec": 3
       },
       {
        "s": 98,
        "d": 1,
-       "cap": 4124297907229.1226,
-       "sec": 4
+       "cap": 2812221238518.474,
+       "sec": 3
       },
       {
        "s": 98,
        "d": 2,
-       "cap": 1020039253544.9004,
+       "cap": 695221883691.5327,
        "sec": 2
       },
       {
        "s": 98,
        "d": 3,
-       "cap": 1054616855359.9823,
+       "cap": 718788727206.5001,
        "sec": 2
       },
       {
        "s": 98,
        "d": 4,
-       "cap": 1277420257617.2227,
+       "cap": 870643472474.2445,
        "sec": 2
       },
       {
        "s": 98,
        "d": 5,
-       "cap": 1277420257617.2227,
+       "cap": 870643472474.2445,
+       "sec": 2
+      },
+      {
+       "s": 99,
+       "d": 0,
+       "cap": 9475694220322.133,
+       "sec": 3
+      },
+      {
+       "s": 99,
+       "d": 1,
+       "cap": 4126128965802.485,
+       "sec": 4
+      },
+      {
+       "s": 99,
+       "d": 2,
+       "cap": 1020038933163.9543,
+       "sec": 2
+      },
+      {
+       "s": 99,
+       "d": 3,
+       "cap": 1054616524118.665,
+       "sec": 2
+      },
+      {
+       "s": 99,
+       "d": 4,
+       "cap": 1277419856396.28,
+       "sec": 2
+      },
+      {
+       "s": 99,
+       "d": 5,
+       "cap": 1277419856396.28,
        "sec": 2
       }
      ]
@@ -41973,7 +42677,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 126.91134357722896,
+    "mglt": 126.91123125963846,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -42037,15 +42741,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "yr9dim",
-   "build": 174482,
+   "signature": "18cu4ta",
+   "build": 163445,
    "crew": 1000,
-   "total": 175482,
+   "total": 164445,
    "by": {
     "hull": 20,
-    "armor": 12,
-    "power": 16745,
-    "drive": 73100,
+    "armor": 13,
+    "power": 16747,
+    "drive": 62060,
     "defense": 13502,
     "command": 20502,
     "weapons": 33600,
@@ -42065,6 +42769,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
+    "navDemand": 1.0742382541291668,
     "navReady": true,
     "targetDemand": 6,
     "targetCapacity": 7.44775,
@@ -42225,10 +42930,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "核融合炉",
-      "w": 0.4832076481443296,
+      "w": 0.4751578018154535,
       "hits": 1,
-      "crew": 0.00006717856073790305,
-      "size": 0.3358928036895153,
+      "crew": 0.00006550686150084677,
+      "size": 0.32753430750423385,
       "at": 0.189,
       "part": 30,
       "y": -0.08,
@@ -42242,16 +42947,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "右舷上機関 4L4 核融合推進機関",
-      "w": 1.1302838999798248,
+      "w": 0.48646218421142823,
       "hits": 1,
-      "crew": 0.0004806636759992384,
-      "size": 1.201659189998096,
-      "at": 0.159,
+      "crew": 0.00013571680263507906,
+      "size": 0.33929200658769765,
+      "at": 0.045,
       "part": 31,
       "y": 0.54,
       "z": 0.24,
-      "r": 0.04,
-      "share": 0.24330027746994093,
+      "r": 0.026,
+      "share": 0.08360271987515329,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -42259,16 +42964,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "右舷上機関 4L4 核融合推進機関",
-      "w": 1.1302838999798248,
+      "w": 0.48646218421142823,
       "hits": 1,
-      "crew": 0.0004806636759992384,
-      "size": 1.201659189998096,
-      "at": 0.159,
+      "crew": 0.00013571680263507906,
+      "size": 0.33929200658769765,
+      "at": 0.045,
       "part": 32,
       "y": 0.54,
       "z": -0.24,
-      "r": 0.04,
-      "share": 0.24330027746994093,
+      "r": 0.026,
+      "share": 0.08360271987515329,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -42276,16 +42981,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "右舷下機関 4L4 核融合推進機関",
-      "w": 1.1302838999798248,
+      "w": 0.48646218421142823,
       "hits": 1,
-      "crew": 0.0004806636759992384,
-      "size": 1.201659189998096,
-      "at": 0.159,
+      "crew": 0.00013571680263507906,
+      "size": 0.33929200658769765,
+      "at": 0.045,
       "part": 33,
       "y": -0.54,
       "z": 0.24,
-      "r": 0.04,
-      "share": 0.24330027746994093,
+      "r": 0.026,
+      "share": 0.08360271987515329,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -42293,16 +42998,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "右舷下機関 4L4 核融合推進機関",
-      "w": 1.1302838999798248,
+      "w": 0.48646218421142823,
       "hits": 1,
-      "crew": 0.0004806636759992384,
-      "size": 1.201659189998096,
-      "at": 0.159,
+      "crew": 0.00013571680263507906,
+      "size": 0.33929200658769765,
+      "at": 0.045,
       "part": 34,
       "y": -0.54,
       "z": -0.24,
-      "r": 0.04,
-      "share": 0.24330027746994093,
+      "r": 0.026,
+      "share": 0.08360271987515329,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -42319,7 +43024,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.25,
       "z": 0,
       "r": 0.033,
-      "share": 0.5627014247494188,
+      "share": 0.560064142446063,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -42336,7 +43041,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.5,
       "z": 0,
       "r": 0.018,
-      "share": 0.08719546871117025,
+      "share": 0.08678679893275767,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -42370,7 +43075,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.11,
       "z": 0,
       "r": 0.017,
-      "share": 0.08241398628148133,
+      "share": 0.08202772646764499,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -42434,13 +43139,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.050653,
       "at": 0.544,
-      "part": 64,
+      "part": 68,
       "y": 0.09,
       "z": 0,
       "r": 0.014,
-      "share": 0.04089841799033263,
+      "share": 0.04070673432070413,
       "domain": "main",
-      "port": "p64",
+      "port": "p68",
       "powerConnected": true
      },
      {
@@ -42451,13 +43156,30 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.024388999999999997,
       "at": 0.473,
-      "part": 65,
+      "part": 69,
       "y": -0.16,
       "z": -0.07,
       "r": 0.011,
-      "share": 0.019692249548224634,
+      "share": 0.01959995544879184,
       "domain": "main",
-      "port": "p65",
+      "port": "p69",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0.0000011664,
+      "size": 0.0058319999999999995,
+      "at": 0.525,
+      "part": 70,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.007,
+      "share": 0.004686823575273853,
+      "domain": "main",
+      "port": "p70",
       "powerConnected": true
      },
      {
@@ -42467,14 +43189,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.521,
-      "part": 66,
-      "y": 0.09,
+      "at": 0.544,
+      "part": 71,
+      "y": -0.08,
       "z": 0,
       "r": 0.008,
-      "share": 0.008597444470437325,
+      "share": 0.008557149765006171,
       "domain": "main",
-      "port": "p66",
+      "port": "p71",
       "powerConnected": true
      },
      {
@@ -42485,13 +43207,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.029791,
       "at": 0.544,
-      "part": 67,
-      "y": -0.14,
-      "z": 0,
+      "part": 72,
+      "y": 0.09,
+      "z": -0.07,
       "r": 0.012,
-      "share": 0.024053950809428848,
+      "share": 0.023941214185696738,
       "domain": "main",
-      "port": "p67",
+      "port": "p72",
       "powerConnected": true
      },
      {
@@ -42502,13 +43224,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.544,
-      "part": 68,
+      "part": 73,
       "y": 0.09,
-      "z": -0.05,
+      "z": 0.05,
       "r": 0.007,
-      "share": 0.006459387280568991,
+      "share": 0.006429113271980596,
       "domain": "main",
-      "port": "p68",
+      "port": "p73",
       "powerConnected": true
      },
      {
@@ -42519,13 +43241,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.544,
-      "part": 69,
-      "y": 0.09,
-      "z": 0.05,
+      "part": 74,
+      "y": 0.24,
+      "z": 0,
       "r": 0.007,
-      "share": 0.006459387280568991,
+      "share": 0.006429113271980596,
       "domain": "main",
-      "port": "p69",
+      "port": "p74",
       "powerConnected": true
      },
      {
@@ -42535,14 +43257,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.008000000000000002,
-      "at": 0.544,
-      "part": 70,
-      "y": 0.24,
+      "at": 0.523,
+      "part": 75,
+      "y": 0.02,
       "z": 0,
       "r": 0.007,
-      "share": 0.006459387280568991,
+      "share": 0.006429113271980596,
       "domain": "main",
-      "port": "p70",
+      "port": "p75",
       "powerConnected": true
      },
      {
@@ -42553,13 +43275,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.523,
-      "part": 71,
-      "y": 0.02,
-      "z": 0,
+      "part": 76,
+      "y": 0.09,
+      "z": -0.02,
       "r": 0.007,
-      "share": 0.006459387280568991,
+      "share": 0.006429113271980596,
       "domain": "main",
-      "port": "p71",
+      "port": "p76",
       "powerConnected": true
      },
      {
@@ -42570,13 +43292,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.526,
-      "part": 72,
+      "part": 77,
       "y": 0.35,
       "z": 0,
       "r": 0.013,
-      "share": 0.03461827870679942,
+      "share": 0.034456028942020996,
       "domain": "main",
-      "port": "p72",
+      "port": "p77",
       "powerConnected": true
      },
      {
@@ -42587,13 +43309,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.526,
-      "part": 73,
+      "part": 78,
       "y": -0.04,
       "z": -0.08,
       "r": 0.013,
-      "share": 0.03461827870679942,
+      "share": 0.034456028942020996,
       "domain": "main",
-      "port": "p73",
+      "port": "p78",
       "powerConnected": true
      },
      {
@@ -42604,13 +43326,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.544,
-      "part": 74,
+      "part": 79,
       "y": 0.09,
-      "z": -0.08,
+      "z": 0.08,
       "r": 0.012,
-      "share": 0.026457650301210587,
+      "share": 0.02633364796203252,
       "domain": "main",
-      "port": "p74",
+      "port": "p79",
       "powerConnected": true
      },
      {
@@ -42621,13 +43343,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.544,
-      "part": 75,
-      "y": 0.09,
-      "z": 0.08,
+      "part": 80,
+      "y": 0.33,
+      "z": 0,
       "r": 0.012,
-      "share": 0.026457650301210587,
+      "share": 0.02633364796203252,
       "domain": "main",
-      "port": "p75",
+      "port": "p80",
       "powerConnected": true
      },
      {
@@ -42637,30 +43359,30 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.544,
-      "part": 76,
-      "y": 0.33,
+      "at": 0.527,
+      "part": 81,
+      "y": -0.15,
       "z": 0,
       "r": 0.012,
-      "share": 0.026457650301210587,
+      "share": 0.02633364796203252,
       "domain": "main",
-      "port": "p76",
+      "port": "p81",
       "powerConnected": true
      },
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.1030695428454951,
+      "w": 0.7697203401305666,
       "hits": 1,
-      "crew": 0.000006617981066361463,
-      "size": 0.033089905331807314,
-      "at": 0.329,
+      "crew": 0.0001350608380890095,
+      "size": 0.6753041904450475,
+      "at": 0.202,
       "part": -31,
       "machineryOwner": 31,
       "y": 0.54,
       "z": 0.24,
-      "r": 0.012,
-      "share": 0.006699722530059088,
+      "r": 0.033,
+      "share": 0.16639728012484675,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -42668,17 +43390,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.1030695428454951,
+      "w": 0.7697203401305666,
       "hits": 1,
-      "crew": 0.000006617981066361463,
-      "size": 0.033089905331807314,
-      "at": 0.329,
+      "crew": 0.0001350608380890095,
+      "size": 0.6753041904450475,
+      "at": 0.202,
       "part": -32,
       "machineryOwner": 32,
       "y": 0.54,
       "z": -0.24,
-      "r": 0.012,
-      "share": 0.006699722530059088,
+      "r": 0.033,
+      "share": 0.16639728012484675,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -42686,17 +43408,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.1030695428454951,
+      "w": 0.7697203401305666,
       "hits": 1,
-      "crew": 0.000006617981066361463,
-      "size": 0.033089905331807314,
-      "at": 0.329,
+      "crew": 0.0001350608380890095,
+      "size": 0.6753041904450475,
+      "at": 0.202,
       "part": -33,
       "machineryOwner": 33,
       "y": -0.54,
       "z": 0.24,
-      "r": 0.012,
-      "share": 0.006699722530059088,
+      "r": 0.033,
+      "share": 0.16639728012484675,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -42704,17 +43426,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.1030695428454951,
+      "w": 0.7697203401305666,
       "hits": 1,
-      "crew": 0.000006617981066361463,
-      "size": 0.033089905331807314,
-      "at": 0.329,
+      "crew": 0.0001350608380890095,
+      "size": 0.6753041904450475,
+      "at": 0.202,
       "part": -34,
       "machineryOwner": 34,
       "y": -0.54,
       "z": -0.24,
-      "r": 0.012,
-      "share": 0.006699722530059088,
+      "r": 0.033,
+      "share": 0.16639728012484675,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -42794,43 +43516,43 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 1.1643101506640008,
+      "w": 1.1653434856949767,
       "hits": 1,
       "crew": 0,
-      "size": 21.6254989794333,
+      "size": 21.65429458393321,
       "at": 0.181,
       "y": -0.03,
       "z": 0,
       "r": 0.104,
-      "share": 0.5218902015288395,
+      "share": 0.5195164075993092,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.8971902263959644,
+      "w": 0.9065849951972211,
       "hits": 1,
       "crew": 0,
-      "size": 14.62816708595488,
+      "size": 14.858531921954171,
       "at": 0.322,
       "y": -0.01,
       "z": 0,
-      "r": 0.091,
-      "share": 0.35302293259207784,
+      "r": 0.092,
+      "share": 0.35647668393782384,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3504207777328366,
+      "w": 0.3494781521989606,
       "hits": 1,
       "crew": 0,
-      "size": 3.570654957988987,
+      "size": 3.5562571557390315,
       "at": 0.608,
       "y": 0.06,
       "z": 0,
       "r": 0.057,
-      "share": 0.08617095205003476,
+      "share": 0.08531951640759931,
       "domain": "main"
      },
      {
@@ -42839,18 +43561,18 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.20626905412286997,
       "hits": 1,
       "crew": 0,
-      "size": 1.6125538519950264,
+      "size": 1.6125538519950262,
       "at": 0.843,
       "y": 0.06,
       "z": 0,
       "r": 0.044,
-      "share": 0.03891591382904796,
+      "share": 0.0386873920552677,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 16.628963231181988,
+      "w": 16.704054406003703,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -42862,7 +43584,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.00025820074650450344,
+    "D": 0.00025152521272631763,
     "shieldBuffer": 0.04654769023882401,
     "wCap": 0,
     "fuel": {
@@ -42870,15 +43592,15 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.1583362697409256,
      "massKg": 39.5840674352314,
-     "capacityJ": 1.900035236891107e+24,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 3.0614963730206566e+22,
+     "specificEnergyJPerKg": 773416319085946900000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
     "crewNeed": 1,
     "crewMax": 1,
     "hp": 1,
-    "len": 13.382523538544774,
+    "len": 13.380712255835533,
     "width": 11.720273971557617,
     "height": 3.731052106612937,
     "foils": [
@@ -42916,23 +43638,23 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 1759071859654919000,
-     "fixed": 41037603291164350,
+     "P": 1715298384108379400,
+     "fixed": 41085286357270250,
      "cooling": 15590660747952108,
-     "De": 1759071859654919000,
-     "Ds": 1080311923374842400,
+     "De": 1715298384108379600,
+     "Ds": 1052381490046912900,
      "Dw": 2278933333333333.5,
      "domains": [
       {
        "id": "main",
-       "P": 1759071859654919000,
+       "P": 1715298384108379400,
        "reactors": [
         6
        ],
        "sources": [
         {
          "moduleIndex": 6,
-         "P": 1759071859654919000
+         "P": 1715298384108379400
         }
        ],
        "modules": [
@@ -42979,7 +43701,8 @@ const CRAFT_PRICE_CATALOG={
         40,
         41,
         42,
-        43
+        43,
+        44
        ],
        "protection": 1
       }
@@ -42989,7 +43712,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "hotel",
-       "cap": 41037603291164350,
+       "cap": 41085286357270250,
        "auto": true,
        "ok": true,
        "routeId": "p30>hotel",
@@ -43049,7 +43772,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p35",
-       "cap": 2159873857429702.8,
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p35",
@@ -43061,7 +43784,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p36",
-       "cap": 2159873857429702.8,
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p36",
@@ -43073,7 +43796,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p37",
-       "cap": 2159873857429702.8,
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p37",
@@ -43085,7 +43808,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p38",
-       "cap": 2159873857429702.8,
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p38",
@@ -43097,7 +43820,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p40",
-       "cap": 2159873857429702.8,
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p40",
@@ -43108,11 +43831,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p64",
-       "cap": 2159873857429702.8,
+       "to": "p68",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p64",
+       "routeId": "p30>p68",
        "model": "source-distance",
        "lengthM": 4.760105040857817,
        "efficiency": 0.9999524000825034
@@ -43120,11 +43843,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p65",
-       "cap": 2159873857429702.8,
+       "to": "p69",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p65",
+       "routeId": "p30>p69",
        "model": "source-distance",
        "lengthM": 3.824975294037858,
        "efficiency": 0.9999617509785721
@@ -43132,59 +43855,59 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p66",
-       "cap": 2159873857429702.8,
-       "auto": true,
-       "ok": true,
-       "routeId": "p30>p66",
-       "model": "source-distance",
-       "lengthM": 4.4528040603646595,
-       "efficiency": 0.9999554729507548
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p67",
-       "cap": 2159873857429702.8,
-       "auto": true,
-       "ok": true,
-       "routeId": "p30>p67",
-       "model": "source-distance",
-       "lengthM": 4.751618250659453,
-       "efficiency": 0.9999524849463693
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p68",
-       "cap": 2159873857429702.8,
-       "auto": true,
-       "ok": true,
-       "routeId": "p30>p68",
-       "model": "source-distance",
-       "lengthM": 4.768333042059877,
-       "efficiency": 0.9999523178064114
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p69",
-       "cap": 2159873857429702.8,
-       "auto": true,
-       "ok": true,
-       "routeId": "p30>p69",
-       "model": "source-distance",
-       "lengthM": 4.768333042059877,
-       "efficiency": 0.9999523178064114
-      },
-      {
-       "kind": "power",
-       "from": "p30",
        "to": "p70",
-       "cap": 2159873857429702.8,
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p70",
+       "model": "source-distance",
+       "lengthM": 4.50866987037197,
+       "efficiency": 0.9999549143176862
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p71",
+       "cap": 2054264317863512.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p71",
+       "model": "source-distance",
+       "lengthM": 4.750000421052613,
+       "efficiency": 0.9999525011238968
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p72",
+       "cap": 2054264317863512.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p72",
+       "model": "source-distance",
+       "lengthM": 4.779848951588324,
+       "efficiency": 0.9999522026528137
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p73",
+       "cap": 2054264317863512.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p73",
+       "model": "source-distance",
+       "lengthM": 4.768333042059877,
+       "efficiency": 0.9999523178064114
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p74",
+       "cap": 2054264317863512.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p74",
        "model": "source-distance",
        "lengthM": 4.786501854172837,
        "efficiency": 0.99995213612697
@@ -43192,11 +43915,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p71",
-       "cap": 2159873857429702.8,
+       "to": "p75",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p71",
+       "routeId": "p30>p75",
        "model": "source-distance",
        "lengthM": 4.473231494121448,
        "efficiency": 0.9999552686855339
@@ -43204,11 +43927,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p72",
-       "cap": 2159873857429702.8,
+       "to": "p76",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p72",
+       "routeId": "p30>p76",
+       "model": "source-distance",
+       "lengthM": 4.482923153479211,
+       "efficiency": 0.9999551717732802
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p77",
+       "cap": 2054264317863512.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p77",
        "model": "source-distance",
        "lengthM": 4.575480849047453,
        "efficiency": 0.9999542462382448
@@ -43216,11 +43951,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p73",
-       "cap": 2159873857429702.8,
+       "to": "p78",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p73",
+       "routeId": "p30>p78",
        "model": "source-distance",
        "lengthM": 4.532035966318008,
        "efficiency": 0.9999546806672888
@@ -43228,11 +43963,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p74",
-       "cap": 2159873857429702.8,
+       "to": "p79",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p74",
+       "routeId": "p30>p79",
        "model": "source-distance",
        "lengthM": 4.781140449725358,
        "efficiency": 0.9999521897384497
@@ -43240,26 +43975,26 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "p75",
-       "cap": 2159873857429702.8,
+       "to": "p80",
+       "cap": 2054264317863512.5,
        "auto": true,
        "ok": true,
-       "routeId": "p30>p75",
-       "model": "source-distance",
-       "lengthM": 4.781140449725358,
-       "efficiency": 0.9999521897384497
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p76",
-       "cap": 2159873857429702.8,
-       "auto": true,
-       "ok": true,
-       "routeId": "p30>p76",
+       "routeId": "p30>p80",
        "model": "source-distance",
        "lengthM": 4.8101002068564025,
        "efficiency": 0.9999519001547661
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p81",
+       "cap": 2054264317863512.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p81",
+       "model": "source-distance",
+       "lengthM": 4.528103355710866,
+       "efficiency": 0.9999547199916134
       },
       {
        "kind": "power",
@@ -43361,57 +44096,57 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p31",
-       "cap": 2462700603516886500,
+       "cap": 2401417737751731000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p31",
-       "groupCap": 2462700603516886500,
+       "groupCap": 2401417737751731000,
        "routeId": "p30>p31",
        "model": "source-distance",
-       "lengthM": 2.61542133424954,
-       "efficiency": 0.999973846128676
+       "lengthM": 1.8364173696759798,
+       "efficiency": 0.9999816359949236
       },
       {
        "kind": "power",
        "from": "p30",
        "to": "p32",
-       "cap": 2462700603516886500,
+       "cap": 2401417737751731000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p32",
-       "groupCap": 2462700603516886500,
+       "groupCap": 2401417737751731000,
        "routeId": "p30>p32",
        "model": "source-distance",
-       "lengthM": 2.61542133424954,
-       "efficiency": 0.999973846128676
+       "lengthM": 1.8364173696759798,
+       "efficiency": 0.9999816359949236
       },
       {
        "kind": "power",
        "from": "p30",
        "to": "p33",
-       "cap": 2462700603516886500,
+       "cap": 2401417737751731000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p33",
-       "groupCap": 2462700603516886500,
+       "groupCap": 2401417737751731000,
        "routeId": "p30>p33",
        "model": "source-distance",
-       "lengthM": 2.5044153582361486,
-       "efficiency": 0.9999749561600199
+       "lengthM": 1.6745436054546607,
+       "efficiency": 0.9999832547041495
       },
       {
        "kind": "power",
        "from": "p30",
        "to": "p34",
-       "cap": 2462700603516886500,
+       "cap": 2401417737751731000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p34",
-       "groupCap": 2462700603516886500,
+       "groupCap": 2401417737751731000,
        "routeId": "p30>p34",
        "model": "source-distance",
-       "lengthM": 2.5044153582361486,
-       "efficiency": 0.9999749561600199
+       "lengthM": 1.6745436054546607,
+       "efficiency": 0.9999832547041495
       }
      ],
      "trunks": [],
@@ -43419,7 +44154,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 41037603291164350,
+       "weight": 41085286357270250,
        "domain": "main"
       }
      ],
@@ -43463,51 +44198,51 @@ const CRAFT_PRICE_CATALOG={
      "cores": [
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 31,
        "machineryId": 31,
        "coreId": 31,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 30,
@@ -43522,62 +44257,62 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 31,
+       "machineryModuleIndex": 32,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000,
+       "pathCapacityW": 1715298384108379400,
        "transmissionRouteIds": [
         "p30>p31"
        ]
       },
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 32,
        "machineryId": 32,
        "coreId": 32,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p32",
        "heatNode": "p32",
        "reactorId": 30,
@@ -43592,62 +44327,62 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 33,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000,
+       "pathCapacityW": 1715298384108379400,
        "transmissionRouteIds": [
         "p30>p32"
        ]
       },
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 33,
        "machineryId": 33,
        "coreId": 33,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 30,
@@ -43662,62 +44397,62 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 34,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000,
+       "pathCapacityW": 1715298384108379400,
        "transmissionRouteIds": [
         "p30>p33"
        ]
       },
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 34,
        "machineryId": 34,
        "coreId": 34,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 30,
@@ -43732,11 +44467,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 35,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000,
+       "pathCapacityW": 1715298384108379400,
        "transmissionRouteIds": [
         "p30>p34"
        ]
@@ -43745,51 +44480,51 @@ const CRAFT_PRICE_CATALOG={
      "engines": [
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 31,
        "machineryId": 31,
        "coreId": 31,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 30,
@@ -43805,7 +44540,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 7,
        "coreModuleIndex": 7,
-       "machineryModuleIndex": 31,
+       "machineryModuleIndex": 32,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 277088472046619750000,
        "shaftCapacityW": 277088472046619750000,
@@ -43814,55 +44549,55 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000
+       "pathCapacityW": 1715298384108379400
       },
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 32,
        "machineryId": 32,
        "coreId": 32,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p32",
        "heatNode": "p32",
        "reactorId": 30,
@@ -43878,7 +44613,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 8,
        "coreModuleIndex": 8,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 33,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 277088472046619750000,
        "shaftCapacityW": 277088472046619750000,
@@ -43887,55 +44622,55 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000
+       "pathCapacityW": 1715298384108379400
       },
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 33,
        "machineryId": 33,
        "coreId": 33,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 30,
@@ -43951,7 +44686,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 9,
        "coreModuleIndex": 9,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 34,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 277088472046619750000,
        "shaftCapacityW": 277088472046619750000,
@@ -43960,55 +44695,55 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000
+       "pathCapacityW": 1715298384108379400
       },
       {
        "thermalModelVersion": 2,
-       "normalInputW": 11250567812814488,
-       "densityFactor": 39.08851288490795,
+       "normalInputW": 229603424751316160,
+       "densityFactor": 1.8676750858204991,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2198220285.369711,
-       "shaftWattsPerNewton": 2088309271.1012254,
-       "wattsPerNewton": 2198220285.369711,
-       "ratedShaftPowerW": 417779566668043200,
-       "ratedWasteHeatW": 21988398245686504,
+       "profileWattsPerNewton": 2193461226.4902616,
+       "shaftWattsPerNewton": 2083788165.1657484,
+       "wattsPerNewton": 2193461226.4902616,
+       "ratedShaftPowerW": 407383366225740160,
+       "ratedWasteHeatW": 21441229801354764,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 22053.567857237696,
+       "conversionMassKg": 21551.608684994873,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1759071859654919000,
-       "sourceInputLimitW": 1759071859654919000,
+       "availableInputW": 1715298384108379400,
+       "sourceInputLimitW": 1715298384108379400,
        "sourceIds": [
         "p30"
        ],
-       "allocationWeight": 0.03308990533180732,
+       "allocationWeight": 0.6753041904450475,
        "id": 34,
        "machineryId": 34,
        "coreId": 34,
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 439767964913729700,
+       "ratedInputW": 428824596027094900,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
-       "ratedThrustN": 200056367.34435225,
-       "effectiveMachineryVolumeM3": 0.03308990533180732,
-       "machineryVolumeM3": 0.03308990533180732,
+       "machineryGradeId": "dense",
+       "ratedThrustN": 195501334.0779465,
+       "effectiveMachineryVolumeM3": 0.6753041904450475,
+       "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
-       "machineryLengthM": 0.3,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
-       "machineryOffsetM": 2.125,
-       "maxInputW": 1759071859654919000,
-       "maxRatedInputW": 1759071859654919000,
-       "inputDensityWPerM3": 13290094380868700000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 400102499270282800,
-       "cost": 2769.826476961981,
+       "machineryLengthM": 3,
+       "machineryRadiusM": 0.3,
+       "machineryDiameterM": 0.6,
+       "machineryOffsetM": 0.6,
+       "maxInputW": 1715298384108379400,
+       "maxRatedInputW": 1715298384108379400,
+       "inputDensityWPerM3": 635009529178969700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 390995804124804030,
+       "cost": 13.419472800750334,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 30,
@@ -44024,7 +44759,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 10,
        "coreModuleIndex": 10,
-       "machineryModuleIndex": 34,
+       "machineryModuleIndex": 35,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 277088472046619750000,
        "shaftCapacityW": 277088472046619750000,
@@ -44033,22 +44768,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1759071859654919000
+       "pathCapacityW": 1715298384108379400
       }
      ],
-     "massKg": 22053.567857237696,
-     "ratedThrustN": 800204984.5208828,
-     "ratedAccelMps2": 36284.60436428956,
-     "structuralAccelerationLimitMps2": 284040.82382119336,
+     "massKg": 21551.608684994873,
+     "ratedThrustN": 781991608.4809343,
+     "ratedAccelMps2": 36284.605010733576,
+     "structuralAccelerationLimitMps2": 285280.51980626304,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 36284.60436428956,
+     "accelerationLimitMps2": 36284.605010733576,
      "conversionModelVersion": 1,
-     "conversionMassKg": 22053.567857237696,
+     "conversionMassKg": 21551.608684994873,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[1759071859654919000,[[\"main\",1759071859654919000,[[6,1759071859654919000]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.3358928036895153,1]]]"
+     "sourceBudgetKey": "[1715298384108379400,[[\"main\",1715298384108379400,[[6,1715298384108379400]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.32753430750423385,1]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1757.2710133398548,
+    "maxSpeed": 1757.2795799284029,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -44090,7 +44825,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         7,
-        31
+        32
        ],
        "pc": [],
        "sec": 0,
@@ -44105,7 +44840,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         8,
-        32
+        33
        ],
        "pc": [],
        "sec": 0,
@@ -44120,7 +44855,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         9,
-        33
+        34
        ],
        "pc": [],
        "sec": 0,
@@ -44135,7 +44870,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         10,
-        34
+        35
        ],
        "pc": [],
        "sec": 0,
@@ -44178,7 +44913,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>hotel",
        "n": "送電損失 p30>hotel",
        "g": "high",
-       "sh": 0.010139,
+       "sh": 0.0110893,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44191,7 +44926,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p2",
        "n": "送電損失 p30>p2",
        "g": "high",
-       "sh": 0.00027434,
+       "sh": 0.000299494,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44204,7 +44939,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p3",
        "n": "送電損失 p30>p3",
        "g": "high",
-       "sh": 0.000281032,
+       "sh": 0.000306798,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44217,7 +44952,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p16",
        "n": "送電損失 p30>p16",
        "g": "high",
-       "sh": 0.000276646,
+       "sh": 0.000302011,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44230,7 +44965,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p17",
        "n": "送電損失 p30>p17",
        "g": "high",
-       "sh": 0.000270059,
+       "sh": 0.00029482,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44302,58 +45037,6 @@ const CRAFT_PRICE_CATALOG={
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p40"
-      },
-      {
-       "k": "feed",
-       "id": "feed:p30>p64",
-       "n": "送電損失 p30>p64",
-       "g": "high",
-       "sh": 0,
-       "m": [],
-       "pc": [],
-       "sec": 3,
-       "sw": -1,
-       "gen": -1,
-       "routeId": "p30>p64"
-      },
-      {
-       "k": "feed",
-       "id": "feed:p30>p65",
-       "n": "送電損失 p30>p65",
-       "g": "high",
-       "sh": 0,
-       "m": [],
-       "pc": [],
-       "sec": 3,
-       "sw": -1,
-       "gen": -1,
-       "routeId": "p30>p65"
-      },
-      {
-       "k": "feed",
-       "id": "feed:p30>p66",
-       "n": "送電損失 p30>p66",
-       "g": "high",
-       "sh": 0,
-       "m": [],
-       "pc": [],
-       "sec": 3,
-       "sw": -1,
-       "gen": -1,
-       "routeId": "p30>p66"
-      },
-      {
-       "k": "feed",
-       "id": "feed:p30>p67",
-       "n": "送電損失 p30>p67",
-       "g": "high",
-       "sh": 0,
-       "m": [],
-       "pc": [],
-       "sec": 3,
-       "sw": -1,
-       "gen": -1,
-       "routeId": "p30>p67"
       },
       {
        "k": "feed",
@@ -44474,10 +45157,75 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p30>p77",
+       "n": "送電損失 p30>p77",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p77"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p78",
+       "n": "送電損失 p30>p78",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p78"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p79",
+       "n": "送電損失 p30>p79",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p79"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p80",
+       "n": "送電損失 p30>p80",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p80"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p81",
+       "n": "送電損失 p30>p81",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p81"
+      },
+      {
+       "k": "feed",
        "id": "feed:p30>p39",
        "n": "送電損失 p30>p39",
        "g": "high",
-       "sh": 0.786401,
+       "sh": 0.836307,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44490,7 +45238,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f42",
        "n": "送電損失 p30>f42",
        "g": "high",
-       "sh": 0.0000597425,
+       "sh": 0.0000652201,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44503,7 +45251,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f43",
        "n": "送電損失 p30>f43",
        "g": "high",
-       "sh": 0.0000597425,
+       "sh": 0.0000652201,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44516,7 +45264,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f44",
        "n": "送電損失 p30>f44",
        "g": "high",
-       "sh": 0.0000592992,
+       "sh": 0.0000647361,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44529,7 +45277,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f45",
        "n": "送電損失 p30>f45",
        "g": "high",
-       "sh": 0.0000592992,
+       "sh": 0.0000647361,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44542,7 +45290,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f46",
        "n": "送電損失 p30>f46",
        "g": "high",
-       "sh": 0.000720109,
+       "sh": 0.000786132,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -44555,7 +45303,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f47",
        "n": "送電損失 p30>f47",
        "g": "high",
-       "sh": 0.000720109,
+       "sh": 0.000786132,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -44568,7 +45316,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p41",
        "n": "送電損失 p30>p41",
        "g": "high",
-       "sh": 0.00849182,
+       "sh": 0.0092704,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -44581,10 +45329,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p31",
        "n": "送電損失 p30>p31",
        "g": "high",
-       "sh": 0.0490888,
+       "sh": 0.0366917,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 0,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p31"
@@ -44594,10 +45342,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p32",
        "n": "送電損失 p30>p32",
        "g": "high",
-       "sh": 0.0490888,
+       "sh": 0.0366917,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 0,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p32"
@@ -44607,10 +45355,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p33",
        "n": "送電損失 p30>p33",
        "g": "high",
-       "sh": 0.0470053,
+       "sh": 0.0334574,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 0,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p33"
@@ -44620,10 +45368,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p34",
        "n": "送電損失 p30>p34",
        "g": "high",
-       "sh": 0.0470053,
+       "sh": 0.0334574,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 0,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p34"
@@ -44647,8 +45395,8 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 97577204545454540,
-       "m": 35,
-       "sec": 1,
+       "m": 36,
+       "sec": 0,
        "src": -1,
        "fo": 0,
        "cs": 0.35,
@@ -44661,8 +45409,8 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 99957136363636370,
-       "m": 36,
-       "sec": 1,
+       "m": 37,
+       "sec": 0,
        "src": -1,
        "fo": 1,
        "cs": 0.35,
@@ -44675,8 +45423,8 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 99957136363636370,
-       "m": 37,
-       "sec": 1,
+       "m": 38,
+       "sec": 0,
        "src": -1,
        "fo": 2,
        "cs": 0.35,
@@ -44689,8 +45437,8 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 97577204545454540,
-       "m": 38,
-       "sec": 1,
+       "m": 39,
+       "sec": 0,
        "src": -1,
        "fo": 3,
        "cs": 0.35,
@@ -44702,7 +45450,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 835848742325170900000,
+       "cap": 847880681393599200000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -44712,181 +45460,181 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 78330677093292700,
+       "cap": 76381463955996670,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 9849620643953208,
+       "cap": 9604518588551470,
        "sec": 0
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 10089855293805724,
+       "cap": 9838775139491752,
        "sec": 0
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 10089855293805724,
+       "cap": 9838775139491752,
        "sec": 0
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 9849620643953208,
+       "cap": 9604518588551470,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 577658710150823400,
+       "cap": 563029034675928260,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 72637175724708900,
+       "cap": 70797580320723790,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 74408814157018880,
+       "cap": 72524350572448750,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 74408814157018880,
+       "cap": 72524350572448750,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 72637175724708900,
+       "cap": 70797580320723790,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 8392357705454198,
-       "sec": 4
+       "cap": 8183584618504835,
+       "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 8392357705454198,
-       "sec": 4
+       "cap": 8183584618504835,
+       "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 8392357705454198,
-       "sec": 4
+       "cap": 8183584618504835,
+       "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 8392357705454198,
-       "sec": 4
+       "cap": 8183584618504835,
+       "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 1081028250541435.5,
+       "cap": 1054135973917152.6,
        "sec": 0
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 1055289482671401.1,
+       "cap": 1029037498347696.6,
        "sec": 0
       },
       {
@@ -44922,67 +45670,67 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 0,
-       "cap": 61556404936746530,
+       "cap": 61627929535905380,
        "sec": 4
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 61556404936746530,
+       "cap": 61627929535905380,
        "sec": 3
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 61556404936746530,
+       "cap": 61627929535905380,
        "sec": 3
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 61556404936746530,
+       "cap": 61627929535905380,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 61556404936746530,
+       "cap": 61627929535905380,
        "sec": 3
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 835848742325170900000,
+       "cap": 847880681393599200000,
        "sec": -1
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 1827718291254.9883,
+       "cap": 1829841982823.585,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 229824795098.28613,
+       "cap": 230091836787.33636,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 235430277905.56143,
+       "cap": 235703832806.53973,
        "sec": 3
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 235430277905.56143,
+       "cap": 235703832806.53973,
        "sec": 3
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 229824795098.28613,
+       "cap": 230091836787.33636,
        "sec": 3
       },
       {
@@ -44995,25 +45743,25 @@ const CRAFT_PRICE_CATALOG={
        "s": 9,
        "d": 1,
        "cap": 3856263218.0595527,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 9,
        "d": 2,
        "cap": 3950318418.50003,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 9,
        "d": 3,
        "cap": 3950318418.50003,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 9,
        "d": 4,
        "cap": 3856263218.0595527,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 10,
@@ -45025,25 +45773,25 @@ const CRAFT_PRICE_CATALOG={
        "s": 10,
        "d": 1,
        "cap": 3950318418.50003,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 10,
        "d": 2,
        "cap": 4046667648.2195435,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 10,
        "d": 3,
        "cap": 4046667648.2195435,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 10,
        "d": 4,
        "cap": 3950318418.50003,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 11,
@@ -45055,25 +45803,25 @@ const CRAFT_PRICE_CATALOG={
        "s": 11,
        "d": 1,
        "cap": 3888670578.745216,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 11,
        "d": 2,
        "cap": 3983516202.6170506,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 11,
        "d": 3,
        "cap": 3983516202.6170506,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 11,
        "d": 4,
        "cap": 3888670578.745216,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 12,
@@ -45085,684 +45833,684 @@ const CRAFT_PRICE_CATALOG={
        "s": 12,
        "d": 1,
        "cap": 3796083184.013187,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 12,
        "d": 2,
        "cap": 3888670578.745216,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 12,
        "d": 3,
        "cap": 3888670578.745216,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 12,
        "d": 4,
        "cap": 3796083184.013187,
-       "sec": 1
+       "sec": 0
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 82622557475.62851,
+       "cap": 78582631614.78865,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 10389299288.182013,
+       "cap": 9881302438.983627,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 10642696831.796207,
+       "cap": 10122309815.544207,
        "sec": 3
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 10642696831.796207,
+       "cap": 10122309815.544207,
        "sec": 3
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 10389299288.182013,
+       "cap": 9881302438.983627,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 52373886658.47889,
+       "cap": 49813004671.65952,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 6585707341.978171,
+       "cap": 6263691536.420123,
        "sec": 2
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 6746334350.319102,
+       "cap": 6416464500.723054,
        "sec": 2
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 6746334350.319102,
+       "cap": 6416464500.723054,
        "sec": 2
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 6585707341.978171,
+       "cap": 6263691536.420123,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 33286763524.31549,
+       "cap": 31659168580.583447,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 4185614185.2188916,
+       "cap": 3980953720.7282853,
        "sec": 1
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 4287702336.0778894,
+       "cap": 4078050152.9411707,
        "sec": 1
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 4287702336.0778894,
+       "cap": 4078050152.9411707,
        "sec": 1
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 4185614185.2188916,
+       "cap": 3980953720.7282853,
        "sec": 1
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 81592020938.71367,
+       "cap": 77602484358.15298,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 10259715396.850965,
+       "cap": 9758054702.44773,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 10509952357.749771,
+       "cap": 9996056036.65377,
        "sec": 3
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 10509952357.749771,
+       "cap": 9996056036.65377,
        "sec": 3
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 10259715396.850965,
+       "cap": 9758054702.44773,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 152546961315.34357,
+       "cap": 145088000556.44693,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 19181880651.362297,
+       "cap": 18243960329.471497,
        "sec": 3
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 19649731398.956497,
+       "cap": 18688934971.653732,
        "sec": 3
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 19649731398.956497,
+       "cap": 18688934971.653732,
        "sec": 3
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 19181880651.362297,
+       "cap": 18243960329.471497,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 102189170378.98863,
+       "cap": 97192512266.17697,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 12849685455.3492,
+       "cap": 12221385168.347847,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 13163092417.674791,
+       "cap": 12519467733.429504,
        "sec": 3
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 13163092417.674791,
+       "cap": 12519467733.429504,
        "sec": 3
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 12849685455.3492,
+       "cap": 12221385168.347847,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 82114339122.66692,
+       "cap": 78099263188.16454,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 10325393827.80913,
+       "cap": 9820521710.280853,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 10577232701.658134,
+       "cap": 10060046630.043802,
        "sec": 3
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 10577232701.658134,
+       "cap": 10060046630.043802,
        "sec": 3
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 10325393827.80913,
+       "cap": 9820521710.280853,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 95592229169.62978,
+       "cap": 92058788371.28888,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 12020159007.5533,
+       "cap": 11575849667.675209,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 12313333617.493626,
+       "cap": 11858187464.447775,
        "sec": 3
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 12313333617.493626,
+       "cap": 11858187464.447775,
        "sec": 3
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 12020159007.5533,
+       "cap": 11575849667.675209,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 102006981658.69043,
+       "cap": 96986199579.50984,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 12826776298.33518,
+       "cap": 12195442564.847998,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 13139624500.733603,
+       "cap": 12492892383.502827,
        "sec": 3
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 13139624500.733603,
+       "cap": 12492892383.502827,
        "sec": 3
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 12826776298.33518,
+       "cap": 12195442564.847998,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 102365803575.6589,
+       "cap": 97595636652.68478,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 12871896038.033922,
+       "cap": 12272075682.291695,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 13185844721.888409,
+       "cap": 12571394601.371979,
        "sec": 3
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 13185844721.888409,
+       "cap": 12571394601.371979,
        "sec": 3
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 12871896038.033922,
+       "cap": 12272075682.291695,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 102365803575.6589,
+       "cap": 97360508777.64995,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 12871896038.033922,
+       "cap": 12242509738.808865,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 13185844721.888409,
+       "cap": 12541107537.316399,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 13185844721.888409,
+       "cap": 12541107537.316399,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 12871896038.033922,
+       "cap": 12242509738.808865,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 102755839364.91997,
+       "cap": 97731473314.21889,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 12920940738.07157,
+       "cap": 12289156341.304234,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 13236085634.122097,
+       "cap": 12588891861.82385,
        "sec": 3
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 13236085634.122097,
+       "cap": 12588891861.82385,
        "sec": 3
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 12920940738.07157,
+       "cap": 12289156341.304234,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 96030752901.70714,
+       "cap": 91335217760.49626,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 12075300780.414377,
+       "cap": 11484864931.044722,
        "sec": 3
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 12369820311.643995,
+       "cap": 11764983587.899471,
        "sec": 3
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 12369820311.643995,
+       "cap": 11764983587.899471,
        "sec": 3
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 12075300780.414377,
+       "cap": 11484864931.044722,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 98225778559.7327,
+       "cap": 91533099309.42746,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 12351312310.476164,
+       "cap": 11509747368.701796,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 12652563830.243877,
+       "cap": 11790472914.279888,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 12652563830.243877,
+       "cap": 11790472914.279888,
        "sec": 3
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 12351312310.476164,
+       "cap": 11509747368.701796,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 97293131069.44963,
+       "cap": 93422915090.85924,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 12234037389.401726,
+       "cap": 11747380556.933905,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 12532428545.240793,
+       "cap": 12033902033.932295,
        "sec": 3
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 12532428545.240793,
+       "cap": 12033902033.932295,
        "sec": 3
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 12234037389.401726,
+       "cap": 11747380556.933905,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 102640744362.20842,
+       "cap": 92535870482.285,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 12906468220.320023,
+       "cap": 11635839929.26495,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 13221260128.132708,
+       "cap": 11919640903.149462,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 13221260128.132708,
+       "cap": 11919640903.149462,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 12906468220.320023,
+       "cap": 11635839929.26495,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 102640744362.20842,
+       "cap": 97622006015.27388,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 12906468220.320023,
+       "cap": 12275391474.108685,
        "sec": 3
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 13221260128.132708,
+       "cap": 12574791266.160116,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 13221260128.132708,
+       "cap": 12574791266.160116,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 12906468220.320023,
+       "cap": 12275391474.108685,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 103262432758.69109,
+       "cap": 98213296235.91847,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 12984641869.410387,
+       "cap": 12349742731.87826,
        "sec": 3
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 13301340451.59113,
+       "cap": 12650955969.241142,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 13301340451.59113,
+       "cap": 12650955969.241142,
        "sec": 3
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 12984641869.410387,
+       "cap": 12349742731.87826,
        "sec": 3
       },
       {
        "s": 31,
+       "d": 0,
+       "cap": 92455575597.11795,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 1,
+       "cap": 11625743321.040773,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 2,
+       "cap": 11909298036.18811,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 3,
+       "cap": 11909298036.18811,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 4,
+       "cap": 11625743321.040773,
+       "sec": 3
+      },
+      {
+       "s": 32,
        "d": 0,
        "cap": 10564737540868890,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 1,
        "cap": 1328453434106724.5,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 2,
        "cap": 1360854737377620.5,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 3,
        "cap": 1360854737377620.5,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 4,
        "cap": 1328453434106724.5,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 0,
        "cap": 8013464603.248152,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 1,
        "cap": 1007645909.8104728,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 2,
        "cap": 1032222639.3180454,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 3,
        "cap": 1032222639.3180454,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 4,
        "cap": 1007645909.8104728,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 0,
        "cap": 8013464603.236608,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 1,
        "cap": 1007645909.8090212,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 2,
        "cap": 1032222639.3165585,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 3,
        "cap": 1032222639.3165585,
-       "sec": 3
-      },
-      {
-       "s": 33,
-       "d": 4,
-       "cap": 1007645909.8090212,
-       "sec": 3
-      },
-      {
-       "s": 34,
-       "d": 0,
-       "cap": 7954007086.288247,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 1,
-       "cap": 1000169477.7379022,
-       "sec": 3
-      },
-      {
-       "s": 34,
-       "d": 2,
-       "cap": 1024563855.2437046,
-       "sec": 3
-      },
-      {
-       "s": 34,
-       "d": 3,
-       "cap": 1024563855.2437046,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 1000169477.7379022,
+       "cap": 1007645909.8090212,
        "sec": 3
       },
       {
@@ -45798,31 +46546,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 36,
        "d": 0,
-       "cap": 96591780794.20872,
+       "cap": 7954007086.288247,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 12145846728.909573,
+       "cap": 1000169477.7379022,
        "sec": 3
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 12442086893.029318,
+       "cap": 1024563855.2437046,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 12442086893.029318,
+       "cap": 1024563855.2437046,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 12145846728.909573,
+       "cap": 1000169477.7379022,
        "sec": 3
       },
       {
@@ -45857,153 +46605,183 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 38,
+       "d": 0,
+       "cap": 96591780794.20872,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 1,
+       "cap": 12145846728.909573,
+       "sec": 3
+      },
+      {
+       "s": 38,
+       "d": 2,
+       "cap": 12442086893.029318,
+       "sec": 3
+      },
+      {
+       "s": 38,
+       "d": 3,
+       "cap": 12442086893.029318,
+       "sec": 3
+      },
+      {
+       "s": 38,
+       "d": 4,
+       "cap": 12145846728.909573,
+       "sec": 3
+      },
+      {
+       "s": 39,
        "d": 0,
        "cap": 949269996142.9886,
        "sec": 4
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 1,
        "cap": 119365103145.46967,
        "sec": 3
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 2,
        "cap": 122276447124.62749,
        "sec": 3
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 3,
        "cap": 122276447124.62749,
        "sec": 3
       },
       {
-       "s": 38,
+       "s": 39,
        "d": 4,
        "cap": 119365103145.46967,
        "sec": 3
       },
       {
-       "s": 39,
-       "d": 0,
-       "cap": 64020326544334,
-       "sec": 4
-      },
-      {
-       "s": 39,
-       "d": 1,
-       "cap": 8050178466000.935,
-       "sec": 2
-      },
-      {
-       "s": 39,
-       "d": 2,
-       "cap": 8246524282244.86,
-       "sec": 2
-      },
-      {
-       "s": 39,
-       "d": 3,
-       "cap": 8246524282244.86,
-       "sec": 2
-      },
-      {
-       "s": 39,
-       "d": 4,
-       "cap": 8050178466000.935,
-       "sec": 2
-      },
-      {
        "s": 40,
        "d": 0,
-       "cap": 64020326544334,
+       "cap": 43833424744656.46,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 8050178466000.935,
-       "sec": 2
+       "cap": 5511794628634.798,
+       "sec": 0
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 8246524282244.86,
-       "sec": 2
+       "cap": 5646228643967.3545,
+       "sec": 0
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 8246524282244.86,
-       "sec": 2
+       "cap": 5646228643967.3545,
+       "sec": 0
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 8050178466000.935,
-       "sec": 2
+       "cap": 5511794628634.798,
+       "sec": 0
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 61303154458147,
+       "cap": 43833424744656.46,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 7708510102258.773,
-       "sec": 2
+       "cap": 5511794628634.798,
+       "sec": 0
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 7896522543777.281,
-       "sec": 2
+       "cap": 5646228643967.3545,
+       "sec": 0
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 7896522543777.281,
-       "sec": 2
+       "cap": 5646228643967.3545,
+       "sec": 0
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 7708510102258.773,
-       "sec": 2
+       "cap": 5511794628634.798,
+       "sec": 0
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 61303154458147,
+       "cap": 39969694107409.95,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 7708510102258.773,
-       "sec": 2
+       "cap": 5025953289589.915,
+       "sec": 0
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 7896522543777.281,
-       "sec": 2
+       "cap": 5148537516165.279,
+       "sec": 0
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 7896522543777.281,
-       "sec": 2
+       "cap": 5148537516165.279,
+       "sec": 0
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 7708510102258.773,
-       "sec": 2
+       "cap": 5025953289589.915,
+       "sec": 0
+      },
+      {
+       "s": 43,
+       "d": 0,
+       "cap": 39969694107409.95,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 1,
+       "cap": 5025953289589.915,
+       "sec": 0
+      },
+      {
+       "s": 43,
+       "d": 2,
+       "cap": 5148537516165.279,
+       "sec": 0
+      },
+      {
+       "s": 43,
+       "d": 3,
+       "cap": 5148537516165.279,
+       "sec": 0
+      },
+      {
+       "s": 43,
+       "d": 4,
+       "cap": 5025953289589.915,
+       "sec": 0
       }
      ]
     },
@@ -46017,7 +46795,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 87.86355066699274,
+    "mglt": 87.86397899642014,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -46125,15 +46903,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1olxa4f",
-   "build": 131549,
+   "signature": "1wend47",
+   "build": 131552,
    "crew": 1000,
-   "total": 132549,
+   "total": 132552,
    "by": {
     "hull": 20,
     "armor": 10,
     "power": 43111,
-    "drive": 33606,
+    "drive": 33609,
     "defense": 1500,
     "command": 14501,
     "weapons": 21800,
@@ -46153,6 +46931,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 1.331,
+    "navDemand": 0,
     "navReady": true,
     "targetDemand": 4,
     "targetCapacity": 4.920750000000001,
@@ -46331,10 +47110,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷ナセル核融合炉",
-      "w": 0.23472771806572298,
+      "w": 0.23477369199573223,
       "hits": 1,
-      "crew": 0.000056861271831660246,
-      "size": 0.11372254366332049,
+      "crew": 0.00005687797798049351,
+      "size": 0.11375595596098702,
       "at": 0.355,
       "part": 21,
       "y": -0.22,
@@ -46348,10 +47127,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷ナセル核融合炉",
-      "w": 0.23472771806572298,
+      "w": 0.23477369199573223,
       "hits": 1,
-      "crew": 0.000056861271831660246,
-      "size": 0.11372254366332049,
+      "crew": 0.00005687797798049351,
+      "size": 0.11375595596098702,
       "at": 0.355,
       "part": 22,
       "y": -0.22,
@@ -46408,7 +47187,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": 0,
       "r": 0.024,
-      "share": 0.5998240449076012,
+      "share": 0.597022639279405,
       "domain": "main",
       "port": "p25",
       "powerConnected": true
@@ -46425,7 +47204,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": 0,
       "r": 0.013,
-      "share": 0.10494521489703393,
+      "share": 0.1044550809683247,
       "domain": "main",
       "port": "p26",
       "powerConnected": true
@@ -46476,7 +47255,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.19,
       "z": 0,
       "r": 0.011,
-      "share": 0.058027040479587094,
+      "share": 0.05775603220779944,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -46493,9 +47272,26 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.44,
       "z": -0.05,
       "r": 0.009,
-      "share": 0.027939539420303822,
+      "share": 0.02780905118188499,
       "domain": "main",
       "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 8.192000000000001e-7,
+      "size": 0.004096000000000001,
+      "at": 0.505,
+      "part": 35,
+      "y": -0.19,
+      "z": 0,
+      "r": 0.005,
+      "share": 0.004670379008610478,
+      "domain": "main",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -46505,14 +47301,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.501,
-      "part": 35,
-      "y": -0.19,
+      "at": 0.519,
+      "part": 36,
+      "y": -0.45,
       "z": 0,
       "r": 0.007,
-      "share": 0.012198130950321667,
+      "share": 0.012141161055587003,
       "domain": "main",
-      "port": "p35",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -46522,14 +47318,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.019683000000000003,
-      "at": 0.519,
-      "part": 36,
+      "at": 0.497,
+      "part": 37,
       "y": -0.19,
-      "z": -0.05,
+      "z": 0,
       "r": 0.008,
-      "share": 0.02254844210135062,
+      "share": 0.022443132330683603,
       "domain": "main",
-      "port": "p36",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -46540,13 +47336,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0068590000000000005,
       "at": 0.519,
-      "part": 37,
-      "y": -0.42,
-      "z": 0,
+      "part": 38,
+      "y": -0.19,
+      "z": -0.03,
       "r": 0.006,
-      "share": 0.007857530070272007,
+      "share": 0.007820832426772282,
       "domain": "main",
-      "port": "p37",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -46557,13 +47353,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0068590000000000005,
       "at": 0.519,
-      "part": 38,
+      "part": 39,
       "y": -0.19,
       "z": 0.03,
       "r": 0.006,
-      "share": 0.007857530070272007,
+      "share": 0.007820832426772282,
       "domain": "main",
-      "port": "p38",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -46574,13 +47370,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0068590000000000005,
       "at": 0.519,
-      "part": 39,
+      "part": 40,
       "y": 0.03,
       "z": 0,
       "r": 0.006,
-      "share": 0.007857530070272007,
+      "share": 0.007820832426772282,
       "domain": "main",
-      "port": "p39",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -46591,13 +47387,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0068590000000000005,
       "at": 0.535,
-      "part": 40,
+      "part": 41,
       "y": -0.19,
       "z": 0,
       "r": 0.006,
-      "share": 0.007857530070272007,
+      "share": 0.007820832426772282,
       "domain": "main",
-      "port": "p40",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -46608,13 +47404,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.496,
-      "part": 41,
+      "part": 42,
       "y": -0.36,
       "z": 0,
       "r": 0.008,
-      "share": 0.02514776207940095,
+      "share": 0.025030312499271786,
       "domain": "main",
-      "port": "p41",
+      "port": "p42",
       "powerConnected": true
      },
      {
@@ -46625,13 +47421,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.021952000000000006,
       "at": 0.496,
-      "part": 42,
+      "part": 43,
       "y": -0.19,
       "z": -0.02,
       "r": 0.008,
-      "share": 0.02514776207940095,
+      "share": 0.025030312499271786,
       "domain": "main",
-      "port": "p42",
+      "port": "p43",
       "powerConnected": true
      },
      {
@@ -46642,13 +47438,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.027,
       "at": 0.519,
-      "part": 43,
+      "part": 44,
       "y": -0.19,
-      "z": 0.05,
+      "z": -0.05,
       "r": 0.009,
-      "share": 0.030930647601304,
+      "share": 0.030786189754024144,
       "domain": "main",
-      "port": "p43",
+      "port": "p44",
       "powerConnected": true
      },
      {
@@ -46659,13 +47455,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.027,
       "at": 0.519,
-      "part": 44,
-      "y": 0.16,
-      "z": 0,
+      "part": 45,
+      "y": -0.19,
+      "z": 0.05,
       "r": 0.009,
-      "share": 0.030930647601304,
+      "share": 0.030786189754024144,
       "domain": "main",
-      "port": "p44",
+      "port": "p45",
       "powerConnected": true
      },
      {
@@ -46675,14 +47471,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.027,
-      "at": 0.544,
-      "part": 45,
-      "y": -0.19,
+      "at": 0.519,
+      "part": 46,
+      "y": 0.16,
       "z": 0,
       "r": 0.009,
-      "share": 0.030930647601304,
+      "share": 0.030786189754024144,
       "domain": "main",
-      "port": "p45",
+      "port": "p46",
       "powerConnected": true
      },
      {
@@ -46768,7 +47564,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.1,
       "z": 0,
       "r": 0.073,
-      "share": 0.3426966292134831,
+      "share": 0.3425683264694871,
       "domain": "main"
      },
      {
@@ -46782,21 +47578,21 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.14,
       "z": 0,
       "r": 0.085,
-      "share": 0.5310861423220973,
+      "share": 0.530887308124298,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.396965632867113,
+      "w": 0.39795991187013385,
       "hits": 1,
       "crew": 0,
-      "size": 4.305191515447806,
+      "size": 4.321376445957008,
       "at": 0.592,
       "y": -0.22,
       "z": 0,
       "r": 0.049,
-      "share": 0.09962546816479399,
+      "share": 0.09996256083863721,
       "domain": "main"
      },
      {
@@ -46810,13 +47606,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0,
       "r": 0.031,
-      "share": 0.026591760299625462,
+      "share": 0.026581804567577683,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 10.220014214569156,
+      "w": 10.236025950686981,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -46836,8 +47632,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.021205750411731103,
      "massKg": 5.301437602932776,
-     "capacityJ": 2.5446900494077323e+23,
-     "specificEnergyJPerKg": 4.8e+22,
+     "capacityJ": 1.4391824671065396e+21,
+     "specificEnergyJPerKg": 271470226549564280000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -46852,16 +47648,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 1191130766537283800,
+     "P": 1191480727191075800,
      "fixed": 36603047218518180,
      "cooling": 12388904626461760,
-     "De": 1191130766537283800,
+     "De": 1191480727191075800,
      "Ds": 0,
      "Dw": 139466666666666.69,
      "domains": [
       {
        "id": "main",
-       "P": 1191130766537283800,
+       "P": 1191480727191075800,
        "reactors": [
         4,
         5
@@ -46869,11 +47665,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 4,
-         "P": 595565383268641900
+         "P": 595740363595537900
         },
         {
          "moduleIndex": 5,
-         "P": 595565383268641900
+         "P": 595740363595537900
         }
        ],
        "modules": [
@@ -46910,7 +47706,8 @@ const CRAFT_PRICE_CATALOG={
         30,
         31,
         32,
-        33
+        33,
+        34
        ],
        "protection": 1
       }
@@ -46956,7 +47753,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p25",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p25",
@@ -46968,7 +47765,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p26",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p26",
@@ -46980,7 +47777,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p27",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p27",
@@ -46992,7 +47789,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p33",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p33",
@@ -47004,7 +47801,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p34",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p22>p34",
@@ -47016,46 +47813,46 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p35",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p35",
        "model": "source-distance",
-       "lengthM": 3.7586143723452126,
-       "efficiency": 0.9999624145626268
+       "lengthM": 3.803145803147705,
+       "efficiency": 0.9999619692651552
       },
       {
        "kind": "power",
-       "from": "p22",
+       "from": "p21",
        "to": "p36",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
-       "routeId": "p22>p36",
+       "routeId": "p21>p36",
        "model": "source-distance",
-       "lengthM": 3.7026085399350546,
-       "efficiency": 0.9999629746000577
+       "lengthM": 3.9747188579822845,
+       "efficiency": 0.9999602536013292
       },
       {
        "kind": "power",
        "from": "p21",
        "to": "p37",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p37",
        "model": "source-distance",
-       "lengthM": 3.9720762832553955,
-       "efficiency": 0.9999602800260265
+       "lengthM": 3.713516123568066,
+       "efficiency": 0.9999628655282659
       },
       {
        "kind": "power",
-       "from": "p21",
+       "from": "p22",
        "to": "p38",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
-       "routeId": "p21>p38",
+       "routeId": "p22>p38",
        "model": "source-distance",
        "lengthM": 3.7785116117328523,
        "efficiency": 0.9999622155977311
@@ -47064,10 +47861,22 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p39",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p39",
+       "model": "source-distance",
+       "lengthM": 3.7785116117328523,
+       "efficiency": 0.9999622155977311
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p40",
+       "cap": 2033502623251009.8,
+       "auto": true,
+       "ok": true,
+       "routeId": "p21>p40",
        "model": "source-distance",
        "lengthM": 3.9770287904414263,
        "efficiency": 0.999960230502923
@@ -47075,11 +47884,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p21",
-       "to": "p40",
-       "cap": 2153120424618716.2,
+       "to": "p41",
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
-       "routeId": "p21>p40",
+       "routeId": "p21>p41",
        "model": "source-distance",
        "lengthM": 4.154524521530712,
        "efficiency": 0.9999584556177764
@@ -47087,11 +47896,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p21",
-       "to": "p41",
-       "cap": 2153120424618716.2,
+       "to": "p42",
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
-       "routeId": "p21>p41",
+       "routeId": "p21>p42",
        "model": "source-distance",
        "lengthM": 3.7078152596913454,
        "efficiency": 0.9999629225347892
@@ -47099,23 +47908,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p22",
-       "to": "p42",
-       "cap": 2153120424618716.2,
+       "to": "p43",
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
-       "routeId": "p22>p42",
+       "routeId": "p22>p43",
        "model": "source-distance",
        "lengthM": 3.5556228708905557,
        "efficiency": 0.9999644444034063
       },
       {
        "kind": "power",
-       "from": "p21",
-       "to": "p43",
-       "cap": 2153120424618716.2,
+       "from": "p22",
+       "to": "p44",
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
-       "routeId": "p21>p43",
+       "routeId": "p22>p44",
        "model": "source-distance",
        "lengthM": 3.6746207967625715,
        "efficiency": 0.999963254467166
@@ -47123,26 +47932,26 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p21",
-       "to": "p44",
-       "cap": 2153120424618716.2,
-       "auto": true,
-       "ok": true,
-       "routeId": "p21>p44",
-       "model": "source-distance",
-       "lengthM": 3.9917161722747774,
-       "efficiency": 0.9999600836349566
-      },
-      {
-       "kind": "power",
-       "from": "p21",
        "to": "p45",
-       "cap": 2153120424618716.2,
+       "cap": 2033502623251009.8,
        "auto": true,
        "ok": true,
        "routeId": "p21>p45",
        "model": "source-distance",
-       "lengthM": 4.267636113822264,
-       "efficiency": 0.9999573245494847
+       "lengthM": 3.6746207967625715,
+       "efficiency": 0.999963254467166
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p46",
+       "cap": 2033502623251009.8,
+       "auto": true,
+       "ok": true,
+       "routeId": "p21>p46",
+       "model": "source-distance",
+       "lengthM": 3.9917161722747774,
+       "efficiency": 0.9999600836349566
       },
       {
        "kind": "power",
@@ -47268,11 +48077,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p23",
-       "cap": 833791536576098700,
+       "cap": 834036509033753100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p21>p23",
-       "groupCap": 1667583073152197400,
+       "groupCap": 1668073018067506200,
        "routeId": "p21>p23",
        "model": "source-distance",
        "lengthM": 1.7599999999999998,
@@ -47282,11 +48091,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p24",
-       "cap": 833791536576098700,
+       "cap": 834036509033753100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p21>p24",
-       "groupCap": 1667583073152197400,
+       "groupCap": 1668073018067506200,
        "routeId": "p21>p24",
        "model": "source-distance",
        "lengthM": 5.978912610165832,
@@ -47296,11 +48105,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p23",
-       "cap": 833791536576098700,
+       "cap": 834036509033753100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p22>p23",
-       "groupCap": 1667583073152197400,
+       "groupCap": 1668073018067506200,
        "routeId": "p22>p23",
        "model": "source-distance",
        "lengthM": 5.978912610165832,
@@ -47310,11 +48119,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p24",
-       "cap": 833791536576098700,
+       "cap": 834036509033753100,
        "auto": true,
        "ok": true,
        "capacityGroup": "p22>p24",
-       "groupCap": 1667583073152197400,
+       "groupCap": 1668073018067506200,
        "routeId": "p22>p24",
        "model": "source-distance",
        "lengthM": 1.7599999999999998,
@@ -47371,23 +48180,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 18050911024115684,
-       "densityFactor": 32.99364682884856,
+       "densityFactor": 33.00334054052119,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2145061608.9122372,
-       "shaftWattsPerNewton": 2037808528.4666252,
-       "wattsPerNewton": 2145061608.9122372,
-       "ratedShaftPowerW": 565787114105209800,
-       "ratedWasteHeatW": 29778269163432124,
+       "profileWattsPerNewton": 2145115823.2748394,
+       "shaftWattsPerNewton": 2037860032.1110973,
+       "wattsPerNewton": 2145115823.2748394,
+       "ratedShaftPowerW": 565953345415761000,
+       "ratedWasteHeatW": 29787018179776924,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 17003.485580623295,
+       "conversionMassKg": 17008.051460458028,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1191130766537283800,
-       "sourceInputLimitW": 1191130766537283800,
+       "availableInputW": 1191480727191075800,
+       "sourceInputLimitW": 1191480727191075800,
        "sourceIds": [
         "p21",
         "p22"
@@ -47399,10 +48208,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 595565383268641900,
+       "ratedInputW": 595740363595537900,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 277644884.78755337,
+       "ratedThrustN": 277719439.26368105,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -47410,12 +48219,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26599999999999996,
        "machineryDiameterM": 0.5319999999999999,
        "machineryOffsetM": 2.0100000000000002,
-       "maxInputW": 1191130766537283800,
-       "maxRatedInputW": 1191130766537283800,
-       "inputDensityWPerM3": 11217839921808509000,
+       "maxInputW": 1191480727191075800,
+       "maxRatedInputW": 1191480727191075800,
+       "inputDensityWPerM3": 11221135783777202000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 555268282124500500,
-       "cost": 3295.5856997212973,
+       "costBasisInputW": 555417386156153100,
+       "cost": 3297.4142110742114,
        "powerNode": "p23",
        "heatNode": "p23",
        "reactorId": 21,
@@ -47430,11 +48239,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 6,
-       "machineryModuleIndex": 25,
+       "machineryModuleIndex": 26,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1191130766537283800,
+       "pathCapacityW": 1191480727191075800,
        "transmissionRouteIds": [
         "p21>p23",
         "p22>p23"
@@ -47443,23 +48252,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 18050911024115684,
-       "densityFactor": 32.99364682884856,
+       "densityFactor": 33.00334054052119,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2145061608.9122372,
-       "shaftWattsPerNewton": 2037808528.4666252,
-       "wattsPerNewton": 2145061608.9122372,
-       "ratedShaftPowerW": 565787114105209800,
-       "ratedWasteHeatW": 29778269163432124,
+       "profileWattsPerNewton": 2145115823.2748394,
+       "shaftWattsPerNewton": 2037860032.1110973,
+       "wattsPerNewton": 2145115823.2748394,
+       "ratedShaftPowerW": 565953345415761000,
+       "ratedWasteHeatW": 29787018179776924,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 17003.485580623295,
+       "conversionMassKg": 17008.051460458028,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1191130766537283800,
-       "sourceInputLimitW": 1191130766537283800,
+       "availableInputW": 1191480727191075800,
+       "sourceInputLimitW": 1191480727191075800,
        "sourceIds": [
         "p21",
         "p22"
@@ -47471,10 +48280,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 595565383268641900,
+       "ratedInputW": 595740363595537900,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 277644884.78755337,
+       "ratedThrustN": 277719439.26368105,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -47482,12 +48291,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26599999999999996,
        "machineryDiameterM": 0.5319999999999999,
        "machineryOffsetM": 2.0100000000000002,
-       "maxInputW": 1191130766537283800,
-       "maxRatedInputW": 1191130766537283800,
-       "inputDensityWPerM3": 11217839921808509000,
+       "maxInputW": 1191480727191075800,
+       "maxRatedInputW": 1191480727191075800,
+       "inputDensityWPerM3": 11221135783777202000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 555268282124500500,
-       "cost": 3295.5856997212973,
+       "costBasisInputW": 555417386156153100,
+       "cost": 3297.4142110742114,
        "powerNode": "p24",
        "heatNode": "p24",
        "reactorId": 22,
@@ -47502,11 +48311,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 26,
+       "machineryModuleIndex": 27,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1191130766537283800,
+       "pathCapacityW": 1191480727191075800,
        "transmissionRouteIds": [
         "p21>p24",
         "p22>p24"
@@ -47517,23 +48326,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 18050911024115684,
-       "densityFactor": 32.99364682884856,
+       "densityFactor": 33.00334054052119,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2145061608.9122372,
-       "shaftWattsPerNewton": 2037808528.4666252,
-       "wattsPerNewton": 2145061608.9122372,
-       "ratedShaftPowerW": 565787114105209800,
-       "ratedWasteHeatW": 29778269163432124,
+       "profileWattsPerNewton": 2145115823.2748394,
+       "shaftWattsPerNewton": 2037860032.1110973,
+       "wattsPerNewton": 2145115823.2748394,
+       "ratedShaftPowerW": 565953345415761000,
+       "ratedWasteHeatW": 29787018179776924,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 17003.485580623295,
+       "conversionMassKg": 17008.051460458028,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1191130766537283800,
-       "sourceInputLimitW": 1191130766537283800,
+       "availableInputW": 1191480727191075800,
+       "sourceInputLimitW": 1191480727191075800,
        "sourceIds": [
         "p21",
         "p22"
@@ -47545,10 +48354,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 595565383268641900,
+       "ratedInputW": 595740363595537900,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 277644884.78755337,
+       "ratedThrustN": 277719439.26368105,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -47556,12 +48365,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26599999999999996,
        "machineryDiameterM": 0.5319999999999999,
        "machineryOffsetM": 2.0100000000000002,
-       "maxInputW": 1191130766537283800,
-       "maxRatedInputW": 1191130766537283800,
-       "inputDensityWPerM3": 11217839921808509000,
+       "maxInputW": 1191480727191075800,
+       "maxRatedInputW": 1191480727191075800,
+       "inputDensityWPerM3": 11221135783777202000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 555268282124500500,
-       "cost": 3295.5856997212973,
+       "costBasisInputW": 555417386156153100,
+       "cost": 3297.4142110742114,
        "powerNode": "p23",
        "heatNode": "p23",
        "reactorId": 21,
@@ -47577,7 +48386,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 6,
        "coreModuleIndex": 6,
-       "machineryModuleIndex": 25,
+       "machineryModuleIndex": 26,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 444573059594798600000,
        "shaftCapacityW": 444573059594798600000,
@@ -47586,28 +48395,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1191130766537283800
+       "pathCapacityW": 1191480727191075800
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 18050911024115684,
-       "densityFactor": 32.99364682884856,
+       "densityFactor": 33.00334054052119,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2145061608.9122372,
-       "shaftWattsPerNewton": 2037808528.4666252,
-       "wattsPerNewton": 2145061608.9122372,
-       "ratedShaftPowerW": 565787114105209800,
-       "ratedWasteHeatW": 29778269163432124,
+       "profileWattsPerNewton": 2145115823.2748394,
+       "shaftWattsPerNewton": 2037860032.1110973,
+       "wattsPerNewton": 2145115823.2748394,
+       "ratedShaftPowerW": 565953345415761000,
+       "ratedWasteHeatW": 29787018179776924,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 17003.485580623295,
+       "conversionMassKg": 17008.051460458028,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 1191130766537283800,
-       "sourceInputLimitW": 1191130766537283800,
+       "availableInputW": 1191480727191075800,
+       "sourceInputLimitW": 1191480727191075800,
        "sourceIds": [
         "p21",
         "p22"
@@ -47619,10 +48428,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 595565383268641900,
+       "ratedInputW": 595740363595537900,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 277644884.78755337,
+       "ratedThrustN": 277719439.26368105,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -47630,12 +48439,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.26599999999999996,
        "machineryDiameterM": 0.5319999999999999,
        "machineryOffsetM": 2.0100000000000002,
-       "maxInputW": 1191130766537283800,
-       "maxRatedInputW": 1191130766537283800,
-       "inputDensityWPerM3": 11217839921808509000,
+       "maxInputW": 1191480727191075800,
+       "maxRatedInputW": 1191480727191075800,
+       "inputDensityWPerM3": 11221135783777202000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 555268282124500500,
-       "cost": 3295.5856997212973,
+       "costBasisInputW": 555417386156153100,
+       "cost": 3297.4142110742114,
        "powerNode": "p24",
        "heatNode": "p24",
        "reactorId": 22,
@@ -47651,7 +48460,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 7,
        "coreModuleIndex": 7,
-       "machineryModuleIndex": 26,
+       "machineryModuleIndex": 27,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 444573059594798600000,
        "shaftCapacityW": 444573059594798600000,
@@ -47660,22 +48469,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1191130766537283800
+       "pathCapacityW": 1191480727191075800
       }
      ],
-     "massKg": 17003.485580623295,
-     "ratedThrustN": 555268283.1722685,
-     "ratedAccelMps2": 32656.144561620764,
-     "structuralAccelerationLimitMps2": 974858.6088782519,
+     "massKg": 17008.051460458028,
+     "ratedThrustN": 555417386.3548965,
+     "ratedAccelMps2": 32656.14451168524,
+     "structuralAccelerationLimitMps2": 974858.6088782522,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 32656.144561620764,
+     "accelerationLimitMps2": 32656.14451168524,
      "conversionModelVersion": 1,
-     "conversionMassKg": 17003.485580623295,
+     "conversionMassKg": 17008.051460458028,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[1191130766537283800,[[\"main\",1191130766537283800,[[4,595565383268641900],[5,595565383268641900]]]],[[4,\"reactor\",21,\"p21\",\"main\",0.11372254366332049,0.5],[5,\"reactor\",22,\"p22\",\"main\",0.11372254366332049,0.5]]]"
+     "sourceBudgetKey": "[1191480727191075800,[[\"main\",1191480727191075800,[[4,595740363595537900],[5,595740363595537900]]]],[[4,\"reactor\",21,\"p21\",\"main\",0.11375595596098702,0.5],[5,\"reactor\",22,\"p22\",\"main\",0.11375595596098702,0.5]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1581.0018807206266,
+    "maxSpeed": 1581.0047444368358,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -47717,7 +48526,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         6,
-        25
+        26
        ],
        "pc": [],
        "sec": 0,
@@ -47732,7 +48541,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         7,
-        26
+        27
        ],
        "pc": [],
        "sec": 0,
@@ -47786,7 +48595,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>hotel",
        "n": "送電損失 p21>hotel",
        "g": "high",
-       "sh": 0.0200428,
+       "sh": 0.0200369,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -47799,7 +48608,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p7",
        "n": "送電損失 p21>p7",
        "g": "high",
-       "sh": 0.000489331,
+       "sh": 0.000489188,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -47812,7 +48621,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p8",
        "n": "送電損失 p22>p8",
        "g": "high",
-       "sh": 0.000489331,
+       "sh": 0.000489188,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -47900,8 +48709,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p22>p36",
-       "n": "送電損失 p22>p36",
+       "id": "feed:p21>p36",
+       "n": "送電損失 p21>p36",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -47909,7 +48718,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p22>p36"
+       "routeId": "p21>p36"
       },
       {
        "k": "feed",
@@ -47926,8 +48735,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p21>p38",
-       "n": "送電損失 p21>p38",
+       "id": "feed:p22>p38",
+       "n": "送電損失 p22>p38",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -47935,7 +48744,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p21>p38"
+       "routeId": "p22>p38"
       },
       {
        "k": "feed",
@@ -47978,8 +48787,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p22>p42",
-       "n": "送電損失 p22>p42",
+       "id": "feed:p21>p42",
+       "n": "送電損失 p21>p42",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -47987,12 +48796,12 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p22>p42"
+       "routeId": "p21>p42"
       },
       {
        "k": "feed",
-       "id": "feed:p21>p43",
-       "n": "送電損失 p21>p43",
+       "id": "feed:p22>p43",
+       "n": "送電損失 p22>p43",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -48000,12 +48809,12 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p21>p43"
+       "routeId": "p22>p43"
       },
       {
        "k": "feed",
-       "id": "feed:p21>p44",
-       "n": "送電損失 p21>p44",
+       "id": "feed:p22>p44",
+       "n": "送電損失 p22>p44",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -48013,7 +48822,7 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p21>p44"
+       "routeId": "p22>p44"
       },
       {
        "k": "feed",
@@ -48030,10 +48839,23 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p21>p46",
+       "n": "送電損失 p21>p46",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p21>p46"
+      },
+      {
+       "k": "feed",
        "id": "feed:p21>f29",
        "n": "送電損失 p21>f29",
        "g": "high",
-       "sh": 0.00000641874,
+       "sh": 0.00000641686,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48046,7 +48868,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f30",
        "n": "送電損失 p21>f30",
        "g": "high",
-       "sh": 0.0000134126,
+       "sh": 0.0000134086,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48059,7 +48881,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f31",
        "n": "送電損失 p21>f31",
        "g": "high",
-       "sh": 0.0000471658,
+       "sh": 0.000047152,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48072,7 +48894,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f32",
        "n": "送電損失 p21>f32",
        "g": "high",
-       "sh": 0.0000660375,
+       "sh": 0.0000660181,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48137,7 +48959,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p28",
        "n": "送電損失 p21>p28",
        "g": "high",
-       "sh": 0.0111538,
+       "sh": 0.0111505,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48150,7 +48972,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p28",
        "n": "送電損失 p22>p28",
        "g": "high",
-       "sh": 5.71211e-7,
+       "sh": 5.71043e-7,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48163,7 +48985,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p23",
        "n": "送電損失 p21>p23",
        "g": "high",
-       "sh": 0.106769,
+       "sh": 0.106771,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48176,7 +48998,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p24",
        "n": "送電損失 p21>p24",
        "g": "high",
-       "sh": 0.362714,
+       "sh": 0.362721,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48229,7 +49051,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 116692875000000000,
-       "m": 27,
+       "m": 28,
        "sec": 2,
        "src": -1,
        "power": 1166928750000000
@@ -48240,7 +49062,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 116692875000000000,
-       "m": 28,
+       "m": 29,
        "sec": 2,
        "src": -1,
        "power": 1166928750000000
@@ -48250,7 +49072,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 673327963591137000000,
+       "cap": 673327963827881200000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -48260,73 +49082,73 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 21204526185057650,
+       "cap": 21210756189399360,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 3691306105918581.5,
+       "cap": 3692390631593230,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 3691306105918581.5,
+       "cap": 3692390631593230,
        "sec": 3
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 21204526185057656,
+       "cap": 21210756189399360,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 3691306105918582.5,
+       "cap": 3692390631593230,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 3691306105918582.5,
+       "cap": 3692390631593230,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 25690121626382210,
+       "cap": 25697908830479332,
        "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 4472163253903795,
+       "cap": 4473518858541262,
        "sec": 0
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 4472163253903795,
+       "cap": 4473518858541262,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 25690121626382210,
+       "cap": 25697908830479332,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 4472163253903795,
+       "cap": 4473518858541262,
        "sec": 0
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 4472163253903795,
+       "cap": 4473518858541262,
        "sec": 0
       },
       {
@@ -48386,7 +49208,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 6,
        "d": 3,
-       "cap": 673327963591137000000,
+       "cap": 673327963827881200000,
        "sec": -1
       },
       {
@@ -48446,451 +49268,451 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 10,
        "d": 0,
-       "cap": 78648759920.79965,
+       "cap": 74279384369.64412,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 13691258422.13593,
+       "cap": 12930632954.239489,
        "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 13691258422.13593,
+       "cap": 12930632954.239489,
        "sec": 3
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 78072036544.18567,
+       "cap": 73734701180.6198,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 13590861813.273178,
+       "cap": 12835813934.758,
        "sec": 3
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 13590861813.273178,
+       "cap": 12835813934.758,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 96776003212.3148,
+       "cap": 91399558589.40842,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 16846867901.992817,
+       "cap": 15910930796.32655,
        "sec": 2
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 16846867901.992817,
+       "cap": 15910930796.32655,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 94999732747.78278,
+       "cap": 89721969817.3504,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 16537652880.90405,
+       "cap": 15618894387.52049,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 16537652880.90405,
+       "cap": 15618894387.52049,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 65608573483.41228,
+       "cap": 61963652734.333824,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 11421209122.351784,
+       "cap": 10786697504.443352,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 11421209122.351784,
+       "cap": 10786697504.443352,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 90040329697.53171,
+       "cap": 86045586975.36653,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 15674314808.582336,
+       "cap": 14978905815.558327,
        "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 15674314808.582336,
+       "cap": 14978905815.558327,
        "sec": 3
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 88698694254.57538,
+       "cap": 89927323722.33711,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 15440761506.83531,
+       "cap": 15654642610.175232,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 15440761506.83531,
+       "cap": 15654642610.175232,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 95153862828.18805,
+       "cap": 84017766956.84235,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 16564484006.576956,
+       "cap": 14625900784.898554,
        "sec": 3
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 16564484006.576956,
+       "cap": 14625900784.898554,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 90516973473.8564,
+       "cap": 85488252725.30882,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 15757289455.907171,
+       "cap": 14881884486.134548,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 15757289455.907171,
+       "cap": 14881884486.134548,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 95272501239.20699,
+       "cap": 85488252725.30882,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 16585136705.305931,
+       "cap": 14881884486.134548,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 16585136705.305931,
+       "cap": 14881884486.134548,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 99524447071.07867,
+       "cap": 89979584503.69548,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 17325319884.79537,
+       "cap": 15663740221.677822,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 17325319884.79537,
+       "cap": 15663740221.677822,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 88823422720.24876,
+       "cap": 93995311122.6854,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 15462474368.650936,
+       "cap": 16362802113.417849,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 15462474368.650936,
+       "cap": 16362802113.417849,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 85177607702.27177,
+       "cap": 83888788124.67938,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 14827807075.47692,
+       "cap": 14603448014.836992,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 14827807075.47692,
+       "cap": 14603448014.836992,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 88028239725.61652,
+       "cap": 80445518385.4789,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 15324048080.895586,
+       "cap": 14004040015.728203,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 15324048080.895586,
+       "cap": 14004040015.728203,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 95624340702.72896,
+       "cap": 83137781963.08226,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 16646385287.267504,
+       "cap": 14472712076.401388,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 16646385287.267504,
+       "cap": 14472712076.401388,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 102234054009.61852,
+       "cap": 83137781963.08226,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 17797011095.88782,
+       "cap": 14472712076.401388,
        "sec": 3
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 17797011095.88782,
+       "cap": 14472712076.401388,
        "sec": 3
       },
       {
        "s": 26,
+       "d": 0,
+       "cap": 90311877330.35515,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 1,
+       "cap": 15721586104.641535,
+       "sec": 3
+      },
+      {
+       "s": 26,
+       "d": 2,
+       "cap": 15721586104.641535,
+       "sec": 3
+      },
+      {
+       "s": 27,
        "d": 0,
        "cap": 6068817234.529561,
        "sec": 4
       },
       {
-       "s": 26,
+       "s": 27,
        "d": 1,
        "cap": 1056466054.3704566,
        "sec": 3
       },
       {
-       "s": 26,
+       "s": 27,
        "d": 2,
        "cap": 1056466054.3704566,
        "sec": 3
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 0,
        "cap": 12680638373.260536,
        "sec": 4
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 1,
        "cap": 2207458796.5632877,
        "sec": 3
       },
       {
-       "s": 27,
+       "s": 28,
        "d": 2,
        "cap": 2207458796.5632877,
        "sec": 3
       },
       {
-       "s": 28,
+       "s": 29,
        "d": 0,
        "cap": 44595615750.511024,
        "sec": 4
       },
       {
-       "s": 28,
+       "s": 29,
        "d": 1,
        "cap": 7763251453.034657,
        "sec": 3
       },
       {
-       "s": 28,
+       "s": 29,
        "d": 2,
        "cap": 7763251453.034657,
        "sec": 3
       },
       {
-       "s": 29,
+       "s": 30,
        "d": 0,
        "cap": 62438286186.18455,
        "sec": 4
       },
       {
-       "s": 29,
+       "s": 30,
        "d": 1,
        "cap": 10869322192.380232,
        "sec": 3
       },
       {
-       "s": 29,
+       "s": 30,
        "d": 2,
        "cap": 10869322192.380232,
        "sec": 3
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 0,
        "cap": 12680638373.299301,
        "sec": 4
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 1,
        "cap": 2207458796.5700364,
        "sec": 3
       },
       {
-       "s": 30,
+       "s": 31,
        "d": 2,
        "cap": 2207458796.5700364,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 0,
        "cap": 6068817234.464956,
        "sec": 4
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 1,
        "cap": 1056466054.3592104,
        "sec": 3
       },
       {
-       "s": 31,
+       "s": 32,
        "d": 2,
        "cap": 1056466054.3592104,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 0,
        "cap": 62438286186.18455,
        "sec": 4
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 1,
        "cap": 10869322192.380232,
        "sec": 3
       },
       {
-       "s": 32,
+       "s": 33,
        "d": 2,
        "cap": 10869322192.380232,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 0,
        "cap": 44595615750.511024,
        "sec": 4
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 1,
        "cap": 7763251453.034657,
        "sec": 3
       },
       {
-       "s": 33,
+       "s": 34,
        "d": 2,
        "cap": 7763251453.034657,
-       "sec": 3
-      },
-      {
-       "s": 34,
-       "d": 0,
-       "cap": 572906624412.182,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 1,
-       "cap": 99732184645.75381,
-       "sec": 3
-      },
-      {
-       "s": 34,
-       "d": 2,
-       "cap": 99732184645.75381,
        "sec": 3
       },
       {
@@ -48914,73 +49736,91 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 36,
        "d": 0,
-       "cap": 16327341481508.57,
+       "cap": 572906624412.182,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 2842280689420.9536,
+       "cap": 99732184645.75381,
        "sec": 3
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 2842280689420.9536,
+       "cap": 99732184645.75381,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 55464595831269.484,
+       "cap": 16332138542637.434,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 9655334878387.65,
+       "cap": 2843115766841.732,
        "sec": 3
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 9655334878387.65,
+       "cap": 2843115766841.732,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 55464595831269.484,
+       "cap": 55480891629148.87,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 9655334878387.65,
+       "cap": 9658171667933.807,
        "sec": 3
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 9655334878387.65,
+       "cap": 9658171667933.807,
        "sec": 3
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 16327341481508.57,
+       "cap": 55480891629148.87,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 2842280689420.9536,
+       "cap": 9658171667933.807,
        "sec": 3
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 2842280689420.9536,
+       "cap": 9658171667933.807,
+       "sec": 3
+      },
+      {
+       "s": 40,
+       "d": 0,
+       "cap": 16332138542637.434,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 1,
+       "cap": 2843115766841.732,
+       "sec": 3
+      },
+      {
+       "s": 40,
+       "d": 2,
+       "cap": 2843115766841.732,
        "sec": 3
       }
      ]
@@ -48995,7 +49835,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 79.05009403603133,
+    "mglt": 79.0502372218418,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -50456,7 +51296,7 @@ function baseComputeStats(ship,options={}) {
   }
   let crew = 0, cost = 0, hpSum = 0;const costBy = {hull: 0, armor: 0, power: 0, drive: 0, defense: 0, hangar: 0, command: 0, weapons: 0, systems: 0};   // PLAN-002 the build cost by category (costCategory)
   let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
-  let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,shieldDissipationW,hyperEffectiveVolume=0;
+  const reactorVolumes=[];let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,shieldDissipationW,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
@@ -50502,7 +51342,7 @@ function baseComputeStats(ship,options={}) {
       if (pt.k === 'gen') genExpFrac = Math.max(genExpFrac, expF);
     }
     if (invalid.has(pt.id)) continue;
-    if (isReactor(pt)) {Vgen+=V;reactorOutput+=reactorPower(pt);}
+    if (isReactor(pt)) {Vgen+=V;reactorOutput+=reactorPower(pt);reactorVolumes.push(V);}
     else if (pt.k === 'shield'||pt.k==='localShield') {Vsh += V;shieldCapacity+=shieldLoad(pt);if(Number.isFinite(pt.shieldDissipationW)&&pt.shieldDissipationW>=0)shieldDissipationW=(shieldDissipationW||0)+pt.shieldDissipationW;}
     else if (pt.k === 'hyper') {Vhyp += V;hyperEffectiveVolume+=hyperCapacity(pt);}
     else if (pt.k === 'hangar'||pt.k==='service') { if(pt.k==='hangar')Vhang += V; hangars.push({pt, b: ab, expF, A, acc: false, doors: new Set()}); }
@@ -50682,7 +51522,7 @@ function baseComputeStats(ship,options={}) {
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost:Math.round(cost), costBy:costBreakdown(cost,costBy),
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol, engineSupportVolume:nozzleFoundations.reduce((n,e)=>n+e.volume,0),engineSupportMass:nozzleFoundations.reduce((n,e)=>n+e.volume*.3,0),
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
-    Vgen, Vsh, Vhyp,
+    Vgen, Vsh, Vhyp, reactorVolumes, reactantEfficiency:reactantBurnEfficiency(reactorVolumes),
   };
   S.cls = classify(S);
   S.warnings = warnings(S);
@@ -50995,13 +51835,13 @@ addComp('automation','自動化装置','cube',0.3,[146,182,206],'command','艦�
 // v21 Craft parts: the cockpit (its seats are the crew), an astromech socket, a droid brain and troop seats.
 addComp('cockpit','キャノピー','sphere',0.35,[132,200,232],'appearance','操縦席と射撃操作席を含むキャノピー。外形を編集でき、座席数がそのまま乗員になります（寝起きは母艦）。',{def:1.6,min:.6,max:8,crew:0,cost:2,hp:.5,shapeEditable:true});
 addComp('astromech','アストロメク・ソケット','cyl',0.5,[104,150,214],'craft','アストロメク・ドロイドの座席。ハイパースペースの航法計算と飛行中の応急修理を受け持ちます。',{def:.9,min:.5,max:1.6,crew:0,cost:3,ratio:1.1});
-addComp('droidbrain','ドロイド制御中枢','cube',0.6,[176,150,96],'craft','ドロイド戦闘機の頭脳。乗員なしで操縦と射撃を行います。',{def:.8,min:.3,max:3,crew:0,cost:3});
+addComp('droidbrain','ドロイド制御中枢','cube',0.6,[176,150,96],'craft','ドロイド戦闘機の頭脳。乗員なしで操縦と射撃を行います。照準コンピューターと同じく電力を消費します（1 m³ あたり 8×10¹⁶ W）。',{def:.8,min:.3,max:3,crew:0,cost:3});
 addComp('troopbay','兵員室','cube',0.12,[150,140,118],'craft','兵員の座席区画（1名 1.2 m³）。シャトル・揚陸艇が運ぶ兵員の数になります。',{def:3,min:.8,max:40,crew:0,cost:.4});
 // Explicit small systems use the same volumes, mass, price, occupancy and hotel heat as ship equipment.
 // Ratings are game assumptions; the solar collectors, batteries, fuel, cooling and foil actuators already
 // have their own shared models and are not counted a second time here.
 const CRAFT_SYSTEMS=Object.freeze({version:1,suitHours:4,lifePeople:1/.035,lifeHours:240,ejectSeats:50,navCapacity:125,targetCapacity:250,maneuverSupport:1000,laserSeconds:30000,landingSupport:300,
- power:Object.freeze({lifeSupport:2e15,ejectSeat:1e14,navComputer:6e16,targetComputer:8e16,maneuver:5e17,laserGas:1e15,landingGear:1e15})});
+ power:Object.freeze({lifeSupport:2e15,ejectSeat:1e14,navComputer:6e16,targetComputer:8e16,maneuver:5e17,laserGas:1e15,landingGear:1e15,droidbrain:8e16})});
 // v24 Navigation demand: a hyperdrive of class c needs unitClass / c units (astromech, droid brain or command 1 each).
 const NAV_MODEL=Object.freeze({version:1,unitClass:1,bridgeShare:.01});
 const CRAFT_SYSTEM_KEYS=Object.freeze(Object.keys(CRAFT_SYSTEMS.power));
@@ -57090,12 +57930,12 @@ const CRAFT_SYSTEM_RECIPES=Object.freeze({
  craft_arc170:{mass:34.51,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
  craft_awing:{mass:10.23,anchors:[[4.8,1.3,0],[3.1,1,0],[2.6,1.1,0],[5.6,1,0]],landing:3},
  craft_btlb:{mass:52.26,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
- craft_hyena:{mass:29.10,anchors:[[8.4,2.3,1.09],[6.5,2.3,-1.09],[8.5,1.7,-1.09],[4.5,2.4,1.09],[4.5,1.8,-1.09],[7.5,2.6,1.09],[7.5,1.5,-1.09]],landing:4,walking:true},
+ craft_hyena:{pumpMargin:3,mass:29.10,anchors:[[8.4,2.3,1.09],[6.5,2.3,-1.09],[8.5,1.7,-1.09],[4.5,2.4,1.09],[4.5,1.8,-1.09],[7.5,2.6,1.09],[7.5,1.5,-1.09]],landing:4,walking:true},
  craft_tie_in:{mass:17.69,anchors:[[1.7,2.4,.6],[1,2.5,-.6],[1.7,3.2,0],[.5,1.7,0]],landing:2,suit:true,wingStand:true},
  craft_tie_ln:{mass:10.52,anchors:[[1.6,1.7,.5],[1,2,-.5],[1.2,2.6,0],[1.6,1,0]],landing:2,suit:true,wingStand:true},
  craft_tie_sa:{mass:51.42,anchors:[[1.5,1.2,1.6],[1.8,1.3,-1.6],[.5,1.4,1.6],[.5,1.4,-1.6]],landing:2,suit:true,wingStand:true},
  craft_v19:{mass:12.86,anchors:[[3.6,1.1,0],[2,1,0],[4.5,.7,0],[3.3,.6,0]],landing:3},
- craft_vulture:{mass:9.9,anchors:[[1.45,1.45,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
+ craft_vulture:{pumpMargin:2,mass:9.9,anchors:[[1.45,1.45,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
  craft_vwing:{mass:8.93,anchors:[[4.4,1.25,0],[3.8,.7,0],[5.1,1,0],[6.8,.8,0]],landing:3},
  craft_xwing:{mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
  craft_z95:{mass:19.16,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
@@ -57119,7 +57959,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 });
 // v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.457262470208,craft_awing:0.520272170048,craft_btlb:0.518374802929,craft_hyena:0.609057207827,craft_tie_in:0.483035397530,craft_tie_ln:0.966157093452,craft_tie_sa:0.665366005898,craft_v19:0.491483375581,craft_vulture:0.479302711847,craft_vwing:0.413168256891,craft_xwing:0.410690569983,craft_z95:0.589317234965});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.457265342081,craft_awing:0.520284386897,craft_btlb:0.518373223022,craft_hyena:0.609000918373,craft_tie_in:0.483046740527,craft_tie_ln:0.966204810839,craft_tie_sa:0.665378643168,craft_v19:0.491496321199,craft_vulture:0.479082064769,craft_vwing:0.413181616576,craft_xwing:0.407255317367,craft_z95:0.589374944176});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
@@ -57250,7 +58090,7 @@ function installCraftSystems(ship,recipe){
  if(seats&&!recipe.suit)offer('lifeSupport','生命維持装置',Math.max(seats*.035,seats*(recipe.lifeHours||12)/240));
  let seat=0;for(const p of cockpits)for(let i=0;i<Math.max(1,p.seats||1);i++)offer('ejectSeat','射出座席機構 '+(++seat),.022,[p.c[0],p.c[1]-p.d*.7,p.c[2]+(i-(Math.max(1,p.seats||1)-1)/2)*.32]);
  // v24 Craft feed their reactors through feed equipment like ships (REACTANT_SUPPLY).
- {const Vgen=ship.parts.filter(isReactor).reduce((n,p)=>n+partVolume(p),0);if(Vgen>0)offer('pump','反応物供給装置',Vgen/REACTANT_SUPPLY.reactorPerPump*1.1);}
+ {const Vgen=ship.parts.filter(isReactor).reduce((n,p)=>n+partVolume(p),0);if(Vgen>0)offer('pump','反応物供給装置',Vgen/REACTANT_SUPPLY.reactorPerPump*(recipe.pumpMargin??1.1));}
  offer('navComputer','航法コンピューター',.01);if(target>0)offer('targetComputer','照準コンピューター',target*.004*1.15);
  for(let i=0;i<4;i++)offer('maneuver','姿勢制御スラスター '+(i+1),Math.max(.005,mass/1000/4));
  if(laser>0)for(let i=0;i<2;i++)offer('laserGas','レーザーガス供給槽 '+(i+1),laser*(recipe.gasSeconds||600)/30000/2*1.05);
@@ -65547,8 +66387,16 @@ function fuelSpecificEnergyJPerKg(){
  const densityKgPerM3=Math.max(0,PARTS.fuel?.dens||0)*1000;
  return densityKgPerM3>0?FUEL_MODEL.energyDensityJPerM3/densityKgPerM3:0;
 }
+// v24 A larger reactor runs more stably. Its reactant use per unit of output converges on a fixed
+// ratio; a smaller one is less stable and needs ever more reactant for the same output. A reactor of
+// volume V gets V / (V + referenceM3) of the reactant's energy: 1/2 at 20 m³, 97% at 600 m³, about
+// 0.5% for a TIE/ln's reactor. The reactant use per output is (V + referenceM3) / V times the limit.
+const REACTANT_BURN=Object.freeze({version:1,referenceM3:20,minimum:1e-4});
+function reactorBurnEfficiency(volumeM3){const v=Math.max(0,volumeM3||0);return clamp(v/(v+REACTANT_BURN.referenceM3),REACTANT_BURN.minimum,1);}
+function reactantBurnEfficiency(volumes){const list=(volumes||[]).filter(v=>Number.isFinite(v)&&v>0),total=list.reduce((n,v)=>n+v,0);return total>0?list.reduce((n,v)=>n+v*reactorBurnEfficiency(v),0)/total:1;}
 function fuelProfileFromStats(S){
- const densityKgPerM3=Math.max(0,PARTS.fuel?.dens||0)*1000,specificEnergyJPerKg=fuelSpecificEnergyJPerKg();
+ const efficiency=Number.isFinite(S?.reactantEfficiency)?clamp(S.reactantEfficiency,REACTANT_BURN.minimum,1):Array.isArray(S?.reactorVolumes)?reactantBurnEfficiency(S.reactorVolumes):1;
+ const densityKgPerM3=Math.max(0,PARTS.fuel?.dens||0)*1000,specificEnergyJPerKg=fuelSpecificEnergyJPerKg()*efficiency;
  if(!Number.isFinite(S?.fuelVolume)||S.fuelVolume<0||!(specificEnergyJPerKg>0))return {version:FUEL_MODEL.version,capacityKnown:false,specificEnergyJPerKg,basis:'unmeasured-reactant-capacity'};
  const volumeM3=S.fuelVolume,massKg=volumeM3*densityKgPerM3;
  return {version:FUEL_MODEL.version,capacityKnown:true,volumeM3,massKg,capacityJ:massKg*specificEnergyJPerKg,specificEnergyJPerKg,basis:'installed-reactant-volume'};
@@ -66302,7 +67150,7 @@ deriveAntiAir();
 initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- withFrozenStructures,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatReadoutRates, heatProfile, heatProfileOf, heatLegacy, FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swEnergyTT, swRange, swFree, swAxis, swBeamTrace, superweaponSelection, superweaponCommand, superweaponSetAuto, MGLT, engineDepthRatio, sublightMGLT, SUBLIGHT_REFERENCE_VERSION, SUBLIGHT_REFERENCE, sublightReference, referenceSublightMGLT, referenceSublightSpeed, referenceSpeedProfile, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponShape, superweaponBodyTriangles, superweaponMuzzle, superweaponAxis, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, groundingStats, engineMountSamples, engineAppearance, engineSkinMesh, engineCasingSections, engineCasingCapacity, engineCasingFit, fitEngineCasing, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, referencePhysicalProfileCurrent, canopyShape, setCanopyShape, canopyTriangles, canopyMountPosition, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, meshFaceTriangles, meshTriangles, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, placeRotationalCopies, placeLinearCopies, rotationalArray, linearArray, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshPlanarMoves, meshMoveVertices, meshSetVertex, meshAddEdge, meshRemoveEdge, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, weaponPreviewStats, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, FLIGHT_POWER_POLICY, shipCombatPowerDemand, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetWeaponPackets, combatAddWeapons, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,REACTANT_SUPPLY,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, CORVETTE_WEAPON_KEYS, VENATOR_SIDE_WEAPON_KEYS, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, integratedEngine, nozzleShaftCapacity, propulsionOwners, engineOwner, engineMachineryPaths, enginePaths, engineTransmission, engineDriveRoutes, ENGINE_FEED_LOSS_PER_M, ENGINE_SHAFT_FLUX, ENGINE_TRANSMISSION_VERSION, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+ withFrozenStructures,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatReadoutRates, heatProfile, heatProfileOf, heatLegacy, FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swEnergyTT, swRange, swFree, swAxis, swBeamTrace, superweaponSelection, superweaponCommand, superweaponSetAuto, MGLT, engineDepthRatio, sublightMGLT, SUBLIGHT_REFERENCE_VERSION, SUBLIGHT_REFERENCE, sublightReference, referenceSublightMGLT, referenceSublightSpeed, referenceSpeedProfile, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponShape, superweaponBodyTriangles, superweaponMuzzle, superweaponAxis, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, groundingStats, engineMountSamples, engineAppearance, engineSkinMesh, engineCasingSections, engineCasingCapacity, engineCasingFit, fitEngineCasing, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, referencePhysicalProfileCurrent, canopyShape, setCanopyShape, canopyTriangles, canopyMountPosition, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, meshFaceTriangles, meshTriangles, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, placeRotationalCopies, placeLinearCopies, rotationalArray, linearArray, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshPlanarMoves, meshMoveVertices, meshSetVertex, meshAddEdge, meshRemoveEdge, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, weaponPreviewStats, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, FLIGHT_POWER_POLICY, shipCombatPowerDemand, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetWeaponPackets, combatAddWeapons, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, CORVETTE_WEAPON_KEYS, VENATOR_SIDE_WEAPON_KEYS, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, integratedEngine, nozzleShaftCapacity, propulsionOwners, engineOwner, engineMachineryPaths, enginePaths, engineTransmission, engineDriveRoutes, ENGINE_FEED_LOSS_PER_M, ENGINE_SHAFT_FLUX, ENGINE_TRANSMISSION_VERSION, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
@@ -67023,7 +67871,7 @@ function craftPowerOf(c){
  // Reuse the canonical strict source stores and finite paths, retaining only
  // that physical dissipator; power for it is reserved from the existing plant.
  const heat=C.heatProfile(p);if(!heat)return null;const indices=new Map(),dis=[];for(let i=0;i<heat.dis.length;i++){const d=heat.dis[i];if(d.k==='hdis'&&d.m===2){indices.set(i,dis.length);dis.push(d);}}
- if(!dis.length)return null;p.heat={...heat,mode:'strict',dis,ln:heat.ln.filter(l=>indices.has(l.d)).map(l=>({...l,d:indices.get(l.d)}))};p.heat=C.heatProfile(p);const fuelVolume=bom.parts.filter(row=>row.k==='fuel').reduce((n,row)=>n+row.volume*(row.count??1),0);p.fuel=C.fuelProfileFromStats({fuelVolume});p.crewCapacity=p.crewMax;
+ if(!dis.length)return null;p.heat={...heat,mode:'strict',dis,ln:heat.ln.filter(l=>indices.has(l.d)).map(l=>({...l,d:indices.get(l.d)}))};p.heat=C.heatProfile(p);const fuelVolume=bom.parts.filter(row=>row.k==='fuel').reduce((n,row)=>n+row.volume*(row.count??1),0);p.fuel=C.fuelProfileFromStats({fuelVolume,reactorVolumes:bom.parts.filter(row=>row.k==='gen'||row.k==='aux').flatMap(row=>Array(Math.max(1,row.count??1)).fill(row.volume))});p.crewCapacity=p.crewMax;
  p.maxSpeed=Number.isFinite(c.speed)&&c.speed>0?c.speed:0;c.powerProfile=C.referenceSpeedProfile(p,plan.key);c.mass=massTonnes;c.speed=c.powerProfile.maxSpeed||0;return c.powerProfile;
 }
 function squadPowerLossState(s,u){
