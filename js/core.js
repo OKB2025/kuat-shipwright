@@ -63122,9 +63122,12 @@ function placementDraftStatus(ship){
  const pending=[],failed=[];for(const list of ['parts','fits'])for(const item of ship?.[list]||[]){const meta=item.placement;if(meta?.validationFailed)failed.push({list,id:item.id,code:meta.repairReason||'placement-failed'});else if(meta?.pendingGeometry)pending.push({list,id:item.id});}return {ok:!pending.length&&!failed.length,ready:!pending.length&&!failed.length,pending,failed};
 }
 function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport'])delete source[key];return surfaceHash([source]);}
+// The failure record names its code and the validated source key, so a reader can tell whether it still
+// describes the item's current failure (an Undo can restore an older state without re-validating it).
+function placementFailureRecord(item){const r=item?._placementFailure,m=item?.placement;return r&&m?.validationFailed&&r.code===m.repairReason&&r.sourceKey===m.validationSourceKey?r:null;}
 function placementPendingFailure(item,result){
  const meta=item.placement;delete meta.pendingGeometry;meta.validationFailed=true;meta.repairRequired=true;meta.repairReason=result.code||'calculation-failed';meta.validationSourceKey=placementPendingSourceKey(item);delete item._placementGeometry;delete item._clip;delete item._packing;delete item.engineMountSupport;delete item._engineMountSupportGeometry;
- item._placementFailure={code:meta.repairReason,error:result.error||'配置の検証に失敗しました',...(result.detail?{detail:result.detail}:{})};
+ item._placementFailure={code:meta.repairReason,sourceKey:meta.validationSourceKey,error:result.error||'配置の検証に失敗しました',...(result.detail?{detail:result.detail}:{})};
  if(FITS[item.k]&&!PARTS[item.k]){item.float=true;item._fitPlacementError={code:meta.repairReason,error:result.error||'配置の検証に失敗しました'};}else{item._placementError=meta.repairReason;if(placementCapability(item).space==='interior')item._interiorPlacementError={code:meta.repairReason,error:result.error||'配置の検証に失敗しました'};meta.requestedGeometry=placementShape(item);}
 }
 function placementPendingSurface(ship,parent,point,normal,metadata){
@@ -63313,9 +63316,9 @@ function fitAttachmentSurface(ship,host,point,normal,surfaceId){
  return placementFailure('surface-missing','指定した取付位置は追加元の実形状の面上にありません');
 }
 function fitAttachmentHit(ship,f){
- if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と追加元の接触が失われています'};return null;}
+ if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;delete f._placementFailure;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と追加元の接触が失われています'};return null;}
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),r=fitAttachmentSurface(ship,host,f.p,f.n||AXES[f.a],f.placement?.hostSurfaceId);
- if(!r.ok){f._fitPlacementError={code:r.code,error:r.error};return null;}delete f._fitPlacementError;return r.hit;
+ if(!r.ok){f._fitPlacementError={code:r.code,error:r.error};return null;}delete f._fitPlacementError;delete f._placementFailure;return r.hit;
 }
 function prepareFitAttachment(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
@@ -63410,14 +63413,14 @@ function rehostFitPlacement(ship,fit,parent){
  const contact=placementFitContact(ship,fit,parent);if(!contact.connected)return placementFailure('contact-zero','現在の装備の支持面は追加元と接触していません',{contact});
  const n=fit.n||fitUp(fit),forward=fit.frameForward||fitFrameOf({...fit,assetYaw:0,frameFlip:false}).fw,zero={...parent,c:[0,0,0]},localForward=localStruct(zero,forward),metadata={...(fit.placement||{}),modelVersion:PLACEMENT_MODEL_VERSION,mode:'direct',geometryRevision:(fit.placement?.geometryRevision||0)+1,parentGeometryRevision:parent.placement?.geometryRevision??parent.geometryRevision??0,parentGeometryKey:placementDependencyKey(parent),localUp:localStruct(zero,fitUp(fit)),supportAttachment:true,supportEligible:turretSupportEligible(fit)};
  delete metadata.hostId;delete metadata.parentStructureId;delete metadata.hostSurfaceId;
- fit.host=parent.id;fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,n);fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];fit.placement=metadata;fit.float=false;delete fit._fitPlacementError;
+ fit.host=parent.id;fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,n);fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];fit.placement=metadata;fit.float=false;delete fit._fitPlacementError;delete fit._placementFailure;
  return {ok:true,fit,contact};
 }
 function refreshFitPlacementAttachments(ship){
  const updated=[],failed=[],resolvedFits=[];for(const fit of ship.fits||[]){if(!isAnchoredFit(fit))continue;
   if(fit.placement.validationFailed){const parent=placementParent(ship,fit.host);if(fit.placement.validationSourceKey!==placementPendingSourceKey(fit)||parent&&fit.placement.parentGeometryKey!==placementDependencyKey(parent)){fit.placement.pendingGeometry=true;delete fit.placement.validationFailed;delete fit.placement.repairRequired;delete fit.placement.repairReason;}}
   if(fit.placement.pendingGeometry){const parent=placementParent(ship,fit.host),point=parent&&fit.local?fitAttachmentPoint(parent,fit):fit.p,normal=parent&&fit.localNormal?fitAttachmentWorldNormal(parent,fit):fit.n,surface=parent?._placementError||parent?.placement?.validationFailed?placementFailure('parent-unresolved','追加元の配置を修正してください'):parent?placementPendingSurface(ship,parent,point,normal,fit.placement):placementFailure('parent-missing','装備の追加元が失われています'),result=surface.ok?solveFitPlacement(ship,fit,{mode:'direct',entityKind:'fit',hostId:fit.host,hit:surface.hit,hostSurfaceId:surface.hostSurfaceId||fit.placement.hostSurfaceId,geometryRevision:fit.placement.geometryRevision},{isolatedSource:true}):surface;
-   if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
+   if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;delete fit._placementFailure;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
   }
   if(fit.placement.validationFailed){failed.push({fitId:fit.id,code:fit.placement.repairReason||'placement-failed'});continue;}
   mountFit(ship,fit);if(fit.float){failed.push({fitId:fit.id,code:fit._fitPlacementError?.code||'contact-zero'});continue;}const parent=ship.parts.find(p=>p.id===fit.host);fit.placement.parentGeometryRevision=parent.placement?.geometryRevision??parent.geometryRevision??0;fit.placement.parentGeometryKey=placementDependencyKey(parent);updated.push(fit.id);
@@ -63432,7 +63435,7 @@ function remapFitPlacementCopy(fit,mapping,options={}){
  const parent=options.targetParts?.find(p=>p.id===fit.host&&isShapePart(p));
  if(parent){const zero={...parent,c:[0,0,0]},forward=fit.frameForward||fitFrameOf({...fit,assetYaw:0,frameFlip:false}).fw,localForward=localStruct(zero,forward);fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,fit.n||fitUp(fit));fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];meta.localUp=localStruct(zero,fitUp(fit));meta.parentGeometryRevision=parent.placement?.geometryRevision??parent.geometryRevision??0;meta.parentGeometryKey=placementDependencyKey(parent);}
  else{delete meta.parentGeometryKey;delete meta.parentGeometryRevision;}
- delete meta.unresolvedHostId;delete meta.repairRequired;delete fit._fitPlacementError;return fit;
+ delete meta.unresolvedHostId;delete meta.repairRequired;delete fit._fitPlacementError;delete fit._placementFailure;return fit;
 }
 function normalizePlacementMetadata(value,part){
  if(FITS[part?.k]&&!PARTS[part?.k]||part?._fit)return normalizeFitPlacementMetadata(value,part);
@@ -66566,7 +66569,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,placementFailureRecord,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
