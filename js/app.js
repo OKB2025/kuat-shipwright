@@ -2969,7 +2969,7 @@ function unalignedPartPreview(hit) {
     const mg = Math.max(ship.hull.L||0,ship.hull.W||0,ship.hull.H||0)<100 ? .03 : 1, off = mode === 'inside' ? -(e + mg) : mode === 'partial' ? -e * 0.4 : e * 0.92;
     c = C.add(hit.p, C.mul(hit.n, off));
   }
-  return {id:-1,k,c,d:size,...(C.PARTS[k].shape==='cube'?{room:(st.roomSize||[120,60,24]).slice()}:{}),...(k==='engine'?{...pendingGenericEngine(),id:-1,c,d:size,dir:st.engineDir.slice(),reactor:st.reactor}:{}),...(k==='engineCore'?{...pendingEngineCore(),id:-1,c,dir:st.engineDir.slice(),reactor:st.reactor}:{}),...(k==='astromech'?{dir:[0,1,0]}:{}),...(k==='cockpit'?{seats:1}:{})};
+  return {id:-1,k,c,d:size,...(k==='cockpit'?{room:C.COCKPIT_SEAT.room.slice()}:k==='droidbrain'?{}:C.PARTS[k].shape==='cube'?{room:(st.roomSize||[120,60,24]).slice()}:{}),...(k==='engine'?{...pendingGenericEngine(),id:-1,c,d:size,dir:st.engineDir.slice(),reactor:st.reactor}:{}),...(k==='engineCore'?{...pendingEngineCore(),id:-1,c,dir:st.engineDir.slice(),reactor:st.reactor}:{}),...(k==='astromech'?{dir:[0,1,0]}:{}),...(k==='cockpit'?{seats:1}:{})};
 }
 function notchBox(hit) {
   const n = hit.n, a = Math.abs(n[0]) > Math.abs(n[1]) && Math.abs(n[0]) > Math.abs(n[2]) ? 0 : Math.abs(n[1]) >= Math.abs(n[2]) ? 1 : 2;
@@ -3380,7 +3380,9 @@ function craftSystemsHTML(stats){
 }
 function cockpitEquipmentHTML(p){
  if(p.k!=='cockpit')return '';
- return `<div class="pgroup cockpit-equipment"><h4>操縦席の搭乗条件</h4><label>座席数<input type="number" data-cockpit-seats value="${p.seats||1}" min="1" max="20" step="1" aria-label="操縦席の座席数"></label><label><input type="checkbox" data-cockpit-suit ${p.suit?'checked':''}> 宇宙服で運用（機内の生命維持を使わない）</label><p class="note">TIEのように宇宙服へ依存する機体を指定できます。シールドやハイパードライブは追加されません。</p></div>`;
+ // v24 One seat per crew compartment; it must lie wholly inside the structures.
+ const fits=typeof S!=='undefined'&&S?C.cockpitSeatFits?.(p):null;
+ return `<div class="pgroup cockpit-equipment"><h4>乗員区画の搭乗条件</h4><p class="note">1区画に1名が座ります（幅0.7 m・高さ1.2 m・奥行1.1 m）。乗員を増やすときは区画を増やしてください。${fits===false?'<b>構造物に収まっていないため、この席には座れません。</b>':''}</p><label><input type="checkbox" data-cockpit-suit ${p.suit?'checked':''}> 宇宙服で運用する</label></div>`;
 }
 function editCockpitEquipment(t){
  if(!t?.dataset||!('cockpitSeats'in t.dataset||'cockpitSuit'in t.dataset))return false;
@@ -3539,6 +3541,9 @@ function basePartEditor() {
       + shapeDimensionSlider('ew',isAeroKind(it.k)?'翼幅・パネル幅':'幅',it.s[1],1)
       + shapeDimensionSlider('eh',isAeroKind(it.k)?'厚さ':'高さ',it.s[2],2)
       + (['hull', 'loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'airfoil', 'reference'].includes(it.form) ? '' : slider('et', '上すぼまり', Math.round((it.taper || 0) * 100), 0, 80, 1, Math.round((it.taper || 0) * 100) + '%')) + '</div>';
+  } else if (it.k==='cockpit'||it.k==='droidbrain') {
+    // v24 Crew seats and droid brains have one fixed size.
+    size = `<p class="note">固定寸法：${it.k==='cockpit'?'幅0.7 m・高さ1.2 m・奥行1.1 m':'一辺0.34 m'}</p>`;
   } else if (it.room) {
     size = '<div class="sliders">' + it.room.map((v,i)=>metreSlider('room'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[hp.L,hp.W,hp.H][i]))).join('') + '</div>';
   } else if(it.k==='cockpit'&&C.canopyShape){
@@ -3612,7 +3617,7 @@ function baseRenderPanel() {
         } else {
           if (k === 'hangar') h += `<div class="pgroup"><h4>自動充填のセルサイズ</h4><div class="chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-psize="${s}" aria-pressed="${st.size.hangar === s}">${s} m</button>`).join('')}</div></div>`;
           else if(C.PARTS[k].fixed) h += `<div class="pgroup"><h4>固定寸法</h4><p class="note">直径 ${fmtM(C.PARTS[k].def)}・長さ ${fmtM(C.PARTS[k].def * C.PARTS[k].ratio)}。${C.SUPERWEAPONS[k]?.aim === 'bow' ? '艦首方向に固定して置きます。' : '置いた側の舷側方向に固定して置きます（左右対称で一対）。'}給電する炉は最寄りの炉に自動で接続し、選択して変えられます。</p></div>`;
-          else if(k==='cockpit'&&C.canopyShape)h+=designCanopyControls({k,d:pSize(k)},false);
+          else if(k==='cockpit'||k==='droidbrain')h+=`<div class="pgroup"><h4>固定寸法</h4><p class="note">${k==='cockpit'?'幅0.7 m・高さ1.2 m・奥行1.1 m（1名分の座席）。構造物の中に完全に収めて置きます。':'一辺0.34 m。'}</p></div>`;
           else if(!activeEquipment()&&C.PARTS[k].shape!=='cube'){const r=partSizeRange(k);h+=`<div class="pgroup sliders">${slider('psize','直径',pSize(k),r.min,r.max,r.step,sizeOut(k,pSize(k)),'any')}</div>`;}
           if (k === 'hangar') h += `<div class="pgroup sliders"><h4>自動充填</h4>
             ${slider('ffrom', '範囲（艦尾側）', Math.round(st.fill[0] * 100), 0, 95, 1, Math.round(st.fill[0] * 100) + '%')}

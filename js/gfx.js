@@ -2099,7 +2099,8 @@ function meshOnePart(out,p,ship,opt,glow){
     if(k==='engineCore'){engineCoreMesh(out.interior,p,color);return;}
     if(k==='sensor'){sensorShell(out.struct,p,color);return;}
     // v21 A cockpit shows as tinted canopy glass where it stands out of the hull; an astromech as its dome.
-    if(k==='cockpit'){const canopy=C.canopyTriangles?.(p);if(canopy)triangleMesh(out.struct,canopy,opt.coded?color:CANOPY_GLASS,36);else sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
+    // v24 A crew seat (a fixed room) draws as an interior compartment like any room.
+    if(k==='cockpit'&&!p.room){const canopy=C.canopyTriangles?.(p);if(canopy)triangleMesh(out.struct,canopy,opt.coded?color:CANOPY_GLASS,36);else sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
     if(k==='astromech'){const r=p.d/2,u=C.norm(p.dir||[0,1,0]),h=p.d*1.05,base=C.sub(p.c,C.mul(u,h/2)),top=C.add(p.c,C.mul(u,h*.18));axisFrustum(C.isInternal(p)?out.interior:out.struct,base,top,r*.82,r*.82,opt.coded?color:[188,196,204],false);if(!C.isInternal(p))sphere(out.struct,top,r*.8,opt.coded?color:ASTRO_DOME,8,3);return;}
     if(d.shape==='sphere'){sphere(C.isInternal(p)?out.interior:k==='gen'?out.gen:out.shield,p.c,p.d/2,color,8,3);return;}
     if(d.shape==='cube'){if(p.room||p._clip){roomMesh(ship,p,k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,color);}else{const r=p.d/2;boxSolid(k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,C.sub(p.c,[r,r,r]),C.add(p.c,[r,r,r]),color,32);}return;}
