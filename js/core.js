@@ -50796,7 +50796,8 @@ function baseComputeStats(ship,options={}) {
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp, reactorVolumes, reactantEfficiency:reactantBurnEfficiency(reactorVolumes),
     // Reactors left out of the output because their interior placement is invalid (traced in the warnings).
-    invalidReactorIds:occupied.filter(p=>invalid.has(p.id)&&isReactor(p)).map(p=>p.id),
+    // Present only when some reactor is excluded, so the figures of an ordinary ship are unchanged.
+    ...(occupied.some(p=>invalid.has(p.id)&&isReactor(p))?{invalidReactorIds:occupied.filter(p=>invalid.has(p.id)&&isReactor(p)).map(p=>p.id)}:{}),
   };
   S.cls = classify(S);
   S.warnings = warnings(S);
