@@ -51598,9 +51598,38 @@ function v3Deserialize(o){
 }
 const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['imperial','imperial2','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
+// v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
+// a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
+// without moving the fittings that sit on it. Contact here is between shapes, as in groundingStats.
+function bridgeLooseStructures(ship){
+ const shapes=ship.parts.filter(p=>isShapePart(p)&&p.k!=='engine'),tol=clamp((ship.hull?.L||100)*.001,.5,3),hullOK=!!ship.hull&&!ship.hull.assembly;
+ const samples=new Map(),sm=p=>{let a=samples.get(p.id);if(!a){try{a=surfSamples(p,tol);}catch(e){a=[];}if(a.length>220){const k=a.length/220;a=Array.from({length:220},(_,i)=>a[Math.floor(i*k)]);}samples.set(p.id,a);}return a;};
+ const near=(p,q)=>{try{return inPart(p,q)||[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]].some(u=>inPart(p,add(q,mul(u,tol))));}catch(e){return false;}};
+ const onHull=p=>hullOK&&sm(p).some(q=>inHull(ship,q))||isHullStructure?.(p);
+ const touch=(a,b)=>{const A=partAABB(a),B=partAABB(b);for(let i=0;i<3;i++)if(A[i]>B[i+3]+tol||B[i]>A[i+3]+tol)return false;return sm(a).some(q=>near(b,q))||sm(b).some(q=>near(a,q));};
+ const grounded=new Set(shapes.filter(onHull).map(p=>p.id));let changed=true;
+ while(changed){changed=false;for(const p of shapes)if(!grounded.has(p.id)&&shapes.some(q=>grounded.has(q.id)&&touch(p,q))){grounded.add(p.id);changed=true;}}
+ const added=[];
+ for(const p of shapes.filter(p=>!grounded.has(p.id)).sort((a,b)=>partAABB(a)[1]-partAABB(b)[1])){
+  if(grounded.has(p.id))continue;const A=partAABB(p);let best=null;
+  // The strut stands where the part's underside is nearest a grounded surface below it, or, for a part hanging
+  // under the ship, where its top is nearest a grounded surface above it.
+  for(const dir of [-1,1])for(let i=0;i<5;i++)for(let j=0;j<5;j++){const x=A[0]+(A[3]-A[0])*(i+.5)/5,z=A[2]+(A[5]-A[2])*(j+.5)/5,face=rayPart([x,dir<0?A[1]-1:A[4]+1,z],[0,-dir,0],p);if(!face)continue;const o=[x,face.p[1]+dir*.01,z],d=[0,dir,0];let g=null;
+   for(const q of shapes){if(!grounded.has(q.id))continue;const h=rayPart(o,d,q);if(h&&(!g||h.t<g.t))g=h;}
+   if(hullOK){const h=rayEnv(ship,o,d);if(h&&(!g||h.t<g.t))g=h;}
+   if(g&&(!best||g.t<best.gap))best={x,z,y:face.p[1],gap:g.t,dir};}
+  if(!best||best.gap>Math.max(60,(A[4]-A[1])*4))continue;
+  const w=clamp(Math.min(A[3]-A[0],A[5]-A[2])*.3,1,20),ov=Math.max(tol*2,Math.min(4,w/2)),y0=best.y-best.dir*ov,y1=best.y+best.dir*(best.gap+ov),top=Math.max(y0,y1),bot=Math.min(y0,y1);
+  const strut=placePart(ship,'struct',[best.x,(top+bot)/2,best.z],[w,w,top-bot],{form:'box',label:(p.label||'構造物')+'の接続支柱'});
+  if(strut){grounded.add(strut.id);grounded.add(p.id);added.push(strut.id);
+   // Whatever was resting on this part is grounded with it.
+   let more=true;while(more){more=false;for(const q of shapes)if(!grounded.has(q.id)&&shapes.some(g=>grounded.has(g.id)&&touch(q,g))){grounded.add(q.id);more=true;}}}
+ }
+ return added;
+}
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');try{
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -63808,7 +63837,10 @@ function groundingStats(ship,S){
  // Two parts whose padded bounding boxes overlap are treated as touching: the
  // check is meant to catch parts left out in space, never to reject a fit-up.
  const nearSolid=(p,q)=>safeIn(p,q)||AXES.some(u=>safeIn(p,add(q,mul(u,tol))));
- const touch=(a,b)=>{if(explicit(a)){if(a._placementError||a.placement.parentStructureId!==b.id)return false;return (placementCapability(a).kind==='structure'?placementContact(ship,a,b):placementEquipmentContact(ship,a,b)).connected;}if(explicit(b)&&isShapePart(a)){if(b._placementError)return false;return placementContact(ship,b,a).connected;}if(!near(a,b))return false;if(a.k==='engine'||b.k==='engine'){const engine=a.k==='engine'?a:b,other=engine===a?b:a;return sm(engine).some(q=>nearSolid(other,q));}return true;};
+ const touch=(a,b)=>{if(explicit(a)){if(a._placementError||a.placement.parentStructureId!==b.id)return false;return (placementCapability(a).kind==='structure'?placementContact(ship,a,b):placementEquipmentContact(ship,a,b)).connected;}if(explicit(b)&&isShapePart(a)){if(b._placementError)return false;return placementContact(ship,b,a).connected;}if(!near(a,b))return false;if(a.k==='engine'||b.k==='engine'){const engine=a.k==='engine'?a:b,other=engine===a?b:a;return sm(engine).some(q=>nearSolid(other,q));}
+ // v24 Two structures touch only where their shapes do, not where their bounding boxes overlap: a thin slab lying
+ // inside another structure's box but clear of its shape (a measured layer floating over a tower) is loose.
+ if(isShapePart(a)&&isShapePart(b))return sm(a).some(q=>nearSolid(b,q))||sm(b).some(q=>nearSolid(a,q));return true;};
  const grounded=new Set();for(const p of parts)if(touchesHull(p))grounded.add(p.id);
  if(!hullOK&&parts.length){const candidates=parts.filter(p=>!explicit(p)||p.placement.root&&p.placement.parentStructureId==null);if(candidates.length){const big=candidates.reduce((a,b)=>partVolume(b)>partVolume(a)?b:a);grounded.add(big.id);}}
  const engineEntries=engineDriveRoutes(ship).routes.filter(r=>r.ok).flatMap(r=>r.entrySegments||[]);
