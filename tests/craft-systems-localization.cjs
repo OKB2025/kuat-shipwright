@@ -90,7 +90,8 @@ test('crew survival and loss totals translate actual tallies with their dynamic 
 });
 
 test('computed system warnings translate complete sentences and retain engineering figures', () => {
-  const warnings = run('fixture().warnings.filter(w=>w.code==="craft-systems").map(w=>w.text)');
+  // v24 The navigation shortage has its own code (it applies to ships too).
+  const warnings = run('fixture().warnings.filter(w=>w.code==="craft-systems"||w.code==="navigation").map(w=>w.text)');
   assert.equal(warnings.length, 7, 'exercise each shortage warning from the engineering model');
   for (const source of warnings) {
     const output = translated(source);

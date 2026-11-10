@@ -56936,12 +56936,13 @@ function xwingBuild(opt={}){
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- machinery ----
  // The fusion reactor fills the rear fuselage; each Incom 4L4 fusial thrust engine runs the
- // length of its nacelle along the exhaust tube (0.6 m, the model's tube), fed from the reactor; the
- // 4.25 m nozzles give 3,700 G, the canon figure.
+ // length of its nacelle along the exhaust tube (0.6 m, the model's tube), fed from the reactor.
+ // v24 The nozzle is only the tube's aft 1.2 m; the engine body fills the rest of the tube and the
+ // nacelle ahead of it (refitCraftInterior). Acceleration stays 3,700 G (CRAFT_REACTOR_SCALE).
  const gen=put('gen','核融合炉',[opt.genX??2.55,1.69,0],opt.genD??1.65);
  for(const w of [1,-1]){
   const up=w>0?'上':'下',Y=y=>w>0?y:2*XW_YC-y;
-  const NL=opt.nozzleL??4.25,c=xwFoil(w,NL/2+.02,Y(opt.nozzleY??2.2),1.643);
+  const NL=opt.nozzleL??XW_NOZZLE_LENGTH,c=xwFoil(w,NL/2+.02,Y(opt.nozzleY??2.2),1.643);
   carry(w,put('engine',`右舷${up}機関 4L4 核融合推進機関`,c,opt.nozzleD??.6,{dir:[-1,0,0],nozzleLength:NL,bodyLength:.15,bodyRadius:.52,reactor:gen.id},true));
  }
  // Cockpit under the canopy; the astromech socket behind it, its dome standing out of the hull.
@@ -57116,6 +57117,8 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
  craft_xwing:{g:3700,basis:'published acceleration'},
  craft_z95:{g:3330,reactors:[1.02,1.02],basis:'game assumption; 90% of X-wing acceleration'}
 });
+// v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
+const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
 const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.457262470208,craft_awing:0.520272170048,craft_btlb:0.518374802929,craft_hyena:0.609057207827,craft_tie_in:0.483035397530,craft_tie_ln:0.966157093452,craft_tie_sa:0.665366005898,craft_v19:0.491483375581,craft_vulture:0.479302711847,craft_vwing:0.413168256891,craft_xwing:0.410690569983,craft_z95:0.589317234965});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
@@ -57136,15 +57139,17 @@ function refitCraftInterior(ship,key){
  // acceleration (as the TIE/ln's reactor was); measured once on the completed craft against the
  // component-rated acceleration of its combat preview (S.propulsion), cooling and token shields included.
  if(CRAFT_REACTOR_SCALE[key])for(const p of reactors)p.d*=CRAFT_REACTOR_SCALE[key];
- // The four X-wing exhaust tubes project aft of both its fuselage and intake nacelles. Four
- // longitudinal casing rails per tube carry that mass into the wing root, inside the existing
- // nozzle envelope, while keeping the exhaust end open. They travel with the same S-foil.
+ // The four X-wing exhaust tubes project aft of both its fuselage and intake nacelles. v24 The
+ // nozzle is the tube's aft end; ahead of it an engine casing (the tube's outer wall) carries the
+ // engine body into the nacelle. The casing travels with the same S-foil.
  if(key==='craft_xwing')for(const e of engines){
-  const x0=e.c[0]-e.nozzleLength/2,x1=1.8,root=ship.parts.find(p=>p.wing?.members?.parts?.includes(e.id));
-  for(const y of [-1,1])for(const z of [-1,1]){const p=placePart(ship,'struct',[(x0+x1)/2,e.c[1]+y*.14,e.c[2]+z*.14],[x1-x0,.105,.105],{label:'推進管内の縦通支持材',form:'box',skin:'service'});if(root)root.wing.members.parts.push(p.id);}
+  const x0=e.c[0]+e.nozzleLength/2,x1=XW_TUBE_END,root=ship.parts.find(p=>p.wing?.members?.parts?.includes(e.id)),wing=root?.wing,angle=wing?Math.atan2(e.c[1]-wing.pivot[1],Math.abs(e.c[2]-wing.pivot[2])):0;
+  const p=placePart(ship,'struct',[(x0+x1)/2,e.c[1],e.c[2]],[x1-x0,e.d+.04,e.d+.04],{label:'推進管の機関外筒',form:'cylinder',light:true,paint:'#66686c'});p.yaw=0;p.pitch=0;p.roll=0;if(root)root.wing.members.parts.push(p.id);
+  // Four longitudinal rails per tube (from the exhaust end into the wing root) carry the tube's mass.
+  const r0=e.c[0]-e.nozzleLength/2;for(const y of [-1,1])for(const z of [-1,1]){const q=placePart(ship,'struct',[(r0+x1)/2,e.c[1]+y*.14,e.c[2]+z*.14],[x1-r0,.105,.105],{label:'推進管内の縦通支持材',form:'box',skin:'service'});if(root)root.wing.members.parts.push(q.id);}
  }
  if(key==='craft_xwing'){
-  const rails=ship.parts.filter(p=>p.label==='推進管内の縦通支持材');
+  const rails=ship.parts.filter(p=>p.label==='推進管の機関外筒'||p.label==='推進管内の縦通支持材');
   for(const p of rails){const q=rails.find(q=>q!==p&&len(sub(q.c,mirrorP(p.c)))<1e-8);if(q)p.tw=q.id;}
   // Explicit membership follows the same mirrored source order as the nacelle and engine.
   for(const w of ship.parts.filter(p=>isFoil(p)&&p.c[2]>0)){const q=ship.parts.find(p=>p.id===w.tw);if(q)q.wing.members.parts=w.wing.members.parts.map(id=>ship.parts.find(p=>p.id===id)?.tw).filter(Number.isInteger);}
@@ -57152,7 +57157,7 @@ function refitCraftInterior(ship,key){
  for(const e of engines){
   // Retain every measured nozzle and outlet position. The receiving machinery is independently
   // sized and has finite normal-catalogue density; rebuilt craft have no migration-only cooling.
-  const old=machineryGeometry(e,ship);Object.assign(e,{propulsionModelVersion:PROPULSION_MODEL_VERSION,driveProfileId:'standard',machineryGradeId:'advanced',machineryLengthM:Math.max(.3,Math.min(1,old.length)),machineryRadiusM:e.d*.35,machineryOffsetM:old.offset,machineryFeedRadiusM:Math.min(.08,e.d*.15),legacyCoolingInputW:0});
+  const old=machineryGeometry(e,ship),xw=key==='craft_xwing';Object.assign(e,{propulsionModelVersion:PROPULSION_MODEL_VERSION,driveProfileId:'standard',machineryGradeId:'advanced',machineryLengthM:xw?XW_ENGINE_BODY.length:Math.max(.3,Math.min(1,old.length)),machineryRadiusM:xw?XW_ENGINE_BODY.radius:e.d*.35,machineryOffsetM:old.offset,machineryFeedRadiusM:Math.min(.08,e.d*.15),legacyCoolingInputW:0});
   delete e.propulsionMigration;delete e.machineryId;
  }
  syncCompartments(ship);installCraftSystems(ship,CRAFT_SYSTEM_RECIPES[key]);
