@@ -13,5 +13,7 @@
 | `gamesection.cjs ROOT KEY x POS U0 U1 V0 V1 STEP OUT.json` | 作例の構造物を断面で塗り分ける（`BUILD=1` で生成済みファイルでなく現在の Core の `buildDesign` を使う） |
 | `sectionsvg.py ...` | 原本の断面線と作例の断面を重ねた SVG を作る |
 | `svg2png.cjs FILE.svg...` | SVG を PNG にする（Playwright） |
+| `fairrows-audit.cjs js/core.js OUT.json` | 測定立体ごとに、旧 `fairRows`・全行の包絡・2 行の包絡（現行）でのロフト体積を比べる |
+| `compvol.py TOOLS STL TOP.json` | 体積差の大きい立体について、対応する原本の連結成分（外接箱の IoU 最大）の体積と閉じているかを出す（ミュニフィセント用の写像） |
 
 注意：外接箱による位置合わせは近似です（全長・幅・高さとも作例と 1% 以内で一致することを確認した艦だけに使う）。ルクレハルクは本来、中心球の中心で原点を合わせる（`scripts/stl-measure/luc_fit.py`）。三角形の外接箱で「柱の範囲に原本の形がある」を数えるため、斜めの面が柱の上を通るだけでも数に入る。最終判断は断面画像で行う。

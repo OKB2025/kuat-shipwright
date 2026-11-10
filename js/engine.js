@@ -367,8 +367,8 @@ function placementResolution(job, resolution) {
       effectiveGeometry: placementEffectiveGeometry(item), error: typeof problem === 'string' ? problem : problem?.code || null,
       ...(item._embeddedCasingError?{cacheKeys:{_embeddedCasingError:item._embeddedCasingError,_embeddedCasingErrorKey:item._embeddedCasingErrorKey}}:{}),
       // The code alone is a string; the message and the traced reason live on the failure record.
-      ...((problem?.error || item._placementFailure?.error) ? {errorMessage: problem?.error || item._placementFailure.error} : {}),
-      ...(item._placementFailure?.detail ? {errorDetail: item._placementFailure.detail} : {}),
+      // A failure record is used only for the failure it describes (a later code, e.g. parent-unresolved, keeps no stale text).
+      ...((failure => ({...((problem?.error || failure?.error) ? {errorMessage: problem?.error || failure.error} : {}), ...(failure?.detail ? {errorDetail: failure.detail} : {})}))(item._placementFailure && item._placementFailure.code === (typeof problem === 'string' ? problem : problem?.code) ? item._placementFailure : null)),
       geometryKeys: {self: item._placementSelfKey, request: item._placementRequestKey, parent: item._placementParentKey}});
   }
   if (rows.length) post({type: 'placementResolution', designId: job.designId, gen: job.gen, rows,

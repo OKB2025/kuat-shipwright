@@ -45,7 +45,7 @@ STL・図面・写真測定を基にした作例艦の形状、部品構成、�
 - 根拠文書：`docs/structure-contact-v24.md`。原本上の対応箇所は示されていない。
 - 2026-11-10 時点（`dbe9ff9`）の生成物での支柱数：executor 26、munificent 4、lucrehulk 3、lh3210 3、nebulonb 2、recusant 2、recusantDn 2、mc80home 1。文書の表とは nebulonb・recusant が一致しない。
 - これらの支柱は、原本にない追加物である可能性が高い。後続作業で、浮いた原因（層の間のすき間の測定、座標、省略された部位）を調べ、原因に対応して直す。
-- 2026-11-10：ミュニフィセントの 4 本は、`buildMeasuredSolids` の測定行の間引き（`fairRows`）で構造物の端の断面が失われたのが原因だった。端の行をまとめる修正で 0 本になった（`docs/dev-status-2026-11.md` §2.1）。
+- 2026-11-10：ミュニフィセントの 4 本は、`buildMeasuredSolids` の測定行の間引き（`fairRows`）で構造物の端の断面が失われたことが原因と確認した（#306・#307・#309 は原本の連結成分・断面で、#308 は端の範囲の回復で確認）。端の行をまとめる修正で 0 本になった。ただし referenceShape・physicalValidity は全体シルエット・全部品の原本比較・保存後の確認が残っており UNVERIFIED（`docs/dev-status-2026-11.md` §2.1）。
 
 ## 5. 全体と局所を確認する
 
