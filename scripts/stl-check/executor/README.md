@@ -9,7 +9,7 @@
 | 3. 作例の機関 | `node -e` で作例の `k==='engine'` の位置・ノズル長・本体長を `engines-detail.json` に、`partAABB` を `engines.json` に書き出す |
 | 4. 原本の機関外殻（外に出ている長さと半径） | `python3 -I nacelle2.py`（`nacelles.json`。艦首側の機関筒の穴を外殻と誤認しないよう、外殻が続く最初の区間だけを使う） |
 | 5. 船体の測点の当てはめ | `node hull0.cjs ROOT $KS_EXE_WORK/hull0`、`python3 -I fitstations.py`（`stations-fit.json`、原本−機関空間の内側に収め、トレンチ範囲は舷側帯と幅を保つ）、`node hull0.cjs ROOT $KS_EXE_WORK/hullfit1 stations-fit.json`、断面図 `hulldraw.py` |
-| 6. 船体の外の構造物 | `python3 -I body60.py`（60 m の帯、原本−当てはめた船体−機関の空間−トレンチ開口の外側−艦橋の範囲）、`python3 -I seat60.py`（斜めの甲板へ届かせる） |
+| 6. 船体の外の構造物 | `python3 -I body60.py`（60 m の帯、原本−当てはめた船体−機関の空間（下限直径の機関）−トレンチ開口の外側−艦橋の範囲）、`python3 -I seat60.py`（原本に中身がある所だけ斜めの甲板へ届かせる）、`python3 integrate.py core.js body60-seated.json OUT_core.js`、`node eval.cjs` → `python3 -I finalize60.py body60-seated.json eval.json`（支柱の隙間を原本に中身がある所だけ閉じる）→ 再び integrate と eval |
 | 7. 組み立てと確認 | `node eval.cjs ROOT OUT.json`（支柱・接地・警告・機関の露出・加速）、`node prop.cjs ROOT OUT.json`（機関ごとの入力・推力・電源） |
 | 8. 断面画像 | `gamesection.cjs`・`sectionsvg_exe.py`・`../svg2png.cjs` |
 

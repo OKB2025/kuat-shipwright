@@ -1,5 +1,5 @@
 # Executor body structures: original − fitted hull (before trench/cuts) − engine casings − the model's bridge, in 30 m bands
-# with 5 m runs (structures reach the deck), simplified (<= 48 points, tolerance up to 12 m) to drop fine surface detail.
+# with 5 m runs (structures reach the deck), simplified (<= 64 points, tolerance up to 12 m) to drop fine surface detail.
 import numpy as np,json,sys
 import os;SP=os.environ['KS_EXE_WORK'].rstrip('/')+'/';sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from shapely.geometry import Polygon,Point,box
@@ -11,16 +11,16 @@ ED={e['id']:e for e in json.load(open(SP+'engines-detail.json'))}
 def casings_band(y0,y1):
     out=[]
     for n in N:
-        e=ED[n['id']];R=max(n['casing_r'],n['d']/2)+15;L=e['nozzleLength']+e['mlen']+5   # the example's own engine (nozzle + body); the model's casing beyond it stays as structure
+        e=ED[n['id']];D=max(e['d'],247.6584*1.08);R=max(n['casing_r'],D/2*1.1)+15;L=(e['nozzleLength']+e['mlen'])*D/max(1,e['d'])+20   # the example's engine at its final size (refitShipPropulsion: >= 1.08 x 247.6584 m), nozzle + body scaled with the diameter; the model's casing beyond it stays as structure
         dy=max(0,max(y0-n['y'],n['y']-y1)) if not (y0<=n['y']<=y1) else 0
         if dy>=R:continue
         hz=np.sqrt(R*R-dy*dy)
         for z in {n['z'],-n['z']}:out.append(box(n['mouth_x']-250,z-hz,n['mouth_x']+L,z+hz))
     return unary_union(out) if out else Polygon()
 def simp(p):
-    for tol in (2,4,6,8,12,20,30):
+    for tol in (2,4,6,8,12):
         q=p.simplify(tol,preserve_topology=True)
-        if isinstance(q,Polygon) and q.is_valid and len(q.exterior.coords)-1<=48:return q
+        if isinstance(q,Polygon) and q.is_valid and len(q.exterior.coords)-1<=64:return q
     return None
 
 # Trench openings (the user's trench batteries, x >= 0.325 L): no body structure outside the hull side at the trench

@@ -3,6 +3,7 @@
 import numpy as np,json,sys
 import os;SP=os.environ['KS_EXE_WORK'].rstrip('/')+'/';sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from shapely.geometry import Polygon,Point
+from column import column as ocol   # the original's solid intervals on a vertical line
 Hh=np.fromfile(SP+'hullfit1.f32',np.float32).reshape(-1,3,3).astype(float);lo=Hh[:,:,[0,2]].min(1);hi=Hh[:,:,[0,2]].max(1)
 def col(x,z):
     m=(lo[:,0]<=x)&(hi[:,0]>=x)&(lo[:,1]<=z)&(hi[:,1]>=z);T=Hh[m]
@@ -22,6 +23,13 @@ for p in B:
     cols=[c for c in (col(x,z) for x,z in pts) if c]
     if not cols:continue
     y0,y1=p['y'];tops=[c[1] for c in cols if c[1]<=y0+1 and y0-c[1]<70];bots=[c[0] for c in cols if c[0]>=y1-1 and c[0]-y1<70]
-    if tops:p['y'][0]=round(min(tops)-1,1);n+=1
-    elif bots:p['y'][1]=round(max(bots)+1,1);n+=1
+    # extend only where the original is solid over the added range at most sample points (no material outside the model)
+    def solid_share(a,b):
+        ok=0;tot=0
+        for x,z in pts[::max(1,len(pts)//12)]:
+            iv=ocol(x,z)[0];tot+=1;mid=(a+b)/2
+            if any(u<=mid<=v for u,v in iv):ok+=1
+        return ok/max(1,tot)
+    if tops and solid_share(min(tops)-1,y0)>=0.6:p['y'][0]=round(min(tops)-1,1);n+=1
+    elif bots and solid_share(y1,max(bots)+1)>=0.6:p['y'][1]=round(max(bots)+1,1);n+=1
 json.dump(B,open(SP+'body60-seated.json','w'));print('seated',n,'of',len(B))

@@ -40,6 +40,8 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | テスト | 内容 |
 | --- | --- |
 | `tests/placement-hull-seam-contact.cjs` | 新規設計艦の船体甲板への水平配置が、継ぎ目の位置でも接地する。浮かせた構造物は未接続のまま |
+| `tests/placement-vertex-edit-surface.cjs` | 親を頂点編集できる形に変換・編集しても子が接続したまま。子自身の編集は親の面に戻る |
+| `tests/placement-failure-record.cjs` | 内装の配置失敗の理由・配置先・関係部品の記録と、今の失敗に一致するときだけ文言を使うこと |
 | `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
 
 ### UI・配置・親子関係・Undo/Redo・保存
