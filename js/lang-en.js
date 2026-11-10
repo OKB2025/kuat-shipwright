@@ -4264,7 +4264,7 @@ root.KS_EN={
   "推進管の機関外筒": "Engine casing of the exhaust tube",
   "準備完了（{0}／必要 {1}）": "Ready ({0} / needs {1})",
   "未充足（{0}／必要 {1}）": "Insufficient ({0} / needs {1})",
-  "ハイパードライブの航法計算能力が不足しています（{0}／等級 {1} に必要 {2}）。跳躍できません。航法コンピューター、アストロメク、ドロイド中枢または指揮設備を追加してください。": "Hyperdrive navigation capacity is insufficient ({0} / class {1} needs {2}). The ship cannot jump. Add a navigation computer, an astromech, a droid brain or command equipment.",
+  "ハイパードライブの航法計算能力が不足しています（{0}／等級 {1} に必要 {2}）。跳躍できません。航法コンピューター、アストロメクまたは指揮設備を追加してください。": "Hyperdrive navigation capacity is insufficient ({0} / class {1} needs {2}). The ship cannot jump. Add a navigation computer, an astromech or command equipment.",
   "反応物供給能力 {0}%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。": "Reactant supply {0}%. Reactor output is limited to what can be supplied. Add reactant feed equipment.",
   "この端末に保存済み {0} / {1}": "Stored on this device {0} / {1}",
   "この端末に保存済み {0} / {1}（取得中）": "Stored on this device {0} / {1} (downloading)",
