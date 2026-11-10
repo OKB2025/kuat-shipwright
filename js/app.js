@@ -7563,7 +7563,7 @@ function renderInspBar(){
  if(!S&&!draft.pending.length&&!draft.failed.length){setHTML(bar,'<div class="ib-head"><b>点検</b><span class="ib-sum">計算中…</span></div>');return;}
  const W=(S?.warnings||[]).slice();
  if(draft.pending.length)W.push({lv:'info',code:'placement-background',text:T('配置した部品の形状・性能を計算しています。'),targets:draft.pending});
- for(const target of draft.failed){const item=ship[target.list]?.find(item=>item.id===target.id),name=item?target.list==='fits'?C.FITS[item.k]?.name:C.partLabel(item):'';W.push({lv:'bad',code:'placement-background-failed',text:(item?T(name)+' #'+item.id+'：':'')+T(item?._placementFailureMessage||'配置の計算で問題が見つかりました。位置や接続を修正してください。'),targets:[target]});}
+ for(const target of draft.failed){const item=ship[target.list]?.find(item=>item.id===target.id),name=item?target.list==='fits'?C.FITS[item.k]?.name:C.partLabel(item):'';W.push({lv:'bad',code:'placement-background-failed',text:(item?T(name)+' #'+item.id+'：':'')+T(C.placementFailureRecord?.(item)?.error||(item?.placement?.validationFailed?item?._placementFailureMessage:null)||'配置の計算で問題が見つかりました。位置や接続を修正してください。'),targets:[target]});}
  const rank={bad:0,warn:1,info:2};W.sort((a,b)=>(rank[a.lv]??3)-(rank[b.lv]??3));st.ibRows=W;
  const n={bad:0,warn:0,info:0};for(const w of W)n[w.lv]=(n[w.lv]||0)+1;
  const flagged=new Set();for(const w of W)if(w.lv!=='info')for(const t of w.targets||[])if(t.list==='parts'||t.list==='fits')flagged.add(t.list+t.id);
