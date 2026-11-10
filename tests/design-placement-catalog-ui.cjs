@@ -19,7 +19,8 @@ test('every exterior catalogue item is reachable through a capability-based cate
 
 test('the catalogue offers one landing and targeting entry while retaining legacy saved definitions',()=>{const t=setup();for(const key of ['landingGear','targetComputer','vls']){assert.ok(C.PARTS[key]);assert.equal(t.run('paletteItems().some(it=>it.type==="part"&&it.key==='+JSON.stringify(key)+')'),false,key);t.run('palettePick("part",'+JSON.stringify(key)+')');assert.equal(t.run('st.part'),'struct','hidden aliases cannot bypass the catalogue through a stale pick');}t.run("designUI.space='interior';designUI.category='support'");assert.equal(t.run("designUICatalog().some(it=>it.key==='repulsor')"),true);t.run("designUI.category='command'");assert.equal(t.run("designUICatalog().some(it=>it.key==='navComputer')"),true);assert.equal(t.run("designUICatalog().some(it=>it.key==='firecontrol')"),true);});
 
-test('shield generators are offered inside and the variable cockpit canopy is offered as exterior appearance',()=>{const t=setup();t.run("designUI.space='interior';designUI.category='all'");assert.equal(t.run("designUICatalog().some(it=>it.key==='shield')"),true);t.run("designUI.space='exterior';designUI.category='all'");assert.equal(t.run("designUICatalog().some(it=>it.key==='shield')"),false);t.run("designUI.category='appearance'");assert.equal(t.run("designUICatalog().some(it=>it.key==='cockpit')"),true);});
+// v24 The crew seat is fixed interior equipment; canopies are built from structures.
+test('shield generators and crew seats are offered inside, not as exterior appearance',()=>{const t=setup();t.run("designUI.space='interior';designUI.category='all'");assert.equal(t.run("designUICatalog().some(it=>it.key==='shield')"),true);assert.equal(t.run("designUICatalog().some(it=>it.key==='cockpit')"),true);t.run("designUI.space='exterior';designUI.category='all'");assert.equal(t.run("designUICatalog().some(it=>it.key==='shield')"),false);assert.equal(t.run("designUICatalog().some(it=>it.key==='cockpit')"),false);});
 
 test('superweapons share the weapons catalogue while retaining their part placement and actual output values',()=>{const t=setup(),before=JSON.stringify(C.SW_COMBAT);t.run("designUI.space='exterior';designUI.category='weapon'");assert.equal(t.run("designUICatalog().some(it=>it.type==='part'&&it.key==='sbeam')"),true);t.run("palettePick('part','sbeam')");assert.equal(t.run('st.group'),'weapons');assert.equal(t.run('tool()'),'part');assert.equal(t.run('designPartDefinition().k'),'sbeam');t.run("palettePick('fit','pd')");assert.equal(t.run('tool()'),'fit');assert.equal(t.run('designPartDefinition().k'),'pd');assert.equal(t.run("designWeaponType({type:'part',key:'sbeam'})"),'superweapon');assert.equal(t.run("designWeaponOutput({type:'part',key:'sbeam'})"),C.SW_COMBAT.sbeam.E);assert.equal(JSON.stringify(C.SW_COMBAT),before,'selecting a catalogue row changes no weapon coefficient');});
 
@@ -30,6 +31,7 @@ test('the placement catalogue offers the craft weapons with the app weapon lists
  for(const prefix of ['const WEAPONS =','const CRAFT_WEAPONS =','const craftDesign =','const weaponKeys ='])run(app.split('\n').find(line=>line.startsWith(prefix)));
  run(fn('paletteItems'));
  const keys=JSON.parse(run('JSON.stringify(paletteItems().filter(i=>i.type==="fit").map(i=>i.key))'));
- for(const k of ['claser','claserH','cturret','ctorp','cbomb'])assert.ok(keys.includes(k),k+' is offered');
+ for(const k of ['claser','claserH','cturret','cpylon'])assert.ok(keys.includes(k),k+' is offered');
+ for(const k of ['ctorp','cbomb'])assert.equal(keys.includes(k),false,k+' is retired (pylons and bomb-bay compartments)');
  assert.ok(keys.includes('pd')&&keys.includes('stl'));
 });

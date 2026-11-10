@@ -62616,7 +62616,7 @@ function placementCapability(value){
  return {space:'interior',kind:'equipment',deformable:false,allowedModes:['direct']};
 }
 function initializePlacementCapabilities(){if(PARTS.vls)PARTS.vls.catalogHidden=true;for(const [k,d] of Object.entries(PARTS)){
- const structure=isShapeKind(k),outside=structure||['engine','sensor','scanner','cockpit','sbeam','hion'].includes(k),deformable=!outside&&PLACEMENT_FLEXIBLE_KINDS.has(k);
+ const structure=isShapeKind(k),outside=structure||['engine','sensor','scanner','sbeam','hion'].includes(k),deformable=!outside&&PLACEMENT_FLEXIBLE_KINDS.has(k);
  d.placement=Object.freeze({space:outside?'exterior':'interior',kind:structure?'structure':['engine','engineCore'].includes(k)?'propulsion':['sbeam','hion'].includes(k)?'weapon':['sensor','scanner','command','firecontrol','targetComputer','navComputer'].includes(k)?'command':deformable?'compartment':'equipment',deformable,allowedModes:Object.freeze(structure?['horizontal','vertical','surface']:deformable?['clip','preserve-volume']:['direct'])});
 }
 for(const d of Object.values(FITS))d.placement=Object.freeze({space:'exterior',kind:d.cat==='w'?'weapon':'command',deformable:false,allowedModes:Object.freeze(['direct'])});}

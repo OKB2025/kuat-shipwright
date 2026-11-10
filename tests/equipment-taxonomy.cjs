@@ -38,43 +38,26 @@ test('opted-in landing equipment combines the existing functions and existing po
  near(after.repulsorSupport,stats.repulsorSupport,'saved lift support');near(after.craftSystems.landingSupport,stats.craftSystems.landingSupport,'saved landing support');
 });
 
-test('legacy cockpit spheres and their crew and suit settings survive without an implicit canopy conversion',()=>{
- for(const ship of [model({k:'cockpit',seats:2,suit:true}),restored(model({k:'cockpit',seats:2,suit:true}))]){
-  const cockpit=ship.parts.find(p=>p.k==='cockpit'),stats=C.computeStats(ship);
-  near(C.partVolume(cockpit),Math.PI/6,'legacy sphere volume');assert.equal(stats.crew,2);assert.equal(stats.craftSystems.suitSeats,2);
-  assert.equal(C.canopyTriangles(cockpit),null);const before=C.publicJSON(cockpit);C.canopyShape(cockpit);
-  assert.equal(cockpit.canopy,undefined,'reading shape defaults never opts legacy data into conversion');
-  assert.equal(C.publicJSON(cockpit),before,'reading defaults preserves the authoring state');
- }
+// v24 Cockpits are fixed crew seats (one person each); an old cockpit's look becomes a canopy structure.
+test('legacy cockpit spheres become a canopy structure and one fixed seat per crew member',()=>{
+ const ship=restored(model({k:'cockpit',seats:2,suit:true})),seats=ship.parts.filter(p=>p.k==='cockpit'),canopy=ship.parts.find(p=>p.label==='キャノピー');
+ assert.equal(seats.length,2);for(const p of seats){assert.deepEqual(plain(p.room),plain(C.COCKPIT_SEAT.room));assert.equal(p.seats,1);assert.equal(p.suit,true);}
+ assert.ok(canopy&&C.isShapePart(canopy),'the old sphere keeps its look as a structure');near(C.structVolume?C.structVolume(canopy):Math.PI/6,Math.PI/6,'canopy volume',.05);
+ const stats=C.computeStats(ship);assert.equal(stats.crew,2);assert.equal(stats.craftSystems.suitSeats,2);
+ const again=restored(ship);assert.equal(again.parts.filter(p=>p.k==='cockpit').length,2,'converted once');assert.equal(again.parts.filter(p=>p.label==='キャノピー').length,1);
 });
 
-test('an explicitly shaped cockpit uses real canopy geometry and preserves the cockpit identity and functions after reload',()=>{
+test('an old shaped canopy keeps its shape as a structure and its crew as seats',()=>{
  const ship=model({k:'cockpit',seats:2,suit:true}),cockpit=ship.parts[1];
  C.setCanopyShape(cockpit,{form:'box',size:[4,2,1],taper:0});
- assert.equal(cockpit.k,'cockpit');assert.equal(cockpit.id,2);
- const shape=C.canopyShape(cockpit),triangles=C.canopyTriangles(cockpit);
- assert.deepEqual(plain(shape.size),[4,2,1]);assert.ok(triangles.length>=36);assert.ok(Array.from(triangles).every(Number.isFinite));
- near(C.partVolume(cockpit),8,'explicit box canopy volume');
- const stats=C.computeStats(ship),copy=restored(ship),saved=copy.parts.find(p=>p.id===2),after=C.computeStats(copy);
- assert.equal(stats.crew,2);assert.equal(stats.craftSystems.suitSeats,2);assert.equal(after.crew,2);assert.equal(after.craftSystems.suitSeats,2);
- assert.equal(saved.k,'cockpit');assert.equal(saved.seats,2);assert.equal(saved.suit,true);assert.deepEqual(plain(C.canopyShape(saved)),plain(shape));
- near(C.partVolume(saved),C.partVolume(cockpit),'reloaded canopy volume');near(after.mass,stats.mass,'reloaded physical mass');
+ const copy=restored(ship),canopy=copy.parts.find(p=>p.label==='キャノピー');
+ assert.equal(canopy.form,'box');assert.deepEqual(plain(canopy.s),[4,2,1]);assert.equal(copy.parts.filter(p=>p.k==='cockpit').length,2);
+ assert.equal(copy.parts.some(p=>p.k==='cockpit'&&p.canopy),false);
 });
 
-test('strict canopy attachment accepts actual contact for each shape and rejects a visible gap',()=>{
- for(const form of ['box','trap','ellipsoid']){
-  const ship=model({k:'cockpit',seats:2,suit:true,c:[0,5.5,4]}),cockpit=ship.parts.pop();cockpit.id=-1;ship.nextId=2;
-  C.setCanopyShape(cockpit,{form,size:[4,2,1],taper:.15});
-  const request={mode:'direct',parentStructureId:1,hit:{p:[0,5,4],n:[0,1,0]},geometryRevision:1};
-  const result=C.solvePlacement(ship,cockpit,request);assert.equal(result.ok,true,form+': '+result.error);assert.equal(result.contact.connected,true);
-  assert.equal(C.acceptPlacementResult(ship,result).ok,true);const source=ship.parts[1];
-  const opposite=C.mirrorPart(source,ship);opposite.id=-1;
-  const reflected=C.solvePlacement(ship,opposite,{...request,hit:{p:[0,5,-4],n:[0,1,0]}});
-  assert.equal(reflected.ok,true,form+' mirrored contact: '+reflected.error);assert.equal(C.acceptPlacementResult(ship,reflected).ok,true);
-  const copy=restored(ship),diagnostics=C.placementDiagnostics(copy);assert.equal(diagnostics.filter(item=>item.connected).length,2,form+' attachment reload');
-  assert.deepEqual(plain(copy.parts.filter(p=>p.k==='cockpit').map(p=>p.c[2])),[4,-4]);
-  const floating={...cockpit,c:[0,5.75,4]};const rejected=C.solvePlacement(ship,floating,request);assert.equal(rejected.ok,false,form+' rejects a real gap');
- }
+test('crew seats keep one fixed size whatever size is asked for',()=>{
+ const ship=C.newShip({L:30,W:20,H:10,assembly:true},'Seat size');const p=C.placePart(ship,'cockpit',[0,0,0],3,{room:[4,4,4]});
+ assert.deepEqual(plain(p.room),plain(C.COCKPIT_SEAT.room));assert.equal(C.PARTS.cockpit.min,C.PARTS.cockpit.max);
 });
 
 test('new shield placement keeps its fixed dimensions and validates actual interior containment',()=>{
@@ -83,16 +66,6 @@ test('new shield placement keeps its fixed dimensions and validates actual inter
  const outside=C.solvePlacement(ship,{...shield,c:[100,0,0]},{mode:'direct',hostId:1});assert.equal(outside.ok,false);assert.equal(shield.d,1);assert.deepEqual(shield.c,[0,0,0]);
 });
 
-test('changing a mounted canopy height keeps its real base on the parent and follows later parent rotation',()=>{
- const ship=model({k:'cockpit',seats:2,suit:true}),cockpit=ship.parts.pop(),parent=ship.parts[0];cockpit.id=-1;ship.nextId=2;
- C.setCanopyShape(cockpit,{form:'box',size:[4,2,1],taper:0});cockpit.c=C.canopyMountPosition(cockpit,[0,5,0],[0,1,0]);
- const result=C.commitPlacement(ship,cockpit,{mode:'direct',parentStructureId:1,hit:{p:[0,5,0],n:[0,1,0]},geometryRevision:1});assert.equal(result.ok,true,result.error);const placed=result.part;
- near(placed.c[1],5.5,'initial canopy centre');C.setCanopyShape(placed,{form:'box',size:[4,2,2],taper:0},parent);
- near(placed.c[1],6,'new centre follows the actual half height');near(C.partAABB(placed)[1],5,'base remains on the original mounting skin');
- assert.equal(C.refreshPlacementGeometry(ship).ok,true);assert.deepEqual(plain(placed.placement.requestedGeometry.canopy.size),[4,2,2]);
- parent.roll=23;parent.pitch=11;assert.equal(C.refreshPlacementGeometry(ship).ok,true);assert.equal(C.placementDiagnostics(ship).find(item=>item.partId===placed.id).connected,true);
- const copy=restored(ship),saved=copy.parts.find(item=>item.id===placed.id);assert.equal(C.placementDiagnostics(copy).find(item=>item.partId===placed.id).connected,true);assert.deepEqual(plain(C.canopyShape(saved).size),[4,2,2]);
-});
 
 test('equipment replacement offers the unified catalogue while retaining an existing hidden legacy kind',()=>{
  const modern={k:'command',c:[0,0,0],d:1},options=Array.from(C.replacementOptions(modern));

@@ -31,7 +31,8 @@ run(`const C=Core,R=Rts,esc=s=>String(s),num=s=>String(s),fCr=s=>s+' cr',fW=s=>s
   let ship;
   function fixture(suit=false){
     ship=C.newShip({L:20,W:10,H:5});
-    ship.parts.push({id:1,k:'cockpit',d:.8,c:[10,2,0],seats:3,suit},{id:2,k:'hyper',d:.1,c:[4,2,0]});
+    // v24 One fixed seat per crew member.
+    ship.parts.push(...[8.9,7.8,6.7].map((x,i)=>({id:i?10+i:1,k:'cockpit',d:.97,room:[1.1,.7,1.2],c:[x,2,0],seats:1,suit})),{id:2,k:'hyper',d:.1,c:[4,2,0]});ship.nextId=20;
     ship.fits.push({id:3,k:'claser',scale:1,p:[18,4,0],a:2,base:0,ped:0});
     return C.computeStats(ship);
   }

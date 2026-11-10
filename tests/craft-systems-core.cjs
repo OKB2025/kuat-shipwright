@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),c=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),c,{filename:file});
 const C=vm.runInContext('Core',c),plain=x=>JSON.parse(JSON.stringify(x));
-function fixture(){const s=C.newShip({L:20,W:12,H:8},'Systems design');s.parts=[{id:1,k:'cockpit',c:[12,3,0],d:1,seats:1},{id:2,k:'gen',c:[16,3,0],d:3}];s.nextId=3;return s;}
+function fixture(){const s=C.newShip({L:20,W:12,H:8},'Systems design');s.parts=[{id:1,k:'cockpit',c:[10,3,0],d:1,seats:1,room:[1.1,.7,1.2]},{id:2,k:'gen',c:[16,3,0],d:3}];s.nextId=3;return s;}
 function basicStats(s){return {mass:100,power:1e25,draw:{hotel:1e20,ray:0},crew:1,seats:1,accuracy:1,info:{},warnings:[],jumpOK:true,canLand:true};}
 function add(s,k,v){const d=Math.cbrt(v);s.parts.push({id:s.nextId++,k,c:[3+s.parts.length*.6,3,1.8],d,room:[d,d,d]});}
 test('explicit equipment uses the shared capacity coefficients and cannot stack targeting bonuses',()=>{

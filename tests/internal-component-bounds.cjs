@@ -12,6 +12,7 @@ test('real clipped internal reactor volume does not enlarge the external ship di
  const loaded=C.deserialize(C.serialize(ship));C.syncCompartments(loaded);for(let axis=0;axis<6;axis++)near(C.shipBounds(loaded)[axis],bounds[axis]);near(C.partVolume(loaded.parts.find(p=>p.k==='aux')),C.partVolume(reactor),1e-3);
 });
 test('actual external components still contribute their visible bounds beside a clipped internal plant',()=>{
- const ship=fixture();C.placePart(ship,'aux',[10,.4,0],4,{autoFit:false},false);const cockpit=C.placePart(ship,'cockpit',[10,8.5,0],2,{seats:1},false);C.syncCompartments(ship);
+ const ship=fixture();C.placePart(ship,'aux',[10,.4,0],4,{autoFit:false},false);// v24 A crew seat is interior; a sensor is the external component here.
+ const cockpit=C.placePart(ship,'sensor',[10,8.5,0],2,{},false);C.syncCompartments(ship);
  assert.equal(C.isInternal(cockpit),false);const bounds=C.shipBounds(ship);near(bounds[1],0);near(bounds[4],9.5);assert.equal(plain(C.shipDimensions(ship))[0],20);
 });
