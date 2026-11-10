@@ -35,6 +35,13 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | 性能表と Worker 価格 | `tests/craft-price-worker.cjs`、`node scripts/update-craft-costs.cjs --check` | |
 | 前後比較の補助 | `scripts/compare-propulsion.cjs`、`scripts/compare-placement-physics.cjs IMMUTABLE_MAIN_ROOT OUTPUT_JSON`、`scripts/validate-reference-acceleration.cjs` | 基準側は不変のチェックアウトを用意 |
 
+### 2026-11-10 に追加したテスト
+
+| テスト | 内容 |
+| --- | --- |
+| `tests/placement-hull-seam-contact.cjs` | 新規設計艦の船体甲板への水平配置が、継ぎ目の位置でも接地する。浮かせた構造物は未接続のまま |
+| `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
+
 ### UI・配置・親子関係・Undo/Redo・保存
 
 | 目的 | コマンド |
@@ -66,6 +73,8 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | STL 測定 | `scripts/stl-measure/*.py`（README 参照）、`scripts/import-*.py`、`scripts/analyze-arquitens-reference.py` | スクリプト内に原本パスが直書き。多くの原本はリポジトリにない |
 | 支持材の数 | 生成物の `parts` からラベル「接続支柱」を数える（下の例） | |
 | 画像 | `scripts/browser-ship-examples.cjs`、`scripts/browser-arquitens.cjs` | 比較画像の視点は固定されていない |
+
+| 原本との局所照合（2026-11-10 追加） | `scripts/stl-check/`（README 参照）：支柱の柱状範囲の原本占有率、原本の連結成分のすき間、原本断面と作例断面の重ね合わせ画像 | `assets/source/cis-stl/*.stl.gz`（展開して渡す）。Python（numpy）と Playwright |
 
 支持材の数え方（主担当が Bash で実行）：
 

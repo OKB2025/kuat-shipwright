@@ -366,7 +366,9 @@ function placementResolution(job, resolution) {
       [list === 'parts' ? 'part' : 'fit']: JSON.parse(C.publicJSON(item)),
       effectiveGeometry: placementEffectiveGeometry(item), error: typeof problem === 'string' ? problem : problem?.code || null,
       ...(item._embeddedCasingError?{cacheKeys:{_embeddedCasingError:item._embeddedCasingError,_embeddedCasingErrorKey:item._embeddedCasingErrorKey}}:{}),
-      ...(problem?.error ? {errorMessage: problem.error} : {}),
+      // The code alone is a string; the message and the traced reason live on the failure record.
+      ...((problem?.error || item._placementFailure?.error) ? {errorMessage: problem?.error || item._placementFailure.error} : {}),
+      ...(item._placementFailure?.detail ? {errorDetail: item._placementFailure.detail} : {}),
       geometryKeys: {self: item._placementSelfKey, request: item._placementRequestKey, parent: item._placementParentKey}});
   }
   if (rows.length) post({type: 'placementResolution', designId: job.designId, gen: job.gen, rows,
