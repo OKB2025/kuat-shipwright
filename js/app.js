@@ -3359,11 +3359,13 @@ function specHTML(S, opt = {}) {
 }
 // v22 Store stations show their capacity only: what each kind of round they take, at most (the rounds a
 // squadron carries are chosen in the order of battle; お任せ is the craft's canon loadout).
+// v24 A station's store: its own (a bomb-bay compartment's inner size) or its fitting's.
+const stationStoreOf=st=>st?.store||C.FITS[st?.fit]?.store||null;
 function storeCapText(st){const ks=Object.keys(C.ORDNANCE).filter(k=>C.storeCapacity(st,k)>0);return st.mount==='bay'?`内寸 ${st.box.map(v=>num(v,2)).join('×')} m`:st.mount==='wing'?`ミサイル ${st.thin??st.slots} 発・魚雷 ${st.heavy??1} 発まで・${num(st.maxMass*1000)} kg まで`:`弾倉 ${st.slots} 発・口径 ${num(st.bore,2)} m`;}
 function storeCapHTML(st){const rows=Object.entries(C.ORDNANCE).map(([k,o])=>[o,C.storeCapacity(st,k)]);return `<table class="station-table"><thead><tr><th>弾</th><th>寸法</th><th>入る数</th></tr></thead><tbody>${rows.map(([o,n])=>`<tr><td>${esc(o.name)}</td><td>${num(o.dims[0],1)} × ${num(o.dims[1],2)} m・${num(o.mass*1000)} kg</td><td>${n?`<b>${n}</b> 発`:'入らない'}</td></tr>`).join('')}</tbody></table>`;}
 function craftStoresHTML(c){
  if(!c?.stations?.length)return '';const L=c.ord||[];
- return `<h4>兵装の搭載容量</h4><table class="station-table"><thead><tr><th>装備</th><th>数</th><th>容量（1基）</th></tr></thead><tbody>${c.stations.map(st=>`<tr><td>${esc(C.FITS[st.fit].short)}（${esc(C.STORE_MOUNTS[st.mount].name)}）</td><td>${st.count}</td><td>${esc(storeCapText(C.stationStore(st)))}</td></tr>`).join('')}</tbody></table><p class="note">積む弾は編成画面の中隊ごとに選びます。お任せ${c.canonLoad?'（正史の搭載）':'（標準の搭載）'}：${esc(C.ordnanceSummary(L))}・計 ${num(Math.round((c.ordMass||0)*1000))} kg（満載時の加速 ${fG(c.accelLoaded)}・速度 ${num(c.speedLoaded)} m/s）。撃てば弾が減り、母艦の格納庫で再装填します。${esc(C.ORDNANCE_EVIDENCE)}</p>`;
+ return `<h4>兵装の搭載容量</h4><table class="station-table"><thead><tr><th>装備</th><th>数</th><th>容量（1基）</th></tr></thead><tbody>${c.stations.map(st=>`<tr><td>${esc(C.FITS[st.fit].short)}（${esc(C.STORE_MOUNTS[st.mount].name)}）</td><td>${st.count}</td><td>${esc(storeCapText(stationStoreOf(st)))}</td></tr>`).join('')}</tbody></table><p class="note">積む弾は編成画面の中隊ごとに選びます。お任せ${c.canonLoad?'（正史の搭載）':'（標準の搭載）'}：${esc(C.ordnanceSummary(L))}・計 ${num(Math.round((c.ordMass||0)*1000))} kg（満載時の加速 ${fG(c.accelLoaded)}・速度 ${num(c.speedLoaded)} m/s）。撃てば弾が減り、母艦の格納庫で再装填します。${esc(C.ORDNANCE_EVIDENCE)}</p>`;
 }
 // v21 A craft's figures as a carrier's complement in the voyage (the same scale as the craft types there).
 function craftCombatHTML(S){
@@ -11885,7 +11887,7 @@ function voyLoadPresets(c) {
  const st = c.stations || [], base = c.load || [], out = [];
  (c.alt || []).forEach((a, j) => out.push({id: 'alt:' + j, name: a.name, load: C.normalizeLoad(st, a.load, base)}));
  const own = new Set([...base.map(q => q.k), ...(c.alt || []).flatMap(a => a.load.map(q => q.k))]);
- for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(C.stationStore(x), k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(C.FITS[x.fit].store, k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
+ for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(stationStoreOf(x), k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(C.FITS[x.fit].store, k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
  out.push({id: 'none', name: '搭載なし', load: st.map((x, i) => ({k: C.normalizeLoad(st, base, base)[i]?.k, n: 0}))});
  return out;
 }
@@ -11894,7 +11896,7 @@ function voySqLoadHTML(q, i) {
  const sum = L => C.ordnanceSummary(C.craftOrdnance(c, L)), cur = Array.isArray(q.load) ? C.normalizeLoad(c.stations, q.load, c.load) : null, pre = voyLoadPresets(c), same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
  const sel = !cur ? 'auto' : pre.find(p => same(p.load, cur))?.id || 'custom', L = cur || C.normalizeLoad(c.stations, c.load, c.load);
  const opts = [['auto', `お任せ（${sum(undefined)}）`], ...pre.map(p => [p.id, `${p.name}（${sum(p.load)}）`]), ...(sel === 'custom' ? [['custom', `指定（${sum(cur)}）`]] : [])];
- const rows = c.stations.map((st, j) => { const sd = C.stationStore(st), ks = Object.keys(C.ORDNANCE).filter(k => C.storeCapacity(sd, k) > 0), cap = C.storeCapacity(sd, L[j].k);
+ const rows = c.stations.map((st, j) => { const sd = stationStoreOf(st), ks = Object.keys(C.ORDNANCE).filter(k => C.storeCapacity(sd, k) > 0), cap = C.storeCapacity(sd, L[j].k);
   return `<div class="vo-sq-st"><span>${esc(C.FITS[st.fit].short)} ×${st.count}</span><select data-sql="${i}.${j}" data-sqlk="k" aria-label="${esc(C.FITS[st.fit].short)}に積む弾">${ks.map(k => `<option value="${k}" ${k === L[j].k ? 'selected' : ''}>${esc(C.ORDNANCE[k].name)}（${C.storeCapacity(sd, k)} 発まで）</option>`).join('')}</select><label>1基に<input type="number" data-sql="${i}.${j}" data-sqlk="n" value="${L[j].n}" min="0" max="${cap}">発</label></div>`; }).join('');
  return `<div class="vo-sq-load"><label>搭載<select data-sqload="${i}" aria-label="中隊の搭載">${opts.map(([v, t]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><details><summary>発射管・爆弾倉・パイロンごとに指定</summary>${rows}<p class="note">1機あたりの数です。入る数は機体の設計で決まり、積んだ弾の質量だけ重くなります。撃つと減り、母艦で再装填します。</p></details></div>`;
 }
