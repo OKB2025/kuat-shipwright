@@ -5,8 +5,8 @@ const {C,R}=vm.runInContext('({C:Core,R:Rts})',cx),copy=value=>JSON.parse(JSON.s
 function installedProfile(k){
  if(!profiles.has(k)){
   const ship=C.newShip({L:500,W:300,H:160,plan:'rect',sec:'rect'},'Point-defence roles');
-  ship.parts=[{id:1,k:'gen',d:100,c:[250,80,0]},{id:3,k:'fuel',d:40,c:[100,80,0]}];
-  ship.fits=[{id:2,k,p:[250,160,0],a:2,ped:0,base:0,low:0,float:false}];ship.nextId=4;
+  ship.parts=[{id:1,k:'gen',d:100,c:[250,80,0]},{id:3,k:'fuel',d:40,c:[100,80,0]},{id:4,k:'pump',d:21,c:[250,80,-75]}];
+  ship.fits=[{id:2,k,p:[250,160,0],a:2,ped:0,base:0,low:0,float:false}];ship.nextId=5;
   const S=C.computeStats(ship);profiles.set(k,{S,p:C.fleetProfile(S,ship.name,ship)});
  }
  return copy(profiles.get(k));

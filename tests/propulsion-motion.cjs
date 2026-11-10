@@ -9,6 +9,7 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
   vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename: file});
 }
 const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs');
 const plain = value => JSON.parse(JSON.stringify(value));
 const dragSmallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,dragLargeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,dragSmallRate=3999.1037971899486*C.G0*C.FLEET_RULES.accelScale/2000,dragLargeRate=2972.473437207956*C.G0*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(dragLargeRate/dragSmallRate)/Math.log(dragLargeMass/dragSmallMass),expectedDragRate=mass=>dragSmallRate*Math.pow(mass/dragSmallMass,dragExponent);
 const driveWattsPerNewton=C.engineConversionCoefficient(1e6),fullThrustN=1e18/driveWattsPerNewton,fullAcceleration=fullThrustN/1e6,fullGameAcceleration=fullAcceleration*C.FLEET_RULES.accelScale;
@@ -267,7 +268,7 @@ test('a blueprint owns the physical machinery and connected reactor supply inste
   assert.equal(C.cleanCraftPowerProfile(p,C.serialize(ship)).propulsion.engines[0].pathCapacityW,0,'a saved limit cannot create a circuit without its reactor');
   Object.assign(ship.hull,{sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1});
   Object.assign(ship.parts[0],{c:[.5,4,0],reactor:1,busFeed:true});
-  ship.parts.push({id:1,k:'gen',c:[25,4,0],d:2});
+  ship.parts.push({id:1,k:'gen',c:[25,4,0],d:2});addReactantFeed(C,ship);
   ship.links=[{kind:'power',from:'p1',to:'p2',cap:1e18}];
   const limited=C.cleanCraftPowerProfile(p,C.serialize(ship));
   const route=C.engineTransmission(ship).routes.find(r=>r.to==='p2'),receivedLimit=2e17*Math.exp(-1e-5*route.length);

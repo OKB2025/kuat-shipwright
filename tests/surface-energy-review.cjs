@@ -83,7 +83,7 @@ test('an in-flight ion pulse is isolated during preview and survives the committ
 });
 
 test('destroying an internal charging bank preserves its intact native gunhouse and releases only excess storage once',()=>{
- const s=C.newShip({L:240,W:120,H:60,plan:'rect',sec:'rect'},'Native charging dependency');s.parts=[{id:1,k:'gen',c:[30,15,0],d:20},{id:2,k:'fuel',c:[60,15,0],d:4}];s.fits=[];s.nextId=3;C.enableSurfaceMode(s,true);
+ const s=C.newShip({L:240,W:120,H:60,plan:'rect',sec:'rect'},'Native charging dependency');s.parts=[{id:1,k:'gen',c:[30,15,0],d:20},{id:2,k:'fuel',c:[60,15,0],d:4},{id:3,k:'pump',c:[30,15,14],d:4.2}];s.fits=[];s.nextId=4;C.enableSurfaceMode(s,true);
  const placed=C.placeFit(s,'twin40',[140,60,0],[0,1,0],0,false,{chargeSalvos:20});assert.ok(placed.fit,placed.err);const gun=placed.fit;gun.chargeSalvos=20;
  const stats=C.computeStats(s),p=C.fleetProfile(stats,s.name,s),u=C.fleetUnit('charged','charged',p),mount=p.surface.mounts.find(m=>m.id===gun.id),capacitor=p.modules.findIndex(m=>m.k==='capacitor'&&m.link===mount.module);
  assert.ok(mount&&capacitor>=0,'the actual native turret must own a real additional charging bank');assert.ok(mount.housingCapacity>=mount.boltTT,'the intact real gunhouse can store at least one shot');const opening=C.surfaceMountEnergy(u,mount.id);assert.ok(opening>mount.housingCapacity,'the extra internal bank holds actual additional stored energy');assert.equal(u.mods[mount.module],1);

@@ -2,7 +2,9 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const C=vm.runInContext('Core',context),plain=v=>JSON.parse(JSON.stringify(v)),near=(got,want,epsilon=1e-9)=>assert.ok(Number.isFinite(got)&&Math.abs(got-want)<=Math.max(1,Math.abs(want))*epsilon,`${got} != ${want}`);
-function fixture(){
+// v24 Reactors deliver only what feed equipment supplies (tests/helpers/reactant-feed.cjs).
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs'),fixture=(...args)=>{const ship=fixtureWithoutFeed(...args);addReactantFeed(C,ship);return ship;};
+function fixtureWithoutFeed(){
  const ship=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Physical engine transmission');ship.parts=[];ship.fits=[];ship.armor={hull:.01,cit:0};
  ship.parts=[{id:1,k:'gen',c:[200,60,0],d:20},{id:2,k:'fuel',c:[100,60,0],d:8},
   {id:3,k:'engine',c:[5,60,0],d:10,nozzleLength:10,reactor:1,dir:[-1,0,0],propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:1e18,machineryLengthM:12,machineryRadiusM:3,machineryOffsetM:5,busFeed:true,legacyCoolingInputW:0}];

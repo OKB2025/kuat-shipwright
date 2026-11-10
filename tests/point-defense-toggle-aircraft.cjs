@@ -4,7 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const {C,R}=vm.runInContext('({C:Core,R:Rts})',cx),copy=value=>JSON.parse(JSON.stringify(value)),installed=new Map();
 function installedProfile(kind='pd'){
  if(!installed.has(kind)){
-  const ship=C.newShip({L:500,W:300,H:160,plan:'rect',sec:'rect'},'Controlled real point-defence carrier');ship.parts=[{id:1,k:'gen',d:100,c:[250,80,0]},{id:3,k:'fuel',d:40,c:[100,80,0]}];ship.fits=[{id:2,k:kind,p:[250,160,0],a:2,ped:0,base:0,low:0,float:false}];ship.nextId=4;const stats=C.computeStats(ship);installed.set(kind,C.fleetProfile(stats,ship.name,ship));
+  const ship=C.newShip({L:500,W:300,H:160,plan:'rect',sec:'rect'},'Controlled real point-defence carrier');ship.parts=[{id:1,k:'gen',d:100,c:[250,80,0]},{id:3,k:'fuel',d:40,c:[100,80,0]},{id:4,k:'pump',d:21,c:[250,80,-75]}];ship.fits=[{id:2,k:kind,p:[250,160,0],a:2,ped:0,base:0,low:0,float:false}];ship.nextId=5;const stats=C.computeStats(ship);installed.set(kind,C.fleetProfile(stats,ship.name,ship));
  }
  return copy(installed.get(kind));
 }

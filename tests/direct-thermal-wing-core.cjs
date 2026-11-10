@@ -5,7 +5,7 @@ const C=vm.runInContext('Core',context),plain=x=>JSON.parse(JSON.stringify(x));
 function fixture(thermal='high'){
  const s=C.newShip({L:8,W:4,H:2,assembly:true});
  const w=C.placePart(s,'struct',[4,1,3],[2,3,.06],{form:'box',wing:{thermal,foil:true,axis:'x',open:15,stow:0,T:1}},false);
- C.placePart(s,'gen',[4,1,0],.5,{allowOverlap:true},false);
+ C.placePart(s,'gen',[4,1,0],.5,{allowOverlap:true},false);C.placePart(s,'struct',[5.2,1,0],[.4,.4,.4],{form:'box'},false);C.placePart(s,'pump',[5.2,1,0],.15,{allowOverlap:true},false);
  return {s,w};
 }
 

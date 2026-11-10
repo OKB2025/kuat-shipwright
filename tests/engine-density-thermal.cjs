@@ -2,6 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
 const C=vm.runInContext('Core',cx),plain=v=>JSON.parse(JSON.stringify(v)),near=(a,b,label='value')=>assert.ok(Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=Math.max(1,Math.abs(a),Math.abs(b))*1e-9,`${label}: ${a} != ${b}`);
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs');
 const NORMAL_INPUT_DENSITY=3.4e17,POWER_PATH_W=1e20;
 
 function fixture(factor=1,cooling='none'){
@@ -12,6 +13,7 @@ function fixture(factor=1,cooling='none'){
  // The historical authored rating is deliberately independent of these real
  // finite paths. The engine branch cannot borrow the reactor's own cooler.
  ship.links=[{kind:'power',from:'p1',to:'p2',cap:POWER_PATH_W},{kind:'power',from:'p1',to:'p5',cap:POWER_PATH_W},{kind:'heat',from:'p1',to:'p5',cap:POWER_PATH_W},{kind:'heat',from:'p2',to:'p5',cap:0}];
+ addReactantFeed(C,ship);
  let wing=null;
  if(cooling!=='none'){
   wing=C.placePart(ship,'wing',[12,10,22],[12,20,.2],{...C.wingPlanformPreset('straight'),wing:{thermal:cooling==='low'?'low':'high',feed:1,reinf:0}},false);

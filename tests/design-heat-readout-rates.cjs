@@ -4,7 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const C=vm.runInContext('Core',context),plain=value=>JSON.parse(JSON.stringify(value)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} differs from ${b}`);
 function fixture({cooler=false,power=true,pathCapacity=null}={}){
  const ship=C.newShip({L:40,W:24,H:20,plan:'rect',sec:'rect'},'Thermal readout fixture');
- ship.parts=[...(power?[{id:1,k:'gen',c:[30,10,0],d:2}]:[]),...(cooler?[{id:2,k:'hdis',c:[20,10,0],d:.2}]:[])];ship.fits=[];ship.nextId=3;
+ ship.parts=[...(power?[{id:1,k:'gen',c:[30,10,0],d:2},{id:4,k:'pump',c:[30,10,3],d:.5}]:[]),...(cooler?[{id:2,k:'hdis',c:[20,10,0],d:.2}]:[])];ship.fits=[];ship.nextId=5;
  if(pathCapacity!=null)ship.links=[{kind:'heat',from:'p1',to:'p2',cap:pathCapacity}];
  return {ship,stats:C.computeStats(ship)};
 }

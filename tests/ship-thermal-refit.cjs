@@ -2,11 +2,12 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x));
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs');
 const near=(a,b,tolerance=1e-6)=>assert.ok(Math.abs(a-b)<=Math.max(1,Math.abs(b))*tolerance,`${a} != ${b}`);
 function fixture(){
  const ship=C.newShip({L:200,W:80,H:60,plan:'rect',bowW:1,bowH:1,stern:1},'Physical thermal fixture');
  ship.surfaces=C.normalizeSurfaces({mode:'strict',compatAllowed:false,legacyArmor:ship.armor.hull});
- const reactor=C.placePart(ship,'gen',[70,0,0],30),shield=C.placePart(ship,'shield',[110,0,0],12);
+ const reactor=C.placePart(ship,'gen',[70,0,0],30),shield=C.placePart(ship,'shield',[110,0,0],12);addReactantFeed(C,ship);
  ship.links=[{kind:'power',from:'p'+reactor.id,to:'p'+shield.id,cap:C.shieldLoad(shield)*1.5}];
  return {ship,reactor,shield};
 }

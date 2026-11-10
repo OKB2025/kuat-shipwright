@@ -18,10 +18,10 @@ test('rectangular auxiliary reactors and inertial rooms use their retained physi
  const ship=emptyShip(),full=C.placePart(ship,'aux',[100,60,0],20,{room:[20,12,10],corner:0,autoFit:false}),clipped=C.placePart(ship,'aux',[299,60,0],20,{room:[20,12,10],corner:0,autoFit:false}),inertial=C.placePart(ship,'inertial',[180,60,40],10,{room:[10,8,6],corner:0,autoFit:false});C.syncCompartments(ship);
  near(C.partVolume(inertial),480);const support=C.computeStats(ship);near(support.inertialSupport,480*120*support.fieldGain);
  near(C.partVolume(full),2400);assert.ok(clipped._clip);const retained=C.partVolume(clipped);assert.ok(retained>0&&retained<2400);near(retained,C.meshVolume(clipped._clip.tris),1e-7);
- for(const reactor of [full,clipped]){assert.equal(C.isReactor(reactor),true);near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY);}
- assert.ok(C.reactorPower(clipped)<C.reactorPower(full),'the nominal room cannot earn output for its portion outside the hull');
+ for(const reactor of [full,clipped]){assert.equal(C.isReactor(reactor),true);near(C.ratedReactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY);}
+ assert.ok(C.ratedReactorPower(clipped)<C.ratedReactorPower(full),'the nominal room cannot earn output for its portion outside the hull');
  const loaded=C.deserialize(JSON.parse(JSON.stringify(C.serialize(ship))));C.syncCompartments(loaded);
- for(const p of [full,clipped]){const q=loaded.parts.find(q=>q.id===p.id);assert.deepEqual(plain(q.room),[20,12,10]);assert.equal(q.autoFit,false);near(C.partVolume(q),C.partVolume(p));near(C.reactorPower(q),C.reactorPower(p));}
+ for(const p of [full,clipped]){const q=loaded.parts.find(q=>q.id===p.id);assert.deepEqual(plain(q.room),[20,12,10]);assert.equal(q.autoFit,false);near(C.partVolume(q),C.partVolume(p));near(C.ratedReactorPower(q),C.ratedReactorPower(p));}
  const loadedInertial=loaded.parts.find(p=>p.id===inertial.id);assert.deepEqual(plain(loadedInertial.room),[10,8,6]);near(C.partVolume(loadedInertial),480);const loadedSupport=C.computeStats(loaded);near(loadedSupport.inertialSupport,support.inertialSupport);
 });
 test('bus-fed engines receive only finite source-to-hub-to-engine power and preserve that wiring on load',()=>{

@@ -13,8 +13,8 @@ const near = (a, b) => assert.ok(Number.isFinite(a) && Number.isFinite(b) && Mat
 function design(counts = [{kind: 'monCal34', count: 100}]) {
   const ship = C.newShip({L: 8000, W: 2000, H: 1000, plan: 'rect', sec: 'rect', bowW: 1, bowH: 1, stern: 1}, 'Compact trench combat');
   ship.autoHabitation = false; ship.detail = 0;
-  ship.parts = [{id: 1, k: 'gen', c: [4000, 500, 0], d: 1000}, {id: 2, k: 'fuel', c: [6000, 500, 0], d: 500}];
-  ship.fits = []; ship.hatches = []; ship.nextId = 3;
+  ship.parts = [{id: 1, k: 'gen', c: [4000, 500, 0], d: 1000}, {id: 2, k: 'fuel', c: [6000, 500, 0], d: 500}, {id: 3, k: 'pump', c: [4000, 500, 620], d: 205}];
+  ship.fits = []; ship.hatches = []; ship.nextId = 4;
   const configured = C.configureTrenchArmament(ship, {hostId: 'hull', newTrench: {side: 'both', from: .1, to: .9, level: .5, height: 80, depth: 100, mode: 'split'}, counts});
   assert.equal(configured.ok, true, configured.error);
   const stats = C.computeStats(ship), profile = C.fleetProfile(stats, ship.name, ship);
@@ -37,7 +37,7 @@ function target(profile, z = 8000) {const t = unit(profile, 'target', 1); t.pos 
 test('100 to 10000 mounts retain bounded groups, physical rows and runtime modules while totals scale exactly once', () => {
   const {small: a, large: b} = fixtures();
   for (const x of [a, b]) {
-    assert.equal(x.ship.parts.length, 2); assert.equal(x.ship.fits.length, 2);
+    assert.equal(x.ship.parts.length, 3); assert.equal(x.ship.fits.length, 2);
     assert.equal(C.weaponCapacitors(x.ship).filter(p => p.trenchChargeRow).length, 2);
     assert.equal(x.profile.surface.mounts.length, 2);
     assert.ok(x.profile.surface.mounts.every(m => m.muzzles.length <= 8 && m.trenchAggregate));

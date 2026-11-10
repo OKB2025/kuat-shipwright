@@ -10,6 +10,7 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
   vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename: file});
 }
 const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs');
 const near = (actual, expected) => assert.ok(
   Math.abs(actual - expected) <= Math.max(1, Math.abs(expected)) * 1e-10,
   `${actual} != ${expected}`,
@@ -68,7 +69,7 @@ test('a real architecture-two engine and paid feed retain planning limits while 
       propulsionModelVersion: 1, ratedInputW: rated, driveProfileId: 'standard', machineryGradeId: 'standard', legacyCoolingInputW: 0},
     ...[-30, 30].map((z, i) => ({id: 3 + i, k: 'engine', c: [5, 60, z], d: 10, nozzleLength: 10, dir: [-1, 0, 0], machineryId: 2, propulsionModelVersion: 1})),
   ];
-  ship.nextId = 5;
+  ship.nextId = 5;addReactantFeed(C, ship);
   ship.links = [{kind: 'power', from: 'p1', to: 'p2', cap: rated}];
   const stats = C.computeStats(ship), descriptor = C.propulsionProfile(ship, stats), fleet = C.fleetProfile(stats, ship.name, ship);
   const wattsPerNewton = C.engineConversionCoefficient(stats.mass * 1000);

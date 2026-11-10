@@ -74,7 +74,7 @@ test('cooling and collection follow useful area while thickness and decorative f
 });
 
 test('small dedicated wings contribute one heat sink and one damageable combat module',()=>{
- const s=base(),w=C.placePart(s,'wing',[4,1,4],[2,3,.06]);C.placePart(s,'gen',[4,1,0],.5,{allowOverlap:true});
+ const s=base(),w=C.placePart(s,'wing',[4,1,4],[2,3,.06]);C.placePart(s,'gen',[4,1,0],.5,{allowOverlap:true});C.placePart(s,'struct',[5.2,1,0],[.4,.4,.4],{form:'box'});C.placePart(s,'pump',[5.2,1,0],.15,{allowOverlap:true});
  const S=C.computeStats(s),nodes=S.heat.net.dis.filter(d=>d.part===w.id),mods=C.fleetModules(s,S).filter(m=>m.part===w.id);
  assert.equal(nodes.length,1);assert.equal(nodes[0].k,'wing');assert.ok(nodes[0].cap>0);
  assert.ok(C.partVolume(w)<1);assert.equal(mods.length,1);assert.equal(mods[0].k,'dissipator');

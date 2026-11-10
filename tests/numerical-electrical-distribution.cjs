@@ -2,7 +2,9 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const C=vm.runInContext('Core',context),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-9,`${a} != ${b}`),plain=x=>JSON.parse(JSON.stringify(x));
-function fixture(){
+// v24 Reactors deliver only what feed equipment supplies (tests/helpers/reactant-feed.cjs).
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs'),fixture=(...args)=>{const ship=fixtureWithoutFeed(...args);addReactantFeed(C,ship);return ship;};
+function fixtureWithoutFeed(){
  const s=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Numerical electrical distribution');s.parts=[];s.fits=[];s.armor={hull:.01,cit:0};
  s.parts=[{id:1,k:'gen',c:[240,60,0],d:12},{id:3,k:'engineCore',c:[150,60,0],d:8,length:12,dir:[-1,0,0],reactor:1,autoFit:false,busFeed:true,propulsionModelVersion:1,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:1e18,feedCapacityW:1e18},{id:4,k:'engine',c:[10,60,0],d:8,nozzleLength:10,dir:[-1,0,0],machineryId:3,propulsionModelVersion:1},{id:5,k:'shield',c:[200,60,40],d:3},{id:6,k:'hdis',c:[200,60,-40],d:4,autoFit:false},{id:7,k:'fuel',c:[270,80,60],d:8},{id:8,k:'cargo',c:[230,90,30],d:4,autoFit:false}];
  const f={id:9,k:'single40',p:[100,120,30],a:2,mountMode:'top',ped:0,base:0,low:0,float:false};C.mountFit(s,f);s.fits.push(f);s.nextId=10;return s;

@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const C=vm.runInContext('Core',context),plain=v=>JSON.parse(JSON.stringify(v)),near=(a,b,label)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-9,`${label}: ${a} / ${b}`);
-function bareShip(){const s=C.newShip({L:40,W:24,H:20,plan:'rect',sec:'rect'},'Strict thermal fixture');s.parts=[{id:1,k:'gen',c:[30,10,0],d:2}];s.fits=[];s.nextId=2;return s;}
+function bareShip(){const s=C.newShip({L:40,W:24,H:20,plan:'rect',sec:'rect'},'Strict thermal fixture');s.parts=[{id:1,k:'gen',c:[30,10,0],d:2},{id:2,k:'pump',c:[30,10,1.6],d:.5}];s.fits=[];s.nextId=3;return s;}
 function oldProfile({cooler=true,power=20}={}){
  const modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1},{k:'weapon',fit:2,port:'f2',domain:'main',size:1,share:1,powerConnected:true},{k:'dissipator',part:3,port:'p3',domain:'main',size:1,share:1,powerConnected:true}];
  const source=(k,m)=>({k,id:k==='reactor'?'p1':k==='weapon'?'f2':'hotel',n:k,g:k==='hotel'?'low':'high',sh:1,st:1e6,m,pc:[],sec:-1,sw:-1,gen:-1});

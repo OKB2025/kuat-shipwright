@@ -52,7 +52,7 @@ test('an isolated surviving source contributes its actual share without applying
 });
 
 test('strict cooling uses real powered devices and exposes electronic and hyperdrive connections',()=>{
- const ship=C.newShip({L:100,W:80,H:40,plan:'rect',sec:'rect'},'Strict heat');ship.parts=[{id:1,k:'gen',d:8,c:[20,20,0]},{id:2,k:'hdis',d:3,c:[65,20,0]},{id:3,k:'sensor',d:2,c:[45,20,0]},{id:4,k:'hyper',d:2,c:[80,20,0]}];ship.fits=[];ship.nextId=5;ship.surfaces={version:1,mode:'strict',patches:[]};
+ const ship=C.newShip({L:100,W:80,H:40,plan:'rect',sec:'rect'},'Strict heat');ship.parts=[{id:1,k:'gen',d:8,c:[20,20,0]},{id:2,k:'hdis',d:3,c:[65,20,0]},{id:3,k:'sensor',d:2,c:[45,20,0]},{id:4,k:'hyper',d:2,c:[80,20,0]},{id:5,k:'pump',d:1.8,c:[20,20,6]}];ship.fits=[];ship.nextId=6;ship.surfaces={version:1,mode:'strict',patches:[]};
  const S=C.computeStats(ship),p=C.fleetProfile(S,ship.name,ship),u=C.fleetUnit('heat','heat',p);assert.equal(S.heat.builtin,0);assert.equal(S.heat.legacy,0);assert.ok(S.draw.dissipators>0);
  for(const id of [2,3,4])assert.ok(S.heat.powerPaths.some(l=>l.to==='p'+id&&l.ok),'actual device power path '+id);
  const sensor=p.modules.findIndex(m=>m.part===3),hyper=p.modules.findIndex(m=>m.part===4);assert.equal(p.modules[sensor].k,'sensor');assert.equal(C.powerFactor(u,'sensor',sensor),1);assert.equal(C.powerFactor(u,'hyper',hyper),1);

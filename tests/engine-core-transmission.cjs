@@ -2,7 +2,9 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const C=vm.runInContext('Core',context),plain=v=>JSON.parse(JSON.stringify(v)),near=(a,b,e=1e-9)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*e,`${a} != ${b}`),R=1e18,W=2e9;
-function fixture(){
+// v24 Reactors deliver only what feed equipment supplies (tests/helpers/reactant-feed.cjs).
+const {addReactantFeed}=require('./helpers/reactant-feed.cjs'),fixture=(...args)=>{const ship=fixtureWithoutFeed(...args);addReactantFeed(C,ship);return ship;};
+function fixtureWithoutFeed(){
  const ship=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Independent internal engine and nozzles');ship.parts=[];ship.fits=[];ship.armor={hull:.01,cit:0};
  ship.parts=[{id:1,k:'gen',c:[200,60,0],d:20},{id:3,k:'engineCore',c:[180,60,0],d:8,length:12,dir:[-1,0,0],reactor:1,busFeed:true,propulsionModelVersion:1,ratedInputW:R,driveProfileId:'standard',machineryGradeId:'standard',legacyCoolingInputW:0},...[-30,30].map((z,i)=>({id:4+i,k:'engine',c:[5,60,z],d:10,nozzleLength:10,dir:[-1,0,0],machineryId:3,propulsionModelVersion:1}))];ship.links=[{kind:'power',from:'p1',to:'p3',cap:R}];ship.parts.push({id:9000,k:'fuel',c:[270,100,50],d:4});ship.nextId=6;return ship;
 }
@@ -101,7 +103,7 @@ test('a nozzle-only assembly remains detached even when old outlet fields still 
 test('a complete internal-engine assembly remaps its one physical body, reactor and both nozzle connections',()=>{
  const ship=fixture(),captured=C.assemblyCapture(ship,{parts:[1,3,4,5],fits:[]},{name:'Shared physical engine'});assert.ok(captured.template);const template=C.normalizeAssemblyTemplate(captured.template),target=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Placed engine assembly');target.parts=[];target.fits=[];target.nextId=1;target.armor={hull:.01,cit:0};
  const placed=C.assemblyPlace(target,template,[105,60,0],{allowOverlap:true});assert.equal(placed.error,undefined);const core=target.parts.find(p=>p.k==='engineCore'),source=target.parts.find(C.isReactor),nozzles=target.parts.filter(p=>p.k==='engine');assert.ok(core&&source);assert.equal(nozzles.length,2);assert.equal(target.parts.filter(p=>p.k==='engineCore').length,1);assert.notEqual(core.id,3);assert.equal(core.reactor,source.id);near(core.ratedInputW,R);assert.ok(nozzles.every(p=>p.machineryId===core.id));assert.ok(target.links.some(l=>l.kind==='power'&&l.from==='p'+source.id&&l.to==='p'+core.id));
- target.parts.push({id:9000,k:'fuel',c:[270,100,50],d:4});const {unit,profile}=cold(target),result=run(unit);assert.equal(profile.propulsion.cores.length,1);assert.ok(result.actualInputW>0&&result.actualInputW<=R);near(result.actualInputW,result.wasteHeatW+result.cores[0].shaftOutputW);assert.ok(result.actualThrustN<=R/W);assert.equal(result.engines.filter(p=>p.actualThrustN>0).length,2);
+ target.parts.push({id:9000,k:'fuel',c:[270,100,50],d:4});addReactantFeed(C,target);const {unit,profile}=cold(target),result=run(unit);assert.equal(profile.propulsion.cores.length,1);assert.ok(result.actualInputW>0&&result.actualInputW<=R);near(result.actualInputW,result.wasteHeatW+result.cores[0].shaftOutputW);assert.ok(result.actualThrustN<=R/W);assert.equal(result.engines.filter(p=>p.actualThrustN>0).length,2);
  const loaded=C.deserialize(plain(C.serialize(target)));assert.equal(loaded.parts.filter(p=>p.k==='engineCore').length,1);assert.ok(loaded.parts.filter(p=>p.k==='engine').every(p=>p.machineryId===core.id));near(run(cold(loaded).unit).actualInputW,result.actualInputW);
 });
 

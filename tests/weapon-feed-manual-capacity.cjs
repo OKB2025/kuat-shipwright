@@ -4,7 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const C=vm.runInContext('Core',context),plain=v=>JSON.parse(JSON.stringify(v)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-9,`${a} != ${b}`);
 function fixture(){
  const ship=C.newShip({L:300,W:160,H:120,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1},'Finite weapon wiring');ship.armor={hull:.01,cit:0};ship.surfaces=C.normalizeSurfaces({mode:'strict',compatAllowed:false,legacyArmor:.01});ship.parts=[];ship.fits=[];
- const source=C.placePart(ship,'gen',[60,60,0],20),hub=C.placePart(ship,'battery',[100,60,0],6);
+ const source=C.placePart(ship,'gen',[60,60,0],20),hub=C.placePart(ship,'battery',[100,60,0],6);C.placePart(ship,'pump',[60,60,14],4.2,{autoFit:false});
  for(const z of [-35,35]){const f={id:ship.nextId++,k:'single40',p:[180,120,z],a:2,mountMode:'top',ped:0,base:0,low:0,float:false};C.mountFit(ship,f);ship.fits.push(f);}
  C.syncCompartments(ship);
  // The production worker also routes a compiled ship. Keeping this same
