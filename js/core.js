@@ -50820,7 +50820,7 @@ function classify(S) {
 }
 function warnings(S) {
   const w = [], add2 = (lv, text) => w.push({lv, text});
-  if (S.Vgen <= 0) add2('bad', S.invalidReactorIds?.length ? '反応炉 '+S.invalidReactorIds.map(id=>'#'+id).join('、')+' は配置が無効なため出力に数えていません。配置の問題を解消してください。出力ゼロでは何も動きません。' : 'ジェネレーターがありません。出力ゼロでは何も動きません。');
+  if (S.Vgen <= 0) add2('bad', S.invalidReactorIds?.length ? '反応炉 '+S.invalidReactorIds.map(id=>'#'+id).join('、')+' は配置が無効（船内に収まらない、または他の設備と重なる）なため出力に数えていません。配置の問題を解消してください。出力ゼロでは何も動きません。' : 'ジェネレーターがありません。出力ゼロでは何も動きません。');
   if (S.engN === 0) add2('bad', 'エンジンがありません。');
   else if (S.ventEng <= 0) add2('bad', 'どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。');
   else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
@@ -55881,8 +55881,10 @@ function buildMeasuredSolids(s,k,parts,{L,scale=1,paint,roundPaint,prefix='',nex
 // measured rows (keeping both ends) a little more than that.
 // The rows dropped next to an end are merged into that end's row: a measured end face is
 // often a little oblique, so the very last section only grazes it (a sliver of the face) and
-// keeping that sliver alone loses the solid's end section (and the contact made there).
-const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),env=(sel,x)=>[x,Math.min(...sel.map(r=>r[1])),Math.max(...sel.map(r=>r[2])),Math.min(...sel.map(r=>r[3])),Math.max(...sel.map(r=>r[4]))],head=rows.filter(r=>r[0]-x0<gap),tail=rows.filter(r=>x1-r[0]<gap&&r[0]-x0>=gap),out=[head.length>1?env(head,x0):rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(tail.length>1?env(tail,x1):rows.at(-1));return out;};
+// keeping that sliver alone loses the solid's end section (and the contact made there). Only the
+// end row and the innermost merged row are combined, so a ridge measured between them is not
+// stretched over the lofted span to the next kept row.
+const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),env=(sel,x)=>[x,Math.min(...sel.map(r=>r[1])),Math.max(...sel.map(r=>r[2])),Math.min(...sel.map(r=>r[3])),Math.max(...sel.map(r=>r[4]))],head=rows.filter(r=>r[0]-x0<gap),tail=rows.filter(r=>x1-r[0]<gap&&r[0]-x0>=gap),out=[head.length>1?env([head[0],head.at(-1)],x0):rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(tail.length>1?env([tail[0],tail.at(-1)],x1):rows.at(-1));return out;};
 parts.forEach((c,i)=>{const rows=fairRows(scale===1?c.rows:c.rows.map(r=>r.map(v=>v*scale)));made.push(k.loftX(measuredSolidLabel(c,L,prefix)+' '+(i+1),rows,{paint:c.round?roundPaint||paint:paint,corner:c.round?.3:.1,round:!!c.round},!!c.mirror));});for(const q of slabs||[]){const pts=scale===1?q.pts:q.pts.map(p=>p.map(v=>v*scale));made.push(k.slab(q.label||measuredSolidLabel({rows:[[pts[0][0]],[pts.at(-1)[0]]]},L,prefix),pts,q.y0*scale,q.y1*scale,{paint:q.paint||paint,...(q.light?{light:true}:{})}));}s.nextId=resume;return made;}
 function shipKit(s,settings={}){
  const put=(label,c,size,opt={},mirror=false)=>placePart(s,'struct',c,size,{label,skin:'armor',...opt},!!mirror);
@@ -62850,8 +62852,10 @@ function placementExtendedContactSolid(body,base,selected,axes,eps,cutOnly=false
   // Each such pair is an interior seam and is removed on its own; whatever
   // remains (a real boundary, or a step between two heights) is then
   // handled as an ordinary one- or two-sided edge. Rows that do not pair
-  // off still fail below, and the finished solid is checked for closure.
-  if(rows.length>2){const a=vertices[rows[0].a],b=vertices[rows[0].b],same=(p,q)=>Math.abs(p.cell.height(a)-q.cell.height(a))<=tolerance&&Math.abs(p.cell.height(b)-q.cell.height(b))<=tolerance;rows=rows.slice();
+  // off still fail below, and the finished solid is checked for closure
+  // (placementConformingSolid, called by fitPlacementContact). A pair must
+  // also share its roof (trimmed columns), so a roof step keeps its wall.
+  if(rows.length>2){const a=vertices[rows[0].a],b=vertices[rows[0].b],level=(r,x)=>r.cell.height(x),roof=(r,x)=>r.cell.roof?r.cell.roof(x):null,close=(x,y)=>x===null||y===null?x===y:Math.abs(x-y)<=tolerance,same=(p,q)=>[a,b].every(x=>close(level(p,x),level(q,x))&&close(roof(p,x),roof(q,x)));rows=rows.slice();
    for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++)if(rows[i].a===rows[j].b&&same(rows[i],rows[j])){rows.splice(j,1);rows.splice(i,1);i=-1;break;}
    if(!rows.length)continue;}
   if(rows.length>2)return placementFailure('contact-ambiguous','接触領域の境界が重なっています。対象面か接触範囲を選び直してください');
