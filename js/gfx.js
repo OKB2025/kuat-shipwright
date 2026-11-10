@@ -655,11 +655,9 @@ function craftWeaponMesh(g,f){
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
  if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
  if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
- // v22 A wing pylon: the streamlined pylon and its ejector rack, with the stores it carries by default (two thin
- // missiles side by side, or one torpedo or bomb) hanging under it at their true size (C.ORDNANCE).
- if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,0,h*.98,0,L*.7,h*.08,W*1.6,D);
-  const q=f._store||(C.STORE_DEFAULT?.cpylon?{k:C.STORE_DEFAULT.cpylon[0],n:C.STORE_DEFAULT.cpylon[1]}:null),od=q&&C.ORDNANCE?.[q.k];if(!od)return;const n=Math.min(q.n,C.storeCapacity(d.store,q.k)),[rl,rd]=od.dims,zs=n>1?[-rd*.6,rd*.6]:[0];
-  for(let i=0;i<n;i++){const z=zs[i]??0,y=h+rd*.55;cyl(g,M,o,-rl*.07,y,z,rd*.5,rd*.5,rl*.86,0,od.ion?R:FC.glass,10);cyl(g,M,o,rl*.43,y,z,rd*.5,rd*.08,rl*.14,0,od.ion?FC.glass:R,10);}}
+ // v24 A wing pylon is the pylon alone: a slim streamlined blade. Its stores are chosen per squadron in the order
+ // of battle and are not part of the design.
+ if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,L*.46,h*.5,0,L*.08,h*.7,W*.8,D);}
 }
 function meshFits(ship, filter, ranges, only, paintSource=false) {
   const g = new Geo(paintSource?64:only?.length===1?128:8192), body = FC.body;
