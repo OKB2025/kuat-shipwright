@@ -51241,20 +51241,23 @@ function engineAppearance(p){
 }
 // Hit tests, selection outlines and reference rendering share the same drawn
 // mesh, including the turbine where present and the bell's projecting rim.
-const SKIN_MESH=new WeakMap();
+const SKIN_MESH=new WeakMap(),SKIN_MESH_BY_KEY=new Map();
 function engineSkinMesh(p){
   if(p?.k!=='engine')return null;
   const appearance=engineAppearance(p),a=REFERENCE_ASSETS[appearance.skinAsset];if(!a)return null;
   const key=JSON.stringify([appearance.c,appearance.d,appearance.dir,appearance.skinAsset,appearance.skinAnchor,appearance.skinDiameter,appearance.skinAxial,appearance.nozzleLength,appearance.bodyLength,appearance.engineLength,appearance.casingBodyScale,appearance.roll,appearance.equipmentId]),old=SKIN_MESH.get(p);if(old&&old.key===key)return old;
+  // v24 Every design state from the engine arrives as new part objects. The
+  // casing depends only on the key, so a matching mesh is reused across them.
+  const shared=SKIN_MESH_BY_KEY.get(key);if(shared){SKIN_MESH_BY_KEY.delete(key);SKIN_MESH_BY_KEY.set(key,shared);SKIN_MESH.set(p,shared);return shared;}
   const dd=decodeReference(appearance.skinAsset);if(!dd)return null;
   // The authored casing, bell and root are appearance geometry. A compact
   // machinery body or a remote owner does not cut or deform this shell.
-  const pos=new Float32Array(dd.pos.length),uv=dd.uv,idx=dd.idx;
-  for(let i=0;i<dd.pos.length;i+=3)pos.set(referenceEnginePoint(appearance,[dd.pos[i],dd.pos[i+1],dd.pos[i+2]],a),i);
+  const pos=new Float32Array(dd.pos.length),uv=dd.uv,idx=dd.idx,point=referenceEnginePointer(appearance,a);
+  for(let i=0;i<dd.pos.length;i+=3)pos.set(point([dd.pos[i],dd.pos[i+1],dd.pos[i+2]]),i);
   const u=norm(appearance.dir||[-1,0,0]),T=new Float32Array(idx.length*3),b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let t0=Infinity,t1=-Infinity,rad=0;
   for(let i=0;i<pos.length;i+=3){const q=Array.from(pos.subarray(i,i+3));for(let k=0;k<3;k++){if(q[k]<b[k])b[k]=q[k];if(q[k]>b[k+3])b[k+3]=q[k];}const r=sub(q,appearance.c),t=dot(r,u);if(t<t0)t0=t;if(t>t1)t1=t;const rr=len(sub(r,mul(u,t)));if(rr>rad)rad=rr;}
   for(let i=0;i<idx.length;i++)T.set(pos.subarray(idx[i]*3,idx[i]*3+3),i*3);
-  const m={key,T,b,u,t0,t1,rad,pos,uv,idx,skinAsset:appearance.skinAsset};SKIN_MESH.set(p,m);return m;
+  const m={key,T,b,u,t0,t1,rad,pos,uv,idx,skinAsset:appearance.skinAsset};SKIN_MESH.set(p,m);SKIN_MESH_BY_KEY.set(key,m);if(SKIN_MESH_BY_KEY.size>384)SKIN_MESH_BY_KEY.delete(SKIN_MESH_BY_KEY.keys().next().value);return m;
 }
 const ENGINE_CASING_SECTIONS=new WeakMap();
 function engineCasingSections(p){
@@ -53977,13 +53980,21 @@ function engineAxialScales(p,a){
 function engineVisualFrame(p){
  const fw=mul(norm(p.dir||[-1,0,0]),-1);let rt=norm(cross(fw,[0,1,0]));if(len(rt)<.01)rt=[0,0,1];const up=norm(cross(rt,fw)),angle=(Number.isFinite(p.roll)?p.roll:0)*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle);return {fw,up:add(mul(up,c),mul(rt,s)),rt:sub(mul(rt,c),mul(up,s))};
 }
-function referenceEnginePoint(p,v,a){
- const q=v.map((n,i)=>n*a.size[i]+a.c[i]-(p.skinAnchor||a.c)[i]),scale=p.d/(p.skinDiameter||p.d),u=mul(norm(p.dir||[-1,0,0]),-1),source=sourceEngine(p);
- let axial=q[0]*scale;
- if(source&&(parametricEngine(p)||p.skinAxial)){const [ns,bs]=engineAxialScales(p,a),collar=source.nozzleLength/2;axial=q[0]>collar?collar*ns+(q[0]-collar)*bs:q[0]*ns;}
+function referenceEnginePoint(p,v,a){return referenceEnginePointer(p,a)(v);}
+// v24 The per-engine constants (source engine, axial scales, frame) are found
+// once; meshing a casing maps thousands of vertices through the same values.
+function referenceEnginePointer(p,a){
+ const anchor=p.skinAnchor||a.c,scale=p.d/(p.skinDiameter||p.d),u=mul(norm(p.dir||[-1,0,0]),-1),source=sourceEngine(p);
+ const axialScales=source&&(parametricEngine(p)||p.skinAxial)?engineAxialScales(p,a):null,collar=source?source.nozzleLength/2:0;
  const frame=engineVisualFrame(p);
- const casingScale=equipmentSpec(p)?.engineStyle==='exposed'&&Number.isFinite(p.casingBodyScale)?clamp(p.casingBodyScale,1,100):1,t=clamp((axial+(p.nozzleLength||0)/2)/Math.max(.001,p.nozzleLength||0),0,1),radialScale=scale*(1+(casingScale-1)*t*t*(3-2*t));
- return add(p.c,add(mul(u,axial),mul(add(mul(frame.up,q[1]),mul(frame.rt,q[2])),radialScale)));
+ const casingScale=equipmentSpec(p)?.engineStyle==='exposed'&&Number.isFinite(p.casingBodyScale)?clamp(p.casingBodyScale,1,100):1,nozzle=p.nozzleLength||0;
+ return v=>{
+  const q=v.map((n,i)=>n*a.size[i]+a.c[i]-anchor[i]);
+  let axial=q[0]*scale;
+  if(axialScales){const [ns,bs]=axialScales;axial=q[0]>collar?collar*ns+(q[0]-collar)*bs:q[0]*ns;}
+  const t=clamp((axial+nozzle/2)/Math.max(.001,nozzle),0,1),radialScale=scale*(1+(casingScale-1)*t*t*(3-2*t));
+  return add(p.c,add(mul(u,axial),mul(add(mul(frame.up,q[1]),mul(frame.rt,q[2])),radialScale)));
+ };
 }
 // Find the hull/structure wall along the turbine axis. A missing shell leaves
 // the engine visible; it is never hidden merely because it has an internal style.
@@ -54297,7 +54308,8 @@ function engineRating(p,key){
  const d=equipmentSpec(p),base=engineBaseline(d.engineStyle,p.d,key);
  return base*(d.engineStyle==='exposed'?Math.cbrt((p.engineLength||engineBaseline('exposed',p.d,'length'))/engineBaseline('exposed',p.d,'length')):1);
 }
-function sourceEngine(p){return Object.values(LEGACY_ENGINES).find(d=>d.assets.includes(p.skinAsset));}
+const SOURCE_ENGINE=new Map();
+function sourceEngine(p){const k=p.skinAsset;if(!SOURCE_ENGINE.has(k))SOURCE_ENGINE.set(k,Object.values(LEGACY_ENGINES).find(d=>d.assets.includes(k))||null);return SOURCE_ENGINE.get(k)||undefined;}
 function adoptEquipment(ship,standardExample=false){
  for(const p of ship.parts){
   const legacy=Object.hasOwn(LEGACY_ENGINES,p.equipmentId)?LEGACY_ENGINES[p.equipmentId]:null;

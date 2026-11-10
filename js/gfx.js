@@ -3306,9 +3306,19 @@ function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[],sh
  for(let i=0;i<a.n;i++){const n=C.norm(Array.from(nor.subarray(i*3,i*3+3)));g.v(...pos.subarray(i*3,i*3+3),...n,d.uv[i*2],d.uv[i*2+1],color,255);}
  for(let i=0;i<indices.length;i+=3)g.tri(base+indices[i],base+indices[i+1],base+indices[i+2]);
 }
+// v24 Vertex normals of an indexed mesh are computed once per position array;
+// engine casings are shared between design states (core's skin-mesh cache).
+const INDEXED_NORMALS=new WeakMap();
+function indexedNormals(d){
+ const old=INDEXED_NORMALS.get(d.pos);if(old&&old.idx===d.idx)return old.normal;
+ const P=d.pos,I=d.idx,normal=new Float32Array(P.length);
+ for(let i=0;i<I.length;i+=3){const a=I[i]*3,b=I[i+1]*3,c=I[i+2]*3,ux=P[b]-P[a],uy=P[b+1]-P[a+1],uz=P[b+2]-P[a+2],vx=P[c]-P[a],vy=P[c+1]-P[a+1],vz=P[c+2]-P[a+2],nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;for(const k of [a,b,c]){normal[k]+=nx;normal[k+1]+=ny;normal[k+2]+=nz;}}
+ for(let i=0;i<normal.length;i+=3){const n=C.norm([normal[i],normal[i+1],normal[i+2]]);normal[i]=n[0];normal[i+1]=n[1];normal[i+2]=n[2];}
+ INDEXED_NORMALS.set(d.pos,{idx:d.idx,normal});return normal;
+}
 function indexedReference(g,d,color=REF_ONE){
- const normal=new Float32Array(d.pos.length);for(let i=0;i<d.idx.length;i+=3){const ids=Array.from(d.idx.subarray(i,i+3)),[a,b,c]=ids.map(k=>Array.from(d.pos.subarray(k*3,k*3+3))),n=C.cross(C.sub(b,a),C.sub(c,a));for(const k of ids)for(let j=0;j<3;j++)normal[k*3+j]+=n[j];}
- g.room(d.pos.length/3,d.idx.length);const base=g.n;for(let i=0;i<d.pos.length/3;i++)g.v(...d.pos.subarray(i*3,i*3+3),...C.norm(Array.from(normal.subarray(i*3,i*3+3))),d.uv[i*2],d.uv[i*2+1],color,255);
+ const normal=indexedNormals(d),P=d.pos;
+ g.room(P.length/3,d.idx.length);const base=g.n;for(let i=0;i<P.length/3;i++)g.v(P[i*3],P[i*3+1],P[i*3+2],normal[i*3],normal[i*3+1],normal[i*3+2],d.uv[i*2],d.uv[i*2+1],color,255);
  for(let i=0;i<d.idx.length;i+=3)g.tri(base+d.idx[i],base+d.idx[i+1],base+d.idx[i+2]);
 }
 function meshReferenceHull(ship){const g=new Geo(16),d=C.referenceHullGeometry(ship);if(d)indexedReference(g,launcherReferenceSkin(ship,'hull',equipmentReferenceSkin(d,equipmentSkinPatches(ship,'hull'))),refTone(ship.hullSkin?.asset||(ship.reference==='imperial'?'isd_hull':'ven_hull')));return g;}

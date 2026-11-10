@@ -24,3 +24,12 @@ test('shield generators are offered inside and the variable cockpit canopy is of
 test('superweapons share the weapons catalogue while retaining their part placement and actual output values',()=>{const t=setup(),before=JSON.stringify(C.SW_COMBAT);t.run("designUI.space='exterior';designUI.category='weapon'");assert.equal(t.run("designUICatalog().some(it=>it.type==='part'&&it.key==='sbeam')"),true);t.run("palettePick('part','sbeam')");assert.equal(t.run('st.group'),'weapons');assert.equal(t.run('tool()'),'part');assert.equal(t.run('designPartDefinition().k'),'sbeam');t.run("palettePick('fit','pd')");assert.equal(t.run('tool()'),'fit');assert.equal(t.run('designPartDefinition().k'),'pd');assert.equal(t.run("designWeaponType({type:'part',key:'sbeam'})"),'superweapon');assert.equal(t.run("designWeaponOutput({type:'part',key:'sbeam'})"),C.SW_COMBAT.sbeam.E);assert.equal(JSON.stringify(C.SW_COMBAT),before,'selecting a catalogue row changes no weapon coefficient');});
 
 test('weapon type and output tabs filter real catalogue rows without adding placeholder armament',()=>{const t=setup();t.run("designUI.space='exterior';designUI.category='weapon';designUI.weaponType='superweapon';designUI.weaponOutput=String(C.SW_COMBAT.sbeam.E)");assert.equal(t.run("designWeaponMatches({type:'part',key:'sbeam'})"),true);assert.equal(t.run("designWeaponMatches({type:'fit',key:'pd'})"),false);const html=t.run('designUICatalogHTML()');assert.match(html,/data-design-weapon-type="superweapon"/);assert.match(html,/data-design-weapon-output=/);assert.match(html,/data-palpick="part:sbeam"/);assert.doesNotMatch(html,/data-palpick="fit:pd"/);});
+test('the placement catalogue offers the craft weapons with the app weapon lists',()=>{
+ const context=vm.createContext({C});const run=code=>vm.runInContext(code,context);
+ run(`const PART_KEYS=[],BRIDGES=[],CMD_LABEL='指揮',userParts=()=>[],partOffered=()=>false,ship=null,editorCraftDesign=()=>false;`);
+ for(const prefix of ['const WEAPONS =','const CRAFT_WEAPONS =','const craftDesign =','const weaponKeys ='])run(app.split('\n').find(line=>line.startsWith(prefix)));
+ run(fn('paletteItems'));
+ const keys=JSON.parse(run('JSON.stringify(paletteItems().filter(i=>i.type==="fit").map(i=>i.key))'));
+ for(const k of ['claser','claserH','cturret','ctorp','cbomb'])assert.ok(keys.includes(k),k+' is offered');
+ assert.ok(keys.includes('pd')&&keys.includes('stl'));
+});

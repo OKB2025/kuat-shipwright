@@ -2218,7 +2218,7 @@ function finishEngineAdoption(msg,applied){
   if(typeof designUIEditSession==='function'&&designUIEditSession()?.waitingApply)designUIEditApply();
   if(st.foilView==='stow')foilPreview(true);
   if(eng.fitOnGeometry){eng.fitOnGeometry=false;fitCamera(eng.keepCam);}
-  hideBusyOverlay();refreshOverlay();renderPanelInfo();updateAviationUI();refreshDerivedPanel();autosave();
+  hideBusyOverlay();refreshOverlay();renderPanelInfo();updateAviationUI();refreshDerivedPanel();autosave();if(typeof pendingSave!=='undefined'&&pendingSave)completePendingSave();
   if(titleVisible()){titleStatus();titleShipView();}
   engineStatus();
 }
@@ -2269,6 +2269,7 @@ function onEngineStats(msg) {
   updateAviationUI();
   if (JSON.stringify(S?.ungrounded || null) !== JSON.stringify(prevS?.ungrounded || null)) refreshOverlay();
   if (msg.gen === eng.gen) {
+    if (typeof pendingSave !== 'undefined' && pendingSave) completePendingSave();
     if (prevS && eng.label && !eng.quiet && msg.gen >= eng.labelGen) toastDiff(eng.label, prevS, S);
     const ug = x => (x?.ungrounded?.parts.length || 0) + (x?.ungrounded?.fits.length || 0);
     if (prevS && ug(S) > ug(prevS)) toast(`接地していない部品があります（赤枠 ${ug(S)} 個）。船体か、船体につながる部品に接するよう動かしてください`);
@@ -3850,8 +3851,40 @@ async function unpack(str) {
   }
   return JSON.parse(str);
 }
+// v24 Designs saved on this device live in IndexedDB (database ks-yard,
+// stores saves and examples). localStorage held a single JSON array under
+// yard.saves, which every save rewrote whole and which shared the browser's
+// ~5 MB quota with the draft; it is migrated once and stays the fallback where
+// IndexedDB cannot open (some private windows).
+const LocalDB = {
+  p: null, NAME: 'ks-yard', VERSION: 1,
+  open() {
+    if (this.p) return this.p;
+    this.p = new Promise(res => {
+      try {
+        if (typeof indexedDB === 'undefined') { res(null); return; }
+        const rq = indexedDB.open(this.NAME, this.VERSION);
+        rq.onupgradeneeded = () => { const db = rq.result; if (!db.objectStoreNames.contains('saves')) db.createObjectStore('saves', {keyPath: 'id'}); if (!db.objectStoreNames.contains('examples')) db.createObjectStore('examples', {keyPath: 'key'}); };
+        rq.onsuccess = () => res(rq.result); rq.onerror = () => res(null); rq.onblocked = () => res(null);
+      } catch (e) { res(null); }
+    });
+    return this.p;
+  },
+  async tx(store, mode, fn) {
+    const db = await this.open(); if (!db) throw new Error('IndexedDB unavailable');
+    return new Promise((res, rej) => {
+      let t; try { t = db.transaction(store, mode); } catch (e) { rej(e); return; }
+      let out; const rq = fn(t.objectStore(store)); if (rq) rq.onsuccess = () => { out = rq.result; };
+      t.oncomplete = () => res(out); t.onerror = t.onabort = () => rej(t.error || new Error('IndexedDB error'));
+    });
+  },
+  all(store) { return this.tx(store, 'readonly', s => s.getAll()); },
+  get(store, key) { return this.tx(store, 'readonly', s => s.get(key)); },
+  put(store, value) { return this.tx(store, 'readwrite', s => s.put(value)); },
+  del(store, key) { return this.tx(store, 'readwrite', s => s.delete(key)); },
+};
 const Store = {
-  db: null, uid: null, ready: false, p: null,
+  db: null, uid: null, ready: false, p: null, local: 'ls',
   init() { this.p = this.p || this._init(); return this.p; },
   async _init() {
     try {
@@ -3861,7 +3894,20 @@ const Store = {
         if (db && user) { const id = await user.id(); if (id) { this.db = db; this.uid = id; } }
       }
     } catch (e) { this.db = null; }
+    if (!this.db) await this._initLocal();
     this.ready = true; if (!$('#sheet').hidden) renderSaves();
+  },
+  async _initLocal() {
+    if (!await LocalDB.open()) { this.local = 'ls'; return; }
+    try {
+      let old = []; try { old = JSON.parse(LS.get('yard.saves') || '[]'); } catch (e) { old = []; }
+      if (Array.isArray(old) && old.length) {
+        const have = new Set((await LocalDB.all('saves')).map(r => r.id));
+        for (const r of old) if (r && r.id && !have.has(r.id)) await LocalDB.put('saves', r);
+      }
+      try { localStorage.removeItem('yard.saves'); } catch (e) { /* nothing to free */ }
+      this.local = 'idb';
+    } catch (e) { console.warn('local saves stay in localStorage', e?.message); this.local = 'ls'; }
   },
   col() { return this.db.collection('data/users/' + this.uid); },
   async list() {
@@ -3870,11 +3916,16 @@ const Store = {
       const snapq = await this.col().get();
       return snapq.docs.filter(d => d.exists).map(d => Object.assign({id: d.id}, d.data())).filter(d => d.kind === 'ship').sort((a, b) => b.savedAt - a.savedAt);
     }
+    if (this.local === 'idb') return (await LocalDB.all('saves')).filter(d => d.kind === 'ship').sort((a, b) => b.savedAt - a.savedAt);
     try { return JSON.parse(LS.get('yard.saves') || '[]'); } catch (e) { return []; }
   },
   async save(rec) {
     await this.init();
     if (this.db) { await this.col().doc(rec.id).set(rec); return 'cloud'; }
+    if (this.local === 'idb') {
+      try { await LocalDB.put('saves', rec); return 'local'; }
+      catch (e) { throw new Error(e?.name === 'QuotaExceededError' ? 'この端末の保存領域が足りません。不要な設計を削除するか、書き出しを使ってください。' : 'この端末に保存できませんでした。書き出しを使ってください。'); }
+    }
     const all = await this.list(); const i = all.findIndex(x => x.id === rec.id);
     if (i >= 0) all[i] = rec; else all.unshift(rec);
     if (!LS.set('yard.saves', JSON.stringify(all))) throw new Error('このブラウザでは保存できません。書き出しを使ってください。');
@@ -3883,10 +3934,75 @@ const Store = {
   async remove(id) {
     await this.init();
     if (this.db) { await this.col().doc(id).delete(); return; }
+    if (this.local === 'idb') { await LocalDB.del('saves', id); return; }
     const all = (await this.list()).filter(x => x.id !== id); LS.set('yard.saves', JSON.stringify(all));
   },
 };
+// v24 The bundled examples (prepared blueprint plus fleet profile from
+// data/fleet.js) are copied into this device's IndexedDB once downloaded, so
+// they stay listed and openable with the user's own designs, and can be copied
+// into them. A record is replaced when the bundled blueprint changes.
+const LocalExamples = {
+  seeding: null, count: 0,
+  rows() { return typeof YardFleetData === 'undefined' ? [] : Object.values(YardFleetData.designs || {}).filter(r => r?.model?.preparedBlueprint?.url && /^[a-f0-9]{64}$/.test(r.model.preparedBlueprint.sha256 || '')); },
+  async list() { try { const all = await LocalDB.all('examples'); this.count = all.length; return all; } catch (e) { return []; } },
+  seed() {
+    if (this.seeding) return this.seeding;
+    this.seeding = (async () => {
+      if (!await LocalDB.open() || typeof KSAssetCache === 'undefined') return 0;
+      const have = new Map((await this.list()).map(r => [r.key, r])), wanted = this.rows(); let n = 0;
+      for (const row of wanted) {
+        const asset = row.model.preparedBlueprint;
+        if (have.get(row.key)?.sha256 === asset.sha256) continue;
+        try {
+          const blob = await KSAssetCache.getBlob(new URL(asset.url, document.baseURI).href, asset.sha256);
+          const ex = EXAMPLES.find(e => e.key === row.key);
+          const {model, ...fleet} = row;
+          await LocalDB.put('examples', {key: row.key, kind: 'example', name: row.name, cls: row.cls, side: row.side, faction: row.faction || 'any', len: ex?.len || 0, craft: !!ex?.craft, sha256: asset.sha256, jsonSha256: asset.jsonSha256, sourceSha256: asset.sourceSha256 || model.sourceSha256 || null, blob, fleet, savedAt: Date.now()});
+          n++;
+        } catch (e) { console.warn('example not stored', row.key, e?.message); }
+      }
+      // Rows no longer bundled are removed; the user's copies are unaffected.
+      const keys = new Set(wanted.map(r => r.key));
+      for (const key of have.keys()) if (!keys.has(key)) try { await LocalDB.del('examples', key); } catch (e) { /* stale row stays harmless */ }
+      await this.list(); if (!$('#sheet')?.hidden) renderSaves();
+      return n;
+    })().finally(() => { this.seeding = null; });
+    return this.seeding;
+  },
+  async design(key) {
+    const rec = await LocalDB.get('examples', key); if (!rec?.blob) throw new Error('この端末に作例がありません');
+    const raw = await new Response(rec.blob.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+    return {rec, design: JSON.parse(new TextDecoder().decode(raw))};
+  },
+  // Copy an example into the user's saved designs (a new id; battle data built).
+  async copy(key) {
+    const {rec, design} = await this.design(key), id = 'ship-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    design.name = rec.name;
+    const data = await pack(design);
+    const where = await Store.save({id, kind: 'ship', name: rec.name, savedAt: Date.now(), cls: rec.cls || '', len: rec.len || 0, faction: rec.faction || 'any', example: key, data});
+    prepareSavedCombat(design);
+    return where;
+  },
+};
 let savingCurrent = false;
+// v24 Every saved design gets its battle data (fleet profile, battle and
+// piloted meshes) built in the engine's background cache at save time.
+let pendingSave = null;
+function prepareSavedCombat(design) {
+  if (typeof YardEngineClient === 'undefined' || !design) return [];
+  return [false, true].map(trial => YardEngineClient.request('fleet', {design, trial, prepareOnly: true}).catch(() => null));
+}
+async function completePendingSave() {
+  const p = pendingSave; if (!p || !ship || !S) return false;
+  if (ship.saveId !== p.id || eng.gen !== p.gen) { if (ship.saveId !== p.id || eng.gen > p.gen) pendingSave = null; return false; }
+  if (eng.statsGen !== p.gen || eng.adoptedGen !== p.gen || C.placementDraftStatus?.(ship)?.ready === false) return false;
+  pendingSave = null;
+  const rec = {...p.rec, cls: S.cls.role + '／' + S.cls.name, len: Math.round(S.hullLen)}; delete rec.provisional;
+  try { await Store.save(rec); if (!$('#sheet').hidden) renderSaves(); } catch (e) { console.warn('saved design not finished', e?.message); }
+  prepareSavedCombat(p.design);
+  return true;
+}
 async function saveCurrent() {
   if(typeof designUIEditDirty==='function'&&designUIEditDirty()){toast('編集画面を閉じるか、取消してから保存してください');return;}
   if (!ship || savingCurrent) return;
@@ -3907,9 +4023,10 @@ async function saveCurrent() {
     renderSaves();
     // Prepare the saved snapshot, not whichever design the editor opens next.
     // Both battle and piloted meshes then survive a reload in the engine cache.
-    if (!provisional && typeof YardEngineClient !== 'undefined') for (const trial of [false, true]) {
-      YardEngineClient.request('fleet', {design, trial, prepareOnly: true}).catch(() => {});
-    }
+    // v24 A design saved before its statistics settle is finished later: the
+    // record gets its class and length, and the battle data is built then.
+    if (!provisional) { pendingSave = null; prepareSavedCombat(design); }
+    else pendingSave = {id, gen: eng.gen, design, rec: {...rec, data}};
   } catch (e) { toast(esc(e.message || '保存できませんでした')); }
   finally { savingCurrent = false; btn.disabled = false; }
 }
@@ -3921,6 +4038,10 @@ async function renderSaves() {
   let list = [];
   try { list = await Store.list(); } catch (e) { box.innerHTML = '<li class="muted">一覧を読めませんでした。</li>'; return; }
   box.innerHTML = list.length ? list.map(r => `<li><div><b>${esc(r.name)}</b><span>${esc(r.cls || '')}・${fLen(r.len || 0)}・${new Date(r.savedAt).toLocaleString(I18N?.locale||'ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</span></div><button type="button" class="btn sm" data-load="${esc(r.id)}">開く</button><button type="button" class="btn sm ghost" data-del="${esc(r.id)}">${delConfirm === r.id ? '本当に削除' : '削除'}</button></li>`).join('') : '<li class="muted">保存した設計はまだありません。</li>';
+  const exBox = $('#exampleSaves'); if (!exBox) return;
+  const examples = (await LocalExamples.list()).sort((a, b) => (a.len || 0) - (b.len || 0)), total = LocalExamples.rows().length;
+  const note = $('#exampleWhere'); if (note) note.textContent = `この端末に保存済み ${examples.length} / ${total}${LocalExamples.seeding ? '（取得中）' : ''}`;
+  exBox.innerHTML = examples.length ? examples.map(r => `<li><div><b>${esc(r.name)}</b><span>${esc(r.cls || '')}・${fLen(r.len || 0)}・${esc(r.side || '')}</span></div><button type="button" class="btn sm" data-exopen="${esc(r.key)}">開く</button><button type="button" class="btn sm ghost" data-excopy="${esc(r.key)}">複製して保存</button></li>`).join('') : '<li class="muted">作例はまだこの端末にありません。取得が終わると並びます。</li>';
 }
 async function loadSaved(id) {
   try {
@@ -4413,6 +4534,8 @@ function bind() {
       setShip(s,{newDesign:true}); closeSheet();selectInitialHull();renderPanel(); toast(`${P.name}の白紙の船体を用意しました`);
     }
     else if (b.dataset.load) loadSaved(b.dataset.load);
+    else if (b.dataset.exopen) { closeSheet(); openExample(b.dataset.exopen); }
+    else if (b.dataset.excopy) { b.disabled = true; try { const where = await LocalExamples.copy(b.dataset.excopy); toast(where === 'cloud' ? '作例を複製して保存しました（あなたのアカウント）' : '作例を複製して保存しました（この端末）'); } catch (err) { toast('複製できませんでした：' + esc(err.message || '')); } renderSaves(); }
     else if (b.dataset.del) {
       if (delConfirm !== b.dataset.del) { delConfirm = b.dataset.del; renderSaves(); return; }
       delConfirm = null; try { await Store.remove(b.dataset.del); toast('削除しました'); } catch (err) { toast('削除できませんでした'); } renderSaves();
@@ -5143,7 +5266,7 @@ function start(hot) {
     engineHello(mode); boot?.step('engine', 'done'); titleStatus();
     let downloads=null,preparation=null;
     const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'作例の準備が完了しました':preparation.phase==='complete'?`作例を準備しました ${preparation.ready} / ${preparation.total}`:`作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
-    if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint).filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});}
+    if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint).filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});window.KSAssetDownloads.done.then(()=>LocalExamples.seed()).catch(()=>{});}
     if(mode==='worker'&&boot?.createBackgroundWorker&&window.KSAssetCache){
       window.KSPreload?.stop();
       window.KSPreload=KSAssetCache.createPreloader({keys:EXAMPLES.map(e=>e.key),createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
@@ -6790,7 +6913,8 @@ function paletteItems(){
  const gname=g=>g==='command'||g==='bridge'?CMD_LABEL:C.GROUPS[g]||'';
  for(const k of PART_KEYS.filter(partOffered)){const d=C.PARTS[k];out.push({type:'part',key:k,name:d.name,sub:d.desc||'',col:d.col,shape:d.shape,group:gname(d.group)});}
  for(const d of Object.values(C.EQUIPMENT).filter(d=>!d.catalogHidden))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:gname(d.group)});
- for(const k of WEAPONS)if(C.FITS[k]&&!C.FITS[k].catalogHidden)out.push({type:'fit',key:k,name:C.FITS[k].name,sub:C.FITS[k].short||'',col:[214,120,90],shape:'fit',group:'武装'});
+ // v24 The craft weapons (固定式レーザー砲 and the rest) belong to the same catalogue.
+ for(const k of (typeof weaponKeys==='function'?weaponKeys():WEAPONS.filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden)))out.push({type:'fit',key:k,name:C.FITS[k].name,sub:C.FITS[k].short||'',col:[214,120,90],shape:'fit',group:'武装'});
  for(const k of BRIDGES)if(C.FITS[k])out.push({type:'bridge',key:k,name:C.FITS[k].name,sub:'艦橋ポッド',col:[150,200,230],shape:'pod',group:CMD_LABEL});
  for(const t of userParts())out.push({type:'user',key:t.id,name:t.name,sub:upCat(t.category),col:[198,170,230],shape:'cube',group:'ユーザー部品'});
  return out;
