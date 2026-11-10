@@ -50795,6 +50795,8 @@ function baseComputeStats(ship,options={}) {
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol, engineSupportVolume:nozzleFoundations.reduce((n,e)=>n+e.volume,0),engineSupportMass:nozzleFoundations.reduce((n,e)=>n+e.volume*.3,0),
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp, reactorVolumes, reactantEfficiency:reactantBurnEfficiency(reactorVolumes),
+    // Reactors left out of the output because their interior placement is invalid (traced in the warnings).
+    invalidReactorIds:occupied.filter(p=>invalid.has(p.id)&&isReactor(p)).map(p=>p.id),
   };
   S.cls = classify(S);
   S.warnings = warnings(S);
@@ -50818,7 +50820,7 @@ function classify(S) {
 }
 function warnings(S) {
   const w = [], add2 = (lv, text) => w.push({lv, text});
-  if (S.Vgen <= 0) add2('bad', 'ジェネレーターがありません。出力ゼロでは何も動きません。');
+  if (S.Vgen <= 0) add2('bad', S.invalidReactorIds?.length ? '反応炉 '+S.invalidReactorIds.map(id=>'#'+id).join('、')+' は配置が無効なため出力に数えていません。配置の問題を解消してください。出力ゼロでは何も動きません。' : 'ジェネレーターがありません。出力ゼロでは何も動きません。');
   if (S.engN === 0) add2('bad', 'エンジンがありません。');
   else if (S.ventEng <= 0) add2('bad', 'どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。');
   else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
@@ -53466,7 +53468,14 @@ function solveInteriorPlacementRaw(ship,part,request={}){
  const finish=effectiveVolume=>{const hatchFailure=interiorHatchConstraint(ship,p);return hatchFailure?fail(hatchFailure.code,hatchFailure.error):{ok:true,part:p,requestedVolume:target,effectiveVolume};};
  if(mode==='direct'){
   const curved=!p.room&&['sphere','cyl','engine'].includes(PARTS[p.k]?.shape),contained=fullyInside||curved&&available>=sourceVolume*(1-PLACEMENT_TOLERANCES.volumeRelative);
-  if(!contained||!region.contains(p.c)||hostBoundaryCrossing||near.some(q=>overlapParts(p,q)||interiorCurvedConflict(p,q)||interiorAnalyticBoundaryCrosses(p,interiorRawMesh(q))))return fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています');
+  const clashes=near.filter(q=>overlapParts(p,q)||interiorCurvedConflict(p,q)||interiorAnalyticBoundaryCrosses(p,interiorRawMesh(q)));
+  if(!contained||!region.contains(p.c)||hostBoundaryCrossing||clashes.length){
+   // One code as before; the reason says which test failed and which parts take part, so a refused
+   // placement can be traced (outside the host, across its surface, or against other equipment).
+   const retained=sourceVolume>0?available/sourceVolume:0,label=q=>(q.label||PARTS[q.k]?.name||q.k)+' #'+q.id,reason=!region.contains(p.c)?'center-outside':hostBoundaryCrossing?'host-boundary':clashes.length?'equipment-overlap':'host-outside';
+   const text={'center-outside':'中心が配置先の外にあります','host-boundary':'配置先の外面をまたいでいます','equipment-overlap':'他の設備と干渉しています（'+clashes.slice(0,4).map(label).join('、')+(clashes.length>4?' ほか'+(clashes.length-4)+'件':'')+'）','host-outside':'実寸の'+Math.max(0,Math.round((1-retained)*1000)/10)+'%が配置先からはみ出しています'}[reason];
+   return {...fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています：'+text+'（配置先 '+(hostId==='hull'?'船体':'#'+hostId)+'）'),detail:{reason,hostId,partIds:clashes.map(q=>q.id),retained,centerInside:!!region.contains(p.c),hostBoundaryCrossing:!!hostBoundaryCrossing}};
+  }
   return finish(target);
  }
  if(!capability.deformable)return fail('fixed-shape','この機器は切り取り・変形できません');
@@ -55870,7 +55879,10 @@ function measuredHullBody(s,hp,t0,t1,label,paint){
 }
 function buildMeasuredSolids(s,k,parts,{L,scale=1,paint,roundPaint,prefix='',nextId=null,slabs=null}={}){const made=[],resume=nextId??s.nextId;s.nextId=Math.max(s.nextId,MEASURED_SOLID_ID,...s.parts.map(p=>p.id+1));// Saved lofts need stations at least 0.2% of the length apart: thin the
 // measured rows (keeping both ends) a little more than that.
-const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),out=[rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(rows.at(-1));return out;};
+// The rows dropped next to an end are merged into that end's row: a measured end face is
+// often a little oblique, so the very last section only grazes it (a sliver of the face) and
+// keeping that sliver alone loses the solid's end section (and the contact made there).
+const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),env=(sel,x)=>[x,Math.min(...sel.map(r=>r[1])),Math.max(...sel.map(r=>r[2])),Math.min(...sel.map(r=>r[3])),Math.max(...sel.map(r=>r[4]))],head=rows.filter(r=>r[0]-x0<gap),tail=rows.filter(r=>x1-r[0]<gap&&r[0]-x0>=gap),out=[head.length>1?env(head,x0):rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(tail.length>1?env(tail,x1):rows.at(-1));return out;};
 parts.forEach((c,i)=>{const rows=fairRows(scale===1?c.rows:c.rows.map(r=>r.map(v=>v*scale)));made.push(k.loftX(measuredSolidLabel(c,L,prefix)+' '+(i+1),rows,{paint:c.round?roundPaint||paint:paint,corner:c.round?.3:.1,round:!!c.round},!!c.mirror));});for(const q of slabs||[]){const pts=scale===1?q.pts:q.pts.map(p=>p.map(v=>v*scale));made.push(k.slab(q.label||measuredSolidLabel({rows:[[pts[0][0]],[pts.at(-1)[0]]]},L,prefix),pts,q.y0*scale,q.y1*scale,{paint:q.paint||paint,...(q.light?{light:true}:{})}));}s.nextId=resume;return made;}
 function shipKit(s,settings={}){
  const put=(label,c,size,opt={},mirror=false)=>placePart(s,'struct',c,size,{label,skin:'armor',...opt},!!mirror);
@@ -62832,10 +62844,16 @@ function placementExtendedContactSolid(body,base,selected,axes,eps,cutOnly=false
   for(let id=0;id<vertices.length;id++){if(id===edge.a||id===edge.b)continue;const p=vertices[id],t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/dd;if(t>0&&t<1&&Math.hypot(p[0]-a[0]-dx*t,p[1]-a[1]-dy*t)<=tolerance)cuts.push({id,t});}
   cuts.sort((p,q)=>p.t-q.t);for(let i=0;i+1<cuts.length;i++){const A=cuts[i].id,B=cuts[i+1].id;if(A===B)continue;const key=Math.min(A,B)+':'+Math.max(A,B),record={a:A,b:B,cell:edge.cell};if(!segments.has(key))segments.set(key,[]);segments.get(key).push(record);}
  }
- for(const rows of segments.values()){
+ for(let rows of segments.values()){
   // Opposite incidences on the same actual plane have no side wall. A
   // vanishing cell split can contribute several such pairs after welding.
-  if(rows.length>2){const first=rows[0],a=vertices[first.a],b=vertices[first.b];if(rows.every(row=>Math.abs(row.cell.height(a)-first.cell.height(a))<=tolerance&&Math.abs(row.cell.height(b)-first.cell.height(b))<=tolerance)&&rows.reduce((sum,row)=>sum+(row.a===first.a?1:-1),0)===0)continue;}
+  // Each such pair is an interior seam and is removed on its own; whatever
+  // remains (a real boundary, or a step between two heights) is then
+  // handled as an ordinary one- or two-sided edge. Rows that do not pair
+  // off still fail below, and the finished solid is checked for closure.
+  if(rows.length>2){const a=vertices[rows[0].a],b=vertices[rows[0].b],same=(p,q)=>Math.abs(p.cell.height(a)-q.cell.height(a))<=tolerance&&Math.abs(p.cell.height(b)-q.cell.height(b))<=tolerance;rows=rows.slice();
+   for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++)if(rows[i].a===rows[j].b&&same(rows[i],rows[j])){rows.splice(j,1);rows.splice(i,1);i=-1;break;}
+   if(!rows.length)continue;}
   if(rows.length>2)return placementFailure('contact-ambiguous','接触領域の境界が重なっています。対象面か接触範囲を選び直してください');
   let low=rows[0],upper=low.cell.base;
   if(rows.length===1&&low.cell.roof)upper=low.cell.roof;
@@ -63102,6 +63120,7 @@ function placementDraftStatus(ship){
 function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport'])delete source[key];return surfaceHash([source]);}
 function placementPendingFailure(item,result){
  const meta=item.placement;delete meta.pendingGeometry;meta.validationFailed=true;meta.repairRequired=true;meta.repairReason=result.code||'calculation-failed';meta.validationSourceKey=placementPendingSourceKey(item);delete item._placementGeometry;delete item._clip;delete item._packing;delete item.engineMountSupport;delete item._engineMountSupportGeometry;
+ item._placementFailure={code:meta.repairReason,error:result.error||'配置の検証に失敗しました',...(result.detail?{detail:result.detail}:{})};
  if(FITS[item.k]&&!PARTS[item.k]){item.float=true;item._fitPlacementError={code:meta.repairReason,error:result.error||'配置の検証に失敗しました'};}else{item._placementError=meta.repairReason;if(placementCapability(item).space==='interior')item._interiorPlacementError={code:meta.repairReason,error:result.error||'配置の検証に失敗しました'};meta.requestedGeometry=placementShape(item);}
 }
 function placementPendingSurface(ship,parent,point,normal,metadata){

@@ -45,6 +45,7 @@ STL・図面・写真測定を基にした作例艦の形状、部品構成、�
 - 根拠文書：`docs/structure-contact-v24.md`。原本上の対応箇所は示されていない。
 - 2026-11-10 時点（`dbe9ff9`）の生成物での支柱数：executor 26、munificent 4、lucrehulk 3、lh3210 3、nebulonb 2、recusant 2、recusantDn 2、mc80home 1。文書の表とは nebulonb・recusant が一致しない。
 - これらの支柱は、原本にない追加物である可能性が高い。後続作業で、浮いた原因（層の間のすき間の測定、座標、省略された部位）を調べ、原因に対応して直す。
+- 2026-11-10：ミュニフィセントの 4 本は、`buildMeasuredSolids` の測定行の間引き（`fairRows`）で構造物の端の断面が失われたのが原因だった。端の行をまとめる修正で 0 本になった（`docs/dev-status-2026-11.md` §2.1）。
 
 ## 5. 全体と局所を確認する
 
@@ -86,4 +87,15 @@ STL・図面・写真測定を基にした作例艦の形状、部品構成、�
 
 注：`corvette-weapons/6-HammerheadClassCorvette-2.STL` は `sphyrna-hull.stl` と同一ハッシュ。
 
-リポジトリにない原本（文書・スクリプトに名前だけある）：`Executor_Complete.stl`、`Recusant.stl`、`CIS_Munificent_D.stl`、`Invisible_Hand.stl`、`Lucre_Combined_HD.stl`、`Acclamator.stl`、`MC30CFrigate.STL`、`MandatorIIClassDreadnaught.STL`、`onager_fixed.stl`、`Malevolence.stl` など。`bridgeLooseStructures` が支柱を足している executor、munificent、lucrehulk/lh3210、recusant/recusantDn の原本はリポジトリにないため、これらの形状照合はユーザーから原本の提供を受けるまで UNVERIFIED になる。測定値は `js/core.js` に埋め込まれたデータブロックと `scripts/stl-measure/` の手順だけが残っている。nebulonb と mc80home は、STL を基にしたという記録自体を `docs/` で確認できていない（参照資料の種類から未確認）。
+2026-11-10 にユーザーから受け取った原本：
+
+| ファイル | SHA-256（展開後） | 対応する作例 |
+| --- | --- | --- |
+| `assets/source/cis-stl/Recusant.stl.gz` | `63c28bfa515c465a63fda41cfbc522276304ae5faf8b89cfe90608dc9e726d8f`（`cis-stl/manifest.json`） | レキューザント級・弩級 |
+| `assets/source/cis-stl/CIS_Munificent_D.stl.gz` | `2e56f66a02697db0b4a6b044c6dfb7055b46fb16c627fe7806d18b980367a1f3` | ミュニフィセント級 |
+| `assets/source/cis-stl/Lucre_Combined_HD.stl.gz` | `75c286e6d727a5c5d2de924622d481c7b8f2993285eed206d93c42885f89b1df` | ルクレハルク級・LH-3210 |
+| エグゼクター（7 分割、リポジトリ外） | `docs/dev-status-2026-11.md` §4 | エグゼクター級。3D 印刷用の分割部品で、各部品が別の座標（mm）。組み立ての位置合わせが必要 |
+
+以前の測定に使ったファイルのハッシュは記録がないため、同一ファイルかは未確認（外接箱は作例と 1% 以内で一致）。照合ツールは `scripts/stl-check/`。
+
+リポジトリにない原本（文書・スクリプトに名前だけある）：`Executor_Complete.stl`、`Recusant.stl`、`CIS_Munificent_D.stl`、`Invisible_Hand.stl`、`Lucre_Combined_HD.stl`、`Acclamator.stl`、`MC30CFrigate.STL`、`MandatorIIClassDreadnaught.STL`、`onager_fixed.stl`、`Malevolence.stl` など。CIS 3 隻の原本は上の表のとおり受け取った。エグゼクターは分割原本の組み立てが済むまで UNVERIFIED。測定値は `js/core.js` に埋め込まれたデータブロックと `scripts/stl-measure/` の手順だけが残っている。nebulonb と mc80home は、STL を基にしたという記録自体を `docs/` で確認できていない（参照資料の種類から未確認）。
