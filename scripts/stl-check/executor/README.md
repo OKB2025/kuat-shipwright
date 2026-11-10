@@ -6,14 +6,15 @@
 | --- | --- |
 | 1. 組み立て（切断面の一致で平行移動を求める） | `python3 -I assemble.py UPLOAD_DIR $KS_EXE_WORK/assembled` → 各継ぎ目の IoU を表示 |
 | 2. ゲーム座標へ | `python3 -I to_game.py`（`stl-exe-game.npy`） |
-| 3. 作例の三角形 | `node gametris.cjs ROOT executor $KS_EXE_WORK/game-exe`（`BUILD=1` で現在の Core から組み立て） |
-| 4. 支柱の上下の部品 | `node owners.cjs ROOT $KS_EXE_WORK/owners.json`（`BUILD=1` 同上）。機関の箱は `engines.json`（README 末尾） |
-| 5. 支柱の柱の原本の中身（交差の偶奇） | `python3 -I column.py`（`column.json`） |
-| 6. 浮いた段丘の下に原本の中身を補う外形板 | `python3 -I restore2.py`（`restored2.json`、支柱ごとの報告 `restored2-report.json`） |
-| 7. 原本でも離れている段丘の確認 | `lateral.py`、`footscan.py`、`plategap.py` |
-| 8. 断面画像 | `node gamesection.cjs ROOT executor x POS U0 U1 V0 V1 STEP OUT.json` と `python3 -I sectionsvg_exe.py x POS U0 U1 V0 V1 OUT.json OUT.svg 題名`、`../svg2png.cjs` |
-| 9. 機関ごとの体積・推力 | `node engvol.cjs ROOT OUT.json` |
+| 3. 作例の機関 | `node -e` で作例の `k==='engine'` の位置・ノズル長・本体長を `engines-detail.json` に、`partAABB` を `engines.json` に書き出す |
+| 4. 原本の機関外殻（外に出ている長さと半径） | `python3 -I nacelle2.py`（`nacelles.json`。艦首側の機関筒の穴を外殻と誤認しないよう、外殻が続く最初の区間だけを使う） |
+| 5. 船体の測点の当てはめ | `node hull0.cjs ROOT $KS_EXE_WORK/hull0`、`python3 -I fitstations.py`（`stations-fit.json`、原本−機関空間の内側に収め、トレンチ範囲は舷側帯と幅を保つ）、`node hull0.cjs ROOT $KS_EXE_WORK/hullfit1 stations-fit.json`、断面図 `hulldraw.py` |
+| 6. 船体の外の構造物 | `python3 -I body60.py`（60 m の帯、原本−当てはめた船体−機関の空間−トレンチ開口の外側−艦橋の範囲）、`python3 -I seat60.py`（斜めの甲板へ届かせる） |
+| 7. 組み立てと確認 | `node eval.cjs ROOT OUT.json`（支柱・接地・警告・機関の露出・加速）、`node prop.cjs ROOT OUT.json`（機関ごとの入力・推力・電源） |
+| 8. 断面画像 | `gamesection.cjs`・`sectionsvg_exe.py`・`../svg2png.cjs` |
+
+shapely が要るのは `gaps.py`・`restore_lib.py`・`nacelle2.py`・`hullfit.py`・`fitstations.py`・`body60.py`・`seat60.py`。
 
 組み立ての結果（2026-11-10）：外形 196.77 × 581.57 × 51.14 mm、32.67 m/mm で全長 19,000 m・幅 6,428 m・高さ 1,671 m。継ぎ目の一致度（切断面の重なり）は翼 0.983、艦橋 0.973、艦首 0.941・0.997、艦尾 0.773（Stern_2 の前面が相手より縦に大きい）・0.985。回転はなく平行移動だけ。
 
-`engines.json` は `node -e` で作例の `k==='engine'` 部品の `partAABB` を書き出したもの（restore2 は機関の箱から 30 m 離す）。
+2026-11-10 の最初の修正（浮いた段丘の下だけを補う `EXECUTOR_RESTORED_TERRACES`）は、船体の当てはめ直しと構造物の作り直しに置き換えた。
