@@ -649,7 +649,8 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
 function craftWeaponMesh(g,f){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
  if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
- if(k==='claser'||k==='claserH'){box(g,M,o,-L*.22,h*.5,0,L*.36,h*.9,W,Bd);cyl(g,M,o,L*.2,h*.5,0,W*.3,W*.24,L*.62,0,B,8);for(const q of [.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
+ // v24 A fixed laser is a bare barrel (it may be sunk into the hull); no breech housing.
+ if(k==='claser'||k==='claserH'){cyl(g,M,o,L*.065,h*.5,0,W*.34,W*.24,L*.93,0,B,8);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
  if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}

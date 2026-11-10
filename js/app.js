@@ -2998,7 +2998,7 @@ function ghostFor(hit) {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
     const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
-    const f = C.mountFit(editorMountShip(), {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(d.cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k),...(weaponLocalMount(hit)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
+    const f = C.mountFit(editorMountShip(), {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(d.cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k),...(weaponLocalMount(hit)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = !!weaponMountIssue(k,normal) || f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
     turretHeadingLines(ls,f,bad?ng:ok);
@@ -3106,7 +3106,7 @@ function tapHit(t, hit, add) {
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit();
       const issue=weaponMountIssue(k,weaponPlacementNormal(k,hit.n));if(issue){toast(issue);break;}let err = null, made = null;
-      const placed=mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k)}, r = placeEditorFit(k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      const placed=mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k)}, r = placeEditorFit(k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (placed&&made) { queuePreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -3567,7 +3567,7 @@ function baseFitEditor() {
   const d = C.fitSpec(it);
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
     ${weaponMountIssue(it,C.fitUp(it))?`<p class="note neg" data-weapon-mount-error>${weaponMountIssue(it,C.fitUp(it))}</p>`:''}
-    ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}${launcherPitchControls(it)}
+    ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}${launcherPitchControls(it)}${craftGunSinkControls(it)}
     ${fitPedestalControls(it)}</div>`;
 }
 function partList() {
@@ -4250,7 +4250,7 @@ function fitLinks(f) {
   const out = []; if (tw) out.push({fit: tw, z: true, y: false}); if (vt) out.push({fit: vt, z: false, y: true}); if (vtw && vtw !== tw && vtw !== vt) out.push({fit: vtw, z: true, y: true});
   return out;
 }
-const FIT_SYNC_KEYS = ['ped', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns'];
+const FIT_SYNC_KEYS = ['ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns'];
 function syncFitTwin(from, to, link) {
   if (to.k !== from.k) { to.k = from.k; for (const k of ['skinAsset', 'mountOffset', 'mountAxis']) if (from[k] === undefined) delete to[k]; }
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
@@ -4289,7 +4289,7 @@ function fitPedestalControls(f = null) {
 // the same kind, size and settings, apart from where it sits.
 const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded'];
 // v21 'scale' is not carried: the player cannot make a turret larger or smaller than its standard.
-const FIT_TEMPLATE_KEYS = ['width', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns'];
+const FIT_TEMPLATE_KEYS = ['width', 'sink', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
 function activeTemplate(list, k) { const t = st.template; if (!t || t.list !== list || t.k !== k) return null; if (list === 'parts' && (t.equipmentId || null) !== (activeEquipment()?.id || null)) return null; return t; }
 function carryToPlace() {
@@ -5011,7 +5011,7 @@ function designUIArm(){
 }
 function designUIFitDraft(hit){
  const k=curFit(),n=weaponPlacementNormal(k,hit.n),axis=C.AXES.reduce((best,v,i)=>C.dot(v,n)>C.dot(C.AXES[best],n)?i:best,0);
- const p={id:-1,k,_fit:true,p:hit.p.slice(),n,a:axis,base:0,ped:fitPlacementPed(k),localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...shipLauncherPlacementOptions(k)};
+ const p={id:-1,k,_fit:true,p:hit.p.slice(),n,a:axis,base:0,ped:fitPlacementPed(k),localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k)};
  if(fitPedestalAllowed(k)){if(st.pedShape==='trap')p.pedShape='trap';if(Math.abs(st.pedSize-1)>1e-6)p.pedSize=st.pedSize;}
  const template=activeTemplate('fits',k);if(template)for(const key of FIT_TEMPLATE_KEYS)if(template.data[key]!=null)p[key]=structuredClone(template.data[key]);if(fitPedestalAllowed(k)){if(st.pedShape==='trap')p.pedShape='trap';else delete p.pedShape;if(Math.abs(st.pedSize-1)>1e-6)p.pedSize=st.pedSize;else delete p.pedSize;}return p;
 }
@@ -6467,7 +6467,7 @@ function bindReference(){
   if(['engineD','engineL'].includes(t.dataset.sl)){if(dragSnap)endDrag();renderPanel();}
   if(['chargeDepth','chargeScale','chargeSalvos'].includes(t.dataset.sl)){if(dragSnap)endDrag();renderPanel();}
   if(['gunYaw','gunPitch'].includes(t.dataset.sl)){if(dragSnap)endDrag();renderPanelInfo();}
-  if(['launcherCols','launcherRows','launchYaw','newLauncherCols','newLauncherRows','newLaunchYaw','multiLauncherCols','multiLauncherRows','multiLaunchYaw','launchPitch','newLaunchPitch','multiLaunchPitch'].includes(t.dataset.sl)){if(dragSnap)endDrag();renderPanel();}
+  if(['launcherCols','launcherRows','launchYaw','newLauncherCols','newLauncherRows','newLaunchYaw','multiLauncherCols','multiLauncherRows','multiLaunchYaw','launchPitch','newLaunchPitch','multiLaunchPitch','gunSink','newGunSink'].includes(t.dataset.sl)){if(dragSnap)endDrag();renderPanel();}
 
   if('refhull'in t.dataset){mutate('参照外板の表示',()=>hullEditorShip().hullSkin.enabled=t.checked,'all');renderPanel();}
   if('refweapon'in t.dataset){const f=selItem(),issue=f&&weaponMountIssue(t.value,C.fitUp(f));if(issue){toast(issue);renderPanel();return;}mutate('砲塔を交換',()=>editSel(f=>{f.k=t.value;delete f.skinAsset;delete f.mountOffset;delete f.mountAxis;delete f.assetPitch;f.scale=1;f.assetYaw=0;}),'fits');renderPanel();}
@@ -6491,6 +6491,10 @@ function bindReference(){
  $('#panel').addEventListener('input',e=>{const t=e.target,k=t.dataset.sl;if(!['gunPitch','newGunPitch'].includes(k))return;
   if(!changeBallTurretPitch(t.value,k==='newGunPitch'?'new':'selected'))return;
   const out=$('#out-'+k);if(out)out.textContent=deg(C.clamp(Number(t.value),-90,90));
+ });
+ $('#panel').addEventListener('input',e=>{const t=e.target,k=t.dataset.sl;if(!['gunSink','newGunSink'].includes(k))return;
+  if(!changeCraftGunSink(t.value,k==='newGunSink'?'new':'selected')){const f=selItem();if(k==='gunSink'&&f)t.value=f.sink||0;return;}
+  const out=$('#out-'+k);if(out)out.textContent=fmtM(C.clamp(Number(t.value),0,C.craftGunSinkMax(k==='newGunSink'?st.fit:selItem()?.k)||0));
  });
  $('#panel').addEventListener('input',e=>{const t=e.target,k=t.dataset.sl;if(!['launchPitch','newLaunchPitch','multiLaunchPitch'].includes(k))return;
   if(!changeLauncherPitch(t.value,k==='newLaunchPitch'?'new':k==='multiLaunchPitch'?'multiple':'selected'))return;
@@ -6625,6 +6629,22 @@ function launcherPitchTargets(multiple=false){
  for(const f of first)if(f&&launcherCanPitch(f)){targets.set(f.id,f);for(const link of fitLinks(f))if(launcherCanPitch(link.fit))targets.set(link.fit.id,link.fit);}
  return [...targets.values()];
 }
+// v24 A craft's fixed laser can be sunk into the hull or a structure while its muzzle stays clear.
+function craftGunSinkControls(f=null){
+ const k=f?f.k:st.fit;if(!C.craftFixedGun?.(k))return '';
+ const id=f?'gunSink':'newGunSink',max=C.craftGunSinkMax(k),value=C.clamp(f?(f.sink||0):(st.fitSink||0),0,max);
+ return `<div class="pgroup craft-gun-sink"><h4>めり込み</h4><div class="sliders">${slider(id,'取付面から下へ',value,0,max,.01,fmtM(value),.01)}</div><p class="note">砲身を船体・構造物にめり込ませます。発射口とその前が塞がれる位置には置けません。</p></div>`;
+}
+function changeCraftGunSink(value,mode){
+ const raw=Number(value);if(value===''||!Number.isFinite(raw))return false;
+ if(mode==='new'){st.fitSink=C.clamp(raw,0,C.craftGunSinkMax(st.fit)||0);updateHint();requestDraw();return true;}
+ const f=selItem();if(st.sel?.list!=='fits'||!C.craftFixedGun?.(f))return false;
+ const targets=[f,...fitLinks(f).map(l=>l.fit)].filter(q=>C.craftFixedGun(q)),depth=C.clamp(raw,0,C.craftGunSinkMax(f.k));
+ const old=targets.map(q=>q.sink);for(const q of targets){if(depth>0)q.sink=depth;else delete q.sink;}
+ if(targets.some(q=>C.craftMuzzleBlocked(ship,q))){targets.forEach((q,i)=>{if(old[i]>0)q.sink=old[i];else delete q.sink;});toast('発射口が塞がれるため、これ以上めり込ませられません');return false;}
+ for(const q of targets){if(depth>0)q.sink=depth;else delete q.sink;}
+ if(!dragSnap)beginDrag('めり込みを変更');queuePreview('fits',targets);touch('fits');scheduleStats(350);return true;
+}
 function launcherPitchControls(f=null,multiple=false){
  const rows=multiple?launcherPitchTargets(true):null,subject=multiple?(rows.find(q=>C.isShipLauncher?.(q))||rows[0]):f||{k:st.fit,launchPitch:st.launchPitch,...shipLauncherPlacementOptions()};
  if(!subject||!launcherCanPitch(subject))return '';
@@ -6663,7 +6683,7 @@ function turretCompartmentHTML(f){
 }
 function weaponMountControls(){
  const selected=st.sel?.list==='fits'?selItem():null,wall=C.weaponWallOnly?.(selected||curFit()),choices=wall?[['auto','舷側面に合わせる'],['trench','トレンチ内']]:[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内']],note=wall?'左右の舷側面に直接取り付けます。艦首・艦尾・甲板・船底には配置できません。砲室は壁に固定され、砲身と揺架だけが射界内で動きます。':'「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。';
- return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',choices,choices.some(q=>q[0]===st.weaponMount)?st.weaponMount:'auto')}<p class="note">${note}</p>${!wall?'<p class="note" data-auto-turret-support>「上面に配置」では斜面の高い側へ高さを揃え、隙間を埋める土台を自動生成します。手動の砲座高はその上に加わります。</p>':''}</div>${st.fitTool==='place'?weaponYawControls()+launcherPitchControls():''}`;
+ return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',choices,choices.some(q=>q[0]===st.weaponMount)?st.weaponMount:'auto')}<p class="note">${note}</p>${!wall?'<p class="note" data-auto-turret-support>「上面に配置」では斜面の高い側へ高さを揃え、隙間を埋める土台を自動生成します。手動の砲座高はその上に加わります。</p>':''}</div>${st.fitTool==='place'?weaponYawControls()+launcherPitchControls()+craftGunSinkControls():''}`;
 }
 function chooseWeaponMount(face){
  if(!['auto','top','bottom','trench'].includes(face))return;
