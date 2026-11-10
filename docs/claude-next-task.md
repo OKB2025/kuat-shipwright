@@ -3,7 +3,7 @@
 ## 開始手順
 
 1. 作業元を選ぶ。
-   - 設定用 PR が**未マージ**なら、ブランチ `claude/kuat-shipwright-claude-setup-u9sok1`（設定コミット `__SETUP_COMMIT__` 以降）から新しいセッションを開始する。
+   - 設定用 PR が**未マージ**なら、ブランチ `claude/kuat-shipwright-claude-setup-u9sok1`（設定コミット `754b647` 以降）から新しいセッションを開始する。
    - **マージ済み**なら、設定を取り込んだ最新の `main` から開始する。
 2. 主担当を Fable 5.2 / medium に切り替える。次の 2 つを**別々のメッセージ**で送る。
 
