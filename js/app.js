@@ -2009,7 +2009,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 // ---------- state ----------
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
-const WEAPONS = ['single40','quad40Ion','twin40Dome','twin40','triple40','oct40','refVen','triple70','quad70Side',...(C.VENATOR_SIDE_WEAPON_KEYS||[]),'ion','stl','quad175','triple175','ball175TripleIon','ball175Quad','ball175QuadIon','ball720','utl','monCalPD','monCal34','monCal80','monCal200','monCal200Triple','monCal150Ion','single500','twin200','quad500',...(C.CORVETTE_WEAPON_KEYS||[]),'quad1Rapid','recProw','recTwin','recKeel','munBow','munTwin','quad200','single200','twin200Fast','pd','cmsl','shipMsl','itl','trc'];
+const WEAPONS = ['single40','quad40Ion','twin40Dome','twin40','triple40','oct40','refVen','triple70','quad70Side',...(C.VENATOR_SIDE_WEAPON_KEYS||[]),'ion','stl','quad175','triple175','ball175TripleIon','ball175Quad','ball175QuadIon','ball720','utl','monCalPD','monCal34','monCal80','monCal200','monCal200Triple','monCal150Ion','single500','twin200','quad500',...(C.CORVETTE_WEAPON_KEYS||[]),'quad1Rapid','recProw','recTwin','recKeel','munBow','munTwin','quad200','single200','twin200Fast','pd','cmsl','shipMsl','shipCmsl','itl','trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
@@ -6615,23 +6615,26 @@ function changeBallTurretPitch(value,mode='selected'){
  beginDrag('球形砲塔の上下角');editSel(q=>{q.assetPitch=angle;});touch('fits');scheduleStats(350);return true;
 }
 function launcherCanPitch(f){return !!C.isConcussionLauncher?.(f)&&!C.isSurfaceVLS?.(f);}
-function shipLauncherPlacementOptions(k=st.fit){return C.isShipLauncher?.(k)?{launcherCols:st.launcherCols??1,launcherRows:st.launcherRows??1,launchYaw:st.launchYaw||0,launcherEmbedded:!!st.launcherEmbedded}:{};}
+// A launcher type that only embeds (the ship-scale concussion launcher) always places as embedded.
+function newLauncherEmbedded(k=st.fit){return !!C.isShipLauncher?.(k)&&(!!st.launcherEmbedded||!!C.shipLauncherType?.(k)?.embeddedOnly);}
+function shipLauncherPlacementOptions(k=st.fit){return C.isShipLauncher?.(k)?{launcherCols:st.launcherCols??1,launcherRows:st.launcherRows??1,launchYaw:st.launchYaw||0,launcherEmbedded:newLauncherEmbedded(k)}:{};}
 function shipLauncherTargets(multiple=false){
  const first=multiple?ship.fits.filter(f=>st.multi?.fits?.has(f.id)):st.sel?.list==='fits'?[selItem()]:[],out=new Map();
  for(const f of first)if(C.isShipLauncher?.(f)&&!out.has(f.id)){out.set(f.id,{fit:f,sign:1});for(const link of fitLinks(f))if(C.isShipLauncher?.(link.fit)&&!out.has(link.fit.id))out.set(link.fit.id,{fit:link.fit,sign:(link.z?-1:1)*(link.y?-1:1)});}
  return [...out.values()];
 }
-function shipLauncherSummary(f){const q=C.shipLauncherConfig(f),d=C.fitSpec(f);return `${q.cols} 列 × ${q.rows} 段 · 横幅 ${fmtM(d.wm)} · 高さ ${fmtM(d.hm)} · 奥行 ${fmtM(d.fm)} · ${q.cells*6} 発`;}
+function shipLauncherSummary(f){const q=C.shipLauncherConfig(f),d=C.fitSpec(f);return `${q.cols} 列 × ${q.rows} 段 · 横幅 ${fmtM(d.wm)} · 高さ ${fmtM(d.hm)} · 奥行 ${fmtM(d.fm)} · ${q.cells*(C.shipLauncherType?.(f)?.ammoPerCell||6)} 発`;}
 function shipLauncherControls(f,mode='selected'){
  const q=C.shipLauncherConfig(f),prefix=mode==='new'?'new':mode==='multiple'?'multi':'',id=field=>prefix?prefix+field[0].toUpperCase()+field.slice(1):field,mountKey=mode==='new'?'newlaunchermount':mode==='multiple'?'multilaunchermount':'launchermount';
- return `<div class="pgroup ship-launcher-controls" data-ship-launcher-controls><h4>艦艇用ミサイル発射機</h4>${seg(mountKey,[['external','外付け'],['embedded','構造物に埋め込む']],q.embedded?'embedded':'external')}<div class="sliders">${slider(id('launcherCols'),'横セル数',q.cols,1,16,1,q.cols+' 列',1)}${slider(id('launcherRows'),'縦セル数',q.rows,1,16,1,q.rows+' 段',1)}${slider(id('launchYaw'),'発射方向の左右角',q.yaw,-180,180,.1,deg(q.yaw),.1)}${slider(id('launchPitch'),'発射方向の上下角',q.pitch,-90,90,.1,deg(q.pitch),.1)}</div><p data-ship-launcher-summary>${shipLauncherSummary(f)}</p><p class="note">セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。</p>${mode==='multiple'?'<p class="note">セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。</p>':''}</div>`;
+ const type=C.shipLauncherType?.(f)||{maxCols:16,maxRows:16},title=C.FITS[type.key]?.name||'艦艇用ミサイル発射機',round=type.tube==='round';
+ return `<div class="pgroup ship-launcher-controls" data-ship-launcher-controls data-launcher-kind="${type.key||'shipMsl'}"><h4>${title}</h4>${type.embeddedOnly?'<p class="note">構造物に埋め込んで使います。前面板の発射管から外へ発射し、奥行きはミサイルの長さと同じ船内区画になります。</p>':seg(mountKey,[['external','外付け'],['embedded','構造物に埋め込む']],q.embedded?'embedded':'external')}<div class="sliders">${slider(id('launcherCols'),round?'横の発射管数':'横セル数',q.cols,1,type.maxCols,1,q.cols+' 列',1)}${slider(id('launcherRows'),round?'発射管の段数':'縦セル数',q.rows,1,type.maxRows,1,q.rows+' 段',1)}${slider(id('launchYaw'),'発射方向の左右角',q.yaw,-180,180,.1,deg(q.yaw),.1)}${slider(id('launchPitch'),'発射方向の上下角',q.pitch,-90,90,.1,deg(q.pitch),.1)}</div><p data-ship-launcher-summary>${shipLauncherSummary(f)}</p><p class="note">${round?'発射管の数に合わせて前面板の幅・高さ、船内区画の容積、弾数、質量、費用が変わります。':'セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。'}</p>${mode==='multiple'?'<p class="note">セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。</p>':''}</div>`;
 }
 function changeShipLauncher(field,value,mode='selected'){
  if(!['launcherCols','launcherRows','launchYaw','launcherEmbedded'].includes(field))return false;
  let v;if(field==='launcherEmbedded')v=value===true||value==='embedded';else{if(value===''||!Number.isFinite(Number(value)))return false;v=field==='launchYaw'?C.clamp(Number(value),-180,180):Math.round(C.clamp(Number(value),1,16));}
- if(mode==='new'){if(!C.isShipLauncher?.(st.fit))return false;st[field]=v;if(field==='launcherEmbedded'&&v)st.weaponMount='auto';updateHint();requestDraw();return true;}
- const targets=shipLauncherTargets(mode==='multiple');if(!targets.length||targets.every(({fit,sign})=>fit[field]===(field==='launchYaw'?v*sign:v)))return false;
- const apply=()=>{for(const {fit,sign}of targets){fit[field]=field==='launchYaw'?v*sign:v;refreshFitSupport(fit);}queuePreview('fits',targets.map(t=>t.fit));};
+ if(mode==='new'){if(!C.isShipLauncher?.(st.fit))return false;const t=C.shipLauncherType?.(st.fit);st[field]=field==='launcherCols'&&t?Math.min(v,t.maxCols):field==='launcherRows'&&t?Math.min(v,t.maxRows):v;if(field==='launcherEmbedded'&&v)st.weaponMount='auto';updateHint();requestDraw();return true;}
+ const targets=shipLauncherTargets(mode==='multiple');if(!targets.length||targets.every(({fit,sign})=>fit[field]===(field==='launchYaw'?v*sign:field==='launcherCols'&&C.shipLauncherType?.(fit)?Math.min(v,C.shipLauncherType(fit).maxCols):field==='launcherRows'&&C.shipLauncherType?.(fit)?Math.min(v,C.shipLauncherType(fit).maxRows):v)))return false;
+ const limit=fit=>{const t=C.shipLauncherType?.(fit);return field==='launcherCols'&&t?Math.min(v,t.maxCols):field==='launcherRows'&&t?Math.min(v,t.maxRows):v;},apply=()=>{for(const {fit,sign}of targets){fit[field]=field==='launchYaw'?v*sign:limit(fit);refreshFitSupport(fit);}queuePreview('fits',targets.map(t=>t.fit));};
  if(field==='launcherEmbedded')mutate('発射機の搭載方式',apply,'fits');else{beginDrag('艦艇用発射機を変更');apply();touch('fits');scheduleStats(350);}return true;
 }
 function launcherPitchTargets(multiple=false){
@@ -6676,9 +6679,9 @@ function turretHeadingLines(ls,f,col){
  ls.seg(start,end,col);for(const sign of [-1,1])ls.seg(end,C.add(end,C.add(C.mul(fw,-length*.2),C.mul(rt,sign*length*.12))),col);
 }
 // 「面に合わせる」 stands a weapon on the face's own normal, slopes included.
-function weaponTiltMode(k,mode=st.weaponMount){if(C.isShipLauncher?.(k)&&st.launcherEmbedded)return true;const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&mode==='auto';}
-function weaponLocalMount(hit){return C.isShipLauncher?.(curFit())&&st.launcherEmbedded||st.weaponMount==='trench'||hit?.part?.sponson===true;}
-function weaponPlacementNormal(k,n,mode=st.weaponMount){if(C.isShipLauncher?.(k)&&st.launcherEmbedded)return n;return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(mode)?(mode==='bottom'?[0,-1,0]:[0,1,0]):n;}
+function weaponTiltMode(k,mode=st.weaponMount){if(newLauncherEmbedded(k))return true;const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&mode==='auto';}
+function weaponLocalMount(hit){return newLauncherEmbedded(curFit())||st.weaponMount==='trench'||hit?.part?.sponson===true;}
+function weaponPlacementNormal(k,n,mode=st.weaponMount){if(newLauncherEmbedded(k))return n;return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(mode)?(mode==='bottom'?[0,-1,0]:[0,1,0]):n;}
 function weaponMountIssue(k,n){return C.weaponMountAllowed?.(k,n)===false?'この砲は左右の舷側面に配置してください':'';}
 // Retired UI hooks stay inert for older integrations; imported batteries are
 // converted to spherical turrets by Core before the editor receives them.
@@ -8221,18 +8224,18 @@ const TRIAL_MSL={launch:220,speed:2600,accel:650,turn:40*Math.PI/180,life:30,rip
 function trialMissileCells(l){
  const row=trialLauncherModule(l);if(row)return C.missileCellAmmo(row.unit,row.index);
  const count=Math.max(1,l.salvo||1),total=Math.max(0,Math.floor(l.ammo||0));
- if(!Array.isArray(l.cellAmmo)||l.cellAmmo.length!==count||l.cellAmmo.reduce((a,b)=>a+b,0)!==total)l.cellAmmo=Array.from({length:count},(_,i)=>Math.min(6,Math.floor(total/count)+(i<total%count?1:0)));
+ if(!Array.isArray(l.cellAmmo)||l.cellAmmo.length!==count||l.cellAmmo.reduce((a,b)=>a+b,0)!==total)l.cellAmmo=Array.from({length:count},(_,i)=>Math.min(Math.max(1,l.ammoPerCell||6),Math.floor(total/count)+(i<total%count?1:0)));
  return l.cellAmmo;
 }
 function trialMissiles(dt,lock){
  if(!(dt>0)||!Number.isFinite(dt))return;
  const R=trial.R,center=trial.asset.geometry.center,inRange=l=>!lock?.alive||tv.len(tv.sub(lock.pos,trial.P))<=C.missileRange(l);
- if(trial.mslOrder){trial.mslOrder=false;let n=0;for(const l of trial.launchers)if(l.reload<=0&&!(l.queue>0)&&!l.blocked&&inRange(l)&&trialLauncherPowered(l)&&spaceAmmo(l,false,l.kind==='shipMsl'?1:l.salvo||1)){
-  if(l.kind==='shipMsl'){l.pendingCells=trialMissileCells(l).map((count,cell)=>count>0?cell:-1).filter(cell=>cell>=0);l.queue=l.pendingCells.length;}else l.queue=l.salvo;
+ if(trial.mslOrder){trial.mslOrder=false;let n=0;for(const l of trial.launchers)if(l.reload<=0&&!(l.queue>0)&&!l.blocked&&inRange(l)&&trialLauncherPowered(l)&&spaceAmmo(l,false,C.isShipLauncher(l.kind)?1:l.salvo||1)){
+  if(C.isShipLauncher(l.kind)){l.pendingCells=trialMissileCells(l).map((count,cell)=>count>0?cell:-1).filter(cell=>cell>=0);l.queue=l.pendingCells.length;}else l.queue=l.salvo;
   l.reload=l.cycle;n++;
  }if(!n&&trial.launchers.length)toast(trial.launchers.every(l=>l.dead)?'ミサイル発射管はすべて破壊されています':trial.launchers.every(l=>!inRange(l))?'目標はミサイルの射程外です':trial.launchers.every(l=>!trialLauncherPowered(l))?'ミサイル発射装置に給電されていません':'ミサイルは装填中か残弾がありません');}
  for(const l of trial.launchers){l.reload=Math.max(0,l.reload-dt);if(!(l.queue>0)||l.blocked||!trialLauncherPowered(l))continue;if(!inRange(l)){l.queue=0;l.pendingCells=[];continue;}if((l.next-=dt)>0)continue;
-  const ship=l.kind==='shipMsl',cells=ship?trialMissileCells(l):null,count=ship?l.queue:1;l.next=ship?0:TRIAL_MSL.ripple;
+  const ship=C.isShipLauncher(l.kind),cells=ship?trialMissileCells(l):null,count=ship?l.queue:1;l.next=ship?0:TRIAL_MSL.ripple;
   for(let i=0;i<count;i++){
    const cell=ship?l.pendingCells?.shift()??i:0;if(ship&&!(cells[cell]>0)){l.queue--;continue;}
    if(!spaceAmmo(l,true,1)){l.queue=0;break;}l.queue--;if(ship)cells[cell]--;

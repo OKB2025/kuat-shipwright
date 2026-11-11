@@ -628,7 +628,29 @@ function concussionLauncherMesh(g,f){
 }
 // Repeated ship cells share a real open-front box. The dark rear panel and
 // dividers lie behind the mouths; no solid front quad seals the launch path.
+// The ship-scale concussion launcher: a face panel with round tubes over an interior compartment as deep as the
+// missile. Each tube shows its bore wall and the loaded round; the panel frame is the measured margin.
+function roundTubeLauncherMesh(g,p){
+ const [L,H,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt],o=p.bodyCenter,fr=p.bodyFrame,t=.4,[fy,fz]=p.frame||[0,0],[,ch,cw]=p.cellSize,r=Math.min((p.bore||Math.min(ch,cw)*.9)/2,Math.min(ch,cw)/2-.05),N=16,UV=[[0,0],[1,0],[1,1],[0,1]];
+ const at=(x,y,z)=>C.add(o,C.add(C.mul(fr.fw,x),C.add(C.mul(fr.up,y),C.mul(fr.rt,z)))),face=L/2;
+ // Compartment shell behind the panel (back wall and four side walls).
+ box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
+ for(const sign of [-1,1]){box(g,M,o,0,sign*(H-t)/2,0,L,t,W,FC.body);box(g,M,o,0,0,sign*(W-t)/2,L,H-t*2,t,FC.body);}
+ // Face frame around the tube grid.
+ if(fy>0)for(const sign of [-1,1])box(g,M,o,face-t/2,sign*(H-fy)/2,0,t,fy,W,FC.body);
+ if(fz>0)for(const sign of [-1,1])box(g,M,o,face-t/2,0,sign*(W-fz)/2,t,H-fy*2,fz,FC.body);
+ for(const c of p.cellCenters){
+  const cy=C.dot(C.sub(c,o),fr.up),cz=C.dot(C.sub(c,o),fr.rt),ring=[];
+  for(let i=0;i<=N;i++){const a=i/N*Math.PI*2,cs=Math.cos(a),sn=Math.sin(a),k=1/Math.max(Math.abs(cs)/(ch/2),Math.abs(sn)/(cw/2));ring.push([[cy+cs*r,cz+sn*r],[cy+cs*k,cz+sn*k]]);}
+  for(let i=0;i<N;i++){const [a0,b0]=ring[i],[a1,b1]=ring[i+1];quad(g,[at(face,...b0),at(face,...b1),at(face,...a1),at(face,...a0)],fr.fw,UV,FC.ring,255);}
+  const front=at(face,cy,cz),back=at(-L/2+t,cy,cz),missileR=Math.min(r*.9,r-.25),nose=Math.min(L*.18,missileR*1.8),tip=at(face-1,cy,cz),shoulder=at(face-1-nose,cy,cz);
+  axisFrustum(g,front,back,r,r,FC.dark,false,true,N);
+  axisFrustum(g,back,shoulder,missileR,missileR,FC.barrel,[true,false],false,N);
+  axisFrustum(g,shoulder,tip,missileR,missileR*.15,FC.ring,[false,true],false,N);
+ }
+}
 function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
+ if(p.tube==='round'){roundTubeLauncherMesh(g,p);return;}
  const [L,H,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt],o=p.bodyCenter,t=.035;
  box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
  box(g,M,o,-L/2+t+.008,0,0,.016,H-t*2,W-t*2,FC.dark);
