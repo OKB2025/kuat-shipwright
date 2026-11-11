@@ -49230,12 +49230,12 @@ const FITS = {
   // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
   // are chosen in the order of battle (the default is the craft's canon loadout).
   ctorp: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: 1.65, len: 8.8}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 1.65 m・長さ 8.8 m：プロトン魚雷・イオン魚雷（1.5 × 8 m）と震盪ミサイルを装填できる。'},
-  cmsl: {cat: 'w', craft: true, fixed: true, msl:25, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .55, len: 5.5}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。弾倉は口径0.55 m・長さ5.5 m（震盪ミサイル 0.5 × 5 m、1発781.25 TT）。'},
-  shipMsl: {cat:'w',fixed:true,msl:25,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:2.4,wm:.9,hm:.9,pw:1e15,mass:6.4,crew:0,cost:8000,store:{mount:'tube',slots:6,bore:.22,len:1.1},desc:'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発25 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
+  cmsl: {cat: 'w', craft: true, fixed: true, msl:25, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .55, len: 5.5}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。弾倉は口径0.55 m・長さ5.5 m（震盪ミサイル 0.5 × 5 m、1発0.014 TT）。'},
+  shipMsl: {cat:'w',fixed:true,msl:.0140625,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:12,wm:2.25,hm:2.25,pw:1e15*(12*2.25*2.25)/(2.4*.9*.9),mass:6.4*(12*2.25*2.25)/(2.4*.9*.9),crew:0,cost:8000*(12*2.25*2.25)/(2.4*.9*.9),store:{mount:'tube',slots:6,bore:.55,len:5.5},desc:'航空機用の震盪ミサイル（直径0.5 m・長さ5 m）を収める艦艇用セル（1セル 奥行12 m・高さ2.25 m・幅2.25 m）。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.014 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
   // 2026-11 The ship-scale concussion missile launcher (user specification 2026-11-11): a face panel of round tubes
   // over an interior compartment 50 m deep (one 7 × 50 m missile). Per-tube mass, cost and launch power scale
   // shipMsl's per-cell values by cell volume; the round's damage is derived in SHIP_LAUNCHERS.shipCmsl.
-  shipCmsl:{cat:'w',fixed:true,msl:1531250,missileSalvo:1,missileCycle:1.2,ordnance:'shipCmsl',name:'艦艇用震盪ミサイル発射装置',short:'震盪ミサイル発射装置',fm:50,wm:18.5,hm:14.5,pw:1e15*(50*8.5*8.5)/(2.4*.9*.9),mass:6.4*(50*8.5*8.5)/(2.4*.9*.9),crew:0,cost:8000*(50*8.5*8.5)/(2.4*.9*.9),store:{mount:'tube',slots:1,bore:7.7,len:50},desc:'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発1,531,250 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発2,909,375 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。'},
+  shipCmsl:{cat:'w',fixed:true,msl:27.5625,missileSalvo:1,missileCycle:1.2,ordnance:'shipCmsl',name:'艦艇用震盪ミサイル発射装置',short:'震盪ミサイル発射装置',fm:50,wm:18.5,hm:14.5,pw:1e15*(50*8.5*8.5)/(2.4*.9*.9),mass:6.4*(50*8.5*8.5)/(2.4*.9*.9),crew:0,cost:8000*(50*8.5*8.5)/(2.4*.9*.9),store:{mount:'tube',slots:1,bore:7.7,len:50},desc:'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発27.56 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発52.37 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。'},
   cbomb: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
   cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', thin: 6, heavy: 3, maxMass: 60.75}, desc: '機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイル（直径0.55 m以下）なら6発、魚雷・爆弾なら3発まで（1か所 60.75 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。'},
 };
@@ -50102,29 +50102,31 @@ function broadsideBatteryMuzzles(f){return broadsideBatteryGeometry(f)?.muzzles.
 // cell: one tube's [depth, height, width] (m); frame: the face panel's margin [top/bottom, each side] (m) around the
 // tube grid; ammoPerCell: rounds a tube holds; tt/range/cycle: the round and the per-tube firing interval.
 const SHIP_LAUNCHERS=Object.freeze({
- shipMsl:Object.freeze({key:'shipMsl',cell:Object.freeze([2.4,.9,.9]),frame:Object.freeze([0,0]),maxCols:16,maxRows:16,ammoPerCell:6,tt:25,range:60000,cycle:1.2,tube:'square',embeddedOnly:false,round:Object.freeze({name:'震盪ミサイル',dims:Object.freeze([1.0,.2])})}),
+ // 2026-11-11 user decision: shipMsl cells hold the new craft concussion missile (0.5 × 5 m, ORDNANCE.cmsl): the
+ // previous 2.4 × 0.9 × 0.9 m cell (two 1.0 m rounds deep, 4.5 diameters across) scaled by the round (× 5 in length,
+ // × 2.5 across) is 12 × 2.25 × 2.25 m; mass, cost and power keep the previous per-volume values (× 31.25 per cell).
+ shipMsl:Object.freeze({key:'shipMsl',cell:Object.freeze([12,2.25,2.25]),frame:Object.freeze([0,0]),maxCols:16,maxRows:16,ammoPerCell:6,ordnance:'cmsl',tt:.0140625,range:60000,cycle:1.2,tube:'square',embeddedOnly:false,round:Object.freeze({name:'震盪ミサイル',dims:Object.freeze([5,.5])})}),
  // User specification (2026-11-11): the missile is a 7 m × 50 m cylinder, half propellant and half warhead; the
- // launcher takes 50 m of depth behind its face. ORDNANCE gives a round's total mass and damage only, so the craft
- // concussion missile (cmsl: 1.0 × 0.2 m, 0.045 t, 25 TT) is read with the same 50/50 split:
- //   density = 0.045 t / (π/4 × 0.2² × 1.0 m³) = 1.432 t/m³,  mass = density × π/4 × 7² × 50 = 2,756.25 t,
- //   warhead = propellant = 1,378.125 t,  damage = warhead × (25 TT / 0.0225 t) = 1,531,250 TT.
+ // launcher takes 50 m of depth behind its face. The basis is ORDNANCE_BASIS (density 1.4324 t/m³ from the previous
+ // craft missile; warhead 0.02 TT per t, matter conversion):
+ //   mass = 1.4324 × π/4 × 7² × 50 = 2,756.25 t,  warhead = propellant = 1,378.125 t,  damage = 1,378.125 × 0.02 = 27.5625 TT.
  // The long torpedo (same 7 × 50 m body, 5% propellant, 95% warhead): mass 2,756.25 t, warhead 2,618.4375 t,
- // damage 2,618.4375 × 25 / 0.0225 = 2,909,375 TT. Its reach follows the rocket equation from the missile's:
+ // damage 2,618.4375 × 0.02 = 52.36875 TT. Its reach follows the rocket equation from the missile's:
  //   Δv ratio = ln(1/(1−0.05)) / ln(1/(1−0.5)) = 0.0740,  speed = 2,600 m/s × 0.0740 = 192.4 m/s,  range = 60 km × 0.0740 = 4,440 m.
  // Seekers: the missile homes on the target's neutrino + IR emission, the torpedo on its mass (gravitational waves);
  // see seekerHitChance.
  // The bore keeps cmsl's 1.1 bore-to-diameter ratio (7.7 m) and the tube pitch adds 0.4 m walls each side (8.5 m).
  // The face frame (3 m top and bottom, 5 m each side) is the Mandator II side panel's measured margin.
- shipCmsl:Object.freeze({key:'shipCmsl',cell:Object.freeze([50,8.5,8.5]),frame:Object.freeze([3,5]),bore:7.7,maxCols:16,maxRows:16,maxRowRaise:20,ammoPerCell:1,tt:1531250,range:60000,cycle:1.2,tube:'round',embeddedOnly:true,levelRows:true,rowRaise:true,rateByMagazine:true,round:Object.freeze({name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.5,warheadMass:1378.125,propellantMass:1378.125}),
+ shipCmsl:Object.freeze({key:'shipCmsl',cell:Object.freeze([50,8.5,8.5]),frame:Object.freeze([3,5]),bore:7.7,maxCols:16,maxRows:16,maxRowRaise:20,ammoPerCell:1,tt:27.5625,range:60000,cycle:1.2,tube:'round',embeddedOnly:true,levelRows:true,rowRaise:true,rateByMagazine:true,round:Object.freeze({name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.5,warheadMass:1378.125,propellantMass:1378.125}),
   rounds:Object.freeze({
-   missile:Object.freeze({key:'missile',name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.5,warheadMass:1378.125,propellantMass:1378.125,tt:1531250,range:60000,speed:2600,seeker:'heat'}),
-   torpedo:Object.freeze({key:'torpedo',name:'艦艇用長魚雷',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.95,warheadMass:2618.4375,propellantMass:137.8125,tt:2909375,range:4440,speed:192.4,seeker:'mass'})
+   missile:Object.freeze({key:'missile',name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.5,warheadMass:1378.125,propellantMass:1378.125,tt:27.5625,range:60000,speed:2600,seeker:'heat'}),
+   torpedo:Object.freeze({key:'torpedo',name:'艦艇用長魚雷',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.95,warheadMass:2618.4375,propellantMass:137.8125,tt:52.36875,range:4440,speed:192.4,seeker:'mass'})
   })})
 });
 function shipLauncherType(f){const k=canonicalWeaponKind(typeof f==='string'?f:f?.k);return Object.hasOwn(SHIP_LAUNCHERS,k)?SHIP_LAUNCHERS[k]:null;}
 function isShipLauncher(f){return !!shipLauncherType(f);}
 // The round a ship launcher fires: the type's selectable rounds (shipCmsl: missile or long torpedo), else its fixed round.
-function shipLauncherRound(f){const t=shipLauncherType(f);if(!t)return null;if(!t.rounds)return {key:'missile',name:t.round.name,tt:t.tt,range:t.range,speed:2600,seeker:null};const k=typeof f==='object'&&Object.hasOwn(t.rounds,f?.launcherRound)?f.launcherRound:'missile';return t.rounds[k];}
+function shipLauncherRound(f){const t=shipLauncherType(f);if(!t)return null;if(!t.rounds)return {key:'missile',name:t.round.name,tt:t.ordnance?ORDNANCE[t.ordnance].tt:t.tt,range:t.range,speed:2600,seeker:t.ordnance?ORDNANCE[t.ordnance].seeker||null:null};const k=typeof f==='object'&&Object.hasOwn(t.rounds,f?.launcherRound)?f.launcherRound:'missile';return t.rounds[k];}
 // Share of a salvo that finds its target at impact, by seeker (fictional game rule, 2026-11-11):
 //   heat (neutrino + IR emission, W):   p = 0.95 × S / (S + 1e20 W)
 //   mass (gravitational waves, t):      p = 0.95 × M / (M + 1e6 t)
@@ -51657,6 +51659,7 @@ function engineeringStats(ship,S){
   if(S.engineTransmissionBroken)S.warnings.push({lv:'bad',code:'transmission-blocked',text:`機関へ給電できない接続が ${S.engineTransmissionBroken} 系統あります。電源点と給電先を確認してください。`});
   if(S.unconnected)S.warnings.push({lv:'bad',text:`炉に接続されていないノズルが ${S.unconnected} 基あります。`});
   if(bad.size)S.warnings.push({lv:'bad',text:`自動推進機関と ${bad.size} 区画が干渉しています。重複区画は稼働しません。`});
+  {const small=ship.parts.filter(p=>p.k==='bombBay'&&bombBayOpen(ship,p)&&!(storeCapacity({mount:'bay',box:bombBayBox(p)},'bomb')>0));if(small.length)S.warnings.push({lv:'bad',code:'bomb-bay-size',text:`爆弾（直径${ORDNANCE.bomb.dims[1]} m・長さ${ORDNANCE.bomb.dims[0]} m）が入らない爆弾倉が ${small.length} 区画あります。内寸を長さ${ORDNANCE.bomb.dims[0]} m・幅と高さ${ORDNANCE.bomb.dims[1]} m以上にしてください。`});}
   {const shut=ship.parts.filter(p=>p.k==='bombBay'&&!bombBayOpen(ship,p));if(shut.length)S.warnings.push({lv:'bad',code:'bomb-bay',text:`使えない爆弾倉が ${shut.length} 区画あります。構造物の中に完全に収め、底面を機体下面の外壁に接してください。`,targets:shut.map(p=>({list:'parts',id:p.id}))});}
   {const shut=ship.fits.filter(f=>craftMuzzleBlocked(ship,f));if(shut.length)S.warnings.push({lv:'bad',code:'craft-muzzle',text:`発射口が船体・構造物で塞がれた固定レーザー砲が ${shut.length} 基あります。めり込みを浅くするか、前が開いた位置へ動かしてください。`,targets:shut.map(f=>({list:'fits',id:f.id}))});}
   if(S.Vgen>0&&S.supplyRatio<1)S.warnings.push({lv:S.supplyRatio<.5?'bad':'warn',code:'reactant-supply',text:`反応物供給能力 ${Math.round(S.supplyRatio*100)}%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。`,targets:[{tab:'mod',group:PARTS.pump.group,part:'pump'}]});
@@ -63913,14 +63916,15 @@ function craftSystemsStats(ship,S){
 // Hits: the game's, set so a canon loadout's first attack run comes out near the voyage craft table's strike
 // (an X-wing's two torpedoes and guns about 160, a TIE/sa's torpedoes and bombs about 380, a Y-wing's about 300).
 // 2026-11-11 user specification: craft rounds are cylinders sized by the user and split into propellant and warhead
-// like the ship-scale rounds. One shared basis, taken from the previous craft concussion missile (1.0 × 0.2 m,
-// 0.045 t, 25 TT, read as half warhead):
-//   density ρ = 0.045 t ÷ (π/4 × 0.2² × 1.0 m³) = 1.4324 t/m³;  warhead energy 25 TT ÷ 0.0225 t = 1,111.1 TT per t.
-//   mass = ρ × π/4 × D² × L;  warhead = mass × w;  damage = warhead × 1,111.1 TT/t.
+// like the ship-scale rounds. Density from the previous craft concussion missile (1.0 × 0.2 m, 0.045 t):
+//   density ρ = 0.045 t ÷ (π/4 × 0.2² × 1.0 m³) = 1.4324 t/m³.
+// Warhead energy (user decision): matter conversion, about 20 Mt TNT per kg = 20 Gt per t; 1 TT = 10¹² t TNT, so
+//   0.02 TT per t of warhead (ion warheads: the same energy as ion effect).
+//   mass = ρ × π/4 × D² × L;  warhead = mass × w;  damage = warhead × 0.02 TT/t.
 // Speed and range scale from the 50% missile by the rocket-equation Δv ratio ln(1/(1−p)) ÷ ln 2 (p: propellant share);
 // a bomb (1% propellant) is unpowered and keeps its release speed. Seekers as for the ship rounds (seekerHitChance):
 // missiles home on heat/neutrino emission, torpedoes on mass (gravitational waves), bombs are unguided.
-const ORDNANCE_BASIS=Object.freeze({density:.045/(Math.PI/4*.2*.2*1),warheadTTPerT:25/(.045*.5),missileSpeed:2000,missileRange:10000});
+const ORDNANCE_BASIS=Object.freeze({density:.045/(Math.PI/4*.2*.2*1),warheadTTPerT:.02,missileSpeed:2000,missileRange:10000});
 function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Math.PI/4*D*D*L,warheadMass=mass*warheadFraction;return {dims:[L,D],mass,warheadFraction,warheadMass,propellantMass:mass-warheadMass,tt:warheadMass*ORDNANCE_BASIS.warheadTTPerT};}
 function ordnanceReach(propellant){const k=Math.log(1/(1-propellant))/Math.LN2;return {speed:ORDNANCE_BASIS.missileSpeed*k,range:ORDNANCE_BASIS.missileRange*k};}
 const ORDNANCE=Object.freeze({

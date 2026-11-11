@@ -32,13 +32,13 @@ test('fixed guns report zero traverse and real projectile launchers use per-roun
  near(C.weaponPreviewStats('recProw').traverseDegS,0);
  const craft=C.weaponPreviewStats('cmsl'),ship=C.weaponPreviewStats({k:'shipMsl',launcherCols:4,launcherRows:2});near(craft.outputTT,C.ORDNANCE.cmsl.tt);near(craft.rangeM,10000);near(ship.rangeM,60000);near(ship.outputTT,craft.outputTT);near(ship.traverseDegS,0);assert.equal(ship.barrels,8);
  const unknown=C.weaponPreviewStats('ctorp');assert.equal(unknown.outputTT,null);assert.equal(unknown.rangeM,null);assert.equal(unknown.variableReason,'payload');
- const loaded=C.weaponPreviewStats({k:'cpylon',_store:{k:'cmsl',n:2}});near(loaded.outputTT,25);near(loaded.rangeM,10000);
+ const loaded=C.weaponPreviewStats({k:'cpylon',_store:{k:'cmsl',n:2}});near(loaded.outputTT,C.ORDNANCE.cmsl.tt);near(loaded.rangeM,10000);
 });
 
 test('one, eight and sixteen-cell launchers display the actual packet energy of one round, not the complete salvo',()=>{
  for(const [cols,rows]of [[1,1],[4,2],[4,4]]){
   const f={id:99,k:'shipMsl',launcherCols:cols,launcherRows:rows,p:[0,0,0],n:[0,1,0],a:2,ped:0,base:0},packet=C.missileLauncherSpec(f),rating=C.weaponPreviewStats(f);
-  near(rating.outputTT,packet.tt);near(rating.outputTT,25);assert.equal(rating.barrels,packet.cells);near(packet.volleyTT,rating.outputTT*rating.barrels);near(rating.rangeM,packet.range);
+  near(rating.outputTT,packet.tt);near(rating.outputTT,C.ORDNANCE.cmsl.tt);assert.equal(rating.barrels,packet.cells);near(packet.volleyTT,rating.outputTT*rating.barrels);near(rating.rangeM,packet.range);
  }
  const legacy={id:88,k:'itl',p:[0,0,0],n:[0,1,0],a:2,ped:0,base:0},packet=C.missileLauncherSpec(legacy);near(C.weaponPreviewStats(legacy).outputTT,packet.tt);
 });
