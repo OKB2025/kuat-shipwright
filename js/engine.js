@@ -810,6 +810,7 @@ function handleOp(job) {
   switch (job.op) {
     case 'fillHangars': result = C.fillHangars(ship, ...job.args); break;
     case 'surfaceAuto': result = C.autoConfigureSurfaces(ship, job.args?.[0] || {}); break;
+    case 'scaleShip': try { result = C.scaleShipDesign(ship, job.args?.[0] || {}); } catch (e) { result = {ok: false, changed: false, error: String(e && e.message || e)}; } break;
     default: throw new Error('unknown operation ' + job.op);
   }
   post({type: 'op', id: job.id, result, state: C.publicJSON(ship)});

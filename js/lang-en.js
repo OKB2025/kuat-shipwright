@@ -10627,4 +10627,44 @@ Object.assign(root.KS_EN.messages,{
  "発進準備中の艦は操艦できません。準備を取り消すか、3D視点で追尾してください。": "A ship preparing to jump cannot be piloted manually. Cancel preparation or follow it in the 3D view.",
  "操艦中の艦がいます。操艦を終了してから任務群に発進を命じてください。": "A ship is being piloted manually. End manual flight before ordering the task group to depart."
 });
+// v24 Whole-design scaling (docs/ship-scaling-v24.md).
+Object.assign(root.KS_EN.terms,{
+ "艦全体の拡大縮小": "Scale the Whole Ship",
+ "船体構造物の形（削り点・トレンチ・切り欠き・開口・表面の割付）を保ったまま、艦全体の大きさを変えます。砲塔・機関・センサーなど大きさの決まった装備は大きさを保ち、変換後の位置の表面に付け直します。": "Changes the size of the whole ship while the hull keeps its shape (cuts, trenches, recesses, openings and surface layout). Fixed-size equipment such as turrets, engines and sensors keeps its size and is re-mounted on the surface at its scaled position.",
+ "目標の船体長 (m)": "Target Hull Length (m)",
+ "構造物（船体以外）": "Structures (other than the hull)",
+ "内部設備": "Interior Equipment",
+ "船体と一緒に拡大縮小": "Scale with the Hull",
+ "大きさを保つ": "Keep Their Size",
+ "どちらを選んでも位置は船体に合わせて移動し、取付面に付いたままになります。": "Either way, positions move with the hull and items stay on the surfaces they are mounted on.",
+ "船体 長さ×幅×高さ": "Hull Length × Beam × Height",
+ "全長×全幅×全高（概算）": "Overall Length × Beam × Height (estimate)",
+ "対象": "Affected",
+ "大きさを保つ装備": "Fixed-size equipment",
+ "拡大縮小を適用": "Apply Scaling",
+ "拡大縮小を計算中…": "Calculating the Scaled Ship…",
+ "艦全体を拡大縮小中…": "Scaling the whole ship…",
+ "（位置は変換後のまま残しています。動かすか接続し直してください）": "(They remain at their scaled positions. Move or reconnect them.)",
+ "すべての部品と装備を変換後の位置に付け直しました。": "Every part and fitting was re-mounted at its scaled position.",
+ "編集画面を閉じるか、取消してから適用してください": "Close or cancel the edit screen before applying.",
+ "大きさは変わりません": "The size does not change",
+ "設計が変更されました。もう一度適用してください。": "The design changed. Apply again.",
+ "拡大縮小できませんでした": "The ship could not be scaled",
+ "船体構造物がない設計は拡大縮小できません": "A design without a hull structure cannot be scaled",
+ "目標の船体長か倍率を正の値で指定してください": "Enter a positive target hull length or scale factor",
+ "船体が小さくなりすぎます": "The hull would become too small",
+ "配置範囲の上限を超える部品があります": "A part would exceed the placement range",
+ "配置範囲の上限を超える装備があります": "A fitting would exceed the placement range"
+});
+Object.assign(root.KS_EN.messages,{
+ "構造物 {0}": "Structures {0}",
+ "内部設備 {0}": "Interior equipment {0}",
+ "大きさを保つ装備 {0}": "Fixed-size equipment {0}",
+ "付け直せなかった部品 {0} 個・装備 {1} 基": "{0} parts and {1} fittings could not be re-mounted",
+ "拡大縮小しました。付け直せなかった部品・装備が {0} 個あります": "Scaled. {0} parts or fittings could not be re-mounted",
+ "艦全体を {0} に拡大縮小しました": "Scaled the whole ship to {0}",
+ "船体寸法の上限（全長 {0} m・幅 {1} m・高さ {2} m）を超えます": "Exceeds the hull size limits (length {0} m, beam {1} m, height {2} m)",
+ "部品の寸法の上限（{0} m）を超える部品があります（{1}）": "A part would exceed the part size limit ({0} m) ({1})",
+ "部品の直径の上限（{0} m）を超える部品があります（{1}）": "A part would exceed the diameter limit ({0} m) ({1})"
+});
 })(typeof window==="undefined"?globalThis:window);

@@ -3830,6 +3830,63 @@ async function fillHangarsRemote() {
     toast(`格納庫を ${r.result} 個並べました`); renderPanel();
   } catch (e) { console.error(e); hideBusyOverlay(); toast('自動充填できませんでした：' + esc(e.message || '')); }
 }
+// v24 Whole-design scaling (docs/ship-scaling-v24.md). The Worker runs Core.scaleShipDesign on the current state,
+// re-seats every part and fitting with the ordinary placement code and returns the result; the editor adopts it
+// as one undoable edit, or discards it when the design changed meanwhile.
+const shipScaleUI={length:null,structures:'scale',interior:'scale',pending:null,error:'',report:null,sequence:0};
+const SHIP_SCALE_CHOICES=[['scale','船体と一緒に拡大縮小'],['keep','大きさを保つ']];
+function shipScaleRequest(){
+  const q=shipScaleUI,hull=C.primaryHullPart(ship);if(!hull)throw new Error('船体構造物がない設計は拡大縮小できません');
+  const length=q.length==null?hull.s[0]:Number(q.length);
+  if(!Number.isFinite(length)||!(length>0))throw new Error('目標の船体長か倍率を正の値で指定してください');
+  return {length,structures:q.structures==='keep'?'keep':'scale',interior:q.interior==='keep'?'keep':'scale'};
+}
+function shipScalePanelHTML(){
+  const q=shipScaleUI,hull=C.primaryHullPart(ship);if(!hull)return '';
+  let request=null,preview=null,error=q.error;try{request=shipScaleRequest();preview=C.shipScalePreview(ship,request);}catch(e){error=error||e.message;}
+  const k=preview?.factor??1,dims=v=>v.map(fLen).join(' × '),actual=actualShipDimensions(),limit=preview?.limitError,same=!preview||Math.abs(k-1)<1e-9,r=q.report;
+  const list=(items,name)=>items.map(x=>`<li>${esc(x.label||name)} #${x.id}（${esc(x.code)}）</li>`).join('');
+  const reportHTML=r?`<div class="note" data-ship-scale-report><p>${r.unseated.parts.length+r.unseated.fits.length?`<span class="bad">付け直せなかった部品 ${r.unseated.parts.length} 個・装備 ${r.unseated.fits.length} 基</span>（位置は変換後のまま残しています。動かすか接続し直してください）`:'すべての部品と装備を変換後の位置に付け直しました。'}</p>${r.unseated.parts.length+r.unseated.fits.length?`<ul>${list(r.unseated.parts,'部品')}${list(r.unseated.fits,'装備')}</ul>`:''}</div>`:'';
+  return `<div class="pgroup blueprint-card ship-scale" data-ship-scale><h4>艦全体の拡大縮小</h4>
+    <p class="note">船体構造物の形（削り点・トレンチ・切り欠き・開口・表面の割付）を保ったまま、艦全体の大きさを変えます。砲塔・機関・センサーなど大きさの決まった装備は大きさを保ち、変換後の位置の表面に付け直します。</p>
+    <div class="row2"><label class="field-label">目標の船体長 (m)<input type="number" inputmode="decimal" data-ship-scale-length min="1" step="1" value="${+(request?.length??hull.s[0]).toFixed(3)}"></label>
+    <label class="field-label">倍率<input type="number" inputmode="decimal" data-ship-scale-factor min="0.01" step="0.001" value="${+k.toFixed(4)}"></label></div>
+    <p class="field-label">構造物（船体以外）</p>${seg('ship-scale-structures',SHIP_SCALE_CHOICES,q.structures)}
+    <p class="field-label">内部設備</p>${seg('ship-scale-interior',SHIP_SCALE_CHOICES,q.interior)}
+    <p class="note">どちらを選んでも位置は船体に合わせて移動し、取付面に付いたままになります。</p>
+    ${preview?`<dl class="engineering-stats" data-ship-scale-preview><div><dt>船体 長さ×幅×高さ</dt><dd>${dims(preview.hull.before)} → ${dims(preview.hull.after)}</dd></div><div><dt>完成艦の予定寸法</dt><dd>${dims(preview.envelope.after)}</dd></div><div><dt>全長×全幅×全高（概算）</dt><dd>${dims(actual.map(v=>v*k))}</dd></div><div><dt>対象</dt><dd>構造物 ${preview.counts.structure} · 内部設備 ${preview.counts.interior} · 大きさを保つ装備 ${preview.counts.fixed}</dd></div></dl>`:''}
+    ${limit||error?`<p class="note bad" data-ship-scale-error>${esc(limit||error)}</p>`:''}
+    <button type="button" class="btn" data-ship-scale-apply ${q.pending||same||limit||!request?'disabled':''}>${q.pending?'拡大縮小を計算中…':'拡大縮小を適用'}</button>${reportHTML}</div>`;
+}
+function shipScaleSubmit(){
+  const q=shipScaleUI;if(q.pending||!ship)return false;
+  if(typeof designUIEditSession==='function'&&designUIEditSession()){toast('編集画面を閉じるか、取消してから適用してください');return false;}
+  let request,preview;try{request=shipScaleRequest();preview=C.shipScalePreview(ship,request);if(preview.limitError)throw new Error(preview.limitError);}catch(error){q.error=error.message;toast(T(q.error));shipScaleRefresh();return false;}
+  if(Math.abs(preview.factor-1)<1e-9){toast('大きさは変わりません');return false;}
+  const source=ship,gen=eng.gen,designId=ship.saveId,sourceState=C.publicJSON(ship),operationId='ship-scale-'+(++q.sequence),pending=q.pending={source,gen,designId,sourceState,operationId};
+  q.error='';q.report=null;showBusyOverlay('艦全体を拡大縮小中…',true);shipScaleRefresh();
+  return YardEngineClient.request('op',{gen,state:sourceState,designId,operationId,op:'scaleShip',args:[request]}).then(packet=>{
+    if(q.pending!==pending)return false;q.pending=null;hideBusyOverlay();
+    if(ship!==source||ship.saveId!==designId||eng.gen!==gen||C.publicJSON(ship)!==sourceState){q.error='設計が変更されました。もう一度適用してください。';toast(T(q.error));shipScaleRefresh();return false;}
+    if(!packet?.result?.changed||!packet.state){q.error=packet?.result?.error||'拡大縮小できませんでした';toast(T(q.error));shipScaleRefresh();return false;}
+    const state=typeof packet.state==='string'?JSON.parse(packet.state):packet.state;state.saveId=designId;
+    const ok=mutate('艦全体の拡大縮小',()=>{C.patchShip(ship,state);ship._client=true;},'all');
+    if(ok){q.report=packet.result;q.length=null;refitOnGeometry();const n=packet.result.unseated.parts.length+packet.result.unseated.fits.length;toast(n?`拡大縮小しました。付け直せなかった部品・装備が ${n} 個あります`:`艦全体を ${fLen(packet.result.length.after)} に拡大縮小しました`);}
+    shipScaleRefresh();requestDraw();return ok;
+  }).catch(error=>{if(q.pending!==pending)return false;q.pending=null;hideBusyOverlay();q.error=String(error.message||error);toast(T(q.error));shipScaleRefresh();return false;});
+}
+function renderShipScaleSheet(){const host=$('#shipScaleSheet');if(host)host.innerHTML=ship&&C.primaryHullPart(ship)?shipScalePanelHTML():'';}
+function shipScaleRefresh(){renderPanel();const sheet=$('#sheet');if(sheet&&!sheet.hidden)renderShipScaleSheet();}
+function bindShipScale(){
+  for(const root of [$('#panel'),$('#shipScaleSheet')]){if(!root)continue;
+  root.addEventListener('click',e=>{const b=e.target.closest?.('[data-ship-scale-structures],[data-ship-scale-interior],[data-ship-scale-apply]');if(!b)return;const d=b.dataset;
+    if(d.shipScaleStructures){shipScaleUI.structures=d.shipScaleStructures;shipScaleUI.report=null;shipScaleRefresh();}
+    else if(d.shipScaleInterior){shipScaleUI.interior=d.shipScaleInterior;shipScaleUI.report=null;shipScaleRefresh();}
+    else if('shipScaleApply'in d)shipScaleSubmit();});
+  root.addEventListener('change',e=>{const t=e.target,d=t.dataset||{};if(!('shipScaleLength'in d)&&!('shipScaleFactor'in d))return;const v=Number(t.value),hull=C.primaryHullPart(ship);if(!hull)return;
+    if(!Number.isFinite(v)||!(v>0)){shipScaleUI.error='目標の船体長か倍率を正の値で指定してください';shipScaleRefresh();return;}
+    shipScaleUI.length='shipScaleFactor'in d?hull.s[0]*v:v;shipScaleUI.error='';shipScaleUI.report=null;shipScaleRefresh();});}
+}
 
 // ---------- persistence ----------
 const LS = {
@@ -4076,7 +4133,7 @@ function importText(txt) {
   try { const s = C.deserialize(JSON.parse(txt),{deferPlacementGeometry:true}); setShip(s); closeSheet(); toast(`「${esc(s.name)}」を読み込みました`); return true; }
   catch (e) { toast('読み込めませんでした：' + esc(e.message || '形式を確認してください')); return false; }
 }
-function openSheet() { $('#sheet').hidden = false; $('#sheetBg').hidden = false; $('#nameInput').value = ship.name; renderSaves(); }
+function openSheet() { $('#sheet').hidden = false; $('#sheetBg').hidden = false; $('#nameInput').value = ship.name; renderSaves(); renderShipScaleSheet(); }
 function closeSheet() { $('#sheet').hidden = true; $('#sheetBg').hidden = true; $('#ioBox').hidden = true; delConfirm = null; }
 
 // ---------- pointer / camera controls ----------
@@ -5258,7 +5315,7 @@ function start(hot) {
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
   $('#refGrid').innerHTML = [...exampleList(false), ...exampleList(true)].map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)} · ${esc(exampleLine(e))}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
-  bindDesignUI();bind();bindEngineering();bindWing();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindVertexEdit();bindUserParts();bindImport();bindTitle();bindTutorial();bindTrial();bindMulti();bindEdit();bindInspBar();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindPlacementRepeat();bindSound();
+  bindDesignUI();bind();bindEngineering();bindWing();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindVertexEdit();bindUserParts();bindImport();bindTitle();bindTutorial();bindTrial();bindMulti();bindEdit();bindInspBar();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindPlacementRepeat();bindShipScale();bindSound();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped', 'batteryCaliber', 'batteryGuns']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
   st.fit=C.canonicalWeaponKind?.(st.fit)||st.fit;
   if(!BRIDGES.includes(st.bridge))st.bridge='podBridge';
@@ -6344,6 +6401,7 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
   if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube'){const plan=C.designEnvelope(ship);panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>metreSlider('newRoom'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[plan.L,plan.W,plan.H][i]))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);}
   if(st.tab==='mod')panel.insertAdjacentHTML('afterbegin','<div class="note compartment-rule">内部区画は外殻内に収容。箱形区画の干渉は必要容積を保って自動統合します。主炉・シールド・エンジンと外装機器は張出し可能。</div>');
   referencePanel(panel);layoutPanel(panel);
+  if(st.tab==='hull'&&C.primaryHullPart?.(ship))panel.insertAdjacentHTML('afterbegin',shipScalePanelHTML());
   if(st.tab==='hull')panel.insertAdjacentHTML('afterbegin',hullDimsHTML());
   if(st.tab==='bridge'&&st.bridgeMode==='body')panel.insertAdjacentHTML('beforeend',surfaceControls({},false));
   if(['hull','carve','armor'].includes(st.tab))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
