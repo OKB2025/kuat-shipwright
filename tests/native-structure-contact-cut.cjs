@@ -35,8 +35,13 @@ for(const [x,z,expectedY,expectedFace]of [[699.6640014648436,-11.240281960326172
  });
 }
 
-test('a tapered source still rejects a parent ridge through its true opposite roof',()=>{
- const ship=C.newShip({L:200,W:200,H:100,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[100,100,20]}];ship.fits=[];const input={id:-1,k:'struct',form:'trap',c:[0,5,0],s:[20,20,6],taper:.2,angles:[10,10,15,15]},source=C.publicJSON(input),before=C.publicJSON(ship),result=C.solvePlacement(ship,input,{mode:'horizontal',contactFit:'cut',position:input.c,parentStructureId:1,hit:{p:[0,10,0],n:[0,1,0]}});assert.equal(result.ok,false);assert.equal(result.code,'minimum-thickness');assert.equal(C.publicJSON(input),source);assert.equal(C.publicJSON(ship),before);
+// Changed 2026-11-11 (user decision: buried structures, wholly buried ones included, are grounded and listed by
+// the inspection warning). This tapered body lies wholly inside the parent (y 2..8 inside y -10..10): the cut
+// still never erases its roof (no cut is applied), but instead of minimum-thickness it is now accepted whole,
+// not moved, without mutating the input or the ship. Previously asserted ok:false / minimum-thickness.
+test('a tapered source wholly inside the parent is never cut through its roof: it is kept whole and joined',()=>{
+ const ship=C.newShip({L:200,W:200,H:100,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[100,100,20]}];ship.fits=[];const input={id:-1,k:'struct',form:'trap',c:[0,5,0],s:[20,20,6],taper:.2,angles:[10,10,15,15]},source=C.publicJSON(input),before=C.publicJSON(ship),result=C.solvePlacement(ship,input,{mode:'horizontal',contactFit:'cut',position:input.c,parentStructureId:1,hit:{p:[0,10,0],n:[0,1,0]}});
+ assert.equal(result.ok,true,result.code);assert.equal(result.contact.whollyInside,true);assert.deepEqual(Array.from(result.part.c),[0,5,0]);assert.ok(Math.abs(C.partVolume(result.part)-C.partVolume({...input}))<1e-6,'not cut');assert.equal(C.publicJSON(input),source);assert.equal(C.publicJSON(ship),before);
 });
 
 test('the mesh intersection guard distinguishes a coplanar native wall edge from a shallow real crossing at ship scales',()=>{
