@@ -56595,7 +56595,8 @@ registerShipExample({key:'craft_btlb',physicalRevision:1,name:'BTL-B Yウイン�
   k.pair('claser',[22.07,1.31,0.51],2);
   k.fit('cturret',[17.72,2.17,0],2);
   k.pair('ctorp',[17.0,0.3,0.25],3);
-  k.fit('cbomb',[11.0,0.16,0],3);
+  // 2026-11-11 user decision: the BTL-B has no bomb bay (canon); its proton bombs hang on two pairs of keel pylons.
+  k.pair('cpylon',[11.6,0.16,0.25],3);k.pair('cpylon',[10.0,0.16,0.25],3);
   k.mountAll();return s;
  }});
 }
@@ -56886,8 +56887,10 @@ function tieSaBuild(){
  const fit=(k,p,a,x={})=>{const f={id:s.nextId++,k,p,a,ped:0,base:0,low:0,float:false,...x};mountFit(s,f);s.fits.push(f);return f;};
  for(const z of [1.62,1.02])fit('claser',[gx(5.87),gy(-1),z],3);
  fit('ctorp',[gx(6.3),gy(-1),-TSA.podZ+.36],3);
- // v24 The bomb bay is an interior compartment between the pods, its floor on the lower skin (8 proton bombs).
- s.parts.push({id:s.nextId++,k:'bombBay',c:[1.03,.36,0],d:Math.cbrt(2*.6*.7),room:[2,.6,.7],corner:0,label:'爆弾倉'});
+ // v24 The bomb bay is an interior compartment between the pods, its floor on the lower skin. 2026-11-11: the proton
+ // bomb is 1 m × 2 m (user decision); 2 × 1 × 1 m is the largest bay that lies wholly inside the structures here with
+ // its floor on the lower skin (searched at 0.1 m spacing), so it holds one bomb.
+ s.parts.push({id:s.nextId++,k:'bombBay',c:[1.03,.51,0],d:Math.cbrt(2*1*1),room:[2,1,1],corner:0,label:'爆弾倉'});
  delete s._building;syncCompartments(s);remount(s);return s;
 }
 registerShipExample({key:'craft_tie_sa',physicalRevision:2,name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
@@ -63932,8 +63935,8 @@ const ORDNANCE=Object.freeze({
  itorp:{name:'イオン魚雷',short:'イオン魚雷',...ordnanceBody(1.5,8,.95),...ordnanceReach(.05),ion:true,guided:true,seeker:'mass',desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
  etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',dims:[1.3,.3],mass:.1,tt:25,guided:true,speed:1800,desc:'ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。'},
  cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',...ordnanceBody(.5,5,.5),speed:ORDNANCE_BASIS.missileSpeed,range:ORDNANCE_BASIS.missileRange,guided:true,seeker:'heat',desc:'誘導ミサイル（直径0.5 m・長さ5 m、推進剤50%・弾頭50%）。熱源・ニュートリノを追うので小型機・小型艦にも当たりやすい。射程10 km。'},
- bomb:{name:'プロトン爆弾',short:'プロトン爆弾',...ordnanceBody(2,4,.99),bomb:true,speed:600,desc:'誘導のない爆弾（直径2 m・長さ4 m、弾頭99%）。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'},
- ibomb:{name:'イオン爆弾',short:'イオン爆弾',...ordnanceBody(2,4,.99),ion:true,bomb:true,speed:600,desc:'プロトン爆弾と同じ弾体のイオン弾頭（誘導なし）。漏出分が電力・電子系統を遮断する。'}
+ bomb:{name:'プロトン爆弾',short:'プロトン爆弾',...ordnanceBody(1,2,.99),bomb:true,speed:600,desc:'誘導のない爆弾（直径1 m・長さ2 m、弾頭99%）。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'},
+ ibomb:{name:'イオン爆弾',short:'イオン爆弾',...ordnanceBody(1,2,.99),ion:true,bomb:true,speed:600,desc:'プロトン爆弾と同じ弾体のイオン弾頭（誘導なし）。漏出分が電力・電子系統を遮断する。'}
 });
 const ORDNANCE_EVIDENCE='弾の寸法と推進剤・弾頭の比はユーザー指定（2026-11-11）。質量・威力は旧震盪ミサイル（0.045 t・25 TT）から求めた共通の密度と弾頭のエネルギー密度による換算。エネルギー魚雷は指定がなく従来の値。';
 const STORE_MOUNTS=Object.freeze({tube:{name:'発射管の弾倉',short:'弾倉'},bay:{name:'爆弾倉',short:'爆弾倉'},wing:{name:'翼下パイロン',short:'パイロン'}});
@@ -63996,9 +63999,9 @@ const CRAFT_LOADOUT=Object.freeze({
  ywing:{st:[['cpylon',4]],load:[['ptorp',2]],src:'MG7 プロトン魚雷発射管2基。弾倉は当初6発、のちに4発（Wookieepedia「BTL Y-wing starfighter」）。同盟軍の改装機は計8発（Rebel Starfighters Owners\' Workshop Manual。Wikipedia「Y-wing」）',
   // canon alternative: ion torpedoes, as Gold Squadron at Scarif
   alt:[{name:'イオン魚雷（スカリフの戦い）',load:[['itorp',2]],src:'スカリフの戦いでゴールド中隊の Y ウイングがイオン魚雷でインペリアル級スター・デストロイヤー「パーセキューター」を無力化（ローグ・ワン、2016。Wookieepedia「Ion torpedo」）'}]},
- btlb:{st:[['cbomb',1],['cpylon',2]],load:[['bomb',8],['ptorp',3]],mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾の数は記載がなく、TIE/sa の主兵装庫と同じ8発'},
+ btlb:{st:[['cpylon',2],['cpylon',2],['cpylon',2]],load:[['ptorp',3],['bomb',2],['bomb',2]],mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾の数は記載がなく、TIE/sa の主兵装庫と同じ8発'},
  bwing:{st:[['cpylon',2]],load:[['ptorp',3]],src:'プロトン魚雷発射管2基（Wikipedia「List of Star Wars starfighters」の諸元）。弾数は記載がなく、各3発（X ウイングの MG7 と同じ）'},
- tie_sa:{st:[['cbomb',1],['cpylon',1]],load:[['bomb',8],['ptorp',3]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
+ tie_sa:{st:[['cbomb',1,{mount:'bay',box:[2,1,1]}],['cpylon',1]],load:[['bomb',1],['ptorp',3]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
  arc170:{st:[['cpylon',1]],load:[['ptorp',3]],mass:34.5,src:'プロトン魚雷6発（Dougherty ほか 2020, pp. 82–83。Wikipedia「List of Star Wars starfighters」）'},
  z95:{st:[['cpylon',2]],load:[['cmsl',6]],mass:19.2,src:'震盪ミサイル発射管（Before the Awakening。Wookieepedia「Z-95 Headhunter」）。弾数は記載がなく、各6発（A ウイングの HM-6 と同じ）'},
  v19:{st:[['cpylon',2]],load:[['cmsl',6]],mass:12.9,src:'震盪ミサイル発射管2基（Star Wars: On the Front Lines, 2017・StarWars.com Databank）。弾数は記載がなく、各6発'},
@@ -64011,7 +64014,7 @@ const loadPairs=a=>(a||[]).map(([k,n])=>({k,n}));
 // A loadout: the stations and what each carries by default (canon for a known type, else STORE_DEFAULT).
 function craftLoadout(x){
  if(x==null)return null;
- if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count])=>({fit,mount:FITS[fit].store.mount,count})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
+ if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count,store])=>({fit,mount:FITS[fit].store.mount,count,...(store?{store}:{})})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
  if(Array.isArray(x.fits)){const stations=craftStations(x),t=craftTypeOf(x.reference),c=t&&CRAFT_LOADOUT[t],same=c&&c.st.length===stations.length&&c.st.every(([fit,n],i)=>stations[i].fit===fit&&stations[i].count===n);
   return {stations,load:same?loadPairs(c.load):stations.map(st=>({k:STORE_DEFAULT[st.fit][0],n:STORE_DEFAULT[st.fit][1]})),canon:!!same,type:t,src:same?c.src:'',mass:null};}
  if(Array.isArray(x.stations))return {stations:x.stations,load:Array.isArray(x.load)?x.load:x.stations.map(st=>({k:STORE_DEFAULT[st.fit]?.[0],n:STORE_DEFAULT[st.fit]?.[1]||0})),canon:!!x.canonLoad,type:null,src:'',mass:x.mass??null};
