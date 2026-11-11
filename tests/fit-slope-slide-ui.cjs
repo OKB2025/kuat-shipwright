@@ -40,15 +40,15 @@ function setup(){
  run(section('function seatFit(','function dragItemEnd('));
  // New guns are placed with the options tapHit passes (the shared tapHit harness above is currently broken
  // on main: designPlacementActive / n are undefined in its sandbox).
- run("function slide(id,value){const t={dataset:{sl:id},value:String(value),min:'-100000',max:'100000'};for(const fn of listeners.input||[])fn({target:t});endDrag();}");
- run("function place(k,z,x){const h=C.rayEnv(ship,[x,500,z],[0,-1,0],{structOnly:true});if(!h)throw Error('No surface');const n=weaponPlacementNormal(k,h.n);const r=C.placeFit(ship,k,h.p,n,0,st.mirror,{tilt:weaponTiltMode(k)?C.fitTilt(n):null,mountMode:st.weaponMount});if(!r.fit)throw Error('Placement failed '+r.err);st.sel={list:'fits',id:r.fit.id};return r.fit;}");
+ run("function slide(id,value){const t={dataset:{sl:id},value:String(value),min:'-100000',max:'100000'};for(const fn of listeners.input||[])fn({target:t});endDrag();return t.value;}");
+ run("function place(k,z,x,ped=0){const h=C.rayEnv(ship,[x,500,z],[0,-1,0],{structOnly:true});if(!h)throw Error('No surface');const n=weaponPlacementNormal(k,h.n);const opts={tilt:weaponTiltMode(k)?C.fitTilt(n):null,mountMode:st.weaponMount},r=C.placeFit(ship,k,h.p,n,ped,st.mirror,opts);if(!r.fit)throw Error('Placement failed '+r.err);placeVerticalFits(r.fit,k,ped,opts);st.sel={list:'fits',id:r.fit.id};return r.fit;}");
  return run;
 }
 
 // User report 2026-11-11: the 前後 X / 左右 Z sliders of a placed gun on a sloped face moved it horizontally,
 // off the face, and the editor refused the position. The panel move now slides along the mounting face.
-function sloped(run,mount,mirror=true){
- run(`ship=C.newShip({L:600,W:400,H:160,assembly:true},'Slope slide');ship.parts=[];ship.fits=[];ship.nextId=1;C.placePart(ship,'struct',[300,0,110],[560,200,80],{form:'box',pitch:14,roll:9},true);st.weaponMount=${JSON.stringify(mount)};st.mirror=${mirror};st.vmirror=false;st.ped=0;place('stl',110,300)`);
+function sloped(run,mount,mirror=true,vmirror=false,ped=0){
+ run(`ship=C.newShip({L:600,W:400,H:160,assembly:true},'Slope slide');ship.parts=[];ship.fits=[];ship.nextId=1;C.placePart(ship,'struct',[300,0,110],[560,200,80],{form:'box',pitch:14,roll:9},true);st.weaponMount=${JSON.stringify(mount)};st.mirror=${mirror};st.vmirror=${vmirror};st.ped=${ped};place('stl',110,300,${ped})`);
 }
 const surface=(run,f)=>plain(run(`(()=>{const f=${f},u=C.norm(C.fitUp(f)),h=C.rayEnv(ship,C.add(f.p,C.mul(u,4)),C.mul(u,-1),{maxT:8,structOnly:true});return h?{d:C.len(C.sub(h.p,f.p)),host:h.part?.id,n:h.n}:null;})()`));
 for(const mount of ['auto','top'])test(`fore/aft and port/starboard sliders keep a ${mount} gun and its twin seated on a sloped face`,()=>{
@@ -77,4 +77,55 @@ test('flat deck slider moves are unchanged and leaving the deck is still refused
  const f=plain(run('selItem()'));assert.equal(f.float,false);assert.ok(Math.abs(f.p[0]-start[0]-30)<1e-6);assert.ok(Math.abs(f.p[1]-start[1])<1e-6);assert.ok(Math.abs(f.p[2]-start[2])<1e-6);
  run(`slide('fitZ',${start[2]+20})`);assert.ok(Math.abs(run('selItem().p[2]')-start[2]-20)<1e-6);assert.ok(Math.abs(run('selItem().p[1]')-start[1])<1e-6);
  run(`slide('fitX',${start[0]+5000})`);assert.equal(run('selItem().float'),true);
+});
+const keep=f=>({id:f.id,p:f.p,n:f.n,host:f.host??null,hostSurfaceId:f.hostSurfaceId??null,tilt:f.tilt??null,float:!!f.float});
+test('the slider shows the position the fitting actually reached',()=>{
+ const run=setup();sloped(run,'auto');run('st.sel={list:"fits",id:ship.fits[0].id}');
+ const start=plain(run('selItem().p')),shown=run(`slide('fitX',${start[0]+17.37})`);
+ assert.equal(Number(shown),+run('selItem().p[0]').toFixed(3));
+});
+test('sliding onto a neighbouring higher structure or ridge is refused, not re-seated there',()=>{
+ const run=setup();sloped(run,'auto',false);run('st.sel={list:"fits",id:ship.fits[0].id}');
+ const host=surface(run,'selItem()').host,start=plain(run('selItem().p'));
+ run("C.placePart(ship,'struct',[395,0,110],[30,200,200],{form:'box'},false)");const ridge=run('ship.parts.at(-1).id');
+ run(`slide('fitX',${start[0]+12})`);assert.equal(run('selItem().float'),false,'still on its own face before the ridge');
+ const kept=plain(run('selItem().p'));
+ // The slope face continues under the ridge (x 380..410); the old path would seat the gun on the ridge top.
+ for(const x of [395,385,405]){
+  const shown=run(`slide('fitX',${x})`),f=plain(run('selItem()'));
+  assert.equal(f.float,false,'blocked, left seated where it was');assert.deepEqual(f.p,kept,'not moved onto the ridge');assert.notEqual(f.host,ridge);
+  const s=surface(run,'selItem()');assert.ok(s&&s.host===host&&s.d<.05,'still on its own face');assert.equal(Number(shown),+kept[0].toFixed(3),'slider snaps back');
+ }
+});
+test('a vertical (bottom) twin follows a slope slide on the mirrored underside',()=>{
+ const run=setup();sloped(run,'auto',false,true);assert.equal(run('ship.fits.length'),2);run('st.sel={list:"fits",id:ship.fits[0].id}');
+ const vt0=plain(run('ship.fits.find(q=>q.id===selItem().vt)'));assert.ok(vt0&&!vt0.float);
+ const start=plain(run('selItem().p'));run(`slide('fitX',${start[0]+20})`);
+ const f=plain(run('selItem()')),vt=plain(run('ship.fits.find(q=>q.id===selItem().vt)'));
+ assert.equal(f.float,false);assert.equal(vt.float,false,'vertical twin stays mounted');// The underside twin is re-probed along its tilted normal (existing pair logic), so it shifts by about the same X.
+ assert.ok(Math.abs(vt.p[0]-vt0.p[0]-20)<5,'vertical twin follows fore/aft: '+(vt.p[0]-vt0.p[0]));
+ assert.ok(Math.abs(vt.p[1]-vt0.p[1])>2,'vertical twin moved with its slope');const t=surface(run,'ship.fits.find(q=>q.id===selItem().vt)');assert.ok(t&&t.d<.05,'vertical twin seated');
+});
+test('a wall-mounted fitting keeps the previous slider path',()=>{
+ const run=setup();run("ship=C.newShip({L:600,W:400,H:160,assembly:true},'Wall');ship.parts=[];ship.fits=[];ship.nextId=1;C.placePart(ship,'struct',[300,0,0],[560,300,80],{form:'box'},false);st.weaponMount='auto';st.mirror=false;st.vmirror=false");
+ const placed=run("(()=>{const b=C.partAABB(ship.parts[0]),y=(b[1]+b[4])/2,h=C.rayEnv(ship,[300,y,500],[0,0,-1],{structOnly:true});if(!h)return 'no wall';const n=weaponPlacementNormal('stl',h.n),r=C.placeFit(ship,'stl',h.p,n,0,false,{tilt:weaponTiltMode('stl')?C.fitTilt(n):null,mountMode:'auto'});if(!r.fit)return r.err;st.sel={list:'fits',id:r.fit.id};return 'ok';})()");
+ assert.equal(placed,'ok');const start=plain(run('selItem().p'));assert.equal(run('selItem().float'),false);
+ assert.equal(run(`fitSurfaceSlideTarget(selItem(),0,${start[0]+15})`),null,'walls use the old path');assert.equal(run(`fitSurfaceSlideTarget(selItem(),2,${start[2]+3})`),null);
+ run(`slide('fitX',${start[0]+15})`);const f=plain(run('selItem()'));assert.equal(f.float,false);
+ assert.ok(Math.abs(f.p[0]-start[0]-15)<1e-6&&Math.abs(f.p[1]-start[1])<1e-6&&Math.abs(f.p[2]-start[2])<1e-6);
+});
+test('one slider move is a single Undo step that restores both fits and Redo reproduces it',()=>{
+ const run=setup();sloped(run,'auto');run('st.sel={list:"fits",id:ship.fits[0].id};undoStack.length=0;redoStack.length=0');
+ const before=plain(run('ship.fits')).map(keep),start=before[0].p;
+ run(`slide('fitX',${start[0]+18})`);const after=plain(run('ship.fits')).map(keep);
+ assert.equal(run('undoStack.length'),1);assert.notDeepEqual(after,before);
+ run('undo()');assert.deepEqual(plain(run('ship.fits')).map(keep),before);
+ run('redo()');assert.deepEqual(plain(run('ship.fits')).map(keep),after);
+});
+test('a fitting on a pedestal slides along the slope and keeps its pedestal',()=>{
+ const run=setup();sloped(run,'auto',true,false,6);run('st.sel={list:"fits",id:ship.fits[0].id}');
+ const f0=plain(run('selItem()'));assert.equal(f0.float,false);
+ run(`slide('fitX',${f0.p[0]+20})`);const f=plain(run('selItem()'));
+ assert.equal(f.float,false);assert.equal(f.ped,f0.ped);assert.ok(Math.abs(f.p[0]-f0.p[0]-20)<.5);assert.ok(Math.abs(f.p[1]-f0.p[1])>2);
+ const s=surface(run,'selItem()');assert.ok(s&&s.d<.05);
 });

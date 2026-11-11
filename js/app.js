@@ -4149,7 +4149,8 @@ function moveFitTo(f, p, n0) {
 // Fore/aft or port/starboard slider move of a seated fitting: slide parallel to the face it is mounted on,
 // so a turret on a slope rises or falls with the slope instead of leaving it horizontally. The move is
 // projected onto the plane of the face under the fitting and re-seated with a short probe along the face
-// normal; a point beyond the face finds no surface and keeps the ordinary refusal (moveFitTo floats it).
+// normal (8 m). A point beyond the face finds no surface and keeps the ordinary refusal (moveFitTo floats
+// it); a hit on another structure, a ridge or a face turned by more than 10 degrees blocks the move.
 function fitSurfaceSlideTarget(f, axis, v) {
   if (!f || C.FITS[f.k]?.window || (axis !== 0 && axis !== 2) || !Number.isFinite(v)) return null;
   const up = C.norm(C.fitUp(f) || [0, 1, 0]), h0 = editorRayEnv(C.add(f.p, C.mul(up, 4)), C.mul(up, -1), {maxT: 8, structOnly: true});
@@ -4158,13 +4159,23 @@ function fitSurfaceSlideTarget(f, axis, v) {
   // Level decks keep the plain move; walls cannot take up a fore/aft or port/starboard change in height.
   if (Math.abs(s[1]) > .9995 || Math.abs(s[1]) < .2) return null;
   const d = v - f.p[axis], q = f.p.slice(); q[axis] = v; q[1] = f.p[1] - s[axis] * d / s[1];
-  const reach = Math.max(4, Math.abs(d) * .5), h = editorRayEnv(C.add(q, C.mul(s, reach)), C.mul(s, -1), {maxT: reach * 2, structOnly: true});
-  return h ? {p: h.p, n: h.n} : null;
+  const reach = 8, h = editorRayEnv(C.add(q, C.mul(s, reach)), C.mul(s, -1), {maxT: reach * 2, structOnly: true});
+  if (!h?.n) return null;
+  // Only the same face continues the slide: another structure, a ridge or a sharp change of face blocks it.
+  const hn = C.dot(h.n, s) < 0 ? C.mul(h.n, -1) : h.n;
+  if ((h.part?.id ?? null) !== (h0.part?.id ?? null) || C.dot(C.norm(hn), s) < Math.cos(10 * Math.PI / 180)) return {blocked: true};
+  // A face point buried under another structure would be seated on that structure by mountFit: blocked too.
+  const g = JSON.parse(JSON.stringify(f)), spec = C.FITS[f.k];
+  seatFit(g, h.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, h.n, f.mountMode || st.weaponMount) : h.n);
+  if (g.float || C.len(C.sub(g.p, h.p)) > .5) return {blocked: true};
+  return {p: h.p, n: h.n};
 }
+// Returns 'moved' (slid along the face), 'blocked' (left where it was) or 'plain' (the previous move).
 function moveFitAlongSurface(f, axis, v) {
   const t = fitSurfaceSlideTarget(f, axis, v);
-  if (t) { moveFitTo(f, t.p, t.n); return true; }
-  const p = f.p.slice(); p[axis] = v; moveFitTo(f, p, f.n || C.AXES[f.a]); return false;
+  if (t?.blocked) return 'blocked';
+  if (t) { moveFitTo(f, t.p, t.n); return 'moved'; }
+  const p = f.p.slice(); p[axis] = v; moveFitTo(f, p, f.n || C.AXES[f.a]); return 'plain';
 }
 function dragItemEnd(cancel) {
   const D = itemDrag; itemDrag = null; if (!D?.moving) return;
@@ -6306,7 +6317,7 @@ function bindEngineering(){
       const make=dir=>{let y=Math.atan2(dir[2],-dir[0]),p=Math.asin(dir[1]);if(k.endsWith('Yaw'))y=v*Math.PI/180;else p=v*Math.PI/180;return [-Math.cos(y)*Math.cos(p),Math.sin(p),Math.sin(y)*Math.cos(p)];};
       if(k.startsWith('new'))st.engineDir=make(st.engineDir);else live(()=>editEngineSelection(p=>p.dir=make(p.dir||[-1,0,0])));if(out)out.textContent=deg(v);
     }
-    if(['fitX','fitZ','fitY','fitAlong'].includes(k)){const f=selItem();if(f&&st.sel.list==='fits'){beginDrag('装備の位置');if((k==='fitX'||k==='fitZ')&&!C.FITS[f.k].window){moveFitAlongSurface(f,k==='fitX'?0:2,v);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);return;}const p=f.p.slice();if(k==='fitX')p[0]=v;else if(k==='fitZ')p[2]=v;else if(k==='fitY')p[1]=v;else{const fr=C.windowFrame(f),host=ship.parts.find(q=>q.id===f.host),cur=C.dot(C.sub(f.p,host?host.c:[0,0,0]),fr.fw);for(let a=0;a<3;a++)p[a]+=fr.fw[a]*(v-cur);}moveFitTo(f,p,f.n||C.AXES[f.a]);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);}}
+    if(['fitX','fitZ','fitY','fitAlong'].includes(k)){const f=selItem();if(f&&st.sel.list==='fits'){beginDrag('装備の位置');if((k==='fitX'||k==='fitZ')&&!C.FITS[f.k].window){const ax=k==='fitX'?0:2;moveFitAlongSurface(f,ax,v);touch('fits');scheduleStats(350);const at=f.p[ax];if(Number.isFinite(at)&&Math.abs(at-v)>1e-9)e.target.value=String(+at.toFixed(3));if(out)out.textContent=fmtM(at);return;}const p=f.p.slice();if(k==='fitX')p[0]=v;else if(k==='fitZ')p[2]=v;else if(k==='fitY')p[1]=v;else{const fr=C.windowFrame(f),host=ship.parts.find(q=>q.id===f.host),cur=C.dot(C.sub(f.p,host?host.c:[0,0,0]),fr.fw);for(let a=0;a<3;a++)p[a]+=fr.fw[a]*(v-cur);}moveFitTo(f,p,f.n||C.AXES[f.a]);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);}}
 
     if(k==='shieldTarget'){live(()=>ship.shieldTarget=v/100,'none');if(out)out.textContent=v+'%';}
   });
