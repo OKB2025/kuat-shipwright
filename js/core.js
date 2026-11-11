@@ -49376,12 +49376,14 @@ function syncHullHatches(ship,p){
 // v24 Scale a hull part's own cuts with the part: F = [length, height, width] factors along the part's x, y and z.
 // Its hull geometry is defined in fractions of length, width and height, so it scales about the stern (x 0), the keel
 // (y 0) and the centreline (z 0); the cuts, kept in metres in the same frame, are scaled about the same origin.
-// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets, cut boxes, solid cutters
+// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets and slopes, cut boxes, solid cutters
 // (centre and size, a rotated cutter by the length of each of its own axes) and the hull's openings follow.
 function scaleHullStructureCuts(ship,p,F){
  if(!F.every(v=>Number.isFinite(v)&&v>0)||F.every(v=>Math.abs(v-1)<1e-12))return false;
  const data=p.hullData;if(!data)return false;const sc=v=>[v[0]*F[0],v[1]*F[1],v[2]*F[2]];
- for(const c of data.cuts||[])if(c.type!=='planTrapezoid'&&!c.prop&&Number.isFinite(c.inset))c.inset*=F[2];
+ // Bevel inset and slope are metres in both modes; a proportional bevel multiplies them by the section's width and
+ // height fractions (removersAt), so both are scaled either way.
+ for(const c of data.cuts||[])if(c.type!=='planTrapezoid'){if(Number.isFinite(c.inset))c.inset*=F[2];if(Number.isFinite(c.slope))c.slope*=F[1];}
  for(const t of data.trenches||[]){if(Number.isFinite(t.height))t.height*=F[1];if(Number.isFinite(t.depth))t.depth*=F[2];}
  for(const b of data.subs||[])if(Array.isArray(b.b)&&b.b.length===6)b.b=[...sc(b.b.slice(0,3)),...sc(b.b.slice(3))];
  for(const q of data.solidCuts||[]){if(Array.isArray(q.c))q.c=sc(q.c);if(Array.isArray(q.s)&&Array.isArray(q.rotation)){const k=[[1,0,0],[0,1,0],[0,0,1]].map(e=>len(sc(solidCutRotation(q,e))));q.s=[q.s[0]*k[0],q.s[1]*k[2],q.s[2]*k[1]];}}
@@ -49399,6 +49401,10 @@ function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.
 // ordinary placement solver, fitting mount and grounding check then re-seat and validate it. Nothing is deleted:
 // items that the existing checks reject afterwards (and did not before) are reported.
 const SHIP_SCALE_LENGTH_KEYS=['d','length','engineLength','bodyLength','nozzleLength','skinDiameter','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','ridge','shellThick','offsetX','offsetZ'];
+// User decision (2026-11-11): stored power and heat capacities follow the ship's volume (k³) whatever the options,
+// and armour thickness (plateT, surface armour) is a protection specification that never scales.
+const SHIP_SCALE_POWER_KEYS=['ratedInputW','feedCapacityW','legacyCoolingInputW','shieldDissipationW'];
+const SHIP_SCALE_WING_KEYS=['panelFrame','panelRib'];
 const SHIP_SCALE_VECTOR_KEYS=['s','room','skinSize'];
 function shipScaleOptions(options={}){return {structures:options?.structures==='keep'?'keep':'scale',interior:options?.interior==='keep'?'keep':'scale'};}
 function shipScaleFactor(ship,options={}){
@@ -49415,15 +49421,23 @@ function shipScaleCategory(ship,hull,item,list){
  return placementCapability(item).space==='interior'?'interior':'fixed';
 }
 function shipScaleCounts(ship,hull){const n={hull:0,structure:0,interior:0,fixed:0};for(const p of ship.parts)n[shipScaleCategory(ship,hull,p,'parts')]++;n.fixed+=ship.fits.length;return n;}
+// Every value the change scales is checked against the clamp the loader applies to it, so a scaled design is never
+// silently altered on reload. The first violation is returned and nothing is changed.
 function shipScaleLimitError(ship,hull,k,mode){
  const scaled=p=>{const c=shipScaleCategory(ship,hull,p,'parts');return c==='hull'||c==='structure'&&mode.structures==='scale'||c==='interior'&&mode.interior==='scale';};
- const over=(v,limit)=>Number.isFinite(v)&&Math.abs(v)*k>limit;
- if(over(hull.s[0],DESIGN_LIMITS.length)||over(hull.s[1],DESIGN_LIMITS.width)||over(hull.s[2],DESIGN_LIMITS.height))return `船体寸法の上限（全長 ${DESIGN_LIMITS.length} m・幅 ${DESIGN_LIMITS.width} m・高さ ${DESIGN_LIMITS.height} m）を超えます`;
- if(hull.s.some(v=>v*k<.02))return '船体が小さくなりすぎます';
- for(const p of ship.parts){if(p.c?.some(v=>over(v,DESIGN_LIMITS.coordinate)))return '配置範囲の上限を超える部品があります';if(!scaled(p))continue;
-  if(p.s?.some(v=>over(v,DESIGN_LIMITS.partSize))||p.room?.some(v=>over(v,DESIGN_LIMITS.partSize)))return `部品の寸法の上限（${DESIGN_LIMITS.partSize} m）を超える部品があります（${partLabel(p)} #${p.id}）`;
-  if(over(p.d,DESIGN_LIMITS.diameter))return `部品の直径の上限（${DESIGN_LIMITS.diameter} m）を超える部品があります（${partLabel(p)} #${p.id}）`;}
- for(const f of ship.fits)if(f.p?.some(v=>over(v,DESIGN_LIMITS.coordinate)))return '配置範囲の上限を超える装備があります';
+ const name=p=>`（${partLabel(p)} #${p.id}）`,range=(v,lo,hi)=>!Number.isFinite(v)||v*k>=lo-1e-9&&v*k<=hi+1e-9,abs=(v,hi)=>!Number.isFinite(v)||Math.abs(v*k)<=hi+1e-9,coord=a=>!Array.isArray(a)||a.every(v=>abs(v,DESIGN_LIMITS.coordinate));
+ if(!range(hull.s[0],.02,DESIGN_LIMITS.length)||!range(hull.s[1],.02,DESIGN_LIMITS.width)||!range(hull.s[2],.02,DESIGN_LIMITS.height))return hull.s.some(v=>v*k<.02)?'船体が小さくなりすぎます':`船体寸法の上限（全長 ${DESIGN_LIMITS.length} m・幅 ${DESIGN_LIMITS.width} m・高さ ${DESIGN_LIMITS.height} m）を超えます`;
+ const cuts=(list,where)=>{for(const c of list||[]){if(c.type==='planTrapezoid')continue;if(!range(c.inset,0,1000)||!range(c.slope,1,1000))return `縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます${where}`;}return null;};
+ const trenches=(list,where)=>{for(const t of list||[])if(!range(t.height,.1,500)||!range(t.depth,.1,800))return `トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます${where}`;return null;};
+ const solids=(data,where)=>{for(const q of data?.solidCuts||[])if(!coord(q.c)||Array.isArray(q.s)&&!q.s.every(v=>range(v,.02,DESIGN_LIMITS.coordinate)))return `立体の切り取りが配置範囲を外れます${where}`;for(const b of data?.subs||[])if(!coord(b.b))return `切り欠きが配置範囲を外れます${where}`;for(const h of data?.hatches||[])if(!coord(h.a)||!coord(h.b)||Array.isArray(h.cut)&&!coord(h.cut.slice(0,6)))return `開口部が配置範囲を外れます${where}`;return null;};
+ for(const [data,where] of [[ship,''],...ship.parts.filter(p=>isHullStructure(p)&&scaled(p)).map(p=>[p.hullData,name(p)])]){const e=cuts(data?.cuts,where)||trenches(data?.trenches,where)||solids(data,where);if(e)return e;}
+ for(const p of ship.parts){if(!coord(p.c))return '配置範囲の上限を超える部品があります'+name(p);if(!scaled(p))continue;
+  if(p.s?.some(v=>!range(v,.02,DESIGN_LIMITS.partSize))||p.room?.some(v=>!range(v,.02,DESIGN_LIMITS.partSize)))return `部品の寸法が保存できる範囲（0.02〜${DESIGN_LIMITS.partSize} m）を外れます`+name(p);
+  if(!range(p.d,.02,DESIGN_LIMITS.diameter))return `部品の直径の上限（${DESIGN_LIMITS.diameter} m）を超える部品があります`+name(p);
+  if(!range(p.length,.1,DESIGN_LIMITS.partSize))return `部品の長さが保存できる範囲を外れます`+name(p);
+  if(!range(p.shellThick,.02,60))return '外殻の板厚が保存できる範囲（0.02〜60 m）を外れます'+name(p);
+  if(!abs(p.ridge,1000)||!abs(p.offsetX,2000)||!abs(p.offsetZ,2000))return '構造物の稜線・中心のずれが保存できる範囲を外れます'+name(p);}
+ for(const f of ship.fits)if(!coord(f.p))return '配置範囲の上限を超える装備があります';
  return null;
 }
 // A pure, cheap summary for the editor: the hull and planned dimensions exactly, the overall size as an estimate
@@ -49473,15 +49487,16 @@ function shipScalePlan(ship,hull,k,mode){
  // Mirror images keep mirror-image transforms (geometric ties on a symmetric hull must not separate a pair), and
  // an item on the centreline whose parent stays centred keeps no sideways offset.
  const L=hull.s[0],tol=Math.max(1e-6,L*1e-4),sizeKey=it=>JSON.stringify([it.k,it.s,it.d,it.room,it.skinAsset]),partner=new Map(),buckets=new Map();
- for(const row of rows.values()){if(row===hullRow||!Array.isArray(row.position))continue;const z=row.position[2];if(Math.abs(z)<=tol)continue;const b=row.list+'|'+sizeKey(row.item)+'|'+Math.round(row.position[0]/tol)+'|'+Math.round(row.position[1]/tol);if(!buckets.has(b))buckets.set(b,[]);buckets.get(b).push(row);}
- for(const list of buckets.values())for(const a of list){if(partner.has(a)||a.position[2]<0)continue;const b=list.find(r=>r!==a&&!partner.has(r)&&r.position[2]<0&&Math.abs(r.position[2]+a.position[2])<=tol&&Math.abs(r.position[0]-a.position[0])<=tol&&Math.abs(r.position[1]-a.position[1])<=tol);if(b){partner.set(a,b);partner.set(b,a);}}
+ for(const row of rows.values()){if(row===hullRow||!Array.isArray(row.position))continue;const z=row.position[2];if(Math.abs(z)<=tol)continue;const ix=Math.round(row.position[0]/tol),iy=Math.round(row.position[1]/tol),b=row.list+'|'+sizeKey(row.item)+'|'+ix+'|'+iy;row.bucket=[row.list,sizeKey(row.item),ix,iy];if(!buckets.has(b))buckets.set(b,[]);buckets.get(b).push(row);}
+ const near=a=>{const out=[],[l,key,ix,iy]=a.bucket;for(const dx of [-1,0,1])for(const dy of [-1,0,1])out.push(...(buckets.get(l+'|'+key+'|'+(ix+dx)+'|'+(iy+dy))||[]));return out;};
+ for(const list of buckets.values())for(const a of list){if(partner.has(a)||a.position[2]<0)continue;const b=near(a).find(r=>r!==a&&!partner.has(r)&&r.position[2]<0&&Math.abs(r.position[2]+a.position[2])<=tol&&Math.abs(r.position[0]-a.position[0])<=tol&&Math.abs(r.position[1]-a.position[1])<=tol);if(b){partner.set(a,b);partner.set(b,a);}}
  const apply=(T,x)=>[T.o[0]+T.s*x[0],T.o[1]+T.s*x[1],T.o[2]+T.s*x[2]],active=new Set();
  const resolve=row=>{if(row.T)return row.T;if(active.has(row)){row.parent=hullRow;row.cycle=true;}active.add(row);
   const twin=partner.get(row);if(twin&&!active.has(twin)&&twin.item.id<row.item.id&&(twin.parent===row.parent||partner.get(twin.parent)===row.parent||!twin.explicit&&!row.explicit)){const t=resolve(twin);row.T={o:[t.o[0],t.o[1],-t.o[2]],s:t.s};active.delete(row);return row.T;}
   const P=row.parent?(row.parent===row?hullRow:row.parent):hullRow,TP=active.has(P)&&!P.T?(row.parent=hullRow,hullRow.T):resolve(P),a=row.anchor||row.position,at=apply(TP,a);
   row.T={o:sub(at,mul(a,row.s)),s:row.s};if(Math.abs(row.position?.[2]??1)<=tol&&Math.abs(TP.o[2])<=1e-9)row.T.o[2]=0;active.delete(row);return row.T;};
  for(const row of rows.values())if(Array.isArray(row.position))resolve(row);else row.T={o:[0,0,0],s:row.s};
- return {rows,partRows,hullRow,nearest,apply};
+ return {rows,partRows,hullRow,nearest,apply,partner};
 }
 function shipScaleDiagnostics(ship,full=false){
  syncTrenchArmament(ship);const refresh=withHullCacheScope(()=>{syncEmbeddedEngineMachinery(ship);const r=refreshPlacementGeometry(ship);syncEngineMountSupports(ship);return r;});remount(ship);const parts=new Map(),fits=new Map();
@@ -49504,10 +49519,10 @@ function scaleShipDesign(ship,options={}){
  const limit=shipScaleLimitError(ship,hull,k,mode);if(limit)throw new Error(limit);
  const report={ok:true,factor:k,options:mode,hull:{before:hull.s.slice(),after:hull.s.map(v=>v*k)},counts:{structures:{scaled:0,kept:0},interior:{scaled:0,kept:0},fixed:{parts:0,fits:0}},unseated:{parts:[],fits:[]},preexisting:{parts:0,fits:0},validated:validate?(full?'full':'placement'):false};
  if(Math.abs(k-1)<1e-12){report.changed=false;return report;}
- const before=validate?shipScaleDiagnostics(ship,full):null;
+ const before=validate?shipScaleDiagnostics(ship,full):null,warnKey=w=>(w.code||'')+'|'+String(w.text||'').replace(/[0-9.,]+/g,'#'),statsWarnings=()=>{try{return computeStats(ship).warnings.map(w=>({lv:w.lv,...(w.code?{code:w.code}:{}),text:w.text}));}catch(e){return null;}},warningsBefore=validate&&(full||options?.warnings)?statsWarnings():null;
  const tokens=new Map(ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).map(p=>[p.id,surfaceTopology(ship,p)]));
  const plan=shipScalePlan(ship,hull,k,mode),{rows,partRows,hullRow,nearest,apply}=plan;
- const scaleFields=(o,s)=>{if(s===1||!o)return;for(const key of SHIP_SCALE_LENGTH_KEYS)if(Number.isFinite(o[key]))o[key]*=s;for(const key of SHIP_SCALE_VECTOR_KEYS)if(Array.isArray(o[key])&&o[key].every(Number.isFinite))o[key]=o[key].map(v=>v*s);if(Number.isFinite(o.plateT))o.plateT=plateThickness({plateT:o.plateT*s});if(Array.isArray(o.room)&&o.room.length===3&&Number.isFinite(o.d))o.d=Math.cbrt(o.room.reduce((a,b)=>a*b,1));};
+ const scaleFields=(o,s)=>{if(s===1||!o)return;for(const key of [...SHIP_SCALE_LENGTH_KEYS,...SHIP_SCALE_WING_KEYS])if(Number.isFinite(o[key]))o[key]*=s;for(const key of SHIP_SCALE_VECTOR_KEYS)if(Array.isArray(o[key])&&o[key].every(Number.isFinite))o[key]=o[key].map(v=>v*s);if(Array.isArray(o.room)&&o.room.length===3&&Number.isFinite(o.d))o.d=Math.cbrt(o.room.reduce((a,b)=>a*b,1));};
  // Cutters and openings that belong to the ship rather than to a hull part follow the structure they cut.
  const follow=q=>{const hit=q&&nearest(q,null);return (hit&&partRows.get(hit.part.id)?.T)||hullRow.T;};
  const shipCut=[];for(const q of ship.solidCuts||[])if(Array.isArray(q.c))shipCut.push([q,follow(q.c)]);for(const b of ship.subs||[])if(Array.isArray(b.b)&&b.b.length===6)shipCut.push([b,follow([0,1,2].map(i=>(b.b[i]+b.b[i+3])/2))]);
@@ -49525,8 +49540,13 @@ function scaleShipDesign(ship,options={}){
    if(Array.isArray(meta.surfaceAnchor)&&!Array.isArray(meta.anchorDimensions)&&P)meta.surfaceAnchor=mul(meta.surfaceAnchor,P.T.s);}
   if(row.category==='structure')report.counts.structures[s===1?'kept':'scaled']++;else if(row.category==='interior')report.counts.interior[s===1?'kept':'scaled']++;else if(row.category==='fixed')report.counts.fixed.parts++;
  }
+ // User decision (2026-11-11): every stored power or heat capacity scales with the volume, k³, so the scaled ship keeps
+ // its balance until it is touched up by hand; an engine core keeps feed = 1.3 × rated. Automatic links recompute.
+ const k3=k**3;for(const p of ship.parts){for(const key of SHIP_SCALE_POWER_KEYS)if(Number.isFinite(p[key]))p[key]*=k3;if(p.placement?.requestedGeometry)for(const key of SHIP_SCALE_POWER_KEYS)if(Number.isFinite(p.placement.requestedGeometry[key]))p.placement.requestedGeometry[key]*=k3;}
+ for(const l of ship.links||[]){if(Number.isFinite(l.cap))l.cap*=k3;if(Number.isFinite(l.capacityReferenceW))l.capacityReferenceW*=k3;}
+ report.capacityFactor=k3;
  for(const [q,T] of shipCut){if(q.b){q.b=[...apply(T,q.b.slice(0,3)),...apply(T,q.b.slice(3))];continue;}q.c=apply(T,q.c);if(Array.isArray(q.s))q.s=q.s.map(v=>v*T.s);}
- for(const c of ship.cuts||[])if(c.type!=='planTrapezoid'&&!c.prop&&Number.isFinite(c.inset))c.inset*=k;
+ for(const c of ship.cuts||[])if(c.type!=='planTrapezoid'){if(Number.isFinite(c.inset))c.inset*=k;if(Number.isFinite(c.slope))c.slope*=k;}
  for(const t of ship.trenches||[]){if(Number.isFinite(t.height))t.height*=k;if(Number.isFinite(t.depth))t.depth*=k;}
  for(const [h,T] of freeHatches){if(Array.isArray(h.a))h.a=apply(T,h.a);if(Array.isArray(h.b))h.b=apply(T,h.b);if(Number.isFinite(h.w))h.w*=T.s;if(Array.isArray(h.cut))h.cut=h.cut.map((v,i)=>i<6?T.o[i%3]+T.s*v:v*T.s);}
  // Hull parts carry their own cuts, trenches, recesses and openings (scaleHullStructureCuts); kept ones only move.
@@ -49542,6 +49562,9 @@ function scaleShipDesign(ship,options={}){
  if(validate){const after=shipScaleDiagnostics(ship,full),label=(list,id)=>{const it=ship[list].find(q=>q.id===id);return list==='parts'?partLabel(it):FITS[it?.k]?.name||it?.k;};
   for(const [list,name] of [['parts','parts'],['fits','fits']]){report.preexisting[name]=before[name].size;for(const [id,code] of after[name])if(!before[name].has(id)){const it=ship[list].find(q=>q.id===id),error=it?.trenchError||it?._fitPlacementError?.error||it?._interiorPlacementError?.error;report.unseated[name].push({id,label:label(list,id),code,...(error?{error:String(error)}:{})});}}
   report.ok=!report.unseated.parts.length&&!report.unseated.fits.length;}
+ // Warnings that the ordinary statistics raise only after the change (a heat path or nozzle shaft that no longer
+ // suffices) are returned with the report, so they stay visible.
+ if(warningsBefore){const after=statsWarnings()||[],had=new Set(warningsBefore.map(warnKey)),has=new Set(after.map(warnKey));report.warnings={added:after.filter(w=>!had.has(warnKey(w))),removed:warningsBefore.filter(w=>!has.has(warnKey(w)))};}
  report.changed=true;return report;
 }
 function ensurePrimaryHull(ship,options={}){
@@ -51518,7 +51541,9 @@ function structuralMaterial(ship){
  // from the last stored step before the first changed entry. Resuming replays the same values in the same order.
  const owner=ship._surfaceSource||ship,prior=STRUCTURAL_PREFIX.owner===owner?STRUCTURAL_PREFIX:null;let same=0;
  if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&entries[same].T===prior.entries[same].T&&entries[same].bulk===prior.entries[same].bulk)same++;
- let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
+ // v24 Checkpoints, step 0 included, start from the prior hull boundary: reuse them only for the same hull
+ // (a resized or scaled hull used to resume from the old hull's boundary and volume).
+ let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior&&prior.hull===hull)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
  const resume=stored.get(start);let boundary=resume?resume.boundary:hull,previous=resume?resume.previous:structuralMeshVolume(boundary),extension=0;if(!resume)stored.set(0,{boundary,previous});
  const volumes=new Map(),envelopeVolumes=new Map(),steps=[];
  for(let i=0;i<start;i++){const {p,bulk}=entries[i],volume=prior.steps[i];steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;}
@@ -66737,7 +66762,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
   MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, INERTIA_MOVEMENT, inertiaAlignmentRate, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
-  ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,scaleShipDesign,shipScalePreview,shipScaleOptions,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
+  ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,scaleShipDesign,shipScalePreview,shipScaleOptions,shipScalePlan,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,

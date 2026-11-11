@@ -41,8 +41,8 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | --- | --- |
 | `tests/placement-hull-seam-contact.cjs` | 新規設計艦の船体甲板への水平配置が、継ぎ目の位置でも接地する。浮かせた構造物は未接続のまま |
 | `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
-| `tests/ship-scaling.cjs`・`tests/ship-scaling-ui.cjs`（2026-11-11） | 艦全体の拡大縮小（docs/ship-scaling-v24.md）。インペリアル級を 2,200 m にして形状・区分ごとの扱い・取付・鏡像・保存・Undo/Redo を検査。全体で約 1 分 |
-| `scripts/browser-ship-scaling.cjs URL OUTPUT_DIR [structures] [interior]`（2026-11-11） | 実エディタと Worker で同じ操作を行い、前後の統計と Undo/Redo を `OUTPUT_DIR/result.json` と画像に出す（出力先は必須） |
+| `tests/ship-scaling.cjs`・`tests/ship-scaling-ui.cjs`（2026-11-11） | 艦全体の拡大縮小（docs/ship-scaling-v24.md）。インペリアル級を 2,200 m にして形状・区分ごとの扱い・取付・鏡像・保存・Undo/Redo を検査。全体で約 2 分 |
+| `scripts/browser-ship-scaling.cjs URL OUTPUT_DIR [structures] [interior]`（2026-11-11） | 実エディタと Worker で、捨てた結果のあとの統計、拡大縮小・Undo/Redo、保存→再読込→再オープンでの統計の一致、幅 390 px の日本語・英語カード画像を `OUTPUT_DIR/result.json` と画像に出す（出力先は必須。ポート 8765 は他の作業と重なりやすいので別のポートで配信） |
 
 ### UI・配置・親子関係・Undo/Redo・保存
 

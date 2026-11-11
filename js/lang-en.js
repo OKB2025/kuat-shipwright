@@ -10654,7 +10654,10 @@ Object.assign(root.KS_EN.terms,{
  "目標の船体長か倍率を正の値で指定してください": "Enter a positive target hull length or scale factor",
  "船体が小さくなりすぎます": "The hull would become too small",
  "配置範囲の上限を超える部品があります": "A part would exceed the placement range",
- "配置範囲の上限を超える装備があります": "A fitting would exceed the placement range"
+ "配置範囲の上限を超える装備があります": "A fitting would exceed the placement range",
+ "拡大縮小後に新しく出た警告": "Warnings that appeared after scaling",
+ "拡大縮小後に新しく出た警告はありません。": "No new warnings appeared after scaling.",
+ "全長×全幅×全高（すべて拡大した場合の概算。大きさを保つ部品の分だけ小さくなります）": "Overall Length × Beam × Height (estimate if everything scaled; parts that keep their size make it smaller)"
 });
 Object.assign(root.KS_EN.messages,{
  "構造物 {0}": "Structures {0}",
@@ -10664,7 +10667,16 @@ Object.assign(root.KS_EN.messages,{
  "拡大縮小しました。付け直せなかった部品・装備が {0} 個あります": "Scaled. {0} parts or fittings could not be re-mounted",
  "艦全体を {0} に拡大縮小しました": "Scaled the whole ship to {0}",
  "船体寸法の上限（全長 {0} m・幅 {1} m・高さ {2} m）を超えます": "Exceeds the hull size limits (length {0} m, beam {1} m, height {2} m)",
- "部品の寸法の上限（{0} m）を超える部品があります（{1}）": "A part would exceed the part size limit ({0} m) ({1})",
- "部品の直径の上限（{0} m）を超える部品があります（{1}）": "A part would exceed the diameter limit ({0} m) ({1})"
+ "部品の直径の上限（{0} m）を超える部品があります{1}": "A part would exceed the diameter limit ({0} m){1}",
+ "部品の寸法が保存できる範囲（0.02〜{0} m）を外れます{1}": "A part size would leave the savable range (0.02–{0} m){1}",
+ "部品の長さが保存できる範囲を外れます{0}": "A part length would leave the savable range{0}",
+ "外殻の板厚が保存できる範囲（0.02〜60 m）を外れます{0}": "A shell thickness would leave the savable range (0.02–60 m){0}",
+ "構造物の稜線・中心のずれが保存できる範囲を外れます{0}": "A structure's ridge or centre offset would leave the savable range{0}",
+ "縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます{0}": "A bevel would leave the savable range (width 0–1000 m, height 1–1000 m){0}",
+ "トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます{0}": "A trench would leave the savable range (height 0.1–500 m, depth 0.1–800 m){0}",
+ "立体の切り取りが配置範囲を外れます{0}": "A solid cut would leave the placement range{0}",
+ "切り欠きが配置範囲を外れます{0}": "A recess would leave the placement range{0}",
+ "開口部が配置範囲を外れます{0}": "An opening would leave the placement range{0}",
+ "配置範囲の上限を超える部品があります{0}": "A part would exceed the placement range{0}"
 });
 })(typeof window==="undefined"?globalThis:window);

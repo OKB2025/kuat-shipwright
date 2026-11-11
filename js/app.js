@@ -2606,7 +2606,7 @@ function setShip(s, opts) {
   // design share a destination. Imported blueprints never supply this field.
   if (!s.saveId) s.saveId = newSaveId();
   dragSnap = null; clearPreview();
-  ship = s; s._client = true;if(opts?.deferPreparation)s._deferredPreparation=true;else delete s._deferredPreparation; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.hatchA = null; resetSolidCutter();
+  ship = s; s._client = true;if(typeof shipScaleReset==='function')shipScaleReset();if(opts?.deferPreparation)s._deferredPreparation=true;else delete s._deferredPreparation; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.hatchA = null; resetSolidCutter();
   if(opts?.newDesign||st.tab==='hull')selectInitialHull();
   eng.profile = null; eng.profileGen = -1;
   // Loading another design remains undoable. The engine starts from scratch.
@@ -3833,7 +3833,16 @@ async function fillHangarsRemote() {
 // v24 Whole-design scaling (docs/ship-scaling-v24.md). The Worker runs Core.scaleShipDesign on the current state,
 // re-seats every part and fitting with the ordinary placement code and returns the result; the editor adopts it
 // as one undoable edit, or discards it when the design changed meanwhile.
-const shipScaleUI={length:null,structures:'scale',interior:'scale',pending:null,error:'',report:null,sequence:0};
+const shipScaleUI={length:null,structures:'scale',interior:'scale',pending:null,error:'',report:null,sequence:0,designId:null,warnBefore:null,appliedGen:null};
+// A different design (new, loaded, or another save) starts with a fresh card; the options are kept.
+function shipScaleSync(){const q=shipScaleUI,id=ship?.saveId??null;if(q.designId!==id){q.designId=id;q.length=null;q.report=null;q.error='';q.warnBefore=null;q.appliedGen=null;}}
+function shipScaleReset(){shipScaleUI.designId=undefined;shipScaleSync();}
+// The Worker ran the operation on its own copy of the design. When the editor does not adopt the result, the next
+// update must replace that copy entirely rather than patch only what the editor changed.
+function shipScaleResync(){eng.reset=true;touch('all');}
+const shipScaleWarnKey=w=>(w.code||'')+'|'+String(w.text||'').replace(/[0-9.,]+/g,'#');
+// Warnings the ordinary statistics raise only after the change, once the statistics of the adopted design arrive.
+function shipScaleNewWarnings(){const q=shipScaleUI;if(!q.report||!q.warnBefore||!S?.warnings||q.appliedGen==null||!(eng.statsGen>=q.appliedGen))return null;const had=new Set(q.warnBefore);return S.warnings.filter(w=>!had.has(shipScaleWarnKey(w)));}
 const SHIP_SCALE_CHOICES=[['scale','船体と一緒に拡大縮小'],['keep','大きさを保つ']];
 function shipScaleRequest(){
   const q=shipScaleUI,hull=C.primaryHullPart(ship);if(!hull)throw new Error('船体構造物がない設計は拡大縮小できません');
@@ -3842,11 +3851,12 @@ function shipScaleRequest(){
   return {length,structures:q.structures==='keep'?'keep':'scale',interior:q.interior==='keep'?'keep':'scale'};
 }
 function shipScalePanelHTML(){
-  const q=shipScaleUI,hull=C.primaryHullPart(ship);if(!hull)return '';
+  shipScaleSync();const q=shipScaleUI,hull=C.primaryHullPart(ship);if(!hull)return '';
   let request=null,preview=null,error=q.error;try{request=shipScaleRequest();preview=C.shipScalePreview(ship,request);}catch(e){error=error||e.message;}
   const k=preview?.factor??1,dims=v=>v.map(fLen).join(' × '),actual=actualShipDimensions(),limit=preview?.limitError,same=!preview||Math.abs(k-1)<1e-9,r=q.report;
   const list=(items,name)=>items.map(x=>`<li>${esc(x.label||name)} #${x.id}（${esc(x.code)}）</li>`).join('');
-  const reportHTML=r?`<div class="note" data-ship-scale-report><p>${r.unseated.parts.length+r.unseated.fits.length?`<span class="bad">付け直せなかった部品 ${r.unseated.parts.length} 個・装備 ${r.unseated.fits.length} 基</span>（位置は変換後のまま残しています。動かすか接続し直してください）`:'すべての部品と装備を変換後の位置に付け直しました。'}</p>${r.unseated.parts.length+r.unseated.fits.length?`<ul>${list(r.unseated.parts,'部品')}${list(r.unseated.fits,'装備')}</ul>`:''}</div>`:'';
+  const fresh=shipScaleNewWarnings(),warnHTML=fresh==null?'':fresh.length?`<p class="bad" data-ship-scale-warnings>拡大縮小後に新しく出た警告</p><ul>${fresh.map(w=>`<li>${esc(T(w.text))}</li>`).join('')}</ul>`:'<p data-ship-scale-warnings>拡大縮小後に新しく出た警告はありません。</p>';
+  const reportHTML=r?`<div class="note" data-ship-scale-report><p>${r.unseated.parts.length+r.unseated.fits.length?`<span class="bad">付け直せなかった部品 ${r.unseated.parts.length} 個・装備 ${r.unseated.fits.length} 基</span>（位置は変換後のまま残しています。動かすか接続し直してください）`:'すべての部品と装備を変換後の位置に付け直しました。'}</p>${r.unseated.parts.length+r.unseated.fits.length?`<ul>${list(r.unseated.parts,'部品')}${list(r.unseated.fits,'装備')}</ul>`:''}${warnHTML}</div>`:'';
   return `<div class="pgroup blueprint-card ship-scale" data-ship-scale><h4>艦全体の拡大縮小</h4>
     <p class="note">船体構造物の形（削り点・トレンチ・切り欠き・開口・表面の割付）を保ったまま、艦全体の大きさを変えます。砲塔・機関・センサーなど大きさの決まった装備は大きさを保ち、変換後の位置の表面に付け直します。</p>
     <div class="row2"><label class="field-label">目標の船体長 (m)<input type="number" inputmode="decimal" data-ship-scale-length min="1" step="1" value="${+(request?.length??hull.s[0]).toFixed(3)}"></label>
@@ -3854,26 +3864,29 @@ function shipScalePanelHTML(){
     <p class="field-label">構造物（船体以外）</p>${seg('ship-scale-structures',SHIP_SCALE_CHOICES,q.structures)}
     <p class="field-label">内部設備</p>${seg('ship-scale-interior',SHIP_SCALE_CHOICES,q.interior)}
     <p class="note">どちらを選んでも位置は船体に合わせて移動し、取付面に付いたままになります。</p>
-    ${preview?`<dl class="engineering-stats" data-ship-scale-preview><div><dt>船体 長さ×幅×高さ</dt><dd>${dims(preview.hull.before)} → ${dims(preview.hull.after)}</dd></div><div><dt>完成艦の予定寸法</dt><dd>${dims(preview.envelope.after)}</dd></div><div><dt>全長×全幅×全高（概算）</dt><dd>${dims(actual.map(v=>v*k))}</dd></div><div><dt>対象</dt><dd>構造物 ${preview.counts.structure} · 内部設備 ${preview.counts.interior} · 大きさを保つ装備 ${preview.counts.fixed}</dd></div></dl>`:''}
+    ${preview?`<dl class="engineering-stats" data-ship-scale-preview><div><dt>船体 長さ×幅×高さ</dt><dd>${dims(preview.hull.before)} → ${dims(preview.hull.after)}</dd></div><div><dt>完成艦の予定寸法</dt><dd>${dims(preview.envelope.after)}</dd></div><div><dt>${q.structures==='scale'&&q.interior==='scale'?'全長×全幅×全高（概算）':'全長×全幅×全高（すべて拡大した場合の概算。大きさを保つ部品の分だけ小さくなります）'}</dt><dd>${dims(actual.map(v=>v*k))}</dd></div><div><dt>対象</dt><dd>構造物 ${preview.counts.structure} · 内部設備 ${preview.counts.interior} · 大きさを保つ装備 ${preview.counts.fixed}</dd></div></dl>`:''}
     ${limit||error?`<p class="note bad" data-ship-scale-error>${esc(limit||error)}</p>`:''}
     <button type="button" class="btn" data-ship-scale-apply ${q.pending||same||limit||!request?'disabled':''}>${q.pending?'拡大縮小を計算中…':'拡大縮小を適用'}</button>${reportHTML}</div>`;
 }
 function shipScaleSubmit(){
-  const q=shipScaleUI;if(q.pending||!ship)return false;
-  if(typeof designUIEditSession==='function'&&designUIEditSession()){toast('編集画面を閉じるか、取消してから適用してください');return false;}
+  shipScaleSync();const q=shipScaleUI;if(q.pending||!ship)return false;
+  const editing=()=>typeof designUIEditSession==='function'&&!!designUIEditSession();
+  if(editing()){toast('編集画面を閉じるか、取消してから適用してください');return false;}
   let request,preview;try{request=shipScaleRequest();preview=C.shipScalePreview(ship,request);if(preview.limitError)throw new Error(preview.limitError);}catch(error){q.error=error.message;toast(T(q.error));shipScaleRefresh();return false;}
   if(Math.abs(preview.factor-1)<1e-9){toast('大きさは変わりません');return false;}
   const source=ship,gen=eng.gen,designId=ship.saveId,sourceState=C.publicJSON(ship),operationId='ship-scale-'+(++q.sequence),pending=q.pending={source,gen,designId,sourceState,operationId};
   q.error='';q.report=null;showBusyOverlay('艦全体を拡大縮小中…',true);shipScaleRefresh();
   return YardEngineClient.request('op',{gen,state:sourceState,designId,operationId,op:'scaleShip',args:[request]}).then(packet=>{
     if(q.pending!==pending)return false;q.pending=null;hideBusyOverlay();
-    if(ship!==source||ship.saveId!==designId||eng.gen!==gen||C.publicJSON(ship)!==sourceState){q.error='設計が変更されました。もう一度適用してください。';toast(T(q.error));shipScaleRefresh();return false;}
-    if(!packet?.result?.changed||!packet.state){q.error=packet?.result?.error||'拡大縮小できませんでした';toast(T(q.error));shipScaleRefresh();return false;}
+    if(ship!==source||ship.saveId!==designId||eng.gen!==gen||C.publicJSON(ship)!==sourceState){q.error='設計が変更されました。もう一度適用してください。';toast(T(q.error));if(ship)shipScaleResync();shipScaleRefresh();return false;}
+    if(editing()){q.error='編集画面を閉じるか、取消してから適用してください';toast(T(q.error));shipScaleResync();shipScaleRefresh();return false;}
+    if(!packet?.result?.changed||!packet.state){q.error=packet?.result?.error||'拡大縮小できませんでした';toast(T(q.error));shipScaleResync();shipScaleRefresh();return false;}
     const state=typeof packet.state==='string'?JSON.parse(packet.state):packet.state;state.saveId=designId;
-    const ok=mutate('艦全体の拡大縮小',()=>{C.patchShip(ship,state);ship._client=true;},'all');
-    if(ok){q.report=packet.result;q.length=null;refitOnGeometry();const n=packet.result.unseated.parts.length+packet.result.unseated.fits.length;toast(n?`拡大縮小しました。付け直せなかった部品・装備が ${n} 個あります`:`艦全体を ${fLen(packet.result.length.after)} に拡大縮小しました`);}
+    const warnBefore=(S?.warnings||[]).map(shipScaleWarnKey),ok=mutate('艦全体の拡大縮小',()=>{C.patchShip(ship,state);ship._client=true;},'all');
+    if(!ok)shipScaleResync();
+    if(ok){q.report=packet.result;q.length=null;q.warnBefore=warnBefore;q.appliedGen=eng.gen;refitOnGeometry();const n=packet.result.unseated.parts.length+packet.result.unseated.fits.length;toast(n?`拡大縮小しました。付け直せなかった部品・装備が ${n} 個あります`:`艦全体を ${fLen(packet.result.length.after)} に拡大縮小しました`);}
     shipScaleRefresh();requestDraw();return ok;
-  }).catch(error=>{if(q.pending!==pending)return false;q.pending=null;hideBusyOverlay();q.error=String(error.message||error);toast(T(q.error));shipScaleRefresh();return false;});
+  }).catch(error=>{if(q.pending!==pending)return false;q.pending=null;hideBusyOverlay();q.error=String(error.message||error);toast(T(q.error));if(ship)shipScaleResync();shipScaleRefresh();return false;});
 }
 function renderShipScaleSheet(){const host=$('#shipScaleSheet');if(host)host.innerHTML=ship&&C.primaryHullPart(ship)?shipScalePanelHTML():'';}
 function shipScaleRefresh(){renderPanel();const sheet=$('#sheet');if(sheet&&!sheet.hidden)renderShipScaleSheet();}
