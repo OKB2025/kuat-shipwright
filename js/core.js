@@ -52712,8 +52712,15 @@ function surfaceProfile(ship,S,p){
  return p;
 }
 function surfaceBanks(u){const mounts=u.p?.surface?.mounts||[];if(!u.surfaceBanks){const total=mounts.reduce((n,m)=>n+m.capacity,0),fill=total>0?clamp((u.energy||0)/total,0,1):0;u.surfaceBanks=Object.fromEntries(mounts.map(m=>[m.id,m.capacity*fill]));}return u.surfaceBanks;}
+// Capacitor modules feeding each mount module, in module order, with their
+// weights. Fixed per profile; the loop below sums them in the same order.
+const surfaceCapacitorLinks=new WeakMap();
+function surfaceCapacitorRows(mods,module){
+ let x=surfaceCapacitorLinks.get(mods);if(!x||x.length!==mods.length){x={length:mods.length,rows:new Map()};surfaceCapacitorLinks.set(mods,x);}
+ let row=x.rows.get(module);if(row)return row;row=[];for(let i=0;i<mods.length;i++){const q=mods[i];if(q.k!=='capacitor'||q.link!==module&&!q.links?.includes(module))continue;row.push(i,Math.max(1e-9,q.size||1));}x.rows.set(module,row);return row;
+}
 function surfaceCapacitorFactor(u,m){
- let total=0,live=0;for(let i=0;i<(u.p.modules||[]).length;i++){const q=u.p.modules[i];if(q.k!=='capacitor'||q.link!==m.module&&!q.links?.includes(m.module))continue;const w=Math.max(1e-9,q.size||1);total+=w;live+=w*clamp(u.mods?.[i]??1,0,1);}
+ let total=0,live=0;const row=surfaceCapacitorRows(u.p.modules||[],m.module);for(let j=0;j<row.length;j+=2){const i=row[j],w=row[j+1];total+=w;live+=w*clamp(u.mods?.[i]??1,0,1);}
  if(Number.isFinite(m.housingCapacity)){const outside=Math.max(0,m.housingCapacity),inside=Math.max(0,m.capacity-outside),health=m.module<0?1:clamp(u.mods?.[m.module]??1,0,1),internalFactor=total>0?live/total:inside>0?0:1;return m.capacity>0?clamp((outside*health+inside*internalFactor)/m.capacity,0,1):0;}
  return total>0?live/total:1;
 }
@@ -52722,12 +52729,22 @@ function surfaceMountEnergy(u,id){return surfaceBanks(u)[id]||0;}
 function surfaceManualCharge(u,inputW,dt){surfacePowerStep(u,null,null,0,dt,inputW);return u.surfaceLastFire?.charged||0;}
 const weaponEnergyEpsilon=energy=>Math.max(Number.MIN_VALUE,Math.abs(energy||0)*1e-12);
 function surfaceSpend(u,id,outputTT){syncPowerLossDisabled(u);surfaceCapacitorSync(u);const m=u.p?.surface?.mounts?.find(m=>m.id===id),banks=surfaceBanks(u);if(u.out||u.dead||!m||!(outputTT>0)||!Number.isFinite(outputTT)||!(surfaceMountState(u,m).operable>0)||(banks[id]||0)+weaponEnergyEpsilon(outputTT)<outputTT)return {ok:false,spent:0,bank:banks[id]||0};banks[id]=Math.max(0,banks[id]-outputTT);u.energy=u.p.surface.mounts.reduce((n,m)=>n+(banks[m.id]||0),0);const total=m.gun+m.ion,gun=total>0?outputTT*m.gun/total:0,ion=total>0?outputTT*m.ion/total:0;u.surfaceLastFire={manual:true,spent:outputTT,gun,ion,cells:[{fit:id,module:m.module,energy:outputTT,gun,ion}]};return {ok:true,spent:outputTT,bank:banks[id]};}
-function surfaceMountState(u,m){
- const mi=m.module,health=mi<0?1:clamp(u.mods?.[mi]??1,0,1),powered=powerFactor(u,'weapon',mi),capacitorK=surfaceCapacitorFactor(u,m),effectiveCapacity=Math.max(0,m.capacity*capacitorK),H=heatProfile(u.p),h=u.ht,si=H?.src?.findIndex(s=>s.k==='weapon'&&s.m?.includes(mi))??-1,heat=si>=0&&h?h.md[si]>=2?0:clamp(h.lm?.[si]??1,0,1):heatLim(u,'weapon'),crew=clamp(fleetCrewRatio(u),0,1),bank=Math.min(effectiveCapacity,surfaceBanks(u)[m.id]||0);let state='稼働';if(!(health>0))state='破壊';else if(!(capacitorK>0))state='蓄電設備破壊';else if(!(powered>0))state=u.gridState?.local?.[mi]>0||u.gridState?.domains?.[u.p.modules?.[mi]?.domain]?.trip>0?'イオン遮断':'給電停止';else if(!(heat>0))state='過熱';else if(!(crew>0))state='要員不足';else if(!(bank>0)||bank+weaponEnergyEpsilon(m.boltTT)<Math.max(0,m.boltTT||0))state='再充電中';return {health,powered,capacitorK,effectiveCapacity,heat,crewK:crew,bank,state,operable:health*powered*heat*crew*(capacitorK>0?1:0)};
+// First weapon heat source holding each module (as src.findIndex), per profile.
+const surfaceWeaponHeatIndex=new WeakMap();
+function surfaceWeaponHeatSource(H,mi){
+ const src=H?.src;if(!src)return -1;let x=surfaceWeaponHeatIndex.get(src);
+ if(!x||x.length!==src.length){const at=new Map();let plain=true;for(let i=0;i<src.length;i++){const s=src[i];if(s.k!=='weapon'||!s.m)continue;if(!Array.isArray(s.m)){plain=false;break;}for(const v of s.m)if(!at.has(v))at.set(v,i);}x={length:src.length,at:plain?at:null};surfaceWeaponHeatIndex.set(src,x);}
+ return x.at?x.at.get(mi)??-1:src.findIndex(s=>s.k==='weapon'&&s.m?.includes(mi));
+}
+// Callers that ask for every mount of one unit in a row pass one shared object:
+// the crew ratio is a whole-ship value that the mount loop cannot change, so it
+// is taken once, where the first mount would have computed it.
+function surfaceMountState(u,m,shared=null){
+ const mi=m.module,health=mi<0?1:clamp(u.mods?.[mi]??1,0,1),powered=powerFactor(u,'weapon',mi),capacitorK=surfaceCapacitorFactor(u,m),effectiveCapacity=Math.max(0,m.capacity*capacitorK),H=heatProfile(u.p),h=u.ht,si=surfaceWeaponHeatSource(H,mi),heat=si>=0&&h?h.md[si]>=2?0:clamp(h.lm?.[si]??1,0,1):heatLim(u,'weapon'),crew=shared?shared.crew??=clamp(fleetCrewRatio(u),0,1):clamp(fleetCrewRatio(u),0,1),bank=Math.min(effectiveCapacity,surfaceBanks(u)[m.id]||0);let state='稼働';if(!(health>0))state='破壊';else if(!(capacitorK>0))state='蓄電設備破壊';else if(!(powered>0))state=u.gridState?.local?.[mi]>0||u.gridState?.domains?.[u.p.modules?.[mi]?.domain]?.trip>0?'イオン遮断':'給電停止';else if(!(heat>0))state='過熱';else if(!(crew>0))state='要員不足';else if(!(bank>0)||bank+weaponEnergyEpsilon(m.boltTT)<Math.max(0,m.boltTT||0))state='再充電中';return {health,powered,capacitorK,effectiveCapacity,heat,crewK:crew,bank,state,operable:health*powered*heat*crew*(capacitorK>0?1:0)};
 }
 function surfaceBatteryStatus(u){
- if(!u?.p?.surface)return null;const mounts=u.p.surface.mounts||[],rows=[];
- for(const patch of u.p.surface.patches){if(!patch.fitIds?.length)continue;const cells=mounts.filter(m=>m.patch===patch.id).map(m=>({...m,...surfaceMountState(u,m)})),surviving=cells.filter(m=>m.health>0).length,powered=cells.filter(m=>m.health>0&&m.powered>0).length,operable=cells.filter(m=>m.operable>0).length,fireable=cells.filter(m=>m.operable>0&&m.bank>0&&m.bank+weaponEnergyEpsilon(m.boltTT)>=Math.max(0,m.boltTT||0)).length;rows.push({id:patch.id,name:patch.id,installed:cells.length,surviving,powered,operable,fireable,barrels:cells.reduce((n,m)=>n+m.barrels,0),energy:cells.reduce((n,m)=>n+m.bank,0),capacity:cells.reduce((n,m)=>n+m.effectiveCapacity,0),crew:cells.reduce((n,m)=>n+(m.crewNeed||0),0),crewAssigned:cells.reduce((n,m)=>n+(m.crewNeed||0)*m.crewK,0),causes:[...new Set(cells.filter(m=>m.state!=='稼働').map(m=>m.state))],cells,armor:u.surfaceArmor?.[patch.id]||{integrity:1,load:0}});}
+ if(!u?.p?.surface)return null;const mounts=u.p.surface.mounts||[],rows=[],shared={};
+ for(const patch of u.p.surface.patches){if(!patch.fitIds?.length)continue;const cells=mounts.filter(m=>m.patch===patch.id).map(m=>({...m,...surfaceMountState(u,m,shared)})),surviving=cells.filter(m=>m.health>0).length,powered=cells.filter(m=>m.health>0&&m.powered>0).length,operable=cells.filter(m=>m.operable>0).length,fireable=cells.filter(m=>m.operable>0&&m.bank>0&&m.bank+weaponEnergyEpsilon(m.boltTT)>=Math.max(0,m.boltTT||0)).length;rows.push({id:patch.id,name:patch.id,installed:cells.length,surviving,powered,operable,fireable,barrels:cells.reduce((n,m)=>n+m.barrels,0),energy:cells.reduce((n,m)=>n+m.bank,0),capacity:cells.reduce((n,m)=>n+m.effectiveCapacity,0),crew:cells.reduce((n,m)=>n+(m.crewNeed||0),0),crewAssigned:cells.reduce((n,m)=>n+(m.crewNeed||0)*m.crewK,0),causes:[...new Set(cells.filter(m=>m.state!=='稼働').map(m=>m.state))],cells,armor:u.surfaceArmor?.[patch.id]||{integrity:1,load:0}});}
  return {rows,totals:rows.reduce((t,r)=>{for(const k of ['installed','surviving','powered','operable','fireable','barrels','energy','capacity'])t[k]=(t[k]||0)+r[k];return t;},{})};
 }
 function surfaceShellBVH(p){
@@ -52791,14 +52808,14 @@ function surfaceMountArc(u,t,m,d,query){
  return q.sum>0?(q.ax*(m.arcs[q.ix]||0)+q.az*(m.arcs[q.iz]||0)+q.ay*(m.arcs[q.iy]||0))/q.sum:0;
 }
 function surfaceFleetFire(u,t,d){
- const query=surfaceFireQuery(u,t),control=fleetSystems(u).fire,hits={};let gun=0,ion=0,gunLanded=0,ionLanded=0;
+ const query=surfaceFireQuery(u,t),control=fleetSystems(u).fire,hits={},shared={};let gun=0,ion=0,gunLanded=0,ionLanded=0;
  const chance=band=>hits[band]??(hits[band]=gunHitChance(u,t,d,GUN_BANDS[band]?.range||GUN_BANDS.long.range,control));
- for(const m of u.p.surface.mounts){if(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose&&(u.dualWeights?.[m.aaTier??0]??1)>=.5)continue;const state=surfaceMountState(u,m),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),g=m.gun*a*k,i=m.ion*a*k;gun+=g;ion+=i;gunLanded+=g*chance(m.band||'mid');ionLanded+=i*chance('long');}
+ for(const m of u.p.surface.mounts){if(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose&&(u.dualWeights?.[m.aaTier??0]??1)>=.5)continue;const state=surfaceMountState(u,m,shared),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),g=m.gun*a*k,i=m.ion*a*k;gun+=g;ion+=i;gunLanded+=g*chance(m.band||'mid');ionLanded+=i*chance('long');}
  return {gun,ion,cost:(gun+ion)*weaponInputFactor(u.p),gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0,runtime:true};
 }
 function surfacePowerStep(u,s,t,raw,dt,chargingW,volley=1){
  surfaceCapacitorSync(u);
- const mounts=u.p.surface.mounts||[],banks=surfaceBanks(u),factor=weaponInputFactor(u.p),state=mounts.map(m=>surfaceMountState(u,m)),domain=m=>u.p.modules?.[m.module]?.domain||'main',domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0}],limits=new Map(domains.map(d=>[d.id,Math.max(0,powerDomainWatts(u,d.id))*dt/TT/factor])),cellLimits=mounts.map((m,i)=>Math.max(0,m.power)*state[i].operable*state[i].capacitorK*dt/TT/factor);let charge=Math.max(0,chargingW)*dt/TT/factor;
+ const mounts=u.p.surface.mounts||[],banks=surfaceBanks(u),factor=weaponInputFactor(u.p),shared={},state=mounts.map(m=>surfaceMountState(u,m,shared)),domain=m=>u.p.modules?.[m.module]?.domain||'main',domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0}],limits=new Map(domains.map(d=>[d.id,Math.max(0,powerDomainWatts(u,d.id))*dt/TT/factor])),cellLimits=mounts.map((m,i)=>Math.max(0,m.power)*state[i].operable*state[i].capacitorK*dt/TT/factor);let charge=Math.max(0,chargingW)*dt/TT/factor;
  // Grants already share their source and trunk with propulsion and cooling.
  // A full bank cannot lend its unused grant to a different electrical branch,
  // and repeated calls consume the same finite joule ledger.
@@ -61327,7 +61344,7 @@ function shipCombatPowerDemand(u,want={},dt=0){
  }
  if(p.surface?.mounts&&step>0){
   surfaceCapacitorSync(u);
-  const mounts=p.surface.mounts,banks=surfaceBanks(u),factor=weaponInputFactor(p),states=mounts.map(m=>surfaceMountState(u,m)),target=want.weaponTarget,query=target?surfaceFireQuery(u,target):null,distance=target?len(sub(target.pos,u.pos)):0,weights=mounts.map((m,i)=>positive(m.power)*states[i].operable*states[i].capacitorK),total=weights.reduce((a,b)=>a+b,0),byModule=new Map();
+  const mounts=p.surface.mounts,banks=surfaceBanks(u),factor=weaponInputFactor(p),shared={},states=mounts.map(m=>surfaceMountState(u,m,shared)),target=want.weaponTarget,query=target?surfaceFireQuery(u,target):null,distance=target?len(sub(target.pos,u.pos)):0,weights=mounts.map((m,i)=>positive(m.power)*states[i].operable*states[i].capacitorK),total=weights.reduce((a,b)=>a+b,0),byModule=new Map();
   let actualFireW=0;
   for(let i=0;i<mounts.length;i++){
    const m=mounts[i],state=states[i],maxW=weights[i],roomTT=Math.max(0,state.effectiveCapacity-(banks[m.id]||0)),room=roomTT>weaponEnergyEpsilon(state.effectiveCapacity)?roomTT*TT*factor/step:0;
