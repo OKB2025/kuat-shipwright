@@ -85,3 +85,18 @@ test('a refusal saved while already anchored to the primary hull is re-checked o
  const out=saved(),o=out.parts.find(p=>p.id===7);o.c=[53,68,0];o.placement.requestedGeometry.c=[53,68,0];o.placement.hostId=1;
  const t=C.deserialize(out);assert.equal(reactor(t).placement.validationFailed,true,'a real protrusion is refused again');
 });
+
+// Runs fully once merged with the curved-hull horizontal placement fix (claude/kuat-shipwright-curved-placement-u9sok1);
+// without it the side structure itself is refused (surface-missing) and the case is skipped with that reason.
+test('equipment spanning a curved primary hull and a structure cut to its side is valid inside their union',t=>{
+ const ship=C.newShip({L:1100,W:300,H:300,plan:'cigar',sec:'ellipse'},'new');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts.find(p=>C.isShapePart(p));
+ const hit=C.rayPart([440,hull.c[1],1000],[0,0,-1],hull);assert.ok(hit);const n=C.norm(hit.n),size=[88,75,60],c=C.add(hit.p,[0,size[2]*.3,0]);
+ const draft=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',c,s:size},{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit:{p:hit.p,n},contactFit:'cut',position:c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION});
+ assert.equal(draft.ok,true,draft.error);ship.parts.push(draft.part);ship.nextId++;C.refreshPlacementGeometry(ship);const side=ship.parts.at(-1);
+ if(side._placementError==='surface-missing')return t.skip('the side structure is refused without the curved-hull placement fix: '+side._placementError);assert.equal(side._placementError,undefined);
+ // Centre on the hull skin: half the body is in the hull and half in the side structure.
+ const centre=C.add(hit.p,C.mul(n,0)),body={id:ship.nextId,k:'gen',c:centre,d:12};
+ assert.ok(C.inPart(hull,C.add(centre,[0,0,-6.5]))&&C.inPart(side,C.add(centre,[0,0,6.5])),'the body really spans both');
+ const r=C.solvePlacement(ship,body,{mode:'direct'});assert.equal(r.ok,true,r.error);assert.equal(r.part.placement.hostId,hull.id);
+ const out=C.solvePlacement(ship,{...body,c:C.add(centre,[0,size[2]*.5+4,0])},{mode:'direct'});assert.equal(out.ok,false,'above the side structure roof it sticks out');
+});
