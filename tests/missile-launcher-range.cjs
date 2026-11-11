@@ -80,8 +80,8 @@ test('an already spent guided round cannot score an impact inside its final-step
 });
 
 test('aircraft store descriptors propagate the round range without changing their warhead',()=>{
- const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
- const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==25));
+ const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));const st=C.craftLoadout('awing').stations[0];assert.equal(missiles.reduce((n,q)=>n+q.n,0),st.count*Math.min(6,C.storeCapacity(st.store,'cmsl')),'canon 12, limited by the landing equipment rating since 2026-11-11');
+ const torpedoes=C.craftOrdnance('bwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==25));
 });
 
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');

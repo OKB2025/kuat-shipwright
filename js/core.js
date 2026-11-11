@@ -201,7 +201,7 @@ function isAeroPart(p){return p?.k==='wing'||p?.k==='solarPanel';}
 // One provisional engineering price model applies to every hull, irrespective of its origin or class.
 // Equipment costs its installation plus its volume; fittings cost their mount plus their hardware.
 // The installation covers controls, connections, testing and manufacture that do not vanish on a small hull.
-const COST_CATS = {hull: '船体', armor: '装甲', power: '動力', drive: '推進・超空間', defense: 'シールド・防御', hangar: '格納・搭載', command: '指揮・艦橋', weapons: '武装', systems: 'その他の設備', crew: '乗員'};
+const COST_CATS = {hull: '船体', armor: '装甲', power: '動力', drive: '推進・超空間', defense: 'シールド・防御', hangar: '格納・搭載', command: '指揮・艦橋', weapons: '武装', systems: 'その他の設備', ammo: '弾薬（消耗品）', crew: '乗員'};
 const COST_KIND = {gen: 'power', shield: 'defense', hyper: 'drive', engine: 'drive', hangar: 'hangar', struct: 'hull', vls: 'weapons', capacitor: 'weapons', localShield: 'defense', integrity: 'defense', firecontrol: 'command', scanner: 'command', sensor: 'command',lifeSupport:'systems',ejectSeat:'defense',navComputer:'command',targetComputer:'command',maneuver:'drive',laserGas:'weapons',landingGear:'systems',habitat:'systems'};
 const COST_GROUP = {power: 'power', air: 'hangar', command: 'command', craft: 'command', appearance:'command', weapons:'weapons', superweapon: 'weapons', support: 'systems'};
 function costCategory(k) { return COST_KIND[k] || COST_GROUP[PARTS[k]?.group] || 'systems'; }
@@ -235,11 +235,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "1ng8amm",
+ "modelSignature": "14go5vz",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1mwqhc2",
+   "signature": "jck2mp",
    "build": 217102,
    "crew": 3000,
    "total": 220102,
@@ -2296,7 +2296,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2496838393455184400,[[\"main\",2496838393455184400,[[9,1248419196727592200],[10,1248419196727592200]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.23838424898167912,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.23838424898167912,0.5]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1672.5034746534989,
     "heat": {
      "v": 5,
@@ -6573,7 +6573,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1qzxsgm",
+   "signature": "1z10jcd",
    "build": 148673,
    "crew": 1000,
    "total": 149673,
@@ -8044,7 +8044,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[843599909372884400,[[\"main\",843599909372884400,[[4,843599909372884400]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.16108445894135692,1]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 2481.790347011881,
     "heat": {
      "v": 5,
@@ -9104,7 +9104,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "n2lm8n",
+   "signature": "tc91cs",
    "build": 194916,
    "crew": 2000,
    "total": 196916,
@@ -11196,7 +11196,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2819041765740138500,[[\"main\",2819041765740138500,[[12,836078701067762800],[13,836078701067762800],[16,1146884363604612900]]]],[[12,\"reactor\",12,\"p12\",\"main\",0.15964829262963176,0.29658258746948746],[13,\"reactor\",13,\"p13\",\"main\",0.15964829262963176,0.29658258746948746],[16,\"reactor\",16,\"p16\",\"main\",0.21899628618605177,0.40683482506102525]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1392.4140673414354,
     "heat": {
      "v": 5,
@@ -13602,7 +13602,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "trhlu5",
+   "signature": "j9di9m",
    "build": 159055,
    "crew": 0,
    "total": 159055,
@@ -16158,7 +16158,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[955619411010277500,[[\"main\",955619411010277500,[[12,361004592917745000],[13,368005435660375550],[18,113304691216078500],[19,113304691216078500]]]],[[12,\"reactor\",17,\"p17\",\"main\",0.06893342315402688,0.3777702595388809],[13,\"reactor\",18,\"p18\",\"main\",0.07027022624373856,0.38509623331250825],[18,\"reactor\",23,\"p23\",\"main\",0.02163540403131079,0.11856675357430546],[19,\"reactor\",24,\"p24\",\"main\",0.02163540403131079,0.11856675357430546]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1048.6977292226145,
     "heat": {
      "v": 5,
@@ -19948,7 +19948,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1jzcxkr",
+   "signature": "4q93s",
    "build": 95519,
    "crew": 1000,
    "total": 96519,
@@ -21270,7 +21270,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1134312346894326700,[[\"main\",1134312346894326700,[[25,27433915231538176],[26,27433915231538176],[5,1079444516431250300]]]],[[5,\"reactor\",10,\"p10\",\"main\",0.20611872281470833,1],[25,\"dissipator\",1,\"p1\",\"main\",3.657860004649165,0.4997883123389221],[26,\"dissipator\",2,\"p2\",\"main\",3.657860004649161,0.49978831233892157]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 2057.569049944984,
     "heat": {
      "v": 5,
@@ -22326,7 +22326,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1dih0qj",
+   "signature": "1soye8o",
    "build": 85104,
    "crew": 1000,
    "total": 86104,
@@ -23527,7 +23527,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[646621630181384300,[[\"main\",646621630181384300,[[22,30285964800000000],[23,30285964800000000],[3,586049700581384300]]]],[[3,\"reactor\",9,\"p9\",\"main\",0.1119055346995879,1],[22,\"dissipator\",1,\"p1\",\"main\",4.03812459791652,0.4999999999999999],[23,\"dissipator\",2,\"p2\",\"main\",4.0381245979165215,0.5000000000000001]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1996.8476368741349,
     "heat": {
      "v": 5,
@@ -24283,7 +24283,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "wdd63n",
+   "signature": "lalf9c",
    "build": 121800,
    "crew": 1000,
    "total": 122800,
@@ -25720,7 +25720,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1957444089517217500,[[\"main\",1957444089517217800,[[26,27468570986406840],[27,27468570986406840],[4,951253473772202000],[5,951253473772202000]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.18164078662904456,0.5],[5,\"reactor\",15,\"p15\",\"main\",0.18164078662904456,0.5],[26,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.49931020038025403],[27,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.49931020038025425]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1113.4009378440178,
     "heat": {
      "v": 5,
@@ -26949,7 +26949,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "z08kmi",
+   "signature": "xycy0p",
    "build": 128793,
    "crew": 1000,
    "total": 129793,
@@ -28911,7 +28911,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1034691425710104000,[[\"main\",1034691425710104000,[[5,499287010228165250],[6,499287010228165250],[7,36117405253773540]]]],[[5,\"reactor\",16,\"p16\",\"main\",0.09533829603993187,0.4825467746439542],[6,\"reactor\",17,\"p17\",\"main\",0.09533829603993187,0.4825467746439542],[7,\"reactor\",18,\"p18\",\"main\",0.006896578127888591,0.0349064507120916]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 2274.8730010576205,
     "heat": {
      "v": 5,
@@ -31787,7 +31787,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "amd4me",
+   "signature": "155rggt",
    "build": 100714,
    "crew": 0,
    "total": 100714,
@@ -33323,7 +33323,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[452746217455838700,[[\"main\",452746217455838700,[[11,452746217455838700]]]],[[11,\"reactor\",16,\"p16\",\"main\",0.08645138372624378,1]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1729.6219088930227,
     "heat": {
      "v": 5,
@@ -35127,7 +35127,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1n23yae",
+   "signature": "1v36p65",
    "build": 242808,
    "crew": 1000,
    "total": 243808,
@@ -37582,7 +37582,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[926901791466730000,[[\"main\",926901791466730000,[[4,25018595611315460],[5,87860504216582510],[6,47701054838828720],[7,57541969310966020],[8,57541969310966020],[19,325958406280293000],[20,325279291897778300]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004777272843138711,0.026991635836333877],[5,\"reactor\",16,\"p16\",\"main\",0.016776864988717267,0.09478944266312399],[6,\"reactor\",17,\"p17\",\"main\",0.009108463057276498,0.051462900684814225],[7,\"reactor\",18,\"p18\",\"main\",0.010987574666488057,0.06207989869122117],[8,\"reactor\",19,\"p19\",\"main\",0.010987574666488057,0.06207989869122117],[19,\"reactor\",32,\"p32\",\"main\",0.06224139302252954,0.35166444738929264],[20,\"reactor\",33,\"p33\",\"main\",0.06211171689092825,0.3509317760439929]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 2534.5092489701246,
     "heat": {
      "v": 5,
@@ -42666,7 +42666,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "9pt0e0",
+   "signature": "kmlq2v",
    "build": 152526,
    "crew": 1000,
    "total": 153526,
@@ -44707,7 +44707,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1547226769040435700,[[\"main\",1547226769040435700,[[6,1547226769040435700]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.2954412206323472,1]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1756.6851173087102,
     "heat": {
      "v": 5,
@@ -46828,7 +46828,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "gr8jf1",
+   "signature": "694fui",
    "build": 123572,
    "crew": 1000,
    "total": 124572,
@@ -48334,7 +48334,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1083855266043378000,[[\"main\",1083855266043378000,[[4,541927633021689000],[5,541927633021689000]]]],[[4,\"reactor\",21,\"p21\",\"main\",0.10348047525937175,0.5],[5,\"reactor\",22,\"p22\",\"main\",0.10348047525937175,0.5]]]"
     },
-    "profileVersion": 23,
+    "profileVersion": 24,
     "maxSpeed": 1581.6516238263757,
     "heat": {
      "v": 5,
@@ -49787,6 +49787,11 @@ const ARMOR_MAX = {hull: 3, cit: 4};
 // and in TT/s (1 kt = 1e-9 TT).
 const CRAFT_LASER_OUTPUT_KT=Object.freeze({heavy:400,medium:50,light:10}),KT_PER_TT=1e9;
 const CRAFT_LASER_OUTPUT=Object.freeze(Object.fromEntries(Object.entries(CRAFT_LASER_OUTPUT_KT).map(([k,kt])=>[k,kt/KT_PER_TT])));
+// 2026-11-11 user decision: launcher rounds are expendable supplies. A ship launcher's own mass and cost are its
+// hardware: the walls of each cell, at the previous shipMsl cell's areal rates (2.4 × 0.9 × 0.9 m cell of 10.26 m²:
+// 6.4 t less its six 0.045 t rounds = 6.13 t and 8,000 → 0.5975 t and 779.7 per m² of wall). Launch electronics stay
+// 10¹⁵ W per cell. The loaded rounds add their own mass, and their supply cost is counted separately (ammoCost).
+function launcherCellHardware(L,H,W){const area=2*(L*H+L*W+H*W),ref=2*(2.4*.9*2+.9*.9);return {area,mass:area*(6.4-6*.045)/ref,cost:area*8000/ref};}
 const FITS = {
   pd:  {cat: 'w', name: '点防御レーザー砲', short: '点防御', fm: 9, wm: 9, hm: 6, tt: 0.5, aa: 6, mass: 250, crew: 3, cost: 20e3, desc: '戦闘機とミサイルを迎撃する。'},
   ltl: {cat: 'w', name: '軽ターボレーザー四連砲塔', short: '軽TL四連', fm: 14, wm: 14, hm: 7, tt: 24, aa: 1.5, mass: 900, crew: 6, cost: 80e3, desc: '4門×6TT。小型艦の主砲、大型艦の副砲。'},
@@ -49812,14 +49817,14 @@ const FITS = {
   // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
   // are chosen in the order of battle (the default is the craft's canon loadout).
   ctorp: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: 1.65, len: 8.8}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 1.65 m・長さ 8.8 m：プロトン魚雷・イオン魚雷（1.5 × 8 m）と震盪ミサイルを装填できる。'},
-  cmsl: {cat: 'w', craft: true, fixed: true, msl:25, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .55, len: 5.5}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。弾倉は口径0.55 m・長さ5.5 m（震盪ミサイル 0.5 × 5 m、1発0.014 TT）。'},
-  shipMsl: {cat:'w',fixed:true,msl:.0140625,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:12,wm:2.25,hm:2.25,pw:1e15*(12*2.25*2.25)/(2.4*.9*.9),mass:6.4*(12*2.25*2.25)/(2.4*.9*.9),crew:0,cost:8000*(12*2.25*2.25)/(2.4*.9*.9),store:{mount:'tube',slots:6,bore:.55,len:5.5},desc:'航空機用の震盪ミサイル（直径0.5 m・長さ5 m）を収める艦艇用セル（1セル 奥行12 m・高さ2.25 m・幅2.25 m）。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.014 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
+  cmsl: {cat: 'w', craft: true, fixed: true, msl:25, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .55, len: 5.5}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。弾倉は口径0.55 m・長さ5.5 m（震盪ミサイル 0.5 × 5 m、1発0.0098 TT）。'},
+  shipMsl: {cat:'w',fixed:true,msl:Math.PI/4*.25*5*.5*.02,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:12,wm:2.25,hm:2.25,pw:1e15,mass:launcherCellHardware(12,2.25,2.25).mass,crew:0,cost:launcherCellHardware(12,2.25,2.25).cost,store:{mount:'tube',slots:6,bore:.55,len:5.5},desc:'航空機用の震盪ミサイル（直径0.5 m・長さ5 m）を収める艦艇用セル（1セル 奥行12 m・高さ2.25 m・幅2.25 m）。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.0098 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
   // 2026-11 The ship-scale concussion missile launcher (user specification 2026-11-11): a face panel of round tubes
-  // over an interior compartment 50 m deep (one 7 × 50 m missile). Per-tube mass, cost and launch power scale
-  // shipMsl's per-cell values by cell volume; the round's damage is derived in SHIP_LAUNCHERS.shipCmsl.
-  shipCmsl:{cat:'w',fixed:true,msl:27.5625,missileSalvo:1,missileCycle:1.2,ordnance:'shipCmsl',name:'艦艇用震盪ミサイル発射装置',short:'震盪ミサイル発射装置',fm:50,wm:18.5,hm:14.5,pw:1e15*(50*8.5*8.5)/(2.4*.9*.9),mass:6.4*(50*8.5*8.5)/(2.4*.9*.9),crew:0,cost:8000*(50*8.5*8.5)/(2.4*.9*.9),store:{mount:'tube',slots:1,bore:7.7,len:50},desc:'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発27.56 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発52.37 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。'},
+  // over an interior compartment 50 m deep (one 7 × 50 m missile). Per-tube mass and cost are the tube hardware
+  // (launcherCellHardware); the rounds are supplies (SHIP_LAUNCHERS.shipCmsl.rounds).
+  shipCmsl:{cat:'w',fixed:true,msl:Math.PI/4*49*50*.5*.02,missileSalvo:1,missileCycle:1.2,ordnance:'shipCmsl',name:'艦艇用震盪ミサイル発射装置',short:'震盪ミサイル発射装置',fm:50,wm:18.5,hm:14.5,pw:1e15,mass:launcherCellHardware(50,8.5,8.5).mass,crew:0,cost:launcherCellHardware(50,8.5,8.5).cost,store:{mount:'tube',slots:1,bore:7.7,len:50},desc:'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発19.24 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発36.56 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。'},
   cbomb: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
-  cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', thin: 6, heavy: 3, maxMass: 60.75}, desc: '機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイル（直径0.55 m以下）なら6発、魚雷・爆弾なら3発まで（1か所 60.75 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。'},
+  cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', thin: 6, heavy: 3, maxMass: null}, desc: '機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイル（直径0.55 m以下）なら6発、魚雷・爆弾なら3発まで（1か所 60.75 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。'},
 };
 // Aircraft lasers are defined by their output per barrel per second (user decision 2026-11-11, docs/dev-status-2026-11.md
 // §1 4-2): heavy 400 kt/s, medium 50 kt/s, light 10 kt/s (1 kt = 1e-9 TT). Each shot carries that output over one firing
@@ -50689,26 +50694,26 @@ const SHIP_LAUNCHERS=Object.freeze({
  // × 2.5 across) is 12 × 2.25 × 2.25 m; mass, cost and power keep the previous per-volume values (× 31.25 per cell).
  shipMsl:Object.freeze({key:'shipMsl',cell:Object.freeze([12,2.25,2.25]),frame:Object.freeze([0,0]),maxCols:16,maxRows:16,ammoPerCell:6,ordnance:'cmsl',tt:.0140625,range:60000,cycle:1.2,tube:'square',embeddedOnly:false,round:Object.freeze({name:'震盪ミサイル',dims:Object.freeze([5,.5])})}),
  // User specification (2026-11-11): the missile is a 7 m × 50 m cylinder, half propellant and half warhead; the
- // launcher takes 50 m of depth behind its face. The basis is ORDNANCE_BASIS (density 1.4324 t/m³ from the previous
- // craft missile; warhead 0.02 TT per t, matter conversion):
- //   mass = 1.4324 × π/4 × 7² × 50 = 2,756.25 t,  warhead = propellant = 1,378.125 t,  damage = 1,378.125 × 0.02 = 27.5625 TT.
- // The long torpedo (same 7 × 50 m body, 5% propellant, 95% warhead): mass 2,756.25 t, warhead 2,618.4375 t,
- // damage 2,618.4375 × 0.02 = 52.36875 TT. Its reach follows the rocket equation from the missile's:
+ // launcher takes 50 m of depth behind its face. The basis is ORDNANCE_BASIS (density 1 t/m³; warhead 0.02 TT per t,
+ // matter conversion; supply cost 50,000 per TT):
+ //   mass = 1 × π/4 × 7² × 50 = 1,924.2 t,  warhead = propellant = 962.1 t,  damage = 962.1 × 0.02 = 19.24 TT.
+ // The long torpedo (same 7 × 50 m body, 5% propellant, 95% warhead): mass 1,924.2 t, warhead 1,828.0 t,
+ // damage 1,828.0 × 0.02 = 36.56 TT. Its reach follows the rocket equation from the missile's:
  //   Δv ratio = ln(1/(1−0.05)) / ln(1/(1−0.5)) = 0.0740,  speed = 2,600 m/s × 0.0740 = 192.4 m/s,  range = 60 km × 0.0740 = 4,440 m.
  // Seekers: the missile homes on the target's neutrino + IR emission, the torpedo on its mass (gravitational waves);
  // see seekerHitChance.
  // The bore keeps cmsl's 1.1 bore-to-diameter ratio (7.7 m) and the tube pitch adds 0.4 m walls each side (8.5 m).
  // The face frame (3 m top and bottom, 5 m each side) is the Mandator II side panel's measured margin.
- shipCmsl:Object.freeze({key:'shipCmsl',cell:Object.freeze([50,8.5,8.5]),frame:Object.freeze([3,5]),bore:7.7,maxCols:16,maxRows:16,maxRowRaise:20,ammoPerCell:1,tt:27.5625,range:60000,cycle:1.2,tube:'round',embeddedOnly:true,levelRows:true,rowRaise:true,rateByMagazine:true,round:Object.freeze({name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.5,warheadMass:1378.125,propellantMass:1378.125}),
+ shipCmsl:Object.freeze({key:'shipCmsl',cell:Object.freeze([50,8.5,8.5]),frame:Object.freeze([3,5]),bore:7.7,maxCols:16,maxRows:16,maxRowRaise:20,ammoPerCell:1,tt:Math.PI/4*49*50*.5*.02,range:60000,cycle:1.2,tube:'round',embeddedOnly:true,levelRows:true,rowRaise:true,rateByMagazine:true,round:Object.freeze({name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:Math.PI/4*49*50,warheadFraction:.5,warheadMass:Math.PI/4*49*50*.5,propellantMass:Math.PI/4*49*50*.5}),
   rounds:Object.freeze({
-   missile:Object.freeze({key:'missile',name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.5,warheadMass:1378.125,propellantMass:1378.125,tt:27.5625,range:60000,speed:2600,seeker:'heat'}),
-   torpedo:Object.freeze({key:'torpedo',name:'艦艇用長魚雷',dims:Object.freeze([50,7]),mass:2756.25,warheadFraction:.95,warheadMass:2618.4375,propellantMass:137.8125,tt:52.36875,range:4440,speed:192.4,seeker:'mass'})
+   missile:Object.freeze({key:'missile',name:'艦艇用震盪ミサイル',dims:Object.freeze([50,7]),mass:Math.PI/4*49*50,warheadFraction:.5,warheadMass:Math.PI/4*49*50*.5,propellantMass:Math.PI/4*49*50*.5,tt:Math.PI/4*49*50*.5*.02,cost:Math.PI/4*49*50*.5*.02*50000,range:60000,speed:2600,seeker:'heat'}),
+   torpedo:Object.freeze({key:'torpedo',name:'艦艇用長魚雷',dims:Object.freeze([50,7]),mass:Math.PI/4*49*50,warheadFraction:.95,warheadMass:Math.PI/4*49*50*.95,propellantMass:Math.PI/4*49*50*.05,tt:Math.PI/4*49*50*.95*.02,cost:Math.PI/4*49*50*.95*.02*50000,range:4440,speed:192.4,seeker:'mass'})
   })})
 });
 function shipLauncherType(f){const k=canonicalWeaponKind(typeof f==='string'?f:f?.k);return Object.hasOwn(SHIP_LAUNCHERS,k)?SHIP_LAUNCHERS[k]:null;}
 function isShipLauncher(f){return !!shipLauncherType(f);}
 // The round a ship launcher fires: the type's selectable rounds (shipCmsl: missile or long torpedo), else its fixed round.
-function shipLauncherRound(f){const t=shipLauncherType(f);if(!t)return null;if(!t.rounds)return {key:'missile',name:t.round.name,tt:t.ordnance?ORDNANCE[t.ordnance].tt:t.tt,range:t.range,speed:2600,seeker:t.ordnance?ORDNANCE[t.ordnance].seeker||null:null};const k=typeof f==='object'&&Object.hasOwn(t.rounds,f?.launcherRound)?f.launcherRound:'missile';return t.rounds[k];}
+function shipLauncherRound(f){const t=shipLauncherType(f);if(!t)return null;if(!t.rounds)return {key:'missile',name:t.round.name,mass:t.ordnance?ORDNANCE[t.ordnance].mass:0,cost:t.ordnance?ORDNANCE[t.ordnance].cost:0,tt:t.ordnance?ORDNANCE[t.ordnance].tt:t.tt,range:t.range,speed:2600,seeker:t.ordnance?ORDNANCE[t.ordnance].seeker||null:null};const k=typeof f==='object'&&Object.hasOwn(t.rounds,f?.launcherRound)?f.launcherRound:'missile';return t.rounds[k];}
 // Share of a salvo that finds its target at impact, by seeker (fictional game rule, 2026-11-11):
 //   heat (neutrino + IR emission, W):   p = 0.95 × S / (S + 1e20 W)
 //   mass (gravitational waves, t):      p = 0.95 × M / (M + 1e6 t)
@@ -51322,7 +51327,7 @@ function baseComputeStats(ship,options={}) {
     const foundation=turretSupportGeometry(f),ph=fitHasPedestal(f)?Math.max(0,foundation?(f.ped||0):(f.base||0)+(f.ped||0)-(f.low||0)):0,pr=d.r*.8,pv=(foundation?.volume||0)+Math.PI*pr*pr*ph;pedVol+=pv;
     // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
     const exteriorBank=chargeInfo[f.id]?.housingUsed||0, bankHardware=PARTS.capacitor;hpSum+=exteriorBank*bankHardware.dens*bankHardware.hp;crew+=exteriorBank*bankHardware.crew/1000;
-    const m = d.mass + pv * 0.3 + exteriorBank*bankHardware.dens, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; const price=fitBuildCost(f,raw)+partBuildCost({id:-1,k:'capacitor'},exteriorBank);cost += price; costBy[d.cat === 'w' ? 'weapons' : 'command'] += price;
+    const m = d.mass + pv * 0.3 + exteriorBank*bankHardware.dens, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; const price=fitBuildCost(f,raw)+partBuildCost({id:-1,k:'capacitor'},exteriorBank);cost += price; costBy[d.cat === 'w' ? 'weapons' : 'command'] += price;if(d.ammoCost>0&&!f.float){cost+=d.ammoCost;costBy.ammo=(costBy.ammo||0)+d.ammoCost;}
     bins[binOf(f.p[0])] += m;
     if (d.cat === 'w') {
       if(f.float)continue;
@@ -54767,7 +54772,7 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 FITS.quad500={...FITS.mtl,key:'quad500',name:'500GT 4連装中型ターボレーザー',short:'500GT 4連装中型TL',barrels:4,boltTT:.5,tt:2,cycle:.2,power:2*TT/.2,mass:2250,crew:10,cost:200e3,source:null,evidence:'砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。'};
 // XX-9 and NK-7 survive only as migration inputs for the unified photo family.
 for(const k of ['itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
-function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f),t=shipLauncherType(f),base=FITS[t.key],[cl,chh,cww]=t.cell,fm=cl,hm=chh*q.rows+(q.raise||0)*Math.max(0,q.rows-1)+t.frame[0]*2,wm=cww*q.cols+t.frame[1]*2;d={...d,msl:shipLauncherRound(f).tt*q.cells,fm,hm,wm,r:Math.max(fm,wm)/2,mass:base.mass*q.cells,cost:base.cost*q.cells,power:base.power*q.cells,store:{...base.store,slots:t.ammoPerCell*q.cells},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
+function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f),t=shipLauncherType(f),base=FITS[t.key],[cl,chh,cww]=t.cell,fm=cl,hm=chh*q.rows+(q.raise||0)*Math.max(0,q.rows-1)+t.frame[0]*2,wm=cww*q.cols+t.frame[1]*2;const round=shipLauncherRound(f),rounds=t.ammoPerCell*q.cells;d={...d,msl:round.tt*q.cells,fm,hm,wm,r:Math.max(fm,wm)/2,mass:base.mass*q.cells+(round.mass||0)*rounds,hardwareMass:base.mass*q.cells,ammoMass:(round.mass||0)*rounds,cost:base.cost*q.cells,ammoCost:(round.cost||0)*rounds,power:base.power*q.cells,store:{...base.store,slots:rounds},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 // v24 The Executor-only bridge and domes are retired (docs/executor-stl-rebuild.md). Their mesh data stays
@@ -64470,7 +64475,7 @@ function craftSystemsStats(ship,S){
   ejectionSeats,ejectionCoverage:coverage,ejectionSurvival:R.crew>0?.1+.8*coverage:0,navCapacity,navDemand,navReady:navDemand>0?navCapacity>=navDemand-1e-8:navCapacity>=1-1e-8,targetDemand:R.targetDemand,targetCapacity,targetRatio,fireK:.65+.35*targetRatio,
   maneuverSupport,maneuverRatio,turnK:.2+.8*Math.sqrt(maneuverRatio),laserUnits:R.laserUnits,laserGunShare:R.laserGunShare,laserAaShare:R.laserAaShare,laserGasSeconds:R.laserUnits>0?vol('laserGas')*CRAFT_SYSTEMS.laserSeconds/R.laserUnits:null,
   landingSupport,landingRatio,landingReady:S.mass>0&&landingRatio>=1-1e-8});
- S.craftSystems=systems;
+ S.craftSystems=systems;if(ship)ship._externalStoreT=Math.max(0,(systems.landingSupport||0)-(S.mass||0));
  S.navDemand=navDemand;S.navCapacity=navCapacity;
  // v24 A droid-flown craft (a droid brain and no crew seat) cannot use a hyperdrive.
  const droidOnly=has('droidbrain')&&!parts.some(p=>cockpitSeatFits(p));S.droidOnly=droidOnly;
@@ -64500,20 +64505,22 @@ function craftSystemsStats(ship,S){
 // warheads (ORDNANCE_BASIS below). The earlier calibration to the voyage craft table's strike no longer applies.
 // 2026-11-11 user specification: craft rounds are cylinders sized by the user and split into propellant and warhead
 // like the ship-scale rounds. Density from the previous craft concussion missile (1.0 × 0.2 m, 0.045 t):
-//   density ρ = 0.045 t ÷ (π/4 × 0.2² × 1.0 m³) = 1.4324 t/m³.
+//   density: 1 t/m³ (user decision 2026-11-11, as water; it was 1.4324 t/m³ from the previous 0.045 t missile).
 // Warhead energy (user decision): matter conversion, about 20 Mt TNT per kg = 20 Gt per t; 1 TT = 10¹² t TNT, so
 //   0.02 TT per t of warhead (ion warheads: the same energy as ion effect).
 //   mass = ρ × π/4 × D² × L;  warhead = mass × w;  damage = warhead × 0.02 TT/t.
 // Speed and range scale from the 50% missile by the rocket-equation Δv ratio ln(1/(1−p)) ÷ ln 2 (p: propellant share);
 // a bomb (1% propellant) is unpowered and keeps its release speed. Seekers as for the ship rounds (seekerHitChance):
 // missiles home on heat/neutrino emission, torpedoes on mass (gravitational waves), bombs are unguided.
-const ORDNANCE_BASIS=Object.freeze({density:.045/(Math.PI/4*.2*.2*1),warheadTTPerT:.02,missileSpeed:2000,missileRange:10000});
-function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Math.PI/4*D*D*L,warheadMass=mass*warheadFraction;return {dims:[L,D],mass,warheadFraction,warheadMass,propellantMass:mass-warheadMass,tt:warheadMass*ORDNANCE_BASIS.warheadTTPerT};}
+const ORDNANCE_BASIS=Object.freeze({density:1,warheadTTPerT:.02,costPerTT:50000,missileSpeed:2000,missileRange:10000});
+// Supply cost of an expendable round (user decision 2026-11-11: missiles are supplies with a high per-round cost):
+//   50,000 per TT of warhead energy (game assumption).
+function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Math.PI/4*D*D*L,warheadMass=mass*warheadFraction,tt=warheadMass*ORDNANCE_BASIS.warheadTTPerT;return {dims:[L,D],mass,warheadFraction,warheadMass,propellantMass:mass-warheadMass,tt,cost:tt*ORDNANCE_BASIS.costPerTT};}
 function ordnanceReach(propellant){const k=Math.log(1/(1-propellant))/Math.LN2;return {speed:ORDNANCE_BASIS.missileSpeed*k,range:ORDNANCE_BASIS.missileRange*k};}
 const ORDNANCE=Object.freeze({
  ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',...ordnanceBody(1.5,8,.95),...ordnanceReach(.05),guided:true,seeker:'mass',desc:'誘導式の対艦魚雷（直径1.5 m・長さ8 m、推進剤5%・弾頭95%）。質量（重力波）を追うので、重い艦ほど当たりやすい。'},
  itorp:{name:'イオン魚雷',short:'イオン魚雷',...ordnanceBody(1.5,8,.95),...ordnanceReach(.05),ion:true,guided:true,seeker:'mass',desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
- etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',dims:[1.3,.3],mass:.1,tt:25,guided:true,speed:1800,desc:'ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。'},
+ etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',...ordnanceBody(.3,1.3,.95),...ordnanceReach(.05),guided:true,seeker:'mass',desc:'ドロイド戦闘機の軽い魚雷（ヴァルチャー級、直径0.3 m・長さ1.3 m、推進剤5%・弾頭95%）。'},
  cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',...ordnanceBody(.5,5,.5),speed:ORDNANCE_BASIS.missileSpeed,range:ORDNANCE_BASIS.missileRange,guided:true,seeker:'heat',desc:'誘導ミサイル（直径0.5 m・長さ5 m、推進剤50%・弾頭50%）。熱源・ニュートリノを追うので小型機・小型艦にも当たりやすい。射程10 km。'},
  bomb:{name:'プロトン爆弾',short:'プロトン爆弾',...ordnanceBody(1,2,.99),bomb:true,speed:600,desc:'誘導のない爆弾（直径1 m・長さ2 m、弾頭99%）。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'},
  ibomb:{name:'イオン爆弾',short:'イオン爆弾',...ordnanceBody(1,2,.99),ion:true,bomb:true,speed:600,desc:'プロトン爆弾と同じ弾体のイオン弾頭（誘導なし）。漏出分が電力・電子系統を遮断する。'}
@@ -64529,7 +64536,7 @@ function storeCapacity(store,kind){
  const o=ORDNANCE[kind];if(!store||!o)return 0;const [L,D]=o.dims,e=1e-9;
  if(store.mount==='tube')return D<=store.bore+e&&L<=store.len+e?store.slots:0;
  if(store.mount==='bay'){const b=store.box;return Math.floor(b[0]/L+e)*Math.floor(b[1]/D+e)*Math.floor(b[2]/D+e);}
- if(store.mount==='wing')return Math.max(0,Math.min(D<=.55+e?(store.thin??store.slots??2):(store.heavy??1),Math.floor(store.maxMass/o.mass+e)));
+ if(store.mount==='wing')return Math.max(0,Math.min(D<=.55+e?(store.thin??store.slots??2):(store.heavy??1),Number.isFinite(store.maxMass)?Math.floor(store.maxMass/o.mass+e):Infinity));
  return 0;
 }
 // What a station takes by default when nothing else is known (a design of the player's own).
@@ -64551,7 +64558,15 @@ function craftStations(ship,S){
   else add(f.k,{fit:f.k,mount:d.store.mount});}
  for(const p of ship?.parts||[])if(p.k==='bombBay'&&!S?.info?.[p.id]?.overlap&&bombBayOpen(ship,p)){const box=bombBayBox(p);add('bay:'+box.join('x'),{fit:'cbomb',mount:'bay',store:{mount:'bay',box}});}
  const rank=k=>{const f=k.split(':')[0];return f==='bay'?STORE_FITS.indexOf('cbomb'):STORE_FITS.indexOf(f);};
- return order.slice().sort((a,b)=>rank(a)-rank(b)||order.indexOf(a)-order.indexOf(b)).map(k=>groups.get(k));
+ return withPylonLimit(order.slice().sort((a,b)=>rank(a)-rank(b)||order.indexOf(a)-order.indexOf(b)).map(k=>groups.get(k)),S?.craftSystems?Math.max(0,(S.craftSystems.landingSupport||0)-(S.mass||0)):ship?._externalStoreT??craftTypeSpareLift(craftTypeOf(ship?.reference)));
+}
+// 2026-11-11 user decision: the external (pylon) load is limited by the rated load of the craft's landing equipment
+// (landing gear and landing repulsorlifts, CRAFT_SYSTEMS.landingSupport t per m³) less the craft's own design mass,
+// shared evenly by its pylons. Unknown until the craft's statistics are computed (then no mass limit is applied).
+function craftTypeSpareLift(type){const e=type&&CRAFT_PRICE_CATALOG.entries?.[type],rated=e?.systems?.landingSupport,mass=e?.powerProfile?.propulsion?.massKg;return Number.isFinite(rated)&&Number.isFinite(mass)?Math.max(0,rated-mass/1000):null;}
+function withPylonLimit(stations,spare){
+ if(!Number.isFinite(spare))return stations;const pylons=stations.filter(st=>st.mount==='wing').reduce((n,st)=>n+st.count,0);if(!pylons)return stations;
+ return stations.map(st=>st.mount==='wing'?{...st,store:{...(st.store||FITS[st.fit].store),maxMass:spare/pylons}}:st);
 }
 // v24 Craft launch tubes are retired into pylons and the bomb-bay fitting into a bomb-bay compartment. Each tube
 // becomes a pylon in its place (its frame kept); a bay fitting becomes an interior bay of the same inner size whose
@@ -64594,7 +64609,7 @@ const loadPairs=a=>(a||[]).map(([k,n])=>({k,n}));
 // A loadout: the stations and what each carries by default (canon for a known type, else STORE_DEFAULT).
 function craftLoadout(x){
  if(x==null)return null;
- if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count,store])=>({fit,mount:FITS[fit].store.mount,count,...(store?{store}:{})})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
+ if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:withPylonLimit(c.st.map(([fit,count,store])=>({fit,mount:FITS[fit].store.mount,count,...(store?{store}:{})})),craftTypeSpareLift(t)),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
  if(Array.isArray(x.fits)){const stations=craftStations(x),t=craftTypeOf(x.reference),c=t&&CRAFT_LOADOUT[t],same=c&&c.st.length===stations.length&&c.st.every(([fit,n],i)=>stations[i].fit===fit&&stations[i].count===n);
   return {stations,load:same?loadPairs(c.load):stations.map(st=>({k:STORE_DEFAULT[st.fit][0],n:STORE_DEFAULT[st.fit][1]})),canon:!!same,type:t,src:same?c.src:'',mass:null};}
  if(Array.isArray(x.stations))return {stations:x.stations,load:Array.isArray(x.load)?x.load:x.stations.map(st=>({k:STORE_DEFAULT[st.fit]?.[0],n:STORE_DEFAULT[st.fit]?.[1]||0})),canon:!!x.canonLoad,type:null,src:'',mass:x.mass??null};
@@ -67305,7 +67320,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
  withFrozenStructures,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatReadoutRates, heatProfile, heatProfileOf, heatLegacy, FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swEnergyTT, swRange, swFree, swAxis, swBeamTrace, superweaponSelection, superweaponCommand, superweaponSetAuto, MGLT, engineDepthRatio, sublightMGLT, SUBLIGHT_REFERENCE_VERSION, SUBLIGHT_REFERENCE, sublightReference, referenceSublightMGLT, referenceSublightSpeed, referenceSpeedProfile, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponShape, superweaponBodyTriangles, superweaponMuzzle, superweaponAxis, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, groundingStats, engineMountSamples, engineAppearance, engineSkinMesh, engineCasingSections, engineCasingCapacity, engineCasingFit, fitEngineCasing, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, referencePhysicalProfileCurrent, canopyShape, setCanopyShape, canopyTriangles, canopyMountPosition, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, meshFaceTriangles, meshTriangles, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, placeRotationalCopies, placeLinearCopies, rotationalArray, linearArray, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshPlanarMoves, meshMoveVertices, meshSetVertex, meshAddEdge, meshRemoveEdge, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, weaponPreviewStats, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, FLIGHT_POWER_POLICY, shipCombatPowerDemand, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetWeaponPackets, combatAddWeapons, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, CORVETTE_WEAPON_KEYS, VENATOR_SIDE_WEAPON_KEYS, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, integratedEngine, nozzleShaftCapacity, propulsionOwners, engineOwner, engineMachineryPaths, enginePaths, engineTransmission, engineDriveRoutes, ENGINE_FEED_LOSS_PER_M, ENGINE_SHAFT_FLUX, ENGINE_TRANSMISSION_VERSION, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
-  ORDNANCE_BASIS, ordnanceBody, ordnanceReach, SHIP_LAUNCHERS, shipLauncherType, shipLauncherRound, SEEKERS, seekerHitChance, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
+  ORDNANCE_BASIS, ordnanceBody, ordnanceReach, launcherCellHardware, SHIP_LAUNCHERS, shipLauncherType, shipLauncherRound, SEEKERS, seekerHitChance, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
   MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, INERTIA_MOVEMENT, inertiaAlignmentRate, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,

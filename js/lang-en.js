@@ -8371,7 +8371,7 @@ root.KS_EN={
   "操縦席（またはドロイド制御中枢）がありません。": "No cockpit or droid control core is fitted.",
   "誘導式の対艦魚雷。半分はシールドを抜ける。": "Guided antiship torpedo. Half its damage penetrates shields.",
   "エネルギー魚雷": "Energy Torpedo",
-  "ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。": "Light torpedo used by Vulture droid fighters.",
+  "ドロイド戦闘機の軽い魚雷（ヴァルチャー級、直径0.3 m・長さ1.3 m、推進剤5%・弾頭95%）。": "Light torpedo used by Vulture droid fighters.",
   "細く速い誘導ミサイル。弾頭は魚雷より小さい。": "A slender, fast guided missile with a smaller warhead than a torpedo.",
   "プロトン爆弾": "Proton Bomb",
   "誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。": "An unguided bomb released directly over the target, at the closest point of the attack pass.",
@@ -10170,8 +10170,9 @@ Object.assign(root.KS_EN.messages,{
 Object.assign(root.KS_EN.terms,{
 '艦艇用ミサイル発射機':'Ship Missile Launcher',
 '艦艇ミサイル発射機':'Ship Missile Launcher',
-'航空機用の震盪ミサイル（直径0.5 m・長さ5 m）を収める艦艇用セル（1セル 奥行12 m・高さ2.25 m・幅2.25 m）。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.014 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell that holds the craft concussion missile (0.5 m diameter, 5 m long); one cell is 12 m deep, 2.25 m high and 2.25 m wide. Horizontal and vertical cell counts set width, height, rounds, mass and cost. Six rounds per cell, 0.014 TT per round, 60 km range. Mounts externally or embedded in a structure.',
+'航空機用の震盪ミサイル（直径0.5 m・長さ5 m）を収める艦艇用セル（1セル 奥行12 m・高さ2.25 m・幅2.25 m）。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.0098 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell that holds the craft concussion missile (0.5 m diameter, 5 m long); one cell is 12 m deep, 2.25 m high and 2.25 m wide. Horizontal and vertical cell counts set width, height, rounds, mass and cost. Six rounds per cell, 0.0098 TT per round, 60 km range. Mounts externally or embedded in a structure.',
 '横セル数':'Horizontal Cells',
+'弾薬（消耗品）':'Ammunition (supplies)',
 '艦艇用震盪ミサイル発射装置':'Ship Concussion Missile Launcher',
 '震盪ミサイル発射装置':'Concussion Missile Launcher',
 '艦艇用震盪ミサイル':'Ship-Scale Concussion Missile',
@@ -10198,7 +10199,7 @@ Object.assign(root.KS_EN.messages,{
 '{0} 段':'{0} rows',
 '爆弾（直径{0} m・長さ{1} m）が入らない爆弾倉が {2} 区画あります。内寸を長さ{3} m・幅と高さ{4} m以上にしてください。':'{2} bomb bays cannot hold a bomb ({0} m in diameter, {1} m long). Make the interior at least {3} m long and {4} m wide and high.',
 "機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 1.65 m・長さ 8.8 m：プロトン魚雷・イオン魚雷（1.5 × 8 m）と震盪ミサイルを装填できる。":"A forward-firing tube with a six-round magazine (the same six-round magazine as the Y-wing's MG7). Bore 1.65 m, length 8.8 m: loads proton torpedoes, ion torpedoes (1.5 × 8 m) and concussion missiles.",
-"航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。弾倉は口径0.55 m・長さ5.5 m（震盪ミサイル 0.5 × 5 m、1発0.014 TT）。":"A compact concussion missile tube with a six-round magazine, shared by craft and ships. A support is generated for the launch elevation. On an equipment surface it becomes a flush VLS hatch. Magazine bore 0.55 m, length 5.5 m (concussion missile 0.5 × 5 m, 0.014 TT each).",
+"航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。弾倉は口径0.55 m・長さ5.5 m（震盪ミサイル 0.5 × 5 m、1発0.0098 TT）。":"A compact concussion missile tube with a six-round magazine, shared by craft and ships. A support is generated for the launch elevation. On an equipment surface it becomes a flush VLS hatch. Magazine bore 0.55 m, length 5.5 m (concussion missile 0.5 × 5 m, 0.0098 TT each).",
 "機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイル（直径0.55 m以下）なら6発、魚雷・爆弾なら3発まで（1か所 60.75 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。":"One external hardpoint (the pylon alone). Carries missiles, torpedoes or bombs: up to six slender missiles (0.55 m diameter or less) or three torpedoes or bombs (60.75 t per hardpoint). The load is chosen in the order of battle; it adds mass and reduces acceleration and agility. Not counted in the design mass.",
 "誘導式の対艦魚雷（直径1.5 m・長さ8 m、推進剤5%・弾頭95%）。質量（重力波）を追うので、重い艦ほど当たりやすい。":"Guided antiship torpedo (1.5 m diameter, 8 m long, 5% propellant, 95% warhead). It homes on mass (gravitational waves), so heavier ships are easier to hit.",
 "誘導ミサイル（直径0.5 m・長さ5 m、推進剤50%・弾頭50%）。熱源・ニュートリノを追うので小型機・小型艦にも当たりやすい。射程10 km。":"Guided missile (0.5 m diameter, 5 m long, 50% propellant, 50% warhead). It homes on heat and neutrino emission, so small craft and ships are still easy to hit. Range 10 km.",
@@ -10207,7 +10208,7 @@ Object.assign(root.KS_EN.messages,{
 "イオン爆弾":"Ion Bomb",
 '構造物に埋め込んで使います。前面板の丸い蓋の発射管から外へ発射し、奥側に深さ50 mの船内区画を取ります。曲面では取付点の面の向きに合わせます。':'Embed this launcher in a structure. Missiles leave through the round-lidded tubes in the face panel; it takes a 50 m deep interior compartment behind the face. On a curved surface it follows the surface direction at the mounting point.',
 '発射管の数と段の上げ幅に合わせて前面板の幅・高さ、船内区画の容積、弾数、質量、費用が変わります。発射管1本に1発を装填します。':'The number of tubes and the row raise set the face panel width and height, the interior compartment volume, rounds, mass and cost. Each tube holds one missile.',
-'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発27.56 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発52.37 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。':'A ship launcher based on the Mandator II side launch panels. Round tubes line the face panel, with a 50 m deep interior compartment behind it. The ship-scale concussion missile is 7 m in diameter and 50 m long (50% propellant, 50% warhead); each tube holds one, 27.56 TT per missile, 60 km range. Tubes across, rows and row raise are adjustable and add volume, mass and cost. The launcher can fire long torpedoes instead (same size, 5% propellant, 95% warhead, 52.37 TT, 4.44 km range; they home on mass, so heavier targets are easier to hit). Embed it in a structure; curved surfaces are supported.',
+'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発19.24 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発36.56 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。':'A ship launcher based on the Mandator II side launch panels. Round tubes line the face panel, with a 50 m deep interior compartment behind it. The ship-scale concussion missile is 7 m in diameter and 50 m long (50% propellant, 50% warhead); each tube holds one, 19.24 TT per missile, 60 km range. Tubes across, rows and row raise are adjustable and add volume, mass and cost. The launcher can fire long torpedoes instead (same size, 5% propellant, 95% warhead, 36.56 TT, 4.44 km range; they home on mass, so heavier targets are easier to hit). Embed it in a structure; curved surfaces are supported.',
 'セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。':'Cell counts change the physical width, height, ammunition, mass and cost. An embedded launcher fits into a structure and fires through its open front. External supports follow its launch direction.',
 'セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。':'Cell counts and mounting apply to the selected ship launchers. Linked launchers mirror the heading.'
 });
