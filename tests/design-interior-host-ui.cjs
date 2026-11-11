@@ -62,3 +62,10 @@ test('a previous interior selection cannot leak its mother into a new exterior r
  const {run:r}=setup({empty:true});r('designUI.hostId=99;designUIRequest({p:[0,0,0],n:[0,1,0],kind:"section",rootPlane:true})');
  assert.equal(r('ship.parts.length'),1);assert.equal(r('ship.parts[0].placement.root'),true);assert.equal(r('designUI.lastStamp.request.hostId'),undefined);assert.equal(r('ship.parts[0].placement.hostId'),undefined);
 });
+
+test('the interior panel has no host selector and shows the read-only primary hull anchor (Japanese and English)',()=>{
+ const fs=require('node:fs'),path=require('node:path'),root=path.resolve(__dirname,'..'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),en=fs.readFileSync(path.join(root,'js/lang-en.js'),'utf8');
+ assert.doesNotMatch(app,/select\('host'/);assert.doesNotMatch(app,/'designHost'in t\.dataset/);assert.match(app,/data-design-interior-anchor>配置基準：主船体に固定/);assert.match(app,/add\('配置基準',T\('主船体に固定'\)\)/);
+ for(const key of ['配置基準','主船体に固定','配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）'])assert.ok(en.includes(JSON.stringify(key)+':'),key);
+ assert.doesNotMatch(app,/designUI\.hostId=(it|h\.it|p)\.placement\?\.hostId/,'selecting an item does not restore a structure host');
+});

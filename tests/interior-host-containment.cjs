@@ -52,3 +52,36 @@ test('moving a structure or copying equipment does not drag or re-parent interio
  const back=C.deserialize(JSON.parse(snapshot)),b=back.parts.find(p=>p.id===3);assert.deepEqual(Array.from(b.c),[200,20,0]);assert.equal(b.placement.hostId,1);
  const copy=JSON.parse(C.publicJSON(q()));C.remapPlacementCopy(copy,new Map([[1,9],[2,10]]));assert.equal(copy.placement.hostId,1,'a copy keeps the primary hull anchor and is re-anchored when validated');
 });
+
+test('a pending interior part listed before the pending structure that contains it resolves after that structure',()=>{
+ const s=C.newShip({L:300,W:120,H:60,assembly:true},'Interior order');s.parts=[{id:1,k:'struct',form:'box',c:[150,20,0],s:[300,100,40]}];s.fits=[];s.nextId=2;
+ const hit=C.rayPart([60,5000,0],[0,-1,0],s.parts[0]),pv={id:2,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+15,hit.p[2]],s:[120,60,50]};
+ const child=C.preparePlacementDraft(s,pv,{mode:'horizontal',parentStructureId:1,hostId:1,hit:{p:hit.p,n:C.norm(hit.n)},contactFit:'cut',position:pv.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(child.ok,true,child.error);
+ const gen=C.preparePlacementDraft(s,{id:3,k:'gen',c:[60,62,0],d:10},{mode:'direct',hostId:1,placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(gen.ok,true,gen.error);
+ assert.equal(child.part.placement.pendingGeometry,true);assert.equal(gen.part.placement.pendingGeometry,true);
+ s.parts.push(gen.part,child.part);s.nextId=4;const r=C.refreshPlacementGeometry(s);
+ assert.deepEqual(Array.from(r.failed),[],JSON.stringify(r.failed));const q=s.parts.find(p=>p.id===3);assert.ok(!q.placement.validationFailed&&!q.placement.pendingGeometry);
+});
+
+test('deleting a structure keeps the equipment inside it, flagged as outside; Undo and Redo restore both states',()=>{
+ const s=stacked(),r=C.solvePlacement(s,{id:3,k:'gen',c:[60,62,0],d:10},{mode:'direct'});assert.equal(r.ok,true,r.error);s.parts.push(r.part);s.nextId=4;C.refreshPlacementGeometry(s);C.syncCompartments(s);
+ const before=JSON.stringify(C.serialize(s)),del=C.removeParts(s,[2]);assert.deepEqual(Array.from(del.removed),[2]);C.syncCompartments(s);
+ const q=s.parts.find(p=>p.id===3);assert.ok(q,'the equipment is not deleted');assert.equal(q._interiorPlacementError?.code,'fixed-outside');assert.equal(C.computeStats(s).invalidReactorIds?.[0],3);
+ const after=JSON.stringify(C.serialize(s));
+ const undo=C.deserialize(JSON.parse(before));C.syncCompartments(undo);assert.equal(undo.parts.length,3);assert.equal(undo.parts.find(p=>p.id===3)._interiorPlacementError,undefined);
+ const redo=C.deserialize(JSON.parse(after));C.syncCompartments(redo);assert.equal(redo.parts.find(p=>p.id===2),undefined);assert.equal(redo.parts.find(p=>p.id===3)._interiorPlacementError?.code,'fixed-outside');
+});
+
+test('pasted interior equipment is anchored to the target ship primary hull, never a foreign id',()=>{
+ const source=stacked(),r=C.solvePlacement(source,{id:3,k:'gen',c:[200,20,0],d:10},{mode:'direct'});assert.equal(r.ok,true,r.error);
+ const copy=JSON.parse(C.publicJSON(r.part));copy.placement.hostId=77;copy.id=12;C.remapPlacementCopy(copy,new Map([[1,10],[2,11]]),{detachRoots:true,interiorAnchor:C.interiorAnchorHostId(source)});assert.equal(copy.placement.hostId,1);
+ const target=C.newShip({L:100,W:100,H:100,assembly:true},'Paste target');target.parts=[{id:5,k:'struct',form:'box',c:[0,0,0],s:[40,40,40]}];target.fits=[];target.nextId=13;
+ const other=JSON.parse(C.publicJSON(r.part));other.id=12;C.remapPlacementCopy(other,new Map(),{detachRoots:true,interiorAnchor:C.interiorAnchorHostId(target)});assert.equal(other.placement.hostId,5);
+});
+
+test('a refusal saved while already anchored to the primary hull is re-checked once on load',()=>{
+ const raw=saved(),q=raw.parts.find(p=>p.id===7);q.placement.hostId=1;delete q.placement.hostSurfaceId;assert.equal(q.placement.validationFailed,true);
+ const s=C.deserialize(raw),p=reactor(s);assert.ok(!p.placement.validationFailed&&!p.placement.repairRequired,JSON.stringify(p.placement));assert.equal(p.placement.hostId,1);
+ const out=saved(),o=out.parts.find(p=>p.id===7);o.c=[53,68,0];o.placement.requestedGeometry.c=[53,68,0];o.placement.hostId=1;
+ const t=C.deserialize(out);assert.equal(reactor(t).placement.validationFailed,true,'a real protrusion is refused again');
+});
