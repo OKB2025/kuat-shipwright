@@ -61244,10 +61244,13 @@ function solveShipPropulsion(profile,context={}){
 function propulsionModuleHeat(u,kind,index){const H=heatProfile(u.p),h=u.ht;if(!H||!h)return 1;const i=H.src.findIndex(s=>s.k===kind&&s.m?.includes(index));return i>=0?clamp(h.lm?.[i]??1,0,1):heatLim(u,kind);}
 function shipPowerSources(u,s={},options={}){
  const p=u.p,g=p.grid||{},mods=p.modules||[],domains=g.domains?.length?g.domains:[{id:'main',P:g.P||0}],out=[],em=EMCON[emconOf(u)].P;
+ // The ship-wide heat output factor cannot change while the sources are listed
+ // (the loop only reads heat state); take it once, at its first use.
+ let heatK;
  for(const d of domains){let sources=d.sources;if(!sources?.length){const rs=mods.map((m,i)=>({m,i})).filter(x=>x.m.k==='reactor'&&(x.m.domain||'main')===d.id),total=rs.reduce((a,x)=>a+Math.max(0,x.m.size||x.m.share||1),0);sources=rs.length?rs.map(x=>({moduleIndex:x.i,P:(d.P||0)*Math.max(0,x.m.size||x.m.share||1)/total})):[{moduleIndex:-1,P:d.P||0}];}
   for(let j=0;j<sources.length;j++){const x=sources[j],mi=x.moduleIndex??-1,m=mods[mi],id=m?.port||(m?.part!=null?'p'+m.part:'domain:'+d.id+':'+j),physical=mi>=0?clamp(u.mods?.[mi]??1,0,1):clamp(s.reactor??1,0,1),connected=mi>=0?powerFactor(u,m?.k||'reactor',mi):u.gridState?.domains?.[d.id]?.trip>0?0:1,thermal=mi>=0?propulsionModuleHeat(u,'reactor',mi):heatLim(u,'reactor');let factor=1;
    if(u.down&&u.down.reason!=='ion-grid')factor*=u.down.black?0:m&&m.k==='reactor'&&m.reactorKind!=='aux'&&g.Paux>0?0:clamp(u.down.aux??1,0,1);
-   for(const o of u.over||[])if(o.r===m?.part)factor=Math.min(factor,1-o.k*Math.max(0,o.t)/Math.max(1e-9,o.T));let W=Math.max(0,x.P||0)*physical*connected*thermal*em*clamp(factor,0,1)*shipHeatOutputFactor(u);
+   for(const o of u.over||[])if(o.r===m?.part)factor=Math.min(factor,1-o.k*Math.max(0,o.t)/Math.max(1e-9,o.T));let W=Math.max(0,x.P||0)*physical*connected*thermal*em*clamp(factor,0,1)*(heatK??=shipHeatOutputFactor(u));
    if(!options.ignoreReservations)for(let k=0;k<(p.sw||[]).length;k++){const w=p.sw[k],state=u.sw?.[k];if(w.r===m?.part&&state?.st==='charge'&&state.c<1)W=Math.max(0,W-(w.chargeW>0?w.chargeW:SW_COMBAT[w.k].share*(w.Pshare||0)*(g.P||0))*swChargeRate(u,k));}
    out.push({id,domain:d.id,powerW:W,maxPowerW:W/Math.max(1,em),moduleIndex:mi,reactor:m?m.k==='reactor':true});}
  }return out;
@@ -66091,9 +66094,17 @@ function heatOf(u){
  }
  h.qJ=Math.max(0,Number.isFinite(h.qJ)?h.qJ:0);h.capacityJ=shipHeatCapacity(u);h.massKg=shipHeatMassKg(u);h.qAllowJPerKg=HEAT.qAllowJPerKg;
  h.damageLimit=clamp(Number.isFinite(h.damageLimit)?h.damageLimit:1,.60,1);h.online=h.online!==false;h.e=h.e||{};
- for(const key of ['engineE','reactorE','feedE'])h[key]=Array.from({length:n},(_,i)=>Math.max(0,h[key]?.[i]||0));
- h.esw=Array.from({length:nw},(_,i)=>Math.max(0,h.esw?.[i]||0));h.n=n;
+ heatInflowRow(h,'engineE',n);heatInflowRow(h,'reactorE',n);heatInflowRow(h,'feedE',n);heatInflowRow(h,'esw',nw);h.n=n;
  return h;
+}
+// heatOf runs for every power source and mount query; rebuilding the inflow
+// rows each time dominated combat. A row of the right length is clamped in
+// place to the same values (max(0, v||0)); any other row is rebuilt as before.
+// Rows are only written through h[key][i] and copied with slice/JSON, so no
+// caller relies on receiving a fresh array.
+function heatInflowRow(h,key,n){
+ const a=h[key];if(!Array.isArray(a)||a.length!==n){h[key]=Array.from({length:n},(_,i)=>Math.max(0,a?.[i]||0));return;}
+ for(let i=0;i<n;i++){const v=a[i],w=Math.max(0,v||0);if(!Object.is(v,w))a[i]=w;}
 }
 function shipHeatClearCooling(h){const c=h?.cooling;if(!c)return;c.reserveJ=0;c.reserveByNodeJ={};c.reserveByNodeSourceJ={};c.reserveByNodeFeedJ={};c.lastDraw=0;c.lastSourceDraw=0;}
 function shipHeatBlackout(u,ctx,reason='熱限界'){
