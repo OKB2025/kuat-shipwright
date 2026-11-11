@@ -51818,7 +51818,7 @@ function bridgeLooseStructures(ship){
 }
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');try{
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -57710,6 +57710,8 @@ function refitShipSystems(ship,key){return withFrozenStructures(()=>constructShi
 const SHIP_ENGINE_ACCEL_TARGETS={imperial:2300,imperial2:2300,arquitens:1800,cr90:2100,hammerhead:2500,mc80home:2100,mc80liberty:2100,mc75:2100,mc30c:2100};
 // Factory-only goals. Values marked assumed are a design target, not a claim
 // that a published MGLT speed supplies a measured acceleration.
+// Examples whose structures carry no added surface pattern (user decision, 2026-11-11). Skin is appearance only.
+const PLAIN_SKIN_EXAMPLES=new Set(['executor','mandator2']);
 const SHIP_MILITARY_ACCEL_TARGETS=Object.freeze({mandator2:2000,dreadnaught:2000,gozanti:500,lucrehulk:2000,munificent:2000,nebulonb:1000,onager:2000,providence:2000,providenceDn:2000,recusant:2000,recusantDn:2000,reptransport:2000,subjugator:2000,executor:3300,venator:3000,acclamator:3500});
 function stockAccelerationPayload(ship){
  const copy=p=>JSON.parse(publicJSON(p));
