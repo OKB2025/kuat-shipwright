@@ -221,7 +221,8 @@ test('clipboard validation gates selected roots while keeping dependent children
   assert.equal(r('ship.parts.length'),5);assert.equal(r('calls.includes("pasteMutation")'),false);
   r(`designUI.space='exterior';multiPaste()`);
   assert.equal(r('ship.parts.length'),7);assert.deepEqual(plain(r('ship.parts.slice(-2).map(p=>p.k)')),['struct','cargo']);
-  assert.equal(r('ship.parts.at(-1).placement.hostId'),r('ship.parts.at(-2).id'),'dependent references follow the copied root');
+  // User decision 2026-11-11: interior equipment has no structure parent; a pasted copy keeps its primary hull anchor.
+  assert.equal(r('ship.parts.at(-1).placement.hostId'),1,'the interior anchor is not remapped to the copied structure');
   r('delete clipboard.drivers');
   assert.equal(r('designClipboardEditable(clipboard)'),true,'legacy clips infer a root from their internal references');
   r(`clipboard.parts[1].placement.hostId=999`);

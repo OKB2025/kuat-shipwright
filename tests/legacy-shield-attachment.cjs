@@ -35,6 +35,8 @@ test('legacy shield copying remaps references and keeps the compatibility attach
 test('new shield requests cannot reuse the old exterior compatibility relationship',()=>{
  const ship=legacyShip('shield'),part={id:-1,k:'shield',c:[5,5.5,4],d:1};
  const result=C.solvePlacement(ship,part,{mode:'direct',parentStructureId:1,hit:{p:[5,5,4],n:[0,1,0]}});
- assert.equal(result.ok,false);assert.equal(result.code,'host-missing');
+ // User decision 2026-11-11: interior equipment is checked against the ship interior without a named host,
+ // so the outside-the-hull request is refused as outside rather than as a missing host.
+ assert.equal(result.ok,false);assert.equal(result.code,'fixed-outside');
  assert.equal(C.placementCapability(part).space,'interior');
 });

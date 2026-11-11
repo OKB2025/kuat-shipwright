@@ -53031,6 +53031,7 @@ function deserialize(o,internalOptions=null){
   for(const h of s.hatches){const q=o.hatches?.find(q=>q.id===h.id),owner=s.parts.find(p=>p.id===q?.hullOwner&&isHullStructure(p));if(owner&&Number.isInteger(q.hullHatch)&&owner.hullData.hatches.some(a=>a.id===q.hullHatch)){h.hullOwner=owner.id;h.hullHatch=q.hullHatch;}}
   for(const p of s.parts.filter(isHullStructure))syncHullStructure(s,p,false);
   for(const key of ['parts','fits'])for(const p of s[key]){const raw=o[key].find(q=>q.id===p.id);if(raw?.placement)p.placement=normalizePlacementMetadata(raw.placement,p);if(raw?.engineMountSupport&&p.k==='engine')p.engineMountSupport=normalizeEngineMountSupport(raw.engineMountSupport);}
+  migrateInteriorAnchors(s);
   if(!internalOptions?.deferPlacementGeometry)refreshPlacementGeometry(s);
   delete s._propulsionRoutingDeferred;
   return adoptWeaponFits(s);
@@ -53367,11 +53368,48 @@ function interiorSelectedRegion(ship,id){
   for(const cut of ship.subs||[])if(ship.hull.assembly||cut.structures)tris=subtractBoxMesh(tris,cut.b);tris=applySolidCuts(ship,tris,true);
   contains=q=>!ship.subs.some(c=>(ship.hull.assembly||c.structures)&&inBox(q,c.b))&&!solidPartCutContains(host,q)&&unpiercedInStruct(host,q);
  }
+ interiorRegionClearBox(tris,contains);
+ return {host,tris,contains};
+}
+function interiorRegionClearBox(tris,contains){
  // A grid cell is accepted only when no real host boundary crosses its
  // interior. Corner probes alone can miss a narrow cut or an opening.
  const faces=[];for(let i=0;i<tris.length;i+=9){const A=Array.from(tris.slice(i,i+3)),B=Array.from(tris.slice(i+3,i+6)),C=Array.from(tris.slice(i+6,i+9)),n=norm(cross(sub(B,A),sub(C,A)));faces.push({b:[0,1,2].map(a=>Math.min(A[a],B[a],C[a])).concat([0,1,2].map(a=>Math.max(A[a],B[a],C[a]))),n,d:dot(n,A)});}
  contains.clearBox=b=>!faces.some(f=>{if(!boxesOverlap(f.b,b,1e-7))return false;let low=0,high=0;for(let a=0;a<3;a++){low+=f.n[a]*b[a+(f.n[a]<0?3:0)];high+=f.n[a]*b[a+(f.n[a]<0?0:3)];}return low<f.d-1e-7&&high>f.d+1e-7;});
- return {host,tris,contains};
+ return contains;
+}
+// Interior equipment has no parent structure (user decision 2026-11-11). The ship interior is
+// the primary hull plus every structure attached to it; equipment is anchored to the primary
+// hull and is valid when its body lies inside that union. placement.hostId names the anchor.
+function interiorAnchorHostId(ship){
+ const primary=primaryHullPart(ship);if(primary)return primary.id;if(!ship?.hull?.assembly)return 'hull';
+ const root=ship.parts.find(p=>isShapePart(p)&&!p.plate&&p.placement?.root)||ship.parts.find(p=>isShapePart(p)&&!p.plate&&p.placement?.parentStructureId==null);return root?root.id:null;
+}
+function interiorEnvelopeHostIds(ship,anchor=interiorAnchorHostId(ship)){
+ const ids=anchor==='hull'?['hull']:[];
+ // Unresolved or refused structures are not part of the ship until their placement is fixed.
+ for(const q of ship.parts)if(isShapePart(q)&&(q.id===anchor||!q._placementError&&!q.placement?.validationFailed&&!q.placement?.pendingGeometry))ids.push(q.id);
+ return ids;
+}
+function interiorUnionRegion(regions){
+ // The union boundary: each region's surface outside every other region. Faces where two
+ // structures meet are interior and are removed; nothing is added or enlarged.
+ // A face shared by two regions with the same outward direction (e.g. the roofs of two
+ // overlapping structures) is kept once, from the earlier region; a duplicate would break
+ // the inside/outside parity of the union.
+ const pieces=regions.map((r,i)=>{let t=r.tris;regions.forEach((o,j)=>{if(j!==i)t=structuralClipBoundary(t,o.tris,j<i);});return t;}),size=pieces.reduce((n,t)=>n+t.length,0),tris=new Float64Array(size);let at=0;for(const t of pieces){tris.set(t,at);at+=t.length;}
+ const contains=interiorRegionClearBox(tris,q=>regions.some(r=>r.contains(q)));return {host:null,tris,contains,union:true};
+}
+// Identifies the current interior (primary hull plus attached structures). A refused interior part
+// records it, and is re-checked when the interior changes (e.g. a structure is added around it).
+function interiorEnvelopeKey(ship){return 'interior:'+surfaceHash([publicJSON(interiorEnvelopeHostIds(ship).map(id=>id==='hull'?[ship.hull,ship.cuts,ship.subs,ship.solidCuts,ship.trenches]:placementDependencyKey(placementParent(ship,id))))]);}
+function migrateInteriorAnchors(ship){
+ // Saved designs recorded the tapped structure as the interior host. Re-anchor them to the
+ // primary hull at their unchanged world position, and re-validate a stored refusal once.
+ const anchor=interiorAnchorHostId(ship);if(anchor==null)return;
+ // A refusal stored by an older solver is re-checked once on every load, anchored or not.
+ for(const p of ship.parts){const meta=p.placement;if(!meta||meta.hostId==null||placementCapability(p).space!=='interior'||!['clip','preserve-volume','direct'].includes(meta.mode))continue;
+  if(meta.hostId!==anchor){meta.hostId=anchor;delete meta.hostSurfaceId;delete meta.parentGeometryKey;}if(meta.validationFailed){delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;delete meta.validationSourceKey;meta.pendingGeometry=true;}}
 }
 function interiorPlacementObstacles(ship,p){return allOccupied(ship).filter(q=>q.id!==p.id&&!q.sourcePartIds?.includes(p.id)&&!isShapePart(q));}
 function interiorSegmentDistance2(a,b){const ab=sub(b,a),t=clamp(-dot(a,ab)/(dot(ab,ab)||1),0,1),q=add(a,mul(ab,t));return dot(q,q);}
@@ -53460,13 +53498,26 @@ function solveInteriorPlacement(ship,part,request={}){
 function solveInteriorPlacementRaw(ship,part,request={}){
  const mode=request.mode||part.placement?.mode,capability=placementCapability(part),fail=(code,error)=>({ok:false,code,error});
  if(capability.space!=='interior'||!capability.allowedModes.includes(mode))return fail('invalid-mode','この部品には指定した内装配置方式を使用できません');
- const hostId=request.hostId??part.placement?.hostId,region=interiorSelectedRegion(ship,hostId);if(!region)return fail('host-missing','内装の配置先となる船体・構造物を選択してください');
- const p=JSON.parse(JSON.stringify(part,(k,v)=>k.startsWith('_')?undefined:v));p.placement={...(p.placement||{}),mode,hostId};
+ // The recorded/tapped host is not used: validity is the union of the primary hull and its
+ // attached structures. A body inside one structure is checked against that structure alone
+ // (the exact former test); only a body spanning several is checked against their union.
+ const anchor=interiorAnchorHostId(ship);if(anchor==null)return fail('host-missing','内装を収める主船体がありません');
+ const probe={...part,placement:{...(part.placement||{}),mode}},bounds=partAABB(probe),ids=interiorEnvelopeHostIds(ship,anchor).filter(id=>id==='hull'||boxesOverlap(bounds,partAABB(placementParent(ship,id)),1e-7));
+ const regions=new Map();for(const id of ids){const region=interiorSelectedRegion(ship,id);if(region)regions.set(id,region);}
+ if(!regions.size){const region=interiorSelectedRegion(ship,anchor);if(!region)return fail('host-missing','内装を収める主船体がありません');return interiorPlacementIn(ship,part,mode,capability,anchor,region,anchor);}
+ const order=[...regions.keys()].sort((a,b)=>(regions.get(b).contains(probe.c)?1:0)-(regions.get(a).contains(probe.c)?1:0));let first=null;
+ for(const id of order){const r=interiorPlacementIn(ship,part,mode,capability,anchor,regions.get(id),id);if(r.ok&&(mode==='direct'||r.fullyInside)||regions.size===1)return r;first||=r;}
+ const union=interiorPlacementIn(ship,part,mode,capability,anchor,interiorUnionRegion([...regions.values()]),'ship');
+ return !union.ok&&first?.ok?first:union;
+}
+function interiorPlacementIn(ship,part,mode,capability,anchor,region,regionId){
+ const fail=(code,error)=>({ok:false,code,error});
+ const p=JSON.parse(JSON.stringify(part,(k,v)=>k.startsWith('_')?undefined:v));p.placement={...(p.placement||{}),mode,hostId:anchor};delete p.placement.hostSurfaceId;
  const target=unclippedPartVolume(p);if(!(target>0)||!Number.isFinite(target))return fail('empty-shape','配置する形状の容積がありません');
  const obstacles=interiorPlacementObstacles(ship,p),bounds=partAABB(p),near=obstacles.filter(q=>boxesOverlap(bounds,partAABB(q),1e-7)),source=interiorRawMesh(p),sourceVolume=meshVolume(source),tolerance=Math.max(1e-7,target*1e-7);
  let clipped=interiorIntersection(source,region.tris);for(const q of near)clipped=interiorDifference(clipped,interiorRawMesh(q));
  const available=meshVolume(clipped),hostBoundaryCrossing=interiorAnalyticBoundaryCrosses(p,region.tris),fullyInside=Math.abs(available-sourceVolume)<=Math.max(tolerance,sourceVolume*1e-6)&&!hostBoundaryCrossing&&!near.some(q=>overlapParts(p,q)||interiorCurvedConflict(p,q));
- const finish=effectiveVolume=>{const hatchFailure=interiorHatchConstraint(ship,p);return hatchFailure?fail(hatchFailure.code,hatchFailure.error):{ok:true,part:p,requestedVolume:target,effectiveVolume};};
+ const finish=effectiveVolume=>{const hatchFailure=interiorHatchConstraint(ship,p);return hatchFailure?fail(hatchFailure.code,hatchFailure.error):{ok:true,part:p,requestedVolume:target,effectiveVolume,fullyInside};};
  if(mode==='direct'){
   const curved=!p.room&&['sphere','cyl','engine'].includes(PARTS[p.k]?.shape),contained=fullyInside||curved&&available>=sourceVolume*(1-PLACEMENT_TOLERANCES.volumeRelative);
   const clashes=near.filter(q=>overlapParts(p,q)||interiorCurvedConflict(p,q)||interiorAnalyticBoundaryCrosses(p,interiorRawMesh(q)));
@@ -53475,7 +53526,7 @@ function solveInteriorPlacementRaw(ship,part,request={}){
    // placement can be traced (outside the host, across its surface, or against other equipment).
    const retained=sourceVolume>0?available/sourceVolume:0,label=q=>(q.label||PARTS[q.k]?.name||q.k)+' #'+q.id,reason=!region.contains(p.c)?'center-outside':hostBoundaryCrossing?'host-boundary':clashes.length?'equipment-overlap':'host-outside';
    const text={'center-outside':'中心が配置先の外にあります','host-boundary':'配置先の外面をまたいでいます','equipment-overlap':'他の設備と干渉しています（'+clashes.slice(0,4).map(label).join('、')+(clashes.length>4?' ほか'+(clashes.length-4)+'件':'')+'）','host-outside':'実寸の'+Math.max(0,Math.round((1-retained)*1000)/10)+'%が配置先からはみ出しています'}[reason];
-   return {...fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています：'+text+'（配置先 '+(hostId==='hull'?'船体':'#'+hostId)+'）'),detail:{reason,hostId,partIds:clashes.map(q=>q.id),retained,centerInside:!!region.contains(p.c),hostBoundaryCrossing:!!hostBoundaryCrossing}};
+   return {...fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています：'+text+'（配置先 '+(regionId==='ship'?'船内':regionId==='hull'?'船体':'#'+regionId)+'）'),detail:{reason,hostId:regionId,partIds:clashes.map(q=>q.id),retained,centerInside:!!region.contains(p.c),hostBoundaryCrossing:!!hostBoundaryCrossing}};
   }
   return finish(target);
  }
@@ -62911,7 +62962,10 @@ function placementConcaveTranslationIntervals(T,selected,delta,origin,eps){
 }
 function placementTranslationLimit(source,parent,hit,mode,side,target){
  const delta=sub(target,source.c),distance=len(delta);if(distance<1e-9)return 1;
- const T=placementTriangles(source),parentT=placementTriangles(parent),eps=Math.max(placementEpsilon(T),placementEpsilon(parentT)),n=mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]),fr=frameAxis(n),project=p=>{const q=sub(p,hit.p);return [dot(q,fr.v),dot(q,fr.w)];},height=P=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],hit.p));return q=>(d-dot(normal,add(mul(fr.v,q[0]),mul(fr.w,q[1]))))/den;},selected=placementSelectedContactFaces(parentT,hit,n,eps,project,height);
+ const T=placementTriangles(source),parentT=placementTriangles(parent),eps=Math.max(placementEpsilon(T),placementEpsilon(parentT)),skin=n=>{const fr=frameAxis(n),project=p=>{const q=sub(p,hit.p);return [dot(q,fr.v),dot(q,fr.w)];},height=P=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],hit.p));return q=>(d-dot(normal,add(mul(fr.v,q[0]),mul(fr.w,q[1]))))/den;};return placementSelectedContactFaces(parentT,hit,n,eps,project,height);};
+ // A horizontal body cut across a steep wall (fitPlacementContact) keeps
+ // contact with the skin facing its lateral axis, not an upward one.
+ let selected=skin(mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]));if(!selected&&mode==='horizontal'){const lateral=placementLateralContactAxis(source,hit);if(lateral)selected=skin(lateral);}
  if(!selected)return 0;
  const vertices=[],planes=[],edges=[],addAxis=(list,a)=>{const length=len(a);if(length<1e-10)return;const axis=mul(a,1/length);if(!list.some(b=>Math.abs(dot(axis,b))>1-1e-8))list.push(axis);};
  for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3)));for(let k=0;k<3;k++){if(!vertices.some(q=>len(sub(q,P[k]))<eps))vertices.push(P[k]);addAxis(edges,sub(P[(k+1)%3],P[k]));}const normal=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));planes.push({normal,point:P[0]});}
@@ -62935,6 +62989,28 @@ function placementConstrainTranslation(ship,part,parent,hit,mode,side,old,reques
 function fitPlacementContact(ship,part,parent,hit,mode,contactSide){
  const n=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);
  if(len(n)<.1)return placementFailure('contact-side','側面と接触側を選び直してください');
+ const result=placementFitContactAlong(ship,part,parent,hit,n);
+ // A horizontal cut is built in columns along the vertical axis. A tap on a
+ // steep or vertical wall has no parent skin facing that axis there, and on a
+ // curved hull the skin rises through the roof towards the body's inboard
+ // edge; neither is a missing face or a thin authored body. The same cut is
+ // then taken across the wall, along the body's own side face that faces it.
+ // The upright pose, position and authored faces stay as requested and no
+ // material is added; a real gap still fails the contact check afterwards.
+ if(result.ok||mode!=='horizontal'||part.placement?.contactFit!=='cut'||!['surface-missing','minimum-thickness'].includes(result.code))return result;
+ const lateral=placementLateralContactAxis(part,hit);if(!lateral)return result;
+ const across=placementFitContactAlong(ship,part,parent,hit,lateral);return across.ok?across:result;
+}
+// The lateral cut axis is the inward normal of a vertical face of the body
+// that faces the tapped wall (within 45 degrees of its horizontal normal).
+// A near-flat tap (horizontal normal component below 0.3, i.e. a slope under
+// about 17 degrees) is never cut sideways.
+function placementLateralContactAxis(part,hit){
+ const h=[hit.n[0],0,hit.n[2]];if(len(h)<.3)return null;const wall=norm(h),T=placementTriangles(part);let best=null,score=Math.SQRT1_2;
+ for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const axis=mul(norm(raw),-1);if(Math.abs(axis[1])>1e-9)continue;const value=dot(axis,wall);if(value>score+1e-9){score=value;best=norm([axis[0],0,axis[2]]);}}
+ return best;
+}
+function placementFitContactAlong(ship,part,parent,hit,n){
  const fr=frameAxis(n),axes={n,u:fr.v,v:fr.w,origin:hit.p.slice()},project=p=>{const q=sub(p,axes.origin);return [dot(q,axes.u),dot(q,axes.v)];},height=(P)=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],axes.origin));return q=>(d-dot(normal,add(mul(axes.u,q[0]),mul(axes.v,q[1]))))/den;};
  part._solidCutShip=ship;parent._solidCutShip=ship;let body=placementCompactPlanarSolid(placementTriangles(part));const parentT=placementCompactPlanarSolid(placementTriangles(parent)),eps=Math.max(placementEpsilon(body),placementEpsilon(parentT)),base=[],faces=[];
  for(let i=0;i<body.length;i+=9){const P=[0,3,6].map(j=>Array.from(body.slice(i+j,i+j+3))),nn=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));if(dot(nn,n)<-.99999)base.push({poly:placementCCW(P.map(project)),height:height(P)});}
@@ -63124,7 +63200,9 @@ function placementDraftStatus(ship){
 }
 function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport'])delete source[key];return surfaceHash([source]);}
 // The failure record names its code and the validated source key, so a reader can tell whether it still
-// describes the item's current failure (an Undo can restore an older state without re-validating it).
+// describes the item's current failure (an Undo can restore an older state without re-validating it; for
+// interior equipment that no longer applies: restore goes through deserialize, which re-checks a stored
+// interior refusal, so its record is rebuilt).
 function placementFailureRecord(item){const r=item?._placementFailure,m=item?.placement;return r&&m?.validationFailed&&r.code===m.repairReason&&r.sourceKey===m.validationSourceKey?r:null;}
 function placementPendingFailure(item,result){
  const meta=item.placement;delete meta.pendingGeometry;meta.validationFailed=true;meta.repairRequired=true;meta.repairReason=result.code||'calculation-failed';meta.validationSourceKey=placementPendingSourceKey(item);delete item._placementGeometry;delete item._clip;delete item._packing;delete item.engineMountSupport;delete item._engineMountSupportGeometry;
@@ -63153,7 +63231,7 @@ function solvePlacement(ship,input,request={}){
  if(request.position!=null){if(!Array.isArray(request.position)||request.position.length!==3||!request.position.every(v=>Number.isFinite(v)&&Math.abs(v)<=DESIGN_LIMITS.coordinate))return placementFailure('placement-position','配置位置を有限の3座標で指定してください');part.c=request.position.slice();}
  const metadata={...publicCopyOf(old),modelVersion:PLACEMENT_MODEL_VERSION,mode,geometryRevision:request.geometryRevision??old.geometryRevision??0,requestedGeometry:placementShape(part)};for(const key of ['pendingGeometry','validationFailed','validationSourceKey','repairRequired','repairReason'])delete metadata[key];
  if(cap.space==='interior'){
-  if(hostId!=null)metadata.hostId=hostId;part.placement=metadata;const r=solveInteriorPlacement(ship,part,{...request,mode,hostId});if(!r.ok)return r;r.part.placement=metadata;r.inputKey=inputKey;r.existingId=existing?input.id:null;return r;
+  delete metadata.hostSurfaceId;part.placement=metadata;const r=solveInteriorPlacement(ship,part,{...request,mode});if(!r.ok)return r;metadata.hostId=r.part.placement.hostId;r.part.placement=metadata;r.inputKey=inputKey;r.existingId=existing?input.id:null;return r;
  }
  if(cap.kind!=='structure')return solveExteriorEquipmentPlacement(ship,part,request,metadata,{old,existing,inputKey});
  const fail=old.root&&parentId==null&&existing?.placement?.root?null:placementParentCheck(ship,part,parentId);if(fail)return fail;
@@ -63191,7 +63269,9 @@ function solvePlacement(ship,input,request={}){
  metadata.requestedGeometry=placementShape(part);metadata.parentStructureId=parentId;metadata.parentGeometryRevision=parent.placement?.geometryRevision??0;metadata.parentGeometryKey=placementDependencyKey(parent);metadata.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)metadata.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];delete metadata.unresolvedParentId;delete metadata.root;delete metadata.repairRequired;delete metadata.repairReason;metadata.contactNormal=hit.n.slice();metadata.contactLocalNormal=placementLocalNormal(parent,hit.n);metadata.contactSide=contactSide;if(surfaceId)metadata.hostSurfaceId=surfaceId;metadata.surfaceAnchor=localStruct(parent,hit.p);
  part.placement=metadata;if(mode!=='surface'){const r=fitPlacementContact(ship,part,parent,hit,mode,contactSide);if(!r.ok)return r;}else{const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact});
- const collisions=ship.parts.filter(p=>p.id!==part.id&&!isShapePart(p)&&overlapParts(part,p));if(collisions.length)return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');
+ // Interior equipment lies inside the hull and its structures (user decision 2026-11-11): a structure
+ // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.
+ const collisions=ship.parts.filter(p=>p.id!==part.id&&!isShapePart(p)&&!explicitInteriorPlacement(p)&&overlapParts(part,p));if(collisions.length)return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');
  part._placementParentKey=placementDependencyKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);
  return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(metadata.requestedGeometry),effectiveVolume:partVolume(part)};
 }
@@ -63214,8 +63294,9 @@ function refreshPlacementGeometry(ship,options={}){
  // their repaired body position must still reach the same generation.
  const embedded=syncEmbeddedEngineMachinery(ship);for(const id of embedded.updated)if(!ship.parts.find(p=>p.id===id)?.placement){updated.push(id);resolvedParts.push(id);}for(const row of embedded.failed)if(!ship.parts.find(p=>p.id===row.partId)?.placement){failed.push(row);resolvedParts.push(row.partId);}
  const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
-  if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||parent&&meta.parentGeometryKey!==placementDependencyKey(parent))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
-  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent);active.delete(p.id);done.add(p.id);return;}
+  const interior=explicitInteriorPlacement(p);
+  if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||(interior?meta.parentGeometryKey!==interiorEnvelopeKey(ship):parent&&meta.parentGeometryKey!==placementDependencyKey(parent)))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
+  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent);active.delete(p.id);done.add(p.id);return;}
   if(meta.validationFailed){failed.push({partId:p.id,code:meta.repairReason||'placement-failed'});active.delete(p.id);done.add(p.id);return;}
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    const pk=placementDependencyKey(parent),sk=placementShapeKey(p),cold=!p._placementSelfKey,parentChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
@@ -63227,7 +63308,10 @@ function refreshPlacementGeometry(ship,options={}){
     const r=legacyExteriorShieldAttachment(input)?solveExteriorEquipmentPlacement(ship,placementShape(input),request,{...publicCopyOf(meta),geometryRevision:request.geometryRevision,requestedGeometry:placementShape(input)},{old:meta,existing:p,inputKey:placementShapeKey(p)}):solvePlacement(ship,input,request);if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;updated.push(p.id);}else{p._placementError=r.code;if(selfChanged){meta.requestedGeometry=placementShape(p);meta.parentLocalAnchor=localStruct(parent,p.c);meta.repairRequired=true;meta.repairReason=r.code;}failed.push({partId:p.id,code:r.code});}
    }p._placementParentKey=pk;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);
   }}else if(meta.materializedAttachment)placementRestoreMaterialized(p);active.delete(p.id);done.add(p.id);};
- try{const ids=options.ids==null?null:new Set(options.ids);for(const p of ship.parts)if(!ids||ids.has(p.id))visit(p);if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,resolvedParts,resolvedFits};
+ try{const ids=options.ids==null?null:new Set(options.ids);
+  // Structures first: interior equipment is validated against the whole resolved interior,
+  // whatever its position in the parts array.
+  for(const p of ship.parts)if(isShapePart(p)&&(!ids||ids.has(p.id)))visit(p);for(const p of ship.parts)if(!ids||ids.has(p.id))visit(p);if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,resolvedParts,resolvedFits};
 }
 function placementCopyClosure(ship,selection={}){
  const parts=new Set((selection.parts||[]).map(p=>typeof p==='object'?p.id:p)),fits=new Set((selection.fits||[]).map(f=>typeof f==='object'?f.id:f));let changed=true;
@@ -63275,7 +63359,9 @@ function remapPlacementCopy(part,mapping,options={}){
  if(FITS[part?.k]&&!PARTS[part?.k]||part?._fit)return remapFitPlacementCopy(part,mapping,options);
  if(!part.placement)return;const meta=part.placement,sourceMap=typeof mapping?.get==='function'?mapping:mapping?.parts||mapping,lookup=id=>typeof sourceMap?.get==='function'?sourceMap.get(id):sourceMap?.[id];
  if(options.point&&Array.isArray(options.sourceParts)&&Array.isArray(options.targetParts)){const old=options.sourceParts.find(p=>p.id===meta.parentStructureId),parent=options.targetParts.find(p=>p.id===lookup(meta.parentStructureId));if(old&&parent){const normal=meta.contactLocalNormal?placementWorldNormal(old,meta.contactLocalNormal):meta.contactNormal;for(const key of ['surfaceAnchor','parentLocalAnchor'])if(meta[key])meta[key]=localStruct(parent,options.point(worldStruct(old,meta[key])));if(parent.s)meta.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];if(normal){meta.contactNormal=options.rotate?options.rotate(normal):normal;meta.contactLocalNormal=placementLocalNormal(parent,meta.contactNormal);}if(meta.rigidPose)meta.rigidPose=placementEquipmentPose(parent,part,worldStruct(parent,meta.surfaceAnchor));}}
- for(const key of ['parentStructureId','hostId']){const id=meta[key];if(id==null||id==='hull')continue;const next=lookup(id);if(next!=null)meta[key]=next;else if(!options.keepExternal){if(key==='parentStructureId')meta.unresolvedParentId=id;delete meta[key];if(key==='parentStructureId'){delete meta.root;part._placementError='parent-missing';}}}
+ // Interior equipment has no structure parent: a copy is anchored to the target ship's primary hull.
+ const interior=placementCapability(part).space==='interior'&&meta.hostId!=null;if(interior&&options.interiorAnchor!=null)meta.hostId=options.interiorAnchor;
+ for(const key of ['parentStructureId','hostId']){const id=meta[key];if(id==null||id==='hull'||key==='hostId'&&interior)continue;const next=lookup(id);if(next!=null)meta[key]=next;else if(!options.keepExternal){if(key==='parentStructureId')meta.unresolvedParentId=id;delete meta[key];if(key==='parentStructureId'){delete meta.root;part._placementError='parent-missing';}}}
  if(meta.root&&options.detachRoots){delete meta.root;meta.unresolvedParentId=part.id;part._placementError='parent-required';}
  if(meta.hostSurfaceId){const mapped=surfaceRemapPatchId(meta.hostSurfaceId,{parts:typeof sourceMap?.entries==='function'?new Map(sourceMap):sourceMap},options.mirror||false);if(mapped)meta.hostSurfaceId=mapped;else delete meta.hostSurfaceId;}
  if(options.rotate)for(const key of ['contactOffset','contactAxis'])if(meta[key])meta[key]=options.rotate(meta[key]);
@@ -65347,7 +65433,7 @@ function assemblyPlace(ship,tpl,at,opt={}){
   for(const src of tpl.parts)if(src.tw!=null){const a=parts.find(p=>p.id===map.get('p'+src.id)),b=map.get('p'+src.tw);if(a&&b!=null)a.tw=b;}
   for(const src of tpl.fits)if(src.tw!=null){const a=fits.find(f=>f.id===map.get('f'+src.id)),b=map.get('f'+src.tw);if(a&&b!=null)a.tw=b;}
   for(const q of [...parts,...fits])if(Array.isArray(q.surfacePoint)){q.surfacePoint=add(at,q.surfacePoint);if(mirrored)q.surfacePoint=mirrorP(q.surfacePoint);}
-  for(const p of parts)remapPlacementCopy(p,new Map(tpl.parts.map(src=>[src.id,map.get('p'+src.id)])),{detachRoots:ship.parts.some(isShapePart),mirror:mirrored,sourceParts:tpl.parts,targetParts:parts,point:v=>mirrored?mirrorP(add(at,v)):add(at,v),rotate:mirrored?mirrorP:null});
+  for(const p of parts)remapPlacementCopy(p,new Map(tpl.parts.map(src=>[src.id,map.get('p'+src.id)])),{detachRoots:ship.parts.some(isShapePart),interiorAnchor:interiorAnchorHostId(ship),mirror:mirrored,sourceParts:tpl.parts,targetParts:parts,point:v=>mirrored?mirrorP(add(at,v)):add(at,v),rotate:mirrored?mirrorP:null});
   ship.parts.push(...parts);ship.fits.push(...fits);
   for(const f of fits)if(f.host!=null)try{mountFit(ship,f);}catch(e){f.float=true;}
   const surfaceMap={parts:new Map(tpl.parts.map(p=>[p.id,map.get('p'+p.id)])),fits:new Map(tpl.fits.map(f=>[f.id,map.get('f'+f.id)]))};surfacePasteConfig(ship,tpl.surfaces,surfaceMap,mirrored,tpl.netLinks||[]);
@@ -65417,7 +65503,7 @@ function placeArrayCopies(ship,ids,options,linear){
    const rotate=linear?null:placementArrayRotate(axis,index*360/count),point=linear?((v)=>add(v,sub(add(start,mul(sub(options.end,start),index/(count-1))),anchor))):((v)=>add(options.center,rotate(sub(v,options.center)))),identity=linear&&index===0,map={parts:new Map(),fits:new Map()},parts=[],fits=[];
    for(const kind of ['parts','fits'])for(const q of source[kind])map[kind].set(q.id,identity?q.id:draft.nextId++);
    const node=id=>{const m=/^([pf])(\d+)$/.exec(id||'');return m?m[1]+((m[1]==='p'?map.parts:map.fits).get(+m[2])??+m[2]):id;};
-   for(const src of source.parts){const p=placementArrayPart(src,point,rotate);p.id=map.parts.get(src.id);for(const key of ['reactor','machineryId'])if(map.parts.has(p[key]))p[key]=map.parts.get(p[key]);if(!identity){delete p.tw;delete p.vt;}remapWingMembers(p.wing,id=>map.parts.get(id)??id,id=>map.fits.get(id)??id);if(p.powerDomain)p.powerDomain=node(p.powerDomain);remapPlacementCopy(p,map.parts,{keepExternal:identity,detachRoots:!identity});parts.push(p);}
+   for(const src of source.parts){const p=placementArrayPart(src,point,rotate);p.id=map.parts.get(src.id);for(const key of ['reactor','machineryId'])if(map.parts.has(p[key]))p[key]=map.parts.get(p[key]);if(!identity){delete p.tw;delete p.vt;}remapWingMembers(p.wing,id=>map.parts.get(id)??id,id=>map.fits.get(id)??id);if(p.powerDomain)p.powerDomain=node(p.powerDomain);remapPlacementCopy(p,map.parts,{keepExternal:identity,detachRoots:!identity,interiorAnchor:interiorAnchorHostId(draft)});parts.push(p);}
    for(const src of source.fits){const f=placementArrayFit(src,point,rotate);f.id=map.fits.get(src.id);if(map.parts.has(f.host))f.host=map.parts.get(f.host);else if(!identity||len(sub(point(src.p),src.p))>1e-9){delete f.local;delete f.localNormal;delete f.localForward;}if(!identity){delete f.tw;delete f.vt;}if(f.powerDomain)f.powerDomain=node(f.powerDomain);remapFitPlacementCopy(f,map.parts,{sourceHostId:src.host,targetParts:parts,keepExternal:identity});fits.push(f);}
    if(identity){for(const kind of ['parts','fits']){const byId=new Map((kind==='parts'?parts:fits).map(q=>[q.id,q]));draft[kind]=draft[kind].map(q=>byId.get(q.id)||q);}const selectedGroups=new Set(sourceGroups.map(g=>g.id));draft.groups=(draft.groups||[]).map(g=>{if(!selectedGroups.has(g.id)||!g.assembly?.origin)return g;const out=publicCopyOf(g);out.assembly.origin=point(out.assembly.origin);return out;});moved.push({parts,fits});}
    else{draft.parts.push(...parts);draft.fits.push(...fits);}
@@ -66587,7 +66673,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
