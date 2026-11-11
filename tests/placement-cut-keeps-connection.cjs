@@ -196,3 +196,44 @@ test('horizontal: a ship-level cut through the box itself re-fits it, and removi
  ship.solidCuts=[];ship._cache=null;r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));
  const back=pick(ship,box);for(const k of ['mass','volume','cost'])closeTo(back[k],start[k],'cut removed: '+k);closeTo(back.vol,startVol,'fitted volume back to the uncut shape');
 });
+
+// Round-2 review (ec97fe3): removals that existed when a child was placed are part of the parent it is
+// fitted to (placement.fitRemovalIds); only removals made later are ignored. Expected values are those of
+// origin/main 3e82bf1 for the same placements.
+function placeInto(cutC,cutS,{mode='horizontal',hitX=110,cx=110,size=[6,4,4],lift=1.2}={}){
+ const ship=C.newShip(CIGAR,'recess');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ C.hullOwnSolidCut(ship,hull,{id:ship.nextId++,shape:'box',c:cutC,s:cutS,rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;C.refreshPlacementGeometry(ship);
+ const raw=C.rayPart([hitX,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)};let part={id:ship.nextId,k:'struct',form:'box',c:[cx,hit.p[1]+lift,hit.p[2]],s:size,yaw:0,pitch:0,offsetX:0,offsetZ:0};if(mode==='surface')part=C.alignStructure(part,hit,'surface');
+ const d=C.preparePlacementDraft(ship,part,{mode,parentStructureId:hull.id,hostId:hull.id,hit,...(mode==='surface'?{}:{contactFit:'cut',position:part.c.slice()}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));return {ship,hull,box:ship.parts.at(-1)};
+}
+const shapeOf=(s,b,h)=>({c:b.c.map(v=>+v.toFixed(2)),vol:+(b._placementGeometry?.volume??C.partVolume(b)).toFixed(2),contact:C.placementContact(s,b,h).connected,mass:+C.computeStats({...s,_cache:null}).mass.toFixed(2)});
+for(const [name,cc,cs,opts,expected] of [
+ ['on a recess floor',[110,30,0],[20,6,20],{},{c:[110,21.2,0],vol:76.8,contact:true,mass:106193.05}],
+ ['hovering 0.5 m above a recess floor (extends to the floor)',[110,30,0],[20,6,20],{lift:2.5},{c:[110,22.5,0],vol:108,contact:true,mass:106306.93}],
+ ['tall in a narrow recess',[110,30,0],[20,6,20],{size:[6,12,4],lift:5.2},{c:[110,25.2,0],vol:403.2,contact:true,mass:106016.41}],
+ ['over a small existing hole (fills it)',[110,31,0],[4,4,4],{hitX:104,size:[16,8,6],lift:1.8},{c:[110,33.8,0],vol:655.13,contact:true,mass:105283.93}],
+ ['beside a recess',[110,30,0],[20,6,20],{hitX:123.5,cx:123.5},{c:[123.5,33.18,0],vol:78.03,contact:true,mass:106201.32}],
+])
+ test(`placement into an existing recess matches origin/main: ${name}; live = reload = deferred`,()=>{
+  const {ship,hull,box}=placeInto(cc,cs,opts),live=shapeOf(ship,box,hull);same(live,expected,'as on main');
+  const {L}=reload(ship),D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);
+  same(shapeOf(L,L.parts.find(p=>p.id===box.id),L.parts[0]),live,'reload');same(shapeOf(D,D.parts.find(p=>p.id===box.id),D.parts[0]),live,'deferred');
+  assert.ok(Array.isArray(box.placement.fitRemovalIds)&&box.placement.fitRemovalIds.length===1,'the recess is recorded as part of the fitted parent');
+ });
+
+test('a design saved by origin/main with a box placed over an existing recess loads connected and unchanged',()=>{
+ const saved=require('./fixtures/recess-hover-saved-by-main-3e82bf1.json');assert.equal(JSON.stringify(saved).includes('fitRemovalIds'),false,'an old save without the record');
+ const L=C.deserialize(JSON.parse(JSON.stringify(saved)),{deferPlacementGeometry:true}),r=C.refreshPlacementGeometry(L),p=L.parts.find(q=>q.id===3),S=grounding(L);
+ assert.equal(r.ok,true,JSON.stringify(r.failed));same(r.severed,[]);assert.equal(p._placementError,undefined);assert.ok(!S.ungrounded.parts.includes(3));same(S.severed,[]);
+ // origin/main 3e82bf1 on the same file: c [110,22.5,0], fitted 108 m3, connected, mass 106306.933 t, volume 134752.362 m3, cost 374077.
+ same(p.c.map(v=>+v.toFixed(4)),[110,22.5,0]);closeTo(p._placementGeometry.volume,108,'fitted volume');const st=statsOf(L);closeTo(st.mass,106306.933,'mass');closeTo(st.volume,134752.362,'volume');assert.equal(st.cost,374077);
+});
+
+test('a cut made after placing into a recess still does not re-fit the child (live = reload)',()=>{
+ const {ship,hull,box}=placeInto([110,30,0],[20,6,20],{lift:2.5}),vol=box._placementGeometry.volume,c=box.c.slice();
+ C.hullOwnSolidCut(ship,hull,{id:ship.nextId++,shape:'box',c:[110,22,0],s:[4,4,4],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;
+ const r=C.refreshPlacementGeometry(ship);assert.ok(!r.updated.includes(box.id),'not re-solved');assert.equal(box._placementGeometry.volume,vol,'shape kept');same(box.c,c);
+ const {L}=reload(ship),b=L.parts.find(p=>p.id===box.id);closeTo(b._placementGeometry.volume,vol,'reload fits to the removals recorded at placement');same(b.c.map(v=>+v.toFixed(6)),c.map(v=>+v.toFixed(6)));
+ for(const k of ['mass','volume','cost'])closeTo(statsOf(L)[k],statsOf(ship)[k],k);
+});
