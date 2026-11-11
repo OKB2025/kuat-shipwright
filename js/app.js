@@ -2057,7 +2057,7 @@ const st = {
   structSize: [180, 110, 60], structPlacement:'normal',sponsonSize:[24,20,5], structTaper: 0.2, fill: [0.3, 0.8], sizeCraft: {},
   sel: null, hatchA: null,
   fit: 'refVen', fitTool: 'place', batteryCaliber: '40TT', batteryGuns: 2, bridge: 'podBridge', bridgeTool: 'place', ped: 0, pedShape: 'round', pedSize: 1,
-  carveTool: 'solid', razee: {side: 'both', edge: 'top', inset: 60, slope: 50, from: 0.1, to: 1, prop: true}, notch: {l: 120, w: 80, d: 40}, notchStructures: false,
+  carveTool: 'solid', hullShapeTool: null, razee: {side: 'both', edge: 'top', inset: 60, slope: 50, from: 0.1, to: 1, prop: true}, notch: {l: 120, w: 80, d: 40}, notchStructures: false,
   mirror: true, view: 'normal', coded: false, cut: {x: 1, y: 1, z: 1},
   simOpp: 'destroyer', dockCollapsed: false,
 };
@@ -2903,7 +2903,10 @@ function tool() {
     case 'edit': return st.editTool === 'remove' ? 'unany' : 'edit';
     case 'arm': return st.fitTool === 'place' ? 'fit' : st.fitTool === 'remove' ? 'unfit' : st.fitTool === 'multi' ? 'multi' : 'adjust';
     case 'bridge': if(st.bridgeMode==='body')return st.partTool==='select'?'select':st.partTool==='multi'?'multi':st.partTool==='remove'?'unpart':'part';return st.bridgeTool === 'place' ? 'fit' : st.bridgeTool === 'remove' ? 'unfit' : 'adjust';
-    case 'carve': return st.carveTool === 'solid' ? 'solid' : st.carveTool === 'notch' ? 'notch' : 'inspect';
+    // 削る is one tool for solid cutters (user decision 2026-11-11). Trench, bevel, notch and the
+    // plan trapezoid are hull-only shape tools under 形状.
+    case 'carve': return 'solid';
+    case 'hull': return st.hullShapeTool === 'notch' ? 'notch' : 'inspect';
     default: return 'inspect';
   }
 }
@@ -3604,6 +3607,7 @@ function baseRenderPanel() {
       <div class="pgroup"><h4>断面</h4>${seg('sec', Object.entries(C.SECTIONS), hp.sec)}</div>
 
       <div class="pgroup row2"><button type="button" class="btn" id="btnClear">${confirmClear ? 'もう一度押すと区画と装備をすべて外します' : '区画と装備をすべて外す'}</button></div>`;
+      h += hullShapeToolsHTML(hp);
       break;
     }
     case 'mod': {
@@ -3663,35 +3667,7 @@ function baseRenderPanel() {
       <div class="pinfo" id="pinfo"></div>`;
       break;
     case 'carve': {
-      const r = st.razee;
-      h = `<div class="pgroup carve-tools">${seg('carvetool', [['solid', '立体で切る'], ['trench', 'トレンチ'], ['razee', '斜め削り'], ['notch', '面から切る'], ['plan', '平面の台形']], st.carveTool)}</div>`;
-      if (st.carveTool === 'solid') h += solidCutPanelHTML();
-      else if (st.carveTool === 'trench') h += trenchPanelHTML();
-      else if (st.carveTool === 'plan') h += planCutControls();
-      else if (st.carveTool === 'razee') {
-        h += `<div class="pgroup razee">
-          <p class="note">断面の角を斜めに削ぎ、台形にします。骨組みは断面に合わせて細くなりますが、質量も減るため加速の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。</p>
-          ${seg('rzside', [['both', '両舷'], ['port', '左舷'], ['stbd', '右舷']], r.side)}
-          ${seg('rzedge', [['top', '上縁'], ['bottom', '下縁'], ['both', '上下']], r.edge)}
-          </div><div class="pgroup"><h4>削り幅と範囲</h4><div class="sliders">
-            ${slider('rzinset', '削り幅', r.inset, 2, Math.round(hp.W / 2), 1, fmtM(r.inset))}
-            ${slider('rzslope', '傾斜の高さ', r.slope, 2, Math.round(hp.H), 1, fmtM(r.slope))}
-            ${slider('rzfrom', '範囲（艦尾側）', Math.round(r.from * 100), 0, 95, 1, `${Math.round(r.from * 100)}%`)}
-            ${slider('rzto', '範囲（艦首側）', Math.round(r.to * 100), 5, 100, 1, `${Math.round(r.to * 100)}%`)}
-          </div>
-          <label class="check"><input type="checkbox" id="rzprop" ${r.prop ? 'checked' : ''}> 船幅のすぼまりに合わせる</label></div>
-          <div class="pgroup"><button type="button" class="btn primary" id="btnRazee">ラザー化を加える</button>
-        </div>`;
-      } else {
-        const n = st.notch;
-        h += `<div class="pgroup sliders">
-          ${slider('nl', '長さ', n.l, 5, Math.round(hp.L / 2), 1, fmtM(n.l))}
-          ${slider('nw', '幅', n.w, 5, Math.round(hp.W), 1, fmtM(n.w))}
-          ${slider('nd', '深さ', n.d, 2, Math.round(Math.max(hp.H, hp.W / 2)), 1, fmtM(n.d))}</div>
-          ${seg('notchstructures', [['no','船体のみ'],['yes','船体と構造']], st.notchStructures?'yes':'no')}<p class="note">対象の外面をタップすると、その面から箱形に切り欠きます。格納庫の開口や砲座の段差に使えます。</p>`;
-      }
-      if(st.carveTool !== 'solid')h += `<details class="pgroup"><summary>ほかの加工の一覧</summary>${cutList()}</details>`;
-      h += `<div class="pinfo" id="pinfo"></div>`;
+      h = solidCutPanelHTML() + `<div class="pinfo" id="pinfo"></div>`;
       break;
     }
     case 'spec':
@@ -3719,6 +3695,40 @@ function cutList() {
   for (const c of hullEditorShip().cuts) {if(c.type==='planTrapezoid'){rows.push(`<li><span><b>平面の台形切削</b>${{both:'両舷',port:'左舷',stbd:'右舷'}[c.side]} · ${Math.round(c.from*100)}〜${Math.round(c.to*100)}% · 中央幅 ${Math.round(hullEditorProfile().W*c.remainingWidth)} m</span><button class="btn sm ghost" data-delcut="${c.id}">取り消す</button></li>`);continue;} rows.push(`<li><span><b>ラザー化</b>${{both: '両舷', port: '左舷', stbd: '右舷'}[c.side]}・${{top: '上縁', bottom: '下縁', both: '上下'}[c.edge]}・幅 ${Math.round(c.inset)} m・高さ ${Math.round(c.slope)} m・${Math.round(c.from * 100)}〜${Math.round(c.to * 100)}%</span><button type="button" class="btn sm ghost" data-delcut="${c.id}">取り消す</button></li>`);}
   for (const s of hullEditorShip().subs) rows.push(`<li><span><b>切り欠き</b>${Math.round(s.b[3] - s.b[0])}×${Math.round(s.b[5] - s.b[2])}×${Math.round(Math.min(s.b[4] - s.b[1], 9999))} m・艦尾から ${Math.round((s.b[0] + s.b[3]) / 2)} m</span><button type="button" class="btn sm ghost" data-delsub="${s.id}">取り消す</button></li>`);
   return rows.length ? `<ul class="ilist">${rows.join('')}</ul>` : '<p class="note">まだ削っていません。</p>';
+}
+// Hull-only shape tools under 形状 (user decision 2026-11-11): trench, bevel (斜め削り), notch and
+// the plan trapezoid shape the hull structure itself; 削る is the solid cutter for every structure.
+const HULL_SHAPE_TOOLS=[['trench','トレンチ'],['razee','斜め削り'],['notch','面から切る'],['plan','平面の台形']];
+function hullShapeToolsHTML(hp){
+      const r = st.razee;
+      let h = `<div class="pgroup hull-shape-tools"><h4>船体の形状加工（船体のみ）</h4>${seg('hullshapetool', [['', 'なし'], ...HULL_SHAPE_TOOLS], st.hullShapeTool||'')}</div>`;
+      if (!st.hullShapeTool) return h;
+      if (st.hullShapeTool === 'trench') h += trenchPanelHTML();
+      else if (st.hullShapeTool === 'plan') h += planCutControls();
+      else if (st.hullShapeTool === 'razee') {
+        h += `<div class="pgroup razee">
+          <p class="note">断面の角を斜めに削ぎ、台形にします。骨組みは断面に合わせて細くなりますが、質量も減るため加速の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。</p>
+          ${seg('rzside', [['both', '両舷'], ['port', '左舷'], ['stbd', '右舷']], r.side)}
+          ${seg('rzedge', [['top', '上縁'], ['bottom', '下縁'], ['both', '上下']], r.edge)}
+          </div><div class="pgroup"><h4>削り幅と範囲</h4><div class="sliders">
+            ${slider('rzinset', '削り幅', r.inset, 2, Math.round(hp.W / 2), 1, fmtM(r.inset))}
+            ${slider('rzslope', '傾斜の高さ', r.slope, 2, Math.round(hp.H), 1, fmtM(r.slope))}
+            ${slider('rzfrom', '範囲（艦尾側）', Math.round(r.from * 100), 0, 95, 1, `${Math.round(r.from * 100)}%`)}
+            ${slider('rzto', '範囲（艦首側）', Math.round(r.to * 100), 5, 100, 1, `${Math.round(r.to * 100)}%`)}
+          </div>
+          <label class="check"><input type="checkbox" id="rzprop" ${r.prop ? 'checked' : ''}> 船幅のすぼまりに合わせる</label></div>
+          <div class="pgroup"><button type="button" class="btn primary" id="btnRazee">ラザー化を加える</button>
+        </div>`;
+      } else {
+        const n = st.notch;
+        h += `<div class="pgroup sliders">
+          ${slider('nl', '長さ', n.l, 5, Math.round(hp.L / 2), 1, fmtM(n.l))}
+          ${slider('nw', '幅', n.w, 5, Math.round(hp.W), 1, fmtM(n.w))}
+          ${slider('nd', '深さ', n.d, 2, Math.round(Math.max(hp.H, hp.W / 2)), 1, fmtM(n.d))}</div>
+          ${seg('notchstructures', [['no','船体のみ'],['yes','船体と構造']], st.notchStructures?'yes':'no')}<p class="note">対象の外面をタップすると、その面から箱形に切り欠きます。格納庫の開口や砲座の段差に使えます。</p>`;
+      }
+      h += `<details class="pgroup"><summary>ほかの加工の一覧</summary>${cutList()}</details>`;
+      return h;
 }
 function renderPanelInfo() {
   const box = $('#pinfo'); if (!box || !S) return;
@@ -4454,7 +4464,8 @@ function bind() {
     else if (d.fit) { selectPaletteDefinition('fit',d.fit); }
     else if (d.bridgetool) { if (d.bridgetool === 'place' && st.bridgeTool !== 'place') carryToPlace(); st.bridgeTool = d.bridgetool; if (d.bridgetool !== 'adjust') st.sel = null; renderPanel(); }
     else if (d.bridge) { selectPaletteDefinition('bridge',d.bridge); }
-    else if (d.carvetool) { st.carveTool = d.carvetool; renderPanel(); }
+    else if (d.carvetool) { if (d.carvetool === 'solid') st.carveTool = 'solid'; else { st.tab = 'hull'; st.hullShapeTool = d.carvetool; } renderPanel(); }
+    else if ('hullshapetool' in d) { st.hullShapeTool = d.hullshapetool || null; renderPanel(); }
     else if (d.hull) {
       const P = C.HULLS[d.hull], hp = hullEditorProfile();
       mutate(`${P.name}船体`, () => { setHullDims(hp.L, Math.round(hp.L * P.W / P.L), Math.round(hp.L * P.H / P.L)); delete hp.stations; Object.assign(hp, {plan: P.plan, sec: P.sec, bowW: P.bowW, bowH: P.bowH, stern: P.stern, name: P.name}); C.normalizeBow(hp); }, 'hull');
@@ -4933,7 +4944,7 @@ function designUIPanel(){
     const placement=designUIPlacementHTML();if(placement)panel.insertAdjacentHTML('beforeend','<details data-design-attachment><summary>取付・配置方式</summary>'+placement+'</details>');
     if(st.sel?.list==='parts'&&C.isStructuralPart(selItem())&&!panel.querySelector('[data-design-here]'))panel.insertAdjacentHTML('beforeend','<div class="design-placement-actions"><button type="button" class="btn" data-design-here>ここに構造物を追加</button></div>');
     panel.insertAdjacentHTML('afterbegin',designUISymmetryHTML(true));
-    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="carve">トレンチ・切削</button>':'')+'</div>');
+    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
    }
    if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p><div class="design-placement-actions"><button type="button" class="btn ghost" data-design-action="edit-cancel">取消</button></div></section>');designUIEditStatus();}
   }
@@ -4991,7 +5002,10 @@ function designUIContextOpen(context){
  if(context==='armor'&&!C.isHullStructure?.(item)){
   const region=$('[data-structure-face-armor-editor]');if(region){const fold=region.closest('details');if(fold)fold.open=true;region.scrollIntoView?.({block:'nearest'});region.querySelector('input')?.focus();}return;
  }
- if(!C.isHullStructure?.(item)||!['armor','carve'].includes(context))return;
+ // 削る works on every structure (user decision 2026-11-11); armor and the hull shape tools
+ // (形状) stay with hull structures.
+ if(context==='carve'&&C.isShapePart(item)){designUI.resetScroll=true;designUI.context='carve';st.tab='carve';if(!C.isHullStructure?.(item))st.cutterHullId=null;renderPanel();return;}
+ if(!C.isHullStructure?.(item)||!['armor','hull'].includes(context))return;
  designUI.resetScroll=true;designUI.context=context;st.tab=context;renderPanel();
 }
 async function designUITrialStart(){
@@ -5959,7 +5973,7 @@ function trenchArmamentOpen(item){
   const ref=item?.trenchRef;if(!ref)return false;
   if(designUI.space!=='exterior'){designSpaceNotice();return false;}
   if(typeof designUIEditSession==='function'&&designUIEditSession())designUIEditApply({close:true});
-  designUICancel();designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.context='trench';st.tab='carve';st.carveTool='trench';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');
+  designUICancel();designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.context='trench';st.tab='hull';st.hullShapeTool='trench';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');
   const parent=ship.parts.find(p=>p.id===ref.hostId&&C.isHullStructure?.(p));st.sel=parent?{list:'parts',id:parent.id}:null;
   trenchArmamentChoose(ref.trenchId);syncHud();refreshOverlay();requestDraw();return true;
 }
@@ -6378,7 +6392,7 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
   referencePanel(panel);layoutPanel(panel);
   if(st.tab==='hull')panel.insertAdjacentHTML('afterbegin',hullDimsHTML());
   if(st.tab==='bridge'&&st.bridgeMode==='body')panel.insertAdjacentHTML('beforeend',surfaceControls({},false));
-  if(['hull','carve','armor'].includes(st.tab))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
+  if(['hull','carve','armor'].includes(st.tab)&&!(st.sel?.list==='parts'&&C.isShapePart(selItem())&&!C.isHullStructure?.(selItem())))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
   if(st.tab==='spec')panel.insertAdjacentHTML('afterbegin',trialCardHTML());
   organizePanel();
 }
@@ -10246,9 +10260,14 @@ function resetSolidCutter(){
 function ensureSolidCutter(){
   if(cutterOwner!==ship)resetSolidCutter();
   if(!st.solidCutter&&ship){
-    const part=hullEditorPart(),local=hullEditorShip(),h=hullEditorProfile(),x=h.L*.55,b=C.sectionBase(h,x),z=b.hw*.65;
+    // A new cutter applies to every structure it meets (scope 'all', user decision 2026-11-11). It starts
+    // on the selected structure when one that is not a hull is selected.
+    const picked=st.sel?.list==='parts'?selItem():null;
+    if(picked&&C.isShapePart(picked)&&!C.isHullStructure?.(picked)){const b=C.partAABB(picked),size=[0,1,2].map(i=>Math.max(.5,(b[i+3]-b[i])*.5));st.cutterHullId=null;
+      st.solidCutter=C.normalizeSolidCut({id:-1,shape:'box',c:[0,1,2].map(i=>(b[i]+b[i+3])/2),s:[size[0],size[2],size[1]],rotation:[0,0,0],mirror:st.mirror,structures:true});}
+    else{const part=hullEditorPart(),local=hullEditorShip(),h=hullEditorProfile(),x=h.L*.55,b=C.sectionBase(h,x),z=b.hw*.65;
     const y=C.originalSurface(local,x,1,z,1)??b.ytop;st.cutterHullId=part?.id??null;
-    st.solidCutter=C.normalizeSolidCut({id:-1,shape:'box',c:part?C.hullWorldPoint(part,[x,y,z]):[x,y,z],s:[Math.max(12,h.L*.12),Math.max(8,h.W*.15),Math.max(8,h.H*.45)],rotation:[0,0,0],mirror:st.mirror,structures:!!h.assembly});
+    st.solidCutter=C.normalizeSolidCut({id:-1,shape:'box',c:part?C.hullWorldPoint(part,[x,y,z]):[x,y,z],s:[Math.max(12,h.L*.12),Math.max(8,h.W*.15),Math.max(8,h.H*.45)],rotation:[0,0,0],mirror:st.mirror,structures:true});}
   }
   return st.solidCutter;
 }
@@ -10269,7 +10288,7 @@ function solidCutPanelHTML(){
   const q=ensureSolidCutter(),editing=st.solidCutEdit!=null;
   return `<div class="pgroup cutter-editor">
     <div class="cutter-heading"><h3>${editing?'切削 #'+st.solidCutEdit+' を調整':'立体を重ねて切り取る'}</h3>${editing?'<button class="btn sm ghost" data-cutter-new>新規</button>':''}</div>
-    <p class="note">半透明の立体を船体に重ね、重なった部分を切り取ります。位置と大きさを決めてから実行できます。</p>
+    <p class="note">半透明の立体を船体や構造物に重ね、重なった部分を切り取ります。「全体に適用」がオンなら、重なるすべての構造物（板・翼・パネルを含む）を切ります。固定機器に重なると点検に警告が出ます（機器は動かしません）。</p>
     <div class="cutter-shapes hscroll">${Object.entries(CUTTER_NAMES).map(([k,name])=>`<button type="button" class="btn" data-cutter-shape="${k}" aria-pressed="${q.shape===k}">${name}</button>`).join('')}</div>
     <h4>1 · 大きさを決める</h4>
     ${q.shape==='sphere'?`<div class="cutter-coords"><label>直径<span><input type="number" inputmode="decimal" data-cutter-field="s" data-axis="0" min=".02" max="${C.DESIGN_LIMITS.partSize}" step="any" value="${cutterNumber(q.s[0])}" aria-label="カッターの直径"><i>m</i></span></label></div>`:cutterInputs('s',q.shape==='torus'?['外径（前後）','外径（左右）','管の太さ']:['長さ','幅','高さ'],'m')}
@@ -10288,11 +10307,11 @@ function solidCutPanelHTML(){
       <div class="row2"><button class="btn sm" data-cutter-center>左右中央へ</button><button class="btn sm" data-cutter-through>上下に貫通</button></div>
     </details>
     <details class="cutter-rotation"><summary>角度を変える</summary>${cutterInputs('rotation',['X軸回転','Y軸回転','Z軸回転'],'°')}<div class="cutter-nudge">${[0,1,2].map(a=>`<button class="btn sm" data-cutter-turn="${a}">${['X','Y','Z'][a]} +90°</button>`).join('')}</div><button class="btn sm ghost" data-cutter-zero>回転を戻す</button></details>
-    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 上部構造・船殻パーツも切る</label></div></div>
+    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 全体に適用（重なるすべての構造物を切る）</label></div></div>
     <p class="note">${editing?'変更は実行するまで確定しません。':['cylinder','ellcyl','cone','frustum'].includes(q.shape)?'軸は初期状態で上下方向です。':q.shape==='capsule'?'カプセルの軸は前後方向です。':q.shape==='torus'?'リングは水平で、管の太さは高さで決まります。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
     <div class="cutter-apply"><button type="button" class="btn primary" data-cutter-apply>${editing?'この形で切削を更新':'重なりを切り取る'}</button>${editing?'<button class="btn ghost" data-cutter-cancel>調整をやめる</button>':''}</div>
   </div><div class="pgroup"><div class="cutter-heading"><h4>立体で切った箇所</h4><button class="btn sm ghost" data-cutter-new>新しいカッター</button></div>
-  <ul class="ilist cutter-history">${visibleSolidCuts().map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?' · 左右対称':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
+  <ul class="ilist cutter-history">${visibleSolidCuts().map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?' · 左右対称':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-scope="${c.id}" aria-pressed="${C.solidCutScope(ship,c.id)==='all'}" title="オンで重なるすべての構造物を切ります。オフで船体だけを切ります">全体に適用：${C.solidCutScope(ship,c.id)==='all'?'オン':'オフ'}</button><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
   <p class="note">元に戻す・やり直す操作にも対応します。</p></div>`;
 }
 function syncCutterFields(){
@@ -10327,11 +10346,15 @@ function applySolidCutter(){
   if(!editing&&C.solidCutIntersectsShip&&!C.solidCutIntersectsShip(ship,draft)){toast('船体との重なりがありません。位置や大きさを調整してください');return false;}
   let applied;
   const changed=mutate(editing?'立体切削を調整':'立体の重なりを切削',()=>{
-    ship.solidCuts||=[];const owned=editing?ownedSolidCut(st.solidCutEdit):null,owner=owned?.part||ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p)),i=editing?ship.solidCuts.findIndex(q=>q.id===st.solidCutEdit):-1;
+    ship.solidCuts||=[];const owned=editing?ownedSolidCut(st.solidCutEdit):null,i=editing?ship.solidCuts.findIndex(q=>q.id===st.solidCutEdit):-1;
     if(editing&&i<0&&!owned)return '調整する切削が見つかりません';
     applied=C.normalizeSolidCut({...draft,id:editing?st.solidCutEdit:ship.nextId++});
-    if(owner&&C.hullOwnSolidCut){if(owned)owner.hullData.solidCuts=owner.hullData.solidCuts.filter(c=>c.id!==applied.id);C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
-    else{if(i>=0)ship.solidCuts[i]=applied;else ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;}
+    // The draft's 全体に適用 switch decides the scope: on is a ship-level cut that carves every
+    // structure; off keeps (or makes) it a hull-owned cut that carves its hull only.
+    const owner=applied.structures?null:owned?.part||ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p))||ship.parts.find(p=>C.isHullStructure?.(p)&&p.primaryHull);
+    if(owned)owned.part.hullData.solidCuts=owned.part.hullData.solidCuts.filter(c=>c.id!==applied.id);if(i>=0)ship.solidCuts.splice(i,1);
+    if(owner&&C.hullOwnSolidCut){C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
+    else{ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;for(const p of ship.parts)if(applied.structures&&C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled)p.hullData.hullSkin.enabled=false;}
   },'hull');
   if(changed&&applied){st.solidCutEdit=applied.id;st.solidCutter=C.normalizeSolidCut(applied);st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
   renderPanel();return !!changed;
@@ -10366,6 +10389,7 @@ function bindSolidCuts(){
     if('cutterCancel'in d){const c=worldSolidCut(st.solidCutEdit);if(c)st.solidCutter=C.normalizeSolidCut(c);st.solidCutEdit=null;st.cutterAction='camera';updateCutterDraft(true);}
     if('cutterApply'in d)applySolidCutter();
     if(d.cutterSelect)selectSolidCut(+d.cutterSelect);
+    if(d.cutterScope){const id=+d.cutterScope,next=C.solidCutScope(ship,id)==='all'?'hull':'all';mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');if(st.solidCutEdit===id){const q=worldSolidCut(id);if(q)st.solidCutter=C.normalizeSolidCut(q);}renderPanel();}
     if(d.cutterDelete){const id=+d.cutterDelete;mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id);if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id);},'hull');if(st.solidCutEdit===id){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();}
     if(d.cutterScale){const q=ensureSolidCutter();q.s=q.s.map(v=>v*Number(d.cutterScale));updateCutterDraft(false);}
     if('cutterNudge'in d){const q=ensureSolidCutter(),a=+d.cutterNudge;q.c[a]+=st.cutterStep*(+d.direction);updateCutterDraft(false);}

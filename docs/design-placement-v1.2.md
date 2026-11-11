@@ -126,6 +126,17 @@
 |計算量|親ごとのキーは更新 1 回につき 1 度だけ計算する。材料だけの変更では、子の周りの親の三角形と子自身の三角形が変わっていなければ接触を測り直さない（周りの範囲は子の寸法の 1% と `8×placementEpsilon` の大きい方）|`placementParentKeys`、`placementLocalParentHash`|
 |浮いた装備|面IDが消えても実形状に触れていれば着座のまま。足元が削られて浮いた装備は `floatingFits` に出す（以前は `float` を理由に飛ばしていた）|`groundingStats`|
 
+段階 2（削るメニューの一本化、`tests/solid-cut-scope.cjs`）：
+
+|項目|規則|実装|
+|---|---|---|
+|削るメニュー|削るは立体カッター（直方体・円柱など）だけの道具。船体に限らず、どの構造物を選んでも 編集 →「削る」で開く。トレンチ・斜め削り・面から切る・平面の台形は船体専用の形状道具として「形状」（船体の形状加工）に移した|`js/app.js` の `designUIContextOpen`、`tool()`、`hullShapeToolsHTML`|
+|適用範囲|新しい立体カットは `ship.solidCuts`（`structures:true`）で、重なるすべての構造物（板・翼・パネルを含む）を切る（範囲「全体」）。作例・保存済みの船体所有の削り（`hullData.solidCuts`）は船体専用のまま。一覧の「全体に適用」で 1 件ずつ切り替える。形と位置は変えない|`solidCutScope`、`setSolidCutScope`、`applySolidCutter`|
+|質量の修正|艦レベルの立体カットが船体の材料（容積・質量・価格）を減らしていなかった。`hullMaterialGeometry` が艦レベルのカットを船体構造物の材料にも適用する。同じ形の船体所有の削りと同じ値になる|`hullMaterialGeometry`、`groundingStats` 前の材料集計（`info[hull].materialVolume`）|
+|固定機器との重なり|範囲「全体」の削りが固定機器（反応炉・機関などの変形しない部品）に重なっても削りは実行し、点検に警告（`lv:'warn'`、`code:'cut-equipment'`、選択リンク）を出す。機器は動かさず削除もしない。船体所有の削りは船体の形状加工で、既存の設計では機関の受け口に使っている（executor の艦尾の機関の凹み 3 か所）ので対象にしない|`solidCutEquipmentHits`、`S.cutEquipment`|
+
+物理への影響：艦レベルの立体カットがある設計だけ、船体の材料容積・質量・船体価格が減る（同じ形の船体所有の削りと一致）。2026-11-11 時点の作例 28 隻には艦レベルの立体カットがない（船体所有の削りだけ：executor 4、imperial 13、imperial2 13、onager 6、venator 5）ので作例の値は変わらない。利用者の設計の価格を再計算させるため `COST_MODEL.version` を 17 → 18 に上げ、艦載機の価格表を再生成した（12 機とも価格は同じ）。
+
 以前の規則「形状編集で面が失われた場合は元定義を保持し、再接続を案内する」（下記・ATTACH-03）は、面IDが消えても実接触があれば接続を保つ、に置き換えた（2026-11-11、レビュー対象の仕様変更。`tests/structure-placement-modes.cjs`・`tests/fit-placement-attachment.cjs` を更新）。
 
 切り取りの有効形状は要求形状と使用可能領域の交差、能力は有効容積から求める。
