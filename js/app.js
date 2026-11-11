@@ -9166,7 +9166,7 @@ function spaceBattleInit(plan){
  // the streaks are seen side-on, in an echelon one ship after another. They
  // arrive a little above the flagship's plane, where dorsal batteries bear.
  const n=plan.foes.length;plan.foes.forEach((x,i)=>{const u=C.fleetUnit('e'+i,x.key,x.p,1),gap=Math.max(2600,x.p.len*2.2);u.name=x.name;u.pos=[17000+i*gap*.55,500+(i%3)*450,5000+i*gap*.8];u.yaw=-Math.PI*.8;u.absent=true;u.warp={at:3+i*.6,t:0};units.push(u);});
- const b=C.fleetBattle(units,true);b.seed=(Math.random()*2**31)|0;
+ const b=C.fleetBattle(units,true);b.seed=(Math.random()*2**31)|0;C.fleetPrepareCollision?.(units);
  trial.battle={b,O,E,acc:0,extra:new Map(),seen:0,result:null,orderT:0,me,plan,ticker:[],modIndex:new Map((trial.p.modules||[]).map((m,i)=>[m.fit,i]).filter(([f])=>f!=null)),kills:0,disabled:0};
  trial.targets=[];trial.vbolts=[];spaceRefresh(0);
 }
@@ -14784,7 +14784,7 @@ function patrolBattleStart(group) {
   const u = C.fleetUnit('e' + (P.uid++), x.key, x.p, 1), gap = Math.max(2600, x.p.len * 2.2), back = i * gap * .4, off = i * gap * .8 * (i % 2 ? -1 : 1);
   u.name = x.name;u.pos = [cd[0] * (R0 + back) + sd[0] * off, 400 + (i % 3) * 450, cd[1] * (R0 + back) + sd[1] * off];u.yaw = Math.atan2(-u.pos[2], -u.pos[0]) + (Math.random() - .5) * .3;u.absent = true;u.warp = {at: 4 + i * .6, t: 0};units.push(u);
  });
- const b = C.fleetBattle(units, true);b.seed = (Math.random() * 2 ** 31) | 0;
+ const b = C.fleetBattle(units, true);b.seed = (Math.random() * 2 ** 31) | 0;C.fleetPrepareCollision?.(units);
  trial.escorts = [];
  trial.battle = {b, O, E, acc: 0, extra: new Map(), seen: 0, result: null, orderT: 0, me, plan: {patrol: true}, ticker: [], modIndex: new Map((trial.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), kills: 0, disabled: 0, patrol: true};
  trial.targets = [];trial.vbolts = [];spaceRefresh();
