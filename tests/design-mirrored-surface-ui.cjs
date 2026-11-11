@@ -37,3 +37,22 @@ test('only a verified pending semantic hit can omit its stable face ID for mirro
  assert.equal(mirror.request.hit.semanticPending,undefined,'ephemeral Gfx validation flags are not persisted');
  for(const respond of [hit=>{const raw={...hit};delete raw.hostSurfaceId;return [raw];},hit=>[{...hit,semanticPending:true,hostSurfaceId:''}],hit=>[{...hit,semanticPending:true,hostSurfaceId:undefined,parentStructureId:99}]])assert.throws(()=>setup({...input,respond}).rows(),/対称側の取付面を確認できません/);
 });
+
+test('a mirror onto a separately placed (untwinned) parent goes on the structure that carries the reflected surface',()=>{
+ // Two independent structures, one on each side, with no tw link: the mirrored fitting must land on #5, not fail on #1.
+ const ship=C.newShip({L:100,W:60,H:40,assembly:true},'Separate parents');ship.parts=[{id:1,k:'struct',c:[50,10,10],s:[20,20,10]},{id:5,k:'struct',c:[50,10,-10],s:[20,20,10]}];
+ const input=fitRequest([0,0,1],'stbd');input.request.parentStructureId=1;input.request.hostId=1;
+ const t=setup({...input,fixtureShip:ship});
+ const probe=(o,d,id)=>{const ideal=C.add(o,C.mul(d,.1)),normal=C.norm(C.mul(d,-1));return {p:ideal,n:normal,face:normal[2]>0?'stbd':'port',hostSurfaceId:'s'+id+':'+(normal[2]>0?'stbd':'port'),parentStructureId:id,part:{id}};};
+ t.context.Gfx={structureSurfaceCandidates:(s,o,d,id)=>{const side=o[2]>0?1:5;return id===side?[probe(o,d,id)]:[];},placementSurfaceCandidates:(s,o,d)=>[probe(o,d,o[2]>0?1:5)]};
+ const rows=t.rows(),mirror=rows[1];
+ assert.equal(rows.length,2);assert.equal(mirror.request.parentStructureId,5,'the mirrored mount uses the structure on the other side');assert.equal(mirror.request.hostId,5);
+ assert.ok(mirror.request.hit.p[2]<0,'the mirrored point is on the port side');
+});
+
+test('an untwinned parent with no structure at the reflected point still refuses the mirror',()=>{
+ const ship=C.newShip({L:100,W:60,H:40,assembly:true},'One-sided parent');ship.parts=[{id:1,k:'struct',c:[50,10,10],s:[20,20,10]}];
+ const input=fitRequest([0,0,1],'stbd');input.request.parentStructureId=1;input.request.hostId=1;
+ const t=setup({...input,fixtureShip:ship});t.context.Gfx={structureSurfaceCandidates:()=>[],placementSurfaceCandidates:()=>[]};
+ assert.throws(()=>t.rows(),/対称側の取付面を確認できません/);
+});

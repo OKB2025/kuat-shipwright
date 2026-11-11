@@ -5165,7 +5165,14 @@ function designUIRequests(part,request){
   r.hit.p=reflected(r.hit.p,axis);r.hit.n[i]*=-1;if(r.hit.u)r.hit.u[i]*=-1;if(r.hit.v)r.hit.v[i]*=-1;r.hit.face=faces[axis][r.hit.face]||r.hit.face;
   if(source.request.position)r.position=reflected(source.request.position,axis);
   if(fit){next.p=r.hit.p.slice();next.n=(next.n||source.request.hit.n).slice();next.n[i]*=-1;next.assetYaw=-(next.assetYaw||0);for(const key of ['frameForward','tilt'])if(Array.isArray(next[key])){next[key]=next[key].slice();next[key][i]*=-1;}if(axis==='y'){if(next.mountMode==='top')next.mountMode='bottom';else if(next.mountMode==='bottom')next.mountMode='top';}}
-  for(const field of ['parentStructureId','hostId']){const owner=designParent(r[field]);if(owner?.[link]!=null)r[field]=owner[link];}
+  const twinned=new Set();for(const field of ['parentStructureId','hostId']){const owner=designParent(r[field]);if(owner?.[link]!=null){r[field]=owner[link];twinned.add(field);}}
+  // A parent placed separately on each side (no mirror twin) has no link to follow: the mirrored mount
+  // goes on whichever structure actually carries the reflected surface, found with the same 20 cm probe.
+  if(r.parentStructureId!=null&&!twinned.has('parentStructureId')&&designParent(r.parentStructureId)){
+   const n=C.norm(r.hit.n),radius=.1,origin=C.add(r.hit.p,C.mul(n,radius)),own=Gfx.structureSurfaceCandidates?.(editorMountShip(),origin,C.mul(n,-1),r.parentStructureId,{maxDistance:radius*2})[0];
+   if(!own){const any=(Gfx.placementSurfaceCandidates?.(editorMountShip(),origin,C.mul(n,-1),{maxDistance:radius*2})||[]).find(h=>{const id=h?.parentStructureId??h?.part?.id;return id!=null&&id!=='hull'&&designParent(id);});
+    const id=any&&(any.parentStructureId??any.part?.id);if(id!=null){if(r.hostId===r.parentStructureId)r.hostId=id;r.parentStructureId=id;}}
+  }
   if(axis==='y'&&r.contactSide)r.contactSide=r.contactSide==='bottom'?'top':r.contactSide==='top'?'bottom':r.contactSide;
   if(axis==='z'&&r.contactSide)r.contactSide=r.contactSide==='port'?'stbd':r.contactSide==='stbd'?'port':r.contactSide;
   const parent=designParent(r.parentStructureId);r.parentGeometryRevision=parent?.placement?.geometryRevision||parent?.geometryRevision||0;
