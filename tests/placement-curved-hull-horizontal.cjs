@@ -67,10 +67,48 @@ test('a structure wholly inside the hull is still refused',()=>{
 });
 
 // Known residual (follow-up, not widened here): at a few exact mid-height taps
-// the lateral column cut leaves a ~3e-4 m sliver hole, because the 2D cell weld
-// tolerance in placementExtendedContactSolid is tighter than the 3D weld in
-// placementConformingSolid. Listed as todo so the gap stays visible.
-test('residual mid-height taps whose lateral cut leaves a sliver hole',{todo:'placementExtendedContactSolid weld tolerance mismatch'},()=>{
- for(const [spec,o,d,normalOffset] of [[ELLIPSE,[.4,.5,5],[0,0,-1],false],[ELLIPSE,[.6,.5,5],[0,0,-1],true],[ELLIPSE,[.4,.5,-5],[0,0,1],true],[CIGAR,[.6,.5,-5],[0,0,1],true]]){
-  const h=C.newShip(spec,'new').hull;assertGroundedCut(place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d,{normalOffset}),JSON.stringify(o));}
+// the lateral column cut leaves a ~3e-4 m sliver hole (2D cell weld in
+// placementExtendedContactSolid ~1e-4 m, 3D weld in placementConformingSolid
+// ~2.1e-4 m; the gap exceeds both, so matching them does not close it).
+// The open cut is never accepted: placementConformingSolid refuses it and the
+// original vertical-cut failure is reported.
+const RESIDUAL=[[ELLIPSE,[.4,.5,5],[0,0,-1],false],[ELLIPSE,[.6,.5,5],[0,0,-1],true],[ELLIPSE,[.4,.5,-5],[0,0,1],true],[CIGAR,[.6,.5,-5],[0,0,1],true]];
+test('residual mid-height taps are refused, never accepted with an open cut',()=>{
+ for(const [spec,o,d,normalOffset] of RESIDUAL){const {ship,hull}=hullShip(spec),h=ship.hull,hit=C.rayPart([h.L*o[0],h.H*o[1],h.W*o[2]],d,hull),n=C.norm(hit.n),size=[h.L*.08,h.W*.25,h.H*.2],c=normalOffset?C.add(hit.p,C.mul(n,size[2]*.3)):C.add(hit.p,[0,(n[1]<0?-1:1)*size[2]*.3,0]);
+  const r=C.solvePlacement(ship,{id:ship.nextId,k:'struct',form:'box',c,s:size},{mode:'horizontal',parentStructureId:hull.id,hit:{p:hit.p,n},contactFit:'cut',position:c.slice()});
+  assert.equal(r.ok,false,JSON.stringify(o)+' must not be accepted with a sliver hole');assert.ok(['minimum-thickness','surface-missing'].includes(r.code),r.code);}
+});
+test('residual mid-height taps whose lateral cut leaves a sliver hole',{todo:'placementExtendedContactSolid sliver at exact mid-height taps'},()=>{
+ for(const [spec,o,d,normalOffset] of RESIDUAL){const h=C.newShip(spec,'new').hull;assertGroundedCut(place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d,{normalOffset}),JSON.stringify(o));}
+});
+
+test('a laterally cut structure can be dragged along the hull wall and stays grounded',()=>{
+ for(const [spec,o,d] of [[CIGAR,[.4,.5,5],[0,0,-1]],[CIGAR,[.7,5,.45],[0,-1,0]]]){
+  const h=C.newShip(spec,'new').hull,r=place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d);assertGroundedCut(r,'before drag');
+  const start=Array.from(r.part.c),target=C.add(start,[h.L*.02,0,0]);r.part.c=target.slice();const refreshed=C.refreshPlacementGeometry(r.ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));
+  assert.ok(Math.abs(r.part.c[0]-target[0])<1e-6,`the drag is not clamped back: ${r.part.c[0]} vs ${target[0]} (start ${start[0]})`);
+  assertGroundedCut({...r,ungrounded:(()=>{const st={warnings:[]};C.groundingStats(r.ship,st);return (st.ungrounded?.parts||[]).includes(r.part.id);})()},'after drag');}
+});
+
+test('the lateral cut leaves no material inside the hull',()=>{
+ const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.4,h.H*.5,h.W*5],[0,0,-1]),req=r.part.placement.requestedGeometry,N=7;let inside=0,both=0;
+ for(let i=0;i<N;i++)for(let j=0;j<N;j++)for(let k=0;k<N;k++){const q=[0,1,2].map((a,m)=>req.c[a]+req.s[[0,2,1][a]]*(([i,j,k][m]+.5+.0371*m)/N-.5));if(C.inPart(r.part,q)){inside++;if(C.inPart(r.hull,q))both++;}}
+ assert.ok(inside>N*N,'the sample reaches the cut body: '+inside);assert.equal(both,0,'no sampled body point lies inside the hull');
+});
+
+test('save/load and a mirrored copy re-solve the lateral cut to the same grounded volume',()=>{
+ const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.4,h.H*.5,h.W*5],[0,0,-1]),volume=C.partVolume(r.part),id=r.part.id;
+ const loaded=C.deserialize(JSON.parse(C.publicJSON(C.serialize(r.ship))));const refreshed=C.refreshPlacementGeometry(loaded);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));const saved=loaded.parts.find(p=>p.id===id);
+ assert.ok(Math.abs(C.partVolume(saved)-volume)<=volume*1e-9+1e-6,`reloaded volume ${C.partVolume(saved)} vs ${volume}`);assert.equal(C.placementDiagnostics(loaded).find(q=>q.partId===id).connected,true);
+ const st={warnings:[]};C.groundingStats(loaded,st);assert.equal((st.ungrounded?.parts||[]).includes(id),false);
+ const mirror=C.mirrorPart(r.part,r.ship);mirror.id=r.ship.nextId++;r.ship.parts.push(mirror);const again=C.refreshPlacementGeometry(r.ship);assert.equal(again.ok,true,JSON.stringify(again.failed));
+ assert.ok(mirror.c[2]<0,'the copy is on the port side');assert.equal(mirror._placementError,undefined,mirror._placementError);assert.ok(Math.abs(C.partVolume(mirror)-volume)<=volume*1e-3,`mirrored volume ${C.partVolume(mirror)} vs ${volume}`);
+ const ms={warnings:[]};C.groundingStats(r.ship,ms);assert.equal((ms.ungrounded?.parts||[]).includes(mirror.id),false,'the mirrored copy is grounded');
+});
+
+test('a near-flat roof is never cut sideways: a parent piercing a thin plate stays refused',()=>{
+ const ship=C.newShip({L:100,W:100,H:100,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[60,60,20],roll:10}];ship.fits=[];ship.nextId=2;
+ const hit=C.rayPart([0,100,0],[0,-1,0],ship.parts[0]),n=C.norm(hit.n);assert.ok(Math.hypot(n[0],n[2])<.3&&Math.hypot(n[0],n[2])>.1,'a gentle slope with a real horizontal component');
+ const r=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:hit.p.slice(),s:[20,20,1]},{mode:'horizontal',contactFit:'cut',position:hit.p.slice(),parentStructureId:1,hit:{p:hit.p,n}});
+ assert.equal(r.ok,false);assert.equal(r.code,'minimum-thickness');
 });

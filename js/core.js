@@ -62911,7 +62911,10 @@ function placementConcaveTranslationIntervals(T,selected,delta,origin,eps){
 }
 function placementTranslationLimit(source,parent,hit,mode,side,target){
  const delta=sub(target,source.c),distance=len(delta);if(distance<1e-9)return 1;
- const T=placementTriangles(source),parentT=placementTriangles(parent),eps=Math.max(placementEpsilon(T),placementEpsilon(parentT)),n=mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]),fr=frameAxis(n),project=p=>{const q=sub(p,hit.p);return [dot(q,fr.v),dot(q,fr.w)];},height=P=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],hit.p));return q=>(d-dot(normal,add(mul(fr.v,q[0]),mul(fr.w,q[1]))))/den;},selected=placementSelectedContactFaces(parentT,hit,n,eps,project,height);
+ const T=placementTriangles(source),parentT=placementTriangles(parent),eps=Math.max(placementEpsilon(T),placementEpsilon(parentT)),skin=n=>{const fr=frameAxis(n),project=p=>{const q=sub(p,hit.p);return [dot(q,fr.v),dot(q,fr.w)];},height=P=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],hit.p));return q=>(d-dot(normal,add(mul(fr.v,q[0]),mul(fr.w,q[1]))))/den;};return placementSelectedContactFaces(parentT,hit,n,eps,project,height);};
+ // A horizontal body cut across a steep wall (fitPlacementContact) keeps
+ // contact with the skin facing its lateral axis, not an upward one.
+ let selected=skin(mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]));if(!selected&&mode==='horizontal'){const lateral=placementLateralContactAxis(source,hit);if(lateral)selected=skin(lateral);}
  if(!selected)return 0;
  const vertices=[],planes=[],edges=[],addAxis=(list,a)=>{const length=len(a);if(length<1e-10)return;const axis=mul(a,1/length);if(!list.some(b=>Math.abs(dot(axis,b))>1-1e-8))list.push(axis);};
  for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3)));for(let k=0;k<3;k++){if(!vertices.some(q=>len(sub(q,P[k]))<eps))vertices.push(P[k]);addAxis(edges,sub(P[(k+1)%3],P[k]));}const normal=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));planes.push({normal,point:P[0]});}
@@ -62949,8 +62952,10 @@ function fitPlacementContact(ship,part,parent,hit,mode,contactSide){
 }
 // The lateral cut axis is the inward normal of a vertical face of the body
 // that faces the tapped wall (within 45 degrees of its horizontal normal).
+// A near-flat tap (horizontal normal component below 0.3, i.e. a slope under
+// about 17 degrees) is never cut sideways.
 function placementLateralContactAxis(part,hit){
- const h=[hit.n[0],0,hit.n[2]];if(len(h)<1e-6)return null;const wall=norm(h),T=placementTriangles(part);let best=null,score=Math.SQRT1_2;
+ const h=[hit.n[0],0,hit.n[2]];if(len(h)<.3)return null;const wall=norm(h),T=placementTriangles(part);let best=null,score=Math.SQRT1_2;
  for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const axis=mul(norm(raw),-1);if(Math.abs(axis[1])>1e-9)continue;const value=dot(axis,wall);if(value>score+1e-9){score=value;best=norm([axis[0],0,axis[2]]);}}
  return best;
 }
