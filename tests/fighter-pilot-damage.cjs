@@ -29,11 +29,11 @@ function setup(){
 }
 const near=(a,b,eps=1e-6)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
 
-test('actual 2 kt pulses retain their per-shot fighter and missile hit probabilities at different cadences',()=>{
+test('actual catalogue pulses retain their per-shot fighter and missile hit probabilities at different cadences',()=>{
  const run=setup();
  for(const [key,cycle,seconds]of [['claser',.5,6],['claserH',.7,6.3]]){
   run(`reset('${key}');var fast=emitted(${seconds});var fastP=observedProbability(fast[0]),fastMissileP=observedProbability(fast[0],'missile')`);
-  const count=run('fast.length');assert.ok(count>seconds/cycle*3,key+' should emit a stream');assert.ok(run('fast.every(b=>b.hitScale===1&&Math.abs(b.tt-2e-9)<1e-20)'),key+' pulses retain complete physical shot energy');
+  const count=run('fast.length');assert.ok(count>seconds/cycle*3,key+' should emit a stream');assert.ok(run(`fast.every(b=>b.hitScale===1&&Math.abs(b.tt-C.FITS['${key}'].boltTT)<1e-20)`),key+' pulses retain complete physical shot energy');
   run(`reset('${key}',${cycle});var slow=emitted(${seconds});var slowP=observedProbability(slow[0]),slowMissileP=observedProbability(slow[0],'missile')`);
   for(const suffix of ['P','MissileP']){near(run(`fast${suffix}`),run(`slow${suffix}`),1e-8);assert.ok(run(`fast.length*Math.log1p(-fast${suffix})<slow.length*Math.log1p(-slow${suffix})`),'more complete physical shots produce more chances to hit');}
  }

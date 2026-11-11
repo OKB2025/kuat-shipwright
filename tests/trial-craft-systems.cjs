@@ -39,7 +39,7 @@ test('only actual qualifying laser shots consume their weighted reload-cycle sha
  run('trial.energy.E=1e20;trial.turrets[0].pilot=false;salvo=new Set();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
  run('salvo=null;trial.turrets[0].pilot=true;trial.turrets[0].reload=10;trialGunnery(.1);');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
  run('fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')/2);assert.equal(run('trial.gun.shots'),1);
- run('trial.turrets=[makeTurret("cturret")];fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')*1.5);assert.equal(run('trial.gun.shots'),3);
+ run('trial.turrets=[makeTurret("cturret")];fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')/2-run('C.FITS.cturret.cycle*C.FITS.cturret.power/C.FITS.claser.power')/2);assert.equal(run('trial.gun.shots'),3);
  run('reset({laserGasSeconds:C.FITS.claser.cycle*.99/2});fire();');assert.equal(run('trial.gun.shots'),0);near(run('trial.systemsRuntime.gasSeconds'),run('C.FITS.claser.cycle')*.99/2);run('reset({laserGasSeconds:C.FITS.claser.cycle/2});fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),1);run('fire();');assert.equal(run('trial.gun.shots'),1);
 });
 
