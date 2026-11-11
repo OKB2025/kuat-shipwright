@@ -52862,16 +52862,15 @@ function surfaceArmorSync(u){if(!u.p?.surface)return;const count=(u.sec?.length|
  // u.armor is surfaceArmorStatus(u).integrity, accumulated in the same loop order.
  u.zi=weights.map((w,i)=>w>0?left[i]/w:0);u.zl=loads;u.zq=new Array(count).fill(0);const peak=u.p.surface.patches.reduce((peak,p)=>{const s=u.surfaceArmor?.[p.id];return s?Math.max(peak,s.load/Math.max(1e-9,surfaceArmorCapacity(u,p)*s.integrity)):peak;},0);u.armor=weight>0?leftAll/weight:0;u.armorLoad=peak;u.hot=peak>.003;}
 function surfaceArmorTick(u,dt,time){if(!u.p?.surface||!(dt>0))return;for(const s of Object.values(u.surfaceArmor||{})){const now=Number.isFinite(time)?time:(s.at||0)+dt,elapsed=Number.isFinite(s.at)?Math.max(0,now-s.at):dt;s.load=Math.max(0,s.load||0)*Math.exp(-elapsed/COMBAT.tau);s.at=now;}surfaceArmorSync(u);}
-// combatResolve applies many hits to one unit and syncs the derived armour
-// zones (zi/zl/zq/armor/armorLoad/hot) once afterwards; nothing between those
-// hits reads them, so the per-hit sync there only repeated the same result.
-let surfaceArmorSyncDeferred=0;
-function surfaceHit(ctx,u,point,E,kind='shot'){
+// deferSync: the caller (combatResolve) applies several hits to this unit and
+// syncs its derived armour zones (zi/zl/zq/armor/armorLoad/hot) itself once
+// afterwards, in a finally; nothing between those hits reads them.
+function surfaceHit(ctx,u,point,E,kind='shot',deferSync=false){
  u.surfaceLastHit=null;if(!u.p?.surface||!Array.isArray(point)||!(E>0))return E;const surface=u.p.surface,patch=surfacePatchAt(u,point);if(!patch)return E;
  const armor=u.surfaceArmor||(u.surfaceArmor={}),a=armor[patch.id]||(armor[patch.id]={integrity:1,load:0,at:ctx.time||0}),Q=Math.max(1,u.p.hp*COMBAT.quantum),near=surface.devices.filter(d=>d.patch===patch.id&&d.module>=0).map(d=>({d,distance:len(sub(d.center,point))})).filter(x=>x.d.embedded?surfaceEmbeddedContains(x.d,point):x.distance<Math.max(.5,Math.hypot(...x.d.footprint)*.55)).sort((a,b)=>a.distance-b.distance),damage=(energy,external)=>{const x=near.find(x=>x.d.external===external&&u.mods?.[x.d.module]>0);if(!x||!(energy>0))return energy;const m=u.p.modules[x.d.module],take=Math.min(energy,Math.max(1,m.hits*modQ(m,Q))*u.mods[x.d.module]);combatModuleDamage(ctx,u,x.d.module,take,Q,kind);return Math.max(0,energy-take);};
  let left=damage(E,true);const cap=surfaceArmorCapacity(u,patch),result=armorLayerStep(a,cap,left,Math.max(0,(ctx.time||0)-(a.at||0)));a.at=ctx.time||0;left=damage(result.penetrated,false);
  const at=(point[0]/Math.max(1,u.p.len||1))+.5,cuts=u.p.sectionCuts||[.2,.4,.6,.8];let section=0;while(section<cuts.length&&at>=cuts[section])section++;section=Math.min(section,(u.sec?.length||1)-1);const n=patch.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,face=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3;
- if(u.sec?.[section])u.sec[section].s-=Math.min(E,E-left)*COMBAT.spall;u.surfaceLastHit={handled:true,patch:patch.id,point:point.slice(),energy:E,remaining:left,section,face,thickness:patch.armor.thickness,integrity:a.integrity};if(!surfaceArmorSyncDeferred)surfaceArmorSync(u);return left;
+ if(u.sec?.[section])u.sec[section].s-=Math.min(E,E-left)*COMBAT.spall;u.surfaceLastHit={handled:true,patch:patch.id,point:point.slice(),energy:E,remaining:left,section,face,thickness:patch.armor.thickness,integrity:a.integrity};if(!deferSync)surfaceArmorSync(u);return left;
 }
 function surfaceRemoveConfig(ship,ids){if(!Array.isArray(ids))ids=[ids];if(!ship.surfaces)return {ok:true,report:surfaceReport(ship)};ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};}
 function surfaceReassign(ship,oldId,newId){const old=ship.surfaces?.patches.find(q=>q.id===oldId),p=surfacePatches(ship).find(q=>q.id===newId);if(!old||!p?.exposed)return {ok:false,why:'移設する外面を選んでください'};if(ship.surfaces.patches.some(q=>q.id===newId&&q.id!==oldId))return {ok:false,why:'移設先の面には既に設定があります'};old.id=newId;for(const q of [...ship.parts,...ship.fits])if(q.surfacePatch===oldId)q.surfacePatch=newId;surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};}
@@ -62025,14 +62024,15 @@ function combatResolve(ctx,u,o,dt,s){
  // Armour: the hull hit spreads over the faces by bearing and over the sections
  // by area (more on the sections holding an aimed-at system).
  let hullHit=beamLeak*(beamIncoming>0?Math.min(beamIncoming,Math.max(0,o.hull||0))/beamIncoming:0)+o.direct;
- const deferSurfaceSync=!!p.surface?.patches?.length;if(deferSurfaceSync)surfaceArmorSyncDeferred++;try{
- if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot'),local=u.surfaceLastHit;
+ const surfaceZones=!!p.surface?.patches?.length;try{
+ if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot',surfaceZones),local=u.surfaceLastHit;
   if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0)combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q);}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
  if(p.surface?.patches?.length&&hullHit>0){const patches=p.surface.patches.filter(q=>q.exposed&&q.triangles?.length>=9),fw=o.face?.some(v=>v>0)?o.face:Z.faceShare,weighted=patches.map(q=>({q,w:q.area*(Math.max(0,q.normal[0])*fw[0]+Math.max(0,-q.normal[0])*fw[1]+Math.max(0,q.normal[2])*fw[2]+Math.max(0,-q.normal[2])*fw[3]+Math.max(0,q.normal[1])*fw[4]+Math.max(0,-q.normal[1])*fw[5])}));let total=weighted.reduce((a,x)=>a+x.w,0);if(!(total>0)){for(const x of weighted)x.w=x.q.area;total=weighted.reduce((a,x)=>a+x.w,0);}
-   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot'),local=u.surfaceLastHit;if(left>0&&local?.handled)combatPenetrate(ctx,u,local.section,local.face,left,null,Q);}u.surfaceFallback=true;}
- }finally{if(deferSurfaceSync)surfaceArmorSyncDeferred--;}
- if(p.surface?.patches?.length){
-  if(typeof surfaceArmorSync==='function')surfaceArmorSync(u);if(u.fire.some(f=>f>0))combatFires(ctx,u,dt,Q);combatStatus(ctx,u);return;}
+   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled)combatPenetrate(ctx,u,local.section,local.face,left,null,Q);}u.surfaceFallback=true;}
+ // The deferred hits are synced once here, also when a hit throws.
+ }finally{if(surfaceZones&&typeof surfaceArmorSync==='function')surfaceArmorSync(u);}
+ if(surfaceZones){
+  if(u.fire.some(f=>f>0))combatFires(ctx,u,dt,Q);combatStatus(ctx,u);return;}
  if(!(hullHit>0)&&!u.hot){if(u.fire.some(f=>f>0))combatFires(ctx,u,dt,Q);combatStatus(ctx,u);return;}
  const load=new Array(Z.n).fill(0),aims=Object.entries(o.aim),aimTot=aims.reduce((n,[,v])=>n+v,0);
  let spread=hullHit;
