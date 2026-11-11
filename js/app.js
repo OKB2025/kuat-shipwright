@@ -4131,59 +4131,195 @@ function dragItemMove(px, py) {
   } else {
     const f = ship.fits.find(q => q.id === D.id); if (!f) return;
     const h = editorRayEnv(r.o, r.d, {structOnly: true}); if (!h) return;
-    moveFitTo(f, h.p, h.n);
+    // One seat per animation frame: pointer events can arrive several times a frame and a seat costs a few ms
+    // (6.6 ms median, 16 ms p90 for an Imperial mirror pair). The last pending hit is seated on release.
+    D.pendingHit = h;
+    if (!D.seatFrame) { const go = () => { D.seatFrame = 0; dragSeatPending(D); requestDraw(); }; D.seatFrame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame(go) || 1 : (go(), 0); }
   }
   const now = performance.now(); if (now - itemDragTouch > 90) { itemDragTouch = now; touch(D.list); scheduleStats(400); }
   requestDraw();
 }
 // Seat a fitting at a point with a face normal: the mounting axis, tilt and surface follow the new place.
-function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,g.mountMode||st.weaponMount) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(editorMountShip(), g); } catch (e) { g.float = true; } }
+// A moved fitting has no parent: the structure it was added to (host, local frame and the direct-placement
+// metadata of the anchored model) is dropped, and Core mounts it on whatever hull or structure surface is there.
+// Keeping the placement metadata without its host made mountFit report 'parent-missing' (float) on every move.
+function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,fitMountMode(g)) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; for (const k of ['local', 'localNormal', 'localForward', 'host', 'placement', '_fitPlacementError', '_placementFailure']) delete g[k]; try { C.mountFit(editorMountShip(), g); } catch (e) { g.float = true; } }
+// The mount mode a placed fitting moves with. A saved mode wins; otherwise it is read from the fitting itself
+// (a tilted gun follows faces, an upright one stays upright), not from the current placement toolbar.
+function fitMountMode(f) {
+  if (f.mountMode) return f.mountMode;
+  if (C.FITS[f.k]?.cat !== 'w') return st.weaponMount;
+  if (f.tilt) return 'auto';
+  const u = C.AXES[f.mountAxis ?? f.a] || [0, 1, 0];
+  return u[1] > .9 ? 'top' : u[1] < -.9 ? 'bottom' : 'auto';
+}
 function moveFitTo(f, p, n0) {
-  const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k,n0,f.mountMode||st.weaponMount) : n0;
+  const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k,n0,fitMountMode(f)) : n0;
   const set = seatFit;
   const links = fitLinks(f);
   set(f, p, n);
   for (const l of links) { let q = p, m = n; if (l.y) { q = C.vmirrorPoint(ship, q); m = [m[0], -m[1], m[2]]; } if (l.z) { q = C.mirrorP(q); m = C.mirrorP(m); } set(l.fit, q, m); }
   queuePreview('fits', [f, ...links.map(l => l.fit)]);
 }
-// Fore/aft or port/starboard slider move of a seated fitting: slide parallel to the face it is mounted on,
-// so a turret on a slope rises or falls with the slope instead of leaving it horizontally. The move is
-// projected onto the plane of the face under the fitting and re-seated with a short probe along the face
-// normal (8 m). A point beyond the face finds no surface and keeps the ordinary refusal (moveFitTo floats
-// it); a hit on another structure, a ridge or a face turned by more than 10 degrees blocks the move.
-function fitSurfaceSlideTarget(f, axis, v) {
-  if (!f || C.FITS[f.k]?.window || (axis !== 0 && axis !== 2) || !Number.isFinite(v)) return null;
-  const up = C.norm(C.fitUp(f) || [0, 1, 0]), h0 = editorRayEnv(C.add(f.p, C.mul(up, 4)), C.mul(up, -1), {maxT: 8, structOnly: true});
-  if (!h0?.n) return null;
-  const s = C.dot(h0.n, up) < 0 ? C.mul(h0.n, -1) : h0.n.slice();
-  // Level decks keep the plain move; walls cannot take up a fore/aft or port/starboard change in height.
-  if (Math.abs(s[1]) > .9995 || Math.abs(s[1]) < .2) return null;
-  const d = v - f.p[axis], q = f.p.slice(); q[axis] = v; q[1] = f.p[1] - s[axis] * d / s[1];
-  const reach = 8, h = editorRayEnv(C.add(q, C.mul(s, reach)), C.mul(s, -1), {maxT: reach * 2, structOnly: true});
-  if (!h?.n) return null;
-  // Only the same face continues the slide: another structure, a ridge or a sharp change of face blocks it.
-  const hn = C.dot(h.n, s) < 0 ? C.mul(h.n, -1) : h.n;
-  if ((h.part?.id ?? null) !== (h0.part?.id ?? null) || C.dot(C.norm(hn), s) < Math.cos(10 * Math.PI / 180)) return {blocked: true};
-  // A face point buried under another structure would be seated on that structure by mountFit: blocked too.
-  const g = JSON.parse(JSON.stringify(f)), spec = C.FITS[f.k];
-  seatFit(g, h.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, h.n, f.mountMode || st.weaponMount) : h.n);
-  if (g.float || C.len(C.sub(g.p, h.p)) > .5) return {blocked: true};
-  return {p: h.p, n: h.n};
+// ---------- moving a placed fitting: one seat step for drag and the X/Z sliders ----------
+// The hull and every structure form one surface set; the fitting is not tied to the structure it was added to.
+//  - 面配置 (auto): the fitting re-seats on the face under it and stands on that face's normal.
+//  - 上面 / 下面配置 (top / bottom) and fixed axes: the fitting stays upright and moves parallel to the support
+//    directly below (above), so its height follows slopes and steps.
+// The set mounting height (ped) is a property of the fitting and is kept. A move is refused only when there is
+// no surface at all; an in-hull compartment that does not fit is reported separately and does not refuse it.
+// Special mounts (bridge pods, wall-only and casemate guns, broadside / surface batteries, trench groups,
+// embedded launchers, local mounts) keep the previous move.
+function fitSeatMode(f) {
+  const d = C.FITS[f?.k];
+  if (!d || d.window || d.casemate || d.wallOnly || f.localMount || f.surfacePatch || f.trenchRef != null) return null;
+  if (C.isBroadsideBattery?.(f) || C.isTrenchBatteryGroup?.(f) || C.isShipLauncher?.(f) && f.launcherEmbedded) return null;
+  if (d.cat !== 'w') return {surface: true};
+  const mode = fitMountMode(f);
+  if (mode === 'trench') return null;
+  if (weaponTiltMode(f.k, mode) && f.mountAxis == null) return {surface: true};
+  const u = f.mountAxis != null ? C.AXES[f.mountAxis] : weaponPlacementNormal(f.k, [0, 1, 0], mode);
+  return {surface: false, up: C.norm(u)};
 }
-// Returns 'moved' (slid along the face), 'blocked' (left where it was) or 'plain' (the previous move).
-function moveFitAlongSurface(f, axis, v) {
-  const t = fitSurfaceSlideTarget(f, axis, v);
-  if (t?.blocked) return 'blocked';
-  if (t) { moveFitTo(f, t.p, t.n); return 'moved'; }
-  const p = f.p.slice(); p[axis] = v; moveFitTo(f, p, f.n || C.AXES[f.a]); return 'plain';
+// The support face at a seated fitting (short probe against its up axis).
+function fitSupportFace(f) {
+  const up = C.norm(C.fitUp(f) || [0, 1, 0]), h = editorRayEnv(C.add(f.p, C.mul(up, 4)), C.mul(up, -1), {maxT: 8, structOnly: true});
+  if (!h?.n) return null;
+  return {n: C.dot(h.n, up) < 0 ? C.mul(h.n, -1) : h.n.slice(), part: h.part?.id ?? null};
+}
+// Every hull/structure surface crossed by the line q + t*l, |t| <= R, facing the +l side and open to it: a face
+// buried inside another structure (the next surface beyond it along +l faces +l too, i.e. is that structure's
+// outer face seen from inside) is not a support.
+function fitLineSurfaces(q, l, R) {
+  const all = [], dir = C.mul(l, -1);
+  let o = C.add(q, C.mul(l, R)), left = 2 * R;
+  for (let i = 0; i < 24 && left > 1e-3; i++) {
+    const h = editorRayEnv(o, dir, {maxT: left, structOnly: true}); if (!h) break;
+    if (h.n) all.push({p: h.p.slice(), n: C.norm(h.n), part: h.part?.id ?? null, t: C.dot(C.sub(h.p, q), l)});
+    const step = Math.max(h.t, 0) + 1e-3; o = C.add(o, C.mul(dir, step)); left -= step;
+  }
+  // all[] runs from +l to -l; all[i-1] is the next surface beyond all[i].
+  return all.filter((h, i) => C.dot(h.n, l) > .05 && !(i > 0 && all[i - 1].t - h.t > .02 && C.dot(all[i - 1].n, l) > .05));
+}
+// How far from the continued face a fitting may find its new support: twice its own size (footprint diameter or
+// height, whichever is larger), at least 8 m. A step or face within that is part of the deck the fitting is
+// moving over (the Imperial-class deck steps are about 30 m for a 28 m triple turret); a surface farther away is
+// another deck, so the move is refused instead of jumping there. The reach does not grow with the slider distance.
+function fitSeatReach(f) { const d = C.fitSpec(f), s = f.scale || 1; return Math.max(8, 2 * Math.max(2 * (d.r || 0), d.hm || 0) * s); }
+// Find the seat of fitting f near the guessed point q (on the face plane continued from where it stands).
+// prev: the support face normal at the old place (orients the search line). Returns a seated detached copy
+// or null when there is no supporting surface along the search line.
+function fitSeatNear(f, q, prev, keepAxis, reach) {
+  const mode = fitSeatMode(f); if (!mode) return null;
+  const spec = C.FITS[f.k];
+  // The search line: along the fixed up axis, or along the face normal; the slider's own axis is removed so
+  // the fitting reaches exactly the X / Z the slider asks for.
+  let l = mode.surface ? (prev || C.fitUp(f) || [0, 1, 0]).slice() : mode.up.slice();
+  if (keepAxis != null) { const k = l.slice(); k[keepAxis] = 0; if (C.len(k) > .2) l = k; }
+  l = C.norm(l);
+  const hits = fitLineSurfaces(q, l, reach).sort((a, b) => Math.abs(a.t) - Math.abs(b.t) || (a.part === f.host ? -1 : b.part === f.host ? 1 : 0));
+  for (const h of hits.slice(0, 6)) {
+    let at = h, g = null;
+    for (let i = 0; i < 3; i++) {
+      const n = mode.surface ? at.n : mode.up;
+      if (spec.cat === 'w' && C.weaponMountAllowed?.(f, n) === false) { g = null; break; }
+      g = JSON.parse(JSON.stringify(f)); seatFit(g, at.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, n, fitMountMode(f)) : n);
+      if (g.float) { g = null; break; }
+      // Core mounts along the fitting's up axis from outside; a face hidden under another structure lands on that
+      // structure. Upright fittings take that landing (the support directly below); face-following ones re-seat
+      // on the face they landed on until it is stable.
+      if (!mode.surface || C.len(C.sub(g.p, at.p)) < .5) break;
+      const face = fitSupportFace(g); if (!face) { g = null; break; }
+      at = {p: g.p.slice(), n: face.n};
+    }
+    // A tilted gun is mounted by Core along its tilted axis, so its seat can drift off the slider's X / Z by a
+    // fraction of a metre. Step back along the landed face to the requested coordinate (two passes at most).
+    for (let i = 0; g && mode.surface && keepAxis != null && i < 2 && Math.abs(g.p[keepAxis] - q[keepAxis]) > 1e-3; i++) {
+      const face = fitSupportFace(g); if (!face) break;
+      const d = q[keepAxis] - g.p[keepAxis], p = g.p.slice(); p[keepAxis] += d; if (Math.abs(face.n[1]) > .2) p[1] -= face.n[keepAxis] * d / face.n[1];
+      const hit = editorRayEnv(C.add(p, C.mul(face.n, 4)), C.mul(face.n, -1), {maxT: 8, structOnly: true}); if (!hit?.n) break;
+      const g2 = JSON.parse(JSON.stringify(f)); seatFit(g2, hit.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, hit.n, fitMountMode(f)) : hit.n);
+      if (g2.float || Math.abs(g2.p[keepAxis] - q[keepAxis]) >= Math.abs(g.p[keepAxis] - q[keepAxis])) break;
+      g = g2;
+    }
+    if (g && !g.float) return g;
+  }
+  return null;
+}
+// Targets of the linked twins for a seat of the primary fitting: each twin moves by the mirrored displacement
+// of the primary from where it stands (twins on an asymmetric pair of faces are not exact mirror images), and
+// searches along its own support normal (the mirrored normal of the primary when it has none).
+function fitLinkTargets(f, g) {
+  const dp = C.sub(g.p, f.p);
+  return fitLinks(f).map(l => { let m = (C.fitUp(g) || [0, 1, 0]).slice(), d = dp.slice(); if (l.y) { m = [m[0], -m[1], m[2]]; d[1] = -d[1]; } if (l.z) { m = C.mirrorP(m); d[2] = -d[2]; } const own = l.fit.float ? null : fitSupportFace(l.fit); let e = g.p.slice(); if (l.y) e = C.vmirrorPoint(ship, e); if (l.z) e = C.mirrorP(e); return {l, q: C.add(l.fit.p, d), m: own?.n || C.norm(m), mirror: e, mm: C.norm(m)}; });
+}
+// The in-hull section of a gun (charging device / VLS magazine) sits in a column under the mount. A rough
+// check for the move feedback only; the measured volume and its warning come from the ship statistics.
+function fitInteriorShort(f) {
+  try {
+    const spec = C.FITS[f.k]; if (!spec || f.float || !(C.needsCapacitor?.(f) || spec.msl && f.mount !== 'ext')) return false;
+    const up = C.norm(C.fitUp(f)), s = f.scale || 1, depth = spec.msl ? 24 * s : 12 * s, top = 2 + (f.mountOffset || 0), m = editorMountShip();
+    const samples = [top + depth * .25, top + depth * .5, top + depth * .75].map(t => C.sub(f.p, C.mul(up, t)));
+    return samples.filter(q => C.insideOriginalEnvelope(m, q)).length < 2;
+  } catch (e) { return false; }
+}
+// The shared seat step. target: {axis, value} for a slider, {hit} for a drag. Moves the fitting and its mirror
+// twins together or not at all. Returns {status:'moved'|'refused'|'legacy', interior:[ids]}.
+function seatFitMove(f, target) {
+  const mode = fitSeatMode(f);
+  if (!mode) {
+    if (target.hit) moveFitTo(f, target.hit.p, target.hit.n);
+    else { const p = f.p.slice(); p[target.axis] = target.value; moveFitTo(f, p, f.n || C.AXES[f.a]); }
+    return {status: 'legacy', interior: []};
+  }
+  const face = f.float ? null : fitSupportFace(f), prev = face?.n || null;
+  let g = null;
+  if (target.hit) {
+    const h = target.hit;
+    if (mode.surface) g = fitSeatNear(f, h.p, h.n ? (C.dot(h.n, h.n) > 0 ? C.norm(h.n) : null) : prev, null, 4);
+    if (!g) g = fitSeatNear(f, h.p, mode.surface ? prev : null, null, fitSeatReach(f));
+  } else {
+    const ax = target.axis, v = target.value, d = v - f.p[ax], q = f.p.slice(); q[ax] = v;
+    // Continue the plane of the current support face: fixed-up fittings move along their up axis, face fittings
+    // along the vertical (or, on a wall, along the other horizontal axis).
+    if (prev) {
+      const u = mode.surface ? (Math.abs(prev[1]) > .2 ? [0, 1, 0] : [ax === 0 ? 0 : 1, 0, ax === 0 ? 1 : 0]) : mode.up, den = C.dot(prev, u);
+      if (Math.abs(den) > .2) { const t = -prev[ax] * d / den; for (let i = 0; i < 3; i++) if (i !== ax) q[i] += u[i] * t; }
+    }
+    g = fitSeatNear(f, q, prev, ax, fitSeatReach(f));
+  }
+  if (!g) return {status: 'refused', interior: []};
+  const placed = [[f, g]];
+  for (const {l, q, m, mirror, mm} of fitLinkTargets(f, g)) {
+    const tm = fitSeatMode(l.fit);
+    // The exact mirror image of the primary's seat first (symmetric hulls); otherwise the twin's own face moved by
+    // the mirrored displacement (asymmetric pairs, vertical twins whose faces are not mirror images).
+    let h = tm ? fitSeatNear(l.fit, mirror, tm.surface ? mm : null, null, 4) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, 8) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, fitSeatReach(l.fit)) : null;
+    if (!tm) { h = JSON.parse(JSON.stringify(l.fit)); seatFit(h, q, m); }
+    if (!h || h.float) return {status: 'refused', interior: []};
+    placed.push([l.fit, h]);
+  }
+  for (const [it, h] of placed) { for (const k of Object.keys(it)) if (!(k in h) && !k.startsWith('_')) delete it[k]; for (const k of ['_fitPlacementError', '_placementFailure', '_onPlate']) delete it[k]; Object.assign(it, h); }
+  queuePreview('fits', placed.map(x => x[0]));
+  return {status: 'moved', interior: placed.filter(x => fitInteriorShort(x[0])).map(x => x[0].id)};
+}
+// The interior notice is shown once per slider move (on its change event) or drag (on release), not per input step.
+let fitSliderMove = null;
+function fitInteriorNotice(r) { if (r?.interior?.length) toast('目安：移動先では砲の船内区画（充電装置・弾庫）が船内に収まらない見込みです。移動は反映しました。正確な不足量は性能の警告「主砲充電装置」「VLS 弾庫」で確認してください'); }
+function dragSeatPending(D) {
+  const h = D?.pendingHit; if (!h) return; D.pendingHit = null;
+  const f = ship.fits.find(q => q.id === D.id); if (!f) return;
+  if (seatFitMove(f, {hit: h}).status === 'moved') D.seated = true;
 }
 function dragItemEnd(cancel) {
   const D = itemDrag; itemDrag = null; if (!D?.moving) return;
+  if (D.seatFrame && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(D.seatFrame); D.seatFrame = 0;
+  if (!cancel) dragSeatPending(D);
   if (D.multi) { dragSelEnd(D, cancel); return; }
   if (cancel && dragSnap) { const old = dragSnap; dragSnap = null; restore(old); return; }
   touch(D.list); endDrag(); scheduleStats(30);
   const it = D.list === 'fits' ? ship.fits.find(q => q.id === D.id) : null;
-  if (it?.float) toast(C.FITS[it.k].window ? '艦橋ポッドは構造物の壁に移してください' : 'この位置には据え付けられません。面の上へ移してください');
+  if (it?.float) toast(C.FITS[it.k].window ? '艦橋ポッドは構造物の壁に移してください' : 'この位置には据え付けられません。面の上へ移してください'); else if (it && D.seated) fitInteriorNotice({interior: [it, ...fitLinks(it).map(l => l.fit)].filter(fitInteriorShort).map(q => q.id)});
   renderPanel(); requestDraw();
 }
 function attachControls(canvas) {
@@ -6318,7 +6454,7 @@ function bindEngineering(){
       const make=dir=>{let y=Math.atan2(dir[2],-dir[0]),p=Math.asin(dir[1]);if(k.endsWith('Yaw'))y=v*Math.PI/180;else p=v*Math.PI/180;return [-Math.cos(y)*Math.cos(p),Math.sin(p),Math.sin(y)*Math.cos(p)];};
       if(k.startsWith('new'))st.engineDir=make(st.engineDir);else live(()=>editEngineSelection(p=>p.dir=make(p.dir||[-1,0,0])));if(out)out.textContent=deg(v);
     }
-    if(['fitX','fitZ','fitY','fitAlong'].includes(k)){const f=selItem();if(f&&st.sel.list==='fits'){beginDrag('装備の位置');if((k==='fitX'||k==='fitZ')&&!C.FITS[f.k].window){const ax=k==='fitX'?0:2;moveFitAlongSurface(f,ax,v);touch('fits');scheduleStats(350);const at=f.p[ax];if(Number.isFinite(at)&&Math.abs(at-v)>1e-9)e.target.value=String(+at.toFixed(3));if(out)out.textContent=fmtM(at);return;}const p=f.p.slice();if(k==='fitX')p[0]=v;else if(k==='fitZ')p[2]=v;else if(k==='fitY')p[1]=v;else{const fr=C.windowFrame(f),host=ship.parts.find(q=>q.id===f.host),cur=C.dot(C.sub(f.p,host?host.c:[0,0,0]),fr.fw);for(let a=0;a<3;a++)p[a]+=fr.fw[a]*(v-cur);}moveFitTo(f,p,f.n||C.AXES[f.a]);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);}}
+    if(['fitX','fitZ','fitY','fitAlong'].includes(k)){const f=selItem();if(f&&st.sel.list==='fits'){beginDrag('装備の位置');if((k==='fitX'||k==='fitZ')&&!C.FITS[f.k].window){const ax=k==='fitX'?0:2;if(seatFitMove(f,{axis:ax,value:v}).status==='moved')fitSliderMove=true;touch('fits');scheduleStats(350);const at=f.p[ax];if(Number.isFinite(at)&&Math.abs(at-v)>1e-9)e.target.value=String(+at.toFixed(3));if(out)out.textContent=fmtM(at);return;}const p=f.p.slice();if(k==='fitX')p[0]=v;else if(k==='fitZ')p[2]=v;else if(k==='fitY')p[1]=v;else{const fr=C.windowFrame(f),host=ship.parts.find(q=>q.id===f.host),cur=C.dot(C.sub(f.p,host?host.c:[0,0,0]),fr.fw);for(let a=0;a<3;a++)p[a]+=fr.fw[a]*(v-cur);}moveFitTo(f,p,f.n||C.AXES[f.a]);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);}}
 
     if(k==='shieldTarget'){live(()=>ship.shieldTarget=v/100,'none');if(out)out.textContent=v+'%';}
   });
@@ -10229,7 +10365,7 @@ function bindLayout(){
   if('commandEnabled'in t.dataset){mutate('指揮システムを切り替え',()=>editSel(f=>f.commandEnabled=t.checked),'fits');renderPanel();}
   if('bodycommand'in t.dataset){mutate('艦橋本体の指揮所を切り替え',()=>editSel(p=>{if(C.bridgeBodyRole(p)){if(t.checked)delete p.commandEnabled;else p.commandEnabled=false;}}),'parts');renderPanel();}
   if(['commandDepth','commandHeight'].includes(t.dataset.sl)){endDrag();renderPanel();}
-  if(['fitX','fitZ','fitY','fitAlong'].includes(t.dataset.sl)){endDrag();const f=selItem();if(f?.float)toast(weaponMountIssue(f,C.fitUp(f))||(C.FITS[f.k].window?'艦橋ポッドが壁から外れています。位置を戻してください':'この位置には据え付けられません'));renderPanel();}
+  if(['fitX','fitZ','fitY','fitAlong'].includes(t.dataset.sl)){endDrag();const f=selItem(),moved=fitSliderMove;fitSliderMove=null;if(moved&&f&&!f.float)fitInteriorNotice({interior:[f,...fitLinks(f).map(l=>l.fit)].filter(fitInteriorShort).map(q=>q.id)});if(f?.float)toast(weaponMountIssue(f,C.fitUp(f))||(C.FITS[f.k].window?'艦橋ポッドが壁から外れています。位置を戻してください':'この位置には据え付けられません'));renderPanel();}
  });
  $('#panel').addEventListener('input',e=>{const t=e.target;if(t.value===''||!Number.isFinite(+t.value))return;const k=t.dataset.sl;
   if(['commandDepth','commandHeight'].includes(k)){beginDrag('指揮区画の寸法');editSel(f=>f[k]=C.clamp(+t.value,2,k==='commandDepth'?200:80));touch('fits');scheduleStats(150);const out=$('#out-'+k);if(out)out.textContent=fmtM(+t.value);}
