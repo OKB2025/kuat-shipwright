@@ -4251,7 +4251,7 @@ function fitSeatNear(f, q, prev, keepAxis, reach) {
 // searches along its own support normal (the mirrored normal of the primary when it has none).
 function fitLinkTargets(f, g) {
   const dp = C.sub(g.p, f.p);
-  return fitLinks(f).map(l => { let m = (C.fitUp(g) || [0, 1, 0]).slice(), d = dp.slice(); if (l.y) { m = [m[0], -m[1], m[2]]; d[1] = -d[1]; } if (l.z) { m = C.mirrorP(m); d[2] = -d[2]; } const own = l.fit.float ? null : fitSupportFace(l.fit); return {l, q: C.add(l.fit.p, d), m: own?.n || C.norm(m)}; });
+  return fitLinks(f).map(l => { let m = (C.fitUp(g) || [0, 1, 0]).slice(), d = dp.slice(); if (l.y) { m = [m[0], -m[1], m[2]]; d[1] = -d[1]; } if (l.z) { m = C.mirrorP(m); d[2] = -d[2]; } const own = l.fit.float ? null : fitSupportFace(l.fit); let e = g.p.slice(); if (l.y) e = C.vmirrorPoint(ship, e); if (l.z) e = C.mirrorP(e); return {l, q: C.add(l.fit.p, d), m: own?.n || C.norm(m), mirror: e, mm: C.norm(m)}; });
 }
 // The in-hull section of a gun (charging device / VLS magazine) sits in a column under the mount. A rough
 // check for the move feedback only; the measured volume and its warning come from the ship statistics.
@@ -4290,9 +4290,11 @@ function seatFitMove(f, target) {
   }
   if (!g) return {status: 'refused', interior: []};
   const placed = [[f, g]];
-  for (const {l, q, m} of fitLinkTargets(f, g)) {
+  for (const {l, q, m, mirror, mm} of fitLinkTargets(f, g)) {
     const tm = fitSeatMode(l.fit);
-    let h = tm ? fitSeatNear(l.fit, q, tm.surface ? m : null, null, 8) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, fitSeatReach(l.fit)) : null;
+    // The exact mirror image of the primary's seat first (symmetric hulls); otherwise the twin's own face moved by
+    // the mirrored displacement (asymmetric pairs, vertical twins whose faces are not mirror images).
+    let h = tm ? fitSeatNear(l.fit, mirror, tm.surface ? mm : null, null, 4) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, 8) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, fitSeatReach(l.fit)) : null;
     if (!tm) { h = JSON.parse(JSON.stringify(l.fit)); seatFit(h, q, m); }
     if (!h || h.float) return {status: 'refused', interior: []};
     placed.push([l.fit, h]);

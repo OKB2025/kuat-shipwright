@@ -143,6 +143,14 @@ test('Imperial-class reproduction: deck turrets cross steps and slopes without l
  // The refused bow moves have no surface at all: rays through the target along the vertical and along the gun's
  // normal (both directions, 2 km) find nothing on the hull or any structure.
  load();for(const [x,z] of [[40,0],[0,25]]){const none=run(`(()=>{const f=ship.fits.find(q=>q.id===179),p=[f.p[0]+${x},f.p[1],f.p[2]+${z}],n=C.norm(C.fitUp(f));for(const d of [[0,1,0],[0,-1,0],n,C.mul(n,-1)])if(C.rayEnv(ship,C.sub(p,C.mul(d,1000)),d,{maxT:2000,structOnly:true}))return false;return true})()`);assert.equal(none,true,'no surface at #179 +'+x+'/'+z);}
+ // A drag is many small seats (one per frame). Browser check 2026-11-11 found the twin drifting to another deck
+ // when it followed only the displacement; it now takes the exact mirror seat first and stays mirrored.
+ load();run('st.sel={list:"fits",id:182}');
+ const path=plain(run(`(()=>{const f=selItem(),p0=f.p.slice(),out=[];for(let i=1;i<=40;i++){const q=[p0[0]+60*i/40,p0[1]+60,p0[2]-12*i/40+30*Math.sin(i/6)];const hit=C.rayEnv(ship,q,[0,-1,0],{structOnly:true});if(!hit)continue;out.push(seatFitMove(f,{hit}).status);}return out})()`));
+ assert.ok(path.filter(x=>x==='moved').length>20,'the drag moved: '+path.join(','));
+ {const f=plain(run('selItem()')),tw=plain(run('ship.fits.find(q=>q.id===181)'));assert.equal(!!f.float,false);assert.equal(!!tw.float,false);
+  assert.ok(Math.abs(tw.p[0]-f.p[0])<.05&&Math.abs(tw.p[1]-f.p[1])<.05&&Math.abs(tw.p[2]+f.p[2])<.05,`twin mirrored after the drag: ${f.p} / ${tw.p}`);
+  assert.equal(run('ship.fits.filter(q=>q.float).length'),0);}
  // The stepped centre-line deck: the top-mounted turret climbs the 30 m step aft.
  load();run('st.sel={list:"fits",id:128}');const y0=run('selItem().p[1]');run(`slide('fitX',${run('selItem().p[0]')-40})`);assert.ok(run('selItem().p[1]')-y0>25,'climbed the step');
 });
