@@ -10178,6 +10178,9 @@ Object.assign(root.KS_EN.terms,{
 '横の発射管数':'Tubes Across',
 '発射管の段数':'Tube Rows',
 '段の上げ幅':'Row Raise',
+'長魚雷':'Long Torpedo',
+'艦艇用長魚雷':'Ship Long Torpedo',
+'発射する弾の種類':'Round Type',
 '埋め込みセル':'Embedded Cells',
 '縦セル数':'Vertical Cells',
 '発射方向の左右角':'Launch Heading',
@@ -10195,7 +10198,7 @@ Object.assign(root.KS_EN.messages,{
 '{0} 段':'{0} rows',
 '構造物に埋め込んで使います。前面板の丸い蓋の発射管から外へ発射し、奥側に深さ50 mの船内区画を取ります。曲面では取付点の面の向きに合わせます。':'Embed this launcher in a structure. Missiles leave through the round-lidded tubes in the face panel; it takes a 50 m deep interior compartment behind the face. On a curved surface it follows the surface direction at the mounting point.',
 '発射管の数と段の上げ幅に合わせて前面板の幅・高さ、船内区画の容積、弾数、質量、費用が変わります。発射管1本に1発を装填します。':'The number of tubes and the row raise set the face panel width and height, the interior compartment volume, rounds, mass and cost. Each tube holds one missile.',
-'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発1,531,250 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。構造物に埋め込んで使い、曲面にも取り付けられます。':'A ship launcher based on the Mandator II side launch panels. Round tubes line the face panel, with a 50 m deep interior compartment behind it. The ship-scale concussion missile is 7 m in diameter and 50 m long (50% propellant, 50% warhead); each tube holds one, 1,531,250 TT per missile, 60 km range. Tubes across, rows and row raise are adjustable and add volume, mass and cost. Embed it in a structure; curved surfaces are supported.',
+'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発1,531,250 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。弾は長魚雷（同じ寸法、推進剤5%・弾頭95%、1発2,909,375 TT、射程4.44 km、質量を追って大型艦に当たりやすい）にも切り替えられます。構造物に埋め込んで使い、曲面にも取り付けられます。':'A ship launcher based on the Mandator II side launch panels. Round tubes line the face panel, with a 50 m deep interior compartment behind it. The ship-scale concussion missile is 7 m in diameter and 50 m long (50% propellant, 50% warhead); each tube holds one, 1,531,250 TT per missile, 60 km range. Tubes across, rows and row raise are adjustable and add volume, mass and cost. The launcher can fire long torpedoes instead (same size, 5% propellant, 95% warhead, 2,909,375 TT, 4.44 km range; they home on mass, so heavier targets are easier to hit). Embed it in a structure; curved surfaces are supported.',
 'セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。':'Cell counts change the physical width, height, ammunition, mass and cost. An embedded launcher fits into a structure and fires through its open front. External supports follow its launch direction.',
 'セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。':'Cell counts and mounting apply to the selected ship launchers. Linked launchers mirror the heading.'
 });

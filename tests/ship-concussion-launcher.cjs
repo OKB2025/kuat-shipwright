@@ -78,6 +78,54 @@ test('a curved host takes the panel along its local surface direction with level
   assert.equal(f.float,false,form);assert.equal(f.host,host.id);assert.ok(C.dot(g.axis,C.norm(h.n))>.999,'fires along the local normal');assert.ok(Math.abs(g.bodyFrame.rt[1])<1e-6,'rows stay level on the wall');}
 });
 
+// A powered battle profile carrying one launcher module (the fixture ship has no reactor).
+function battleProfile(m){const launcher={...m,fit:2,port:'f2',domain:'main',share:1,at:.5,powerConnected:true};
+ return {name:'Panel fixture',profileVersion:5,hp:1e12,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,
+  gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:m.tt*m.launcherCells,imsl:0,
+  modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher],grid:{P:1e22,Pgen:1e22,Paux:0,fixed:m.launchPowerW,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:m.launchPowerW}]}};}
+function launcherModule(round){const {s,wall}=fixture(),f=placed(s,wall,{launcherCols:2,launcherRows:2,launcherRound:round}),S=C.computeStats(s),p=C.fleetProfile(S,s.name,s);return {f,m:p.modules.find(m=>m.fit===f.id)};}
+// Fire one panel at a target of the given mass and return the share of the rounds that found it.
+// A numeric mass gives an inert test hull (no emission); a string uses that example's real fleet profile and mass.
+function salvoFound(round,massT,distance){
+ const R=vm.runInContext('Rts',cx),F=vm.runInContext('YardFleetData',cx),{m}=launcherModule(round),profile=battleProfile(m),example=typeof massT==='string'?F.designs[massT]:null,target=example?example.p:{...profile,msl:0,modules:profile.modules.slice(0,1),grid:{...profile.grid,fixed:0,fixedLoads:[]}};
+ const a={key:'panel-a',p:profile,info:{mass:1000,hyper:null,capital:false,sensor:0}},z={key:'panel-z',p:target,info:example?example.info:{mass:massT,hyper:null,capital:false,sensor:0}},w=R.createWorld({mode:'test',sensors:false,convoyMode:false,designs:[a,z],sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:a.key}],[{design:z.key}]]});
+ const u=[...w.units.values()].find(q=>q.side===0),t=[...w.units.values()].find(q=>q.side===1);t.sys=u.sys;w.groups.get(t.group).sys=u.sys;u.pos=[0,1000,0];u.yaw=0;t.pos=[distance,1000,0];u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,type:'hold',fire:false};
+ R.battleTick(w,u.sys,.25);const salvo=w.missiles.filter(q=>q.from===u.id);assert.equal(salvo.length,4);
+ for(let i=0;i<400&&salvo.some(q=>q.n>0&&q.life>0);i++)R.battleTick(w,u.sys,.25);
+ return {salvo,found:salvo.map(q=>q.found),signature:R.unitSig(t),target:t};
+}
+
+test('the long torpedo shares the tube and takes its warhead, speed and range from its 5% propellant',()=>{
+ const t=TYPE(),m=t.rounds.missile,q=t.rounds.torpedo,o=C.ORDNANCE.cmsl,ttPerWarheadT=o.tt/(o.mass*.5),dv=Math.log(1/(1-.05))/Math.log(1/(1-.5));
+ assert.deepEqual(plain(q.dims),plain(m.dims));near(q.mass,m.mass);assert.equal(q.warheadFraction,.95);near(q.warheadMass,q.mass*.95);near(q.propellantMass,q.mass*.05);near(q.tt,q.warheadMass*ttPerWarheadT);assert.equal(q.tt,2909375);
+ near(q.speed,m.speed*dv,1e-3);near(q.range,m.range*dv,1e-3);assert.equal(m.seeker,'heat');assert.equal(q.seeker,'mass');assert.equal(m.tt,TT);
+ const f={k:'shipCmsl',p:[0,0,0],a:2,launcherCols:2,launcherRows:2,launcherRound:'torpedo'},d=C.fitSpec(f),spec=C.missileLauncherSpec(f),st=C.weaponPreviewStats(f);
+ assert.equal(d.msl,q.tt*4);assert.equal(spec.tt,q.tt);assert.equal(spec.range,4440);assert.equal(spec.speed,192.4);assert.equal(spec.seeker,'mass');assert.equal(spec.round,'torpedo');assert.equal(spec.ammo,4,'one round per tube');assert.equal(st.outputTT,q.tt);assert.equal(st.rangeM,4440);
+ assert.equal(C.shipLauncherConfig({k:'shipCmsl',launcherRound:'bogus'}).round,'missile');assert.equal(C.shipLauncherConfig({k:'shipMsl',launcherRound:'torpedo'}).round,undefined,'shipMsl has no selectable round');
+ const {s,wall}=fixture(),r=C.placeFit(s,'shipCmsl',[300,60,wall],[0,0,1],2,false,{launcherCols:2,launcherRows:2,launcherRound:'torpedo'});assert.ok(!r.err,r.err);assert.equal(r.fit.launcherRound,'torpedo');const loaded=C.deserialize(C.serialize(s));C.remount(loaded);assert.equal(loaded.fits[0].launcherRound,'torpedo');assert.equal(C.assemblyMirrorFit(loaded.fits[0]).launcherRound,'torpedo');
+ const {m:mod}=launcherModule('torpedo');assert.equal(mod.missileRound,'torpedo');assert.equal(mod.seeker,'mass');assert.equal(mod.missileSpeed,192.4);assert.equal(mod.tt,q.tt);assert.equal(mod.missileRange,4440);
+});
+
+test('seekers: heat finds small ships, mass favours heavy targets',()=>{
+ const heat=S=>C.seekerHitChance('heat',{signatureW:S}),mass=M=>C.seekerHitChance('mass',{massT:M});
+ near(heat(4.2e20),.95*4.2e20/(4.2e20+1e20));near(mass(1.76e6),.95*1.76e6/(1.76e6+1e6));assert.equal(heat(0),0);assert.equal(mass(0),0);assert.equal(C.seekerHitChance(undefined),1);
+ assert.ok(heat(4.2e20)>.75,'a 64 m transport is still found by its emission');assert.ok(mass(5e3)<.01&&mass(4.5e4)<.05,'small ships barely attract a torpedo');assert.ok(mass(5e7)>.9);
+ for(const M of [1e3,1e5,1e7,1e9])assert.ok(mass(M*10)>mass(M));
+});
+
+test('fleet battle: torpedoes find a heavy target far more often than a light one; missiles follow the heat signature',()=>{
+ const light=salvoFound('torpedo',5e3,3000),heavy=salvoFound('torpedo',5e7,3000);
+ assert.ok(light.salvo.every(q=>q.seeker==='mass'&&q.top===192.4&&q.range===4440));assert.ok(light.found.every(Number.isFinite)&&heavy.found.every(Number.isFinite),'every torpedo reached its target');
+ near(light.found[0],C.seekerHitChance('mass',{massT:5e3}));near(heavy.found[0],C.seekerHitChance('mass',{massT:5e7}));assert.ok(heavy.found[0]>light.found[0]*50);
+ // Real example targets: the small Gozanti still radiates enough for the heat seeker; the torpedo barely finds it.
+ const small=salvoFound('missile','gozanti',3000),S=small.signature.nu+small.signature.ir,smallTorpedo=salvoFound('torpedo','gozanti',3000);
+ assert.ok(small.salvo.every(q=>q.seeker==='heat'&&q.top===2600));assert.ok(S>1e20);near(small.found[0],C.seekerHitChance('heat',{signatureW:S}),1e-3);assert.ok(small.found[0]>.6);
+ assert.ok(smallTorpedo.found[0]<.01,'a torpedo rarely finds a 5,000 t ship');assert.ok(small.found[0]>smallTorpedo.found[0]*50);
+ const inert=salvoFound('missile',5e3,3000);assert.ok(inert.found.every(f=>f===0),'a target with no emission gives a heat seeker nothing to follow');
+ const missile=small;assert.ok(missile.salvo.every(q=>Math.abs(q.hit+q.missed+(q.downed||0)-1)<1e-9),'hits, misses and point-defence kills account for every round');
+ const far=salvoFound('torpedo',5e7,4300);assert.ok(far.found.every(Number.isFinite),'within 4.44 km the torpedo still arrives');
+});
+
 test('ship launchers are not craft store stations, so the editor specification panel can summarize the ship',()=>{
  for(const k of ['shipMsl','shipCmsl']){const {s,wall}=fixture(),r=C.placeFit(s,k,[300,60,wall],[0,0,1],2,false,{launcherEmbedded:true});assert.ok(!r.err,r.err);const S=C.computeStats(s);assert.deepEqual(plain(C.craftLoadout(s).stations),[]);assert.doesNotThrow(()=>C.craftCombat(s,S,{summaryOnly:true}));}
 });
