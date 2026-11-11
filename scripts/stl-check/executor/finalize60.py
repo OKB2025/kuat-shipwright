@@ -8,7 +8,9 @@ from column import column
 B=json.load(open(sys.argv[1]));R=json.load(open(sys.argv[2]));log=[]
 def merged(iv):
     # The assembled original is split into printed pieces; solid material running across a piece seam (e.g. y 1,137 m)
-    # comes back as two touching intervals. Join intervals that touch (gap <= 2 m) so that seam is not read as a void.
+    # comes back as two touching intervals. A gap counts as solid when the original fills it to within 15 m of each end
+    # (the original's own thin seams and plate joints, e.g. a 14 m sliver at x 5,285 m).
+    # Join intervals that touch (gap <= 2 m) so that seam is not read as a void.
     out=[]
     for u,v in sorted(iv):
         if out and u<=out[-1][1]+2:out[-1][1]=max(out[-1][1],v)
@@ -17,7 +19,7 @@ def merged(iv):
 for s in R['struts']:
     a=s['aabb'];x=(a[0]+a[3])/2;z=(a[2]+a[5])/2;w=min(a[3]-a[0],a[5]-a[2]);ov=max(6,min(4,w/2));lo=a[1]+ov;hi=a[4]-ov
     pts=[(x+dx,z+dz) for dx in (-w/3,0,w/3) for dz in (-w/3,0,w/3)]
-    share=sum(1 for px,pz in pts if any(u<=(lo+hi)/2<=v and u<=lo+1 and v>=hi-1 for u,v in merged(column(px,pz)[0])))/len(pts)
+    share=sum(1 for px,pz in pts if any(u<=(lo+hi)/2<=v and u<=lo+15 and v>=hi-15 for u,v in merged(column(px,pz)[0])))/len(pts)
     done=None
     for i,b in enumerate(B):
         P=Polygon(np.array(b['o']).reshape(-1,2));inside=P.contains(Point(x,z)) or (b['m'] and P.contains(Point(x,-z)))
