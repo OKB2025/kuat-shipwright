@@ -3770,7 +3770,7 @@ function setHullDims(L, W, H) {
   const cr = C.isCraft(ship), r = v => v;
   L = C.clamp(r(L), cr ? 1.5 : 60, lim.length); W = C.clamp(r(W), cr ? .5 : 20, lim.width); H = C.clamp(r(H), cr ? .3 : 10, lim.height);
   const fx = L / hp.L, fy = H / hp.H, fz = W / hp.W;
-  if(part&&C.setHullStructureDimensions){C.setHullStructureDimensions(ship,part,[L,W,H]);return;}
+  if(part&&C.setHullStructureDimensions){const refused=C.hullStructureResizeError?.(ship,part,[L,W,H]);if(refused){toast(T(refused));return refused;}C.setHullStructureDimensions(ship,part,[L,W,H]);return;}
   scaleContents(fx, fy, fz, st.hullFollow); hp.L = L; hp.W = W; hp.H = H;
 }
 // Length, beam and depth: hull dimensions are independent of class and the planned envelope.
