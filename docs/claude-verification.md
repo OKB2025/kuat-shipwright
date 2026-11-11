@@ -40,6 +40,7 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | テスト | 内容 |
 | --- | --- |
 | `tests/placement-hull-seam-contact.cjs` | 新規設計艦の船体甲板への水平配置が、継ぎ目の位置でも接地する。浮かせた構造物は未接続のまま |
+| `tests/placement-curved-hull-surface.cjs`（2026-11-11） | 曲面船体の面配置・重なり接触。重なり接触の限界値（最小の厚み `eps`、最小体積 `eps×面接触の最小面積`、埋没の上限なし・完全埋没は接続しない）は [design-placement-v1.2.md](design-placement-v1.2.md)「重なりによる接触」 |
 | `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
 
 ### UI・配置・親子関係・Undo/Redo・保存

@@ -48,11 +48,24 @@ test('vertical contact cuts the parent-facing side while preserving the upright 
 // but the whole, uncut child now joins the parent by that real overlap (the
 // structural union charges the shared volume once). Previously both inputs
 // were rejected with minimum-thickness/geometry-volume. A body buried wholly
-// inside the parent is still rejected atomically.
-test('a parent penetrating the opposite skin keeps the whole child in place (joined by the overlap); a body buried in the parent is rejected atomically',()=>{
+// inside the parent is now grounded too (user decision 2026-11-11; the
+// inspection list warns about it); a body with a real gap is still rejected
+// atomically.
+test('a parent penetrating the opposite skin keeps the whole child in place (joined by the overlap); a buried body is joined; a gap is rejected atomically',()=>{
  const ship=fixture(),before=C.publicJSON(ship);
  {const input=child([0,4.5,0],[20,10,9]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.code);assert.equal(r.contact.overlap,true);near(C.partVolume(r.part),20*10*9);assert.deepEqual(plain(r.part.c),[0,4.5,0],'not moved above the ridge');assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
- {const input=child([0,-5,0],[5,5,5]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,false);assert.ok(['minimum-thickness','geometry-volume','contact-zero'].includes(r.code),r.code+': '+r.error);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
+ {const input=child([0,-5,0],[5,5,5]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.code);assert.equal(r.contact.whollyInside,true);near(C.partVolume(r.part),125);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
+ {const input=child([0,16,0],[20,10,9]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,false);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
+});
+
+test('the whole child joined by the overlap is charged once: ship structural volume equals the union of parent and child',()=>{
+ const ship=fixture(),parent=ship.parts[0],without=C.computeStats({...ship,_cache:null}).volume,r=solve(ship,child([0,4.5,0],[20,10,9]));assert.equal(r.ok,true,r.code);
+ const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,withPart=C.computeStats({...ship,_cache:null}).volume;
+ const overlap=C.placementContact(ship,part,parent).volume,expected=C.partVolume(parent)+C.partVolume(part)-overlap;
+ near(without,C.partVolume(parent),C.partVolume(parent)*1e-6);near(withPart,expected,expected*1e-6);assert.ok(withPart<C.partVolume(parent)+C.partVolume(part)-1,'the shared volume is not counted twice');
+ // Independent check of the union by point sampling (cell centres of a 40x40x20 grid over the union bounds).
+ let inside=0;const N=[40,40,20],lo=[-10,-10,-5],hi=[10,10,5];for(let i=0;i<N[0];i++)for(let j=0;j<N[1];j++)for(let k=0;k<N[2];k++){const q=[0,1,2].map(a=>lo[a]+(hi[a]-lo[a])*([i,j,k][a]+.5)/N[a]);if(C.inPart(parent,q)||C.inPart(part,q))inside++;}
+ const sampled=inside/(N[0]*N[1]*N[2])*20*20*10;assert.ok(Math.abs(sampled-withPart)<=withPart*.02,`sampled union ${sampled} vs structural volume ${withPart}`);
 });
 
 test('cut contact is a saved source contract and regenerates the same closed material after v3 reload',()=>{

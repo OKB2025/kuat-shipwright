@@ -62760,17 +62760,27 @@ function placementContact(ship,part,parent){
  // Only coplanar face contact or a positive shared volume connects; a real
  // gap, a bare line or point touch, and a body buried wholly inside the
  // parent (no material of its own outside) remain contact-zero.
- const overlap=placementOverlapContact(A,B);return overlap.connected?{...face,...overlap}:{...face,overlapVolume:overlap.volume};
+ const overlap=placementOverlapContact(A,B);return overlap.connected?{...face,...overlap}:{...face,overlapVolume:overlap.volume,overlapThickness:overlap.thickness,overlapBuried:overlap.buried,whollyInside:overlap.whollyInside,minimumVolume:overlap.minimumVolume,minimumThickness:overlap.minimumThickness};
 }
 // Shared volume of two closed solids: the part's boundary inside the parent
 // plus the parent's boundary inside the part, each with its own orientation.
+// Thresholds (docs/claude-verification.md, "Overlap contact"), with eps the
+// same distance tolerance placementTriangleContact uses to call faces coplanar:
+// - every extent of the shared region exceeds eps: a region thinner than that
+//   is what the face test already reads as a touch, never an overlap;
+// - the shared volume exceeds eps x the face test's minimum contact area;
+// - there is no burial limit (user decision 2026-11-11): a part 99.95% or
+//   wholly inside the parent is joined; groundingStats warns (lv 'warn',
+//   code 'buried') when less than 10% of a placed structure is exposed.
 function placementOverlapContact(A,B){
- const a=solidMeshBounds(A),b=solidMeshBounds(B),eps=Math.max(placementEpsilon(A),placementEpsilon(B))*4;
- if([0,1,2].some(i=>a[i+3]<=b[i]+eps||b[i+3]<=a[i]+eps))return {connected:false,volume:0};
- const inner=placementConcat(structuralClipBoundary(A,B,false,false,true),structuralClipBoundary(B,A,false,false,true));if(!inner.length)return {connected:false,volume:0};
- const volume=structuralMeshVolume(inner),own=structuralMeshVolume(A),scale=Math.max(eps,...[0,1,2].map(i=>a[i+3]-a[i])),minimum=Math.max(eps**3,scale**3*PLACEMENT_TOLERANCES.contactAreaRelative*1e-2);
- const connected=Number.isFinite(volume)&&volume>minimum&&volume<own*(1-PLACEMENT_TOLERANCES.volumeRelative);
- return {connected,volume,minimumVolume:minimum,reason:connected?null:'contact-zero',overlap:connected};
+ const a=solidMeshBounds(A),b=solidMeshBounds(B),eps=Math.max(placementEpsilon(A),placementEpsilon(B))*4,scale=Math.max(1,...[0,1,2].map(i=>a[i+3]-a[i])),minimumArea=Math.max(eps*eps,scale*scale*PLACEMENT_TOLERANCES.contactAreaRelative),minimum=eps*minimumArea,limits={minimumVolume:minimum,minimumThickness:eps};
+ if([0,1,2].some(i=>a[i+3]<=b[i]+eps||b[i+3]<=a[i]+eps))return {connected:false,volume:0,thickness:0,...limits};
+ // Faces shared with the same orientation bound the shared region once (kept from the parent side only).
+ const inner=placementConcat(structuralClipBoundary(A,B,false,false,true),structuralClipBoundary(B,A,true,false,true));if(!inner.length)return {connected:false,volume:0,thickness:0,...limits};
+ const volume=structuralMeshVolume(inner),own=structuralMeshVolume(A),c=solidMeshBounds(inner),thickness=Math.min(...[0,1,2].map(i=>c[i+3]-c[i])),buried=own>0?volume/own:1;
+ const outside=own-volume,whollyInside=!(outside>Math.max(minimum,own*1e-9));
+ const connected=Number.isFinite(volume)&&thickness>eps&&volume>minimum;
+ return {connected,volume,thickness,buried,whollyInside,...limits,reason:connected?null:'contact-zero',overlap:connected};
 }
 function placementTriangleContact(A,B){const eps=Math.max(placementEpsilon(A),placementEpsilon(B))*4,regions=[];let area=0;
  const triangleBounds=P=>[0,1,2].map(k=>Math.min(...P.map(p=>p[k]))).concat([0,1,2].map(k=>Math.max(...P.map(p=>p[k])))),overlap=(a,b)=>[0,1,2].every(k=>a[k]<=b[k+3]+eps&&a[k+3]>=b[k]-eps),bounds=solidMeshBounds(A),parentFaces=[];
@@ -63057,11 +63067,11 @@ function placementFitContactAlong(ship,part,parent,hit,n){
 // One contact rule for every placement mode (user decision 2026-11-11): a
 // structure that really overlaps its parent is connected even where the
 // horizontal/vertical contact cut cannot be built (a steep or curved skin, a
-// parent piercing a thin plate, a sliver the column cut cannot close). The
-// requested body is then kept whole and closed; the structural union charges
-// the shared volume once and hides its buried faces. A real gap, or a body
-// wholly inside the parent, keeps the cut's original failure.
-const PLACEMENT_OVERLAP_FALLBACK_CODES=new Set(['surface-missing','minimum-thickness','contact-shape','geometry-complex']);
+// parent piercing a thin plate, a sliver the column cut cannot close, a body
+// buried wholly in the parent). The requested body is then kept whole and
+// closed; the structural union charges the shared volume once and hides its
+// buried faces. A real gap keeps the cut's original failure.
+const PLACEMENT_OVERLAP_FALLBACK_CODES=new Set(['surface-missing','minimum-thickness','contact-shape','geometry-complex','geometry-volume']);
 function placementOverlapFallback(ship,part,parent,failure){
  if(!PLACEMENT_OVERLAP_FALLBACK_CODES.has(failure?.code))return false;delete part._placementGeometry;
  const checked=placementValidateSolid(part);if(!checked.ok)return false;const contact=placementContact(ship,part,parent);if(!contact.connected||!contact.overlap)return false;
@@ -64315,7 +64325,17 @@ function groundingStats(ship,S){
  if(loose.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない部品が ${loose.length} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。`});
  if(looseFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない構造物の上に取り付けた装備が ${looseFits.length} 基あります。`});
  if(floatingFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`どこにも取り付いていない（浮いている）装備が ${floatingFits.length} 基あります。船体・構造物・区画の表面に取り付けてください。`});
+ const buried=buriedStructures(ship);S.buried=buried;if(buried.length)S.warnings.push({lv:'warn',code:'buried',text:`船体・構造物にほぼ埋まっている構造物が ${buried.length} 個あります。外に出ている部分は体積の${Math.round(BURIED_EXPOSED_RATIO*100)}%未満です。`,targets:buried.map(id=>({list:'parts',id}))});
  return S;
+}
+// Buried structures are grounded (user decision 2026-11-11); a placed structure
+// whose exposed material (its share of the hull-structure union) is under 10%
+// of its own volume, wholly buried ones included, is listed as a warning.
+const BURIED_EXPOSED_RATIO=.1;
+function buriedStructures(ship){
+ const parts=ship.parts.filter(p=>p.id>0&&p.placement&&!p._placementError&&!p.placement.repairRequired&&!p.placement.pendingGeometry&&placementCapability(p).kind==='structure'&&isShapePart(p)&&!isHullStructure(p));if(!parts.length)return [];
+ let material;try{material=structuralMaterial(ship);}catch(e){return [];}
+ return parts.filter(p=>{const own=partVolume(p),exposed=material.envelopeVolumes.get(p.id);return own>0&&Number.isFinite(exposed)&&exposed<own*BURIED_EXPOSED_RATIO;}).map(p=>p.id);
 }
 function inspectionTargets(ship,S,w){
  if(w.code==='ungrounded')return [...(S.ungrounded?.parts||[]).map(id=>({list:'parts',id})),...(S.ungrounded?.fits||[]).map(id=>({list:'fits',id})),...(S.ungrounded?.floatingFits||[]).map(id=>({list:'fits',id}))];

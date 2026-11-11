@@ -20,8 +20,8 @@ const SHAPES={
  box:h=>({form:'box',s:[h.L*.08,h.W*.25,h.H*.2]}),
 };
 // The editor's surface tap: alignStructure pose -> draft -> Worker resolution.
-function tap(spec,o,d,shape){
- const {ship,hull}=hullShip(spec),raw=C.rayPart(o,d,hull);assert.ok(raw,'the tap must hit the hull');const hit={p:raw.p,n:C.norm(raw.n)};
+function tap(spec,o,d,shape,on=null){
+ const {ship,hull}=on||hullShip(spec),raw=C.rayPart(o,d,hull);assert.ok(raw,'the tap must hit the hull');const hit={p:raw.p,n:C.norm(raw.n)};
  const part=C.alignStructure({id:ship.nextId,k:'struct',c:[0,0,0],yaw:0,pitch:0,offsetX:0,offsetZ:0,...shape},hit,'surface');
  const draft=C.preparePlacementDraft(ship,part,{mode:'surface',parentStructureId:hull.id,hostId:hull.id,hit,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
  assert.equal(draft.ok,true,draft.error);ship.parts.push(draft.part);ship.nextId++;C.refreshPlacementGeometry(ship);
@@ -69,14 +69,11 @@ test('the mirrored copy of a rolled plate on the other side is grounded too',()=
  assert.ok(mirror.c[2]<0,'the copy is on the port side');assertGrounded(r.ship,mirror,'mirror');
 });
 
-test('a plate lifted off the hull, or buried wholly inside it, is still refused',()=>{
- const h=C.newShip(CIGAR,'new').hull;
+test('a plate lifted off the hull is still refused, also after save/reload',()=>{
+ const h=C.newShip(CIGAR,'new').hull;let last=null;
  for(const kind of ['plate','fin','box']){const r=tap(CIGAR,[h.L*.45,h.H*.5,h.W*5],[0,0,-1],SHAPES[kind](h));assertGrounded(r.ship,r.part,kind);
-  r.part.c=C.add(r.part.c,C.mul(r.hit.n,h.W*.02));const lifted=C.refreshPlacementGeometry(r.ship);assert.equal(lifted.ok,false,kind+' lifted');assert.equal(r.part._placementError,'contact-zero');assert.equal(ungrounded(r.ship,r.part.id),true,kind+' lifted is ungrounded');}
- const r=tap(CIGAR,[h.L*.45,h.H*.5,h.W*5],[0,0,-1],SHAPES.plate(h));r.part.c=C.sub(r.part.c,C.mul(r.hit.n,h.W*.2));C.refreshPlacementGeometry(r.ship);
- assert.equal(r.part._placementError,'contact-zero','a plate wholly inside the hull has no material of its own');assert.equal(ungrounded(r.ship,r.part.id),true);
- // A refused lifted plate stays refused after save/reload.
- const loaded=reload(r.ship),p=loaded.parts.find(q=>q.id===r.part.id);assert.ok(p._placementError);assert.equal(ungrounded(loaded,p.id),true);
+  r.part.c=C.add(r.part.c,C.mul(r.hit.n,h.W*.02));const lifted=C.refreshPlacementGeometry(r.ship);assert.equal(lifted.ok,false,kind+' lifted');assert.equal(r.part._placementError,'contact-zero');assert.equal(ungrounded(r.ship,r.part.id),true,kind+' lifted is ungrounded');last=r;}
+ const loaded=reload(last.ship),p=loaded.parts.find(q=>q.id===last.part.id);assert.ok(p._placementError);assert.equal(ungrounded(loaded,p.id),true);
 });
 
 test('a surface plate can be dragged along the side and sunk into the hull; save/reload keeps that pose grounded',()=>{
@@ -98,4 +95,69 @@ test('structure on structure: a rolled surface plate and a vertical-mode block s
  const block=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:c.slice()});
  assert.equal(block.ok,true,block.code);assert.equal(block.contact.connected,true);
  const away=C.add(side.p,C.mul(out,12)),far=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c:away,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:away});assert.equal(far.ok,false);
+});
+
+// Overlap thresholds (docs/design-placement-v1.2.md, 重なりによる接触).
+const boxShip=size=>{const ship=C.newShip({L:100,W:100,H:100,assembly:true});const parent={id:1,k:'struct',form:'box',c:[0,0,0],s:[size,size,size]};ship.parts=[parent];ship.fits=[];ship.nextId=2;return {ship,parent};};
+test('overlap minimum: a grazing corner overlap just below the minimum volume is a touch, just above it is a contact',()=>{
+ // 2 km parent, 1 km child: the corner overlap is a cube of side d, thicker than eps in both cases,
+ // so the volume limit alone decides.
+ const {ship,parent}=boxShip(2000),child=d=>({id:2,k:'struct',form:'box',c:[1500-d,1500-d,1500-d],s:[1000,1000,1000]});
+ const probe=C.placementContact(ship,child(.01),parent),minimum=probe.minimumVolume,eps=probe.minimumThickness;assert.ok(minimum>0&&eps>0);
+ const below=Math.cbrt(minimum*.8),above=Math.cbrt(minimum*1.25);assert.ok(below>eps*1.2,'both probes are thicker than eps');
+ const a=C.placementContact(ship,child(below),parent),b=C.placementContact(ship,child(above),parent);
+ assert.equal(a.connected,false,JSON.stringify({v:a.overlapVolume,minimum}));assert.ok(a.overlapVolume>0&&a.overlapVolume<minimum,'the shallow overlap is measured but below the minimum');
+ assert.equal(b.connected,true,JSON.stringify({v:b.volume,minimum}));assert.ok(b.volume>minimum);assert.equal(b.overlap,true);
+ // A bare corner touch has no shared volume.
+ assert.equal(C.placementContact(ship,child(0),parent).connected,false);
+});
+
+// No burial limit (user decision 2026-11-11): 90%, 99%, 99.95% and wholly buried structures are grounded;
+// those with less than 10% of their volume exposed are listed by a 'buried' warning with select targets.
+const statsOf=ship=>{const st={warnings:[]};C.groundingStats(ship,st);return st;};
+test('burial: plates 90%, 99%, 99.95% and wholly buried are joined',()=>{
+ const {ship,parent}=boxShip(100),plate=f=>({id:2,k:'struct',form:'box',c:[0,50+1-2*f,0],s:[20,20,2]});
+ for(const f of [.9,.99,.9995,1,1.5]){const r=C.placementContact(ship,plate(f),parent);assert.equal(r.connected,true,`${f*100}% buried: ${JSON.stringify({v:r.volume??r.overlapVolume,b:r.buried??r.overlapBuried})}`);assert.equal(r.whollyInside,f>=1);if(f<1)assert.ok(Math.abs(r.buried-f)<1e-6,'measured burial '+r.buried);}
+});
+test('buried warning: 99% and wholly buried surface plates are grounded and listed; a partly overlapping plate is not',()=>{
+ const h=C.newShip(CIGAR,'new').hull,r=tap(CIGAR,[h.L*.3,h.H*.5,h.W*5],[0,0,-1],SHAPES.plate(h)),ship=r.ship,t=SHAPES.plate(h).s[2];
+ // Sink by 99% of the plate thickness and wholly (past its own thickness) at two other places; keep a fin partly overlapping.
+ // Placed and then sunk by the user (a drag along the normal): until 99% of its volume is inside the curved hull
+ // (bisection on the measured burial), and wholly (3x its thickness past the flush seat).
+ const on={ship,hull:r.hull},place=x=>tap(CIGAR,[h.L*x,h.H*.5,h.W*5],[0,0,-1],SHAPES.plate(h),on),sinkTo=(q,depth)=>{q.part.c=C.sub(q.seat,C.mul(q.hit.n,depth));};
+ const q99=place(.55);q99.seat=q99.part.c.slice();let lo=0,hi=t*3;for(let i=0;i<40;i++){const mid=(lo+hi)/2;sinkTo(q99,mid);const b=C.placementContact(ship,q99.part,r.hull).buried||0;if(b<.99)lo=mid;else hi=mid;}sinkTo(q99,hi);
+ assert.ok(Math.abs(C.placementContact(ship,q99.part,r.hull).buried-.99)<.002,'about 99% buried');
+ const qw=place(.7);qw.seat=qw.part.c.slice();sinkTo(qw,t*3);const p99=q99.part,whole=qw.part,fin=tap(CIGAR,[h.L*.3,h.H*.5,-h.W*5],[0,0,1],SHAPES.fin(h),on).part;
+ const f=C.refreshPlacementGeometry(ship);assert.equal(f.ok,true,JSON.stringify(f.failed));for(const p of [r.part,p99,whole,fin])assertGrounded(ship,p,'part '+p.id);
+ const st=statsOf(ship),w=st.warnings.find(x=>x.code==='buried');assert.ok(w,'a buried warning is listed');assert.equal(w.lv,'warn');
+ assert.deepEqual(Array.from(st.buried).sort(),[p99.id,whole.id].sort());assert.match(w.text,/ほぼ埋まっている構造物が 2 個/);assert.deepEqual(Array.from(w.targets,x=>x.id).sort(),[p99.id,whole.id].sort());assert.ok(w.targets.every(x=>x.list==='parts'));
+ assert.ok(!st.warnings.some(x=>x.lv==='bad'&&x.code==='ungrounded'),'no grounding error');
+ // English text
+ const en=fs.readFileSync(path.join(root,'js/lang-en.js'),'utf8');assert.ok(en.includes('"船体・構造物にほぼ埋まっている構造物が {0} 個あります。外に出ている部分は体積の{1}%未満です。"'),'the warning has an English translation');
+});
+
+// Editor history mirrors app.js snap()/restore(): '_' keys stripped, deserialize with deferred placement,
+// patchShip into the live ship, then the Worker's refreshPlacementGeometry.
+const snap=ship=>JSON.stringify({...ship,format:'starship-yard',v:3},(k,v)=>k.startsWith('_')?undefined:v);
+function restore(ship,json){const s=C.deserialize(JSON.parse(json),{deferPlacementGeometry:true}),src=JSON.parse(JSON.stringify(s,(k,v)=>k.startsWith('_')?undefined:v));C.patchShip(ship,src);ship._cache=null;return C.refreshPlacementGeometry(ship);}
+function consistent(ship,p,label){assertGrounded(ship,p,label);const parent=ship.parts.find(q=>q.id===p.placement.parentStructureId);near(p.placement.requestedGeometry.c,p.c,label+' request = pose');near(C.worldStruct(parent,p.placement.parentLocalAnchor),p.c,label+' parent-local anchor = pose');}
+test('place, drag, sink, undo, redo: pose and placement metadata stay consistent and grounded',()=>{
+ const h=C.newShip(CIGAR,'new').hull,r=tap(CIGAR,[h.L*.45,h.H*.5,h.W*5],[0,0,-1],SHAPES.fin(h)),ship=r.ship,id=r.part.id,part=()=>ship.parts.find(q=>q.id===id);
+ const history=[],edit=fn=>{history.push(snap(ship));fn(part());const f=C.refreshPlacementGeometry(ship);assert.equal(f.ok,true,JSON.stringify(f.failed));};
+ const placed=Array.from(part().c);consistent(ship,part(),'placed');
+ edit(p=>{p.c=C.add(p.c,[h.L*.05,0,0]);});const dragged=Array.from(part().c);consistent(ship,part(),'dragged');
+ edit(p=>{p.c=C.sub(p.c,C.mul(r.hit.n,h.W*.04));});const sunk=Array.from(part().c);consistent(ship,part(),'sunk');
+ const redo=[];
+ redo.push(snap(ship));let f=restore(ship,history.pop());assert.equal(f.ok,true,JSON.stringify(f.failed));near(part().c,dragged,'undo sink');consistent(ship,part(),'undo sink');
+ redo.push(snap(ship));f=restore(ship,history.pop());assert.equal(f.ok,true,JSON.stringify(f.failed));near(part().c,placed,'undo drag');consistent(ship,part(),'undo drag');
+ history.push(snap(ship));f=restore(ship,redo.pop());assert.equal(f.ok,true,JSON.stringify(f.failed));near(part().c,dragged,'redo drag');consistent(ship,part(),'redo drag');
+ history.push(snap(ship));f=restore(ship,redo.pop());assert.equal(f.ok,true,JSON.stringify(f.failed));near(part().c,sunk,'redo sink');consistent(ship,part(),'redo sink');
+ const again=reload(ship);consistent(again,again.parts.find(q=>q.id===id),'redo then reload');near(again.parts.find(q=>q.id===id).c,sunk,'redo then reload');
+});
+
+test('mirror, save, reload: a sunk rolled plate and its mirrored copy keep their poses and stay grounded',()=>{
+ const h=C.newShip(CIGAR,'new').hull,r=tap(CIGAR,[h.L*.55,h.H*.35,h.W*5],[0,0,-1],SHAPES.fin(h));r.part.c=C.sub(r.part.c,C.mul(r.hit.n,h.W*.03));C.refreshPlacementGeometry(r.ship);assertGrounded(r.ship,r.part,'sunk source');
+ const mirror=C.mirrorPart(r.part,r.ship);mirror.id=r.ship.nextId++;r.ship.parts.push(mirror);const f=C.refreshPlacementGeometry(r.ship);assert.equal(f.ok,true,JSON.stringify(f.failed));assertGrounded(r.ship,mirror,'mirror');
+ near([r.part.c[0],r.part.c[1],-r.part.c[2]],mirror.c,'the copy is the reflection',1e-6);
+ let ship=r.ship;for(let i=0;i<2;i++){ship=reload(ship);for(const q of [r.part,mirror]){const p=ship.parts.find(x=>x.id===q.id);assertGrounded(ship,p,`reload ${i+1} part ${q.id}`);near(p.c,q.c,`reload ${i+1} part ${q.id}`);}}
 });

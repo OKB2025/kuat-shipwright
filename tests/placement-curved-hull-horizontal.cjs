@@ -60,10 +60,14 @@ test('a structure with a real gap from the steep hull side is still refused (not
  const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{lift:[0,h.H*.6,0]});assert.ok(r.part._placementError);assert.equal(r.ungrounded,true);
 });
 
-test('a structure wholly inside the hull is still refused',()=>{
+// Changed 2026-11-11 (user decision: buried structures, wholly buried ones included,
+// are grounded; the inspection list warns about them). Previously this asserted
+// refusal with minimum-thickness/geometry-volume/contact-zero.
+test('a structure wholly inside the hull is grounded whole and listed by the buried warning',()=>{
  const {ship,hull}=hullShip(CIGAR),h=ship.hull,hit=C.rayPart([h.L*.5,h.H*5,0],[0,-1,0],hull),size=[h.L*.04,h.W*.1,h.H*.05],c=C.sub(hit.p,[0,h.H*.3,0]);
  const r=C.solvePlacement(ship,{id:ship.nextId,k:'struct',form:'box',c,s:size},{mode:'horizontal',parentStructureId:hull.id,hit:{p:hit.p,n:C.norm(hit.n)},contactFit:'cut',position:c.slice()});
- assert.equal(r.ok,false);assert.ok(['minimum-thickness','geometry-volume','contact-zero'].includes(r.code),r.code);
+ assert.equal(r.ok,true,r.code);assert.equal(r.contact.whollyInside,true);assert.ok(Math.abs(C.partVolume(r.part)-size[0]*size[1]*size[2])<=size[0]*size[1]*size[2]*1e-6,'kept whole');
+ const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true);const st={warnings:[]};C.groundingStats(ship,st);assert.deepEqual(Array.from(st.buried),[accepted.part.id]);assert.ok(!(st.ungrounded?.parts||[]).includes(accepted.part.id));
 });
 
 // Known residual (follow-up, not widened here): at a few exact mid-height taps
