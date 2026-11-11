@@ -49435,13 +49435,18 @@ function hullOwnSolidCut(ship,p,input){
 function hullWorldSolidCut(p,input){return hullTransformSolidCut(p,input,true);}
 
 function hullMaterialGeometry(ship,base=hullGeo(ship)){
- const shells=ship.parts.filter(isHullStructure).map(p=>({p,g:hullStructureGeometry(ship,p)}));if(!shells.length)return base;
- const old=ship._hullMaterialGeometry;if(old?.base===base&&old.shells.length===shells.length&&shells.every((s,i)=>s.p===old.shells[i].p&&s.g===old.shells[i].g))return old.value;
+ let shells=ship.parts.filter(isHullStructure).map(p=>({p,g:hullStructureGeometry(ship,p)}));if(!shells.length)return base;
+ // Ship-level solid cuts that carve structures (every one in an assembly design) also remove hull
+ // material: the hull structure's own geometry carries only its hull-owned cuts. Without this the
+ // hull kept the volume, mass and cost of material a ship-level cut had removed (2026-11-11).
+ const cutKey=publicJSON((ship.solidCuts||[]).filter(c=>ship.hull.assembly||c.structures));
+ const old=ship._hullMaterialGeometry;if(old?.base===base&&old.cutKey===cutKey&&old.shells.length===shells.length&&shells.every((s,i)=>s.p===old.shells[i].p&&s.g===old.shells[i].g))return old.value;
+ const raw=shells;if(cutKey!=='[]')shells=shells.map(({p,g})=>{const T=g.materialTris||g.tris,cut=applySolidCuts(ship,T,true);if(cut===T)return {p,g};const tris=g.materialTris&&g.materialTris!==g.tris?applySolidCuts(ship,g.tris,true):cut,before=meshVolume(T);return {p,g:{...g,tris,materialTris:cut,volume:g.volume*clamp(before>0?meshVolume(cut)/before:1,0,1),area:solidMeshArea(tris),bvh:null}};});
  let material=base.materialTris||base.tris,rawVolume=0,volume=base.volume;
  const Y=[];for(const {g} of shells){const T=g.materialTris||g.tris;material=material.length?structuralJoinBoundary(material,T):T;rawVolume+=structuralMeshVolume(T);volume+=g.volume;for(let i=1;i<g.tris.length;i+=3)Y.push(g.tris[i]);}
  const ratio=rawVolume>0?Math.min(1,structuralMeshVolume(material)/rawVolume):1;
  const value={...base,tris:material,materialTris:material,volume:volume*ratio,secs:[{Y,area:0,Z:[]}],shells,shellRatio:ratio};
- ship._hullMaterialGeometry={base,shells,value};return value;
+ ship._hullMaterialGeometry={base,shells:raw,cutKey,value};return value;
 }
 
 
@@ -50638,7 +50643,7 @@ function baseComputeStats(ship,options={}) {
     bins[k] += fm; framingMass += fm;
     strA[k] += (K.framing + K.framingStiff) * box + ship.armor.hull * (sbA.hw * 2 + sbA.h) * 0.3;
   }
-  if(g.shells)for(const {p}of g.shells){const h=p.hullProfile,samples=p.hullData?.framingSamples?.length?p.hullData.framingSamples:Array.from({length:120},(_,i)=>[(i+.5)/120,1/120]);let partFraming=0;for(const [t,w]of samples){if(t<(h.start||0))continue;const sb=sectionBase(h,t*h.L),box=sb.hw*2*sb.h,dx=w*h.L,fm=K.framingStiff*box*dx*K.framingDens*g.shellRatio,k=binOf(hullWorldPoint(p,[t*h.L,h.H/2,0])[0]);bins[k]+=fm;framingMass+=fm;partFraming+=fm;strA[k]+=((K.framing+K.framingStiff)*box+ship.armor.hull*(sb.hw*2+sb.h)*.3)*g.shellRatio;}info[p.id]={inside:1,inHull:1,exposed:1,overlap:false,materialVolume:hullStructureGeometry(ship,p).volume*g.shellRatio,materialMass:hullStructureGeometry(ship,p).volume*K.hullDens*g.shellRatio+partFraming,hullStructure:true};}
+  if(g.shells)for(const {p,g:shell}of g.shells){const h=p.hullProfile,samples=p.hullData?.framingSamples?.length?p.hullData.framingSamples:Array.from({length:120},(_,i)=>[(i+.5)/120,1/120]);let partFraming=0;for(const [t,w]of samples){if(t<(h.start||0))continue;const sb=sectionBase(h,t*h.L),box=sb.hw*2*sb.h,dx=w*h.L,fm=K.framingStiff*box*dx*K.framingDens*g.shellRatio,k=binOf(hullWorldPoint(p,[t*h.L,h.H/2,0])[0]);bins[k]+=fm;framingMass+=fm;partFraming+=fm;strA[k]+=((K.framing+K.framingStiff)*box+ship.armor.hull*(sb.hw*2+sb.h)*.3)*g.shellRatio;}info[p.id]={inside:1,inHull:1,exposed:1,overlap:false,materialVolume:shell.volume*g.shellRatio,materialMass:shell.volume*K.hullDens*g.shellRatio+partFraming,hullStructure:true};}
   // hatches and hangar access
   let openA = 0, rayA = 0, rayAll = 0, deadHatch = 0;
   const hatchInfo = {};
@@ -64512,6 +64517,8 @@ function groundingStats(ship,S){
   for(const p of parts){const b=box.get(p.id);if(!b)continue;for(const q of probes){if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!safeIn(p,q))continue;if(looseSet.has(p.id))onLoose=true;else onGround=true;}if(onGround)break;}
   if(!onGround&&onLoose)looseFits.push(f.id);else if(!onGround)floatingFits.push(f.id);}
  S.ungrounded={parts:loose,fits:looseFits,floatingFits};S.severed=severedIds;S.placementDiagnostics=placementDiagnostics(ship);
+ let cutEquipment=[];try{cutEquipment=solidCutEquipmentHits(ship);}catch(e){cutEquipment=[];}S.cutEquipment=cutEquipment;
+ if(cutEquipment.length)S.warnings.push({lv:'warn',code:'cut-equipment',text:`削りが固定機器（反応炉・機関など）${cutEquipment.length} 基に重なっています。機器は動かしていません。削りか機器の位置を確認してください。`,targets:cutEquipment.map(h=>({list:'parts',id:h.partId}))});
  S.severedFits=severedFits;if(severedIds.length||severedFits.length)S.warnings.push({lv:'warn',code:'severed',text:`削った結果、追加元から切り離された構造物・機器が ${severedIds.length+severedFits.length} 個あります。位置はそのままです。必要なら動かすか削りを調整してください。`,targets:[...severedIds.map(id=>({list:'parts',id})),...severedFits.map(id=>({list:'fits',id}))]});
  if(S.floating){const n=parts.filter(p=>S.info?.[p.id]?.floating&&!looseSet.has(p.id)).length;S.warnings=S.warnings.filter(w=>!/浮いている区画/.test(w.text));if(n)S.warnings.unshift({lv:'bad',text:`船体から離れて浮いている区画が ${n} 個あります。`});}
  if(loose.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない部品が ${loose.length} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。`});
@@ -64918,6 +64925,41 @@ function solidCutThinWalls(ship){
   if(thin<limit)rows.push({id:c.id,thickness:thin,limit});
  }
  ship._thinWalls={key,tris:g.tris,rows};return rows;
+}
+// Cut scope (user decision 2026-11-11). 'all': a ship-level solid cut that carves every structure it
+// meets (the default for new cuts). 'hull': a cut owned by one hull structure that carves that hull
+// only (existing hull-owned cuts in examples and saves). Each cut can be switched either way; its
+// shape and world position are kept.
+function solidCutScope(ship,id){
+ const own=(ship.solidCuts||[]).find(c=>c.id===id);if(own)return ship.hull?.assembly||own.structures?'all':'hull';
+ return ship.parts?.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.some(c=>c.id===id))?'hull':null;
+}
+function setSolidCutScope(ship,id,scope,hullId=null){
+ if(!['all','hull'].includes(scope))throw new Error('切削の適用範囲が不正です');
+ const owner=ship.parts.find(p=>isHullStructure(p)&&p.hullData?.solidCuts?.some(c=>c.id===id)),listed=(ship.solidCuts||[]).find(c=>c.id===id);if(!owner&&!listed)return false;
+ if(scope==='all'){
+  if(owner){const cut=owner.hullData.solidCuts.find(c=>c.id===id),world=hullWorldSolidCut(owner,cut);owner.hullData.solidCuts=owner.hullData.solidCuts.filter(c=>c.id!==id);(ship.solidCuts||(ship.solidCuts=[])).push(normalizeSolidCut({...world,id,structures:true}));}
+  else listed.structures=true;
+  ship._cache=null;return true;
+ }
+ if(owner)return false;const hull=ship.parts.find(p=>isHullStructure(p)&&(hullId==null||p.id===hullId))||ship.parts.find(p=>isHullStructure(p)&&p.primaryHull);
+ if(hull)hullOwnSolidCut(ship,hull,{...listed,structures:false});else listed.structures=false;
+ ship._cache=null;return true;
+}
+// Fixed equipment (reactors, engines, catalogue machinery: parts that are not structures and cannot
+// be deformed) inside a cut. User decision 2026-11-11: the cut is allowed and reported; nothing is
+// moved or deleted. Returns [{partId,cutIds}] for 点検. Only cuts with scope 'all' (ship-level cuts that
+// carve structures) are checked: hull-owned cuts are hull shaping, and existing designs use them as
+// sockets for their engines (executor's stern engine recesses), which is intended and not reported.
+function solidCutEquipmentHits(ship){
+ const cuts=(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures).map(c=>({id:c.id,cut:c}));if(!cuts.length)return [];
+ const pieces=cuts.flatMap(({id,cut})=>compiledSolidCut(cut).instances.map(q=>({id,q}))),out=[];
+ for(const p of ship.parts){if(isShapePart(p)||p.id<=0||placementCapability(p).deformable)continue;let b;try{b=partAABB(p);}catch(e){continue;}
+  const near=pieces.filter(({q})=>solidBoundsOverlap(b,q.bounds,1e-6));if(!near.length)continue;
+  let samples=[];try{samples=volSamples(p);}catch(e){}samples=[[0,1,2].map(i=>(b[i]+b[i+3])/2),...samples];
+  const ids=new Set();for(const {id,q} of near)if(samples.some(v=>q.planes.every(a=>dot(a.n,v)<a.d-1e-7)))ids.add(id);
+  if(ids.size)out.push({partId:p.id,cutIds:[...ids]});}
+ return out;
 }
 function solidCutIntersectsShip(ship,c){
  const g=hullGeo(ship),targets=[{tris:g.tris,inside:p=>inHull(ship,p)}];
@@ -66950,7 +66992,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
