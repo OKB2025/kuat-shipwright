@@ -8,7 +8,7 @@ from gaps import region,E
 from restore_lib import nohole,minwidth
 Hh=np.fromfile(SP+'hullfit1.f32',np.float32).reshape(-1,3,3).astype(float);N=json.load(open(SP+'nacelles.json'))
 ED={e['id']:e for e in json.load(open(SP+'engines-detail.json'))}
-ND=[[0,290],[290,267.47],[684,267.47],[985,329.9],[1332,363.9],[1702,361],[2063,361]]   # EXECUTOR_NOZZLE_DIAMETERS in js/core.js
+ND=[[0,290],[290,267.47],[684,267.47],[985,329.9],[1332,363.9],[1702,361],[2063,361]]
 def nozzle_d(z):
     r=min(ND,key=lambda r:abs(abs(z)-r[0]));return r[1] if abs(abs(z)-r[0])<=40 else 0
 def casings_band(y0,y1):

@@ -1,10 +1,10 @@
 # Fit each Executor hull station's warship octagon inside the original minus the engine spaces (greedy shrink).
 # Station: [t, pw, ph, dy, deck, keel, belt, chine]; hw=W*pw/2, h=H*ph, yc=H*(.5+dy).
-import numpy as np,json,sys
+import numpy as np,json,sys,os
 import os;SP=os.environ['KS_EXE_WORK'].rstrip('/')+'/';sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from shapely.geometry import Polygon
 import hullfit as hf
-info=json.load(open(SP+'hull0.json'));ST=info['stations'];W,H,L=info['W'],info['H'],info['L'];TRENCH=0.325
+info=json.load(open(SP+'hull0.json'));ST=info['stations'];W,H,L=info['W'],info['H'],info['L'];TRENCH=0.473684
 def octa(p):
     hw,top,bot,edge,bh,deck,keel=p;h=top-bot
     return Polygon([(-hw*keel,bot),(hw*keel,bot),(hw,max(bot,edge-bh/2)),(hw,min(top,edge+bh/2)),(hw*deck,top),(-hw*deck,top),(-hw,min(top,edge+bh/2)),(-hw,max(bot,edge-bh/2))]).buffer(0)
@@ -14,14 +14,17 @@ def to_st(t,p):
     hw,top,bot,edge,bh,deck,keel=p;h=top-bot;return [round(t,6),round(2*hw/W,6),round(h/H,6),round(((top+bot)/2)/H-.5,6),round(deck,4),round(keel,4),round(min(.98,max(.02,bh/h)),4),round(min(.8,max(.2,(edge-bot)/h)),4)]
 out=[];rep=[]
 for r in ST:
-    t=r[0];x=min(max(t*L,20),L-20);O=hf.sect(hf.E,x,hf.bb).difference(hf.casings(x));p=from_st(r);A0=octa(p).area
+    t=r[0];x=min(max(t*L,20),L-20);O=hf.sect(hf.E,x,hf.bb).union(hf.casings(x)) if os.environ.get('KS_KEEP_WEDGE') else hf.sect(hf.E,x,hf.bb).difference(hf.casings(x));p=from_st(r);A0=octa(p).area
+    trench=t>=TRENCH
     def bad(q):
-        g=octa(q);return g.difference(O).area/max(1,g.area)
-    trench=t>=TRENCH;steps=0
+        # trench stations keep their belt and width, so their outside share is minimised; elsewhere the outside area
+        # relative to the original section is minimised (shrinking always counts)
+        g=octa(q);return g.difference(O).area/max(1,g.area if trench else A0)
+    trench=t>=(float(os.environ['KS_KEEP_WEDGE']) if os.environ.get('KS_KEEP_WEDGE') else TRENCH);steps=0
     while bad(p)>0.012 and steps<400:
         steps+=1;best=None
         for k,dv in ((1,-1),(2,1),(5,-.02),(6,-.02),(3,0)) + (() if trench else ((0,-1),(4,-1))):
-            for mag in (.02,.06):
+            for mag in (.02,.06,.15):
                 q=p[:]
                 if k==1:q[1]-=mag*(p[1]-p[2])          # lower the top
                 elif k==2:q[2]+=mag*(p[1]-p[2])        # raise the keel
@@ -43,6 +46,6 @@ for r in ST:
                 if best is None or g<best[0]-1e-4 or (abs(g-best[0])<1e-4 and octa(q).area>octa(best[1]).area):best=(g,q)
         if best is None or best[0]>=bad(p)-1e-5:break
         p=best[1]
-    rep.append(dict(t=t,x=round(x),outside_before=round(octa(from_st(r)).difference(O).area/octa(from_st(r)).area,3),outside_after=round(bad(p),3),area_kept=round(octa(p).area/A0,3),trench=trench))
+    rep.append(dict(t=t,x=round(x),outside_before=round(octa(from_st(r)).difference(O).area/octa(from_st(r)).area,3),outside_after=round(octa(p).difference(O).area/max(1,octa(p).area),3),area_kept=round(octa(p).area/A0,3),trench=trench))
     out.append(to_st(t,p));print(json.dumps(rep[-1]),flush=True)
 json.dump(out,open(SP+'stations-fit.json','w'));json.dump(rep,open(SP+'stations-fit-report.json','w'),indent=1)
