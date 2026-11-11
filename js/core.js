@@ -63054,6 +63054,20 @@ function placementFitContactAlong(ship,part,parent,hit,n){
  // The same fitted solid serves drawing, ray picking, contact and material.
  const local=[];for(let i=0;i<body.length;i+=3)local.push(...localStruct(part,Array.from(body.slice(i,i+3))));const volume=meshVolume(local);if(!Number.isFinite(volume)||volume<=eps**3)return placementFailure('geometry-volume','成形後の有効容積がありません');part._placementGeometry={local:Float64Array.from(local),volume,area:solidMeshArea(body)};return {ok:true,part};
 }
+// One contact rule for every placement mode (user decision 2026-11-11): a
+// structure that really overlaps its parent is connected even where the
+// horizontal/vertical contact cut cannot be built (a steep or curved skin, a
+// parent piercing a thin plate, a sliver the column cut cannot close). The
+// requested body is then kept whole and closed; the structural union charges
+// the shared volume once and hides its buried faces. A real gap, or a body
+// wholly inside the parent, keeps the cut's original failure.
+const PLACEMENT_OVERLAP_FALLBACK_CODES=new Set(['surface-missing','minimum-thickness','contact-shape','geometry-complex']);
+function placementOverlapFallback(ship,part,parent,failure){
+ if(!PLACEMENT_OVERLAP_FALLBACK_CODES.has(failure?.code))return false;delete part._placementGeometry;
+ const checked=placementValidateSolid(part);if(!checked.ok)return false;const contact=placementContact(ship,part,parent);if(!contact.connected||!contact.overlap)return false;
+ const T=placementTriangles(part),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const volume=meshVolume(local);if(!Number.isFinite(volume)||volume<=0)return false;
+ part._placementGeometry={local:Float64Array.from(local),volume,area:solidMeshArea(T)};return true;
+}
 function placementGeometryTriangles(p){const g=p._placementGeometry;if(!g?.local)return null;const key=JSON.stringify([p.c,p.yaw,p.pitch,p.roll,p.surfaceNormal]);if(g.key===key)return g.tris;const T=new Float64Array(g.local.length);for(let i=0;i<T.length;i+=3)T.set(worldStruct(p,Array.from(g.local.slice(i,i+3))),i);g.key=key;return g.tris=T;}
 function placementGeometryContains(p,q){const T=placementGeometryTriangles(p),b=solidMeshBounds(T);if(q.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;let o=q.slice(),hits=0;const d=norm([.937426,.202719,.283022]);for(let i=0;i<128;i++){const h=rayTris(T,o,d);if(!h)break;hits++;o=add(h.p,mul(d,1e-5));}return hits%2===1;}
 function placementRigidVector(parent,v){return worldStruct({...parent,c:[0,0,0]},v);}
@@ -63296,7 +63310,7 @@ function solvePlacement(ship,input,request={}){
  const constrained=mode!=='surface'&&contactFit==='cut'?placementConstrainTranslation(ship,part,parent,hit,mode,contactSide,old,request):null;if(constrained)return constrained;
  if(mode==='surface'){delete metadata.contactFit;delete metadata.contactOffset;delete metadata.contactAxis;}else{metadata.contactFit=contactFit;if(contactFit==='cut'){metadata.contactOffset=sub(part.c,hit.p);metadata.contactAxis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);}}
  metadata.requestedGeometry=placementShape(part);metadata.parentStructureId=parentId;metadata.parentGeometryRevision=parent.placement?.geometryRevision??0;metadata.parentGeometryKey=placementDependencyKey(parent);metadata.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)metadata.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];delete metadata.unresolvedParentId;delete metadata.root;delete metadata.repairRequired;delete metadata.repairReason;metadata.contactNormal=hit.n.slice();metadata.contactLocalNormal=placementLocalNormal(parent,hit.n);metadata.contactSide=contactSide;if(surfaceId)metadata.hostSurfaceId=surfaceId;metadata.surfaceAnchor=localStruct(parent,hit.p);
- part.placement=metadata;if(mode!=='surface'){const r=fitPlacementContact(ship,part,parent,hit,mode,contactSide);if(!r.ok)return r;}else{const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
+ part.placement=metadata;if(mode!=='surface'){const r=fitPlacementContact(ship,part,parent,hit,mode,contactSide);if(!r.ok){const joined=contactFit==='cut'&&placementOverlapFallback(ship,part,parent,r);if(!joined)return r;}}else{const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact});
  // Interior equipment lies inside the hull and its structures (user decision 2026-11-11): a structure
  // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.

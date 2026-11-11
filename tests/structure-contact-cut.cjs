@@ -42,8 +42,17 @@ test('vertical contact cuts the parent-facing side while preserving the upright 
  const parent={...gable(),pitch:-90},ship=fixture(parent),input=child([10,0,0]),hit=C.rayPart([100,-5,0],[-1,0,0],parent),before=C.publicJSON(parent),r=solve(ship,input,{mode:'vertical',contactSide:'aft',hit});assert.equal(r.ok,true,r.error);assert.equal(C.publicJSON(parent),before);assert.deepEqual(plain(r.part.c),[10,0,0]);near(C.partVolume(r.part),3000);const up=C.structFrame(r.part).up;near(up[0],0);near(up[1],1);near(up[2],0);near(C.rayPart([100,1,.1],[-1,0,0],r.part).p[0],20);near(C.rayPart([-100,1,.1],[1,0,0],r.part).p[0],9);closedPositive(r.part);
 });
 
-test('an erased body or parent penetrating the opposite skin is rejected atomically instead of being moved above it',()=>{
- const ship=fixture(),before=C.publicJSON(ship);for(const input of [child([0,4.5,0],[20,10,9]),child([0,-5,0],[5,5,5])]){const source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,false);assert.ok(['minimum-thickness','geometry-volume'].includes(r.code),r.code+': '+r.error);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
+// Changed 2026-11-11 (user decision: any genuine overlap is a contact, in every
+// placement mode). A parent ridge piercing the child's opposite skin is still
+// never cut through the authored roof and the child is never moved above it,
+// but the whole, uncut child now joins the parent by that real overlap (the
+// structural union charges the shared volume once). Previously both inputs
+// were rejected with minimum-thickness/geometry-volume. A body buried wholly
+// inside the parent is still rejected atomically.
+test('a parent penetrating the opposite skin keeps the whole child in place (joined by the overlap); a body buried in the parent is rejected atomically',()=>{
+ const ship=fixture(),before=C.publicJSON(ship);
+ {const input=child([0,4.5,0],[20,10,9]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.code);assert.equal(r.contact.overlap,true);near(C.partVolume(r.part),20*10*9);assert.deepEqual(plain(r.part.c),[0,4.5,0],'not moved above the ridge');assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
+ {const input=child([0,-5,0],[5,5,5]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,false);assert.ok(['minimum-thickness','geometry-volume','contact-zero'].includes(r.code),r.code+': '+r.error);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
 });
 
 test('cut contact is a saved source contract and regenerates the same closed material after v3 reload',()=>{

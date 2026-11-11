@@ -86,3 +86,16 @@ test('a surface plate can be dragged along the side and sunk into the hull; save
   const sunk=C.sub(r.part.c,C.mul(r.hit.n,h.W*.04));r.part.c=sunk.slice();f=C.refreshPlacementGeometry(r.ship);assert.equal(f.ok,true,JSON.stringify(f.failed));assertGrounded(r.ship,r.part,kind+' sunk');
   let ship=r.ship;for(let i=0;i<2;i++){ship=reload(ship);const p=ship.parts.find(q=>q.id===r.part.id);assertGrounded(ship,p,`${kind} reload ${i+1}`);near(p.c,sunk,`${kind} reload ${i+1} keeps the pose`);}}
 });
+
+// The same contact rule holds for structures on structures and in the other placement modes (user decision 2026-11-11).
+test('structure on structure: a rolled surface plate and a vertical-mode block sunk into a rotated parent are joined by the overlap; lifted copies are refused',()=>{
+ const ship=C.newShip({L:200,W:200,H:200,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[80,60,40],roll:20,yaw:15}];ship.fits=[];ship.nextId=2;const parent=ship.parts[0];
+ const raw=C.rayPart([0,200,0],[0,-1,0],parent),hit={p:raw.p,n:C.norm(raw.n)};
+ const plate=C.alignStructure({id:2,k:'struct',form:'box',c:[0,0,0],s:[30,20,2],yaw:0,pitch:0,roll:6},hit,'surface');
+ const r=C.solvePlacement(ship,plate,{mode:'surface',parentStructureId:1,hit});assert.equal(r.ok,true,r.code);assert.equal(r.contact.overlap,true);
+ const lifted=C.solvePlacement(ship,{...r.part,c:C.add(r.part.c,C.mul(hit.n,3))},{mode:'surface',parentStructureId:1,keepTransform:true});assert.equal(lifted.ok,false);assert.equal(lifted.code,'contact-zero');
+ const side=C.rayPart([200,0,0],[-1,0,0],parent),n=C.norm(side.n),out=C.norm([n[0],0,n[2]]),c=C.add(side.p,C.mul(out,4));
+ const block=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:c.slice()});
+ assert.equal(block.ok,true,block.code);assert.equal(block.contact.connected,true);
+ const away=C.add(side.p,C.mul(out,12)),far=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c:away,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:away});assert.equal(far.ok,false);
+});

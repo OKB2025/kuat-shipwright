@@ -70,13 +70,18 @@ test('a structure wholly inside the hull is still refused',()=>{
 // the lateral column cut leaves a ~3e-4 m sliver hole (2D cell weld in
 // placementExtendedContactSolid ~1e-4 m, 3D weld in placementConformingSolid
 // ~2.1e-4 m; the gap exceeds both, so matching them does not close it).
-// The open cut is never accepted: placementConformingSolid refuses it and the
-// original vertical-cut failure is reported.
+// The open cut is never accepted: placementConformingSolid refuses it.
+// Changed 2026-11-11 (user decision: any genuine overlap is a contact, in every
+// placement mode): these bodies really overlap the hull, so instead of being
+// refused they are now accepted whole and closed (no cut, no open sliver); the
+// structural union charges the shared volume once. Previously this test
+// asserted ok:false with minimum-thickness/surface-missing.
 const RESIDUAL=[[ELLIPSE,[.4,.5,5],[0,0,-1],false],[ELLIPSE,[.6,.5,5],[0,0,-1],true],[ELLIPSE,[.4,.5,-5],[0,0,1],true],[CIGAR,[.6,.5,-5],[0,0,1],true]];
-test('residual mid-height taps are refused, never accepted with an open cut',()=>{
+test('residual mid-height taps are never accepted with an open cut: they join the hull whole by their real overlap',()=>{
  for(const [spec,o,d,normalOffset] of RESIDUAL){const {ship,hull}=hullShip(spec),h=ship.hull,hit=C.rayPart([h.L*o[0],h.H*o[1],h.W*o[2]],d,hull),n=C.norm(hit.n),size=[h.L*.08,h.W*.25,h.H*.2],c=normalOffset?C.add(hit.p,C.mul(n,size[2]*.3)):C.add(hit.p,[0,(n[1]<0?-1:1)*size[2]*.3,0]);
-  const r=C.solvePlacement(ship,{id:ship.nextId,k:'struct',form:'box',c,s:size},{mode:'horizontal',parentStructureId:hull.id,hit:{p:hit.p,n},contactFit:'cut',position:c.slice()});
-  assert.equal(r.ok,false,JSON.stringify(o)+' must not be accepted with a sliver hole');assert.ok(['minimum-thickness','surface-missing'].includes(r.code),r.code);}
+  const input={id:ship.nextId,k:'struct',form:'box',c,s:size},r=C.solvePlacement(ship,input,{mode:'horizontal',parentStructureId:hull.id,hit:{p:hit.p,n},contactFit:'cut',position:c.slice()});
+  assert.equal(r.ok,true,JSON.stringify(o)+': '+r.code);assert.ok(Math.abs(C.partVolume(r.part)-size[0]*size[1]*size[2])<=size[0]*size[1]*size[2]*1e-6,'the whole closed body is kept, not an open cut');
+  assert.equal(r.contact.overlap,true,'connected by its real overlap with the hull');assert.ok(r.contact.volume>0&&r.contact.volume<C.partVolume(r.part));}
 });
 test('residual mid-height taps whose lateral cut leaves a sliver hole',{todo:'placementExtendedContactSolid sliver at exact mid-height taps'},()=>{
  for(const [spec,o,d,normalOffset] of RESIDUAL){const h=C.newShip(spec,'new').hull;assertGroundedCut(place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d,{normalOffset}),JSON.stringify(o));}
@@ -106,9 +111,15 @@ test('save/load and a mirrored copy re-solve the lateral cut to the same grounde
  const ms={warnings:[]};C.groundingStats(r.ship,ms);assert.equal((ms.ungrounded?.parts||[]).includes(mirror.id),false,'the mirrored copy is grounded');
 });
 
-test('a near-flat roof is never cut sideways: a parent piercing a thin plate stays refused',()=>{
+// Changed 2026-11-11 (user decision: any genuine overlap is a contact). A parent
+// piercing a thin plate is still never cut sideways (the authored plate is kept
+// whole), but the plate now joins the parent by that real overlap instead of
+// being refused with minimum-thickness.
+test('a near-flat roof is never cut sideways: a parent piercing a thin plate keeps the whole plate, joined by the overlap',()=>{
  const ship=C.newShip({L:100,W:100,H:100,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[60,60,20],roll:10}];ship.fits=[];ship.nextId=2;
  const hit=C.rayPart([0,100,0],[0,-1,0],ship.parts[0]),n=C.norm(hit.n);assert.ok(Math.hypot(n[0],n[2])<.3&&Math.hypot(n[0],n[2])>.1,'a gentle slope with a real horizontal component');
  const r=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:hit.p.slice(),s:[20,20,1]},{mode:'horizontal',contactFit:'cut',position:hit.p.slice(),parentStructureId:1,hit:{p:hit.p,n}});
- assert.equal(r.ok,false);assert.equal(r.code,'minimum-thickness');
+ assert.equal(r.ok,true,r.code);assert.ok(Math.abs(C.partVolume(r.part)-400)<1e-6,'the plate is not cut: '+C.partVolume(r.part));assert.equal(r.contact.overlap,true);
+ // The same plate lifted clear of the roof is still refused.
+ const lifted=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:C.add(hit.p,[0,15,0]),s:[20,20,1]},{mode:'horizontal',contactFit:'cut',position:C.add(hit.p,[0,15,0]),parentStructureId:1,hit:{p:hit.p,n}});assert.equal(lifted.ok,false);
 });
