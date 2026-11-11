@@ -6618,7 +6618,7 @@ function changeBallTurretPitch(value,mode='selected'){
 function launcherCanPitch(f){return !!C.isConcussionLauncher?.(f)&&!C.isSurfaceVLS?.(f);}
 // A launcher type that only embeds (the ship-scale concussion launcher) always places as embedded.
 function newLauncherEmbedded(k=st.fit){return !!C.isShipLauncher?.(k)&&(!!st.launcherEmbedded||!!C.shipLauncherType?.(k)?.embeddedOnly);}
-function shipLauncherPlacementOptions(k=st.fit){return C.isShipLauncher?.(k)?{launcherCols:st.launcherCols??1,launcherRows:st.launcherRows??1,launcherRowRaise:st.launcherRowRaise||0,launcherRound:st.launcherRound||'missile',launchYaw:st.launchYaw||0,launcherEmbedded:newLauncherEmbedded(k)}:{};}
+function shipLauncherPlacementOptions(k=st.fit){return C.isShipLauncher?.(k)?{launcherCols:st.launcherCols??1,launcherRows:st.launcherRows??1,...(C.shipLauncherType?.(k)?.rowRaise?{launcherRowRaise:st.launcherRowRaise||0}:{}),...(C.shipLauncherType?.(k)?.rounds?{launcherRound:st.launcherRound||'missile'}:{}),launchYaw:st.launchYaw||0,launcherEmbedded:newLauncherEmbedded(k)}:{};}
 function shipLauncherTargets(multiple=false){
  const first=multiple?ship.fits.filter(f=>st.multi?.fits?.has(f.id)):st.sel?.list==='fits'?[selItem()]:[],out=new Map();
  for(const f of first)if(C.isShipLauncher?.(f)&&!out.has(f.id)){out.set(f.id,{fit:f,sign:1});for(const link of fitLinks(f))if(C.isShipLauncher?.(link.fit)&&!out.has(link.fit.id))out.set(link.fit.id,{fit:link.fit,sign:(link.z?-1:1)*(link.y?-1:1)});}
@@ -6680,9 +6680,9 @@ function turretHeadingLines(ls,f,col){
  ls.seg(start,end,col);for(const sign of [-1,1])ls.seg(end,C.add(end,C.add(C.mul(fw,-length*.2),C.mul(rt,sign*length*.12))),col);
 }
 // 「面に合わせる」 stands a weapon on the face's own normal, slopes included.
-function weaponTiltMode(k,mode=st.weaponMount){if(newLauncherEmbedded(k))return true;const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&mode==='auto';}
-function weaponLocalMount(hit){return newLauncherEmbedded(curFit())||st.weaponMount==='trench'||hit?.part?.sponson===true;}
-function weaponPlacementNormal(k,n,mode=st.weaponMount){if(newLauncherEmbedded(k))return n;return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(mode)?(mode==='bottom'?[0,-1,0]:[0,1,0]):n;}
+function weaponTiltMode(k,mode=st.weaponMount){if(C.isShipLauncher?.(k)&&(st.launcherEmbedded||C.shipLauncherType?.(k)?.embeddedOnly))return true;const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&mode==='auto';}
+function weaponLocalMount(hit){const k=curFit();return C.isShipLauncher?.(k)&&(!!st.launcherEmbedded||!!C.shipLauncherType?.(k)?.embeddedOnly)||st.weaponMount==='trench'||hit?.part?.sponson===true;}
+function weaponPlacementNormal(k,n,mode=st.weaponMount){if(C.isShipLauncher?.(k)&&(st.launcherEmbedded||C.shipLauncherType?.(k)?.embeddedOnly))return n;return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(mode)?(mode==='bottom'?[0,-1,0]:[0,1,0]):n;}
 function weaponMountIssue(k,n){return C.weaponMountAllowed?.(k,n)===false?'この砲は左右の舷側面に配置してください':'';}
 // Retired UI hooks stay inert for older integrations; imported batteries are
 // converted to spherical turrets by Core before the editor receives them.
