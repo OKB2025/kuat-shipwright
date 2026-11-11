@@ -62124,7 +62124,7 @@ function referenceSpeedProfile(profile,key){
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
 // Physical nozzle foundations now contribute their real material and thermal
 // mass. Saved combat figures need rebuilding without changing engine ratings.
-const FLEET_PROFILE_VERSION=23;
+const FLEET_PROFILE_VERSION=24;
 function fleetProfile(S,name,ship){
  const draftStatus=ship?placementDraftStatus(ship):S?.placementDraftStatus;if(draftStatus&&!draftStatus.ok){const error=new Error('配置の計算・修正が完了していない部品があります');error.code='placement-unresolved';throw error;}
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
@@ -64496,10 +64496,8 @@ function craftSystemsStats(ship,S){
 // a launch tube's magazine, the bomb bay, a wing pylon — and are used up as they are fired; the craft rearms in
 // its carrier's hangar. The designer shows only what the stations can take; the order of battle chooses what
 // each squadron carries (お任せ: the craft's canon loadout, CRAFT_LOADOUT).
-// Sizes and masses: neither canon nor Legends gives figures for the rounds, so they are the game's, sized to the
-// launchers measured on the examples (a proton torpedo fills the 1.4 m × 0.5 m tube box of the X-wing's MG7).
-// Hits: the game's, set so a canon loadout's first attack run comes out near the voyage craft table's strike
-// (an X-wing's two torpedoes and guns about 160, a TIE/sa's torpedoes and bombs about 380, a Y-wing's about 300).
+// Sizes, masses and hits: since 2026-11-11 the user's sizes and propellant/warhead split with matter-conversion
+// warheads (ORDNANCE_BASIS below). The earlier calibration to the voyage craft table's strike no longer applies.
 // 2026-11-11 user specification: craft rounds are cylinders sized by the user and split into propellant and warhead
 // like the ship-scale rounds. Density from the previous craft concussion missile (1.0 × 0.2 m, 0.045 t):
 //   density ρ = 0.045 t ÷ (π/4 × 0.2² × 1.0 m³) = 1.4324 t/m³.
@@ -64583,7 +64581,7 @@ const CRAFT_LOADOUT=Object.freeze({
   alt:[{name:'イオン魚雷（スカリフの戦い）',load:[['itorp',2]],src:'スカリフの戦いでゴールド中隊の Y ウイングがイオン魚雷でインペリアル級スター・デストロイヤー「パーセキューター」を無力化（ローグ・ワン、2016。Wookieepedia「Ion torpedo」）'}]},
  btlb:{st:[['cpylon',2],['cpylon',2],['cpylon',2]],load:[['ptorp',3],['bomb',2],['bomb',2]],mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾の数は記載がなく、TIE/sa の主兵装庫と同じ8発'},
  bwing:{st:[['cpylon',2]],load:[['ptorp',3]],src:'プロトン魚雷発射管2基（Wikipedia「List of Star Wars starfighters」の諸元）。弾数は記載がなく、各3発（X ウイングの MG7 と同じ）'},
- tie_sa:{st:[['cbomb',1,{mount:'bay',box:[2,1,1]}],['cpylon',1]],load:[['bomb',1],['ptorp',3]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
+ tie_sa:{st:[['cbomb',1,{mount:'bay',box:[2,1,1]}],['cpylon',1]],load:[['bomb',1],['ptorp',3]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）。ゲームでは直径1 m・長さ2 mの爆弾が機内の爆弾倉（2 × 1 × 1 m）に1発だけ入るため、標準搭載は爆弾1発'},
  arc170:{st:[['cpylon',1]],load:[['ptorp',3]],mass:34.5,src:'プロトン魚雷6発（Dougherty ほか 2020, pp. 82–83。Wikipedia「List of Star Wars starfighters」）'},
  z95:{st:[['cpylon',2]],load:[['cmsl',6]],mass:19.2,src:'震盪ミサイル発射管（Before the Awakening。Wookieepedia「Z-95 Headhunter」）。弾数は記載がなく、各6発（A ウイングの HM-6 と同じ）'},
  v19:{st:[['cpylon',2]],load:[['cmsl',6]],mass:12.9,src:'震盪ミサイル発射管2基（Star Wars: On the Front Lines, 2017・StarWars.com Databank）。弾数は記載がなく、各6発'},
@@ -67901,7 +67899,7 @@ function squadStores(s, load) {
  s.ldg = C.craftOrdnance(c, s.load).map(x => ({...x, salvo: C.ordnanceSalvo(x, c.role)}));s.ord0 = s.ldg.reduce((n, x) => n + x.n, 0);rearmSquad(s);return s;
 }
 function rearmSquad(s) {
- s.ammo = (s.ldg || []).map(x => x.n);s.fired = false;s.heat = 0;s.strafeT = null;s.dogfight = null;s.returnReason = null;
+ s.ammo = (s.ldg || []).map(x => x.n);s.fired = false;s.firedIdx = [];s.heat = 0;s.strafeT = null;s.dogfight = null;s.returnReason = null;
  const c=CRAFT[s.craft]?.systems,managed=!!c?.managed;
  s.laserGas=managed&&Number.isFinite(c.laserGasSeconds)?Math.max(0,c.laserGasSeconds):null;
  s.lifeSupport=managed&&Number.isFinite(c.lifeSupportHours)?Math.max(0,c.lifeSupportHours)*3600:null;
@@ -69707,7 +69705,7 @@ function battleTick(w, sys, dt) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
   m.range=Number.isFinite(m.range)&&m.range>0?m.range:C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);
   if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;continue;}
-  const rel=sub(t.pos,m.pos),d=len(rel),flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(2600,m.s+650*flightDt);
+  const rel=sub(t.pos,m.pos),d=len(rel),flightDt=Math.min(dt,m.life);m.s=Math.min(m.top??2600,m.s+650*flightDt);
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,remaining=Math.max(0,m.range-m.traveled),travel=Math.min(distance,remaining);if(distance>0)m.pos=add(m.pos,velocity,seconds*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);};
   // A physical tube/VLS clears its mount along the actual barrel axis before homing.
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
@@ -69835,7 +69833,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt,pdStep={}) {
    if (wing.phase !== 'run' && wing.phase !== 'egress') { wing.phase = 'go'; goal = ip; if (len(sub(ip, c)) < 2500) {
     const sh=C.hullShape(t.p),v=ap[1]?[-1,0,0]:[-ap[0],0,-ap[2]],side=ap[1]?Math.sign(ap[1]):c[1]<t.pos[1]-40?-1:1,speed=Math.min(...out.map(sqSpeed));
     wing.phase = 'run';wing.attackRun={target:t.id,dir:shipToWorld(t,v),side,extent:Math.abs(v[0])*sh.hx+Math.abs(v[2])*sh.hz,clear:Math.max(4500,speed*2.5),lineReady:!ap[1],until:w.time+Math.max(12,len(sub(t.pos,c))/Math.max(100,speed)*3+6)};
-    for (const s of out) { s.ran = false; s.fired = false;s.runShot=false;s.strafeT=null; }
+    for (const s of out) { s.ran = false; s.fired = false;s.firedIdx = [];s.runShot=false;s.strafeT=null; }
    } }
    if (wing.phase === 'run') { const r=wing.attackRun;if(!r||r.target!==t.id){wing.phase='go';continue;}goal=runGoal(t,ap,r.side);tight=.45;runOn=t;
     // A steep above/below entry levels off outside the bow before the horizontal pass; it must not dive
@@ -69848,8 +69846,10 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt,pdStep={}) {
     // v23 The run goes over (or under) the hull from the bearing ordered to its far side, skimming the plating.
     const aimK = o.aim && o.aim !== 'auto' ? o.aim : C.fleetAim({p: {len: 20}, order: {aim: 'auto'}}, t, true);
     for (const s of out) { const dd = len(sub(t.pos, s.pos)),gate=r.lineReady&&dd<Math.max(3000,t.p.len*.6+2200)?squadFireArc(s,t,'gun'):0;
-     const releaseRange=Math.min(Math.max(3000,t.p.len*.6),...(s.ldg||[]).filter((x,i)=>!x.bomb&&(s.ammo[i]||0)>0).map(x=>C.ORDNANCE[x.kind]?.range||Infinity));
-     if (!s.fired && dd <= releaseRange) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
+     // 2026-11 Each stand-off round type leaves within its own range (a 740 m torpedo no longer holds back 10 km missiles).
+     if (!s.fired) { const standoff=Math.max(3000,t.p.len*.6),done=s.firedIdx||(s.firedIdx=[]),waiting=(x,i)=>!x.bomb&&(s.ammo[i]||0)>0&&!done.includes(i),due=(s.ldg||[]).map((x,i)=>waiting(x,i)&&dd<=Math.min(standoff,C.ORDNANCE[x.kind]?.range||Infinity)?i:-1).filter(i=>i>=0);
+      if (due.length) { done.push(...due); squadRelease(w, sys, s, t, false, aimK, due); }
+      if (dd <= standoff && !(s.ldg||[]).some(waiting)) s.fired = true; }
      if(!(gate>0))s.strafeT=null;
      if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const energy=squadWeaponEnergy(s,t),factor=s.n*RULES.damage*C.squadFireK(s)*(s.drive?.pw?1:0),gun=energy.gun*factor,ion=energy.ion*factor,tt=gun+ion,x=inc.get(t.id);
       if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:C.COMBAT.ionShield*ion,hull:C.COMBAT.ionHull*ion,direct:gun,ion},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
@@ -69925,10 +69925,10 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt,pdStep={}) {
 // passes. Each craft lets go of its salvo from every station that still has rounds; they fly as one missile salvo
 // per kind (w.missiles: the target's point defence engages them, a salvo of eight taking one fire-control channel).
 // Returns what was released, [{kind, n}].
-function squadRelease(w, sys, s, t, bombs, aim) {
+function squadRelease(w, sys, s, t, bombs, aim, only=null) {
  if(s.drive)C.syncPowerLossDisabled(s.drive);
  const out = [];if (s.disabled||s.drive?.out||!s.ldg?.length || !(s.n > 0)) return out;
- s.ldg.forEach((x, i) => { if (!!x.bomb !== bombs) return;const o=C.ORDNANCE[x.kind],sp=Math.max(o.speed,bombs?0:sqSpeed(s)),range=o.range||sp*(bombs?8:20);if(len(sub(t.pos,s.pos))>range)return;
+ s.ldg.forEach((x, i) => { if (!!x.bomb !== bombs||only&&!only.includes(i)) return;const o=C.ORDNANCE[x.kind],sp=Math.max(o.speed,bombs?0:sqSpeed(s)),range=o.range||sp*(bombs?8:20);if(len(sub(t.pos,s.pos))>range)return;
   const k = Math.min(s.ammo[i] || 0, x.salvo);if (!(k > 0)) return; s.ammo[i] -= k;
   const n = k * s.n, dir = norm(sub(t.pos, s.pos));
   w.missiles.push({id: 'm' + (w.nextId++), side: s.side, sys, from: s.home, sq: s.id, target: t.id, n, kind: x.kind, tt: x.tt, range,...(C.ORDNANCE[x.kind]?.seeker?{seeker:C.ORDNANCE[x.kind].seeker}:{}),traveled:0,ion: x.ion, bomb: x.bomb, craft: true, aim: aim || null, pos: [...s.pos], vel: scale(dir, sp), s: sp, top: sp, life:Math.min(bombs?8:20,range/Math.max(1,sp))});
@@ -70105,7 +70105,7 @@ function launchSquad(w, u, s, k = 1) {
  if ((q[best] || 0) > w.time || m.sl && mouthOpen(u,m,best) < .999) return false;
  const per = c.size / Math.max(.02, m.r * k);q[best] = w.time + s.n * per;
  s.state = 'out';s.ops = {k: 'launch', u: u.id, m: best, t0: w.time, per, n: s.n, t1: w.time + (s.n - 1) * per + RULES.exitD / RULES.hatchV};
- s.runs = 0;s.ran = false;s.fired = false;s.launched = w.time;s.wait = null;s.landM = null;s.runOn = null;if (!s.ldg) squadStores(s);rearmSquad(s);opsPlace(w, s, u);return true;
+ s.runs = 0;s.ran = false;s.fired = false;s.firedIdx = [];s.launched = w.time;s.wait = null;s.landM = null;s.runOn = null;if (!s.ldg) squadStores(s);rearmSquad(s);opsPlace(w, s, u);return true;
 }
 function launchStep(w, s, u) { if (!u || !alive(u) || u.sys !== s.sys) { s.ops = null; return; } opsPlace(w, s, u); if (w.time >= s.ops.t1) s.ops = null; }
 // Where a squadron on a mouth's rails is, in its carrier's frame (it moves and turns with it): launching, out along the

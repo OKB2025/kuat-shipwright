@@ -126,6 +126,20 @@ test('fleet battle: torpedoes find a heavy target far more often than a light on
  const far=salvoFound('torpedo',5e7,4300);assert.ok(far.found.every(Number.isFinite),'within 4.44 km the torpedo still arrives');
 });
 
+test('seeker rounds accelerate from launch like other ship missiles; their speed only caps the climb',()=>{
+ // A shipMsl salvo at 20 km: 220 m/s at launch, +650 m/s² up to 2,600 m/s (before the seeker change the round flew
+ // at 2,600 m/s from the tube). Kinematic time to the 300 m proximity ring: 3.66 s climbing over 5,162 m, then cruise.
+ const R=vm.runInContext('Rts',cx),{s,wall}=fixture(),r=C.placeFit(s,'shipMsl',[300,60,wall],[0,0,1],2,false,{launcherCols:1,launcherRows:1,launcherEmbedded:true});assert.ok(!r.err,r.err);
+ const S=C.computeStats(s),m=C.fleetProfile(S,s.name,s).modules.find(q=>q.fit===r.fit.id);assert.equal(m.seeker,'heat');
+ const profile=battleProfile(m),target={...profile,msl:0,modules:profile.modules.slice(0,1),grid:{...profile.grid,fixed:0,fixedLoads:[]}};
+ const a={key:'msl-a',p:profile,info:{mass:1000,hyper:null,capital:false,sensor:0}},z={key:'msl-z',p:target,info:{mass:1000,hyper:null,capital:false,sensor:0}},w=R.createWorld({mode:'test',sensors:false,convoyMode:false,designs:[a,z],sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:a.key}],[{design:z.key}]]});
+ const u=[...w.units.values()].find(q=>q.side===0),t=[...w.units.values()].find(q=>q.side===1);t.sys=u.sys;w.groups.get(t.group).sys=u.sys;u.pos=[0,1000,0];u.yaw=0;t.pos=[20000,1000,0];u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,type:'hold',fire:false};
+ const dt=.05;R.battleTick(w,u.sys,dt);const salvo=w.missiles.filter(q=>q.from===u.id);assert.ok(salvo.length>0);assert.ok(salvo.every(q=>q.s<=220+650*dt+1e-9),'rounds leave the tube at 220 m/s and climb');
+ let time=dt;while(salvo.some(q=>q.n>0&&q.life>0)&&time<30){R.battleTick(w,u.sys,dt);time+=dt;}
+ const climb=(2600-220)/650,expected=climb+(20000-300-(220+2600)/2*climb)/2600,flat=(20000-300)/2600;
+ assert.ok(Math.abs(time-expected)<.6,`impact after ${time.toFixed(2)} s, kinematic ${expected.toFixed(2)} s (a flat 2,600 m/s flight takes ${flat.toFixed(2)} s)`);assert.ok(time>flat+1);
+});
+
 test('ship launchers are not craft store stations, so the editor specification panel can summarize the ship',()=>{
  for(const k of ['shipMsl','shipCmsl']){const {s,wall}=fixture(),r=C.placeFit(s,k,[300,60,wall],[0,0,1],2,false,{launcherEmbedded:true});assert.ok(!r.err,r.err);const S=C.computeStats(s);assert.deepEqual(plain(C.craftLoadout(s).stations),[]);assert.doesNotThrow(()=>C.craftCombat(s,S,{summaryOnly:true}));}
 });

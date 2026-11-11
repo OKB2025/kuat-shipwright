@@ -26,7 +26,7 @@ test('example bombers: the TIE/sa bay holds one 1 × 2 m bomb; the BTL-B has no 
  const s=C.buildDesign('craft_tie_sa'),bay=s.parts.find(p=>p.k==='bombBay');assert.ok(bay&&C.bombBayOpen(s,bay));assert.deepEqual([...C.bombBayBox(bay)],[2,1,1]);assert.equal(C.storeCapacity({mount:'bay',box:C.bombBayBox(bay)},'bomb'),1);
  assert.ok(!C.computeStats(s).warnings.some(w=>w.code==='bomb-bay-size'));assert.deepEqual(JSON.parse(JSON.stringify(C.craftOrdnance('tie_sa').map(q=>[q.kind,q.n]))),[['bomb',1],['ptorp',3]]);
  // a bay too small for the bomb is reported instead of silently holding nothing
- Object.assign(bay,{room:[2,.6,.7],d:Math.cbrt(.84)});C.syncCompartments(s);const small=C.computeStats(s);if(C.bombBayOpen(s,bay))assert.ok(small.warnings.some(w=>w.code==='bomb-bay-size'));
+ Object.assign(bay,{c:[1.03,.36,0],room:[2,.6,.7],d:Math.cbrt(.84)});C.syncCompartments(s);const small=C.computeStats(s);assert.equal(C.bombBayOpen(s,bay),true,'the previous 2 × 0.6 × 0.7 m bay is a usable bay');assert.equal(C.storeCapacity({mount:'bay',box:C.bombBayBox(bay)},'bomb'),0);assert.ok(small.warnings.some(w=>w.code==='bomb-bay-size'),'and it is reported as too small');
  const b=C.buildDesign('craft_btlb');assert.equal(b.parts.filter(p=>p.k==='bombBay').length,0,'no bomb bay (canon)');assert.equal(b.fits.filter(f=>f.k==='cpylon').length,6);assert.equal(b.fits.some(f=>f.float),false);
  const L=C.craftLoadout(b);assert.equal(L.canon,true);assert.deepEqual(JSON.parse(JSON.stringify(C.craftOrdnance('btlb').map(q=>[q.kind,q.n,q.per,q.stations]))),[['ptorp',6,3,2],['bomb',4,2,2],['bomb',4,2,2]]);
 });

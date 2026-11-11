@@ -11901,7 +11901,7 @@ function voyLoadPresets(c) {
  const st = c.stations || [], base = c.load || [], out = [];
  (c.alt || []).forEach((a, j) => out.push({id: 'alt:' + j, name: a.name, load: C.normalizeLoad(st, a.load, base)}));
  const own = new Set([...base.map(q => q.k), ...(c.alt || []).flatMap(a => a.load.map(q => q.k))]);
- for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(stationStoreOf(x), k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(C.FITS[x.fit].store, k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
+ for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(stationStoreOf(x), k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(stationStoreOf(x), k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
  out.push({id: 'none', name: '搭載なし', load: st.map((x, i) => ({k: C.normalizeLoad(st, base, base)[i]?.k, n: 0}))});
  return out;
 }
