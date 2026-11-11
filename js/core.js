@@ -53388,7 +53388,7 @@ function interiorAnchorHostId(ship){
 function interiorEnvelopeHostIds(ship,anchor=interiorAnchorHostId(ship)){
  const ids=anchor==='hull'?['hull']:[];
  // Unresolved or refused structures are not part of the ship until their placement is fixed.
- for(const q of ship.parts)if(isShapePart(q)&&!q.plate&&(q.id===anchor||!q._placementError&&!q.placement?.validationFailed&&!q.placement?.pendingGeometry))ids.push(q.id);
+ for(const q of ship.parts)if(isShapePart(q)&&(q.id===anchor||!q._placementError&&!q.placement?.validationFailed&&!q.placement?.pendingGeometry))ids.push(q.id);
  return ids;
 }
 function interiorUnionRegion(regions){
@@ -63175,7 +63175,9 @@ function placementDraftStatus(ship){
 }
 function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport'])delete source[key];return surfaceHash([source]);}
 // The failure record names its code and the validated source key, so a reader can tell whether it still
-// describes the item's current failure (an Undo can restore an older state without re-validating it).
+// describes the item's current failure (an Undo can restore an older state without re-validating it; for
+// interior equipment that no longer applies: restore goes through deserialize, which re-checks a stored
+// interior refusal, so its record is rebuilt).
 function placementFailureRecord(item){const r=item?._placementFailure,m=item?.placement;return r&&m?.validationFailed&&r.code===m.repairReason&&r.sourceKey===m.validationSourceKey?r:null;}
 function placementPendingFailure(item,result){
  const meta=item.placement;delete meta.pendingGeometry;meta.validationFailed=true;meta.repairRequired=true;meta.repairReason=result.code||'calculation-failed';meta.validationSourceKey=placementPendingSourceKey(item);delete item._placementGeometry;delete item._clip;delete item._packing;delete item.engineMountSupport;delete item._engineMountSupportGeometry;
