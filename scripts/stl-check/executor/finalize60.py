@@ -10,10 +10,10 @@ def merged(iv):
     # The assembled original is split into printed pieces; solid material running across a piece seam (e.g. y 1,137 m)
     # comes back as two touching intervals. A gap counts as solid when the original fills it to within 15 m of each end
     # (the original's own thin seams and plate joints, e.g. a 14 m sliver at x 5,285 m).
-    # Join intervals that touch (gap <= 2 m) so that seam is not read as a void.
+    # Join intervals that touch or nearly touch (gap <= 10 m) so that seam is not read as a void.
     out=[]
     for u,v in sorted(iv):
-        if out and u<=out[-1][1]+2:out[-1][1]=max(out[-1][1],v)
+        if out and u<=out[-1][1]+10:out[-1][1]=max(out[-1][1],v)
         else:out.append([u,v])
     return out
 for s in R['struts']:
