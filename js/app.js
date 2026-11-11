@@ -8794,7 +8794,7 @@ function surfaceRuntimeHTML(u){
  if(!u)return '';const battery=typeof C.surfaceBatteryStatus==='function'?C.surfaceBatteryStatus(u):null,power=typeof C.powerStatus==='function'?C.powerStatus(u):null,shield=typeof C.shieldStatus==='function'?C.shieldStatus(u):null,html=[],fmt=v=>num(Math.max(0,v||0),3),faces={fore:'前面',aft:'後面',top:'上面',bottom:'下面',port:'左舷',stbd:'右舷'};
  if(battery?.totals?.installed){const t=battery.totals;html.push(`<p class="ts-line" data-battery-totals>表面砲列：設置 ${t.installed} 基 · 残存 ${t.surviving} 基 · 稼働 ${t.operable} 基 · 射撃可能 ${t.fireable} 基</p><p class="ts-line">砲身総数 ${t.barrels} 門 · 兵装蓄電 ${fmt(t.energy)} / ${fmt(t.capacity)} TT</p><ul class="ts-log">${battery.rows.filter(r=>r.installed).map((r,i)=>{const p=u.p.surface.patches.find(p=>p.id===r.id),name=`${faces[p?.face]||'外面'}の砲列 ${i+1}`;return `<li data-battery-cell-status><b>${esc(name)}</b> · 残存 ${r.surviving}/${r.installed} · 稼働 ${r.operable} · ${esc(r.causes.length?r.causes.join(' · '):'稼働')}</li>`;}).join('')}</ul>`);}
  const armor=Object.entries(u.surfaceArmor||{}).filter(([,a])=>a.integrity<.999||a.load>0);if(armor.length)html.push(`<p class="ts-line" data-surface-armor>${armor.map(([id,a])=>{const p=u.p.surface.patches.find(p=>p.id===id);return `${esc(faces[p?.face]||'外面')} · 装甲 ${Math.round(a.integrity*100)}%`;}).join('<br>')}</p>`);
- const h=power?.thermal;if(h)html.push(`<p class="ts-line" data-ship-heat>全艦蓄熱 ${Number(h.qJ).toExponential(3)} / ${Number(h.capacityJ).toExponential(3)} J（${Math.round(h.peak*100)}%） · 出力上限 ${Math.round(h.outputFactor*100)}%</p>`);const gv=me.heatGov;if(gv?.active)html.push(`<p class="ts-line warn" data-heat-governor>熱制御中 · 推力 ${Math.round(gv.engine*100)}% · 砲の充電 ${Math.round(gv.weapon*100)}%</p>`);
+ const h=power?.thermal;if(h)html.push(`<p class="ts-line" data-ship-heat>全艦蓄熱 ${Number(h.qJ).toExponential(3)} / ${Number(h.capacityJ).toExponential(3)} J（${Math.round(h.peak*100)}%） · 出力上限 ${Math.round(h.outputFactor*100)}%</p>`);const gv=u.heatGov;if(gv?.active)html.push(`<p class="ts-line warn" data-heat-governor>熱制御中 · 推力 ${Math.round(gv.engine*100)}% · 砲の充電 ${Math.round(gv.weapon*100)}%</p>`);
  if(h&&!h.online)html.push(`<p class="ts-line" data-power-recovery>全艦停電 · 復旧作業 ${Math.round(h.restartWork*100)}% · 乗員充足率 ${Math.round(h.crewFraction*100)}%（蓄熱90%以下で再起動）</p>`);
  const e=shield?.last,J=v=>Number(Math.max(0,v||0)).toExponential(3)+' J';if(e)html.push(`<p class="ts-line" data-shield-budget>被弾収支：入射 ${J(e.incomingJ)} · 艦外放出 ${J(e.externalJ)} · シールド消費 ${J(e.shieldDebitJ)} · 一時保持 ${J(e.storedDeltaJ)} · 艦内蓄熱 ${J(e.onboardHeatJ)}</p>`);
  return html.length?`<div class="surface-runtime" data-surface-runtime>${html.join('')}</div>`:'';
@@ -9302,7 +9302,7 @@ function spaceBattleInit(plan){
  // the streaks are seen side-on, in an echelon one ship after another. They
  // arrive a little above the flagship's plane, where dorsal batteries bear.
  const n=plan.foes.length;plan.foes.forEach((x,i)=>{const u=C.fleetUnit('e'+i,x.key,x.p,1),gap=Math.max(2600,x.p.len*2.2);u.name=x.name;u.pos=[17000+i*gap*.55,500+(i%3)*450,5000+i*gap*.8];u.yaw=-Math.PI*.8;u.absent=true;u.warp={at:3+i*.6,t:0};units.push(u);});
- const b=C.fleetBattle(units,true);b.seed=(Math.random()*2**31)|0;
+ const b=C.fleetBattle(units,true);b.seed=(Math.random()*2**31)|0;C.fleetPrepareCollision?.(units);
  trial.battle={b,O,E,acc:0,extra:new Map(),seen:0,result:null,orderT:0,me,plan,ticker:[],modIndex:new Map((trial.p.modules||[]).map((m,i)=>[m.fit,i]).filter(([f])=>f!=null)),kills:0,disabled:0};
  trial.targets=[];trial.vbolts=[];spaceRefresh(0);
 }
@@ -9798,9 +9798,13 @@ function spaceSurfaceTurretPose(a,target,rest,mount,asset){
  }
  const rot=X?m3Mul(X.rot,aim):aim,pose={mesh:rest.mesh,pivot:pivot.slice(),rot,aim,fit:mount.id};cache.set(key,pose);return pose;
 }
+// Turret meshes look up their mount every frame; index each profile's mounts
+// by id once (the first mount with an id, as find() returned).
+const spaceMountIndex=new WeakMap();
+function spaceMountById(mounts,id){let x=spaceMountIndex.get(mounts);if(!x||x.length!==mounts.length){const at=new Map();for(const m of mounts)if(!at.has(m.id))at.set(m.id,m);x={length:mounts.length,at};spaceMountIndex.set(mounts,x);}return x.at.get(id);}
 function spaceSurfaceTurrets(a,target){
  if(!a.p?.surface)return undefined;const asset=a.key===trial.asset?.key?trial.asset:fleet.assets.get(a.key);if(!asset?.geometry?.turrets)return undefined;
- return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=a.p.surface.mounts.find(m=>m.id===rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
+ return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=spaceMountById(a.p.surface.mounts,rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
 }
 function spaceShotEmitter(a,t,index,ion=false,sourceFit,sourceMuzzle){
  if(!a.p?.surface)return {pos:spaceHullPoint(a,.4),fixed:false};
@@ -14920,7 +14924,7 @@ function patrolBattleStart(group) {
   const u = C.fleetUnit('e' + (P.uid++), x.key, x.p, 1), gap = Math.max(2600, x.p.len * 2.2), back = i * gap * .4, off = i * gap * .8 * (i % 2 ? -1 : 1);
   u.name = x.name;u.pos = [cd[0] * (R0 + back) + sd[0] * off, 400 + (i % 3) * 450, cd[1] * (R0 + back) + sd[1] * off];u.yaw = Math.atan2(-u.pos[2], -u.pos[0]) + (Math.random() - .5) * .3;u.absent = true;u.warp = {at: 4 + i * .6, t: 0};units.push(u);
  });
- const b = C.fleetBattle(units, true);b.seed = (Math.random() * 2 ** 31) | 0;
+ const b = C.fleetBattle(units, true);b.seed = (Math.random() * 2 ** 31) | 0;C.fleetPrepareCollision?.(units);
  trial.escorts = [];
  trial.battle = {b, O, E, acc: 0, extra: new Map(), seen: 0, result: null, orderT: 0, me, plan: {patrol: true}, ticker: [], modIndex: new Map((trial.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), kills: 0, disabled: 0, patrol: true};
  trial.targets = [];trial.vbolts = [];spaceRefresh();
