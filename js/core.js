@@ -62719,7 +62719,27 @@ function placementDependencyKey(p){return placementKeyHash(publicJSON([placement
 // placementDependencyKey still drives every cache that depends on the material
 // (interiorEnvelopeKey, fit and engine-support keys).
 const PLACEMENT_REMOVAL_KEYS=['cuts','trenches','solidCuts','subs','hatches'];
-function placementPositionKey(p){const q=placementShape(p);if(q.hullData&&typeof q.hullData==='object'){q.hullData={...q.hullData};for(const k of PLACEMENT_REMOVAL_KEYS)delete q.hullData[k];}return placementKeyHash(publicJSON([q,p.placement?.geometryRevision||0]));}
+function placementPositionKey(p){return placementParentKeys(p).ppk;}
+// Both parent keys from one copy of the parent's shape (refreshPlacementGeometry calls this once per parent).
+function placementParentKeys(p){const q=placementShape(p),revision=p.placement?.geometryRevision||0,pk=placementKeyHash(publicJSON([q,revision]));if(q.hullData&&typeof q.hullData==='object'){q.hullData={...q.hullData};for(const k of PLACEMENT_REMOVAL_KEYS)delete q.hullData[k];}return {pk,ppk:placementKeyHash(publicJSON([q,revision]))};}
+// The parent without what cuts removed: hull-owned removals and every ship-level solid cut or notch
+// that carves structures. Used only to tell a child that a cut separated from one that never touched.
+function placementUncutParent(ship,parent){
+ const bare={...ship,solidCuts:(ship.solidCuts||[]).filter(c=>!(ship.hull?.assembly||c.structures)),subs:(ship.subs||[]).filter(c=>!(ship.hull?.assembly||c.structures)),_cache:null};
+ const q=placementShape(parent);q.id=parent.id;if(q.hullData&&typeof q.hullData==='object'){q.hullData={...q.hullData};for(const k of PLACEMENT_REMOVAL_KEYS)q.hullData[k]=[];}
+ if(parent._placementGeometry&&!isHullStructure(parent))q._placementGeometry=parent._placementGeometry;q._solidCutShip=bare;return {ship:bare,parent:q};
+}
+// A child is severed by a cut when it does not touch its parent now but does touch the same parent
+// with the cuts' removals ignored, at its stored pose (user decision 2026-11-11: a warning, not a
+// repair state). Deterministic from the design alone, so the Worker, the editor and a reload agree.
+function placementSeveredByCut(ship,p,parent){
+ if(!parent||placementCapability(p).kind!=='structure')return false;
+ const hasCuts=(ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures)||(ship.subs||[]).some(c=>ship.hull?.assembly||c.structures)||PLACEMENT_REMOVAL_KEYS.some(k=>parent.hullData?.[k]?.length);if(!hasCuts)return false;
+ const key=publicJSON([placementShapeKey(p),p._placementGeometry?.volume??null,placementDependencyKey(parent),(ship.solidCuts||[]).length,ship.subs?.length||0]);if(p._placementSeveredCheck?.key===key)return p._placementSeveredCheck.value;
+ const bare=placementUncutParent(ship,parent),child={...placementShape(p),id:p.id,_solidCutShip:bare.ship};if(p._placementGeometry)child._placementGeometry=p._placementGeometry;
+ let value=false;try{value=!!placementContact(bare.ship,child,bare.parent).connected;}catch(e){value=false;}
+ p._placementSeveredCheck={key,value};return value;
+}
 // A renderer may reuse an accepted strict solid without starting a new solve.
 // Keep its authoring, request and ancestor checks on the canonical Core keys.
 function placementCachedGeometryInputCurrent(part){
@@ -63353,24 +63373,50 @@ function acceptPlacementResult(ship,result,options={}){
  if(index>=0){part.id=replaceId;ship.parts[index]=part;}else{if(ship.parts.length>=DESIGN_LIMITS.parts)return placementFailure('placement-limit','部品数の上限です');part.id=ship.nextId++;ship.parts.push(part);}if(part.placement?.requestedGeometry)part.placement.requestedGeometry.id=part.id;part._solidCutShip=ship;part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);if(result.parentId!=null)part._placementParentKey=placementDependencyKey(placementParent(ship,result.parentId)),part._placementParentPoseKey=placementPositionKey(placementParent(ship,result.parentId));ship._cache=null;delete ship._interiorKey;return {...result,part};
 }
 function commitPlacement(ship,part,request={},options={}){const result=solvePlacement(ship,part,request);return result.ok?acceptPlacementResult(ship,result,options):result;}
-function placementDiagnostics(ship){return ship.parts.filter(p=>p.placement&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))).map(p=>{if(p.placement.pendingGeometry)return {partId:p.id,connected:false,pending:true,code:'placement-pending'};if(p.placement.validationFailed)return {partId:p.id,connected:false,code:p.placement.repairReason||'placement-failed'};if(p.placement.root&&p.placement.parentStructureId==null)return {partId:p.id,connected:true,root:true};const fail=placementParentCheck(ship,p,p.placement.parentStructureId);if(fail)return {partId:p.id,connected:false,code:fail.code,error:fail.error};if(p._placementError)return {partId:p.id,connected:false,code:p._placementError};const parent=placementParent(ship,p.placement.parentStructureId),contact=placementCapability(p).kind==='structure'?placementContact(ship,p,parent):placementEquipmentContact(ship,p,parent);return {partId:p.id,...contact,code:contact.reason,...(!contact.connected&&p.placement.severed?{code:'severed',severed:true}:{})};});}
+function placementDiagnostics(ship){return ship.parts.filter(p=>p.placement&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))).map(p=>{if(p.placement.pendingGeometry)return {partId:p.id,connected:false,pending:true,code:'placement-pending'};if(p.placement.validationFailed)return {partId:p.id,connected:false,code:p.placement.repairReason||'placement-failed'};if(p.placement.root&&p.placement.parentStructureId==null)return {partId:p.id,connected:true,root:true};const fail=placementParentCheck(ship,p,p.placement.parentStructureId);if(fail)return {partId:p.id,connected:false,code:fail.code,error:fail.error};if(p._placementError)return {partId:p.id,connected:false,code:p._placementError};const parent=placementParent(ship,p.placement.parentStructureId),contact=placementCapability(p).kind==='structure'?placementContact(ship,p,parent):placementEquipmentContact(ship,p,parent);return {partId:p.id,...contact,code:contact.reason,...(!contact.connected&&(p._placementSevered||placementSeveredByCut(ship,p,parent))?{code:'severed',severed:true}:{})};});}
 // A child whose parent only lost material keeps its pose and fitted shape. If it
 // still touches the parent (face contact or overlap) it stays connected; if the
 // cut really removed everything it stood on, it is severed: user decision
 // 2026-11-11, a warning in 点検 (groundingStats code 'severed'), never a red
-// repair state, and nothing is moved or deleted. meta.severed persists it so a
-// reload keeps the same judgement instead of re-fitting the child into the cut.
+// repair state, and nothing is moved or deleted. The judgement is not stored in
+// the design: it is recomputed from the design alone (placementSeveredByCut), so
+// the Worker, the editor, a reload and undo/redo reach the same result.
 // Returns false only for a severed child without a fitted shape (a reload) that
 // touches again, which is then solved normally.
 function placementKeepContact(ship,p,parent,severed,refit,known=null){
- const meta=p.placement,contact=known||(placementCapability(p).kind==='structure'?placementContact(ship,p,parent):placementEquipmentContact(ship,p,parent));
- if(contact.connected){if(refit&&meta.severed){delete meta.severed;return false;}delete meta.severed;delete p._placementError;return true;}
- meta.severed=true;delete p._placementError;severed.push({partId:p.id,code:'severed'});return true;
+ const contact=known||(placementCapability(p).kind==='structure'?placementContact(ship,p,parent):placementEquipmentContact(ship,p,parent));
+ if(contact.connected){if(refit&&p._placementSevered){delete p._placementSevered;return false;}delete p._placementSevered;delete p._placementError;return true;}
+ p._placementSevered=true;delete p._placementError;severed.push({partId:p.id,code:'severed'});return true;
+}
+// After a failed re-solve without any edit of the child: a stored pose that still fits its unchanged
+// parent (same shape as requested, the saved parent-local anchor at the same place, same parent size)
+// and touches the parent with the cuts ignored is severed by a cut, not a failed placement.
+// The parent's material near a child: the triangles whose bounds reach the child's padded box. A cut
+// elsewhere leaves this unchanged, so the child's contact need not be measured again.
+function placementLocalParentHash(ship,p,parent){
+ try{parent._solidCutShip=ship;p._solidCutShip=ship;const A=placementTriangles(p),b=solidMeshBounds(A),pad=Math.max(PLACEMENT_TOLERANCES.coordinate*16,...[0,1,2].map(i=>(b[i+3]-b[i])*.01)),T=placementTriangles(parent);
+  let h1=2166136261,h2=2246822507,n=0;
+  for(let i=0;i<T.length;i+=9){let inside=true;for(let k=0;k<3&&inside;k++){const lo=Math.min(T[i+k],T[i+3+k],T[i+6+k]),hi=Math.max(T[i+k],T[i+3+k],T[i+6+k]);if(hi<b[k]-pad||lo>b[k+3]+pad)inside=false;}if(!inside)continue;n++;
+   for(let j=0;j<9;j++){const v=Math.round(T[i+j]*1e5);h1=Math.imul(h1^v,16777619);h2=Math.imul(h2^(v>>>7),3266489909);}}
+  // The child's own material too: a ship-level cut can carve the child at the junction.
+  for(let i=0;i<A.length;i++){const v=Math.round(A[i]*1e5);h1=Math.imul(h1^v,16777619);h2=Math.imul(h2^(v>>>7),3266489909);}
+  return n+'/'+A.length+':'+(h1>>>0).toString(36)+':'+(h2>>>0).toString(36);
+ }catch(e){return null;}
+}
+const PLACEMENT_SEVERABLE_CODES=new Set(['contact-zero','surface-missing']);
+// Same authored shape regardless of key order and of normalized defaults (a saved request may lack a
+// zero taper or roll that the loaded part carries).
+function placementSameShape(a,b){const canon=v=>{const q=placementShape(v);delete q.id;for(const k of Object.keys(q))if(q[k]===0||q[k]===false||q[k]==null)delete q[k];return JSON.stringify(Object.keys(q).sort().map(k=>[k,q[k]]));};return canon(a)===canon(b);}
+function placementStoredPoseSevered(ship,p,parent,code){
+ const meta=p.placement;if(!PLACEMENT_SEVERABLE_CODES.has(code)||!meta?.requestedGeometry||!meta.parentLocalAnchor||!placementSameShape(p,meta.requestedGeometry))return false;
+ const tolerance=Math.max(PLACEMENT_TOLERANCES.coordinate,len(parent.s||[1,1,1])*PLACEMENT_TOLERANCES.relativeCoordinate)*8;if(len(sub(worldStruct(parent,meta.parentLocalAnchor),p.c))>tolerance)return false;
+ if(meta.anchorDimensions&&parent.s&&[parent.s[0],parent.s[2],parent.s[1]].some((v,i)=>Math.abs(v-meta.anchorDimensions[i])>tolerance))return false;
+ return !placementContact(ship,p,parent).connected&&placementSeveredByCut(ship,p,parent);
 }
 function refreshPlacementGeometry(ship,options={}){
  if(!ship?.parts||ship._refreshingPlacement)return {ok:true,updated:[],failed:[],resolvedParts:[],resolvedFits:[]};ship._refreshingPlacement=true;
  // Ship-level solid cuts that carve structures change their material without changing any part key.
- const shipCutKey=placementKeyHash(publicJSON((ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures)));
+ let shipCutKey=null;const cutKey=()=>shipCutKey??=placementKeyHash(publicJSON((ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures))),parentKeys=new Map(),keysOf=q=>{let k=parentKeys.get(q);if(!k){k=placementParentKeys(q);parentKeys.set(q,k);}return k;};
  const updated=[],failed=[],severed=[],resolvedParts=[],resolvedFits=[],done=new Set(),active=new Set(),eligible=p=>p.placement&&(p.placement.pendingGeometry||p.placement.validationFailed||placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p));
  // Resolve integrated bodies before publishing authored meshes or pending
  // placement packets. Legacy engines have no parent metadata to visit, but
@@ -63379,17 +63425,20 @@ function refreshPlacementGeometry(ship,options={}){
  const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
   const interior=explicitInteriorPlacement(p);
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||(interior?meta.parentGeometryKey!==interiorEnvelopeKey(ship):parent&&meta.parentGeometryKey!==placementDependencyKey(parent)))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
-  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
+  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok){updated.push(p.id);if(parent&&placementCapability(p).kind==='structure')p._placementLocalHash=placementLocalParentHash(ship,p,parent);}else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   if(meta.validationFailed){failed.push({partId:p.id,code:meta.repairReason||'placement-failed'});active.delete(p.id);done.add(p.id);return;}
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    // Only a change of the parent's pose or outer form (placementPositionKey) re-solves the child. A
    // change of the parent's material alone (its own cuts, trenches, solid cuts, notches, hatches)
    // keeps the child exactly where and as it is and re-checks its real contact (removalOnly).
-   const pk=placementDependencyKey(parent),ppk=placementPositionKey(parent),sk=placementShapeKey(p),mk=pk+'/'+shipCutKey,cold=!p._placementSelfKey,parentKeyChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,removalOnly=(parentKeyChanged||p._placementMaterialKey!=null&&p._placementMaterialKey!==mk)&&!cold&&p._placementParentPoseKey===ppk&&!p._placementError,parentChanged=parentKeyChanged&&!removalOnly,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
+   const {pk,ppk}=keysOf(parent),sk=placementShapeKey(p),mk=pk+'/'+cutKey(),cold=!p._placementSelfKey,parentKeyChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,removalOnly=(parentKeyChanged||p._placementMaterialKey!=null&&p._placementMaterialKey!==mk)&&!cold&&p._placementParentPoseKey===ppk&&!p._placementError,parentChanged=parentKeyChanged&&!removalOnly,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
    if(meta.materializedAttachment){if(parentChanged&&!selfChanged)placementApplyEquipmentPose(parent,p,meta,placementAnchor(parent,meta));placementRestoreMaterialized(p);const contact=placementContact(ship,p,parent);if(contact.connected){delete p._placementError;meta.parentGeometryRevision=parent.placement?.geometryRevision||0;meta.parentGeometryKey=pk;meta.requestedGeometry=placementShape(p);if(parentChanged||cold||selfChanged)updated.push(p.id);}else if(!parentChanged&&!selfChanged&&!cold)placementKeepContact(ship,p,parent,severed,false,contact);else{p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});}}
-   // A severed child (meta.severed) keeps its stored pose until it is edited or its parent moves; a
-   // reloaded one has no fitted shape and is solved again only once it touches its parent again.
-   else if(!selfChanged&&!requestChanged&&!meta.repairRequired&&(meta.severed?cold||!parentChanged:removalOnly&&(!structure||p._placementGeometry||meta.mode==='surface'))&&placementKeepContact(ship,p,parent,severed,cold||structure&&!p._placementGeometry&&meta.mode!=='surface')){/* kept as is: connected, or severed with a warning */}
+   // A severed child keeps its stored pose until it is edited or its parent moves; one without a
+   // fitted shape (reloaded) is solved again only once it touches its parent again.
+   else if(!selfChanged&&!requestChanged&&!meta.repairRequired&&!cold&&(p._placementSevered?!parentChanged:removalOnly&&(!structure||p._placementGeometry||meta.mode==='surface'))&&(()=>{
+    // Unchanged parent material around a connected child: still connected, nothing to measure.
+    const local=structure?placementLocalParentHash(ship,p,parent):null;if(local&&local===p._placementLocalHash&&!p._placementSevered)return true;
+    const kept=placementKeepContact(ship,p,parent,severed,structure&&!p._placementGeometry&&meta.mode!=='surface');if(kept&&!p._placementSevered)p._placementLocalHash=local;else delete p._placementLocalHash;return kept;})()){/* kept as is: connected, or severed with a warning */}
    else if(meta.repairRequired&&!(structure&&cold)){if(parentChanged&&!selfChanged&&meta.parentLocalAnchor){p.c=worldStruct(parent,meta.parentLocalAnchor);meta.requestedGeometry.c=p.c.slice();}p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}
    // A loaded structure repair is checked once against the current contact rule
    // (overlap is contact, 2026-11-11) from its saved pose, exactly as saved: the
@@ -63399,8 +63448,14 @@ function refreshPlacementGeometry(ship,options={}){
     if(structure&&meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
     if((parentChanged||requestChanged)&&!selfChanged)input={...placementShape(meta.requestedGeometry),id:p.id,placement:meta};
     if(structure&&meta.mode==='surface'){input.placement={...meta};for(const key of ['contactFit','contactOffset','contactAxis'])delete input.placement[key];}
-    const r=legacyExteriorShieldAttachment(input)?solveExteriorEquipmentPlacement(ship,placementShape(input),request,{...publicCopyOf(meta),geometryRevision:request.geometryRevision,requestedGeometry:placementShape(input)},{old:meta,existing:p,inputKey:placementShapeKey(p)}):solvePlacement(ship,input,request);if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;updated.push(p.id);}else{p._placementError=r.code;if(selfChanged){meta.requestedGeometry=placementShape(p);meta.parentLocalAnchor=localStruct(parent,p.c);meta.repairRequired=true;meta.repairReason=r.code;}failed.push({partId:p.id,code:r.code});}
-   }p._placementParentKey=pk;p._placementParentPoseKey=ppk;p._placementMaterialKey=mk;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);
+    const r=legacyExteriorShieldAttachment(input)?solveExteriorEquipmentPlacement(ship,placementShape(input),request,{...publicCopyOf(meta),geometryRevision:request.geometryRevision,requestedGeometry:placementShape(input)},{old:meta,existing:p,inputKey:placementShapeKey(p)}):solvePlacement(ship,input,request);if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;updated.push(p.id);if(structure)p._placementLocalHash=placementLocalParentHash(ship,p,parent);}
+    // A reload, a Worker rebuild, an undo/redo snapshot or a re-check of a child whose shape was not
+    // edited: decide severed from contact at the stored pose (cold path). Placement metadata alone
+    // (a rebound face id in a history snapshot) is not an edit of the child.
+    else if(structure&&!selfChanged&&placementStoredPoseSevered(ship,p,parent,r.code)){p._placementSevered=true;delete p._placementError;severed.push({partId:p.id,code:'severed'});}
+    else{p._placementError=r.code;if(selfChanged){meta.requestedGeometry=placementShape(p);meta.parentLocalAnchor=localStruct(parent,p.c);meta.repairRequired=true;meta.repairReason=r.code;}failed.push({partId:p.id,code:r.code});}
+   }if(structure&&!p._placementError&&!p._placementSevered&&p._placementLocalHash===undefined)p._placementLocalHash=placementLocalParentHash(ship,p,parent);
+   p._placementParentKey=pk;p._placementParentPoseKey=ppk;p._placementMaterialKey=mk;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);
   }}else if(meta.materializedAttachment)placementRestoreMaterialized(p);active.delete(p.id);done.add(p.id);};
  try{const ids=options.ids==null?null:new Set(options.ids);
   // Structures first: interior equipment is validated against the whole resolved interior,
@@ -64368,7 +64423,7 @@ function groundingStats(ship,S){
  // placement error or repair state) is severed. User decision 2026-11-11: the cut is allowed and
  // the part is reported in 点検 as a warning with a select link, never as a red ungrounded part;
  // nothing is moved or deleted. It then carries its own descendants as before.
- const severedIds=[],severable=p=>explicit(p)&&!p._placementError&&!p.placement.root&&!p.placement.pendingGeometry&&!p.placement.validationFailed&&!p.placement.repairRequired&&grounded.has(p.placement.parentStructureId);
+ const severedIds=[],severable=p=>explicit(p)&&!p._placementError&&!p.placement.root&&!p.placement.pendingGeometry&&!p.placement.validationFailed&&!p.placement.repairRequired&&grounded.has(p.placement.parentStructureId)&&placementSeveredByCut(ship,p,placementParent(ship,p.placement.parentStructureId));
  while(pending.length){
   while(changed&&pending.length){changed=false;const g=parts.filter(p=>grounded.has(p.id));for(const p of pending)if(g.some(q=>touch(p,q))||p.k==='engine'&&engineEntries.some(e=>e.engineId===p.id&&e.hullContact&&(hullOK&&inHull(ship,e.hullContact)||g.some(q=>isShapePart(q)&&safeIn(q,e.hullContact))))){grounded.add(p.id);g.push(p);changed=true;}pending=pending.filter(p=>!grounded.has(p.id));}
   const cut=pending.filter(severable);if(!cut.length)break;for(const p of cut){grounded.add(p.id);severedIds.push(p.id);}pending=pending.filter(p=>!grounded.has(p.id));changed=true;
@@ -66824,7 +66879,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};

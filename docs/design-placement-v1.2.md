@@ -120,7 +120,9 @@
 |---|---|---|
 |位置決めキー|親の材料だけが変わる変更（船体所有の削り `hullData.cuts`・トレンチ・立体カット・切り欠き `subs`・ハッチ、および構造物に効く艦レベルの立体カット）では子を再計算（移動・再成形）しない。子の実接触だけを調べ直す。親の姿勢・外形が変わったときだけ再計算する|`placementPositionKey`、`refreshPlacementGeometry` の `removalOnly`。`placementDependencyKey` は変えない（`interiorEnvelopeKey`・装備キャッシュが使う）|
 |面IDは手がかり|保存した `hostSurfaceId` は位置に基づく番号（面：船体の4分割：連結成分：トークン）で、削りで番号が変わり、消えたり重複したりする。消えた・重複した面IDでは保存した姿勢を保ち、親との実接触（面接触か重なり）で判定する。失敗は実際の接触ゼロだけ。アンカーの下の面が1つに決まれば面IDを付け直す|`placementSurfacePatch`（一意のときだけ）、`placementRebindSurface`、`placementEquipmentSurface`、`fitAttachmentSurface`。今回の要求で新しく選んだ面IDが存在しない場合（古い選択）は従来どおり `surface-missing`|
-|切り離し|削りで足元の材料がなくなり実際に接しなくなった子は `severed`。赤い修復状態ではなく点検の警告（`lv:'warn'`、`code:'severed'`、選択リンク `targets`）。位置・形状は動かさない。`placement.severed` を保存し、再読込でも同じ判定。削りの取り消しや子の移動で接触すれば解除|`placementKeepContact`、`refreshPlacementGeometry` の戻り値 `severed`、`placementDiagnostics` の `code:'severed'`、`groundingStats` の `S.severed`|
+|切り離し|削りで足元の材料がなくなり実際に接しなくなった子は `severed`。赤い修復状態ではなく点検の警告（`lv:'warn'`、`code:'severed'`、選択リンク `targets`）。位置・形状は動かさない。判定は設計データに書き込まず、設計だけから毎回同じ結果を出す：保存した姿勢で親に接していない、かつ削り（船体所有の削り・構造物に効く艦レベルの立体カット・切り欠き）を除いた親には接している。Worker・エディタ・再読込（`deferPlacementGeometry` を含む）・Undo/Redo・履歴の配置情報の差で同じ判定になる。削りの取り消しや子の移動で接触すれば解除|`placementSeveredByCut`、`placementStoredPoseSevered`（再読込などの冷えた再計算）、`placementKeepContact`、`refreshPlacementGeometry` の戻り値 `severed`、`placementDiagnostics` の `code:'severed'`、`groundingStats` の `S.severed`|
+|削りを狭めたとき|材料だけの変更で残した子は、以前の成形形状を保つ。削りを狭めて材料が戻ると、その材料と子が重なる。重なりは接触で、質量・容積・価格は構造の合併で一度だけ数える（同じ設計を再計算したときと同じ値）。見た目の重なりは削らない（ユーザー決定 5）|`tests/placement-cut-keeps-connection.cjs`「narrowing a cut」|
+|計算量|親ごとのキーは更新 1 回につき 1 度だけ計算する。材料だけの変更では、子の周りの親の三角形と子自身の三角形が変わっていなければ接触を測り直さない|`placementParentKeys`、`placementLocalParentHash`|
 |浮いた装備|面IDが消えても実形状に触れていれば着座のまま。足元が削られて浮いた装備は `floatingFits` に出す（以前は `float` を理由に飛ばしていた）|`groundingStats`|
 
 以前の規則「形状編集で面が失われた場合は元定義を保持し、再接続を案内する」（下記・ATTACH-03）は、面IDが消えても実接触があれば接続を保つ、に置き換えた（2026-11-11、レビュー対象の仕様変更。`tests/structure-placement-modes.cjs`・`tests/fit-placement-attachment.cjs` を更新）。

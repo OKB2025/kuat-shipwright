@@ -22,7 +22,7 @@ const hullCut=(ship,hull,c,s)=>C.hullOwnSolidCut(ship,hull,{id:ship.nextId++,sha
 function grounding(ship){const S={warnings:[]};C.groundingStats(ship,S);return S;}
 function assertSeated(ship,box,c,label){
  assert.equal(box._placementError,undefined,label+': no placement error');assert.equal(box.placement.repairRequired,undefined,label+': no repair state');
- assert.equal(box.placement.severed,undefined,label+': not severed');
+ assert.equal(box._placementSevered,undefined,label+': not severed');
  for(let i=0;i<3;i++)assert.ok(Math.abs(box.c[i]-c[i])<1e-6,`${label}: pose kept ${box.c} vs ${c}`);
  const hull=ship.parts.find(p=>p.id===box.placement.parentStructureId),diag=C.placementDiagnostics(ship).find(q=>q.partId===box.id);
  assert.equal(C.placementContact(ship,box,hull).connected,true,label+': real contact');assert.equal(diag.connected,true,label+': diagnostics');
@@ -63,7 +63,7 @@ for(const mode of ['horizontal','surface']){
   hullCut(ship,hull,[110,30,0],[40,12,40]);ship._cache=null;
   const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,'a severed child is not a failed placement');same(r.severed,[{partId:box.id,code:'severed'}]);
   const check=(s,b,label)=>{
-   assert.equal(b._placementError,undefined,label+': not a red repair state');assert.equal(b.placement.repairRequired,undefined,label);assert.equal(b.placement.severed,true,label);
+   assert.equal(b._placementError,undefined,label+': not a red repair state');assert.equal(b.placement.repairRequired,undefined,label);assert.equal(b.placement.severed,undefined,label+': nothing is written into the design');
    for(let i=0;i<3;i++)assert.ok(Math.abs(b.c[i]-c[i])<1e-6,`${label}: not moved ${b.c} vs ${c}`);
    const h=s.parts.find(p=>p.id===b.placement.parentStructureId);assert.equal(C.placementContact(s,b,h).connected,false,label+': really separated');
    const diag=C.placementDiagnostics(s).find(q=>q.partId===b.id);assert.equal(diag.code,'severed',label);assert.equal(diag.severed,true,label);
@@ -74,6 +74,25 @@ for(const mode of ['horizontal','surface']){
   };
   check(ship,box,'live');assert.equal(C.publicJSON(box.placement.requestedGeometry),before,'the request is unchanged');
   const {L,r:r2}=reload(ship);assert.equal(r2.ok,true,JSON.stringify(r2.failed));check(L,L.parts.find(p=>p.id===box.id),'reload');
+  // The editor's load path defers placement geometry and the Worker then refreshes the cold design:
+  // the severed judgement is recomputed from the design alone (no stored flag), with the same result.
+  const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true}),r3=C.refreshPlacementGeometry(D);
+  assert.equal(r3.ok,true,JSON.stringify(r3.failed));same(r3.severed,[{partId:box.id,code:'severed'}]);check(D,D.parts.find(p=>p.id===box.id),'deferred load');
+  const again=C.deserialize(JSON.parse(C.publicJSON(C.serialize(D))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(again);check(again,again.parts.find(p=>p.id===box.id),'second save and load');
+ });
+
+ test(`${mode}: narrowing a cut keeps the box as it is, connected, and its overlap is counted once`,()=>{
+  // Reviewed behaviour (docs/design-placement-v1.2.md "削りと接続"): a child kept on a material-only
+  // change keeps the shape it was fitted with. When a cut is narrowed, the material that comes back
+  // overlaps it; an overlap is a contact and the structural union counts the shared volume once.
+  const {ship,hull,box}=build(mode),c=box.c.slice(),id=ship.nextId++;
+  C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:[110,31,0],s:[10,4,40],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;assert.equal(C.refreshPlacementGeometry(ship).ok,true);
+  const {L}=reload(ship),b=L.parts.find(p=>p.id===box.id),h=L.parts.find(p=>p.id===hull.id),shape=b._placementGeometry?.volume??null;
+  C.hullOwnSolidCut(L,h,{id,shape:'box',c:[110,31,0],s:[4,4,40],rotation:[0,0,0],mirror:false,structures:false});L._cache=null;
+  const r=C.refreshPlacementGeometry(L);assert.equal(r.ok,true,JSON.stringify(r.failed));same(r.severed,[]);assert.ok(!r.updated.includes(b.id),'not re-fitted');
+  assertSeated(L,b,c,'narrowed');assert.equal(b._placementGeometry?.volume??null,shape,'the fitted shape is kept');
+  const kept=C.computeStats({...L,_cache:null}),F=C.deserialize(JSON.parse(C.publicJSON(C.serialize(L)))),fresh=C.computeStats({...F,_cache:null});
+  for(const k of ['mass','volume','cost'])assert.ok(Math.abs(kept[k]-fresh[k])<=1e-6*Math.max(1,Math.abs(fresh[k])),`${k}: kept ${kept[k]} vs re-solved ${fresh[k]}`);
  });
 
  test(`${mode}: undo and redo of a cut restore and re-report the connection`,()=>{
@@ -88,6 +107,12 @@ for(const mode of ['horizontal','surface']){
   hullCut(ship,hull,[110,30,0],[40,12,40]);ship._cache=null;r=C.refreshPlacementGeometry(ship);same(r.severed,[{partId:box.id,code:'severed'}]);const severing=JSON.parse(C.publicJSON(ship));
   C.patchShip(ship,structuredClone(uncut));ship._cache=null;r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));same(r.severed,[]);assertSeated(ship,box,c,'undo severing cut');
   C.patchShip(ship,structuredClone(severing));ship._cache=null;r=C.refreshPlacementGeometry(ship);same(r.severed,[{partId:box.id,code:'severed'}],'redo severs again');assert.equal(box._placementError,undefined);
+  // A history snapshot can carry placement metadata that differs from the live part (a rebound face
+  // id): that is not an edit of the box, so it is still severed, not a red repair state.
+  C.patchShip(ship,structuredClone(uncut));ship._cache=null;C.refreshPlacementGeometry(ship);
+  const drift=structuredClone(severing);drift.parts.find(p=>p.id===box.id).placement.hostSurfaceId='p1:top:999:drift';
+  C.patchShip(ship,drift);ship._cache=null;r=C.refreshPlacementGeometry(ship);same(r.severed,[{partId:box.id,code:'severed'}],'redo with drifted metadata');assert.equal(box._placementError,undefined);
+  for(let i=0;i<3;i++)assert.ok(Math.abs(box.c[i]-c[i])<1e-6,'not moved');
  });
 }
 
