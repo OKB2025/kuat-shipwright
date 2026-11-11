@@ -9662,9 +9662,13 @@ function spaceSurfaceTurretPose(a,target,rest,mount,asset){
  }
  const rot=X?m3Mul(X.rot,aim):aim,pose={mesh:rest.mesh,pivot:pivot.slice(),rot,aim,fit:mount.id};cache.set(key,pose);return pose;
 }
+// Turret meshes look up their mount every frame; index each profile's mounts
+// by id once (the first mount with an id, as find() returned).
+const spaceMountIndex=new WeakMap();
+function spaceMountById(mounts,id){let x=spaceMountIndex.get(mounts);if(!x||x.length!==mounts.length){const at=new Map();for(const m of mounts)if(!at.has(m.id))at.set(m.id,m);x={length:mounts.length,at};spaceMountIndex.set(mounts,x);}return x.at.get(id);}
 function spaceSurfaceTurrets(a,target){
  if(!a.p?.surface)return undefined;const asset=a.key===trial.asset?.key?trial.asset:fleet.assets.get(a.key);if(!asset?.geometry?.turrets)return undefined;
- return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=a.p.surface.mounts.find(m=>m.id===rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
+ return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=spaceMountById(a.p.surface.mounts,rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
 }
 function spaceShotEmitter(a,t,index,ion=false,sourceFit,sourceMuzzle){
  if(!a.p?.surface)return {pos:spaceHullPoint(a,.4),fixed:false};
