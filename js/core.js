@@ -61703,8 +61703,10 @@ function missileCellAmmo(u,i){
  while(difference!==0){let changed=false;for(let j=0;j<cells&&difference!==0;j++){if(difference>0&&row[j]<6){row[j]++;difference--;changed=true;}else if(difference<0&&row[j]>0){row[j]--;difference++;changed=true;}}if(!changed)break;}
  u.launcherCellAmmo[i]=row;return row;
 }
-function missileLauncherPowered(u,i){
- syncPowerLossDisabled(u);
+// powerSynced: the caller already ran syncPowerLossDisabled for this unit and
+// changed nothing it depends on since (a repeat call is a no-op then).
+function missileLauncherPowered(u,i,powerSynced=false){
+ if(!powerSynced)syncPowerLossDisabled(u);
  const m=u.p.modules?.[i];if(!m||m.k!=='launcher'||u.dead||u.out||!(u.mods?.[i]>0)||m.powerConnected===false)return false;
  if(m.launchBlocked)return false;
  if(isConcussionLauncher(m.missileKind)&&(![m.muzzle,m.launchDir].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))||len(m.launchDir)<=1e-9||!(m.cycle>0)||!(m.salvo>0)||!(m.tt>0)))return false;
@@ -61716,11 +61718,14 @@ function missileLauncherPowered(u,i){
 function fleetMissileStep(u,dt,active=false,options={}){
  const mods=u.p.modules||[],out=[];if(!(dt>0)||!Number.isFinite(dt))return out;
  u.launcherT=Array.isArray(u.launcherT)?u.launcherT:[];
+ // The power-loss sync depends on the ship's sources, not on launcher timers or
+ // magazines, so the first launcher check runs it and the rest reuse it.
+ let powerSynced=false;const powered=i=>{const ok=missileLauncherPowered(u,i,powerSynced);powerSynced=true;return ok;};
  for(let i=0;i<mods.length;i++){
   const m=mods[i];if(m.k!=='launcher')continue;
   const native=isConcussionLauncher(m.missileKind),cycle=native&&Number.isFinite(m.cycle)&&m.cycle>0?m.cycle:20,salvo=native&&Number.isInteger(m.salvo)&&m.salvo>0?m.salvo:8,tt=native&&Number.isFinite(m.tt)&&m.tt>0?m.tt:10,range=missileRange(m);
   if(native&&Array.isArray(u.ammo)){const capacity=Math.max(0,Math.min(6*(m.missileKind==='shipMsl'?salvo:1),Number.isFinite(m.stock)?m.stock:6)),loadCap=u.missileLoadCaps?.[m.fit];u.ammo[i]=Math.min(capacity,Number.isFinite(loadCap)?Math.max(0,loadCap):capacity,Math.max(0,Number.isFinite(u.ammo[i])?u.ammo[i]:0));}
-  const distance=typeof options.distance==='function'?options.distance(m,i):options.distance,ready=active&&(distance==null||distance<=range)&&missileLauncherPowered(u,i),ammo=Math.max(0,Number.isFinite(u.ammo?.[i])?u.ammo[i]:0),previous=Number.isFinite(u.launcherT[i])?Math.max(0,u.launcherT[i]):native?0:Math.max(0,u.mslT||0);
+  const distance=typeof options.distance==='function'?options.distance(m,i):options.distance,ready=active&&(distance==null||distance<=range)&&powered(i),ammo=Math.max(0,Number.isFinite(u.ammo?.[i])?u.ammo[i]:0),previous=Number.isFinite(u.launcherT[i])?Math.max(0,u.launcherT[i]):native?0:Math.max(0,u.mslT||0);
   if(m.missileKind==='shipMsl'){
    const cells=missileCellAmmo(u,i);if(!ready||!(ammo>0)){u.launcherT[i]=Math.max(0,previous-dt);continue;}
    let timer=previous-dt,volleys=0;while(timer<=1e-9&&cells.some(n=>n>0)){
