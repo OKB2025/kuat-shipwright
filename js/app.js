@@ -2876,7 +2876,7 @@ function pickRay(o, d, want) {
       return null;
     }else if(cap.space==='interior'){
       const options={includeOccluded:true,excludePartId:designUI.replaceId??undefined},model=editorMountShip();
-      const hits=designUI.hostId!=null?Gfx.structureSurfaceCandidates?.(model,o,d,designUI.hostId,options)||[]:Gfx.placementSurfaceCandidates?.(model,o,d,options)||[];
+      const hits=Gfx.placementSurfaceCandidates?.(model,o,d,options)||[];
       return hits[designUI.depth||0]||null;
     }
   }
@@ -4719,7 +4719,7 @@ function designUIInfoPanel(){
  add('種類',T(def?.name||part.k));add('ID',part.id!=null?'#'+part.id:null);
  if(dimensions?.every(Number.isFinite))add('寸法',dimensions.map(v=>num(v,3)).join(' × ')+' m');
  if(position?.every(Number.isFinite))add('位置 XYZ（m）',position.map(v=>num(v,3)).join(' / '));
- const owner=part.host??part.placement?.parentStructureId??part.placement?.hostId;if(owner!=null)add('追加元',owner==='hull'?T('船体'):'#'+owner);
+ const interior=part.placement&&designCapability(part).space==='interior',owner=part.host??part.placement?.parentStructureId??(interior?null:part.placement?.hostId);if(interior)add('配置基準',T('主船体に固定'));else if(owner!=null)add('追加元',owner==='hull'?T('船体'):'#'+owner);
  if(fit){if(def.power)add('電力',fW(def.power));if(def.tt||def.ion)add('一斉射',fTT(def.tt||def.ion));if(part.trenchAggregate)add('基数',num(part.aggregateCount));}
  if(info&&Number.isFinite(info.materialVolume))add('体積',num(info.materialVolume,3)+' m³');
  if(info&&Number.isFinite(info.materialMass))add('質量',fMass(info.materialMass));
@@ -4743,7 +4743,7 @@ function designUIInfoEdit(){
  const ref=designUI.info;if(ref?.source!==ship||!['parts','fits'].includes(ref.list))return;
  if(!designEntityEditable(ref.list,ship[ref.list].find(p=>p.id===ref.id))){designUI.info=null;designUIPanel();return;}
  st.sel={list:ref.list,id:ref.id};
- const it=selItem();designUI.mode=null;designUI.parentId=it.host??it.placement?.parentStructureId??null;designUI.hostId=it.placement?.hostId??null;if(C.isTrenchBatteryGroup?.(it)){designUI.info=null;trenchArmamentOpen(it);designUI.details=false;designUI.layout='edit';renderPanel();return;}
+ const it=selItem();designUI.mode=null;designUI.parentId=it.host??it.placement?.parentStructureId??null;designUI.hostId=null;if(C.isTrenchBatteryGroup?.(it)){designUI.info=null;trenchArmamentOpen(it);designUI.details=false;designUI.layout='edit';renderPanel();return;}
  designUIOpen('edit');
 }
 function designUIInfoDuplicate(){
@@ -4870,7 +4870,7 @@ function designUIPlacementHTML(){
  const exterior=cap.space==='exterior',structure=cap.kind==='structure'&&exterior,parents=designParents().filter(q=>q.id!==p.id),legacy=editing&&!saved;
  if(structure&&editing&&saved&&designUI.parentId==null)designUI.parentId=saved.parentStructureId??null;
  const select=(field,value,empty)=>`<select data-design-${field} aria-label="${structure?'追加元':'内装の母体'}"><option value="">${empty}</option>${parents.map(q=>`<option value="${esc(String(q.id))}" ${String(q.id)===String(value)?'selected':''}>${esc(C.partLabel(q))} #${q.id}</option>`).join('')}${!ship.hull.assembly?`<option value="hull" ${value==='hull'?'selected':''}>船体</option>`:''}</select>`;
- return `<section class="design-placement" data-design-placement><canvas class="design-part-preview" id="designPartPreview" aria-label="部品の実形状プレビュー"></canvas><h4>${editing?'配置設定':'配置する部品'}</h4>${cap.kind==='weapon'?designWeaponPreviewHTML(p):''}${legacy?'<p class="note">従来の配置を保持しています。配置方式を適用するまで再成形しません。</p>':''}${exterior?`<p class="note" data-design-parent-cue data-parent-id="${esc(String(p.host??designUI.parentId??''))}">${esc('追加元と取付面は、3D表示でタップした構造物から決まります。')}${designParent(p.host??designUI.parentId)?`<br>${esc('開始時の目印')}：${esc(C.partLabel(designParent(p.host??designUI.parentId)))}`:''}</p>`:cap.space==='interior'?`<label>内装の母体${select('host',designUI.hostId,'3Dでタップして母体を指定')}</label>`:''}${cap.space==='interior'?`<label>面から内側への追加移動（m）<input type="number" data-design-interior-depth min="0" step="any" value="${designUI.interiorDepth||0}"></label>`:''}${cap.space==='interior'?`<label>面候補（奥行き）<select data-design-depth>${[0,1,2,3,4,5].map(i=>`<option value="${i}" ${designUI.depth===i?'selected':''}>${i===0?'手前の面':i+' 面奥'}</option>`).join('')}</select></label>`:''}${modes.length>1?`<div class="seg" role="group" aria-label="配置方式">${modes.map(m=>`<button type="button" data-design-mode="${m}" aria-pressed="${designUI.mode===m}">${esc(DESIGN_MODE_NAMES[m])}</button>`).join('')}</div>`:`<p class="note">${esc(DESIGN_MODE_NAMES[modes[0]])}${!cap.deformable?'（無変形）':''}</p>`}${structure&&designUI.mode==='vertical'?`<label>親に向ける接触側<select data-design-contact><option value="">選択面から判定</option>${['aft','fore','port','stbd'].map(k=>`<option value="${k}" ${designUI.contactSide===k?'selected':''}>${esc(STRUCTURE_ARMOR_FACES[k])}</option>`).join('')}</select></label>`:''}<p class="note">${exterior?'タップした構造物の面と取付条件を検証します。':'形状・干渉・機能条件を検証してから確定します。'}</p>${editing?'<div class="design-placement-actions"><button type="button" class="btn primary" data-design-action="arm">配置方式を適用・再接続</button></div>':''}</section>`;
+ return `<section class="design-placement" data-design-placement><canvas class="design-part-preview" id="designPartPreview" aria-label="部品の実形状プレビュー"></canvas><h4>${editing?'配置設定':'配置する部品'}</h4>${cap.kind==='weapon'?designWeaponPreviewHTML(p):''}${legacy?'<p class="note">従来の配置を保持しています。配置方式を適用するまで再成形しません。</p>':''}${exterior?`<p class="note" data-design-parent-cue data-parent-id="${esc(String(p.host??designUI.parentId??''))}">${esc('追加元と取付面は、3D表示でタップした構造物から決まります。')}${designParent(p.host??designUI.parentId)?`<br>${esc('開始時の目印')}：${esc(C.partLabel(designParent(p.host??designUI.parentId)))}`:''}</p>`:cap.space==='interior'?`<p class="note" data-design-interior-anchor>配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）</p>`:''}${cap.space==='interior'?`<label>面から内側への追加移動（m）<input type="number" data-design-interior-depth min="0" step="any" value="${designUI.interiorDepth||0}"></label>`:''}${cap.space==='interior'?`<label>面候補（奥行き）<select data-design-depth>${[0,1,2,3,4,5].map(i=>`<option value="${i}" ${designUI.depth===i?'selected':''}>${i===0?'手前の面':i+' 面奥'}</option>`).join('')}</select></label>`:''}${modes.length>1?`<div class="seg" role="group" aria-label="配置方式">${modes.map(m=>`<button type="button" data-design-mode="${m}" aria-pressed="${designUI.mode===m}">${esc(DESIGN_MODE_NAMES[m])}</button>`).join('')}</div>`:`<p class="note">${esc(DESIGN_MODE_NAMES[modes[0]])}${!cap.deformable?'（無変形）':''}</p>`}${structure&&designUI.mode==='vertical'?`<label>親に向ける接触側<select data-design-contact><option value="">選択面から判定</option>${['aft','fore','port','stbd'].map(k=>`<option value="${k}" ${designUI.contactSide===k?'selected':''}>${esc(STRUCTURE_ARMOR_FACES[k])}</option>`).join('')}</select></label>`:''}<p class="note">${exterior?'タップした構造物の面と取付条件を検証します。':'形状・干渉・機能条件を検証してから確定します。'}</p>${editing?'<div class="design-placement-actions"><button type="button" class="btn primary" data-design-action="arm">配置方式を適用・再接続</button></div>':''}</section>`;
 }
 function designUIPanel(){
  const scroll=designUICaptureScroll();
@@ -5034,10 +5034,11 @@ function designUIRequest(hit){
  let hostId=designUI.hostId;
  if(cap.space==='interior'){
   const tapped=hit.parentStructureId??(hit.part&&C.isShapePart(hit.part)?hit.part.id:hit.kind==='hull'&&!ship.hull.assembly?'hull':null);
-  if(tapped==null||hit.rootPlane){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
-  if(hostId!=null&&tapped!==hostId){designUIRejectTap('指定した内装の母体の面をタップしてください');return;}
-  hostId=hostId??tapped;
-  if(hostId==='hull'?ship.hull.assembly:!C.isShapePart(designParent(hostId))||list==='parts'&&hostId===designUI.replaceId){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
+  if(tapped==null||hit.rootPlane||tapped!=='hull'&&!C.isShapePart(designParent(tapped))){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
+  // The tapped face only locates the equipment. Interior equipment has no structure parent:
+  // it is anchored to the primary hull and must lie inside the hull and its attached structures.
+  hostId=typeof C.interiorAnchorHostId==='function'?C.interiorAnchorHostId(ship):tapped;
+  if(hostId==null||(hostId==='hull'?ship.hull.assembly:!C.isShapePart(designParent(hostId))||list==='parts'&&hostId===designUI.replaceId)){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
  }
  if(existing&&list==='parts'&&cap.kind==='structure'){const pose=partPreview(hit);if(pose?.c)pv.c=pose.c.slice();}
  if(cap.space==='exterior'){
@@ -5046,7 +5047,7 @@ function designUIRequest(hit){
   if(hit.rootPlane){if(!designUIRootEligible(pv)){designUIRejectTap('最初の構造物だけを作業面へ配置できます');return;}designUI.hostId=null;delete pv.placement;delete pv.host;delete pv.local;delete pv.localNormal;delete pv.localForward;}
   designUI.parentId=tapped;
  }
- const parent=designParent(cap.space==='exterior'?designUI.parentId:hostId),request={part:pv,partId:pv.id,...(list==='fits'?{list:'fits',entityKind:'fit'}:{}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,mode:cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0],...(cap.space==='exterior'?(designUI.parentId!=null?{parentStructureId:designUI.parentId,hostId:designUI.parentId}:{}):hostId!=null?{hostId}:{}),hostSurfaceId:hit.hostSurfaceId||hit.surfaceId,contactSide:designUI.contactSide||undefined,hit:{p:hit.p.slice(),n:hit.n.slice(),kind:hit.kind,face:hit.face,...(hit.rootPlane?{rootPlane:true}:{}),...(hit.u?{u:hit.u.slice()}:{})},geometryRevision:(pv.placement?.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||parent?.geometryRevision||0};
+ const parent=designParent(cap.space==='exterior'?designUI.parentId:hostId),request={part:pv,partId:pv.id,...(list==='fits'?{list:'fits',entityKind:'fit'}:{}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,mode:cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0],...(cap.space==='exterior'?(designUI.parentId!=null?{parentStructureId:designUI.parentId,hostId:designUI.parentId}:{}):hostId!=null?{hostId}:{}),hostSurfaceId:cap.space==='interior'?undefined:hit.hostSurfaceId||hit.surfaceId,contactSide:designUI.contactSide||undefined,hit:{p:hit.p.slice(),n:hit.n.slice(),kind:hit.kind,face:hit.face,...(hit.rootPlane?{rootPlane:true}:{}),...(hit.u?{u:hit.u.slice()}:{})},geometryRevision:(pv.placement?.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||parent?.geometryRevision||0};
  if(cap.space==='exterior'&&cap.kind==='structure'&&['horizontal','vertical'].includes(request.mode)){request.contactFit='cut';request.position=pv.c.slice();}
  let rows;try{rows=designUIRequests(pv,request);}catch(error){designUIRejectTap(error.message||'対称側の取付面を確認できません。位置を変えるか、対称配置を解除してください。');return;}Object.assign(request,rows[0].request);if(rows.length>1)request.parts=rows;
  if(!existing&&pv.k==='engine'&&pv._autoEngineOwner!==undefined&&pv.machineryId>0){const owners=new Set(engineCoreCandidates().map(p=>p.id));if(rows.some(row=>!owners.has(row.part.machineryId))){designUIRejectTap('対称側の接続する内部機関を確認してください。機関本体を選択するか、対称配置を解除してください。');return;}}
@@ -5231,7 +5232,7 @@ function bindDesignUI(){
   if('designPickParent'in d){designUI.pickParent=true;designUIClose(true);designUIBar();return;}
   const action=d.designAction;if(action==='arm')designUIArm();else if(action==='confirm')designUIConfirm();else if(action==='adjust'){designUICancel();designUI.drawer=true;renderPanel();}else if(action==='cancel'){designUICancel();st.tab='edit';renderPanel();}else if(action==='edit-apply')designUIEditApply();else if(action==='edit-cancel'){designUIEditCancel();renderPanel();}else if(action==='close')designUIClose();
  });
- $('#panel').addEventListener('change',e=>{const t=e.target;if('designContinuous'in t.dataset){designUI.continuous=!!t.checked;designUIBar();return;}if('designCanopyForm'in t.dataset||'designCanopySize'in t.dataset){const fresh=t.dataset.designCanopyNew==='1',part=fresh?{k:'cockpit',d:pSize('cockpit')}:selItem();if(!part||part.k!=='cockpit')return;const shape=structuredClone(fresh?st.canopyGeometry||C.canopyShape(part):C.canopyShape(part));if('designCanopyForm'in t.dataset)shape.form=t.value;else{const value=Number(t.value);if(!(value>=.02&&value<=C.DESIGN_LIMITS.partSize&&Number.isFinite(value))){t.reportValidity?.();return;}shape.size[+t.dataset.designCanopySize]=value;}if(fresh){C.setCanopyShape(part,shape);st.canopyGeometry=C.canopyShape(part);renderPanel();}else{mutate('キャノピーの形状',()=>editSel(item=>C.setCanopyShape(item,shape,designParent(item.placement?.parentStructureId))),'parts');renderPanel();}return;}if('designParent'in t.dataset){designUI.parentId=t.value===''?null:t.value==='hull'?'hull':ship.parts.find(p=>String(p.id)===t.value)?.id;designUI.depth=0;refreshOverlay();}if('designHost'in t.dataset)designUI.hostId=t.value===''?null:t.value==='hull'?'hull':ship.parts.find(p=>String(p.id)===t.value)?.id;if('designContact'in t.dataset)designUI.contactSide=t.value||null;if('designDepth'in t.dataset)designUI.depth=Number(t.value)||0;if('designInteriorDepth'in t.dataset){const value=Number(t.value);designUI.interiorDepth=Number.isFinite(value)?Math.max(0,value):0;}});
+ $('#panel').addEventListener('change',e=>{const t=e.target;if('designContinuous'in t.dataset){designUI.continuous=!!t.checked;designUIBar();return;}if('designCanopyForm'in t.dataset||'designCanopySize'in t.dataset){const fresh=t.dataset.designCanopyNew==='1',part=fresh?{k:'cockpit',d:pSize('cockpit')}:selItem();if(!part||part.k!=='cockpit')return;const shape=structuredClone(fresh?st.canopyGeometry||C.canopyShape(part):C.canopyShape(part));if('designCanopyForm'in t.dataset)shape.form=t.value;else{const value=Number(t.value);if(!(value>=.02&&value<=C.DESIGN_LIMITS.partSize&&Number.isFinite(value))){t.reportValidity?.();return;}shape.size[+t.dataset.designCanopySize]=value;}if(fresh){C.setCanopyShape(part,shape);st.canopyGeometry=C.canopyShape(part);renderPanel();}else{mutate('キャノピーの形状',()=>editSel(item=>C.setCanopyShape(item,shape,designParent(item.placement?.parentStructureId))),'parts');renderPanel();}return;}if('designParent'in t.dataset){designUI.parentId=t.value===''?null:t.value==='hull'?'hull':ship.parts.find(p=>String(p.id)===t.value)?.id;designUI.depth=0;refreshOverlay();}if('designContact'in t.dataset)designUI.contactSide=t.value||null;if('designDepth'in t.dataset)designUI.depth=Number(t.value)||0;if('designInteriorDepth'in t.dataset){const value=Number(t.value);designUI.interiorDepth=Number.isFinite(value)?Math.max(0,value):0;}});
  $('#panel').addEventListener('toggle',e=>{if(e.target.matches?.('[data-design-bulk-remove]'))designUI.bulkRemoveOpen=!!e.target.open;},true);
  $('#panel').addEventListener('scroll',e=>{if(e.target.matches?.('[data-design-carousel-track]'))designUISyncCarousels();},true);
  globalThis.addEventListener?.('resize',()=>designUISyncCarousels());
@@ -7074,7 +7075,7 @@ function multiPaste(){
    if(Array.isArray(q.surfacePoint))q.surfacePoint=sc(q.surfacePoint);
    if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;C.normalizeFitMount(q);}else{q.c=sc(q.c);copyWingLinks(q,map,sc);for(const key of ['reactor','machineryId'])if(map.parts.has(q[key]))q[key]=map.parts.get(q[key]);}
    ship[l].push(q);}
-  for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,point:sc,sourceParts:c.parts,targetParts:made.parts});
+  for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,interiorAnchor:C.interiorAnchorHostId?.(ship),point:sc,sourceParts:c.parts,targetParts:made.parts});
   const sourceFits=new Map(c.fits.map(f=>[map.fits.get(f.id),f]));
   for(const f of made.fits)if(f.placement)C.remapFitPlacementCopy?.(f,map.parts,{sourceHostId:sourceFits.get(f.id)?.host,sourceParts:c.parts,targetParts:ship.parts});
   C.surfacePasteConfig(ship,c.surfaces,map,false,c.netLinks||[]);
@@ -7207,7 +7208,7 @@ function editTap(hit,add){
  if(h?.it&&!designEntityEditable(h.list,h.it)){designSpaceNotice();return;}
  if(h?.it&&C.isTrenchBatteryGroup?.(h.it)&&!add&&st.editTool!=='multi'){trenchArmamentOpen(h.it);return;}
  if(!h?.it){if(!add&&st.editTool!=='multi'){selClear();xfReset();}else toast(st.view==='normal'?'部品をタップしてください（内部の区画は「透視」で選べます）':'部品が見つかりません');renderPanel();return;}
- selPick(h.list,h.it.id,add||st.editTool==='multi');xfReset();designUI.drawer=true;designUI.details=false;designUI.mode=null;designUI.parentId=h.it.host??h.it.placement?.parentStructureId??null;designUI.hostId=h.it.placement?.hostId??null;renderPanel();
+ selPick(h.list,h.it.id,add||st.editTool==='multi');xfReset();designUI.drawer=true;designUI.details=false;designUI.mode=null;designUI.parentId=h.it.host??h.it.placement?.parentStructureId??null;designUI.hostId=null;renderPanel();
 }
 // --- moving, turning, aligning ---
 // Every selected item is a driver; its symmetric copies follow as mirror images, as when one item is edited
@@ -7396,7 +7397,7 @@ function editDuplicate(){
   if(Array.isArray(o.surfacePoint))o.surfacePoint=o.surfacePoint.map((v,i)=>v+off[i]);
   if(l==='parts'){o.c=o.c.map((v,i)=>v+off[i]);copyWingLinks(o,map,p=>p.map((v,i)=>v+off[i]));for(const key of ['reactor','machineryId'])if(map.parts.has(o[key]))o[key]=map.parts.get(o[key]);}
   else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}}}
- for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true});
+ for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,interiorAnchor:C.interiorAnchorHostId?.(ship)});
  const sourceFits=new Map(src.fits.map(f=>[map.fits.get(f.id),f]));
  for(const f of made.fits)if(f.placement){const source=sourceFits.get(f.id);f.p=source.p.map((v,i)=>v+off[i]);C.remapFitPlacementCopy?.(f,map.parts,{sourceHostId:source.host,sourceParts:src.parts,targetParts:[...ship.parts,...made.parts]});}
  const check=xfCheck([...made.parts.map(o=>({list:'parts',before:null,after:o})),...made.fits.filter(o=>o.host==null).map(o=>({list:'fits',before:{float:false},after:o}))],true);
@@ -10156,7 +10157,7 @@ function openLayoutTarget(t){
  }else if(t.patch){const patch=C.surfacePatches(ship).find(q=>q.id===t.patch),host=patch&&ship.parts.find(q=>'p'+q.id===patch.host);if(host){st.tab='mod';st.group=C.PARTS[host.k].group;st.partTool='select';st.sel={list:'parts',id:host.id};}else st.tab='hull';}
  else if(t.part){st.tab='mod';st.group=C.PARTS[t.part].group;st.part=t.part;st.partTool='place';}
  else{st.tab=legacyTab(t.tab||'mod');if(st.tab==='bridge'){st.bridgeMode='windows';st.bridgeTool='place';st.bridge=t.window||'podBridge';}if(st.tab==='arm'){st.tab='mod';st.group='weapons';st.fitTool='adjust';}}
- if(p&&['parts','fits'].includes(t.list)){st.tab='edit';designUI.drawer=true;designUI.details=false;designUI.context=null;designUI.layout='edit';designUI.mode=null;designUI.parentId=p.host??p.placement?.parentStructureId??null;designUI.hostId=p.placement?.hostId??null;}
+ if(p&&['parts','fits'].includes(t.list)){st.tab='edit';designUI.drawer=true;designUI.details=false;designUI.context=null;designUI.layout='edit';designUI.mode=null;designUI.parentId=p.host??p.placement?.parentStructureId??null;designUI.hostId=null;}
  syncHud();renderPanel();
  if(p&&view){const c=p.c||p.p||C.mul(C.add(p.a,p.b),.5);view.cam.target=C.add(c,view.off);view.cam.r=Math.max(180,p.c?C.partDims(p).r*6:250);}
  if(t.list==='hatches'&&p){const el=$(`#panel [data-door="${p.id}"]`),d=el?.closest('details.fold');if(d&&!d.open)d.open=true;el?.closest('.bay-control')?.scrollIntoView?.({block:'center'});el?.focus?.();}

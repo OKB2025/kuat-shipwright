@@ -37,8 +37,9 @@ test('an exterior ray without a visible parent cannot become a placement surface
  const {run:r}=setup();assert.equal(r('pickRay([1,2,3],[0,-1,0],{parts:true,fits:false})'),null);assert.equal(r('rayCalls.length'),1);
 });
 
-test('interior depth selection keeps its explicit host rather than using exterior tap parenting',()=>{
- const {run:r}=setup();r('st.part="cargo";designUI.space="interior";designUI.mode="clip";designUI.hostId=1;designUI.depth=1;interiorHits=[hit(1),{...hit(1),hostSurfaceId:"interior-second"}];const picked=pickRay([1,2,3],[0,-1,0],{parts:true,fits:false})');assert.equal(r('picked.hostSurfaceId'),'interior-second');assert.equal(r('interiorCalls[0].parentId'),1);assert.equal(r('rayCalls.length'),0);
+// User decision 2026-11-11: interior picking is not restricted to a former host structure.
+test('interior depth selection uses every candidate face, not a locked host structure',()=>{
+ const {run:r}=setup();r('st.part="cargo";designUI.space="interior";designUI.mode="clip";designUI.hostId=1;designUI.depth=1;rayHits=[hit(1),{...hit(2,80),hostSurfaceId:"interior-second"}];const picked=pickRay([1,2,3],[0,-1,0],{parts:true,fits:false})');assert.equal(r('picked.hostSurfaceId'),'interior-second');assert.equal(r('interiorCalls.length'),0);assert.equal(r('rayCalls.length'),1);
 });
 
 test('weapons immediately use the tapped parent and direct mode, then resolve their true support in the background',()=>{
