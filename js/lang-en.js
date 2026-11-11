@@ -10630,4 +10630,9 @@ Object.assign(root.KS_EN.messages,{
  "発進準備中の艦は操艦できません。準備を取り消すか、3D視点で追尾してください。": "A ship preparing to jump cannot be piloted manually. Cancel preparation or follow it in the 3D view.",
  "操艦中の艦がいます。操艦を終了してから任務群に発進を命じてください。": "A ship is being piloted manually. End manual flight before ordering the task group to depart."
 });
+// v24 Hull resize limits (docs/hull-part-scaling-v24.md).
+Object.assign(root.KS_EN.terms,{
+ "縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます": "A bevel would leave the savable range (width 0–1000 m, height 1–1000 m)",
+ "トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます": "A trench would leave the savable range (height 0.1–500 m, depth 0.1–800 m)"
+});
 })(typeof window==="undefined"?globalThis:window);

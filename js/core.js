@@ -49391,7 +49391,16 @@ function scaleHullStructureCuts(ship,p,F){
  for(const h of data.hatches||[])hatch(h);for(const h of ship?.hatches||[])if(h.hullOwner===p.id)hatch(h);
  invalidateHullHatchGeometry(ship,p);delete p._hullShip;return true;
 }
-function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;p.s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize));return syncHullStructure(ship,p,false);}
+// v24 A resize carries the part's own bevels and trenches with it (scaleHullStructureCuts); refuse a size at which
+// one of them would leave the range the loader keeps (a reload would otherwise clamp it and change the shape).
+function hullStructureResizeError(ship,p,size){
+ if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const h=p.hullProfile,s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize)),F=[s[0]/h.L,s[2]/h.H,s[1]/h.W];
+ if(!F.every(v=>Number.isFinite(v)&&v>0))return null;const inside=(v,f,lo,hi)=>!Number.isFinite(v)||v*f>=lo-1e-9&&v*f<=hi+1e-9;
+ for(const c of p.hullData?.cuts||[])if(c.type!=='planTrapezoid'&&(!inside(c.inset,F[2],0,1000)||!inside(c.slope,F[1],1,1000)))return '縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます';
+ for(const t of p.hullData?.trenches||[])if(!inside(t.height,F[1],.1,500)||!inside(t.depth,F[2],.1,800))return 'トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます';
+ return null;
+}
+function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const error=hullStructureResizeError(ship,p,size);if(error)throw new Error(error);p.s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize));return syncHullStructure(ship,p,false);}
 function ensurePrimaryHull(ship,options={}){
  const current=primaryHullPart(ship);if(current){ship.hullStructureVersion=1;ship.hull.assembly=true;return current;}
  if(ship.hullStructureVersion===1||ship.hull?.assembly)return null;
@@ -53196,6 +53205,11 @@ function syncCompartmentsRaw(ship){
  const envelopeKey=JSON.stringify([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,ship.parts.filter(p=>isShapePart(p))],(k,v)=>k.startsWith('_')?undefined:v);
  const interiorKey=envelopeKey+JSON.stringify([ship.parts,ship.fits,ship.hatches],(k,v)=>k.startsWith('_')?undefined:v);
  if(ship._interiorKey===interiorKey)return;
+ // 2026-11-11 A compartment's envelope is assigned below as the compartments are clipped in order, exactly as for a
+ // design that was just loaded. One left from an earlier pass (often the statistics' surface working copy, with the
+ // hull caches of that time) made the result depend on the object's history: after a hull resize the reused editor
+ // object differed from a reload. Start every recomputation from the loaded state.
+ for(const p of ship.parts)delete p._envelope;
  const occupied=allOccupied(ship);for(const p of occupied){if(!explicitInteriorPlacement(p))delete p._packing;delete p._packingGroup;}
  if(ship._clipEnvelope?.key!==envelopeKey)ship._clipEnvelope={key:envelopeKey,structs:ship.parts.filter(p=>isShapePart(p)).map(p=>({p,b:partAABB({...p,_apertures:null})}))};
  const oldLock=ship._lockedCache;ship._lockedCache=cache(ship);
@@ -66673,7 +66687,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
   MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, INERTIA_MOVEMENT, inertiaAlignmentRate, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
-  ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
+  ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureResizeError,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
