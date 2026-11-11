@@ -237,3 +237,38 @@ test('a cut made after placing into a recess still does not re-fit the child (li
  const {L}=reload(ship),b=L.parts.find(p=>p.id===box.id);closeTo(b._placementGeometry.volume,vol,'reload fits to the removals recorded at placement');same(b.c.map(v=>+v.toFixed(6)),c.map(v=>+v.toFixed(6)));
  for(const k of ['mass','volume','cost'])closeTo(statsOf(L)[k],statsOf(ship)[k],k);
 });
+
+// Round-3 review (c785801): editing a removal the child was fitted into (same id) re-solves the child as
+// origin/main does; expected values are main 3e82bf1's for the same steps.
+for(const [name,lift,newC,newS,expected] of [
+ ['deepen the recess by 2 m (hovering box)',2.5,[110,29,0],[20,6,22],{c:[110,20.5,0],vol:108,contact:true,mass:106664.53}],
+ ['raise the recess floor by 1 m (box on the floor)',1.2,[110,30.5,0],[20,6,19],{c:[110,22.2,0],vol:76.8,contact:true,mass:106014.25}],
+ ['widen the recess (hovering box)',2.5,[110,30,0],[30,6,20],{c:[110,22.5,0],vol:108,contact:true,mass:107075.22}],
+])
+ test(`editing the recess a child was fitted into: ${name} — live = reload = main`,()=>{
+  const ship=C.newShip(CIGAR,'recess edit');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],id=ship.nextId++;
+  C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:[110,30,0],s:[20,6,20],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;C.refreshPlacementGeometry(ship);
+  const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+lift,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+  const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);
+  const box=ship.parts.at(-1);same(box.placement.fitRemovalIds,['solidCuts:'+id]);
+  C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:newC,s:newS,rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));
+  const live=shapeOf(ship,box,hull);same(live,expected,'as on main');assert.equal(box._placementError,undefined);
+  const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);same(shapeOf(D,D.parts.find(q=>q.id===box.id),D.parts[0]),live,'reload');
+ });
+
+test('id-less removals: deleting an earlier one or editing the fitted one re-solves like main (no silent drop)',()=>{
+ // Saved designs give every removal an id; an id-less one exists only in a live design, so this is live only.
+ const ship=C.newShip(CIGAR,'idless');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ hull.hullData.subs=[{structures:false,b:[20,24,-3,30,40,3]},{structures:false,b:[100,20,-3,120,40,3]}];ship._cache=null;C.refreshPlacementGeometry(ship);
+ const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+2.5,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+ const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const box=ship.parts.at(-1);
+ assert.equal(box.placement.fitRemovalIds.length,2,'content-named ids');assert.ok(box.placement.fitRemovalIds.every(id=>/^subs:#/.test(id)));
+ const look=()=>({c:box.c.map(v=>+v.toFixed(4)),vol:+(box._placementGeometry?.volume??C.partVolume(box)).toFixed(4),err:box._placementError||null,contact:C.placementContact(ship,box,hull).connected,stats:[+statsOf(ship).mass.toFixed(3),+statsOf(ship).volume.toFixed(3),statsOf(ship).cost]});
+ same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105945.301,135045.945,372662]},'placed (main)');
+ hull.hullData.subs=hull.hullData.subs.slice(1);ship._cache=null;let r=C.refreshPlacementGeometry(ship);assert.ok(r.updated.includes(box.id),'re-solved');
+ same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105363.924,135325.581,370378]},'earlier one deleted (main)');
+ const ids=placementIds(box);assert.equal(ids.length,1,'the fitted recess keeps its content id after the earlier one is gone');
+ hull.hullData.subs=[{structures:false,b:[100,21,-3,120,40,3]}];ship._cache=null;r=C.refreshPlacementGeometry(ship);assert.ok(r.updated.includes(box.id),'re-solved after the edit');
+ same(look(),{c:[110,23.5,0],vol:96,err:null,contact:true,stats:[105228.334,135381.863,369845]},'fitted one edited (main)');
+});
+function placementIds(b){return b.placement.fitRemovalIds||[];}
