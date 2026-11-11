@@ -8,10 +8,13 @@ from gaps import region,E
 from restore_lib import nohole,minwidth
 Hh=np.fromfile(SP+'hullfit1.f32',np.float32).reshape(-1,3,3).astype(float);N=json.load(open(SP+'nacelles.json'))
 ED={e['id']:e for e in json.load(open(SP+'engines-detail.json'))}
+ND=[[0,290],[290,267.47],[684,267.47],[985,329.9],[1332,363.9],[1702,361],[2063,361]]   # EXECUTOR_NOZZLE_DIAMETERS in js/core.js
+def nozzle_d(z):
+    r=min(ND,key=lambda r:abs(abs(z)-r[0]));return r[1] if abs(abs(z)-r[0])<=40 else 0
 def casings_band(y0,y1):
     out=[]
     for n in N:
-        e=ED[n['id']];D=max(e['d'],247.6584*1.08);R=max(n['casing_r'],D/2*1.1)+15;L=(e['nozzleLength']+e['mlen'])*D/max(1,e['d'])+20   # the example's engine at its final size (refitShipPropulsion: >= 1.08 x 247.6584 m), nozzle + body scaled with the diameter; the model's casing beyond it stays as structure
+        e=ED[n['id']];D=max(e['d'],247.6584*1.08,nozzle_d(n['z']));R=max(n['casing_r'],D/2*1.1)+15;L=(e['nozzleLength']+e['mlen'])*D/max(1,e['d'])+20   # the example's engine at its final size (refitShipPropulsion: >= 1.08 x 247.6584 m), nozzle + body scaled with the diameter; the model's casing beyond it stays as structure
         dy=max(0,max(y0-n['y'],n['y']-y1)) if not (y0<=n['y']<=y1) else 0
         if dy>=R:continue
         hz=np.sqrt(R*R-dy*dy)
@@ -36,10 +39,10 @@ def trench_zone(y0,y1):
     out=[]
     for yy in (y0+15,y0+45):
         edges=[]
-        for x in range(int(0.325*19000),int(0.9848*19000),400):
+        for x in range(int(0.473684*19000),int(0.9848*19000),400):
             t,pw,ph,dy,dw,kw,bw,cw=prof(x/19000);h=HH*ph;yc=HH*(.5+dy);bot=yc-h/2;edges.append(bot+h*min(.8,max(.2,cw)))
         if (yy<min(edges)-150 or yy>max(edges)+150) and (yy<300 or yy>540):continue
-        Hs=region(Hh,yy).buffer(40);out.append(box(int(0.325*19000),-4000,int(0.9848*19000)+50,4000).difference(Hs))
+        Hs=region(Hh,yy).buffer(40);out.append(box(int(0.473684*19000),-4000,int(0.9848*19000)+50,4000).difference(Hs))
     return unary_union(out) if out else Polygon()
 
 out=[]
