@@ -3604,9 +3604,13 @@ function trialTurrets(model,put,ranges){
   if(noModelFit(f)){
    const row=bulk.get(f.id),muzzles=(row?.muzzles||[]).slice(0,8).map(p=>Array.isArray(p)?p:p.p||p.point).filter(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)).map(p=>p.slice());if(row?.valid===false||!muzzles.length)continue;
    const d=C.fitSpec(f),spec=C.FITS[f.k],fr=C.fitFrameOf(f),volleyTT=Math.max(0,d.tt||0)+Math.max(0,d.ion||0);
+   // The group aims from its wall, as fleet combat measures it (Core trenchProfileMount): forward is the
+   // wall normal and the axis is the port's vertical, so the trench arc (±85° along the wall, ±20° across
+   // it) is applied to the same directions. The fit frame's forward is the ship's bow, not the gun line.
+   const wall=C.norm(f.n||fr.up),along=row.u||f.frameForward||C.norm(C.cross([0,1,0],wall)),across=row.v||C.norm(C.cross(wall,along));
    // One logical firing descriptor represents the group. Bounded muzzle
    // effects do not expand its counted barrels into thousands of models.
-   out.push({id:f.id,k:f.k,name:spec.short||spec.name,trenchAggregate:true,noModel:true,aggregateCount:row.count??f.aggregateCount,aggregateBarrels:d.barrels||1,volleyTT,mesh:null,broadsideBattery:true,muzzles,rowSpan:row.rowSpan,pivot:muzzles[0].slice(),axis:fr.up,fw:fr.fw,origin:muzzles[0].slice(),mount:fr.up,r:d.r,hm:0,embedded:true,fixed:true,casemate:true,barrels:muzzles.length,cycle:d.cycle||2.5,tt:volleyTT,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});continue;
+   out.push({id:f.id,k:f.k,name:spec.short||spec.name,trenchAggregate:true,noModel:true,aggregateCount:row.count??f.aggregateCount,aggregateBarrels:d.barrels||1,volleyTT,mesh:null,broadsideBattery:true,muzzles,rowSpan:row.rowSpan,pivot:muzzles[0].slice(),axis:across,fw:wall,origin:muzzles[0].slice(),mount:fr.up,r:d.r,hm:0,embedded:true,fixed:true,casemate:true,barrels:muzzles.length,cycle:d.cycle||2.5,tt:volleyTT,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});continue;
   }
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=Number.isInteger(geo.drawElevationIndexStart)?geo.drawElevationIndexStart:g?.indexStart;

@@ -37,3 +37,48 @@ test('only a verified pending semantic hit can omit its stable face ID for mirro
  assert.equal(mirror.request.hit.semanticPending,undefined,'ephemeral Gfx validation flags are not persisted');
  for(const respond of [hit=>{const raw={...hit};delete raw.hostSurfaceId;return [raw];},hit=>[{...hit,semanticPending:true,hostSurfaceId:''}],hit=>[{...hit,semanticPending:true,hostSurfaceId:undefined,parentStructureId:99}]])assert.throws(()=>setup({...input,respond}).rows(),/対称側の取付面を確認できません/);
 });
+
+test('a mirror onto a separately placed (untwinned) parent goes on the structure that carries the reflected surface',()=>{
+ // Two independent structures, one on each side, with no tw link: the mirrored fitting must land on #5, not fail on #1.
+ const ship=C.newShip({L:100,W:60,H:40,assembly:true},'Separate parents');ship.parts=[{id:1,k:'struct',c:[50,10,10],s:[20,20,10]},{id:5,k:'struct',c:[50,10,-10],s:[20,20,10]}];
+ const input=fitRequest([0,0,1],'stbd');input.request.parentStructureId=1;input.request.hostId=1;
+ const t=setup({...input,fixtureShip:ship});
+ const probe=(o,d,id)=>{const ideal=C.add(o,C.mul(d,.1)),normal=C.norm(C.mul(d,-1));return {p:ideal,n:normal,face:normal[2]>0?'stbd':'port',hostSurfaceId:'s'+id+':'+(normal[2]>0?'stbd':'port'),parentStructureId:id,part:{id}};};
+ t.context.Gfx={structureSurfaceCandidates:(s,o,d,id)=>{const side=o[2]>0?1:5;return id===side?[probe(o,d,id)]:[];},placementSurfaceCandidates:(s,o,d)=>[probe(o,d,o[2]>0?1:5)]};
+ const rows=t.rows(),mirror=rows[1];
+ assert.equal(rows.length,2);assert.equal(mirror.request.parentStructureId,5,'the mirrored mount uses the structure on the other side');assert.equal(mirror.request.hostId,5);
+ assert.ok(mirror.request.hit.p[2]<0,'the mirrored point is on the port side');
+});
+
+test('an untwinned parent with no structure at the reflected point still refuses the mirror',()=>{
+ const ship=C.newShip({L:100,W:60,H:40,assembly:true},'One-sided parent');ship.parts=[{id:1,k:'struct',c:[50,10,10],s:[20,20,10]}];
+ const input=fitRequest([0,0,1],'stbd');input.request.parentStructureId=1;input.request.hostId=1;
+ const t=setup({...input,fixtureShip:ship});t.context.Gfx={structureSurfaceCandidates:()=>[],placementSurfaceCandidates:()=>[]};
+ assert.throws(()=>t.rows(),/対称側の取付面を確認できません/);
+});
+
+for(const client of [false,true])test(`real Gfx (${client?'surveyed client':'core'} path): a mirror onto a separate structure on the other side adopts its real face`,()=>{
+ let ship=C.deserialize({format:'starship-yard',v:3,name:'Separate real parents',hull:{L:200,W:100,H:60,assembly:true},parts:[{id:1,k:'struct',form:'box',c:[100,20,25],s:[40,20,20]},{id:5,k:'struct',form:'box',c:[100,20,-25],s:[40,20,20]}],fits:[]});
+ if(client){ship._client=true;ship._geoProxy={surfaces:C.surfacePatches(ship,true)};}
+ const own=G.structureSurfaceCandidates(ship,[100,20,35.1],[0,0,-1],1,{maxDistance:.2})[0];assert.ok(own,'the source face exists on #1');
+ const part={id:-1,k:'pd',_fit:true,p:own.p.slice(),n:[0,0,1],tilt:[0,0,1],assetYaw:0},request={part,list:'fits',entityKind:'fit',mode:'direct',parentStructureId:1,hostId:1,hostSurfaceId:own.hostSurfaceId,hit:{p:own.p.slice(),n:[0,0,1],face:own.face}};
+ const t=setup({part,request,fixtureShip:ship,realGfx:true}),rows=t.rows(),mirror=rows[1];
+ assert.equal(mirror.request.parentStructureId,5);assert.equal(mirror.request.hostId,5);assert.equal(mirror.request.hit.face,'port');
+ assert.ok(/^p5:/.test(mirror.request.hostSurfaceId),'a real face ID on #5');vector(mirror.request.hit.p,[100,20,-35]);
+});
+
+test('an untwinned parent whose reflected point lies on a structure with the wrong facing still refuses',()=>{
+ // #5 is rotated so the reflected probe meets a face pointing the other way: the strict normal check refuses it.
+ let ship=C.deserialize({format:'starship-yard',v:3,name:'Wrong facing',hull:{L:200,W:100,H:60,assembly:true},parts:[{id:1,k:'struct',form:'box',c:[100,20,25],s:[40,20,20]},{id:5,k:'struct',form:'box',c:[100,20,-35.05],s:[40,20,0.1]}],fits:[]});
+ const own=G.structureSurfaceCandidates(ship,[100,20,35.1],[0,0,-1],1,{maxDistance:.2})[0];
+ const part={id:-1,k:'pd',_fit:true,p:own.p.slice(),n:[0,0,1],tilt:[0,0,1],assetYaw:0},request={part,list:'fits',entityKind:'fit',mode:'direct',parentStructureId:1,hostId:1,hostSurfaceId:own.hostSurfaceId,hit:{p:own.p.slice(),n:[0,0,1],face:own.face}};
+ const t=setup({part,request,fixtureShip:ship,realGfx:true});let rows=null,error=null;try{rows=t.rows();}catch(e){error=e;}
+ if(rows)assert.ok(rows[1].request.parentStructureId===5&&C.dot(rows[1].request.hit.n,[0,0,-1])>0,'only an outward port face on #5 can be adopted');else assert.match(error.message,/対称側の取付面を確認できません/);
+});
+
+test('a pinned host that differs from the parent is never retargeted',()=>{
+ const ship=C.newShip({L:100,W:60,H:40,assembly:true},'Pinned host');ship.parts=[{id:1,k:'struct',c:[50,10,10],s:[20,20,10]},{id:5,k:'struct',c:[50,10,-10],s:[20,20,10]}];
+ const input=fitRequest([0,0,1],'stbd');input.request.parentStructureId=1;input.request.hostId=7;
+ const t=setup({...input,fixtureShip:ship});t.context.Gfx={structureSurfaceCandidates:()=>[],placementSurfaceCandidates:(s,o,d)=>[{p:C.add(o,C.mul(d,.1)),n:C.mul(d,-1),face:'port',hostSurfaceId:'p5:port',parentStructureId:5,part:{id:5}}]};
+ assert.throws(()=>t.rows(),/対称側の取付面を確認できません/);
+});

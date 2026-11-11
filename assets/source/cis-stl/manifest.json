@@ -1,0 +1,49 @@
+{
+ "note": "ユーザー提供の原本。ゲームには三角形を入れず、寸法の測定と照合だけに使う。以前の測定に使ったファイルのハッシュは記録がないため、同一ファイルかは未確認（寸法の外接箱は作例と 1% 以内で一致）。",
+ "files": {
+  "Recusant.stl": {
+   "file": "assets/source/cis-stl/Recusant.stl.gz",
+   "source_sha256": "63c28bfa515c465a63fda41cfbc522276304ae5faf8b89cfe90608dc9e726d8f",
+   "source_bytes": 291134,
+   "gzip_sha256": "ae332796bcc4fe819e6d3d431312ecfb881dc5644640a4e156c12b774ce95af1",
+   "format": "binary STL",
+   "received": "2026-11-10（ユーザーがセッションに添付）",
+   "author_license": "記載なし",
+   "examples": [
+    "recusant",
+    "recusantDn"
+   ],
+   "frame": "ゲーム x = STL y（艦尾 0）、y = STL z − 最低点、z = STL x − 中心；縮尺は全長 1,187 m（3.2721 m/単位）。反転なし",
+   "script": "scripts/stl-measure/rec_fit2.py"
+  },
+  "CIS_Munificent_D.stl": {
+   "file": "assets/source/cis-stl/CIS_Munificent_D.stl.gz",
+   "source_sha256": "2e56f66a02697db0b4a6b044c6dfb7055b46fb16c627fe7806d18b980367a1f3",
+   "source_bytes": 1489257,
+   "gzip_sha256": "a3c7b8626a231e38196c6af875efdf91b2085c61684ce81cfc2128da96b3f497",
+   "format": "ASCII STL",
+   "received": "2026-11-10（ユーザーがセッションに添付）",
+   "author_license": "記載なし",
+   "examples": [
+    "munificent"
+   ],
+   "frame": "ゲーム x = −STL y（艦首が STL の −y 側）、y = STL z、z = STL x；縮尺は全長 825 m（4.4126 m/単位）。作例側で z をさらに 1.061 倍（munificentBuild の SZ）",
+   "script": "（測定スクリプトはリポジトリにない。buildMeasuredSolids の入力 MUNI が測定値）"
+  },
+  "Lucre_Combined_HD.stl": {
+   "file": "assets/source/cis-stl/Lucre_Combined_HD.stl.gz",
+   "source_sha256": "75c286e6d727a5c5d2de924622d481c7b8f2993285eed206d93c42885f89b1df",
+   "source_bytes": 3238534,
+   "gzip_sha256": "ec4b1f0153ec019c786d879a5c9c2a9971e0c4ce69c6e5c79c648404b6d26389",
+   "format": "binary STL",
+   "received": "2026-11-10（ユーザーがセッションに添付）",
+   "author_license": "記載なし",
+   "examples": [
+    "lucrehulk",
+    "lh3210"
+   ],
+   "frame": "ゲーム x = STL y、y = STL z、z = STL x；縮尺は全長 3,170 m（10.39 m/単位）。原点は中心球の中心を (R, 413, 0) に置く（luc_fit.py）",
+   "script": "scripts/stl-measure/luc_fit.py"
+  }
+ }
+}

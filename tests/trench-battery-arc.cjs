@@ -7,5 +7,6 @@ test('the trench arc is ±85° by ±20°',()=>{assert.equal(C.TRENCH_BATTERY_ARC
 test('fleet combat and the trial give trench batteries the wider arc and keep ±65° for other broadside batteries',()=>{
  assert.match(src,/surfaceBatteryInArc\(\{normal:m\.normal\|\|m\.dir,v:m\.v\},dir,m\.trenchArc\?TRENCH_BATTERY_ARC\.yawDeg:65\)/);
  assert.match(src,/trenchAggregate:false,trenchArc:true,muzzle:points\[i\]/);
- assert.match(app,/:t\.trenchAggregate\?\{yaw:\(C\.TRENCH_BATTERY_ARC\?\.yawDeg\?\?65\)\*Math\.PI\/180/);
+ // The trench branch is tested before the generic embedded/fixed lock (a trench group is flagged fixed).
+ assert.match(app,/const trialLimits=t=>t\.trenchAggregate&&!t\.pilot\?\{yaw:\(C\.TRENCH_BATTERY_ARC\?\.yawDeg\?\?65\)\*Math\.PI\/180/);
 });

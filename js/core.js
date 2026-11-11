@@ -50795,6 +50795,9 @@ function baseComputeStats(ship,options={}) {
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol, engineSupportVolume:nozzleFoundations.reduce((n,e)=>n+e.volume,0),engineSupportMass:nozzleFoundations.reduce((n,e)=>n+e.volume*.3,0),
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp, reactorVolumes, reactantEfficiency:reactantBurnEfficiency(reactorVolumes),
+    // Reactors left out of the output because their interior placement is invalid (traced in the warnings).
+    // Present only when some reactor is excluded, so the figures of an ordinary ship are unchanged.
+    ...(occupied.some(p=>invalid.has(p.id)&&isReactor(p))?{invalidReactorIds:occupied.filter(p=>invalid.has(p.id)&&isReactor(p)).map(p=>p.id)}:{}),
   };
   S.cls = classify(S);
   S.warnings = warnings(S);
@@ -50818,7 +50821,7 @@ function classify(S) {
 }
 function warnings(S) {
   const w = [], add2 = (lv, text) => w.push({lv, text});
-  if (S.Vgen <= 0) add2('bad', 'ジェネレーターがありません。出力ゼロでは何も動きません。');
+  if (S.Vgen <= 0) add2('bad', S.invalidReactorIds?.length ? '反応炉 '+S.invalidReactorIds.map(id=>'#'+id).join('、')+' は配置が無効（船内に収まらない、または他の設備と重なる）なため出力に数えていません。配置の問題を解消してください。出力ゼロでは何も動きません。' : 'ジェネレーターがありません。出力ゼロでは何も動きません。');
   if (S.engN === 0) add2('bad', 'エンジンがありません。');
   else if (S.ventEng <= 0) add2('bad', 'どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。');
   else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
@@ -53466,7 +53469,14 @@ function solveInteriorPlacementRaw(ship,part,request={}){
  const finish=effectiveVolume=>{const hatchFailure=interiorHatchConstraint(ship,p);return hatchFailure?fail(hatchFailure.code,hatchFailure.error):{ok:true,part:p,requestedVolume:target,effectiveVolume};};
  if(mode==='direct'){
   const curved=!p.room&&['sphere','cyl','engine'].includes(PARTS[p.k]?.shape),contained=fullyInside||curved&&available>=sourceVolume*(1-PLACEMENT_TOLERANCES.volumeRelative);
-  if(!contained||!region.contains(p.c)||hostBoundaryCrossing||near.some(q=>overlapParts(p,q)||interiorCurvedConflict(p,q)||interiorAnalyticBoundaryCrosses(p,interiorRawMesh(q))))return fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています');
+  const clashes=near.filter(q=>overlapParts(p,q)||interiorCurvedConflict(p,q)||interiorAnalyticBoundaryCrosses(p,interiorRawMesh(q)));
+  if(!contained||!region.contains(p.c)||hostBoundaryCrossing||clashes.length){
+   // One code as before; the reason says which test failed and which parts take part, so a refused
+   // placement can be traced (outside the host, across its surface, or against other equipment).
+   const retained=sourceVolume>0?available/sourceVolume:0,label=q=>(q.label||PARTS[q.k]?.name||q.k)+' #'+q.id,reason=!region.contains(p.c)?'center-outside':hostBoundaryCrossing?'host-boundary':clashes.length?'equipment-overlap':'host-outside';
+   const text={'center-outside':'中心が配置先の外にあります','host-boundary':'配置先の外面をまたいでいます','equipment-overlap':'他の設備と干渉しています（'+clashes.slice(0,4).map(label).join('、')+(clashes.length>4?' ほか'+(clashes.length-4)+'件':'')+'）','host-outside':'実寸の'+Math.max(0,Math.round((1-retained)*1000)/10)+'%が配置先からはみ出しています'}[reason];
+   return {...fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています：'+text+'（配置先 '+(hostId==='hull'?'船体':'#'+hostId)+'）'),detail:{reason,hostId,partIds:clashes.map(q=>q.id),retained,centerInside:!!region.contains(p.c),hostBoundaryCrossing:!!hostBoundaryCrossing}};
+  }
   return finish(target);
  }
  if(!capability.deformable)return fail('fixed-shape','この機器は切り取り・変形できません');
@@ -55870,7 +55880,12 @@ function measuredHullBody(s,hp,t0,t1,label,paint){
 }
 function buildMeasuredSolids(s,k,parts,{L,scale=1,paint,roundPaint,prefix='',nextId=null,slabs=null}={}){const made=[],resume=nextId??s.nextId;s.nextId=Math.max(s.nextId,MEASURED_SOLID_ID,...s.parts.map(p=>p.id+1));// Saved lofts need stations at least 0.2% of the length apart: thin the
 // measured rows (keeping both ends) a little more than that.
-const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),out=[rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(rows.at(-1));return out;};
+// The rows dropped next to an end are merged into that end's row: a measured end face is
+// often a little oblique, so the very last section only grazes it (a sliver of the face) and
+// keeping that sliver alone loses the solid's end section (and the contact made there). Only the
+// end row and the innermost merged row are combined, so a ridge measured between them is not
+// stretched over the lofted span to the next kept row.
+const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),env=(sel,x)=>[x,Math.min(...sel.map(r=>r[1])),Math.max(...sel.map(r=>r[2])),Math.min(...sel.map(r=>r[3])),Math.max(...sel.map(r=>r[4]))],head=rows.filter(r=>r[0]-x0<gap),tail=rows.filter(r=>x1-r[0]<gap&&r[0]-x0>=gap),out=[head.length>1?env([head[0],head.at(-1)],x0):rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(tail.length>1?env([tail[0],tail.at(-1)],x1):rows.at(-1));return out;};
 parts.forEach((c,i)=>{const rows=fairRows(scale===1?c.rows:c.rows.map(r=>r.map(v=>v*scale)));made.push(k.loftX(measuredSolidLabel(c,L,prefix)+' '+(i+1),rows,{paint:c.round?roundPaint||paint:paint,corner:c.round?.3:.1,round:!!c.round},!!c.mirror));});for(const q of slabs||[]){const pts=scale===1?q.pts:q.pts.map(p=>p.map(v=>v*scale));made.push(k.slab(q.label||measuredSolidLabel({rows:[[pts[0][0]],[pts.at(-1)[0]]]},L,prefix),pts,q.y0*scale,q.y1*scale,{paint:q.paint||paint,...(q.light?{light:true}:{})}));}s.nextId=resume;return made;}
 function shipKit(s,settings={}){
  const put=(label,c,size,opt={},mirror=false)=>placePart(s,'struct',c,size,{label,skin:'armor',...opt},!!mirror);
@@ -62832,10 +62847,18 @@ function placementExtendedContactSolid(body,base,selected,axes,eps,cutOnly=false
   for(let id=0;id<vertices.length;id++){if(id===edge.a||id===edge.b)continue;const p=vertices[id],t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/dd;if(t>0&&t<1&&Math.hypot(p[0]-a[0]-dx*t,p[1]-a[1]-dy*t)<=tolerance)cuts.push({id,t});}
   cuts.sort((p,q)=>p.t-q.t);for(let i=0;i+1<cuts.length;i++){const A=cuts[i].id,B=cuts[i+1].id;if(A===B)continue;const key=Math.min(A,B)+':'+Math.max(A,B),record={a:A,b:B,cell:edge.cell};if(!segments.has(key))segments.set(key,[]);segments.get(key).push(record);}
  }
- for(const rows of segments.values()){
+ for(let rows of segments.values()){
   // Opposite incidences on the same actual plane have no side wall. A
   // vanishing cell split can contribute several such pairs after welding.
-  if(rows.length>2){const first=rows[0],a=vertices[first.a],b=vertices[first.b];if(rows.every(row=>Math.abs(row.cell.height(a)-first.cell.height(a))<=tolerance&&Math.abs(row.cell.height(b)-first.cell.height(b))<=tolerance)&&rows.reduce((sum,row)=>sum+(row.a===first.a?1:-1),0)===0)continue;}
+  // Each such pair is an interior seam and is removed on its own; whatever
+  // remains (a real boundary, or a step between two heights) is then
+  // handled as an ordinary one- or two-sided edge. Rows that do not pair
+  // off still fail below, and the finished solid is checked for closure
+  // (placementConformingSolid, called by fitPlacementContact). A pair must
+  // also share its roof (trimmed columns), so a roof step keeps its wall.
+  if(rows.length>2){const a=vertices[rows[0].a],b=vertices[rows[0].b],level=(r,x)=>r.cell.height(x),roof=(r,x)=>r.cell.roof?r.cell.roof(x):null,close=(x,y)=>x===null||y===null?x===y:Math.abs(x-y)<=tolerance,same=(p,q)=>[a,b].every(x=>close(level(p,x),level(q,x))&&close(roof(p,x),roof(q,x)));rows=rows.slice();
+   for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++)if(rows[i].a===rows[j].b&&same(rows[i],rows[j])){rows.splice(j,1);rows.splice(i,1);i=-1;break;}
+   if(!rows.length)continue;}
   if(rows.length>2)return placementFailure('contact-ambiguous','接触領域の境界が重なっています。対象面か接触範囲を選び直してください');
   let low=rows[0],upper=low.cell.base;
   if(rows.length===1&&low.cell.roof)upper=low.cell.roof;
@@ -63100,8 +63123,12 @@ function placementDraftStatus(ship){
  const pending=[],failed=[];for(const list of ['parts','fits'])for(const item of ship?.[list]||[]){const meta=item.placement;if(meta?.validationFailed)failed.push({list,id:item.id,code:meta.repairReason||'placement-failed'});else if(meta?.pendingGeometry)pending.push({list,id:item.id});}return {ok:!pending.length&&!failed.length,ready:!pending.length&&!failed.length,pending,failed};
 }
 function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport'])delete source[key];return surfaceHash([source]);}
+// The failure record names its code and the validated source key, so a reader can tell whether it still
+// describes the item's current failure (an Undo can restore an older state without re-validating it).
+function placementFailureRecord(item){const r=item?._placementFailure,m=item?.placement;return r&&m?.validationFailed&&r.code===m.repairReason&&r.sourceKey===m.validationSourceKey?r:null;}
 function placementPendingFailure(item,result){
  const meta=item.placement;delete meta.pendingGeometry;meta.validationFailed=true;meta.repairRequired=true;meta.repairReason=result.code||'calculation-failed';meta.validationSourceKey=placementPendingSourceKey(item);delete item._placementGeometry;delete item._clip;delete item._packing;delete item.engineMountSupport;delete item._engineMountSupportGeometry;
+ item._placementFailure={code:meta.repairReason,sourceKey:meta.validationSourceKey,error:result.error||'配置の検証に失敗しました',...(result.detail?{detail:result.detail}:{})};
  if(FITS[item.k]&&!PARTS[item.k]){item.float=true;item._fitPlacementError={code:meta.repairReason,error:result.error||'配置の検証に失敗しました'};}else{item._placementError=meta.repairReason;if(placementCapability(item).space==='interior')item._interiorPlacementError={code:meta.repairReason,error:result.error||'配置の検証に失敗しました'};meta.requestedGeometry=placementShape(item);}
 }
 function placementPendingSurface(ship,parent,point,normal,metadata){
@@ -63274,6 +63301,23 @@ function fitAttachmentWorldNormal(host,f){return norm(worldStruct({...host,c:[0,
 // Placement resolves one stable semantic face on the selected real host.
 // Exposure surveys belong to display/selection; rebuilding every unrelated
 // host here does not add a contact or interference check to the exact solver.
+// The patch of a parent at a point along a contact normal (used to carry surface references across a topology change).
+function placementSurfaceAt(ship,parent,point,normal){
+ if(!parent||!point||!normal)return null;const n=norm(normal);
+ for(const patch of surfacePatches(ship,true,false,new Set(['p'+parent.id]))){const epsilon=placementEpsilon(patch.triangles)*4,reach=epsilon*8,hit=rayTris(patch.triangles,add(point,mul(n,reach)),mul(n,-1),reach*2);if(hit&&len(sub(hit.p,point))<=epsilon*8&&dot(hit.n,n)>.98)return patch;}
+ return null;
+}
+// Converting a structure to an editable mesh renames its faces (a box's 'top' becomes a mesh patch). The face is not
+// lost: every child's and fitting's stored surface reference is carried to the patch now at its anchor, so the
+// conversion alone does not disconnect anything. A face that really disappears later is still a repair state.
+function convertStructToMesh(ship,part,mesh=null){
+ const m=mesh||structToMesh(part);if(!m)return false;
+ const refs=[...ship.parts,...ship.fits].filter(q=>q!==part&&q.placement?.hostSurfaceId&&(q.placement.parentStructureId===part.id||q.host===part.id)).map(q=>{const meta=q.placement,isFit=!!FITS[q.k]&&!PARTS[q.k];const point=isFit?q.p:placementAnchor(part,meta),normal=isFit?(q.n||AXES[q.a??2]):(meta.contactLocalNormal?placementWorldNormal(part,meta.contactLocalNormal):meta.contactNormal);return {q,point,normal};});
+ part.mesh=m;part.form='mesh';for(const k of ['taper','angles','outline','loft','deckSlope','ridge','corner','aftWidth','foreWidth','offsetX','offsetZ','arcInner','arcStart','arcSweep','shellCurve','shellThick','shellFlip','skinAsset'])delete part[k];
+ for(const k of Object.keys(part))if(k.startsWith('_')&&k!=='_solidCutShip')delete part[k];
+ for(const {q,point,normal} of refs){const patch=point&&normal?placementSurfaceAt(ship,part,point,normal):null;if(patch)q.placement.hostSurfaceId=patch.id;}
+ return true;
+}
 function placementSurfacePatch(ship,parentId,surfaceId){return surfacePatches(ship,true,false,new Set(['p'+parentId])).find(p=>p.id===surfaceId);}
 function fitAttachmentSurface(ship,host,point,normal,surfaceId){
  if(!host||!isShapePart(host)||host.plate)return placementFailure('parent-missing','取り付ける構造物が見つからないか、装甲外板です');
@@ -63290,9 +63334,9 @@ function fitAttachmentSurface(ship,host,point,normal,surfaceId){
  return placementFailure('surface-missing','指定した取付位置は追加元の実形状の面上にありません');
 }
 function fitAttachmentHit(ship,f){
- if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と追加元の接触が失われています'};return null;}
+ if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;delete f._placementFailure;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と追加元の接触が失われています'};return null;}
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),r=fitAttachmentSurface(ship,host,f.p,f.n||AXES[f.a],f.placement?.hostSurfaceId);
- if(!r.ok){f._fitPlacementError={code:r.code,error:r.error};return null;}delete f._fitPlacementError;return r.hit;
+ if(!r.ok){f._fitPlacementError={code:r.code,error:r.error};return null;}delete f._fitPlacementError;delete f._placementFailure;return r.hit;
 }
 function prepareFitAttachment(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
@@ -63387,14 +63431,14 @@ function rehostFitPlacement(ship,fit,parent){
  const contact=placementFitContact(ship,fit,parent);if(!contact.connected)return placementFailure('contact-zero','現在の装備の支持面は追加元と接触していません',{contact});
  const n=fit.n||fitUp(fit),forward=fit.frameForward||fitFrameOf({...fit,assetYaw:0,frameFlip:false}).fw,zero={...parent,c:[0,0,0]},localForward=localStruct(zero,forward),metadata={...(fit.placement||{}),modelVersion:PLACEMENT_MODEL_VERSION,mode:'direct',geometryRevision:(fit.placement?.geometryRevision||0)+1,parentGeometryRevision:parent.placement?.geometryRevision??parent.geometryRevision??0,parentGeometryKey:placementDependencyKey(parent),localUp:localStruct(zero,fitUp(fit)),supportAttachment:true,supportEligible:turretSupportEligible(fit)};
  delete metadata.hostId;delete metadata.parentStructureId;delete metadata.hostSurfaceId;
- fit.host=parent.id;fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,n);fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];fit.placement=metadata;fit.float=false;delete fit._fitPlacementError;
+ fit.host=parent.id;fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,n);fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];fit.placement=metadata;fit.float=false;delete fit._fitPlacementError;delete fit._placementFailure;
  return {ok:true,fit,contact};
 }
 function refreshFitPlacementAttachments(ship){
  const updated=[],failed=[],resolvedFits=[];for(const fit of ship.fits||[]){if(!isAnchoredFit(fit))continue;
   if(fit.placement.validationFailed){const parent=placementParent(ship,fit.host);if(fit.placement.validationSourceKey!==placementPendingSourceKey(fit)||parent&&fit.placement.parentGeometryKey!==placementDependencyKey(parent)){fit.placement.pendingGeometry=true;delete fit.placement.validationFailed;delete fit.placement.repairRequired;delete fit.placement.repairReason;}}
   if(fit.placement.pendingGeometry){const parent=placementParent(ship,fit.host),point=parent&&fit.local?fitAttachmentPoint(parent,fit):fit.p,normal=parent&&fit.localNormal?fitAttachmentWorldNormal(parent,fit):fit.n,surface=parent?._placementError||parent?.placement?.validationFailed?placementFailure('parent-unresolved','追加元の配置を修正してください'):parent?placementPendingSurface(ship,parent,point,normal,fit.placement):placementFailure('parent-missing','装備の追加元が失われています'),result=surface.ok?solveFitPlacement(ship,fit,{mode:'direct',entityKind:'fit',hostId:fit.host,hit:surface.hit,hostSurfaceId:surface.hostSurfaceId||fit.placement.hostSurfaceId,geometryRevision:fit.placement.geometryRevision},{isolatedSource:true}):surface;
-   if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
+   if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;delete fit._placementFailure;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
   }
   if(fit.placement.validationFailed){failed.push({fitId:fit.id,code:fit.placement.repairReason||'placement-failed'});continue;}
   mountFit(ship,fit);if(fit.float){failed.push({fitId:fit.id,code:fit._fitPlacementError?.code||'contact-zero'});continue;}const parent=ship.parts.find(p=>p.id===fit.host);fit.placement.parentGeometryRevision=parent.placement?.geometryRevision??parent.geometryRevision??0;fit.placement.parentGeometryKey=placementDependencyKey(parent);updated.push(fit.id);
@@ -63409,7 +63453,7 @@ function remapFitPlacementCopy(fit,mapping,options={}){
  const parent=options.targetParts?.find(p=>p.id===fit.host&&isShapePart(p));
  if(parent){const zero={...parent,c:[0,0,0]},forward=fit.frameForward||fitFrameOf({...fit,assetYaw:0,frameFlip:false}).fw,localForward=localStruct(zero,forward);fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,fit.n||fitUp(fit));fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];meta.localUp=localStruct(zero,fitUp(fit));meta.parentGeometryRevision=parent.placement?.geometryRevision??parent.geometryRevision??0;meta.parentGeometryKey=placementDependencyKey(parent);}
  else{delete meta.parentGeometryKey;delete meta.parentGeometryRevision;}
- delete meta.unresolvedHostId;delete meta.repairRequired;delete fit._fitPlacementError;return fit;
+ delete meta.unresolvedHostId;delete meta.repairRequired;delete fit._fitPlacementError;delete fit._placementFailure;return fit;
 }
 function normalizePlacementMetadata(value,part){
  if(FITS[part?.k]&&!PARTS[part?.k]||part?._fit)return normalizeFitPlacementMetadata(value,part);
@@ -66543,7 +66587,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};

@@ -5165,7 +5165,14 @@ function designUIRequests(part,request){
   r.hit.p=reflected(r.hit.p,axis);r.hit.n[i]*=-1;if(r.hit.u)r.hit.u[i]*=-1;if(r.hit.v)r.hit.v[i]*=-1;r.hit.face=faces[axis][r.hit.face]||r.hit.face;
   if(source.request.position)r.position=reflected(source.request.position,axis);
   if(fit){next.p=r.hit.p.slice();next.n=(next.n||source.request.hit.n).slice();next.n[i]*=-1;next.assetYaw=-(next.assetYaw||0);for(const key of ['frameForward','tilt'])if(Array.isArray(next[key])){next[key]=next[key].slice();next[key][i]*=-1;}if(axis==='y'){if(next.mountMode==='top')next.mountMode='bottom';else if(next.mountMode==='bottom')next.mountMode='top';}}
-  for(const field of ['parentStructureId','hostId']){const owner=designParent(r[field]);if(owner?.[link]!=null)r[field]=owner[link];}
+  const twinned=new Set();for(const field of ['parentStructureId','hostId']){const owner=designParent(r[field]);if(owner?.[link]!=null){r[field]=owner[link];twinned.add(field);}}
+  // A parent placed separately on each side (no mirror twin) has no link to follow: the mirrored mount
+  // goes on whichever structure actually carries the reflected surface, found with the same 20 cm probe.
+  if(r.parentStructureId!=null&&!twinned.has('parentStructureId')&&(r.hostId==null||r.hostId===r.parentStructureId)&&designParent(r.parentStructureId)){
+   const n=C.norm(r.hit.n),radius=.1,origin=C.add(r.hit.p,C.mul(n,radius)),own=Gfx.structureSurfaceCandidates?.(editorMountShip(),origin,C.mul(n,-1),r.parentStructureId,{maxDistance:radius*2})[0];
+   if(!own){const any=(Gfx.placementSurfaceCandidates?.(editorMountShip(),origin,C.mul(n,-1),{maxDistance:radius*2})||[]).find(h=>{const id=h?.parentStructureId??h?.part?.id;return id!=null&&id!=='hull'&&designParent(id);});
+    const id=any&&(any.parentStructureId??any.part?.id);if(id!=null){if(r.hostId===r.parentStructureId)r.hostId=id;r.parentStructureId=id;}}
+  }
   if(axis==='y'&&r.contactSide)r.contactSide=r.contactSide==='bottom'?'top':r.contactSide==='top'?'bottom':r.contactSide;
   if(axis==='z'&&r.contactSide)r.contactSide=r.contactSide==='port'?'stbd':r.contactSide==='stbd'?'port':r.contactSide;
   const parent=designParent(r.parentStructureId);r.parentGeometryRevision=parent?.placement?.geometryRevision||parent?.geometryRevision||0;
@@ -7563,7 +7570,7 @@ function renderInspBar(){
  if(!S&&!draft.pending.length&&!draft.failed.length){setHTML(bar,'<div class="ib-head"><b>点検</b><span class="ib-sum">計算中…</span></div>');return;}
  const W=(S?.warnings||[]).slice();
  if(draft.pending.length)W.push({lv:'info',code:'placement-background',text:T('配置した部品の形状・性能を計算しています。'),targets:draft.pending});
- for(const target of draft.failed){const item=ship[target.list]?.find(item=>item.id===target.id),name=item?target.list==='fits'?C.FITS[item.k]?.name:C.partLabel(item):'';W.push({lv:'bad',code:'placement-background-failed',text:(item?T(name)+' #'+item.id+'：':'')+T(item?._placementFailureMessage||'配置の計算で問題が見つかりました。位置や接続を修正してください。'),targets:[target]});}
+ for(const target of draft.failed){const item=ship[target.list]?.find(item=>item.id===target.id),name=item?target.list==='fits'?C.FITS[item.k]?.name:C.partLabel(item):'';W.push({lv:'bad',code:'placement-background-failed',text:(item?T(name)+' #'+item.id+'：':'')+T(C.placementFailureRecord?.(item)?.error||(item?.placement?.validationFailed?item?._placementFailureMessage:null)||'配置の計算で問題が見つかりました。位置や接続を修正してください。'),targets:[target]});}
  const rank={bad:0,warn:1,info:2};W.sort((a,b)=>(rank[a.lv]??3)-(rank[b.lv]??3));st.ibRows=W;
  const n={bad:0,warn:0,info:0};for(const w of W)n[w.lv]=(n[w.lv]||0)+1;
  const flagged=new Set();for(const w of W)if(w.lv!=='info')for(const t of w.targets||[])if(t.list==='parts'||t.list==='fits')flagged.add(t.list+t.id);
@@ -7980,7 +7987,8 @@ function trialTurretDrawParts(t){
  return [{mesh:t.bodyMesh,pivot:t.bodyPivot||t.authored.yawPivot,restPivot:t.authored.yawPivot,rot:t.bodyRot||t.rot},{mesh:t.mesh,pivot:t.pivot,restPivot:t.authored.elevationPivot,rot:t.rot}];
 }
 const trialBarrel=(t,yaw,el)=>{if(t.authored)return authoredTurretPose(t.authored,yaw,el,t._foilTransform).fw;const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
-const trialLimits=t=>t.pilot||t.embedded&&t.fixed?{yaw:0,lo:0,hi:0}:t.authored?{yaw:null,...(t.authored.limits||C.AUTHORED_TURRET_LIMITS)}:t.trenchAggregate?{yaw:(C.TRENCH_BATTERY_ARC?.yawDeg??65)*Math.PI/180,lo:-(C.TRENCH_BATTERY_ARC?.pitchDeg??20)*Math.PI/180,hi:(C.TRENCH_BATTERY_ARC?.pitchDeg??20)*Math.PI/180}:t.casemate||t.embedded&&C.FITS[t.k]?.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:t.embedded?{yaw:Math.PI/2,lo:-Math.PI/2,hi:Math.PI/2}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+// Trench groups are flagged embedded and fixed (no turret model), but they traverse the trench arc: test them first.
+const trialLimits=t=>t.trenchAggregate&&!t.pilot?{yaw:(C.TRENCH_BATTERY_ARC?.yawDeg??65)*Math.PI/180,lo:-(C.TRENCH_BATTERY_ARC?.pitchDeg??20)*Math.PI/180,hi:(C.TRENCH_BATTERY_ARC?.pitchDeg??20)*Math.PI/180}:t.pilot||t.embedded&&t.fixed?{yaw:0,lo:0,hi:0}:t.authored?{yaw:null,...(t.authored.limits||C.AUTHORED_TURRET_LIMITS)}:t.casemate||t.embedded&&C.FITS[t.k]?.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:t.embedded?{yaw:Math.PI/2,lo:-Math.PI/2,hi:Math.PI/2}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
  for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
@@ -10517,7 +10525,7 @@ function bindVertexEdit(){
   if(d.ve){veButton(d.ve);return;}
   if(d.venudge!=null){const a=+d.venudge,step=+st.ve.step||1;st.ve.d[a]=Math.round(((+st.ve.d[a]||0)+(+d.sign)*step)*1000)/1000;const inp=panel.querySelector(`[data-ved="${a}"]`);if(inp)inp.value=st.ve.d[a];return;}
   if('veopen'in d){const p=selItem();if(p&&C.isShapePart(p)&&p.form==='mesh'){veOpen({kind:'struct',id:p.id});renderPanel();}return;}
-  if('meshconvert'in d){const p=selItem();if(!p||!C.isShapePart(p))return;const baked=C.isAeroPart(p)?C.aeroBake(p):null,m=baked?.mesh||C.structToMesh(p);if(!m){toast('この形は頂点編集に変換できません');return;}mutate('頂点編集できる形に変換',()=>editSel(q=>{if(!C.isShapePart(q))return;const bake=q===p?baked:C.isAeroPart(q)?C.aeroBake(q):null,mm=bake?.mesh||(q===p?m:C.structToMesh(q));if(!mm)return;if(bake)Object.assign(q,bake);else{q.mesh=mm;q.form='mesh';}if(q.k==='solarPanel'){delete q.panelFold;delete q.panelKnee;}for(const k of ['taper','angles','outline','loft','deckSlope','ridge','corner','aftWidth','foreWidth','offsetX','offsetZ','arcInner','arcStart','arcSweep','shellCurve','shellThick','shellFlip','skinAsset'])delete q[k];}),'parts');veOpen({kind:'struct',id:p.id});renderPanel();return;}
+  if('meshconvert'in d){const p=selItem();if(!p||!C.isShapePart(p))return;const baked=C.isAeroPart(p)?C.aeroBake(p):null,m=baked?.mesh||C.structToMesh(p);if(!m){toast('この形は頂点編集に変換できません');return;}mutate('頂点編集できる形に変換',()=>editSel(q=>{if(!C.isShapePart(q))return;const bake=q===p?baked:C.isAeroPart(q)?C.aeroBake(q):null,mm=bake?.mesh||(q===p?m:C.structToMesh(q));if(!mm)return;if(bake)Object.assign(q,bake);else if(typeof C.convertStructToMesh==='function')C.convertStructToMesh(ship,q,mm);else{q.mesh=mm;q.form='mesh';}if(q.k==='solarPanel'){delete q.panelFold;delete q.panelKnee;}for(const k of ['taper','angles','outline','loft','deckSlope','ridge','corner','aftWidth','foreWidth','offsetX','offsetZ','arcInner','arcStart','arcSweep','shellCurve','shellThick','shellFlip','skinAsset'])delete q[k];}),'parts');veOpen({kind:'struct',id:p.id});renderPanel();return;}
   if('cutterpoly'in d){const q=ensureSolidCutter();Object.assign(st.solidCutter,C.solidCutToPoly(q));veOpen({kind:'cutter'});updateCutterDraft(true);return;}
   if('cutterveopen'in d){veOpen({kind:'cutter'});renderPanel();return;}
   if(d.cutpreset){cutPresetLoad(d.cutpreset);return;}
