@@ -63301,6 +63301,23 @@ function fitAttachmentWorldNormal(host,f){return norm(worldStruct({...host,c:[0,
 // Placement resolves one stable semantic face on the selected real host.
 // Exposure surveys belong to display/selection; rebuilding every unrelated
 // host here does not add a contact or interference check to the exact solver.
+// The patch of a parent at a point along a contact normal (used to carry surface references across a topology change).
+function placementSurfaceAt(ship,parent,point,normal){
+ if(!parent||!point||!normal)return null;const n=norm(normal);
+ for(const patch of surfacePatches(ship,true,false,new Set(['p'+parent.id]))){const epsilon=placementEpsilon(patch.triangles)*4,reach=epsilon*8,hit=rayTris(patch.triangles,add(point,mul(n,reach)),mul(n,-1),reach*2);if(hit&&len(sub(hit.p,point))<=epsilon*8&&dot(hit.n,n)>.98)return patch;}
+ return null;
+}
+// Converting a structure to an editable mesh renames its faces (a box's 'top' becomes a mesh patch). The face is not
+// lost: every child's and fitting's stored surface reference is carried to the patch now at its anchor, so the
+// conversion alone does not disconnect anything. A face that really disappears later is still a repair state.
+function convertStructToMesh(ship,part,mesh=null){
+ const m=mesh||structToMesh(part);if(!m)return false;
+ const refs=[...ship.parts,...ship.fits].filter(q=>q!==part&&q.placement?.hostSurfaceId&&(q.placement.parentStructureId===part.id||q.host===part.id)).map(q=>{const meta=q.placement,isFit=!!FITS[q.k]&&!PARTS[q.k];const point=isFit?q.p:placementAnchor(part,meta),normal=isFit?(q.n||AXES[q.a??2]):(meta.contactLocalNormal?placementWorldNormal(part,meta.contactLocalNormal):meta.contactNormal);return {q,point,normal};});
+ part.mesh=m;part.form='mesh';for(const k of ['taper','angles','outline','loft','deckSlope','ridge','corner','aftWidth','foreWidth','offsetX','offsetZ','arcInner','arcStart','arcSweep','shellCurve','shellThick','shellFlip','skinAsset'])delete part[k];
+ for(const k of Object.keys(part))if(k.startsWith('_')&&k!=='_solidCutShip')delete part[k];
+ for(const {q,point,normal} of refs){const patch=point&&normal?placementSurfaceAt(ship,part,point,normal):null;if(patch)q.placement.hostSurfaceId=patch.id;}
+ return true;
+}
 function placementSurfacePatch(ship,parentId,surfaceId){return surfacePatches(ship,true,false,new Set(['p'+parentId])).find(p=>p.id===surfaceId);}
 function fitAttachmentSurface(ship,host,point,normal,surfaceId){
  if(!host||!isShapePart(host)||host.plate)return placementFailure('parent-missing','取り付ける構造物が見つからないか、装甲外板です');
@@ -66570,7 +66587,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,placementFailureRecord,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
