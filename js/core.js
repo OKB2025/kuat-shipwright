@@ -62770,7 +62770,35 @@ function placementDifference(a,b){return placementConcat(structuralClipBoundary(
 function placementCCW(poly){return supportArea(poly)<0?poly.slice().reverse():poly;}
 function placementContact(ship,part,parent){
  if(!parent)return {connected:false,area:0,reason:'parent-missing',regions:[]};
- parent._solidCutShip=ship;part._solidCutShip=ship;return placementTriangleContact(placementTriangles(part),placementTriangles(parent));
+ parent._solidCutShip=ship;part._solidCutShip=ship;const A=placementTriangles(part),B=placementTriangles(parent),face=placementTriangleContact(A,B);if(face.connected)return face;
+ // Structures form one material envelope (user decision 2026-11-11): a body
+ // that really overlaps its parent is joined to it, in every placement mode.
+ // The shared volume is charged once by structuralMaterial and its buried
+ // faces are hidden by the exposed-surface clip, so nothing is added or moved.
+ // Only coplanar face contact or a positive shared volume connects; a real
+ // gap, a bare line or point touch, and a body buried wholly inside the
+ // parent (no material of its own outside) remain contact-zero.
+ const overlap=placementOverlapContact(A,B);return overlap.connected?{...face,...overlap}:{...face,overlapVolume:overlap.volume,overlapThickness:overlap.thickness,overlapBuried:overlap.buried,whollyInside:overlap.whollyInside,minimumVolume:overlap.minimumVolume,minimumThickness:overlap.minimumThickness};
+}
+// Shared volume of two closed solids: the part's boundary inside the parent
+// plus the parent's boundary inside the part, each with its own orientation.
+// Thresholds (docs/claude-verification.md, "Overlap contact"), with eps the
+// same distance tolerance placementTriangleContact uses to call faces coplanar:
+// - every extent of the shared region exceeds eps: a region thinner than that
+//   is what the face test already reads as a touch, never an overlap;
+// - the shared volume exceeds eps x the face test's minimum contact area;
+// - there is no burial limit (user decision 2026-11-11): a part 99.95% or
+//   wholly inside the parent is joined; groundingStats warns (lv 'warn',
+//   code 'buried') when less than 10% of a placed structure is exposed.
+function placementOverlapContact(A,B){
+ const a=solidMeshBounds(A),b=solidMeshBounds(B),eps=Math.max(placementEpsilon(A),placementEpsilon(B))*4,scale=Math.max(1,...[0,1,2].map(i=>a[i+3]-a[i])),minimumArea=Math.max(eps*eps,scale*scale*PLACEMENT_TOLERANCES.contactAreaRelative),minimum=eps*minimumArea,limits={minimumVolume:minimum,minimumThickness:eps};
+ if([0,1,2].some(i=>a[i+3]<=b[i]+eps||b[i+3]<=a[i]+eps))return {connected:false,volume:0,thickness:0,...limits};
+ // Faces shared with the same orientation bound the shared region once (kept from the parent side only).
+ const inner=placementConcat(structuralClipBoundary(A,B,false,false,true),structuralClipBoundary(B,A,true,false,true));if(!inner.length)return {connected:false,volume:0,thickness:0,...limits};
+ const volume=structuralMeshVolume(inner),own=structuralMeshVolume(A),c=solidMeshBounds(inner),thickness=Math.min(...[0,1,2].map(i=>c[i+3]-c[i])),buried=own>0?volume/own:1;
+ const outside=own-volume,whollyInside=!(outside>Math.max(minimum,own*1e-9));
+ const connected=Number.isFinite(volume)&&thickness>eps&&volume>minimum;
+ return {connected,volume,thickness,buried,whollyInside,...limits,reason:connected?null:'contact-zero',overlap:connected};
 }
 function placementTriangleContact(A,B){const eps=Math.max(placementEpsilon(A),placementEpsilon(B))*4,regions=[];let area=0;
  const triangleBounds=P=>[0,1,2].map(k=>Math.min(...P.map(p=>p[k]))).concat([0,1,2].map(k=>Math.max(...P.map(p=>p[k])))),overlap=(a,b)=>[0,1,2].every(k=>a[k]<=b[k+3]+eps&&a[k+3]>=b[k]-eps),bounds=solidMeshBounds(A),parentFaces=[];
@@ -63054,6 +63082,20 @@ function placementFitContactAlong(ship,part,parent,hit,n){
  // The same fitted solid serves drawing, ray picking, contact and material.
  const local=[];for(let i=0;i<body.length;i+=3)local.push(...localStruct(part,Array.from(body.slice(i,i+3))));const volume=meshVolume(local);if(!Number.isFinite(volume)||volume<=eps**3)return placementFailure('geometry-volume','成形後の有効容積がありません');part._placementGeometry={local:Float64Array.from(local),volume,area:solidMeshArea(body)};return {ok:true,part};
 }
+// One contact rule for every placement mode (user decision 2026-11-11): a
+// structure that really overlaps its parent is connected even where the
+// horizontal/vertical contact cut cannot be built (a steep or curved skin, a
+// parent piercing a thin plate, a sliver the column cut cannot close, a body
+// buried wholly in the parent). The requested body is then kept whole and
+// closed; the structural union charges the shared volume once and hides its
+// buried faces. A real gap keeps the cut's original failure.
+const PLACEMENT_OVERLAP_FALLBACK_CODES=new Set(['surface-missing','minimum-thickness','contact-shape','geometry-complex','geometry-volume']);
+function placementOverlapFallback(ship,part,parent,failure){
+ if(!PLACEMENT_OVERLAP_FALLBACK_CODES.has(failure?.code))return false;delete part._placementGeometry;
+ const checked=placementValidateSolid(part);if(!checked.ok)return false;const contact=placementContact(ship,part,parent);if(!contact.connected||!contact.overlap)return false;
+ const T=placementTriangles(part),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const volume=meshVolume(local);if(!Number.isFinite(volume)||volume<=0)return false;
+ part._placementGeometry={local:Float64Array.from(local),volume,area:solidMeshArea(T)};return true;
+}
 function placementGeometryTriangles(p){const g=p._placementGeometry;if(!g?.local)return null;const key=JSON.stringify([p.c,p.yaw,p.pitch,p.roll,p.surfaceNormal]);if(g.key===key)return g.tris;const T=new Float64Array(g.local.length);for(let i=0;i<T.length;i+=3)T.set(worldStruct(p,Array.from(g.local.slice(i,i+3))),i);g.key=key;return g.tris=T;}
 function placementGeometryContains(p,q){const T=placementGeometryTriangles(p),b=solidMeshBounds(T);if(q.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;let o=q.slice(),hits=0;const d=norm([.937426,.202719,.283022]);for(let i=0;i<128;i++){const h=rayTris(T,o,d);if(!h)break;hits++;o=add(h.p,mul(d,1e-5));}return hits%2===1;}
 function placementRigidVector(parent,v){return worldStruct({...parent,c:[0,0,0]},v);}
@@ -63258,7 +63300,7 @@ function solvePlacement(ship,input,request={}){
  const surfaceId=request.hostSurfaceId??old.hostSurfaceId,surfacePatch=surfaceId?placementSurfacePatch(ship,parentId,surfaceId):null;
  if(surfaceId&&!surfacePatch)return placementFailure('surface-missing','追加元の面が失われています。面を選び直して再接続してください');
  if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return placementFailure('parent-stale','追加元の形状が更新されています。再検証してください');
- let anchor=request.hit?.p||placementAnchor(parent,old),normal=request.hit?.n||(old.contactLocalNormal?placementWorldNormal(parent,old.contactLocalNormal):old.contactNormal);
+ const savedAnchor=request.hit?null:placementAnchor(parent,old);let anchor=request.hit?.p||savedAnchor,normal=request.hit?.n||(old.contactLocalNormal?placementWorldNormal(parent,old.contactLocalNormal):old.contactNormal);
  // A vertex edit can move the selected skin away from its previous local
  // point. Reproject onto that exact stable face only; a removed face or a
  // hole remains a repair target, never a nearby replacement surface.
@@ -63277,7 +63319,18 @@ function solvePlacement(ship,input,request={}){
  // embedding. Resizing or cold restoration must not seat its origin anew.
  // New catalogue hits and changed parent/mount contracts still align normally.
  const storedLegacyPose=mode!=='surface'&&contactFit==='legacy-fit'&&(old.contactFit==null||old.contactFit==='legacy-fit')&&old.mode===mode&&old.parentStructureId===parentId&&old.contactSide===contactSide&&old.hostSurfaceId===surfaceId&&!request.hit&&request.position==null&&old.parentGeometryKey===placementDependencyKey(parent)&&old.requestedGeometry&&placementShapeKey(part)===placementShapeKey(old.requestedGeometry);
- if(!request.keepTransform&&!storedLegacyPose){if(mode==='surface')part=alignStructure(part,hit,'surface');else{delete part.surfaceNormal;part.pitch=0;part.roll=mode==='horizontal'&&contactSide==='top'&&Math.abs(Math.abs(part.roll||0)-180)<1e-6?180:0;if(mode==='vertical'){const n=norm([normal[0],0,normal[2]]),local={fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]}[contactSide];part.yaw=(Math.atan2(-n[2],-n[0])-Math.atan2(local[2],local[0]))*180/Math.PI;}
+ // A stored surface pose may now be sunk into its parent (an overlap is a
+ // contact). Re-solving it without a new tap keeps the saved relation to its
+ // contact point (save/reload) instead of re-seating it on the
+ // tangent plane. A skin that moved under the anchor (a vertex edit), a new
+ // tap or another mode still re-seats as before.
+ const storedSurfacePose=mode==='surface'&&!request.hit&&request.position==null&&old.mode==='surface'&&old.parentStructureId===parentId&&old.parentLocalAnchor&&old.surfaceAnchor&&part.surfaceNormal&&savedAnchor&&(()=>{const tolerance=Math.max(PLACEMENT_TOLERANCES.coordinate,len(parent.s||[1,1,1])*PLACEMENT_TOLERANCES.relativeCoordinate)*8;if(len(sub(hit.p,savedAnchor))>tolerance)return false;
+  // The saved parent-local pose must still describe the request exactly (unchanged since the last solve: a
+  // reload or a re-check). A request edited in place (a height resize at the contact) or a moved/rotated
+  // parent re-seats on the skin as before.
+  return Array.isArray(old.requestedGeometry?.c)&&len(sub(worldStruct(parent,old.parentLocalAnchor),old.requestedGeometry.c))<=tolerance;})();
+ if(storedSurfacePose&&!request.keepTransform)part.c=add(hit.p,placementRigidVector(parent,sub(old.parentLocalAnchor,old.surfaceAnchor)));
+ if(!request.keepTransform&&!storedLegacyPose&&!storedSurfacePose){if(mode==='surface')part=alignStructure(part,hit,'surface');else{delete part.surfaceNormal;part.pitch=0;part.roll=mode==='horizontal'&&contactSide==='top'&&Math.abs(Math.abs(part.roll||0)-180)<1e-6?180:0;if(mode==='vertical'){const n=norm([normal[0],0,normal[2]]),local={fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]}[contactSide];part.yaw=(Math.atan2(-n[2],-n[0])-Math.atan2(local[2],local[0]))*180/Math.PI;}
    const axis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);
    if(contactFit==='legacy-fit'){const T=structTriangles({...part,c:[0,0,0]});let low=Infinity;for(let i=0;i<T.length;i+=3)low=Math.min(low,dot(Array.from(T.slice(i,i+3)),axis));part.c=add(hit.p,mul(axis,-low));}
    else if(!request.hit&&!request.position&&old.contactFit==='cut'&&old.contactOffset&&old.parentGeometryKey!==placementDependencyKey(parent)){let offset=old.contactOffset.slice();if(mode==='vertical'&&old.contactAxis){const a=Math.atan2(axis[2],axis[0])-Math.atan2(old.contactAxis[2],old.contactAxis[0]),c=Math.cos(a),s=Math.sin(a);offset=[offset[0]*c-offset[2]*s,offset[1],offset[0]*s+offset[2]*c];}part.c=add(hit.p,offset);}
@@ -63285,7 +63338,7 @@ function solvePlacement(ship,input,request={}){
  const constrained=mode!=='surface'&&contactFit==='cut'?placementConstrainTranslation(ship,part,parent,hit,mode,contactSide,old,request):null;if(constrained)return constrained;
  if(mode==='surface'){delete metadata.contactFit;delete metadata.contactOffset;delete metadata.contactAxis;}else{metadata.contactFit=contactFit;if(contactFit==='cut'){metadata.contactOffset=sub(part.c,hit.p);metadata.contactAxis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);}}
  metadata.requestedGeometry=placementShape(part);metadata.parentStructureId=parentId;metadata.parentGeometryRevision=parent.placement?.geometryRevision??0;metadata.parentGeometryKey=placementDependencyKey(parent);metadata.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)metadata.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];delete metadata.unresolvedParentId;delete metadata.root;delete metadata.repairRequired;delete metadata.repairReason;metadata.contactNormal=hit.n.slice();metadata.contactLocalNormal=placementLocalNormal(parent,hit.n);metadata.contactSide=contactSide;if(surfaceId)metadata.hostSurfaceId=surfaceId;metadata.surfaceAnchor=localStruct(parent,hit.p);
- part.placement=metadata;if(mode!=='surface'){const r=fitPlacementContact(ship,part,parent,hit,mode,contactSide);if(!r.ok)return r;}else{const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
+ part.placement=metadata;if(mode!=='surface'){const r=fitPlacementContact(ship,part,parent,hit,mode,contactSide);if(!r.ok){const joined=contactFit==='cut'&&placementOverlapFallback(ship,part,parent,r);if(!joined)return r;}}else{const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact});
  // Interior equipment lies inside the hull and its structures (user decision 2026-11-11): a structure
  // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.
@@ -63319,7 +63372,12 @@ function refreshPlacementGeometry(ship,options={}){
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    const pk=placementDependencyKey(parent),sk=placementShapeKey(p),cold=!p._placementSelfKey,parentChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
    if(meta.materializedAttachment){if(parentChanged&&!selfChanged)placementApplyEquipmentPose(parent,p,meta,placementAnchor(parent,meta));placementRestoreMaterialized(p);const contact=placementContact(ship,p,parent);if(contact.connected){delete p._placementError;meta.parentGeometryRevision=parent.placement?.geometryRevision||0;meta.parentGeometryKey=pk;meta.requestedGeometry=placementShape(p);if(parentChanged||cold||selfChanged)updated.push(p.id);}else{p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});}}
-   else if(meta.repairRequired){if(parentChanged&&!selfChanged&&meta.parentLocalAnchor){p.c=worldStruct(parent,meta.parentLocalAnchor);meta.requestedGeometry.c=p.c.slice();}p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}else if(cold||structure&&!p._placementGeometry&&meta.mode!=='surface'||parentChanged||selfChanged||requestChanged){let input={...placementShape(p),placement:meta};const request={...meta,keepTransform:!cold&&!requestChanged&&(!parentChanged||selfChanged),geometryRevision:(meta.geometryRevision||0)+(parentChanged||selfChanged||requestChanged?1:0),parentGeometryRevision:parent.placement?.geometryRevision||0};
+   else if(meta.repairRequired&&!(structure&&cold)){if(parentChanged&&!selfChanged&&meta.parentLocalAnchor){p.c=worldStruct(parent,meta.parentLocalAnchor);meta.requestedGeometry.c=p.c.slice();}p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}
+   // A loaded structure repair is checked once against the current contact rule
+   // (overlap is contact, 2026-11-11) from its saved pose, exactly as saved: the
+   // parent has not moved since the save. It recovers only if that pose is
+   // really connected; otherwise the saved repair state is kept unchanged.
+   else if(meta.repairRequired){const input={...placementShape(p),placement:meta},request={...meta,keepTransform:true,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};for(const key of ['contactFit','contactOffset','contactAxis'])if(meta.mode==='surface')delete request[key];const r=solvePlacement(ship,input,request);if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;updated.push(p.id);}else{p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}}else if(cold||structure&&!p._placementGeometry&&meta.mode!=='surface'||parentChanged||selfChanged||requestChanged){let input={...placementShape(p),placement:meta};const request={...meta,keepTransform:!cold&&!requestChanged&&(!parentChanged||selfChanged),geometryRevision:(meta.geometryRevision||0)+(parentChanged||selfChanged||requestChanged?1:0),parentGeometryRevision:parent.placement?.geometryRevision||0};
     if(structure&&meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
     if((parentChanged||requestChanged)&&!selfChanged)input={...placementShape(meta.requestedGeometry),id:p.id,placement:meta};
     if(structure&&meta.mode==='surface'){input.placement={...meta};for(const key of ['contactFit','contactOffset','contactAxis'])delete input.placement[key];}
@@ -63576,7 +63634,24 @@ function normalizePlacementMetadata(value,part){
 function alignStructure(p,hit,mode='horizontal'){
  if(!isShapePart(p))return p;const q={...p,c:[0,0,0]};if(mode==='surface'&&hit.kind!=='section')q.surfaceNormal=norm(hit.n);else delete q.surfaceNormal;
  if(hit.kind==='section'){q.c=hit.p.slice();return q;}
- const n=norm(hit.n),T=structTriangles(q);let low=Infinity;for(let i=0;i<T.length;i+=3)low=Math.min(low,T[i]*n[0]+T[i+1]*n[1]+T[i+2]*n[2]);q.c=add(hit.p,mul(n,Number.isFinite(low)?-low:0));return q;
+ const n=norm(hit.n),T=structTriangles(q);let low=Infinity;for(let i=0;i<T.length;i+=3)low=Math.min(low,T[i]*n[0]+T[i+1]*n[1]+T[i+2]*n[2]);
+ if(mode==='surface'&&Number.isFinite(low)){const seat=alignSurfaceContactSeat(T,n);if(seat!=null&&seat>low)low=seat;}
+ q.c=add(hit.p,mul(n,Number.isFinite(low)?-low:0));return q;
+}
+// Surface mode seats the body's contact face on the tapped skin (user report
+// 2026-11-11). A face square to the normal rests flat as before. A face tilted
+// slightly (a plate rolled 92 degrees, within 15 degrees of facing the skin)
+// would otherwise balance on one edge: a line touch that is never a contact.
+// The whole face is laid at or below the tangent plane instead, so it conforms
+// to the skin; the shared material is charged once by the structural union
+// and its buried faces are hidden. Steeper poses keep the lowest-point seat.
+// Returns the height (along n, from the body origin) put on the tangent plane.
+function alignSurfaceContactSeat(T,n){
+ const limit=-Math.cos(15*Math.PI/180);let best=null;
+ for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>[T[i+j],T[i+j+1],T[i+j+2]]),raw=cross(sub(P[1],P[0]),sub(P[2],P[0])),area=len(raw);if(area<1e-12)continue;const d=dot(raw,n)/area;if(d<=limit&&(!best||d<best.d-1e-9))best={d,normal:mul(raw,1/area),point:P[0]};}
+ if(!best||best.d<-1+1e-9)return null;
+ let high=-Infinity;for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>[T[i+j],T[i+j+1],T[i+j+2]]),raw=cross(sub(P[1],P[0]),sub(P[2],P[0])),area=len(raw);if(area<1e-12||dot(raw,best.normal)/area<1-1e-9)continue;if(P.some(p=>Math.abs(dot(sub(p,best.point),best.normal))>1e-6*Math.max(1,len(p))))continue;for(const p of P)high=Math.max(high,dot(p,n));}
+ return Number.isFinite(high)?high:null;
 }
 
 // Remove a trapezoid in plan view from an otherwise unchanged wedge section.
@@ -64268,7 +64343,17 @@ function groundingStats(ship,S){
  if(loose.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない部品が ${loose.length} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。`});
  if(looseFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない構造物の上に取り付けた装備が ${looseFits.length} 基あります。`});
  if(floatingFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`どこにも取り付いていない（浮いている）装備が ${floatingFits.length} 基あります。船体・構造物・区画の表面に取り付けてください。`});
+ const buried=buriedStructures(ship);S.buried=buried;if(buried.length)S.warnings.push({lv:'warn',code:'buried',text:`船体・構造物にほぼ埋まっている構造物が ${buried.length} 個あります。外に出ている部分は体積の${Math.round(BURIED_EXPOSED_RATIO*100)}%未満です。`,targets:buried.map(id=>({list:'parts',id}))});
  return S;
+}
+// Buried structures are grounded (user decision 2026-11-11); a placed structure
+// whose exposed material (its share of the hull-structure union) is under 10%
+// of its own volume, wholly buried ones included, is listed as a warning.
+const BURIED_EXPOSED_RATIO=.1;
+function buriedStructures(ship){
+ const parts=ship.parts.filter(p=>p.id>0&&p.placement&&!p._placementError&&!p.placement.repairRequired&&!p.placement.pendingGeometry&&placementCapability(p).kind==='structure'&&isShapePart(p)&&!isHullStructure(p));if(!parts.length)return [];
+ let material;try{material=structuralMaterial(ship);}catch(e){return [];}
+ return parts.filter(p=>{const own=partVolume(p),exposed=material.envelopeVolumes.get(p.id);return own>0&&Number.isFinite(exposed)&&exposed<own*BURIED_EXPOSED_RATIO;}).map(p=>p.id);
 }
 function inspectionTargets(ship,S,w){
  if(w.code==='ungrounded')return [...(S.ungrounded?.parts||[]).map(id=>({list:'parts',id})),...(S.ungrounded?.fits||[]).map(id=>({list:'fits',id})),...(S.ungrounded?.floatingFits||[]).map(id=>({list:'fits',id}))];
