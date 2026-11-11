@@ -10479,7 +10479,10 @@ Object.assign(root.KS_EN.messages,{
  "指定した内装の母体の面をタップしてください":"Tap a surface of the selected interior host"
 });
 Object.assign(root.KS_EN.terms,{
- "3Dでタップして母体を指定":"Tap in 3D to choose the host"
+ "3Dでタップして母体を指定":"Tap in 3D to choose the host",
+ "配置基準":"Anchor",
+ "主船体に固定":"Fixed to the primary hull",
+ "配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）":"Anchor: fixed to the primary hull (it must lie inside the hull and its attached structures)"
 });
 Object.assign(root.KS_EN.messages,{
  "機関本体が外装型タービンの内部に収まりません":"The machinery body does not fit inside the external turbine casing",
