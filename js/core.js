@@ -49376,12 +49376,14 @@ function syncHullHatches(ship,p){
 // v24 Scale a hull part's own cuts with the part: F = [length, height, width] factors along the part's x, y and z.
 // Its hull geometry is defined in fractions of length, width and height, so it scales about the stern (x 0), the keel
 // (y 0) and the centreline (z 0); the cuts, kept in metres in the same frame, are scaled about the same origin.
-// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets, cut boxes, solid cutters
+// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets and slopes, cut boxes, solid cutters
 // (centre and size, a rotated cutter by the length of each of its own axes) and the hull's openings follow.
 function scaleHullStructureCuts(ship,p,F){
  if(!F.every(v=>Number.isFinite(v)&&v>0)||F.every(v=>Math.abs(v-1)<1e-12))return false;
  const data=p.hullData;if(!data)return false;const sc=v=>[v[0]*F[0],v[1]*F[1],v[2]*F[2]];
- for(const c of data.cuts||[])if(c.type!=='planTrapezoid'&&!c.prop&&Number.isFinite(c.inset))c.inset*=F[2];
+ // Bevel inset and slope are metres in both modes; a proportional bevel multiplies them by the section's width and
+ // height fractions (removersAt), so both are scaled either way.
+ for(const c of data.cuts||[])if(c.type!=='planTrapezoid'){if(Number.isFinite(c.inset))c.inset*=F[2];if(Number.isFinite(c.slope))c.slope*=F[1];}
  for(const t of data.trenches||[]){if(Number.isFinite(t.height))t.height*=F[1];if(Number.isFinite(t.depth))t.depth*=F[2];}
  for(const b of data.subs||[])if(Array.isArray(b.b)&&b.b.length===6)b.b=[...sc(b.b.slice(0,3)),...sc(b.b.slice(3))];
  for(const q of data.solidCuts||[]){if(Array.isArray(q.c))q.c=sc(q.c);if(Array.isArray(q.s)&&Array.isArray(q.rotation)){const k=[[1,0,0],[0,1,0],[0,0,1]].map(e=>len(sc(solidCutRotation(q,e))));q.s=[q.s[0]*k[0],q.s[1]*k[2],q.s[2]*k[1]];}}
@@ -51364,7 +51366,9 @@ function structuralMaterial(ship){
  // from the last stored step before the first changed entry. Resuming replays the same values in the same order.
  const owner=ship._surfaceSource||ship,prior=STRUCTURAL_PREFIX.owner===owner?STRUCTURAL_PREFIX:null;let same=0;
  if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&entries[same].T===prior.entries[same].T&&entries[same].bulk===prior.entries[same].bulk)same++;
- let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
+ // v24 Checkpoints, step 0 included, start from the prior hull boundary: reuse them only for the same hull
+ // (a resized hull used to resume from the old hull's boundary and volume).
+ let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior&&prior.hull===hull)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
  const resume=stored.get(start);let boundary=resume?resume.boundary:hull,previous=resume?resume.previous:structuralMeshVolume(boundary),extension=0;if(!resume)stored.set(0,{boundary,previous});
  const volumes=new Map(),envelopeVolumes=new Map(),steps=[];
  for(let i=0;i<start;i++){const {p,bulk}=entries[i],volume=prior.steps[i];steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;}
