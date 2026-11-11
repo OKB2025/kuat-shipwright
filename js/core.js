@@ -53394,9 +53394,15 @@ function interiorEnvelopeHostIds(ship,anchor=interiorAnchorHostId(ship)){
 function interiorUnionRegion(regions){
  // The union boundary: each region's surface outside every other region. Faces where two
  // structures meet are interior and are removed; nothing is added or enlarged.
- const pieces=regions.map((r,i)=>{let t=r.tris;regions.forEach((o,j)=>{if(j!==i)t=structuralClipBoundary(t,o.tris);});return t;}),size=pieces.reduce((n,t)=>n+t.length,0),tris=new Float64Array(size);let at=0;for(const t of pieces){tris.set(t,at);at+=t.length;}
+ // A face shared by two regions with the same outward direction (e.g. the roofs of two
+ // overlapping structures) is kept once, from the earlier region; a duplicate would break
+ // the inside/outside parity of the union.
+ const pieces=regions.map((r,i)=>{let t=r.tris;regions.forEach((o,j)=>{if(j!==i)t=structuralClipBoundary(t,o.tris,j<i);});return t;}),size=pieces.reduce((n,t)=>n+t.length,0),tris=new Float64Array(size);let at=0;for(const t of pieces){tris.set(t,at);at+=t.length;}
  const contains=interiorRegionClearBox(tris,q=>regions.some(r=>r.contains(q)));return {host:null,tris,contains,union:true};
 }
+// Identifies the current interior (primary hull plus attached structures). A refused interior part
+// records it, and is re-checked when the interior changes (e.g. a structure is added around it).
+function interiorEnvelopeKey(ship){return 'interior:'+surfaceHash([publicJSON(interiorEnvelopeHostIds(ship).map(id=>id==='hull'?[ship.hull,ship.cuts,ship.subs,ship.solidCuts,ship.trenches]:placementDependencyKey(placementParent(ship,id))))]);}
 function migrateInteriorAnchors(ship){
  // Saved designs recorded the tapped structure as the interior host. Re-anchor them to the
  // primary hull at their unchanged world position, and re-validate a stored refusal once.
@@ -63261,8 +63267,9 @@ function refreshPlacementGeometry(ship,options={}){
  // their repaired body position must still reach the same generation.
  const embedded=syncEmbeddedEngineMachinery(ship);for(const id of embedded.updated)if(!ship.parts.find(p=>p.id===id)?.placement){updated.push(id);resolvedParts.push(id);}for(const row of embedded.failed)if(!ship.parts.find(p=>p.id===row.partId)?.placement){failed.push(row);resolvedParts.push(row.partId);}
  const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
-  if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||parent&&meta.parentGeometryKey!==placementDependencyKey(parent))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
-  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent);active.delete(p.id);done.add(p.id);return;}
+  const interior=explicitInteriorPlacement(p);
+  if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||(interior?meta.parentGeometryKey!==interiorEnvelopeKey(ship):parent&&meta.parentGeometryKey!==placementDependencyKey(parent)))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
+  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent);active.delete(p.id);done.add(p.id);return;}
   if(meta.validationFailed){failed.push({partId:p.id,code:meta.repairReason||'placement-failed'});active.delete(p.id);done.add(p.id);return;}
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    const pk=placementDependencyKey(parent),sk=placementShapeKey(p),cold=!p._placementSelfKey,parentChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
