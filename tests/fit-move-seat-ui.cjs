@@ -20,7 +20,9 @@ function ship(run,parts,mount,{mirror=false,vmirror=false,ped=0,gun='stl',at=[15
 const STEPS="C.placePart(ship,'struct',[150,0,0],[200,200,40],{form:'box'},false);C.placePart(ship,'struct',[350,10,0],[200,200,60],{form:'box'},false)";
 
 test('drag and both sliders go through the one shared seat step',()=>{
- const drag=app.slice(app.indexOf('function dragItemMove('),app.indexOf('// Seat a fitting at a point'));assert.match(drag,/seatFitMove\(f, \{hit: h\}\)/);assert.doesNotMatch(drag,/moveFitTo\(f, h\.p/);
+ const drag=app.slice(app.indexOf('function dragItemMove('),app.indexOf('// Seat a fitting at a point'));assert.match(drag,/D\.pendingHit = h;/);assert.match(drag,/dragSeatPending\(D\)/);assert.doesNotMatch(drag,/moveFitTo\(f, h\.p/);
+ const pending=app.slice(app.indexOf('function dragSeatPending('),app.indexOf('function dragItemEnd('));assert.match(pending,/seatFitMove\(f, \{hit: h\}\)/);
+ const end=app.slice(app.indexOf('function dragItemEnd('),app.indexOf('function attachControls('));assert.match(end,/if \(!cancel\) dragSeatPending\(D\);/,'the last pending seat is applied on release');
  const slider=app.slice(app.indexOf("if(['fitX','fitZ','fitY','fitAlong'].includes(k))"));assert.match(slider.slice(0,800),/seatFitMove\(f,\{axis:ax,value:v\}\)/);
  assert.equal(app.includes('function fitSurfaceSlideTarget('),false,'the old per-host slide is folded into the seat step');
 });
@@ -78,7 +80,22 @@ test('an in-hull compartment that does not fit is a separate notice and the move
  const r=plain(run('seatFitMove(selItem(),{axis:0,value:380})'));const f=plain(run('selItem()'));
  assert.equal(r.status,'moved');assert.deepEqual(r.interior,[f.id],'separate interior notice');assert.equal(f.float,false,'still mounted');assert.ok(Math.abs(f.p[0]-380)<1e-6);
  assert.equal(run('ship.fits.filter(q=>q.float).length'),0,'not a lost-surface error');
- assert.match(app,/function fitInteriorNotice\(r\) \{ if \(r\?\.interior\?\.length\) toast\('/);
+ assert.match(app,/function fitInteriorNotice\(r\) \{ if \(r\?\.interior\?\.length\) toast\('目安：/);
+ // Shown once per slider move (change event) or drag (release), not on every input step.
+ const input=app.slice(app.indexOf("if(['fitX','fitZ','fitY','fitAlong'].includes(k))")).slice(0,900);assert.doesNotMatch(input,/fitInteriorNotice/);assert.match(input,/fitSliderMove=true/);
+ assert.match(app,/fitSliderMove=null;if\(moved&&f&&!f\.float\)fitInteriorNotice\(/);
+});
+// Review 2026-11-11: a support far beyond the continued face is another deck, not a step: refused, not jumped to.
+// The reach is twice the fitting's size (fitSeatReach); it no longer grows with the slider distance.
+test('a support farther than twice the fitting size is refused; a step within it is climbed',()=>{
+ const run=setup();
+ const f0=ship(run,"C.placePart(ship,'struct',[150,0,0],[200,200,40],{form:'box'},false);C.placePart(ship,'struct',[350,5,0],[200,200,50],{form:'box'},false);C.placePart(ship,'struct',[150,45,-110],[200,20,130],{form:'box'},false)",'top',{gun:'pd',at:[150,0]});
+ const reach=run('fitSeatReach(selItem())');assert.ok(Math.abs(reach-18)<1e-9,'pd: 2 x 9 m footprint = '+reach);
+ run("slide('fitX',330)");let f=plain(run('selItem()'));assert.equal(f.float,false);assert.ok(Math.abs(f.p[1]-f0.p[1]-10)<1e-6,'10 m step climbed: '+(f.p[1]-f0.p[1]));
+ run("slide('fitX',150)");f=plain(run('selItem()'));assert.ok(Math.abs(f.p[1]-f0.p[1])<1e-6,'back down');
+ const tall=vertical(run,150,-110);assert.ok(tall&&tall.y-f.p[1]>80,'a block 90 m above the deck: '+(tall&&tall.y));
+ run("slide('fitZ',-110)");const g=plain(run('selItem()'));assert.deepEqual(g.p,f.p,'refused, not jumped onto the block');assert.equal(g.float,false);
+ assert.ok(tall.y-f.p[1]<Math.max(60,3*110),'the old reach (max(60, 3 x distance)) would have jumped there');
 });
 test('a mirror pair crosses structures together; a gap under the twin refuses the whole move',()=>{
  const run=setup(),f0=ship(run,STEPS,'auto',{mirror:true,at:[150,40]});run('st.fitPairEdit=true');assert.equal(run('ship.fits.length'),2);
@@ -123,6 +140,9 @@ test('Imperial-class reproduction: deck turrets cross steps and slopes without l
   if(want==='moved'){assert.ok(Math.abs(f.p[ax]-f0.p[ax]-d)<.5,`#${id} ${slider}${d} reached ${f.p[ax]-f0.p[ax]}`);const s=surface(run);assert.ok(s&&s.d<.05,`#${id} seated`);if(f0.mountMode==='top')assert.equal(f.tilt,undefined,'top mount stays upright');assert.equal(f.ped,f0.ped);}
   else assert.deepEqual(f.p,f0.p,`#${id} ${slider}${d} refused`);
  }
+ // The refused bow moves have no surface at all: rays through the target along the vertical and along the gun's
+ // normal (both directions, 2 km) find nothing on the hull or any structure.
+ load();for(const [x,z] of [[40,0],[0,25]]){const none=run(`(()=>{const f=ship.fits.find(q=>q.id===179),p=[f.p[0]+${x},f.p[1],f.p[2]+${z}],n=C.norm(C.fitUp(f));for(const d of [[0,1,0],[0,-1,0],n,C.mul(n,-1)])if(C.rayEnv(ship,C.sub(p,C.mul(d,1000)),d,{maxT:2000,structOnly:true}))return false;return true})()`);assert.equal(none,true,'no surface at #179 +'+x+'/'+z);}
  // The stepped centre-line deck: the top-mounted turret climbs the 30 m step aft.
  load();run('st.sel={list:"fits",id:128}');const y0=run('selItem().p[1]');run(`slide('fitX',${run('selItem().p[0]')-40})`);assert.ok(run('selItem().p[1]')-y0>25,'climbed the step');
 });

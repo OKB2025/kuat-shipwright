@@ -1,10 +1,10 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),assert=require('node:assert/strict');
-const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..','..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),context=vm.createContext({console,performance:{now:()=>0}});
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..','..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),context=vm.createContext({console,performance});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const {C,Gfx}=vm.runInContext('({C:Core,Gfx})',context),plain=v=>JSON.parse(JSON.stringify(v));
 function section(start,end,source=app){const a=source.indexOf(start),b=source.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);return source.slice(a,b);}
 function setup(){
- const box=vm.createContext({console,C,Gfx,performance:{now:()=>0}}),run=code=>vm.runInContext(code,box);
+ const box=vm.createContext({console,C,Gfx,performance}),run=code=>vm.runInContext(code,box);
  run(section('\nconst st = {','\nst.group='));
  run(`
  let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Pedestal UI');ship.parts=[];ship.fits=[];ship.nextId=1;
