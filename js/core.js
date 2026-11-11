@@ -221,7 +221,7 @@ function navigationItinerary(route){
 const COST_K = {crew: 1000};
 const COST_MODEL=Object.freeze({version:17,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,powerBus:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
-const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
+const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserL:3000,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+((p.k==='engineCore'||p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id))?resolveEngineSpec(p).cost:0):0;}
 function fitBuildCost(f,spec){const d=spec||(FITS[f?.k]?fitSpec(f):null);return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command'])*(isTrenchBatteryGroup(f)?f.aggregateCount:1):0;}
 function costBreakdown(total,source){
@@ -235,11 +235,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "l1e2cu",
+ "modelSignature": "1ia6fpg",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1th2x1w",
+   "signature": "ioa1jb",
    "build": 217102,
    "crew": 3000,
    "total": 220102,
@@ -267,7 +267,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.7298829941765791,
+    "navDemand": 0.7298682968657548,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -474,10 +474,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷反応炉",
-      "w": 0.38408119085832293,
+      "w": 0.3844604803971083,
       "hits": 1,
-      "crew": 0.00011901578449105239,
-      "size": 0.23803156898210476,
+      "crew": 0.00011919212449083956,
+      "size": 0.23838424898167912,
       "at": 0.551,
       "part": 28,
       "y": 0.01,
@@ -491,10 +491,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷反応炉",
-      "w": 0.38408119085832293,
+      "w": 0.3844604803971083,
       "hits": 1,
-      "crew": 0.00011901578449105239,
-      "size": 0.23803156898210476,
+      "crew": 0.00011919212449083956,
+      "size": 0.23838424898167912,
       "at": 0.551,
       "part": 29,
       "y": 0.01,
@@ -1169,7 +1169,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 21.733129832814512,
+      "w": 21.733584980261053,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -1181,7 +1181,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.00036687475325322146,
+    "D": 0.0003674371482720359,
     "shieldBuffer": 0.0731817485234382,
     "wCap": 0,
     "fuel": {
@@ -1189,8 +1189,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.25132741228718347,
      "massKg": 62.83185307179587,
-     "capacityJ": 3.5472140502015934e+22,
-     "specificEnergyJPerKg": 564556650294606100000,
+     "capacityJ": 3.5524078813517133e+22,
+     "specificEnergyJPerKg": 565383274195732300000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 3,
@@ -1205,16 +1205,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 2493144420521558500,
+     "P": 2496838393455184400,
      "fixed": 54213294143626670,
      "cooling": 15334344646982956,
-     "De": 2493144420521558500,
-     "Ds": 1535003967611478500,
+     "De": 2496838393455184400,
+     "Ds": 1537357028370198300,
      "Dw": 4514560000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2493144420521558500,
+       "P": 2496838393455184400,
        "reactors": [
         9,
         10
@@ -1222,11 +1222,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 9,
-         "P": 1246572210260779300
+         "P": 1248419196727592200
         },
         {
          "moduleIndex": 10,
-         "P": 1246572210260779300
+         "P": 1248419196727592200
         }
        ],
        "modules": [
@@ -1866,11 +1866,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p30",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p28>p30",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p28>p30",
        "model": "source-distance",
        "lengthM": 0.751065909225016,
@@ -1880,11 +1880,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p31",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p28>p31",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p28>p31",
        "model": "source-distance",
        "lengthM": 4.3452157598904115,
@@ -1894,11 +1894,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p30",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p29>p30",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p29>p30",
        "model": "source-distance",
        "lengthM": 4.3452157598904115,
@@ -1908,11 +1908,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p31",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p29>p31",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p29>p31",
        "model": "source-distance",
        "lengthM": 0.751065909225016,
@@ -1993,23 +1993,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273487522.584677,
-       "shaftWattsPerNewton": 2159813146.4554434,
-       "wattsPerNewton": 2273487522.584677,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31535.94700898483,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2021,10 +2021,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548308357.920337,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2032,12 +2032,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1098189343306333000,
-       "cost": 7507.0672866749055,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -2056,7 +2056,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500,
+       "pathCapacityW": 2496838393455184400,
        "transmissionRouteIds": [
         "p28>p30",
         "p29>p30"
@@ -2065,23 +2065,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273487522.584677,
-       "shaftWattsPerNewton": 2159813146.4554434,
-       "wattsPerNewton": 2273487522.584677,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31535.94700898483,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2093,10 +2093,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548308357.920337,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2104,12 +2104,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1098189343306333000,
-       "cost": 7507.0672866749055,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -2128,7 +2128,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500,
+       "pathCapacityW": 2496838393455184400,
        "transmissionRouteIds": [
         "p28>p31",
         "p29>p31"
@@ -2139,23 +2139,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273487522.584677,
-       "shaftWattsPerNewton": 2159813146.4554434,
-       "wattsPerNewton": 2273487522.584677,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31535.94700898483,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2167,10 +2167,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548308357.920337,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2178,12 +2178,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1098189343306333000,
-       "cost": 7507.0672866749055,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -2208,28 +2208,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500
+       "pathCapacityW": 2496838393455184400
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273487522.584677,
-       "shaftWattsPerNewton": 2159813146.4554434,
-       "wattsPerNewton": 2273487522.584677,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31535.94700898483,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2241,10 +2241,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548308357.920337,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2252,12 +2252,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1098189343306333000,
-       "cost": 7507.0672866749055,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -2282,22 +2282,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500
+       "pathCapacityW": 2496838393455184400
       }
      ],
-     "massKg": 31535.94700898483,
-     "ratedThrustN": 1096588772.6812832,
-     "ratedAccelMps2": 34772.66030314095,
+     "massKg": 31536.582046315973,
+     "ratedThrustN": 1098211454.1657395,
+     "ratedAccelMps2": 34823.41404508768,
      "structuralAccelerationLimitMps2": 293953.2036478113,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34772.66030314095,
+     "accelerationLimitMps2": 34823.41404508768,
      "conversionModelVersion": 1,
-     "conversionMassKg": 31535.94700898483,
+     "conversionMassKg": 31536.582046315973,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2493144420521558500,[[\"main\",2493144420521558500,[[9,1246572210260779300],[10,1246572210260779300]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.23803156898210476,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.23803156898210476,0.5]]]"
+     "sourceBudgetKey": "[2496838393455184400,[[\"main\",2496838393455184400,[[9,1248419196727592200],[10,1248419196727592200]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.23838424898167912,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.23838424898167912,0.5]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1670.0118854867421,
+    "maxSpeed": 1672.5034746534989,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -2308,7 +2308,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p28",
        "n": "右舷反応炉 #28",
        "g": "high",
-       "sh": 0.518526,
+       "sh": 0.518521,
        "m": [
         9
        ],
@@ -2322,7 +2322,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p29",
        "n": "左舷反応炉 #29",
        "g": "high",
-       "sh": 0.481474,
+       "sh": 0.481479,
        "m": [
         10
        ],
@@ -2423,7 +2423,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>hotel",
        "n": "送電損失 p28>hotel",
        "g": "high",
-       "sh": 0.00915273,
+       "sh": 0.00913912,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2436,7 +2436,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p9",
        "n": "送電損失 p28>p9",
        "g": "high",
-       "sh": 0.000237621,
+       "sh": 0.000237267,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2449,7 +2449,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p10",
        "n": "送電損失 p29>p10",
        "g": "high",
-       "sh": 0.000243121,
+       "sh": 0.00024276,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2462,7 +2462,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p11",
        "n": "送電損失 p28>p11",
        "g": "high",
-       "sh": 0.000294754,
+       "sh": 0.000294316,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2475,7 +2475,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p12",
        "n": "送電損失 p29>p12",
        "g": "high",
-       "sh": 0.000294754,
+       "sh": 0.000294316,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2488,7 +2488,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p13",
        "n": "送電損失 p28>p13",
        "g": "high",
-       "sh": 0.000156682,
+       "sh": 0.000156449,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2501,7 +2501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p14",
        "n": "送電損失 p29>p14",
        "g": "high",
-       "sh": 0.000145601,
+       "sh": 0.000145385,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2514,7 +2514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p15",
        "n": "送電損失 p28>p15",
        "g": "high",
-       "sh": 0.000150316,
+       "sh": 0.000150093,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2527,7 +2527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p16",
        "n": "送電損失 p29>p16",
        "g": "high",
-       "sh": 0.000158253,
+       "sh": 0.000158018,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2865,7 +2865,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p32",
        "n": "送電損失 p28>p32",
        "g": "high",
-       "sh": 0.42457,
+       "sh": 0.424589,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2878,7 +2878,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f39",
        "n": "送電損失 p28>f39",
        "g": "high",
-       "sh": 0.00128467,
+       "sh": 0.00128276,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2891,7 +2891,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f40",
        "n": "送電損失 p28>f40",
        "g": "high",
-       "sh": 0.00198235,
+       "sh": 0.0019794,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2904,7 +2904,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f41",
        "n": "送電損失 p28>f41",
        "g": "high",
-       "sh": 0.0000470899,
+       "sh": 0.0000470199,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -2917,7 +2917,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f42",
        "n": "送電損失 p28>f42",
        "g": "high",
-       "sh": 0.0000458382,
+       "sh": 0.00004577,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -2930,7 +2930,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f43",
        "n": "送電損失 p28>f43",
        "g": "high",
-       "sh": 0.000370582,
+       "sh": 0.000370031,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2943,7 +2943,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p32",
        "n": "送電損失 p29>p32",
        "g": "high",
-       "sh": 0.252297,
+       "sh": 0.252308,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2956,7 +2956,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f39",
        "n": "送電損失 p29>f39",
        "g": "high",
-       "sh": 0.00158588,
+       "sh": 0.00158352,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2969,7 +2969,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f40",
        "n": "送電損失 p29>f40",
        "g": "high",
-       "sh": 0.00102774,
+       "sh": 0.00102621,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2982,7 +2982,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f41",
        "n": "送電損失 p29>f41",
        "g": "high",
-       "sh": 0.0000376719,
+       "sh": 0.0000376159,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -2995,7 +2995,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f42",
        "n": "送電損失 p29>f42",
        "g": "high",
-       "sh": 0.0000366705,
+       "sh": 0.000036616,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -3008,7 +3008,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f43",
        "n": "送電損失 p29>f43",
        "g": "high",
-       "sh": 0.000296466,
+       "sh": 0.000296025,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3021,7 +3021,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p37",
        "n": "送電損失 p28>p37",
        "g": "high",
-       "sh": 0.00126154,
+       "sh": 0.00125967,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3034,7 +3034,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p37",
        "n": "送電損失 p29>p37",
        "g": "high",
-       "sh": 3.8684e-8,
+       "sh": 3.86265e-8,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3047,7 +3047,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p30",
        "n": "送電損失 p28>p30",
        "g": "high",
-       "sh": 0.0178639,
+       "sh": 0.0178638,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3060,7 +3060,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p31",
        "n": "送電損失 p28>p31",
        "g": "high",
-       "sh": 0.103352,
+       "sh": 0.103351,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3073,7 +3073,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p30",
        "n": "送電損失 p29>p30",
        "g": "high",
-       "sh": 0.156122,
+       "sh": 0.156121,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3086,7 +3086,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p31",
        "n": "送電損失 p29>p31",
        "g": "high",
-       "sh": 0.026985,
+       "sh": 0.0269849,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3200,7 +3200,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 961145667113852900000,
+       "cap": 961145666862673300000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -3210,271 +3210,271 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 46862585562774410,
+       "cap": 46932019616110310,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 6475302916154855,
+       "cap": 6484897063013103,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 6625194187362144,
+       "cap": 6635010420953221,
        "sec": 3
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 3936026843358549,
+       "cap": 3941858666218754,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 3936026843358549.5,
+       "cap": 3941858666218755,
        "sec": 4
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 4078979440493848.5,
+       "cap": 4085023069385129,
        "sec": 4
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 3790508475819601.5,
+       "cap": 3796124691069349.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 3928793969311384.5,
+       "cap": 3934615075567793,
        "sec": 4
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 4136234290891025.5,
+       "cap": 4142362751557773,
        "sec": 4
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 46862585562774400,
+       "cap": 46932019616110300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 6475302916154854,
+       "cap": 6484897063013102,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 6625194187362142,
+       "cap": 6635010420953220,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 3936026843358548.5,
+       "cap": 3941858666218753.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 3936026843358549,
+       "cap": 3941858666218754,
        "sec": 4
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 4078979440493847.5,
+       "cap": 4085023069385129,
        "sec": 4
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 3790508475819601,
+       "cap": 3796124691069349,
        "sec": 4
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 3928793969311384,
+       "cap": 3934615075567793,
        "sec": 4
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 4136234290891025,
+       "cap": 4142362751557772,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 691994813021341400,
+       "cap": 693036285311534700,
        "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 95617345413406690,
+       "cap": 95761252295129000,
        "sec": 1
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 97830709890568900,
+       "cap": 97977947950108830,
        "sec": 1
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 58121209634674456,
+       "cap": 58208683743104180,
        "sec": 3
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 58121209634674460,
+       "cap": 58208683743104184,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 60232114411642984,
+       "cap": 60322765493065960,
        "sec": 2
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 55972417494270776,
+       "cap": 56056657608124940,
        "sec": 2
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 58014405640320160,
+       "cap": 58101719005636616,
        "sec": 2
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 61077566258129064,
+       "cap": 61169489769134230,
        "sec": 2
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 20083453476746804,
+       "cap": 20113210169919576,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 2775059107445880.5,
+       "cap": 2779170779897642,
        "sec": 1
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 2839296586784906,
+       "cap": 2843503436839717.5,
        "sec": 1
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 1686825663640102,
+       "cap": 1689324952607859,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 1686825663640102.2,
+       "cap": 1689324952607859.2,
        "sec": 2
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 1748089501293727,
+       "cap": 1750679561961767.2,
        "sec": 2
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 1624462238118781.5,
+       "cap": 1626869126179464,
        "sec": 2
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 1683725939463876,
+       "cap": 1686220635718465.5,
        "sec": 2
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 1772626669067568.8,
+       "cap": 1775253085284400.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 20083453476746804,
+       "cap": 20113210169919576,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2775059107445880.5,
+       "cap": 2779170779897642,
        "sec": 1
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2839296586784906,
+       "cap": 2843503436839717.5,
        "sec": 1
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 1686825663640102,
+       "cap": 1689324952607859,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 1686825663640102.2,
+       "cap": 1689324952607859.2,
        "sec": 2
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 1748089501293727,
+       "cap": 1750679561961767.2,
        "sec": 2
       },
       {
        "s": 4,
        "d": 6,
-       "cap": 1624462238118781.5,
+       "cap": 1626869126179464,
        "sec": 2
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 1683725939463876,
+       "cap": 1686220635718465.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 1772626669067568.8,
+       "cap": 1775253085284400.5,
        "sec": 2
       },
       {
@@ -3642,7 +3642,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 9,
-       "cap": 961145667113852900000,
+       "cap": 961145666862673300000,
        "sec": -1
       },
       {
@@ -6240,217 +6240,217 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 56,
        "d": 0,
-       "cap": 10998986955873.514,
+       "cap": 11015283629174.053,
        "sec": 4
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 1519800315215.4807,
+       "cap": 1522052130707.0789,
        "sec": 3
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 1554980878067.6912,
+       "cap": 1557284818917.8909,
        "sec": 3
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 923813899471.6118,
+       "cap": 925182670374.84,
        "sec": 4
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 923813899471.6119,
+       "cap": 925182670374.8401,
        "sec": 4
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 957365905455.0033,
+       "cap": 958784388761.9539,
        "sec": 3
       },
       {
        "s": 56,
        "d": 6,
-       "cap": 889659688661.863,
+       "cap": 890977854903.2584,
        "sec": 3
       },
       {
        "s": 56,
        "d": 7,
-       "cap": 922116291745.8992,
+       "cap": 923482547384.8934,
        "sec": 3
       },
       {
        "s": 56,
        "d": 8,
-       "cap": 970804031950.0826,
+       "cap": 972242425886.8159,
        "sec": 3
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 63632381675453.414,
+       "cap": 63726662734214.59,
        "sec": 4
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 8792492810133.123,
+       "cap": 8805520226512.371,
        "sec": 3
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 8996022736293.613,
+       "cap": 9009351713237.193,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.658,
        "sec": 4
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.659,
        "sec": 4
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 5538643962701.267,
+       "cap": 5546850306753.701,
        "sec": 3
       },
       {
        "s": 57,
        "d": 6,
-       "cap": 5146943541010.937,
+       "cap": 5154569521268.999,
        "sec": 3
       },
       {
        "s": 57,
        "d": 7,
-       "cap": 5334714556979.749,
+       "cap": 5342618748578.077,
        "sec": 3
       },
       {
        "s": 57,
        "d": 8,
-       "cap": 5616387485588.28,
+       "cap": 5624709018502.999,
        "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 63632381675453.414,
+       "cap": 63726662734214.59,
        "sec": 4
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 8792492810133.123,
+       "cap": 8805520226512.371,
        "sec": 3
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 8996022736293.613,
+       "cap": 9009351713237.193,
        "sec": 3
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.658,
        "sec": 4
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.659,
        "sec": 4
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 5538643962701.267,
+       "cap": 5546850306753.701,
        "sec": 3
       },
       {
        "s": 58,
        "d": 6,
-       "cap": 5146943541010.937,
+       "cap": 5154569521268.999,
        "sec": 3
       },
       {
        "s": 58,
        "d": 7,
-       "cap": 5334714556979.749,
+       "cap": 5342618748578.077,
        "sec": 3
       },
       {
        "s": 58,
        "d": 8,
-       "cap": 5616387485588.28,
+       "cap": 5624709018502.999,
        "sec": 3
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 10998986955873.514,
+       "cap": 11015283629174.053,
        "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 1519800315215.4807,
+       "cap": 1522052130707.0789,
        "sec": 3
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 1554980878067.6912,
+       "cap": 1557284818917.8909,
        "sec": 3
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 923813899471.6118,
+       "cap": 925182670374.84,
        "sec": 4
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 923813899471.6119,
+       "cap": 925182670374.8401,
        "sec": 4
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 957365905455.0033,
+       "cap": 958784388761.9539,
        "sec": 3
       },
       {
        "s": 59,
        "d": 6,
-       "cap": 889659688661.863,
+       "cap": 890977854903.2584,
        "sec": 3
       },
       {
        "s": 59,
        "d": 7,
-       "cap": 922116291745.8992,
+       "cap": 923482547384.8934,
        "sec": 3
       },
       {
        "s": 59,
        "d": 8,
-       "cap": 970804031950.0826,
+       "cap": 972242425886.8159,
        "sec": 3
       }
      ]
@@ -6465,7 +6465,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 83.5005942743371,
+    "mglt": 83.62517373267494,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -6573,7 +6573,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "15aq9r7",
+   "signature": "hvz2fn",
    "build": 148673,
    "crew": 1000,
    "total": 149673,
@@ -9104,7 +9104,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "dpidq9",
+   "signature": "tkx7er",
    "build": 188694,
    "crew": 2000,
    "total": 190694,
@@ -9132,7 +9132,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 1.3019327402208276,
+    "navDemand": 1.3019374998277315,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -9150,8 +9150,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 3.493199962339255e-14,
-    "upS": 3.493199962339255e-14,
+    "up": 3.4932127327828755e-14,
+    "upS": 3.4932127327828755e-14,
     "down": 0.01,
     "T": 0
    },
@@ -9322,16 +9322,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 0.2929306589408449,
+      "w": 0.2928666891638777,
       "hits": 1,
-      "crew": 0.0000793124458813555,
-      "size": 0.158624891762711,
+      "crew": 0.00007928645741550299,
+      "size": 0.15857291483100597,
       "at": 0.141,
       "part": 12,
       "y": -0.26,
       "z": 0.8,
       "r": 0.012,
-      "share": 0.29658258746948746,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -9339,16 +9339,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 0.2929306589408449,
+      "w": 0.2928666891638777,
       "hits": 1,
-      "crew": 0.0000793124458813555,
-      "size": 0.158624891762711,
+      "crew": 0.00007928645741550299,
+      "size": 0.15857291483100597,
       "at": 0.141,
       "part": 13,
       "y": -0.26,
       "z": -0.8,
       "r": 0.012,
-      "share": 0.29658258746948746,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -9390,16 +9390,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "主反応炉",
-      "w": 0.3616427888158578,
+      "w": 0.3615638137825651,
       "hits": 1,
-      "crew": 0.00010879622205947249,
-      "size": 0.217592444118945,
+      "crew": 0.00010876057258642381,
+      "size": 0.21752114517284762,
       "at": 0.469,
       "part": 16,
       "y": -0.12,
       "z": 0,
       "r": 0.013,
-      "share": 0.4068348250610251,
+      "share": 0.40683482506102514,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -9407,7 +9407,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "shield",
       "name": "チェンパット偏向シールド発生器",
-      "w": 0.7159702041078652,
+      "w": 0.7159702623650889,
       "hits": 1,
       "crew": 0.0002424524130407923,
       "size": 0.6061310326019808,
@@ -9424,7 +9424,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hyper",
       "name": "ハイパードライブ",
-      "w": 0.538928165396146,
+      "w": 0.5389282092477735,
       "hits": 1,
       "crew": 0.00011875220230569416,
       "size": 0.3958406743523139,
@@ -9441,7 +9441,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "fuel",
       "name": "反応物タンク",
-      "w": 0.5289012299389456,
+      "w": 0.5289012729746991,
       "hits": 1,
       "crew": 0.00007696902001294993,
       "size": 0.38484510006474965,
@@ -9892,7 +9892,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 23.012669277811217,
+      "w": 23.012545216145643,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -9904,7 +9904,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0004077733592419266,
+    "D": 0.00040763362732174524,
     "shieldBuffer": 0.08471702163444517,
     "wCap": 0,
     "fuel": {
@@ -9912,8 +9912,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.38484510006474965,
      "massKg": 96.21127501618741,
-     "capacityJ": 4.177612480421595e+22,
-     "specificEnergyJPerKg": 434212360216483700000,
+     "capacityJ": 4.176256278617063e+22,
+     "specificEnergyJPerKg": 434071399419081900000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 2,
@@ -9928,16 +9928,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 2800970731346821600,
+     "P": 2800052931732946000,
      "fixed": 79688388571127100,
      "cooling": 21809721660215256,
-     "De": 2800970731346821600,
-     "Ds": 1706123735068221000,
+     "De": 2800052931732946000,
+     "Ds": 1705539096714182100,
      "Dw": 2502080000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2800970731346821600,
+       "P": 2800052931732946000,
        "reactors": [
         8,
         9,
@@ -9946,15 +9946,15 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 8,
-         "P": 830719146929143000
+         "P": 830446943544881000
         },
         {
          "moduleIndex": 9,
-         "P": 830719146929143000
+         "P": 830446943544881000
         },
         {
          "moduleIndex": 12,
-         "P": 1139532437488535700
+         "P": 1139159044643183600
         }
        ],
        "modules": [
@@ -10562,11 +10562,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p14",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p12>p14",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p12>p14",
        "model": "source-distance",
        "lengthM": 0.552,
@@ -10576,11 +10576,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p15",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p12>p15",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p12>p15",
        "model": "source-distance",
        "lengthM": 8.016028505438339,
@@ -10590,11 +10590,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "p14",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p13>p14",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p13>p14",
        "model": "source-distance",
        "lengthM": 8.016028505438339,
@@ -10604,11 +10604,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "p15",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p13>p15",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p13>p15",
        "model": "source-distance",
        "lengthM": 0.552,
@@ -10618,11 +10618,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p14",
-       "cap": 1595345412483949800,
+       "cap": 1594822662500457000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p14",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p16>p14",
        "model": "source-distance",
        "lengthM": 9.171684496318003,
@@ -10632,11 +10632,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
-       "cap": 1595345412483949800,
+       "cap": 1594822662500457000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p15",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p16>p15",
        "model": "source-distance",
        "lengthM": 9.171684496318003,
@@ -10681,23 +10681,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329564853.793837,
-       "shaftWattsPerNewton": 2213086611.104145,
-       "wattsPerNewton": 2329564853.793837,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40853.00442167772,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10710,10 +10710,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601178955.5429786,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10721,12 +10721,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1201893347435538200,
-       "cost": 920.147165888879,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -10745,7 +10745,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600,
+       "pathCapacityW": 2800052931732946000,
        "transmissionRouteIds": [
         "p12>p14",
         "p13>p14",
@@ -10755,23 +10755,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329564853.793837,
-       "shaftWattsPerNewton": 2213086611.104145,
-       "wattsPerNewton": 2329564853.793837,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40853.00442167772,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10784,10 +10784,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601178955.5429786,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10795,12 +10795,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1201893347435538200,
-       "cost": 920.147165888879,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -10819,7 +10819,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600,
+       "pathCapacityW": 2800052931732946000,
        "transmissionRouteIds": [
         "p12>p15",
         "p13>p15",
@@ -10831,23 +10831,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329564853.793837,
-       "shaftWattsPerNewton": 2213086611.104145,
-       "wattsPerNewton": 2329564853.793837,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40853.00442167772,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10860,10 +10860,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601178955.5429786,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10871,12 +10871,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1201893347435538200,
-       "cost": 920.147165888879,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -10901,28 +10901,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600
+       "pathCapacityW": 2800052931732946000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329564853.793837,
-       "shaftWattsPerNewton": 2213086611.104145,
-       "wattsPerNewton": 2329564853.793837,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40853.00442167772,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10935,10 +10935,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601178955.5429786,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10946,12 +10946,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1201893347435538200,
-       "cost": 920.147165888879,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -10976,22 +10976,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600
+       "pathCapacityW": 2800052931732946000
       }
      ],
-     "massKg": 40853.00442167772,
-     "ratedThrustN": 1202282495.5367408,
-     "ratedAccelMps2": 29429.47556872407,
+     "massKg": 40852.85507177274,
+     "ratedThrustN": 1201888954.8619435,
+     "ratedAccelMps2": 29419.950031653676,
      "structuralAccelerationLimitMps2": 184308.36109363998,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 29429.47556872407,
+     "accelerationLimitMps2": 29419.950031653676,
      "conversionModelVersion": 1,
-     "conversionMassKg": 40853.00442167772,
+     "conversionMassKg": 40852.85507177274,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2800970731346821600,[[\"main\",2800970731346821600,[[8,830719146929143000],[9,830719146929143000],[12,1139532437488535700]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.158624891762711,0.29658258746948746],[9,\"reactor\",13,\"p13\",\"main\",0.158624891762711,0.29658258746948746],[12,\"reactor\",16,\"p16\",\"main\",0.217592444118945,0.4068348250610251]]]"
+     "sourceBudgetKey": "[2800052931732946000,[[\"main\",2800052931732946000,[[8,830446943544881000],[9,830446943544881000],[12,1139159044643183600]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.15857291483100597,0.2965825874694874],[9,\"reactor\",13,\"p13\",\"main\",0.15857291483100597,0.2965825874694874],[12,\"reactor\",16,\"p16\",\"main\",0.21752114517284762,0.40683482506102514]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1393.5959838921933,
+    "maxSpeed": 1393.131683780664,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -11118,7 +11118,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00195798,
+       "sh": 0.00195862,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11131,7 +11131,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p3",
        "n": "送電損失 p16>p3",
        "g": "high",
-       "sh": 0.000103786,
+       "sh": 0.00010382,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11144,7 +11144,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.000103786,
+       "sh": 0.00010382,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11443,7 +11443,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.294234,
+       "sh": 0.294232,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -11456,7 +11456,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f22",
        "n": "送電損失 p12>f22",
        "g": "high",
-       "sh": 0.00013961,
+       "sh": 0.000139656,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11469,7 +11469,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f23",
        "n": "送電損失 p12>f23",
        "g": "high",
-       "sh": 0.000141164,
+       "sh": 0.00014121,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11482,7 +11482,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f24",
        "n": "送電損失 p12>f24",
        "g": "high",
-       "sh": 0.0000438965,
+       "sh": 0.0000439108,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11495,7 +11495,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f25",
        "n": "送電損失 p12>f25",
        "g": "high",
-       "sh": 0.000496983,
+       "sh": 0.000497146,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11508,7 +11508,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f26",
        "n": "送電損失 p12>f26",
        "g": "high",
-       "sh": 0.000501873,
+       "sh": 0.000502038,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11599,7 +11599,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.0377186,
+       "sh": 0.0377166,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11612,7 +11612,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.0000648228,
+       "sh": 0.000064844,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11625,7 +11625,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.0000648228,
+       "sh": 0.000064844,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11638,7 +11638,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.0000158853,
+       "sh": 0.0000158905,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11651,7 +11651,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.000169639,
+       "sh": 0.000169695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11664,7 +11664,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f26",
        "n": "送電損失 p16>f26",
        "g": "high",
-       "sh": 0.000169639,
+       "sh": 0.000169695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11677,7 +11677,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p20",
        "n": "送電損失 p12>p20",
        "g": "high",
-       "sh": 0.0081538,
+       "sh": 0.00815647,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11690,7 +11690,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p20",
        "n": "送電損失 p13>p20",
        "g": "high",
-       "sh": 0.00000121104,
+       "sh": 0.00000121144,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11839,109 +11839,109 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 47884305315188940,
+       "cap": 47868614970253460,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 3970010679224728.5,
+       "cap": 3968709817981267.5,
        "sec": 0
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 3970010679224728.5,
+       "cap": 3968709817981267.5,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 47884305315188950,
+       "cap": 47868614970253464,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 3970010679224729.5,
+       "cap": 3968709817981268.5,
        "sec": 0
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 3970010679224729.5,
+       "cap": 3968709817981268.5,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 65684918127831170,
+       "cap": 65663395020923816,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 5445830835699213,
+       "cap": 5444046389549064,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 5445830835699213,
+       "cap": 5444046389549064,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1186205202838751200,
+       "cap": 1185808453429525200,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 98346364054445220,
+       "cap": 98313470199533150,
        "sec": 3
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 98346364054445220,
+       "cap": 98313470199533150,
        "sec": 3
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 34595014693131270,
+       "cap": 34583678876311776,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 34595014693131270,
+       "cap": 34583678876311776,
        "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
@@ -12817,109 +12817,109 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 54,
        "d": 0,
-       "cap": 8260019869204.136,
+       "cap": 8257313292172.922,
        "sec": 3
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 119945803856375.34,
+       "cap": 119906500977829.19,
        "sec": 3
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 119945803856375.34,
+       "cap": 119906500977829.19,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 8260019869204.136,
+       "cap": 8257313292172.922,
        "sec": 3
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 188254287209246.78,
+       "cap": 188192601554992.22,
        "sec": 3
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 188254287209246.78,
+       "cap": 188192601554992.22,
        "sec": 3
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       }
      ]
@@ -12934,7 +12934,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 69.67979919460967,
+    "mglt": 69.6565841890332,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -13020,7 +13020,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "9rdihe",
+   "signature": "4pvjno",
    "build": 159055,
    "crew": 0,
    "total": 159055,
@@ -19366,7 +19366,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1bx5zjg",
+   "signature": "1h0pzy6",
    "build": 95519,
    "crew": 1000,
    "total": 96519,
@@ -21744,7 +21744,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "19m3mss",
+   "signature": "1aju33y",
    "build": 85104,
    "crew": 1000,
    "total": 86104,
@@ -23701,7 +23701,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1wsgr4o",
+   "signature": "1gx8ob6",
    "build": 121855,
    "crew": 1000,
    "total": 122855,
@@ -26367,7 +26367,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "ljwfon",
+   "signature": "lyhhhb",
    "build": 128793,
    "crew": 1000,
    "total": 129793,
@@ -31205,7 +31205,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "1s5jqgj",
+   "signature": "1s336rn",
    "build": 100714,
    "crew": 0,
    "total": 100714,
@@ -34545,7 +34545,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1867tui",
+   "signature": "dy589f",
    "build": 242808,
    "crew": 1000,
    "total": 243808,
@@ -34680,16 +34680,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "上部機関用反応炉",
-      "w": 0.02839467028560714,
+      "w": 0.028365255325887486,
       "hits": 1,
-      "crew": 0.000002392352932611813,
-      "size": 0.004784705865223626,
+      "crew": 0.0000023886364215693554,
+      "size": 0.004777272843138711,
       "at": 0.348,
       "part": 15,
       "y": 0.25,
       "z": 0,
       "r": 0.011,
-      "share": 0.0269951623044704,
+      "share": 0.026991635836333877,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -34697,16 +34697,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "下部機関用反応炉",
-      "w": 0.06560304622786674,
+      "w": 0.06553508590493044,
       "hits": 1,
-      "crew": 0.000008401484167569626,
-      "size": 0.01680296833513925,
+      "crew": 0.000008388432494358633,
+      "size": 0.016776864988717267,
       "at": 0.589,
       "part": 16,
       "y": 0.06,
       "z": 0,
       "r": 0.016,
-      "share": 0.09480182694213758,
+      "share": 0.09478944266312399,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -34714,16 +34714,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "補助反応炉（機首）",
-      "w": 0.04365964503114954,
+      "w": 0.04361441658908459,
       "hits": 1,
-      "crew": 0.000004561317517788066,
-      "size": 0.009122635035576131,
+      "crew": 0.000004554231528638249,
+      "size": 0.009108463057276498,
       "at": 0.703,
       "part": 17,
       "y": 0.07,
       "z": 0,
       "r": 0.013,
-      "share": 0.05146962433359858,
+      "share": 0.051462900684814225,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -34731,16 +34731,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷補助反応炉",
-      "w": 0.049474873505641885,
+      "w": 0.049423620879826366,
       "hits": 1,
-      "crew": 0.000005502335189713327,
-      "size": 0.011004670379426654,
+      "crew": 0.000005493787333244029,
+      "size": 0.010987574666488057,
       "at": 0.431,
       "part": 18,
       "y": 0.09,
       "z": 0.27,
       "r": 0.014,
-      "share": 0.06208800945508819,
+      "share": 0.06207989869122117,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -34748,16 +34748,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷補助反応炉",
-      "w": 0.049474873505641885,
+      "w": 0.049423620879826366,
       "hits": 1,
-      "crew": 0.000005502335189713327,
-      "size": 0.011004670379426654,
+      "crew": 0.000005493787333244029,
+      "size": 0.010987574666488057,
       "at": 0.431,
       "part": 19,
       "y": 0.09,
       "z": -0.27,
       "r": 0.014,
-      "share": 0.06208800945508819,
+      "share": 0.06207989869122117,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -34893,7 +34893,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.19,
       "z": 0,
       "r": 0.016,
-      "share": 0.03668866082090548,
+      "share": 0.036692541052802854,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -34935,16 +34935,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "翼根部の推進・兵装用反応炉",
-      "w": 0.23579804368653795,
+      "w": 0.23558309788863785,
       "hits": 1,
-      "crew": 0.000012465319186593889,
-      "size": 0.062326595932969436,
+      "crew": 0.000012448278604505909,
+      "size": 0.06224139302252954,
       "at": 0.283,
       "part": 32,
       "y": 0.05,
       "z": -0.71,
       "r": 0.025,
-      "share": 0.35164472393686375,
+      "share": 0.35166444738929264,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -34952,16 +34952,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "翼根部の推進・兵装用反応炉",
-      "w": 0.23547066198935301,
+      "w": 0.2352557688539522,
       "hits": 1,
-      "crew": 0.000012439367950054042,
-      "size": 0.062196839750270204,
+      "crew": 0.000012422343378185651,
+      "size": 0.06211171689092825,
       "at": 0.283,
       "part": 33,
       "y": 0.05,
       "z": 0.71,
       "r": 0.025,
-      "share": 0.3509126435727533,
+      "share": 0.3509317760439929,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -35207,16 +35207,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.03929990385466197,
+      "w": 0.03914830345247801,
       "hits": 1,
-      "crew": 3.8954464286699676e-7,
-      "size": 0.007790892857339935,
+      "crew": 3.8729280009887375e-7,
+      "size": 0.007745856001977474,
       "at": 0.622,
       "part": 49,
       "y": 0.16,
       "z": 0,
       "r": 0.013,
-      "share": 0.01829359523423744,
+      "share": 0.018189768917866105,
       "domain": "main",
       "port": "p49",
       "powerConnected": true
@@ -35270,7 +35270,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": 0.68,
       "r": 0.029,
-      "share": 0.21763988840248716,
+      "share": 0.2176629062292005,
       "domain": "main",
       "port": "p1",
       "powerConnected": true
@@ -35288,7 +35288,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": -0.68,
       "r": 0.029,
-      "share": 0.21763985060206562,
+      "share": 0.21766286842478114,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -35306,7 +35306,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": 0.68,
       "r": 0.03,
-      "share": 0.2548690303033598,
+      "share": 0.254895985523826,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -35324,7 +35324,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": -0.68,
       "r": 0.03,
-      "share": 0.2548689746369446,
+      "share": 0.25489592985152343,
       "domain": "main",
       "port": "p4",
       "powerConnected": true
@@ -35388,7 +35388,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 8.117708377441739,
+      "w": 8.117212448454637,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -35400,7 +35400,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.00013643633722465386,
+    "D": 0.00013623689101132456,
     "shieldBuffer": 0.02551298707898365,
     "wCap": 0,
     "fuel": {
@@ -35408,8 +35408,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.07853981633974483,
      "massKg": 19.634954084936208,
-     "capacityJ": 2.2224833472505022e+21,
-     "specificEnergyJPerKg": 113190147409388390000,
+     "capacityJ": 2.2195127997367798e+21,
+     "specificEnergyJPerKg": 113038858666828960000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -35424,16 +35424,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 928222697568807600,
-     "fixed": 20845125921815076,
-     "cooling": 4478441711779633,
-     "De": 928222697568807400,
-     "Ds": 570849634947951800,
+     "P": 926901791466730000,
+     "fixed": 20838050176454184,
+     "cooling": 4471365966418740,
+     "De": 926901791466730000,
+     "Ds": 570015151991381950,
      "Dw": 167360000000000,
      "domains": [
       {
        "id": "main",
-       "P": 928222697568807600,
+       "P": 926901791466730000,
        "reactors": [
         4,
         5,
@@ -35446,31 +35446,31 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 4,
-         "P": 25057522375563300
+         "P": 25018595611315460
         },
         {
          "moduleIndex": 5,
-         "P": 87997207538682200
+         "P": 87860504216582510
         },
         {
          "moduleIndex": 6,
-         "P": 47775273541786010
+         "P": 47701054838828720
         },
         {
          "moduleIndex": 7,
-         "P": 57631499623079580
+         "P": 57541969310966020
         },
         {
          "moduleIndex": 8,
-         "P": 57631499623079580
+         "P": 57541969310966020
         },
         {
          "moduleIndex": 19,
-         "P": 326404614238514300
+         "P": 325958406280293000
         },
         {
          "moduleIndex": 20,
-         "P": 325725080628102500
+         "P": 325279291897778300
         }
        ],
        "modules": [
@@ -35530,7 +35530,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 20845125921815076,
+       "cap": 20838050176454184,
        "auto": true,
        "ok": true,
        "routeId": "p16>hotel",
@@ -35590,7 +35590,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p13",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p18>p13",
@@ -35602,7 +35602,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p14",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p14",
@@ -35614,7 +35614,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p25",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p25",
@@ -35626,7 +35626,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p26",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p26",
@@ -35638,7 +35638,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p28",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p28",
@@ -35650,7 +35650,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p29",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p29",
@@ -35662,7 +35662,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p35",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p35",
@@ -35674,7 +35674,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p36",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p19>p36",
@@ -35686,7 +35686,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p37",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p37",
@@ -35698,7 +35698,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p38",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p38",
@@ -35710,7 +35710,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p39",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p39",
@@ -35722,7 +35722,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p40",
@@ -35734,7 +35734,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p41",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p41",
@@ -35746,7 +35746,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p42",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p42",
@@ -35758,7 +35758,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p43",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p43",
@@ -35770,7 +35770,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p44",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p44",
@@ -35782,7 +35782,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p45",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p45",
@@ -35794,7 +35794,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p46",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p46",
@@ -35806,7 +35806,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p47",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p47",
@@ -35818,7 +35818,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p48",
-       "cap": 947505723718867.1,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p48",
@@ -36262,13 +36262,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p15>p49",
        "model": "source-distance",
-       "lengthM": 2.184309104780044,
-       "efficiency": 0.9999781571475108
+       "lengthM": 2.1832249180128005,
+       "efficiency": 0.9999781679891417
       },
       {
        "kind": "power",
@@ -36286,13 +36286,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p16>p49",
        "model": "source-distance",
-       "lengthM": 0.39566721525165516,
-       "efficiency": 0.9999960433356752
+       "lengthM": 0.395554904699714,
+       "efficiency": 0.9999960444587762
       },
       {
        "kind": "power",
@@ -36310,13 +36310,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p17>p49",
        "model": "source-distance",
-       "lengthM": 0.6870768990622521,
-       "efficiency": 0.999993129254613
+       "lengthM": 0.6882819499536508,
+       "efficiency": 0.999993117204187
       },
       {
        "kind": "power",
@@ -36334,13 +36334,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p18>p49",
        "model": "source-distance",
-       "lengthM": 1.6630606979978206,
-       "efficiency": 0.9999833695313078
+       "lengthM": 1.6622365663863856,
+       "efficiency": 0.9999833777724869
       },
       {
        "kind": "power",
@@ -36358,13 +36358,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p19>p49",
        "model": "source-distance",
-       "lengthM": 1.6630606979978206,
-       "efficiency": 0.9999833695313078
+       "lengthM": 1.6622365663863856,
+       "efficiency": 0.9999833777724869
       },
       {
        "kind": "power",
@@ -36382,13 +36382,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p32>p49",
        "model": "source-distance",
-       "lengthM": 3.2155989919803427,
-       "efficiency": 0.9999678445270785
+       "lengthM": 3.2148427635938903,
+       "efficiency": 0.9999678520891192
       },
       {
        "kind": "power",
@@ -36406,23 +36406,23 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p49",
-       "cap": 1224028044340114.8,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p33>p49",
        "model": "source-distance",
-       "lengthM": 3.2155989919803427,
-       "efficiency": 0.9999678445270785
+       "lengthM": 3.2148427635938903,
+       "efficiency": 0.9999678520891192
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p20",
-       "cap": 35080531325788616,
+       "cap": 35026033855841640,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p15>p20",
        "model": "source-distance",
        "lengthM": 0.12206555615733701,
@@ -36432,11 +36432,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p21",
-       "cap": 35080531325788616,
+       "cap": 35026033855841640,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p15>p21",
        "model": "source-distance",
        "lengthM": 1.7769246702423378,
@@ -36446,11 +36446,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p20",
-       "cap": 123196090554155090,
+       "cap": 123004705903215500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p16>p20",
        "model": "source-distance",
        "lengthM": 2.064000968992021,
@@ -36460,11 +36460,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 123196090554155090,
+       "cap": 123004705903215500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p16>p21",
        "model": "source-distance",
        "lengthM": 0.35390276896527817,
@@ -36474,11 +36474,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 66885382958500410,
+       "cap": 66781476774360200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p17>p20",
        "model": "source-distance",
        "lengthM": 2.9394557319340597,
@@ -36488,11 +36488,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 66885382958500410,
+       "cap": 66781476774360200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p17>p21",
        "model": "source-distance",
        "lengthM": 1.2185986171188086,
@@ -36502,11 +36502,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p18>p20",
        "model": "source-distance",
        "lengthM": 1.0761505470890214,
@@ -36516,11 +36516,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p18>p21",
        "model": "source-distance",
        "lengthM": 1.1961643226905347,
@@ -36530,11 +36530,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p20",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p19>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p19>p20",
        "model": "source-distance",
        "lengthM": 1.0761505470890214,
@@ -36544,11 +36544,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p21",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p19>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p19>p21",
        "model": "source-distance",
        "lengthM": 1.1961643226905347,
@@ -36558,11 +36558,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p20",
-       "cap": 456966459933920000,
+       "cap": 456341768792410200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p32>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p32>p20",
        "model": "source-distance",
        "lengthM": 1.8747789202996707,
@@ -36572,11 +36572,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p21",
-       "cap": 456966459933920000,
+       "cap": 456341768792410200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p32>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p32>p21",
        "model": "source-distance",
        "lengthM": 2.7507129882968098,
@@ -36586,11 +36586,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p20",
-       "cap": 456015112879343500,
+       "cap": 455391008656889600,
        "auto": true,
        "ok": true,
        "capacityGroup": "p33>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p33>p20",
        "model": "source-distance",
        "lengthM": 1.8747789202996707,
@@ -36600,11 +36600,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p21",
-       "cap": 456015112879343500,
+       "cap": 455391008656889600,
        "auto": true,
        "ok": true,
        "capacityGroup": "p33>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p33>p21",
        "model": "source-distance",
        "lengthM": 2.7507129882968098,
@@ -36616,7 +36616,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 20845125921815076,
+       "weight": 20838050176454184,
        "domain": "main"
       }
      ],
@@ -36630,7 +36630,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p49",
        "port": "p49",
-       "weight": 1224028044340114.8,
+       "weight": 1216952298979221.2,
        "domain": "main"
       },
       {
@@ -36667,23 +36667,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 15313272856330830,
-       "densityFactor": 29.311086472314997,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020307561.7535925,
-       "shaftWattsPerNewton": 1919292183.6659129,
-       "wattsPerNewton": 2020307561.7535925,
-       "ratedShaftPowerW": 426406231622763650,
-       "ratedWasteHeatW": 22442433243303372,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 425799434789644160,
+       "ratedWasteHeatW": 22410496567876028,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8996.95751240593,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36700,10 +36700,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 448848664866067000,
+       "ratedInputW": 448209931357520200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 222168482.34556624,
+       "ratedThrustN": 221852861.95261264,
        "effectiveMachineryVolumeM3": 0.045039037812737735,
        "machineryVolumeM3": 0.045039037812737735,
        "machineryShape": "frustum",
@@ -36711,12 +36711,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.24499999999999997,
        "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 330381500222296000,
-       "cost": 1336.940944379596,
+       "costBasisInputW": 330373017939200900,
+       "cost": 1336.869024108263,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -36735,7 +36735,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600,
+       "pathCapacityW": 926901791466730000,
        "transmissionRouteIds": [
         "p15>p20",
         "p16>p20",
@@ -36749,23 +36749,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 16354700231106086,
-       "densityFactor": 29.311086472314994,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020307561.7535925,
-       "shaftWattsPerNewton": 1919292183.6659129,
-       "wattsPerNewton": 2020307561.7535925,
-       "ratedShaftPowerW": 455405331067603460,
-       "ratedWasteHeatW": 23968701635137044,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 454757267103749300,
+       "ratedWasteHeatW": 23934593005460516,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8996.95751240593,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36782,10 +36782,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 479374032702740500,
+       "ratedInputW": 478691860109209860,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 237277750.07021803,
+       "ratedThrustN": 236940664.91787934,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryShape": "frustum",
@@ -36793,12 +36793,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.252,
        "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 587210639023674100,
-       "cost": 4106.430922289726,
+       "costBasisInputW": 587195562856051800,
+       "cost": 4106.21413703117,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -36817,7 +36817,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600,
+       "pathCapacityW": 926901791466730000,
        "transmissionRouteIds": [
         "p15>p21",
         "p16>p21",
@@ -36833,23 +36833,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 15313272856330830,
-       "densityFactor": 29.311086472314997,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020307561.7535925,
-       "shaftWattsPerNewton": 1919292183.6659129,
-       "wattsPerNewton": 2020307561.7535925,
-       "ratedShaftPowerW": 426406231622763650,
-       "ratedWasteHeatW": 22442433243303372,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 425799434789644160,
+       "ratedWasteHeatW": 22410496567876028,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8996.95751240593,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36866,10 +36866,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 448848664866067000,
+       "ratedInputW": 448209931357520200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 222168482.34556624,
+       "ratedThrustN": 221852861.95261264,
        "effectiveMachineryVolumeM3": 0.045039037812737735,
        "machineryVolumeM3": 0.045039037812737735,
        "machineryShape": "frustum",
@@ -36877,12 +36877,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.24499999999999997,
        "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 330381500222296000,
-       "cost": 1336.940944379596,
+       "costBasisInputW": 330373017939200900,
+       "cost": 1336.869024108263,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -36907,28 +36907,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600
+       "pathCapacityW": 926901791466730000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 16354700231106086,
-       "densityFactor": 29.311086472314994,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020307561.7535925,
-       "shaftWattsPerNewton": 1919292183.6659129,
-       "wattsPerNewton": 2020307561.7535925,
-       "ratedShaftPowerW": 455405331067603460,
-       "ratedWasteHeatW": 23968701635137044,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 454757267103749300,
+       "ratedWasteHeatW": 23934593005460516,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 8996.95751240593,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36945,10 +36945,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 479374032702740500,
+       "ratedInputW": 478691860109209860,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 237277750.07021803,
+       "ratedThrustN": 236940664.91787934,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryShape": "frustum",
@@ -36956,12 +36956,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.252,
        "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 587210639023674100,
-       "cost": 4106.430922289726,
+       "costBasisInputW": 587195562856051800,
+       "cost": 4106.21413703117,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -36986,22 +36986,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600
+       "pathCapacityW": 926901791466730000
       }
      ],
-     "massKg": 8996.95751240593,
-     "ratedThrustN": 459436951.0250601,
-     "ratedAccelMps2": 51065.813125330555,
-     "structuralAccelerationLimitMps2": 2071921.0027344895,
+     "massKg": 8996.726522654491,
+     "ratedThrustN": 458784258.48124456,
+     "ratedAccelMps2": 50994.57645244505,
+     "structuralAccelerationLimitMps2": 2071999.865748339,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 51065.813125330555,
+     "accelerationLimitMps2": 50994.57645244505,
      "conversionModelVersion": 1,
-     "conversionMassKg": 8996.95751240593,
+     "conversionMassKg": 8996.726522654491,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[928222697568807600,[[\"main\",928222697568807600,[[4,25057522375563300],[5,87997207538682200],[6,47775273541786010],[7,57631499623079580],[8,57631499623079580],[19,326404614238514300],[20,325725080628102500]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004784705865223626,0.0269951623044704],[5,\"reactor\",16,\"p16\",\"main\",0.01680296833513925,0.09480182694213758],[6,\"reactor\",17,\"p17\",\"main\",0.009122635035576131,0.05146962433359858],[7,\"reactor\",18,\"p18\",\"main\",0.011004670379426654,0.06208800945508819],[8,\"reactor\",19,\"p19\",\"main\",0.011004670379426654,0.06208800945508819],[19,\"reactor\",32,\"p32\",\"main\",0.062326595932969436,0.35164472393686375],[20,\"reactor\",33,\"p33\",\"main\",0.062196839750270204,0.3509126435727533]]]"
+     "sourceBudgetKey": "[926901791466730000,[[\"main\",926901791466730000,[[4,25018595611315460],[5,87860504216582510],[6,47701054838828720],[7,57541969310966020],[8,57541969310966020],[19,325958406280293000],[20,325279291897778300]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004777272843138711,0.026991635836333877],[5,\"reactor\",16,\"p16\",\"main\",0.016776864988717267,0.09478944266312399],[6,\"reactor\",17,\"p17\",\"main\",0.009108463057276498,0.051462900684814225],[7,\"reactor\",18,\"p18\",\"main\",0.010987574666488057,0.06207989869122117],[8,\"reactor\",19,\"p19\",\"main\",0.010987574666488057,0.06207989869122117],[19,\"reactor\",32,\"p32\",\"main\",0.06224139302252954,0.35166444738929264],[20,\"reactor\",33,\"p33\",\"main\",0.06211171689092825,0.3509317760439929]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 2538.1112751793617,
+    "maxSpeed": 2534.5092489701246,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -37012,7 +37012,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p15",
        "n": "上部機関用反応炉 #15",
        "g": "high",
-       "sh": 0.0286721,
+       "sh": 0.0286684,
        "m": [
         4
        ],
@@ -37026,7 +37026,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "下部機関用反応炉 #16",
        "g": "high",
-       "sh": 0.100691,
+       "sh": 0.100678,
        "m": [
         5
        ],
@@ -37040,7 +37040,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "補助反応炉（機首） #17",
        "g": "high",
-       "sh": 0.0546668,
+       "sh": 0.0546599,
        "m": [
         6
        ],
@@ -37054,7 +37054,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "右舷補助反応炉 #18",
        "g": "high",
-       "sh": 0.0659448,
+       "sh": 0.0659364,
        "m": [
         7
        ],
@@ -37068,7 +37068,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p19",
        "n": "左舷補助反応炉 #19",
        "g": "high",
-       "sh": 0.0659448,
+       "sh": 0.0659364,
        "m": [
         8
        ],
@@ -37098,7 +37098,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p32",
        "n": "翼根部の推進・兵装用反応炉 #32",
        "g": "high",
-       "sh": 0.373488,
+       "sh": 0.373511,
        "m": [
         19
        ],
@@ -37112,7 +37112,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p33",
        "n": "翼根部の推進・兵装用反応炉 #33",
        "g": "high",
-       "sh": 0.310592,
+       "sh": 0.31061,
        "m": [
         20
        ],
@@ -37183,7 +37183,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00394954,
+       "sh": 0.00395509,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37196,7 +37196,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p1",
        "n": "送電損失 p33>p1",
        "g": "high",
-       "sh": 0.0000673131,
+       "sh": 0.0000674076,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37209,7 +37209,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p2",
        "n": "送電損失 p32>p2",
        "g": "high",
-       "sh": 0.0000695949,
+       "sh": 0.0000696926,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37222,7 +37222,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p3",
        "n": "送電損失 p33>p3",
        "g": "high",
-       "sh": 0.0000935202,
+       "sh": 0.0000936516,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37235,7 +37235,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p4",
        "n": "送電損失 p32>p4",
        "g": "high",
-       "sh": 0.0000935202,
+       "sh": 0.0000936516,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37508,7 +37508,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p22",
        "n": "送電損失 p15>p22",
        "g": "high",
-       "sh": 0.0119177,
+       "sh": 0.0119165,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37521,7 +37521,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p23",
        "n": "送電損失 p15>p23",
        "g": "high",
-       "sh": 0.00321125,
+       "sh": 0.00321094,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37534,7 +37534,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p24",
        "n": "送電損失 p15>p24",
        "g": "high",
-       "sh": 0.00321125,
+       "sh": 0.00321094,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37547,7 +37547,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f30",
        "n": "送電損失 p15>f30",
        "g": "high",
-       "sh": 0.0000575379,
+       "sh": 0.0000576187,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37560,7 +37560,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f31",
        "n": "送電損失 p15>f31",
        "g": "high",
-       "sh": 0.0000575379,
+       "sh": 0.0000576187,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37573,7 +37573,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p22",
        "n": "送電損失 p16>p22",
        "g": "high",
-       "sh": 0.0182223,
+       "sh": 0.0182143,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37586,7 +37586,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.00391002,
+       "sh": 0.00390832,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37599,7 +37599,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p24",
        "n": "送電損失 p16>p24",
        "g": "high",
-       "sh": 0.00391002,
+       "sh": 0.00390832,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37638,7 +37638,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.00512175,
+       "sh": 0.00512098,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37651,7 +37651,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p23",
        "n": "送電損失 p17>p23",
        "g": "high",
-       "sh": 0.00542699,
+       "sh": 0.00542618,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37664,7 +37664,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p24",
        "n": "送電損失 p17>p24",
        "g": "high",
-       "sh": 0.00542699,
+       "sh": 0.00542618,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37703,7 +37703,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.0258155,
+       "sh": 0.0258116,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37716,7 +37716,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p23",
        "n": "送電損失 p18>p23",
        "g": "high",
-       "sh": 0.00444589,
+       "sh": 0.00444522,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37729,7 +37729,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p24",
        "n": "送電損失 p18>p24",
        "g": "high",
-       "sh": 0.00719871,
+       "sh": 0.00719763,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37768,7 +37768,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p22",
        "n": "送電損失 p19>p22",
        "g": "high",
-       "sh": 0.0258155,
+       "sh": 0.0258116,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37781,7 +37781,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p23",
        "n": "送電損失 p19>p23",
        "g": "high",
-       "sh": 0.00719871,
+       "sh": 0.00719763,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37794,7 +37794,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p24",
        "n": "送電損失 p19>p24",
        "g": "high",
-       "sh": 0.00444589,
+       "sh": 0.00444522,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37833,7 +37833,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p22",
        "n": "送電損失 p32>p22",
        "g": "high",
-       "sh": 0.218608,
+       "sh": 0.218616,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37846,7 +37846,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p23",
        "n": "送電損失 p32>p23",
        "g": "high",
-       "sh": 0.0838798,
+       "sh": 0.0838827,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37859,7 +37859,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p24",
        "n": "送電損失 p32>p24",
        "g": "high",
-       "sh": 0.065689,
+       "sh": 0.0656912,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37898,7 +37898,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p22",
        "n": "送電損失 p33>p22",
        "g": "high",
-       "sh": 0.0858996,
+       "sh": 0.0859035,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37911,7 +37911,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p23",
        "n": "送電損失 p33>p23",
        "g": "high",
-       "sh": 0.0258117,
+       "sh": 0.0258129,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37924,7 +37924,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p24",
        "n": "送電損失 p33>p24",
        "g": "high",
-       "sh": 0.0329596,
+       "sh": 0.0329611,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37937,7 +37937,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f30",
        "n": "送電損失 p33>f30",
        "g": "high",
-       "sh": 0.00000335541,
+       "sh": 0.00000336012,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37950,7 +37950,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f31",
        "n": "送電損失 p33>f31",
        "g": "high",
-       "sh": 0.0000816497,
+       "sh": 0.0000817644,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37963,7 +37963,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p27",
        "n": "送電損失 p15>p27",
        "g": "high",
-       "sh": 0.000960536,
+       "sh": 0.000961885,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37976,7 +37976,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p49",
        "n": "送電損失 p15>p49",
        "g": "high",
-       "sh": 0.000714715,
+       "sh": 0.000711229,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37989,7 +37989,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p27",
        "n": "送電損失 p16>p27",
        "g": "high",
-       "sh": 5.6574e-9,
+       "sh": 5.66535e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38002,7 +38002,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p49",
        "n": "送電損失 p16>p49",
        "g": "high",
-       "sh": 2.8279e-9,
+       "sh": 2.81331e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38145,7 +38145,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p20",
        "n": "送電損失 p15>p20",
        "g": "high",
-       "sh": 0.000189779,
+       "sh": 0.000189751,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38158,7 +38158,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p21",
        "n": "送電損失 p15>p21",
        "g": "high",
-       "sh": 0.00295055,
+       "sh": 0.0029501,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38171,7 +38171,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.0112694,
+       "sh": 0.0112677,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38184,7 +38184,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p21",
        "n": "送電損失 p16>p21",
        "g": "high",
-       "sh": 0.00206369,
+       "sh": 0.00206338,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38197,7 +38197,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.00871342,
+       "sh": 0.00871211,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38210,7 +38210,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.00385792,
+       "sh": 0.00385734,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38223,7 +38223,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.00384815,
+       "sh": 0.00384757,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38236,7 +38236,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.00456819,
+       "sh": 0.0045675,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38249,7 +38249,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p20",
        "n": "送電損失 p19>p20",
        "g": "high",
-       "sh": 0.00384815,
+       "sh": 0.00384757,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38262,7 +38262,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p21",
        "n": "送電損失 p19>p21",
        "g": "high",
-       "sh": 0.00456819,
+       "sh": 0.0045675,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38275,7 +38275,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p20",
        "n": "送電損失 p32>p20",
        "g": "high",
-       "sh": 0.0379683,
+       "sh": 0.0379697,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38288,7 +38288,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p21",
        "n": "送電損失 p32>p21",
        "g": "high",
-       "sh": 0.0594967,
+       "sh": 0.0594989,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38301,7 +38301,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p20",
        "n": "送電損失 p33>p20",
        "g": "high",
-       "sh": 0.0788398,
+       "sh": 0.0788424,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38314,7 +38314,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p21",
        "n": "送電損失 p33>p21",
        "g": "high",
-       "sh": 0.123543,
+       "sh": 0.123547,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38340,11 +38340,11 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 1 #49",
        "k": "hdis",
        "g": "high",
-       "cap": 81601869622674320,
+       "cap": 81130153265281420,
        "m": 35,
        "sec": 4,
        "src": -1,
-       "power": 1224028044340114.8
+       "power": 1216952298979221.2
       },
       {
        "id": "p1",
@@ -38395,7 +38395,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 244534718835653200000,
+       "cap": 244534933757916970000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -38405,3607 +38405,3607 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 847363325545789.1,
+       "cap": 847275902544190.5,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 422509880356256.2,
+       "cap": 420024136643379.2,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 91216913768520.02,
+       "cap": 91207502862763.52,
        "sec": 2
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 94309012540334.27,
+       "cap": 94299282620823.34,
        "sec": 2
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 114233185713476.73,
+       "cap": 114221400204621,
        "sec": 2
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 114233185713476.73,
+       "cap": 114221400204621,
        "sec": 2
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 2975777305558308,
+       "cap": 2975470292761909,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 1483773577914144,
+       "cap": 1475044123257312.2,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 320336287507598.9,
+       "cap": 320303238213475.9,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 331195144711246.4,
+       "cap": 331160975102068.4,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 401165015454073.5,
+       "cap": 401123627009789.7,
        "sec": 3
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 401165015454073.5,
+       "cap": 401123627009789.7,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 1615603253205415,
+       "cap": 1615436570412414.2,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 805567478124366.6,
+       "cap": 800828099503546,
        "sec": 4
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 173916356996990.75,
+       "cap": 173898413938213.62,
        "sec": 3
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 179811826725702.34,
+       "cap": 179793275427644.66,
        "sec": 3
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 217799733477771.94,
+       "cap": 217777262943735.28,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 217799733477771.94,
+       "cap": 217777262943735.28,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1948908533128898.2,
+       "cap": 1948707463022757.2,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 971759204503218.1,
+       "cap": 966042073507399.8,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 209795982726355.5,
+       "cap": 209774337944264.56,
        "sec": 2
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 216907710954367.62,
+       "cap": 216885332450849.88,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 262732671679053.78,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 262732671679053.78,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 1948908533128897.8,
+       "cap": 1948707463022757.2,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 971759204503217.9,
+       "cap": 966042073507399.8,
        "sec": 4
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 209795982726355.44,
+       "cap": 209774337944264.56,
        "sec": 2
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 216907710954367.56,
+       "cap": 216885332450849.88,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 262732671679053.72,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 262732671679053.72,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 231637625743240480,
+       "cap": 231639889830305920,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 115498491129228350,
+       "cap": 114831950780126480,
        "sec": 4
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 24935312511143256,
+       "cap": 24935556235444740,
        "sec": 4
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 25780577342029480,
+       "cap": 25780829328171690,
        "sec": 4
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 31227105448200736,
+       "cap": 31227410670140870,
        "sec": 4
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 31227105448200736,
+       "cap": 31227410670140870,
        "sec": 4
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 11037934846438316,
+       "cap": 11038857143048088,
        "sec": 2
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 5503703536313591,
+       "cap": 5472345462812861,
        "sec": 3
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 1188210913449190.8,
+       "cap": 1188310196776408.2,
        "sec": 1
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 1228489249498316.2,
+       "cap": 1228591898362049.8,
        "sec": 1
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 1488025765564371.5,
+       "cap": 1488150100518139.8,
        "sec": 1
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 1488025765564371.5,
+       "cap": 1488150100518139.8,
        "sec": 1
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 11014955245689752,
+       "cap": 11015858360050226,
        "sec": 2
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 5492245513444054,
+       "cap": 5460944166088242,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 1185737206838668.2,
+       "cap": 1185834425236324.8,
        "sec": 1
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 1225931688426420.2,
+       "cap": 1226032202362980.2,
        "sec": 1
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 1484927881904795.2,
+       "cap": 1485049630896462,
        "sec": 1
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 1484927881904795.2,
+       "cap": 1485049630896462,
        "sec": 1
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 6504979251755043,
+       "cap": 6505157916875970,
        "sec": 2
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 3243494168937141.5,
+       "cap": 3224833055631680.5,
        "sec": 2
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 700247595789166.4,
+       "cap": 700266828720823.5,
        "sec": 0
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 723984802426087.5,
+       "cap": 724004687321529.6,
        "sec": 0
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 876937295403272.1,
+       "cap": 876961381276856.8,
        "sec": 0
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 876937295403272.1,
+       "cap": 876961381276856.8,
        "sec": 0
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 6947370863834363,
+       "cap": 6947561679639839,
        "sec": 2
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 3464078210581677,
+       "cap": 3444147989462205,
        "sec": 3
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 747870140115077.5,
+       "cap": 747890681042858,
        "sec": 1
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 773221670288470.2,
+       "cap": 773242907518887.4,
        "sec": 1
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 936576179524426.5,
+       "cap": 936601903433742.5,
        "sec": 1
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 936576179524426.5,
+       "cap": 936601903433742.5,
        "sec": 1
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 31582405005840.18,
+       "cap": 31628281041924.707,
        "sec": 2
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 15747528548967.502,
+       "cap": 15679239074612.664,
        "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 3399780740055.7896,
+       "cap": 3404719200691.75,
        "sec": 1
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 3515027544803.445,
+       "cap": 3520133410884.692,
        "sec": 1
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 4257629080166.5396,
+       "cap": 4263813635943.091,
        "sec": 1
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 4257629080166.5396,
+       "cap": 4263813635943.091,
        "sec": 1
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 31267688882722616,
+       "cap": 31257075264681276,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 31267688882722616,
+       "cap": 31257075264681276,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 31267688882722616,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 31267688882722616,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 31267688882722616,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 31267688882722616,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 244534718835653200000,
+       "cap": 244534933757916970000,
        "sec": -1
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 142039208743.9289,
+       "cap": 142197248014.71127,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 70823184439.37866,
+       "cap": 70492122047.96356,
        "sec": 4
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 15290227774.961271,
+       "cap": 15307240376.40435,
        "sec": 2
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 15808540580.892166,
+       "cap": 15826129880.689249,
        "sec": 2
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 19148328493.671318,
+       "cap": 19169633793.09252,
        "sec": 2
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 19148328493.671318,
+       "cap": 19169633793.09252,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 1900731377.1484485,
+       "cap": 1903492345.5176697,
        "sec": 2
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 947737248.6366557,
+       "cap": 943627366.9917582,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 204609811.2811249,
+       "cap": 204907023.82981604,
        "sec": 1
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 211545737.0872648,
+       "cap": 211853024.63760647,
        "sec": 1
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 256237901.56056052,
+       "cap": 256610108.14888218,
        "sec": 1
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 256237901.56056052,
+       "cap": 256610108.14888218,
        "sec": 1
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 1965162949.2551758,
+       "cap": 1968017509.7725062,
        "sec": 2
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 979863935.0311189,
+       "cap": 975614735.3643605,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 211545737.08726475,
+       "cap": 211853024.63760644,
        "sec": 1
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 218716779.02242634,
+       "cap": 219034483.09989825,
        "sec": 1
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 264923932.12193552,
+       "cap": 265308755.88274264,
        "sec": 1
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 264923932.12193552,
+       "cap": 265308755.88274264,
        "sec": 1
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 2640748477.568857,
+       "cap": 2644584381.529455,
        "sec": 2
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 1316722460.923041,
+       "cap": 1311012467.4819725,
        "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 284271125.3848482,
+       "cap": 284684052.5322118,
        "sec": 1
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 293907434.71992785,
+       "cap": 294334359.3977106,
        "sec": 1
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 355999725.4618064,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 355999725.4618064,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 2640748477.568857,
+       "cap": 2644584381.529455,
        "sec": 2
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 1316722460.923041,
+       "cap": 1311012467.4819725,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 284271125.3848482,
+       "cap": 284684052.5322118,
        "sec": 1
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 293907434.71992785,
+       "cap": 294334359.3977106,
        "sec": 1
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 355999725.4618064,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 355999725.4618064,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 6720687100.31768,
+       "cap": 6728164841.836262,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 3351049800.082026,
+       "cap": 3335385345.435599,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 723468100.6521277,
+       "cap": 724273064.098999,
        "sec": 2
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 747992443.0471153,
+       "cap": 748824693.3904908,
        "sec": 2
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 906016905.0368836,
+       "cap": 907024980.5693705,
        "sec": 2
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 906016905.0368836,
+       "cap": 907024980.5693705,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 5082524850.558213,
+       "cap": 5088179898.401824,
        "sec": 3
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 2534234019.549869,
+       "cap": 2522387763.531322,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 547123314.2183897,
+       "cap": 547732068.4516171,
        "sec": 2
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 565669867.2427422,
+       "cap": 566299257.212689,
        "sec": 2
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 685175989.6184028,
+       "cap": 685938347.524466,
        "sec": 2
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 685175989.6184028,
+       "cap": 685938347.524466,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 5884313942.153345,
+       "cap": 5890861096.933325,
        "sec": 3
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 2934019805.5851703,
+       "cap": 2920304754.2077827,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 633434255.728002,
+       "cap": 634139043.4323908,
        "sec": 2
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 654906603.379799,
+       "cap": 655635282.192811,
        "sec": 2
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 793265305.5493613,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 793265305.5493613,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 5884313942.153345,
+       "cap": 5890861096.933325,
        "sec": 3
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 2934019805.5851703,
+       "cap": 2920304754.2077827,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 633434255.728002,
+       "cap": 634139043.4323908,
        "sec": 2
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 654906603.379799,
+       "cap": 655635282.192811,
        "sec": 2
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 793265305.5493613,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 793265305.5493613,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 9555459450.781258,
+       "cap": 9566091288.686764,
        "sec": 2
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 4764515890.156356,
+       "cap": 4742244199.932082,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 1028625495.6562946,
+       "cap": 1029769991.0718858,
        "sec": 1
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 1063494156.5259997,
+       "cap": 1064677448.396357,
        "sec": 1
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 1288173019.8974812,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 1288173019.8974812,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 9555459450.781258,
+       "cap": 9566091288.686764,
        "sec": 2
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 4764515890.156356,
+       "cap": 4742244199.932082,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 1028625495.6562946,
+       "cap": 1029769991.0718858,
        "sec": 1
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 1063494156.5259997,
+       "cap": 1064677448.396357,
        "sec": 1
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 1288173019.8974812,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 1288173019.8974812,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 2130611260.251881,
+       "cap": 2132981875.0480952,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 1062359299.1529226,
+       "cap": 1057393309.3728293,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 229355906.4235564,
+       "cap": 229611098.21546617,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 237130682.91249058,
+       "cap": 237394525.27361766,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 287228045.4417966,
+       "cap": 287547628.402384,
        "sec": 3
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 287228045.4417966,
+       "cap": 287547628.402384,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 3194638360.665828,
+       "cap": 3198192860.3099604,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 1592901451.897316,
+       "cap": 1585455447.2008584,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 343896228.5496203,
+       "cap": 344278863.1028919,
        "sec": 2
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 355553727.82248884,
+       "cap": 355949333.03858334,
        "sec": 2
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 430669709.3673267,
+       "cap": 431148892.0339887,
        "sec": 2
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 430669709.3673267,
+       "cap": 431148892.0339887,
        "sec": 2
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 3373644745.475123,
+       "cap": 3377398415.74806,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 1682157104.0463703,
+       "cap": 1674293874.5402448,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 363165896.55967575,
+       "cap": 363569971.42022204,
        "sec": 3
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 375476604.917631,
+       "cap": 375894377.2310772,
        "sec": 3
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 454801588.79065114,
+       "cap": 455307621.68170106,
        "sec": 3
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 454801588.79065114,
+       "cap": 455307621.68170106,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 3237372277.959219,
+       "cap": 3240974325.299415,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1614209315.6417787,
+       "cap": 1606663707.512024,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 348496446.58033514,
+       "cap": 348884199.5449908,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 360309885.4474653,
+       "cap": 360710782.5804143,
        "sec": 3
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 436430675.6060956,
+       "cap": 436916268.18528396,
        "sec": 3
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 436430675.6060956,
+       "cap": 436916268.18528396,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 3246594625.803208,
+       "cap": 3250206934.346217,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1618807736.3742995,
+       "cap": 1611240632.9647648,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 349489213.2987751,
+       "cap": 349878070.86074317,
        "sec": 3
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 361336305.27500486,
+       "cap": 361738344.4492431,
        "sec": 3
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 437673941.7968976,
+       "cap": 438160917.6904816,
        "sec": 3
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 437673941.7968976,
+       "cap": 438160917.6904816,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 2159987189.1299524,
+       "cap": 2162390488.918004,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 1077006640.879252,
+       "cap": 1071972182.22109,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 232518164.56072003,
+       "cap": 232776874.82456753,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 240400136.2407445,
+       "cap": 240667616.34404445,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 291188219.1215735,
+       "cap": 291512208.3511485,
        "sec": 3
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 291188219.1215735,
+       "cap": 291512208.3511485,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2949620885.58831,
+       "cap": 2952902767.668372,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 1470731538.521002,
+       "cap": 1463856616.0767972,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 317520602.86210185,
+       "cap": 317873890.6970488,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 328284013.12861395,
+       "cap": 328649276.82237256,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 397638864.2861456,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 397638864.2861456,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 2949620885.58831,
+       "cap": 2952902767.668372,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 1470731538.521002,
+       "cap": 1463856616.0767972,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 317520602.86210185,
+       "cap": 317873890.6970488,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 328284013.12861395,
+       "cap": 328649276.82237256,
        "sec": 3
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 397638864.2861456,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 397638864.2861456,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 2340436955.1185765,
+       "cap": 2343041031.5068502,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 1166981987.6280158,
+       "cap": 1161526939.953717,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 251943209.5768375,
+       "cap": 252223533.02746922,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 260483657.35910326,
+       "cap": 260773483.29958695,
        "sec": 3
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 315514680.9929966,
+       "cap": 315865736.9482235,
        "sec": 3
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 315514680.9929966,
+       "cap": 315865736.9482235,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 2031327785.7328444,
+       "cap": 2033587933.2288492,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 1012854856.7540582,
+       "cap": 1008120275.0815775,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 218668245.22697484,
+       "cap": 218911545.44192627,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 226080728.11602494,
+       "cap": 226332275.79588994,
        "sec": 3
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 273843624.3309263,
+       "cap": 274148315.1770692,
        "sec": 3
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 273843624.3309263,
+       "cap": 274148315.1770692,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 2728070478.921684,
+       "cap": 2731105853.963156,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 1360262707.7472568,
+       "cap": 1353904170.941205,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 293671158.67324305,
+       "cap": 293997910.5340634,
        "sec": 3
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 303626113.20453954,
+       "cap": 303963941.399625,
        "sec": 3
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 367771618.4582197,
+       "cap": 368180817.8540033,
        "sec": 3
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 367771618.4582197,
+       "cap": 368180817.8540033,
        "sec": 3
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 2775500056.3006797,
+       "cap": 2778588203.642763,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 1383911908.1074913,
+       "cap": 1377442823.3094466,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 298776854.82438403,
+       "cap": 299109287.5144888,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 308904883.8014819,
+       "cap": 309248585.396336,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 374165607.3856455,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 374165607.3856455,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 2775500056.3006797,
+       "cap": 2778588203.642763,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 1383911908.1074913,
+       "cap": 1377442823.3094466,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 298776854.82438403,
+       "cap": 299109287.5144888,
        "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 308904883.8014819,
+       "cap": 309248585.396336,
        "sec": 3
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 374165607.3856455,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 374165607.3856455,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 2781685666.6887584,
+       "cap": 2784780696.4217234,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 1386996159.4861007,
+       "cap": 1380512657.38043,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 299442723.02090013,
+       "cap": 299775896.58618397,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 309593323.8012697,
+       "cap": 309937791.3857157,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 374999490.5133552,
+       "cap": 375416731.9676591,
        "sec": 3
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 374999490.5133552,
+       "cap": 375416731.9676591,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 1361192332785467.2,
+       "cap": 1363169576398336.8,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 678713831869707.5,
+       "cap": 675770575683721.4,
        "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 146529546298322.88,
+       "cap": 146742392493924.16,
        "sec": 3
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 151496649562672.84,
+       "cap": 151716710883548.72,
        "sec": 3
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 183502556524604.38,
+       "cap": 183769109052924.16,
        "sec": 3
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 183502556524604.38,
+       "cap": 183769109052924.16,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 366784340466617.8,
+       "cap": 367317124832956.44,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 182884959892832.72,
+       "cap": 182091875585053.75,
        "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 39483577524950.414,
+       "cap": 39540930662779.72,
        "sec": 2
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 40822003881728.41,
+       "cap": 40881301193721.414,
        "sec": 2
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 49446255718385.02,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 49446255718385.02,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 366784340466617.8,
+       "cap": 367317124832956.44,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 182884959892832.72,
+       "cap": 182091875585053.75,
        "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 39483577524950.414,
+       "cap": 39540930662779.72,
        "sec": 2
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 40822003881728.41,
+       "cap": 40881301193721.414,
        "sec": 2
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 49446255718385.02,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 49446255718385.02,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 1949608715.565649,
+       "cap": 1952440682.281593,
        "sec": 3
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 972108327.4693183,
+       "cap": 967892760.1507758,
        "sec": 3
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 209871355.9210995,
+       "cap": 210176211.29533607,
        "sec": 2
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 216985639.17266232,
+       "cap": 217300828.62738144,
        "sec": 2
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 262827063.38556185,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 262827063.38556185,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 1949608715.565649,
+       "cap": 1952440682.281593,
        "sec": 3
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 972108327.4693183,
+       "cap": 967892760.1507758,
        "sec": 3
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 209871355.9210995,
+       "cap": 210176211.29533607,
        "sec": 2
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 216985639.17266232,
+       "cap": 217300828.62738144,
        "sec": 2
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 262827063.38556185,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 262827063.38556185,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 615551664233198.4,
+       "cap": 616445803560302.6,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 306924612108680.7,
+       "cap": 305593627353689.44,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 66262866687395.375,
+       "cap": 66359118941226.37,
        "sec": 3
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 68509065558154.56,
+       "cap": 68608580600251.016,
        "sec": 3
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 82982618502281.31,
+       "cap": 83103157568261.11,
        "sec": 3
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 82982618502281.31,
+       "cap": 83103157568261.11,
        "sec": 3
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 132082759306047.52,
+       "cap": 132274620357507.9,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 65858728067535.055,
+       "cap": 65573130368351.64,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 14218436534490.857,
+       "cap": 14239089980844.967,
        "sec": 3
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 14700417433965.129,
+       "cap": 14721770997144.803,
        "sec": 3
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 17806097949351.06,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 17806097949351.06,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 132082759306047.52,
+       "cap": 132274620357507.9,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 65858728067535.055,
+       "cap": 65573130368351.64,
        "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 14218436534490.857,
+       "cap": 14239089980844.967,
        "sec": 3
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 14700417433965.129,
+       "cap": 14721770997144.803,
        "sec": 3
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 17806097949351.06,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 17806097949351.06,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 2910684092.7836733,
+       "cap": 2914912100.386214,
        "sec": 3
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 1451316986.1402423,
+       "cap": 1445023320.8328526,
        "sec": 4
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 313329137.448614,
+       "cap": 313784273.7440693,
        "sec": 2
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 323950464.14178747,
+       "cap": 324421028.78624123,
        "sec": 2
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 392389789.0082248,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 392389789.0082248,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 2910684092.7836733,
+       "cap": 2914912100.386214,
        "sec": 3
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 1451316986.1402423,
+       "cap": 1445023320.8328526,
        "sec": 4
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 313329137.448614,
+       "cap": 313784273.7440693,
        "sec": 2
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 323950464.14178747,
+       "cap": 324421028.78624123,
        "sec": 2
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 392389789.0082248,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 392389789.0082248,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 269283509644128.2,
+       "cap": 269674666049193.53,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 134269374200695.53,
+       "cap": 133687112358298.67,
        "sec": 4
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 28987814244464.297,
+       "cap": 29029921424460.4,
        "sec": 4
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 29970452015463.098,
+       "cap": 30013986557492.965,
        "sec": 4
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 36302153089928.9,
+       "cap": 36354884947581.66,
        "sec": 4
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 36302153089928.9,
+       "cap": 36354884947581.66,
        "sec": 4
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 285330333186610.9,
+       "cap": 285744798920264.1,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 142270595507583.38,
+       "cap": 141653636208023.97,
        "sec": 4
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 30715221692019.926,
+       "cap": 30759838073148.18,
        "sec": 3
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 31756415647681.625,
+       "cap": 31802544448509.14,
        "sec": 3
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 38465427943320.89,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 48,
        "d": 5,
-       "cap": 38465427943320.89,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 285330333186610.9,
+       "cap": 285744798920264.1,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 142270595507583.38,
+       "cap": 141653636208023.97,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 30715221692019.926,
+       "cap": 30759838073148.18,
        "sec": 3
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 31756415647681.625,
+       "cap": 31802544448509.14,
        "sec": 3
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 38465427943320.89,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 49,
        "d": 5,
-       "cap": 38465427943320.89,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 3619608785.7014594,
+       "cap": 3624866564.620893,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 1804798991.032728,
+       "cap": 1796972443.8999176,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 389643418.03257096,
+       "cap": 390209407.0857307,
        "sec": 2
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 402851669.49130225,
+       "cap": 403436844.6140606,
        "sec": 2
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 487960040.4712388,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 50,
        "d": 5,
-       "cap": 487960040.4712388,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 3619608785.7014594,
+       "cap": 3624866564.620893,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 1804798991.032728,
+       "cap": 1796972443.8999176,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 389643418.03257096,
+       "cap": 390209407.0857307,
        "sec": 2
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 402851669.49130225,
+       "cap": 403436844.6140606,
        "sec": 2
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 487960040.4712388,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 487960040.4712388,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 1125148118134007,
+       "cap": 1126782488146626.8,
        "sec": 4
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 561018139969261.1,
+       "cap": 558585273518954.25,
        "sec": 4
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 121119873582605.62,
+       "cap": 121295810142535.19,
        "sec": 3
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 125225632009134.67,
+       "cap": 125407532520248.27,
        "sec": 3
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 151681398119495.94,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 52,
        "d": 5,
-       "cap": 151681398119495.94,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 53,
        "d": 0,
-       "cap": 193774669589533.12,
+       "cap": 194056143205387.06,
        "sec": 4
       },
       {
        "s": 53,
        "d": 1,
-       "cap": 96619372111263.97,
+       "cap": 96200380260355.05,
        "sec": 4
       },
       {
        "s": 53,
        "d": 2,
-       "cap": 20859443397655.945,
+       "cap": 20889743451684.04,
        "sec": 2
       },
       {
        "s": 53,
        "d": 3,
-       "cap": 21566543173847.68,
+       "cap": 21597870348351.305,
        "sec": 2
       },
       {
        "s": 53,
        "d": 4,
-       "cap": 26122794261282.42,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 53,
        "d": 5,
-       "cap": 26122794261282.42,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 54,
        "d": 0,
-       "cap": 313754738397042.94,
+       "cap": 314210492912816.3,
        "sec": 4
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 156443491221381.22,
+       "cap": 155765070874434.47,
        "sec": 4
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 33775050269485.71,
+       "cap": 33824111302824.785,
        "sec": 2
       },
       {
        "s": 54,
        "d": 3,
-       "cap": 34919967227773.375,
+       "cap": 34970691346988.35,
        "sec": 2
       },
       {
        "s": 54,
        "d": 4,
-       "cap": 42297326564974.11,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 54,
        "d": 5,
-       "cap": 42297326564974.11,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 1616084862.3178523,
+       "cap": 1618432358.2557216,
        "sec": 3
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 805807616.6839901,
+       "cap": 802313215.7433369,
        "sec": 4
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 173968201.2243191,
+       "cap": 174220904.31882542,
        "sec": 2
       },
       {
        "s": 55,
        "d": 3,
-       "cap": 179865428.38446558,
+       "cap": 180126697.68556532,
        "sec": 2
       },
       {
        "s": 55,
        "d": 4,
-       "cap": 217864659.2794012,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 55,
        "d": 5,
-       "cap": 217864659.2794012,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 2667293590.8621044,
+       "cap": 2671168053.779029,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 1329958309.4704738,
+       "cap": 1324190918.5059059,
        "sec": 4
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 287128652.0646653,
+       "cap": 287545730.0041251,
        "sec": 2
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 296861826.7109253,
+       "cap": 297293042.885621,
        "sec": 2
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 359578276.4389326,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 359578276.4389326,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 1125148118134007,
+       "cap": 1126782488146626.8,
        "sec": 4
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 561018139969261.1,
+       "cap": 558585273518954.25,
        "sec": 4
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 121119873582605.62,
+       "cap": 121295810142535.19,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 125225632009134.67,
+       "cap": 125407532520248.27,
        "sec": 3
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 151681398119495.94,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 151681398119495.94,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 313754738397042.94,
+       "cap": 314210492912816.3,
        "sec": 4
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 156443491221381.22,
+       "cap": 155765070874434.47,
        "sec": 4
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 33775050269485.71,
+       "cap": 33824111302824.785,
        "sec": 2
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 34919967227773.375,
+       "cap": 34970691346988.35,
        "sec": 2
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 42297326564974.11,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 42297326564974.11,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 193774669589533.12,
+       "cap": 194056143205387.06,
        "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 96619372111263.97,
+       "cap": 96200380260355.05,
        "sec": 4
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 20859443397655.945,
+       "cap": 20889743451684.04,
        "sec": 2
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 21566543173847.68,
+       "cap": 21597870348351.305,
        "sec": 2
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 26122794261282.42,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 26122794261282.42,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 60,
        "d": 0,
-       "cap": 2667293590.8621044,
+       "cap": 2671168053.779029,
        "sec": 3
       },
       {
        "s": 60,
        "d": 1,
-       "cap": 1329958309.4704738,
+       "cap": 1324190918.5059059,
        "sec": 4
       },
       {
        "s": 60,
        "d": 2,
-       "cap": 287128652.0646653,
+       "cap": 287545730.0041251,
        "sec": 2
       },
       {
        "s": 60,
        "d": 3,
-       "cap": 296861826.7109253,
+       "cap": 297293042.885621,
        "sec": 2
       },
       {
        "s": 60,
        "d": 4,
-       "cap": 359578276.4389326,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 60,
        "d": 5,
-       "cap": 359578276.4389326,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 61,
        "d": 0,
-       "cap": 1616084862.3178523,
+       "cap": 1618432358.2557216,
        "sec": 3
       },
       {
        "s": 61,
        "d": 1,
-       "cap": 805807616.6839901,
+       "cap": 802313215.7433369,
        "sec": 4
       },
       {
        "s": 61,
        "d": 2,
-       "cap": 173968201.2243191,
+       "cap": 174220904.31882542,
        "sec": 2
       },
       {
        "s": 61,
        "d": 3,
-       "cap": 179865428.38446558,
+       "cap": 180126697.68556532,
        "sec": 2
       },
       {
        "s": 61,
        "d": 4,
-       "cap": 217864659.2794012,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 61,
        "d": 5,
-       "cap": 217864659.2794012,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 62,
        "d": 0,
-       "cap": 1684016205614390.5,
+       "cap": 1686462377405342.2,
        "sec": 4
       },
       {
        "s": 62,
        "d": 1,
-       "cap": 839679348989814.6,
+       "cap": 836038062600599.6,
        "sec": 4
       },
       {
        "s": 62,
        "d": 2,
-       "cap": 181280870178535.22,
+       "cap": 181544195525044.06,
        "sec": 2
       },
       {
        "s": 62,
        "d": 3,
-       "cap": 187425984421875.47,
+       "cap": 187698236051316.8,
        "sec": 2
       },
       {
        "s": 62,
        "d": 4,
-       "cap": 227022494555740.5,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 62,
        "d": 5,
-       "cap": 227022494555740.5,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 63,
        "d": 0,
-       "cap": 646164056884198.8,
+       "cap": 647102663224807.2,
        "sec": 3
       },
       {
        "s": 63,
        "d": 1,
-       "cap": 322188475868729.56,
+       "cap": 320791299061470.8,
        "sec": 4
       },
       {
        "s": 63,
        "d": 2,
-       "cap": 69558227598720.88,
+       "cap": 69659266634814.07,
        "sec": 2
       },
       {
        "s": 63,
        "d": 3,
-       "cap": 71916133619016.53,
+       "cap": 72020597707180.67,
        "sec": 2
       },
       {
        "s": 63,
        "d": 4,
-       "cap": 87109480061439.78,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 63,
        "d": 5,
-       "cap": 87109480061439.78,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 64,
        "d": 0,
-       "cap": 506035438862313.3,
+       "cap": 506770496881137.56,
        "sec": 3
       },
       {
        "s": 64,
        "d": 1,
-       "cap": 252317944716369.66,
+       "cap": 251223762873079.47,
        "sec": 4
       },
       {
        "s": 64,
        "d": 2,
-       "cap": 54473670973177.5,
+       "cap": 54552798452378.66,
        "sec": 2
       },
       {
        "s": 64,
        "d": 3,
-       "cap": 56320236090912.35,
+       "cap": 56402045857544.06,
        "sec": 2
       },
       {
        "s": 64,
        "d": 4,
-       "cap": 68218718609194.34,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 64,
        "d": 5,
-       "cap": 68218718609194.34,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 65,
        "d": 0,
-       "cap": 3458210205.760917,
+       "cap": 3463233539.9926844,
        "sec": 2
       },
       {
        "s": 65,
        "d": 1,
-       "cap": 1724322892.239539,
+       "cap": 1716845331.3281298,
        "sec": 3
       },
       {
        "s": 65,
        "d": 2,
-       "cap": 372269193.889326,
+       "cap": 372809945.45554984,
        "sec": 1
       },
       {
        "s": 65,
        "d": 3,
-       "cap": 384888488.5974388,
+       "cap": 385447570.7252296,
        "sec": 1
       },
       {
        "s": 65,
        "d": 4,
-       "cap": 466201872.04406035,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 65,
        "d": 5,
-       "cap": 466201872.04406035,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 66,
        "d": 0,
-       "cap": 142120686.2718021,
+       "cap": 142327128.23626167,
        "sec": 2
       },
       {
        "s": 66,
        "d": 1,
-       "cap": 70863810.53153488,
+       "cap": 70556508.19155617,
        "sec": 3
       },
       {
        "s": 66,
        "d": 2,
-       "cap": 15298998.66273753,
+       "cap": 15321221.714293582,
        "sec": 1
       },
       {
        "s": 66,
        "d": 3,
-       "cap": 15817608.78689813,
+       "cap": 15840585.162235744,
        "sec": 1
       },
       {
        "s": 66,
        "d": 4,
-       "cap": 19159312.492261317,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 66,
        "d": 5,
-       "cap": 19159312.492261317,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 67,
        "d": 0,
-       "cap": 1684016205614390.5,
+       "cap": 1686462377405342.2,
        "sec": 4
       },
       {
        "s": 67,
        "d": 1,
-       "cap": 839679348989814.6,
+       "cap": 836038062600599.6,
        "sec": 4
       },
       {
        "s": 67,
        "d": 2,
-       "cap": 181280870178535.22,
+       "cap": 181544195525044.06,
        "sec": 2
       },
       {
        "s": 67,
        "d": 3,
-       "cap": 187425984421875.47,
+       "cap": 187698236051316.8,
        "sec": 2
       },
       {
        "s": 67,
        "d": 4,
-       "cap": 227022494555740.5,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 67,
        "d": 5,
-       "cap": 227022494555740.5,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 68,
        "d": 0,
-       "cap": 506035438862313.3,
+       "cap": 506770496881137.56,
        "sec": 3
       },
       {
        "s": 68,
        "d": 1,
-       "cap": 252317944716369.66,
+       "cap": 251223762873079.47,
        "sec": 4
       },
       {
        "s": 68,
        "d": 2,
-       "cap": 54473670973177.5,
+       "cap": 54552798452378.66,
        "sec": 2
       },
       {
        "s": 68,
        "d": 3,
-       "cap": 56320236090912.35,
+       "cap": 56402045857544.06,
        "sec": 2
       },
       {
        "s": 68,
        "d": 4,
-       "cap": 68218718609194.34,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 68,
        "d": 5,
-       "cap": 68218718609194.34,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 69,
        "d": 0,
-       "cap": 646164056884198.8,
+       "cap": 647102663224807.2,
        "sec": 3
       },
       {
        "s": 69,
        "d": 1,
-       "cap": 322188475868729.56,
+       "cap": 320791299061470.8,
        "sec": 4
       },
       {
        "s": 69,
        "d": 2,
-       "cap": 69558227598720.88,
+       "cap": 69659266634814.07,
        "sec": 2
       },
       {
        "s": 69,
        "d": 3,
-       "cap": 71916133619016.53,
+       "cap": 72020597707180.67,
        "sec": 2
       },
       {
        "s": 69,
        "d": 4,
-       "cap": 87109480061439.78,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 69,
        "d": 5,
-       "cap": 87109480061439.78,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 70,
        "d": 0,
-       "cap": 142120686.2718021,
+       "cap": 142327128.23626167,
        "sec": 2
       },
       {
        "s": 70,
        "d": 1,
-       "cap": 70863810.53153488,
+       "cap": 70556508.19155617,
        "sec": 3
       },
       {
        "s": 70,
        "d": 2,
-       "cap": 15298998.66273753,
+       "cap": 15321221.714293582,
        "sec": 1
       },
       {
        "s": 70,
        "d": 3,
-       "cap": 15817608.78689813,
+       "cap": 15840585.162235744,
        "sec": 1
       },
       {
        "s": 70,
        "d": 4,
-       "cap": 19159312.492261317,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 70,
        "d": 5,
-       "cap": 19159312.492261317,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 71,
        "d": 0,
-       "cap": 3458210205.760917,
+       "cap": 3463233539.9926844,
        "sec": 2
       },
       {
        "s": 71,
        "d": 1,
-       "cap": 1724322892.239539,
+       "cap": 1716845331.3281298,
        "sec": 3
       },
       {
        "s": 71,
        "d": 2,
-       "cap": 372269193.889326,
+       "cap": 372809945.45554984,
        "sec": 1
       },
       {
        "s": 71,
        "d": 3,
-       "cap": 384888488.5974388,
+       "cap": 385447570.7252296,
        "sec": 1
       },
       {
        "s": 71,
        "d": 4,
-       "cap": 466201872.04406035,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 71,
        "d": 5,
-       "cap": 466201872.04406035,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 72,
        "d": 0,
-       "cap": 27122825007.825214,
+       "cap": 27162223137.8455,
        "sec": 4
       },
       {
        "s": 72,
        "d": 1,
-       "cap": 13523905511.958172,
+       "cap": 13465258823.637247,
        "sec": 4
       },
       {
        "s": 72,
        "d": 2,
-       "cap": 2919716153.993213,
+       "cap": 2923957281.4061637,
        "sec": 2
       },
       {
        "s": 72,
        "d": 3,
-       "cap": 3018689582.942137,
+       "cap": 3023074477.386035,
        "sec": 2
       },
       {
        "s": 72,
        "d": 4,
-       "cap": 3656432385.951313,
+       "cap": 3661743654.173208,
        "sec": 2
       },
       {
        "s": 72,
        "d": 5,
-       "cap": 3656432385.951313,
+       "cap": 3661743654.173208,
        "sec": 2
       },
       {
        "s": 73,
        "d": 0,
-       "cap": 20181537248.312977,
+       "cap": 20084046002.790115,
        "sec": 4
       },
       {
        "s": 73,
        "d": 1,
-       "cap": 10062860441.47337,
+       "cap": 9956360209.581024,
        "sec": 4
       },
       {
        "s": 73,
        "d": 2,
-       "cap": 2172500847.5081353,
+       "cap": 2162006116.065379,
        "sec": 2
       },
       {
        "s": 73,
        "d": 3,
-       "cap": 2246144944.033836,
+       "cap": 2235294458.98285,
        "sec": 2
       },
       {
        "s": 73,
        "d": 4,
-       "cap": 2720676270.695417,
+       "cap": 2707533460.26274,
        "sec": 2
       },
       {
        "s": 73,
        "d": 5,
-       "cap": 2720676270.695417,
+       "cap": 2707533460.26274,
        "sec": 2
       },
       {
        "s": 74,
        "d": 0,
-       "cap": 10913864463.312702,
+       "cap": 10929717747.43872,
        "sec": 4
       },
       {
        "s": 74,
        "d": 1,
-       "cap": 5441839916.36474,
+       "cap": 5418241268.090748,
        "sec": 4
       },
       {
        "s": 74,
        "d": 2,
-       "cap": 1174854992.679895,
+       "cap": 1176561566.0085666,
        "sec": 2
       },
       {
        "s": 74,
        "d": 3,
-       "cap": 1214680585.6520953,
+       "cap": 1216445008.9241116,
        "sec": 2
       },
       {
        "s": 74,
        "d": 4,
-       "cap": 1471299817.331951,
+       "cap": 1473437001.1055932,
        "sec": 3
       },
       {
        "s": 74,
        "d": 5,
-       "cap": 1471299817.331951,
+       "cap": 1473437001.1055932,
        "sec": 3
       },
       {
        "s": 75,
        "d": 0,
-       "cap": 3655729877.3344617,
+       "cap": 3638843550.429969,
        "sec": 4
       },
       {
        "s": 75,
        "d": 1,
-       "cap": 1822809586.540112,
+       "cap": 1803901321.9427197,
        "sec": 4
       },
       {
        "s": 75,
        "d": 2,
-       "cap": 393531779.0241092,
+       "cap": 391714000.77164346,
        "sec": 3
       },
       {
        "s": 75,
        "d": 3,
-       "cap": 406871839.33001137,
+       "cap": 404992441.47576714,
        "sec": 3
       },
       {
        "s": 75,
        "d": 4,
-       "cap": 492829530.6229734,
+       "cap": 490553082.18681175,
        "sec": 3
       },
       {
        "s": 75,
        "d": 5,
-       "cap": 492829530.6229734,
+       "cap": 490553082.18681175,
        "sec": 3
       },
       {
        "s": 76,
        "d": 0,
-       "cap": 25842496108.358772,
+       "cap": 25880034455.54171,
        "sec": 4
       },
       {
        "s": 76,
        "d": 1,
-       "cap": 12885511574.172636,
+       "cap": 12829633294.005861,
        "sec": 4
       },
       {
        "s": 76,
        "d": 2,
-       "cap": 2781891389.459356,
+       "cap": 2785932315.0868526,
        "sec": 3
       },
       {
        "s": 76,
        "d": 3,
-       "cap": 2876192792.491878,
+       "cap": 2880370698.6491203,
        "sec": 3
       },
       {
        "s": 76,
        "d": 4,
-       "cap": 3483831041.831449,
+       "cap": 3488891592.430997,
        "sec": 3
       },
       {
        "s": 76,
        "d": 5,
-       "cap": 3483831041.831449,
+       "cap": 3488891592.430997,
        "sec": 3
       },
       {
        "s": 77,
        "d": 0,
-       "cap": 6348172887.190361,
+       "cap": 6331729524.719874,
        "sec": 4
       },
       {
        "s": 77,
        "d": 1,
-       "cap": 3165307827.4541063,
+       "cap": 3138858569.084763,
        "sec": 4
       },
       {
        "s": 77,
        "d": 2,
-       "cap": 683367714.1567639,
+       "cap": 681597620.111723,
        "sec": 3
       },
       {
        "s": 77,
        "d": 3,
-       "cap": 706532721.4163156,
+       "cap": 704702624.183307,
        "sec": 3
       },
       {
        "s": 77,
        "d": 4,
-       "cap": 855798204.2668519,
+       "cap": 853581471.9370275,
        "sec": 3
       },
       {
        "s": 77,
        "d": 5,
-       "cap": 855798204.2668519,
+       "cap": 853581471.9370275,
        "sec": 3
       },
       {
        "s": 78,
        "d": 0,
-       "cap": 19858244692.869347,
+       "cap": 19887090423.583553,
        "sec": 4
       },
       {
        "s": 78,
        "d": 1,
-       "cap": 9901661231.167006,
+       "cap": 9858722478.040539,
        "sec": 4
       },
       {
        "s": 78,
        "d": 2,
-       "cap": 2137699070.9114065,
+       "cap": 2140804254.3101015,
        "sec": 2
       },
       {
        "s": 78,
        "d": 3,
-       "cap": 2210163446.1965394,
+       "cap": 2213373890.0494275,
        "sec": 2
       },
       {
        "s": 78,
        "d": 4,
-       "cap": 2677093149.4858828,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 78,
        "d": 5,
-       "cap": 2677093149.4858828,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 79,
        "d": 0,
-       "cap": 15365594925.565628,
+       "cap": 15291380359.284525,
        "sec": 4
       },
       {
        "s": 79,
        "d": 1,
-       "cap": 7661549040.2795515,
+       "cap": 7580469141.407009,
        "sec": 4
       },
       {
        "s": 79,
        "d": 2,
-       "cap": 1654074592.4123547,
+       "cap": 1646085547.466999,
        "sec": 2
       },
       {
        "s": 79,
        "d": 3,
-       "cap": 1710144917.5788758,
+       "cap": 1701885057.5506265,
        "sec": 2
       },
       {
        "s": 79,
        "d": 4,
-       "cap": 2071438314.373148,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 79,
        "d": 5,
-       "cap": 2071438314.373148,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 80,
        "d": 0,
-       "cap": 19858244692.869347,
+       "cap": 19887090423.583553,
        "sec": 4
       },
       {
        "s": 80,
        "d": 1,
-       "cap": 9901661231.167006,
+       "cap": 9858722478.040539,
        "sec": 4
       },
       {
        "s": 80,
        "d": 2,
-       "cap": 2137699070.9114065,
+       "cap": 2140804254.3101015,
        "sec": 2
       },
       {
        "s": 80,
        "d": 3,
-       "cap": 2210163446.1965394,
+       "cap": 2213373890.0494275,
        "sec": 2
       },
       {
        "s": 80,
        "d": 4,
-       "cap": 2677093149.4858828,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 80,
        "d": 5,
-       "cap": 2677093149.4858828,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 81,
        "d": 0,
-       "cap": 15365594925.565628,
+       "cap": 15291380359.284525,
        "sec": 4
       },
       {
        "s": 81,
        "d": 1,
-       "cap": 7661549040.2795515,
+       "cap": 7580469141.407009,
        "sec": 4
       },
       {
        "s": 81,
        "d": 2,
-       "cap": 1654074592.4123547,
+       "cap": 1646085547.466999,
        "sec": 2
       },
       {
        "s": 81,
        "d": 3,
-       "cap": 1710144917.5788758,
+       "cap": 1701885057.5506265,
        "sec": 2
       },
       {
        "s": 81,
        "d": 4,
-       "cap": 2071438314.373148,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 81,
        "d": 5,
-       "cap": 2071438314.373148,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 82,
        "d": 0,
-       "cap": 49304014139.497604,
+       "cap": 49375632267.7357,
        "sec": 3
       },
       {
        "s": 82,
        "d": 1,
-       "cap": 24583826662.24634,
+       "cap": 24477218403.358288,
        "sec": 4
       },
       {
        "s": 82,
        "d": 2,
-       "cap": 5307475401.189546,
+       "cap": 5315184944.9363785,
        "sec": 2
       },
       {
        "s": 82,
        "d": 3,
-       "cap": 5487389821.568854,
+       "cap": 5495360705.781682,
        "sec": 2
       },
       {
        "s": 82,
        "d": 4,
-       "cap": 6646682047.502382,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 82,
        "d": 5,
-       "cap": 6646682047.502382,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 83,
        "d": 0,
-       "cap": 29709804377.557785,
+       "cap": 29574010622.082,
        "sec": 4
       },
       {
        "s": 83,
        "d": 1,
-       "cap": 14813817773.957228,
+       "cap": 14660865771.494364,
        "sec": 4
       },
       {
        "s": 83,
        "d": 2,
-       "cap": 3198199145.852512,
+       "cap": 3183581228.2366414,
        "sec": 2
       },
       {
        "s": 83,
        "d": 3,
-       "cap": 3306612676.2203946,
+       "cap": 3291499235.973478,
        "sec": 2
       },
       {
        "s": 83,
        "d": 4,
-       "cap": 4005183489.3687863,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 83,
        "d": 5,
-       "cap": 4005183489.3687863,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 84,
        "d": 0,
-       "cap": 49304014139.497604,
+       "cap": 49375632267.7357,
        "sec": 3
       },
       {
        "s": 84,
        "d": 1,
-       "cap": 24583826662.24634,
+       "cap": 24477218403.358288,
        "sec": 4
       },
       {
        "s": 84,
        "d": 2,
-       "cap": 5307475401.189546,
+       "cap": 5315184944.9363785,
        "sec": 2
       },
       {
        "s": 84,
        "d": 3,
-       "cap": 5487389821.568854,
+       "cap": 5495360705.781682,
        "sec": 2
       },
       {
        "s": 84,
        "d": 4,
-       "cap": 6646682047.502382,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 84,
        "d": 5,
-       "cap": 6646682047.502382,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 85,
        "d": 0,
-       "cap": 29709804377.557785,
+       "cap": 29574010622.082,
        "sec": 4
       },
       {
        "s": 85,
        "d": 1,
-       "cap": 14813817773.957228,
+       "cap": 14660865771.494364,
        "sec": 4
       },
       {
        "s": 85,
        "d": 2,
-       "cap": 3198199145.852512,
+       "cap": 3183581228.2366414,
        "sec": 2
       },
       {
        "s": 85,
        "d": 3,
-       "cap": 3306612676.2203946,
+       "cap": 3291499235.973478,
        "sec": 2
       },
       {
        "s": 85,
        "d": 4,
-       "cap": 4005183489.3687863,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 85,
        "d": 5,
-       "cap": 4005183489.3687863,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 86,
        "d": 0,
-       "cap": 32323066396.947933,
+       "cap": 32319731606.07357,
        "sec": 3
       },
       {
        "s": 86,
        "d": 1,
-       "cap": 16116835015.63559,
+       "cap": 16022015170.765186,
        "sec": 3
       },
       {
        "s": 86,
        "d": 2,
-       "cap": 3479511410.722746,
+       "cap": 3479152427.3652506,
        "sec": 2
       },
       {
        "s": 86,
        "d": 3,
-       "cap": 3597460950.069281,
+       "cap": 3597089797.784413,
        "sec": 2
       },
       {
        "s": 86,
        "d": 4,
-       "cap": 4357477760.998599,
+       "cap": 4357028197.306399,
        "sec": 2
       },
       {
        "s": 86,
        "d": 5,
-       "cap": 4357477760.998599,
+       "cap": 4357028197.306399,
        "sec": 2
       },
       {
        "s": 87,
        "d": 0,
-       "cap": 470527318849.6667,
+       "cap": 470478774253.3784,
        "sec": 4
       },
       {
        "s": 87,
        "d": 1,
-       "cap": 234612987366.98743,
+       "cap": 233232693590.62634,
        "sec": 4
       },
       {
        "s": 87,
        "d": 2,
-       "cap": 50651295111.9262,
+       "cap": 50646069386.28992,
        "sec": 2
       },
       {
        "s": 87,
        "d": 3,
-       "cap": 52368288166.567795,
+       "cap": 52362885297.68959,
        "sec": 2
       },
       {
        "s": 87,
        "d": 4,
-       "cap": 63431863259.83348,
+       "cap": 63425318955.0282,
        "sec": 2
       },
       {
        "s": 87,
        "d": 5,
-       "cap": 63431863259.83348,
+       "cap": 63425318955.0282,
        "sec": 2
       },
       {
        "s": 88,
        "d": 0,
-       "cap": 1919357455337.814,
+       "cap": 1919159434034.757,
        "sec": 4
       },
       {
        "s": 88,
        "d": 1,
-       "cap": 957024530526.3057,
+       "cap": 951394087735.6682,
        "sec": 4
       },
       {
        "s": 88,
        "d": 2,
-       "cap": 206614870170.0622,
+       "cap": 206593553585.33313,
        "sec": 2
       },
       {
        "s": 88,
        "d": 3,
-       "cap": 213618764074.13214,
+       "cap": 213596724893.3106,
        "sec": 2
       },
       {
        "s": 88,
        "d": 4,
-       "cap": 258748886146.24463,
+       "cap": 258722190862.64508,
        "sec": 2
       },
       {
        "s": 88,
        "d": 5,
-       "cap": 258748886146.24463,
+       "cap": 258722190862.64508,
        "sec": 2
       },
       {
        "s": 89,
        "d": 0,
-       "cap": 329104363981.6483,
+       "cap": 329070410079.6192,
        "sec": 4
       },
       {
        "s": 89,
        "d": 1,
-       "cap": 164097077674.49765,
+       "cap": 163131648703.2581,
        "sec": 4
       },
       {
        "s": 89,
        "d": 2,
-       "cap": 35427405795.290634,
+       "cap": 35423750727.78875,
        "sec": 3
       },
       {
        "s": 89,
        "d": 3,
-       "cap": 36628334805.3005,
+       "cap": 36624555837.20533,
        "sec": 3
       },
       {
        "s": 89,
        "d": 4,
-       "cap": 44366612049.9332,
+       "cap": 44362034718.95928,
        "sec": 3
       },
       {
        "s": 89,
        "d": 5,
-       "cap": 44366612049.9332,
+       "cap": 44362034718.95928,
        "sec": 3
       },
       {
        "s": 90,
        "d": 0,
-       "cap": 1484038889548.7852,
+       "cap": 1483885780333.0537,
        "sec": 4
       },
       {
        "s": 90,
        "d": 1,
-       "cap": 739967231014.4205,
+       "cap": 735613796981.876,
        "sec": 4
       },
       {
        "s": 90,
        "d": 2,
-       "cap": 159753724684.63855,
+       "cap": 159737242793.4503,
        "sec": 2
       },
       {
        "s": 90,
        "d": 3,
-       "cap": 165169105182.42294,
+       "cap": 165152064583.05884,
        "sec": 2
       },
       {
        "s": 90,
        "d": 4,
-       "cap": 200063520528.99585,
+       "cap": 200042879851.08612,
        "sec": 2
       },
       {
        "s": 90,
        "d": 5,
-       "cap": 200063520528.99585,
+       "cap": 200042879851.08612,
        "sec": 2
       },
       {
        "s": 91,
        "d": 0,
-       "cap": 615237467030.1273,
+       "cap": 615173992597.7999,
        "sec": 4
       },
       {
        "s": 91,
        "d": 1,
-       "cap": 306767947996.98773,
+       "cap": 304963146420.74335,
        "sec": 4
       },
       {
        "s": 91,
        "d": 2,
-       "cap": 66229044006.716606,
+       "cap": 66222211115.033,
        "sec": 3
       },
       {
        "s": 91,
        "d": 3,
-       "cap": 68474096345.92736,
+       "cap": 68467031830.79685,
        "sec": 3
       },
       {
        "s": 91,
        "d": 4,
-       "cap": 82940261526.98273,
+       "cap": 82931704528.5884,
        "sec": 3
       },
       {
        "s": 91,
        "d": 5,
-       "cap": 82940261526.98273,
+       "cap": 82931704528.5884,
        "sec": 3
       },
       {
        "s": 92,
        "d": 0,
-       "cap": 655408655947.6372,
+       "cap": 655341037028.7517,
        "sec": 3
       },
       {
        "s": 92,
        "d": 1,
-       "cap": 326797991440.71765,
+       "cap": 324875347520.7231,
        "sec": 4
       },
       {
        "s": 92,
        "d": 2,
-       "cap": 70553389615.02724,
+       "cap": 70546110577.91629,
        "sec": 2
       },
       {
        "s": 92,
        "d": 3,
-       "cap": 72945029940.96039,
+       "cap": 72937504156.82874,
        "sec": 2
       },
       {
        "s": 92,
        "d": 4,
-       "cap": 88355745942.70175,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 92,
        "d": 5,
-       "cap": 88355745942.70175,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 93,
        "d": 0,
-       "cap": 728500285307.7509,
+       "cap": 728425125479.9803,
        "sec": 4
       },
       {
        "s": 93,
        "d": 1,
-       "cap": 363242730839.9527,
+       "cap": 361105672332.1792,
        "sec": 4
       },
       {
        "s": 93,
        "d": 2,
-       "cap": 78421552717.61105,
+       "cap": 78413461917.21657,
        "sec": 2
       },
       {
        "s": 93,
        "d": 3,
-       "cap": 81079910436.85214,
+       "cap": 81071545372.0375,
        "sec": 2
       },
       {
        "s": 93,
        "d": 4,
-       "cap": 98209240210.24812,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 93,
        "d": 5,
-       "cap": 98209240210.24812,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 94,
        "d": 0,
-       "cap": 655408655947.6372,
+       "cap": 655341037028.7517,
        "sec": 3
       },
       {
        "s": 94,
        "d": 1,
-       "cap": 326797991440.71765,
+       "cap": 324875347520.7231,
        "sec": 4
       },
       {
        "s": 94,
        "d": 2,
-       "cap": 70553389615.02724,
+       "cap": 70546110577.91629,
        "sec": 2
       },
       {
        "s": 94,
        "d": 3,
-       "cap": 72945029940.96039,
+       "cap": 72937504156.82874,
        "sec": 2
       },
       {
        "s": 94,
        "d": 4,
-       "cap": 88355745942.70175,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 94,
        "d": 5,
-       "cap": 88355745942.70175,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 95,
        "d": 0,
-       "cap": 728500285307.7509,
+       "cap": 728425125479.9803,
        "sec": 4
       },
       {
        "s": 95,
        "d": 1,
-       "cap": 363242730839.9527,
+       "cap": 361105672332.1792,
        "sec": 4
       },
       {
        "s": 95,
        "d": 2,
-       "cap": 78421552717.61105,
+       "cap": 78413461917.21657,
        "sec": 2
       },
       {
        "s": 95,
        "d": 3,
-       "cap": 81079910436.85214,
+       "cap": 81071545372.0375,
        "sec": 2
       },
       {
        "s": 95,
        "d": 4,
-       "cap": 98209240210.24812,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 95,
        "d": 5,
-       "cap": 98209240210.24812,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 96,
        "d": 0,
-       "cap": 6466716748293.114,
+       "cap": 6467257087678.722,
        "sec": 3
       },
       {
        "s": 96,
        "d": 1,
-       "cap": 3224415828781.9106,
+       "cap": 3206044296251.3657,
        "sec": 3
       },
       {
        "s": 96,
        "d": 2,
-       "cap": 696128716232.2698,
+       "cap": 696186882652.3364,
        "sec": 2
       },
       {
        "s": 96,
        "d": 3,
-       "cap": 719726299833.364,
+       "cap": 719786437996.4836,
        "sec": 2
       },
       {
        "s": 96,
        "d": 4,
-       "cap": 871779121179.7019,
+       "cap": 871851964418.8694,
        "sec": 2
       },
       {
        "s": 96,
        "d": 5,
-       "cap": 871779121179.7019,
+       "cap": 871851964418.8694,
        "sec": 2
       },
       {
        "s": 97,
        "d": 0,
-       "cap": 9488054112993.283,
+       "cap": 9488846906234.363,
        "sec": 3
       },
       {
        "s": 97,
        "d": 1,
-       "cap": 4730906433214.347,
+       "cap": 4703951472672.054,
        "sec": 4
       },
       {
        "s": 97,
        "d": 2,
-       "cap": 1021369450109.8541,
+       "cap": 1021454792666.6152,
        "sec": 2
       },
       {
        "s": 97,
        "d": 3,
-       "cap": 1055992143333.9172,
+       "cap": 1056080378858.7043,
        "sec": 2
       },
       {
        "s": 97,
        "d": 4,
-       "cap": 1279086095508.048,
+       "cap": 1279192972091.9297,
        "sec": 2
       },
       {
        "s": 97,
        "d": 5,
-       "cap": 1279086095508.048,
+       "cap": 1279192972091.9297,
        "sec": 2
       },
       {
        "s": 98,
        "d": 0,
-       "cap": 6453253852280.661,
+       "cap": 6453782953497.67,
        "sec": 3
       },
       {
        "s": 98,
        "d": 1,
-       "cap": 3217702998037.429,
+       "cap": 3199364699251.8296,
        "sec": 3
       },
       {
        "s": 98,
        "d": 2,
-       "cap": 694679463252.3259,
+       "cap": 694736419906.7285,
        "sec": 2
       },
       {
        "s": 98,
        "d": 3,
-       "cap": 718227919633.7609,
+       "cap": 718286807022.211,
        "sec": 2
       },
       {
        "s": 98,
        "d": 4,
-       "cap": 869964186010.728,
+       "cap": 870035514230.5854,
        "sec": 2
       },
       {
        "s": 98,
        "d": 5,
-       "cap": 869964186010.728,
+       "cap": 870035514230.5854,
        "sec": 2
       },
       {
        "s": 99,
        "d": 0,
-       "cap": 9468301170216.338,
+       "cap": 9469077474664.732,
        "sec": 3
       },
       {
        "s": 99,
        "d": 1,
-       "cap": 4721057277323.636,
+       "cap": 4694151077780.578,
        "sec": 4
       },
       {
        "s": 99,
        "d": 2,
-       "cap": 1019243086572.9396,
+       "cap": 1019326654145.187,
        "sec": 2
       },
       {
        "s": 99,
        "d": 3,
-       "cap": 1053793699677.1074,
+       "cap": 1053880100048.4141,
        "sec": 2
       },
       {
        "s": 99,
        "d": 4,
-       "cap": 1276423198126.7234,
+       "cap": 1276527851853.8206,
        "sec": 2
       },
       {
        "s": 99,
        "d": 5,
-       "cap": 1276423198126.7234,
+       "cap": 1276527851853.8206,
        "sec": 2
       }
      ]
@@ -42020,7 +42020,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 126.90556375896809,
+    "mglt": 126.72546244850624,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -42084,7 +42084,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1q97grd",
+   "signature": "r5qmo1",
    "build": 152526,
    "crew": 1000,
    "total": 153526,
@@ -46246,7 +46246,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "q156c2",
+   "signature": "1qqqj7o",
    "build": 123572,
    "crew": 1000,
    "total": 124572,
@@ -49201,7 +49201,7 @@ const PARTS = {
 const ARMOR_MAX = {hull: 3, cit: 4};
 
 // ---------- fittings (physical sizes in metres) ----------
-// Output per barrel per second of each class of aircraft laser (claserH heavy, claser medium, cturret light), in kt/s
+// Output per barrel per second of each class of aircraft laser (claserH heavy, claser medium, claserL and cturret light), in kt/s
 // and in TT/s (1 kt = 1e-9 TT).
 const CRAFT_LASER_OUTPUT_KT=Object.freeze({heavy:400,medium:50,light:10}),KT_PER_TT=1e9;
 const CRAFT_LASER_OUTPUT=Object.freeze(Object.fromEntries(Object.entries(CRAFT_LASER_OUTPUT_KT).map(([k,kt])=>[k,kt/KT_PER_TT])));
@@ -49223,6 +49223,7 @@ const FITS = {
   brL: {cat: 'b', name: '大型司令塔', short: '大型', fm: 70, wm: 110, hm: 150, sensor: 1.25, pw: 6e21, mass: 110000, crew: 250, cost: 4e6, desc: '旗艦向けの指揮能力。'},
   // v21 Starfighter and small-craft weapons (metres; the pilot fires them, so no gun crew). Fixed guns point to the bow.
   claser: {cat:'w',craft:true,fixed:true,name:'固定式レーザー砲',short:'レーザー砲',fm:2.6,wm:.32,hm:.32,barrels:1,outputClass:'medium',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:1.2,crew:0,cost:400,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（中型 50 kt/s）',desc:'機首方向に固定した戦闘機用レーザー砲（中型）。1門あたり毎秒50 kt、0.12秒ごとに1発6 kt。'},
+  claserL: {cat:'w',craft:true,fixed:true,name:'固定式軽レーザー砲',short:'軽レーザー',fm:2.2,wm:.26,hm:.26,barrels:1,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:.8,crew:0,cost:300,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）',desc:'機首方向に固定した戦闘機用の軽レーザー砲（軽）。1門あたり毎秒10 kt、0.12秒ごとに1発1.2 kt。'},
   claserH: {cat:'w',craft:true,fixed:true,name:'重レーザー砲',short:'重レーザー',fm:3.6,wm:.5,hm:.5,barrels:1,outputClass:'heavy',cycle:.18,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:1,mass:3,crew:0,cost:1200,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（重 400 kt/s）',desc:'重戦闘機・ガンシップ用のレーザー砲（重）。1門あたり毎秒400 kt、0.18秒ごとに1発72 kt。'},
   cturret: {cat:'w',craft:true,name:'小型旋回砲塔',short:'旋回砲塔',fm:1.3,wm:1.3,hm:.7,barrels:2,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,dualPurpose:true,aa:1.5,mass:2,crew:0,cost:900,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）',desc:'後部銃座・上部砲塔などの小型連装レーザー砲塔（軽）。2門が各毎秒10 kt、0.12秒ごとに各1発1.2 kt（一斉射2.4 kt）。'},
   // v22 Ordnance is carried as stores (ORDNANCE): these fittings are the stations that hold it — launch tubes with
@@ -49238,6 +49239,9 @@ const FITS = {
 // §1 4-2): heavy 400 kt/s, medium 50 kt/s, light 10 kt/s (1 kt = 1e-9 TT). Each shot carries that output over one firing
 // period (boltTT = rate × cycle), so a slower gun fires bigger shots and the per-second output stays the defined figure.
 for(const d of Object.values(FITS)){if(!d.outputClass)continue;const kt=CRAFT_LASER_OUTPUT_KT[d.outputClass];d.barrelTTs=kt/KT_PER_TT;d.boltTT=kt*d.cycle/KT_PER_TT;d.tt=d.barrels*d.boltTT;}
+// One shot of a weapon fired every `cycle` seconds (TT, all barrels). An aircraft laser carries its per-second output
+// over the period it actually fires at (a custom cadence or the catalogue's); other weapons keep their catalogue volley.
+function craftShotTT(d,cycle){const c=Number.isFinite(cycle)&&cycle>0?cycle:d?.cycle;return d?.outputClass&&d.barrelTTs>0&&c>0?d.barrelTTs*c*Math.max(1,d.barrels||1):Math.max(0,d?.tt||0);}
 for (const k in FITS) { const d = FITS[k]; d.key = k; d.power = d.tt ? d.tt * TT / (d.cycle||K.cycle) : d.ion ? d.ion * TT / (d.cycle||K.cycle) : (d.pw || 0); d.r = Math.max(d.fm, d.wm) / 2; }
 // Retired aircraft ion fittings are inert compatibility inputs, never placeable weapons.
 Object.defineProperty(FITS,'cion',{enumerable:false,value:Object.freeze({key:'cion',cat:'retired',craft:true,fixed:true,retired:true,catalogHidden:true,name:'廃止された航空機用イオン砲',short:'廃止済み',fm:1.8,wm:.55,hm:.55,r:.9,barrels:0,boltTT:0,tt:0,ion:0,power:0,aa:0,mass:0,crew:0,cost:0,pointDefense:false})});
@@ -51043,7 +51047,7 @@ function simulate(A, B, tmax) {
     const air0 = [sd[0].air, sd[1].air], hpf = sd.map(X => 0.35 + 0.65 * Math.max(0, X.hp) / X.p.hp), loss = [0, 0];
     for (let k = 0; k < 2; k++) {
       const Y = sd[1 - k], mine = air0[k], theirs = air0[1 - k], esc = mine + theirs > 0 ? theirs / (mine + theirs) : 0;
-      out[k].fd = mine * (1 - 0.5 * esc) * 0.6;
+      out[k].fd = mine * (1 - 0.5 * esc) * fleetAirGun(sd[k].p);
       loss[k] = Math.min(mine, Y.p.aa * 0.012 * hpf[1 - k] + 0.012 * theirs);
     }
     for (let k = 0; k < 2; k++) { sd[k].air -= loss[k]; sd[k].lostF += loss[k]; }
@@ -51711,7 +51715,7 @@ function craftMuzzleBlocked(ship,f){
 // Mounting-radius circles are clearance probes, not the bodies' hit boxes.
 function craftFitBounds(f){
  const d=fitSpec(f),L=d.fm,W=d.wm,h=d.hm,k=f.k;
- if(k==='claser'||k==='claserH')return [-L*.4,h*.5-W*.42,-W*.42,L*.53,h*.5+W*.42,W*.42];
+ if(k==='claser'||k==='claserL'||k==='claserH')return [-L*.4,h*.5-W*.42,-W*.42,L*.53,h*.5+W*.42,W*.42];
  if(k==='cion')return [-L*.43,0,-W*.5,L*.47,h,W*.5];
  if(k==='cturret')return [-W*.5,0,-W*.5,Math.max(L*.68,W*.5),Math.max(h*.8,h*.55+W*.06),W*.5];
  if(k==='ctorp'||k==='cmsl')return [-L*.5,0,-W*.5,L*.51,h,W*.5];
@@ -57362,7 +57366,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 });
 // v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452303266577,craft_awing:0.492755075492,craft_btlb:0.497497004708,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639542538851,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.418134051559,craft_xwing:0.393494072058,craft_z95:0.571066159999});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452526541719,craft_awing:0.492755075492,craft_btlb:0.497442660163,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639542538851,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.393494072058,craft_z95:0.571066159999});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
@@ -57379,6 +57383,7 @@ function refitCraftInterior(ship,key){
  if(key==='craft_tie_in'){Object.assign(reactors[0],{k:'aux',d:1.7});reactors[0].c=[2.95,1.4,0];}
  if(key==='craft_vwing')for(const z of [-1.75,1.75])reactors.push(placePart(ship,'aux',[2.236,.55,z],1.3,{label:'翼根部の推進・兵装用反応炉',autoFit:false}));
  // v24 Under the reactor-supply drive model each factory craft's plant is scaled to give its target
+ // (ARC-170, BTL-B and V-wing re-measured 2026-11-11 after laser gas followed the per-second laser output)
  // acceleration (as the TIE/ln's reactor was); measured once on the completed craft against the
  // component-rated acceleration of its combat preview (S.propulsion), cooling and token shields included.
  if(CRAFT_REACTOR_SCALE[key])for(const p of reactors)p.d*=CRAFT_REACTOR_SCALE[key];
@@ -61504,8 +61509,9 @@ function fleetProfile(S,name,ship){
  // fight in torpedoes, missiles and bombs, and the share of it that is ion. The fleet model spends it as they attack.
  {let n=0,T=0,I=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0)||!r.type)continue;const o=craftOrdnance(r.type),t=o.reduce((a,x)=>a+x.n*x.tt,0);n+=r.deployable;T+=r.deployable*t;I+=r.deployable*o.filter(x=>x.ion).reduce((a,x)=>a+x.n*x.tt,0);}if(n>0&&T>0){out.airOrd=Math.round(T/n*10)/10;out.airIon=Math.round(I/T*1000)/1000;}}
  // The laser output one combat craft brings (TT/s, averaged over the deployable combat craft): every laser barrel of its
- // type at its catalogue rate (craftLaserRate). The fleet model's craft attack (fleetTick) multiplies it by the craft aloft.
- {let n=0,G=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0))continue;n+=r.deployable;G+=r.deployable*(craftLaserRate(r.type)??FLEET_AIR_GUN_DEFAULT);}if(n>0)out.airGun=G/n;}
+ // type or design (airWingGunRate). The fleet model's craft attack (fleetTick) multiplies it by the craft aloft. It is an upper
+ // bound: every barrel firing all the time and hitting, with no laser-gas limit (docs/ship-example-refit.md).
+ {let n=0,G=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0))continue;n+=r.deployable;G+=r.deployable*airWingGunRate(r);}if(n>0)out.airGun=G/n;}
  out.aaCh=S.aaChannels||AA_CHANNELS.base;out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewCapacity=Math.max(0,S.crew||0);out.fuel=fuelProfileFromStats(S);out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);out.autoCrew=S.autoCrew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
@@ -63986,15 +63992,25 @@ const craftSpeed=G=>Number.isFinite(G)&&G>0?Math.round(clamp(2070*Math.pow(G/370
 const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機':'fighter','重戦闘機':'fighter','ドロイド戦闘機':'fighter','ガンシップ':'transport','揚陸艇':'transport','シャトル':'transport','非武装艇':'transport'};
 // A fixed fighter cannon only fires near its physical barrel axis. Its catalogue
 // shot energy (output per barrel per second × its period) stays fixed; a faster cadence draws more electrical power.
-const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserH:.18,cturret:.12})});
-// Sustained laser output of one craft of a type in TT/s: each laser fitting of the type's offline fire-arc snapshot
-// (CRAFT_PRICE_CATALOG) at its defined rate, barrels × output per barrel per second. null when the type has no snapshot.
-// A craft whose type is unknown or unmodelled is taken as a standard fighter, two medium lasers (FLEET_AIR_GUN_DEFAULT).
+const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserL:.12,claserH:.18,cturret:.12})});
+// Sustained gun output in TT/s of a set of craft fire arcs: each arc's weapon at its own cadence, as the RTS squadrons
+// fire them (Rts.squadWeaponEnergy): an aircraft laser gives barrels × its output per barrel per second at any cadence.
+function craftArcsGunRate(arcs){
+ let rate=0;for(const a of Array.isArray(arcs)?arcs:[]){const d=FITS[canonicalWeaponKind(a?.k)];if(!d||d.retired||d.store||!(d.tt>0))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||CRAFT_FIRE.defaultCycle;rate+=craftShotTT(d,cycle)/cycle;}return rate;
+}
+// Sustained laser output of one craft of a type in TT/s. A modelled type uses its offline fire-arc snapshot
+// (CRAFT_PRICE_CATALOG); a table-only type uses the RTS's estimated equipment (round(aa × 2) fixed medium lasers,
+// Rts.craftLaserArcs). null when neither knows the type.
 const FLEET_AIR_GUN_DEFAULT=2*CRAFT_LASER_OUTPUT.medium;
 function craftLaserRate(type){
- const arcs=typeof type==='string'?(CRAFT_PRICE_CATALOG.entries[type]||CRAFT_PRICE_CATALOG.entries[craftTypeOf(type)])?.fireArcs:null;if(!Array.isArray(arcs))return null;
- let rate=0;for(const a of arcs){const d=FITS[canonicalWeaponKind(a?.k)];if(!d||!d.craft||d.retired||d.store||!(d.tt>0)||!(d.cycle>0))continue;rate+=d.tt/d.cycle;}return rate;
+ if(typeof type!=='string')return null;const entry=CRAFT_PRICE_CATALOG.entries[type]||CRAFT_PRICE_CATALOG.entries[craftTypeOf(type)];
+ if(Array.isArray(entry?.fireArcs))return craftArcsGunRate(entry.fireArcs);
+ const R=typeof Rts!=='undefined'?Rts:null,c=R?.CRAFT?.[type];if(c&&typeof R.craftLaserArcs==='function')return craftArcsGunRate(R.craftLaserArcs(c));
+ return null;
 }
+// One craft of an air-wing row: a player's design by its own fire arcs, a type by craftLaserRate, else the standard
+// fighter of two medium lasers (FLEET_AIR_GUN_DEFAULT).
+function airWingGunRate(r){const arcs=r?.design?.craft?.fireArcs;if(Array.isArray(arcs))return craftArcsGunRate(cleanCraftFireArcs(arcs)||[]);return craftLaserRate(r?.type)??FLEET_AIR_GUN_DEFAULT;}
 // Per-craft laser output of a fleet profile; a profile assembled before airGun existed takes the standard fighter's.
 const fleetAirGun=p=>Number.isFinite(p?.airGun)&&p.airGun>=0?p.airGun:FLEET_AIR_GUN_DEFAULT;
 function cleanCraftFireArcs(raw){
@@ -64124,17 +64140,22 @@ function cleanDesignBlueprint(raw){
 function designCraftSnapshot(ship,S,ref=''){
  if(typeof ship==='string'){if(ship.length>16*1024*1024)return null;try{ship=JSON.parse(ship);}catch(e){return null;}}
  const craft=craftCombat(ship,S);if(!craft)return null;const raw={};for(const k of DESIGN_BLUEPRINT_KEYS)if(Object.hasOwn(ship,k))raw[k]=ship[k];raw.format='starship-yard';raw.v=ship.format==='starship-yard'?ship.v:3;
- const blueprint=cleanDesignBlueprint(raw);if(!blueprint)return null;return cleanDesignCraft({ref,name:ship.name,dims:craft.dims,craft,blueprint,weaponProfileVersion:1});
+ const blueprint=cleanDesignBlueprint(raw);if(!blueprint)return null;return cleanDesignCraft({ref,name:ship.name,dims:craft.dims,craft,blueprint,weaponProfileVersion:WEAPON_PROFILE_VERSION});
 }
 function blueprintWeaponProfileAffected(blueprint){
  const affected=kind=>{if(retiredAircraftIon(kind))return true;const k=canonicalWeaponKind(kind),d=FITS[k];return !!d&&d.cat==='w'&&(d.fixedPerBarrelEnergy||!d.craft&&!d.fixed&&(k==='stl'||k==='oct40'||d.weaponSizing?.anchorBlend>0));};
  if(Array.isArray(blueprint?.fits)&&blueprint.fits.some(f=>affected(f?.k)))return true;
  return Array.isArray(blueprint?.surfaces?.patches)&&blueprint.surfaces.patches.some(p=>affected(p?.battery?.weapon)||Array.isArray(p?.aggregate?.guns)&&p.aggregate.guns.some(r=>Array.isArray(r)&&affected(r[1])));
 }
+// Saved design-craft snapshots record the weapon model their cached combat figures used. 2: aircraft lasers fire their
+// per-barrel per-second output (2026-11-11); a version-1 snapshot with an aircraft laser holds 2 kt-era power, laser
+// units and heat, and is rebuilt from its blueprint once. Version-1 snapshots without one stay current.
+const WEAPON_PROFILE_VERSION=2;
+function blueprintAircraftLaser(blueprint){return Array.isArray(blueprint?.fits)&&blueprint.fits.some(f=>!!FITS[canonicalWeaponKind(f?.k)]?.outputClass);}
 // Legacy combat-only snapshots remain valid; newer ones also retain the complete model and build cost.
 function cleanDesignCraft(d){
  if(!d||typeof d!=='object')return null;d=migrateWeaponDesign(d);let c=d.craft;if(!c||typeof c!=='object'||!Object.values(CRAFT_ROLE_RTS).includes(c.role))return null;
- const needsWeaponRefresh=d.weaponProfileVersion===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||d.weaponProfileVersion!==1&&blueprintWeaponProfileAffected(d.blueprint)||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION,blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=d.weaponProfileVersion===1?1:undefined;
+ const wpv=d.weaponProfileVersion,laser=blueprintAircraftLaser(d.blueprint),needsWeaponRefresh=wpv===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||wpv!==1&&wpv!==WEAPON_PROFILE_VERSION&&blueprintWeaponProfileAffected(d.blueprint)||wpv!==WEAPON_PROFILE_VERSION&&laser||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION,blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=wpv===WEAPON_PROFILE_VERSION||wpv===1&&!laser?wpv:undefined;
  // Combat-only records retain their historical figures for inspection, but
  // cannot certify a new physical model without the editable geometry.
  const requiresBlueprint=!blueprint&&(needsWeaponRefresh||d.requiresBlueprint===true||d.legacyReadOnly===true),sourceProfileVersion=Number.isSafeInteger(d.sourceProfileVersion)?d.sourceProfileVersion:c.powerProfile?.profileVersion;
@@ -64144,7 +64165,7 @@ function cleanDesignCraft(d){
   // muzzle positions and cadence even when the saved weapon id stays the same.
   // A stale electrical revision also means its cached combat ratings may still
   // describe the former output of an otherwise canonical weapon such as PD.
-  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=1;}catch(e){return null;}
+  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=WEAPON_PROFILE_VERSION;}catch(e){return null;}
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count,...(st.store?.mount==='bay'&&Array.isArray(st.store.box)&&st.store.box.length===3&&st.store.box.every(v=>Number.isFinite(v)&&v>0&&v<=40)?{store:{mount:'bay',box:st.store.box.slice()}}:{})}));
@@ -66639,7 +66660,7 @@ initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
  withFrozenStructures,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatReadoutRates, heatProfile, heatProfileOf, heatLegacy, FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swEnergyTT, swRange, swFree, swAxis, swBeamTrace, superweaponSelection, superweaponCommand, superweaponSetAuto, MGLT, engineDepthRatio, sublightMGLT, SUBLIGHT_REFERENCE_VERSION, SUBLIGHT_REFERENCE, sublightReference, referenceSublightMGLT, referenceSublightSpeed, referenceSpeedProfile, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponShape, superweaponBodyTriangles, superweaponMuzzle, superweaponAxis, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, groundingStats, engineMountSamples, engineAppearance, engineSkinMesh, engineCasingSections, engineCasingCapacity, engineCasingFit, fitEngineCasing, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, referencePhysicalProfileCurrent, canopyShape, setCanopyShape, canopyTriangles, canopyMountPosition, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, meshFaceTriangles, meshTriangles, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, placeRotationalCopies, placeLinearCopies, rotationalArray, linearArray, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshPlanarMoves, meshMoveVertices, meshSetVertex, meshAddEdge, meshRemoveEdge, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, weaponPreviewStats, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, FLIGHT_POWER_POLICY, shipCombatPowerDemand, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetWeaponPackets, combatAddWeapons, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, CORVETTE_WEAPON_KEYS, VENATOR_SIDE_WEAPON_KEYS, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, integratedEngine, nozzleShaftCapacity, propulsionOwners, engineOwner, engineMachineryPaths, enginePaths, engineTransmission, engineDriveRoutes, ENGINE_FEED_LOSS_PER_M, ENGINE_SHAFT_FLUX, ENGINE_TRANSMISSION_VERSION, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
-   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, craftLaserRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT,
+   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
@@ -67284,12 +67305,12 @@ function craftLaserArcs(c){
  // and electrical plant, rather than interpreting strategy scores as TT.
  const arcs=estimatedCraftBOM(c).fits.flatMap(row=>{const d=C.FITS[row.k];return d?.craft&&d.tt>0&&!d.retired?Array.from({length:Math.max(0,Math.floor(row.count||0))},()=>({k:row.k,fixed:!!d.fixed,dir:[1,0,0],up:[0,1,0],gun:1,aa:1,cycle:d.cycle||C.CRAFT_FIRE.defaultCycle})):[];});for(const a of arcs)a.gun=a.aa=1/arcs.length;return c.fireArcs=arcs;
 }
-// TT delivered by the installed, bearing laser barrels over one strafe. A
-// calibrated projectile always carries its catalogue energy at every cadence.
+// TT delivered by the installed, bearing laser barrels over one strafe. An aircraft laser's
+// shot is its per-second output over the arc's actual period (C.craftShotTT), so cadence does not change output.
 function squadWeaponEnergy(s,target,seconds=C.CRAFT_HEAT.strafeS){
  const c=CRAFT[s?.craft],aim=squadArcAim(s,target),energy={gun:0,ion:0};if(!c||!aim||!(seconds>0)||!Number.isFinite(seconds))return energy;
  const emptyGas=c.systems?.managed&&s.laserGas===0;
- for(const a of craftLaserArcs(c)){const d=C.FITS[a.k];if(!d||d.retired||!(d.tt>0||d.ion>0)||d.store||emptyGas&&d.craft&&d.tt>0||!squadArcBears(s,target,a,aim))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||C.CRAFT_FIRE.defaultCycle;energy.gun+=(d.tt||0)*seconds/cycle;energy.ion+=(d.ion||0)*seconds/cycle;}
+ for(const a of craftLaserArcs(c)){const d=C.FITS[a.k];if(!d||d.retired||!(d.tt>0||d.ion>0)||d.store||emptyGas&&d.craft&&d.tt>0||!squadArcBears(s,target,a,aim))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||C.CRAFT_FIRE.defaultCycle;energy.gun+=(d.tt>0?C.craftShotTT(d,cycle):0)*seconds/cycle;energy.ion+=(d.ion||0)*seconds/cycle;}
  // A geometry-only query is nominal. Once an allocation exists, the shared
  // laser/ion battery can emit only the useful energy its received watts fund.
  // This limits firing duty, leaving every catalogue projectile's yield intact.
@@ -70890,7 +70911,7 @@ return {routeItinerary,jumpEstimate,normalizeJumpNavigation,convoyKit, aiPlan, F
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupHyperspaceReadiness, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, supplyGive, rearTick, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
- squadFireArc,squadLaserEnergy,squadWeaponEnergy,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
+ squadFireArc,squadLaserEnergy,squadWeaponEnergy,craftLaserArcs,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
  wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal, groundHooks, logEvent: event};
 })();
@@ -70942,7 +70963,7 @@ const DRIVES = Object.freeze({
 const BODY_FORMS = Object.freeze({box: {name: '箱形', fill: .8, area: 1}, wedge: {name: '楔形', fill: .6, area: .88}, round: {name: '円筒・卵形', fill: .55, area: .85}});
 const MOUNTS = Object.freeze({turret: {name: '旋回砲塔', arc: 360}, chin: {name: '機首下砲架', arc: 120}, hull: {name: '車体固定', arc: 40}, side: {name: '側面砲架', arc: 180}});
 // The fittings a vehicle may carry, at the scale each starts from (Core.fitSpec: length × scale, mass and energy × scale³).
-const VWEAPONS = Object.freeze({claser: 1, claserH: 1, cturret: 1, cmsl: 1, ctorp: 1, pd: .5, ltl: .3});
+const VWEAPONS = Object.freeze({claser: 1, claserL: 1, claserH: 1, cturret: 1, cmsl: 1, ctorp: 1, pd: .5, ltl: .3});
 const VD_LIMITS = Object.freeze({L: [1.5, 160], W: [.8, 40], H: [.6, 40], legH: [0, 40], armor: [0, 80], weapons: 8, count: 12, scale: [.1, 2], crew: [0, 80], troops: [0, 300], reactor: [.02, 2000], name: 40});
 // Provisional material constants: durasteel armour 7.8 t/m³ (steel), the body's frame and systems 0.18 t/m³ of its
 // volume, a reactor 0.5 t and 0.3 m³ per MW, a crewman or trooper aboard 0.12 t; an energy weapon draws 2,000 MW

@@ -2014,7 +2014,7 @@ const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
 // v24 Craft carry ordnance on pylons (launch tubes retired) and in bomb-bay compartments (an interior part).
-const CRAFT_WEAPONS = ['claser', 'claserH', 'cturret', 'cpylon'];
+const CRAFT_WEAPONS = ['claserL', 'claser', 'claserH', 'cturret', 'cpylon'];
 const craftDesign = () => !!ship && editorCraftDesign();
 const weaponKeys = () => [...new Set((craftDesign() ? [...CRAFT_WEAPONS,...WEAPONS] : [...WEAPONS,...CRAFT_WEAPONS]).map(k=>C.canonicalWeaponKind?.(k)||k))].filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden&&!(k==='cmsl'&&craftDesign()));
 const weaponReplacementKeys = f => {const keys=weaponKeys();return f&&C.FITS[f.k]&&!keys.includes(f.k)?[f.k,...keys]:keys;};
@@ -7775,7 +7775,8 @@ function trialCraftLaserUnits(t){
 function trialCraftGasNeed(t){
  const r=trial.systemsRuntime,units=trialCraftLaserUnits(t);
  if(!r||r.gasSeconds==null||!units)return 0;
- const spec=C.FITS[t.k],cycle=spec?.craft&&spec.boltTT>0&&!spec.ion?(spec.cycle||C.CRAFT_FIRE.cycles[t.k]||C.CRAFT_FIRE.defaultCycle):t.cycle;
+ // An aircraft laser's shot is its per-second output over the period it actually fires at, so its gas follows that period.
+ const spec=C.FITS[t.k],cycle=spec?.outputClass&&t.cycle>0?t.cycle:spec?.craft&&spec.boltTT>0&&!spec.ion?(spec.cycle||C.CRAFT_FIRE.cycles[t.k]||C.CRAFT_FIRE.defaultCycle):t.cycle;
  return Math.max(0,cycle||0)*units/Math.max(1e-9,r.spec.laserUnits||units);
 }
 function trialCraftGasReady(t){
@@ -7827,11 +7828,12 @@ function trialSpawnTarget(i,first){
 }
 // Each gun keeps its range band: how far its bolts carry and what its fire costs in stored energy.
 // The pilot fires fixed guns; real turrets defend the craft independently.
-// A calibrated aircraft laser keeps its per-barrel energy on every pulse.
+// An aircraft laser fires its per-barrel per-second output over the turret's actual period (C.craftShotTT).
 const TRIAL_PILOT_CYCLE=C.CRAFT_FIRE.cycles;
 function trialShotEnergyTT(t){
  if(t.trenchAggregate)return Math.max(0,t.volleyTT||0)*(t.charge??1);
  const spec=C.FITS[t.k];
+ if(spec?.outputClass&&spec.barrelTTs>0&&!spec.store)return spec.barrelTTs*(t.cycle>0?t.cycle:spec.cycle)*(t.barrels||spec.barrels||1);
  if(spec?.fixedPerBarrelEnergy&&spec.boltTT>0&&!spec.store)return spec.boltTT*(t.barrels||spec.barrels||1);
  return t.power*t.cycle*t.charge/TT_J;
 }
