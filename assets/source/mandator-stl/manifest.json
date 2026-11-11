@@ -1,0 +1,17 @@
+{
+ "note": "ユーザー提供の原本。ゲームには三角形を入れず、作例を通常パーツで組むための寸法の測定と照合だけに使う。",
+ "files": {
+  "MandatorIIClassDreadnaught_2.STL": {
+   "file": "assets/source/mandator-stl/MandatorIIClassDreadnaught_2.STL.gz",
+   "source_sha256": "e7d07f8961c6dfea4aeccaf5c44c6cac86ef38cf4bc7361fec308538085071ec",
+   "source_bytes": 5192034,
+   "gzip_sha256": "1ba6ecfb65182175d9e071738463b5da031459b19f43b428b6850acce8567670",
+   "format": "binary STL（103,839 三角形、ヘッダ STLEXP Object01）",
+   "received": "2026-11-11（ユーザーがセッションに添付）",
+   "author_license": "記載なし",
+   "examples": ["mandator2"],
+   "frame": "未確定（STL の y が全長方向 −54.96〜57.87、幅 x ±20.45、高さ z −4.90〜10.91）。作例の全長 8,000 m なら 70.9 m/単位",
+   "script": "未作成"
+  }
+ }
+}
