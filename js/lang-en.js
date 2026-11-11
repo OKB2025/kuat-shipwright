@@ -8404,6 +8404,7 @@ root.KS_EN={
   "{0} #{1} の自動統合後の容積が不足しています（{2}%）。近くの空間を空けるか構造を追加してください。": "{0} #{1} has insufficient volume after automatic merging ({2}%). Clear nearby space or add structure.",
   "接地していない部品が {0} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。": "{0} parts are unsupported. They touch neither the hull nor structures or compartments connected to it. Move them into contact.",
   "船体・構造物にほぼ埋まっている構造物が {0} 個あります。外に出ている部分は体積の{1}%未満です。": "{0} structures are almost entirely buried in the hull or other structures. Less than {1}% of their volume is exposed.",
+ "削った結果、追加元から切り離された構造物・機器が {0} 個あります。位置はそのままです。必要なら動かすか削りを調整してください。": "{0} structures or equipment items were cut off from what they were attached to. They have not been moved; move them or adjust the cut if needed.",
   "接地していない構造物の上に取り付けた装備が {0} 基あります。": "{0} equipment mounts are attached to unsupported structures.",
   "腹面": "Ventral",
   "の辺境方面": "Frontier Direction",
