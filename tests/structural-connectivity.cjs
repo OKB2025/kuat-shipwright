@@ -54,3 +54,72 @@ for(const [name,lift] of [['hovering box',2.5],['box on the floor',1.2]])
   assert.equal(r.ok,true,JSON.stringify(r.failed));const live=look(ship,box);assert.equal(live.ok,true);assert.equal(live.contact,true);assert.equal(live.red,false);assert.equal(live.severed,false);same(live.c,c.map(v=>+v.toFixed(6)),'not moved');
   const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);same(look(D,D.parts.find(q=>q.id===box.id)),live,'reload');
  });
+
+// ---- Stage 1 regression review (ca2e00e) ----
+const statsOf=s=>{const k=C.computeStats({...s,_cache:null});return {mass:k.mass,volume:k.volume,cost:k.cost};};
+function placeOn(ship,parent,x,label,size=[16,8,6],lift=1.8){
+ const raw=C.rayPart([x,500,0],[0,-1,0],parent),hit={p:raw.p,n:C.norm(raw.n)},c=[hit.p[0],hit.p[1]+lift,hit.p[2]];
+ const d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',label,c,s:size,yaw:0,pitch:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:parent.id,hostId:parent.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));return ship.parts.find(q=>q.label===label);
+}
+
+test('a severed piece grounds nothing: parts that reach the root only through it are severed with it (cycle with no root)',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'cut piece');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const A=placeOn(ship,hull,110,'A'),B=placeOn(ship,A,106,'B',[6,6,4],1.2),Cc=placeOn(ship,A,114,'C',[6,6,4],1.2);
+ // B and C both stand on A and overlap each other (a cycle A-B-C); a cut takes the deck from under A.
+ cut(ship,hull,[110,28,0],[40,16,40]);C.refreshPlacementGeometry(ship);
+ const S=grounding(ship);for(const q of [A,B,Cc])assert.ok(!S.ungrounded.parts.includes(q.id),q.label+': not red');
+ same([...S.severed].sort((a,b)=>a-b),[A.id,B.id,Cc.id].sort((a,b)=>a-b),'the whole cut-off piece is severed');
+ const rows=Object.fromEntries(S.severedCuts.map(r=>[r.partId,r]));assert.ok(rows[A.id].cutIds.length>0,'A: the cut');assert.ok(rows[B.id].through.includes(A.id),'B: through A');
+ for(const q of [A,B,Cc]){const d=S.placementDiagnostics.find(x=>x.partId===q.id);assert.equal(d.connected,false,q.label+' diagnostics');assert.equal(d.code,'severed',q.label);}
+ assert.equal(S.warnings.find(w=>w.code==='severed').targets.length,3);
+ const g=C.structuralConnectivity(ship);for(const q of [A,B,Cc])assert.ok(!g.connected.has(q.id),q.label+': not in the root component');
+});
+
+test('a part touching only a severed neighbour is not grounded by it',()=>{
+ const {ship,hull,A,D}=design();
+ // A lifts off the deck (no cut): it is not severed, and D still grounds it through the contact graph.
+ // Then cut under both: D and A are severed; nothing is grounded by them.
+ cut(ship,hull,[112,28,0],[20,16,40]);cut(ship,hull,[93,28,0],[18,16,40]);C.refreshPlacementGeometry(ship);
+ const S=grounding(ship);assert.ok(S.severed.includes(A.id)&&S.severed.includes(D.id));
+ for(const q of [A,D]){const d=S.placementDiagnostics.find(x=>x.partId===q.id);assert.equal(d.connected,false);assert.equal(d.code,'severed');}
+});
+
+test('a child kept whole after a contact-type fit failure stays stable over three refreshes; negatives are not kept',()=>{
+ const make=()=>{const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'kept');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],id=ship.nextId++;
+  const recess=c=>{C.hullOwnSolidCut(ship,hull,{id,shape:'box',c,s:[20,6,20],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;};recess([110,30,0]);C.refreshPlacementGeometry(ship);
+  const box=placeOn(ship,hull,110,'box',[6,4,4],2.5);recess([122,30,0]);return {ship,hull,box,recess};};
+ {const {ship,box}=make();const masses=[];const updated=[];for(let i=0;i<3;i++){ship._cache=null;const r=C.refreshPlacementGeometry(ship);updated.push(r.updated.includes(box.id));masses.push(statsOf(ship).mass);}
+  assert.ok(box._placementKeptWhole,'kept whole');assert.equal(box._placementError,undefined);same(updated.slice(1),[false,false],'not re-solved on every refresh');assert.ok(masses.every(m=>m===masses[0]),'no mass flicker: '+masses.join(','));}
+ // Parent resized: the stored pose no longer describes the child.
+ {const {ship,hull,box}=make();C.refreshPlacementGeometry(ship);hull.s=[hull.s[0],hull.s[1],hull.s[2]*1.01];ship._cache=null;C.refreshPlacementGeometry(ship);assert.ok(!box._placementKeptWhole||box.placement.parentPoseKey===C.placementPositionKey(hull),'resized parent: never kept on the old parent pose');}
+ // Parent moved within the anchor tolerance: the persisted parent pose key still differs.
+ {const {ship,hull,box}=make();C.refreshPlacementGeometry(ship);const kept=box._placementKeptWhole;hull.c=[hull.c[0]+1e-6,hull.c[1],hull.c[2]];ship._cache=null;C.refreshPlacementGeometry(ship);assert.notEqual(box._placementKeptWhole,kept,'a moved parent re-judges the child');}
+ // A real gap (no contact at all) is never kept.
+ {const {ship,box,recess}=make();recess([110,26,0]);C.refreshPlacementGeometry(ship);assert.equal(box._placementKeptWhole,undefined,'a hovering child is not kept whole');}
+ // A user edit is never kept.
+ {const {ship,box}=make();C.refreshPlacementGeometry(ship);box.c=[box.c[0],box.c[1]+3,box.c[2]];ship._cache=null;C.refreshPlacementGeometry(ship);assert.equal(box._placementKeptWhole,undefined,'an edited child is solved, not kept');}
+ // Only contact-type codes.
+ for(const code of ['minimum-thickness','geometry-open','geometry-volume','contact-shape','geometry-complex'])assert.equal(C.PLACEMENT_FIT_KEEP_CODES.has(code),false,code);
+});
+
+test('the pair cache re-measures only what changed; it is not saved; hull cuts are part of the hull shape',()=>{
+ const {ship,hull,A,D}=design();let g=C.structuralConnectivity(ship);g=C.structuralConnectivity(ship);assert.equal(g.measured,0);
+ cut(ship,hull,[20,28,0],[6,6,6]);g=C.structuralConnectivity(ship);assert.equal(g.measured,0,'a cut far from every pair re-measures nothing');
+ cut(ship,hull,[106,31,0],[2,2,2]);g=C.structuralConnectivity(ship);assert.ok(g.measured>0,'a cut at A re-measures its pairs');
+ D.c=[D.c[0],D.c[1],D.c[2]+.01];g=C.structuralConnectivity(ship);assert.ok(g.measured>0,'a pose change re-measures');
+ hull.s=[hull.s[0]*1.001,hull.s[1],hull.s[2]];ship._cache=null;g=C.structuralConnectivity(ship);assert.ok(g.measured>0,'a parent edit re-measures');
+ assert.equal(C.publicJSON(ship).includes('_structuralContactCache'),false);assert.equal(JSON.stringify(C.serialize(ship)).includes('_structuralContactCache'),false);
+ assert.ok(JSON.parse(C.publicJSON(hull)).hullData.solidCuts.length===2,'the hull own solid cuts are in its public shape');
+});
+
+test('a child whose parent no longer touches it but which rests on a connected neighbour stays connected (no severed warning)',()=>{
+ // D (x 80..96) and A (x 102..118) stand apart on the deck; B stands on A and reaches over D's top.
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'neighbour');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const D=placeOn(ship,hull,88,'D'),A=placeOn(ship,hull,110,'A'),B=placeOn(ship,A,104,'B',[20,8,4],1.2);
+ assert.equal(C.placementContact(ship,B,D).connected,true,'B also rests on D');
+ const top=C.partAABB(A)[4];ship.solidCuts.push(C.normalizeSolidCut({id:ship.nextId++,shape:'box',c:[110,top-.5,0],s:[18,40,1],structures:true}));ship._cache=null;const r=C.refreshPlacementGeometry(ship);
+ assert.equal(C.placementContact(ship,B,A).connected,false,'A was carved from under B');assert.equal(B._placementError,undefined);same(r.severed.filter(q=>q.partId===B.id),[]);
+ const S=grounding(ship),d=S.placementDiagnostics.find(x=>x.partId===B.id);assert.ok(!S.ungrounded.parts.includes(B.id));assert.ok(!S.severed.includes(B.id));assert.equal(d.connected,true);assert.equal(d.via,'contact-graph');
+ const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),S2=grounding(L);assert.ok(!S2.ungrounded.parts.includes(B.id)&&!S2.severed.includes(B.id),'reload agrees');
+});
