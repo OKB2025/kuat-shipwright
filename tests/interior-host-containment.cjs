@@ -100,3 +100,75 @@ test('equipment spanning a curved primary hull and a structure cut to its side i
  const r=C.solvePlacement(ship,body,{mode:'direct'});assert.equal(r.ok,true,r.error);assert.equal(r.part.placement.hostId,hull.id);
  const outer=C.partAABB(side)[5],out=C.solvePlacement(ship,{...body,c:[centre[0],centre[1],outer]},{mode:'direct'});assert.equal(out.ok,false,'on the outer face of the side structure it sticks out');assert.equal(out.code,'fixed-outside');
 });
+
+function overlappingTops(){
+ const s=C.newShip({L:300,W:100,H:60,plan:'rect',sec:'rect',bowW:1,bowH:1,stern:1},'Overlapping structures');s.fits=[];C.ensurePrimaryHull(s,{newDesign:true});const hull=s.parts.find(p=>C.isShapePart(p));
+ for(const x of [60,120,180]){const hit=C.rayPart([x,5000,0],[0,-1,0],hull),pv={id:s.nextId,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+12,hit.p[2]],s:[90,60,40]};
+  const d=C.preparePlacementDraft(s,pv,{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit:{p:hit.p,n:C.norm(hit.n)},contactFit:'cut',position:pv.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(d.ok,true,d.error);s.parts.push(d.part);s.nextId++;}
+ C.refreshPlacementGeometry(s);for(const p of s.parts)assert.equal(p._placementError,undefined);return {s,hull};
+}
+
+// Two attached structures overlap each other (x 75..105 and 135..165) and share roof and side planes.
+// Shared same-facing faces must count once in the union, or a body there loses ~20% of its volume.
+test('equipment spanning the hull and two overlapping structures is valid; protrusion through their shared roof or side still fails',()=>{
+ const {s,hull}=overlappingTops();
+ for(const x of [40,90,140,190]){const r=C.solvePlacement(s,{id:50,k:'gen',c:[x,60,20],d:8},{mode:'direct'});assert.equal(r.ok,true,x+': '+r.error);assert.equal(r.part.placement.hostId,hull.id);}
+ for(const c of [[90,92,0],[90,75,30],[140,92,-10]]){const r=C.solvePlacement(s,{id:50,k:'gen',c,d:8},{mode:'direct'});assert.equal(r.ok,false,String(c));assert.equal(r.code,'fixed-outside');}
+});
+
+// User decision 2026-11-11: adding a structure only enlarges the interior, so placing one over existing
+// interior equipment is accepted and keeps that equipment valid, with no warning. Equipment ends up outside
+// only when the interior shrinks (a structure deleted, moved or shrunk, or a cut placed over it); it then
+// carries the ordinary fixed-outside warning, the same as after a deletion.
+function boxHull(name){const s=C.newShip({L:300,W:100,H:60,plan:'rect',sec:'rect',bowW:1,bowH:1,stern:1},name);s.fits=[];C.ensurePrimaryHull(s,{newDesign:true});return {s,hull:s.parts.find(p=>C.isShapePart(p))};}
+function putGen(s,hull,id,c,d=8){const r=C.preparePlacementDraft(s,{id,k:'gen',c,d},{mode:'direct',hostId:hull.id,placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(r.ok,true,r.error);s.parts.push(r.part);s.nextId=Math.max(s.nextId,id+1);}
+const reactorWarnings=S=>Array.from(S.warnings.filter(w=>/反応炉|配置先|配置の計算/.test(w.text)),w=>w.text);
+
+test('a new structure placed over existing valid interior equipment is accepted and the equipment stays valid without a warning',()=>{
+ const {s,hull}=boxHull('Structure over equipment');putGen(s,hull,10,[60,55,0],6);C.refreshPlacementGeometry(s);C.syncCompartments(s);
+ const gen=()=>s.parts.find(p=>p.id===10);assert.ok(!gen().placement.validationFailed);assert.equal(gen()._interiorPlacementError,undefined);
+ const hit=C.rayPart([60,5000,0],[0,-1,0],hull),pv={id:s.nextId,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+12,hit.p[2]],s:[90,60,40]};
+ assert.ok(C.overlapParts(pv,gen()),'the requested structure body overlaps the equipment');
+ const d=C.preparePlacementDraft(s,pv,{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit:{p:hit.p,n:C.norm(hit.n)},contactFit:'cut',position:pv.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(d.ok,true,d.error);
+ s.parts.push(d.part);s.nextId++;const r=C.refreshPlacementGeometry(s);C.syncCompartments(s);const structure=s.parts.find(p=>p.id===pv.id);
+ assert.deepEqual(Array.from(r.failed),[],'nothing is refused');assert.equal(structure._placementError,undefined);
+ assert.ok(!gen().placement.validationFailed);assert.equal(gen()._interiorPlacementError,undefined);
+ const S=C.computeStats(s);assert.equal(S.invalidReactorIds,undefined);assert.deepEqual(reactorWarnings(S),[]);
+});
+
+test('equipment that becomes outside when a structure is moved away keeps the fixed-outside warning; the structure move is not refused',()=>{
+ const s=stacked();putGen(s,s.parts[0],3,[60,62,0],10);C.refreshPlacementGeometry(s);C.syncCompartments(s);const gen=()=>s.parts.find(p=>p.id===3);assert.equal(gen()._interiorPlacementError,undefined);
+ const child=s.parts.find(p=>p.id===2);child.c=C.add(child.c,[110,0,0]);child.placement.pendingGeometry=true;const r=C.refreshPlacementGeometry(s);C.syncCompartments(s);
+ assert.ok(!r.failed.some(f=>f.partId===2),'the structure move is accepted');assert.equal(child._placementError,undefined);
+ assert.deepEqual(Array.from(gen().c),[60,62,0],'the equipment is not dragged');assert.equal(gen()._interiorPlacementError?.code,'fixed-outside');
+ const S=C.computeStats(s);assert.deepEqual(Array.from(S.invalidReactorIds),[3]);assert.ok(reactorWarnings(S).some(t=>/#3/.test(t)));
+});
+
+test('a cut placed over interior equipment leaves it outside with the fixed-outside warning',()=>{
+ const {s,hull}=boxHull('Cut over equipment');putGen(s,hull,10,[150,30,0],8);C.refreshPlacementGeometry(s);C.syncCompartments(s);const gen=()=>s.parts.find(p=>p.id===10);assert.equal(gen()._interiorPlacementError,undefined);
+ s.solidCuts.push(C.normalizeSolidCut({id:s.nextId++,shape:'box',c:[150,30,0],s:[20,20,20],structures:true}));C.refreshPlacementGeometry(s);C.syncCompartments(s);
+ assert.ok(gen(),'the equipment is kept');assert.equal(gen()._interiorPlacementError?.code,'fixed-outside');
+ const S=C.computeStats(s);assert.deepEqual(Array.from(S.invalidReactorIds),[10]);
+});
+
+// Armoured plating (PLATE): a plated structure's inside is still part of the ship, so it belongs to the
+// interior like any attached structure (main allowed interior equipment inside a plated structure).
+test('a plated attached structure is part of the interior: inside and spanning are valid, protruding fails',()=>{
+ const s=stacked(),plate=s.parts.find(p=>p.id===2);plate.plate=true;plate.plateT=1;C.refreshPlacementGeometry(s);C.syncCompartments(s);assert.equal(plate._placementError,undefined);
+ for(const c of [[60,62,0],[60,40,0]]){const r=C.solvePlacement(s,{id:3,k:'gen',c,d:10},{mode:'direct'});assert.equal(r.ok,true,c+': '+r.error);assert.equal(r.part.placement.hostId,1);}
+ const out=C.solvePlacement(s,{id:3,k:'gen',c:[60,80,0],d:10},{mode:'direct'});assert.equal(out.ok,false);assert.equal(out.code,'fixed-outside');
+});
+
+// Fleet, review and trial jobs read the raw saved design. A refusal stored for interior equipment by the
+// old single-host check is re-checked on load, so it must not block the fleet job (the reported design).
+test('the fleet job accepts the reported design whose stored interior refusal is re-checked on load; pending data is still refused',async()=>{
+ const vm=require('node:vm'),cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone});
+ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js','js/engine.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
+ const {C:Core,E}=vm.runInContext('({C:Core,E:YardEngine})',cx),messages=[],scope={postMessage(m){messages.push(structuredClone(m));}};E.listenWorker(scope);
+ const send=m=>scope.onmessage({data:structuredClone(m)}),reply=async id=>{for(let i=0;i<4000&&!messages.some(m=>m.id===id);i++)await new Promise(r=>setTimeout(r,5));return messages.find(m=>m.id===id);};
+ const raw=saved();assert.equal(raw.parts.find(p=>p.id===7).placement.validationFailed,true);
+ send({type:'fleet',id:41,design:raw,statsOnly:true});const packet=await reply(41);
+ assert.ok(packet,'the fleet job answers');assert.notEqual(packet.type,'error',packet.message);assert.equal(packet.type,'fleet');
+ const pending=saved();pending.parts.push({id:9,k:'gen',c:[150,35,0],d:5,placement:{modelVersion:Core.PLACEMENT_MODEL_VERSION,mode:'direct',hostId:1,geometryRevision:1,pendingGeometry:true,requestedGeometry:{id:9,k:'gen',c:[150,35,0],d:5}}});pending.nextId=10;
+ send({type:'fleet',id:42,design:pending,statsOnly:true});const refused=await reply(42);assert.equal(refused?.type,'error');assert.equal(refused.code,'placement-unresolved');
+});
