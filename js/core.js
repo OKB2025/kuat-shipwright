@@ -49376,12 +49376,14 @@ function syncHullHatches(ship,p){
 // v24 Scale a hull part's own cuts with the part: F = [length, height, width] factors along the part's x, y and z.
 // Its hull geometry is defined in fractions of length, width and height, so it scales about the stern (x 0), the keel
 // (y 0) and the centreline (z 0); the cuts, kept in metres in the same frame, are scaled about the same origin.
-// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets, cut boxes, solid cutters
+// Plan cuts and trench spans are already fractions; trench height and depth, bevel insets and slopes, cut boxes, solid cutters
 // (centre and size, a rotated cutter by the length of each of its own axes) and the hull's openings follow.
 function scaleHullStructureCuts(ship,p,F){
  if(!F.every(v=>Number.isFinite(v)&&v>0)||F.every(v=>Math.abs(v-1)<1e-12))return false;
  const data=p.hullData;if(!data)return false;const sc=v=>[v[0]*F[0],v[1]*F[1],v[2]*F[2]];
- for(const c of data.cuts||[])if(c.type!=='planTrapezoid'&&!c.prop&&Number.isFinite(c.inset))c.inset*=F[2];
+ // Bevel inset and slope are metres in both modes; a proportional bevel multiplies them by the section's width and
+ // height fractions (removersAt), so both are scaled either way.
+ for(const c of data.cuts||[])if(c.type!=='planTrapezoid'){if(Number.isFinite(c.inset))c.inset*=F[2];if(Number.isFinite(c.slope))c.slope*=F[1];}
  for(const t of data.trenches||[]){if(Number.isFinite(t.height))t.height*=F[1];if(Number.isFinite(t.depth))t.depth*=F[2];}
  for(const b of data.subs||[])if(Array.isArray(b.b)&&b.b.length===6)b.b=[...sc(b.b.slice(0,3)),...sc(b.b.slice(3))];
  for(const q of data.solidCuts||[]){if(Array.isArray(q.c))q.c=sc(q.c);if(Array.isArray(q.s)&&Array.isArray(q.rotation)){const k=[[1,0,0],[0,1,0],[0,0,1]].map(e=>len(sc(solidCutRotation(q,e))));q.s=[q.s[0]*k[0],q.s[1]*k[2],q.s[2]*k[1]];}}
@@ -49389,7 +49391,16 @@ function scaleHullStructureCuts(ship,p,F){
  for(const h of data.hatches||[])hatch(h);for(const h of ship?.hatches||[])if(h.hullOwner===p.id)hatch(h);
  invalidateHullHatchGeometry(ship,p);delete p._hullShip;return true;
 }
-function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;p.s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize));return syncHullStructure(ship,p,false);}
+// v24 A resize carries the part's own bevels and trenches with it (scaleHullStructureCuts); refuse a size at which
+// one of them would leave the range the loader keeps (a reload would otherwise clamp it and change the shape).
+function hullStructureResizeError(ship,p,size){
+ if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const h=p.hullProfile,s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize)),F=[s[0]/h.L,s[2]/h.H,s[1]/h.W];
+ if(!F.every(v=>Number.isFinite(v)&&v>0))return null;const inside=(v,f,lo,hi)=>!Number.isFinite(v)||v*f>=lo-1e-9&&v*f<=hi+1e-9;
+ for(const c of p.hullData?.cuts||[])if(c.type!=='planTrapezoid'&&(!inside(c.inset,F[2],0,1000)||!inside(c.slope,F[1],1,1000)))return '縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます';
+ for(const t of p.hullData?.trenches||[])if(!inside(t.height,F[1],.1,500)||!inside(t.depth,F[2],.1,800))return 'トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます';
+ return null;
+}
+function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const error=hullStructureResizeError(ship,p,size);if(error)throw new Error(error);p.s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize));return syncHullStructure(ship,p,false);}
 function ensurePrimaryHull(ship,options={}){
  const current=primaryHullPart(ship);if(current){ship.hullStructureVersion=1;ship.hull.assembly=true;return current;}
  if(ship.hullStructureVersion===1||ship.hull?.assembly)return null;
@@ -51364,7 +51375,9 @@ function structuralMaterial(ship){
  // from the last stored step before the first changed entry. Resuming replays the same values in the same order.
  const owner=ship._surfaceSource||ship,prior=STRUCTURAL_PREFIX.owner===owner?STRUCTURAL_PREFIX:null;let same=0;
  if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&entries[same].T===prior.entries[same].T&&entries[same].bulk===prior.entries[same].bulk)same++;
- let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
+ // v24 Checkpoints, step 0 included, start from the prior hull boundary: reuse them only for the same hull
+ // (a resized hull used to resume from the old hull's boundary and volume).
+ let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior&&prior.hull===hull)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
  const resume=stored.get(start);let boundary=resume?resume.boundary:hull,previous=resume?resume.previous:structuralMeshVolume(boundary),extension=0;if(!resume)stored.set(0,{boundary,previous});
  const volumes=new Map(),envelopeVolumes=new Map(),steps=[];
  for(let i=0;i<start;i++){const {p,bulk}=entries[i],volume=prior.steps[i];steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;}
@@ -53192,6 +53205,11 @@ function syncCompartmentsRaw(ship){
  const envelopeKey=JSON.stringify([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,ship.parts.filter(p=>isShapePart(p))],(k,v)=>k.startsWith('_')?undefined:v);
  const interiorKey=envelopeKey+JSON.stringify([ship.parts,ship.fits,ship.hatches],(k,v)=>k.startsWith('_')?undefined:v);
  if(ship._interiorKey===interiorKey)return;
+ // 2026-11-11 A compartment's envelope is assigned below as the compartments are clipped in order, exactly as for a
+ // design that was just loaded. One left from an earlier pass (often the statistics' surface working copy, with the
+ // hull caches of that time) made the result depend on the object's history: after a hull resize the reused editor
+ // object differed from a reload. Start every recomputation from the loaded state.
+ for(const p of ship.parts)delete p._envelope;
  const occupied=allOccupied(ship);for(const p of occupied){if(!explicitInteriorPlacement(p))delete p._packing;delete p._packingGroup;}
  if(ship._clipEnvelope?.key!==envelopeKey)ship._clipEnvelope={key:envelopeKey,structs:ship.parts.filter(p=>isShapePart(p)).map(p=>({p,b:partAABB({...p,_apertures:null})}))};
  const oldLock=ship._lockedCache;ship._lockedCache=cache(ship);
@@ -66754,7 +66772,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
   MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, INERTIA_MOVEMENT, inertiaAlignmentRate, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
-  ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
+  ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureResizeError,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
