@@ -54772,7 +54772,7 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 FITS.quad500={...FITS.mtl,key:'quad500',name:'500GT 4連装中型ターボレーザー',short:'500GT 4連装中型TL',barrels:4,boltTT:.5,tt:2,cycle:.2,power:2*TT/.2,mass:2250,crew:10,cost:200e3,source:null,evidence:'砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。'};
 // XX-9 and NK-7 survive only as migration inputs for the unified photo family.
 for(const k of ['itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
-function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f),t=shipLauncherType(f),base=FITS[t.key],[cl,chh,cww]=t.cell,fm=cl,hm=chh*q.rows+(q.raise||0)*Math.max(0,q.rows-1)+t.frame[0]*2,wm=cww*q.cols+t.frame[1]*2;const round=shipLauncherRound(f),rounds=t.ammoPerCell*q.cells;d={...d,msl:round.tt*q.cells,fm,hm,wm,r:Math.max(fm,wm)/2,mass:base.mass*q.cells+(round.mass||0)*rounds,hardwareMass:base.mass*q.cells,ammoMass:(round.mass||0)*rounds,cost:base.cost*q.cells,ammoCost:(round.cost||0)*rounds,power:base.power*q.cells,store:{...base.store,slots:rounds},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
+function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(f.k==='cmsl'&&!f.craftTube&&d.store?.slots>0){const n=d.store.slots,o=ORDNANCE.cmsl;d={...d,mass:d.mass+o.mass*n,ammoMass:o.mass*n,ammoCost:o.cost*n};}if(isShipLauncher(f)){const q=shipLauncherConfig(f),t=shipLauncherType(f),base=FITS[t.key],[cl,chh,cww]=t.cell,fm=cl,hm=chh*q.rows+(q.raise||0)*Math.max(0,q.rows-1)+t.frame[0]*2,wm=cww*q.cols+t.frame[1]*2;const round=shipLauncherRound(f),rounds=t.ammoPerCell*q.cells;d={...d,msl:round.tt*q.cells,fm,hm,wm,r:Math.max(fm,wm)/2,mass:base.mass*q.cells+(round.mass||0)*rounds,hardwareMass:base.mass*q.cells,ammoMass:(round.mass||0)*rounds,cost:base.cost*q.cells,ammoCost:(round.cost||0)*rounds,power:base.power*q.cells,store:{...base.store,slots:rounds},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 // v24 The Executor-only bridge and domes are retired (docs/executor-stl-rebuild.md). Their mesh data stays
@@ -57968,20 +57968,20 @@ registerShipExample({key:'craft_z95',physicalRevision:1,name:'Z-95 ヘッドハ�
 
 // The new examples carry explicit ordinary components. These recipe figures are engineering
 // allowances, not canonical blueprints: supports have 25% mass margin and stores cover ten minutes
-// of laser fire. Existing solar wings, cooling, cells and S-foil actuators stay in their own models.
+// of laser fire. liftLoad (t): the canon external load (pylons) the landing equipment must also lift. Existing solar wings, cooling, cells and S-foil actuators stay in their own models.
 const CRAFT_SYSTEM_RECIPES=Object.freeze({
- craft_arc170:{mass:34.51,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
- craft_awing:{mass:10.23,anchors:[[4.8,1.3,0],[3.1,1,0],[2.6,1.1,0],[5.6,1,0]],landing:3},
- craft_btlb:{mass:52.26,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
- craft_hyena:{pumpMargin:2.5,mass:29.10,anchors:[[8.4,2.3,1.09],[6.5,2.3,-1.09],[8.5,1.7,-1.09],[4.5,2.4,1.09],[4.5,1.8,-1.09],[7.5,2.6,1.09],[7.5,1.5,-1.09]],landing:4,walking:true},
+ craft_arc170:{liftLoad:3*Math.PI/4*2.25*8,mass:34.51,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
+ craft_awing:{liftLoad:12*Math.PI/4*.25*5,mass:10.23,anchors:[[4.8,1.3,0],[3.1,1,0],[2.6,1.1,0],[5.6,1,0]],landing:3},
+ craft_btlb:{liftLoad:6*Math.PI/4*2.25*8+8*Math.PI/4*1*2,mass:52.26,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
+ craft_hyena:{liftLoad:6*Math.PI/4*2.25*8+12*Math.PI/4*.25*5,pumpMargin:2.5,mass:29.10,anchors:[[8.4,2.3,1.09],[6.5,2.3,-1.09],[8.5,1.7,-1.09],[4.5,2.4,1.09],[4.5,1.8,-1.09],[7.5,2.6,1.09],[7.5,1.5,-1.09]],landing:4,walking:true},
  craft_tie_in:{mass:17.69,anchors:[[1.7,2.4,.6],[1,2.5,-.6],[1.7,3.2,0],[.5,1.7,0]],landing:2,suit:true,wingStand:true},
  craft_tie_ln:{mass:10.52,anchors:[[1.6,1.7,.5],[1,2,-.5],[1.2,2.6,0],[1.6,1,0]],landing:2,suit:true,wingStand:true},
- craft_tie_sa:{mass:51.42,anchors:[[1.5,1.2,1.6],[1.8,1.3,-1.6],[.5,1.4,1.6],[.5,1.4,-1.6]],landing:2,suit:true,wingStand:true},
- craft_v19:{mass:12.86,anchors:[[3.6,1.1,0],[2,1,0],[4.5,.7,0],[3.3,.6,0]],landing:3},
+ craft_tie_sa:{liftLoad:3*Math.PI/4*2.25*8,mass:51.42,anchors:[[1.5,1.2,1.6],[1.8,1.3,-1.6],[.5,1.4,1.6],[.5,1.4,-1.6]],landing:2,suit:true,wingStand:true},
+ craft_v19:{liftLoad:12*Math.PI/4*.25*5,mass:12.86,anchors:[[3.6,1.1,0],[2,1,0],[4.5,.7,0],[3.3,.6,0]],landing:3},
  craft_vulture:{pumpMargin:2,mass:9.9,anchors:[[1.45,1.45,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
  craft_vwing:{mass:8.93,anchors:[[4.4,1.25,0],[3.8,.7,0],[5.1,1,0],[6.8,.8,0]],landing:3},
- craft_xwing:{mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
- craft_z95:{mass:19.16,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
+ craft_xwing:{liftLoad:6*Math.PI/4*2.25*8,mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
+ craft_z95:{liftLoad:12*Math.PI/4*.25*5,mass:19.16,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
 });
 // A new stock craft is built around an actual-power plant, not the old nozzle-volume law.
 // These are construction targets for ordinary, editable engine hardware. They are never applied
@@ -58002,7 +58002,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 });
 // v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452526541719,craft_awing:0.492755075492,craft_btlb:0.498564613182,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.638771550575,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.393494072058,craft_z95:0.571066159999});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.453029583159,craft_awing:0.493196645382,craft_btlb:0.499381906772,craft_hyena:0.559573350000,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639416240201,craft_v19:0.472758869057,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.394801858468,craft_z95:0.571369880364});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
@@ -58141,7 +58141,8 @@ function installCraftSystems(ship,recipe){
  offer('navComputer','航法コンピューター',.01);if(target>0)offer('targetComputer','照準コンピューター',target*.004*1.15);
  for(let i=0;i<4;i++)offer('maneuver','姿勢制御スラスター '+(i+1),Math.max(.005,mass/1000/4));
  if(laser>0)for(let i=0;i<2;i++)offer('laserGas','レーザーガス供給槽 '+(i+1),laser*(recipe.gasSeconds||600)/30000/2*1.05);
- for(let i=0;i<(recipe.landing||3);i++)offer('landingGear',(recipe.walking?'歩行脚支持機構':recipe.wingStand?'翼端着陸支持機構':'着陸脚機構')+' '+(i+1),Math.max(.003,mass/300/(recipe.landing||3)));
+ // 2026-11-11 user decision: the landing equipment also lifts the canon external load (recipe.liftLoad t, +10%).
+ for(let i=0;i<(recipe.landing||3);i++)offer('landingGear',(recipe.walking?'歩行脚支持機構':recipe.wingStand?'翼端着陸支持機構':'着陸脚機構')+' '+(i+1),Math.max(.003,(mass+(+recipe.liftLoad||0)*1.1)/300/(recipe.landing||3)));
  const offsets=[];for(let x=-4;x<=4;x++)for(let y=-4;y<=4;y++)for(let z=-4;z<=4;z++)offsets.push([x,y,z]);offsets.sort((a,b)=>dot(a,a)-dot(b,b)||a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
  const before=ship.parts.slice(),nextId=ship.nextId,suits=cockpits.map(p=>p.suit),oldVersion=ship.systemsVersion;
  try{
@@ -64562,11 +64563,12 @@ function craftStations(ship,S){
 }
 // 2026-11-11 user decision: the external (pylon) load is limited by the rated load of the craft's landing equipment
 // (landing gear and landing repulsorlifts, CRAFT_SYSTEMS.landingSupport t per m³) less the craft's own design mass,
-// shared evenly by its pylons. Unknown until the craft's statistics are computed (then no mass limit is applied).
+// shared by its pylons as one pool (filled in station order). Unknown until the craft's statistics are computed (then no
+// mass limit is applied).
 function craftTypeSpareLift(type){const e=type&&CRAFT_PRICE_CATALOG.entries?.[type],rated=e?.systems?.landingSupport,mass=e?.powerProfile?.propulsion?.massKg;return Number.isFinite(rated)&&Number.isFinite(mass)?Math.max(0,rated-mass/1000):null;}
 function withPylonLimit(stations,spare){
- if(!Number.isFinite(spare))return stations;const pylons=stations.filter(st=>st.mount==='wing').reduce((n,st)=>n+st.count,0);if(!pylons)return stations;
- return stations.map(st=>st.mount==='wing'?{...st,store:{...(st.store||FITS[st.fit].store),maxMass:spare/pylons}}:st);
+ if(!Number.isFinite(spare)||!stations.some(st=>st.mount==='wing'))return stations;
+ return stations.map(st=>st.mount==='wing'?{...st,store:{...(st.store||FITS[st.fit].store),maxMass:spare},liftPool:spare}:st);
 }
 // v24 Craft launch tubes are retired into pylons and the bomb-bay fitting into a bomb-bay compartment. Each tube
 // becomes a pylon in its place (its frame kept); a bay fitting becomes an interior bay of the same inner size whose
@@ -64618,8 +64620,11 @@ function craftLoadout(x){
 // A chosen loadout checked against the stations: each station's kind must fit it and its count is held to what it
 // takes (a station left out falls back to the default; 'auto' or nothing is the default throughout).
 function normalizeLoad(stations,load,base){
- const L=Array.isArray(load)?load:null;
- return (stations||[]).map((st,i)=>{const s=stationStore(st),b=base?.[i]||{k:STORE_DEFAULT[st.fit]?.[0],n:STORE_DEFAULT[st.fit]?.[1]||0},q=L?.[i]&&typeof L[i]==='object'?L[i]:b,k=ORDNANCE[q.k]?q.k:b.k,cap=storeCapacity(s,k);return {k,n:cap>0?clamp(Math.round(+q.n||0),0,cap):0};});
+ const L=Array.isArray(load)?load:null;let pool=null;
+ return (stations||[]).map((st,i)=>{const s=stationStore(st),b=base?.[i]||{k:STORE_DEFAULT[st.fit]?.[0],n:STORE_DEFAULT[st.fit]?.[1]||0},q=L?.[i]&&typeof L[i]==='object'?L[i]:b,k=ORDNANCE[q.k]?q.k:b.k,cap=storeCapacity(s,k);let n=cap>0?clamp(Math.round(+q.n||0),0,cap):0;
+  // The pylons share the landing equipment's spare rating (liftPool, t) in station order.
+  if(Number.isFinite(st.liftPool)&&n>0){if(pool==null)pool=st.liftPool;const each=ORDNANCE[k].mass*Math.max(1,st.count||1);n=Math.min(n,Math.max(0,Math.floor(pool/each+1e-9)));pool-=n*each;}
+  return {k,n};});
 }
 // v22 What a craft carries, round by round: [{kind, n (per craft), mount, dims: [length, diameter], …}].
 // craftKeyOrDesign: a craft type key ('xwing'), an example key ('craft_xwing'), a design (ship), or a loadout

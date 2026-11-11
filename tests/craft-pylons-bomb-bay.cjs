@@ -9,8 +9,8 @@ test('a pylon takes six missiles, three torpedoes or two bombs and is the pylon 
  const s=craft(),r=C.placeFit(s,'cpylon',[6,.5,1],[0,-1,0],0,true);assert.ok(r.fit,r.err);
  const b=C.fitAABB(r.fit),d=C.FITS.cpylon;assert.ok(Math.abs((b[4]-b[1])-d.hm)<1e-6,'no stores hang from the design');
  const S=C.computeStats(s),stations=plain(C.craftStations(s,S));assert.deepEqual(stations.map(({fit,mount,count})=>({fit,mount,count})),[{fit:'cpylon',mount:'wing',count:2}],'a mirrored pair is one station');
- // 2026-11-11 user decision: the pylons share the landing equipment's spare rated load (rating less the design mass).
- assert.ok(Math.abs(stations[0].store.maxMass-Math.max(0,S.craftSystems.landingSupport-S.mass)/2)<1e-9);
+ // 2026-11-11 user decision: the pylons share the landing equipment's spare rated load (rating less the design mass) as one pool.
+ const spare=Math.max(0,S.craftSystems.landingSupport-S.mass);assert.ok(Math.abs(stations[0].liftPool-spare)<1e-9);assert.ok(Math.abs(stations[0].store.maxMass-spare)<1e-9);
 });
 test('launch tubes are retired into pylons and old bomb-bay fittings into bomb-bay compartments',()=>{
  assert.equal(C.FITS.ctorp.catalogHidden,true);assert.equal(C.FITS.cbomb.catalogHidden,true);
