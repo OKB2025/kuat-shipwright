@@ -24,10 +24,11 @@ test('automatic internal picking uses actual mother candidates and retains the r
  r('designUI.replaceId=3;pickRay([1,20,0],[0,-1,0],{parts:false,fits:false})');assert.equal(r('rayCalls.at(-1).options.excludePartId'),3);
 });
 
-test('a selected internal mother stays locked and cannot silently switch to a different tapped structure',()=>{
+// User decision 2026-11-11: interior equipment has no structure parent. A selected item's former
+// mother no longer restricts taps; every placement is anchored to the primary hull (#1 here).
+test('interior picking is not locked to a structure and records the primary hull as the anchor',()=>{
  const {run:r}=interior();r('designUI.hostId=1;interiorHits=[hit(1)];rayHits=[hit(2,80)];const picked=pickRay([1,20,0],[0,-1,0],{parts:false,fits:false});designUIRequest(hit(2,80));');
- assert.equal(r('picked.parentStructureId'),1);assert.equal(r('interiorCalls[0].parentId'),1);assert.equal(r('rayCalls.length'),0);assert.equal(r('ship.parts.length'),2);assert.equal(r('undoStack.length'),0);assert.equal(r('designUI.armed'),true);assert.ok(r('designUI.pending.result.error.includes("指定した内装の母体")'));
- r('designUIRequest(hit(1))');assert.equal(r('ship.parts.length'),3);assert.equal(r('ship.parts[2].placement.hostId'),1);assert.equal(r('designUI.armed'),false);
+ assert.equal(r('picked.parentStructureId'),2);assert.equal(r('interiorCalls.length'),0);assert.equal(r('rayCalls.length'),1);assert.equal(r('ship.parts.length'),3);assert.equal(r('ship.parts[2].placement.hostId'),1,'tapping structure #2 does not make it the parent');assert.equal(r('ship.parts[2].placement.hostSurfaceId'),undefined);
 });
 
 test('a missing mother or root work-plane tap cannot place an internal room or consume its one-shot tool',()=>{
@@ -45,9 +46,9 @@ for(const [kind,mode]of [['cargo','clip'],['cargo','preserve-volume'],['hangar',
  });
 }
 
-test('checked repeat placement may choose different mothers without creating a permanent dropdown lock',()=>{
+test('checked repeat placement on different structures keeps the primary hull anchor without a dropdown lock',()=>{
  const t=interior({continuous:true}),r=t.run;r('designUIRequest(hit(1));designUIRequest(hit(2,80))');
- assert.equal(r('ship.parts.length'),4);assert.equal(r('designUI.armed'),true);assert.equal(r('designUI.hostId'),null);assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.hostId)')),[1,2]);assert.equal(r('undoStack.length'),2);
+ assert.equal(r('ship.parts.length'),4);assert.equal(r('designUI.armed'),true);assert.equal(r('designUI.hostId'),null);assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.hostId)')),[1,1],'both are anchored to the primary hull');assert.equal(r('undoStack.length'),2);
  t.context.packet=resolution(t);assert.equal(r('onEnginePlacementResolution(packet)'),true);assert.equal(r('C.placementDraftStatus(ship).ready'),true);
 });
 

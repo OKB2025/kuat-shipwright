@@ -2876,7 +2876,7 @@ function pickRay(o, d, want) {
       return null;
     }else if(cap.space==='interior'){
       const options={includeOccluded:true,excludePartId:designUI.replaceId??undefined},model=editorMountShip();
-      const hits=designUI.hostId!=null?Gfx.structureSurfaceCandidates?.(model,o,d,designUI.hostId,options)||[]:Gfx.placementSurfaceCandidates?.(model,o,d,options)||[];
+      const hits=Gfx.placementSurfaceCandidates?.(model,o,d,options)||[];
       return hits[designUI.depth||0]||null;
     }
   }
@@ -5034,10 +5034,11 @@ function designUIRequest(hit){
  let hostId=designUI.hostId;
  if(cap.space==='interior'){
   const tapped=hit.parentStructureId??(hit.part&&C.isShapePart(hit.part)?hit.part.id:hit.kind==='hull'&&!ship.hull.assembly?'hull':null);
-  if(tapped==null||hit.rootPlane){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
-  if(hostId!=null&&tapped!==hostId){designUIRejectTap('指定した内装の母体の面をタップしてください');return;}
-  hostId=hostId??tapped;
-  if(hostId==='hull'?ship.hull.assembly:!C.isShapePart(designParent(hostId))||list==='parts'&&hostId===designUI.replaceId){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
+  if(tapped==null||hit.rootPlane||tapped!=='hull'&&!C.isShapePart(designParent(tapped))){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
+  // The tapped face only locates the equipment. Interior equipment has no structure parent:
+  // it is anchored to the primary hull and must lie inside the hull and its attached structures.
+  hostId=typeof C.interiorAnchorHostId==='function'?C.interiorAnchorHostId(ship):tapped;
+  if(hostId==null||(hostId==='hull'?ship.hull.assembly:!C.isShapePart(designParent(hostId))||list==='parts'&&hostId===designUI.replaceId)){designUIRejectTap('内装を収める船体・構造物の面をタップしてください');return;}
  }
  if(existing&&list==='parts'&&cap.kind==='structure'){const pose=partPreview(hit);if(pose?.c)pv.c=pose.c.slice();}
  if(cap.space==='exterior'){
@@ -5046,7 +5047,7 @@ function designUIRequest(hit){
   if(hit.rootPlane){if(!designUIRootEligible(pv)){designUIRejectTap('最初の構造物だけを作業面へ配置できます');return;}designUI.hostId=null;delete pv.placement;delete pv.host;delete pv.local;delete pv.localNormal;delete pv.localForward;}
   designUI.parentId=tapped;
  }
- const parent=designParent(cap.space==='exterior'?designUI.parentId:hostId),request={part:pv,partId:pv.id,...(list==='fits'?{list:'fits',entityKind:'fit'}:{}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,mode:cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0],...(cap.space==='exterior'?(designUI.parentId!=null?{parentStructureId:designUI.parentId,hostId:designUI.parentId}:{}):hostId!=null?{hostId}:{}),hostSurfaceId:hit.hostSurfaceId||hit.surfaceId,contactSide:designUI.contactSide||undefined,hit:{p:hit.p.slice(),n:hit.n.slice(),kind:hit.kind,face:hit.face,...(hit.rootPlane?{rootPlane:true}:{}),...(hit.u?{u:hit.u.slice()}:{})},geometryRevision:(pv.placement?.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||parent?.geometryRevision||0};
+ const parent=designParent(cap.space==='exterior'?designUI.parentId:hostId),request={part:pv,partId:pv.id,...(list==='fits'?{list:'fits',entityKind:'fit'}:{}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,mode:cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0],...(cap.space==='exterior'?(designUI.parentId!=null?{parentStructureId:designUI.parentId,hostId:designUI.parentId}:{}):hostId!=null?{hostId}:{}),hostSurfaceId:cap.space==='interior'?undefined:hit.hostSurfaceId||hit.surfaceId,contactSide:designUI.contactSide||undefined,hit:{p:hit.p.slice(),n:hit.n.slice(),kind:hit.kind,face:hit.face,...(hit.rootPlane?{rootPlane:true}:{}),...(hit.u?{u:hit.u.slice()}:{})},geometryRevision:(pv.placement?.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||parent?.geometryRevision||0};
  if(cap.space==='exterior'&&cap.kind==='structure'&&['horizontal','vertical'].includes(request.mode)){request.contactFit='cut';request.position=pv.c.slice();}
  let rows;try{rows=designUIRequests(pv,request);}catch(error){designUIRejectTap(error.message||'対称側の取付面を確認できません。位置を変えるか、対称配置を解除してください。');return;}Object.assign(request,rows[0].request);if(rows.length>1)request.parts=rows;
  if(!existing&&pv.k==='engine'&&pv._autoEngineOwner!==undefined&&pv.machineryId>0){const owners=new Set(engineCoreCandidates().map(p=>p.id));if(rows.some(row=>!owners.has(row.part.machineryId))){designUIRejectTap('対称側の接続する内部機関を確認してください。機関本体を選択するか、対称配置を解除してください。');return;}}
