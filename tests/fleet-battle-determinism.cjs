@@ -5,10 +5,12 @@
 // unit state (everything but the immutable profile p) and the battle state are
 // hashed, and a compact numeric digest is kept. The expected values were
 // recorded from 910ef75 (origin/main 3e82bf1 + the heat-governor HUD fix).
-// A tick passes when its full-state hash matches exactly, or, if a refactor
-// changes floating-point summation order, when every digest number is within
-// 1e-12 relative. Recorded with Node v22.23.4; Math.* may differ on other V8s.
-//   KS_DETERMINISM_WRITE=1 KS_TEST_ROOT=<base checkout> node --test tests/fleet-battle-determinism.cjs
+// Every tick must match its full-state hash exactly. Only with
+// KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
+// summation order) may a mismatching tick pass instead with every digest
+// number within 1e-12 relative; the count of inexact ticks is reported.
+// Recorded with Node v22.23.4; Math.* may differ on other V8s.
+//   KS_DETERMINISM_WRITE=1 KS_DETERMINISM_BASE=<commit> KS_TEST_ROOT=<base checkout> node --test tests/fleet-battle-determinism.cjs
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),crypto=require('node:crypto'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),GOLDEN=path.join(__dirname,'helpers/fleet-battle-determinism.json'),REL=1e-12,STEPS=96;
 function load(){const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});return vm.runInContext('Core',cx);}
@@ -54,10 +56,13 @@ test('a fixed-seed fleet battle with hits, missiles, power loss and heat limits 
  assert.ok(ticks.at(-1).units.some((d,i)=>d[24]<first[i][24]),'missiles were launched');
  assert.ok(ticks.some(t=>t.units.some(d=>d[1]===1)),'a ship was disabled');
  assert.ok(last.some((d,i)=>d[28]!==first[i][28]),'stored heat changed');
- if(process.env.KS_DETERMINISM_WRITE==='1'){fs.writeFileSync(GOLDEN,JSON.stringify({root:path.basename(root),node:process.version,steps:STEPS,ticks}));return;}
+ if(process.env.KS_DETERMINISM_WRITE==='1'){fs.writeFileSync(GOLDEN,JSON.stringify({base:process.env.KS_DETERMINISM_BASE||null,node:process.version,steps:STEPS,ticks}));return;}
  const want=JSON.parse(fs.readFileSync(GOLDEN,'utf8')).ticks;assert.equal(ticks.length,want.length);
- let exact=0;for(let i=0;i<ticks.length;i++){const a=ticks[i],w=want[i];if(a.hash===w.hash){exact++;continue;}
+ const allowFloat=process.env.KS_DETERMINISM_ALLOW_FLOAT==='1',inexact=[];let exact=0;
+ for(let i=0;i<ticks.length;i++){const a=ticks[i],w=want[i];if(a.hash===w.hash){exact++;continue;}inexact.push(i);
+  if(!allowFloat)continue;
   assert.equal(a.shots,w.shots,`tick ${i} shots`);assert.equal(a.events,w.events,`tick ${i} events`);assert.equal(a.seed,w.seed,`tick ${i} random state`);
   a.units.forEach((d,u)=>d.forEach((v,k)=>assert.ok(close(v,w.units[u][k]),`tick ${i} unit ${u} digest[${k}] ${v} vs ${w.units[u][k]}`)));}
- if(exact<ticks.length)console.log(`fleet-battle-determinism: ${exact}/${ticks.length} ticks bit-identical, the rest within ${REL} relative`);
+ console.log(`fleet-battle-determinism: exact ${exact}/${ticks.length}`+(inexact.length?`; ${inexact.length} inexact tick(s) from ${inexact[0]}`+(allowFloat?`, all within ${REL} relative (KS_DETERMINISM_ALLOW_FLOAT=1)`:''):''));
+ if(!allowFloat)assert.equal(inexact.length,0,`full-state hash differs at ${inexact.length} tick(s), first ${inexact[0]} (set KS_DETERMINISM_ALLOW_FLOAT=1 only for a reviewed floating-order change)`);
 });
