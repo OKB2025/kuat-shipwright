@@ -10177,6 +10177,7 @@ Object.assign(root.KS_EN.terms,{
 '艦艇用震盪ミサイル':'Ship-Scale Concussion Missile',
 '横の発射管数':'Tubes Across',
 '発射管の段数':'Tube Rows',
+'段の上げ幅':'Row Raise',
 '埋め込みセル':'Embedded Cells',
 '縦セル数':'Vertical Cells',
 '発射方向の左右角':'Launch Heading',
@@ -10192,9 +10193,9 @@ Object.assign(root.KS_EN.messages,{
 '{0} 列 × {1} 段 · 横幅 {2} · 高さ {3} · 奥行 {4} · {5} 発':'{0} columns × {1} rows · Width {2} · Height {3} · Depth {4} · {5} rounds',
 '{0} 列':'{0} columns',
 '{0} 段':'{0} rows',
-'構造物に埋め込んで使います。前面板の発射管から外へ発射し、奥行きはミサイルの長さと同じ船内区画になります。':'Embed this launcher in a structure. Missiles leave through the tubes in the face panel; the interior compartment behind it is as deep as one missile.',
-'発射管の数に合わせて前面板の幅・高さ、船内区画の容積、弾数、質量、費用が変わります。':'The number of tubes sets the face panel width and height, the interior compartment volume, rounds, mass and cost.',
-'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥行きはミサイルの長さ（50 m）と同じ船内区画になります。発射管1本（12 m 間隔）に艦艇用震盪ミサイル1発、1発720 TT、射程60 km。横の本数と段数で発射管が増え、容積・質量・費用も増えます。構造物に埋め込んで使います。':'A ship launcher based on the Mandator II side launch panels. Round tubes line the face panel, and the interior compartment behind it is as deep as the missile (50 m). Each tube (12 m pitch) holds one ship-scale concussion missile: 720 TT per missile, 60 km range. Tubes across and rows add tubes, volume, mass and cost. Embed it in a structure.',
+'構造物に埋め込んで使います。前面板の丸い蓋の発射管から外へ発射し、奥側に深さ50 mの船内区画を取ります。曲面では取付点の面の向きに合わせます。':'Embed this launcher in a structure. Missiles leave through the round-lidded tubes in the face panel; it takes a 50 m deep interior compartment behind the face. On a curved surface it follows the surface direction at the mounting point.',
+'発射管の数と段の上げ幅に合わせて前面板の幅・高さ、船内区画の容積、弾数、質量、費用が変わります。発射管1本に1発を装填します。':'The number of tubes and the row raise set the face panel width and height, the interior compartment volume, rounds, mass and cost. Each tube holds one missile.',
+'マンデイターIIの舷側発射口を基にした艦艇用の発射装置。前面板に丸い発射管が並び、奥側に深さ50 mの船内区画を取ります。艦艇用震盪ミサイルは直径7 m・長さ50 m（推進剤50%・弾頭50%）で、1本に1発、1発1,531,250 TT、射程60 km。横の本数・段数と段の上げ幅を変えられ、容積・質量・費用も増えます。構造物に埋め込んで使い、曲面にも取り付けられます。':'A ship launcher based on the Mandator II side launch panels. Round tubes line the face panel, with a 50 m deep interior compartment behind it. The ship-scale concussion missile is 7 m in diameter and 50 m long (50% propellant, 50% warhead); each tube holds one, 1,531,250 TT per missile, 60 km range. Tubes across, rows and row raise are adjustable and add volume, mass and cost. Embed it in a structure; curved surfaces are supported.',
 'セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。':'Cell counts change the physical width, height, ammunition, mass and cost. An embedded launcher fits into a structure and fires through its open front. External supports follow its launch direction.',
 'セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。':'Cell counts and mounting apply to the selected ship launchers. Linked launchers mirror the heading.'
 });

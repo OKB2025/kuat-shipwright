@@ -639,14 +639,18 @@ function roundTubeLauncherMesh(g,p){
  // Face frame around the tube grid.
  if(fy>0)for(const sign of [-1,1])box(g,M,o,face-t/2,sign*(H-fy)/2,0,t,fy,W,FC.body);
  if(fz>0)for(const sign of [-1,1])box(g,M,o,face-t/2,0,sign*(W-fz)/2,t,H-fy*2,fz,FC.body);
+ // Raised rows leave a face strip between consecutive rows of tubes.
+ const raise=p.rowRaise||0,rows=p.rows||1;if(raise>0)for(let r=1;r<rows;r++)box(g,M,o,face-t/2,-H/2+fy+r*ch+(r-.5)*raise,0,t,raise,W-fz*2,FC.body);
  for(const c of p.cellCenters){
   const cy=C.dot(C.sub(c,o),fr.up),cz=C.dot(C.sub(c,o),fr.rt),ring=[];
   for(let i=0;i<=N;i++){const a=i/N*Math.PI*2,cs=Math.cos(a),sn=Math.sin(a),k=1/Math.max(Math.abs(cs)/(ch/2),Math.abs(sn)/(cw/2));ring.push([[cy+cs*r,cz+sn*r],[cy+cs*k,cz+sn*k]]);}
   for(let i=0;i<N;i++){const [a0,b0]=ring[i],[a1,b1]=ring[i+1];quad(g,[at(face,...b0),at(face,...b1),at(face,...a1),at(face,...a0)],fr.fw,UV,FC.ring,255);}
-  const front=at(face,cy,cz),back=at(-L/2+t,cy,cz),missileR=Math.min(r*.9,r-.25),nose=Math.min(L*.18,missileR*1.8),tip=at(face-1,cy,cz),shoulder=at(face-1-nose,cy,cz);
-  axisFrustum(g,front,back,r,r,FC.dark,false,true,N);
-  axisFrustum(g,back,shoulder,missileR,missileR,FC.barrel,[true,false],false,N);
-  axisFrustum(g,shoulder,tip,missileR,missileR*.15,FC.ring,[false,true],false,N);
+  // A closed round lid sits in a shallow round recess in front of each tube's ready missile; a hinge on the upper edge.
+  const depth=Math.min(.8,L*.05),front=at(face,cy,cz),seat=at(face-depth,cy,cz),lid=at(face-depth*.25,cy,cz),lidR=Math.max(r-.12,r*.97);
+  axisFrustum(g,front,seat,r,r,FC.dark,false,true,N);
+  axisFrustum(g,seat,lid,lidR,lidR,FC.body,[false,true],false,N);
+  axisFrustum(g,lid,at(face-depth*.15,cy,cz),lidR*.3,lidR*.3,FC.ring,[false,true],false,N);
+  box(g,M,o,face-depth*.3,cy+lidR*.92,cz,depth*.5,r*.12,r*.5,FC.ring);
  }
 }
 function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
