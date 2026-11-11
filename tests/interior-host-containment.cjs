@@ -98,5 +98,5 @@ test('equipment spanning a curved primary hull and a structure cut to its side i
  const centre=C.add(hit.p,C.mul(n,0)),body={id:ship.nextId,k:'gen',c:centre,d:12};
  assert.ok(C.inPart(hull,C.add(centre,[0,0,-6.5]))&&C.inPart(side,C.add(centre,[0,0,6.5])),'the body really spans both');
  const r=C.solvePlacement(ship,body,{mode:'direct'});assert.equal(r.ok,true,r.error);assert.equal(r.part.placement.hostId,hull.id);
- const out=C.solvePlacement(ship,{...body,c:C.add(centre,[0,size[2]*.5+4,0])},{mode:'direct'});assert.equal(out.ok,false,'above the side structure roof it sticks out');
+ const outer=C.partAABB(side)[5],out=C.solvePlacement(ship,{...body,c:[centre[0],centre[1],outer]},{mode:'direct'});assert.equal(out.ok,false,'on the outer face of the side structure it sticks out');assert.equal(out.code,'fixed-outside');
 });
