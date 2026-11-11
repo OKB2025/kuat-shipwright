@@ -62935,6 +62935,26 @@ function placementConstrainTranslation(ship,part,parent,hit,mode,side,old,reques
 function fitPlacementContact(ship,part,parent,hit,mode,contactSide){
  const n=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);
  if(len(n)<.1)return placementFailure('contact-side','側面と接触側を選び直してください');
+ const result=placementFitContactAlong(ship,part,parent,hit,n);
+ // A horizontal cut is built in columns along the vertical axis. A tap on a
+ // steep or vertical wall has no parent skin facing that axis there, and on a
+ // curved hull the skin rises through the roof towards the body's inboard
+ // edge; neither is a missing face or a thin authored body. The same cut is
+ // then taken across the wall, along the body's own side face that faces it.
+ // The upright pose, position and authored faces stay as requested and no
+ // material is added; a real gap still fails the contact check afterwards.
+ if(result.ok||mode!=='horizontal'||part.placement?.contactFit!=='cut'||!['surface-missing','minimum-thickness'].includes(result.code))return result;
+ const lateral=placementLateralContactAxis(part,hit);if(!lateral)return result;
+ const across=placementFitContactAlong(ship,part,parent,hit,lateral);return across.ok?across:result;
+}
+// The lateral cut axis is the inward normal of a vertical face of the body
+// that faces the tapped wall (within 45 degrees of its horizontal normal).
+function placementLateralContactAxis(part,hit){
+ const h=[hit.n[0],0,hit.n[2]];if(len(h)<1e-6)return null;const wall=norm(h),T=placementTriangles(part);let best=null,score=Math.SQRT1_2;
+ for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const axis=mul(norm(raw),-1);if(Math.abs(axis[1])>1e-9)continue;const value=dot(axis,wall);if(value>score+1e-9){score=value;best=norm([axis[0],0,axis[2]]);}}
+ return best;
+}
+function placementFitContactAlong(ship,part,parent,hit,n){
  const fr=frameAxis(n),axes={n,u:fr.v,v:fr.w,origin:hit.p.slice()},project=p=>{const q=sub(p,axes.origin);return [dot(q,axes.u),dot(q,axes.v)];},height=(P)=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],axes.origin));return q=>(d-dot(normal,add(mul(axes.u,q[0]),mul(axes.v,q[1]))))/den;};
  part._solidCutShip=ship;parent._solidCutShip=ship;let body=placementCompactPlanarSolid(placementTriangles(part));const parentT=placementCompactPlanarSolid(placementTriangles(parent)),eps=Math.max(placementEpsilon(body),placementEpsilon(parentT)),base=[],faces=[];
  for(let i=0;i<body.length;i+=9){const P=[0,3,6].map(j=>Array.from(body.slice(i+j,i+j+3))),nn=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));if(dot(nn,n)<-.99999)base.push({poly:placementCCW(P.map(project)),height:height(P)});}
