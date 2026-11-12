@@ -87,6 +87,25 @@ test('no early structure packet for a hull edit or when the hull changed',async(
  assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===4),true,'an ordinary move after the hull edit has one again');
 });
 
+test('a superseded hull edit leaves the hull counted as changed: the parts-only edit after it sends no early structures',async()=>{
+ const {C,E,ship,messages,hooks,wait,send}=setup();
+ send({type:'update',gen:1,designId:'d',state:state(C,ship),what:['all'],reset:true,view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===1);
+ ship.solidCuts=[C.normalizeSolidCut({id:20,shape:'box',c:[100,15,0],s:[6,6,6],structures:true})];
+ const hullEdit=state(C,ship);ship.parts[1].c=[70,19,0];const partsEdit=state(C,ship);
+ // The hull edit is superseded right after its first packet, before any geometry is posted.
+ hooks.push(m=>{if(m.type==='authoringGeometry'&&m.gen===2)send({type:'update',gen:3,designId:'d',state:partsEdit,what:['parts'],view,statsDelay:0});});
+ send({type:'update',gen:2,designId:'d',state:hullEdit,what:['hull'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===3);
+ assert.ok(E.abandoned.some(a=>a.gen===2),'the hull edit was superseded');
+ assert.equal(messages.some(m=>m.type==='geometry'&&m.gen===2),false);
+ assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===3),false,'no early structures against the stale hull mesh');
+ ship.parts[1].c=[72,19,0];
+ send({type:'update',gen:4,designId:'d',state:state(C,ship),what:['parts'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===4);
+ assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===4),true,'after the hull geometry was posted, a move has one again');
+});
+
 for(const [phase,trigger]of [['after the structures','structureGeometry'],['between compartments and mounts','syncCompartments'],['during the statistics','computeStats']]){
  test(`a newer edit stops the old one ${phase}; nothing of the old generation is posted afterwards`,async()=>{
   const {C,E,ship,messages,hooks,wait,send}=setup();

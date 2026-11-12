@@ -418,7 +418,9 @@ async function handleUpdate(job) {
   // the compartments, mounts and equipment are derived (the full geometry packet follows).
   // A hull edit (or any change to the hull profile, cuts, trenches, subs or skin) re-meshes the hull
   // and can re-cut every structure: no early structure packet then, only the full geometry.
-  const hullNow = structureHullKey(ship), hullSame = hullNow === lastStructureHullKey; lastStructureHullKey = hullNow;
+  // The reference is the hull of the last geometry packet actually posted: a superseded hull edit
+  // posts none, so the next parts-only edit still sees the hull as changed.
+  const hullSame = structureHullKey(ship) === lastStructureHullKey;
   if (job.view?.structureFirst && !job.reset && hullSame && !(job.what || []).includes('hull') && (job.what || []).some(w => w === 'parts' || w === 'all')) {
     structurePass(job);
     await phaseYield();
@@ -434,6 +436,7 @@ async function handleUpdate(job) {
     out.syncMs = d.syncMs; out.totalMs = now() - t0;
     const transfer = out.transfer; delete out.transfer;
     post(out, transfer);
+    lastStructureHullKey = structureHullKey(ship);
   } else {
     post({type: 'geometry', gen: job.gen, geos: {}, state: C.publicJSON(ship), caches: null, totalMs: now() - t0, noop: true});
   }

@@ -99,6 +99,8 @@ test('an Imperial-style example keeps its engine foundations and rooms equal to 
  if(carrier&&!C.isHullStructure(carrier)){carrier.c=[carrier.c[0],carrier.c[1]-.5,carrier.c[2]];derive(s);same(s,'carrier move',{stats:false});}
 });
 
+// Note: the parent-move / carried-child cases below are temporary. The user decided (2026-11-12) to
+// remove parent-child relations between structures in a later PR; drop or rewrite them then.
 // Review 2026-11-12: key coverage. Rotated and mirrored structures, a carried child that alone reaches a
 // room, a hatched hangar and a structure touching it, a sub added and removed, and a shape change that
 // changes a structure's bounds, each compared with a fresh load.
@@ -116,6 +118,8 @@ test('rotated, mirrored, carried-child, hatch, sub and shape edits equal a full 
  // The room sits 5 cm beside the child: within the key's 10 cm margin, without overlapping it (an
  // overlap would be a placement interference of the child, not an interior question).
  const cb=C.partAABB(child),rChild=add({k:'cargo',c:[cb[3]+.05+1.5,(cb[1]+cb[4])/2,0],d:3});
+ // A second room 15 cm beside the child, outside the margin: the child's move must not recompute it.
+ const rOut=add({k:'cargo',c:[(cb[0]+cb[3])/2,(cb[1]+cb[4])/2,cb[2]-.15-1.5],d:3});
  derive(s);same(s,'probes');
  const childClip=()=>part(rChild.id)._clip,parentBox=C.partAABB(parent),roomBox=C.partAABB(part(rChild.id));
  assert.ok(roomBox[1]>parentBox[4]+.1,'precondition: the room is clear of the parent bounds');
@@ -124,15 +128,18 @@ test('rotated, mirrored, carried-child, hatch, sub and shape edits equal a full 
  // Mirrored pair moves together, as the editor moves a mirrored pair.
  for(const dx of [8,-14]){part(mirA.id).c=[part(mirA.id).c[0]+dx,66,10];part(mirB.id).c=[part(mirB.id).c[0]+dx,66,-10];derive(s);same(s,'mirrored pair '+dx);}
  // The parent moves; its child follows and alone leaves the room.
- const beforeChild=childClip(),childKey=part(rChild.id)._clipKey;
+ const beforeChild=childClip(),childKey=part(rChild.id)._clipKey,outKey=part(rOut.id)._clipKey,outBox=C.partAABB(part(rOut.id)),childBox=C.partAABB(part(child.id));
+ assert.ok(childBox[2]-outBox[5]>.1+1e-9&&outBox[1]>parentBox[4]+.1,'precondition: the second room is outside the 10 cm margin of the child and the parent');
  part(parent.id).c=[124,72,0];derive(s);same(s,'parent move');
  assert.ok(part(child.id).c[0]<128,'the child followed its parent');
  assert.notEqual(part(rChild.id)._clipKey,childKey,'the room only the child reached is re-clipped');void beforeChild;
+ assert.equal(part(rOut.id)._clipKey,outKey,'the room 15 cm away (outside the margin) is not recomputed');
  // A sub (legacy box cut) added and removed changes every key. A cut renumbers semantic face ids, so
- // the child's stored hostSurfaceId (a hint, docs/design-placement-v1.2.md) differs from a reload's;
+ // the child's stored hostSurfaceId (a hint, docs/design-placement-v1.2.md) differs from a reload's while
+ // the sub exists (also on main b40b72d: ks-verify r2/sub-main.log); after its removal all is compared;
  // with the cut's known structure-volume difference, only the interior is compared here.
  const sub={b:[60,60,-6,70,80,6]};s.subs.push(sub);delete s._cache;derive(s);same(s,'sub added',{stats:false,shapeVolume:false,publicState:false});
- s.subs.splice(s.subs.indexOf(sub),1);delete s._cache;derive(s);same(s,'sub removed',{stats:false,shapeVolume:false,publicState:false});
+ s.subs.splice(s.subs.indexOf(sub),1);delete s._cache;derive(s);same(s,'sub removed');
  // A shape change that changes the bounds.
  Object.assign(part(rotated.id),{c:[204,66,0],form:'trap',taper:.4,s:[22,8,14]});derive(s);same(s,'shape change');
 });
