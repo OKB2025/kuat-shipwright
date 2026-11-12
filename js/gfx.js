@@ -1675,6 +1675,9 @@ class Renderer {
     this.drawMesh('cutter',m,.24,.5);
     gl.disable(gl.DEPTH_TEST);this.drawLines('cutter',m,.38);
     gl.enable(gl.DEPTH_TEST);this.drawLines('cutter',m,1);this.clip=cutterClip;
+    // 1c symmetry planes: faint lines, brighter where not hidden by the ship.
+    gl.disable(gl.DEPTH_TEST); this.drawLines('symmetry', m, 0.45);
+    gl.enable(gl.DEPTH_TEST); this.drawLines('symmetry', m, 1);
     gl.disable(gl.DEPTH_TEST); this.drawLines('ghost', m, 0.35);
     gl.enable(gl.DEPTH_TEST); this.drawLines('ghost', m, 1);
     gl.disable(gl.DEPTH_TEST); this.drawLines('placement-repeat', m, 0.45);
@@ -1963,6 +1966,33 @@ function lineSet() {
     fit(f,c,ship) { const g=placementFittingMesh(ship,f);for(let i=0;i<g.ni;i+=3){const P=[0,1,2].map(j=>Array.from(g.pos.subarray(g.idx[i+j]*3,g.idx[i+j]*3+3)));this.seg(P[0],P[1],c);this.seg(P[1],P[2],c);this.seg(P[2],P[0],c);} },
     out() { return {pos: new Float32Array(pos), col: new Uint8Array(col)}; },
   };
+}
+// 1c The symmetry planes of the editor's 左右対称 / 上下対称, as a faint grid of lines (no transparent
+// surface, so nothing needs sorting). opts: {mirror, vmirror, faint, hull}. The left/right plane is world
+// z=0, or, for a mirrored cut on a hull off the centreline (opts.hull), that hull's own centreline plane
+// (the plane Core.solidCutWorldPieces mirrors about). The top/bottom plane follows Core.vmirrorPart.
+function symmetryPlaneLines(ship, bounds, opts = {}) {
+  const ls = lineSet(); if (!ship || (!opts.mirror && !opts.vmirror)) return ls.out();
+  const env = typeof C.designEnvelope === 'function' ? C.designEnvelope(ship) : ship.hull, L = Math.max(1, env?.L || ship.hull?.L || 100), H = Math.max(1, env?.H || ship.hull?.H || L / 5), W = Math.max(1, env?.W || ship.hull?.W || L / 5);
+  const b = bounds?.length === 6 && bounds.every(Number.isFinite) ? bounds : [0, 0, -W / 2, L, H, W / 2];
+  const m = Math.max(4, 0.08 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2])), x0 = b[0] - m, x1 = b[3] + m, y0 = b[1] - m, y1 = b[4] + m, z0 = b[2] - m, z1 = b[5] + m;
+  const k = opts.faint ? 0.5 : 1, edge = a => Math.round(a * k), N = 6;
+  if (opts.mirror) {
+    const col = [240, 160, 58, edge(150)], grid = [240, 160, 58, edge(55)];
+    let point = (u, v) => [x0 + (x1 - x0) * u, y0 + (y1 - y0) * v, 0];
+    const hull = opts.hull;
+    if (hull && typeof C.hullWorldPoint === 'function' && hull.s) { const hm = 0.08, sx = hull.s[0], sy = hull.s[2]; point = (u, v) => C.hullWorldPoint(hull, [sx * (-hm + (1 + 2 * hm) * u), sy * (-hm + (1 + 2 * hm) * v), 0]); }
+    for (let i = 0; i <= N; i++) { const t = i / N, c = i === 0 || i === N ? col : grid; ls.seg(point(t, 0), point(t, 1), c); ls.seg(point(0, t), point(1, t), c); }
+  }
+  if (opts.vmirror) {
+    const col = [105, 195, 220, edge(150)], grid = [105, 195, 220, edge(55)], S = 24;
+    let plane = () => H / 2;
+    if (!ship.hull?.assembly && typeof C.vmirrorPart === 'function') plane = x => { try { const y = C.vmirrorPart({k: '_symmetryPlane', c: [x, 0, 0]}, ship).c[1] / 2; return Number.isFinite(y) ? y : H / 2; } catch (e) { return H / 2; } };
+    const xs = Array.from({length: S + 1}, (_, i) => x0 + (x1 - x0) * i / S), ys = xs.map(plane);
+    for (let j = 0; j <= N; j++) { const z = z0 + (z1 - z0) * j / N, c = j === 0 || j === N ? col : grid; for (let i = 0; i < S; i++) ls.seg([xs[i], ys[i], z], [xs[i + 1], ys[i + 1], z], c); }
+    for (let i = 0; i <= S; i += S / N) ls.seg([xs[i], ys[i], z0], [xs[i], ys[i], z1], i === 0 || i === S ? col : grid);
+  }
+  return ls.out();
 }
 function niceStep(v) { const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; return (m < 1.5 ? 1 : m < 3.5 ? 2.5 : m < 7.5 ? 5 : 10) * e; }
 function gridLines(ship, bounds) {
@@ -3812,7 +3842,7 @@ class CompatRenderer {
    this.rasterMesh(this.meshes['placement-ghost']?.geo,'placement-ghost',.24,null);
   }
   ctx.putImageData(image,0,0);
-  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots',...(opt.planet||opt.hyper||opt.sky?['trialBeams']:[])]:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','placement-repeat','placement-diagnostics','cutter','verts','surfaces'])this.paintLines(name,name==='grid'||name==='fleetGrid'||name==='surfaces'||name==='trialBeams');
+  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots',...(opt.planet||opt.hyper||opt.sky?['trialBeams']:[])]:['grid',...(opt.mode==='cut'?['section']:[]),'symmetry','ghost','placement-repeat','placement-diagnostics','cutter','verts','surfaces'])this.paintLines(name,name==='grid'||name==='fleetGrid'||name==='surfaces'||name==='trialBeams');
   delete this._frame;this.frames++;this._lastDrawOptions=opt;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){
@@ -3852,6 +3882,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, clearPreviewCache, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh};
+return {meshPreview, clearPreviewCache, symmetryPlaneLines, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh};
 })();
 

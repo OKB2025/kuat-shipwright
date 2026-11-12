@@ -10657,6 +10657,10 @@ Object.assign(root.KS_EN.terms,{
  "追加元の構造物": "Parent structure",
  "取り込んだ3D形状": "Imported 3D shape",
  "プレビュー中。同じ場所をもう一度タップすると配置します。別の場所をタップするとプレビューが移動します。": "Previewing. Tap the same spot again to place it; tap elsewhere to move the preview.",
- "位置をタップするとプレビューを表示し、もう一度タップすると配置します。": "Tap a spot to preview the placement, then tap it again to place."
+ "位置をタップするとプレビューを表示し、もう一度タップすると配置します。": "Tap a spot to preview the placement, then tap it again to place.",
+ "左右対称: ON": "Left/Right Symmetry: ON",
+ "左右対称: OFF": "Left/Right Symmetry: OFF",
+ "上下対称: ON": "Top/Bottom Symmetry: ON",
+ "上下対称: OFF": "Top/Bottom Symmetry: OFF"
 });
 })(typeof window==="undefined"?globalThis:window);

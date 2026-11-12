@@ -561,6 +561,7 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 .tr-btn{display:grid;justify-items:center;gap:1px;width:52px;padding:6px 2px 5px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--hud-fg);font:700 10.5px/1.15 var(--font-ui);letter-spacing:.02em;touch-action:manipulation}
 .tr-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tr-btn:hover{background:rgba(255,255,255,.06)}.tr-btn[aria-pressed="true"]{background:var(--hud-on);color:var(--hud-on-ink)}
+.tr-btn .tr-state{font:800 9.5px/1.1 var(--font-ui);letter-spacing:.06em;color:var(--hud-dim)}.tr-btn[aria-pressed="true"] .tr-state{color:inherit}
 #chipMirror[aria-pressed="true"],#chipVMirror[aria-pressed="true"]{background:rgba(240,160,58,.18);color:#ffc27a;border-color:rgba(240,160,58,.55)}
 .hudbar{justify-content:flex-end}.viewport-guide{display:none!important}
 .tut{left:calc(var(--gl) + 70px);width:min(372px,calc(100% - 100px))}.inspect{left:calc(var(--gl) + 70px)}
@@ -1482,8 +1483,8 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
       <div class="shotbar" id="shotBar" hidden aria-label="スクリーンショット表示の操作"></div>
       <nav class="toolrail" id="toolRail" aria-label="道具と対称">
         <div class="tr-tools" id="railTools"></div>
-        <button type="button" class="tr-btn" id="chipMirror" aria-pressed="true" title="左右対称：左右の対になる位置にも同時に配置・編集"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M4 7l5 5-5 5z"/><path d="M20 7l-5 5 5 5z"/></svg><span>左右対称</span></button>
-        <button type="button" class="tr-btn" id="chipVMirror" aria-pressed="false" title="上下対称：上下の対になる位置にも同時に配置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M7 4l5 5 5-5z"/><path d="M7 20l5-5 5 5z"/></svg><span>上下対称</span></button>
+        <button type="button" class="tr-btn" id="chipMirror" aria-pressed="true" title="左右対称：左右の対になる位置にも同時に配置・編集"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M4 7l5 5-5 5z"/><path d="M20 7l-5 5 5 5z"/></svg><span>左右対称</span><span class="tr-state" data-symmetry-state>ON</span></button>
+        <button type="button" class="tr-btn" id="chipVMirror" aria-pressed="false" title="上下対称：上下の対になる位置にも同時に配置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M7 4l5 5 5-5z"/><path d="M7 20l5-5 5 5z"/></svg><span>上下対称</span><span class="tr-state" data-symmetry-state>OFF</span></button>
       </nav>
       <div class="hudbar">
         <div class="hudgrp">

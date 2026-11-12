@@ -2561,7 +2561,7 @@ function loop(now=performance.now()) {
   if (view && ship && !renderHealth.lost && !renderRetryTimer) {
     view.onTextureReady=requestDraw;syncEditorShadowBudget();
     try {
-      flushLivePreview();
+      flushLivePreview();refreshSymmetryPlanes();
       if (dirty.overlay) { dirty.overlay = false; refreshOverlay(); }
       if (titleCam.base) titleOrbit(now);
       if (dirty.draw || (renderHealth.mode==='webgl' && now-renderHealth.lastFrame>1500)) {
@@ -3043,6 +3043,25 @@ function refreshOverlay() {
     view.setLines('ghost', {pos, col});
   } else view.setLines('ghost', base);
   requestDraw();
+}
+// 1c The symmetry planes are shown while placement is armed or a symmetry toggle is on. With the solid
+// cutter, a mirrored cut on a hull off the centreline mirrors about that hull's own centreline
+// (cutterMirrorHull / Core.solidCutWorldPieces), so the plane follows that hull.
+let symmetryPlaneKey='',symmetryPlaneShip=null;
+function symmetryPlaneState(){
+ if(!ship||!view||fleet.mode!=='design'||trial.on||shot?.on)return null;
+ const armed=typeof designPlacementActive==='function'&&designPlacementActive(),solid=tool()==='solid'&&st.solidCutter,cutMirror=!!(solid&&st.solidCutter.mirror);
+ const mirror=!!st.mirror||cutMirror,vmirror=!!st.vmirror&&!solid;
+ if(!armed&&!mirror&&!vmirror)return null;
+ const hull=cutMirror&&typeof cutterMirrorHull==='function'?cutterMirrorHull(st.solidCutter):null;
+ return {mirror:mirror||!vmirror,vmirror,faint:!mirror&&!vmirror,hull};
+}
+function refreshSymmetryPlanes(){
+ if(!view?.setLines)return;
+ const s=symmetryPlaneState(),b=meshStore.bounds,h=s?.hull;
+ const key=s?[s.mirror,s.vmirror,s.faint,h?JSON.stringify([h.id,h.c,h.s,h.yaw,h.pitch,h.roll,h.hullMirrorZ]):'',ship.hull?.assembly,ship.hull?.L,ship.hull?.H,b?.join(',')].join('|'):'';
+ if(key===symmetryPlaneKey&&symmetryPlaneShip===ship)return;symmetryPlaneKey=key;symmetryPlaneShip=ship;
+ view.setLines('symmetry',s&&Gfx.symmetryPlaneLines?Gfx.symmetryPlaneLines(ship,b,s):{pos:new Float32Array(),col:new Uint8Array()});requestDraw();
 }
 let queuedHover=null,hoverTimer=0;
 function cancelQueuedHover(){clearTimeout(hoverTimer);hoverTimer=0;queuedHover=null;}
@@ -4788,10 +4807,10 @@ function bind() {
   if (mq.addEventListener) mq.addEventListener('change', onMq); else mq.addListener(onMq);
 }
 function syncHud() {
-  $('#chipMirror').setAttribute('aria-pressed', String(st.mirror));
+  // 1c The symmetry buttons say ON/OFF in words, not only by colour.
+  for (const [id, on, name] of [['#chipMirror', !!st.mirror, '左右対称'], ['#chipVMirror', !!st.vmirror, '上下対称']]) { const b = $(id); if (!b) continue; b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', `${name}: ${on ? 'ON' : 'OFF'}`); const s = b.querySelector?.('[data-symmetry-state]'); if (s) s.textContent = on ? 'ON' : 'OFF'; }
   $$('#viewSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === st.view)));
   $('#chipCode').setAttribute('aria-pressed', String(st.coded));
-  $('#chipVMirror').setAttribute('aria-pressed', String(!!st.vmirror));
   renderRail();
 }
 
@@ -4895,7 +4914,7 @@ function designUICancel(message){
 }
 function designUIInspectMode(){return !!ship&&fleet.mode==='design'&&!trial.on&&!designUI.armed&&!designUI.pickParent&&(!designUI.drawer||['list','performance'].includes(designUI.layout));}
 function designUISymmetryHTML(editing=false){
- return `<div class="design-symmetry-controls" data-design-symmetry-controls role="group" aria-label="対称配置">${editing?`<button type="button" class="chip" data-design-selection-multi aria-pressed="${st.editTool==='multi'}">複数</button>`:''}<button type="button" class="chip" data-design-symmetry="mirror" aria-pressed="${!!st.mirror}">左右対称</button><button type="button" class="chip" data-design-symmetry="vmirror" aria-pressed="${!!st.vmirror}">上下対称</button></div>`;
+ return `<div class="design-symmetry-controls" data-design-symmetry-controls role="group" aria-label="対称配置">${editing?`<button type="button" class="chip" data-design-selection-multi aria-pressed="${st.editTool==='multi'}">複数</button>`:''}<button type="button" class="chip" data-design-symmetry="mirror" aria-pressed="${!!st.mirror}">${st.mirror?'左右対称: ON':'左右対称: OFF'}</button><button type="button" class="chip" data-design-symmetry="vmirror" aria-pressed="${!!st.vmirror}">${st.vmirror?'上下対称: ON':'上下対称: OFF'}</button></div>`;
 }
 function designUIHatchesHTML(hatches){
  return `<section data-design-hatch-controls><h4>${esc(T('航空ハッチ'))}</h4>${hatches.map(h=>{
