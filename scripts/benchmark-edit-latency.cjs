@@ -56,14 +56,14 @@ async function run(name){
   if(target.placement?.requestedGeometry?.c)target.placement.requestedGeometry.c=target.c.slice();
   if(inspector&&i===0){await ins('Profiler.enable');await ins('Profiler.setSamplingInterval',{interval:1000});await ins('Profiler.start');}
   const sent=performance.now();
-  send({type:'update',gen,designId:'bench',state:state(C,ship),what:['parts'],view:{deferSurfaces:true},...(statsDelay!=null?{statsDelay:+statsDelay}:{})});
-  const types=['operationGeometry','authoringGeometry','geometry','surfaceGeometry','stats'],got={};
+  send({type:'update',gen,designId:'bench',state:state(C,ship),what:['parts'],view:{deferSurfaces:true,structureFirst:true},...(statsDelay!=null?{statsDelay:+statsDelay}:{})});
+  const types=['structureGeometry','placementResolution','authoringGeometry','geometry','surfaceGeometry','stats'],got={};
   const stats=await wait(m=>(m.type==='stats'||m.type==='error')&&m.gen===gen);
   if(stats.type==='error')throw new Error(stats.message);
   for(const m of messages)if(m.gen===gen&&types.includes(m.type)&&got[m.type]==null)got[m.type]=+(m._at-sent).toFixed(1);
   const geo=messages.find(m=>m.type==='geometry'&&m.gen===gen);
   let profile=null;if(inspector&&i===0){const {profile:p}=await ins('Profiler.stop');fs.mkdirSync(profileDir,{recursive:true});fs.writeFileSync(path.join(profileDir,name+'-move1.cpuprofile'),JSON.stringify(p));profile=summarize(p);}
-  rows.push({move:i+1,dx,firstPacketMs:Math.min(...Object.values(got)),settledMs:got.operationGeometry??got.geometry,geometryMs:got.geometry,statsMs:got.stats,packets:got,
+  rows.push({move:i+1,dx,firstPacketMs:Math.min(...Object.values(got)),settledMs:got.structureGeometry??got.geometry,geometryMs:got.geometry,statsMs:got.stats,packets:got,
    engine:{syncMs:geo?.syncMs,meshMs:geo?.meshMs,packMs:geo?.packMs,statsCompute:stats.statsMs},
    ...(profile?{profile}:{}),breakdown:Object.fromEntries(Object.entries(timings).map(([k,v])=>[k,{ms:+v.ms.toFixed(1),n:v.n}]).sort((a,b)=>b[1].ms-a[1].ms))});
   // The editor adopts the engine state: mirror it so the next move starts from the derived state.

@@ -2886,7 +2886,32 @@ function buildSurfaceLayers(ship,ranges,opt,key){
  return {surfaceArmor:armor,surfaceDevices:devices,surfaceDetail:detail};
 }
 function meshParts(ship,opt){
-  const result=v3MeshParts(ship,opt);Object.assign(result.g,meshReferenceParts(ship,result.ranges));const g=result.g.struct,detail=ship.detail??1,managed=ship.surfaces?.armorOnly!==1&&ship.surfaces?.patches?.some(p=>p.functionMode==='equipment')?C.surfacePatches(ship).filter(p=>p.config?.functionMode==='equipment'):[];
+  const result=v3MeshParts(ship,opt);Object.assign(result.g,meshReferenceParts(ship,result.ranges));structureDetails(ship,result);
+  routeBuriedApparatus(ship,result);
+  Object.assign(result.g,meshSurfaceLayers(ship,result.ranges,{coded:!!opt.coded}));
+  if(opt.coded)for(const g of Object.values(result.g))for(let i=3;i<g.n*4;i+=4)if(g.col[i]===251)g.col[i]=255;
+  return result;
+}
+// 2026-11-12 Structures first (user request: settle the moved structure before the compartments and
+// equipment). The struct, plate and refStruct groups exactly as meshParts builds them, from the parts
+// that can write to them (structures, engine foundations, external sensors, canopies, astromechs),
+// with the same details and buried-apparatus routing, but without re-deriving compartments: the
+// Worker sends these right after placement resolution and the full meshes follow.
+const STRUCTURE_GROUPS=Object.freeze(['struct','plate','refStruct']),STRUCTURE_WRITERS=new Set(['engine','sensor','cockpit','astromech']);
+function meshStructures(ship,opt={}){
+  const run=()=>{
+    const out={struct:new Geo(2048),plate:new Geo(1024),gen:new Geo(64),shield:new Geo(64),hyper:new Geo(64),interior:new Geo(64),engine:new Geo(64),plant:new Geo(64),nozzle:new Geo(64),hangar:new Geo(64)},glow=[],ranges={};
+    for(const p of ship.parts){if(!C.isShapePart(p)&&!STRUCTURE_WRITERS.has(p.k))continue;const before=geoMarks(out);meshOnePart(out,p,ship,opt,glow);markRanges(ranges,p.id,before,out);}
+    const result={g:out,glow,ranges};Object.assign(result.g,meshReferenceParts(ship,result.ranges));structureDetails(ship,result);routeBuriedApparatus(ship,result);
+    const g={},kept={};for(const k of STRUCTURE_GROUPS)g[k]=result.g[k];
+    for(const [id,list] of Object.entries(result.ranges)){const r=list.filter(([k])=>STRUCTURE_GROUPS.includes(k));if(r.length)kept[id]=r;}
+    if(opt.coded)for(const geo of Object.values(g))for(let i=3;i<geo.n*4;i+=4)if(geo.col[i]===251)geo.col[i]=255;
+    return {g,ranges:kept,groups:STRUCTURE_GROUPS.slice()};
+  };
+  return C.withHullCacheScope?C.withHullCacheScope(run):run();
+}
+function structureDetails(ship,result){
+  const g=result.g.struct,detail=ship.detail??1,managed=ship.surfaces?.armorOnly!==1&&ship.surfaces?.patches?.some(p=>p.functionMode==='equipment')?C.surfacePatches(ship).filter(p=>p.config?.functionMode==='equipment'):[];
   if(detail){
     // Deck edging and repeating stiffeners make scale legible; the editor controls their pitch.
     for(const p of ship.parts.filter(isStructuralPart)){const before=g.ni;try{structDetailFor(p);}finally{const n=g.ni-before;if(n>0)(result.ranges[p.id]||(result.ranges[p.id]=[])).push(['struct',before,n]);}}
@@ -2911,10 +2936,6 @@ function meshParts(ship,opt){
       for(const sign of tr.side==='both'?[-1,1]:[tr.side==='port'?-1:1]){const wall=C.originalSurface(ship,x,2,y,sign);if(wall==null)continue;const z=wall+sign*1.8;if(ship.hatches.some(h=>{const b=C.openingBounds(ship,h);return b&&x>b[0]-8&&x<b[3]+8&&y>b[1]-tr.height/2&&y<b[4]+tr.height/2&&z>b[2]-8&&z<b[5]+8;}))continue;boxSolid(g,[x-1.4,y-tr.height*.34,z-1],[x+1.4,y+tr.height*.34,z+1],[92,107,114],20);const seed=Math.sin(x*.13)*.5+.5;boxSolid(g,[x+2,y-tr.height*.26,z-2],[x+5+seed*6,y+tr.height*.14,z+2],[130,137,139],20);}
     }
   }
-  routeBuriedApparatus(ship,result);
-  Object.assign(result.g,meshSurfaceLayers(ship,result.ranges,{coded:!!opt.coded}));
-  if(opt.coded)for(const g of Object.values(result.g))for(let i=3;i<g.n*4;i+=4)if(g.col[i]===251)g.col[i]=255;
-  return result;
 }
 // Open machinery scenery must not reveal coloured bodies that are still
 // enclosed by the original ship. Keep these bodies in the diagnostic mesh;
@@ -3858,6 +3879,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, clearPreviewCache, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh};
+return {meshPreview, clearPreviewCache, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshStructures, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh};
 })();
 

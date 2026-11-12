@@ -4241,6 +4241,7 @@ root.KS_EN={
   "下書きを先読み中…（すぐに開始できます）": "Preparing the draft (you can start now)…",
   "下書きはありません": "No saved draft",
   "形状を計算中…": "Calculating geometry…",
+  "内装と装備を計算中…": "Calculating interior and equipment…",
   "性能を計算中…": "Calculating performance…",
   "保存した設計はまだありません。": "No saved designs yet.",
   "作例艦": "Example ships",
