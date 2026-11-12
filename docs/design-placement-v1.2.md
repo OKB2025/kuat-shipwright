@@ -102,6 +102,8 @@
 
 実際のすき間、点・辺だけの接触、最小値に届かない数値上のかすり、親の中に完全に埋もれた部品は従来どおり `contact-zero`。水平・垂直の切り取り成形が作れない場合（`surface-missing`・`minimum-thickness`・`contact-shape`・`geometry-complex`）でも、要求形状が上の条件で親と重なれば、閉じた要求形状のまま接続する（`placementOverlapFallback`）。境界の検査は `tests/placement-curved-hull-surface.cjs`。
 
+**内装機器との重なり（2026-11-12 ユーザー決定）**：船内は船体と取り付けた構造物を合わせたもので、構造物は本体に材料を足す。構造物が内装機器（切り取り・容積維持・直接配置の内装部品、および配置情報のない旧形式の内装部品。例：配置情報のない `repulsor`・`gen`。旧形式のシールド投射器は外装に付けていたため除く）に重なっても干渉（`placement-interference`）にしない（`structureInteriorEquipment`、`solvePlacement`）。機器が船内からはみ出していれば、それは内装側の判定（`fixed-outside`、部品情報の「表面の露出」）で示し、構造物の配置は拒否しない。外装機器（推進 `engine`、`sensor`・`scanner`、`sbeam`・`hion`、内装の配置先を持たないシールド投射器・配置情報のない旧形式のシールド投射器）との重なりは従来どおり `placement-interference`（「配置と保存の契約」：外装機器は干渉規則を継承する）。外装の装備（`fits`、砲塔など）はこの検査の対象外（現行どおり）。古い判定で `validationFailed`（`placement-interference` など）のまま保存された構造物は、読み込みのたびに保存した姿勢で一度だけ現在の規則で調べ直し（`migrateStructureRefusals`）、通れば接続、通らなければ保存した修復状態のまま。検査は `tests/structure-sunk-interior-interference.cjs`。
+
 ### 削りと接続（2026-11-11 ユーザー決定）
 
 ユーザーの考え方：船体が土台の本体で、構造物はそこに材料を足し、削り（削る）は足し合わせた本体を削る。**実際にまだ触れている構造物を、削りが切り離してはならない。**

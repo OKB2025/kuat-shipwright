@@ -53092,7 +53092,7 @@ function deserialize(o,internalOptions=null){
   for(const h of s.hatches){const q=o.hatches?.find(q=>q.id===h.id),owner=s.parts.find(p=>p.id===q?.hullOwner&&isHullStructure(p));if(owner&&Number.isInteger(q.hullHatch)&&owner.hullData.hatches.some(a=>a.id===q.hullHatch)){h.hullOwner=owner.id;h.hullHatch=q.hullHatch;}}
   for(const p of s.parts.filter(isHullStructure))syncHullStructure(s,p,false);
   for(const key of ['parts','fits'])for(const p of s[key]){const raw=o[key].find(q=>q.id===p.id);if(raw?.placement)p.placement=normalizePlacementMetadata(raw.placement,p);if(raw?.engineMountSupport&&p.k==='engine')p.engineMountSupport=normalizeEngineMountSupport(raw.engineMountSupport);}
-  migrateInteriorAnchors(s);
+  migrateInteriorAnchors(s);migrateStructureRefusals(s);
   if(!internalOptions?.deferPlacementGeometry)refreshPlacementGeometry(s);
   delete s._propulsionRoutingDeferred;
   return adoptWeaponFits(s);
@@ -53395,6 +53395,14 @@ function packFlexibleVolume(ship,p,volume,obstacles,clashes,contains=null){
 // Explicit interior placement uses the same effective solid for drawing,
 // picking, occupancy and capacity. Old drawings retain the legacy allocator.
 function explicitInteriorPlacement(p){return !!p?.placement&&['clip','preserve-volume','direct'].includes(p.placement.mode)&&placementCapability(p).space==='interior'&&(!['shield','localShield'].includes(p.k)||p.placement.hostId!=null);}
+// Equipment of the ship's interior (user rule 2026-11-12: the interior is the hull plus its attached
+// structures). An explicit interior placement (clip, preserve-volume or direct), or a legacy interior
+// part saved before placement metadata existed (e.g. repulsors or reactors with no placement record).
+// A structure overlapping it extends the interior around it and is not a clash; exposure of the
+// equipment is reported by the interior solver and the hull-exposure figures, never as a refusal of
+// the structure. Exterior equipment (engines, sensors, beam emitters) and shield projectors without an
+// interior host (old designs mounted them outside) are not interior equipment and still clash.
+function structureInteriorEquipment(p){return explicitInteriorPlacement(p)||!!p&&!p.placement&&!p._surfaceAdapter&&!['shield','localShield'].includes(p.k)&&placementCapability(p).space==='interior';}
 function interiorMeshContains(geometry,q){
  const b=geometry.bounds||(geometry.bounds=solidMeshBounds(geometry.tris));if(q.some((v,i)=>v<b[i]-1e-7||v>b[i+3]+1e-7))return false;
  geometry.bvh||=buildBVH(geometry.tris);let o=q.slice(),hits=0;const d=[.937426,.202719,.283022],epsilon=Math.max(1e-7,Math.max(...b.map(Math.abs))*1e-9);
@@ -53476,6 +53484,14 @@ function migrateInteriorAnchors(ship){
  // A refusal stored by an older solver is re-checked once on every load, anchored or not.
  for(const p of ship.parts){const meta=p.placement;if(!meta||meta.hostId==null||placementCapability(p).space!=='interior'||!['clip','preserve-volume','direct'].includes(meta.mode))continue;
   if(meta.hostId!==anchor){meta.hostId=anchor;delete meta.hostSurfaceId;delete meta.parentGeometryKey;}if(meta.validationFailed){delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;delete meta.validationSourceKey;meta.pendingGeometry=true;}}
+}
+function migrateStructureRefusals(ship){
+ // A placed structure saved with a refusal from an older solver (e.g. placement-interference over
+ // legacy interior equipment, 2026-11-12) is re-checked once on load at its saved pose, like a loaded
+ // repair (refreshPlacementGeometry: repairRequired on a cold structure). It recovers only if that pose
+ // is valid under the current rules; otherwise the saved repair state is kept.
+ for(const p of ship.parts){const meta=p.placement;if(!meta?.validationFailed||meta.pendingGeometry||meta.root||meta.parentStructureId==null||placementCapability(p).kind!=='structure')continue;
+  delete meta.validationFailed;delete meta.validationSourceKey;meta.repairRequired=true;meta.repairReason=meta.repairReason||'placement-repair';}
 }
 function interiorPlacementObstacles(ship,p){return allOccupied(ship).filter(q=>q.id!==p.id&&!q.sourcePartIds?.includes(p.id)&&!isShapePart(q));}
 function interiorSegmentDistance2(a,b){const ab=sub(b,a),t=clamp(-dot(a,ab)/(dot(ab,ab)||1),0,1),q=add(a,mul(ab,t));return dot(q,q);}
@@ -63496,7 +63512,9 @@ function solvePlacement(ship,input,request={}){
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});
  // Interior equipment lies inside the hull and its structures (user decision 2026-11-11): a structure
  // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.
- const collisions=ship.parts.filter(p=>p.id!==part.id&&!isShapePart(p)&&!explicitInteriorPlacement(p)&&overlapParts(part,p));if(collisions.length)return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');
+ // This includes legacy interior parts without placement metadata (2026-11-12: sunk structures over
+ // repulsors were refused); see structureInteriorEquipment.
+ const collisions=ship.parts.filter(p=>p.id!==part.id&&!isShapePart(p)&&!structureInteriorEquipment(p)&&overlapParts(part,p));if(collisions.length)return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);part._placementFitRemovalKey=placementFitRemovalKey(part,parent);
  return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(metadata.requestedGeometry),effectiveVolume:partVolume(part)};
 }

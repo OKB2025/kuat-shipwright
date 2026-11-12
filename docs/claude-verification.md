@@ -44,6 +44,7 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | `tests/placement-cut-keeps-connection.cjs`（2026-11-11） | 船体を削っても、まだ触れている構造物・装備は接続のまま（面IDは手がかり）。足元を削り切った構造物は動かさず `severed` の警告。規則は [design-placement-v1.2.md](design-placement-v1.2.md)「削りと接続」。約 30 秒 |
 | `tests/solid-cut-scope.cjs`（2026-11-11） | 削るメニューの一本化：艦レベルの立体カットが船体の材料（質量・容積・価格）を減らす、新しいカットはすべての構造物を切る、船体所有の削りの範囲切り替え、固定機器との重なりの警告。規則は [design-placement-v1.2.md](design-placement-v1.2.md)「削りと接続」段階 2 |
 | `tests/structural-connectivity.cjs`（2026-11-11） | 接続は接触の網：親との接触を失っても接地した隣に触れていれば接地、両方切り離されれば原因の削りを示す、触れていない部品は赤枠、組のキャッシュ |
+| `tests/structure-sunk-interior-interference.cjs`（2026-11-12） | 船体に減り込ませた構造物が内装機器（配置情報のない旧 `repulsor`、直接配置・切り取り配置）に重なっても干渉にしない。保存済みの `placement-interference` は読み込みで回復。外装機器との重なりは干渉のまま。約 3 分 |
 | `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
 
 ### UI・配置・親子関係・Undo/Redo・保存
