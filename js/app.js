@@ -8614,7 +8614,7 @@ function hitcamEdge(mk,view,f,at,cross){
  if(view==='top'){for(let s=0;s<h;s++){const j=f===2?h-1-s:s;if(lit(i,j))return [i+.5,j+(f===2?1:0)];}return [i+.5,f===2?h:0];}
  for(let s=0;s<h;s++){const j=f===4?h-1-s:s;if(lit(i,j))return [i+.5,h-(j+(f===4?1:0))];}return [i+.5,f===4?0:h];
 }
-function hitcamFit(g,text,w){if(g.measureText(text).width<=w)return text;let lo=0,hi=text.length;while(lo<hi){const m=(lo+hi+1)>>1;if(g.measureText(text.slice(0,m)+'…').width<=w)lo=m;else hi=m-1;}return text.slice(0,lo)+'…';}
+function hitcamFit(g,text,w){if(g.measureText(text).width<=w)return text;if(!(w>0))return '';let lo=0,hi=text.length;while(lo<hi){const m=(lo+hi+1)>>1;if(g.measureText(text.slice(0,m)+'…').width<=w)lo=m;else hi=m-1;}return text.slice(0,lo)+'…';}
 const hitcamEase=x=>x<0?0:x>1?1:x*x*(3-2*x);
 // Draws record rec on target profile p into a 2D context at progress k (0…1).
 function hitcamDraw(g,W,H,p,rec,k,o={}){
@@ -8622,11 +8622,14 @@ function hitcamDraw(g,W,H,p,rec,k,o={}){
  const f=rec.face,view=f>=4?'side':'top',mk=hitcamMask(p,view),fz=Math.max(9,Math.min(12,W/32)),font=`600 ${fz}px `+(getComputedStyle(document.body).fontFamily||'sans-serif');
  g.font=font;g.textBaseline='top';
  // Title left, source right when both fit; otherwise the source takes a second
- // line. Each line is cut with an ellipsis to the card width (long ship names).
- const tw=W-16,title=o.title||'被弾リプレイ',sub=o.sub||'',twoLines=!!sub&&g.measureText(title).width+fz+g.measureText(sub).width>tw;
- g.fillStyle='#9fd6ff';g.fillText(hitcamFit(g,title,tw),8,6);
- if(sub){g.fillStyle='#c9d3da';if(twoLines)g.fillText(hitcamFit(g,sub,tw),8,fz+9);else{g.textAlign='right';g.fillText(sub,W-8,6);g.textAlign='left';}}
- const top=fz+12+(twoLines?fz+3:0),bot=fz*2+16,bw=W-24,bh=H-top-bot,asp=mk?mk.w/mk.h:(view==='top'?2.4:4),box=bw/bh>asp?{w:bh*asp,h:bh}:{w:bw,h:bw/asp};box.x=(W-box.w)/2;box.y=top+(bh-box.h)/2;
+ // line, or on a card too short for that, both share one line, each cut with an
+ // ellipsis (long ship names).
+ const tw=Math.max(1,W-16),title=o.title||'被弾リプレイ',sub=o.sub||'',crowded=!!sub&&g.measureText(title).width+fz+g.measureText(sub).width>tw,twoLines=crowded&&H-(fz*2+15)-(fz*2+16)>=48;
+ if(twoLines){g.fillStyle='#9fd6ff';g.fillText(hitcamFit(g,title,tw),8,6);g.fillStyle='#c9d3da';g.fillText(hitcamFit(g,sub,tw),8,fz+9);}
+ else{const t1=crowded?hitcamFit(g,title,Math.max(tw*.55,tw-fz-g.measureText(sub).width)):title;g.fillStyle='#9fd6ff';g.fillText(t1,8,6);
+  if(sub){g.fillStyle='#c9d3da';g.textAlign='right';g.fillText(crowded?hitcamFit(g,sub,Math.max(0,tw-fz-g.measureText(t1).width)):sub,W-8,6);g.textAlign='left';}}
+ // The drawing area keeps a minimum size so a short card never gives a negative box.
+ const top=fz+12+(twoLines?fz+3:0),bot=fz*2+16,bw=Math.max(16,W-24),bh=Math.max(16,H-top-bot),asp=mk?mk.w/mk.h:(view==='top'?2.4:4),box=bw/bh>asp?{w:bh*asp,h:bh}:{w:bw,h:bw/asp};box.x=(W-box.w)/2;box.y=top+(bh-box.h)/2;
  const cuts=p.sectionCuts||[.2,.4,.6,.8],si=rec.sec,a0=si>0?cuts[si-1]:0,a1=si<cuts.length?cuts[si]:1;
  // Hull silhouette, the struck section lit.
  g.save();g.imageSmoothingEnabled=true;if(mk){g.globalAlpha=.55;g.drawImage(mk.cv,box.x,box.y,box.w,box.h);g.globalAlpha=1;g.save();g.beginPath();g.rect(box.x+a0*box.w,box.y-2,(a1-a0)*box.w,box.h+4);g.clip();g.globalAlpha=.55;g.drawImage(mk.cv,box.x,box.y,box.w,box.h);g.restore();}
