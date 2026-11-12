@@ -19,7 +19,7 @@ test('the left/right plane is world z=0, drawn as lines over the ship bounds',()
  const {s}=offCentre(),b=[-10,-20,-30,210,20,40],out=G.symmetryPlaneLines(s,b,{mirror:true});
  const P=points(out);assert.ok(P.length>=28,'a grid of segments');assert.ok(P.every(p=>Math.abs(p[2])<1e-9),'every point on z=0');
  const xs=P.map(p=>p[0]);assert.ok(Math.min(...xs)<-10&&Math.max(...xs)>210,'spans the ship with a margin');
- assert.equal(out.col.length,P.length*4);assert.ok([...out.col].filter((_,i)=>i%4===3).every(a=>a<=150),'faint: alpha at most 150/255');
+ assert.equal(out.col.length,P.length*4);assert.ok([...out.col].filter((_,i)=>i%4===3).every(a=>a<=210),'faint: alpha at most 210/255');
  assert.equal(G.symmetryPlaneLines(s,b,{}).pos.length,0,'nothing without a toggle');
 });
 

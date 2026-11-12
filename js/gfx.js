@@ -1978,14 +1978,14 @@ function symmetryPlaneLines(ship, bounds, opts = {}) {
   const m = Math.max(4, 0.08 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2])), x0 = b[0] - m, x1 = b[3] + m, y0 = b[1] - m, y1 = b[4] + m, z0 = b[2] - m, z1 = b[5] + m;
   const k = opts.faint ? 0.5 : 1, edge = a => Math.round(a * k), N = 6;
   if (opts.mirror) {
-    const col = [240, 160, 58, edge(150)], grid = [240, 160, 58, edge(55)];
+    const col = [240, 160, 58, edge(210)], grid = [240, 160, 58, edge(110)];
     let point = (u, v) => [x0 + (x1 - x0) * u, y0 + (y1 - y0) * v, 0];
     const hull = opts.hull;
     if (hull && typeof C.hullWorldPoint === 'function' && hull.s) { const hm = 0.08, sx = hull.s[0], sy = hull.s[2]; point = (u, v) => C.hullWorldPoint(hull, [sx * (-hm + (1 + 2 * hm) * u), sy * (-hm + (1 + 2 * hm) * v), 0]); }
     for (let i = 0; i <= N; i++) { const t = i / N, c = i === 0 || i === N ? col : grid; ls.seg(point(t, 0), point(t, 1), c); ls.seg(point(0, t), point(1, t), c); }
   }
   if (opts.vmirror) {
-    const col = [105, 195, 220, edge(150)], grid = [105, 195, 220, edge(55)], S = 24;
+    const col = [105, 195, 220, edge(210)], grid = [105, 195, 220, edge(110)], S = 24;
     let plane = () => H / 2;
     if (!ship.hull?.assembly && typeof C.vmirrorPart === 'function') plane = x => { try { const y = C.vmirrorPart({k: '_symmetryPlane', c: [x, 0, 0]}, ship).c[1] / 2; return Number.isFinite(y) ? y : H / 2; } catch (e) { return H / 2; } };
     const xs = Array.from({length: S + 1}, (_, i) => x0 + (x1 - x0) * i / S), ys = xs.map(plane);
