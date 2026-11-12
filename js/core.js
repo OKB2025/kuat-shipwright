@@ -57986,6 +57986,8 @@ const CRAFT_SYSTEM_RECIPES=Object.freeze({
 // A new stock craft is built around an actual-power plant, not the old nozzle-volume law.
 // These are construction targets for ordinary, editable engine hardware. They are never applied
 // while loading player designs. Missing published figures are explicit game assumptions.
+// User decision 2026-11-11: speeds need not match these targets exactly (tests allow ±2 %); CRAFT_REACTOR_SCALE is
+// not re-tuned after small mass changes.
 const CRAFT_INTERIOR_TARGETS=Object.freeze({
  craft_arc170:{g:3551,reactors:[1.7,1.7],basis:'game assumption; previous authored heavy-fighter target'},
  craft_awing:{g:5100,reactors:[1.37],basis:'published acceleration'},
@@ -58002,7 +58004,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 });
 // v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.453029583159,craft_awing:0.493196645382,craft_btlb:0.499381906772,craft_hyena:0.559573350000,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639416240201,craft_v19:0.472758869057,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.394801858468,craft_z95:0.571369880364});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452526541719,craft_awing:0.492755075492,craft_btlb:0.498564613182,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.638771550575,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.393494072058,craft_z95:0.571066159999});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
