@@ -132,6 +132,7 @@
 |---|---|---|
 |削るメニュー|削るは立体カッター（直方体・円柱など）だけの道具。船体に限らず、どの構造物を選んでも 編集 →「削る」で開く。トレンチ・斜め削り・面から切る・平面の台形は船体専用の形状道具として「形状」（船体の形状加工）に移した|`js/app.js` の `designUIContextOpen`、`tool()`、`hullShapeToolsHTML`|
 |適用範囲|新しい立体カットは `ship.solidCuts`（`structures:true`）で、重なるすべての構造物（板・翼・パネルを含む）を切る（範囲「全体」）。作例・保存済みの船体所有の削り（`hullData.solidCuts`）は船体専用のまま。一覧の「全体に適用」で 1 件ずつ切り替える。形と位置は変えない|`solidCutScope`、`setSolidCutScope`、`applySolidCutter`|
+|左右対称の削りと適用範囲|左右対称の削りは自分の座標の中心線で鏡映する：船体所有の削りはその船体の中心線、艦レベルの削りは艦の中心線（z=0）。中心線から外れた（または向きを変えた）船体ではこの二つが違うので、範囲を切り替えると対称の削りは同じ位置の 2 つの片側（対称なし）に分かれる（`hullMirrorIsWorldMirror`）。分かれた 2 つは保存項目を増やさず、形から対として扱う（`solidCutMirrorPartner`：同じ範囲の対称なし艦レベルの削りで、ある船体の中心線について互いに正確な鏡像）。一覧の切り替え・調整・取り消しは 2 つを一緒に扱い、編集画面のカッターは両方を描く。船体だけに戻すと 2 つはその船体の対称の削り 1 つに戻る（小さい ID を残す、`mergeHullMirrorHalves`）。編集画面のカッター表示も同じ中心線で鏡映する（`solidCutWorldPieces`）|`setSolidCutScope`、`cutterMirrorHull`、`applySolidCutter`|
 |質量の修正|艦レベルの立体カットが船体の材料（容積・質量・価格）を減らしていなかった。`hullMaterialGeometry` が艦レベルのカットを船体構造物の材料にも適用する。同じ形の船体所有の削りと同じ値になる|`hullMaterialGeometry`、材料集計（`info[hull].materialVolume`）。部品情報の「体積」も船体はこの値を表示する|
 |固定機器との重なり|範囲「全体」の削りが固定機器（反応炉・機関などの変形しない部品）に重なっても削りは実行し、点検に警告（`lv:'warn'`、`code:'cut-equipment'`、選択リンク）を出す。機器は動かさず削除もしない。対象は部品（`parts`）の固定機器で、装備（`fits`）は段階 0 の切り離しの警告（`severed`、`list:'fits'`）が扱う。船体所有の削りは船体の形状加工で、既存の設計では機関の受け口に使っている（executor の艦尾の機関の凹み 3 か所）ので対象にしない|`solidCutEquipmentHits`、`S.cutEquipment`|
 

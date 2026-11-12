@@ -65145,6 +65145,40 @@ function solidCutScope(ship,id){
 // a ship-level cut about the ship's (world z=0). They are the same plane only for a hull on the
 // centreline without roll or yaw; otherwise switching scope turns one mirrored cut into its two halves.
 function hullMirrorIsWorldMirror(p){const tol=1e-6*Math.max(1,...(p.s||[1]).map(Math.abs));for(const q of [[0,0,0],[1,2,3],[5,-1,-4]]){const a=hullWorldPoint(p,q),b=hullWorldPoint(p,[q[0],q[1],-q[2]]);if(Math.abs(a[0]-b[0])>tol||Math.abs(a[1]-b[1])>tol||Math.abs(a[2]+b[2])>tol)return false;}return true;}
+// The world pieces a cut removes, its mirror taken about mirrorHull's centreline (a hull-owned cut) or
+// about world z=0 (mirrorHull null). The editor draws these, so the overlay shows the cut as it will carve.
+function solidCutWorldPieces(cut,mirrorHull=null){
+ const q=normalizeSolidCut(cut);if(!q.mirror||!mirrorHull||hullMirrorIsWorldMirror(mirrorHull))return [q];
+ return [{...q,mirror:false},normalizeSolidCut({...hullWorldSolidCut(mirrorHull,mirrorSolidCut(hullTransformSolidCut(mirrorHull,q))),id:q.id,structures:q.structures})];
+}
+// Two cuts in one frame that remove exactly the same solid (same shape, size, centre and axes).
+function sameSolidCut(a,b){
+ const A=normalizeSolidCut(a),B=normalizeSolidCut(b),tol=1e-6*Math.max(1,...A.s,...A.c.map(Math.abs)),near=(x,y)=>x.every((v,i)=>Math.abs(v-y[i])<=tol);
+ if(A.shape!==B.shape||A.mirror!==B.mirror||(A.top??null)!==(B.top??null)||(A.name||'')!==(B.name||'')||JSON.stringify(A.verts||null)!==JSON.stringify(B.verts||null))return false;
+ return near(A.c,B.c)&&near(A.s,B.s)&&[[1,0,0],[0,1,0],[0,0,1]].every(e=>near(solidCutRotation(A,e),solidCutRotation(B,e)));
+}
+// A hull cut that is the exact mirror half of another plain cut on the same hull joins it as one mirrored
+// cut (the lower id stays). Undoes the split of a scope round trip, so the list does not grow.
+function mergeHullMirrorHalves(p,id){
+ const list=p.hullData?.solidCuts||[],cut=list.find(c=>c.id===id);if(!cut||cut.mirror)return id;
+ const mate=list.find(c=>c.id!==id&&!c.mirror&&sameSolidCut(c,mirrorSolidCut(cut)));if(!mate)return id;
+ const keep=mate.id<id?mate:cut,drop=keep===mate?cut:mate;keep.mirror=true;p.hullData.solidCuts=list.filter(c=>c!==drop);return keep.id;
+}
+// The other half of a split mirrored cut. Switching an off-centre hull's mirrored cut to scope 'all' leaves
+// two plain ship-level cuts (above); they stay linked by their geometry, not by a saved field: the partner
+// is the other plain ship-level cut of the same scope that is the exact mirror of this one about the
+// centreline of a hull off the centreline (hullId, if given, else any). The editor and setSolidCutScope
+// use it so the scope switch, edits and 取り消す act on both halves together. Returns {hull,mate} or null.
+function solidCutMirrorPartner(ship,id,hullId=null){
+ const cut=(ship.solidCuts||[]).find(c=>c.id===id);if(!cut||cut.mirror)return null;
+ for(const hull of ship.parts||[]){if(!isHullStructure(hull)||(hullId!=null&&hull.id!==hullId)||hullMirrorIsWorldMirror(hull))continue;
+  const want=mirrorSolidCut(hullTransformSolidCut(hull,cut));
+  const mate=ship.solidCuts.find(c=>c.id!==id&&!c.mirror&&!!c.structures===!!cut.structures&&sameSolidCut(hullTransformSolidCut(hull,c),want));
+  if(mate)return {hull,mate};}
+ return null;
+}
+// The partner of a half after the half was edited to `cut`: the mirror of it about the pair's hull centreline.
+function solidCutMirrorOf(hull,cut,id){return normalizeSolidCut({...hullWorldSolidCut(hull,mirrorSolidCut(hullTransformSolidCut(hull,cut))),id,structures:normalizeSolidCut(cut).structures});}
 function setSolidCutScope(ship,id,scope,hullId=null){
  if(!['all','hull'].includes(scope))throw new Error('切削の適用範囲が不正です');
  const owner=ship.parts.find(p=>isHullStructure(p)&&p.hullData?.solidCuts?.some(c=>c.id===id)),listed=(ship.solidCuts||[]).find(c=>c.id===id);if(!owner&&!listed)return false;
@@ -65155,8 +65189,11 @@ function setSolidCutScope(ship,id,scope,hullId=null){
   else listed.structures=true;
   ship._cache=null;return true;
  }
- if(owner)return false;const hull=ship.parts.find(p=>isHullStructure(p)&&(hullId==null||p.id===hullId))||ship.parts.find(p=>isHullStructure(p)&&p.primaryHull);
- if(hull){const halves=listed.mirror&&!hullMirrorIsWorldMirror(hull)?[{...listed,mirror:false},{...mirrorSolidCut(listed),id:ship.nextId++}]:[listed];for(const half of halves)hullOwnSolidCut(ship,hull,{...half,structures:false});}else listed.structures=false;
+ if(owner)return false;
+ // One half of a split mirrored cut goes back with its other half, and they join into one mirrored hull cut.
+ const pair=solidCutMirrorPartner(ship,id,hullId);if(pair){for(const c of [listed,pair.mate])hullOwnSolidCut(ship,pair.hull,{...c,structures:false});mergeHullMirrorHalves(pair.hull,id);ship._cache=null;return true;}
+ const hull=ship.parts.find(p=>isHullStructure(p)&&(hullId==null||p.id===hullId))||ship.parts.find(p=>isHullStructure(p)&&p.primaryHull);
+ if(hull){const halves=listed.mirror&&!hullMirrorIsWorldMirror(hull)?[{...listed,mirror:false},{...mirrorSolidCut(listed),id:ship.nextId++}]:[listed];for(const half of halves)mergeHullMirrorHalves(hull,hullOwnSolidCut(ship,hull,{...half,structures:false}).id);}else listed.structures=false;
  ship._cache=null;return true;
 }
 // Fixed equipment (reactors, engines, catalogue machinery: parts that are not structures and cannot
@@ -67213,7 +67250,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};

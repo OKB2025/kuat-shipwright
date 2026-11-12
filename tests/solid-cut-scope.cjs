@@ -81,6 +81,37 @@ test('a mirrored hull-owned cut on a hull off the centreline keeps its mirror po
  const zs=s.solidCuts.map(c=>{const b=C.compiledSolidCut(c).instances[0].bounds;return [+b[2].toFixed(3),+b[5].toFixed(3),c.mirror];}).sort((a,b)=>a[0]-b[0]);
  same(zs,[[11,19,false],[21,29,false]],'two halves at the hull mirror positions');close(material(),before,'the hull is carved exactly as before',1e-6);
  const hits=C.solidCutEquipmentHits(s);assert.ok(hits.some(h=>h.partId===reactor.id),'the reactor in the mirrored half is reported');
- // And back to hull-only: H2 carries both halves again, carving the same material.
- for(const c of s.solidCuts.slice())C.setSolidCutScope(s,c.id,'hull',H2.id);assert.equal(s.solidCuts.length,0);assert.equal(H2.hullData.solidCuts.length,2);close(material(),before,'back to hull-only',1e-6);
+ // And back to hull-only: the two halves are exact mirror halves about H2's centreline, so they join
+ // again as the one mirrored cut (the original id), carving the same material. The list does not grow.
+ for(const c of s.solidCuts.slice())C.setSolidCutScope(s,c.id,'hull',H2.id);assert.equal(s.solidCuts.length,0);
+ same(H2.hullData.solidCuts.map(c=>[c.id,c.mirror,c.c.map(v=>+v.toFixed(6))]),[[id,true,[110,16,-5]]],'one mirrored hull cut again');close(material(),before,'back to hull-only',1e-6);
+ // Round trip twice more: still one cut, same id.
+ for(let k=0;k<2;k++){C.setSolidCutScope(s,id,'all');for(const c of s.solidCuts.slice())C.setSolidCutScope(s,c.id,'hull',H2.id);}
+ same(H2.hullData.solidCuts.map(c=>[c.id,c.mirror]),[[id,true]]);close(material(),before,'after three round trips',1e-6);
+});
+test('halves join only when they are exact mirror halves on the same hull',()=>{
+ const s=design(),hull=s.parts[0],h2=JSON.parse(C.publicJSON(hull));h2.id=s.nextId++;h2.c=[hull.c[0],hull.c[1],hull.c[2]+20];delete h2.primaryHull;h2.label='H2';h2.hullData={...h2.hullData,solidCuts:[],subs:[]};s.parts.push(h2);s._cache=null;C.refreshPlacementGeometry(s);
+ const H2=s.parts.find(q=>q.label==='H2'),a={id:s.nextId++,shape:'box',c:[110,16,-5],s:[20,8,6],rotation:[0,0,0]};
+ // Not a mirror (size differs): two cuts stay two.
+ H2.hullData.solidCuts=[C.normalizeSolidCut(a),C.normalizeSolidCut({...a,id:s.nextId++,c:[110,16,5],s:[20,8,7]})];
+ assert.equal(C.mergeHullMirrorHalves(H2,H2.hullData.solidCuts[1].id),H2.hullData.solidCuts[1].id);assert.equal(H2.hullData.solidCuts.length,2);
+ // A mirror with its rotation mirrored too (rx, ry flip sign) joins; the lower id stays.
+ const r={...a,rotation:[10,20,30]};H2.hullData.solidCuts=[C.normalizeSolidCut({...r,id:50}),C.normalizeSolidCut({...C.mirrorSolidCut(r),id:40})];
+ assert.equal(C.mergeHullMirrorHalves(H2,50),40);same(H2.hullData.solidCuts.map(c=>[c.id,c.mirror,c.rotation]),[[40,true,[-10,-20,30]]]);
+ // The same rotation on both sides is not a mirror.
+ H2.hullData.solidCuts=[C.normalizeSolidCut({...r,id:50}),C.normalizeSolidCut({...r,id:40,c:[110,16,5]})];assert.equal(C.mergeHullMirrorHalves(H2,50),50);assert.equal(H2.hullData.solidCuts.length,2);
+});
+test('the two halves of a split mirrored cut stay a pair: switching either one back to hull-only takes both and joins them',()=>{
+ for(const which of [0,1]){
+  const s=design(),hull=s.parts[0],h2=JSON.parse(C.publicJSON(hull));h2.id=s.nextId++;h2.c=[hull.c[0],hull.c[1],hull.c[2]+20];delete h2.primaryHull;h2.label='H2';h2.hullData={...h2.hullData,solidCuts:[],subs:[]};s.parts.push(h2);s._cache=null;C.refreshPlacementGeometry(s);
+  const H2=s.parts.find(q=>q.label==='H2'),id=s.nextId++;H2.hullData.solidCuts.push(C.normalizeSolidCut({id,shape:'box',c:[110,16,-5],s:[20,8,6],rotation:[0,0,15],mirror:true}));
+  // An unrelated plain ship-level cut that is not a mirror of either half stays where it is.
+  const other=C.normalizeSolidCut({id:s.nextId++,shape:'box',c:[60,16,20],s:[10,8,6],structures:true});s.solidCuts.push(other);
+  C.setSolidCutScope(s,id,'all');const halves=s.solidCuts.filter(c=>c.id!==other.id);assert.equal(halves.length,2);
+  same(C.solidCutMirrorPartner(s,halves[0].id).mate.id,halves[1].id);same(C.solidCutMirrorPartner(s,halves[1].id).mate.id,halves[0].id);assert.equal(C.solidCutMirrorPartner(s,halves[0].id).hull.id,H2.id);
+  assert.equal(C.solidCutMirrorPartner(s,other.id),null);
+  assert.equal(C.setSolidCutScope(s,halves[which].id,'hull'),true);
+  same(s.solidCuts.map(c=>c.id),[other.id],'both halves left the ship-level list; the unrelated cut stayed');
+  same(H2.hullData.solidCuts.map(c=>[c.id,c.mirror,c.c.map(v=>+v.toFixed(6)),c.rotation.map(v=>+v.toFixed(6))]),[[id,true,[110,16,-5],[0,0,15]]],'one mirrored hull cut, the original id');
+ }
 });

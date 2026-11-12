@@ -10393,8 +10393,26 @@ let cutterOwner=null,cutterOverlayKey='',cutterDrag=null;
 const CUTTER_NAMES=C.SOLID_CUT_SHAPES;
 
 function ownedSolidCut(id){for(const p of ship?.parts||[])if(C.isHullStructure?.(p)){const cut=p.hullData?.solidCuts?.find(q=>q.id===id);if(cut)return{part:p,cut};}return null;}
-function visibleSolidCuts(){return[...(ship.solidCuts||[]),...ship.parts.filter(p=>C.isHullStructure?.(p)).flatMap(p=>(p.hullData?.solidCuts||[]).map(q=>C.hullWorldSolidCut(p,q)))];}
-function worldSolidCut(id){const own=ownedSolidCut(id);return own?C.hullWorldSolidCut(own.part,own.cut):ship.solidCuts?.find(q=>q.id===id);}
+// Cuts in the world frame. A mirrored hull-owned cut mirrors about its hull's centreline, which is not
+// world z=0 for a hull off the centreline (or turned): such a cut carries hullMirror (its hull's id), and
+// cutterMirrorHull/solidCutWorldPieces draw its mirror half there, not at -z.
+function hullMirrorTag(p,q){const w=C.hullWorldSolidCut(p,q);if(w.mirror&&!C.hullMirrorIsWorldMirror(p))w.hullMirror=p.id;return w;}
+function visibleSolidCuts(){return[...(ship.solidCuts||[]).map(q=>{const pair=C.solidCutMirrorPartner?.(ship,q.id);return pair?{...q,mirrorPair:pair.mate.id}:q;}),...ship.parts.filter(p=>C.isHullStructure?.(p)).flatMap(p=>(p.hullData?.solidCuts||[]).map(q=>hullMirrorTag(p,q)))];}
+function worldSolidCut(id){const own=ownedSolidCut(id);return own?hullMirrorTag(own.part,own.cut):ship.solidCuts?.find(q=>q.id===id);}
+// The hull whose centreline the draft's mirror uses, or null for world z=0. A cut being edited keeps its
+// own plane (a hull-owned cut its hull's, a ship-level cut z=0) whatever its 全体に適用 switch says, and
+// Apply keeps it there (splitting into halves as Core does); a new cut takes the plane of where Apply puts it.
+function cutterMirrorHull(q){
+  if(!ship||!q)return null;
+  // A half of a split mirrored cut (scope 'all' on a hull off the centreline) is drawn and edited with its
+  // other half: the plane is that hull's centreline, and cutterPieces draws both.
+  if(!q.mirror){const pair=st.solidCutEdit!=null?C.solidCutMirrorPartner?.(ship,st.solidCutEdit):null;return pair?pair.hull:null;}
+  const hull=st.solidCutEdit!=null?ownedSolidCut(st.solidCutEdit)?.part:!q.structures&&(ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p))||ship.parts.find(p=>C.isHullStructure?.(p)&&p.primaryHull));
+  return hull&&!C.hullMirrorIsWorldMirror(hull)?hull:null;
+}
+// The world pieces the draft removes: one cut, a cut and its mirror half at its hull's centreline, or a
+// split half and its other half.
+function cutterPieces(q){const hull=cutterMirrorHull(q);return C.solidCutWorldPieces(hull&&!q.mirror?{...q,mirror:true}:q,hull);}
 function resetSolidCutter(){
   cutterOwner=ship;st.solidCutter=null;st.solidCutEdit=null;st.cutterHullId=null;st.cutterVisible=true;st.cutterAction='place';cutterDrag=null;cutterOverlayKey='';
 }
@@ -10452,7 +10470,7 @@ function solidCutPanelHTML(){
     <p class="note">${editing?'変更は実行するまで確定しません。':['cylinder','ellcyl','cone','frustum'].includes(q.shape)?'軸は初期状態で上下方向です。':q.shape==='capsule'?'カプセルの軸は前後方向です。':q.shape==='torus'?'リングは水平で、管の太さは高さで決まります。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
     <div class="cutter-apply"><button type="button" class="btn primary" data-cutter-apply>${editing?'この形で切削を更新':'重なりを切り取る'}</button>${editing?'<button class="btn ghost" data-cutter-cancel>調整をやめる</button>':''}</div>
   </div><div class="pgroup"><div class="cutter-heading"><h4>立体で切った箇所</h4><button class="btn sm ghost" data-cutter-new>新しいカッター</button></div>
-  <ul class="ilist cutter-history">${visibleSolidCuts().map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?' · 左右対称':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-scope="${c.id}" aria-pressed="${C.solidCutScope(ship,c.id)==='all'}" title="オンで重なるすべての構造物を切ります。オフで船体だけを切ります">全体に適用：${C.solidCutScope(ship,c.id)==='all'?'オン':'オフ'}</button><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
+  <ul class="ilist cutter-history">${visibleSolidCuts().map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?(c.hullMirror!=null?' · 左右対称（船体の中心線）':' · 左右対称'):c.mirrorPair!=null?' · 左右対称の片側（#'+c.mirrorPair+' と一緒に動きます）':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-scope="${c.id}" aria-pressed="${C.solidCutScope(ship,c.id)==='all'}" title="オンで重なるすべての構造物を切ります。オフで船体だけを切ります">全体に適用：${C.solidCutScope(ship,c.id)==='all'?'オン':'オフ'}</button><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
   <p class="note">元に戻す・やり直す操作にも対応します。</p></div>`;
 }
 function syncCutterFields(){
@@ -10461,10 +10479,10 @@ function syncCutterFields(){
 }
 function refreshSolidCutterOverlay(){
   if(!view)return;
-  const q=cutterActive()&&st.cutterVisible!==false?ensureSolidCutter():null,key=q?JSON.stringify(q):'off';
+  const q=cutterActive()&&st.cutterVisible!==false?ensureSolidCutter():null,pieces=q?cutterPieces(q):null,key=q?JSON.stringify(pieces):'off';
   if(key===cutterOverlayKey)return;
   cutterOverlayKey=key;
-  const g=Gfx.meshSolidCutter(q);
+  const g=Gfx.meshSolidCutter(q,pieces);
   view.upload('cutter',g.mesh);view.setLines('cutter',g.lines);requestDraw();
 }
 function updateCutterDraft(rerender=false){
@@ -10485,19 +10503,26 @@ function applySolidCutter(){
   if(!draft)return false;
   if(!editing&&visibleSolidCuts().length>=32){toast('立体切削は32箇所までです。一覧から既存の切削を調整してください');return false;}
   if(!editing&&C.solidCutIntersectsShip&&!C.solidCutIntersectsShip(ship,draft)){toast('船体との重なりがありません。位置や大きさを調整してください');return false;}
-  let applied;
+  let applied;const pair=editing?C.solidCutMirrorPartner?.(ship,st.solidCutEdit):null;
   const changed=mutate(editing?'立体切削を調整':'立体の重なりを切削',()=>{
     ship.solidCuts||=[];const owned=editing?ownedSolidCut(st.solidCutEdit):null,i=editing?ship.solidCuts.findIndex(q=>q.id===st.solidCutEdit):-1;
     if(editing&&i<0&&!owned)return '調整する切削が見つかりません';
     applied=C.normalizeSolidCut({...draft,id:editing?st.solidCutEdit:ship.nextId++});
+    // An edited cut that changes scope goes through Core.setSolidCutScope, like the list's switch: a mirrored
+    // cut keeps its mirror plane (cutterMirrorHull; a hull's centreline and world z=0 differ for a hull off the
+    // centreline, so it splits into its halves), and halves coming back to their hull join into one cut.
+    const from=owned&&applied.mirror&&!C.hullMirrorIsWorldMirror(owned.part)?owned.part:null;
     // The draft's 全体に適用 switch decides the scope: on is a ship-level cut that carves every
     // structure; off keeps (or makes) it a hull-owned cut that carves its hull only.
-    const owner=applied.structures?null:owned?.part||ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p))||ship.parts.find(p=>C.isHullStructure?.(p)&&p.primaryHull);
+    const owner=applied.structures?null:owned?.part||pair?.hull||ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p))||ship.parts.find(p=>C.isHullStructure?.(p)&&p.primaryHull);
     if(owned)owned.part.hullData.solidCuts=owned.part.hullData.solidCuts.filter(c=>c.id!==applied.id);if(i>=0)ship.solidCuts.splice(i,1);
-    if(owner&&C.hullOwnSolidCut){C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
-    else{ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;for(const p of ship.parts)if(applied.structures&&C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled)p.hullData.hullSkin.enabled=false;}
+    // Editing one half of a split mirrored cut edits both: the other half becomes this one's mirror about
+    // the pair's hull centreline (and, switched to hull-only, they go back and join as one cut).
+    if(pair&&!applied.mirror){const j=ship.solidCuts.findIndex(c=>c.id===pair.mate.id);if(j>=0)ship.solidCuts[j]=C.solidCutMirrorOf(pair.hull,{...applied,structures:pair.mate.structures},pair.mate.id);}
+    if(owner&&C.hullOwnSolidCut){if(editing&&!owned){ship.solidCuts.push({...applied,structures:true});C.setSolidCutScope(ship,applied.id,'hull',owner.id);}else C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
+    else{if(from){C.hullOwnSolidCut(ship,from,applied);C.setSolidCutScope(ship,applied.id,'all');}else ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;for(const p of ship.parts)if(applied.structures&&C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled)p.hullData.hullSkin.enabled=false;}
   },'hull');
-  if(changed&&applied){st.solidCutEdit=applied.id;st.solidCutter=C.normalizeSolidCut(applied);st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
+  if(changed&&applied){const q=worldSolidCut(applied.id);st.solidCutEdit=q?applied.id:null;st.solidCutter=C.normalizeSolidCut(q||{...applied,id:-1});st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
   renderPanel();return !!changed;
 }
 function cutterPlanePoint(px,py,point,normal){
@@ -10530,8 +10555,10 @@ function bindSolidCuts(){
     if('cutterCancel'in d){const c=worldSolidCut(st.solidCutEdit);if(c)st.solidCutter=C.normalizeSolidCut(c);st.solidCutEdit=null;st.cutterAction='camera';updateCutterDraft(true);}
     if('cutterApply'in d)applySolidCutter();
     if(d.cutterSelect)selectSolidCut(+d.cutterSelect);
-    if(d.cutterScope){const id=+d.cutterScope,next=C.solidCutScope(ship,id)==='all'?'hull':'all';mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');if(st.solidCutEdit===id){const q=worldSolidCut(id);if(q)st.solidCutter=C.normalizeSolidCut(q);}renderPanel();}
-    if(d.cutterDelete){const id=+d.cutterDelete;mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id);if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id);},'hull');if(st.solidCutEdit===id){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();}
+    if(d.cutterScope){const id=+d.cutterScope,next=C.solidCutScope(ship,id)==='all'?'hull':'all';mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');// The switch can move the edited cut's partner too (a split mirrored pair), so the draft always re-reads
+    // the cut being edited.
+    if(st.solidCutEdit!=null){const q=worldSolidCut(st.solidCutEdit);if(q)st.solidCutter=C.normalizeSolidCut(q);else{st.solidCutEdit=null;st.solidCutter=C.normalizeSolidCut({...st.solidCutter,id:-1});}}renderPanel();}
+    if(d.cutterDelete){const id=+d.cutterDelete;mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id),mate=own?null:C.solidCutMirrorPartner?.(ship,id)?.mate.id;if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id&&c.id!==mate);},'hull');if(st.solidCutEdit!=null&&!worldSolidCut(st.solidCutEdit)){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();}
     if(d.cutterScale){const q=ensureSolidCutter();q.s=q.s.map(v=>v*Number(d.cutterScale));updateCutterDraft(false);}
     if('cutterNudge'in d){const q=ensureSolidCutter(),a=+d.cutterNudge;q.c[a]+=st.cutterStep*(+d.direction);updateCutterDraft(false);}
     if('cutterTurn'in d){const q=ensureSolidCutter(),a=+d.cutterTurn;q.rotation[a]=((q.rotation[a]+270)%360)-180;updateCutterDraft(false);}
