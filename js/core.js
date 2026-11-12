@@ -53092,7 +53092,7 @@ function deserialize(o,internalOptions=null){
   for(const h of s.hatches){const q=o.hatches?.find(q=>q.id===h.id),owner=s.parts.find(p=>p.id===q?.hullOwner&&isHullStructure(p));if(owner&&Number.isInteger(q.hullHatch)&&owner.hullData.hatches.some(a=>a.id===q.hullHatch)){h.hullOwner=owner.id;h.hullHatch=q.hullHatch;}}
   for(const p of s.parts.filter(isHullStructure))syncHullStructure(s,p,false);
   for(const key of ['parts','fits'])for(const p of s[key]){const raw=o[key].find(q=>q.id===p.id);if(raw?.placement)p.placement=normalizePlacementMetadata(raw.placement,p);if(raw?.engineMountSupport&&p.k==='engine')p.engineMountSupport=normalizeEngineMountSupport(raw.engineMountSupport);}
-  migrateInteriorAnchors(s);
+  migrateInteriorAnchors(s);placementMigrateRigidPose(s);
   if(!internalOptions?.deferPlacementGeometry)refreshPlacementGeometry(s);
   delete s._propulsionRoutingDeferred;
   return adoptWeaponFits(s);
@@ -63170,8 +63170,12 @@ function placementConstrainTranslation(ship,part,parent,hit,mode,side,old,reques
  for(let i=0;i<18;i++){const mid=(low+high)/2,next=probe(mid);if(next.ok){low=mid;best=next;}else high=mid;if((high-low)*distance<Math.max(1e-5,scale*1e-5))break;}
  best.clampedPosition=best.part.c.slice();return best;
 }
-function fitPlacementContact(ship,part,parent,hit,mode,contactSide){
- const n=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);
+// The cut axis: straight down/up (horizontal) or across the wall (vertical) in world terms when the child
+// is placed; a re-solve of an unedited child takes the same axis in its parent's frame (axis), so a child that
+// followed a turned parent keeps the fitted shape it had.
+function placementFitAxis(mode,contactSide,hit){return mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);}
+function fitPlacementContact(ship,part,parent,hit,mode,contactSide,axis=null){
+ const n=axis||placementFitAxis(mode,contactSide,hit);
  if(len(n)<.1)return placementFailure('contact-side','側面と接触側を選び直してください');
  const result=placementFitContactAlong(ship,part,parent,hit,n);
  // A horizontal cut is built in columns along the vertical axis. A tap on a
@@ -63446,7 +63450,10 @@ function solvePlacement(ship,input,request={}){
  // A vertex edit can move the selected skin away from its previous local
  // point. Reproject onto that exact stable face only; a removed face or a
  // hole remains a repair target, never a nearby replacement surface.
- if(!request.hit&&surfacePatch&&anchor&&normal){const T=surfacePatch.triangles,b=solidMeshBounds(T),reach=Math.max(1,len(sub(b.slice(3),b.slice(0,3)))*2),n=norm(normal),hits=[1,-1].map(sign=>rayTris(T,add(anchor,mul(n,reach*sign)),mul(n,-sign))).filter(Boolean).sort((a,b)=>len(sub(a.p,anchor))-len(sub(b.p,anchor))),hit=hits[0];if(!hit)return placementFailure('surface-missing','保存した面上の接触位置が失われています。再接続してください');anchor=hit.p;normal=hit.n;}
+ // A child held by its rigid relation (unedited, and exactly where the relation puts it: placed, followed or
+ // reloaded) keeps that contact point; only a re-seat looks for it on the face again.
+ const rigidHeld=!request.hit&&request.keepTransform&&!!old.rigidPose&&(()=>{const t=placementFollowTarget(parent,part,old);return !!t&&placementFollowMatches(part,t,parent);})();
+ if(!request.hit&&!rigidHeld&&surfacePatch&&anchor&&normal){const T=surfacePatch.triangles,b=solidMeshBounds(T),reach=Math.max(1,len(sub(b.slice(3),b.slice(0,3)))*2),n=norm(normal),hits=[1,-1].map(sign=>rayTris(T,add(anchor,mul(n,reach*sign)),mul(n,-sign))).filter(Boolean).sort((a,b)=>len(sub(a.p,anchor))-len(sub(b.p,anchor))),hit=hits[0];if(!hit)return placementFailure('surface-missing','保存した面上の接触位置が失われています。再接続してください');anchor=hit.p;normal=hit.n;}
  if(!anchor||!normal||anchor.length!==3||normal.length!==3||![...anchor,...normal].every(Number.isFinite))return placementFailure('surface-required','追加元の面と接触側を選んでください');
  let contactSide=request.contactSide||old.contactSide||(mode==='horizontal'?(normal[1]<0?'top':'bottom'):mode==='vertical'?'port':'surface');const hit={...request.hit,p:anchor.slice(),n:norm(normal)};
  const sideAliases={front:'fore',back:'aft',left:'port',right:'stbd',side:'port'};contactSide=sideAliases[contactSide]||contactSide;
@@ -63490,7 +63497,10 @@ function solvePlacement(ship,input,request={}){
  // Removals in effect when the child is placed (a new tap or move, or an old save without the record)
  // are part of the parent it is fitted to (placement.fitRemovalIds); removals made later are not.
  const freshFit=!!request.hit&&!request._keepFitRemovals||request.position!=null||request._refitRemovals||!Array.isArray(old.fitRemovalIds),current=placementRemovalIds(parent),removalIds=freshFit?current:old.fitRemovalIds.filter(id=>current.includes(id));
- if(mode!=='surface'){metadata.fitRemovalIds=removalIds;const all=removalIds.length===current.length,fitParent=all?parent:placementUncutParent(ship,parent,true,removalIds).parent;const r=fitPlacementContact(ship,part,fitParent,hit,mode,contactSide);if(!r.ok){const joined=contactFit==='cut'&&placementOverlapFallback(ship,part,fitParent,r);if(!joined)return r;}}else{delete metadata.fitRemovalIds;const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
+ // Rigid follow (user decision 1, stage 3): the child's pose relative to its contact point in the parent's
+ // frame. A moved, turned or resized parent carries the unedited child by it (placementFollowTarget).
+ metadata.rigidPose=placementEquipmentPose(parent,part,hit.p);metadata.parentPose=placementParentPose(parent);if(!request.keepTransform||request.hit||request.position!=null)delete metadata.followed;
+ if(mode!=='surface'){metadata.fitRemovalIds=removalIds;const all=removalIds.length===current.length,fitParent=all?parent:placementUncutParent(ship,parent,true,removalIds).parent,fresh=!!request.hit||request.position!=null||!Array.isArray(old.fitLocalAxis),axis=fresh?placementFitAxis(mode,contactSide,hit):placementWorldNormal(parent,old.fitLocalAxis);if(len(axis)>=.1)metadata.fitLocalAxis=placementLocalNormal(parent,axis);const r=fitPlacementContact(ship,part,fitParent,hit,mode,contactSide,fresh?null:axis);if(!r.ok){const joined=contactFit==='cut'&&placementOverlapFallback(ship,part,fitParent,r);if(!joined)return r;}}else{delete metadata.fitRemovalIds;const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
  // The solved (fitted) pose travels with the failure so a refresh can tell a part severed by a cut
  // (a warning, kept exactly as solved) from a real gap (a failure).
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});
@@ -63663,6 +63673,53 @@ function placementChildCutKey(ship,p){
  const pad=Math.max(PLACEMENT_TOLERANCES.coordinate*16,...[0,1,2].map(i=>(b[i+3]-b[i])*.01)),box=[0,1,2].map(i=>b[i]-pad).concat([0,1,2].map(i=>b[i+3]+pad));
  const hit=[...cuts.filter(c=>compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(box,q.bounds,0))),...subs.filter(c=>[0,1,2].every(i=>c.b[i]<=box[i+3]&&c.b[i+3]>=box[i]))];return hit.length?placementKeyHash(publicJSON(hit)):'';
 }
+// User decision 1 (2026-11-11), stage 3: a structure attached to a parent follows it as a rigid body.
+// Its pose is a function of the parent's current pose and the saved relation (placement.rigidPose: the
+// child's offset and axes from its contact point, in the parent's frame; the contact point scales with
+// the parent's size, placementAnchor). Nothing is re-seated: a moved or turned parent turns the child with
+// it, a resized one moves the contact point with its scaled surface and keeps the child's size and its
+// offset along the contact normal. The pose is derived, not stored state, so the editor's own copy (which
+// the engine never updates), a reload and the Worker all arrive at the same pose.
+function placementFollowTarget(parent,p,meta){
+ const pose=meta?.rigidPose;if(!pose||!Array.isArray(pose.offset)||!Array.isArray(pose.forward)||!Array.isArray(pose.up))return null;const anchor=placementAnchor(parent,meta);if(!anchor)return null;
+ return {anchor,c:add(anchor,placementRigidVector(parent,pose.offset)),fw:norm(placementRigidVector(parent,pose.forward)),up:norm(placementRigidVector(parent,pose.up))};
+}
+// A structure child saved before rigid follow has no rigidPose. When its saved pose still sits on its parent
+// as saved (the parent is unchanged since the child was solved), the relation is read from that pose, on
+// load, so the editor, the Worker and a reload all carry it the same way. A child saved away from its
+// parent's current pose keeps the earlier rule (re-seated on the parent) until it is placed again.
+function placementMigrateRigidPose(ship){
+ for(const p of ship.parts||[]){const meta=p.placement;if(!meta||meta.rigidPose&&meta.parentPose||meta.root||meta.materializedAttachment||meta.pendingGeometry||meta.validationFailed||meta.repairRequired||meta.parentStructureId==null||placementCapability(p).kind!=='structure'||!meta.requestedGeometry||!placementSameShape(p,meta.requestedGeometry))continue;
+  const parent=placementParent(ship,meta.parentStructureId);if(!parent||!meta.parentLocalAnchor)continue;let anchor;try{if(!placementParentUnchanged(p,parent,true))continue;anchor=placementAnchor(parent,meta);}catch(e){continue;}if(anchor){meta.rigidPose=placementEquipmentPose(parent,p,anchor);meta.parentPose=placementParentPose(parent);}}
+}
+// The parent's pose and size when the relation was recorded (saved): a follow is due only when the parent
+// itself has moved, turned or been resized since. An edit of the child that also rewrites its request (a
+// height resize at the contact, ...) is the child's own edit, not a follow.
+function placementParentPose(parent){const f=structFrame(parent);return {c:parent.c.slice(),forward:f.fw.slice(),up:f.up.slice(),...(parent.s?{dimensions:[parent.s[0],parent.s[2],parent.s[1]]}:{})};}
+function placementParentMoved(parent,meta){
+ const pose=meta.parentPose;if(!pose||!Array.isArray(pose.c)||!Array.isArray(pose.forward)||!Array.isArray(pose.up))return false;const now=placementParentPose(parent),tolerance=Math.max(PLACEMENT_TOLERANCES.coordinate,len(parent.s||[1,1,1])*PLACEMENT_TOLERANCES.relativeCoordinate);
+ return len(sub(now.c,pose.c))>tolerance||dot(now.forward,pose.forward)<1-1e-12||dot(now.up,pose.up)<1-1e-12||!!pose.dimensions!==!!now.dimensions||!!now.dimensions&&now.dimensions.some((v,i)=>Math.abs(v-pose.dimensions[i])>tolerance);
+}
+function placementFollowMatches(p,target,parent){
+ const tolerance=Math.max(PLACEMENT_TOLERANCES.coordinate,len(parent.s||[1,1,1])*PLACEMENT_TOLERANCES.relativeCoordinate)*8,f=structFrame(p);
+ return len(sub(p.c,target.c))<=tolerance&&dot(f.fw,target.fw)>1-1e-9&&dot(f.up,target.up)>1-1e-9;
+}
+// Moves the child to the target pose (a rigid motion of the child itself: its size and authored shape are
+// unchanged) and records the relation against the parent as it is now.
+function placementApplyFollow(parent,p,meta,target){
+ const f0=structFrame(p),c0=p.c.slice(),turned=dot(f0.fw,target.fw)<1-1e-12||dot(f0.up,target.up)<1-1e-12,rt=norm(cross(target.fw,target.up));
+ const carry=x=>{const d=sub(x,c0),l=[dot(d,f0.fw),dot(d,f0.up),dot(d,f0.rt)];return add(target.c,add(add(mul(target.fw,l[0]),mul(target.up,l[1])),mul(rt,l[2])));};
+ if(p.wing?.pivot)p.wing={...p.wing,pivot:carry(p.wing.pivot)};if(Array.isArray(p.surfacePoint))p.surfacePoint=carry(p.surfacePoint);
+ p.c=target.c.slice();
+ if(turned){const up=target.up;if(1-up[1]<1e-12){delete p.surfaceNormal;p.yaw=Math.atan2(target.fw[2],target.fw[0])*180/Math.PI;delete p.pitch;delete p.roll;}else placementArrayFrame(p,target.fw,up);}
+ for(const key of Object.keys(p))if(key==='_frame')delete p[key];
+ meta.requestedGeometry=placementShape(p);meta.parentLocalAnchor=localStruct(parent,p.c);meta.surfaceAnchor=localStruct(parent,target.anchor);if(parent.s)meta.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];
+ if(meta.contactLocalNormal)meta.contactNormal=placementWorldNormal(parent,meta.contactLocalNormal);if(meta.contactOffset)meta.contactOffset=sub(p.c,target.anchor);if(meta.contactAxis&&meta.fitLocalAxis)meta.contactAxis=placementWorldNormal(parent,meta.fitLocalAxis);
+ meta.parentGeometryKey=placementDependencyKey(parent);meta.parentPoseKey=placementPositionKey(parent);meta.parentPose=placementParentPose(parent);
+ // A reload keeps this pose as it is (a re-seat would level a turned child): until the child is placed
+ // or re-seated again.
+ meta.followed=true;
+}
 function refreshPlacementGeometry(ship,options={}){
  if(!ship?.parts||ship._refreshingPlacement)return {ok:true,updated:[],failed:[],resolvedParts:[],resolvedFits:[]};ship._refreshingPlacement=true;
  // Ship-level solid cuts that carve structures change their material without changing any part key.
@@ -63683,7 +63740,11 @@ function refreshPlacementGeometry(ship,options={}){
    // Only a change of the parent's pose or outer form (placementPositionKey) re-solves the child. A
    // change of the parent's material alone (its own cuts, trenches, solid cuts, notches, hatches)
    // keeps the child exactly where and as it is and re-checks its real contact (removalOnly).
-   const fp0=refreshFingerprint(p),{pk,ppk}=keysOf(parent),sk=placementShapeKey(p),mk=pk+'/'+cutKey(),ck=placementChildCutKey(ship,p),fk=placementFitRemovalKey(p,parent),fitRemovalsChanged=p._placementFitRemovalKey!=null&&p._placementFitRemovalKey!==fk,keptKey=pk+'|'+ck+'|'+fk,childCutChanged=p._placementChildCutKey!=null&&p._placementChildCutKey!==ck&&placementCapability(p).kind==='structure'&&meta.mode!=='surface',cold=!p._placementSelfKey,parentKeyChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,removalOnly=(parentKeyChanged||p._placementMaterialKey!=null&&p._placementMaterialKey!==mk)&&!cold&&p._placementParentPoseKey===ppk&&!p._placementError&&!fitRemovalsChanged,parentChanged=parentKeyChanged&&!removalOnly,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
+   // Rigid follow: an unedited structure child (its shape is still the one it was placed or last followed
+   // with) whose parent no longer carries it at its pose is moved with the parent first, then re-checked
+   // there (fitted with its own axis, so its fitted shape is kept) and judged by contact like any child.
+   const fp0=refreshFingerprint(p),rigid=placementCapability(p).kind==='structure'&&!meta.materializedAttachment&&!meta.repairRequired&&!!meta.rigidPose&&!!meta.requestedGeometry&&placementSameShape(p,meta.requestedGeometry),followTarget=rigid?placementFollowTarget(parent,p,meta):null,followed=!!followTarget&&placementParentMoved(parent,meta)&&!placementFollowMatches(p,followTarget,parent);if(followed){placementApplyFollow(parent,p,meta,followTarget);graphCache.graph=null;}
+   const {pk,ppk}=keysOf(parent),sk=placementShapeKey(p),mk=pk+'/'+cutKey(),ck=placementChildCutKey(ship,p),fk=placementFitRemovalKey(p,parent),fitRemovalsChanged=p._placementFitRemovalKey!=null&&p._placementFitRemovalKey!==fk,keptKey=pk+'|'+ck+'|'+fk,childCutChanged=p._placementChildCutKey!=null&&p._placementChildCutKey!==ck&&placementCapability(p).kind==='structure'&&meta.mode!=='surface',cold=!p._placementSelfKey,parentKeyChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,removalOnly=(parentKeyChanged||p._placementMaterialKey!=null&&p._placementMaterialKey!==mk)&&!cold&&p._placementParentPoseKey===ppk&&!p._placementError&&!fitRemovalsChanged,parentChanged=followed||parentKeyChanged&&!removalOnly,selfChanged=!followed&&!!p._placementSelfKey&&p._placementSelfKey!==sk&&!(rigid&&cold),requestChanged=!followed&&!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
    if(meta.materializedAttachment){if(parentChanged&&!selfChanged)placementApplyEquipmentPose(parent,p,meta,placementAnchor(parent,meta));placementRestoreMaterialized(p);const contact=placementContact(ship,p,parent);if(contact.connected){delete p._placementError;meta.parentGeometryRevision=parent.placement?.geometryRevision||0;meta.parentGeometryKey=pk;meta.requestedGeometry=placementShape(p);if(parentChanged||cold||selfChanged)updated.push(p.id);}else if(!parentChanged&&!selfChanged&&!cold)placementKeepContact(ship,p,parent,severed,false,contact,failed,graphCache);else{p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});}}
    // A severed child keeps its stored pose until it is edited or its parent moves; one without a
    // fitted shape (reloaded) is solved again only once it touches its parent again.
@@ -63696,7 +63757,7 @@ function refreshPlacementGeometry(ship,options={}){
    // (overlap is contact, 2026-11-11) from its saved pose, exactly as saved: the
    // parent has not moved since the save. It recovers only if that pose is
    // really connected; otherwise the saved repair state is kept unchanged.
-   else if(meta.repairRequired){const input={...placementShape(p),placement:meta},request={...meta,keepTransform:true,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};for(const key of ['contactFit','contactOffset','contactAxis'])if(meta.mode==='surface')delete request[key];const r=solvePlacement(ship,input,request);if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;updated.push(p.id);}else{p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}}else if(cold||structure&&!p._placementGeometry&&meta.mode!=='surface'&&p._placementKeptWhole!==keptKey||parentChanged||selfChanged||requestChanged||childCutChanged){let input={...placementShape(p),placement:meta};const request={...meta,keepTransform:!cold&&!requestChanged&&(!parentChanged||selfChanged),geometryRevision:(meta.geometryRevision||0)+(parentChanged||selfChanged||requestChanged?1:0),parentGeometryRevision:parent.placement?.geometryRevision||0,...(fitRemovalsChanged?{_refitRemovals:true}:{})};
+   else if(meta.repairRequired){const input={...placementShape(p),placement:meta},request={...meta,keepTransform:true,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};for(const key of ['contactFit','contactOffset','contactAxis'])if(meta.mode==='surface')delete request[key];const r=solvePlacement(ship,input,request);if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;updated.push(p.id);}else{p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}}else if(cold||structure&&!p._placementGeometry&&meta.mode!=='surface'&&p._placementKeptWhole!==keptKey||parentChanged||selfChanged||requestChanged||childCutChanged){let input={...placementShape(p),placement:meta};const request={...meta,keepTransform:followed||cold&&rigid&&meta.followed===true||!cold&&!requestChanged&&(!parentChanged||selfChanged),geometryRevision:(meta.geometryRevision||0)+(parentChanged||selfChanged||requestChanged?1:0),parentGeometryRevision:parent.placement?.geometryRevision||0,...(fitRemovalsChanged?{_refitRemovals:true}:{})};
     if(structure&&meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
     if((parentChanged||requestChanged)&&!selfChanged)input={...placementShape(meta.requestedGeometry),id:p.id,placement:meta};
     if(structure&&meta.mode==='surface'){input.placement={...meta};for(const key of ['contactFit','contactOffset','contactAxis'])delete input.placement[key];}
@@ -63987,7 +64048,10 @@ function normalizePlacementMetadata(value,part){
  if(FITS[part?.k]&&!PARTS[part?.k]||part?._fit)return normalizeFitPlacementMetadata(value,part);
  if(value==null)return null;if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('配置情報が不正です');const out=publicCopyOf(value),cap=placementCapability(part);
  if(out.modelVersion!==PLACEMENT_MODEL_VERSION||!cap.allowedModes.includes(out.mode))throw new Error('保存された配置方式をこの部品では使用できません');
- for(const key of ['pendingGeometry','validationFailed','severed'])if(out[key]!=null&&typeof out[key]!=='boolean')throw new Error('配置の計算状態が不正です');
+ for(const key of ['pendingGeometry','validationFailed','severed','followed'])if(out[key]!=null&&typeof out[key]!=='boolean')throw new Error('配置の計算状態が不正です');
+ // Rigid follow (stage 3): the axis the fitted shape was cut along, and the parent's pose when the relation was recorded.
+ if(out.fitLocalAxis!=null&&(!Array.isArray(out.fitLocalAxis)||out.fitLocalAxis.length!==3||!out.fitLocalAxis.every(Number.isFinite)||len(out.fitLocalAxis)<1e-8))throw new Error('配置基準点が不正です');
+ if(out.parentPose!=null){const q=out.parentPose,ok=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite);if(!q||typeof q!=='object'||Array.isArray(q)||!ok(q.c)||!ok(q.forward)||!ok(q.up)||q.dimensions!=null&&(!ok(q.dimensions)||q.dimensions.some(v=>v<=0)))throw new Error('親の姿勢の基準値が不正です');}
  if(out.contactFit!=null&&(!['cut','legacy-fit'].includes(out.contactFit)||cap.kind!=='structure'||!['horizontal','vertical'].includes(out.mode)))throw new Error('接触側の成形方法が不正です');
  for(const key of ['parentStructureId','hostId'])if(out[key]!=null&&!(key==='hostId'&&out[key]==='hull')&&(!Number.isSafeInteger(out[key])||out[key]<=0))throw new Error('配置先の安定IDが不正です');
  for(const key of ['geometryRevision','parentGeometryRevision'])if(out[key]!=null&&(!Number.isSafeInteger(out[key])||out[key]<0))throw new Error('配置形状の世代が不正です');
@@ -67262,7 +67326,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,placementFollowTarget,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
