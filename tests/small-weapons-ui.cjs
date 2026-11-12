@@ -22,11 +22,11 @@ test('catalog cards display total volleys while each weapon preview shows its pe
 
 test('dedicated PD and aircraft cards show calibrated per-shot units and the removed ion gun stays out of the catalog',()=>{
  const listed=plain(run('weaponKeys()'));assert.equal(listed.includes('cion'),false);
- for(const [key,unit,volley]of [['pd','100 kt','200 kt'],['monCalPD','100 kt','300 kt'],['claser','2 kt','2 kt'],['claserH','2 kt','2 kt'],['cturret','2 kt','4 kt']]){
+ for(const [key,unit,volley]of [['pd','100 kt','200 kt'],['monCalPD','100 kt','300 kt'],['claser','6 kt','6 kt'],['claserH','72 kt','72 kt'],['cturret','1.2 kt','2.4 kt']]){
   const html=run('fitBtn('+JSON.stringify(key)+',false,"fit")');assert.ok(html.includes('1発・1砲身 '+unit));assert.ok(html.includes('一斉射 '+volley));
   for(const field of ['name','short','desc','evidence'])assert.doesNotMatch(run('KSI18n.t(C.FITS['+JSON.stringify(key)+']['+JSON.stringify(field)+'])'),/[\u3040-\u30ff\u3400-\u9fff]/,key+' '+field);
  }
- for(const [key,bolt]of [['pd',1e-7],['monCalPD',1e-7],['claser',2e-9],['cturret',2e-9]]){const preview=run('designWeaponPreviewHTML({k:'+JSON.stringify(key)+'})');assert.ok(preview.includes('data-weapon-stat="output" data-value="'+bolt+'"'));}
+ for(const [key,bolt]of [['pd',1e-7],['monCalPD',1e-7],['claser',6e-9],['claserH',7.2e-8],['cturret',1.2e-9]]){const preview=run('designWeaponPreviewHTML({k:'+JSON.stringify(key)+'})');assert.ok(preview.includes('data-weapon-stat="output" data-value="'+bolt+'"'));}
 });
 
 test('the restored native Venator side gun appears once with 70 TT per barrel and a 140 TT volley',()=>{
