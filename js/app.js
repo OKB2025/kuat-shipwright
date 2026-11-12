@@ -8692,7 +8692,7 @@ function hitcamStep(now){
  // A card just unhidden has no layout yet (0×0 on the first frame after the battle opens):
  // draw nothing and restart its clock, so the replay starts once the card has a size.
  // A card that stays without a size (HUD folded away) for 3 s drops that replay so the queue moves on.
- if(!(r.width>=8&&r.height>=8)){H.unsized??=now;if(now-H.unsized>3000){H.cur=null;H.unsized=null;show(false);}else H.at=now;return;}
+ if(!(r.width>=8&&r.height>=8)){if(H.unsized==null)H.unsized=now;if(now-H.unsized>3000){H.cur=null;H.unsized=null;show(false);}else H.at=now;return;}
  H.unsized=null;
  const d=Math.min(2,window.devicePixelRatio||1),W=Math.max(1,Math.round(r.width*d)),Hh=Math.max(1,Math.round(r.height*d));if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh;}
  const g=localCanvas(cv.getContext('2d'));g.setTransform(d,0,0,d,0,0);const q=H.cur,k=Math.min(1,(now-H.at)/(HITCAM_DUR*1000)),B=trial.battle,src=q.rec.src!=null?B?.b.units.find(x=>String(x.id)===String(q.rec.src)):null;
