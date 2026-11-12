@@ -8,8 +8,9 @@ function shot(k,barrels,boltTT){const d=C.FITS[k];assert.ok(d,k+' is a current w
 test('dedicated ship point defence fires 100 kt per actual barrel per shot',()=>{
  for(const [k,n]of [['pd',2],['monCalPD',3]]){const d=shot(k,n,1e-7),a=C.REFERENCE_ASSETS[d.asset];assert.equal(C.weaponRoles(d).pointDefense,true);assert.equal(a.barrelCenters.length,n);assert.equal(a.muzzlePoints.length,n);}
 });
-test('aircraft lasers retain 2 kt per physical barrel and manual turret tracking without automatic point defence',()=>{
- for(const [k,n]of [['claser',1],['claserH',1],['cturret',2]]){const d=shot(k,n,2e-9);assert.equal(d.cycle,C.CRAFT_FIRE.cycles[k]);assert.ok(d.cycle>0&&d.cycle<1);if(k==='cturret'){assert.equal(d.pointDefense,false);assert.equal(C.weaponRoles(d).pointDefense,false);assert.equal(C.weaponRoles(d).dualPurpose,false);assert.equal(C.weaponRoles(d).purePointDefense,false);assert.ok(d.aa>0,'the manually controlled turret retains its tracking capability');}}
+test('aircraft lasers fire their per-barrel per-second output over one period and keep manual turret tracking without automatic point defence',()=>{
+ // User decision 2026-11-11: heavy 400, medium 50, light 10 kt per barrel per second; one shot is that output × the period.
+ for(const [k,n,rate]of [['claser',1,50e-9],['claserH',1,400e-9],['cturret',2,10e-9]]){const d=shot(k,n,rate*C.FITS[k].cycle);assert.equal(d.cycle,C.CRAFT_FIRE.cycles[k]);assert.ok(d.cycle>0&&d.cycle<1);if(k==='cturret'){assert.equal(d.pointDefense,false);assert.equal(C.weaponRoles(d).pointDefense,false);assert.equal(C.weaponRoles(d).dualPurpose,false);assert.equal(C.weaponRoles(d).purePointDefense,false);assert.ok(d.aa>0,'the manually controlled turret retains its tracking capability');}}
 });
 test('six native corvette weapons preserve their 500 MT and 6 MT shot energies and remain separate from dedicated PD',()=>{
  assert.deepEqual(Array.from(C.CORVETTE_WEAPON_KEYS),corvette.map(row=>row[0]));for(const [k,asset,n,boltTT,family]of corvette){const d=shot(k,n,boltTT),a=C.REFERENCE_ASSETS[asset];assert.equal(d.asset,asset);assert.ok(a);assert.equal(d.weaponFamily,family);assert.equal(d.catalogHidden,false);assert.equal(C.weaponRoles(d).pointDefense,false,k+' is not recalibrated as a 100 kt PD weapon');assert.equal(C.weaponModelScale(k),1);near(a.boltTT,boltTT);near(a.volleyTT,n*boltTT);assert.equal(a.muzzlePoints.length,n);}
@@ -36,6 +37,6 @@ test('two stored aircraft salvos fund exactly two actual shots and no third shot
  const d=C.FITS.cturret,output=d.barrels*d.boltTT,{u}=chargedUnit('cturret',output*2);for(let i=0;i<2;i++){const r=C.surfaceSpend(u,2,output);assert.equal(r.ok,true);near(r.spent,output);}near(u.energy,0);const third=C.surfaceSpend(u,2,output);assert.equal(third.ok,false);near(third.spent,0);
 });
 
-test('sub-shot electrical increments accumulate into exactly one complete 2 kt pulse',()=>{
+test('sub-shot electrical increments accumulate into exactly one complete fixed-laser pulse',()=>{
  const d=C.FITS.claser,{u,output}=chargedUnit('claser',0),dt=d.cycle/8;let total=0;for(let i=0;i<8;i++){C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:d.power,shields:0,deferHeat:true},dt,'balanced');const accepted=C.surfaceManualCharge(u,d.power,dt);assert.ok(accepted>0,'small valid joule grants are not rounded away');near(accepted,output/8);total+=accepted;}near(total,output);near(u.surfaceBanks[2],output);assert.equal(C.surfaceSpend(u,2,output).ok,true);assert.equal(C.surfaceSpend(u,2,output).ok,false);near(u.energy,0);
 });

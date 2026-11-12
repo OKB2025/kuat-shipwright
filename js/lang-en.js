@@ -3284,6 +3284,8 @@ root.KS_EN={
   "塔型": "Tower",
   "大型司令塔": "Large Command Tower",
   "固定式レーザー砲": "Fixed Laser Cannon",
+  "固定式軽レーザー砲": "Fixed Light Laser Cannon",
+  "軽レーザー": "Light Laser",
   "重レーザー砲": "Heavy Laser Cannon",
   "重レーザー": "Heavy Laser",
   "固定式イオン砲": "Fixed Ion Cannon",
@@ -10332,10 +10334,13 @@ Object.assign(root.KS_EN.messages,{
  "100kt 2連装点防御レーザー": "Twin 100 kt Point-Defense Laser",
  "100kt 3連装球状点防御レーザー": "Triple 100 kt Spherical Point-Defense Laser",
  "中央の機器ケースの左右に、円形の俯仰軸とレーザー砲身を1門ずつ取り付けた2連装PD。各砲身が1発100 kt、一斉射200 kt、0.2秒間隔。艦載機・ミサイル迎撃と対艦射撃を兼ねる。": "Twin PD with one laser barrel and circular elevation mount on each side of a central case. Each barrel fires 100 kt per shot, for a 200 kt volley every 0.2 seconds. Engages aircraft, missiles and ships.",
- "機首方向に固定した戦闘機用レーザー砲。1門1発2 kt（0.000000002 TT）。": "A forward-fixed fighter laser cannon firing 2 kt (0.000000002 TT) per barrel per shot.",
- "重戦闘機・ガンシップ用のレーザー砲。1門1発2 kt（0.000000002 TT）。": "A laser cannon for heavy fighters and gunships, firing 2 kt (0.000000002 TT) per barrel per shot.",
- "後部銃座・上部砲塔などの小型連装レーザー砲塔。2門が各1発2 kt、一斉射4 kt。": "A compact twin laser turret for rear or dorsal positions. Each barrel fires 2 kt per shot, for a 4 kt volley.",
- "ユーザー指定：航空機レーザーは1門1発2 kt": "User specification: aircraft lasers fire 2 kt per barrel per shot"
+ "機首方向に固定した戦闘機用の軽レーザー砲（軽）。1門あたり毎秒10 kt、0.12秒ごとに1発1.2 kt。": "A forward-fixed light fighter laser cannon (light): 10 kt per second per barrel, one 1.2 kt shot every 0.12 s.",
+ "機首方向に固定した戦闘機用レーザー砲（中型）。1門あたり毎秒50 kt、0.12秒ごとに1発6 kt。": "A forward-fixed fighter laser cannon (medium): 50 kt per second per barrel, one 6 kt shot every 0.12 s.",
+ "重戦闘機・ガンシップ用のレーザー砲（重）。1門あたり毎秒400 kt、0.18秒ごとに1発72 kt。": "A laser cannon for heavy fighters and gunships (heavy): 400 kt per second per barrel, one 72 kt shot every 0.18 s.",
+ "後部銃座・上部砲塔などの小型連装レーザー砲塔（軽）。2門が各毎秒10 kt、0.12秒ごとに各1発1.2 kt（一斉射2.4 kt）。": "A compact twin laser turret for rear or dorsal positions (light): 10 kt per second per barrel, one 1.2 kt shot from each barrel every 0.12 s (a 2.4 kt volley).",
+ "ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（中型 50 kt/s）": "User specification: aircraft lasers are rated by output per barrel per second (medium 50 kt/s)",
+ "ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（重 400 kt/s）": "User specification: aircraft lasers are rated by output per barrel per second (heavy 400 kt/s)",
+ "ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）": "User specification: aircraft lasers are rated by output per barrel per second (light 10 kt/s)"
 });
 Object.assign(root.KS_EN.messages,{'100kt 点防御2連装':'Twin 100 kt PD','100kt 球状PD 3連装':'Triple 100 kt Spherical PD','航空機用イオン砲は廃止されています':'Aircraft ion cannons have been removed.'});
 Object.assign(root.KS_EN.messages,{'70TT×2 舷側':'70 TT Twin Side Mount'});
