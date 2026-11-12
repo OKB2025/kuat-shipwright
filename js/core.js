@@ -61627,7 +61627,15 @@ const FLEET_PROFILE_VERSION=23;
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
 const EXAMPLE_PROFILE_VERSION=1;
 let profileModelKeyMemo=null;
-function profileModelKey(){return profileModelKeyMemo||(profileModelKeyMemo='f'+FLEET_PROFILE_VERSION+'.c'+COST_MODEL.version+'.'+costModelSignature()+'.e'+EXAMPLE_PROFILE_VERSION);}
+// The key also holds, without a manual bump, every other model version the statistics and profiles read and
+// a hash of the part and fitting tables (mass, power, heat, ... values), so a change to any of them gives new
+// figures on every device (physics review 2026-11-12). Reference meshes (data/reference.js) are not hashed here.
+function profileModelKey(){
+ if(profileModelKeyMemo)return profileModelKeyMemo;
+ const versions=[MOTION_RESISTANCE_VERSION,WEAPON_PROFILE_VERSION,SUBLIGHT_REFERENCE_VERSION,ENGINE_TRANSMISSION_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,PROPULSION_MODEL_VERSION,PLACEMENT_MODEL_VERSION,TRENCH_ARMAMENT_VERSION,SURFACE_VERSION].join('.');
+ let tables='?';try{tables=placementKeyHash(JSON.stringify([PARTS,FITS]));}catch(error){}
+ return profileModelKeyMemo='f'+FLEET_PROFILE_VERSION+'.c'+COST_MODEL.version+'.'+costModelSignature()+'.e'+EXAMPLE_PROFILE_VERSION+'.v'+versions+'.t'+tables;
+}
 function fleetProfile(S,name,ship){
  const draftStatus=ship?placementDraftStatus(ship):S?.placementDraftStatus;if(draftStatus&&!draftStatus.ok){const error=new Error('配置の計算・修正が完了していない部品があります');error.code='placement-unresolved';throw error;}
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));

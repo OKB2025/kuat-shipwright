@@ -863,7 +863,9 @@ async function fleetJob(job) {
     const id = await derivedId(job, djson), hit = await derivedGet(id);
     if (hit) { rec.profile = hit.profile; rec.displayStats = hit.displayStats; rec.stats = null; save = true; profileSrc = 'derived'; }
     else { const d = recShip(rec); rec.stats ||= C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; derived = id; profileSrc = 'computed'; }
-  } else if (!lite && src === 'editor') derived = await derivedId(job, djson);
+  }
+  // Figures from the editor's incremental session (src 'editor') are not written to the derived cache, which
+  // outlives the release: only figures computed from the loaded design are (physics review 2026-11-12).
   const {stats, profile, serial} = rec;
   let displayStats = null, geometry = null, stored = null, gid = null;
   const transfer = [], records = [], identity = JSON.stringify(serial);
