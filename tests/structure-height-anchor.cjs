@@ -80,6 +80,8 @@ test('new legacy catalogue requests and explicitly changed mounting points keep 
  const positioned=C.solvePlacement(ship,part,{mode:'horizontal',position:[0,55,0]});assert.equal(positioned.ok,true,positioned.error);nearPoint(positioned.part.c,[0,60,0]);
 });
 
-test('a changed legacy parent still follows the existing parent alignment rule',()=>{
- const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,[0,65,0]);near(C.partAABB(part)[1],15);near(C.partAABB(part)[4],115);assertStableReload(ship,part);
+// 2026-11-12 user decision: a re-solve never re-seats a placed child (no flush legacy-fit re-seat) and children do
+// not follow their parent. Raised 5 m, the parent now overlaps the child's base, which is a contact.
+test('a changed legacy parent leaves its child where it is (no re-seat, no follow)',()=>{
+ const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);const before=part.c.slice(),low=C.partAABB(part)[1];parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,before);near(C.partAABB(part)[1],low);assertStableReload(ship,part);
 });

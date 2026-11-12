@@ -168,19 +168,19 @@ test('severingCuts lists a hull-owned notch',()=>{
  const S=grounding(ship);assert.ok(S.severed.includes(A.id),'A is cut off by the notch');assert.ok(S.severedCuts.find(r=>r.partId===A.id).cutIds.includes(id),'the notch is named');
 });
 
-// Item 5 (decision 1): the parent moves, the child's re-solve fails at the new place, the child is carried
-// with its parent and judged there; it is never left behind.
+// Item 5 (decision 1) was withdrawn by the 2026-11-12 user decision: children do not follow their parent. The
+// hull moves 40 m; the children stay where they were and, touching no connected body, are red (a neighbour that
+// was left behind with them does not connect them). Reload agrees.
 for(const withNeighbour of [true,false])
- test(`the hull moves 40 m under a fixed cut: the child is carried and ${withNeighbour?'stays connected through its neighbour':'is severed, not left behind'} (live = reload)`,()=>{
+ test(`the hull moves 40 m under a fixed cut: the child stays where it was and is reported${withNeighbour?' (with a neighbour left behind too)':''} (live = reload)`,()=>{
   const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'carry');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
   const N=withNeighbour?placeOn(ship,hull,95,'N'):null,A=placeOn(ship,hull,110,'A');
-  // A cut that carves structures, 40 m off the centreline: nothing is there yet.
   ship.solidCuts.push(C.normalizeSolidCut({id:ship.nextId++,shape:'box',c:[112,26,40],s:[20,20,16],structures:true}));ship._cache=null;C.refreshPlacementGeometry(ship);
-  const a0=A.c.slice();hull.c=[hull.c[0],hull.c[1],hull.c[2]+40];ship._cache=null;const r=C.refreshPlacementGeometry(ship);
-  same(A.c.map((v,i)=>+(v-a0[i]).toFixed(6)),[0,0,40],'carried with the hull');assert.equal(C.placementContact(ship,A,hull).connected,false,'the deck under it is gone');assert.equal(A._placementError,undefined);
-  const S=grounding(ship),d=S.placementDiagnostics.find(x=>x.partId===A.id);assert.ok(!S.ungrounded.parts.includes(A.id),'no red frame');
-  if(withNeighbour){assert.equal(C.placementContact(ship,A,N).connected,true);assert.ok(!S.severed.includes(A.id));assert.equal(d.via,'contact-graph');}
-  else{assert.ok(S.severed.includes(A.id));assert.equal(d.code,'severed');same(r.severed.filter(q=>q.partId===A.id),[{partId:A.id,code:'severed'}]);}
-  const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),S2=grounding(L),a=L.parts.find(q=>q.id===A.id);same(a.c.map(v=>+v.toFixed(6)),A.c.map(v=>+v.toFixed(6)),'reload keeps the carried pose');
-  assert.equal(S2.severed.includes(A.id),!withNeighbour);assert.ok(!S2.ungrounded.parts.includes(A.id));
+  const a0=A.c.slice();hull.c=[hull.c[0],hull.c[1],hull.c[2]+40];ship._cache=null;C.refreshPlacementGeometry(ship);
+  same(A.c.map((v,i)=>+(v-a0[i]).toFixed(6)),[0,0,0],'not carried with the hull');assert.equal(C.placementContact(ship,A,hull).connected,false);
+  const S=grounding(ship);assert.ok(S.ungrounded.parts.includes(A.id),'red');assert.ok(!S.severed.includes(A.id));
+  if(withNeighbour)assert.ok(S.ungrounded.parts.includes(N.id),'the neighbour left behind is red too');
+  const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),S2=grounding(L),a=L.parts.find(q=>q.id===A.id);same(a.c.map(v=>+v.toFixed(6)),A.c.map(v=>+v.toFixed(6)),'reload keeps the pose');
+  assert.ok(S2.ungrounded.parts.includes(A.id),'reload: red');
  });
+

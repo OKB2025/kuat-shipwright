@@ -17,6 +17,8 @@ function assertRecovered(ship,label){
  const S=grounding(ship);
  for(const id of SUNK){const p=ship.parts.find(q=>q.id===id),meta=p.placement;
   assert.equal(p._placementError,undefined,`${label} #${id}: ${p._placementError}`);
+  // The authored tilt (左右の傾き) is kept: −8° on #100 and +8° on its mirror #101, as saved.
+  assert.equal(p.roll,id===100?-8:8,`${label} #${id}: roll kept`);assert.equal(meta.requestedGeometry.roll,p.roll,label+': requested roll');
   assert.ok(!meta.validationFailed&&!meta.repairRequired&&!meta.pendingGeometry,`${label} #${id}: ${meta.repairReason}`);
   assert.equal(meta.repairReason,undefined,label);
   const d=S.placementDiagnostics.find(x=>x.partId===id);assert.equal(d.connected,true,label+' #'+id+' '+JSON.stringify(d));assert.equal(d.code,null,label);
@@ -124,4 +126,14 @@ test('cuts through a recovered structure follow the cut rules, live = reload',()
   for(const row of live){assert.equal(row.failed,false);assert.equal(row.error,null);assert.deepEqual({red:row.red,severed:row.severed},ref[0],'same as the never-refused structure 58: '+JSON.stringify(row));}
   SUNK.forEach((id,i)=>assert.deepEqual(ship.parts.find(p=>p.id===id).c,before[i],'not moved'));
   assert.deepEqual(look(reload(ship)),live,'hull cut: reload');}
+});
+
+test('a placed horizontal structure keeps an edited roll through save and two reloads (same mass)',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'roll');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const raw=C.rayPart([95,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},c=[hit.p[0],hit.p[1]+1.8,hit.p[2]];
+ const d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',c,s:[16,8,6],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);const box=ship.parts.at(-1);
+ // The 左右の傾き control edits roll in place; the warm re-solve keeps it (keepTransform).
+ box.roll=-8;ship._cache=null;assert.equal(C.refreshPlacementGeometry(ship).ok,true);assert.equal(box.roll,-8);const live=statsOf(ship),c0=box.c.slice();
+ let s=ship;for(const label of ['reload','reload 2']){s=reload(s);const b=s.parts.find(p=>p.id===box.id);assert.equal(b.roll,-8,label+': roll kept (main b40b72d reset it to 0)');b.c.forEach((v,i)=>assert.ok(Math.abs(v-c0[i])<1e-9,label+': pose '+b.c));assert.equal(b._placementError,undefined);closeStats(statsOf(s),live,label);}
 });

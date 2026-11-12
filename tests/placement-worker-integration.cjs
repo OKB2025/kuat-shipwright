@@ -249,7 +249,7 @@ test('a batch cannot hide an interior collision by reusing the first candidate g
   assert.equal(C.publicJSON(ship), before, 'a failed pair leaves neither candidate committed');
 });
 
-test('saving while parent updates are pending replays the parent anchor on cold restore in every exterior mode', () => {
+test('saving while parent updates are pending keeps the child pose on cold restore in every exterior mode (children do not follow)', () => {
   for (const mode of ['horizontal', 'vertical', 'surface']) {
     const ship = fixture(), child = {id: -1, k: 'struct', form: 'box', c: [0, 0, 0], s: [4, 4, 4]},
       hit = mode === 'vertical' ? {p: [0, 0, 5], n: [0, 0, 1]} : {p: [0, 10, 0], n: [0, 1, 0]};
@@ -263,13 +263,14 @@ test('saving while parent updates are pending replays the parent anchor on cold 
     const pending = deferred.parts.find(part => part.id === placed.part.id);
     assert.equal(pending._placementGeometry, undefined, 'UI parsing defers exact fitting to its Worker');
     near(pending.c[0], original[0]);
+    // 2026-11-12 user decision: children do not follow their parent. The cold restore keeps the child where it
+    // was saved; the parent moved 30 m away, so it is reported (no longer touching), never moved.
     const replay = C.refreshPlacementGeometry(deferred);
-    assert.equal(replay.ok, true, JSON.stringify(replay.failed));
-    near(pending.c[0], original[0] + 30);
+    assert.ok(replay.failed.some(row => row.partId === pending.id), JSON.stringify(replay.failed));
+    near(pending.c[0], original[0]);
     near(pending.c[1], original[1]);
     near(pending.c[2], original[2]);
-    assert.equal(C.placementContact(deferred, pending, deferred.parts[0]).connected, true);
     const restored = C.deserialize(saved), rebuilt = restored.parts.find(part => part.id === placed.part.id);
-    near(rebuilt.c[0], original[0] + 30);
+    near(rebuilt.c[0], original[0]);
   }
 });
