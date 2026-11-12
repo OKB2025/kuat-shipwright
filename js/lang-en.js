@@ -10648,4 +10648,15 @@ Object.assign(root.KS_EN.terms,{
  "縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます": "A bevel would leave the savable range (width 0–1000 m, height 1–1000 m)",
  "トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます": "A trench would leave the savable range (height 0.1–500 m, depth 0.1–800 m)"
 });
+// UI phase 1 (2026-11-12): placement pill, touch two-tap placement
+Object.assign(root.KS_EN.messages,{
+ "［配置中：{0}］": "[Placing: {0}]"
+});
+Object.assign(root.KS_EN.terms,{
+ "キャンセル（Esc）": "Cancel (Esc)",
+ "追加元の構造物": "Parent structure",
+ "取り込んだ3D形状": "Imported 3D shape",
+ "プレビュー中。同じ場所をもう一度タップすると配置します。別の場所をタップするとプレビューが移動します。": "Previewing. Tap the same spot again to place it; tap elsewhere to move the preview.",
+ "位置をタップするとプレビューを表示し、もう一度タップすると配置します。": "Tap a spot to preview the placement, then tap it again to place."
+});
 })(typeof window==="undefined"?globalThis:window);

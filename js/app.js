@@ -3036,9 +3036,9 @@ function refreshOverlay() {
   if (st.tab === 'edit') { const am = [240, 170, 70, 255], pr = st.sel; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), pr?.list === 'parts' && pr.id === p.id ? cy : am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), pr?.list === 'fits' && pr.id === f.id ? cy : am); xfPreviewLines(ls); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
   if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);if(C.FITS[it.k]?.window){const room=editorCommandCompartments().find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]);} }
-  const base = ls.out();
-  if (hoverLines) {
-    const h = hoverLines.out(), pos = new Float32Array(base.pos.length + h.pos.length), col = new Uint8Array(base.col.length + h.col.length);
+  const base = ls.out(),touchLines=typeof designUI!=='undefined'&&designUI.armed&&designUI.touchPreview?.source===ship?designUI.touchPreview.lines:null,shownHover=hoverLines||touchLines;
+  if (shownHover) {
+    const h = shownHover.out(), pos = new Float32Array(base.pos.length + h.pos.length), col = new Uint8Array(base.col.length + h.col.length);
     pos.set(base.pos); pos.set(h.pos, base.pos.length); col.set(base.col); col.set(h.col, base.col.length);
     view.setLines('ghost', {pos, col});
   } else view.setLines('ghost', base);
@@ -3059,7 +3059,7 @@ function onHover(px,py){
 }
 function clearHover(){cancelQueuedHover();hoverLines=null;refreshOverlay();}
 
-function onTap(px, py, add) {
+function onTap(px, py, add, pointerType) {
   if(trial.on)return;
   if(fleet.mode!=='design'){fleetTap(px,py);return;}
   if(!view)return;
@@ -3069,7 +3069,33 @@ function onTap(px, py, add) {
   if(t === 'solid') { if(st.cutterAction === 'place') { const hit=pick(px,py,{parts:true,fits:false}); if(hit?.p)placeSolidCutter(hit);else toast('カッターを重ねる船体・構造物をタップしてください'); } return; }
   if(designUI.pickParent){const hit=pick(px,py,{parts:true,fits:false});if(hit?.part&&C.isStructuralPart(hit.part)){designUI.parentId=hit.part.id;designUI.pickParent=false;designUI.drawer=true;renderPanel();}else toast('追加元にする構造物を選択してください');return;}
   if(designUI.drawer&&!designUI.details&&['part','fit'].includes(t))return;
+  // 1b A canvas tap places only while placement is explicitly armed (設置). On touch the first tap
+  // shows the preview there and a second tap on the same spot places it; a mouse click places at once.
+  if(DESIGN_PLACE_TOOLS.includes(t)&&!st.repeatPlacement?.pick){
+   if(!designPlacementActive())return;
+   const hit=designTouchPlacementTap(t,px,py,pointerType);if(hit===false)return;
+   tapHit(t,hit,add);return;
+  }
   tapHit(t, pick(px, py, tapWant(t)), add);
+}
+const DESIGN_PLACE_TOOLS=['part','fit','userpart','importmesh'],DESIGN_TOUCH_CONFIRM_PX=32;
+function designTouchPreviewActive(){const q=typeof designUI!=='undefined'?designUI.touchPreview:null;return !!q&&q.source===ship&&designPlacementActive();}
+// Touch placement: returns the hit to place at, or false when the tap only showed (or moved) the preview.
+function designTouchPlacementTap(t,px,py,pointerType){
+ designUI.lastPointer=pointerType||'mouse';
+ const hit=pick(px,py,tapWant(t));
+ if(!pointerType||pointerType==='mouse'){designUI.touchPreview=null;return hit;}
+ const q=designUI.touchPreview;
+ if(q&&q.source===ship&&q.tool===t){
+  const at=q.hit?.p&&view?.project?view.project(q.hit.p):null,on=at&&at[2]>-1&&at[2]<1,sx=on?at[0]:q.px,sy=on?at[1]:q.py;
+  if(Math.hypot(px-sx,py-sy)<=DESIGN_TOUCH_CONFIRM_PX||Math.hypot(px-q.px,py-q.py)<=DESIGN_TOUCH_CONFIRM_PX){designUI.touchPreview=null;hoverLines=null;return q.gen===eng.gen&&q.hit?q.hit:hit;}
+ }
+ // Without a surface there is nothing to preview: the ordinary path rejects the tap with its message.
+ if(!hit?.p){designUI.touchPreview=null;return hit;}
+ let lines=null;try{lines=ghostFor(hit);}catch(e){lines=null;}
+ if(!lines)lines=Gfx.lineSet();lines.cross(hit.p,Math.max(.5,(view?.cam?.r||100)*.015),[255,215,140,255]);
+ designUI.touchPreview={source:ship,tool:t,hit,px,py,gen:eng.gen,lines};hoverLines=null;refreshOverlay();designUIBar();
+ return false;
 }
 // Alignment snaps the placement point, except along the face normal (that
 // coordinate stays on the tapped face).
@@ -4390,12 +4416,12 @@ function attachControls(canvas) {
     if(mode === 'cutter')cutterDragEnd(false);
     if(mode === 'verts')veDragEnd(false);
     if(mode === 'item')dragItemEnd(false);
-    if(mode === 'itemPending'){itemDrag=null;if(ptrs.size === 0)onTap(e.clientX, e.clientY);}
-    if (mode === 'pending' && ptrs.size === 0 && !moved && performance.now() - start.t < 900) onTap(e.clientX, e.clientY, start.add);
+    if(mode === 'itemPending'){itemDrag=null;if(ptrs.size === 0)onTap(e.clientX, e.clientY, false, e.pointerType);}
+    if (mode === 'pending' && ptrs.size === 0 && !moved && performance.now() - start.t < 900) onTap(e.clientX, e.clientY, start.add, e.pointerType);
     // v23 Shift + click (no drag) adds to or removes from the selection; Shift + drag still pans.
     if (mode === 'pan' && ptrs.size === 0 && start?.add && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 7 && performance.now() - start.t < 900) onTap(e.clientX, e.clientY, true);
     if (mode === 'trialPending' && ptrs.size === 0 && performance.now() - start.t < 600 && !shot.on) trialCommand('fireTap');
-    if (ptrs.size === 0) { mode = null; pinch = null; if (e.pointerType !== 'mouse') clearHover(); }
+    if (ptrs.size === 0) { mode = null; pinch = null; if (e.pointerType !== 'mouse') clearHover(); }   // a touch preview (designUI.touchPreview) stays drawn by refreshOverlay
     else if (ptrs.size === 1) { const p = [...ptrs.values()][0]; last = {x: p.x, y: p.y}; mode = 'rotate'; moved = true; }
   };
   canvas.addEventListener('pointerup', end);
@@ -4842,7 +4868,8 @@ function designUIRootPlaneHit(o,d){
  const p=C.add(o,C.mul(d,t));p[1]=0;if(p.some(v=>Math.abs(v)>C.DESIGN_LIMITS.coordinate))return null;
  return {p,n:[0,1,0],t,distance:t,kind:'section',rootPlane:true};
 }
-function designExternalPlacementTool(){return !!ship&&fleet.mode==='design'&&(designUI.armed||designUI.details)&&['part','fit'].includes(tool())&&designCapability(designPartDefinition()).space==='exterior';}
+// 1b Only an explicitly armed tool places (設置); an open drawer or detail view never does.
+function designExternalPlacementTool(){return !!ship&&fleet.mode==='design'&&designUI.armed&&['part','fit'].includes(tool())&&designCapability(designPartDefinition()).space==='exterior';}
 function designUIStartTap(hit){if(!designPlacementActive()){designUI.armed=true;designUI.drawer=false;designUI.details=false;designUI.replaceId=null;designUI.replaceList=null;const cap=designCapability(designPartDefinition());designUI.mode=cap.kind==='structure'&&st.surfaceMode==='surface'?'surface':cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0];designUIPanel();}designUIRequest(hit);}
 function designPlacementActive(){return !!ship&&fleet.mode==='design'&&designUI.armed&&!designUI.details;}
 function designUIRejectTap(message){
@@ -4863,7 +4890,7 @@ function designUIInvalidatePending(message){
 function designUICancel(message){
  for(const item of designUI.stampQueue||[])item.invalidated=true;designUI.stampQueue=[];designUI.stampActive=null;
  const q=designUI.pending;if(q)YardEngineClient.post({type:'cancelPlacement',designId:q.designId,operationId:q.operationId});
- designUI.pending=null;designUI.lastStamp=null;designUI.sequence++;designUI.armed=false;designUI.pickParent=false;hoverLines=null;
+ designUI.pending=null;designUI.lastStamp=null;designUI.sequence++;designUI.armed=false;designUI.pickParent=false;designUI.touchPreview=null;hoverLines=null;
  view?.setPlacementDiagnostics?.(ship,null);if(message)toast(message);designUIBar();requestDraw();
 }
 function designUIInspectMode(){return !!ship&&fleet.mode==='design'&&!trial.on&&!designUI.armed&&!designUI.pickParent&&(!designUI.drawer||['list','performance'].includes(designUI.layout));}
@@ -5177,13 +5204,35 @@ function designUISchedulePreview(){
   }catch(e){designUI.preview?.dispose?.();designUI.preview=null;canvas.hidden=true;canvas.insertAdjacentHTML('afterend','<p class="note">実形状プレビューを準備できません。3D配置表示で確認してください。</p>');}
  });
 }
+// 1b The name of what an armed tool places, for the placement pill.
+function designUIPlacementName(){
+ if(designUI.pickParent&&!designUI.armed)return T('追加元の構造物');
+ const t=tool();
+ if(t==='userpart')return userPartFind(st.userPart)?.name||T('ユーザー部品');
+ if(t==='importmesh')return st.importRaw?.name||T('取り込んだ3D形状');
+ const list=designUI.replaceList||'parts',existing=designUI.replaceId!=null?ship?.[list]?.find(p=>p.id===designUI.replaceId):null;
+ if(existing)return list==='fits'?(C.FITS[existing.k]?.name||existing.k):C.partLabel(existing);
+ const p=designPartDefinition();
+ return p._fit?(C.FITS[p.k]?.name||p.k):C.partLabel(p);
+}
 function designUIBar(){
  const el=$('#designPlacementBar');if(!el)return;const q=designUI.pending,last=designUI.lastStamp?.source===ship?designUI.lastStamp:null,items=last?last.ids.map(id=>ship[last.list].find(item=>item.id===id)).filter(Boolean):[],armed=designUI.armed||designUI.pickParent;
+ // 1b While placement is armed the 3D view glows (CSS only, no WebGL redraw).
+ if(typeof document!=='undefined')document.body?.classList?.toggle('design-armed',!!armed&&!!ship&&fleet.mode==='design'&&!trial.on);
  el.hidden=!armed;el.dataset.state=q?.state||(items.some(item=>item.placement?.validationFailed)?'failed':items.some(item=>item.placement?.pendingGeometry)?'background':'draft');if(!armed)return;
- const status=q?.state==='pending'?'検証中':q?.state==='ready'?'配置しています…':q?.state==='failed'?(q.result?.error||'配置を検証できませんでした'):items.some(item=>item.placement?.validationFailed)?'配置しました。計算で問題が見つかりました。点検から修正できます。':items.some(item=>item.placement?.pendingGeometry)?'配置しました。形状・性能はバックグラウンドで計算しています。':designExternalPlacementTool()?(designUI.continuous?'追加元の構造物と取付位置をタップすると配置します。同じ設定で続けて配置できます。':'追加元の構造物と取付位置をタップすると配置します。'):(designUI.continuous?'位置をタップすると配置します。同じ設定で続けて配置できます。':'位置をタップすると配置します。');
+ const touch=designUI.lastPointer&&designUI.lastPointer!=='mouse',preview=designUI.armed&&designUI.touchPreview?.source===ship;
+ const status=q?.state==='pending'?'検証中':q?.state==='ready'?'配置しています…':q?.state==='failed'?(q.result?.error||'配置を検証できませんでした'):items.some(item=>item.placement?.validationFailed)?'配置しました。計算で問題が見つかりました。点検から修正できます。':items.some(item=>item.placement?.pendingGeometry)?'配置しました。形状・性能はバックグラウンドで計算しています。':preview?'プレビュー中。同じ場所をもう一度タップすると配置します。別の場所をタップするとプレビューが移動します。':touch?'位置をタップするとプレビューを表示し、もう一度タップすると配置します。':designExternalPlacementTool()?(designUI.continuous?'追加元の構造物と取付位置をタップすると配置します。同じ設定で続けて配置できます。':'追加元の構造物と取付位置をタップすると配置します。'):(designUI.continuous?'位置をタップすると配置します。同じ設定で続けて配置できます。':'位置をタップすると配置します。');
  const request=q?q.request:last?.request,parentId=request?.parentStructureId,parent=parentId!=null?designParent(parentId):null,face=request?.hit?.face,point=request?.hit?.p;
  const target=parent?`<span class="design-parent-target" data-design-parent-name data-parent-id="${esc(String(parentId))}" data-surface-id="${esc(request.hostSurfaceId||'')}" data-hit-point="${esc(JSON.stringify(point))}">${esc(T('追加元'))}：${esc(parentId==='hull'?T('船体'):C.partLabel(parent))} #${esc(String(parentId))}${face?` ・ ${esc(T(STRUCTURE_ARMOR_FACES[face]||face))}`:''}${point?`<small>${esc(T('取付位置 XYZ（m）'))}：${point.map(v=>Number(v.toFixed(2))).join(' / ')}</small>`:''}</span>`:request?.hit?.rootPlane?`<span class="design-parent-target" data-design-root data-root-plane="Y=0">${esc(T('ルート構造物（親なし）'))} ・ ${esc(T('作業面 Y=0'))}</span>`:'';
- el.innerHTML=`<p role="status">${esc(T(status))}</p>${target}<button type="button" class="btn ghost" data-design-action="adjust">設定に戻る</button><button type="button" class="btn ghost" data-design-action="cancel">配置を終了</button>`;
+ // The pill: what is being placed, 完了 and キャンセル（Esc）; the status, symmetry and 設定に戻る below it.
+ el.innerHTML=`<div class="design-pill-head"><b class="design-pill-name" data-design-placing>${esc(T(`［配置中：${designUIPlacementName()}］`))}</b><button type="button" class="btn primary" data-design-action="done">${esc(T('完了'))}</button><button type="button" class="btn ghost" data-design-action="cancel">${esc(T('キャンセル（Esc）'))}</button></div><p role="status">${esc(T(status))}</p>${target}<div class="design-pill-tools">${designUI.armed?designUISymmetryHTML():''}<button type="button" class="btn ghost" data-design-action="adjust">${esc(T('設定に戻る'))}</button></div>`;
+}
+// 完了: a pending touch preview is placed first; then placement ends, keeping what was placed.
+function designUIDone(){
+ const q=designUI.touchPreview;
+ if(q&&q.source===ship&&designPlacementActive()&&q.hit){designUI.touchPreview=null;hoverLines=null;tapHit(q.tool,q.gen===eng.gen?q.hit:pick(q.px,q.py,tapWant(q.tool)),false);}
+ if(designUI.armed||designUI.pickParent){designUICancel();st.tab='edit';}
+ renderPanel();refreshOverlay();
 }
 function designUIArm(){
  if(typeof designNewRemember==='function')designNewRemember();
@@ -5412,7 +5461,7 @@ function bindDesignUI(){
   if(d.designMode){designUI.mode=d.designMode;renderPanel();return;}
   if('designHere'in d){designUI.parentId=selItem()?.id;designUISpace('exterior');designUI.category='structure';designUIOpen('new');return;}
   if('designPickParent'in d){designUI.pickParent=true;designUIClose(true);designUIBar();return;}
-  const action=d.designAction;if(action==='arm')designUIArm();else if(action==='confirm')designUIConfirm();else if(action==='adjust'){designUICancel();designUI.drawer=true;renderPanel();}else if(action==='cancel'){designUICancel();st.tab='edit';renderPanel();}else if(action==='edit-apply')designUIEditApply();else if(action==='edit-cancel'){designUIEditCancel();renderPanel();}else if(action==='close')designUIClose();
+  const action=d.designAction;if(action==='arm')designUIArm();else if(action==='confirm')designUIConfirm();else if(action==='adjust'){designUICancel();designUI.drawer=true;renderPanel();}else if(action==='cancel'){designUICancel();st.tab='edit';renderPanel();}else if(action==='done')designUIDone();else if(action==='edit-apply')designUIEditApply();else if(action==='edit-cancel'){designUIEditCancel();renderPanel();}else if(action==='close')designUIClose();
  });
  $('#panel').addEventListener('change',e=>{const t=e.target;if('designContinuous'in t.dataset){designUI.continuous=!!t.checked;designUIBar();return;}if('designCanopyForm'in t.dataset||'designCanopySize'in t.dataset){const fresh=t.dataset.designCanopyNew==='1',part=fresh?{k:'cockpit',d:pSize('cockpit')}:selItem();if(!part||part.k!=='cockpit')return;const shape=structuredClone(fresh?st.canopyGeometry||C.canopyShape(part):C.canopyShape(part));if('designCanopyForm'in t.dataset)shape.form=t.value;else{const value=Number(t.value);if(!(value>=.02&&value<=C.DESIGN_LIMITS.partSize&&Number.isFinite(value))){t.reportValidity?.();return;}shape.size[+t.dataset.designCanopySize]=value;}if(fresh){C.setCanopyShape(part,shape);st.canopyGeometry=C.canopyShape(part);renderPanel();}else{mutate('キャノピーの形状',()=>editSel(item=>C.setCanopyShape(item,shape,designParent(item.placement?.parentStructureId))),'parts');renderPanel();}return;}if('designParent'in t.dataset){designUI.parentId=t.value===''?null:t.value==='hull'?'hull':ship.parts.find(p=>String(p.id)===t.value)?.id;designUI.depth=0;refreshOverlay();}if('designContact'in t.dataset)designUI.contactSide=t.value||null;if('designDepth'in t.dataset)designUI.depth=Number(t.value)||0;if('designInteriorDepth'in t.dataset){const value=Number(t.value);designUI.interiorDepth=Number.isFinite(value)?Math.max(0,value):0;}});
  $('#panel').addEventListener('toggle',e=>{if(e.target.matches?.('[data-design-bulk-remove]'))designUI.bulkRemoveOpen=!!e.target.open;},true);
