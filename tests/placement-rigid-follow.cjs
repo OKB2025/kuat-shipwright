@@ -45,16 +45,22 @@ test('turning P itself (an edit of P) carries B with it; P is re-solved as edite
  const want=image(B0,P0,P),B=look(s,'B');near(B.c,want.c,'B c');near(B.fw,want.fw,'B fw');close(B.volume,B0.volume,'B shape');same(look(reload(s),'B'),B,'reload');
 });
 
-for(const [name,dims] of [['wider',{W:40}],['taller',{H:40}],['longer',{L:240}],['smaller',{L:160,W:24,H:24}]])
- test(`hull resize (${name}): the contact point moves with the scaled surface; the child keeps its size and its offset along the contact normal`,()=>{
+// keep: the cut-fit carve made for the old hull still touches the resized one and is kept (P's fitted volume is
+// unchanged). On the taller hull the old carve meets the flatter deck only along a line (no contact area), so
+// the existing rule keeps P connected with its whole requested body instead (overlap is contact).
+for(const [name,dims,keep] of [['wider',{W:40},true],['taller',{H:40},false],['longer',{L:240},true],['smaller',{L:160,W:24,H:24},true]])
+ test(`hull resize (${name}): the contact point moves with the scaled surface; the child keeps its size, its offset along the contact normal${keep?' and its fitted shape':''}; live = reload = editor copy = Worker copy`,()=>{
   const s=stack(),hull=s.parts[0],P0=part(s,'P'),meta0=JSON.parse(JSON.stringify(P0.placement)),c0=P0.c.slice(),B0=look(s,'B'),saved=JSON.parse(C.publicJSON(C.serialize(s)));
   const apply=h=>{Object.assign(h.hullProfile,dims);h.s=[h.hullProfile.L,h.hullProfile.W,h.hullProfile.H];};
   const oldDims=meta0.anchorDimensions;apply(hull);s._cache=null;const r=C.refreshPlacementGeometry(s);assert.equal(r.failed.length,0,JSON.stringify(r.failed));
   const P=look(s,'P'),dimsNow=[hull.s[0],hull.s[2],hull.s[1]],anchor=C.worldStruct(hull,meta0.surfaceAnchor.map((v,i)=>v*dimsNow[i]/oldDims[i]));
   // The child's offset from its contact point is unchanged (the hull is not turned, so it is the same vector).
   const offset0=C.sub(c0,C.worldStruct(saved.parts[0],meta0.surfaceAnchor));near(C.sub(P.c,anchor),offset0,'offset along the normal kept');near(P.s,[16,8,6],'size kept');
-  const B=look(s,'B');near(C.sub(B.c,P.c),C.sub(B0.c,c0),'B rides on P');close(B.volume,B0.volume,'B shape');
-  const E=editorCopy(saved,apply);for(const label of ['P','B']){same(look(reload(s),label),look(s,label),name+' reload '+label);same(look(E,label),look(s,label),name+' editor copy '+label);}
+  const B=look(s,'B');near(C.sub(B.c,P.c),C.sub(B0.c,c0),'B rides on P');close(B.volume,B0.volume,'B shape');assert.equal(P.error,null);
+  if(keep){close(P.volume,look(stack(),'P').volume,'P keeps its fitted volume',1e-9);assert.equal(part(s,'P')._placementKeptWhole,undefined);}else{close(P.volume,16*8*6,'whole requested body');assert.ok(part(s,'P')._placementKeptWhole);}
+  // Worker copy: the warm Worker ship patched with the editor's state (old child poses, resized hull).
+  const W=stack(),edited=JSON.parse(JSON.stringify(saved));apply(edited.parts[0]);C.patchShip(W,edited);W._cache=null;const rw=C.refreshPlacementGeometry(W);assert.equal(rw.failed.length,0,JSON.stringify(rw.failed));
+  const E=editorCopy(saved,apply);for(const label of ['P','B']){same(look(reload(s),label),look(s,label),name+' reload '+label);same(look(E,label),look(s,label),name+' editor copy '+label);same(look(W,label),look(s,label),name+' Worker copy '+label);}
  });
 
 test('a mirrored pair of structures moved and turned as mirror images: their children follow as mirror images',()=>{
