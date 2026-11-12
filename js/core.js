@@ -53286,8 +53286,13 @@ function syncCompartmentsRaw(ship){
     // 2026-11-12: otherwise the result differed from a full recompute).
     // Only rooms and openings within a generous bound of the packing search (packFlexibleVolume searches up
     // to about 3-5 cube roots of the volume, or 0.65 of the largest dimension, past the requested room).
-    const hatched=ship.hatches.some(h=>h.bay===p.id),others=occupied.filter(q=>q.id!==p.id),sb=interiorSolveBounds(p),ext=[0,1,2].map(i=>sb[i+3]-sb[i]),reach=Math.cbrt(Math.max(1,ext[0]*ext[1]*ext[2]))*5+Math.max(...ext)*1.65,zone=sb.map((v,i)=>i<3?v-reach:v+reach),inZone=b=>!!b&&[0,1,2].every(i=>b[i]<=zone[i+3]&&b[i+3]>=zone[i]);
-    const fitted=others.filter(q=>(q._clip||q._packing)&&inZone(partAABB(q))).map(q=>q.id+':'+interiorFittedContentKey(q._clip)+'.'+interiorFittedContentKey(q._packing)).join(','),mouths=ship.hatches.filter(h=>h.bay===p.id||inZone(openingBounds(ship,h)));
+    // The search also escapes a room that contains the requested centre (escape: the distance to that room's
+    // box), so the bound also covers every room overlapping the requested bounds, grown by the same margin.
+    const hatched=ship.hatches.some(h=>h.bay===p.id),others=occupied.filter(q=>q.id!==p.id),sb=interiorSolveBounds(p),ext=[0,1,2].map(i=>sb[i+3]-sb[i]),root3=Math.cbrt(Math.max(1,ext[0]*ext[1]*ext[2])),reach=root3*5+Math.max(...ext)*1.65,overlaps=(a,b)=>!!a&&!!b&&[0,1,2].every(i=>a[i]<=b[i+3]&&a[i+3]>=b[i]),boxes=others.map(q=>[q,partAABB(q)]);
+    const zone=sb.map((v,i)=>i<3?v-reach:v+reach);for(const [,b] of boxes)if(overlaps(b,sb)){const m=root3*2+Math.max(...ext)*1.5;for(let i=0;i<3;i++){zone[i]=Math.min(zone[i],b[i]-m);zone[i+3]=Math.max(zone[i+3],b[i+3]+m);}}
+    const inZone=b=>overlaps(b,zone),fitted=boxes.filter(([q,b])=>(q._clip||q._packing)&&inZone(b)).map(([q])=>q.id+':'+interiorFittedContentKey(q._clip)+'.'+interiorFittedContentKey(q._packing)).join(',');
+    // Hatch openings by their actual bounds (they follow a bay's packing or a skin patch, not only public fields).
+    const mouths=ship.hatches.map(h=>[h,openingBounds(ship,h)]).filter(([h,b])=>h.bay===p.id||inZone(b)).map(([h,b])=>[h,b&&b.map(v=>Math.round(v*1e4)/1e4)]);
     const key=(hatched?envelopeKey:localEnvelope.key(sb,'interior'))+JSON.stringify([p,others,mouths],(k,v)=>k.startsWith('_')?undefined:v)+'|'+fitted;
     if(p._explicitInteriorKey!==key){const solved=solveInteriorPlacement(ship,p,p.placement);delete p._interiorPlacementError;if(solved.ok){delete p._clip;delete p._packing;if(solved.part._clip)p._clip=solved.part._clip;if(solved.part._packing)p._packing=solved.part._packing;}else p._interiorPlacementError={code:solved.code,error:solved.error};p._explicitInteriorKey=key;}
     continue;
