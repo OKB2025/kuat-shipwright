@@ -137,3 +137,36 @@ test('a placed horizontal structure keeps an edited roll through save and two re
  box.roll=-8;ship._cache=null;assert.equal(C.refreshPlacementGeometry(ship).ok,true);assert.equal(box.roll,-8);const live=statsOf(ship),c0=box.c.slice();
  let s=ship;for(const label of ['reload','reload 2']){s=reload(s);const b=s.parts.find(p=>p.id===box.id);assert.equal(b.roll,-8,label+': roll kept (main b40b72d reset it to 0)');b.c.forEach((v,i)=>assert.ok(Math.abs(v-c0[i])<1e-9,label+': pose '+b.c));assert.equal(b._placementError,undefined);closeStats(statsOf(s),live,label);}
 });
+
+// A refused structure solved again because its parent (or shape) changed goes through the pending path, but it is
+// not a new placement: it keeps its authored pose (independent check 2026-11-12: roll -8/+8 came back as 0).
+// Both on load (stale parent key) and in a session (one update removes the sensors and widens the hull), with and
+// without parentPoseKey (saves from before 2026-11-11).
+const sensorsOf=o=>{for(const p of o.parts)if(LEGACY.includes(p.id)){const keep={id:p.id,k:'sensor',c:p.c,d:3};for(const k of Object.keys(p))delete p[k];Object.assign(p,keep);}return o;};
+const poseOf=(s,id)=>{const p=s.parts.find(q=>q.id===id);return {c:p.c.slice(),roll:p.roll||0,pitch:p.pitch||0,yaw:p.yaw||0};};
+for(const withPoseKey of [false,true])test(`a refused structure re-solved after its parent changed keeps its pose (parentPoseKey ${withPoseKey?'present':'absent'})`,()=>{
+ const want=Object.fromEntries(SUNK.map(id=>[id,poseOf(saved(),id)])),check=(s,step)=>{for(const id of SUNK){const now=poseOf(s,id),w=want[id];
+  assert.equal(s.parts.find(p=>p.id===id)._placementError,undefined,`${step} #${id} recovered`);
+  for(let i=0;i<3;i++)assert.ok(Math.abs(now.c[i]-w.c[i])<=1e-6,`${step} #${id} position[${i}] ${now.c[i]} vs ${w.c[i]}`);
+  for(const k of ['roll','pitch','yaw'])assert.ok(Math.abs(now[k]-w[k])<=1e-9,`${step} #${id} ${k} ${now[k]} vs ${w[k]}`);}};
+ let o=saved();for(const p of o.parts)if(SUNK.includes(p.id)){p.placement.parentGeometryKey='stale';if(withPoseKey)p.placement.parentPoseKey='saved';else delete p.placement.parentPoseKey;}
+ check(C.deserialize(o),'load with a stale parent key');
+ o=sensorsOf(saved());for(const p of o.parts)if(SUNK.includes(p.id)){if(withPoseKey)p.placement.parentPoseKey='saved';else delete p.placement.parentPoseKey;}
+ const s=C.deserialize(o);for(const id of SUNK)assert.equal(s.parts.find(p=>p.id===id).placement.validationFailed,true,'refused while the sensors clash');
+ s.parts=s.parts.filter(p=>!LEGACY.includes(p.id));const hull=s.parts.find(p=>p.id===1);C.setHullStructureDimensions(s,hull,[hull.s[0],hull.s[1]+1,hull.s[2]]);s._cache=null;C.refreshPlacementGeometry(s);
+ check(s,'sensors removed and hull widened in one update');
+});
+
+// Whether legacy equipment (no placement record) counts as interior depends on the other structures: a structure
+// added around a legacy repulsor makes it interior equipment, and the structure refused over it recovers in the
+// same ship, as on a reload (independent check 2026-11-12).
+test('a structure refused over legacy equipment recovers in the same ship when a structure encloses that equipment',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'enclosed legacy equipment');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const ray=C.rayPart([95,500,0],[0,-1,0],hull),hit={p:ray.p,n:C.norm(ray.n)},deck=hit.p[1];
+ ship.parts.push({...JSON.parse(JSON.stringify(saved().parts.find(p=>p.id===90))),id:ship.nextId++,c:[95,deck+3,0]});
+ const c=[95,deck+2,0],d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',c,s:[16,8,6],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);ship.parts.push(d.part);const S=ship.nextId++;C.refreshPlacementGeometry(ship);
+ const part=s=>s.parts.find(q=>q.id===S);assert.equal(part(ship)._placementError,'placement-interference','refused over the legacy repulsor outside the interior');
+ ship.parts.push({id:ship.nextId++,k:'struct',form:'box',c:[95,deck+3,0],s:[30,10,30],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0});ship._cache=null;C.refreshPlacementGeometry(ship);
+ assert.equal(part(ship)._placementError,undefined,'same ship: recovered');assert.equal(part(reload(ship))._placementError,undefined,'reload agrees');
+});
