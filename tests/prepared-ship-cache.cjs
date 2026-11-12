@@ -21,11 +21,20 @@ function database({quota = false} = {}) {
   }};
   return {stores, open() { const q = {}; later(() => { if (!stores.size) { q.result = {createObjectStore: getStore}; q.onupgradeneeded?.(); } q.result = db; q.onsuccess?.(); }); return q; }};
 }
-function engine(idb, {changedSource = false, transfer = false} = {}) {
-  const cx = vm.createContext({console, performance, setTimeout, clearTimeout, structuredClone, URL, crypto: globalThis.crypto, ...(idb ? {indexedDB: idb} : {}), importScripts() {}});
+// saved: {key: design} examples given as saved designs (data/examples/<key>/design.json.gz in the game):
+// registered in YardFleetData.blueprints and read through KS_READ_ASSET, as the engine opens every example.
+function savedAssets(saved) {
+  const zlib = require('node:zlib'), files = {}, rows = {};
+  for (const [key, design] of Object.entries(saved || {})) { const raw = Buffer.from(JSON.stringify(design)), gz = zlib.gzipSync(raw), url = 'fixtures/' + key + '/design.json.gz'; files[url] = gz; rows[key] = {url, sha256: createHash('sha256').update(gz).digest('hex'), jsonSha256: createHash('sha256').update(raw).digest('hex')}; }
+  return {files, rows};
+}
+function engine(idb, {changedSource = false, transfer = false, saved = null} = {}) {
+  const assets = savedAssets(saved);
+  const cx = vm.createContext({console, performance, setTimeout, clearTimeout, structuredClone, URL, crypto: globalThis.crypto, ...(idb ? {indexedDB: idb} : {}), importScripts() {}, Blob, Response, DecompressionStream, TextDecoder, TextEncoder, KS_READ_ASSET: async url => new Blob([assets.files[url]])});
   const files = ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', 'js/core.js', 'js/gfx.js'];
   cx.KS_SOURCE_STAMP = createHash('sha256').update(files.map(read).join('') + read('js/engine.js') + (changedSource ? 'changed' : '')).digest('hex').slice(0, 20);
   for (const f of files) vm.runInContext(read(f), cx, {filename: f});
+  cx.__savedRows = assets.rows; vm.runInContext('YardFleetData.blueprints = Object.assign(YardFleetData.blueprints || {}, __savedRows);', cx);
   vm.runInContext(read('js/engine.js').split('/* Interface-side connection')[0], cx, {filename: 'js/engine.js'});
   const {C, G, E} = vm.runInContext('({C:Core,G:Gfx,E:YardEngine})', cx), pending = new Map(), messages = []; let id = 0;
   const scope = {postMessage(message, buffers = []) {
@@ -147,4 +156,4 @@ test('a completed disk bundle takes precedence over repacking the current editor
   const result = await warm.request({type: 'fleet', design: input});
   assert.equal(result.src, 'disk'); assert.equal(result.geoCached, true);
 });
-test('preparing another example cannot evict a current stock model that exceeds the ordinary LRU budget',async()=>{const db=database(),cold=engine(db),input=design(cold.C),key='cache_retention_fixture';cold.C.registerShipExample({key,name:key,build:()=>cold.C.deserialize(input)});const first=await cold.request({type:'fleet',key,prepareOnly:true});assert.equal(first.cacheSaved,true);await new Promise(r=>setTimeout(r,20));const meta=db.stores.get('meta'),stock=[...meta.values()].find(m=>m.id==='g|k:'+key+'|m');assert.ok(stock);stock.size=1e12;meta.set('g|custom_fixture',{id:'g|custom_fixture',v:stock.v,at:Date.now(),geo:true,size:1e12});db.stores.get('rec').set('g|custom_fixture',{id:'g|custom_fixture',v:stock.v,geometry:{}});const warm=engine(db);forbidRebuilds(warm);const second=await warm.request({type:'fleet',key,prepareOnly:true});assert.equal(second.geoCached,true);await new Promise(r=>setTimeout(r,30));assert.ok(db.stores.get('rec').has('g|k:'+key+'|m'));assert.equal(db.stores.get('rec').has('g|custom_fixture'),false);});
+test('preparing another example cannot evict a current stock model that exceeds the ordinary LRU budget',async()=>{const db=database(),key='cache_retention_fixture',input=design(engine(null).C),saved={[key]:input},cold=engine(db,{saved});const first=await cold.request({type:'fleet',key,prepareOnly:true});assert.equal(first.cacheSaved,true);await new Promise(r=>setTimeout(r,20));const meta=db.stores.get('meta'),stock=[...meta.values()].find(m=>m.id==='g|k:'+key+'|m');assert.ok(stock);stock.size=1e12;meta.set('g|custom_fixture',{id:'g|custom_fixture',v:stock.v,at:Date.now(),geo:true,size:1e12});db.stores.get('rec').set('g|custom_fixture',{id:'g|custom_fixture',v:stock.v,geometry:{}});const warm=engine(db,{saved});forbidRebuilds(warm);const second=await warm.request({type:'fleet',key,prepareOnly:true});assert.equal(second.geoCached,true);await new Promise(r=>setTimeout(r,30));assert.ok(db.stores.get('rec').has('g|k:'+key+'|m'));assert.equal(db.stores.get('rec').has('g|custom_fixture'),false);});
