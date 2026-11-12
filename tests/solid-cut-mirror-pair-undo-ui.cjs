@@ -56,3 +56,19 @@ test('the 左右対称 switch is disabled on a linked half, and Apply with mirro
  run(`deleteSolidCut(${ID});st.solidCutEdit=null;st.solidCutter=C.normalizeSolidCut({shape:'box',c:[60,16,0],s:[10,8,6]});`);
  assert.doesNotMatch(run('solidCutPanelHTML()'),/data-cutter-mirror\s+disabled/);
 });
+
+test('a stale cutter hull (the primary hull) does not split the pair: switching a half back, from the list or by Apply, joins both on H2 and the figures are unchanged',()=>{
+ for(const via of ['list','apply']){
+  setup();const original=state(),primary=run('ship.parts.find(p=>p.primaryHull).id'),vol=()=>run(`(()=>{const v=T=>{let s=0;for(let i=0;i<T.length;i+=9)s+=(T[i]*(T[i+4]*T[i+8]-T[i+5]*T[i+7])-T[i+1]*(T[i+3]*T[i+8]-T[i+5]*T[i+6])+T[i+2]*(T[i+3]*T[i+7]-T[i+4]*T[i+6]))/6;return s;};ship._cache=null;return ship.parts.filter(p=>C.isHullStructure(p)).map(p=>{p._solidCutShip=ship;return +v(C.structTriangles(p)).toFixed(6);});})()`),before=JSON.stringify(vol());
+  run(`toggleSolidCutScope(${ID})`);
+  // The last cutter was placed on the primary hull.
+  run(`st.cutterHullId=${primary};`);
+  if(via==='list')run(`toggleSolidCutScope(${ID+1})`);
+  else run(`st.solidCutEdit=${ID+1};st.solidCutter=C.normalizeSolidCut({...worldSolidCut(${ID+1}),structures:false});st.cutterHullId=${primary};applySolidCutter();`);
+  assert.deepEqual(cuts(),{ship:[],hull:[[ID,true]]},via+': both halves back on H2 as one mirrored cut');
+  assert.equal(run(`ship.parts.find(p=>p.primaryHull).hullData.solidCuts.length`),0,via+': nothing on the primary hull');
+  assert.equal(JSON.stringify(vol()),before,via+': hull volumes unchanged');
+  // Identical to before the round trip except nextId (the split took one id).
+  const strip=j=>{const o=JSON.parse(j);delete o.nextId;return JSON.stringify(o);};assert.equal(strip(state()),strip(original),via+': serialize identical apart from nextId');
+ }
+});

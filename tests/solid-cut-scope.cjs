@@ -147,3 +147,11 @@ test('on a hull on the centreline two plain cuts that are exact mirrors are not 
  assert.equal(C.mergeHullMirrorHalves(hull,a.id),a.id);assert.equal(C.solidCutMirrorPartner(s,b.id),null);
  C.setSolidCutScope(s,b.id,'hull',hull.id);same(hull.hullData.solidCuts.map(c=>[c.id,c.mirror]),[[a.id,false],[b.id,false]],'two plain cuts, as the user made them');
 });
+test('switching a half back with another hull named (the editor\'s stale cutter hull) still returns the pair to its own hull',()=>{
+ const {s,H2}=twin(),hull=s.parts[0],id=s.nextId++;H2.hullData.solidCuts.push(C.normalizeSolidCut({id,shape:'box',c:[110,16,-5],s:[20,8,6],mirror:true}));
+ const material=()=>{const st=stats(s);return [hull.id,H2.id].map(k=>+st.info[k].materialVolume.toFixed(6));},before=JSON.stringify(material()),mass=stats(s).mass;
+ C.setSolidCutScope(s,id,'all');const mate=s.solidCuts.find(c=>c.id!==id).id;
+ assert.equal(C.setSolidCutScope(s,mate,'hull',hull.id),true);
+ assert.equal(s.solidCuts.length,0);assert.equal((hull.hullData.solidCuts||[]).length,0,'nothing lands on the named hull');same(H2.hullData.solidCuts.map(c=>[c.id,c.mirror]),[[id,true]]);
+ assert.equal(JSON.stringify(material()),before);close(stats(s).mass,mass,'mass unchanged',1e-9);
+});

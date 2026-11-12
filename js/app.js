@@ -10529,7 +10529,7 @@ function applySolidCutter(){
 // mirrored pair, Core.setSolidCutScope moves both halves, and 取り消す removes both.
 function toggleSolidCutScope(id){
   const next=C.solidCutScope(ship,id)==='all'?'hull':'all';
-  mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');
+  mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,C.solidCutMirrorPartner?.(ship,id)?null:st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');
   // The switch can move the edited cut's partner too, so the draft always re-reads the cut being edited.
   if(st.solidCutEdit!=null){const q=worldSolidCut(st.solidCutEdit);if(q)st.solidCutter=C.normalizeSolidCut(q);else{st.solidCutEdit=null;st.solidCutter=C.normalizeSolidCut({...st.solidCutter,id:-1});}}
   renderPanel();

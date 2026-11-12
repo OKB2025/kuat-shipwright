@@ -65201,7 +65201,9 @@ function setSolidCutScope(ship,id,scope,hullId=null){
  }
  if(owner)return false;
  // One half of a split mirrored cut goes back with its other half, and they join into one mirrored hull cut.
- const pair=solidCutMirrorPartner(ship,id,hullId);if(pair){for(const c of [listed,pair.mate])hullOwnSolidCut(ship,pair.hull,{...c,structures:false});mergeHullMirrorHalves(pair.hull,id);ship._cache=null;return true;}
+ // The pair's own hull wins over hullId (the editor's last cutter hull may be another one); hullId only
+ // settles a pair that mirrors about several hulls.
+ const pair=solidCutMirrorPartner(ship,id)||(hullId!=null?solidCutMirrorPartner(ship,id,hullId):null);if(pair){for(const c of [listed,pair.mate])hullOwnSolidCut(ship,pair.hull,{...c,structures:false});mergeHullMirrorHalves(pair.hull,id);ship._cache=null;return true;}
  const hull=ship.parts.find(p=>isHullStructure(p)&&(hullId==null||p.id===hullId))||ship.parts.find(p=>isHullStructure(p)&&p.primaryHull);
  if(hull){const halves=listed.mirror&&!hullMirrorIsWorldMirror(hull)?[{...listed,mirror:false},{...mirrorSolidCut(listed),id:ship.nextId++}]:[listed];for(const half of halves)mergeHullMirrorHalves(hull,hullOwnSolidCut(ship,hull,{...half,structures:false}).id);}else listed.structures=false;
  ship._cache=null;return true;
