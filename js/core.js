@@ -61629,13 +61629,14 @@ const EXAMPLE_PROFILE_VERSION=1;
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
-// power profiles and fire arcs feed a carrier's air-wing figures), so a change to any of them gives new
+// power profiles and fire arcs feed a carrier's air-wing figures) and of every Rts craft type's laser rate (the
+// types without catalogue arcs take them from the Rts tables and estimatedCraftBOM), so a change to any of them gives new
 // figures on every device (physics review 2026-11-12). Reference meshes (data/reference.js, 18 MB) are not hashed
 // here: the engine adds the page's own hash of that file (KS_SOURCE_SHA256) to its cache key. null: no caching.
 function profileModelKey(){
  if(profileModelKeyMemo)return profileModelKeyMemo;
  const versions=[MOTION_RESISTANCE_VERSION,WEAPON_PROFILE_VERSION,SUBLIGHT_REFERENCE_VERSION,ENGINE_TRANSMISSION_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,PROPULSION_MODEL_VERSION,PLACEMENT_MODEL_VERSION,TRENCH_ARMAMENT_VERSION,SURFACE_VERSION].join('.');
- let tables=null;try{tables=placementKeyHash(JSON.stringify([PARTS,FITS]))+':'+placementKeyHash(JSON.stringify(CRAFT_PRICE_CATALOG));}catch(error){console.error('profileModelKey: the part tables cannot be hashed; derived figures are not cached',error);return null;}
+ let tables=null;try{const R=typeof Rts!=='undefined'?Rts:null,craftRates=R?.CRAFT?Object.keys(R.CRAFT).sort().map(t=>[t,craftLaserRate(t)]):[];tables=placementKeyHash(JSON.stringify([PARTS,FITS]))+':'+placementKeyHash(JSON.stringify(CRAFT_PRICE_CATALOG))+':'+placementKeyHash(JSON.stringify(craftRates));}catch(error){console.error('profileModelKey: the part tables cannot be hashed; derived figures are not cached',error);return null;}
  return profileModelKeyMemo='f'+FLEET_PROFILE_VERSION+'.c'+COST_MODEL.version+'.'+costModelSignature()+'.e'+EXAMPLE_PROFILE_VERSION+'.v'+versions+'.t'+tables;
 }
 function fleetProfile(S,name,ship){

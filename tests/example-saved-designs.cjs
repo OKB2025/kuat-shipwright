@@ -121,3 +121,13 @@ test('without the reference files\' hashes the derived cache is not used',async(
  const b=engine({idb,refs:{},stamp:'fedcba9876543210fedc'}),second=await b.request({type:'fleet',design,statsOnly:true});
  assert.equal(second.profileSrc,'computed','computed again on another release');
 });
+
+// The model key covers what a carrier's air-wing figures read besides the catalogue: the Rts craft tables (types
+// without catalogue arcs take theirs from Rts and estimatedCraftBOM). Two fresh runtimes, one with a changed Rts
+// table, must give different keys (independent check 2026-11-12).
+test('the model key changes with the Rts craft tables',()=>{
+ const runtime=()=>require('../scripts/update-ship-examples.cjs').loadRuntime(root);
+ const plain=runtime(),changed=runtime();assert.ok(changed.R?.CRAFT?.ywing,'Rts.CRAFT.ywing');
+ changed.R.CRAFT.ywing.aa=(changed.R.CRAFT.ywing.aa||0)+2;
+ assert.notEqual(changed.C.profileModelKey(),plain.C.profileModelKey());
+});
