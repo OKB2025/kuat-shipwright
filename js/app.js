@@ -7187,6 +7187,23 @@ function compactPanel(panel){
  // With room to spare (a short panel, or a tall screen) the first section opens as long as nothing then scrolls.
  const sc=foldScope(),first=panel.querySelector(':scope > details.fold');
  if(st.folds[sc]===undefined&&first&&!folds.some(d=>d.open)&&panel.clientHeight>0){first.open=true;if(panel.scrollHeight>panel.clientHeight+1)first.open=false;else{first.dataset.auto='1';st.folds[sc]=first.dataset.fold;}}
+ scheduleNoteClampMarkers();
+}
+// 5a A clamped help note shows a 「？」 marker, and on a pointer that can hover its full text as a tooltip, only
+// when its text is actually cut off. Every note is measured in one animation frame (all reads, then all
+// writes), and a title goes only on the notes that are truncated, never on every note.
+let noteClampFrame=0;
+function scheduleNoteClampMarkers(){
+ if(noteClampFrame||typeof requestAnimationFrame!=='function'||typeof document==='undefined')return;
+ noteClampFrame=requestAnimationFrame(()=>{noteClampFrame=0;noteClampMeasure(document.querySelectorAll('.note.clamp'));});
+}
+function noteClampMeasure(notes){
+ const list=Array.from(notes||[]),cut=list.map(n=>!n.classList.contains('full')&&n.clientHeight>0&&n.scrollHeight>n.clientHeight+1);
+ list.forEach((n,i)=>{
+  if(n.classList.contains('clamp-cut')!==cut[i])n.classList.toggle('clamp-cut',cut[i]);
+  if(cut[i]){const text=sourceText(n).replace(/\s+/g,' ').trim();if(n.dataset.clampTitle!=='1'||n.getAttribute('title')!==text){n.setAttribute('title',text);n.dataset.clampTitle='1';}}
+  else if(n.dataset.clampTitle==='1'){n.removeAttribute('title');delete n.dataset.clampTitle;}
+ });
 }
 // A slider whose readout only repeats its number box ("516 m" beside 516) keeps to one line.
 function markPlainSliders(root){
@@ -7201,6 +7218,7 @@ function compactSpec(wrap){
  for(let n=lead.nextSibling;n&&!(n.nodeType===1&&n.tagName==='H4');n=lead.nextSibling)lead.append(n);
  for(const n of wrap.querySelectorAll('.note'))n.classList.add('clamp');
  foldAll(wrap,'spec');
+ scheduleNoteClampMarkers();
 }
 function bindCompact(){
  const panel=$('#panel');
@@ -7283,8 +7301,11 @@ function bindPalette(){
  panel.addEventListener('click',e=>{
   const pk=e.target.closest('[data-palpick]');if(pk){e.stopPropagation();const i=pk.dataset.palpick.indexOf(':');palettePick(pk.dataset.palpick.slice(0,i),pk.dataset.palpick.slice(i+1));return;}
   const card=e.target.closest('[data-part],[data-equipment],[data-fit],[data-bridge]');if(card&&card.closest('.palette, .parts, .fits')){const d=card.dataset;if(d.part)rememberPick('part',d.part);else if(d.equipment)rememberPick('equipment',d.equipment);else if(d.fit)rememberPick('fit',d.fit);else if(d.bridge)rememberPick('bridge',d.bridge);}
-  const note=e.target.closest('.note.clamp');if(note&&!e.target.closest('a,button,input,select'))note.classList.toggle('full');
+  const note=e.target.closest('.note.clamp');if(note&&!e.target.closest('a,button,input,select')){note.classList.toggle('full');scheduleNoteClampMarkers();}
  },true);
+ // 5a Notes inside a section that opens, or after a resize, are measured again.
+ panel.addEventListener('toggle',()=>scheduleNoteClampMarkers(),true);
+ window.addEventListener('resize',()=>scheduleNoteClampMarkers());
 }
 // ---------- structure face armor ----------
 const STRUCTURE_ARMOR_FACES={top:'上面',bottom:'下面',fore:'前面',aft:'後面',port:'左舷',stbd:'右舷'};

@@ -574,6 +574,10 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 /* ---- shorter editor panel ---- */
 .panel .rail-dup{display:none}
 .panel .note.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.panel .note.clamp.full{display:block}
+/* 5a a 「？」 marker only on notes whose text is cut off (set by noteClampMeasure); the title is the full text */
+.panel .note.clamp.clamp-cut{position:relative;padding-right:1.7em}
+.panel .note.clamp.clamp-cut::after{content:"？";position:absolute;right:0;bottom:0;display:grid;place-items:center;width:1.35em;height:1.35em;border:1px solid var(--line-2);border-radius:50%;background:var(--panel-2);color:var(--cyan);font-size:.92em;font-weight:700;line-height:1}
+@media (hover:hover){.panel .note.clamp.clamp-cut{cursor:help}.panel .note.clamp.clamp-cut:hover::after{border-color:var(--cyan)}}
 .panel details.fold{border:1px solid var(--line);border-radius:8px;padding:0 10px;margin:0 0 12px;background:var(--panel-2)}
 .panel details.fold>summary{cursor:pointer;padding:9px 0;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;list-style:none}
 .panel details.fold>summary::-webkit-details-marker{display:none}.panel details.fold>summary::before{content:"▸ ";color:var(--cyan)}.panel details.fold[open]>summary::before{content:"▾ "}
