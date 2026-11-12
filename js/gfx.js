@@ -2043,6 +2043,12 @@ function axisFrustum(g,a,b,r0,r1,col,caps=true,inward=false,segments){
 const CANOPY_GLASS=[46,62,74],ASTRO_DOME=[120,150,196];
 function v3MeshParts(ship,opt){
   C.syncCompartments(ship);
+  // 2026-11-12 Meshing reads the hull through each hull structure's local ship (rooms with hull-owned
+  // hatches test inHull per triangle). Lock those hull caches for the pass, as syncCompartments does:
+  // otherwise every query re-serializes the hull to find its cache (13 s per Imperator edit).
+  return C.withHullCacheScope?C.withHullCacheScope(()=>v3MeshPartsSettled(ship,opt)):v3MeshPartsSettled(ship,opt);
+}
+function v3MeshPartsSettled(ship,opt){
   const out={struct:new Geo(2048),plate:new Geo(1024),gen:new Geo(4096),shield:new Geo(2048),hyper:new Geo(2048),interior:new Geo(2048),engine:new Geo(2048),plant:new Geo(2048),nozzle:new Geo(512),hangar:new Geo(2048)},glow=[];
   const ranges={},glowRanges={};
   for(const p of [...ship.parts,...C.enginePaths(ship),...C.weaponCapacitors(ship),...C.missileCells(ship),...C.commandCompartments(ship)]){
