@@ -809,9 +809,15 @@ async function fleetJob(job) {
     geometry = stored && stored.geometry || null;
     if (geometry) { for (const m of Object.values(geometry.meshes)) if (m.geo) for (const k of ['pos', 'nor', 'uv', 'col', 'idx']) if (m.geo[k]) transfer.push(m.geo[k].buffer); }
     else {
-      const tg = now(); geometry = G.fleetGeometry(recShip(rec), {trial: !!job.trial, ...(profile?.surface?.offset ? {center: profile.surface.offset} : {})});
+      // A surface design's model and trial variants come from one build (they share their meshes); the other
+      // variant is stored with this one, so flying the ship later does not build its whole model again.
+      const tg = now(), center = profile?.surface?.offset ? {center: profile.surface.offset} : {}, built = rec.surfaces ? G.fleetGeometry(recShip(rec), {variants: true, ...center}) : {model: null, trial: null};
+      geometry = (job.trial ? built.trial : built.model) || G.fleetGeometry(recShip(rec), {trial: !!job.trial, ...center});
       for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
-      records.push({id: gid, geometry, identity, ms: Math.round(now() - tg)});
+      const ms = Math.round(now() - tg);
+      records.push({id: gid, geometry, identity, ms});
+      const other = built.trial ? (job.trial ? built.model : built.trial) : null;
+      if (other) records.push({id: 'g|' + rec.cacheId + (job.trial ? '|m' : '|t'), geometry: other, identity, ms});
     }
   }
   if (!rec.caches) { rec.caches = packCaches(recShip(rec), {runtime: true}); save = true; }
