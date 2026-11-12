@@ -27,9 +27,9 @@ function close(a,b,where){
  if(a&&b&&typeof a==='object'&&typeof b==='object'){assert.deepEqual(Object.keys(a).sort(),Object.keys(b).sort(),where);for(const k of Object.keys(a))close(a[k],b[k],where+'.'+k);return;}
  assert.equal(a,b,where);
 }
-function same(live,label,{stats=true,shapeVolume=true}={}){
+function same(live,label,{stats=true,shapeVolume=true,publicState=true}={}){
  const cold=fresh(live);
- close(JSON.parse(C.publicJSON(live)),JSON.parse(C.publicJSON(cold)),label+': public state');
+ if(publicState)close(JSON.parse(C.publicJSON(live)),JSON.parse(C.publicJSON(cold)),label+': public state');
  assert.deepEqual(snapshot(live,shapeVolume),snapshot(cold,shapeVolume),label+': derived interior and foundations');
  if(stats)assert.equal(statsJSON(live),statsJSON(cold),label+': statistics equal a fresh load');
 }
@@ -97,4 +97,55 @@ test('an Imperial-style example keeps its engine foundations and rooms equal to 
  // The structure carrying a foundation moves: that foundation is rebuilt.
  const carrier=s.parts.find(q=>q.id===supported[0].engineMountSupport.parentId);
  if(carrier&&!C.isHullStructure(carrier)){carrier.c=[carrier.c[0],carrier.c[1]-.5,carrier.c[2]];derive(s);same(s,'carrier move',{stats:false});}
+});
+
+// Review 2026-11-12: key coverage. Rotated and mirrored structures, a carried child that alone reaches a
+// room, a hatched hangar and a structure touching it, a sub added and removed, and a shape change that
+// changes a structure's bounds, each compared with a fresh load.
+test('rotated, mirrored, carried-child, hatch, sub and shape edits equal a full recompute',()=>{
+ const s=userFixture(C,{interior:8,structures:1});const add=p=>{p.id=s.nextId++;s.parts.push(p);return p;},part=id=>s.parts.find(p=>p.id===id);
+ const box=(c,size,extra={})=>({k:'struct',form:'box',c,s:size,taper:0,yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0,...extra});
+ // Rooms straddling the deck for each probe.
+ const rRot=add({k:'cargo',c:[200,66,0],d:6}),rMir=add({k:'cargo',c:[170,66,10],d:5}),rMir2=add({k:'cargo',c:[170,66,-10],d:5});
+ const rotated=add(box([214,66,0],[16,8,10],{yaw:30}));
+ const [mirA,mirB]=[add(box([160,66,10],[12,6,10])),add(box([160,66,-10],[12,6,10]))];
+ // A parent with a child placed on its top; only the child reaches room rChild.
+ const parent=add(box([130,72,0],[10,10,8]));derive(s);
+ const top=C.rayPart([130,500,0],[0,-1,0],parent),draft=C.preparePlacementDraft(s,box([130,top.p[1]+3,0],[6,6,6],{id:s.nextId}),{mode:'horizontal',parentStructureId:parent.id,hostId:parent.id,hit:{p:top.p,n:C.norm(top.n)},contactFit:'cut',position:[130,top.p[1]+3,0],placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(draft.ok,true,draft.error);s.parts.push(draft.part);s.nextId++;const child=draft.part;
+ // The room sits 5 cm beside the child: within the key's 10 cm margin, without overlapping it (an
+ // overlap would be a placement interference of the child, not an interior question).
+ const cb=C.partAABB(child),rChild=add({k:'cargo',c:[cb[3]+.05+1.5,(cb[1]+cb[4])/2,0],d:3});
+ derive(s);same(s,'probes');
+ const childClip=()=>part(rChild.id)._clip,parentBox=C.partAABB(parent),roomBox=C.partAABB(part(rChild.id));
+ assert.ok(roomBox[1]>parentBox[4]+.1,'precondition: the room is clear of the parent bounds');
+ // Rotated structure moves onto, then off, its room.
+ part(rotated.id).c=[204,66,2];derive(s);same(s,'rotated onto');part(rotated.id).yaw=60;derive(s);same(s,'rotated turn');part(rotated.id).c=[240,66,0];derive(s);same(s,'rotated away');
+ // Mirrored pair moves together, as the editor moves a mirrored pair.
+ for(const dx of [8,-14]){part(mirA.id).c=[part(mirA.id).c[0]+dx,66,10];part(mirB.id).c=[part(mirB.id).c[0]+dx,66,-10];derive(s);same(s,'mirrored pair '+dx);}
+ // The parent moves; its child follows and alone leaves the room.
+ const beforeChild=childClip(),childKey=part(rChild.id)._clipKey;
+ part(parent.id).c=[124,72,0];derive(s);same(s,'parent move');
+ assert.ok(part(child.id).c[0]<128,'the child followed its parent');
+ assert.notEqual(part(rChild.id)._clipKey,childKey,'the room only the child reached is re-clipped');void beforeChild;
+ // A sub (legacy box cut) added and removed changes every key. A cut renumbers semantic face ids, so
+ // the child's stored hostSurfaceId (a hint, docs/design-placement-v1.2.md) differs from a reload's;
+ // with the cut's known structure-volume difference, only the interior is compared here.
+ const sub={b:[60,60,-6,70,80,6]};s.subs.push(sub);delete s._cache;derive(s);same(s,'sub added',{stats:false,shapeVolume:false,publicState:false});
+ s.subs.splice(s.subs.indexOf(sub),1);delete s._cache;derive(s);same(s,'sub removed',{stats:false,shapeVolume:false,publicState:false});
+ // A shape change that changes the bounds.
+ Object.assign(part(rotated.id),{c:[204,66,0],form:'trap',taper:.4,s:[22,8,14]});derive(s);same(s,'shape change');
+});
+
+test('a hatched hangar keeps the whole-envelope key and a structure touching it equals a full recompute',()=>{
+ const s=userFixture(C,{interior:6,structures:1});const add=p=>{p.id=s.nextId++;s.parts.push(p);return p;},part=id=>s.parts.find(p=>p.id===id);
+ const solved=C.solvePlacement(s,{id:s.nextId,k:'hangar',c:[200,58,0],d:Math.cbrt(2000),room:[16,10,12]},{mode:'clip',hostId:1});
+ assert.equal(solved.ok,true,solved.error);s.parts.push(solved.part);s.nextId++;const bay=solved.part;
+ const hatch=C.setAviationSurfaceMode(s,bay,'top','open');derive(s);
+ assert.ok(s.hatches.some(h=>h.bay===bay.id),'precondition: the bay has a hatch '+!!hatch);same(s,'hatched bay');
+ const key=bay._explicitInteriorKey;
+ const toucher=add({k:'struct',form:'box',c:[250,66,0],s:[10,6,8],taper:0,yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0});derive(s);same(s,'structure far from the bay');
+ assert.notEqual(part(bay.id)._explicitInteriorKey,key,'a hatched bay keeps the whole-envelope key (any structure edit re-solves it)');
+ part(toucher.id).c=[205,66,0];derive(s);same(s,'structure touching the bay');
+ part(toucher.id).c=[250,66,0];derive(s);same(s,'structure leaves the bay');
 });

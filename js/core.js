@@ -53291,10 +53291,12 @@ function syncCompartmentsRaw(ship){
 // (insideOriginalEnvelope); an explicit interior solve uses only structures overlapping its bounds, the
 // anchor hull when none do, and their placement state. Everything ship-wide (hull profile, cuts,
 // trenches, solid cuts) and every hull structure (v3InHull reads them all) stays in every key.
-// Rows are exact public JSON, not hashes, so an equal key means equal inputs.
+// Rows are exact public JSON, not hashes, plus the identity of each structure's fitted geometry
+// (_placementGeometry, which unpiercedInStruct and the interior regions read; a re-fit can replace it
+// without a public change), so an equal key means equal inputs.
 function interiorLocalEnvelope(ship){
  const drop=(k,v)=>k.startsWith('_')?undefined:v,anchor=interiorAnchorHostId(ship),global=JSON.stringify([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,anchor],drop);
- const rows=ship.parts.filter(p=>isShapePart(p)).map(p=>({always:isHullStructure(p)||p.id===anchor,b:partAABB({...p,_apertures:null}),json:JSON.stringify([p,!!p._placementError],drop)}));
+ const rows=ship.parts.filter(p=>isShapePart(p)).map(p=>({always:isHullStructure(p)||p.id===anchor,b:partAABB({...p,_apertures:null}),json:JSON.stringify([p,!!p._placementError],drop)+':'+engineSupportGeometryId(p._placementGeometry)}));
  return {key(b,kind){if(!b||!b.every(Number.isFinite))return global+JSON.stringify(rows.map(r=>r.json));const pad=.1+1e-6*Math.max(...b.map(Math.abs));let out=global+'|'+kind;for(const r of rows)if(r.always||!r.b.every(Number.isFinite)||boxesOverlap(r.b,b,-pad))out+='|'+r.json;return out;}};
 }
 // The bounds an explicit interior solve can read: its requested body and any packing it retains.

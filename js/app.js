@@ -2125,12 +2125,12 @@ function uploadStored() {
   if (meshStore.glow) view.setGlow(meshStore.glow, C.engineGlowRGB(ship?.engineGlow));
   if (meshStore.grid) view.setLines('grid', meshStore.grid);
 }
-function applyGeometry(msg) {
+function applyGeometry(msg, guard) {
   const source=ship,entries=Object.entries(msg.geos||{}).filter(([,g])=>g),clock=()=>typeof performance!=='undefined'?performance.now():Date.now();
   const large=entries.length>8||entries.reduce((n,[,g])=>n+(g.pos?.byteLength||0)+(g.idx?.byteLength||0),0)>2e6;
   let index=0,settled=false;if(large)eng.uploading=(eng.uploading||0)+1;
   const settle=ok=>{if(!settled){settled=true;if(large)eng.uploading=Math.max(0,(eng.uploading||0)-1);engineStatus();}return ok;};
-  const valid=()=>ship===source&&(msg.gen==null||msg.gen===eng.gen);
+  const valid=()=>ship===source&&(msg.gen==null||msg.gen===eng.gen)&&(!guard||guard());
   const finish=()=>{
     if(!valid())return settle(false);
     if(msg.glow){meshStore.glow=msg.glow;view?.setGlow(msg.glow,C.engineGlowRGB(ship?.engineGlow));}
@@ -2247,7 +2247,7 @@ function onEngineGeometry(msg) {
     engineStatus();
   };
   let completion;
-  if(!dragSnap&&msg.gen===eng.gen&&msg.gen>=eng.geoGen){const applied=applyGeometry(msg);completion=applied&&typeof applied.then==='function'?applied.then(ready):ready(applied);}
+  if(!dragSnap&&msg.gen===eng.gen&&msg.gen>=eng.geoGen){eng.fullGeoGen=Math.max(eng.fullGeoGen||0,msg.gen);const applied=applyGeometry(msg);completion=applied&&typeof applied.then==='function'?applied.then(ready):ready(applied);}
   if(eng.gen>eng.sentGen)kickEngine();engineStatus();return completion;
 }
 // 2026-11-12 Structures first: the Worker sends the struct, plate and reference-structure meshes of the
@@ -2255,12 +2255,15 @@ function onEngineGeometry(msg) {
 // only those groups (and those groups' part ranges); the full geometry packet that follows replaces
 // everything. A packet for an older generation, during a drag, or after the full geometry is ignored.
 function onEngineStructureGeometry(msg) {
-  if(!ship||dragSnap||msg.gen!==eng.gen||msg.gen<=eng.geoGen||(msg.designId!=null&&ship.saveId!=null&&msg.designId!==ship.saveId))return false;
+  // The full geometry of this generation may start uploading while these sliced uploads are still
+  // running: from then on no structure slice, range table or status is written.
+  const current=()=>msg.gen===eng.gen&&msg.gen>eng.geoGen&&!((eng.fullGeoGen||0)>=msg.gen);
+  if(!ship||dragSnap||!current()||(msg.designId!=null&&ship.saveId!=null&&msg.designId!==ship.saveId))return false;
   const groups=msg.groups||Object.keys(msg.geos||{}),ranges={};
   for(const [id,list] of Object.entries(meshStore.ranges||{})){const kept=list.filter(([k])=>!groups.includes(k));if(kept.length)ranges[id]=kept;}
   for(const [id,list] of Object.entries(msg.ranges||{}))(ranges[id]||(ranges[id]=[])).push(...list);
   const done=applied=>{
-    if(!applied||msg.gen!==eng.gen||msg.gen<=eng.geoGen)return false;
+    if(!applied||!current()||dragSnap)return false;
     eng.structGen=msg.gen;
     // The settled structures replace their drag preview. Other previewed items (attached equipment,
     // removed parts) stay previewed until the full geometry arrives.
@@ -2273,7 +2276,7 @@ function onEngineStructureGeometry(msg) {
     }
     engineStatus();requestDraw();return true;
   };
-  const applied=applyGeometry({gen:msg.gen,geos:msg.geos,ranges});
+  const applied=applyGeometry({gen:msg.gen,geos:msg.geos,ranges},()=>current()&&!dragSnap);
   return applied&&typeof applied.then==='function'?applied.then(done):done(applied);
 }
 function onEngineSurfaceGeometry(msg) {

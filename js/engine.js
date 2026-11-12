@@ -360,6 +360,8 @@ function supersede(job, phase = 'derive') {
   abandoned.push({gen: job.gen, phase}); if (abandoned.length > 32) abandoned.shift();
   return true;
 }
+let lastStructureHullKey = null;
+function structureHullKey(s) { return JSON.stringify([s.hull, s.cuts, s.subs, s.trenches, s.solidCuts, s.hullSkin, s.hullBands], (k, v) => k[0] === '_' ? undefined : v); }
 function structurePass(job) {
   const t0 = now(), transfer = [], m = G.meshStructures(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation}), geos = {};
   for (const k of Object.keys(m.g)) geos[k] = geoOut(m.g[k], transfer);
@@ -414,7 +416,10 @@ async function handleUpdate(job) {
   }
   // 2026-11-12 Structures first: the moved structure and its resolved attachments are shown before
   // the compartments, mounts and equipment are derived (the full geometry packet follows).
-  if (job.view?.structureFirst && !job.reset && (job.what || []).some(w => w === 'parts' || w === 'all')) {
+  // A hull edit (or any change to the hull profile, cuts, trenches, subs or skin) re-meshes the hull
+  // and can re-cut every structure: no early structure packet then, only the full geometry.
+  const hullNow = structureHullKey(ship), hullSame = hullNow === lastStructureHullKey; lastStructureHullKey = hullNow;
+  if (job.view?.structureFirst && !job.reset && hullSame && !(job.what || []).includes('hull') && (job.what || []).some(w => w === 'parts' || w === 'all')) {
     structurePass(job);
     await phaseYield();
     if (supersede(job)) return;

@@ -47,6 +47,46 @@ test('a moved structure is sent as settled structure meshes before compartments,
  assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===3),false);
 });
 
+// Review 2026-11-12: a structure carrying a placed sensor, with an unplaced sensor and a canopy cockpit
+// on the ship and a solid cut that carves structures. The early groups must equal the full ones.
+test('early structure meshes equal the full meshes with sensors, a cockpit and a structure-carving cut',async()=>{
+ const {C,ship,messages,wait,send}=setup();
+ ship.parts=ship.parts.filter(p=>p.k==='struct');
+ const hit=C.rayPart([40,500,0],[0,-1,0],ship.parts[1]),carried=C.preparePlacementDraft(ship,{id:6,k:'sensor',c:[hit.p[0],hit.p[1]+1,hit.p[2]],d:2},{mode:'direct',parentStructureId:2,hostId:2,hit:{p:hit.p,n:C.norm(hit.n)},placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(carried.ok,true,carried.error);ship.parts.push(carried.part,{id:7,k:'sensor',c:[90,16,0],d:2},{id:8,k:'cockpit',c:[45,26,4],d:2});ship.nextId=9;
+ ship.solidCuts=[C.normalizeSolidCut({id:9,shape:'box',c:[100,15,0],s:[6,6,6],structures:true})];ship.nextId=10;
+ send({type:'update',gen:1,designId:'d',state:state(C,ship),what:['all'],reset:true,view,statsDelay:0});
+ const first=await wait(m=>m.type==='geometry'&&m.gen===1);await wait(m=>m.type==='stats'&&m.gen===1);
+ // Adopt the derived public state (resolved sensor) the way the editor does, then move the carrier.
+ const derived=JSON.parse(first.state);derived.parts.find(p=>p.id===2).c=[70,19,0];
+ send({type:'update',gen:2,designId:'d',state:JSON.stringify(derived),what:['parts'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===2);
+ const early=messages.find(m=>m.type==='structureGeometry'&&m.gen===2),full=messages.find(m=>m.type==='geometry'&&m.gen===2);
+ assert.ok(early,'structure packet sent');
+ for(const k of ['struct','plate']){for(const a of ['pos','idx','col'])same(early.geos[k][a],full.geos[k][a],k+'.'+a+' equals the full mesh');}
+ for(const [id,list] of Object.entries(early.ranges))assert.deepEqual(list,full.ranges[id].filter(([k])=>early.groups.includes(k)),'ranges of #'+id);
+ for(const id of ['2','6','7','8'])assert.equal(!!early.ranges[id],!!full.ranges[id]?.some(([k])=>early.groups.includes(k)),'#'+id+' in both or neither');
+ assert.ok(early.ranges[6],'the carried sensor is in the early structure group');
+ const sensor=JSON.parse(full.state).parts.find(p=>p.id===6);assert.ok(sensor.c[0]>60,'the sensor followed its carrier');
+});
+
+test('no early structure packet for a hull edit or when the hull changed',async()=>{
+ const {C,ship,messages,wait,send}=setup();
+ send({type:'update',gen:1,designId:'d',state:state(C,ship),what:['all'],reset:true,view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===1);
+ ship.parts[1].c=[70,19,0];
+ send({type:'update',gen:2,designId:'d',state:state(C,ship),what:['hull','parts'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===2);
+ ship.solidCuts=[C.normalizeSolidCut({id:20,shape:'box',c:[100,15,0],s:[6,6,6],structures:true})];ship.parts[1].c=[72,19,0];
+ send({type:'update',gen:3,designId:'d',state:state(C,ship),what:['parts'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===3);
+ assert.equal(messages.some(m=>m.type==='structureGeometry'&&(m.gen===2||m.gen===3)),false);
+ ship.parts[1].c=[74,19,0];
+ send({type:'update',gen:4,designId:'d',state:state(C,ship),what:['parts'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===4);
+ assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===4),true,'an ordinary move after the hull edit has one again');
+});
+
 for(const [phase,trigger]of [['after the structures','structureGeometry'],['between compartments and mounts','syncCompartments'],['during the statistics','computeStats']]){
  test(`a newer edit stops the old one ${phase}; nothing of the old generation is posted afterwards`,async()=>{
   const {C,E,ship,messages,hooks,wait,send}=setup();
@@ -96,4 +136,25 @@ test('the editor ignores a stale or superseded structures packet and keeps other
  run(`eng.gen=6;live.active=true;live.parts=[{id:1,k:'struct'},{id:7,k:'gen'}];live.hide.parts=new Set([1,7]);`);
  assert.equal(run(`onEngineStructureGeometry({gen:6,designId:'d',groups:['struct'],geos:{struct:{}},ranges:{}})`),true);
  assert.equal(run('cleared.length'),1);assert.equal(run('JSON.stringify(live.parts.map(p=>p.id))'),'[7]');assert.equal(run('JSON.stringify([...live.hide.parts])'),'[7]');assert.equal(run('shown.length'),1);
+});
+
+test('a full geometry that arrives while the structures packet is still uploading wins: no later structure slice, ranges or status',async()=>{
+ const cx=vm.createContext({});
+ vm.runInContext(`let dragSnap=null,bounds=null,clock=0;const timers=[],uploads=[];const performance={now:()=>clock+=4},setTimeout=fn=>{timers.push(fn);return timers.length;};
+  const eng={gen:5,geoGen:4,sentGen:5};const ship={saveId:'d',parts:[]};const meshStore={geos:{},ranges:{1:[['struct',0,6]],2:[['engine',0,9]]}};
+  const live={active:false,parts:[],fits:[],hide:{parts:new Set(),fits:new Set()}};const view={upload:(k,g)=>uploads.push([k,g.tag])};
+  const C={isShapePart:p=>p.k==='struct'};const clearPreview=()=>{},showPreview=()=>{},engineStatus=()=>{},requestDraw=()=>{},retainGeometry=()=>{},kickEngine=()=>{};`
+  +fn(app,'applyGeometry')+fn(app,'onEngineStructureGeometry')+fn(app,'onEngineGeometry'),cx);
+ const run=c=>vm.runInContext(c,cx);
+ // Three large structure groups upload in slices of two.
+ run(`const big=tag=>({tag,pos:new Float32Array(600000),idx:new Uint32Array(3)});var early=onEngineStructureGeometry({gen:5,designId:'d',groups:['struct','plate','refStruct'],geos:{struct:big('early-struct'),plate:big('early-plate'),refStruct:big('early-ref')},ranges:{1:[['struct',0,12]]}});`);
+ assert.equal(run('uploads.length'),2,'the first slice uploaded two groups');assert.equal(run('timers.length'),1,'the rest waits for a timer');
+ // The full geometry of the same generation arrives now and applies at once.
+ run(`onEngineGeometry({type:'geometry',gen:5,geos:{struct:{tag:'full-struct'},refStruct:{tag:'full-ref'}},ranges:{1:[['struct',0,20]],2:[['engine',0,9]]}});`);
+ assert.equal(run('eng.geoGen'),5);
+ while(run('timers.length'))run('timers.shift()()');await new Promise(r=>setTimeout(r,0));
+ assert.equal(run('JSON.stringify(meshStore.ranges)'),JSON.stringify({1:[['struct',0,20]],2:[['engine',0,9]]}),'the full ranges stay');
+ assert.equal(run('meshStore.geos.refStruct.tag'),'full-ref','no early slice after the full geometry');
+ assert.equal(run('JSON.stringify(uploads.map(u=>u[1]))'),JSON.stringify(['early-struct','early-plate','full-struct','full-ref']));
+ assert.equal(run('eng.structGen'),undefined,'the early packet never completes');
 });
