@@ -65141,16 +65141,22 @@ function solidCutScope(ship,id){
  const own=(ship.solidCuts||[]).find(c=>c.id===id);if(own)return ship.hull?.assembly||own.structures?'all':'hull';
  return ship.parts?.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.some(c=>c.id===id))?'hull':null;
 }
+// A mirrored cut mirrors about its own frame's centreline: a hull-owned cut about the hull's centreline,
+// a ship-level cut about the ship's (world z=0). They are the same plane only for a hull on the
+// centreline without roll or yaw; otherwise switching scope turns one mirrored cut into its two halves.
+function hullMirrorIsWorldMirror(p){const tol=1e-6*Math.max(1,...(p.s||[1]).map(Math.abs));for(const q of [[0,0,0],[1,2,3],[5,-1,-4]]){const a=hullWorldPoint(p,q),b=hullWorldPoint(p,[q[0],q[1],-q[2]]);if(Math.abs(a[0]-b[0])>tol||Math.abs(a[1]-b[1])>tol||Math.abs(a[2]+b[2])>tol)return false;}return true;}
 function setSolidCutScope(ship,id,scope,hullId=null){
  if(!['all','hull'].includes(scope))throw new Error('切削の適用範囲が不正です');
  const owner=ship.parts.find(p=>isHullStructure(p)&&p.hullData?.solidCuts?.some(c=>c.id===id)),listed=(ship.solidCuts||[]).find(c=>c.id===id);if(!owner&&!listed)return false;
  if(scope==='all'){
-  if(owner){const cut=owner.hullData.solidCuts.find(c=>c.id===id),world=hullWorldSolidCut(owner,cut);owner.hullData.solidCuts=owner.hullData.solidCuts.filter(c=>c.id!==id);(ship.solidCuts||(ship.solidCuts=[])).push(normalizeSolidCut({...world,id,structures:true}));}
+  if(owner){const cut=owner.hullData.solidCuts.find(c=>c.id===id);owner.hullData.solidCuts=owner.hullData.solidCuts.filter(c=>c.id!==id);ship.solidCuts||(ship.solidCuts=[]);
+   const halves=cut.mirror&&!hullMirrorIsWorldMirror(owner)?[{...cut,mirror:false},{...mirrorSolidCut(cut),id:ship.nextId++}]:[cut];
+   for(const half of halves)ship.solidCuts.push(normalizeSolidCut({...hullWorldSolidCut(owner,half),id:half.id,structures:true}));}
   else listed.structures=true;
   ship._cache=null;return true;
  }
  if(owner)return false;const hull=ship.parts.find(p=>isHullStructure(p)&&(hullId==null||p.id===hullId))||ship.parts.find(p=>isHullStructure(p)&&p.primaryHull);
- if(hull)hullOwnSolidCut(ship,hull,{...listed,structures:false});else listed.structures=false;
+ if(hull){const halves=listed.mirror&&!hullMirrorIsWorldMirror(hull)?[{...listed,mirror:false},{...mirrorSolidCut(listed),id:ship.nextId++}]:[listed];for(const half of halves)hullOwnSolidCut(ship,hull,{...half,structures:false});}else listed.structures=false;
  ship._cache=null;return true;
 }
 // Fixed equipment (reactors, engines, catalogue machinery: parts that are not structures and cannot
@@ -67207,7 +67213,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};

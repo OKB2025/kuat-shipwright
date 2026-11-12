@@ -68,3 +68,19 @@ test('a ship-level cut through a hull and a half-buried structure subtracts the 
  // The counted material equals the union's volume with and without the cut (same small meshing difference).
  assert.ok(Math.abs(u.sum-u.union)<5,`uncut: ${u.sum} vs ${u.union}`);assert.ok(Math.abs(k.sum-k.union)<5,`cut: ${k.sum} vs ${k.union}`);assert.ok(Math.abs((k.sum-k.union)-(u.sum-u.union))<.5,'no extra subtraction from the cut');
 });
+
+test('a mirrored hull-owned cut on a hull off the centreline keeps its mirror position when switched to all (and back); the equipment check sees it there',()=>{
+ const s=design(),hull=s.parts[0],h2=JSON.parse(C.publicJSON(hull));h2.id=s.nextId++;h2.c=[hull.c[0],hull.c[1],hull.c[2]+20];delete h2.primaryHull;h2.label='H2';h2.hullData={...h2.hullData,solidCuts:[],subs:[]};s.parts.push(h2);s._cache=null;C.refreshPlacementGeometry(s);
+ const H2=s.parts.find(q=>q.label==='H2');assert.equal(C.hullMirrorIsWorldMirror(H2),false);assert.equal(C.hullMirrorIsWorldMirror(hull),true);
+ // In H2's own frame: z -9..-1 and its mirror z +1..+9, i.e. world z 11..19 and 21..29 (not -29..-21).
+ const id=s.nextId++;H2.hullData.solidCuts.push(C.normalizeSolidCut({id,shape:'box',c:[110,16,-5],s:[20,8,6],rotation:[0,0,0],mirror:true,structures:false}));s._cache=null;C.refreshPlacementGeometry(s);
+ const reactor={id:s.nextId++,k:'gen',c:[110,16,25],d:4,label:'reactor'};s.parts.push(reactor);s._cache=null;
+ // H2's own carved body (the primary hull is cut too once the halves carve every structure).
+ const material=()=>{s._cache=null;H2._solidCutShip=s;return vol(C.structTriangles(H2));},before=material();
+ assert.equal(C.setSolidCutScope(s,id,'all'),true);assert.equal(H2.hullData.solidCuts.length,0);
+ const zs=s.solidCuts.map(c=>{const b=C.compiledSolidCut(c).instances[0].bounds;return [+b[2].toFixed(3),+b[5].toFixed(3),c.mirror];}).sort((a,b)=>a[0]-b[0]);
+ same(zs,[[11,19,false],[21,29,false]],'two halves at the hull mirror positions');close(material(),before,'the hull is carved exactly as before',1e-6);
+ const hits=C.solidCutEquipmentHits(s);assert.ok(hits.some(h=>h.partId===reactor.id),'the reactor in the mirrored half is reported');
+ // And back to hull-only: H2 carries both halves again, carving the same material.
+ for(const c of s.solidCuts.slice())C.setSolidCutScope(s,c.id,'hull',H2.id);assert.equal(s.solidCuts.length,0);assert.equal(H2.hullData.solidCuts.length,2);close(material(),before,'back to hull-only',1e-6);
+});
