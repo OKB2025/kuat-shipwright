@@ -539,7 +539,21 @@ async function diskTrim(db) {
 const DERIVED = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 400, BYTES: 512e6, hits: 0, puts: 0};
 // The model key, plus the hash of the reference meshes the page loaded (data/reference.js; the bootstrap
 // hashes the exact bytes it runs). null when no key can be made: the derived cache is then not used.
-const derivedModel = () => { const key = C.profileModelKey(); if (!key) return null; const ref = globalThis.KS_SOURCE_SHA256?.['data/reference.js']; return 'm' + key + (ref ? '.r' + ref.slice(0, 16) : '') + '|'; };
+// The display projection made here (statsOut and the functions it calls) is part of the stored figures, so the
+// hash of its source joins the key. Both reference files are required: without the page's hashes (an inline
+// engine, a Worker started without them) the derived cache is not used (review 2026-11-12).
+let displayProjectionKey = null;
+function displayProjectionHash() {
+  if (displayProjectionKey) return displayProjectionKey;
+  const text = [statsOut, catalogueValues, surfaceReportOut, catalogueAccelerationG].map(f => String(f)).join('\n');
+  let a = 2166136261; for (let i = 0; i < text.length; i++) a = Math.imul(a ^ text.charCodeAt(i), 16777619) >>> 0;
+  return displayProjectionKey = a.toString(36);
+}
+const derivedModel = () => {
+  const key = C.profileModelKey(), hashes = globalThis.KS_SOURCE_SHA256, ref = hashes?.['data/reference.js'], imp = hashes?.['data/imperial2.js'];
+  if (!key || !ref || !imp) return null;
+  return 'm' + key + '.r' + ref.slice(0, 16) + '.i' + imp.slice(0, 16) + '.d' + displayProjectionHash() + '|';
+};
 function derivedOpen() {
   if (DERIVED.off) return Promise.resolve(null);
   if (!DERIVED.open) DERIVED.open = new Promise((resolve) => {

@@ -21,8 +21,14 @@ function fakeIDB(){
 }
 // The real engine in a vm context. stamp: the release's source stamp (any change to a source file
 // changes it); readAsset: replaces the bytes of an example file.
-function engine({idb=null,stamp='0123456789abcdef0123',reads=[],readAsset=null}={}){
- const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone,importScripts(){},...(idb?{indexedDB:idb}:{}),KS_SOURCE_STAMP:stamp,...reader(root,{reads,read:readAsset})});
+// The page passes the Worker the hashes of the data files it runs (KS_SOURCE_SHA256); the derived cache needs
+// those of the reference meshes (data/reference.js, data/imperial2.js) and is not used without them.
+const REF_HASHES=Object.fromEntries(['data/reference.js','data/imperial2.js'].map(f=>[f,createHash('sha256').update(fs.readFileSync(path.join(root,f))).digest('hex')]));
+// The derived-cache key starts with the model key and the reference files' hashes; the display-projection part
+// (a hash of engine.js's statsOut source) follows before the '|'.
+const modelPrefix=C=>'m'+C.profileModelKey()+'.r'+REF_HASHES['data/reference.js'].slice(0,16)+'.i'+REF_HASHES['data/imperial2.js'].slice(0,16)+'.d';
+function engine({idb=null,stamp='0123456789abcdef0123',reads=[],readAsset=null,refs=REF_HASHES}={}){
+ const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone,importScripts(){},...(idb?{indexedDB:idb}:{}),KS_SOURCE_STAMP:stamp,KS_SOURCE_SHA256:refs,...reader(root,{reads,read:readAsset})});
  for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(read(f),cx,{filename:f});
  const source=read('js/engine.js');vm.runInContext(source.slice(0,source.indexOf('/* Interface-side connection')),cx,{filename:'js/engine.js'});
  const {C,E,D}=vm.runInContext('({C:Core,E:YardEngine,D:YardFleetData})',cx),pending=[],calls={build:0,stats:0};
@@ -63,9 +69,9 @@ test('derived figures are reused across releases by design content and model key
  const idb=fakeIDB(),a=engine({idb}),design=tiny(a.C);
  const first=await a.request({type:'fleet',design,statsOnly:true});await settle();
  assert.equal(first.profileSrc,'computed');assert.equal(a.calls.stats,1);
- const model='m'+a.C.profileModelKey()+'|',ids=[...idb.store('ks-derived','rec').keys()];
- assert.equal(ids.length,1);assert.ok(ids[0].startsWith(model+'d:'),ids[0]);
- assert.equal(ids[0],model+'d:'+createHash('sha256').update(JSON.stringify(design)).digest('hex'));
+ const model=modelPrefix(a.C),ids=[...idb.store('ks-derived','rec').keys()];
+ assert.equal(ids.length,1);assert.ok(ids[0].startsWith(model)&&ids[0].includes('|d:'),ids[0]);
+ assert.ok(ids[0].endsWith('|d:'+createHash('sha256').update(JSON.stringify(design)).digest('hex')),ids[0]);
  // Another release (a one-line comment in js/core.js changes the stamp): meshes and native caches are
  // rebuilt, the figures are not.
  const b=engine({idb,stamp:'fedcba9876543210fedc'}),second=await b.request({type:'fleet',design,statsOnly:true});
@@ -84,7 +90,7 @@ test('derived figures are reused across releases by design content and model key
 test('an example key is cached by its verified design checksum, so a changed design file is never served old figures',async()=>{
  const idb=fakeIDB(),a=engine({idb}),asset=a.D.blueprints[KEY];
  const first=await a.request({type:'fleet',key:KEY,statsOnly:true});await settle();assert.equal(first.profileSrc,'computed');
- assert.deepEqual([...idb.store('ks-derived','rec').keys()],['m'+a.C.profileModelKey()+'|k:'+asset.jsonSha256]);
+ const keys=[...idb.store('ks-derived','rec').keys()];assert.equal(keys.length,1);assert.ok(keys[0].startsWith(modelPrefix(a.C))&&keys[0].endsWith('|k:'+asset.jsonSha256),keys[0]);
  const b=engine({idb,stamp:'fedcba9876543210fedc'}),second=await b.request({type:'fleet',key:KEY,statsOnly:true});
  assert.equal(second.profileSrc,'derived');assert.equal(b.calls.stats,0);assert.deepEqual(plain(second.profile),plain(first.profile));
  // The same key with another (verified) design file: a new content key, figures computed afresh.
@@ -104,4 +110,14 @@ test('records written by an earlier release (main) are never served',async()=>{
  const derived=idb.store('ks-derived','rec');derived.clear();
  const b=engine({idb,stamp}),r=await b.request({type:'fleet',design,statsOnly:true});
  assert.equal(r.src,'built');assert.notEqual(r.profile.name,'stale profile from main');assert.equal(r.profileSrc,'computed');
+});
+
+// Without the page's hashes of the reference files (an inline engine, a Worker started without them) the
+// derived cache is neither read nor written: a key without them could serve figures made from other meshes.
+test('without the reference files\' hashes the derived cache is not used',async()=>{
+ const idb=fakeIDB(),a=engine({idb,refs:{}}),design=tiny(a.C);
+ const first=await a.request({type:'fleet',design,statsOnly:true});await settle();
+ assert.equal(first.profileSrc,'computed');assert.equal([...idb.store('ks-derived','rec').keys()].length,0,'nothing written');
+ const b=engine({idb,refs:{},stamp:'fedcba9876543210fedc'}),second=await b.request({type:'fleet',design,statsOnly:true});
+ assert.equal(second.profileSrc,'computed','computed again on another release');
 });

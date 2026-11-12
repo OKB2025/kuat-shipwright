@@ -4,7 +4,14 @@ const read = f => fs.readFileSync(path.join(root, f), 'utf8'), plain = x => JSON
 
 // Transactions clone on put, commit asynchronously, and discard staged writes
 // on abort. The same database survives replacement engine/Worker instances.
+// One store map per database name, as in a browser (ks-built and ks-derived are separate databases); .stores is
+// the ks-built database's stores, which the tests inspect.
 function database({quota = false} = {}) {
+  const dbs = new Map();
+  const named = dbName => { if (!dbs.has(dbName)) dbs.set(dbName, oneDatabase({quota})); return dbs.get(dbName); };
+  return {get stores() { return named('ks-built').stores; }, open(dbName = 'ks-built') { return named(dbName).open(); }};
+}
+function oneDatabase({quota = false} = {}) {
   const stores = new Map(), later = f => setTimeout(f, 0);
   const getStore = name => { if (!stores.has(name)) stores.set(name, new Map()); return stores.get(name); };
   const db = {close() {}, transaction() {
