@@ -238,3 +238,35 @@
 実Safariを確認済みとして扱わない。操作性能には測定環境・観測値・未測定項目を付ける。
 構文検査だけで合格とせず、失敗試験と既存mainの失敗も区別してPRへ記載する。
 配置から保存・再読込・性能反映まで成立した範囲だけを完成扱いにする。
+
+## 編集した値は再計算しない（2026-11-12 ユーザー決定、段階 A1）
+
+ユーザーが置いた位置・向き・形（作者データ）は、置いた時と編集した時だけ決まる。再読込、再チェック、Worker、他の部品の編集では計算し直さない。合わなくなったら警告だけを出す。根本の仕組みは、エディタが Worker の公開状態をまるごと取り込むこと（`adoptEngineState`）で、Worker が計算し直した値がユーザーのデータを上書きする。段階の一覧は [handoff-2026-11-12.md](handoff-2026-11-12.md) §4。
+
+段階 A1 では、変化を検出して測るだけにとどめ、取り込みの動きは変えない。
+
+- `Core.authoredStateDrift(sent, received)`：エディタが送った状態と Worker が返した状態を比べ、作者データ（`_` で始まらない公開フィールド）が変わった項目を `[{list,id,kind,keys}]` で返す。Worker が解いたドラフト（`pendingGeometry`）はユーザーの要求への答えなので数えない。`surfaces` と `nextId` の変化も報告する。
+- `adoptEngineState`（js/app.js）は、取り込むたびに、変わった項目だけを比べて `eng.authoredDrift = {gen, items}` に記録する。
+- `tests/worker-authored-drift.cjs`：小さな設計に 1 回の編集を加え、Worker が変えた作者データを一覧にする。一覧は `ALLOWED` と一致しなければならない。`ALLOWED` には、まだ残っている書き換えを、それを取り除く段階の名前と一緒に書いてある。段階を進めたら、その段階の行を消す。新しい書き換えが入るとテストが失敗する。すべての段階が終われば空になる（段階 A2）。
+- `scripts/example-invariance.cjs`：保存した作例を普通の保存データとして読み込み、本物の Worker の更新経路を 2 回通す（reset と、Worker 自身の状態の往復）。次のものを記録し、2 つの版を比べる（`run <root> <out.json>`、`compare <base.json> <head.json>`）。
+  - 読み込みと Worker が変えた作者データ
+  - 往復した設計の computeStats の要約
+
+**基準値（2026-11-12、main e5527e1）**：全 28 隻で、A1 のブランチは main と同じ結果だった（数値の差 0、作者データの変化も同数）。Worker を 1 回通したときに作者データが変わった件数は次のとおり。
+
+| 作例 | 件数 | 作例 | 件数 | 作例 | 件数 | 作例 | 件数 |
+|---|---|---|---|---|---|---|---|
+| acclamator | 4 | gr75 | 3 | mc30c | 0 | providenceDn | 8 |
+| arquitens | 20 | hammerhead | 3 | mc75 | 2 | recusant | 9 |
+| cr90 | 3 | heraklon | 1 | mc80home | 2 | recusantDn | 9 |
+| dreadnaught | 5 | imperial | 0 | mc80liberty | 0 | reptransport | 1 |
+| executor | 5 | imperial2 | 0 | munificent | 7 | subjugator | 2 |
+| gozanti | 0 | lh3210 | 325 | nebulonb | 7 | venator | 14 |
+| lucrehulk | 325 | mandator2 | 6 | onager | 0 | providence | 8 |
+
+主な書き換えの対象は、件数の多い順に次のとおり。
+- 機関の台座（`engineMountSupport`）：段階 F で取り除く。
+- 装備の `slope`、`commandEnabled`、`n`：段階 C で取り除く。
+- 部品の `d`、`shellFlip`、`ship.nextId`。
+
+どの往復でも、2 回目の Worker の通過では作者データは変わらなかった。
