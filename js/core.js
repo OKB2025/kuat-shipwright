@@ -63849,7 +63849,11 @@ function refreshPlacementGeometry(ship,options={}){
   // whatever its position in the parts array.
   for(const p of ship.parts)if(isShapePart(p)&&(!ids||ids.has(p.id)))visit(p);for(const p of ship.parts)if(!ids||ids.has(p.id))visit(p);
   // A part that ended this refresh in a failure carries no severed mark or contact cache from before.
-  for(const p of ship.parts)if(p._placementError){delete p._placementSevered;delete p._placementLocalHash;}if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);for(const q of fits.severed||[])severed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,severed,resolvedParts,resolvedFits};
+  for(const p of ship.parts)if(p._placementError){delete p._placementSevered;delete p._placementLocalHash;}
+  // A part still in error is reported on every refresh, also when nothing changed and its solve was
+  // skipped (a surface child left behind by its moved parent kept contact-zero but dropped out of failed).
+  for(const p of ship.parts)if(p._placementError&&done.has(p.id)&&!failed.some(q=>q.partId===p.id))failed.push({partId:p.id,code:p._placementError});
+  if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);for(const q of fits.severed||[])severed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,severed,resolvedParts,resolvedFits};
 }
 function placementCopyClosure(ship,selection={}){
  const parts=new Set((selection.parts||[]).map(p=>typeof p==='object'?p.id:p)),fits=new Set((selection.fits||[]).map(f=>typeof f==='object'?f.id:f));let changed=true;

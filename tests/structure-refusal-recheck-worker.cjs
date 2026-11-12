@@ -37,6 +37,9 @@ test('a Worker recovery discarded by the editor is re-checked when the still-ref
  assert.deepEqual(f.rows(2).map(r=>[r.id,r.error,!!r.part.placement.validationFailed]),SUNK.map(id=>[id,null,false]),'re-checked and recovered again');
  near(second.stats.mass,coldMass,'Worker mass after the patch = cold-load mass');near(second.stats.volume,coldVolume,'Worker volume after the patch');assert.deepEqual(f.rows(2).map(r=>r.part.roll),[-8,8]);assert.equal(second.provisional,false,'not counted as a failed placement');
  assert.deepEqual(second.stats.ungrounded.parts,[],'no red frame');
+ // Position and orientation: the Worker's load and its re-check give back the saved pose, never a re-seat.
+ const savedPose=JSON.parse(refused).parts.filter(p=>SUNK.includes(p.id));
+ for(const gen of [1,2])for(const r of f.rows(gen)){const q=savedPose.find(p=>p.id===r.id);for(let i=0;i<3;i++)assert.ok(Math.abs(r.part.c[i]-q.c[i])<=1e-6,`gen ${gen} #${r.id} position[${i}]: ${r.part.c[i]} vs saved ${q.c[i]}`);for(const k of ['yaw','pitch','roll'])assert.ok(Math.abs((r.part[k]||0)-(q[k]||0))<=1e-9,`gen ${gen} #${r.id} ${k}`);}
  // The editor now holds the recovered state: nothing to re-check.
  const recovered=JSON.parse(refused);for(const r of f.rows(2))recovered.parts[recovered.parts.findIndex(p=>p.id===r.id)]=r.part;
  await update(f,3,JSON.stringify(recovered));assert.deepEqual(f.rows(3),[],'a recovered structure is not re-solved');
