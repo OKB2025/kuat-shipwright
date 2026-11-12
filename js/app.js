@@ -2057,7 +2057,7 @@ const st = {
   structSize: [180, 110, 60], structPlacement:'normal',sponsonSize:[24,20,5], structTaper: 0.2, fill: [0.3, 0.8], sizeCraft: {},
   sel: null, hatchA: null,
   fit: 'refVen', fitTool: 'place', batteryCaliber: '40TT', batteryGuns: 2, bridge: 'podBridge', bridgeTool: 'place', ped: 0, pedShape: 'round', pedSize: 1,
-  carveTool: 'solid', razee: {side: 'both', edge: 'top', inset: 60, slope: 50, from: 0.1, to: 1, prop: true}, notch: {l: 120, w: 80, d: 40}, notchStructures: false,
+  carveTool: 'solid', hullShapeTool: null, razee: {side: 'both', edge: 'top', inset: 60, slope: 50, from: 0.1, to: 1, prop: true}, notch: {l: 120, w: 80, d: 40}, notchStructures: false,
   mirror: true, view: 'normal', coded: false, cut: {x: 1, y: 1, z: 1},
   simOpp: 'destroyer', dockCollapsed: false,
 };
@@ -2903,7 +2903,10 @@ function tool() {
     case 'edit': return st.editTool === 'remove' ? 'unany' : 'edit';
     case 'arm': return st.fitTool === 'place' ? 'fit' : st.fitTool === 'remove' ? 'unfit' : st.fitTool === 'multi' ? 'multi' : 'adjust';
     case 'bridge': if(st.bridgeMode==='body')return st.partTool==='select'?'select':st.partTool==='multi'?'multi':st.partTool==='remove'?'unpart':'part';return st.bridgeTool === 'place' ? 'fit' : st.bridgeTool === 'remove' ? 'unfit' : 'adjust';
-    case 'carve': return st.carveTool === 'solid' ? 'solid' : st.carveTool === 'notch' ? 'notch' : 'inspect';
+    // 削る is one tool for solid cutters (user decision 2026-11-11). Trench, bevel, notch and the
+    // plan trapezoid are hull-only shape tools under 形状.
+    case 'carve': return 'solid';
+    case 'hull': return st.hullShapeTool === 'notch' ? 'notch' : 'inspect';
     default: return 'inspect';
   }
 }
@@ -3190,7 +3193,7 @@ function stripFacts(t) {
   }
   if (t.list === 'parts') {
     if(t.it.transmission||t.it.drivetrain){const p=t.it;return {title:p.drivetrain?'機関動力伝達路':'推進配電路',id:null,tw:false,line:`${fLen(p.lengthM||0)} · ${fW(p.capacityW||0)} · ${num(C.partVolume(p),3)} m³`,detail:()=>partInfoHTML(p).replace(/^<b>[^<]*<\/b>/,'')};}
-    const p = t.it, V = editorCanMeshPart(p)?C.partVolume(enginePending()?requestedPart(p):p):null, size = C.isShapePart(p) || p.room ? (p.room || p.s).map(v => num(v,3)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 3) + ' m' : fLen(p.d)}`;
+    const p = t.it, V = C.isHullStructure?.(p)&&Number.isFinite(S?.info?.[p.id]?.materialVolume)?S.info[p.id].materialVolume:editorCanMeshPart(p)?C.partVolume(enginePending()?requestedPart(p):p):null, size = C.isShapePart(p) || p.room ? (p.room || p.s).map(v => num(v,3)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 3) + ' m' : fLen(p.d)}`;
     const key = V===null?'計算中…':C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? p.machineryId!=null&&p.machineryId!==p.id ? `接続機関の最大入力 ${fW(engineSourceInput(engineSpecForUI(p)))}` : engineMassCurrentForUI()?`推力 ${sci(engineSpecForUI(p).ratedThrustN)} N`:'計算中…' : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${num(V,3)} m³`;
     return {title: C.partLabel(p), id: p.id > 0 ? p.id : null, tw: p.tw != null || p.vt != null, line: size + ' · ' + key, detail: () => partInfoHTML(p).replace(/^<b>[^<]*<\/b>/, '')};
   }
@@ -3213,7 +3216,8 @@ function renderSelStrip() {
 }
 function partInfoHTML(pt) {
   if(!editorCanMeshPart(pt))return `<b>${esc(C.partLabel(pt))}</b><div class="ins-row">${(pt.s||pt.room||[pt.d||0]).map(v=>num(v,3)).join('×')} m · 計算中…</div>`;
-  const d = C.PARTS[pt.k], V = C.partVolume(enginePending() ? requestedPart(pt) : pt), inf = S && S.info[pt.id];
+  // A hull structure shows the material the stats count: its own cuts and the ship-level cuts that carve it.
+  const d = C.PARTS[pt.k], inf = S && S.info[pt.id], V = C.isHullStructure?.(pt)&&Number.isFinite(inf?.materialVolume)?inf.materialVolume:C.partVolume(enginePending() ? requestedPart(pt) : pt);
   if(pt.transmission||pt.drivetrain){const route=(pt.drivetrain?driveForUI():transmissionForUI())?.routes.find(r=>r.id===pt.routeId);return `<b>${pt.drivetrain?'機関動力伝達路':'推進配電路'}</b><div class="ins-row">${esc(transmissionPortLabel(pt.from))} → ${esc(transmissionPortLabel(pt.to))} · ${pt.ok===false?'<span class="neg">経路不通</span>':'伝達経路あり'}</div><div class="ins-row">伝達容量 ${fW(pt.capacityW||0)} · 経路長 ${fLen(pt.lengthM||0)} · 直径 ${num(pt.d,3)} m</div>${!pt.drivetrain&&Number.isFinite(route?.efficiency)?`<div class="ins-row">電送効率 ${num(route.efficiency*100,4)}%（損失は配電路の熱になります）</div>`:''}<div class="ins-row">占有 ${num(V,3)} m³ · 質量 ${fMass(V*(d.dens||0))}</div>${pt.entrySegments?.length?`<div class="ins-row">外装ケーシング ${fLen(pt.entrySegments.reduce((n,s)=>n+s.l,0))}（経路の占有に含む）</div>`:''}`;}
   let h = `<b>${esc(C.partLabel(pt))}</b><div class="ins-row">${C.isShapePart(pt)||pt.room ? `${(pt.room||pt.s).map(v => num(v,3)).join('×')} m` : `${pt.k === 'hangar' ? '一辺' : '直径'} ${precisePartSize(pt) ? num(pt.d, 3) + ' m' : fLen(pt.d)}`}・体積 ${num(V,3)} m³</div>`;
   if (C.isReactor(pt)) h += `<div class="ins-row" data-reactor-output>発電出力（体積換算） ${reactorOutputText(pt)}</div>`;
@@ -3604,6 +3608,7 @@ function baseRenderPanel() {
       <div class="pgroup"><h4>断面</h4>${seg('sec', Object.entries(C.SECTIONS), hp.sec)}</div>
 
       <div class="pgroup row2"><button type="button" class="btn" id="btnClear">${confirmClear ? 'もう一度押すと区画と装備をすべて外します' : '区画と装備をすべて外す'}</button></div>`;
+      h += hullShapeToolsHTML(hp);
       break;
     }
     case 'mod': {
@@ -3663,35 +3668,7 @@ function baseRenderPanel() {
       <div class="pinfo" id="pinfo"></div>`;
       break;
     case 'carve': {
-      const r = st.razee;
-      h = `<div class="pgroup carve-tools">${seg('carvetool', [['solid', '立体で切る'], ['trench', 'トレンチ'], ['razee', '斜め削り'], ['notch', '面から切る'], ['plan', '平面の台形']], st.carveTool)}</div>`;
-      if (st.carveTool === 'solid') h += solidCutPanelHTML();
-      else if (st.carveTool === 'trench') h += trenchPanelHTML();
-      else if (st.carveTool === 'plan') h += planCutControls();
-      else if (st.carveTool === 'razee') {
-        h += `<div class="pgroup razee">
-          <p class="note">断面の角を斜めに削ぎ、台形にします。骨組みは断面に合わせて細くなりますが、質量も減るため加速の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。</p>
-          ${seg('rzside', [['both', '両舷'], ['port', '左舷'], ['stbd', '右舷']], r.side)}
-          ${seg('rzedge', [['top', '上縁'], ['bottom', '下縁'], ['both', '上下']], r.edge)}
-          </div><div class="pgroup"><h4>削り幅と範囲</h4><div class="sliders">
-            ${slider('rzinset', '削り幅', r.inset, 2, Math.round(hp.W / 2), 1, fmtM(r.inset))}
-            ${slider('rzslope', '傾斜の高さ', r.slope, 2, Math.round(hp.H), 1, fmtM(r.slope))}
-            ${slider('rzfrom', '範囲（艦尾側）', Math.round(r.from * 100), 0, 95, 1, `${Math.round(r.from * 100)}%`)}
-            ${slider('rzto', '範囲（艦首側）', Math.round(r.to * 100), 5, 100, 1, `${Math.round(r.to * 100)}%`)}
-          </div>
-          <label class="check"><input type="checkbox" id="rzprop" ${r.prop ? 'checked' : ''}> 船幅のすぼまりに合わせる</label></div>
-          <div class="pgroup"><button type="button" class="btn primary" id="btnRazee">ラザー化を加える</button>
-        </div>`;
-      } else {
-        const n = st.notch;
-        h += `<div class="pgroup sliders">
-          ${slider('nl', '長さ', n.l, 5, Math.round(hp.L / 2), 1, fmtM(n.l))}
-          ${slider('nw', '幅', n.w, 5, Math.round(hp.W), 1, fmtM(n.w))}
-          ${slider('nd', '深さ', n.d, 2, Math.round(Math.max(hp.H, hp.W / 2)), 1, fmtM(n.d))}</div>
-          ${seg('notchstructures', [['no','船体のみ'],['yes','船体と構造']], st.notchStructures?'yes':'no')}<p class="note">対象の外面をタップすると、その面から箱形に切り欠きます。格納庫の開口や砲座の段差に使えます。</p>`;
-      }
-      if(st.carveTool !== 'solid')h += `<details class="pgroup"><summary>ほかの加工の一覧</summary>${cutList()}</details>`;
-      h += `<div class="pinfo" id="pinfo"></div>`;
+      h = solidCutPanelHTML() + `<div class="pinfo" id="pinfo"></div>`;
       break;
     }
     case 'spec':
@@ -3719,6 +3696,40 @@ function cutList() {
   for (const c of hullEditorShip().cuts) {if(c.type==='planTrapezoid'){rows.push(`<li><span><b>平面の台形切削</b>${{both:'両舷',port:'左舷',stbd:'右舷'}[c.side]} · ${Math.round(c.from*100)}〜${Math.round(c.to*100)}% · 中央幅 ${Math.round(hullEditorProfile().W*c.remainingWidth)} m</span><button class="btn sm ghost" data-delcut="${c.id}">取り消す</button></li>`);continue;} rows.push(`<li><span><b>ラザー化</b>${{both: '両舷', port: '左舷', stbd: '右舷'}[c.side]}・${{top: '上縁', bottom: '下縁', both: '上下'}[c.edge]}・幅 ${Math.round(c.inset)} m・高さ ${Math.round(c.slope)} m・${Math.round(c.from * 100)}〜${Math.round(c.to * 100)}%</span><button type="button" class="btn sm ghost" data-delcut="${c.id}">取り消す</button></li>`);}
   for (const s of hullEditorShip().subs) rows.push(`<li><span><b>切り欠き</b>${Math.round(s.b[3] - s.b[0])}×${Math.round(s.b[5] - s.b[2])}×${Math.round(Math.min(s.b[4] - s.b[1], 9999))} m・艦尾から ${Math.round((s.b[0] + s.b[3]) / 2)} m</span><button type="button" class="btn sm ghost" data-delsub="${s.id}">取り消す</button></li>`);
   return rows.length ? `<ul class="ilist">${rows.join('')}</ul>` : '<p class="note">まだ削っていません。</p>';
+}
+// Hull-only shape tools under 形状 (user decision 2026-11-11): trench, bevel (斜め削り), notch and
+// the plan trapezoid shape the hull structure itself; 削る is the solid cutter for every structure.
+const HULL_SHAPE_TOOLS=[['trench','トレンチ'],['razee','斜め削り'],['notch','面から切る'],['plan','平面の台形']];
+function hullShapeToolsHTML(hp){
+      const r = st.razee;
+      let h = `<div class="pgroup hull-shape-tools"><h4>船体の形状加工（船体のみ）</h4>${seg('hullshapetool', [['', 'なし'], ...HULL_SHAPE_TOOLS], st.hullShapeTool||'')}</div>`;
+      if (!st.hullShapeTool) return h;
+      if (st.hullShapeTool === 'trench') h += trenchPanelHTML();
+      else if (st.hullShapeTool === 'plan') h += planCutControls();
+      else if (st.hullShapeTool === 'razee') {
+        h += `<div class="pgroup razee">
+          <p class="note">断面の角を斜めに削ぎ、台形にします。骨組みは断面に合わせて細くなりますが、質量も減るため加速の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。</p>
+          ${seg('rzside', [['both', '両舷'], ['port', '左舷'], ['stbd', '右舷']], r.side)}
+          ${seg('rzedge', [['top', '上縁'], ['bottom', '下縁'], ['both', '上下']], r.edge)}
+          </div><div class="pgroup"><h4>削り幅と範囲</h4><div class="sliders">
+            ${slider('rzinset', '削り幅', r.inset, 2, Math.round(hp.W / 2), 1, fmtM(r.inset))}
+            ${slider('rzslope', '傾斜の高さ', r.slope, 2, Math.round(hp.H), 1, fmtM(r.slope))}
+            ${slider('rzfrom', '範囲（艦尾側）', Math.round(r.from * 100), 0, 95, 1, `${Math.round(r.from * 100)}%`)}
+            ${slider('rzto', '範囲（艦首側）', Math.round(r.to * 100), 5, 100, 1, `${Math.round(r.to * 100)}%`)}
+          </div>
+          <label class="check"><input type="checkbox" id="rzprop" ${r.prop ? 'checked' : ''}> 船幅のすぼまりに合わせる</label></div>
+          <div class="pgroup"><button type="button" class="btn primary" id="btnRazee">ラザー化を加える</button>
+        </div>`;
+      } else {
+        const n = st.notch;
+        h += `<div class="pgroup sliders">
+          ${slider('nl', '長さ', n.l, 5, Math.round(hp.L / 2), 1, fmtM(n.l))}
+          ${slider('nw', '幅', n.w, 5, Math.round(hp.W), 1, fmtM(n.w))}
+          ${slider('nd', '深さ', n.d, 2, Math.round(Math.max(hp.H, hp.W / 2)), 1, fmtM(n.d))}</div>
+          ${seg('notchstructures', [['no','船体のみ'],['yes','船体と構造']], st.notchStructures?'yes':'no')}<p class="note">対象の外面をタップすると、その面から箱形に切り欠きます。格納庫の開口や砲座の段差に使えます。</p>`;
+      }
+      h += `<details class="pgroup"><summary>ほかの加工の一覧</summary>${cutList()}</details>`;
+      return h;
 }
 function renderPanelInfo() {
   const box = $('#pinfo'); if (!box || !S) return;
@@ -3759,7 +3770,7 @@ function setHullDims(L, W, H) {
   const cr = C.isCraft(ship), r = v => v;
   L = C.clamp(r(L), cr ? 1.5 : 60, lim.length); W = C.clamp(r(W), cr ? .5 : 20, lim.width); H = C.clamp(r(H), cr ? .3 : 10, lim.height);
   const fx = L / hp.L, fy = H / hp.H, fz = W / hp.W;
-  if(part&&C.setHullStructureDimensions){C.setHullStructureDimensions(ship,part,[L,W,H]);return;}
+  if(part&&C.setHullStructureDimensions){const refused=C.hullStructureResizeError?.(ship,part,[L,W,H]);if(refused){toast(T(refused));return refused;}C.setHullStructureDimensions(ship,part,[L,W,H]);return;}
   scaleContents(fx, fy, fz, st.hullFollow); hp.L = L; hp.W = W; hp.H = H;
 }
 // Length, beam and depth: hull dimensions are independent of class and the planned envelope.
@@ -4131,59 +4142,195 @@ function dragItemMove(px, py) {
   } else {
     const f = ship.fits.find(q => q.id === D.id); if (!f) return;
     const h = editorRayEnv(r.o, r.d, {structOnly: true}); if (!h) return;
-    moveFitTo(f, h.p, h.n);
+    // One seat per animation frame: pointer events can arrive several times a frame and a seat costs a few ms
+    // (6.6 ms median, 16 ms p90 for an Imperial mirror pair). The last pending hit is seated on release.
+    D.pendingHit = h;
+    if (!D.seatFrame) { const go = () => { D.seatFrame = 0; dragSeatPending(D); requestDraw(); }; D.seatFrame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame(go) || 1 : (go(), 0); }
   }
   const now = performance.now(); if (now - itemDragTouch > 90) { itemDragTouch = now; touch(D.list); scheduleStats(400); }
   requestDraw();
 }
 // Seat a fitting at a point with a face normal: the mounting axis, tilt and surface follow the new place.
-function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,g.mountMode||st.weaponMount) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(editorMountShip(), g); } catch (e) { g.float = true; } }
+// A moved fitting has no parent: the structure it was added to (host, local frame and the direct-placement
+// metadata of the anchored model) is dropped, and Core mounts it on whatever hull or structure surface is there.
+// Keeping the placement metadata without its host made mountFit report 'parent-missing' (float) on every move.
+function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,fitMountMode(g)) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; for (const k of ['local', 'localNormal', 'localForward', 'host', 'placement', '_fitPlacementError', '_placementFailure']) delete g[k]; try { C.mountFit(editorMountShip(), g); } catch (e) { g.float = true; } }
+// The mount mode a placed fitting moves with. A saved mode wins; otherwise it is read from the fitting itself
+// (a tilted gun follows faces, an upright one stays upright), not from the current placement toolbar.
+function fitMountMode(f) {
+  if (f.mountMode) return f.mountMode;
+  if (C.FITS[f.k]?.cat !== 'w') return st.weaponMount;
+  if (f.tilt) return 'auto';
+  const u = C.AXES[f.mountAxis ?? f.a] || [0, 1, 0];
+  return u[1] > .9 ? 'top' : u[1] < -.9 ? 'bottom' : 'auto';
+}
 function moveFitTo(f, p, n0) {
-  const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k,n0,f.mountMode||st.weaponMount) : n0;
+  const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k,n0,fitMountMode(f)) : n0;
   const set = seatFit;
   const links = fitLinks(f);
   set(f, p, n);
   for (const l of links) { let q = p, m = n; if (l.y) { q = C.vmirrorPoint(ship, q); m = [m[0], -m[1], m[2]]; } if (l.z) { q = C.mirrorP(q); m = C.mirrorP(m); } set(l.fit, q, m); }
   queuePreview('fits', [f, ...links.map(l => l.fit)]);
 }
-// Fore/aft or port/starboard slider move of a seated fitting: slide parallel to the face it is mounted on,
-// so a turret on a slope rises or falls with the slope instead of leaving it horizontally. The move is
-// projected onto the plane of the face under the fitting and re-seated with a short probe along the face
-// normal (8 m). A point beyond the face finds no surface and keeps the ordinary refusal (moveFitTo floats
-// it); a hit on another structure, a ridge or a face turned by more than 10 degrees blocks the move.
-function fitSurfaceSlideTarget(f, axis, v) {
-  if (!f || C.FITS[f.k]?.window || (axis !== 0 && axis !== 2) || !Number.isFinite(v)) return null;
-  const up = C.norm(C.fitUp(f) || [0, 1, 0]), h0 = editorRayEnv(C.add(f.p, C.mul(up, 4)), C.mul(up, -1), {maxT: 8, structOnly: true});
-  if (!h0?.n) return null;
-  const s = C.dot(h0.n, up) < 0 ? C.mul(h0.n, -1) : h0.n.slice();
-  // Level decks keep the plain move; walls cannot take up a fore/aft or port/starboard change in height.
-  if (Math.abs(s[1]) > .9995 || Math.abs(s[1]) < .2) return null;
-  const d = v - f.p[axis], q = f.p.slice(); q[axis] = v; q[1] = f.p[1] - s[axis] * d / s[1];
-  const reach = 8, h = editorRayEnv(C.add(q, C.mul(s, reach)), C.mul(s, -1), {maxT: reach * 2, structOnly: true});
-  if (!h?.n) return null;
-  // Only the same face continues the slide: another structure, a ridge or a sharp change of face blocks it.
-  const hn = C.dot(h.n, s) < 0 ? C.mul(h.n, -1) : h.n;
-  if ((h.part?.id ?? null) !== (h0.part?.id ?? null) || C.dot(C.norm(hn), s) < Math.cos(10 * Math.PI / 180)) return {blocked: true};
-  // A face point buried under another structure would be seated on that structure by mountFit: blocked too.
-  const g = JSON.parse(JSON.stringify(f)), spec = C.FITS[f.k];
-  seatFit(g, h.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, h.n, f.mountMode || st.weaponMount) : h.n);
-  if (g.float || C.len(C.sub(g.p, h.p)) > .5) return {blocked: true};
-  return {p: h.p, n: h.n};
+// ---------- moving a placed fitting: one seat step for drag and the X/Z sliders ----------
+// The hull and every structure form one surface set; the fitting is not tied to the structure it was added to.
+//  - 面配置 (auto): the fitting re-seats on the face under it and stands on that face's normal.
+//  - 上面 / 下面配置 (top / bottom) and fixed axes: the fitting stays upright and moves parallel to the support
+//    directly below (above), so its height follows slopes and steps.
+// The set mounting height (ped) is a property of the fitting and is kept. A move is refused only when there is
+// no surface at all; an in-hull compartment that does not fit is reported separately and does not refuse it.
+// Special mounts (bridge pods, wall-only and casemate guns, broadside / surface batteries, trench groups,
+// embedded launchers, local mounts) keep the previous move.
+function fitSeatMode(f) {
+  const d = C.FITS[f?.k];
+  if (!d || d.window || d.casemate || d.wallOnly || f.localMount || f.surfacePatch || f.trenchRef != null) return null;
+  if (C.isBroadsideBattery?.(f) || C.isTrenchBatteryGroup?.(f) || C.isShipLauncher?.(f) && f.launcherEmbedded) return null;
+  if (d.cat !== 'w') return {surface: true};
+  const mode = fitMountMode(f);
+  if (mode === 'trench') return null;
+  if (weaponTiltMode(f.k, mode) && f.mountAxis == null) return {surface: true};
+  const u = f.mountAxis != null ? C.AXES[f.mountAxis] : weaponPlacementNormal(f.k, [0, 1, 0], mode);
+  return {surface: false, up: C.norm(u)};
 }
-// Returns 'moved' (slid along the face), 'blocked' (left where it was) or 'plain' (the previous move).
-function moveFitAlongSurface(f, axis, v) {
-  const t = fitSurfaceSlideTarget(f, axis, v);
-  if (t?.blocked) return 'blocked';
-  if (t) { moveFitTo(f, t.p, t.n); return 'moved'; }
-  const p = f.p.slice(); p[axis] = v; moveFitTo(f, p, f.n || C.AXES[f.a]); return 'plain';
+// The support face at a seated fitting (short probe against its up axis).
+function fitSupportFace(f) {
+  const up = C.norm(C.fitUp(f) || [0, 1, 0]), h = editorRayEnv(C.add(f.p, C.mul(up, 4)), C.mul(up, -1), {maxT: 8, structOnly: true});
+  if (!h?.n) return null;
+  return {n: C.dot(h.n, up) < 0 ? C.mul(h.n, -1) : h.n.slice(), part: h.part?.id ?? null};
+}
+// Every hull/structure surface crossed by the line q + t*l, |t| <= R, facing the +l side and open to it: a face
+// buried inside another structure (the next surface beyond it along +l faces +l too, i.e. is that structure's
+// outer face seen from inside) is not a support.
+function fitLineSurfaces(q, l, R) {
+  const all = [], dir = C.mul(l, -1);
+  let o = C.add(q, C.mul(l, R)), left = 2 * R;
+  for (let i = 0; i < 24 && left > 1e-3; i++) {
+    const h = editorRayEnv(o, dir, {maxT: left, structOnly: true}); if (!h) break;
+    if (h.n) all.push({p: h.p.slice(), n: C.norm(h.n), part: h.part?.id ?? null, t: C.dot(C.sub(h.p, q), l)});
+    const step = Math.max(h.t, 0) + 1e-3; o = C.add(o, C.mul(dir, step)); left -= step;
+  }
+  // all[] runs from +l to -l; all[i-1] is the next surface beyond all[i].
+  return all.filter((h, i) => C.dot(h.n, l) > .05 && !(i > 0 && all[i - 1].t - h.t > .02 && C.dot(all[i - 1].n, l) > .05));
+}
+// How far from the continued face a fitting may find its new support: twice its own size (footprint diameter or
+// height, whichever is larger), at least 8 m. A step or face within that is part of the deck the fitting is
+// moving over (the Imperial-class deck steps are about 30 m for a 28 m triple turret); a surface farther away is
+// another deck, so the move is refused instead of jumping there. The reach does not grow with the slider distance.
+function fitSeatReach(f) { const d = C.fitSpec(f), s = f.scale || 1; return Math.max(8, 2 * Math.max(2 * (d.r || 0), d.hm || 0) * s); }
+// Find the seat of fitting f near the guessed point q (on the face plane continued from where it stands).
+// prev: the support face normal at the old place (orients the search line). Returns a seated detached copy
+// or null when there is no supporting surface along the search line.
+function fitSeatNear(f, q, prev, keepAxis, reach) {
+  const mode = fitSeatMode(f); if (!mode) return null;
+  const spec = C.FITS[f.k];
+  // The search line: along the fixed up axis, or along the face normal; the slider's own axis is removed so
+  // the fitting reaches exactly the X / Z the slider asks for.
+  let l = mode.surface ? (prev || C.fitUp(f) || [0, 1, 0]).slice() : mode.up.slice();
+  if (keepAxis != null) { const k = l.slice(); k[keepAxis] = 0; if (C.len(k) > .2) l = k; }
+  l = C.norm(l);
+  const hits = fitLineSurfaces(q, l, reach).sort((a, b) => Math.abs(a.t) - Math.abs(b.t) || (a.part === f.host ? -1 : b.part === f.host ? 1 : 0));
+  for (const h of hits.slice(0, 6)) {
+    let at = h, g = null;
+    for (let i = 0; i < 3; i++) {
+      const n = mode.surface ? at.n : mode.up;
+      if (spec.cat === 'w' && C.weaponMountAllowed?.(f, n) === false) { g = null; break; }
+      g = JSON.parse(JSON.stringify(f)); seatFit(g, at.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, n, fitMountMode(f)) : n);
+      if (g.float) { g = null; break; }
+      // Core mounts along the fitting's up axis from outside; a face hidden under another structure lands on that
+      // structure. Upright fittings take that landing (the support directly below); face-following ones re-seat
+      // on the face they landed on until it is stable.
+      if (!mode.surface || C.len(C.sub(g.p, at.p)) < .5) break;
+      const face = fitSupportFace(g); if (!face) { g = null; break; }
+      at = {p: g.p.slice(), n: face.n};
+    }
+    // A tilted gun is mounted by Core along its tilted axis, so its seat can drift off the slider's X / Z by a
+    // fraction of a metre. Step back along the landed face to the requested coordinate (two passes at most).
+    for (let i = 0; g && mode.surface && keepAxis != null && i < 2 && Math.abs(g.p[keepAxis] - q[keepAxis]) > 1e-3; i++) {
+      const face = fitSupportFace(g); if (!face) break;
+      const d = q[keepAxis] - g.p[keepAxis], p = g.p.slice(); p[keepAxis] += d; if (Math.abs(face.n[1]) > .2) p[1] -= face.n[keepAxis] * d / face.n[1];
+      const hit = editorRayEnv(C.add(p, C.mul(face.n, 4)), C.mul(face.n, -1), {maxT: 8, structOnly: true}); if (!hit?.n) break;
+      const g2 = JSON.parse(JSON.stringify(f)); seatFit(g2, hit.p, spec.cat === 'w' ? weaponPlacementNormal(f.k, hit.n, fitMountMode(f)) : hit.n);
+      if (g2.float || Math.abs(g2.p[keepAxis] - q[keepAxis]) >= Math.abs(g.p[keepAxis] - q[keepAxis])) break;
+      g = g2;
+    }
+    if (g && !g.float) return g;
+  }
+  return null;
+}
+// Targets of the linked twins for a seat of the primary fitting: each twin moves by the mirrored displacement
+// of the primary from where it stands (twins on an asymmetric pair of faces are not exact mirror images), and
+// searches along its own support normal (the mirrored normal of the primary when it has none).
+function fitLinkTargets(f, g) {
+  const dp = C.sub(g.p, f.p);
+  return fitLinks(f).map(l => { let m = (C.fitUp(g) || [0, 1, 0]).slice(), d = dp.slice(); if (l.y) { m = [m[0], -m[1], m[2]]; d[1] = -d[1]; } if (l.z) { m = C.mirrorP(m); d[2] = -d[2]; } const own = l.fit.float ? null : fitSupportFace(l.fit); let e = g.p.slice(); if (l.y) e = C.vmirrorPoint(ship, e); if (l.z) e = C.mirrorP(e); return {l, q: C.add(l.fit.p, d), m: own?.n || C.norm(m), mirror: e, mm: C.norm(m)}; });
+}
+// The in-hull section of a gun (charging device / VLS magazine) sits in a column under the mount. A rough
+// check for the move feedback only; the measured volume and its warning come from the ship statistics.
+function fitInteriorShort(f) {
+  try {
+    const spec = C.FITS[f.k]; if (!spec || f.float || !(C.needsCapacitor?.(f) || spec.msl && f.mount !== 'ext')) return false;
+    const up = C.norm(C.fitUp(f)), s = f.scale || 1, depth = spec.msl ? 24 * s : 12 * s, top = 2 + (f.mountOffset || 0), m = editorMountShip();
+    const samples = [top + depth * .25, top + depth * .5, top + depth * .75].map(t => C.sub(f.p, C.mul(up, t)));
+    return samples.filter(q => C.insideOriginalEnvelope(m, q)).length < 2;
+  } catch (e) { return false; }
+}
+// The shared seat step. target: {axis, value} for a slider, {hit} for a drag. Moves the fitting and its mirror
+// twins together or not at all. Returns {status:'moved'|'refused'|'legacy', interior:[ids]}.
+function seatFitMove(f, target) {
+  const mode = fitSeatMode(f);
+  if (!mode) {
+    if (target.hit) moveFitTo(f, target.hit.p, target.hit.n);
+    else { const p = f.p.slice(); p[target.axis] = target.value; moveFitTo(f, p, f.n || C.AXES[f.a]); }
+    return {status: 'legacy', interior: []};
+  }
+  const face = f.float ? null : fitSupportFace(f), prev = face?.n || null;
+  let g = null;
+  if (target.hit) {
+    const h = target.hit;
+    if (mode.surface) g = fitSeatNear(f, h.p, h.n ? (C.dot(h.n, h.n) > 0 ? C.norm(h.n) : null) : prev, null, 4);
+    if (!g) g = fitSeatNear(f, h.p, mode.surface ? prev : null, null, fitSeatReach(f));
+  } else {
+    const ax = target.axis, v = target.value, d = v - f.p[ax], q = f.p.slice(); q[ax] = v;
+    // Continue the plane of the current support face: fixed-up fittings move along their up axis, face fittings
+    // along the vertical (or, on a wall, along the other horizontal axis).
+    if (prev) {
+      const u = mode.surface ? (Math.abs(prev[1]) > .2 ? [0, 1, 0] : [ax === 0 ? 0 : 1, 0, ax === 0 ? 1 : 0]) : mode.up, den = C.dot(prev, u);
+      if (Math.abs(den) > .2) { const t = -prev[ax] * d / den; for (let i = 0; i < 3; i++) if (i !== ax) q[i] += u[i] * t; }
+    }
+    g = fitSeatNear(f, q, prev, ax, fitSeatReach(f));
+  }
+  if (!g) return {status: 'refused', interior: []};
+  const placed = [[f, g]];
+  for (const {l, q, m, mirror, mm} of fitLinkTargets(f, g)) {
+    const tm = fitSeatMode(l.fit);
+    // The exact mirror image of the primary's seat first (symmetric hulls); otherwise the twin's own face moved by
+    // the mirrored displacement (asymmetric pairs, vertical twins whose faces are not mirror images).
+    let h = tm ? fitSeatNear(l.fit, mirror, tm.surface ? mm : null, null, 4) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, 8) || fitSeatNear(l.fit, q, tm.surface ? m : null, null, fitSeatReach(l.fit)) : null;
+    if (!tm) { h = JSON.parse(JSON.stringify(l.fit)); seatFit(h, q, m); }
+    if (!h || h.float) return {status: 'refused', interior: []};
+    placed.push([l.fit, h]);
+  }
+  for (const [it, h] of placed) { for (const k of Object.keys(it)) if (!(k in h) && !k.startsWith('_')) delete it[k]; for (const k of ['_fitPlacementError', '_placementFailure', '_onPlate']) delete it[k]; Object.assign(it, h); }
+  queuePreview('fits', placed.map(x => x[0]));
+  return {status: 'moved', interior: placed.filter(x => fitInteriorShort(x[0])).map(x => x[0].id)};
+}
+// The interior notice is shown once per slider move (on its change event) or drag (on release), not per input step.
+let fitSliderMove = null;
+function fitInteriorNotice(r) { if (r?.interior?.length) toast('目安：移動先では砲の船内区画（充電装置・弾庫）が船内に収まらない見込みです。移動は反映しました。正確な不足量は性能の警告「主砲充電装置」「VLS 弾庫」で確認してください'); }
+function dragSeatPending(D) {
+  const h = D?.pendingHit; if (!h) return; D.pendingHit = null;
+  const f = ship.fits.find(q => q.id === D.id); if (!f) return;
+  if (seatFitMove(f, {hit: h}).status === 'moved') D.seated = true;
 }
 function dragItemEnd(cancel) {
   const D = itemDrag; itemDrag = null; if (!D?.moving) return;
+  if (D.seatFrame && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(D.seatFrame); D.seatFrame = 0;
+  if (!cancel) dragSeatPending(D);
   if (D.multi) { dragSelEnd(D, cancel); return; }
   if (cancel && dragSnap) { const old = dragSnap; dragSnap = null; restore(old); return; }
   touch(D.list); endDrag(); scheduleStats(30);
   const it = D.list === 'fits' ? ship.fits.find(q => q.id === D.id) : null;
-  if (it?.float) toast(C.FITS[it.k].window ? '艦橋ポッドは構造物の壁に移してください' : 'この位置には据え付けられません。面の上へ移してください');
+  if (it?.float) toast(C.FITS[it.k].window ? '艦橋ポッドは構造物の壁に移してください' : 'この位置には据え付けられません。面の上へ移してください'); else if (it && D.seated) fitInteriorNotice({interior: [it, ...fitLinks(it).map(l => l.fit)].filter(fitInteriorShort).map(q => q.id)});
   renderPanel(); requestDraw();
 }
 function attachControls(canvas) {
@@ -4454,7 +4601,8 @@ function bind() {
     else if (d.fit) { selectPaletteDefinition('fit',d.fit); }
     else if (d.bridgetool) { if (d.bridgetool === 'place' && st.bridgeTool !== 'place') carryToPlace(); st.bridgeTool = d.bridgetool; if (d.bridgetool !== 'adjust') st.sel = null; renderPanel(); }
     else if (d.bridge) { selectPaletteDefinition('bridge',d.bridge); }
-    else if (d.carvetool) { st.carveTool = d.carvetool; renderPanel(); }
+    else if (d.carvetool) { if (d.carvetool === 'solid') st.carveTool = 'solid'; else { st.tab = 'hull'; st.hullShapeTool = d.carvetool; } renderPanel(); }
+    else if ('hullshapetool' in d) { st.hullShapeTool = d.hullshapetool || null; renderPanel(); }
     else if (d.hull) {
       const P = C.HULLS[d.hull], hp = hullEditorProfile();
       mutate(`${P.name}船体`, () => { setHullDims(hp.L, Math.round(hp.L * P.W / P.L), Math.round(hp.L * P.H / P.L)); delete hp.stations; Object.assign(hp, {plan: P.plan, sec: P.sec, bowW: P.bowW, bowH: P.bowH, stern: P.stern, name: P.name}); C.normalizeBow(hp); }, 'hull');
@@ -4933,7 +5081,7 @@ function designUIPanel(){
     const placement=designUIPlacementHTML();if(placement)panel.insertAdjacentHTML('beforeend','<details data-design-attachment><summary>取付・配置方式</summary>'+placement+'</details>');
     if(st.sel?.list==='parts'&&C.isStructuralPart(selItem())&&!panel.querySelector('[data-design-here]'))panel.insertAdjacentHTML('beforeend','<div class="design-placement-actions"><button type="button" class="btn" data-design-here>ここに構造物を追加</button></div>');
     panel.insertAdjacentHTML('afterbegin',designUISymmetryHTML(true));
-    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="carve">トレンチ・切削</button>':'')+'</div>');
+    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
    }
    if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p><div class="design-placement-actions"><button type="button" class="btn ghost" data-design-action="edit-cancel">取消</button></div></section>');designUIEditStatus();}
   }
@@ -4991,7 +5139,10 @@ function designUIContextOpen(context){
  if(context==='armor'&&!C.isHullStructure?.(item)){
   const region=$('[data-structure-face-armor-editor]');if(region){const fold=region.closest('details');if(fold)fold.open=true;region.scrollIntoView?.({block:'nearest'});region.querySelector('input')?.focus();}return;
  }
- if(!C.isHullStructure?.(item)||!['armor','carve'].includes(context))return;
+ // 削る works on every structure (user decision 2026-11-11); armor and the hull shape tools
+ // (形状) stay with hull structures.
+ if(context==='carve'&&C.isShapePart(item)){designUI.resetScroll=true;designUI.context='carve';st.tab='carve';if(!C.isHullStructure?.(item))st.cutterHullId=null;renderPanel();return;}
+ if(!C.isHullStructure?.(item)||!['armor','hull'].includes(context))return;
  designUI.resetScroll=true;designUI.context=context;st.tab=context;renderPanel();
 }
 async function designUITrialStart(){
@@ -5959,7 +6110,7 @@ function trenchArmamentOpen(item){
   const ref=item?.trenchRef;if(!ref)return false;
   if(designUI.space!=='exterior'){designSpaceNotice();return false;}
   if(typeof designUIEditSession==='function'&&designUIEditSession())designUIEditApply({close:true});
-  designUICancel();designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.context='trench';st.tab='carve';st.carveTool='trench';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');
+  designUICancel();designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.context='trench';st.tab='hull';st.hullShapeTool='trench';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');
   const parent=ship.parts.find(p=>p.id===ref.hostId&&C.isHullStructure?.(p));st.sel=parent?{list:'parts',id:parent.id}:null;
   trenchArmamentChoose(ref.trenchId);syncHud();refreshOverlay();requestDraw();return true;
 }
@@ -6318,7 +6469,7 @@ function bindEngineering(){
       const make=dir=>{let y=Math.atan2(dir[2],-dir[0]),p=Math.asin(dir[1]);if(k.endsWith('Yaw'))y=v*Math.PI/180;else p=v*Math.PI/180;return [-Math.cos(y)*Math.cos(p),Math.sin(p),Math.sin(y)*Math.cos(p)];};
       if(k.startsWith('new'))st.engineDir=make(st.engineDir);else live(()=>editEngineSelection(p=>p.dir=make(p.dir||[-1,0,0])));if(out)out.textContent=deg(v);
     }
-    if(['fitX','fitZ','fitY','fitAlong'].includes(k)){const f=selItem();if(f&&st.sel.list==='fits'){beginDrag('装備の位置');if((k==='fitX'||k==='fitZ')&&!C.FITS[f.k].window){const ax=k==='fitX'?0:2;moveFitAlongSurface(f,ax,v);touch('fits');scheduleStats(350);const at=f.p[ax];if(Number.isFinite(at)&&Math.abs(at-v)>1e-9)e.target.value=String(+at.toFixed(3));if(out)out.textContent=fmtM(at);return;}const p=f.p.slice();if(k==='fitX')p[0]=v;else if(k==='fitZ')p[2]=v;else if(k==='fitY')p[1]=v;else{const fr=C.windowFrame(f),host=ship.parts.find(q=>q.id===f.host),cur=C.dot(C.sub(f.p,host?host.c:[0,0,0]),fr.fw);for(let a=0;a<3;a++)p[a]+=fr.fw[a]*(v-cur);}moveFitTo(f,p,f.n||C.AXES[f.a]);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);}}
+    if(['fitX','fitZ','fitY','fitAlong'].includes(k)){const f=selItem();if(f&&st.sel.list==='fits'){beginDrag('装備の位置');if((k==='fitX'||k==='fitZ')&&!C.FITS[f.k].window){const ax=k==='fitX'?0:2;if(seatFitMove(f,{axis:ax,value:v}).status==='moved')fitSliderMove=true;touch('fits');scheduleStats(350);const at=f.p[ax];if(Number.isFinite(at)&&Math.abs(at-v)>1e-9)e.target.value=String(+at.toFixed(3));if(out)out.textContent=fmtM(at);return;}const p=f.p.slice();if(k==='fitX')p[0]=v;else if(k==='fitZ')p[2]=v;else if(k==='fitY')p[1]=v;else{const fr=C.windowFrame(f),host=ship.parts.find(q=>q.id===f.host),cur=C.dot(C.sub(f.p,host?host.c:[0,0,0]),fr.fw);for(let a=0;a<3;a++)p[a]+=fr.fw[a]*(v-cur);}moveFitTo(f,p,f.n||C.AXES[f.a]);touch('fits');scheduleStats(350);if(out)out.textContent=fmtM(v);}}
 
     if(k==='shieldTarget'){live(()=>ship.shieldTarget=v/100,'none');if(out)out.textContent=v+'%';}
   });
@@ -6378,7 +6529,7 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
   referencePanel(panel);layoutPanel(panel);
   if(st.tab==='hull')panel.insertAdjacentHTML('afterbegin',hullDimsHTML());
   if(st.tab==='bridge'&&st.bridgeMode==='body')panel.insertAdjacentHTML('beforeend',surfaceControls({},false));
-  if(['hull','carve','armor'].includes(st.tab))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
+  if(['hull','carve','armor'].includes(st.tab)&&!(st.sel?.list==='parts'&&C.isShapePart(selItem())&&!C.isHullStructure?.(selItem())))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
   if(st.tab==='spec')panel.insertAdjacentHTML('afterbegin',trialCardHTML());
   organizePanel();
 }
@@ -8660,7 +8811,7 @@ function surfaceRuntimeHTML(u){
  if(!u)return '';const battery=typeof C.surfaceBatteryStatus==='function'?C.surfaceBatteryStatus(u):null,power=typeof C.powerStatus==='function'?C.powerStatus(u):null,shield=typeof C.shieldStatus==='function'?C.shieldStatus(u):null,html=[],fmt=v=>num(Math.max(0,v||0),3),faces={fore:'前面',aft:'後面',top:'上面',bottom:'下面',port:'左舷',stbd:'右舷'};
  if(battery?.totals?.installed){const t=battery.totals;html.push(`<p class="ts-line" data-battery-totals>表面砲列：設置 ${t.installed} 基 · 残存 ${t.surviving} 基 · 稼働 ${t.operable} 基 · 射撃可能 ${t.fireable} 基</p><p class="ts-line">砲身総数 ${t.barrels} 門 · 兵装蓄電 ${fmt(t.energy)} / ${fmt(t.capacity)} TT</p><ul class="ts-log">${battery.rows.filter(r=>r.installed).map((r,i)=>{const p=u.p.surface.patches.find(p=>p.id===r.id),name=`${faces[p?.face]||'外面'}の砲列 ${i+1}`;return `<li data-battery-cell-status><b>${esc(name)}</b> · 残存 ${r.surviving}/${r.installed} · 稼働 ${r.operable} · ${esc(r.causes.length?r.causes.join(' · '):'稼働')}</li>`;}).join('')}</ul>`);}
  const armor=Object.entries(u.surfaceArmor||{}).filter(([,a])=>a.integrity<.999||a.load>0);if(armor.length)html.push(`<p class="ts-line" data-surface-armor>${armor.map(([id,a])=>{const p=u.p.surface.patches.find(p=>p.id===id);return `${esc(faces[p?.face]||'外面')} · 装甲 ${Math.round(a.integrity*100)}%`;}).join('<br>')}</p>`);
- const h=power?.thermal;if(h)html.push(`<p class="ts-line" data-ship-heat>全艦蓄熱 ${Number(h.qJ).toExponential(3)} / ${Number(h.capacityJ).toExponential(3)} J（${Math.round(h.peak*100)}%） · 出力上限 ${Math.round(h.outputFactor*100)}%</p>`);const gv=me.heatGov;if(gv?.active)html.push(`<p class="ts-line warn" data-heat-governor>熱制御中 · 推力 ${Math.round(gv.engine*100)}% · 砲の充電 ${Math.round(gv.weapon*100)}%</p>`);
+ const h=power?.thermal;if(h)html.push(`<p class="ts-line" data-ship-heat>全艦蓄熱 ${Number(h.qJ).toExponential(3)} / ${Number(h.capacityJ).toExponential(3)} J（${Math.round(h.peak*100)}%） · 出力上限 ${Math.round(h.outputFactor*100)}%</p>`);const gv=u.heatGov;if(gv?.active)html.push(`<p class="ts-line warn" data-heat-governor>熱制御中 · 推力 ${Math.round(gv.engine*100)}% · 砲の充電 ${Math.round(gv.weapon*100)}%</p>`);
  if(h&&!h.online)html.push(`<p class="ts-line" data-power-recovery>全艦停電 · 復旧作業 ${Math.round(h.restartWork*100)}% · 乗員充足率 ${Math.round(h.crewFraction*100)}%（蓄熱90%以下で再起動）</p>`);
  const e=shield?.last,J=v=>Number(Math.max(0,v||0)).toExponential(3)+' J';if(e)html.push(`<p class="ts-line" data-shield-budget>被弾収支：入射 ${J(e.incomingJ)} · 艦外放出 ${J(e.externalJ)} · シールド消費 ${J(e.shieldDebitJ)} · 一時保持 ${J(e.storedDeltaJ)} · 艦内蓄熱 ${J(e.onboardHeatJ)}</p>`);
  return html.length?`<div class="surface-runtime" data-surface-runtime>${html.join('')}</div>`:'';
@@ -9168,7 +9319,7 @@ function spaceBattleInit(plan){
  // the streaks are seen side-on, in an echelon one ship after another. They
  // arrive a little above the flagship's plane, where dorsal batteries bear.
  const n=plan.foes.length;plan.foes.forEach((x,i)=>{const u=C.fleetUnit('e'+i,x.key,x.p,1),gap=Math.max(2600,x.p.len*2.2);u.name=x.name;u.pos=[17000+i*gap*.55,500+(i%3)*450,5000+i*gap*.8];u.yaw=-Math.PI*.8;u.absent=true;u.warp={at:3+i*.6,t:0};units.push(u);});
- const b=C.fleetBattle(units,true);b.seed=(Math.random()*2**31)|0;
+ const b=C.fleetBattle(units,true);b.seed=(Math.random()*2**31)|0;C.fleetPrepareCollision?.(units);
  trial.battle={b,O,E,acc:0,extra:new Map(),seen:0,result:null,orderT:0,me,plan,ticker:[],modIndex:new Map((trial.p.modules||[]).map((m,i)=>[m.fit,i]).filter(([f])=>f!=null)),kills:0,disabled:0};
  trial.targets=[];trial.vbolts=[];spaceRefresh(0);
 }
@@ -9664,9 +9815,13 @@ function spaceSurfaceTurretPose(a,target,rest,mount,asset){
  }
  const rot=X?m3Mul(X.rot,aim):aim,pose={mesh:rest.mesh,pivot:pivot.slice(),rot,aim,fit:mount.id};cache.set(key,pose);return pose;
 }
+// Turret meshes look up their mount every frame; index each profile's mounts
+// by id once (the first mount with an id, as find() returned).
+const spaceMountIndex=new WeakMap();
+function spaceMountById(mounts,id){let x=spaceMountIndex.get(mounts);if(!x||x.length!==mounts.length){const at=new Map();for(const m of mounts)if(!at.has(m.id))at.set(m.id,m);x={length:mounts.length,at};spaceMountIndex.set(mounts,x);}return x.at.get(id);}
 function spaceSurfaceTurrets(a,target){
  if(!a.p?.surface)return undefined;const asset=a.key===trial.asset?.key?trial.asset:fleet.assets.get(a.key);if(!asset?.geometry?.turrets)return undefined;
- return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=a.p.surface.mounts.find(m=>m.id===rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
+ return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=spaceMountById(a.p.surface.mounts,rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
 }
 function spaceShotEmitter(a,t,index,ion=false,sourceFit,sourceMuzzle){
  if(!a.p?.surface)return {pos:spaceHullPoint(a,.4),fixed:false};
@@ -10227,7 +10382,7 @@ function bindLayout(){
   if('commandEnabled'in t.dataset){mutate('指揮システムを切り替え',()=>editSel(f=>f.commandEnabled=t.checked),'fits');renderPanel();}
   if('bodycommand'in t.dataset){mutate('艦橋本体の指揮所を切り替え',()=>editSel(p=>{if(C.bridgeBodyRole(p)){if(t.checked)delete p.commandEnabled;else p.commandEnabled=false;}}),'parts');renderPanel();}
   if(['commandDepth','commandHeight'].includes(t.dataset.sl)){endDrag();renderPanel();}
-  if(['fitX','fitZ','fitY','fitAlong'].includes(t.dataset.sl)){endDrag();const f=selItem();if(f?.float)toast(weaponMountIssue(f,C.fitUp(f))||(C.FITS[f.k].window?'艦橋ポッドが壁から外れています。位置を戻してください':'この位置には据え付けられません'));renderPanel();}
+  if(['fitX','fitZ','fitY','fitAlong'].includes(t.dataset.sl)){endDrag();const f=selItem(),moved=fitSliderMove;fitSliderMove=null;if(moved&&f&&!f.float)fitInteriorNotice({interior:[f,...fitLinks(f).map(l=>l.fit)].filter(fitInteriorShort).map(q=>q.id)});if(f?.float)toast(weaponMountIssue(f,C.fitUp(f))||(C.FITS[f.k].window?'艦橋ポッドが壁から外れています。位置を戻してください':'この位置には据え付けられません'));renderPanel();}
  });
  $('#panel').addEventListener('input',e=>{const t=e.target;if(t.value===''||!Number.isFinite(+t.value))return;const k=t.dataset.sl;
   if(['commandDepth','commandHeight'].includes(k)){beginDrag('指揮区画の寸法');editSel(f=>f[k]=C.clamp(+t.value,2,k==='commandDepth'?200:80));touch('fits');scheduleStats(150);const out=$('#out-'+k);if(out)out.textContent=fmtM(+t.value);}
@@ -10240,17 +10395,40 @@ let cutterOwner=null,cutterOverlayKey='',cutterDrag=null;
 const CUTTER_NAMES=C.SOLID_CUT_SHAPES;
 
 function ownedSolidCut(id){for(const p of ship?.parts||[])if(C.isHullStructure?.(p)){const cut=p.hullData?.solidCuts?.find(q=>q.id===id);if(cut)return{part:p,cut};}return null;}
-function visibleSolidCuts(){return[...(ship.solidCuts||[]),...ship.parts.filter(p=>C.isHullStructure?.(p)).flatMap(p=>(p.hullData?.solidCuts||[]).map(q=>C.hullWorldSolidCut(p,q)))];}
-function worldSolidCut(id){const own=ownedSolidCut(id);return own?C.hullWorldSolidCut(own.part,own.cut):ship.solidCuts?.find(q=>q.id===id);}
+// Cuts in the world frame. A mirrored hull-owned cut mirrors about its hull's centreline, which is not
+// world z=0 for a hull off the centreline (or turned): such a cut carries hullMirror (its hull's id), and
+// cutterMirrorHull/solidCutWorldPieces draw its mirror half there, not at -z.
+function hullMirrorTag(p,q){const w=C.hullWorldSolidCut(p,q);if(w.mirror&&!C.hullMirrorIsWorldMirror(p))w.hullMirror=p.id;return w;}
+function visibleSolidCuts(){return[...(ship.solidCuts||[]).map(q=>{const pair=C.solidCutMirrorPartner?.(ship,q.id);return pair?{...q,mirrorPair:pair.mate.id}:q;}),...ship.parts.filter(p=>C.isHullStructure?.(p)).flatMap(p=>(p.hullData?.solidCuts||[]).map(q=>hullMirrorTag(p,q)))];}
+function worldSolidCut(id){const own=ownedSolidCut(id);return own?hullMirrorTag(own.part,own.cut):ship.solidCuts?.find(q=>q.id===id);}
+// The hull whose centreline the draft's mirror uses, or null for world z=0. A cut being edited keeps its
+// own plane (a hull-owned cut its hull's, a ship-level cut z=0) whatever its 全体に適用 switch says, and
+// Apply keeps it there (splitting into halves as Core does); a new cut takes the plane of where Apply puts it.
+function cutterMirrorHull(q){
+  if(!ship||!q)return null;
+  // A half of a split mirrored cut (scope 'all' on a hull off the centreline) is drawn and edited with its
+  // other half: the plane is that hull's centreline, and cutterPieces draws both.
+  if(!q.mirror){const pair=st.solidCutEdit!=null?C.solidCutMirrorPartner?.(ship,st.solidCutEdit):null;return pair?pair.hull:null;}
+  const hull=st.solidCutEdit!=null?ownedSolidCut(st.solidCutEdit)?.part:!q.structures&&(ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p))||ship.parts.find(p=>C.isHullStructure?.(p)&&p.primaryHull));
+  return hull&&!C.hullMirrorIsWorldMirror(hull)?hull:null;
+}
+// The world pieces the draft removes: one cut, a cut and its mirror half at its hull's centreline, or a
+// split half and its other half.
+function cutterPieces(q){const hull=cutterMirrorHull(q);return C.solidCutWorldPieces(hull&&!q.mirror?{...q,mirror:true}:q,hull);}
 function resetSolidCutter(){
   cutterOwner=ship;st.solidCutter=null;st.solidCutEdit=null;st.cutterHullId=null;st.cutterVisible=true;st.cutterAction='place';cutterDrag=null;cutterOverlayKey='';
 }
 function ensureSolidCutter(){
   if(cutterOwner!==ship)resetSolidCutter();
   if(!st.solidCutter&&ship){
-    const part=hullEditorPart(),local=hullEditorShip(),h=hullEditorProfile(),x=h.L*.55,b=C.sectionBase(h,x),z=b.hw*.65;
+    // A new cutter applies to every structure it meets (scope 'all', user decision 2026-11-11). It starts
+    // on the selected structure when one that is not a hull is selected.
+    const picked=st.sel?.list==='parts'?selItem():null;
+    if(picked&&C.isShapePart(picked)&&!C.isHullStructure?.(picked)){const b=C.partAABB(picked),size=[0,1,2].map(i=>Math.max(.5,(b[i+3]-b[i])*.5));st.cutterHullId=null;
+      st.solidCutter=C.normalizeSolidCut({id:-1,shape:'box',c:[0,1,2].map(i=>(b[i]+b[i+3])/2),s:[size[0],size[2],size[1]],rotation:[0,0,0],mirror:st.mirror,structures:true});}
+    else{const part=hullEditorPart(),local=hullEditorShip(),h=hullEditorProfile(),x=h.L*.55,b=C.sectionBase(h,x),z=b.hw*.65;
     const y=C.originalSurface(local,x,1,z,1)??b.ytop;st.cutterHullId=part?.id??null;
-    st.solidCutter=C.normalizeSolidCut({id:-1,shape:'box',c:part?C.hullWorldPoint(part,[x,y,z]):[x,y,z],s:[Math.max(12,h.L*.12),Math.max(8,h.W*.15),Math.max(8,h.H*.45)],rotation:[0,0,0],mirror:st.mirror,structures:!!h.assembly});
+    st.solidCutter=C.normalizeSolidCut({id:-1,shape:'box',c:part?C.hullWorldPoint(part,[x,y,z]):[x,y,z],s:[Math.max(12,h.L*.12),Math.max(8,h.W*.15),Math.max(8,h.H*.45)],rotation:[0,0,0],mirror:st.mirror,structures:true});}
   }
   return st.solidCutter;
 }
@@ -10271,7 +10449,7 @@ function solidCutPanelHTML(){
   const q=ensureSolidCutter(),editing=st.solidCutEdit!=null;
   return `<div class="pgroup cutter-editor">
     <div class="cutter-heading"><h3>${editing?'切削 #'+st.solidCutEdit+' を調整':'立体を重ねて切り取る'}</h3>${editing?'<button class="btn sm ghost" data-cutter-new>新規</button>':''}</div>
-    <p class="note">半透明の立体を船体に重ね、重なった部分を切り取ります。位置と大きさを決めてから実行できます。</p>
+    <p class="note">半透明の立体を船体や構造物に重ね、重なった部分を切り取ります。「全体に適用」がオンなら、重なるすべての構造物（板・翼・パネルを含む）を切ります。固定機器に重なると点検に警告が出ます（機器は動かしません）。</p>
     <div class="cutter-shapes hscroll">${Object.entries(CUTTER_NAMES).map(([k,name])=>`<button type="button" class="btn" data-cutter-shape="${k}" aria-pressed="${q.shape===k}">${name}</button>`).join('')}</div>
     <h4>1 · 大きさを決める</h4>
     ${q.shape==='sphere'?`<div class="cutter-coords"><label>直径<span><input type="number" inputmode="decimal" data-cutter-field="s" data-axis="0" min=".02" max="${C.DESIGN_LIMITS.partSize}" step="any" value="${cutterNumber(q.s[0])}" aria-label="カッターの直径"><i>m</i></span></label></div>`:cutterInputs('s',q.shape==='torus'?['外径（前後）','外径（左右）','管の太さ']:['長さ','幅','高さ'],'m')}
@@ -10290,11 +10468,11 @@ function solidCutPanelHTML(){
       <div class="row2"><button class="btn sm" data-cutter-center>左右中央へ</button><button class="btn sm" data-cutter-through>上下に貫通</button></div>
     </details>
     <details class="cutter-rotation"><summary>角度を変える</summary>${cutterInputs('rotation',['X軸回転','Y軸回転','Z軸回転'],'°')}<div class="cutter-nudge">${[0,1,2].map(a=>`<button class="btn sm" data-cutter-turn="${a}">${['X','Y','Z'][a]} +90°</button>`).join('')}</div><button class="btn sm ghost" data-cutter-zero>回転を戻す</button></details>
-    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 上部構造・船殻パーツも切る</label></div></div>
+    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''} ${cutterLinkedHalf()?'disabled title="この切削は左右対称の片側です（もう片側と一緒に動きます）"':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 全体に適用（重なるすべての構造物を切る）</label></div></div>
     <p class="note">${editing?'変更は実行するまで確定しません。':['cylinder','ellcyl','cone','frustum'].includes(q.shape)?'軸は初期状態で上下方向です。':q.shape==='capsule'?'カプセルの軸は前後方向です。':q.shape==='torus'?'リングは水平で、管の太さは高さで決まります。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
     <div class="cutter-apply"><button type="button" class="btn primary" data-cutter-apply>${editing?'この形で切削を更新':'重なりを切り取る'}</button>${editing?'<button class="btn ghost" data-cutter-cancel>調整をやめる</button>':''}</div>
   </div><div class="pgroup"><div class="cutter-heading"><h4>立体で切った箇所</h4><button class="btn sm ghost" data-cutter-new>新しいカッター</button></div>
-  <ul class="ilist cutter-history">${visibleSolidCuts().map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?' · 左右対称':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
+  <ul class="ilist cutter-history">${visibleSolidCuts().map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?(c.hullMirror!=null?' · 左右対称（船体の中心線）':' · 左右対称'):c.mirrorPair!=null?' · 左右対称の片側（#'+c.mirrorPair+' と一緒に動きます）':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-scope="${c.id}" aria-pressed="${C.solidCutScope(ship,c.id)==='all'}" title="オンで重なるすべての構造物を切ります。オフで船体だけを切ります">全体に適用：${C.solidCutScope(ship,c.id)==='all'?'オン':'オフ'}</button><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
   <p class="note">元に戻す・やり直す操作にも対応します。</p></div>`;
 }
 function syncCutterFields(){
@@ -10303,10 +10481,10 @@ function syncCutterFields(){
 }
 function refreshSolidCutterOverlay(){
   if(!view)return;
-  const q=cutterActive()&&st.cutterVisible!==false?ensureSolidCutter():null,key=q?JSON.stringify(q):'off';
+  const q=cutterActive()&&st.cutterVisible!==false?ensureSolidCutter():null,pieces=q?cutterPieces(q):null,key=q?JSON.stringify(pieces):'off';
   if(key===cutterOverlayKey)return;
   cutterOverlayKey=key;
-  const g=Gfx.meshSolidCutter(q);
+  const g=Gfx.meshSolidCutter(q,pieces);
   view.upload('cutter',g.mesh);view.setLines('cutter',g.lines);requestDraw();
 }
 function updateCutterDraft(rerender=false){
@@ -10327,17 +10505,44 @@ function applySolidCutter(){
   if(!draft)return false;
   if(!editing&&visibleSolidCuts().length>=32){toast('立体切削は32箇所までです。一覧から既存の切削を調整してください');return false;}
   if(!editing&&C.solidCutIntersectsShip&&!C.solidCutIntersectsShip(ship,draft)){toast('船体との重なりがありません。位置や大きさを調整してください');return false;}
-  let applied;
+  let applied;const pair=editing?C.solidCutMirrorPartner?.(ship,st.solidCutEdit):null;
   const changed=mutate(editing?'立体切削を調整':'立体の重なりを切削',()=>{
-    ship.solidCuts||=[];const owned=editing?ownedSolidCut(st.solidCutEdit):null,owner=owned?.part||ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p)),i=editing?ship.solidCuts.findIndex(q=>q.id===st.solidCutEdit):-1;
+    ship.solidCuts||=[];const owned=editing?ownedSolidCut(st.solidCutEdit):null,i=editing?ship.solidCuts.findIndex(q=>q.id===st.solidCutEdit):-1;
     if(editing&&i<0&&!owned)return '調整する切削が見つかりません';
-    applied=C.normalizeSolidCut({...draft,id:editing?st.solidCutEdit:ship.nextId++});
-    if(owner&&C.hullOwnSolidCut){if(owned)owner.hullData.solidCuts=owner.hullData.solidCuts.filter(c=>c.id!==applied.id);C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
-    else{if(i>=0)ship.solidCuts[i]=applied;else ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;}
+    applied=C.normalizeSolidCut({...draft,id:editing?st.solidCutEdit:ship.nextId++,...(pair?{mirror:false}:{})});
+    // An edited cut that changes scope goes through Core.setSolidCutScope, like the list's switch: a mirrored
+    // cut keeps its mirror plane (cutterMirrorHull; a hull's centreline and world z=0 differ for a hull off the
+    // centreline, so it splits into its halves), and halves coming back to their hull join into one cut.
+    const from=owned&&applied.mirror&&!C.hullMirrorIsWorldMirror(owned.part)?owned.part:null;
+    // The draft's 全体に適用 switch decides the scope: on is a ship-level cut that carves every
+    // structure; off keeps (or makes) it a hull-owned cut that carves its hull only.
+    const owner=applied.structures?null:owned?.part||pair?.hull||ship.parts.find(p=>p.id===st.cutterHullId&&C.isHullStructure?.(p))||ship.parts.find(p=>C.isHullStructure?.(p)&&p.primaryHull);
+    if(owned)owned.part.hullData.solidCuts=owned.part.hullData.solidCuts.filter(c=>c.id!==applied.id);if(i>=0)ship.solidCuts.splice(i,1);
+    // Editing one half of a split mirrored cut edits both: the other half becomes this one's mirror about
+    // the pair's hull centreline (and, switched to hull-only, they go back and join as one cut).
+    if(pair&&!applied.mirror){const j=ship.solidCuts.findIndex(c=>c.id===pair.mate.id);if(j>=0)ship.solidCuts[j]=C.solidCutMirrorOf(pair.hull,{...applied,structures:pair.mate.structures},pair.mate.id);}
+    if(owner&&C.hullOwnSolidCut){if(editing&&!owned){ship.solidCuts.push({...applied,structures:true});C.setSolidCutScope(ship,applied.id,'hull',owner.id);}else C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
+    else{if(from){C.hullOwnSolidCut(ship,from,applied);C.setSolidCutScope(ship,applied.id,'all');}else ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;for(const p of ship.parts)if(applied.structures&&C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled)p.hullData.hullSkin.enabled=false;}
   },'hull');
-  if(changed&&applied){st.solidCutEdit=applied.id;st.solidCutter=C.normalizeSolidCut(applied);st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
+  if(changed&&applied){const q=worldSolidCut(applied.id);st.solidCutEdit=q?applied.id:null;st.solidCutter=C.normalizeSolidCut(q||{...applied,id:-1});st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
   renderPanel();return !!changed;
 }
+// The list's 全体に適用 switch and 取り消す. Each is one mutate (one Undo step); for a half of a split
+// mirrored pair, Core.setSolidCutScope moves both halves, and 取り消す removes both.
+function toggleSolidCutScope(id){
+  const next=C.solidCutScope(ship,id)==='all'?'hull':'all';
+  mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,C.solidCutMirrorPartner?.(ship,id)?null:st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');
+  // The switch can move the edited cut's partner too, so the draft always re-reads the cut being edited.
+  if(st.solidCutEdit!=null){const q=worldSolidCut(st.solidCutEdit);if(q)st.solidCutter=C.normalizeSolidCut(q);else{st.solidCutEdit=null;st.solidCutter=C.normalizeSolidCut({...st.solidCutter,id:-1});}}
+  renderPanel();
+}
+function deleteSolidCut(id){
+  mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id),mate=own?null:C.solidCutMirrorPartner?.(ship,id)?.mate.id;if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id&&c.id!==mate);},'hull');
+  if(st.solidCutEdit!=null&&!worldSolidCut(st.solidCutEdit)){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();
+}
+// The split half being edited, if any ({hull,mate}). Its 左右対称 switch is off and disabled: the pair
+// already is the mirrored cut, and a mirror on one half would duplicate the other.
+function cutterLinkedHalf(){return st.solidCutEdit!=null&&ship?C.solidCutMirrorPartner?.(ship,st.solidCutEdit)||null:null;}
 function cutterPlanePoint(px,py,point,normal){
   const r=view?.ray(px,py);if(!r)return null;const den=C.dot(r.d,normal);if(Math.abs(den)<1e-6)return null;
   const t=C.dot(C.sub(point,r.o),normal)/den;if(!Number.isFinite(t)||t<0)return null;return C.add(r.o,C.mul(r.d,t));
@@ -10368,7 +10573,8 @@ function bindSolidCuts(){
     if('cutterCancel'in d){const c=worldSolidCut(st.solidCutEdit);if(c)st.solidCutter=C.normalizeSolidCut(c);st.solidCutEdit=null;st.cutterAction='camera';updateCutterDraft(true);}
     if('cutterApply'in d)applySolidCutter();
     if(d.cutterSelect)selectSolidCut(+d.cutterSelect);
-    if(d.cutterDelete){const id=+d.cutterDelete;mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id);if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id);},'hull');if(st.solidCutEdit===id){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();}
+    if(d.cutterScope)toggleSolidCutScope(+d.cutterScope);
+    if(d.cutterDelete)deleteSolidCut(+d.cutterDelete);
     if(d.cutterScale){const q=ensureSolidCutter();q.s=q.s.map(v=>v*Number(d.cutterScale));updateCutterDraft(false);}
     if('cutterNudge'in d){const q=ensureSolidCutter(),a=+d.cutterNudge;q.c[a]+=st.cutterStep*(+d.direction);updateCutterDraft(false);}
     if('cutterTurn'in d){const q=ensureSolidCutter(),a=+d.cutterTurn;q.rotation[a]=((q.rotation[a]+270)%360)-180;updateCutterDraft(false);}
@@ -10385,7 +10591,7 @@ function bindSolidCuts(){
   $('#panel').addEventListener('change',e=>{
     const t=e.target,d=t.dataset;onField(e);
     if('cutterVisible'in d){st.cutterVisible=t.checked;cutterOverlayKey='';refreshSolidCutterOverlay();}
-    if('cutterMirror'in d){ensureSolidCutter().mirror=t.checked;updateCutterDraft(true);}
+    if('cutterMirror'in d){ensureSolidCutter().mirror=t.checked&&!cutterLinkedHalf();updateCutterDraft(true);}
     if('cutterStructures'in d){ensureSolidCutter().structures=t.checked;updateCutterDraft(true);}
     if('cutterPlane'in d&&['screen','xz','xy','yz'].includes(t.value))st.cutterPlane=t.value;
     if('cutterStep'in d&&t.value!==''&&Number.isFinite(+t.value))st.cutterStep=C.clamp(+t.value,.01,1000);
@@ -14786,7 +14992,7 @@ function patrolBattleStart(group) {
   const u = C.fleetUnit('e' + (P.uid++), x.key, x.p, 1), gap = Math.max(2600, x.p.len * 2.2), back = i * gap * .4, off = i * gap * .8 * (i % 2 ? -1 : 1);
   u.name = x.name;u.pos = [cd[0] * (R0 + back) + sd[0] * off, 400 + (i % 3) * 450, cd[1] * (R0 + back) + sd[1] * off];u.yaw = Math.atan2(-u.pos[2], -u.pos[0]) + (Math.random() - .5) * .3;u.absent = true;u.warp = {at: 4 + i * .6, t: 0};units.push(u);
  });
- const b = C.fleetBattle(units, true);b.seed = (Math.random() * 2 ** 31) | 0;
+ const b = C.fleetBattle(units, true);b.seed = (Math.random() * 2 ** 31) | 0;C.fleetPrepareCollision?.(units);
  trial.escorts = [];
  trial.battle = {b, O, E, acc: 0, extra: new Map(), seen: 0, result: null, orderT: 0, me, plan: {patrol: true}, ticker: [], modIndex: new Map((trial.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), kills: 0, disabled: 0, patrol: true};
  trial.targets = [];trial.vbolts = [];spaceRefresh();
