@@ -70,9 +70,13 @@ test('fit host, semantic surface, transform and placement mode survive saving an
  const copy=C.deserialize(plain(saved)),loaded=copy.fits.find(q=>q.id===f.id);assert.ok(loaded);assert.equal(loaded.host,1);assert.equal(loaded.placement.hostSurfaceId,surface.id);assert.equal(loaded.placement.mode,'direct');assert.equal(loaded.assetYaw,17);near(loaded.ped,.3);vector(loaded.p,tap);vector(loaded.local,f.local);vector(loaded.localNormal,f.localNormal);vector(loaded.localForward,f.localForward);
 });
 
-test('missing semantic faces are rejected and existing fittings keep that reference for repair',()=>{
+test('a newly picked missing face is rejected; a stored lost face id is only a hint for a fitting that still touches',()=>{
  const s=fixture(),missing='p1:removed-face:0',before=state(s),r=solve(s,{hostSurfaceId:missing});assert.equal(r.ok,false);assert.ok(r.error);assert.equal(state(s),before);
- const f=place(s);f.placement.hostSurfaceId=missing;const anchor=plain(f.local);C.refreshFitPlacementAttachments(s);const repair=s.fits.find(q=>q.id===f.id);assert.equal(repair.float,true);assert.equal(repair.host,1);assert.equal(repair.placement.hostSurfaceId,missing);vector(repair.local,anchor);
+ // Reviewed spec change (user rule 2026-11-11, docs/design-placement-v1.2.md "削りと接続"): patch ids are
+ // positional and a cut elsewhere renumbers them. A stored id that vanished no longer unseats the fitting
+ // (before 2026-11-11 it became float with 'surface-missing'); it stays seated on the host's real shape
+ // and keeps the reference.
+ const f=place(s);f.placement.hostSurfaceId=missing;const anchor=plain(f.local);C.refreshFitPlacementAttachments(s);const kept=s.fits.find(q=>q.id===f.id);assert.equal(kept.float,false);assert.equal(kept._fitPlacementError,undefined);assert.equal(kept.host,1);assert.equal(kept.placement.hostSurfaceId,missing);vector(kept.local,anchor);
 });
 
 test('parent loss retains the original fitting for repair and cannot attach it to another structure',()=>{

@@ -7136,6 +7136,16 @@ root.KS_EN={
   "カッターを表示": "Show Cutter",
   "左右対称に切る": "Mirror Cut Left/Right",
   "上部構造・船殻パーツも切る": "Also Cut Superstructure / Shell Parts",
+  "全体に適用（重なるすべての構造物を切る）": "Apply to all (cut every structure it overlaps)",
+  "全体に適用：オン": "Apply to all: on",
+  "全体に適用：オフ": "Apply to all: off",
+  "オンで重なるすべての構造物を切ります。オフで船体だけを切ります": "On cuts every structure the cut overlaps. Off cuts the hull only",
+  "切削を全体に適用": "Apply cut to all structures",
+  "切削を船体だけに戻す": "Limit cut to the hull",
+  "切削の適用範囲を変えられません": "The cut's scope cannot be changed",
+  "船体の形状加工（船体のみ）": "Hull shaping (hull only)",
+  "船体の形状加工": "Hull shaping",
+  "半透明の立体を船体や構造物に重ね、重なった部分を切り取ります。「全体に適用」がオンなら、重なるすべての構造物（板・翼・パネルを含む）を切ります。固定機器に重なると点検に警告が出ます（機器は動かしません）。": "Overlap the translucent solid with the hull or structures to cut away the overlap. With \"Apply to all\" on it cuts every structure it overlaps, including plates, wings and panels. Overlapping fixed equipment raises an Inspection warning (the equipment is not moved).",
   "を調整": " Adjustment",
   "新規": "New",
   "ドラッグ移動": "Drag to Move",
@@ -8405,6 +8415,9 @@ root.KS_EN={
   "無窓式指揮室 #{0} は外殻内の容積が不足しています（有効 {1}%）。": "Windowless Command Room #{0} has insufficient space inside the shell ({1}% effective).",
   "{0} #{1} の自動統合後の容積が不足しています（{2}%）。近くの空間を空けるか構造を追加してください。": "{0} #{1} has insufficient volume after automatic merging ({2}%). Clear nearby space or add structure.",
   "接地していない部品が {0} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。": "{0} parts are unsupported. They touch neither the hull nor structures or compartments connected to it. Move them into contact.",
+  "船体・構造物にほぼ埋まっている構造物が {0} 個あります。外に出ている部分は体積の{1}%未満です。": "{0} structures are almost entirely buried in the hull or other structures. Less than {1}% of their volume is exposed.",
+ "削りが固定機器（反応炉・機関など）{0} 基に重なっています。機器は動かしていません。削りか機器の位置を確認してください。": "A cut overlaps {0} fixed equipment items (reactors, engines and so on). They have not been moved; check the cut or the equipment position.",
+ "削った結果、追加元から切り離された構造物・機器が {0} 個あります。位置はそのままです。必要なら動かすか削りを調整してください。": "{0} structures or equipment items were cut off from what they were attached to. They have not been moved; move them or adjust the cut if needed.",
   "接地していない構造物の上に取り付けた装備が {0} 基あります。": "{0} equipment mounts are attached to unsupported structures.",
   "腹面": "Ventral",
   "の辺境方面": "Frontier Direction",
@@ -10502,7 +10515,10 @@ Object.assign(root.KS_EN.messages,{
  "指定した内装の母体の面をタップしてください":"Tap a surface of the selected interior host"
 });
 Object.assign(root.KS_EN.terms,{
- "3Dでタップして母体を指定":"Tap in 3D to choose the host"
+ "3Dでタップして母体を指定":"Tap in 3D to choose the host",
+ "配置基準":"Anchor",
+ "主船体に固定":"Fixed to the primary hull",
+ "配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）":"Anchor: fixed to the primary hull (it must lie inside the hull and its attached structures)"
 });
 Object.assign(root.KS_EN.messages,{
  "機関本体が外装型タービンの内部に収まりません":"The machinery body does not fit inside the external turbine casing",
@@ -10654,5 +10670,10 @@ Object.assign(root.KS_EN.messages,{
 Object.assign(root.KS_EN.messages,{
  "発進準備中の艦は操艦できません。準備を取り消すか、3D視点で追尾してください。": "A ship preparing to jump cannot be piloted manually. Cancel preparation or follow it in the 3D view.",
  "操艦中の艦がいます。操艦を終了してから任務群に発進を命じてください。": "A ship is being piloted manually. End manual flight before ordering the task group to depart."
+});
+// v24 Hull resize limits (docs/hull-part-scaling-v24.md).
+Object.assign(root.KS_EN.terms,{
+ "縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます": "A bevel would leave the savable range (width 0–1000 m, height 1–1000 m)",
+ "トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます": "A trench would leave the savable range (height 0.1–500 m, depth 0.1–800 m)"
 });
 })(typeof window==="undefined"?globalThis:window);

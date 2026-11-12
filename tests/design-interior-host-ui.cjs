@@ -24,10 +24,11 @@ test('automatic internal picking uses actual mother candidates and retains the r
  r('designUI.replaceId=3;pickRay([1,20,0],[0,-1,0],{parts:false,fits:false})');assert.equal(r('rayCalls.at(-1).options.excludePartId'),3);
 });
 
-test('a selected internal mother stays locked and cannot silently switch to a different tapped structure',()=>{
+// User decision 2026-11-11: interior equipment has no structure parent. A selected item's former
+// mother no longer restricts taps; every placement is anchored to the primary hull (#1 here).
+test('interior picking is not locked to a structure and records the primary hull as the anchor',()=>{
  const {run:r}=interior();r('designUI.hostId=1;interiorHits=[hit(1)];rayHits=[hit(2,80)];const picked=pickRay([1,20,0],[0,-1,0],{parts:false,fits:false});designUIRequest(hit(2,80));');
- assert.equal(r('picked.parentStructureId'),1);assert.equal(r('interiorCalls[0].parentId'),1);assert.equal(r('rayCalls.length'),0);assert.equal(r('ship.parts.length'),2);assert.equal(r('undoStack.length'),0);assert.equal(r('designUI.armed'),true);assert.ok(r('designUI.pending.result.error.includes("指定した内装の母体")'));
- r('designUIRequest(hit(1))');assert.equal(r('ship.parts.length'),3);assert.equal(r('ship.parts[2].placement.hostId'),1);assert.equal(r('designUI.armed'),false);
+ assert.equal(r('picked.parentStructureId'),2);assert.equal(r('interiorCalls.length'),0);assert.equal(r('rayCalls.length'),1);assert.equal(r('ship.parts.length'),3);assert.equal(r('ship.parts[2].placement.hostId'),1,'tapping structure #2 does not make it the parent');assert.equal(r('ship.parts[2].placement.hostSurfaceId'),undefined);
 });
 
 test('a missing mother or root work-plane tap cannot place an internal room or consume its one-shot tool',()=>{
@@ -45,9 +46,9 @@ for(const [kind,mode]of [['cargo','clip'],['cargo','preserve-volume'],['hangar',
  });
 }
 
-test('checked repeat placement may choose different mothers without creating a permanent dropdown lock',()=>{
+test('checked repeat placement on different structures keeps the primary hull anchor without a dropdown lock',()=>{
  const t=interior({continuous:true}),r=t.run;r('designUIRequest(hit(1));designUIRequest(hit(2,80))');
- assert.equal(r('ship.parts.length'),4);assert.equal(r('designUI.armed'),true);assert.equal(r('designUI.hostId'),null);assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.hostId)')),[1,2]);assert.equal(r('undoStack.length'),2);
+ assert.equal(r('ship.parts.length'),4);assert.equal(r('designUI.armed'),true);assert.equal(r('designUI.hostId'),null);assert.deepEqual(plain(r('ship.parts.slice(2).map(p=>p.placement.hostId)')),[1,1],'both are anchored to the primary hull');assert.equal(r('undoStack.length'),2);
  t.context.packet=resolution(t);assert.equal(r('onEnginePlacementResolution(packet)'),true);assert.equal(r('C.placementDraftStatus(ship).ready'),true);
 });
 
@@ -60,4 +61,11 @@ test('an automatic interior placement can use the existing legacy hull without f
 test('a previous interior selection cannot leak its mother into a new exterior root request',()=>{
  const {run:r}=setup({empty:true});r('designUI.hostId=99;designUIRequest({p:[0,0,0],n:[0,1,0],kind:"section",rootPlane:true})');
  assert.equal(r('ship.parts.length'),1);assert.equal(r('ship.parts[0].placement.root'),true);assert.equal(r('designUI.lastStamp.request.hostId'),undefined);assert.equal(r('ship.parts[0].placement.hostId'),undefined);
+});
+
+test('the interior panel has no host selector and shows the read-only primary hull anchor (Japanese and English)',()=>{
+ const fs=require('node:fs'),path=require('node:path'),root=path.resolve(__dirname,'..'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),en=fs.readFileSync(path.join(root,'js/lang-en.js'),'utf8');
+ assert.doesNotMatch(app,/select\('host'/);assert.doesNotMatch(app,/'designHost'in t\.dataset/);assert.match(app,/data-design-interior-anchor>配置基準：主船体に固定/);assert.match(app,/add\('配置基準',T\('主船体に固定'\)\)/);
+ for(const key of ['配置基準','主船体に固定','配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）'])assert.ok(en.includes(JSON.stringify(key)+':'),key);
+ assert.doesNotMatch(app,/designUI\.hostId=(it|h\.it|p)\.placement\?\.hostId/,'selecting an item does not restore a structure host');
 });

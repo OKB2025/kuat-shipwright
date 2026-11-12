@@ -9,7 +9,7 @@ async function fixture(p,room=[20,20,20],diameter=10){
  await p.locator('[data-design-space="interior"]').click();await p.locator('[data-design-open="new"]').click();
 }
 async function place(p,{kind,mode,point=[50,20,0],success=true}){
- await p.locator('[data-palpick="part:'+kind+'"]').click();await p.locator('[data-design-host]').selectOption('1');
+ await p.locator('[data-palpick="part:'+kind+'"]').click();await p.locator('[data-design-interior-anchor]').waitFor();assert.equal(await p.locator('[data-design-host]').count(),0,'interior equipment has no host selector (anchored to the primary hull)');
  if(mode)await p.locator('[data-design-mode="'+mode+'"]').click();
  await p.locator('[data-design-interior-depth]').fill('5');await p.locator('[data-design-interior-depth]').dispatchEvent('change');
  const modes=await p.locator('[data-design-mode]').evaluateAll(es=>es.map(e=>e.dataset.designMode));

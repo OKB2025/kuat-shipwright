@@ -3748,10 +3748,12 @@ Renderer.prototype.drawFleet=function(m,opt){
  gl.depthMask(true);
 };
 
-function meshSolidCutter(c){
+// pieces: the world pieces the cut removes (Core.solidCutWorldPieces), when its mirror half is not at -z.
+function meshSolidCutter(c,pieces=null){
   const mesh=new Geo(64),ls=lineSet();
   if(!c)return {mesh,lines:ls.out()};
-  const T=C.solidCutDisplayTriangles?C.solidCutDisplayTriangles(c):C.solidCutTriangles(c),edges=new Map(),color=[246,137,97];
+  const tris=q=>C.solidCutDisplayTriangles?C.solidCutDisplayTriangles(q):C.solidCutTriangles(q),parts=(pieces?.length?pieces:[c]).map(tris),T=new Float32Array(parts.reduce((n,t)=>n+t.length,0)),edges=new Map(),color=[246,137,97];
+  {let i=0;for(const t of parts){T.set(t,i);i+=t.length;}}
   triangleMesh(mesh,T,color,90);
   for(let i=0;i<T.length;i+=9){
     const p=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),n=C.norm(C.cross(C.sub(p[1],p[0]),C.sub(p[2],p[0])));
