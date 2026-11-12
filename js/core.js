@@ -63554,7 +63554,7 @@ function solvePlacement(ship,input,request={}){
   // reload or a re-check). A request edited in place (a height resize at the contact) or a moved/rotated
   // parent re-seats on the skin as before.
   return Array.isArray(old.requestedGeometry?.c)&&len(sub(worldStruct(parent,old.parentLocalAnchor),old.requestedGeometry.c))<=tolerance;})();
- const userSeat=request.position!=null||!!request.hit&&!request._storedHit,storedPose=!userSeat&&old.mode===mode&&old.parentStructureId===parentId&&(mode==='surface'||old.contactSide===contactSide)&&(mode==='surface')===!!part.surfaceNormal&&!!old.requestedGeometry&&(request._keepPose||Array.isArray(old.parentLocalAnchor)&&Array.isArray(old.surfaceAnchor)&&(old.parentPoseKey!=null||old.contactFit==='legacy-fit'));
+ const userSeat=request.position!=null||!!request.hit&&!request._storedHit,storedPose=!userSeat&&old.mode===mode&&old.parentStructureId===parentId&&(mode==='surface'||old.contactSide===contactSide)&&(mode==='surface')===!!part.surfaceNormal&&!!old.requestedGeometry&&(request._keepPose||!old.pendingGeometry&&Array.isArray(old.parentLocalAnchor)&&Array.isArray(old.surfaceAnchor));
  if(storedSurfacePose&&!request.keepTransform&&!storedPose)part.c=add(hit.p,placementRigidVector(parent,sub(old.parentLocalAnchor,old.surfaceAnchor)));
  // Seating on the surface (resetting tilt, recomputing a vertical yaw, putting a legacy-fit bottom flush on
  // the skin, aligning a surface part to the tangent plane) belongs only to an explicit placement by the user:
@@ -63565,6 +63565,8 @@ function solvePlacement(ship,input,request={}){
  // 2026-11-12: sunk or overlapping structures are allowed and are never moved automatically; children do not
  // follow their parent, parts are moved together by multi-selection). A child its parent no longer touches
  // stays where it is and is judged there (severed warning or contact failure).
+ // A placed structure keeps its pose whatever release saved it (also saves from before parentPoseKey existed,
+ // 2026-11-11); only a draft (pendingGeometry, a new placement) is seated.
  if(!request.keepTransform&&!storedLegacyPose&&storedPose){/* the stored world pose, unchanged */}
  else if(!request.keepTransform&&!storedLegacyPose&&!storedSurfacePose){if(mode==='surface')part=alignStructure(part,hit,'surface');else{delete part.surfaceNormal;part.pitch=0;part.roll=mode==='horizontal'&&contactSide==='top'&&Math.abs(Math.abs(part.roll||0)-180)<1e-6?180:0;if(mode==='vertical'){const n=norm([normal[0],0,normal[2]]),local={fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]}[contactSide];part.yaw=(Math.atan2(-n[2],-n[0])-Math.atan2(local[2],local[0]))*180/Math.PI;}
    const axis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);
@@ -63754,20 +63756,30 @@ function placementChildCutKey(ship,p){
  const pad=Math.max(PLACEMENT_TOLERANCES.coordinate*16,...[0,1,2].map(i=>(b[i+3]-b[i])*.01)),box=[0,1,2].map(i=>b[i]-pad).concat([0,1,2].map(i=>b[i+3]+pad));
  const hit=[...cuts.filter(c=>compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(box,q.bounds,0))),...subs.filter(c=>[0,1,2].every(i=>c.b[i]<=box[i+3]&&c.b[i+3]>=box[i]))];return hit.length?placementKeyHash(publicJSON(hit)):'';
 }
-// Keys of the public states (placement record included) a refused structure was last solved for:
+// Keys of the states (the structure's public state with its placement record, its parent's shape and the
+// equipment its bounds reach: placementRefusalKey) a refused structure was last solved for:
 // _placementRefusalKeys holds the state it was re-checked from and the refused state that came out (or
 // the refused state of an in-session failure). A refused structure is re-checked only when its current
 // public state is neither: a fresh copy (load, import, new Worker ship) has no keys, and a patch that
 // brings back another state (e.g. the editor discarded the Worker's recovery as stale and sent its own
 // still-refused copy after the Worker recovered) is new. Sending the same refused state again, from either
 // side, is not solved again (an in-session failure, Undo/Redo patches, an editor that keeps a stale copy).
-function placementRefusalKey(p){return placementKeyHash(publicJSON(p));}
+// Only the last pair is kept: going back two or more states (Undo twice) solves once per step, at most once
+// per refused structure and update; a recovered structure keeps no keys.
+// The key also covers what the refusal can depend on besides the structure itself: its parent's shape and
+// the equipment (non-structural parts and fittings) whose bounds reach it. Removing the clashing sensor
+// therefore makes a new state that is re-checked, by patch as on a fresh load (independent check 2026-11-12).
+function placementRefusalKey(ship,p,parent){
+ let near='';try{const b=partAABB(p),hit=q=>q&&q.every((v,i)=>i<3?v<=b[i+3]:v>=b[i-3]);
+  near=publicJSON([...(ship?.parts||[]).filter(q=>q!==p&&!isStructuralPart(q)&&hit(partAABB(q))),...(ship?.fits||[]).filter(f=>hit(fitAABB(f)))]);}catch(error){near='?';}
+ return placementKeyHash(publicJSON(p)+'|'+(parent?placementDependencyKey(parent):'')+'|'+near);
+}
 function placementRecheckRefusal(ship,p,parent){
- const meta=p.placement,inputKey=placementRefusalKey(p),stored={...meta};for(const key of ['validationFailed','repairRequired','repairReason','validationSourceKey'])delete stored[key];
+ const meta=p.placement,inputKey=placementRefusalKey(ship,p,parent),stored={...meta};for(const key of ['validationFailed','repairRequired','repairReason','validationSourceKey'])delete stored[key];
  const request={...stored,keepTransform:false,_keepPose:true,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};if(meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
  let r;try{r=solvePlacement(ship,{...placementShape(p),placement:stored},request);}catch(error){r=placementFailure('calculation-failed',error.message||'配置の検証に失敗しました');}
  if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;delete p._placementFailure;delete p._placementRefusalKeys;p._placementLocalHash=placementLocalParentHash(ship,p,parent);p._placementFitRemovalKey=placementFitRemovalKey(p,parent);return r;}
- placementPendingFailure(p,r);meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[inputKey,placementRefusalKey(p)];return r;
+ placementPendingFailure(p,r);meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[inputKey,placementRefusalKey(ship,p,parent)];return r;
 }
 function refreshPlacementGeometry(ship,options={}){
  if(!ship?.parts||ship._refreshingPlacement)return {ok:true,updated:[],failed:[],resolvedParts:[],resolvedFits:[]};ship._refreshingPlacement=true;
@@ -63783,7 +63795,7 @@ function refreshPlacementGeometry(ship,options={}){
  const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
   const interior=explicitInteriorPlacement(p);
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||(interior?meta.parentGeometryKey!==interiorEnvelopeKey(ship):parent&&meta.parentGeometryKey!==placementDependencyKey(parent)))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
-  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);graphCache.graph=null;if(result.ok){updated.push(p.id);if(parent&&placementCapability(p).kind==='structure')p._placementLocalHash=placementLocalParentHash(ship,p,parent);if(parent)p._placementFitRemovalKey=placementFitRemovalKey(p,parent);}else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[placementRefusalKey(p)];failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
+  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);graphCache.graph=null;if(result.ok){updated.push(p.id);if(parent&&placementCapability(p).kind==='structure')p._placementLocalHash=placementLocalParentHash(ship,p,parent);if(parent)p._placementFitRemovalKey=placementFitRemovalKey(p,parent);}else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[placementRefusalKey(ship,p,parent)];failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   // A refused structure is re-checked whenever it has not been solved for its current public state
   // (placementRefusalKey): a fresh copy (load, import, new Worker ship), or a patch that brought back an
   // earlier refused state. It is solved from its stored request exactly as a cold load solves any placed
@@ -63792,7 +63804,7 @@ function refreshPlacementGeometry(ship,options={}){
   // over legacy interior equipment, must recover). Otherwise it is refused again (validationFailed) with
   // the current reason and message, at most once per new public state (placementRefusalKey); a refusal
   // already solved for this state (an in-session failure, Undo/Redo patches) is not solved again.
-  if(meta.validationFailed&&!meta.root&&parent&&!parent._placementError&&placementCapability(p).kind==='structure'&&!p._placementRefusalKeys?.includes(placementRefusalKey(p))){const r=placementRecheckRefusal(ship,p,parent);graphCache.graph=null;if(r.ok)updated.push(p.id);else failed.push({partId:p.id,code:r.code});resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);p._placementParentKey=placementDependencyKey(parent);p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
+  if(meta.validationFailed&&!meta.root&&parent&&!parent._placementError&&placementCapability(p).kind==='structure'&&!p._placementRefusalKeys?.includes(placementRefusalKey(ship,p,parent))){const r=placementRecheckRefusal(ship,p,parent);graphCache.graph=null;if(r.ok)updated.push(p.id);else failed.push({partId:p.id,code:r.code});resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);p._placementParentKey=placementDependencyKey(parent);p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   if(meta.validationFailed){failed.push({partId:p.id,code:meta.repairReason||'placement-failed'});active.delete(p.id);done.add(p.id);return;}
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    // Only a change of the parent's pose or outer form (placementPositionKey) re-solves the child. A

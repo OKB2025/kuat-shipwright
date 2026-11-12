@@ -62,3 +62,20 @@ test('a structure that still fails is re-solved once per distinct refused state,
  await update(f,7,JSON.stringify(bumped));assert.deepEqual(f.rows(7).map(r=>[r.id,r.error]),[[101,'placement-interference']],'one re-check for the new state');
  await update(f,8,JSON.stringify(bumped));assert.deepEqual(f.rows(8),[],'and not again');
 });
+
+// The refusal depends on the equipment the structure reaches, not only on the structure: deleting the clashing
+// sensors by a patch re-checks and recovers the structures, exactly as a fresh Worker ship (reset) of the same
+// design does (independent check 2026-11-12: the patch kept them refused while a reload recovered them).
+test('removing the clashing equipment recovers a refused structure by patch, as a reload does',async()=>{
+ const f=worker(),refused=sensors(saved());
+ await update(f,1,JSON.stringify(refused),true);
+ assert.deepEqual(f.rows(1).map(r=>[r.id,r.error]),SUNK.map(id=>[id,'placement-interference']),'refused while the sensors clash');
+ const adopted=JSON.parse(JSON.stringify(refused));for(const r of f.rows(1))adopted.parts[adopted.parts.findIndex(p=>p.id===r.id)]=r.part;
+ const cleared=JSON.parse(JSON.stringify(adopted));cleared.parts=cleared.parts.filter(p=>!LEGACY.includes(p.id));
+ const patched=await update(f,2,JSON.stringify(cleared));
+ assert.deepEqual(f.rows(2).map(r=>[r.id,r.error,!!r.part.placement.validationFailed]),SUNK.map(id=>[id,null,false]),'patch: re-checked and recovered');
+ const g=worker(),reset=await update(g,1,JSON.stringify(cleared),true);
+ assert.deepEqual(g.rows(1).map(r=>[r.id,r.error]),SUNK.map(id=>[id,null]),'reset: recovered');
+ assert.equal(patched.provisional,reset.provisional);assert.deepEqual(patched.stats.ungrounded.parts,reset.stats.ungrounded.parts);
+ near(patched.stats.mass,reset.stats.mass,'patch and reset give the same mass');
+});

@@ -65,3 +65,24 @@ test('a child whose parent moves away stays where it is and is reported, never m
  assert.ok(r.failed.some(f=>f.partId===id),'the child is reported: '+JSON.stringify(r.failed));assert.equal(red(ship,id),true,'red contact warning');
  const L=reload(ship);near(pose(L,id).c,before.c,'reload: still not moved');assert.equal(red(L,id),true,'reload: still reported');
 });
+
+// Saves from before parentPoseKey was recorded (2026-11-11) keep their pose too (independent check 2026-11-12:
+// cut roll 8 / pitch 5 and vertical roll 8 lost their tilt on load). Only a draft (pendingGeometry) is seated.
+// Load = deserialize; the Worker's reset = a fresh deserialize of the public state followed by a refresh.
+function legacyCase(mode,{roll=0,pitch=0,z0=0}={}){
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'legacy '+mode);ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const raw=mode==='vertical'?C.rayPart([95,0,500],[0,0,-1],hull):C.rayPart([95,500,z0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)};
+ const c=mode==='vertical'?[hit.p[0],hit.p[1],hit.p[2]+2]:[hit.p[0],hit.p[1]+2,hit.p[2]];
+ const request={mode,parentStructureId:hull.id,hostId:hull.id,hit,position:c,contactFit:'cut',placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1};if(mode==='vertical')request.contactSide='port';
+ const d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',c,s:[16,8,6],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0},request);assert.equal(d.ok,true,d.error);
+ ship.parts.push(d.part);ship.nextId++;let r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));
+ const box=ship.parts.at(-1);box.roll=roll;box.pitch=pitch;ship._cache=null;r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));
+ const saved=JSON.parse(C.publicJSON(C.serialize(ship)));delete saved.parts.find(p=>p.id===box.id).placement.parentPoseKey;
+ return {saved,id:box.id,before:pose(ship,box.id)};
+}
+for(const [label,mode,o] of [['cut roll 8','horizontal',{roll:8,z0:2}],['cut pitch 5','horizontal',{pitch:5}],['vertical cut roll 8','vertical',{roll:8}]])
+ test(`a save without parentPoseKey keeps its pose on load and Worker reset: ${label}`,()=>{
+  const {saved,id,before}=legacyCase(mode,o),check=(s,step)=>{const now=pose(s,id);assert.equal(now.error,null,`${label} ${step}: ${now.error}`);near(now.c,before.c,`${label} ${step}: position`);for(const k of ['pitch','roll','yaw'])assert.ok(Math.abs(now[k]-before[k])<1e-9,`${label} ${step}: ${k} ${now[k]} vs ${before[k]}`);};
+  const loaded=C.deserialize(JSON.parse(JSON.stringify(saved)));check(loaded,'load');
+  const worker=C.deserialize(JSON.parse(C.publicJSON(C.serialize(loaded))));worker._cache=null;C.refreshPlacementGeometry(worker);C.syncCompartments(worker);C.remount(worker);C.syncCompartments(worker);check(worker,'Worker reset');
+ });
