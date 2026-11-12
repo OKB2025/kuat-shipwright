@@ -5290,7 +5290,7 @@ function designUIBar(){
  const el=$('#designPlacementBar');if(!el)return;const q=designUI.pending,last=designUI.lastStamp?.source===ship?designUI.lastStamp:null,items=last?last.ids.map(id=>ship[last.list].find(item=>item.id===id)).filter(Boolean):[],armed=designUI.armed||designUI.pickParent;
  // 1b While placement is armed the 3D view glows (CSS only, no WebGL redraw).
  if(typeof document!=='undefined')document.body?.classList?.toggle('design-armed',!!armed&&!!ship&&fleet.mode==='design'&&!trial.on);
- el.hidden=!armed;el.dataset.state=q?.state||(items.some(item=>item.placement?.validationFailed)?'failed':items.some(item=>item.placement?.pendingGeometry)?'background':'draft');if(!armed)return;
+ el.hidden=!armed;el.dataset.state=q?.state||(items.some(item=>item.placement?.validationFailed)?'failed':items.some(item=>item.placement?.pendingGeometry)?'background':'draft');if(!armed){/* the hidden pill keeps no stale controls (symmetry chips, actions) in the DOM */if(el.firstChild)el.innerHTML='';return;}
  // Before the first tap a coarse (touch) pointer already gets the two-tap hint.
  const coarse=typeof matchMedia==='function'&&!!matchMedia('(pointer:coarse)')?.matches,touch=designUI.lastPointer?designUI.lastPointer!=='mouse':coarse,preview=!!designTouchPreviewCurrent();
  // A touch preview is newer than the last placement's message, so it takes the status line.

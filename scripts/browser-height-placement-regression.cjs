@@ -70,7 +70,7 @@ async function observeUploads(page){
  });
 }
 async function heatReadouts(page){
- const result=await page.evaluate(()=>{const Y=window.__yard;return{rates:Y.C.heatReadoutRates(Y.stats?.heat),rows:[...document.querySelectorAll('#designMetrics [data-design-metric]')].map(el=>{const r=el.getBoundingClientRect();return{metric:el.dataset.designMetric,label:el.querySelector('dt').getAttribute('aria-label'),text:el.querySelector('dd').textContent,visible:r.width>0&&r.height>0&&getComputedStyle(el).visibility==='visible'};})};});
+ const result=await page.evaluate(()=>{const Y=window.__yard;return{rates:Y.C.heatReadoutRates(Y.stats?.heat),rows:[...document.querySelectorAll('#designMetrics [data-design-metric="equipment-heat"],#designMetrics [data-design-metric="rejection-capacity"]')].map(el=>{const r=el.getBoundingClientRect();return{metric:el.dataset.designMetric,label:el.querySelector('dt').getAttribute('aria-label'),text:el.querySelector('dd').textContent,visible:r.width>0&&r.height>0&&getComputedStyle(el).visibility==='visible'};})};});
  assert.equal(result.rows.length,2);for(const key of ['equipmentMaxHeatW','rejectionCapacityW'])assert.ok(Number.isFinite(result.rates[key])&&result.rates[key]>=0);for(const row of result.rows){assert.equal(row.visible,true);assert.ok(row.text.trim()&&row.text.trim()!=='—'&&!/NaN|Infinity/.test(row.text));const value=row.metric==='equipment-heat'?result.rates.equipmentMaxHeatW:result.rates.rejectionCapacityW;if(value===0)assert.equal(parseFloat(row.text),0);}
  return result;
 }
