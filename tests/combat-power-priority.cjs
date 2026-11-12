@@ -79,7 +79,9 @@ test('continuous squad firing remains a real weapon demand with full compatibili
  try{
   R.squadPropulsion(s,1,.01);near(s.drive.energy,p.wCap,'compatibility bank starts full');near(s.drive.pw.wpn/TT,40,'continuous shots are paid directly');near(s.weaponPowerK,1);near(s.drive.propulsion.actualInputW/TT,45);assert.equal(s.drive.pw.activeWeaponFire,true);
   s.weaponDemand=false;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn,0);near(s.drive.propulsion.actualInputW/TT,85);assert.equal(s.drive.pw.activeCombatPower,false);
-  s.weaponDemand=true;s.drive.p.grid.P=30*TT;s.drive.p.grid.domains[0].P=30*TT;s.drive.p.grid.domains[0].sources[0].P=30*TT;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn/TT,15);near(s.weaponPowerK,15/40);near(s.drive.propulsion.actualInputW,0);
+  s.weaponDemand=true;s.drive.p.grid.P=30*TT;s.drive.p.grid.domains[0].P=30*TT;s.drive.p.grid.domains[0].sources[0].P=30*TT;R.squadPropulsion(s,1,.01);
+  // 2026-11-12: the cooler reserves disPowerK-share of the plant-bounded heat (30 TT × 1.04 × 5/100 × 1.1), not its 5 TT rating.
+  const reserve=Math.min(5,30*(1+C.HEAT.waste.reactor)*.05*C.HEAT.coolingHeadroom);near(s.drive.pw.wpn/TT,20-reserve);near(s.weaponPowerK,(20-reserve)/40);near(s.drive.propulsion.actualInputW,0);
  }finally{delete R.CRAFT[key];}
 });
 

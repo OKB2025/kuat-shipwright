@@ -23,7 +23,7 @@ for(const [key,exp] of Object.entries(expected))test(`${key} uses its original m
   assert.ok(p.s.every(v=>Number.isFinite(v)&&v>0));
   const d=stats.heat.net.dis.filter(d=>d.part===p.id);
   assert.equal(d.length,1,'the physical wing contributes one heat sink');
-  assert.equal(d[0].grade,'high');assert.ok(d[0].cap>0&&Number.isFinite(d[0].cap));
+  assert.equal(d[0].grade,'all');assert.ok(d[0].cap>0&&Number.isFinite(d[0].cap));
   const current=ship.parts.find(q=>q.id===p.id);assert.deepEqual(plain(current),plain(p));
   if(p.tw){const twin=panels.find(q=>q.id===p.tw);assert.ok(twin,'both panels use the direct device model');assert.equal(twin.tw,p.id);assert.deepEqual(plain(twin.s),plain(p.s));}
  }

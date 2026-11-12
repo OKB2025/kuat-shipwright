@@ -86,7 +86,7 @@ PR #20・#21を取り込んだmain（`b3a873d`、ゲーム内容は `79910bb` �
 | ENG-002 | 実装済み | 検証済み範囲あり | 共通TT/J定数、`weaponEnergy`、入力／射出／損失、シールド／イオン収支、`heatAccrue`と実冷却入力。上記2テスト＋手動運用テストの収支検査、110隻CPU試験。 / 数値係数はゲーム用仮定。全旧効果指数の物理エネルギー化は行わず互換性を維持。 |
 | ENG-003 | 実装済み | 検証済み範囲あり | `hdis`は通常部品、容積・質量・給電・接続を共通集計。厳格モードの有限冷却・無負荷時入力0・停電時処理停止を `surface-energy-ion.cjs` で確認。 / 高負荷故障連鎖の受入はPLAN-017に紐づける。 |
 | ENG-004 | 部分実装 | コードあり・主に受入不足 | 独立の旧外装散逸パーツは最新指示で廃止。`surfaceSync`の面内蔵hdis、主翼・太陽光パネルが共通散逸ノードへ登録され局所損傷可能。`surface-model-core.cjs` / `direct-thermal-wing-core.cjs`。 / 外装専用品を復活させない。装甲で覆った全種装置の露出／遮蔽組合せを網羅した受入は未完。 |
-| ENG-005 | 実装済み | 検証済み範囲あり | `radiator`・低温主翼、grade制約を `heatNetwork` / `heatSolve`へ接続。`direct-thermal-wing-core.cjs`が低温翼へ炉廃熱を接続できないことを確認。 / 通常放熱を高エネルギー散逸と同一視しない。 |
+| ENG-005 | 2026-11-12 に置き換え | 検証済み範囲あり | ユーザー決定により grade 制約と外殻放熱を廃止。低出力翼（`radiator`）は面積当たり能力が低い変換放出面で、炉廃熱も受ける（`direct-thermal-wing-core.cjs`、`heat-converters.cjs`）。[heat-converters.md](heat-converters.md) |
 | ENG-006 | 部分実装 | 機能の追加・接続が必要 | `normalizeLinks`と`ship.links`のpower/heat別容量、`heatNetwork`、`surfacePowerStep`。複合パーツ／対称で内部リンクと外部ポート保持は `surface-compat.cjs`。 / 一般的な手動ネットワーク作図UI、導管実体の容積・質量、リンク単位の細かな損傷は限定的。経路は自動接続中心で将来拡張可。 |
 | ENG-007 | 部分実装 | コードあり・主に受入不足 | `heatTick`の局所ストレージ、負荷抑制・遅延停止・再起動・燃損、`heatFail`。実砲列の過熱制限と被害状態は共通HUDへ接続。 / PLAN-017と同じ重大過熱受入テスト不足。別の故障エンジンを作る必要はない。 |
 | WING-001 | 実装済み | 検証済み範囲あり | `wing`専用パーツ、薄い六角形翼断面、サイズ・前後翼端・後退／前進／デルタ／ダブルデルタ、面積による性能。`dedicated-aero-core.cjs` / `wing-planform-core.cjs` / `wing-planform-ui.cjs`。 / v13の「装置のない翼に散逸を付けない」は、最新ユーザーの翼自体を散逸面とする方針へ読み替える。 |

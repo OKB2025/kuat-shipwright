@@ -4,7 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const C=vm.runInContext('Core',context),plain=value=>JSON.parse(JSON.stringify(value)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} differs from ${b}`);
 function fixture({cooler=false,power=true,pathCapacity=null}={}){
  const ship=C.newShip({L:40,W:24,H:20,plan:'rect',sec:'rect'},'Thermal readout fixture');
- ship.parts=[...(power?[{id:1,k:'gen',c:[30,10,0],d:2},{id:4,k:'pump',c:[30,10,3],d:.5}]:[]),...(cooler?[{id:2,k:'hdis',c:[20,10,0],d:.2}]:[])];ship.fits=[];ship.nextId=5;
+ ship.parts=[...(power?[{id:1,k:'gen',c:[30,10,0],d:2},{id:4,k:'pump',c:[30,10,3],d:.5}]:[]),...(cooler?[{id:2,k:'hdis',c:[20,10,0],d:.6}]:[])];ship.fits=[];ship.nextId=5;
  if(pathCapacity!=null)ship.links=[{kind:'heat',from:'p1',to:'p2',cap:pathCapacity}];
  return {ship,stats:C.computeStats(ship)};
 }
@@ -12,17 +12,19 @@ function fixture({cooler=false,power=true,pathCapacity=null}={}){
 test('thermal specifications retain real sink ratings rather than the much smaller present heat flow',()=>{
  const {stats}=fixture({cooler:true}),H=stats.heat,before=C.publicJSON(stats),rates=C.heatReadoutRates(H);
  assert.equal(H.mode,'strict');assert.ok(rates.equipmentMaxHeatW>0);near(rates.rejectionCapacityW,H.disCap+H.skin);
- assert.ok(H.disCap>0&&H.skin>0,'installed physical cooling and the low-grade hull skin are both represented');
- assert.ok(rates.rejectionCapacityW>H.presets.combat.out*100,'a lightly loaded sink retains spare rated capacity');
+ // 2026-11-12 user decision: the hull skin removes no heat; only the installed converter is represented.
+ assert.ok(H.disCap>0);assert.equal(H.skin,0);assert.ok(!H.net.dis.some(d=>d.k==='skin'));
+ assert.ok(rates.rejectionCapacityW>H.presets.combat.out,'a lightly loaded sink retains spare rated capacity (2026-11-12: converter enlarged from 0.2 m to 0.6 m because the hull skin no longer takes the hotel heat)');
  assert.equal(C.publicJSON(stats),before,'reading a specification does not change operating loads, warnings or heat paths');
 });
 
-test('rated total does not turn low-grade skin or a limited heat path into usable high-grade cooling',()=>{
+test('rated total does not turn a missing converter or a limited heat path into usable cooling',()=>{
  for(const options of [{},{cooler:true,pathCapacity:1e6}]){
   const {stats}=fixture(options),H=stats.heat,before=C.publicJSON(stats),rates=C.heatReadoutRates(H);
-  assert.ok(rates.rejectionCapacityW>rates.equipmentMaxHeatW,'nominal hull radiation can exceed the total source heat');
-  assert.ok(H.presets.combat.stored>0,'high-grade waste still accumulates when its actual route cannot carry it');
-  assert.ok(stats.warnings.some(w=>w.code==='heat'&&/処理しきれず蓄熱/.test(w.text)));
+  // 2026-11-12: without the hull skin a ship with no converter has zero rejection capacity.
+  if(!options.cooler)assert.equal(rates.rejectionCapacityW,0);
+  assert.ok(H.presets.combat.stored>0,'waste still accumulates when its actual route cannot carry it');
+  assert.ok(stats.warnings.some(w=>w.code==='heat'&&/不足/.test(w.text)));
   assert.equal(C.publicJSON(stats),before);
  }
 });

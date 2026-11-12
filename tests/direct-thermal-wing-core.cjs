@@ -27,7 +27,7 @@ test('the shaped wing itself supplies one surface-sized heat sink without an int
  const {s,w}=fixture(),S=C.computeStats(s),d=S.heat.net.dis.filter(d=>d.part===w.id);
  assert.equal(Object.hasOwn(C.PARTS,'hdisx'),false);
  assert.equal(Object.hasOwn(C.DISSIPATORS,'hdisx'),false);
- assert.equal(d.length,1);assert.equal(d[0].k,'wing');assert.equal(d[0].grade,'high');
+ assert.equal(d.length,1);assert.equal(d[0].k,'wing');assert.equal(d[0].grade,'all','2026-11-12: every converter takes every heat grade');
  assert.equal(d[0].cap,C.wingCap(w,S));assert.ok(d[0].cap>0);
  assert.equal(d[0].cs,C.WING.stowK.wing);
  assert.ok(S.wings[0].capOpen>S.wings[0].capStow);
@@ -36,10 +36,13 @@ test('the shaped wing itself supplies one surface-sized heat sink without an int
  assert.ok(C.wingCap(changed)>C.wingCap(w));
 });
 
-test('a low-temperature wing cannot accept reactor waste heat',()=>{
+// 2026-11-12 user decision: the 'low' wing is a weaker discharge surface, not a low-grade-only path.
+test('a low-output wing accepts reactor waste heat at disK.radiator/disK.hdis of a standard wing',()=>{
  const {s,w}=fixture('low'),S=C.computeStats(s),N=C.heatNetwork(s,S),di=N.dis.findIndex(d=>d.part===w.id);
- assert.equal(N.dis[di].grade,'low');assert.ok(N.dis[di].cap>0);
- for(const l of N.links.filter(l=>l.d===di))assert.equal(N.src[l.s].grade,'low');
+ assert.equal(N.dis[di].grade,'all');assert.ok(N.dis[di].cap>0);
+ assert.ok(N.links.some(l=>l.kind==='heat'&&l.d===di&&N.src[l.s].k==='reactor'),'reactor heat reaches the low-output wing');
+ const high={...JSON.parse(C.publicJSON(w)),wing:{...w.wing,thermal:'high'}};
+ assert.ok(Math.abs(C.wingCap(w,S)/C.wingCap(high,S)-C.WING.dischargeK.radiator)<1e-12);
 });
 
 test('a sub-cubic-metre wing is a damageable dissipator in a fleet heat profile',()=>{

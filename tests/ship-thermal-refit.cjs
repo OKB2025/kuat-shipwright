@@ -29,7 +29,8 @@ test('a fixed-only load includes hotel waste and the cooling plant own power hea
  const {ship}=fixture(),H=1e22,margin=1.15;
  C.refitShipThermal(ship,'hotel-only',{E:0,W:0,S:0,H,margin});
  const meta=ship._shipThermalRefit,fixedWaste=C.HEAT.waste.reactor+C.HEAT.waste.hotel;
- near(meta.requestedCapacityW,margin*fixedWaste*H/(1-margin*fixedWaste*C.HEAT.disPowerK.hdis),1e-8);
+ // 2026-11-12: converter input follows the converted heat (the unmargined peak), not the margined rating.
+ near(meta.requestedCapacityW,margin*fixedWaste*H/(1-fixedWaste*C.HEAT.disPowerK.hdis),1e-8);
  assert.ok(meta.capacityW>H);near(meta.coolingPowerW,meta.capacityW*C.HEAT.disPowerK.hdis);
 });
 
@@ -72,7 +73,7 @@ test('stock cooling uses retained internal volume, real electric draw and finite
  assert.ok(S.mass>before.mass);assert.ok(S.dissipatorPower>0);near(S.power,before.power);
  near(meta.capacityW,banks.reduce((n,p)=>n+C.dissipatorCap(p,S),0));
  near(meta.installedVolumeM3,banks.reduce((n,p)=>n+C.partVolume(p),0));
- near(meta.coolingPowerW,S.dissipatorPower);assert.ok(meta.capacityRatio>=.99999);
+ near(meta.coolingPowerW,S.dissipatorRatedPower);assert.ok(S.dissipatorPower>0&&S.dissipatorPower<=S.dissipatorRatedPower,'2026-11-12: the design charges the converted heat, not the rating');assert.ok(meta.capacityRatio>=.99999);
  assert.deepEqual(plain(ship.links.find(l=>l.kind==='power')),powerLink);
  for(const part of [reactor,shield]){
   const paths=ship.links.filter(l=>l.kind==='heat'&&l.from==='p'+part.id);

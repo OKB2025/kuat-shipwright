@@ -31,7 +31,7 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | --- | --- | --- |
 | 作例の計算値の回帰 | `KS_FIGURES_KEYS=<key,...> node --test tests/example-figures-regression.cjs` | 期待値は `tests/helpers/example-figures.json`。全艦は非常に長い（2 艦で約 3.5 分）。差分は `項目: 旧 → 新` で出る |
 | 推進・機関 | `node --test tests/propulsion-*.cjs`、`tests/engine-core-*.cjs`、`tests/mass-calibrated-propulsion.cjs` | |
-| 給電・熱・燃料 | `tests/thermal-*.cjs`、`tests/global-ship-heat.cjs`、`tests/fuel-energy-accounting.cjs`、`tests/electrical-*.cjs`、`tests/propulsion-power-heat.cjs` | |
+| 給電・熱・燃料 | `tests/heat-converters.cjs`（2026-11-12、外殻放熱 0・翼の放出面・変換装置の電力。規則は [heat-converters.md](heat-converters.md)）、`tests/thermal-*.cjs`、`tests/global-ship-heat.cjs`、`tests/fuel-energy-accounting.cjs`、`tests/electrical-*.cjs`、`tests/propulsion-power-heat.cjs` | |
 | 性能表と Worker 価格 | `tests/craft-price-worker.cjs`、`node scripts/update-craft-costs.cjs --check` | |
 | 前後比較の補助 | `scripts/compare-propulsion.cjs`、`scripts/compare-placement-physics.cjs IMMUTABLE_MAIN_ROOT OUTPUT_JSON`、`scripts/validate-reference-acceleration.cjs` | 基準側は不変のチェックアウトを用意 |
 
