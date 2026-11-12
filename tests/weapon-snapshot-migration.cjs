@@ -49,7 +49,7 @@ test('an embarked model refreshes cached combat output when its retired weapon c
   assert.notDeepEqual(plain(snapshot.craft.fireArcs[0].pos), [999, 999, 999], 'muzzles rebuild with the current model');
   assert.equal(snapshot.ref, old.ref);
   assert.equal(snapshot.name, old.name);
-  assert.equal(snapshot.weaponProfileVersion, 1);
+  assert.equal(snapshot.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);
   const key = R.registerDesignCraft(old), craft = R.CRAFT[key];
   assert.equal(craft.gun, 327, 'RTS registration uses the refreshed output');
   assert.equal(craft.strike, 327);
@@ -65,9 +65,9 @@ test('engine transport retains a pending combat refresh after weapon ids become 
   assert.equal(transported.craft.fireArcs[0].k, 'oct40');
   const snapshot = C.cleanDesignCraft(transported);
   assert.equal(snapshot.craft.gun, 327);
-  assert.equal(snapshot.weaponProfileVersion, 1);
+  assert.equal(snapshot.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);
   const saved = JSON.parse(C.publicJSON(snapshot));
-  assert.equal(saved.weaponProfileVersion, 1);
+  assert.equal(saved.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);
   assert.deepEqual(plain(C.cleanDesignCraft(saved)), plain(snapshot));
 });
 
@@ -90,8 +90,8 @@ test('old canonical heavy and multi-barrel snapshots refresh geometry to match t
     old.blueprint.fits[0].k = kind;
     old.craft.fireArcs[0].k = kind;
     const fresh = currentSnapshot(old.blueprint), snapshot = C.cleanDesignCraft(old);
-    assert.equal(fresh.weaponProfileVersion, 1, 'freshly computed design snapshots carry the current revision');
-    assert.equal(snapshot.weaponProfileVersion, 1, kind);
+    assert.equal(fresh.weaponProfileVersion, C.WEAPON_PROFILE_VERSION, 'freshly computed design snapshots carry the current revision');
+    assert.equal(snapshot.weaponProfileVersion, C.WEAPON_PROFILE_VERSION, kind);
     assert.deepEqual(plain(snapshot.craft), plain(fresh.craft), `${kind} recomputes its ratings and muzzle geometry`);
     assert.notDeepEqual(plain(snapshot.craft.fireArcs[0].pos), [999, 999, 999], kind);
     assert.deepEqual(plain(C.cleanDesignCraft(JSON.parse(C.publicJSON(snapshot)))), plain(snapshot), `${kind} does not refresh again after transport`);
@@ -124,7 +124,7 @@ test('retired surface batteries and retained ledgers refresh into zero-armor fac
     if(!retained)for(const patch of old.blueprint.surfaces.patches)delete patch.aggregate;
     const before=plain(old);
     const snapshot=C.cleanDesignCraft(old),fresh=currentSnapshot(old.blueprint);assert.ok(snapshot);
-    assert.equal(snapshot.weaponProfileVersion,1);assert.equal(snapshot.craft.gun,0,'the unarmed model has no cached surface gun output');assert.equal(snapshot.craft.strike,0);assert.equal(snapshot.craft.fireArcs.length,0);
+    assert.equal(snapshot.weaponProfileVersion,C.WEAPON_PROFILE_VERSION);assert.equal(snapshot.craft.gun,0,'the unarmed model has no cached surface gun output');assert.equal(snapshot.craft.strike,0);assert.equal(snapshot.craft.fireArcs.length,0);
     assert.equal(snapshot.blueprint.fits.length,0);assert.equal(snapshot.blueprint.surfaces.armorOnly,1);
     for(const patch of snapshot.blueprint.surfaces.patches){assert.equal(patch.functionMode,'armor');assert.equal(patch.battery.count,0);assert.ok(!patch.aggregate);}
     assert.equal(snapshot.craft.powerProfile.modules.some(m=>m.k==='weapon'||m.k==='launcher'),false,'cached virtual weapon modules are removed');
