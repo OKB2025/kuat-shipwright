@@ -63557,7 +63557,7 @@ function solvePlacement(ship,input,request={}){
   // reload or a re-check). A request edited in place (a height resize at the contact) or a moved/rotated
   // parent re-seats on the skin as before.
   return Array.isArray(old.requestedGeometry?.c)&&len(sub(worldStruct(parent,old.parentLocalAnchor),old.requestedGeometry.c))<=tolerance;})();
- const userSeat=request.position!=null||!!request.hit&&!request._storedHit,storedPose=!userSeat&&old.mode===mode&&old.parentStructureId===parentId&&(mode==='surface'||old.contactSide===contactSide)&&(mode==='surface')===!!part.surfaceNormal&&!!old.requestedGeometry&&(request._keepPose||!old.pendingGeometry&&Array.isArray(old.parentLocalAnchor));
+ const userSeat=request.position!=null||!!request.hit&&!request._storedHit,storedPose=!userSeat&&old.mode===mode&&old.parentStructureId===parentId&&(mode==='surface'||old.contactSide===contactSide)&&(mode==='surface')===!!part.surfaceNormal&&!!old.requestedGeometry&&(request._keepPose||!old.pendingGeometry&&!old.newPlacement&&Array.isArray(old.parentLocalAnchor));
  if(storedSurfacePose&&!request.keepTransform&&!storedPose)part.c=add(hit.p,placementRigidVector(parent,sub(old.parentLocalAnchor,old.surfaceAnchor)));
  // Seating on the surface (resetting tilt, recomputing a vertical yaw, putting a legacy-fit bottom flush on
  // the skin, aligning a surface part to the tangent plane) belongs only to an explicit placement by the user:
@@ -63783,7 +63783,7 @@ function placementRefusalKey(ship,p,parent){
 }
 function placementRecheckRefusal(ship,p,parent){
  const meta=p.placement,inputKey=placementRefusalKey(ship,p,parent),stored={...meta};for(const key of ['validationFailed','repairRequired','repairReason','validationSourceKey'])delete stored[key];
- const request={...stored,keepTransform:false,_keepPose:true,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};if(meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
+ const request={...stored,keepTransform:false,_keepPose:!meta.newPlacement,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};if(meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
  let r;try{r=solvePlacement(ship,{...placementShape(p),placement:stored},request);}catch(error){r=placementFailure('calculation-failed',error.message||'配置の検証に失敗しました');}
  if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;delete p._placementFailure;delete p._placementRefusalKeys;p._placementLocalHash=placementLocalParentHash(ship,p,parent);p._placementFitRemovalKey=placementFitRemovalKey(p,parent);return r;}
  placementPendingFailure(p,r);meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[inputKey,placementRefusalKey(ship,p,parent)];return r;
@@ -64126,7 +64126,7 @@ function normalizePlacementMetadata(value,part){
  if(FITS[part?.k]&&!PARTS[part?.k]||part?._fit)return normalizeFitPlacementMetadata(value,part);
  if(value==null)return null;if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('配置情報が不正です');const out=publicCopyOf(value),cap=placementCapability(part);
  if(out.modelVersion!==PLACEMENT_MODEL_VERSION||!cap.allowedModes.includes(out.mode))throw new Error('保存された配置方式をこの部品では使用できません');
- for(const key of ['pendingGeometry','validationFailed','severed'])if(out[key]!=null&&typeof out[key]!=='boolean')throw new Error('配置の計算状態が不正です');
+ for(const key of ['pendingGeometry','newPlacement','validationFailed','severed'])if(out[key]!=null&&typeof out[key]!=='boolean')throw new Error('配置の計算状態が不正です');
  if(out.contactFit!=null&&(!['cut','legacy-fit'].includes(out.contactFit)||cap.kind!=='structure'||!['horizontal','vertical'].includes(out.mode)))throw new Error('接触側の成形方法が不正です');
  for(const key of ['parentStructureId','hostId'])if(out[key]!=null&&!(key==='hostId'&&out[key]==='hull')&&(!Number.isSafeInteger(out[key])||out[key]<=0))throw new Error('配置先の安定IDが不正です');
  for(const key of ['geometryRevision','parentGeometryRevision'])if(out[key]!=null&&(!Number.isSafeInteger(out[key])||out[key]<0))throw new Error('配置形状の世代が不正です');
