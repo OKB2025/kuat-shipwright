@@ -170,3 +170,33 @@ test('a structure refused over legacy equipment recovers in the same ship when a
  ship.parts.push({id:ship.nextId++,k:'struct',form:'box',c:[95,deck+3,0],s:[30,10,30],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0});ship._cache=null;C.refreshPlacementGeometry(ship);
  assert.equal(part(ship)._placementError,undefined,'same ship: recovered');assert.equal(part(reload(ship))._placementError,undefined,'reload agrees');
 });
+
+// A draft refused on its first solve has never been placed: when it is solved again (its shape or its parent
+// changed, the clashing sensor removed) it is seated on the surface like any new placement (newPlacement), not
+// kept at its preview pose (independent check 2026-11-12, round 3).
+for(const variant of ['shape edited','parent resized'])test(`a draft refused on its first solve is seated when solved again (${variant})`,()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'refused draft');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const ray=C.rayPart([95,500,4],[0,-1,0],hull),hit={p:ray.p,n:C.norm(ray.n)};
+ const lowest=p=>{const T=C.structTriangles(p);let low=Infinity;for(let i=0;i<T.length;i+=3)low=Math.min(low,(T[i]-hit.p[0])*hit.n[0]+(T[i+1]-hit.p[1])*hit.n[1]+(T[i+2]-hit.p[2])*hit.n[2]);return low;};
+ const sensor={id:ship.nextId++,k:'sensor',c:hit.p.map((v,i)=>v+hit.n[i]*3),d:3};ship.parts.push(sensor);
+ const c=[hit.p[0],hit.p[1]+2,hit.p[2]],d=C.preparePlacementDraft(ship,{id:ship.nextId++,k:'struct',form:'box',c,s:[16,8,6],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0},{mode:'surface',parentStructureId:hull.id,hostId:hull.id,hit,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);assert.equal(d.part.placement.newPlacement,true,'a draft is marked as a new placement');ship.parts.push(d.part);C.refreshPlacementGeometry(ship);
+ const part=()=>ship.parts.find(p=>p.id===d.part.id);assert.equal(part()._placementError,'placement-interference','refused on its first solve');
+ ship.parts=ship.parts.filter(p=>p.id!==sensor.id);if(variant==='shape edited')part().s=[16,8,5];else C.setHullStructureDimensions(ship,hull,[200,36,32]);ship._cache=null;C.refreshPlacementGeometry(ship);
+ assert.equal(part()._placementError,undefined,'placed once the sensor is gone');assert.equal(part().placement.newPlacement,undefined,'no longer a new placement');
+ assert.ok(lowest(part())>-.2,`seated on the surface, not left 1 m deep (lowest point along the normal ${lowest(part())})`);
+});
+
+// A ship-level cut that carves structures (全体に適用: ship.solidCuts only) changes the parent's surface, so it is part
+// of the refusal key: removing it re-checks the refused structure in the same ship, as a reload does (round 3).
+test('removing a ship-level cut re-checks a structure it refused, in the same ship as on a reload',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'ship-level cut');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const ray=C.rayPart([95,500,0],[0,-1,0],hull),hit={p:ray.p,n:C.norm(ray.n)},deck=hit.p[1];
+ ship.parts.push({...JSON.parse(JSON.stringify(saved().parts.find(p=>p.id===90))),id:ship.nextId++,c:[95,deck-3,0]});
+ ship.solidCuts=[C.normalizeSolidCut({id:ship.nextId++,shape:'box',c:[95,deck-3,0],s:[6,3,6],rotation:[0,0,0],mirror:false,structures:true})];ship._cache=null;
+ const c=[95,deck-1,0],d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',c,s:[16,8,6],yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);ship.parts.push(d.part);const S=ship.nextId++,part=s=>s.parts.find(q=>q.id===S);C.refreshPlacementGeometry(ship);
+ assert.ok(part(ship)._placementError,'refused while the cut is there');
+ ship.solidCuts=[];ship._cache=null;C.refreshPlacementGeometry(ship);
+ assert.equal(part(ship)._placementError,undefined,'same ship: recovered');assert.equal(part(reload(ship))._placementError,undefined,'reload agrees');
+});
