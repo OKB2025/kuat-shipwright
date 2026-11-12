@@ -8035,8 +8035,12 @@ async function trialStart(opts={}){
  // v13 LOAD A ship of a fleet battle that is an example flies with the battle's precomputed profile; its figures
  // (seconds for a large ship) follow in the background (turret charge, hyperdrive class, craft systems).
  const exKey=opts.rts&&opts.design?opts.rts.w?.units?.get(opts.rts.uid)?.design:null,ex=exKey?fleetExampleData(exKey):null;
- let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly}),profile=r.profile||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||null,p:profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
-  if(!a.stats)YardEngineClient.request('fleet',{design:data,statsOnly:true}).then(r=>{a.stats=r.stats;if(trial.asset!==a)return;for(const t of trial.turrets)if(t.cap)t.charge=Math.max(t.charge||0,C.clamp(r.stats?.chargeInfo?.[t.id]?.ratio??0,0,1));}).catch(e=>console.warn('trial figures',e));
+ // A design the page already holds with its full profile (a fleet battle's flagship, a voyage ship) is not sent
+ // back again: the engine is told so and returns only the trial model (the profile is tens of MB on a large ship).
+ // The trial gets its own top-level copy, so a renamed flagship does not rename the fleet's asset.
+ const known=opts.design&&fleet.assets?[...fleet.assets.values()].find(x=>x.design===opts.design&&x.p&&!x.p.catalogOnly)||null:null;
+ let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
+  if(!a.stats)YardEngineClient.request('fleet',{design:data,statsOnly:true,...(known?{profileKnown:true}:{})}).then(r=>{a.stats=r.stats;if(trial.asset!==a)return;for(const t of trial.turrets)if(t.cap)t.charge=Math.max(t.charge||0,C.clamp(r.stats?.chargeInfo?.[t.id]?.ratio??0,0,1));}).catch(e=>console.warn('trial figures',e));
   if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k,{lite:true});}}
  catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
  if(!a||trial.on||fleet.mode!=='design'){loadHide();return;}

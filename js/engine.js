@@ -822,8 +822,9 @@ async function fleetJob(job) {
   }
   const cacheSaved = records.length ? await diskPutMany(records) : !!stored || src === 'disk';
   if (job.prepareOnly && job.silent) post({type:'fleet',id:job.id,src,cacheSaved,geoCached:!!stored,ms:now()-t0});
-  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile, design: serial, ms: now() - t0, src, cacheSaved});
-  else post({type: 'fleet', id: job.id, stats: displayStats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved}, transfer);
+  // profileKnown/statsKnown: the page already holds this design's profile or figures (same design, same engine).
+  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile: job.profileKnown ? null : profile, design: serial, ms: now() - t0, src, cacheSaved});
+  else post({type: 'fleet', id: job.id, stats: job.statsKnown ? null : displayStats, profile: lite || job.profileKnown ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved}, transfer);
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
   // Release the live ship graph and the full statistics (the display figures and
