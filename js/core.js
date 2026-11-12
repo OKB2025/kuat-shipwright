@@ -51337,7 +51337,8 @@ function surfaceFarVerdict(P,plane,sources){
  const box=[0,1,2].map(a=>Math.min(P[0][a],P[1][a],P[2][a])-M).concat([0,1,2].map(a=>Math.max(P[0][a],P[1][a],P[2][a])+M));
  for(const q of sources){let edges;
   // A mesh whose box misses the triangle's (grown by the margin) has no edge near it and cannot hold it.
-  if(q.b&&[0,1,2].some(a=>q.b[a]>box[a+3]||q.b[a+3]<box[a]))continue;
+  // (A source sliced off the face's plane, SURFACE_CONTACT_GAP out, is reached that much further.)
+  const grow=q.grow||0;if(q.b&&[0,1,2].some(a=>q.b[a]>box[a+3]+grow||q.b[a+3]<box[a]-grow))continue;
   if(q.section)edges=q.section.edges;else{const sliced=solidSliceSegments(q.T,{n:plane.n,d:q.d},u,v,origin,eps,u0-M*2,u1+M*2);if(sliced.some(near))return 0;edges=sliced.filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05);}if(edges.some(near))return 0;lists.push(edges);}
  const sides=Q.map((p,i)=>[p,Q[(i+1)%3]]);let inside=false;
  for(const list of lists){let state=null;
@@ -52304,17 +52305,25 @@ function surfaceExposeTriangle(points,plane,sections,out,keepInside=false){
  if(keepInside||removed){for(let i=0;i<result.length;i++)out.push(result[i]);}
  else out.push(...points[0],...points[1],...points[2]);
 }
-function surfaceExposedTriangles(T,host,meshes){
- if(!T.length)return [];const out=[],planes=new Map(),probe=1e-6,bounds=solidMeshBounds(T),candidates=meshes.filter(m=>m.part!==host&&[0,1,2].every(i=>m.b[i]<=bounds[i+3]+probe&&m.b[i+3]>=bounds[i]-probe));if(!candidates.length)return T;
+// Touching joins (user decision 2026-11-12, option A): a face is covered where another body lies on it or within
+// SURFACE_CONTACT_GAP outside it, so a structure standing a few cm off the hull (a kept cut-fit after a resize,
+// a hand-placed part) covers that skin and its own facing side, as a flush one does. Each body is sliced at the
+// face's plane and again that far outside it; the face is covered inside either slice (their union).
+const SURFACE_CONTACT_GAP=.05;
+function surfaceExposedTriangles(T,host,meshes,outward=null){
+ if(!T.length)return [];const out=[],planes=new Map(),probe=SURFACE_CONTACT_GAP+1e-6,bounds=solidMeshBounds(T),candidates=meshes.filter(m=>m.part!==host&&[0,1,2].every(i=>m.b[i]<=bounds[i+3]+probe&&m.b[i+3]>=bounds[i]-probe));if(!candidates.length)return T;
  for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(points[1],points[0]),sub(points[2],points[0]));if(len(raw)<1e-10)continue;const n=norm(raw),d=dot(n,points[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
   if(!plane){const fr=frameAxis(n),u=fr.v,v=fr.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...points.flat().map(Math.abs))*2e-10),sources=[];
-   for(const mesh of candidates){const low=mesh.b.slice(0,3).map((x,j)=>(x+mesh.b[j+3])/2),half=mesh.b.slice(0,3).map((x,j)=>(mesh.b[j+3]-x)/2),distance=dot(n,low)-d,extent=half.reduce((s,x,j)=>s+x*Math.abs(n[j]),0);if(distance+extent<=eps||distance-extent>eps)continue;
-    // v13 PERF A mesh not yet sliced at this plane waits until a triangle of the plane comes near it (surfaceFarVerdict).
-    sources.push(mesh.sections.has(key+'|out')?{mesh,section:surfaceExposurePlane(mesh,n,d,u,v,origin,key+'|out',eps)}:{mesh});
+   for(const mesh of candidates){const low=mesh.b.slice(0,3).map((x,j)=>(x+mesh.b[j+3])/2),half=mesh.b.slice(0,3).map((x,j)=>(mesh.b[j+3]-x)/2),distance=dot(n,low)-d,extent=half.reduce((s,x,j)=>s+x*Math.abs(n[j]),0);
+    // The gap is measured out of the face (the patch's outward normal; a triangle's own winding may point in).
+    const side=outward&&dot(n,outward)<0?-1:1;
+    for(const gap of [0,side*SURFACE_CONTACT_GAP]){if(distance-gap+extent<=eps||distance-gap-extent>eps)continue;const at=d+gap,k=key+'|out'+(gap?'|'+gap:'');
+     // v13 PERF A mesh not yet sliced at this plane waits until a triangle of the plane comes near it (surfaceFarVerdict).
+     sources.push(mesh.sections.has(k)?{mesh,at,k,section:surfaceExposurePlane(mesh,n,at,u,v,origin,k,eps)}:{mesh,at,k});}
    }const deferred=sources.some(q=>!q.section),sections=deferred?null:sources.map(q=>q.section).filter(q=>q.edges.length);plane={n,u,v,origin,eps,d,key,sources,deferred,sections,crossings:deferred?null:surfaceExposureCrossings(sections,eps)};planes.set(key,plane);
   }
-  if(plane.deferred){const verdict=surfaceFarVerdict(points,plane,plane.sources.map(q=>q.section?{section:q.section,b:q.mesh.b}:{T:q.mesh.T,d:plane.d,b:q.mesh.b}));if(verdict>0){out.push(...points[0],...points[1],...points[2]);continue;}if(verdict<0)continue;
-   for(const q of plane.sources)if(!q.section)q.section=surfaceExposurePlane(q.mesh,plane.n,plane.d,plane.u,plane.v,plane.origin,plane.key+'|out',plane.eps);plane.sections=plane.sources.map(q=>q.section).filter(q=>q.edges.length);plane.crossings=surfaceExposureCrossings(plane.sections,plane.eps);plane.deferred=false;}
+  if(plane.deferred){const verdict=surfaceFarVerdict(points,plane,plane.sources.map(q=>q.section?{section:q.section,b:q.mesh.b,grow:Math.abs(q.at-plane.d)}:{T:q.mesh.T,d:q.at,b:q.mesh.b,grow:Math.abs(q.at-plane.d)}));if(verdict>0){out.push(...points[0],...points[1],...points[2]);continue;}if(verdict<0)continue;
+   for(const q of plane.sources)if(!q.section)q.section=surfaceExposurePlane(q.mesh,plane.n,q.at,plane.u,plane.v,plane.origin,q.k,plane.eps);plane.sections=plane.sources.map(q=>q.section).filter(q=>q.edges.length);plane.crossings=surfaceExposureCrossings(plane.sections,plane.eps);plane.deferred=false;}
   if(!plane.sections.length){out.push(...points[0],...points[1],...points[2]);continue;}const U=points.map(p=>dot(sub(p,plane.origin),plane.u)),umin=Math.min(...U),umax=Math.max(...U),relevant=plane.sections.filter(s=>s.edges.some(e=>Math.max(e[0][0],e[1][0])>=umin-plane.eps&&Math.min(e[0][0],e[1][0])<=umax+plane.eps));surfaceExposeTriangle(points,plane,relevant,out);
  }return out.length===T.length&&out.every((v,i)=>v===T[i])?T:out;
 }
@@ -52361,10 +52370,10 @@ function surfacePatches(ship,structuralOnly=false,defaultsOnly=false,hostIds=nul
  // the earlier structures sharing its sheets. Kept per host mesh and patch under the identities of those meshes, so
  // after an edit only the patches the edited parts can reach are clipped again.
  const hostT=new Map(hosts.map(h=>[h.host,h.T])),priorIds=new Map();
- for(const p of out){const T0=hostT.get(p.host),b=solidMeshBounds(p.triangles),probe=1e-6,cands=meshes.filter(m=>m.part!==p._part&&[0,1,2].every(i=>m.b[i]<=b[i+3]+probe&&m.b[i+3]>=b[i]-probe)).map(m=>surfaceMeshId(m.T)).join(',');
+ for(const p of out){const T0=hostT.get(p.host),b=solidMeshBounds(p.triangles),probe=SURFACE_CONTACT_GAP+1e-6,cands=meshes.filter(m=>m.part!==p._part&&[0,1,2].every(i=>m.b[i]<=b[i+3]+probe&&m.b[i+3]>=b[i]-probe)).map(m=>surfaceMeshId(m.T)).join(',');
   let prior='';if(isStructuralPart(p._part)){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>isStructuralPart(q)&&structuralMaterialOrder(q,p._part)<0).sort(structuralMaterialOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
   const sig=[p.id,p.range.join(','),p.triangles.length,cands,prior].join('|');let memo=T0&&SURFACE_EXPOSED_MEMO.get(T0);if(T0&&!memo)SURFACE_EXPOSED_MEMO.set(T0,memo=new Map());const hit=memo?.get(p.id);
-  if(hit?.sig===sig&&hit.n===p.triangles.length&&hit.triangles.every((x,i)=>x===p.triangles[i]))p.exposedTriangles=hit.value;else{p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));memo?.set(p.id,{sig,n:p.triangles.length,triangles:p.triangles,value:p.exposedTriangles});}
+  if(hit?.sig===sig&&hit.n===p.triangles.length&&hit.triangles.every((x,i)=>x===p.triangles[i]))p.exposedTriangles=hit.value;else{p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes,p.normal));memo?.set(p.id,{sig,n:p.triangles.length,triangles:p.triangles,value:p.exposedTriangles});}
   p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
  (structuralOnly?surfaceStructuralCache:surfaceCache).set(ship,{key,patches:out});return out.map(p=>({...p,config:surfaceConfig(ship,p.id)}));
 }
