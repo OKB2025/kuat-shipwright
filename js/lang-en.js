@@ -10661,6 +10661,10 @@ Object.assign(root.KS_EN.terms,{
  "左右対称: ON": "Left/Right Symmetry: ON",
  "左右対称: OFF": "Left/Right Symmetry: OFF",
  "上下対称: ON": "Top/Bottom Symmetry: ON",
- "上下対称: OFF": "Top/Bottom Symmetry: OFF"
+ "上下対称: OFF": "Top/Bottom Symmetry: OFF",
+ "Esc・閉じるでも変更を適用します。破棄で編集前に戻します。": "Esc and Close also apply the changes. Discard restores the part as it was.",
+ "取消（破棄）": "Cancel (discard)",
+ "適用（Enter）": "Apply (Enter)",
+ "取消：変更を破棄して編集前に戻す": "Cancel: discard the changes and restore the part"
 });
 })(typeof window==="undefined"?globalThis:window);

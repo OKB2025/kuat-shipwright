@@ -4863,7 +4863,20 @@ function designUIEditSync(){
 function designUIEditStatus(){
  const el=$('[data-design-edit-status]');if(!el)return;
  const q=designUIEditSession();
- el.textContent=T(q?.validationError||'閉じると変更が反映されます。取消で元に戻します。');
+ el.textContent=T(q?.validationError||'Esc・閉じるでも変更を適用します。破棄で編集前に戻します。');
+}
+// 2c Explicit buttons fixed at the bottom of the small edit window. Closing (Esc, 閉じる) still applies the
+// edit (user decision 2026-11-12); 適用（Enter） applies and closes, 破棄 restores the part as it was.
+function designUIEditFooter(show){
+ const el=$('#designEditFooter');if(!el)return;el.hidden=!show;if(!show)return;
+ if(!el.firstChild)el.innerHTML='<button type="button" class="btn ghost danger" data-design-action="edit-cancel" aria-label="取消：変更を破棄して編集前に戻す">取消（破棄）</button><button type="button" class="btn primary" data-design-action="edit-apply">適用（Enter）</button>';
+}
+// Enter applies the open edit, except while typing in a field (a number box keeps Enter for itself) or on a button.
+function designUIEditKey(e){
+ if(e.key!=='Enter'||e.isComposing||e.repeat||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return false;
+ if(e.target?.closest?.('input,textarea,select,button,a,summary,[contenteditable]:not([contenteditable="false"]),[role="slider"],[role="textbox"]'))return false;
+ if(!designUIEditSession()||!designUI.drawer||designUI.layout!=='edit')return false;
+ e.preventDefault();designUIEditApply();return true;
 }
 function designPartDefinition(){if(tool()==='importmesh'){const p=importResult()?.part;if(p)return {...p,id:-1};}if(['fit','adjust'].includes(tool()))return {k:curFit(),id:-1,_fit:true};const d=activeEquipment();return d?{...C.equipmentOptions(d.id),id:-1}: {k:st.part,id:-1};}
 function designCapability(p){return C.placementCapability?.(p)||{space:C.isStructuralPart(p)?'exterior':'interior',kind:C.isStructuralPart(p)?'structure':'equipment',deformable:false,allowedModes:['direct']};}
@@ -5129,10 +5142,11 @@ function designUIPanel(){
     panel.insertAdjacentHTML('afterbegin',designUISymmetryHTML(true));
     const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
    }
-   if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p><div class="design-placement-actions"><button type="button" class="btn ghost" data-design-action="edit-cancel">取消</button></div></section>');designUIEditStatus();}
+   if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p></section>');designUIEditStatus();}
   }
   if(layout==='new'||st.tab==='edit')designUISchedulePreview();
  }
+ designUIEditFooter(active&&designUI.drawer&&layout==='edit'&&!!designUIEditSession());
  designUIMetrics();designUIBar();designUIInfoPanel();renderRail();designUIRestoreScroll(scroll);designUISyncCarousels();
 }
 function designUICaptureScroll(){
@@ -5472,6 +5486,7 @@ function bindDesignUI(){
  viewport.insertAdjacentHTML('beforeend','<aside id="designInfoWindow" data-design-info class="design-info" hidden aria-label="部品情報"></aside><aside class="design-readouts" id="designReadouts" aria-label="艦艇の諸元と点検"><dl class="design-metrics" id="designMetrics" aria-label="艦艇の主要諸元"></dl><section id="designInspection" class="design-inspection"></section></aside><div class="design-placement-bar" id="designPlacementBar" hidden></div>');
  const inspection=$('#inspBar');if(inspection)$('#designInspection').append(inspection);
  document.querySelector('.main').insertAdjacentHTML('beforeend','<nav class="design-menu" id="designMenu" aria-label="艦艇設計"><div class="seg" role="group" aria-label="配置する空間"><button type="button" data-design-space="exterior" aria-pressed="true">外装</button><button type="button" data-design-space="interior" aria-pressed="false">内装</button></div><button type="button" class="btn" data-design-open="new">新規配置</button><button type="button" class="btn ghost" data-design-open="list">設置一覧</button><button type="button" class="btn ghost" data-design-open="performance">性能</button></nav>');
+ dock.insertAdjacentHTML('beforeend','<div class="design-edit-footer" id="designEditFooter" data-design-edit-footer hidden></div>');
  dock.insertAdjacentHTML('afterbegin','<div class="design-drawer-head"><strong id="designDrawerTitle">新規配置</strong><button type="button" class="btn sm ghost" data-design-action="close" aria-label="取消">取消</button><div class="design-modal-actions" data-design-modal-actions hidden><button type="button" class="btn primary" data-design-action="arm">設置</button></div></div>');
  document.addEventListener('click',e=>{
   const b=e.target.closest?.('[data-design-open],[data-design-space],[data-design-action],[data-design-category],[data-design-mode],[data-design-here],[data-design-pick-parent],[data-design-weapon-type],[data-design-weapon-output],[data-design-context],[data-design-list-pick],[data-design-remove-type],[data-design-info-close],[data-design-info-edit],[data-design-info-duplicate],[data-design-info-delete],[data-design-hatch-action],[data-design-carousel-step],[data-design-trench-edit],[data-design-selection-multi],[data-design-symmetry]');if(!b)return;
@@ -5487,7 +5502,7 @@ function bindDesignUI(){
  $('#panel').addEventListener('scroll',e=>{if(e.target.matches?.('[data-design-carousel-track]'))designUISyncCarousels();},true);
  globalThis.addEventListener?.('resize',()=>designUISyncCarousels());
  $('#panel').addEventListener('input',e=>{if('designSearch'in e.target.dataset){st.palQuery=e.target.value;const start=e.target.selectionStart;designUIPanel();const input=$('[data-design-search]');input?.focus();input?.setSelectionRange(start,start);}else if(designUI.drawer&&!e.target.dataset.sl)designUISchedulePreview();});
- document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!document.body.classList.contains('designer-ui'))return;if(designUI.armed||designUI.pickParent){e.preventDefault();designUICancel();st.tab='edit';renderPanel();}else if(designUI.drawer){e.preventDefault();designUIClose();}});
+ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.body.classList.contains('designer-ui')){designUIEditKey(e);return;}if(e.key!=='Escape'||!document.body.classList.contains('designer-ui'))return;if(designUI.armed||designUI.pickParent){e.preventDefault();designUICancel();st.tab='edit';renderPanel();}else if(designUI.drawer){e.preventDefault();designUIClose();}});
 }
 
 // ---------- boot ----------
