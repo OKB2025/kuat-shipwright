@@ -8815,7 +8815,7 @@ function trialHudHTML(){
  <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="pd-auto" aria-pressed="${trialDefenseEnabled()}" aria-label="点防御の自動迎撃">${trialDefenseEnabled()?'自動迎撃 ON':'自動迎撃 OFF'}</button><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
- <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
+ <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div><div class="th-load" data-th-load role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" title="炉心負荷（供給中の電力÷主機出力）"><div class="th-load-bar"><i data-th="loadbar"></i><b class="th-load-full"></b></div><small data-th="load">炉心 —</small></div>
   <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div></div>
  <div class="th-card th-rudderbar" data-th-rudderbar><div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div><button type="button" class="th-btn th-center" data-trial-cmd="center" aria-keyshortcuts="X">中央に戻す（X）</button></div>
  <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
@@ -8841,6 +8841,15 @@ function trialBindHud(hud){
  for(const ev of ['pointerup','pointercancel','lostpointercapture'])fire?.addEventListener(ev,()=>{trial.fire=false;fire.classList.remove('on');});
  fire?.addEventListener('contextmenu',e=>e.preventDefault());
 }
+// 4c The reactor load next to the throttle: power supplied ÷ main reactor output (trial.power.load, the figure the
+// 炉心負荷 status already shows). The bar fills to 150%; the mark is 100%. Power order stays fixed.
+function trialLoadMeter(hud,pw){
+ const box=hud?.querySelector?.('[data-th-load]');if(!box)return;
+ const load=Number.isFinite(pw?.load)?Math.max(0,pw.load):null,pct=load==null?null:Math.round(load*100),level=load==null?'none':load>=1.15?'ng':load>=.95?'wait':'ok';
+ const bar=box.querySelector('[data-th="loadbar"]');if(bar)bar.style.height=(load==null?0:Math.min(load,1.5)/1.5*100).toFixed(1)+'%';
+ if(box.dataset.level!==level)box.dataset.level=level;const v=String(pct??0);if(box.getAttribute('aria-valuenow')!==v)box.setAttribute('aria-valuenow',v);
+ const label=box.querySelector('[data-th="load"]'),text=pct==null?'炉心 —':`炉心 ${pct}%`;if(label&&sourceText(label)!==text)label.textContent=text;
+}
 function trialHudUpdate(full){
  const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;trialFoilUpdateControls();const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&sourceText(e) !== String(v))e.textContent=v;};
  const v=trial.vf,p=trial.p,max=trialMaxRates(),deg=x=>x*180/Math.PI;
@@ -8857,6 +8866,7 @@ function trialHudUpdate(full){
  const aim=trial.aim,held=trial.heldLock;if(held&&held!==aim?.lock)set('range',`${GUN_MODES.enemy.name} · ${held.ship?'敵艦':'標的'} ${(tv.len(tv.sub(held.pos,trial.P))/1000).toFixed(1)} km`);else set('range',aim?(aim.lock?(aim.lock.ship?'敵艦 ':aim.lock.kind==='craft'?(trial.battle?'敵機 ':'標的機 '):'標的 '):'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
  const all=trial.turrets,ts=all.filter(t=>!t.pd),pdl=all.filter(t=>t.pd&&!t.dead),pdOn=pdl.filter(t=>t.pdTarget).length,pdFire=pdl.filter(t=>t.firing).length,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
  const pw=trial.power,en=trial.energy,ef=en&&en.cap>0?en.E/en.cap:0,load=pw?.load||0,nochg=ts.filter(t=>t.charge<=0).length,starved=ts.filter(t=>t.ready&&t.reload<=0&&en&&en.E<trialShotEnergyTT(t)*(t.costK??1)).length,fireable=Math.max(0,loaded-starved),thrust=pw?.engF??0;
+ trialLoadMeter(hud,pw);
  const gn=q('guns'),gs=q('gunstat');if(gn&&gs){
   // Each figure carries a full and a short label; the layout picks which shows.
   const it=(cls,l,sh,v)=>`<span class="${cls}"><em class="l">${l}</em><em class="s">${sh}</em> ${v}</span>`,eCls=ef<.25?'ng':ef<.6?'wait':'ok',lCls=load>=1.15?'ng':load>=.95?'wait':'ok';

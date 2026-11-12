@@ -26,3 +26,24 @@ test('4a the centre button, the X key and the gamepad share the centre command',
 test('4a the gauge still follows the ordered and actual rudder',()=>{
  const update=extract('trialHudUpdate');assert.match(update,/hud\.querySelector\('\[data-th-row="rudder"\]'\)/);assert.match(update,/set\('rudder',TRIAL_RUDDER\[trial\.rudder\+2\]\)/);
 });
+
+// 4c (meter only, user decision 2026-11-12: the power order stays fixed, no selectable modes):
+//     a reactor-load meter beside the throttle in the trial and fleet piloting HUD (both use trialHudHTML).
+test('4c the reactor-load meter sits beside the throttle in the helm pad',()=>{
+ const pad=padMarkup.slice(0,padMarkup.indexOf('<div class="th-card th-rudderbar"'));
+ assert.ok(pad.indexOf('data-th-throttle')<pad.indexOf('data-th-load')&&pad.indexOf('data-th-load')<pad.indexOf('th-dpad'),'between the throttle and the arrows');
+ assert.match(pad,/role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150"/);
+ assert.match(hudSource,/<p class="th-power-policy">シールド・艦内設備 → 兵装 → 航行<\/p>/,'the fixed power order is unchanged');
+});
+
+test('4c the meter follows trial.power.load with levels at 95% and 115%',()=>{
+ const cx=vm.createContext({});
+ vm.runInContext(`const nodes={bar:{style:{}},label:{textContent:''}},attrs={};const box={dataset:{},getAttribute:k=>attrs[k],setAttribute:(k,v)=>attrs[k]=v,querySelector:s=>s.includes('loadbar')?nodes.bar:nodes.label};
+ const hud={querySelector:()=>box},sourceText=n=>n.textContent;${extract('trialLoadMeter')}`,cx);
+ const read=load=>{vm.runInContext(`trialLoadMeter(hud,${load==null?'null':`{load:${load}}`})`,cx);return JSON.parse(vm.runInContext('JSON.stringify({h:nodes.bar.style.height,t:nodes.label.textContent,l:box.dataset.level,v:attrs["aria-valuenow"]})',cx));};
+ assert.deepEqual(read(.5),{h:'33.3%',t:'炉心 50%',l:'ok',v:'50'});
+ assert.deepEqual(read(1),{h:'66.7%',t:'炉心 100%',l:'wait',v:'100'});
+ assert.deepEqual(read(2),{h:'100.0%',t:'炉心 200%',l:'ng',v:'200'},'over 150% the bar is full and the number says how far');
+ assert.deepEqual(read(null),{h:'0.0%',t:'炉心 —',l:'none',v:'0'});
+ assert.match(extract('trialHudUpdate'),/thrust=pw\?\.engF\?\?0;\n trialLoadMeter\(hud,pw\);/);
+});
