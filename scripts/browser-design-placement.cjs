@@ -13,6 +13,8 @@ async function run(browser,profile){
  page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='warning')warnings.push(m.text())});
  await page.addInitScript(()=>localStorage.setItem('yard.language','ja'));
  const began=Date.now(),result={profile:profile.name,viewport:profile.viewport,touch:profile.touch};
+ // Touch placement takes two taps since UI phase 1 (2026-11-12): the first previews, the second on the same spot places.
+ const placeTouch=async(x,y)=>{await page.touchscreen.tap(x,y);await page.waitForTimeout(150);await page.touchscreen.tap(x,y);};
  const press=async selector=>{const el=page.locator(selector).first();await el.scrollIntoViewIfNeeded();if(profile.touch)await el.tap();else await el.click();};
  try{
   await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__yard?.eng.ready,null,{timeout:180000});
@@ -26,7 +28,7 @@ async function run(browser,profile){
   await page.screenshot({path:output.replace(/\.json$/,'.'+profile.name+'-drawer.jpg'),type:'jpeg',quality:75});
   await press('[data-design-action="arm"]');assert.deepEqual(await camera(),before,'opening and closing retains camera pose');
   const projected=await page.evaluate(()=>{const Y=window.__yard,v=Y.view();Y.draw();const p=v.project([50,10,12]);return {xy:p.slice(0,2),canvas:document.elementFromPoint(p[0],p[1])===v.canvas}});assert.equal(projected.canvas,true);
-  const inputAt=Date.now();if(profile.touch)await page.touchscreen.tap(...projected.xy);else await page.mouse.click(...projected.xy);
+  const inputAt=Date.now();if(profile.touch)await placeTouch(...projected.xy);else await page.mouse.click(...projected.xy);
   await page.locator('#designPlacementBar [data-design-action="confirm"]').waitFor();result.geometryValidationMs=Date.now()-inputAt;
   assert.equal(await page.evaluate(()=>window.__yard.ship.parts.length),1,'verified ghost stays uncommitted until confirmation');
   await page.screenshot({path:output.replace(/\.json$/,'.'+profile.name+'-ghost.jpg'),type:'jpeg',quality:75});
@@ -43,14 +45,14 @@ async function run(browser,profile){
   await press('[data-design-mode="surface"]');await press('[data-design-action="arm"]');
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const tapped=await page.evaluate(()=>{const Y=window.__yard;for(const x of [85,15,5,95])for(const z of [-12,12,-20,20]){const pixel=Y.view().project([x,10,z]).slice(0,2).map(Math.round),hit=Y.pick(...pixel,{parts:true,fits:false});if(document.elementFromPoint(...pixel)===Y.view().canvas&&(hit?.parentStructureId??hit?.part?.id)===1&&hit.n[1]>.99)return{pixel,parentId:1,surfaceId:hit.hostSurfaceId,p:hit.p};}throw Error('No unobscured root target for surface placement');});assert.equal(tapped.parentId,1);
-  if(profile.touch)await page.touchscreen.tap(...tapped.pixel);else await page.mouse.click(...tapped.pixel);
+  if(profile.touch)await placeTouch(...tapped.pixel);else await page.mouse.click(...tapped.pixel);
   await page.locator('#designPlacementBar [data-design-action="confirm"]').waitFor();assert.equal(await page.locator('#designPlacementBar [data-design-parent-name]').getAttribute('data-parent-id'),'1','actual tap overrides the previous selected child as parent');
   assert.equal(await page.locator('#designPlacementBar [data-design-parent-name]').getAttribute('data-surface-id'),tapped.surfaceId);
   await press('#designPlacementBar [data-design-action="confirm"]');await stable(page);
   result.tapParent=await page.evaluate(()=>{const Y=window.__yard,p=Y.ship.parts.at(-1),parent=Y.ship.parts.find(q=>q.id===p.placement.parentStructureId);return{id:p.id,parentId:parent.id,mode:p.placement.mode,surfaceId:p.placement.hostSurfaceId,anchor:Y.C.worldStruct(parent,p.placement.surfaceAnchor)}});assert.equal(result.tapParent.parentId,1);assert.equal(result.tapParent.mode,'surface');assert.equal(result.tapParent.surfaceId,tapped.surfaceId);assert.ok(result.tapParent.anchor.every((v,i)=>Math.abs(v-tapped.p[i])<1e-5),'surface placement retains the exact tapped point');
   await press('[data-design-open="new"]');await press('[data-design-category="weapon"]');await press('[data-palpick="fit:pd"]');assert.equal(await page.locator('[data-design-mode]').count(),0,'ordinary fittings never offer structural modes');
   await press('[data-design-action="arm"]');await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-  const weaponTap=await page.evaluate(()=>{const Y=window.__yard;for(const x of [18,82,5,95,50])for(const z of [-20,20,-12,12]){const pixel=Y.view().project([x,10,z]).slice(0,2).map(Math.round),hit=Y.pick(...pixel,{parts:true,fits:false});if(document.elementFromPoint(...pixel)===Y.view().canvas&&(hit?.parentStructureId??hit?.part?.id)===1&&hit.n[1]>.99)return pixel;}throw Error('No unobscured root target for weapon placement');});if(profile.touch)await page.touchscreen.tap(...weaponTap);else await page.mouse.click(...weaponTap);
+  const weaponTap=await page.evaluate(()=>{const Y=window.__yard;for(const x of [18,82,5,95,50])for(const z of [-20,20,-12,12]){const pixel=Y.view().project([x,10,z]).slice(0,2).map(Math.round),hit=Y.pick(...pixel,{parts:true,fits:false});if(document.elementFromPoint(...pixel)===Y.view().canvas&&(hit?.parentStructureId??hit?.part?.id)===1&&hit.n[1]>.99)return pixel;}throw Error('No unobscured root target for weapon placement');});if(profile.touch)await placeTouch(...weaponTap);else await page.mouse.click(...weaponTap);
   await page.locator('#designPlacementBar [data-design-action="confirm"]').waitFor();assert.equal(await page.evaluate(()=>window.__yard.ship.fits.length),0,'weapon ghost does not commit before confirmation');
   await press('#designPlacementBar [data-design-action="confirm"]');await stable(page);
   result.weapon=await page.evaluate(()=>{const Y=window.__yard,f=Y.ship.fits.at(-1),r=Y.C.deserialize(Y.C.serialize(Y.ship)).fits.find(q=>q.id===f.id);return{id:f.id,k:f.k,host:f.host,roundHost:r.host,p:f.p,roundP:r.p}});assert.equal(result.weapon.host,1);assert.equal(result.weapon.roundHost,1);assert.ok(result.weapon.p.every((v,i)=>Math.abs(v-result.weapon.roundP[i])<1e-5));

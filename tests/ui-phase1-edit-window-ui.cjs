@@ -10,7 +10,10 @@ function setup(){
  const nodes={};const $=s=>nodes[s]||null;
  function key(target,extra={}){let prevented=false;const e={key:'Enter',target,preventDefault(){prevented=true;},...extra};const handled=designUIEditKey(e);return {handled,prevented};}
  const field=tag=>({closest:s=>s.split(',').some(x=>x.trim().split(/[\\[:]/)[0]===tag)?{}:null});
- ${extract('designUIEditKey')}${extract('designUIEditFooter')}${extract('designUIEditStatus')}`,cx);
+ // An element matched by attribute selectors (e.g. a foil handle <g role="button" tabindex="0">).
+ const attrs=(...list)=>({closest:s=>s.split(',').some(x=>list.some(a=>x.trim().startsWith(a)))?{}:null});
+ let modal=false;const document={querySelector:s=>modal&&s.includes('#sheet:not([hidden])')?{}:null,body:{classList:{contains:()=>false}}};
+ ${extract('designUIModalOpen')}${extract('designUIEditKey')}${extract('designUIEditFooter')}${extract('designUIEditStatus')}`,cx);
  return code=>vm.runInContext(code,cx);
 }
 
@@ -22,7 +25,18 @@ test('Enter applies the open edit from the window, the canvas or the page',()=>{
 test('Enter never applies while typing in a numeric field or other control',()=>{
  for(const tag of ['input','textarea','select','button','summary']){const r=setup();assert.equal(r(`key(field(${JSON.stringify(tag)})).handled`),false,tag);assert.equal(r('applied'),0,tag);}
  const r=setup();assert.equal(r('key(field("div"),{isComposing:true}).handled'),false,'IME composition');assert.equal(r('key(field("div"),{shiftKey:true}).handled'),false);assert.equal(r('key(field("div"),{key:"a"}).handled'),false);assert.equal(r('applied'),0);
- assert.equal(r('designUI.layout="new";key(field("div")).handled'),false,'only the edit window');
+  assert.equal(r('designUI.layout="new";key(field("div")).handled'),false,'only the edit window');
+});
+
+// Regression review 2026-11-12: a #panel keydown handler (the foil vertex/edge handles, <g role="button" tabindex="0">)
+// handles Enter and calls preventDefault before the document listener; that Enter must not also apply and close.
+test('Enter that another handler took, Enter on a focusable role=button/tabindex element, and Enter under a modal do not apply',()=>{
+ const r=setup();
+ assert.equal(r('key(field("div"),{defaultPrevented:true}).handled'),false,'already handled (defaultPrevented)');
+ assert.equal(r('key(attrs(\'[role="button"]\',\'[tabindex]\')).handled'),false,'role=button with tabindex');
+ for(const a of ['[role="tab"]','[role="option"]','[role="menuitem"]','[role="checkbox"]','[tabindex]'])assert.equal(r(`key(attrs('${a}')).handled`),false,a);
+ assert.equal(r('modal=true;key(field("div")).handled'),false,'the blueprint sheet is open');
+ assert.equal(r('applied'),0);assert.equal(r('modal=false;key(field("div")).handled'),true,'otherwise Enter still applies');
 });
 
 test('the footer holds 取消（破棄） and 適用（Enter） on the existing actions, and the status explains Esc',()=>{
@@ -34,4 +48,12 @@ test('the footer holds 取消（破棄） and 適用（Enter） on the existing 
  // The actions are the ones already wired in bindDesignUI, and Enter goes through designUIEditKey.
  assert.match(app,/else if\(action==='edit-apply'\)designUIEditApply\(\);/);assert.match(app,/if\(e\.key==='Enter'&&document\.body\.classList\.contains\('designer-ui'\)\)\{designUIEditKey\(e\);return;\}/);
  assert.match(app,/id="designEditFooter" data-design-edit-footer hidden/);
+});
+
+// Regression review 2026-11-12: the header close button applies, so it must not read 取消 in the edit window, and the
+// footer must not stay on screen when the designer goes inactive (a trial or fleet mode started mid-edit).
+test('the edit window header says 閉じる（適用）, and the footer hides when the designer goes inactive',()=>{
+ const panel=app.slice(app.indexOf('function designUIPanel('),app.indexOf('function designUICaptureScroll('));
+ assert.match(panel,/close\.textContent=T\(layout==='new'\?'取消':editing\?'閉じる（適用）':'閉じる'\)/);assert.match(panel,/editing\?'閉じる（変更を適用）'/);
+ assert.match(panel,/if\(!active\)\{designUIEditFooter\(false\);designUIInfoPanel\(\);return;\}/);
 });

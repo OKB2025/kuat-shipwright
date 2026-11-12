@@ -20,7 +20,8 @@ function harness(options){
  const taps=[];function tapHit(tool,h,add){taps.push({tool,p:h?.p?.slice()});designUIStartTap(h);}
  ${constLine}
  `);
- for(const name of ['tapWant','onTap','designTouchPreviewActive','designTouchPlacementTap','designUIDone'])r(fn(name));
+ r(app.split('\n').find(line=>line.startsWith('const DESIGN_NEW_KEYS=')));
+ for(const name of ['tapWant','onTap','designTouchPreviewActive','designTouchPreviewSignature','designTouchPreviewCurrent','designTouchPlacementTap','designUIDone'])r(fn(name));
  
  return t;
 }
@@ -73,6 +74,29 @@ test('完了 places a pending touch preview and ends placement; キャンセル 
  const t=harness({continuous:true}),r=t.run;
  r('onTap(8,100,false,"touch");designUIDone()');assert.equal(r('ship.parts.length'),3);assert.equal(r('designUI.armed'),false);assert.equal(r('designUI.touchPreview'),null);
  const u=harness(),q=u.run;q('onTap(8,100,false,"touch");designUICancel()');assert.equal(q('ship.parts.length'),2);assert.equal(q('designUI.touchPreview'),null);assert.equal(q('designUI.armed'),false);
+});
+
+// Regression review 2026-11-12: a preview never places a part made with other settings.
+test('touch: changing the part, symmetry or mode after the preview drops it, and the next tap only previews again',()=>{
+ for(const change of ['st.mirror=true','st.vmirror=true','st.part="hangar"','st.structSize=[9,9,9]','designUI.mode="surface"']){
+  const t=harness(),r=t.run;r('onTap(10,100,false,"touch")');assert.equal(r('designTouchPreviewActive()'),true);
+  r(change);assert.equal(r('designTouchPreviewActive()'),false,change+': the stale preview is dropped');assert.equal(r('designUI.touchPreview'),null);
+  r('onTap(10,100,false,"touch")');assert.equal(r('taps.length'),0,change+': the tap on the same spot previews again instead of placing');assert.equal(r('ship.parts.length'),2);
+  r('onTap(10,100,false,"touch")');assert.ok(r('ship.parts.length')>2,change+': and the next tap places with the new settings');
+ }
+});
+
+test('touch: after an orbit or zoom the confirming tap goes where the preview is drawn now',()=>{
+ const t=harness(),r=t.run;r('onTap(10,100,false,"touch")');
+ r('view.project=p=>[p[0]+300,140,0]');
+ r('onTap(10,100,false,"touch")');assert.equal(r('taps.length'),0,'the old screen spot no longer confirms (the ghost moved): it moves the preview');
+ r('onTap(10,100,false,"touch")');assert.equal(r('taps.length'),0);
+ r('onTap(312,138,false,"touch")');assert.equal(r('taps.length'),1,'a tap on the ghost at its new screen position places');assert.equal(r('taps[0].p[0]'),10);
+});
+
+test('the hints: two taps announced before the first tap on a coarse pointer; unarmed tools say to press 設置',()=>{
+ assert.match(fn('designUIBar'),/matchMedia\('\(pointer:coarse\)'\)/);assert.match(fn('designUIBar'),/touch=designUI\.lastPointer\?designUI\.lastPointer!=='mouse':coarse/);
+ assert.match(fn('hintText'),/\['part','fit','userpart','importmesh'\]\.includes\(t\)&&[^]*!designPlacementActive\(\)\)\{[^}]*return '「設置」を押してから、配置する面をタップしてください。';\}/);
 });
 
 test('the canvas passes the pointer type to the tap, and the pill names what is placed with 完了 and キャンセル（Esc）',()=>{

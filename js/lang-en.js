@@ -10668,8 +10668,11 @@ Object.assign(root.KS_EN.terms,{
  "適用（Enter）": "Apply (Enter)",
  "取消：変更を破棄して編集前に戻す": "Cancel: discard the changes and restore the part",
  "冷却設備": "Cooling",
+ "閉じる（適用）": "Close (apply)",
+ "閉じる（変更を適用）": "Close (apply the changes)",
+ "「設置」を押してから、配置する面をタップしてください。": "Press Install first, then tap the surface to place on.",
  "中央に戻す（X）": "Center rudder (X)",
- "炉心負荷（供給中の電力÷主機出力）": "Reactor load (power being supplied ÷ main reactor output)",
+ "炉心負荷（使用中の電力÷現在の発電可能出力・全反応炉）": "Reactor load (power in use ÷ currently available generation, all reactors)",
  "機関は戦闘時の想定負荷（定格の35%）で表示します。冷却設備は排熱設備の定格消費電力です。": "Engines are shown at the load assumed in combat (35% of their rating). Cooling is the rated power draw of the heat dissipators."
 });
 })(typeof window==="undefined"?globalThis:window);

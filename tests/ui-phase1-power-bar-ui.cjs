@@ -5,12 +5,15 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(__dirname,'..'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 function extract(name){const m=new RegExp('function '+name+'\\s*\\(').exec(app);assert.ok(m,name);for(let end=app.indexOf('}',m.index);end>=0;end=app.indexOf('}',end+1)){const s=app.slice(m.index,end+1);try{new vm.Script(s);return s;}catch{}}assert.fail(name);}
 const shareLine=app.split('\n').find(l=>l.startsWith('const COMBAT_ENGINE_SHARE='));
-function setup(){const cx=vm.createContext({});vm.runInContext(`const esc=String;${shareLine}${extract('combatPowerSegments')}${extract('combatPowerBarHTML')}`,cx);return code=>vm.runInContext(code,cx);}
+const {C:CORE}=require('../scripts/update-ship-examples.cjs').loadRuntime(root);
+function setup(){const cx=vm.createContext({C:CORE});vm.runInContext(`const esc=String;${shareLine}${extract('combatPowerSegments')}${extract('combatPowerBarHTML')}`,cx);return code=>vm.runInContext(code,cx);}
 const draw={weapons:40,shields:20,engines:100,hotel:30,dissipators:10,ray:5};
 
 test('five segments: weapons, shields, 0.35 × engines, cooling, other — with the old four-segment total',()=>{
  const r=setup(),out=r(`combatPowerSegments({power:200,draw:${JSON.stringify(draw)}})`);
- assert.equal(shareLine,'const COMBAT_ENGINE_SHARE=0.35;','the display factor is unchanged');
+ // Physics review 2026-11-12: the share is Core's combat preset engine factor, not a second copy of 0.35.
+ assert.match(shareLine,/^const COMBAT_ENGINE_SHARE=C\.HEAT_PRESETS\?\.combat\?\.eng\?\?0\.35;/);
+ assert.equal(r('COMBAT_ENGINE_SHARE'),CORE.HEAT_PRESETS.combat.eng,'equal to Core HEAT_PRESETS.combat.eng');assert.equal(CORE.HEAT_PRESETS.combat.eng,0.35,'the display factor is unchanged');
  assert.deepEqual(JSON.parse(JSON.stringify(out.segs)),[['兵装',40,'w'],['シールド',20,'s'],['機関',35,'e'],['冷却設備',10,'c'],['その他',25,'o']]);
  const oldTotal=draw.weapons+draw.shields+.35*draw.engines+draw.hotel+draw.ray;assert.equal(out.total,oldTotal,'cooling + other = the old その他 (hotel + ray)');
  assert.equal(out.scale,200);assert.equal(out.over,false);

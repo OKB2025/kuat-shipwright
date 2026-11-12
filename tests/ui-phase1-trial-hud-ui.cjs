@@ -40,10 +40,11 @@ test('4c the meter follows trial.power.load with levels at 95% and 115%',()=>{
  const cx=vm.createContext({});
  vm.runInContext(`const nodes={bar:{style:{}},label:{textContent:''}},attrs={};const box={dataset:{},getAttribute:k=>attrs[k],setAttribute:(k,v)=>attrs[k]=v,querySelector:s=>s.includes('loadbar')?nodes.bar:nodes.label};
  const hud={querySelector:()=>box},sourceText=n=>n.textContent;${extract('trialLoadMeter')}`,cx);
- const read=load=>{vm.runInContext(`trialLoadMeter(hud,${load==null?'null':`{load:${load}}`})`,cx);return JSON.parse(vm.runInContext('JSON.stringify({h:nodes.bar.style.height,t:nodes.label.textContent,l:box.dataset.level,v:attrs["aria-valuenow"]})',cx));};
+ const read=load=>{vm.runInContext(`trialLoadMeter(hud,${load==null?'null':`{load:${load},P:1e9}`})`,cx);return JSON.parse(vm.runInContext('JSON.stringify({h:nodes.bar.style.height,t:nodes.label.textContent,l:box.dataset.level,v:attrs["aria-valuenow"]})',cx));};
  assert.deepEqual(read(.5),{h:'33.3%',t:'炉心 50%',l:'ok',v:'50'});
  assert.deepEqual(read(1),{h:'66.7%',t:'炉心 100%',l:'wait',v:'100'});
- assert.deepEqual(read(2),{h:'100.0%',t:'炉心 200%',l:'ng',v:'200'},'over 150% the bar is full and the number says how far');
+ assert.deepEqual(read(2),{h:'100.0%',t:'炉心 200%',l:'ng',v:'150'},'over 150% the bar is full, the number says how far and aria-valuenow stays within the meter range');
  assert.deepEqual(read(null),{h:'0.0%',t:'炉心 —',l:'none',v:'0'});
+ vm.runInContext('trialLoadMeter(hud,{load:0,engF:0,got:null,P:0})',cx);assert.equal(vm.runInContext('nodes.label.textContent',cx),'炉心 —','power lost (no reactor output): a dash, not 0 %');
  assert.match(extract('trialHudUpdate'),/thrust=pw\?\.engF\?\?0;\n trialLoadMeter\(hud,pw\);/);
 });

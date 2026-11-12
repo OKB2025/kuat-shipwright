@@ -2915,6 +2915,8 @@ function hintText() {
   if(typeof designUIInspectMode==='function'&&designUIInspectMode())return '部品をタップすると情報を表示します。変更するときは「編集」を選んでください。';
   if(st.repeatPlacement?.pick)return '連続配置の基準点を面の上で選んでください（数値でも指定できます）';
   const t = tool();
+  // 1b In the designer a tap places nothing until 設置 arms the tool, so the hint says so first.
+  if(['part','fit','userpart','importmesh'].includes(t)&&typeof designPlacementActive==='function'&&ship&&fleet.mode==='design'&&!designPlacementActive()){if(t==='userpart'&&!st.userPart)return '一覧からユーザー部品を選んでください';return '「設置」を押してから、配置する面をタップしてください。';}
   switch (t) {
     case 'multi': return '区画・構造物・装備をタップして選択に追加／もう一度で解除';
     case 'importmesh': return '面をタップして取り込んだ3D形状を構造物として配置';
@@ -3036,7 +3038,7 @@ function refreshOverlay() {
   if (st.tab === 'edit') { const am = [240, 170, 70, 255], pr = st.sel; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), pr?.list === 'parts' && pr.id === p.id ? cy : am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), pr?.list === 'fits' && pr.id === f.id ? cy : am); xfPreviewLines(ls); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
   if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);if(C.FITS[it.k]?.window){const room=editorCommandCompartments().find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]);} }
-  const base = ls.out(),touchLines=typeof designUI!=='undefined'&&designUI.armed&&designUI.touchPreview?.source===ship?designUI.touchPreview.lines:null,shownHover=hoverLines||touchLines;
+  const base = ls.out(),touchLines=typeof designTouchPreviewCurrent==='function'?designTouchPreviewCurrent()?.lines||null:null,shownHover=hoverLines||touchLines;
   if (shownHover) {
     const h = shownHover.out(), pos = new Float32Array(base.pos.length + h.pos.length), col = new Uint8Array(base.col.length + h.col.length);
     pos.set(base.pos); pos.set(h.pos, base.pos.length); col.set(base.col); col.set(h.col, base.col.length);
@@ -3098,22 +3100,36 @@ function onTap(px, py, add, pointerType) {
   tapHit(t, pick(px, py, tapWant(t)), add);
 }
 const DESIGN_PLACE_TOOLS=['part','fit','userpart','importmesh'],DESIGN_TOUCH_CONFIRM_PX=32;
-function designTouchPreviewActive(){const q=typeof designUI!=='undefined'?designUI.touchPreview:null;return !!q&&q.source===ship&&designPlacementActive();}
+function designTouchPreviewActive(){return !!designTouchPreviewCurrent();}
+// What a touch preview was made with: the tool, the part and its placement settings, the symmetry toggles and
+// the placement mode. A preview whose signature no longer matches is dropped, so a confirming tap can never
+// place a different part (or a differently mirrored one) than the one previewed.
+function designTouchPreviewSignature(){
+ const keys=typeof DESIGN_NEW_KEYS!=='undefined'?DESIGN_NEW_KEYS:[];
+ return JSON.stringify([tool(),keys.map(k=>st[k]??null),!!st.mirror,!!st.vmirror,designUI.mode??null,designUI.replaceId??null,designUI.replaceList??null,designUI.contactSide??null,designUI.depth??0,designUI.parentId??null,designUI.space]);
+}
+function designTouchPreviewCurrent(){
+ const q=typeof designUI!=='undefined'?designUI.touchPreview:null;if(!q)return null;
+ if(q.source===ship&&designPlacementActive()&&q.signature===designTouchPreviewSignature())return q;
+ designUI.touchPreview=null;return null;
+}
 // Touch placement: returns the hit to place at, or false when the tap only showed (or moved) the preview.
 function designTouchPlacementTap(t,px,py,pointerType){
  designUI.lastPointer=pointerType||'mouse';
  const hit=pick(px,py,tapWant(t));
  if(!pointerType||pointerType==='mouse'){designUI.touchPreview=null;return hit;}
- const q=designUI.touchPreview;
- if(q&&q.source===ship&&q.tool===t){
+ const q=designTouchPreviewCurrent();
+ if(q&&q.tool===t){
+  // The preview's 3D point is projected again, so the confirming tap goes where the ghost is drawn now,
+  // also after an orbit or zoom; the first tap's screen position is used only if the point is off screen.
   const at=q.hit?.p&&view?.project?view.project(q.hit.p):null,on=at&&at[2]>-1&&at[2]<1,sx=on?at[0]:q.px,sy=on?at[1]:q.py;
-  if(Math.hypot(px-sx,py-sy)<=DESIGN_TOUCH_CONFIRM_PX||Math.hypot(px-q.px,py-q.py)<=DESIGN_TOUCH_CONFIRM_PX){designUI.touchPreview=null;hoverLines=null;return q.gen===eng.gen&&q.hit?q.hit:hit;}
+  if(Math.hypot(px-sx,py-sy)<=DESIGN_TOUCH_CONFIRM_PX){designUI.touchPreview=null;hoverLines=null;return q.gen===eng.gen&&q.hit?q.hit:hit;}
  }
  // Without a surface there is nothing to preview: the ordinary path rejects the tap with its message.
  if(!hit?.p){designUI.touchPreview=null;return hit;}
  let lines=null;try{lines=ghostFor(hit);}catch(e){lines=null;}
  if(!lines)lines=Gfx.lineSet();lines.cross(hit.p,Math.max(.5,(view?.cam?.r||100)*.015),[255,215,140,255]);
- designUI.touchPreview={source:ship,tool:t,hit,px,py,gen:eng.gen,lines};hoverLines=null;refreshOverlay();designUIBar();
+ designUI.touchPreview={source:ship,tool:t,hit,px,py,gen:eng.gen,lines,signature:designTouchPreviewSignature()};hoverLines=null;refreshOverlay();designUIBar();
  return false;
 }
 // Alignment snaps the placement point, except along the face normal (that
@@ -3354,7 +3370,8 @@ function engagementCapacityHTML(S){return `<div data-aa-capacity><dt>同時交�
 // 機関 keeps the long-standing display factor 0.35 × d.engines (the propulsion load assumed in combat), and
 // 冷却設備 — the rated draw of the heat dissipators, S.draw.dissipators, which Core counts inside S.draw.hotel —
 // is split out of その他. The total (and the over-demand mark) is unchanged.
-const COMBAT_ENGINE_SHARE=0.35;
+// The combat preset's engine share from Core (HEAT_PRESETS.combat.eng), not a second copy of the number.
+const COMBAT_ENGINE_SHARE=C.HEAT_PRESETS?.combat?.eng??0.35;
 function combatPowerSegments(S){
  const d=S?.draw||{},hotel=Math.max(0,d.hotel||0),cool=Math.min(hotel,Math.max(0,d.dissipators||0));
  const segs=[['兵装',Math.max(0,d.weapons||0),'w'],['シールド',Math.max(0,d.shields||0),'s'],['機関',COMBAT_ENGINE_SHARE*Math.max(0,d.engines||0),'e'],['冷却設備',cool,'c'],['その他',hotel-cool+Math.max(0,d.ray||0),'o']];
@@ -4885,9 +4902,13 @@ function designUIEditFooter(show){
  if(!el.firstChild)el.innerHTML='<button type="button" class="btn ghost danger" data-design-action="edit-cancel" aria-label="取消：変更を破棄して編集前に戻す">取消（破棄）</button><button type="button" class="btn primary" data-design-action="edit-apply">適用（Enter）</button>';
 }
 // Enter applies the open edit, except while typing in a field (a number box keeps Enter for itself) or on a button.
+// A key another handler already took (e.defaultPrevented, e.g. a foil vertex handle), any focusable control
+// (role=button/tab/option/menuitem/checkbox, tabindex) and an open modal (blueprint sheet, title) keep Enter.
+function designUIModalOpen(){if(typeof document==='undefined')return false;return !!document.querySelector?.('#sheet:not([hidden]),[role="dialog"][aria-modal="true"]:not([hidden])')||!!document.body?.classList?.contains('title-open');}
 function designUIEditKey(e){
- if(e.key!=='Enter'||e.isComposing||e.repeat||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return false;
- if(e.target?.closest?.('input,textarea,select,button,a,summary,[contenteditable]:not([contenteditable="false"]),[role="slider"],[role="textbox"]'))return false;
+ if(e.key!=='Enter'||e.defaultPrevented||e.isComposing||e.repeat||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return false;
+ if(e.target?.closest?.('input,textarea,select,button,a,summary,[contenteditable]:not([contenteditable="false"]),[role="slider"],[role="textbox"],[role="button"],[role="tab"],[role="option"],[role="menuitem"],[role="checkbox"],[tabindex]:not([tabindex="-1"])'))return false;
+ if(designUIModalOpen())return false;
  if(!designUIEditSession()||!designUI.drawer||designUI.layout!=='edit')return false;
  e.preventDefault();designUIEditApply();return true;
 }
@@ -5132,9 +5153,9 @@ function designUIPanel(){
  document.body.classList.toggle('designer-ui',active);document.body.classList.toggle('design-sheet-open',false);document.body.classList.toggle('design-new-open',active&&designUI.drawer&&layout==='new');document.body.classList.toggle('design-editor-open',active&&designUI.drawer&&['edit','list','performance'].includes(layout));
  dock.dataset.designLayout=layout;dock.classList.toggle('design-open',active&&designUI.drawer);dock.classList.toggle('design-details',false);dock.classList.toggle('design-editing',active&&layout==='edit');
  const footer=$('[data-design-modal-actions]');if(footer)footer.hidden=!(active&&designUI.drawer&&layout==='new');
- if(!active){designUIInfoPanel();return;}
+ if(!active){designUIEditFooter(false);designUIInfoPanel();return;}
  const title=$('#designDrawerTitle');if(title)title.textContent=layout==='list'?'設置一覧':layout==='performance'?'性能':layout==='edit'?'配置済み部品の編集':'新規配置';
- const close=$('#dock .design-drawer-head [data-design-action="close"]');if(close){close.textContent=T(layout==='new'?'取消':'閉じる');close.setAttribute('aria-label',T(layout==='new'?'取消':'パネルを閉じる'));}
+ const close=$('#dock .design-drawer-head [data-design-action="close"]');if(close){const editing=layout==='edit';/* 2c closing the edit window applies the edit; 取消（破棄） is in the footer */close.textContent=T(layout==='new'?'取消':editing?'閉じる（適用）':'閉じる');close.setAttribute('aria-label',T(layout==='new'?'取消':editing?'閉じる（変更を適用）':'パネルを閉じる'));}
  $$('#designMenu [data-design-space]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.designSpace===designUI.space)));
  $$('#designMenu [data-design-open]').forEach(b=>b.setAttribute('aria-pressed',String(designUI.drawer&&b.dataset.designOpen===layout)));
  const panel=$('#panel');for(const q of panel.querySelectorAll(':scope > [data-design-settings]'))q.replaceWith(...q.childNodes);
@@ -5262,11 +5283,14 @@ function designUIPlacementName(){
  return p._fit?(C.FITS[p.k]?.name||p.k):C.partLabel(p);
 }
 function designUIBar(){
+ // A touch preview made with other settings (part, symmetry, mode) is dropped and its ghost removed.
+ if(designUI.touchPreview&&!designTouchPreviewCurrent())refreshOverlay();
  const el=$('#designPlacementBar');if(!el)return;const q=designUI.pending,last=designUI.lastStamp?.source===ship?designUI.lastStamp:null,items=last?last.ids.map(id=>ship[last.list].find(item=>item.id===id)).filter(Boolean):[],armed=designUI.armed||designUI.pickParent;
  // 1b While placement is armed the 3D view glows (CSS only, no WebGL redraw).
  if(typeof document!=='undefined')document.body?.classList?.toggle('design-armed',!!armed&&!!ship&&fleet.mode==='design'&&!trial.on);
  el.hidden=!armed;el.dataset.state=q?.state||(items.some(item=>item.placement?.validationFailed)?'failed':items.some(item=>item.placement?.pendingGeometry)?'background':'draft');if(!armed)return;
- const touch=designUI.lastPointer&&designUI.lastPointer!=='mouse',preview=designUI.armed&&designUI.touchPreview?.source===ship;
+ // Before the first tap a coarse (touch) pointer already gets the two-tap hint.
+ const coarse=typeof matchMedia==='function'&&!!matchMedia('(pointer:coarse)')?.matches,touch=designUI.lastPointer?designUI.lastPointer!=='mouse':coarse,preview=!!designTouchPreviewCurrent();
  const status=q?.state==='pending'?'検証中':q?.state==='ready'?'配置しています…':q?.state==='failed'?(q.result?.error||'配置を検証できませんでした'):items.some(item=>item.placement?.validationFailed)?'配置しました。計算で問題が見つかりました。点検から修正できます。':items.some(item=>item.placement?.pendingGeometry)?'配置しました。形状・性能はバックグラウンドで計算しています。':preview?'プレビュー中。同じ場所をもう一度タップすると配置します。別の場所をタップするとプレビューが移動します。':touch?'位置をタップするとプレビューを表示し、もう一度タップすると配置します。':designExternalPlacementTool()?(designUI.continuous?'追加元の構造物と取付位置をタップすると配置します。同じ設定で続けて配置できます。':'追加元の構造物と取付位置をタップすると配置します。'):(designUI.continuous?'位置をタップすると配置します。同じ設定で続けて配置できます。':'位置をタップすると配置します。');
  const request=q?q.request:last?.request,parentId=request?.parentStructureId,parent=parentId!=null?designParent(parentId):null,face=request?.hit?.face,point=request?.hit?.p;
  const target=parent?`<span class="design-parent-target" data-design-parent-name data-parent-id="${esc(String(parentId))}" data-surface-id="${esc(request.hostSurfaceId||'')}" data-hit-point="${esc(JSON.stringify(point))}">${esc(T('追加元'))}：${esc(parentId==='hull'?T('船体'):C.partLabel(parent))} #${esc(String(parentId))}${face?` ・ ${esc(T(STRUCTURE_ARMOR_FACES[face]||face))}`:''}${point?`<small>${esc(T('取付位置 XYZ（m）'))}：${point.map(v=>Number(v.toFixed(2))).join(' / ')}</small>`:''}</span>`:request?.hit?.rootPlane?`<span class="design-parent-target" data-design-root data-root-plane="Y=0">${esc(T('ルート構造物（親なし）'))} ・ ${esc(T('作業面 Y=0'))}</span>`:'';
@@ -5275,8 +5299,8 @@ function designUIBar(){
 }
 // 完了: a pending touch preview is placed first; then placement ends, keeping what was placed.
 function designUIDone(){
- const q=designUI.touchPreview;
- if(q&&q.source===ship&&designPlacementActive()&&q.hit){designUI.touchPreview=null;hoverLines=null;tapHit(q.tool,q.gen===eng.gen?q.hit:pick(q.px,q.py,tapWant(q.tool)),false);}
+ const q=designTouchPreviewCurrent();
+ if(q?.hit){designUI.touchPreview=null;hoverLines=null;tapHit(q.tool,q.gen===eng.gen?q.hit:pick(q.px,q.py,tapWant(q.tool)),false);}
  if(designUI.armed||designUI.pickParent){designUICancel();st.tab='edit';}
  renderPanel();refreshOverlay();
 }
@@ -8836,7 +8860,7 @@ function trialHudHTML(){
  <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="pd-auto" aria-pressed="${trialDefenseEnabled()}" aria-label="点防御の自動迎撃">${trialDefenseEnabled()?'自動迎撃 ON':'自動迎撃 OFF'}</button><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
- <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div><div class="th-load" data-th-load role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" title="炉心負荷（供給中の電力÷主機出力）"><div class="th-load-bar"><i data-th="loadbar"></i><b class="th-load-full"></b></div><small data-th="load">炉心 —</small></div>
+ <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div><div class="th-load" data-th-load role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" title="炉心負荷（使用中の電力÷現在の発電可能出力・全反応炉）"><div class="th-load-bar"><i data-th="loadbar"></i><b class="th-load-full"></b></div><small data-th="load">炉心 —</small></div>
   <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div></div>
  <div class="th-card th-rudderbar" data-th-rudderbar><div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div><button type="button" class="th-btn th-center" data-trial-cmd="center" aria-keyshortcuts="X">中央に戻す（X）</button></div>
  <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
@@ -8862,13 +8886,15 @@ function trialBindHud(hud){
  for(const ev of ['pointerup','pointercancel','lostpointercapture'])fire?.addEventListener(ev,()=>{trial.fire=false;fire.classList.remove('on');});
  fire?.addEventListener('contextmenu',e=>e.preventDefault());
 }
-// 4c The reactor load next to the throttle: power supplied ÷ main reactor output (trial.power.load, the figure the
+// 4c The reactor load next to the throttle: power in use ÷ the generation currently available from all reactors
+// (aux included, after damage, heat and fuel limits) (trial.power.load, the figure the
 // 炉心負荷 status already shows). The bar fills to 150%; the mark is 100%. Power order stays fixed.
 function trialLoadMeter(hud,pw){
  const box=hud?.querySelector?.('[data-th-load]');if(!box)return;
- const load=Number.isFinite(pw?.load)?Math.max(0,pw.load):null,pct=load==null?null:Math.round(load*100),level=load==null?'none':load>=1.15?'ng':load>=.95?'wait':'ok';
+ // With no reactor output (power lost: P is 0 and load reads 0) there is no load to show: 「—」, not 0 %.
+ const load=Number.isFinite(pw?.load)&&pw.P>0?Math.max(0,pw.load):null,pct=load==null?null:Math.round(load*100),level=load==null?'none':load>=1.15?'ng':load>=.95?'wait':'ok';
  const bar=box.querySelector('[data-th="loadbar"]');if(bar)bar.style.height=(load==null?0:Math.min(load,1.5)/1.5*100).toFixed(1)+'%';
- if(box.dataset.level!==level)box.dataset.level=level;const v=String(pct??0);if(box.getAttribute('aria-valuenow')!==v)box.setAttribute('aria-valuenow',v);
+ if(box.dataset.level!==level)box.dataset.level=level;const v=String(Math.min(150,pct??0));if(box.getAttribute('aria-valuenow')!==v)box.setAttribute('aria-valuenow',v);
  const label=box.querySelector('[data-th="load"]'),text=pct==null?'炉心 —':`炉心 ${pct}%`;if(label&&sourceText(label)!==text)label.textContent=text;
 }
 function trialHudUpdate(full){

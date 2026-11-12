@@ -80,7 +80,8 @@ async function heightEdit(page){
  // Open the actual size disclosure through its summary rather than editing DOM state.
  await openAncestors(height);
  await height.scrollIntoViewIfNeeded();await frames(page);const before=await partState(page);near(before.bounds[1],10);near(before.bounds[4],40);
- assert.equal(await page.locator('#dock [data-design-action="edit-cancel"]').count(),1);assert.equal(await page.locator('#dock [data-design-action="edit-apply"]').count(),0,'editing has no explicit apply action');
+ assert.equal(await page.locator('#dock [data-design-action="edit-cancel"]').count(),1);// UI phase 1 (2026-11-12, item 2c): the edit window has explicit 取消（破棄） and 適用（Enter） in its footer.
+ assert.equal(await page.locator('#designEditFooter:not([hidden]) [data-design-action="edit-apply"]').count(),1,'the edit window footer offers 適用（Enter）');
  await page.evaluate(()=>{window.__heightUploads=[];});await height.fill('100');await height.press('Tab');await frames(page);
  const immediate=await partState(page);near(immediate.c[1]-immediate.s[2]/2,0);near(immediate.s[2],100);near(immediate.bounds[4],100);assert.equal(immediate.form,before.form);assert.equal(immediate.taper,before.taper);assert.deepEqual(immediate.angles,before.angles);for(const axis of [0,2])near(immediate.c[axis],before.c[axis]);assert.deepEqual(immediate.s.slice(0,2),before.s.slice(0,2));
  await page.screenshot({path:output.replace(/\.json$/,'.height-edit.jpg'),type:'jpeg',quality:85});
