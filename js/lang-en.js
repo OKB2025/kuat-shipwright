@@ -10650,7 +10650,8 @@ Object.assign(root.KS_EN.terms,{
 });
 // UI phase 1 (2026-11-12): placement pill, touch two-tap placement
 Object.assign(root.KS_EN.messages,{
- "［配置中：{0}］": "[Placing: {0}]"
+ "［配置中：{0}］": "[Placing: {0}]",
+ "戦闘時の電力配分：{0}": "Combat power allocation: {0}"
 });
 Object.assign(root.KS_EN.terms,{
  "キャンセル（Esc）": "Cancel (Esc)",
@@ -10665,6 +10666,8 @@ Object.assign(root.KS_EN.terms,{
  "Esc・閉じるでも変更を適用します。破棄で編集前に戻します。": "Esc and Close also apply the changes. Discard restores the part as it was.",
  "取消（破棄）": "Cancel (discard)",
  "適用（Enter）": "Apply (Enter)",
- "取消：変更を破棄して編集前に戻す": "Cancel: discard the changes and restore the part"
+ "取消：変更を破棄して編集前に戻す": "Cancel: discard the changes and restore the part",
+ "冷却設備": "Cooling",
+ "機関は戦闘時の想定負荷（定格の35%）で表示します。冷却設備は排熱設備の定格消費電力です。": "Engines are shown at the load assumed in combat (35% of their rating). Cooling is the rated power draw of the heat dissipators."
 });
 })(typeof window==="undefined"?globalThis:window);

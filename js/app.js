@@ -3350,12 +3350,25 @@ function superweaponCatalogHTML(S){
  const beams=(S.superweapons||[]).filter(w=>w.k==='sbeam');if(!beams.length)return '';const fmt=E=>E>=1000?`${ja(E/1000)} PT`:`${ja(E)} TT`,groups=new Map();for(const w of beams){const E=C.swEnergyTT(w);groups.set(E,(groups.get(E)||0)+1);}const each=[...groups].map(([E,n])=>`${fmt(E)} × ${n}`).join('・'),total=beams.reduce((n,w)=>n+C.swEnergyTT(w),0);return `<div data-superweapon-specs><dt>超兵器（照射全体）</dt><dd>${each}<small>合計 ${fmt(total)} / ${C.SW_COMBAT.sbeam.beamT} 秒間照射 · 砲軸固定</small></dd></div>`;
 }
 function engagementCapacityHTML(S){return `<div data-aa-capacity><dt>同時交戦数（対空・迎撃）</dt><dd>${num(Math.max(1,Math.round(S?.aaChannels||1)))} 枠<small>航空機4機の小隊、またはミサイル8発の斉射で1枠</small></dd></div>`;}
+// 3a The combat power shares of the 性能 bar and the compact bar in the metrics. Display only, no physics:
+// 機関 keeps the long-standing display factor 0.35 × d.engines (the propulsion load assumed in combat), and
+// 冷却設備 — the rated draw of the heat dissipators, S.draw.dissipators, which Core counts inside S.draw.hotel —
+// is split out of その他. The total (and the over-demand mark) is unchanged.
+const COMBAT_ENGINE_SHARE=0.35;
+function combatPowerSegments(S){
+ const d=S?.draw||{},hotel=Math.max(0,d.hotel||0),cool=Math.min(hotel,Math.max(0,d.dissipators||0));
+ const segs=[['兵装',Math.max(0,d.weapons||0),'w'],['シールド',Math.max(0,d.shields||0),'s'],['機関',COMBAT_ENGINE_SHARE*Math.max(0,d.engines||0),'e'],['冷却設備',cool,'c'],['その他',hotel-cool+Math.max(0,d.ray||0),'o']];
+ const P=S?.power||1,total=segs.reduce((n,s)=>n+s[1],0);
+ return {segs,P,total,scale:Math.max(P,total,1e-9),over:total>P};
+}
+function combatPowerBarHTML(S,{compact=false}={}){
+ const {segs,P,scale,over}=combatPowerSegments(S),pct=v=>S?.power>0?Math.round(v/P*100)+'%':'—';
+ const label=segs.map(([n,v])=>`${n} ${pct(v)}`).join('・');
+ return `<div class="pbar${compact?' pbar-sm':''}" role="img" aria-label="戦闘時の電力配分：${esc(label)}" data-power-segments="${segs.map(s=>s[2]).join('')}">${segs.map(([n,v,c])=>`<em class="p-${c}" data-power-segment="${c}" style="width:${(v/scale*100).toFixed(2)}%" title="${n} ${pct(v)}"></em>`).join('')}${over?`<i class="pmark" style="left:${(P/scale*100).toFixed(2)}%"></i>`:''}</div><div class="plegend${compact?' plegend-sm':''}">${segs.map(([n,v,c])=>`<span><i class="p-${c}"></i>${n} ${pct(v)}</span>`).join('')}`;
+}
 function specHTML(S, opt = {}) {
   if (!S) return '<p class="muted">計算中…</p>';
   const operating=S;S=catalogStats(S);
-  const P = operating.power || 1, d = operating.draw, cmb = d.weapons + d.shields + 0.35 * d.engines + d.hotel + d.ray;
-  const scale = Math.max(P, cmb);
-  const segs = [['兵装', d.weapons, 'w'], ['シールド', d.shields, 's'], ['機関', 0.35 * d.engines, 'e'], ['その他', d.hotel + d.ray, 'o']];
   const maxSec = Math.max(1, ...S.alpha);
   const comp = [['gen', S.frac.gen], ['shield', S.frac.shield], ['hyper', S.frac.hyper], ['engine', S.frac.engine], ['hangar', S.frac.hangar]].filter(x => x[1] > 0);
   const rest = Math.max(0, 1 - comp.reduce((a, b) => a + b[1], 0));
@@ -3389,8 +3402,8 @@ function specHTML(S, opt = {}) {
   <h4>運転状態（選択中の条件）</h4>
   <dl class="kv" data-operating-specs><div><dt>実加速</dt><dd>${fG(operating.accelG)}</dd></div><div><dt>シールド実出力</dt><dd>${fW(operating.shieldP)}</dd></div></dl>
   <h4>電力配分（戦闘時）</h4>
-  <div class="pbar" role="img" aria-label="戦闘時の電力配分">${segs.map(([n, v, c]) => `<em class="p-${c}" style="width:${(v / scale * 100).toFixed(2)}%" title="${n}"></em>`).join('')}${cmb > P ? `<i class="pmark" style="left:${(P / scale * 100).toFixed(2)}%"></i>` : ''}</div>
-  <div class="plegend">${segs.map(([n, v, c]) => `<span><i class="p-${c}"></i>${n} ${operating.power > 0 ? Math.round(v / P * 100) + '%' : '—'}</span>`).join('')}<span class="${operating.rc === 0 ? 'neg' : ''}">兵装充電 ${fPct(operating.rc)}</span></div>
+  ${combatPowerBarHTML(operating)}<span class="${operating.rc === 0 ? 'neg' : ''}">兵装充電 ${fPct(operating.rc)}</span></div>
+  <p class="note keep power-basis">機関は戦闘時の想定負荷（定格の35%）で表示します。冷却設備は排熱設備の定格消費電力です。</p>
   <h4>加速の上限</h4>
   <div class="lim"><span>推力</span>${bar(S.thrustG / Math.max(S.thrustG, S.structG, 1), 'b-e')}<b>${fG(S.thrustG)}</b></div>
   <div class="lim"><span>縦強度</span>${bar(S.structG / Math.max(S.thrustG, S.structG, 1), 'b-s')}<b>${fG(S.structG)}</b></div>
@@ -5219,7 +5232,7 @@ function designUIMetrics(){
  el.dataset.state=failed?'failed':pending?'pending':'current';
  const M=S?catalogStats(S):null;
  const thermal=C.heatReadoutRates?.(S?.heat),heatTitle=T('各設備の計算済み負荷条件における最大発熱の合計です。'),rejectionTitle=T('設置済み排熱設備と船体表面の定格合計です。熱種と輸送経路により実際の排熱量は変わります。');
- el.innerHTML=`<p role="status">${failed?T('計算失敗'):pending?T('計算中'):T('最新確定')}</p><div><dt>${T('全長')}</dt><dd>${S?.dims?fLen(S.dims[0]):'—'}</dd></div><div><dt>${T('質量')}</dt><dd>${S?fMass(S.mass):'—'}</dd></div><div><dt>${T('出力')}</dt><dd>${M?fW(M.power):'—'}</dd></div><div><dt>${T('最大加速')}</dt><dd>${M?fG(M.accelG):'—'}</dd></div><div data-design-metric="equipment-heat"><dt title="${esc(heatTitle)}" aria-label="${esc(T('設備最大発熱量（1秒あたり）'))}">${T('設備最大発熱 /秒')}</dt><dd>${thermal?.equipmentMaxHeatW!=null?fW(thermal.equipmentMaxHeatW):'—'}</dd></div><div data-design-metric="rejection-capacity"><dt title="${esc(rejectionTitle)}" aria-label="${esc(T('排熱能力（1秒あたり）'))}">${T('排熱能力 /秒')}</dt><dd>${thermal?.rejectionCapacityW!=null?fW(thermal.rejectionCapacityW):'—'}</dd></div>`;
+ el.innerHTML=`<p role="status">${failed?T('計算失敗'):pending?T('計算中'):T('最新確定')}</p><div><dt>${T('全長')}</dt><dd>${S?.dims?fLen(S.dims[0]):'—'}</dd></div><div><dt>${T('質量')}</dt><dd>${S?fMass(S.mass):'—'}</dd></div><div><dt>${T('出力')}</dt><dd>${M?fW(M.power):'—'}</dd></div><div><dt>${T('最大加速')}</dt><dd>${M?fG(M.accelG):'—'}</dd></div><div data-design-metric="equipment-heat"><dt title="${esc(heatTitle)}" aria-label="${esc(T('設備最大発熱量（1秒あたり）'))}">${T('設備最大発熱 /秒')}</dt><dd>${thermal?.equipmentMaxHeatW!=null?fW(thermal.equipmentMaxHeatW):'—'}</dd></div><div data-design-metric="rejection-capacity"><dt title="${esc(rejectionTitle)}" aria-label="${esc(T('排熱能力（1秒あたり）'))}">${T('排熱能力 /秒')}</dt><dd>${thermal?.rejectionCapacityW!=null?fW(thermal.rejectionCapacityW):'—'}</dd></div><div class="design-power" data-design-metric="power-bar"><dt>${T('戦闘時の電力配分')}</dt><dd>${S?.draw?combatPowerBarHTML(S,{compact:true})+'</div>':'—'}</dd></div>`;
 }
 function designUISchedulePreview(){
  cancelAnimationFrame(designUI.previewFrame);designUI.previewFrame=requestAnimationFrame(()=>{
