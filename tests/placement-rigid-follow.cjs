@@ -73,7 +73,7 @@ test('a mirrored pair of structures moved and turned as mirror images: their chi
 
 test('equipment and a fitting on P follow P when the hull turns and moves (live)',()=>{
  const s=stack(),P=part(s,'P'),top=C.partAABB(P)[4];
- const sensor=C.commitPlacement(s,{id:-1,k:'sensor',c:[86,top+1.84,0],d:4},{mode:'direct',parentStructureId:P.id,geometryRevision:1,parentGeometryRevision:P.placement?.geometryRevision||0,hit:{p:[86,top,0],n:[0,1,0]}});assert.equal(sensor.ok,true,sensor.error);
+ const sensor=C.commitPlacement(s,{id:-1,k:'sensor',c:[94,top+1.84,0],d:4},{mode:'direct',parentStructureId:P.id,geometryRevision:1,parentGeometryRevision:P.placement?.geometryRevision||0,hit:{p:[94,top,0],n:[0,1,0]}});assert.equal(sensor.ok,true,sensor.error);
  const fit=C.commitPlacement(s,{id:-1,k:'pd',p:[94,top,0],n:[0,1,0],a:2,ped:0},{entityKind:'fit',list:'fits',mode:'direct',hostId:P.id,hit:{p:[94,top,0],n:[0,1,0]}});assert.equal(fit.ok,true,fit.error);C.refreshPlacementGeometry(s);
  const S=s.parts.find(q=>q.k==='sensor'),F=s.fits.find(f=>f.k==='pd'),sl=C.localStruct(P,S.c),fl=C.localStruct(P,F.p),fn=C.placementLocalNormal?.(P,F.n)||null;
  const hull=s.parts[0];hull.yaw=30;hull.pitch=6;hull.c=[hull.c[0]+10,hull.c[1],hull.c[2]+3];s._cache=null;const r=C.refreshPlacementGeometry(s);assert.equal(r.failed.length,0,JSON.stringify(r.failed));
@@ -112,4 +112,18 @@ test('Worker vs editor, undo and redo: a parent edit is one editor snapshot; the
  r=send(after);assert.equal(r.failed.length,0);assert.deepEqual(pose(worker),followed,'redo follows again');
  // A reload of the editor's save (old child poses, new hull) gives the same.
  assert.deepEqual(pose(C.deserialize(JSON.parse(after))),followed,'reload of the editor save');
+});
+
+// A reload solves P again with its equipment already on it. The sensor sinks slightly into P's deck by its
+// own placement; that is not an interference for P (it was reported as one, P failed and the sensor became
+// parent-unresolved: the same on main b40b72d).
+test('equipment mounted on a structure does not make the structure fail its own re-solve on reload (sensor via commitPlacement); after a hull turn the reload agrees',()=>{
+ const s=stack(),P=part(s,'P'),top=C.partAABB(P)[4];
+ const r=C.commitPlacement(s,{id:-1,k:'sensor',c:[94,top+1.84,0],d:4},{mode:'direct',parentStructureId:P.id,geometryRevision:1,parentGeometryRevision:P.placement?.geometryRevision||0,hit:{p:[94,top,0],n:[0,1,0]}});assert.equal(r.ok,true,r.error);
+ assert.equal(C.refreshPlacementGeometry(s).failed.length,0);const S=s.parts.find(q=>q.k==='sensor');assert.ok(C.overlapParts(P,S),'the sensor really sinks into P (the case that used to fail)');
+ const check=ship=>{const L=reload(ship),lp=part(L,'P'),ls=L.parts.find(q=>q.k==='sensor');assert.equal(lp._placementError,undefined,'P');assert.equal(ls._placementError,undefined,'sensor');near(C.localStruct(lp,ls.c),C.localStruct(part(ship,'P'),ship.parts.find(q=>q.k==='sensor').c),'sensor on P');};
+ check(s);const hull=s.parts[0];hull.yaw=20;s._cache=null;const rr=C.refreshPlacementGeometry(s);assert.equal(rr.failed.length,0,JSON.stringify(rr.failed));check(s);
+ // A structure still clashes with equipment that is not mounted on it.
+ const other=C.commitPlacement(s,{id:-1,k:'sensor',c:[60,30,0],d:4},{mode:'direct',parentStructureId:hull.id,geometryRevision:1,parentGeometryRevision:hull.placement?.geometryRevision||0,hit:{p:[60,32,0],n:[0,1,0]}});
+ if(other.ok){const raw=C.rayPart([60,500,0],[0,-1,0],hull),c=[raw.p[0],raw.p[1]+1.8,raw.p[2]];const q=C.solvePlacement(s,{id:-1,k:'struct',form:'box',c,s:[16,8,6],yaw:0,pitch:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit:{p:raw.p,n:C.norm(raw.n)},contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(q.code,'placement-interference');}
 });
