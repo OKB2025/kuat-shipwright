@@ -39,9 +39,11 @@ function same(live,label,{stats=true,shapeVolume=true}={}){
 function design(){
  const s=userFixture(C,{interior:16,structures:2});
  const add=p=>{p.id=s.nextId++;s.parts.push(p);return p;};
- const mover=add({k:'struct',form:'box',c:[215,72,0],s:[24,10,16],taper:0,yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0});
+ const mover=add({k:'struct',form:'box',c:[215,66,0],s:[24,10,16],taper:0,yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0});
  const legacyNear=add({k:'cargo',c:[250,70,0],d:8}),legacyFar=add({k:'cargo',c:[120,70,-6],d:6});
- const explicit=add({k:'fuel',c:[238,70,10],d:6});explicit.placement={modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'clip',geometryRevision:1,hostId:1,requestedGeometry:JSON.parse(C.publicJSON(explicit))};
+ // The explicit room stays valid throughout (partly inside the hull): a refused re-solve keeps its last
+ // valid clipped body by rule (tests/clipped-hangar-hatch.cjs), which a fresh load cannot reproduce.
+ const explicit=add({k:'fuel',c:[238,62,10],d:6});explicit.placement={modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'clip',geometryRevision:1,hostId:1,requestedGeometry:JSON.parse(C.publicJSON(explicit))};
  for(const [y,z] of [[74,30],[80,-30]])add({k:'engine',c:[260,y,z],d:6,dir:[-1,0,0]});
  return {s:derive(s),mover:mover.id,legacyNear:legacyNear.id,legacyFar:legacyFar.id,explicit:explicit.id};
 }
@@ -53,17 +55,22 @@ test('a series of structure edits gives the same interior, foundations and stati
  assert.ok(farClip,'precondition: the far room is clipped by the hull');
  // 1. A move that stays clear of every probe room.
  const solvedKeys=new Map(s.parts.filter(p=>p._explicitInteriorKey&&p.id!==explicit).map(p=>[p.id,p._explicitInteriorKey]));assert.ok(solvedKeys.size>=10);
- part(mover).c=[222,72,0];derive(s);same(s,'move clear');
+ part(mover).c=[222,66,0];derive(s);same(s,'move clear');
  assert.equal(far._clip,farClip,'a room the structure never reaches is not re-clipped');
  for(const p of clipped)assert.equal(p._clipKey!=null,true);
  for(const [id,key] of solvedKeys)assert.equal(part(id)._explicitInteriorKey,key,'explicit room #'+id+' is not re-solved');
  // 2. Into the straddling rooms: the new bounds reach them.
  const nearBefore=part(legacyNear)._clip;
- part(mover).c=[244,72,4];derive(s);same(s,'move onto rooms');
+ const explicitKey=part(explicit)._explicitInteriorKey;
+ part(mover).c=[244,66,4];derive(s);same(s,'move onto rooms');
+ assert.notEqual(part(explicit)._explicitInteriorKey,explicitKey,'an explicit room the new bounds touch is re-solved');
+ assert.equal(part(explicit)._interiorPlacementError,undefined,'the explicit probe stays valid');
  assert.notEqual(part(legacyNear)._clip,nearBefore,'a room the new bounds touch is re-clipped');
  // 3. Away again: the old bounds release them.
  const nearInside=part(legacyNear)._clip;
- part(mover).c=[280,72,0];derive(s);same(s,'move away');
+ part(mover).c=[280,66,0];derive(s);same(s,'move away');
+ assert.equal(part(explicit)._explicitInteriorKey,explicitKey,'released by the old bounds, the explicit room is re-solved to its first key');
+ assert.equal(part(explicit)._interiorPlacementError,undefined);
  assert.notEqual(part(legacyNear)._clip,nearInside,'a room the old bounds touched is re-clipped');
  assert.equal(far._clip,farClip);
  // 4. Resize, 5. a new structure over the far room, 6. delete it, 7. a ship-level cut (global).

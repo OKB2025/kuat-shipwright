@@ -53269,9 +53269,7 @@ function syncCompartmentsRaw(ship){
    if(explicitInteriorPlacement(p)){
     // A room with a hatch is checked against its opening's skin: keep the whole envelope in its key.
     const hatched=ship.hatches.some(h=>h.bay===p.id),key=(hatched?envelopeKey:localEnvelope.key(interiorSolveBounds(p),'interior'))+JSON.stringify([p,occupied.filter(q=>q.id!==p.id),ship.hatches.filter(h=>h.bay===p.id)],(k,v)=>k.startsWith('_')?undefined:v);
-    if(p._explicitInteriorKey!==key){const solved=solveInteriorPlacement(ship,p,p.placement);delete p._interiorPlacementError;delete p._clip;delete p._packing;if(solved.ok){if(solved.part._clip)p._clip=solved.part._clip;if(solved.part._packing)p._packing=solved.part._packing;}else p._interiorPlacementError={code:solved.code,error:solved.error};p._explicitInteriorKey=key;}
-    // 2026-11-12 A refused re-solve leaves no clip or packing from an earlier accepted solve: a fresh
-    // load of the same design has none, and the stale solid kept counting its old volume.
+    if(p._explicitInteriorKey!==key){const solved=solveInteriorPlacement(ship,p,p.placement);delete p._interiorPlacementError;if(solved.ok){delete p._clip;delete p._packing;if(solved.part._clip)p._clip=solved.part._clip;if(solved.part._packing)p._packing=solved.part._packing;}else p._interiorPlacementError={code:solved.code,error:solved.error};p._explicitInteriorKey=key;}
     continue;
    }
    if(!isInternal(p))continue;p._envelope=ship;if(p.turretRoom)continue;
