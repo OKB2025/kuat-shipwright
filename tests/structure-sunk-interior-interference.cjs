@@ -8,6 +8,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),zlib=require('n
 const {C}=require('../scripts/update-ship-examples.cjs').loadRuntime(process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'));
 const saved=()=>JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'fixtures/sunk-structure-interference-2026-11-12.json.gz'))).toString('utf8'));
 const SUNK=[100,101],LEGACY=[90,91,92,93,94,95];
+const statsOf=s=>{const k=C.computeStats({...s,_cache:null});return {mass:k.mass,volume:k.volume};};
+// Same mass and volume up to floating-point noise of the mesh unions (a few kg in 1.3e5 t).
+const closeStats=(a,b,label)=>{for(const k of ['mass','volume'])assert.ok(Math.abs(a[k]-b[k])<=1e-6*Math.abs(b[k]),`${label}: ${k} ${a[k]} vs ${b[k]}`);};
 const grounding=ship=>{const S={warnings:[]};C.groundingStats(ship,S);return S;};
 const reload=(ship,options)=>C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),options);
 function assertRecovered(ship,label){
@@ -33,11 +36,11 @@ const without=(raw,ids)=>{const o=JSON.parse(JSON.stringify(raw));o.parts=o.part
 test('the reported design: the saved placement-interference refusal recovers on load (live, reload, deferred)',()=>{
  const raw=saved();for(const id of SUNK){const m=raw.parts.find(p=>p.id===id).placement;assert.equal(m.validationFailed,true);assert.equal(m.repairReason,'placement-interference');}
  const ship=C.deserialize(raw);assertRecovered(ship,'load');
- const again=reload(ship);assertRecovered(again,'save/reload');
+ const again=reload(ship);assertRecovered(again,'save/reload');closeStats(statsOf(again),statsOf(ship),'load vs save/reload');
+ for(const id of SUNK)assert.equal(JSON.stringify(again.parts.find(p=>p.id===id).c),JSON.stringify(ship.parts.find(p=>p.id===id).c),'same pose after save/reload');
  const deferred=reload(ship,{deferPlacementGeometry:true}),r=C.refreshPlacementGeometry(deferred);assert.equal(r.ok,true,JSON.stringify(r.failed));assertRecovered(deferred,'deferred reload');
  // The interior equipment around them stays valid.
  for(const p of ship.parts.filter(p=>!C.isShapePart(p)))assert.equal(p._placementError,undefined,`#${p.id} ${p.k}: ${p._placementError}`);
- assert.ok(Number.isFinite(C.computeStats({...ship,_cache:null}).mass));
 });
 
 test('a sunk structure over legacy repulsors without placement metadata is not refused',()=>{
@@ -70,7 +73,55 @@ test('exterior equipment under the structure still clashes (placement-interferen
   const raw=without(saved(),SUNK);for(const p of raw.parts)if(LEGACY.includes(p.id)){const keep={id:p.id,k,c:p.c,d:3};if(k==='engine')keep.dir=[-1,0,0];for(const key of Object.keys(p))delete p[key];Object.assign(p,keep);}
   const ship=C.deserialize(raw),r=resolveAt(ship,source);assert.equal(r.ok,false,k);assert.equal(r.code,'placement-interference',k+': '+r.code);
  }
- // A saved interference over exterior equipment is re-checked on load and stays refused (no red-frame loss of the record).
+ // A saved interference over exterior equipment is re-checked on load and refused again, as saved, with
+ // the current reason and message (the inspection bar's placement-background-failed row).
  const raw=saved();for(const p of raw.parts)if(LEGACY.includes(p.id)){const keep={id:p.id,k:'sensor',c:p.c,d:3};for(const key of Object.keys(p))delete p[key];Object.assign(p,keep);}
- const ship=C.deserialize(raw);for(const id of SUNK){const p=ship.parts.find(q=>q.id===id);assert.equal(p._placementError,'placement-interference','#'+id);assert.equal(p.placement.repairRequired,true);}
+ const check=(ship,label)=>{for(const id of SUNK){const p=ship.parts.find(q=>q.id===id);assert.equal(p._placementError,'placement-interference',label+' #'+id);assert.equal(p.placement.validationFailed,true,label);assert.equal(p.placement.repairRequired,true,label);assert.equal(p.placement.repairReason,'placement-interference',label);
+  assert.match(C.placementFailureRecord(p)?.error||'',/干渉/,label+': the current reason is shown');assert.ok(C.placementDraftStatus(ship).failed.some(f=>f.id===id),label+': listed as a failed placement');}};
+ const ship=C.deserialize(raw);check(ship,'load');
+ // Refreshing again in the same session does not re-solve the refusal (only a fresh copy is re-checked).
+ const again=C.refreshPlacementGeometry(ship);assert.ok(!SUNK.some(id=>again.resolvedParts.includes(id)),'warm refusal is not re-solved');check(ship,'refresh');
+ check(C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),'save/reload');
+});
+
+test('a legacy interior part outside the hull and its structures still clashes with a structure over it',()=>{
+ const source=saved().parts.find(p=>p.id===100);
+ for(const k of ['repulsor','gen']){
+  const raw=without(saved(),[...SUNK,91,92,93,94,95]),q=raw.parts.find(p=>p.id===90);for(const key of Object.keys(q))delete q[key];Object.assign(q,{id:90,k,c:[87.66,14.58,-19.5],d:3});
+  const ship=C.deserialize(raw),legacy=ship.parts.find(p=>p.id===90);assert.equal(legacy.placement,undefined);assert.equal(C.inHull(ship,legacy.c),false,k+': centre outside the hull');
+  const r=resolveAt(ship,source);assert.equal(r.ok,false,k);assert.equal(r.code,'placement-interference',k+': '+r.code);
+  // The same part moved inside the hull is interior equipment and is not a clash.
+  legacy.c=[87.66,14.58,-12.3];ship._cache=null;assert.equal(C.inHull(ship,legacy.c),true);const ok=resolveAt(ship,source);assert.equal(ok.ok,true,k+' inside: '+ok.code);assert.equal(C.overlapParts(ok.part,legacy),true,k+' inside overlaps');
+ }
+});
+
+test('an in-session refusal kept through an Undo/Redo patch is not re-solved',()=>{
+ // History restore patches the editor's objects (patchShip); the Worker ship is patched the same way.
+ const raw=saved();for(const p of raw.parts)if(LEGACY.includes(p.id)){const keep={id:p.id,k:'sensor',c:p.c,d:3};for(const key of Object.keys(p))delete p[key];Object.assign(p,keep);}
+ const ship=C.deserialize(raw),record=ship.parts.find(p=>p.id===100)._placementFailure,state=JSON.parse(C.publicJSON(ship));
+ C.patchShip(ship,state);const r=C.refreshPlacementGeometry(ship);assert.ok(!SUNK.some(id=>r.resolvedParts.includes(id)),'not re-solved after a patch');
+ const p=ship.parts.find(q=>q.id===100);assert.equal(p._placementFailure,record,'the in-session failure record is kept');assert.equal(p.placement.validationFailed,true);
+});
+
+function look(ship){const S=grounding(ship);return SUNK.map(id=>{const p=ship.parts.find(q=>q.id===id),d=S.placementDiagnostics.find(x=>x.partId===id);return {id,error:p._placementError||null,failed:!!p.placement.validationFailed,connected:d.connected,code:d.code,red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id),volume:+C.partVolume(p).toFixed(3)};});}
+test('cuts through a recovered structure follow the cut rules, live = reload',()=>{
+ // (a) a ship-level cut (all structures) through the middle of both structures: still touching, connected.
+ {const ship=C.deserialize(saved());ship.solidCuts=[...(ship.solidCuts||[]),{id:ship.nextId++,shape:'box',c:[87.66,14.6,0],s:[10,40,60],rotation:[0,0,0],mirror:false,structures:true}];ship._cache=null;
+  const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));const live=look(ship);
+  for(const row of live){assert.equal(row.error,null);assert.equal(row.connected,true,JSON.stringify(row));assert.equal(row.red,false);assert.equal(row.severed,false);}
+  assert.deepEqual(look(reload(ship)),live,'ship-level cut: reload');closeStats(statsOf(reload(ship)),statsOf(ship),'ship-level cut');}
+ // (b) a hull-only cut removing the hull except a 0.4 m slab at the centreline: the structures no longer touch
+ // the cut hull but touch it without the cut, so the refresh classes them as severed (kept where they are, no
+ // re-solve, no stored failure), exactly like the never-refused structures 58/59 on the same hull.
+ // Note: groundingStats then marks every one of these structures red (50/51/58/59 too), which is the same on
+ // main b40b72d for 50/51/58/59; the recovered structures only have to behave like the others.
+ {const ship=C.deserialize(saved()),hull=ship.parts[0],before=SUNK.map(id=>ship.parts.find(p=>p.id===id).c.slice());
+  for(const z of [-25.2,25.2])C.hullOwnSolidCut(ship,hull,{id:ship.nextId++,shape:'box',c:[100,16,z],s:[260,60,50],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;
+  const r=C.refreshPlacementGeometry(ship),severedIds=r.severed.map(x=>x.partId);
+  for(const id of [...SUNK,58,59])assert.ok(severedIds.includes(id),'#'+id+' severed by the cut: '+JSON.stringify(r.severed));
+  assert.ok(!r.failed.some(f=>SUNK.includes(f.partId)),JSON.stringify(r.failed));
+  const live=look(ship),S=grounding(ship),ref=[58,59].map(id=>({red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id)}));
+  for(const row of live){assert.equal(row.failed,false);assert.equal(row.error,null);assert.deepEqual({red:row.red,severed:row.severed},ref[0],'same as the never-refused structure 58: '+JSON.stringify(row));}
+  SUNK.forEach((id,i)=>assert.deepEqual(ship.parts.find(p=>p.id===id).c,before[i],'not moved'));
+  assert.deepEqual(look(reload(ship)),live,'hull cut: reload');}
 });

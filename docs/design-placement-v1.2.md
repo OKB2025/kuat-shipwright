@@ -102,7 +102,9 @@
 
 実際のすき間、点・辺だけの接触、最小値に届かない数値上のかすり、親の中に完全に埋もれた部品は従来どおり `contact-zero`。水平・垂直の切り取り成形が作れない場合（`surface-missing`・`minimum-thickness`・`contact-shape`・`geometry-complex`）でも、要求形状が上の条件で親と重なれば、閉じた要求形状のまま接続する（`placementOverlapFallback`）。境界の検査は `tests/placement-curved-hull-surface.cjs`。
 
-**内装機器との重なり（2026-11-12 ユーザー決定）**：船内は船体と取り付けた構造物を合わせたもので、構造物は本体に材料を足す。構造物が内装機器（切り取り・容積維持・直接配置の内装部品、および配置情報のない旧形式の内装部品。例：配置情報のない `repulsor`・`gen`。旧形式のシールド投射器は外装に付けていたため除く）に重なっても干渉（`placement-interference`）にしない（`structureInteriorEquipment`、`solvePlacement`）。機器が船内からはみ出していれば、それは内装側の判定（`fixed-outside`、部品情報の「表面の露出」）で示し、構造物の配置は拒否しない。外装機器（推進 `engine`、`sensor`・`scanner`、`sbeam`・`hion`、内装の配置先を持たないシールド投射器・配置情報のない旧形式のシールド投射器）との重なりは従来どおり `placement-interference`（「配置と保存の契約」：外装機器は干渉規則を継承する）。外装の装備（`fits`、砲塔など）はこの検査の対象外（現行どおり）。古い判定で `validationFailed`（`placement-interference` など）のまま保存された構造物は、読み込みのたびに保存した姿勢で一度だけ現在の規則で調べ直し（`migrateStructureRefusals`）、通れば接続、通らなければ保存した修復状態のまま。検査は `tests/structure-sunk-interior-interference.cjs`。
+**内装機器との重なり（2026-11-12 ユーザー決定）**：船内は船体と取り付けた構造物を合わせたもので、構造物は本体に材料を足す。構造物が内装機器に重なっても干渉（`placement-interference`）にしない（`structureInteriorEquipment`、`solvePlacement`）。内装機器とは、切り取り・容積維持・直接配置の内装部品（内装の検証を通っている）と、配置情報のない旧形式の内装部品（例：`repulsor`・`gen`）のうち中心が今の船内（主船体と取り付けた構造物、`interiorEnvelopeHostIds`。いま置いている構造物自身は数えない）にあるもの。旧形式の部品が船体・構造物の外にあり、新しい構造物がそれを呑み込む場合は従来どおり干渉。旧形式のシールド投射器は外装に付けていたため内装機器に数えない。機器が船内からはみ出していれば、それは内装側の判定（`fixed-outside`、部品情報の「表面の露出」）で示し、構造物の配置は拒否しない。外装機器（推進 `engine`、`sensor`・`scanner`、`sbeam`・`hion`、内装の配置先を持たないシールド投射器・配置情報のない旧形式のシールド投射器）との重なりは従来どおり `placement-interference`（「配置と保存の契約」：外装機器は干渉規則を継承する）。外装の装備（`fits`、砲塔など）はこの検査の対象外（現行どおり）。
+
+**拒否された構造物の再検査（2026-11-12）**：`validationFailed` の構造物は、実行時の複製ごとに最初の更新で一度だけ（読み込み・取り込み・Worker の新しい船。`refreshPlacementGeometry` の冷えた部品）、通常の読み込みと同じ解き方（`keepTransform:false`）で現在の規則により調べ直す（`placementRecheckRefusal`）。通れば接続し、通らなければ現在の理由と文言で再び `validationFailed`（点検の「配置の計算」エラーと 接続状態「計算失敗」はそのまま）。編集中の失敗は Undo/Redo（`patchShip` で同じ部品を保つ）では解き直さない。水平配置は艦基準姿勢を保つため、保存時に失敗していた構造物の `roll` は回復時に通常の読み込みと同じく 0 になる（例：報告の設計の ±8°）。検査は `tests/structure-sunk-interior-interference.cjs`。
 
 ### 削りと接続（2026-11-11 ユーザー決定）
 

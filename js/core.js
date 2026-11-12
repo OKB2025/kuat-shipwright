@@ -53092,7 +53092,7 @@ function deserialize(o,internalOptions=null){
   for(const h of s.hatches){const q=o.hatches?.find(q=>q.id===h.id),owner=s.parts.find(p=>p.id===q?.hullOwner&&isHullStructure(p));if(owner&&Number.isInteger(q.hullHatch)&&owner.hullData.hatches.some(a=>a.id===q.hullHatch)){h.hullOwner=owner.id;h.hullHatch=q.hullHatch;}}
   for(const p of s.parts.filter(isHullStructure))syncHullStructure(s,p,false);
   for(const key of ['parts','fits'])for(const p of s[key]){const raw=o[key].find(q=>q.id===p.id);if(raw?.placement)p.placement=normalizePlacementMetadata(raw.placement,p);if(raw?.engineMountSupport&&p.k==='engine')p.engineMountSupport=normalizeEngineMountSupport(raw.engineMountSupport);}
-  migrateInteriorAnchors(s);migrateStructureRefusals(s);
+  migrateInteriorAnchors(s);
   if(!internalOptions?.deferPlacementGeometry)refreshPlacementGeometry(s);
   delete s._propulsionRoutingDeferred;
   return adoptWeaponFits(s);
@@ -53396,13 +53396,23 @@ function packFlexibleVolume(ship,p,volume,obstacles,clashes,contains=null){
 // picking, occupancy and capacity. Old drawings retain the legacy allocator.
 function explicitInteriorPlacement(p){return !!p?.placement&&['clip','preserve-volume','direct'].includes(p.placement.mode)&&placementCapability(p).space==='interior'&&(!['shield','localShield'].includes(p.k)||p.placement.hostId!=null);}
 // Equipment of the ship's interior (user rule 2026-11-12: the interior is the hull plus its attached
-// structures). An explicit interior placement (clip, preserve-volume or direct), or a legacy interior
-// part saved before placement metadata existed (e.g. repulsors or reactors with no placement record).
-// A structure overlapping it extends the interior around it and is not a clash; exposure of the
-// equipment is reported by the interior solver and the hull-exposure figures, never as a refusal of
-// the structure. Exterior equipment (engines, sensors, beam emitters) and shield projectors without an
-// interior host (old designs mounted them outside) are not interior equipment and still clash.
-function structureInteriorEquipment(p){return explicitInteriorPlacement(p)||!!p&&!p.placement&&!p._surfaceAdapter&&!['shield','localShield'].includes(p.k)&&placementCapability(p).space==='interior';}
+// structures). An explicit interior placement (clip, preserve-volume or direct) is validated by the
+// interior solver and is always interior equipment. A legacy part saved before placement metadata
+// existed (e.g. repulsors or reactors with no placement record) has no such validation: it is interior
+// equipment only if its kind is interior and its centre lies inside the current interior (the hull plus
+// attached structures, interiorEnvelopeHostIds), not counting the structure being placed (`skipId`),
+// so a legacy part sitting outside the body that the new structure would swallow still clashes.
+// A structure overlapping interior equipment extends the interior around it and is not a clash;
+// exposure of the equipment is reported by the interior solver and the hull-exposure figures, never as
+// a refusal of the structure. Exterior equipment (engines, sensors, beam emitters) and shield
+// projectors without an interior host (old designs mounted them outside) still clash.
+function structureInteriorEquipment(ship,p,skipId=null,cache=null){
+ if(explicitInteriorPlacement(p))return true;
+ if(!p||p.placement||p._surfaceAdapter||['shield','localShield'].includes(p.k)||placementCapability(p).space!=='interior'||!Array.isArray(p.c))return false;
+ let tests=cache?.get?.('regions');
+ if(!tests){tests=interiorEnvelopeHostIds(ship).filter(id=>id!==skipId).map(id=>interiorRegionContains(ship,id)).filter(Boolean);cache?.set?.('regions',tests);}
+ return tests.some(contains=>contains(p.c));
+}
 function interiorMeshContains(geometry,q){
  const b=geometry.bounds||(geometry.bounds=solidMeshBounds(geometry.tris));if(q.some((v,i)=>v<b[i]-1e-7||v>b[i+3]+1e-7))return false;
  geometry.bvh||=buildBVH(geometry.tris);let o=q.slice(),hits=0;const d=[.937426,.202719,.283022],epsilon=Math.max(1e-7,Math.max(...b.map(Math.abs))*1e-9);
@@ -53430,17 +53440,24 @@ function interiorRawMesh(p){
  // Routed machinery is reserved conservatively, including its clearance.
  return packingMesh([partAABB(p)]).tris;
 }
+// Point test of one interior region (the legacy hull, or a hull/structure part), the same test the
+// interior solver uses for that region (interiorSelectedRegion), without building its mesh.
+function interiorRegionContains(ship,id){
+ if(id==='hull'&&!ship.hull.assembly)return q=>!ship.subs.some(c=>inBox(q,c.b))&&!solidCutsContain(ship,q)&&v3InHull(ship,q);
+ const host=ship.parts.find(q=>q.id===id&&isShapePart(q));if(!host)return null;host._solidCutShip=ship;
+ return q=>!ship.subs.some(c=>(ship.hull.assembly||c.structures)&&inBox(q,c.b))&&!solidPartCutContains(host,q)&&unpiercedInStruct(host,q);
+}
 function interiorSelectedRegion(ship,id){
  let host=null,tris,contains;
  // An aviation mouth removes the enclosing skin, not the usable airspace of
  // its room. Use the unpierced host while preserving real cuts and recesses.
  if(id==='hull'&&!ship.hull.assembly){
   const raw={...ship,hatches:[],_portalGeo:null,_portalGeoFlat:null};tris=v3HullGeo(raw).tris;for(const cut of ship.subs||[])tris=subtractBoxMesh(tris,cut.b);tris=applySolidCuts(ship,tris);
-  contains=q=>!ship.subs.some(c=>inBox(q,c.b))&&!solidCutsContain(ship,q)&&v3InHull(ship,q);
+  contains=interiorRegionContains(ship,'hull');
  }else {
   host=ship.parts.find(q=>q.id===id&&isShapePart(q));if(!host)return null;host._solidCutShip=ship;tris=isHullStructure(host)?hullAviationTriangles(host):unpiercedStructTriangles(host);
   for(const cut of ship.subs||[])if(ship.hull.assembly||cut.structures)tris=subtractBoxMesh(tris,cut.b);tris=applySolidCuts(ship,tris,true);
-  contains=q=>!ship.subs.some(c=>(ship.hull.assembly||c.structures)&&inBox(q,c.b))&&!solidPartCutContains(host,q)&&unpiercedInStruct(host,q);
+  contains=interiorRegionContains(ship,id);
  }
  interiorRegionClearBox(tris,contains);
  return {host,tris,contains};
@@ -53484,14 +53501,6 @@ function migrateInteriorAnchors(ship){
  // A refusal stored by an older solver is re-checked once on every load, anchored or not.
  for(const p of ship.parts){const meta=p.placement;if(!meta||meta.hostId==null||placementCapability(p).space!=='interior'||!['clip','preserve-volume','direct'].includes(meta.mode))continue;
   if(meta.hostId!==anchor){meta.hostId=anchor;delete meta.hostSurfaceId;delete meta.parentGeometryKey;}if(meta.validationFailed){delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;delete meta.validationSourceKey;meta.pendingGeometry=true;}}
-}
-function migrateStructureRefusals(ship){
- // A placed structure saved with a refusal from an older solver (e.g. placement-interference over
- // legacy interior equipment, 2026-11-12) is re-checked once on load at its saved pose, like a loaded
- // repair (refreshPlacementGeometry: repairRequired on a cold structure). It recovers only if that pose
- // is valid under the current rules; otherwise the saved repair state is kept.
- for(const p of ship.parts){const meta=p.placement;if(!meta?.validationFailed||meta.pendingGeometry||meta.root||meta.parentStructureId==null||placementCapability(p).kind!=='structure')continue;
-  delete meta.validationFailed;delete meta.validationSourceKey;meta.repairRequired=true;meta.repairReason=meta.repairReason||'placement-repair';}
 }
 function interiorPlacementObstacles(ship,p){return allOccupied(ship).filter(q=>q.id!==p.id&&!q.sourcePartIds?.includes(p.id)&&!isShapePart(q));}
 function interiorSegmentDistance2(a,b){const ab=sub(b,a),t=clamp(-dot(a,ab)/(dot(ab,ab)||1),0,1),q=add(a,mul(ab,t));return dot(q,q);}
@@ -63514,7 +63523,7 @@ function solvePlacement(ship,input,request={}){
  // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.
  // This includes legacy interior parts without placement metadata (2026-11-12: sunk structures over
  // repulsors were refused); see structureInteriorEquipment.
- const collisions=ship.parts.filter(p=>p.id!==part.id&&!isShapePart(p)&&!structureInteriorEquipment(p)&&overlapParts(part,p));if(collisions.length)return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');
+ const interiorCache=new Map(),collisions=ship.parts.filter(p=>p.id!==part.id&&!isShapePart(p)&&overlapParts(part,p)&&!structureInteriorEquipment(ship,p,part.id,interiorCache));if(collisions.length)return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);part._placementFitRemovalKey=placementFitRemovalKey(part,parent);
  return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(metadata.requestedGeometry),effectiveVolume:partVolume(part)};
 }
@@ -63681,6 +63690,13 @@ function placementChildCutKey(ship,p){
  const pad=Math.max(PLACEMENT_TOLERANCES.coordinate*16,...[0,1,2].map(i=>(b[i+3]-b[i])*.01)),box=[0,1,2].map(i=>b[i]-pad).concat([0,1,2].map(i=>b[i+3]+pad));
  const hit=[...cuts.filter(c=>compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(box,q.bounds,0))),...subs.filter(c=>[0,1,2].every(i=>c.b[i]<=box[i+3]&&c.b[i+3]>=box[i]))];return hit.length?placementKeyHash(publicJSON(hit)):'';
 }
+function placementRecheckRefusal(ship,p,parent){
+ const meta=p.placement,stored={...meta};for(const key of ['validationFailed','repairRequired','repairReason','validationSourceKey'])delete stored[key];
+ const request={...stored,keepTransform:false,geometryRevision:meta.geometryRevision||0,parentGeometryRevision:parent.placement?.geometryRevision||0};if(meta.mode==='surface')for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];
+ let r;try{r=solvePlacement(ship,{...placementShape(p),placement:stored},request);}catch(error){r=placementFailure('calculation-failed',error.message||'配置の検証に失敗しました');}
+ if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;delete p._placementFailure;p._placementLocalHash=placementLocalParentHash(ship,p,parent);p._placementFitRemovalKey=placementFitRemovalKey(p,parent);return r;}
+ placementPendingFailure(p,r);meta.parentGeometryKey=placementDependencyKey(parent);return r;
+}
 function refreshPlacementGeometry(ship,options={}){
  if(!ship?.parts||ship._refreshingPlacement)return {ok:true,updated:[],failed:[],resolvedParts:[],resolvedFits:[]};ship._refreshingPlacement=true;
  // Ship-level solid cuts that carve structures change their material without changing any part key.
@@ -63696,6 +63712,15 @@ function refreshPlacementGeometry(ship,options={}){
   const interior=explicitInteriorPlacement(p);
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||(interior?meta.parentGeometryKey!==interiorEnvelopeKey(ship):parent&&meta.parentGeometryKey!==placementDependencyKey(parent)))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
   if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);graphCache.graph=null;if(result.ok){updated.push(p.id);if(parent&&placementCapability(p).kind==='structure')p._placementLocalHash=placementLocalParentHash(ship,p,parent);if(parent)p._placementFitRemovalKey=placementFitRemovalKey(p,parent);}else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
+  // A refused structure is re-checked once per runtime copy (the first refresh after a load, an import,
+  // or a fresh Worker ship) under the current rules, solved from its stored request exactly as a cold load
+  // solves any placed structure (keepTransform false: horizontal keeps the ship's reference attitude), so
+  // the recovered shape equals its own save/reload (2026-11-12: a refusal saved by an older solver, e.g.
+  // placement-interference over legacy interior equipment, must recover). Otherwise it is refused again
+  // (validationFailed) with the current reason and message. A warm part (an in-session failure kept
+  // through Undo/Redo patches) is not re-solved; a deleted one restored by Undo is a fresh copy and gets
+  // the same result again, since the rules have not changed in between.
+  if(meta.validationFailed&&!p._placementSelfKey&&!meta.root&&parent&&!parent._placementError&&placementCapability(p).kind==='structure'){const r=placementRecheckRefusal(ship,p,parent);graphCache.graph=null;if(r.ok)updated.push(p.id);else failed.push({partId:p.id,code:r.code});resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);p._placementParentKey=placementDependencyKey(parent);p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   if(meta.validationFailed){failed.push({partId:p.id,code:meta.repairReason||'placement-failed'});active.delete(p.id);done.add(p.id);return;}
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    // Only a change of the parent's pose or outer form (placementPositionKey) re-solves the child. A
