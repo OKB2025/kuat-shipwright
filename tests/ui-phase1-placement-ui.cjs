@@ -95,6 +95,7 @@ test('touch: after an orbit or zoom the confirming tap goes where the preview is
 });
 
 test('the hints: two taps announced before the first tap on a coarse pointer; unarmed tools say to press 設置',()=>{
+ assert.match(fn('designUIBar'),/q\?\.state==='ready'\?'配置しています…':preview\?'プレビュー中。/,'a preview outranks the previous placement message');
  assert.match(fn('designUIBar'),/matchMedia\('\(pointer:coarse\)'\)/);assert.match(fn('designUIBar'),/touch=designUI\.lastPointer\?designUI\.lastPointer!=='mouse':coarse/);
  assert.match(fn('hintText'),/\['part','fit','userpart','importmesh'\]\.includes\(t\)&&[^]*!designPlacementActive\(\)\)\{[^}]*return '「設置」を押してから、配置する面をタップしてください。';\}/);
 });
