@@ -537,7 +537,9 @@ async function diskTrim(db) {
 // EXAMPLE_PROFILE_VERSION) and the design content, never by source-file hashes. A new release
 // whose model key is unchanged reuses these figures; meshes and native caches (above) stay per release.
 const DERIVED = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 400, BYTES: 512e6, hits: 0, puts: 0};
-const derivedModel = () => 'm' + C.profileModelKey() + '|';
+// The model key, plus the hash of the reference meshes the page loaded (data/reference.js; the bootstrap
+// hashes the exact bytes it runs). null when no key can be made: the derived cache is then not used.
+const derivedModel = () => { const key = C.profileModelKey(); if (!key) return null; const ref = globalThis.KS_SOURCE_SHA256?.['data/reference.js']; return 'm' + key + (ref ? '.r' + ref.slice(0, 16) : '') + '|'; };
 function derivedOpen() {
   if (DERIVED.off) return Promise.resolve(null);
   if (!DERIVED.open) DERIVED.open = new Promise((resolve) => {
@@ -555,9 +557,10 @@ function derivedOpen() {
 // The content part of the key: an example's verified blueprint checksum (with its paint), or the
 // SHA-256 of the exact design JSON the page sent.
 async function derivedId(job, djson) {
-  if (job.key) { const asset = exampleAsset(job.key); return asset ? derivedModel() + 'k:' + asset.jsonSha256 + (job.paint ? '#' + job.paint : '') : null; }
+  const model = derivedModel(); if (!model) return null;
+  if (job.key) { const asset = exampleAsset(job.key); return asset ? model + 'k:' + asset.jsonSha256 + (job.paint ? '#' + job.paint : '') : null; }
   if (!djson || typeof crypto === 'undefined' || !crypto.subtle || typeof TextEncoder === 'undefined') return null;
-  return derivedModel() + 'd:' + await sha256Hex(new TextEncoder().encode(djson));
+  return model + 'd:' + await sha256Hex(new TextEncoder().encode(djson));
 }
 async function derivedGet(id) {
   const db = id && await derivedOpen(); if (!db) return null;
@@ -578,7 +581,8 @@ async function derivedTrim(db) {
   try {
     const all = await idbRun(db, 'readonly', (rec, meta, set) => { const q = meta.getAll(); q.onsuccess = () => set(q.result || []); });
     if (!all) return;
-    const model = derivedModel(), drop = all.filter(m => !m.id.startsWith(model)).map(m => m.id), keep = all.filter(m => m.id.startsWith(model)).sort((a, b) => b.at - a.at);
+    const model = derivedModel(); if (!model) return;
+    const drop = all.filter(m => !m.id.startsWith(model)).map(m => m.id), keep = all.filter(m => m.id.startsWith(model)).sort((a, b) => b.at - a.at);
     let n = 0, bytes = 0; for (const m of keep) { n++; bytes += m.size || 0; if (n > DERIVED.MAX || bytes > DERIVED.BYTES) drop.push(m.id); }
     if (drop.length) await idbRun(db, 'readwrite', (rec, meta) => { for (const id of drop) { rec.delete(id); meta.delete(id); } });
   } finally { derivedTrimming = false; }

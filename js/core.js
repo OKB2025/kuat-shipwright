@@ -61629,11 +61629,12 @@ const EXAMPLE_PROFILE_VERSION=1;
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values), so a change to any of them gives new
-// figures on every device (physics review 2026-11-12). Reference meshes (data/reference.js) are not hashed here.
+// figures on every device (physics review 2026-11-12). Reference meshes (data/reference.js, 18 MB) are not hashed
+// here: the engine adds the page's own hash of that file (KS_SOURCE_SHA256) to its cache key. null: no caching.
 function profileModelKey(){
  if(profileModelKeyMemo)return profileModelKeyMemo;
  const versions=[MOTION_RESISTANCE_VERSION,WEAPON_PROFILE_VERSION,SUBLIGHT_REFERENCE_VERSION,ENGINE_TRANSMISSION_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,PROPULSION_MODEL_VERSION,PLACEMENT_MODEL_VERSION,TRENCH_ARMAMENT_VERSION,SURFACE_VERSION].join('.');
- let tables='?';try{tables=placementKeyHash(JSON.stringify([PARTS,FITS]));}catch(error){}
+ let tables=null;try{tables=placementKeyHash(JSON.stringify([PARTS,FITS]));}catch(error){console.error('profileModelKey: the part tables cannot be hashed; derived figures are not cached',error);return null;}
  return profileModelKeyMemo='f'+FLEET_PROFILE_VERSION+'.c'+COST_MODEL.version+'.'+costModelSignature()+'.e'+EXAMPLE_PROFILE_VERSION+'.v'+versions+'.t'+tables;
 }
 function fleetProfile(S,name,ship){
