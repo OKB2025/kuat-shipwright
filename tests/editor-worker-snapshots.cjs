@@ -198,7 +198,7 @@ test('editor shadows wait for idle current engineering and restore the previous 
 // Phase A1 (authored state is never recomputed, 2026-11-12): adoption records which authored fields the
 // Worker changed. Adoption itself is unchanged in this phase.
 test('adoption records the authored fields the Worker changed, and only those items',async()=>{
- const {run,drain}=uiSetup();
+ const {run,drain}=uiSetup();run('eng.recordAuthoredDrift=true;');
  run('C.authoredStateDrift=(sent,received)=>["parts","fits","hatches"].flatMap(list=>(received[list]||[]).map(it=>({list,id:it.id,kind:"changed",sent:(sent[list]||[]).map(q=>q.id)})));');
  run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=11;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
  assert.equal(run('eng.authoredDrift.gen'),1);
@@ -209,7 +209,7 @@ test('adoption records the authored fields the Worker changed, and only those it
 // A failure in the drift detector never stops the adoption: the state and the generation are adopted and the
 // record carries the error (regression review 2026-11-12).
 test('a throwing drift detector does not stop the adoption',async()=>{
- const {run,drain}=uiSetup();
+ const {run,drain}=uiSetup();run('eng.recordAuthoredDrift=true;');
  run('C.authoredStateDrift=()=>{throw Error("detector failed");};');
  run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=12;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
  assert.equal(run('ship.parts[0].t'),12,'the state is adopted');assert.equal(run('eng.adoptedGen'),1,'the generation is adopted');
@@ -219,10 +219,18 @@ test('a throwing drift detector does not stop the adoption',async()=>{
 // One generation adopts twice (its geometry, then its surfaces answer): the second sees no part change and must
 // not erase the first record.
 test('a second adoption of the same generation keeps the first record',async()=>{
- const {run,drain}=uiSetup();
+ const {run,drain}=uiSetup();run('eng.recordAuthoredDrift=true;');
  run('C.authoredStateDrift=(sent,received)=>["parts","fits","hatches"].flatMap(list=>(received[list]||[]).map(it=>({list,id:it.id,kind:"changed"})));');
  run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=13;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
  const first=plain(run('eng.authoredDrift.items'));assert.equal(first.length,1);
  run('adoptEngineState(msg);');await drain();
  assert.deepEqual(plain(run('eng.authoredDrift.items')),first,'the first adoption\'s record survives the second');
+});
+
+// Recording is a diagnostic, off by default: an ordinary adoption neither calls the detector nor records anything.
+test('drift recording is off by default',async()=>{
+ const {run,drain}=uiSetup();
+ run('var detectorCalls=0;C.authoredStateDrift=()=>{detectorCalls++;return [];};');
+ run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=14;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
+ assert.equal(run('ship.parts[0].t'),14,'adopted');assert.equal(run('detectorCalls'),0,'the detector is not called');assert.equal(run('eng.authoredDrift'),undefined,'nothing recorded');
 });

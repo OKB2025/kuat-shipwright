@@ -275,3 +275,10 @@
 - `ALLOWED` は厳密一致で比べる。sunk-interference（PR #97）がマージされると、「root resized across, sunk child elsewhere」の edit の行（子の `c` の再着座）は出なくなるので、その PR を取り込む時に `node --test tests/worker-authored-drift.cjs` を実行し、行を直す。
 - `scripts/example-invariance.cjs` の出力先は、実行ごとに別のディレクトリ（`/tmp/ks-verify/<日時>-invariance/`）にする。`docs/benchmarks/` には書かない。
 - 取り込みの記録（`eng.authoredDrift`）は、取り込みが確定した時だけ残る。同じ世代の 2 回の取り込み（形状と表面）の記録はつなぐ。検出器が例外を投げても取り込みは止まらず、記録に `error` が付く。
+
+**A1 の検出器の限界（Opus/high の確認、2026-11-12）**：後の段階の判定に使う前に、次の点を直すか、ここで扱う。
+- エディタでの記録（`eng.authoredDrift`）は診断用で、既定では切ってある。大きな艦（subjugator、装備 1153）では、比べるだけで取り込み 1 回につき約 90 ms かかるため。有効にするには `eng.recordAuthoredDrift=true` か、localStorage の `yard.authoredDrift` を `'1'` にする。記録には世代（gen）と設計（designId）が付く。
+- `placementResolution` の経路（`onEnginePlacementResolution`）は、取り込みより前に live の項目を書き換えるので、記録に残らない。旧式エンジンの位置の修正（段階 F の対象）もここを通る。テストと `example-invariance.cjs` は返ってきた状態をまるごと比べるので、こちらでは捕まる。
+- Worker が解いたドラフト（`pendingGeometry`）は、項目ごと数えない。解くのに関係ないキーの書き換えも見えなくなる。拒否から形を直して解き直した項目は、変化として数える。どちらも、段階 B の前に、解いた結果が担うキーだけを除外する形に絞る。
+- `ALLOWED` のシナリオは、段階 B、C、F だけを扱う。D（ハッチ）、E（船体カット）、G（surfaces と publicJSON）、H（ミラー）のシナリオはまだ無い。ハーネスは `geometry` の応答だけを比べ、`surfaceGeometry` の応答は比べない。したがって、`ALLOWED` が空になっても、段階 A2 の完了を意味しない。
+- 上の基準値と「2 回目の往復では変わらなかった」は、`example-invariance.cjs` の許容差（相対 1e-9）の中での話。誤差なしで比べると、subjugator は Worker の往復のたびに約 220 個の装備（p、base、low、mountSupport）が最大 2.5e-12 だけゆらぎ続ける。lucrehulk は 2 個。main からある Worker の挙動で、段階 C で扱う。検出器とテストは誤差なしで比べるので、許容差の方針は段階 B の前にそろえる。
