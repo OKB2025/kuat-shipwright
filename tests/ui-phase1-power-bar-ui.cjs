@@ -21,6 +21,14 @@ test('five segments: weapons, shields, 0.35 × engines, cooling, other — with 
  const odd=r(`combatPowerSegments({power:100,draw:{hotel:5,dissipators:9}})`);assert.equal(odd.segs[3][1],5,'cooling never exceeds what hotel holds');assert.equal(odd.segs[4][1],0);
 });
 
+// Physics review 2026-11-12: the total must equal the old four-segment total exactly, not only to rounding. The draw
+// below is the Gozanti example's (C.computeStats), where summing the five shares differed from it by 1 ulp.
+test('the total is bit-identical to the old weapons + shields + 0.35 × engines + hotel + ray',()=>{
+ const r=setup(),S={power:1.0702701368713591e+21,draw:{weapons:11157333333333334,shields:549729821581721500000,engines:385559612323495200000,hotel:402602766115735860000,ray:0,dissipators:12175597590821680000}},d=S.draw;
+ const out=r(`combatPowerSegments(${JSON.stringify(S)})`),old=d.weapons+d.shields+0.35*d.engines+d.hotel+d.ray;
+ assert.equal(out.total,old);assert.equal(out.over,old>S.power);
+});
+
 test('the bar markup has one segment per share, percentages of the reactor and the over-demand mark',()=>{
  const r=setup(),html=r(`combatPowerBarHTML({power:200,draw:${JSON.stringify(draw)}})`);
  assert.deepEqual([...html.matchAll(/data-power-segment="(\w)"/g)].map(m=>m[1]),['w','s','e','c','o']);

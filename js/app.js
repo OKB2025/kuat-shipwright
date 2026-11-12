@@ -3375,7 +3375,9 @@ const COMBAT_ENGINE_SHARE=C.HEAT_PRESETS?.combat?.eng??0.35;
 function combatPowerSegments(S){
  const d=S?.draw||{},hotel=Math.max(0,d.hotel||0),cool=Math.min(hotel,Math.max(0,d.dissipators||0));
  const segs=[['兵装',Math.max(0,d.weapons||0),'w'],['シールド',Math.max(0,d.shields||0),'s'],['機関',COMBAT_ENGINE_SHARE*Math.max(0,d.engines||0),'e'],['冷却設備',cool,'c'],['その他',hotel-cool+Math.max(0,d.ray||0),'o']];
- const P=S?.power||1,total=segs.reduce((n,s)=>n+s[1],0);
+ // The total is summed in the old order (weapons + shields + share × engines + hotel + ray), so it, the scale
+ // and the over-demand mark are bit-identical to the four-segment bar; summing the five shares can differ by 1 ulp.
+ const P=S?.power||1,total=Math.max(0,d.weapons||0)+Math.max(0,d.shields||0)+COMBAT_ENGINE_SHARE*Math.max(0,d.engines||0)+hotel+Math.max(0,d.ray||0);
  return {segs,P,total,scale:Math.max(P,total,1e-9),over:total>P};
 }
 function combatPowerBarHTML(S,{compact=false}={}){
