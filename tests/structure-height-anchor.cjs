@@ -87,5 +87,8 @@ test('new legacy catalogue requests and explicitly changed mounting points keep 
 // the stored fitted shape in stage B of the no-recompute plan (docs/handoff-2026-11-12.md §4). This test
 // checks what this branch changes: the pose (position, yaw, pitch, roll) and size are not touched.
 test('a changed legacy parent leaves its child where it is (no re-seat, no follow)',()=>{
- const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);const before=part.c.slice(),size=part.s.slice(),angles=[part.yaw||0,part.pitch||0,part.roll||0];parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,before);nearPoint(part.s,size);nearPoint([part.yaw||0,part.pitch||0,part.roll||0],angles);assertStableReload(ship,part);
+ const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);const before=part.c.slice(),size=part.s.slice(),angles=[part.yaw||0,part.pitch||0,part.roll||0];parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,before);nearPoint(part.s,size);nearPoint([part.yaw||0,part.pitch||0,part.roll||0],angles);
+ // Known deviation pinned at its current value so any other shape change shows: the fitted base follows the
+ // raised parent's top (10 -> 15 m). TODO stage B (stored fitted shape): the base stays at 10 m here.
+ near(C.partAABB(part)[1],15);assertStableReload(ship,part);
 });
