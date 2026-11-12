@@ -136,7 +136,9 @@ test('rotated, mirrored, carried-child, hatch, sub and shape edits equal a full 
  assert.equal(part(rOut.id)._clipKey,outKey,'the room 15 cm away (outside the margin) is not recomputed');
  // A sub (legacy box cut) added and removed changes every key. A cut renumbers semantic face ids, so
  // the child's stored hostSurfaceId (a hint, docs/design-placement-v1.2.md) differs from a reload's while
- // the sub exists (also on main b40b72d: ks-verify r2/sub-main.log); after its removal all is compared;
+ // the sub exists. The same single difference (.parts[18].placement.hostSurfaceId) comes from main's full
+ // recompute (checked 2026-11-12 on e5527e1 by diffing the public states at this step with KS_TEST_ROOT set
+ // to a main checkout); after its removal all is compared;
  // with the cut's known structure-volume difference, only the interior is compared here.
  const sub={b:[60,60,-6,70,80,6]};s.subs.push(sub);delete s._cache;derive(s);same(s,'sub added',{stats:false,shapeVolume:false,publicState:false});
  s.subs.splice(s.subs.indexOf(sub),1);delete s._cache;derive(s);same(s,'sub removed');
