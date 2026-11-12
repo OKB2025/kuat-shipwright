@@ -2170,10 +2170,15 @@ function adoptEngineState(msg) {
   // live design. Input can advance the generation between preparation slices.
   for(const list of ['parts','fits','hatches']){
     const old=new Map((source[list]||[]).map(it=>[it.id,it]));
-    lists[list]=(src[list]||[]).map(it=>{const current=old.get(it.id);if(!current)return it;if(C.publicJSON(current)!==C.publicJSON(it))patches.push({current,next:it});return current;});
+    lists[list]=(src[list]||[]).map(it=>{const current=old.get(it.id);if(!current)return it;if(C.publicJSON(current)!==C.publicJSON(it))patches.push({list,current,next:it});return current;});
     ids[list]=new Map(lists[list].map(it=>[it.id,it]));
   }
   const surfaceChanged=Object.hasOwn(src,'surfaces')&&C.publicJSON(source.surfaces)!==C.publicJSON(src.surfaces),publicPrepared=clock();
+  // Phase A1: record every authored field the design engine changed (only the changed, added and removed
+  // items are compared again). Adoption itself is unchanged in this phase.
+  if(C.authoredStateDrift){const sent={},received={};for(const list of ['parts','fits','hatches']){const now=ids[list];sent[list]=patches.filter(p=>p.list===list).map(p=>p.current).concat((source[list]||[]).filter(it=>!now.has(it.id)));const had=new Set((source[list]||[]).map(it=>it.id));received[list]=patches.filter(p=>p.list===list).map(p=>p.next).concat((src[list]||[]).filter(it=>!had.has(it.id)));}
+   if(surfaceChanged){sent.surfaces=source.surfaces;received.surfaces=src.surfaces;}sent.nextId=source.nextId;received.nextId=Number.isFinite(src.nextId)&&src.nextId>source.nextId?src.nextId:source.nextId;
+   eng.authoredDrift={gen:msg.gen,items:C.authoredStateDrift(sent,received)};}
   const seen=new Set([source,...Object.values(ids).flatMap(index=>[...index.values()])]),frames=[];
   const ref=v=>v.$r==='ship'?source:(ids[v.$r]?.get(v.id)||null);
   const visit=v=>{

@@ -194,3 +194,14 @@ test('editor shadows wait for idle current engineering and restore the previous 
  run('syncEditorShadowBudget()');assert.equal(run('view.noShadow'),true);assert.equal(run('dirty.draw'),true);run('eng.geoGen=eng.statsGen=2;busy=true;dirty.draw=false;syncEditorShadowBudget()');assert.equal(run('view.noShadow'),true);run('busy=false;syncEditorShadowBudget()');assert.equal(run('view.noShadow'),false);assert.equal(run('dirty.draw'),true);
  run('view={noShadow:true};eng.uploading=1;syncEditorShadowBudget();eng.uploading=0;syncEditorShadowBudget()');assert.equal(run('view.noShadow'),true,'an existing low-cost rendering preference must be retained');
 });
+
+// Phase A1 (authored state is never recomputed, 2026-11-12): adoption records which authored fields the
+// Worker changed. Adoption itself is unchanged in this phase.
+test('adoption records the authored fields the Worker changed, and only those items',async()=>{
+ const {run,drain}=uiSetup();
+ run('C.authoredStateDrift=(sent,received)=>["parts","fits","hatches"].flatMap(list=>(received[list]||[]).map(it=>({list,id:it.id,kind:"changed",sent:(sent[list]||[]).map(q=>q.id)})));');
+ run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=11;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
+ assert.equal(run('eng.authoredDrift.gen'),1);
+ assert.deepEqual(plain(run('eng.authoredDrift.items')),[{list:'parts',id:1,kind:'changed',sent:[1]}],'only the changed part is compared, not the unchanged fit');
+ assert.equal(run('ship.parts[0].t'),11,'phase A1 still adopts the public state');
+});

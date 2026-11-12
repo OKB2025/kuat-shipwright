@@ -63393,6 +63393,28 @@ function preparePlacementDraft(ship,input,request={}){
  metadata.requestedGeometry=placementShape(part);part.placement=metadata;return {ok:true,pending:true,entityKind:'part',list:'parts',part};
 }
 function placementPendingInputKey(value){return JSON.stringify(value,(key,item)=>key.startsWith('_')?undefined:item&&typeof item==='object'&&!Array.isArray(item)&&!ArrayBuffer.isView(item)?Object.fromEntries(Object.keys(item).sort().map(name=>[name,item[name]])):item);}
+// Authored-state drift (2026-11-12, phase A1, docs/design-placement-v1.2.md "編集した値は再計算しない"): which
+// authored (public) fields the design engine changed between the state the editor sent and the state the
+// Worker returned. A placement draft solved by the Worker (pendingGeometry in the sent state) is the answer
+// to the user's own request, not drift. Returns [{list,id,kind,keys}] sorted; [] when nothing authored moved.
+function authoredStateDrift(sent,received){
+ const out=[],pub=v=>v==null?v:JSON.parse(publicJSON(v));
+ for(const list of ['parts','fits','hatches']){
+  const before=new Map((sent?.[list]||[]).map(it=>[it.id,it])),after=new Map((received?.[list]||[]).map(it=>[it.id,it]));
+  for(const [id,it] of after){
+   const old=before.get(id);
+   if(!old){out.push({list,id,kind:'added',keys:[]});continue;}
+   if(old.placement?.pendingGeometry)continue;
+   const a=pub(old),b=pub(it),keys=[...new Set([...Object.keys(a),...Object.keys(b)])].filter(k=>JSON.stringify(a[k])!==JSON.stringify(b[k])).sort();
+   if(keys.length)out.push({list,id,kind:'changed',keys});
+  }
+  for(const id of before.keys())if(!after.has(id))out.push({list,id,kind:'removed',keys:[]});
+ }
+ if(received&&Object.hasOwn(received,'surfaces')&&publicJSON(sent?.surfaces??null)!==publicJSON(received.surfaces??null))out.push({list:'surfaces',id:null,kind:'changed',keys:[]});
+ if(received&&Number.isFinite(received.nextId)&&received.nextId!==sent?.nextId)out.push({list:'nextId',id:null,kind:'changed',keys:[]});
+ const rank={parts:0,fits:1,hatches:2,surfaces:3,nextId:4};
+ return out.sort((a,b)=>rank[a.list]-rank[b.list]||(a.id??0)-(b.id??0));
+}
 function placementDraftStatus(ship){
  const pending=[],failed=[];for(const list of ['parts','fits'])for(const item of ship?.[list]||[]){const meta=item.placement;if(meta?.validationFailed)failed.push({list,id:item.id,code:meta.repairReason||'placement-failed'});else if(meta?.pendingGeometry)pending.push({list,id:item.id});}return {ok:!pending.length&&!failed.length,ready:!pending.length&&!failed.length,pending,failed};
 }
@@ -67262,7 +67284,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
