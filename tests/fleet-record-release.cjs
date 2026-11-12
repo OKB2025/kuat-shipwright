@@ -45,7 +45,7 @@ function engine(idb) {
     pending.delete(msg.id); msg.type === 'error' ? waiting.reject(Error(msg.message)) : waiting.resolve(msg);
   }};
   E.listenWorker(scope);
-  return {C, G, calls, request(payload) { return new Promise((resolve, reject) => { const next = ++id; pending.set(next, {resolve, reject}); scope.onmessage({data: {...payload, id: next}}); }); }};
+  return {C, G, calls, records: () => E.fleetRecordSizes(), request(payload) { return new Promise((resolve, reject) => { const next = ++id; pending.set(next, {resolve, reject}); scope.onmessage({data: {...payload, id: next}}); }); }};
 }
 function meshDigest(g) {
   const hash = createHash('sha256');
@@ -126,8 +126,12 @@ test('a non-surface design: lite then full, and its model and trial variants kee
   assert.equal(expected.profile.surface, undefined);
   const e = engine(database()), lite = await e.request({type: 'fleet', design: flat, lite: true});
   assert.equal(lite.profile, null); assert.equal(lite.stats, null); assert.equal(e.calls.computeStats || 0, 0);
+  const liteRecords = e.records();assert.equal(liteRecords.length, 1);assert.equal(liteRecords[0].profile, false);
   const later = await e.request({type: 'fleet', design: flat});
   assert.equal(later.src, 'memory'); assert.equal(later.geoCached, true);
+  // The record kept after the full request is counted with its profile (fleetKeep's byte bound), not at its lite size.
+  const fullRecords = e.records();assert.equal(fullRecords.length, 1);assert.equal(fullRecords[0].profile, true);
+  assert.equal(fullRecords[0].bytes, fullRecords[0].measured);assert.ok(fullRecords[0].bytes > liteRecords[0].bytes, `${fullRecords[0].bytes} > ${liteRecords[0].bytes}`);
   assert.deepEqual(plain(later.stats), plain(expected.stats)); assert.deepEqual(plain(later.profile), plain(expected.profile)); assert.equal(meshDigest(later.geometry), meshDigest(expected.geometry));
   const builds = e.calls.fleetGeometry, trial = await e.request({type: 'fleet', design: flat, trial: true});
   assert.equal(trial.geoCached, false, 'a non-surface trial model is not stored by the plain model build');

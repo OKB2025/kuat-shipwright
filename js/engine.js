@@ -837,7 +837,10 @@ async function fleetJob(job) {
   // the profile answer later requests); size the kept record for the budget.
   rec.d = null;
   if (rec.displayStats && rec.profile && rec.serial) rec.stats = null;
-  if (!rec.bytes && fleetBuilt.has(dkey)) rec.bytes = cacheBytes({state: rec.state, caches: rec.caches, profile: rec.profile, displayStats: rec.displayStats, serial: rec.serial});
+  // Measured again whenever a profile, packed caches or display figures were added since the last
+  // measure (a lite record later completed), so fleetKeep's byte bound counts the record as it is now.
+  const bytesKey = (rec.profile ? 1 : 0) + (rec.caches ? 2 : 0) + (rec.displayStats ? 4 : 0);
+  if ((!rec.bytes || rec.bytesKey !== bytesKey) && fleetBuilt.has(dkey)) { rec.bytes = cacheBytes({state: rec.state, caches: rec.caches, profile: rec.profile, displayStats: rec.displayStats, serial: rec.serial}); rec.bytesKey = bytesKey; }
   if (fleetBuilt.has(dkey)) fleetKeep([], rec);
 }
 
@@ -922,7 +925,9 @@ function connectInline(deliver) {
   post = (msg) => { const m = copy(msg); setTimeout(() => deliver(m), 0); };
   return (msg) => { const m = copy(msg); setTimeout(() => receive(m), 0); };
 }
-return {listenWorker, connectInline, packCaches, disk: DISK};
+// Read-only diagnostic for tests: each kept fleet record's counted size, its size measured now and whether it holds a profile.
+function fleetRecordSizes() { return [...new Set(fleetBuilt.values())].map(r => ({bytes: r.bytes || 0, profile: !!r.profile, measured: cacheBytes({state: r.state, caches: r.caches, profile: r.profile, displayStats: r.displayStats, serial: r.serial})})); }
+return {listenWorker, connectInline, packCaches, disk: DISK, fleetRecordSizes};
 })();
 if (typeof self !== 'undefined' && typeof window === 'undefined' && typeof importScripts === 'function' && self.__ksWorker) YardEngine.listenWorker(self);
 
