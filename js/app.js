@@ -3977,7 +3977,7 @@ const LocalExamples = {
           const blob = await KSAssetCache.getBlob(new URL(asset.url, document.baseURI).href, asset.sha256);
           const ex = EXAMPLES.find(e => e.key === row.key);
           const {model, ...fleet} = row;
-          await LocalDB.put('examples', {key: row.key, kind: 'example', name: row.name, cls: row.cls, side: row.side, faction: row.faction || 'any', len: ex?.len || 0, craft: !!ex?.craft, sha256: asset.sha256, jsonSha256: asset.jsonSha256, sourceSha256: asset.sourceSha256 || model.sourceSha256 || null, blob, fleet, savedAt: Date.now()});
+          await LocalDB.put('examples', {key: row.key, kind: 'example', name: row.name, cls: row.cls, side: row.side, faction: row.faction || 'any', len: ex?.len || 0, craft: !!ex?.craft, sha256: asset.sha256, jsonSha256: asset.jsonSha256, blob, fleet, savedAt: Date.now()});
           n++;
         } catch (e) { console.warn('example not stored', row.key, e?.message); }
       }
@@ -5464,7 +5464,7 @@ function start(hot) {
     engineHello(mode); boot?.step('engine', 'done'); titleStatus();
     let downloads=null,preparation=null;
     const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'作例の準備が完了しました':preparation.phase==='complete'?`作例を準備しました ${preparation.ready} / ${preparation.total}`:`作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
-    if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint).filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});window.KSAssetDownloads.done.then(()=>LocalExamples.seed()).catch(()=>{});}
+    if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:[...Object.values(YardFleetData.blueprints||{}),...Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint)].filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});window.KSAssetDownloads.done.then(()=>LocalExamples.seed()).catch(()=>{});}
     if(mode==='worker'&&boot?.createBackgroundWorker&&window.KSAssetCache){
       window.KSPreload?.stop();
       window.KSPreload=KSAssetCache.createPreloader({keys:EXAMPLES.map(e=>e.key),createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
@@ -11416,7 +11416,10 @@ function voyProfileStale(d) { return d?.src==='example'&&(d.p?.catalogOnly===tru
 const VOY_COST_SIGNATURE=C.costModelSignature?.();
 function voyCostStale(d) {
  if(d?.src!=='example')return false;
- return !!C.FLEET_PROFILE_VERSION&&d.p?.profileVersion!==C.FLEET_PROFILE_VERSION||VOY_COST_SIGNATURE!=null&&(d.model?.profileVersion!==C.FLEET_PROFILE_VERSION||d.model?.costVersion!==C.COST_MODEL?.version||d.model?.costSignature!==VOY_COST_SIGNATURE);
+ // A stored example row is valid for the saved design it was computed from and the current
+ // calculation model only (never a source-file hash); otherwise it is recomputed like a user ship's.
+ const blueprint=d.model?.preparedBlueprint?.blueprintSha256;
+ return !!C.FLEET_PROFILE_VERSION&&d.p?.profileVersion!==C.FLEET_PROFILE_VERSION||VOY_COST_SIGNATURE!=null&&(d.model?.profileVersion!==C.FLEET_PROFILE_VERSION||d.model?.costVersion!==C.COST_MODEL?.version||d.model?.costSignature!==VOY_COST_SIGNATURE)||C.EXAMPLE_PROFILE_VERSION!=null&&d.model?.exampleProfileVersion!==C.EXAMPLE_PROFILE_VERSION||!!blueprint&&d.model?.blueprintSha256!==blueprint;
 }
 async function voyPrepare(source) {
  // source: 'current' | 'save:<id>' | example key
@@ -11433,7 +11436,7 @@ async function voyPrepare(source) {
   }
   // (a design of a made faction this device does not know serves every faction, as 全陣営 does)
   const df = C.DESIGN_FACTIONS[a.design?.faction] && a.design.faction !== 'any' ? a.design.faction : null, sv = /^save:(.+)-\d+$/.exec(a.key);
-  const example=previous?.src==='example',d = {...(example?previous:{}),key: a.key, name: p.name || S.name || '設計艦', faction: example?previous.faction:df || voy.setup?.own || 'empire', anyFaction: example?false:!df, side: example?previous.side:'自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), model: {profileVersion:p.profileVersion,costVersion:C.COST_MODEL?.version,costSignature:VOY_COST_SIGNATURE}, loadPreset: example?previous.loadPreset:source==='current'||source.startsWith('save:')?null:C.builtinComplement(source), src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example', ...(sv ? {saveId: sv[1], craft: !!(a.design && C.isCraft(a.design))} : {})};
+  const example=previous?.src==='example',d = {...(example?previous:{}),key: a.key, name: p.name || S.name || '設計艦', faction: example?previous.faction:df || voy.setup?.own || 'empire', anyFaction: example?false:!df, side: example?previous.side:'自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), model: {profileVersion:p.profileVersion,costVersion:C.COST_MODEL?.version,costSignature:VOY_COST_SIGNATURE,exampleProfileVersion:C.EXAMPLE_PROFILE_VERSION}, loadPreset: example?previous.loadPreset:source==='current'||source.startsWith('save:')?null:C.builtinComplement(source), src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example', ...(sv ? {saveId: sv[1], craft: !!(a.design && C.isCraft(a.design))} : {})};
   voy.designs.set(source, d);voy.designs.set(a.key, d);return d;
  })();
  voy.pending.set(source, job);try { return await job; } finally { voy.pending.delete(source); }

@@ -448,9 +448,12 @@ const DISK = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 
 // The bootstrap computes this from the exact blobs executed on both threads.
 // Never refetch unversioned source URLs here: force-cache can hash older bytes
 // than the running code and incorrectly accept geometry from another release.
+// Records carry 'b2:' + stamp: 'b2' is the record schema since examples became saved designs, so a
+// record written by an earlier release can never be taken for a current one, whatever its stamp.
+const BUILD_SCHEMA = 'b2:';
 async function buildStamp() {
   const stamp = typeof globalThis !== 'undefined' && globalThis.KS_SOURCE_STAMP;
-  return typeof stamp === 'string' && /^[a-f0-9]{20}$/.test(stamp) ? stamp : null;
+  return typeof stamp === 'string' && /^[a-f0-9]{20}$/.test(stamp) ? BUILD_SCHEMA + stamp : null;
 }
 function diskOpen() {
   if (DISK.off) return Promise.resolve(null);
@@ -527,6 +530,58 @@ async function diskTrim(db) {
     for (const m of keep) {if(m.id.startsWith('k:')||m.id.startsWith('g|k:'))continue;const u = used[m.geo ? 'g' : 'r']; u[0]++; u[1] += m.size || 0; if (m.geo ? u[0] > DISK.GEO_MAX || u[1] > DISK.GEO_BYTES : u[0] > DISK.MAX || u[1] > DISK.BYTES) drop.push(m.id); }
     if (drop.length) await idbRun(db, 'readwrite', (rec, meta) => { for (const id of drop) { rec.delete(id); meta.delete(id); } });
   } finally { trimming = false; }
+}
+// Derived data of a design (display statistics and the fleet/combat profile), as for any saved
+// design: computed when needed and kept in its own database, keyed by the calculation-model key
+// (Core.profileModelKey: FLEET_PROFILE_VERSION, COST_MODEL, the cost signature and
+// EXAMPLE_PROFILE_VERSION) and the design content, never by source-file hashes. A new release
+// whose model key is unchanged reuses these figures; meshes and native caches (above) stay per release.
+const DERIVED = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 400, BYTES: 512e6, hits: 0, puts: 0};
+const derivedModel = () => 'm' + C.profileModelKey() + '|';
+function derivedOpen() {
+  if (DERIVED.off) return Promise.resolve(null);
+  if (!DERIVED.open) DERIVED.open = new Promise((resolve) => {
+    let done = false; const fin = (db) => { if (done) { if (db && db !== DERIVED.db) try { db.close(); } catch (e) {} return; } done = true; if (!db) DERIVED.off = true; DERIVED.db = db; resolve(db); };
+    setTimeout(() => fin(null), 4000);
+    try {
+      const rq = indexedDB.open('ks-derived', 1);
+      rq.onupgradeneeded = () => { try { const db = rq.result; db.createObjectStore('rec', {keyPath: 'id'}); db.createObjectStore('meta', {keyPath: 'id'}); } catch (e) {} };
+      rq.onsuccess = () => { const db = rq.result; db.onversionchange = () => { try { db.close(); } catch (e) {} DERIVED.off = true; DERIVED.db = null; }; fin(db); derivedTrim(db); };
+      rq.onerror = () => fin(null); rq.onblocked = () => fin(null);
+    } catch (e) { fin(null); }
+  });
+  return DERIVED.open;
+}
+// The content part of the key: an example's verified blueprint checksum (with its paint), or the
+// SHA-256 of the exact design JSON the page sent.
+async function derivedId(job, djson) {
+  if (job.key) { const asset = exampleAsset(job.key); return asset ? derivedModel() + 'k:' + asset.jsonSha256 + (job.paint ? '#' + job.paint : '') : null; }
+  if (!djson || typeof crypto === 'undefined' || !crypto.subtle || typeof TextEncoder === 'undefined') return null;
+  return derivedModel() + 'd:' + await sha256Hex(new TextEncoder().encode(djson));
+}
+async function derivedGet(id) {
+  const db = id && await derivedOpen(); if (!db) return null;
+  const r = await idbRun(db, 'readwrite', (rec, meta, set) => { const q = rec.get(id); q.onsuccess = () => { const v = q.result; set(v || null); if (v) meta.put({id, at: Date.now(), size: v.size || 0}); }; });
+  if (!r || r.id !== id || !r.profile || !r.displayStats) return null;
+  DERIVED.hits++; return r;
+}
+async function derivedPut(id, profile, displayStats) {
+  const db = id && profile && displayStats && await derivedOpen(); if (!db) return false;
+  const r = {id, profile, displayStats}; r.size = cacheBytes(r);
+  const ok = await idbRun(db, 'readwrite', (rec, meta, set) => { rec.put(r); meta.put({id, at: Date.now(), size: r.size}); set(true); });
+  if (ok) { DERIVED.puts++; derivedTrim(db); } return !!ok;
+}
+// Entries of another model key go at once (they can never be read again); then the oldest.
+let derivedTrimming = false;
+async function derivedTrim(db) {
+  if (derivedTrimming) return; derivedTrimming = true;
+  try {
+    const all = await idbRun(db, 'readonly', (rec, meta, set) => { const q = meta.getAll(); q.onsuccess = () => set(q.result || []); });
+    if (!all) return;
+    const model = derivedModel(), drop = all.filter(m => !m.id.startsWith(model)).map(m => m.id), keep = all.filter(m => m.id.startsWith(model)).sort((a, b) => b.at - a.at);
+    let n = 0, bytes = 0; for (const m of keep) { n++; bytes += m.size || 0; if (n > DERIVED.MAX || bytes > DERIVED.BYTES) drop.push(m.id); }
+    if (drop.length) await idbRun(db, 'readwrite', (rec, meta) => { for (const id of drop) { rec.delete(id); meta.delete(id); } });
+  } finally { derivedTrimming = false; }
 }
 
 function handlePropulsionPreview(job){
@@ -636,16 +691,36 @@ async function handleTrenchArmament(job) {
   placementReply(job, result, result?.ok ? {state: C.publicJSON(candidate)} : {});
 }
 
+// Examples are ordinary saved designs shipped with the game (data/examples/<key>/design.json.gz,
+// listed in YardFleetData.blueprints). One is opened exactly like a user's save: its bytes are
+// checked against the recorded SHA-256 and the design goes through C.deserialize and the same
+// load steps as any design. Nothing is rebuilt procedurally here (Core.buildDesign is an authoring
+// tool for scripts/refresh-examples.cjs): a missing or damaged file is an error the page shows.
+// The bytes come from the verified asset cache in the browser, or from KS_READ_ASSET (a function
+// url -> Blob/bytes) where a host supplies one (Node tools and tests).
+function exampleAsset(key){
+ const data=typeof YardFleetData==='undefined'?null:YardFleetData,base=String(key||'').split('#')[0];
+ const asset=data&&(Object.hasOwn(data.blueprints||{},base)?data.blueprints[base]:Object.hasOwn(data.designs||{},base)?data.designs[base]?.model?.preparedBlueprint:null);
+ return asset&&typeof asset.url==='string'&&/^[a-f0-9]{64}$/.test(asset.jsonSha256||'')?asset:null;
+}
+const hexOf=buf=>Array.from(new Uint8Array(buf),v=>v.toString(16).padStart(2,'0')).join('');
+async function sha256Hex(bytes){return hexOf(await crypto.subtle.digest('SHA-256',bytes));}
+async function exampleBytes(asset){
+ const url=new URL(asset.url,globalThis.KS_ASSET_BASE||globalThis.location?.href||'http://localhost/').href;
+ if(typeof KSAssetCache!=='undefined')return KSAssetCache.getBlob(url,asset.sha256);
+ if(typeof globalThis.KS_READ_ASSET==='function')return globalThis.KS_READ_ASSET(asset.url);
+ const r=await fetch(url,{cache:'no-cache'});if(!r.ok)throw Error(url+' ('+r.status+')');return r.blob();
+}
 async function loadExample(key){
- const row=typeof YardFleetData==='undefined'?null:YardFleetData.designs?.[key],asset=row?.model?.preparedBlueprint,hash=globalThis.KS_SOURCE_SHA256?.['js/core.js'];
- // v24 The design file carries its own source stamp (data/examples/manifest.json); older rows use the row's.
- const stamp=asset?.sourceSha256||row?.model?.sourceSha256,matchingSources=['data/reference.js','data/imperial2.js','js/core.js'].every(file=>stamp?.[file]&&stamp[file]===globalThis.KS_SOURCE_SHA256?.[file]);
- if(asset&&hash&&matchingSources&&asset.coreSha256===hash&&typeof KSAssetCache!=='undefined'&&typeof DecompressionStream!=='undefined')try{
-  const url=new URL(asset.url,globalThis.KS_ASSET_BASE).href,blob=await KSAssetCache.getBlob(url,asset.sha256),raw=await new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer(),actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',raw)),v=>v.toString(16).padStart(2,'0')).join('');
-  if(actual!==asset.jsonSha256)throw Error('Prepared blueprint checksum mismatch');
+ const asset=exampleAsset(key);
+ if(!asset)throw Object.assign(new Error('作例の設計ファイルがありません：'+key),{code:'example-missing'});
+ try{
+  let gz=await exampleBytes(asset);if(!(gz instanceof Blob))gz=new Blob([gz]);
+  if(asset.sha256&&typeof KSAssetCache==='undefined'&&await sha256Hex(await gz.arrayBuffer())!==asset.sha256)throw Error('file checksum mismatch');
+  const raw=await new Response(gz.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  if(await sha256Hex(raw)!==asset.jsonSha256)throw Error('design checksum mismatch');
   return C.deserialize(JSON.parse(new TextDecoder().decode(raw)));
- }catch(error){console.warn('Prepared example unavailable',key,error?.message);}
- return C.buildDesign(key);
+ }catch(error){throw Object.assign(new Error('作例の設計ファイルを読み込めません：'+key+'（'+(error?.message||error)+'）'),{code:'example-unreadable'});}
 }
 
 async function handleBuild(job) {
@@ -759,7 +834,7 @@ async function fleetJob(job) {
       if (disk && disk.state) {
         const own = !fallback;
         rec = {d: null, cacheId: own ? disk.id : dkey, state: disk.state, paint: own ? null : job.paint, caches: own ? disk.caches || null : null, stats: own && disk.profile ? disk.stats : null, displayStats: own ? disk.displayStats || null : null, profile: own ? disk.profile || null : null, serial: own ? disk.serial || null : null, designJSON: own ? disk.designJSON : djson};
-        src = 'disk'; save = !(own && rec.stats && rec.serial);
+        src = 'disk'; save = !(own && rec.profile && (rec.stats || rec.displayStats) && rec.serial);
         if (!own) { try { recShip(rec); rec.state = C.publicJSON(rec.d); rec.paint = null; } catch (e) { rec = null; } }
       }
     }
@@ -782,11 +857,18 @@ async function fleetJob(job) {
     if (!big) { fleetBuilt.set(dkey, rec); fleetBuilt.set(rec.alias, rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
   }
   const lite = !!job.lite && !rec.surfaces;
-  if (!lite && (!rec.stats || !rec.profile)) { const d = recShip(rec); rec.stats ||= C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
+  // Figures and profile: the derived-data cache (design content + model key) before computing them.
+  let derived = null, profileSrc = lite ? null : 'record';
+  if (!lite && (!rec.profile || !rec.stats && !rec.displayStats)) {
+    const id = await derivedId(job, djson), hit = await derivedGet(id);
+    if (hit) { rec.profile = hit.profile; rec.displayStats = hit.displayStats; rec.stats = null; save = true; profileSrc = 'derived'; }
+    else { const d = recShip(rec); rec.stats ||= C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; derived = id; profileSrc = 'computed'; }
+  } else if (!lite && src === 'editor') derived = await derivedId(job, djson);
   const {stats, profile, serial} = rec;
   let displayStats = null, geometry = null, stored = null, gid = null;
   const transfer = [], records = [], identity = JSON.stringify(serial);
-  if (!lite && stats) { if (!rec.displayStats) { rec.displayStats = statsOut(stats, recShip(rec)); save = true; } displayStats = rec.displayStats; }
+  if (!lite && (stats || rec.displayStats)) { if (!rec.displayStats) { rec.displayStats = statsOut(stats, recShip(rec)); save = true; } displayStats = rec.displayStats; }
+  if (derived && displayStats && profile) await derivedPut(derived, profile, displayStats);
   if (!job.statsOnly) {
     gid = 'g|' + rec.cacheId + (job.trial ? '|t' : '|m');
     stored = await diskGet(gid);
@@ -805,9 +887,9 @@ async function fleetJob(job) {
     if (rec.alias !== rec.cacheId) records.push({id: rec.alias, alias: rec.cacheId});
   }
   const cacheSaved = records.length ? await diskPutMany(records) : !!stored || src === 'disk';
-  if (job.prepareOnly && job.silent) post({type:'fleet',id:job.id,src,cacheSaved,geoCached:!!stored,ms:now()-t0});
-  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile, design: serial, ms: now() - t0, src, cacheSaved});
-  else post({type: 'fleet', id: job.id, stats: displayStats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved}, transfer);
+  if (job.prepareOnly && job.silent) post({type:'fleet',id:job.id,src,cacheSaved,geoCached:!!stored,ms:now()-t0,profileSrc});
+  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile, design: serial, ms: now() - t0, src, cacheSaved, profileSrc});
+  else post({type: 'fleet', id: job.id, stats: displayStats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved, profileSrc}, transfer);
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
 }
@@ -893,7 +975,7 @@ function connectInline(deliver) {
   post = (msg) => { const m = copy(msg); setTimeout(() => deliver(m), 0); };
   return (msg) => { const m = copy(msg); setTimeout(() => receive(m), 0); };
 }
-return {listenWorker, connectInline, packCaches, disk: DISK};
+return {listenWorker, connectInline, packCaches, loadExample, disk: DISK, derived: DERIVED};
 })();
 if (typeof self !== 'undefined' && typeof window === 'undefined' && typeof importScripts === 'function' && self.__ksWorker) YardEngine.listenWorker(self);
 

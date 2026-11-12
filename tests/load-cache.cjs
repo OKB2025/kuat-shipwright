@@ -20,7 +20,8 @@ function engine(idb,files={},options={}){
  const stamp=hash(Buffer.concat(sources.map(f=>hash(files[f]??read(f))))).toString('hex').slice(0,20);
  const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone,URL,crypto:globalThis.crypto,importScripts(){},
   ...(idb?{indexedDB:idb}:{}),KS_SOURCE_STAMP:options.noStamp?null:stamp,
-  fetch:async()=>{throw new Error('disk identity must use loaded bytes, never refetch sources');}});
+  fetch:async()=>{throw new Error('disk identity must use loaded bytes, never refetch sources');},
+  ...require('./helpers/example-reader.cjs')(root)});
  cx.self=cx;cx.self.location={href:'http://x/app/js/worker.js'};
  for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(files[f]??read(f),cx,{filename:f});
  const source=read('js/engine.js');vm.runInContext(source.slice(0,source.indexOf('/* Interface-side connection')),cx,{filename:'js/engine.js'});

@@ -18,6 +18,16 @@ function loadRuntime(root){
  return vm.runInContext('({C:Core,R:Rts,data:YardFleetData})',context);
 }
 function exampleKeys(C,data){return Object.keys(data.designs).filter(key=>C.DESIGNS[key]&&!C.SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_')).sort();}
+// Every other design the game offers as an example (craft, the older sample designs): stored as a saved
+// design only, without a catalogue row.
+function designOnlyKeys(C,data){const ships=new Set(exampleKeys(C,data));return Object.keys(C.DESIGNS).filter(key=>!ships.has(key)).sort();}
+// The saved design of an example, prepared exactly as for a catalogue ship (generateMeasuredEntry):
+// built by the authoring tool, then the ordinary load steps, then serialized.
+function generateBlueprint(C,key){
+ if(!C.DESIGNS[key])throw new Error('Unknown example design: '+key);
+ const build=()=>{const ship=C.buildDesign(key);C.syncCompartments(ship);C.remount(ship);C.syncCompartments(ship);return C.serialize(ship);};
+ return typeof C.withFrozenStructures==='function'?C.withFrozenStructures(build):build();
+}
 // The catalogue describes choices; exact surface meshes stay in worker-built
 // combat profiles. Keep every engineering figure and explicitly require that
 // physical profile before this compact row can sail.
@@ -50,7 +60,7 @@ function generateMeasuredEntry(C,R,key,ship,previous,sources,options={}){
  if(!(info.mass>0)||!Number.isFinite(info.mass)||!Number.isFinite(info.cost))throw new Error('Invalid generated engineering figures: '+key);
  const entry=plain({...previous,key,name:previous.name||C.DESIGNS[key].name||ship.name,cls:stats.cls?.name||previous.cls,p:compactCatalogProfile(profile),info,
   ...(ship.paint?{paint:ship.paint}:{}),...(complement?{air:complement.air||[],ground:complement.ground||[]}:{}),
-  model:{profileVersion:C.FLEET_PROFILE_VERSION,costVersion:C.COST_MODEL.version,costSignature:C.costModelSignature(),blueprintSha256:sha(stable(blueprint)),sourceSha256:sources}});
+  model:{profileVersion:C.FLEET_PROFILE_VERSION,costVersion:C.COST_MODEL.version,costSignature:C.costModelSignature(),exampleProfileVersion:C.EXAMPLE_PROFILE_VERSION,blueprintSha256:sha(stable(blueprint)),sourceSha256:sources}});
  if(options.onBuilt)options.onBuilt({key,ship,stats,profile,entry,blueprint});
  return entry;
 }
@@ -116,5 +126,5 @@ function main(args=process.argv.slice(2)){
  const destination=path.resolve(options.output||path.join(root,'data/fleet.js'));
  console.log(`Updated ${Object.keys(patch.entries).length} ship profiles (model ${C.FLEET_PROFILE_VERSION}) at ${destination}`);
 }
-module.exports={SOURCE_FILES,sourceHashes,loadRuntime,exampleKeys,generateEntry,generateEntryFromShip,generateEntryFromBlueprint,createPatch,mergePatches,compactCatalogProfile,compactCatalogEntry,compactPatch,parseArgs,stable};
+module.exports={SOURCE_FILES,sourceHashes,loadRuntime,exampleKeys,designOnlyKeys,generateBlueprint,generateEntry,generateEntryFromShip,generateEntryFromBlueprint,createPatch,mergePatches,compactCatalogProfile,compactCatalogEntry,compactPatch,parseArgs,stable};
 if(require.main===module){try{main();}catch(error){console.error(error.message);process.exitCode=1;}}
