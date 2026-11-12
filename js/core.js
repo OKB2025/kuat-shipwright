@@ -62032,6 +62032,13 @@ function shieldRechargeStep(u,s={},dt=0,options={}){
  if(next>u.shieldMax&&u.bank<u.bankMax)u.bank=Math.min(u.bankMax,u.bank+(next-u.shieldMax));u.shield=clamp(next,0,u.shieldMax);u.shRate=(gen-decay)/Math.max(1e-6,step);
  return {generatedTT:gen0,reserveSpentTT:bd,decayedTT:decay,deltaTT:gen-decay,had};
 }
+// A penetration is kept for the X-ray replay (u.hitLog, at most 24) and handed
+// to ctx.hit. The armour it got through is the zone's (box model) or the
+// surface patch's (surfaceLastHit: thickness and integrity after the hit).
+function combatHitRecord(ctx,u,o,rec,armor){
+ rec.t=Math.round(ctx.time*10)/10;rec.src=combatTop(o);rec.thick=+(+armor.thickness||0).toFixed(2);rec.integrity=+(+armor.integrity||0).toFixed(2);if(armor.patch!=null)rec.patch=armor.patch;
+ u.hitLog.push(rec);if(u.hitLog.length>24)u.hitLog.shift();ctx.hit?.(u,rec);return rec;
+}
 function combatResolve(ctx,u,o,dt,s){
  const p=u.p,DMG=ctx.damage??1,N=u.sec.length,Z=combatZones(p,N),Q=Math.max(1,p.hp*COMBAT.quantum);
  heatTick(ctx,u,dt);
@@ -62047,11 +62054,11 @@ function combatResolve(ctx,u,o,dt,s){
  // Armour: the hull hit spreads over the faces by bearing and over the sections
  // by area (more on the sections holding an aimed-at system).
  let hullHit=beamLeak*(beamIncoming>0?Math.min(beamIncoming,Math.max(0,o.hull||0))/beamIncoming:0)+o.direct;
- const surfaceZones=!!p.surface?.patches?.length;try{
+ const surfaceZones=!!p.surface?.patches?.length;let recs=0;try{
  if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot',surfaceZones),local=u.surfaceLastHit;
-  if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0)combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q);}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
+  if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q);if(recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
  if(p.surface?.patches?.length&&hullHit>0){const patches=p.surface.patches.filter(q=>q.exposed&&q.triangles?.length>=9),fw=o.face?.some(v=>v>0)?o.face:Z.faceShare,weighted=patches.map(q=>({q,w:q.area*(Math.max(0,q.normal[0])*fw[0]+Math.max(0,-q.normal[0])*fw[1]+Math.max(0,q.normal[2])*fw[2]+Math.max(0,-q.normal[2])*fw[3]+Math.max(0,q.normal[1])*fw[4]+Math.max(0,-q.normal[1])*fw[5])}));let total=weighted.reduce((a,x)=>a+x.w,0);if(!(total>0)){for(const x of weighted)x.w=x.q.area;total=weighted.reduce((a,x)=>a+x.w,0);}
-   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled)combatPenetrate(ctx,u,local.section,local.face,left,null,Q);}u.surfaceFallback=true;}
+   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled){const rec=combatPenetrate(ctx,u,local.section,local.face,left,null,Q);if(recs++<3)combatHitRecord(ctx,u,o,rec,local);}}u.surfaceFallback=true;}
  // The deferred hits are synced once here, also when a hit throws.
  }finally{if(surfaceZones&&typeof surfaceArmorSync==='function')surfaceArmorSync(u);}
  if(surfaceZones){
@@ -62074,13 +62081,13 @@ function combatResolve(ctx,u,o,dt,s){
  if(spread>0){const ft=o.face.reduce((a,b)=>a+b,0),fw=ft>0?o.face.map(v=>v/ft):Z.faceShare,al=aims.length?aims:[['auto',1]],at=aims.length?aimTot:1;
   for(let f=0;f<6;f++){const hf=spread*fw[f];if(!(hf>0))continue;
    for(const [k,v] of al){const kind=k==='auto'?null:k,ws=[];let W=0;for(let si=0;si<N;si++){const a=Z.A[si*6+f],w=a>0&&!u.secLost.includes(si)?a*(kind?1+4*aimShare(u,si,kind):1):0;ws.push(w);W+=w;}if(!(W>0))continue;for(let si=0;si<N;si++)if(ws[si]>0)load[si*6+f]+=hf*(v/at)*ws[si]/W;}}}
- let recs=0,aSum=0,iSum=0,worst=0;
+ let aSum=0,iSum=0,worst=0;
  for(let z=0;z<Z.n;z++){
   if(!(Z.A[z]>0))continue;const state={load:u.zl[z],integrity:u.zi[z]},result=armorLayerStep(state,Z.cap[z],load[z],dt);let L=result.load;u.zi[z]=result.integrity;u.zq[z]+=result.penetrated;
   u.zl[z]=L;aSum+=Z.A[z];iSum+=Z.A[z]*u.zi[z];worst=Math.max(worst,L/Math.max(1e-9,Z.cap[z]*u.zi[z]));
   if(load[z]>0){const si=Math.floor(z/6);u.sec[si].s-=load[z]*COMBAT.spall;if(u.sec[si].s<=0&&!u.secLost.includes(si))combatSectionLost(ctx,u,si);}
   while(u.zq[z]>=Q&&!u.dead){u.zq[z]-=Q;const si=Math.floor(z/6),f=z%6;if(u.secLost.includes(si))continue;let r=ctx.rand()*(aimTot||1),aim=null;for(const [k,v] of aims){r-=v;if(r<=0){aim=k==='auto'?null:k;break;}}
-   const rec=combatPenetrate(ctx,u,si,f,Q,aim,Q);u.penHot=8;if(recs++<3){rec.t=Math.round(ctx.time*10)/10;rec.src=combatTop(o);rec.thick=+Z.T[z].toFixed(2);rec.integrity=+u.zi[z].toFixed(2);u.hitLog.push(rec);if(u.hitLog.length>24)u.hitLog.shift();ctx.hit?.(u,rec);}
+   const rec=combatPenetrate(ctx,u,si,f,Q,aim,Q);u.penHot=8;if(recs++<3)combatHitRecord(ctx,u,o,rec,{thickness:Z.T[z],integrity:u.zi[z]});
    combatStatus(ctx,u);}
  }
  u.armor=aSum>0?iSum/aSum:1;u.armorLoad=worst;u.hot=worst>.003||hullHit>0;
