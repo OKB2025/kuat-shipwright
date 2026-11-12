@@ -221,7 +221,7 @@ function navigationItinerary(route){
 const COST_K = {crew: 1000};
 const COST_MODEL=Object.freeze({version:17,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,powerBus:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
-const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
+const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserL:3000,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+((p.k==='engineCore'||p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id))?resolveEngineSpec(p).cost:0):0;}
 function fitBuildCost(f,spec){const d=spec||(FITS[f?.k]?fitSpec(f):null);return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command'])*(isTrenchBatteryGroup(f)?f.aggregateCount:1):0;}
 function costBreakdown(total,source){
@@ -235,22 +235,22 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "l1e2cu",
+ "modelSignature": "1ia6fpg",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1xbqpy9",
-   "build": 217059,
+   "signature": "ioa1jb",
+   "build": 217102,
    "crew": 3000,
-   "total": 220059,
+   "total": 220102,
    "by": {
     "hull": 20,
     "armor": 29,
     "power": 56747,
-    "drive": 62002,
+    "drive": 62044,
     "defense": 16503,
     "command": 32506,
-    "weapons": 28751,
+    "weapons": 28752,
     "systems": 20501,
     "crew": 3000
    },
@@ -258,7 +258,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 27516841700000000,
+    "power": 27768589700000000,
     "crew": 3,
     "suitSeats": 0,
     "lifeSupportCapacity": 4,
@@ -267,7 +267,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.730856609444535,
+    "navDemand": 0.7298682968657548,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -276,17 +276,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 48.668000000000006,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 5.333333333333334,
+    "laserUnits": 16.799999999999997,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 667.33875,
+    "laserGasSeconds": 661.4035714285715,
     "landingSupport": 45.5877,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
-    "up": 4.556732487690889e-14,
-    "upS": 4.556732487690889e-14,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -300,8 +300,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.16,
       "hits": 1,
       "crew": 0,
-      "size": 0.500000002,
-      "weaponPowerW": 46488888888888.9,
+      "size": 0.500000072,
+      "weaponPowerW": 1673600000000000,
       "stock": 0,
       "at": 0.688,
       "pd": false,
@@ -310,7 +310,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.76,
       "z": 0.93,
       "r": 0.142,
-      "share": 0.19999999984000003,
+      "share": 0.200000016895999,
       "domain": "main",
       "port": "f39",
       "powerConnected": true
@@ -322,8 +322,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.16,
       "hits": 1,
       "crew": 0,
-      "size": 0.500000002,
-      "weaponPowerW": 46488888888888.9,
+      "size": 0.500000072,
+      "weaponPowerW": 1673600000000000,
       "stock": 0,
       "at": 0.688,
       "pd": false,
@@ -332,7 +332,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.76,
       "z": -0.93,
       "r": 0.142,
-      "share": 0.19999999984000003,
+      "share": 0.200000016895999,
       "domain": "main",
       "port": "f40",
       "powerConnected": true
@@ -344,8 +344,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.750000004,
-      "weaponPowerW": 139466666666666.69,
+      "size": 0.7500000024,
+      "weaponPowerW": 83680000000000,
       "stock": 0,
       "at": 0.152,
       "pd": false,
@@ -354,7 +354,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.71,
       "z": 0,
       "r": 0.051,
-      "share": 0.30000000016,
+      "share": 0.299999983104001,
       "domain": "main",
       "port": "f41",
       "powerConnected": true
@@ -366,8 +366,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.750000004,
-      "weaponPowerW": 139466666666666.69,
+      "size": 0.7500000024,
+      "weaponPowerW": 83680000000000,
       "stock": 0,
       "at": 0.152,
       "pd": false,
@@ -376,7 +376,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.14,
       "z": 0,
       "r": 0.051,
-      "share": 0.30000000016,
+      "share": 0.299999983104001,
       "domain": "main",
       "port": "f42",
       "powerConnected": true
@@ -415,7 +415,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.08,
       "z": 0,
       "r": 0.038,
-      "share": 0.2496830693178773,
+      "share": 0.2337796699788249,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -432,7 +432,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.26,
       "z": 0,
       "r": 0.038,
-      "share": 0.249683202356379,
+      "share": 0.2337797945435265,
       "domain": "main",
       "port": "p25",
       "powerConnected": true
@@ -449,7 +449,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.6,
       "z": 0,
       "r": 0.038,
-      "share": 0.24968309412166326,
+      "share": 0.23377969320275,
       "domain": "main",
       "port": "p26",
       "powerConnected": true
@@ -466,7 +466,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.86,
       "z": 0,
       "r": 0.018,
-      "share": 0.026528768412236253,
+      "share": 0.024839035907803182,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -474,10 +474,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷反応炉",
-      "w": 0.38408119085832293,
+      "w": 0.3844604803971083,
       "hits": 1,
-      "crew": 0.00011901578449105239,
-      "size": 0.23803156898210476,
+      "crew": 0.00011919212449083956,
+      "size": 0.23838424898167912,
       "at": 0.551,
       "part": 28,
       "y": 0.01,
@@ -491,10 +491,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷反応炉",
-      "w": 0.38408119085832293,
+      "w": 0.3844604803971083,
       "hits": 1,
-      "crew": 0.00011901578449105239,
-      "size": 0.23803156898210476,
+      "crew": 0.00011919212449083956,
+      "size": 0.23838424898167912,
       "at": 0.551,
       "part": 29,
       "y": 0.01,
@@ -585,7 +585,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.47,
       "z": 0,
       "r": 0.017,
-      "share": 0.021223014729789002,
+      "share": 0.019871228726242546,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -653,7 +653,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.1,
       "z": 0,
       "r": 0.021,
-      "share": 0.042976604827822736,
+      "share": 0.040239238170641164,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -670,7 +670,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.36,
       "z": 0,
       "r": 0.021,
-      "share": 0.04254989312625063,
+      "share": 0.03983970559103071,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -687,7 +687,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.43,
       "z": 0,
       "r": 0.011,
-      "share": 0.006590391095463893,
+      "share": 0.00617062045711812,
       "domain": "main",
       "port": "p46",
       "powerConnected": true
@@ -704,7 +704,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.09,
       "z": 0,
       "r": 0.011,
-      "share": 0.006590391095463893,
+      "share": 0.00617062045711812,
       "domain": "main",
       "port": "p47",
       "powerConnected": true
@@ -721,7 +721,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.25,
       "z": 0,
       "r": 0.011,
-      "share": 0.006590391095463893,
+      "share": 0.00617062045711812,
       "domain": "main",
       "port": "p48",
       "powerConnected": true
@@ -738,7 +738,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.36,
       "z": 0,
       "r": 0.008,
-      "share": 0.0021617585289971366,
+      "share": 0.0020240667373383485,
       "domain": "main",
       "port": "p49",
       "powerConnected": true
@@ -755,7 +755,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.52,
       "z": 0,
       "r": 0.009,
-      "share": 0.002877300602095188,
+      "share": 0.002694032827397341,
       "domain": "main",
       "port": "p50",
       "powerConnected": true
@@ -772,7 +772,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.15,
       "z": 0,
       "r": 0.011,
-      "share": 0.006590391095463893,
+      "share": 0.00617062045711812,
       "domain": "main",
       "port": "p51",
       "powerConnected": true
@@ -789,7 +789,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.36,
       "z": -0.03,
       "r": 0.009,
-      "share": 0.0032877645027885195,
+      "share": 0.00307835249914946,
       "domain": "main",
       "port": "p52",
       "powerConnected": true
@@ -806,7 +806,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.36,
       "z": 0.03,
       "r": 0.009,
-      "share": 0.0032877645027885195,
+      "share": 0.00307835249914946,
       "domain": "main",
       "port": "p53",
       "powerConnected": true
@@ -823,7 +823,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.36,
       "z": 0,
       "r": 0.009,
-      "share": 0.0032877645027885195,
+      "share": 0.00307835249914946,
       "domain": "main",
       "port": "p54",
       "powerConnected": true
@@ -840,7 +840,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.45,
       "z": 0,
       "r": 0.009,
-      "share": 0.0032877645027885195,
+      "share": 0.00307835249914946,
       "domain": "main",
       "port": "p55",
       "powerConnected": true
@@ -848,16 +848,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "レーザーガス供給槽 1",
-      "w": 0.1521,
+      "w": 0.32489999999999997,
       "hits": 1,
       "crew": 0,
-      "size": 0.059319000000000004,
-      "at": 0.508,
+      "size": 0.18519299999999997,
+      "at": 0.488,
       "part": 56,
       "y": -0.36,
       "z": 0,
-      "r": 0.015,
-      "share": 0.01602916927269764,
+      "r": 0.022,
+      "share": 0.046855373910987576,
       "domain": "main",
       "port": "p56",
       "powerConnected": true
@@ -865,16 +865,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "レーザーガス供給槽 2",
-      "w": 0.1521,
+      "w": 0.32489999999999997,
       "hits": 1,
       "crew": 0,
-      "size": 0.059319000000000004,
-      "at": 0.529,
+      "size": 0.18519299999999997,
+      "at": 0.551,
       "part": 57,
-      "y": -0.08,
+      "y": 0.05,
       "z": 0,
-      "r": 0.015,
-      "share": 0.01602916927269764,
+      "r": 0.022,
+      "share": 0.046855373910987576,
       "domain": "main",
       "port": "p57",
       "powerConnected": true
@@ -886,12 +886,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.571,
+      "at": 0.592,
       "part": 58,
-      "y": -0.09,
+      "y": -0.5,
       "z": 0,
       "r": 0.015,
-      "share": 0.01368744434616149,
+      "share": 0.012815631555799916,
       "domain": "main",
       "port": "p58",
       "powerConnected": true
@@ -903,12 +903,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.592,
+      "at": 0.51,
       "part": 59,
-      "y": -0.5,
+      "y": -0.09,
       "z": 0,
       "r": 0.015,
-      "share": 0.01368744434616149,
+      "share": 0.012815631555799916,
       "domain": "main",
       "port": "p59",
       "powerConnected": true
@@ -920,12 +920,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.050653,
-      "at": 0.49,
+      "at": 0.51,
       "part": 60,
-      "y": -0.09,
-      "z": 0,
+      "y": 0.04,
+      "z": -0.05,
       "r": 0.015,
-      "share": 0.01368744434616149,
+      "share": 0.012815631555799916,
       "domain": "main",
       "port": "p60",
       "powerConnected": true
@@ -1121,35 +1121,35 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.18,
       "z": 0,
       "r": 0.063,
-      "share": 0.09402205455600694,
+      "share": 0.09435061153174142,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.9278803899039796,
+      "w": 0.9278803899039795,
       "hits": 1,
       "crew": 0,
-      "size": 15.385127719350946,
+      "size": 15.385127719350944,
       "at": 0.384,
       "y": 0.01,
       "z": 0,
       "r": 0.098,
-      "share": 0.3604178757980267,
+      "share": 0.36167734420500874,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.0485524222503189,
+      "w": 1.0429225936360271,
       "hits": 1,
       "crew": 0,
-      "size": 18.48197307348761,
-      "at": 0.57,
+      "size": 18.33332449648905,
+      "at": 0.571,
       "y": -0.1,
       "z": 0,
       "r": 0.104,
-      "share": 0.4329657573998839,
+      "share": 0.43098427489807806,
       "domain": "main"
      },
      {
@@ -1163,13 +1163,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.37,
       "z": 0,
       "r": 0.066,
-      "share": 0.1125943122460824,
+      "share": 0.11298776936517183,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 21.529147729983087,
+      "w": 21.733584980261053,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -1181,7 +1181,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0003669337190849614,
+    "D": 0.0003674371482720359,
     "shieldBuffer": 0.0731817485234382,
     "wCap": 0,
     "fuel": {
@@ -1189,8 +1189,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.25132741228718347,
      "massKg": 62.83185307179587,
-     "capacityJ": 3.5472140502015934e+22,
-     "specificEnergyJPerKg": 564556650294606100000,
+     "capacityJ": 3.5524078813517133e+22,
+     "specificEnergyJPerKg": 565383274195732300000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 3,
@@ -1205,16 +1205,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 2493144420521558500,
-     "fixed": 53961546143626670,
+     "P": 2496838393455184400,
+     "fixed": 54213294143626670,
      "cooling": 15334344646982956,
-     "De": 2493144420521558500,
-     "Ds": 1535250680651478500,
-     "Dw": 1371911111111111.2,
+     "De": 2496838393455184400,
+     "Ds": 1537357028370198300,
+     "Dw": 4514560000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2493144420521558500,
+       "P": 2496838393455184400,
        "reactors": [
         9,
         10
@@ -1222,11 +1222,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 9,
-         "P": 1246572210260779300
+         "P": 1248419196727592200
         },
         {
          "moduleIndex": 10,
-         "P": 1246572210260779300
+         "P": 1248419196727592200
         }
        ],
        "modules": [
@@ -1290,7 +1290,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "hotel",
-       "cap": 53961546143626680,
+       "cap": 54213294143626670,
        "auto": true,
        "ok": true,
        "routeId": "p28>hotel",
@@ -1398,7 +1398,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p24",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p24",
@@ -1410,7 +1410,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p25",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p25",
@@ -1422,7 +1422,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p26",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p26",
@@ -1434,7 +1434,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p27",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p27",
@@ -1446,7 +1446,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p33",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p33",
@@ -1458,7 +1458,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p34",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p34",
@@ -1470,7 +1470,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p35",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p35",
@@ -1482,7 +1482,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p36",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p29>p36",
@@ -1494,7 +1494,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p38",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p38",
@@ -1506,7 +1506,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p45",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p45",
@@ -1518,7 +1518,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p46",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p46",
@@ -1530,7 +1530,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p47",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p47",
@@ -1542,7 +1542,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p48",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p48",
@@ -1554,7 +1554,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p49",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p49",
@@ -1566,7 +1566,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p50",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p50",
@@ -1578,7 +1578,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p51",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p51",
@@ -1590,7 +1590,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p52",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p29>p52",
@@ -1602,7 +1602,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p53",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p53",
@@ -1614,7 +1614,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p54",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p54",
@@ -1626,7 +1626,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p55",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p55",
@@ -1638,46 +1638,34 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p56",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p56",
        "model": "source-distance",
-       "lengthM": 2.3413918937247566,
-       "efficiency": 0.9999765863551664
+       "lengthM": 2.4126342449695937,
+       "efficiency": 0.9999758739485881
       },
       {
        "kind": "power",
        "from": "p28",
        "to": "p57",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p57",
        "model": "source-distance",
-       "lengthM": 2.1841256831968257,
-       "efficiency": 0.9999781589816865
+       "lengthM": 2.1614078745114265,
+       "efficiency": 0.9999783861548374
       },
       {
        "kind": "power",
        "from": "p28",
        "to": "p58",
-       "cap": 2075444082447179.8,
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
        "routeId": "p28>p58",
-       "model": "source-distance",
-       "lengthM": 2.1848306570533103,
-       "efficiency": 0.9999781519321019
-      },
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "p59",
-       "cap": 2075444082447179.8,
-       "auto": true,
-       "ok": true,
-       "routeId": "p28>p59",
        "model": "source-distance",
        "lengthM": 2.427419411638623,
        "efficiency": 0.9999757261004995
@@ -1685,14 +1673,26 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p28",
-       "to": "p60",
-       "cap": 2075444082447179.8,
+       "to": "p59",
+       "cap": 2085126697831795,
        "auto": true,
        "ok": true,
-       "routeId": "p28>p60",
+       "routeId": "p28>p59",
        "model": "source-distance",
-       "lengthM": 2.3043725827218133,
-       "efficiency": 0.9999769565396774
+       "lengthM": 2.2304098278119207,
+       "efficiency": 0.9999776961504564
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p60",
+       "cap": 2085126697831795,
+       "auto": true,
+       "ok": true,
+       "routeId": "p29>p60",
+       "model": "source-distance",
+       "lengthM": 1.722712105953865,
+       "efficiency": 0.9999827730273264
       },
       {
        "kind": "power",
@@ -1710,7 +1710,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "f39",
-       "cap": 69733333333333.34,
+       "cap": 2510400000000000,
        "auto": false,
        "ok": true,
        "routeId": "p28>f39",
@@ -1722,7 +1722,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "f40",
-       "cap": 69733333333333.34,
+       "cap": 2510400000000000,
        "auto": false,
        "ok": true,
        "routeId": "p28>f40",
@@ -1734,7 +1734,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "f41",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p28>f41",
@@ -1746,7 +1746,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "f42",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p28>f42",
@@ -1782,7 +1782,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "f39",
-       "cap": 69733333333333.34,
+       "cap": 2510400000000000,
        "auto": false,
        "ok": true,
        "routeId": "p29>f39",
@@ -1794,7 +1794,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "f40",
-       "cap": 69733333333333.34,
+       "cap": 2510400000000000,
        "auto": false,
        "ok": true,
        "routeId": "p29>f40",
@@ -1806,7 +1806,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "f41",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p29>f41",
@@ -1818,7 +1818,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "f42",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p29>f42",
@@ -1866,11 +1866,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p30",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p28>p30",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p28>p30",
        "model": "source-distance",
        "lengthM": 0.751065909225016,
@@ -1880,11 +1880,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p31",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p28>p31",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p28>p31",
        "model": "source-distance",
        "lengthM": 4.3452157598904115,
@@ -1894,11 +1894,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p30",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p29>p30",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p29>p30",
        "model": "source-distance",
        "lengthM": 4.3452157598904115,
@@ -1908,11 +1908,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p31",
-       "cap": 1745201094365090800,
+       "cap": 1747786875418628900,
        "auto": true,
        "ok": true,
        "capacityGroup": "p29>p31",
-       "groupCap": 3490402188730181600,
+       "groupCap": 3495573750837257700,
        "routeId": "p29>p31",
        "model": "source-distance",
        "lengthM": 0.751065909225016,
@@ -1924,7 +1924,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 53961546143626670,
+       "weight": 54213294143626670,
        "domain": "main"
       }
      ],
@@ -1993,23 +1993,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273202256.0413175,
-       "shaftWattsPerNewton": 2159542143.2392516,
-       "wattsPerNewton": 2273202256.0413175,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31493.936197150302,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2021,10 +2021,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548377165.7131954,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2032,12 +2032,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1096726383407041200,
-       "cost": 7486.505199890609,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -2056,7 +2056,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500,
+       "pathCapacityW": 2496838393455184400,
        "transmissionRouteIds": [
         "p28>p30",
         "p29>p30"
@@ -2065,23 +2065,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273202256.0413175,
-       "shaftWattsPerNewton": 2159542143.2392516,
-       "wattsPerNewton": 2273202256.0413175,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31493.936197150302,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2093,10 +2093,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548377165.7131954,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2104,12 +2104,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1096726383407041200,
-       "cost": 7486.505199890609,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -2128,7 +2128,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500,
+       "pathCapacityW": 2496838393455184400,
        "transmissionRouteIds": [
         "p28>p31",
         "p29>p31"
@@ -2139,23 +2139,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273202256.0413175,
-       "shaftWattsPerNewton": 2159542143.2392516,
-       "wattsPerNewton": 2273202256.0413175,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31493.936197150302,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2167,10 +2167,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548377165.7131954,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2178,12 +2178,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1096726383407041200,
-       "cost": 7486.505199890609,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -2208,28 +2208,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500
+       "pathCapacityW": 2496838393455184400
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 39.888297476215584,
+       "densityFactor": 39.94739806021414,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2273202256.0413175,
-       "shaftWattsPerNewton": 2159542143.2392516,
-       "wattsPerNewton": 2273202256.0413175,
-       "ratedShaftPowerW": 1184243599747740200,
-       "ratedWasteHeatW": 62328610513039016,
+       "profileWattsPerNewton": 2273491832.0448794,
+       "shaftWattsPerNewton": 2159817240.4426355,
+       "wattsPerNewton": 2273491832.0448794,
+       "ratedShaftPowerW": 1185998236891212500,
+       "ratedWasteHeatW": 62420959836379660,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 31493.936197150302,
+       "conversionMassKg": 31536.582046315973,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2493144420521558500,
-       "sourceInputLimitW": 2493144420521558500,
+       "availableInputW": 2496838393455184400,
+       "sourceInputLimitW": 2496838393455184400,
        "sourceIds": [
         "p28",
         "p29"
@@ -2241,10 +2241,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1246572210260779300,
+       "ratedInputW": 1248419196727592200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 548377165.7131954,
+       "ratedThrustN": 549119719.3370643,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2252,12 +2252,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 2493144420521558500,
-       "maxRatedInputW": 2493144420521558500,
-       "inputDensityWPerM3": 13562021141913299000,
+       "maxInputW": 2496838393455184400,
+       "maxRatedInputW": 2496838393455184400,
+       "inputDensityWPerM3": 13582115340472807000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 1096726383407041200,
-       "cost": 7486.505199890609,
+       "costBasisInputW": 1098211457474315400,
+       "cost": 7507.37832046289,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -2282,22 +2282,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2493144420521558500
+       "pathCapacityW": 2496838393455184400
       }
      ],
-     "massKg": 31493.936197150302,
-     "ratedThrustN": 1096726384.7603838,
-     "ratedAccelMps2": 34823.41419297153,
-     "structuralAccelerationLimitMps2": 293953.2036478114,
+     "massKg": 31536.582046315973,
+     "ratedThrustN": 1098211454.1657395,
+     "ratedAccelMps2": 34823.41404508768,
+     "structuralAccelerationLimitMps2": 293953.2036478113,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34823.41419297153,
+     "accelerationLimitMps2": 34823.41404508768,
      "conversionModelVersion": 1,
-     "conversionMassKg": 31493.936197150302,
+     "conversionMassKg": 31536.582046315973,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2493144420521558500,[[\"main\",2493144420521558500,[[9,1246572210260779300],[10,1246572210260779300]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.23803156898210476,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.23803156898210476,0.5]]]"
+     "sourceBudgetKey": "[2496838393455184400,[[\"main\",2496838393455184400,[[9,1248419196727592200],[10,1248419196727592200]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.23838424898167912,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.23838424898167912,0.5]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1672.6843386451187,
+    "maxSpeed": 1672.5034746534989,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -2308,7 +2308,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p28",
        "n": "右舷反応炉 #28",
        "g": "high",
-       "sh": 0.519071,
+       "sh": 0.518521,
        "m": [
         9
        ],
@@ -2322,7 +2322,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p29",
        "n": "左舷反応炉 #29",
        "g": "high",
-       "sh": 0.480929,
+       "sh": 0.481479,
        "m": [
         10
        ],
@@ -2380,7 +2380,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f39",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.796683,
+       "sh": 0.962929,
        "m": [
         0,
         1,
@@ -2396,7 +2396,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f41",
        "n": "武装（艦尾区画）",
        "g": "high",
-       "sh": 0.203317,
+       "sh": 0.0370712,
        "m": [
         2,
         3
@@ -2423,7 +2423,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>hotel",
        "n": "送電損失 p28>hotel",
        "g": "high",
-       "sh": 0.00914426,
+       "sh": 0.00913912,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2436,7 +2436,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p9",
        "n": "送電損失 p28>p9",
        "g": "high",
-       "sh": 0.000238948,
+       "sh": 0.000237267,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2449,7 +2449,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p10",
        "n": "送電損失 p29>p10",
        "g": "high",
-       "sh": 0.000244479,
+       "sh": 0.00024276,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2462,7 +2462,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p11",
        "n": "送電損失 p28>p11",
        "g": "high",
-       "sh": 0.000296401,
+       "sh": 0.000294316,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2475,7 +2475,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p12",
        "n": "送電損失 p29>p12",
        "g": "high",
-       "sh": 0.000296401,
+       "sh": 0.000294316,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2488,7 +2488,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p13",
        "n": "送電損失 p28>p13",
        "g": "high",
-       "sh": 0.000157557,
+       "sh": 0.000156449,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2501,7 +2501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p14",
        "n": "送電損失 p29>p14",
        "g": "high",
-       "sh": 0.000146415,
+       "sh": 0.000145385,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2514,7 +2514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p15",
        "n": "送電損失 p28>p15",
        "g": "high",
-       "sh": 0.000151156,
+       "sh": 0.000150093,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2527,7 +2527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p16",
        "n": "送電損失 p29>p16",
        "g": "high",
-       "sh": 0.000159137,
+       "sh": 0.000158018,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2849,8 +2849,8 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p28>p60",
-       "n": "送電損失 p28>p60",
+       "id": "feed:p29>p60",
+       "n": "送電損失 p29>p60",
        "g": "high",
        "sh": 0,
        "m": [],
@@ -2858,14 +2858,14 @@ const CRAFT_PRICE_CATALOG={
        "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p28>p60"
+       "routeId": "p29>p60"
       },
       {
        "k": "feed",
        "id": "feed:p28>p32",
        "n": "送電損失 p28>p32",
        "g": "high",
-       "sh": 0.427016,
+       "sh": 0.424589,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2878,7 +2878,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f39",
        "n": "送電損失 p28>f39",
        "g": "high",
-       "sh": 0.0000358847,
+       "sh": 0.00128276,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2891,7 +2891,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f40",
        "n": "送電損失 p28>f40",
        "g": "high",
-       "sh": 0.0000553727,
+       "sh": 0.0019794,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2904,7 +2904,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f41",
        "n": "送電損失 p28>f41",
        "g": "high",
-       "sh": 0.0000789215,
+       "sh": 0.0000470199,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -2917,7 +2917,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f42",
        "n": "送電損失 p28>f42",
        "g": "high",
-       "sh": 0.0000768237,
+       "sh": 0.00004577,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -2930,7 +2930,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f43",
        "n": "送電損失 p28>f43",
        "g": "high",
-       "sh": 0.000372652,
+       "sh": 0.000370031,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2943,7 +2943,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p32",
        "n": "送電損失 p29>p32",
        "g": "high",
-       "sh": 0.253742,
+       "sh": 0.252308,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2956,7 +2956,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f39",
        "n": "送電損失 p29>f39",
        "g": "high",
-       "sh": 0.0000442982,
+       "sh": 0.00158352,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2969,7 +2969,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f40",
        "n": "送電損失 p29>f40",
        "g": "high",
-       "sh": 0.0000287078,
+       "sh": 0.00102621,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2982,7 +2982,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f41",
        "n": "送電損失 p29>f41",
        "g": "high",
-       "sh": 0.0000631372,
+       "sh": 0.0000376159,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -2995,7 +2995,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f42",
        "n": "送電損失 p29>f42",
        "g": "high",
-       "sh": 0.000061459,
+       "sh": 0.000036616,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -3008,7 +3008,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f43",
        "n": "送電損失 p29>f43",
        "g": "high",
-       "sh": 0.000298122,
+       "sh": 0.000296025,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3021,7 +3021,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p37",
        "n": "送電損失 p28>p37",
        "g": "high",
-       "sh": 0.00126859,
+       "sh": 0.00125967,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3034,7 +3034,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p37",
        "n": "送電損失 p29>p37",
        "g": "high",
-       "sh": 3.89001e-8,
+       "sh": 3.86265e-8,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3047,7 +3047,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p30",
        "n": "送電損失 p28>p30",
        "g": "high",
-       "sh": 0.0179637,
+       "sh": 0.0178638,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3060,7 +3060,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p31",
        "n": "送電損失 p28>p31",
        "g": "high",
-       "sh": 0.103929,
+       "sh": 0.103351,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3073,7 +3073,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p30",
        "n": "送電損失 p29>p30",
        "g": "high",
-       "sh": 0.156995,
+       "sh": 0.156121,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3086,7 +3086,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p31",
        "n": "送電損失 p29>p31",
        "g": "high",
-       "sh": 0.0271359,
+       "sh": 0.0269849,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3103,7 +3103,7 @@ const CRAFT_PRICE_CATALOG={
        "g": "high",
        "cap": 670336475097450800,
        "m": 18,
-       "sec": 4,
+       "sec": 3,
        "src": -1,
        "power": 10055047126461760
       },
@@ -3200,7 +3200,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 961145667161412300000,
+       "cap": 961145666862673300000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -3210,494 +3210,494 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 46862585562774424,
+       "cap": 46932019616110310,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 6475302916154856,
+       "cap": 6484897063013103,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 6625194187362145,
+       "cap": 6635010420953221,
        "sec": 3
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 3936026843358550,
+       "cap": 3941858666218754,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 3936026843358550.5,
+       "cap": 3941858666218755,
        "sec": 4
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 4078979440493849,
+       "cap": 4085023069385129,
        "sec": 4
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 3790508475819602.5,
+       "cap": 3796124691069349.5,
        "sec": 4
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 3928793969311385.5,
+       "cap": 3934615075567793,
        "sec": 4
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 4136234290891026.5,
+       "cap": 4142362751557773,
        "sec": 4
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 46862585562774400,
+       "cap": 46932019616110300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 6475302916154854,
+       "cap": 6484897063013102,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 6625194187362142,
+       "cap": 6635010420953220,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 3936026843358548.5,
+       "cap": 3941858666218753.5,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 3936026843358549,
+       "cap": 3941858666218754,
        "sec": 4
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 4078979440493847.5,
+       "cap": 4085023069385129,
        "sec": 4
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 3790508475819601,
+       "cap": 3796124691069349,
        "sec": 4
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 3928793969311384,
+       "cap": 3934615075567793,
        "sec": 4
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 4136234290891025,
+       "cap": 4142362751557772,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 692045512659946600,
+       "cap": 693036285311534700,
        "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 95624350906461870,
+       "cap": 95761252295129000,
        "sec": 1
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 97837877547815150,
+       "cap": 97977947950108830,
        "sec": 1
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 58125467938737320,
+       "cap": 58208683743104180,
        "sec": 3
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 58125467938737330,
+       "cap": 58208683743104184,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 60236527373092440,
+       "cap": 60322765493065960,
        "sec": 2
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 55976518365094390,
+       "cap": 56056657608124940,
        "sec": 2
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 58018656119289810,
+       "cap": 58101719005636616,
        "sec": 2
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 61082041162388310,
+       "cap": 61169489769134230,
        "sec": 2
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 20083453476746804,
+       "cap": 20113210169919576,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 2775059107445880.5,
+       "cap": 2779170779897642,
        "sec": 1
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 2839296586784906,
+       "cap": 2843503436839717.5,
        "sec": 1
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 1686825663640102,
+       "cap": 1689324952607859,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 1686825663640102.2,
+       "cap": 1689324952607859.2,
        "sec": 2
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 1748089501293727,
+       "cap": 1750679561961767.2,
        "sec": 2
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 1624462238118781.5,
+       "cap": 1626869126179464,
        "sec": 2
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 1683725939463876,
+       "cap": 1686220635718465.5,
        "sec": 2
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 1772626669067568.8,
+       "cap": 1775253085284400.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 20083453476746804,
+       "cap": 20113210169919576,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2775059107445880.5,
+       "cap": 2779170779897642,
        "sec": 1
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2839296586784906,
+       "cap": 2843503436839717.5,
        "sec": 1
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 1686825663640102,
+       "cap": 1689324952607859,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 1686825663640102.2,
+       "cap": 1689324952607859.2,
        "sec": 2
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 1748089501293727,
+       "cap": 1750679561961767.2,
        "sec": 2
       },
       {
        "s": 4,
        "d": 6,
-       "cap": 1624462238118781.5,
+       "cap": 1626869126179464,
        "sec": 2
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 1683725939463876,
+       "cap": 1686220635718465.5,
        "sec": 2
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 1772626669067568.8,
+       "cap": 1775253085284400.5,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 229288425533652.66,
+       "cap": 911969725044633.8,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 31682246992321.453,
+       "cap": 126012684727266.84,
        "sec": 4
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 32415632339365.934,
+       "cap": 128929645021879.52,
        "sec": 4
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 19258122165772.46,
+       "cap": 76597082192523.44,
        "sec": 4
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 19258122165772.465,
+       "cap": 76597082192523.44,
        "sec": 4
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 19957558091671.02,
+       "cap": 79379012364286.19,
        "sec": 4
       },
       {
        "s": 5,
        "d": 6,
-       "cap": 18546132484056.38,
+       "cap": 73765220825086.31,
        "sec": 4
       },
       {
        "s": 5,
        "d": 7,
-       "cap": 19222733288218.195,
+       "cap": 76456326788679.17,
        "sec": 4
       },
       {
        "s": 5,
        "d": 8,
-       "cap": 20237693605836.117,
+       "cap": 80493220843121.44,
        "sec": 4
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 58515539958084.1,
+       "cap": 35109323974850.453,
        "sec": 0
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 8085466091566.749,
+       "cap": 4851279654940.049,
        "sec": 0
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 8272629658501.164,
+       "cap": 4963577795100.698,
        "sec": 0
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 4914768002292.94,
+       "cap": 2948860801375.764,
        "sec": 0
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 4914768002292.941,
+       "cap": 2948860801375.7646,
        "sec": 0
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 5093267509081.3,
+       "cap": 3055960505448.78,
        "sec": 0
       },
       {
        "s": 6,
        "d": 6,
-       "cap": 4733064714945.423,
+       "cap": 2839838828967.2534,
        "sec": 0
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 4905736585753.799,
+       "cap": 2943441951452.2783,
        "sec": 0
       },
       {
        "s": 6,
        "d": 8,
-       "cap": 5164759477481.599,
+       "cap": 3098855686488.9585,
        "sec": 0
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 7,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 8,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 6,
-       "cap": 80942319215440020,
+       "cap": 81319941215440000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 80942319215440020,
-       "sec": 4
+       "cap": 81319941215440000,
+       "sec": 3
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 80942319215440020,
-       "sec": 4
+       "cap": 81319941215440000,
+       "sec": 3
       },
       {
        "s": 7,
        "d": 9,
-       "cap": 961145667161412300000,
+       "cap": 961145666862673300000,
        "sec": -1
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 1340786523430.7878,
+       "cap": 1347041724584.629,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 185265042055.407,
+       "cap": 186129363171.84103,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 189553584695.5785,
+       "cap": 190437913245.2633,
        "sec": 3
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 112613755388.45813,
+       "cap": 113139134843.22903,
        "sec": 4
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 112613755388.45815,
+       "cap": 113139134843.22905,
        "sec": 4
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 116703775463.67766,
-       "sec": 4
+       "cap": 117248236179.96683,
+       "sec": 3
       },
       {
        "s": 8,
        "d": 6,
-       "cap": 108450325996.65662,
-       "sec": 4
+       "cap": 108956281711.79378,
+       "sec": 3
       },
       {
        "s": 8,
        "d": 7,
-       "cap": 112406815461.18674,
-       "sec": 4
+       "cap": 112931229474.5177,
+       "sec": 3
       },
       {
        "s": 8,
        "d": 8,
-       "cap": 118341895317.53738,
-       "sec": 4
+       "cap": 118893998390.77222,
+       "sec": 3
       },
       {
        "s": 9,
@@ -3937,13 +3937,13 @@ const CRAFT_PRICE_CATALOG={
        "s": 13,
        "d": 3,
        "cap": 1389002523.7188523,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 13,
        "d": 4,
        "cap": 1389002523.7188525,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 13,
@@ -3991,13 +3991,13 @@ const CRAFT_PRICE_CATALOG={
        "s": 14,
        "d": 3,
        "cap": 1290770379.1842804,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 14,
        "d": 4,
        "cap": 1290770379.1842804,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 14,
@@ -4045,13 +4045,13 @@ const CRAFT_PRICE_CATALOG={
        "s": 15,
        "d": 3,
        "cap": 1332568455.5166757,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 15,
        "d": 4,
        "cap": 1332568455.516676,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 15,
@@ -4099,13 +4099,13 @@ const CRAFT_PRICE_CATALOG={
        "s": 16,
        "d": 3,
        "cap": 1402928069.9679565,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 16,
        "d": 4,
        "cap": 1402928069.9679565,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 16,
@@ -4134,1351 +4134,1351 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 17,
        "d": 0,
-       "cap": 40859746861.91947,
+       "cap": 41050370746.6691,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 5645852332.537677,
+       "cap": 5672192052.849407,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 5776543358.753827,
+       "cap": 5803492794.813514,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 3431843517.1682606,
+       "cap": 3447854172.968606,
        "sec": 4
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 3431843517.168261,
+       "cap": 3447854172.9686065,
        "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 3556484675.1849904,
+       "cap": 3573076822.148782,
        "sec": 4
       },
       {
        "s": 17,
        "d": 6,
-       "cap": 3304965249.7829404,
+       "cap": 3320383977.583804,
        "sec": 4
       },
       {
        "s": 17,
        "d": 7,
-       "cap": 3425537134.3875794,
+       "cap": 3441518368.880239,
        "sec": 4
       },
       {
        "s": 17,
        "d": 8,
-       "cap": 3606405495.0832434,
+       "cap": 3623230538.7571163,
        "sec": 4
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 46555128475.7415,
+       "cap": 46772323150.85915,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 6432819605.677037,
+       "cap": 6462830781.890921,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 6581727466.919561,
+       "cap": 6612433346.286545,
        "sec": 3
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 3910203271.45765,
+       "cap": 3928445629.6466246,
        "sec": 3
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 3910203271.4576507,
+       "cap": 3928445629.6466255,
        "sec": 3
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 4052217982.034383,
+       "cap": 4071122884.607521,
        "sec": 3
       },
       {
        "s": 18,
        "d": 6,
-       "cap": 3765639624.040438,
+       "cap": 3783207546.2335806,
        "sec": 3
       },
       {
        "s": 18,
        "d": 7,
-       "cap": 3903017851.0103827,
+       "cap": 3921226686.8977175,
        "sec": 3
       },
       {
        "s": 18,
        "d": 8,
-       "cap": 4109097193.5437303,
+       "cap": 4128267455.965917,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 86082535166.18839,
+       "cap": 86484137929.85522,
        "sec": 3
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 11894573982.58463,
+       "cap": 11950066002.828033,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 12169911343.292608,
+       "cap": 12226687901.041647,
        "sec": 3
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 7230142449.238228,
+       "cap": 7263873393.427003,
        "sec": 3
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 7230142449.238229,
+       "cap": 7263873393.427004,
        "sec": 3
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 7492734063.04309,
+       "cap": 7527690081.721321,
        "sec": 3
       },
       {
        "s": 19,
        "d": 6,
-       "cap": 6962837736.095204,
+       "cap": 6995321617.6674795,
        "sec": 3
       },
       {
        "s": 19,
        "d": 7,
-       "cap": 7216856282.309098,
+       "cap": 7250525242.248142,
        "sec": 3
       },
       {
        "s": 19,
        "d": 8,
-       "cap": 7597906294.0150175,
+       "cap": 7633352975.038843,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 71662744261.58708,
+       "cap": 71997074054.40561,
        "sec": 3
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 9902099325.593464,
+       "cap": 9948295809.556034,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 10131314587.759981,
+       "cap": 10178580434.777239,
        "sec": 3
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 6019012431.66589,
+       "cap": 6047093064.077976,
        "sec": 3
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 6019012431.665891,
+       "cap": 6047093064.077977,
        "sec": 3
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 6237617002.604766,
+       "cap": 6266717495.778036,
        "sec": 3
       },
       {
        "s": 20,
        "d": 6,
-       "cap": 5796484258.431868,
+       "cap": 5823526725.213819,
        "sec": 3
       },
       {
        "s": 20,
        "d": 7,
-       "cap": 6007951846.832731,
+       "cap": 6035980878.05268,
        "sec": 3
       },
       {
        "s": 20,
        "d": 8,
-       "cap": 6325171704.3455,
+       "cap": 6354680668.413862,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 34632456714.813,
+       "cap": 34794028284.497734,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 4785387858.265642,
+       "cap": 4807713234.550008,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 4896160725.355125,
+       "cap": 4919002892.757184,
        "sec": 3
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 2908808330.6534224,
+       "cap": 2922378858.778696,
        "sec": 3
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 2908808330.653423,
+       "cap": 2922378858.778696,
        "sec": 3
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 3014453368.65344,
+       "cap": 3028516764.921439,
        "sec": 3
       },
       {
        "s": 21,
        "d": 6,
-       "cap": 2801267133.2465487,
+       "cap": 2814335947.034491,
        "sec": 3
       },
       {
        "s": 21,
        "d": 7,
-       "cap": 2903463081.466807,
+       "cap": 2917008672.282304,
        "sec": 3
       },
       {
        "s": 21,
        "d": 8,
-       "cap": 3056765932.1682544,
+       "cap": 3071026730.178809,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 61008717379.20444,
+       "cap": 61293342703.72535,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 8429964348.152405,
+       "cap": 8469292848.100684,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 8625102411.767046,
+       "cap": 8665341293.65857,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 5124172010.563887,
+       "cap": 5148077924.080188,
        "sec": 4
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 5124172010.563887,
+       "cap": 5148077924.080188,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 5310276863.561554,
+       "cap": 5335051016.182934,
        "sec": 4
       },
       {
        "s": 22,
        "d": 6,
-       "cap": 4934726873.210666,
+       "cap": 4957748964.119078,
        "sec": 4
       },
       {
        "s": 22,
        "d": 7,
-       "cap": 5114755791.563513,
+       "cap": 5138617775.384126,
        "sec": 4
       },
       {
        "s": 22,
        "d": 8,
-       "cap": 5384814897.358066,
+       "cap": 5409936793.924408,
        "sec": 4
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 67034589569.01222,
+       "cap": 67347327528.92724,
        "sec": 3
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 9262597616.13056,
+       "cap": 9305810618.561197,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 9477009597.985434,
+       "cap": 9521222901.398264,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 5630289938.307329,
+       "cap": 5656557055.035532,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 5630289938.307329,
+       "cap": 5656557055.035532,
        "sec": 3
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 5834776493.236156,
+       "cap": 5861997605.631814,
        "sec": 3
       },
       {
        "s": 23,
        "d": 6,
-       "cap": 5422133176.882822,
+       "cap": 5447429175.247669,
        "sec": 3
       },
       {
        "s": 23,
        "d": 7,
-       "cap": 5619943673.001363,
+       "cap": 5646162521.068187,
        "sec": 3
       },
       {
        "s": 23,
        "d": 8,
-       "cap": 5916676698.935835,
+       "cap": 5944279902.180587,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 67034589569.01222,
+       "cap": 67347327528.92724,
        "sec": 3
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 9262597616.13056,
+       "cap": 9305810618.561197,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 9477009597.985434,
+       "cap": 9521222901.398264,
        "sec": 3
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 5630289938.307329,
+       "cap": 5656557055.035532,
        "sec": 3
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 5630289938.307329,
+       "cap": 5656557055.035532,
        "sec": 3
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 5834776493.236156,
+       "cap": 5861997605.631814,
        "sec": 3
       },
       {
        "s": 24,
        "d": 6,
-       "cap": 5422133176.882822,
+       "cap": 5447429175.247669,
        "sec": 3
       },
       {
        "s": 24,
        "d": 7,
-       "cap": 5619943673.001363,
+       "cap": 5646162521.068187,
        "sec": 3
       },
       {
        "s": 24,
        "d": 8,
-       "cap": 5916676698.935835,
+       "cap": 5944279902.180587,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 53830415856.82619,
+       "cap": 54081552091.78606,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 7438092554.85089,
+       "cap": 7472793653.287072,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 7610270623.250217,
+       "cap": 7645774987.853903,
        "sec": 4
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 4521260601.760909,
+       "cap": 4542353739.287817,
        "sec": 4
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 4521260601.76091,
+       "cap": 4542353739.287818,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 4685468309.449135,
+       "cap": 4707327528.842656,
        "sec": 4
       },
       {
        "s": 25,
        "d": 6,
-       "cap": 4354105628.441418,
+       "cap": 4374418934.1578865,
        "sec": 4
       },
       {
        "s": 25,
        "d": 7,
-       "cap": 4512952297.532212,
+       "cap": 4534006674.14283,
        "sec": 4
       },
       {
        "s": 25,
        "d": 8,
-       "cap": 4751236178.841913,
+       "cap": 4773402226.53757,
        "sec": 4
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 39652391063.421524,
+       "cap": 39837382244.34255,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 5479024266.417047,
+       "cap": 5504585680.045756,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 5605853531.843368,
+       "cap": 5632006644.86163,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 3330436717.366172,
+       "cap": 3345974277.7706103,
        "sec": 4
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 3330436717.3661723,
+       "cap": 3345974277.770611,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 3451394880.836422,
+       "cap": 3467496750.0480294,
        "sec": 4
       },
       {
        "s": 26,
        "d": 6,
-       "cap": 3207307548.386887,
+       "cap": 3222270671.543926,
        "sec": 4
       },
       {
        "s": 26,
        "d": 7,
-       "cap": 3324316680.52257,
+       "cap": 3339825688.983163,
        "sec": 4
       },
       {
        "s": 26,
        "d": 8,
-       "cap": 3499840601.254162,
+       "cap": 3516168485.361474,
        "sec": 4
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 43368342477.98369,
+       "cap": 43570669769.59034,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 5992481019.646597,
+       "cap": 6020437874.472784,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 6131195858.0643425,
+       "cap": 6159799862.307801,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 3642542512.2276316,
+       "cap": 3659536146.7303843,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 3642542512.227632,
+       "cap": 3659536146.730385,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 3774836049.0914106,
+       "cap": 3792446875.5706453,
        "sec": 4
       },
       {
        "s": 27,
        "d": 6,
-       "cap": 3507874518.03827,
+       "cap": 3524239882.9560313,
        "sec": 4
       },
       {
        "s": 27,
        "d": 7,
-       "cap": 3635848947.3077583,
+       "cap": 3652811354.173391,
        "sec": 4
       },
       {
        "s": 27,
        "d": 8,
-       "cap": 3827821771.725608,
+       "cap": 3845679793.6737456,
        "sec": 4
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 45933119429.469406,
+       "cap": 46147412231.96531,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 6346872640.889848,
+       "cap": 6376482846.819565,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 6493790989.058595,
+       "cap": 6524086616.421869,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 3857960223.5434604,
+       "cap": 3875958851.0804014,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 3857960223.543461,
+       "cap": 3875958851.080402,
        "sec": 3
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 3998077518.3558164,
+       "cap": 4016729838.221004,
        "sec": 3
       },
       {
        "s": 28,
        "d": 6,
-       "cap": 3715328047.467852,
+       "cap": 3732661249.9451203,
        "sec": 3
       },
       {
        "s": 28,
        "d": 7,
-       "cap": 3850870805.3340945,
+       "cap": 3868836358.450769,
        "sec": 3
       },
       {
        "s": 28,
        "d": 8,
-       "cap": 4054196783.8557343,
+       "cap": 4073110918.17697,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 84165689388.45354,
+       "cap": 84558349448.93007,
        "sec": 3
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 11629711152.134119,
+       "cap": 11683967501.930597,
        "sec": 3
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 11898917428.803892,
+       "cap": 11954429712.623436,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 7069145006.499257,
+       "cap": 7102124845.741805,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 7069145006.499258,
+       "cap": 7102124845.741806,
        "sec": 3
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 7325889352.618302,
+       "cap": 7360066986.962473,
        "sec": 3
       },
       {
        "s": 29,
        "d": 6,
-       "cap": 6807792510.141761,
+       "cap": 6839553055.777007,
        "sec": 3
       },
       {
        "s": 29,
        "d": 7,
-       "cap": 7056154689.743815,
+       "cap": 7089073924.97302,
        "sec": 3
       },
       {
        "s": 29,
        "d": 8,
-       "cap": 7428719657.362288,
+       "cap": 7463377028.211596,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 39951103084.14661,
+       "cap": 40137487852.89393,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 5520299215.198961,
+       "cap": 5546053189.763163,
        "sec": 3
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 5648083919.254494,
+       "cap": 5674434050.63731,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 3355525784.0040517,
+       "cap": 3371180392.988439,
        "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 3355525784.004052,
+       "cap": 3371180392.988439,
        "sec": 4
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 3477395157.52909,
+       "cap": 3493618326.409158,
        "sec": 4
       },
       {
        "s": 30,
        "d": 6,
-       "cap": 3231469050.207372,
+       "cap": 3246544894.555611,
        "sec": 4
       },
       {
        "s": 30,
        "d": 7,
-       "cap": 3349359643.293232,
+       "cap": 3364985485.2443776,
        "sec": 4
       },
       {
        "s": 30,
        "d": 8,
-       "cap": 3526205832.459114,
+       "cap": 3542656718.865281,
        "sec": 4
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 41660562809.15544,
+       "cap": 41854922758.33414,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 5756506189.472099,
+       "cap": 5783362145.680804,
        "sec": 3
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 5889758647.561732,
+       "cap": 5917236269.423416,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 3499104702.7613626,
+       "cap": 3515429153.6650887,
        "sec": 4
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 3499104702.761363,
+       "cap": 3515429153.665089,
        "sec": 4
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 3626188720.430627,
+       "cap": 3643106059.2252045,
        "sec": 4
       },
       {
        "s": 31,
        "d": 6,
-       "cap": 3369739730.3011627,
+       "cap": 3385460651.9249783,
        "sec": 4
       },
       {
        "s": 31,
        "d": 7,
-       "cap": 3492674720.2942414,
+       "cap": 3508969173.257919,
        "sec": 4
       },
       {
        "s": 31,
        "d": 8,
-       "cap": 3677087945.5257773,
+       "cap": 3694242745.605937,
        "sec": 4
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 38012978387.69358,
+       "cap": 38190321180.238365,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 5252496140.569141,
+       "cap": 5277000727.499925,
        "sec": 3
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 5374081699.378612,
+       "cap": 5399153522.117978,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 3192741107.499241,
+       "cap": 3207636273.516007,
        "sec": 4
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 3192741107.4992414,
+       "cap": 3207636273.5160074,
        "sec": 4
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 3308698302.7779703,
+       "cap": 3324134446.4739037,
        "sec": 4
       },
       {
        "s": 32,
        "d": 6,
-       "cap": 3074702666.0892878,
+       "cap": 3089047144.743076,
        "sec": 4
       },
       {
        "s": 32,
        "d": 7,
-       "cap": 3186874101.197007,
+       "cap": 3201741895.738934,
        "sec": 4
       },
       {
        "s": 32,
        "d": 8,
-       "cap": 3355141053.740209,
+       "cap": 3370793867.83395,
        "sec": 4
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 34378182040.35697,
+       "cap": 34538567336.75416,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 4750253101.588509,
+       "cap": 4772414562.912017,
        "sec": 3
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 4860212664.125279,
+       "cap": 4882887122.238685,
        "sec": 3
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 2887451593.0294485,
+       "cap": 2900922485.0922375,
        "sec": 4
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 2887451593.029449,
+       "cap": 2900922485.092238,
        "sec": 4
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 2992320975.468367,
+       "cap": 3006281116.9907618,
        "sec": 4
       },
       {
        "s": 33,
        "d": 6,
-       "cap": 2780699972.9599967,
+       "cap": 2793672834.3181477,
        "sec": 4
       },
       {
        "s": 33,
        "d": 7,
-       "cap": 2882145589.152746,
+       "cap": 2895591726.997774,
        "sec": 4
       },
       {
        "s": 33,
        "d": 8,
-       "cap": 3034322876.260011,
+       "cap": 3048478970.1832566,
        "sec": 4
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 34378182040.35697,
+       "cap": 34538567336.75416,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 4750253101.588509,
+       "cap": 4772414562.912017,
        "sec": 3
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 4860212664.125279,
+       "cap": 4882887122.238685,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 2887451593.0294485,
+       "cap": 2900922485.0922375,
        "sec": 4
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 2887451593.029449,
+       "cap": 2900922485.092238,
        "sec": 4
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 2992320975.468367,
+       "cap": 3006281116.9907618,
        "sec": 4
       },
       {
        "s": 34,
        "d": 6,
-       "cap": 2780699972.9599967,
+       "cap": 2793672834.3181477,
        "sec": 4
       },
       {
        "s": 34,
        "d": 7,
-       "cap": 2882145589.152746,
+       "cap": 2895591726.997774,
        "sec": 4
       },
       {
        "s": 34,
        "d": 8,
-       "cap": 3034322876.260011,
+       "cap": 3048478970.1832566,
        "sec": 4
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 40046962546.90471,
+       "cap": 40233794530.93318,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 5533544729.74504,
-       "sec": 4
+       "cap": 5559360498.902507,
+       "sec": 3
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 5661636042.933582,
-       "sec": 4
+       "cap": 5688049399.340065,
+       "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 3363577098.588485,
+       "cap": 3379269269.549666,
        "sec": 4
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 3363577098.5884852,
+       "cap": 3379269269.5496664,
        "sec": 4
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 3485738887.8860784,
+       "cap": 3502000982.95674,
        "sec": 4
       },
       {
        "s": 35,
        "d": 6,
-       "cap": 3239222700.6239796,
+       "cap": 3254334718.249757,
        "sec": 4
       },
       {
        "s": 35,
        "d": 7,
-       "cap": 3357396162.718328,
+       "cap": 3373059497.6220818,
        "sec": 4
       },
       {
        "s": 35,
        "d": 8,
-       "cap": 3534666680.109855,
+       "cap": 3551157039.0965276,
        "sec": 4
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 41011430307.23737,
+       "cap": 41202761844.13415,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 5666811403.489572,
+       "cap": 5693248904.620627,
        "sec": 3
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 5797987593.385163,
+       "cap": 5825037073.709067,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 3444583533.6503773,
+       "cap": 3460653625.732641,
        "sec": 4
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 3444583533.6503778,
+       "cap": 3460653625.7326417,
        "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 3569687396.449403,
+       "cap": 3586341138.3620124,
        "sec": 4
       },
       {
        "s": 36,
        "d": 6,
-       "cap": 3317234256.672217,
+       "cap": 3332710223.3434825,
        "sec": 4
       },
       {
        "s": 36,
        "d": 7,
-       "cap": 3438253739.7146807,
+       "cap": 3454294301.268678,
        "sec": 4
       },
       {
        "s": 36,
        "d": 8,
-       "cap": 3619793537.171616,
+       "cap": 3636681040.375664,
        "sec": 4
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 40776585306.93813,
+       "cap": 42213317997.635216,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 5634361369.053357,
+       "cap": 5832883906.170814,
        "sec": 3
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 5764786400.744408,
+       "cap": 5967904366.961804,
        "sec": 3
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 3424858710.23089,
+       "cap": 3545531062.5862536,
        "sec": 4
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 3424858710.2308903,
+       "cap": 3545531062.586254,
        "sec": 4
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 3549246186.976652,
-       "sec": 4
+       "cap": 3674301239.6687098,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 6,
-       "cap": 3298238677.2894773,
-       "sec": 4
+       "cap": 3414449666.8491406,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 7,
-       "cap": 3418565162.7866616,
-       "sec": 4
+       "cap": 3539015766.6732526,
+       "sec": 3
       },
       {
        "s": 37,
        "d": 8,
-       "cap": 3599065403.3817973,
-       "sec": 4
+       "cap": 3725875799.1536007,
+       "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 38037740504.716484,
+       "cap": 37817714280.11265,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 5255917680.517118,
+       "cap": 5225515251.016099,
        "sec": 3
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 5377582441.640201,
+       "cap": 5346476252.197027,
        "sec": 3
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 3194820897.9361124,
+       "cap": 3176340715.5927067,
        "sec": 4
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 3194820897.936113,
+       "cap": 3176340715.592707,
        "sec": 4
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 3310853629.1439095,
+       "cap": 3291702264.878566,
        "sec": 4
       },
       {
        "s": 38,
        "d": 6,
-       "cap": 3076705564.8480177,
+       "cap": 3058908611.0682006,
        "sec": 4
       },
       {
        "s": 38,
        "d": 7,
-       "cap": 3188950069.7945285,
+       "cap": 3170503846.7803082,
        "sec": 4
       },
       {
        "s": 38,
        "d": 8,
-       "cap": 3357326633.479679,
+       "cap": 3337906449.890309,
        "sec": 4
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 38050017874.991806,
+       "cap": 42472007589.04112,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 5257614123.224916,
-       "sec": 3
+       "cap": 5868628700.135835,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 5379318153.8551235,
-       "sec": 3
+       "cap": 6004476586.713053,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 3195852084.2948933,
+       "cap": 3567258612.6913824,
        "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 3195852084.2948937,
+       "cap": 3567258612.691383,
        "sec": 4
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 3311922267.1700654,
+       "cap": 3696817912.877041,
        "sec": 4
       },
       {
        "s": 39,
        "d": 6,
-       "cap": 3077698627.341914,
+       "cap": 3435373930.353912,
        "sec": 4
       },
       {
        "s": 39,
        "d": 7,
-       "cap": 3189979361.2371035,
+       "cap": 3560703390.0605216,
        "sec": 4
       },
       {
        "s": 39,
        "d": 8,
-       "cap": 3358410271.5104227,
+       "cap": 3748708529.0557175,
        "sec": 4
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 42274782108.91812,
+       "cap": 39025013968.577354,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 5841376795.204772,
-       "sec": 4
+       "cap": 5392335564.0548725,
+       "sec": 3
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 5976593850.649327,
-       "sec": 4
+       "cap": 5517158146.556143,
+       "sec": 3
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 3550693483.502799,
+       "cap": 3277742802.667267,
        "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 3550693483.5027995,
+       "cap": 3277742802.6672673,
        "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 3679651154.600641,
+       "cap": 3396787175.338009,
        "sec": 4
       },
       {
        "s": 40,
        "d": 6,
-       "cap": 3419421228.5327034,
+       "cap": 3156561773.970399,
        "sec": 4
       },
       {
        "s": 40,
        "d": 7,
-       "cap": 3544168701.0843062,
+       "cap": 3271719596.5779347,
        "sec": 4
       },
       {
        "s": 40,
        "d": 8,
-       "cap": 3731300808.5015574,
+       "cap": 3444466391.27725,
        "sec": 4
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 40131881741.93555,
+       "cap": 30142009696.97365,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 5545278557.586957,
+       "cap": 4164914098.2230144,
        "sec": 3
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 5673641487.160729,
+       "cap": 4261324146.792991,
        "sec": 3
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 3370709531.1494255,
+       "cap": 2531652017.38899,
        "sec": 4
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 3370709531.149426,
+       "cap": 2531652017.3889904,
        "sec": 4
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 3493130363.334442,
+       "cap": 2623599111.586083,
        "sec": 4
       },
       {
        "s": 41,
        "d": 6,
-       "cap": 3246091440.8921194,
+       "cap": 2438054619.9604764,
        "sec": 4
       },
       {
        "s": 41,
        "d": 7,
-       "cap": 3364515488.664802,
+       "cap": 2526999833.6255784,
        "sec": 4
       },
       {
        "s": 41,
        "d": 8,
-       "cap": 3542161906.466304,
+       "cap": 2660425424.8410087,
        "sec": 4
       },
       {
@@ -5538,217 +5538,217 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 43,
        "d": 0,
-       "cap": 4519494948.5353565,
+       "cap": 162701818147.27277,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 624487498.2537252,
+       "cap": 22481549937.134098,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 638943227.3799689,
+       "cap": 23001956185.67887,
        "sec": 4
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 379596072.6927798,
+       "cap": 13665458616.940067,
        "sec": 4
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 379596072.69277984,
+       "cap": 13665458616.94007,
        "sec": 4
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 393382626.1420672,
+       "cap": 14161774541.114416,
        "sec": 4
       },
       {
        "s": 43,
        "d": 6,
-       "cap": 365562072.6666735,
+       "cap": 13160234616.000242,
        "sec": 4
       },
       {
        "s": 43,
        "d": 7,
-       "cap": 378898523.9483605,
+       "cap": 13640346862.140974,
        "sec": 4
       },
       {
        "s": 43,
        "d": 8,
-       "cap": 398904366.01283395,
+       "cap": 14360557176.462019,
        "sec": 4
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 6973621196.438452,
+       "cap": 251050363071.7842,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 963589804.6847723,
+       "cap": 34689232968.651794,
        "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 985895124.2376605,
+       "cap": 35492224472.55577,
        "sec": 4
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 585720141.024393,
+       "cap": 21085925076.878143,
        "sec": 4
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 585720141.0243931,
+       "cap": 21085925076.878147,
        "sec": 4
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 606992916.5124903,
+       "cap": 21851744994.449646,
        "sec": 4
       },
       {
        "s": 44,
        "d": 6,
-       "cap": 564065553.2513524,
+       "cap": 20306359917.04868,
        "sec": 4
       },
       {
        "s": 44,
        "d": 7,
-       "cap": 584643817.062308,
+       "cap": 21047177414.24308,
        "sec": 4
       },
       {
        "s": 44,
        "d": 8,
-       "cap": 615513010.6031978,
+       "cap": 22158468381.715115,
        "sec": 4
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 9939968420.235369,
+       "cap": 5963981052.14122,
        "sec": 3
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 1373468956.6331878,
+       "cap": 824081373.9799124,
        "sec": 2
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 1405262219.5182152,
+       "cap": 843157331.710929,
        "sec": 2
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 834866067.5534955,
+       "cap": 500919640.53209716,
        "sec": 3
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 834866067.5534956,
+       "cap": 500919640.5320973,
        "sec": 3
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 865187576.3659381,
+       "cap": 519112545.8195627,
        "sec": 3
       },
       {
        "s": 45,
        "d": 6,
-       "cap": 804000336.1703272,
+       "cap": 482400201.7021961,
        "sec": 3
       },
       {
        "s": 45,
        "d": 7,
-       "cap": 833331911.0669729,
+       "cap": 499999146.6401836,
        "sec": 3
       },
       {
        "s": 45,
        "d": 8,
-       "cap": 877331835.9713091,
+       "cap": 526399101.5827853,
        "sec": 3
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 9675765448.562727,
+       "cap": 5805459269.137634,
        "sec": 3
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 1336962343.6842082,
+       "cap": 802177406.2105247,
        "sec": 2
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 1367910546.0843058,
+       "cap": 820746327.6505833,
        "sec": 2
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 812675444.1358948,
+       "cap": 487605266.4815368,
        "sec": 3
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 812675444.1358949,
+       "cap": 487605266.48153687,
        "sec": 3
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 842191011.4810045,
+       "cap": 505314606.8886026,
        "sec": 3
       },
       {
        "s": 46,
        "d": 6,
-       "cap": 782630119.5799434,
+       "cap": 469578071.74796593,
        "sec": 3
       },
       {
        "s": 46,
        "d": 7,
-       "cap": 811182065.3144122,
+       "cap": 486709239.1886473,
        "sec": 3
       },
       {
        "s": 46,
        "d": 8,
-       "cap": 854012478.3630133,
+       "cap": 512407487.01780784,
        "sec": 3
       },
       {
@@ -5862,217 +5862,217 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 49,
        "d": 0,
-       "cap": 6973621196.438452,
+       "cap": 251050363071.7842,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 963589804.6847723,
+       "cap": 34689232968.651794,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 985895124.2376605,
+       "cap": 35492224472.55577,
        "sec": 4
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 585720141.024393,
+       "cap": 21085925076.878143,
        "sec": 4
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 585720141.0243931,
+       "cap": 21085925076.878147,
        "sec": 4
       },
       {
        "s": 49,
        "d": 5,
-       "cap": 606992916.5124903,
+       "cap": 21851744994.449646,
        "sec": 4
       },
       {
        "s": 49,
        "d": 6,
-       "cap": 564065553.2513524,
+       "cap": 20306359917.04868,
        "sec": 4
       },
       {
        "s": 49,
        "d": 7,
-       "cap": 584643817.062308,
+       "cap": 21047177414.24308,
        "sec": 4
       },
       {
        "s": 49,
        "d": 8,
-       "cap": 615513010.6031978,
+       "cap": 22158468381.715115,
        "sec": 4
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 4519494948.5353565,
+       "cap": 162701818147.27277,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 624487498.2537252,
+       "cap": 22481549937.134098,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 638943227.3799689,
+       "cap": 23001956185.67887,
        "sec": 4
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 379596072.6927798,
+       "cap": 13665458616.940067,
        "sec": 4
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 379596072.69277984,
+       "cap": 13665458616.94007,
        "sec": 4
       },
       {
        "s": 50,
        "d": 5,
-       "cap": 393382626.1420672,
+       "cap": 14161774541.114416,
        "sec": 4
       },
       {
        "s": 50,
        "d": 6,
-       "cap": 365562072.6666735,
+       "cap": 13160234616.000242,
        "sec": 4
       },
       {
        "s": 50,
        "d": 7,
-       "cap": 378898523.9483605,
+       "cap": 13640346862.140974,
        "sec": 4
       },
       {
        "s": 50,
        "d": 8,
-       "cap": 398904366.01283395,
+       "cap": 14360557176.462019,
        "sec": 4
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 9939968420.235369,
+       "cap": 5963981052.14122,
        "sec": 3
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 1373468956.6331878,
+       "cap": 824081373.9799124,
        "sec": 2
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 1405262219.5182152,
+       "cap": 843157331.710929,
        "sec": 2
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 834866067.5534955,
+       "cap": 500919640.53209716,
        "sec": 3
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 834866067.5534956,
+       "cap": 500919640.5320973,
        "sec": 3
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 865187576.3659381,
+       "cap": 519112545.8195627,
        "sec": 3
       },
       {
        "s": 51,
        "d": 6,
-       "cap": 804000336.1703272,
+       "cap": 482400201.7021961,
        "sec": 3
       },
       {
        "s": 51,
        "d": 7,
-       "cap": 833331911.0669729,
+       "cap": 499999146.6401836,
        "sec": 3
       },
       {
        "s": 51,
        "d": 8,
-       "cap": 877331835.9713091,
+       "cap": 526399101.5827853,
        "sec": 3
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 9675765448.562727,
+       "cap": 5805459269.137634,
        "sec": 3
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 1336962343.6842082,
+       "cap": 802177406.2105247,
        "sec": 2
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 1367910546.0843058,
+       "cap": 820746327.6505833,
        "sec": 2
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 812675444.1358948,
+       "cap": 487605266.4815368,
        "sec": 3
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 812675444.1358949,
+       "cap": 487605266.48153687,
        "sec": 3
       },
       {
        "s": 52,
        "d": 5,
-       "cap": 842191011.4810045,
+       "cap": 505314606.8886026,
        "sec": 3
       },
       {
        "s": 52,
        "d": 6,
-       "cap": 782630119.5799434,
+       "cap": 469578071.74796593,
        "sec": 3
       },
       {
        "s": 52,
        "d": 7,
-       "cap": 811182065.3144122,
+       "cap": 486709239.1886473,
        "sec": 3
       },
       {
        "s": 52,
        "d": 8,
-       "cap": 854012478.3630133,
+       "cap": 512407487.01780784,
        "sec": 3
       },
       {
@@ -6163,25 +6163,25 @@ const CRAFT_PRICE_CATALOG={
        "s": 54,
        "d": 5,
        "cap": 11589908783.550571,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 54,
        "d": 6,
        "cap": 10770254697.019415,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 54,
        "d": 7,
        "cap": 11163175592.807014,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 54,
        "d": 8,
        "cap": 11752591264.107224,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 55,
@@ -6217,241 +6217,241 @@ const CRAFT_PRICE_CATALOG={
        "s": 55,
        "d": 5,
        "cap": 22519315439.17838,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 55,
        "d": 6,
        "cap": 20926718873.465626,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 55,
        "d": 7,
        "cap": 21690168332.830116,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 55,
        "d": 8,
        "cap": 22835409220.803547,
-       "sec": 4
+       "sec": 3
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 10998986955873.514,
+       "cap": 11015283629174.053,
        "sec": 4
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 1519800315215.4807,
+       "cap": 1522052130707.0789,
        "sec": 3
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 1554980878067.6912,
+       "cap": 1557284818917.8909,
        "sec": 3
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 923813899471.6118,
+       "cap": 925182670374.84,
        "sec": 4
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 923813899471.6119,
+       "cap": 925182670374.8401,
        "sec": 4
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 957365905455.0033,
-       "sec": 4
+       "cap": 958784388761.9539,
+       "sec": 3
       },
       {
        "s": 56,
        "d": 6,
-       "cap": 889659688661.863,
-       "sec": 4
+       "cap": 890977854903.2584,
+       "sec": 3
       },
       {
        "s": 56,
        "d": 7,
-       "cap": 922116291745.8992,
-       "sec": 4
+       "cap": 923482547384.8934,
+       "sec": 3
       },
       {
        "s": 56,
        "d": 8,
-       "cap": 970804031950.0826,
-       "sec": 4
+       "cap": 972242425886.8159,
+       "sec": 3
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 63632381675453.414,
+       "cap": 63726662734214.59,
        "sec": 4
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 8792492810133.123,
+       "cap": 8805520226512.371,
        "sec": 3
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 8996022736293.613,
+       "cap": 9009351713237.193,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.658,
        "sec": 4
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.659,
        "sec": 4
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 5538643962701.267,
-       "sec": 4
+       "cap": 5546850306753.701,
+       "sec": 3
       },
       {
        "s": 57,
        "d": 6,
-       "cap": 5146943541010.937,
-       "sec": 4
+       "cap": 5154569521268.999,
+       "sec": 3
       },
       {
        "s": 57,
        "d": 7,
-       "cap": 5334714556979.749,
-       "sec": 4
+       "cap": 5342618748578.077,
+       "sec": 3
       },
       {
        "s": 57,
        "d": 8,
-       "cap": 5616387485588.28,
-       "sec": 4
+       "cap": 5624709018502.999,
+       "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 63632381675453.414,
+       "cap": 63726662734214.59,
        "sec": 4
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 8792492810133.123,
+       "cap": 8805520226512.371,
        "sec": 3
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 8996022736293.613,
+       "cap": 9009351713237.193,
        "sec": 3
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.658,
        "sec": 4
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 5344535718071.322,
+       "cap": 5352454461214.659,
        "sec": 4
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 5538643962701.267,
-       "sec": 4
+       "cap": 5546850306753.701,
+       "sec": 3
       },
       {
        "s": 58,
        "d": 6,
-       "cap": 5146943541010.937,
-       "sec": 4
+       "cap": 5154569521268.999,
+       "sec": 3
       },
       {
        "s": 58,
        "d": 7,
-       "cap": 5334714556979.749,
-       "sec": 4
+       "cap": 5342618748578.077,
+       "sec": 3
       },
       {
        "s": 58,
        "d": 8,
-       "cap": 5616387485588.28,
-       "sec": 4
+       "cap": 5624709018502.999,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 10998986955873.514,
+       "cap": 11015283629174.053,
        "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 1519800315215.4807,
+       "cap": 1522052130707.0789,
        "sec": 3
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 1554980878067.6912,
+       "cap": 1557284818917.8909,
        "sec": 3
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 923813899471.6118,
+       "cap": 925182670374.84,
        "sec": 4
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 923813899471.6119,
+       "cap": 925182670374.8401,
        "sec": 4
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 957365905455.0033,
-       "sec": 4
+       "cap": 958784388761.9539,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 6,
-       "cap": 889659688661.863,
-       "sec": 4
+       "cap": 890977854903.2584,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 7,
-       "cap": 922116291745.8992,
-       "sec": 4
+       "cap": 923482547384.8934,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 8,
-       "cap": 970804031950.0826,
-       "sec": 4
+       "cap": 972242425886.8159,
+       "sec": 3
       }
      ]
     },
@@ -6465,7 +6465,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 83.63421693225594,
+    "mglt": 83.62517373267494,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -6499,7 +6499,7 @@ const CRAFT_PRICE_CATALOG={
       9.5355
      ],
      "k": "claserH",
-     "gun": 0.19999999991999998,
+     "gun": 0.20000000844799976,
      "aa": 0.2,
      "cycle": 0.18
     },
@@ -6521,7 +6521,7 @@ const CRAFT_PRICE_CATALOG={
       -9.5355
      ],
      "k": "claserH",
-     "gun": 0.19999999991999998,
+     "gun": 0.20000000844799976,
      "aa": 0.2,
      "cycle": 0.18
     },
@@ -6543,7 +6543,7 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "k": "cturret",
-     "gun": 0.30000000008,
+     "gun": 0.29999999155200024,
      "aa": 0.3,
      "cycle": 0.12
     },
@@ -6565,7 +6565,7 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "k": "cturret",
-     "gun": 0.30000000008,
+     "gun": 0.29999999155200024,
      "aa": 0.3,
      "cycle": 0.12
     }
@@ -6573,7 +6573,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "w5cvaz",
+   "signature": "hvz2fn",
    "build": 148673,
    "crew": 1000,
    "total": 149673,
@@ -6619,8 +6619,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 5.999167353415913e-14,
-    "upS": 5.999167353415913e-14,
+    "up": 6.011094127478369e-14,
+    "upS": 6.011094127478369e-14,
     "down": 0.01,
     "T": 0
    },
@@ -6634,8 +6634,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.434,
       "pd": false,
@@ -6656,8 +6656,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.434,
       "pd": false,
@@ -7293,7 +7293,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 4422298090283063,
      "De": 843599909372884400,
      "Ds": 515955459198860600,
-     "Dw": 2139466666666666.8,
+     "Dw": 2418400000000000,
      "domains": [
       {
        "id": "main",
@@ -7618,7 +7618,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p14>f25",
@@ -7630,7 +7630,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p14>f26",
@@ -8115,7 +8115,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.0651876,
+       "sh": 0.173007,
        "m": [
         0,
         1
@@ -8130,7 +8130,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f27",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.934812,
+       "sh": 0.826993,
        "m": [
         2,
         3
@@ -8157,7 +8157,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.011854,
+       "sh": 0.0118503,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8417,7 +8417,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p18",
        "n": "送電損失 p14>p18",
        "g": "high",
-       "sh": 0.358563,
+       "sh": 0.358451,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8430,7 +8430,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p19",
        "n": "送電損失 p14>p19",
        "g": "high",
-       "sh": 0.358563,
+       "sh": 0.358451,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8443,7 +8443,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f25",
        "n": "送電損失 p14>f25",
        "g": "high",
-       "sh": 0.0000781117,
+       "sh": 0.000234262,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -8456,7 +8456,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f26",
        "n": "送電損失 p14>f26",
        "g": "high",
-       "sh": 0.0000781117,
+       "sh": 0.000234262,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -8469,7 +8469,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f27",
        "n": "送電損失 p14>f27",
        "g": "high",
-       "sh": 0.00132034,
+       "sh": 0.00131992,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8482,7 +8482,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f28",
        "n": "送電損失 p14>f28",
        "g": "high",
-       "sh": 0.00132034,
+       "sh": 0.00131992,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8495,7 +8495,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p24",
        "n": "送電損失 p14>p24",
        "g": "high",
-       "sh": 0.003996,
+       "sh": 0.00399475,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -8508,7 +8508,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p44",
        "n": "送電損失 p14>p44",
        "g": "high",
-       "sh": 0.00162793,
+       "sh": 0.00162742,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8521,7 +8521,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p15",
        "n": "送電損失 p14>p15",
        "g": "high",
-       "sh": 0.131299,
+       "sh": 0.131258,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8534,7 +8534,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p16",
        "n": "送電損失 p14>p16",
        "g": "high",
-       "sh": 0.131299,
+       "sh": 0.131258,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -8629,13 +8629,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 4,
        "d": 0,
-       "cap": 32657118026913.586,
+       "cap": 97971354080740.75,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 19642881973086.42,
+       "cap": 58928645919259.26,
        "sec": 3
       },
       {
@@ -8935,25 +8935,25 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 29,
        "d": 0,
-       "cap": 2397408287.1922545,
+       "cap": 7192224861.576762,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 1442013590.660602,
+       "cap": 4326040771.981805,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 2397408287.1922545,
+       "cap": 7192224861.576762,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 1442013590.660602,
+       "cap": 4326040771.981805,
        "sec": 3
       },
       {
@@ -9104,15 +9104,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1agle3p",
-   "build": 188695,
+   "signature": "tkx7er",
+   "build": 188694,
    "crew": 2000,
-   "total": 190695,
+   "total": 190694,
    "by": {
     "hull": 59,
     "armor": 21,
-    "power": 60921,
-    "drive": 48880,
+    "power": 60922,
+    "drive": 48878,
     "defense": 15004,
     "command": 26509,
     "weapons": 20300,
@@ -9123,7 +9123,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 38262537800000000,
+    "power": 38230787800000000,
     "crew": 2,
     "suitSeats": 0,
     "lifeSupportCapacity": 2,
@@ -9132,7 +9132,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 1.3015475875141107,
+    "navDemand": 1.3019374998277315,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -9141,17 +9141,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 70.304,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 4,
+    "laserUnits": 2.4,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 643.1249999999999,
+    "laserGasSeconds": 675,
     "landingSupport": 66.6792,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 3.4932127327828755e-14,
+    "upS": 3.4932127327828755e-14,
     "down": 0.01,
     "T": 0
    },
@@ -9165,8 +9165,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.941,
       "pd": false,
@@ -9175,7 +9175,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.04,
       "z": 0.1,
       "r": 0.055,
-      "share": 0.36363636330578514,
+      "share": 0.3636363639140496,
       "domain": "main",
       "port": "f22",
       "powerConnected": true
@@ -9187,8 +9187,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.941,
       "pd": false,
@@ -9197,7 +9197,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.04,
       "z": -0.1,
       "r": 0.055,
-      "share": 0.36363636330578514,
+      "share": 0.3636363639140496,
       "domain": "main",
       "port": "f23",
       "powerConnected": true
@@ -9209,8 +9209,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.750000004,
-      "weaponPowerW": 139466666666666.69,
+      "size": 0.7500000024,
+      "weaponPowerW": 83680000000000,
       "stock": 0,
       "at": 0.756,
       "pd": false,
@@ -9219,7 +9219,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.59,
       "z": 0,
       "r": 0.028,
-      "share": 0.2727272733884298,
+      "share": 0.2727272721719008,
       "domain": "main",
       "port": "f24",
       "powerConnected": true
@@ -9280,7 +9280,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.01,
       "z": 0,
       "r": 0.021,
-      "share": 0.1921605593583504,
+      "share": 0.1934378132250391,
       "domain": "main",
       "port": "p9",
       "powerConnected": true
@@ -9297,7 +9297,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.021,
-      "share": 0.1921605402689147,
+      "share": 0.19343779400871963,
       "domain": "main",
       "port": "p10",
       "powerConnected": true
@@ -9314,7 +9314,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.36,
       "z": 0,
       "r": 0.013,
-      "share": 0.04282030511983788,
+      "share": 0.04310492336028081,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -9322,16 +9322,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 0.2929306589408449,
+      "w": 0.2928666891638777,
       "hits": 1,
-      "crew": 0.0000793124458813555,
-      "size": 0.158624891762711,
+      "crew": 0.00007928645741550299,
+      "size": 0.15857291483100597,
       "at": 0.141,
       "part": 12,
       "y": -0.26,
       "z": 0.8,
       "r": 0.012,
-      "share": 0.29658258746948746,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -9339,16 +9339,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 0.2929306589408449,
+      "w": 0.2928666891638777,
       "hits": 1,
-      "crew": 0.0000793124458813555,
-      "size": 0.158624891762711,
+      "crew": 0.00007928645741550299,
+      "size": 0.15857291483100597,
       "at": 0.141,
       "part": 13,
       "y": -0.26,
       "z": -0.8,
       "r": 0.012,
-      "share": 0.29658258746948746,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -9390,16 +9390,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "主反応炉",
-      "w": 0.3616427888158578,
+      "w": 0.3615638137825651,
       "hits": 1,
-      "crew": 0.00010879622205947249,
-      "size": 0.217592444118945,
+      "crew": 0.00010876057258642381,
+      "size": 0.21752114517284762,
       "at": 0.469,
       "part": 16,
       "y": -0.12,
       "z": 0,
       "r": 0.013,
-      "share": 0.4068348250610251,
+      "share": 0.40683482506102514,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -9407,7 +9407,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "shield",
       "name": "チェンパット偏向シールド発生器",
-      "w": 0.7159702041078652,
+      "w": 0.7159702623650889,
       "hits": 1,
       "crew": 0.0002424524130407923,
       "size": 0.6061310326019808,
@@ -9424,7 +9424,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hyper",
       "name": "ハイパードライブ",
-      "w": 0.538928165396146,
+      "w": 0.5389282092477735,
       "hits": 1,
       "crew": 0.00011875220230569416,
       "size": 0.3958406743523139,
@@ -9441,7 +9441,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "fuel",
       "name": "反応物タンク",
-      "w": 0.5289012299389456,
+      "w": 0.5289012729746991,
       "hits": 1,
       "crew": 0.00007696902001294993,
       "size": 0.38484510006474965,
@@ -9484,7 +9484,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.12,
       "z": 0,
       "r": 0.012,
-      "share": 0.0339738948955232,
+      "share": 0.03419971276765408,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -9501,7 +9501,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.62,
       "z": 0,
       "r": 0.027,
-      "share": 0.41925918127681505,
+      "share": 0.42204591551727866,
       "domain": "main",
       "port": "p28",
       "powerConnected": true
@@ -9518,7 +9518,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0,
       "r": 0.01,
-      "share": 0.021591643271149603,
+      "share": 0.02173515872483232,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -9535,7 +9535,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.21,
       "z": -0.08,
       "r": 0.006,
-      "share": 0.00507208024946368,
+      "share": 0.005105793380464209,
       "domain": "main",
       "port": "p30",
       "powerConnected": true
@@ -9552,7 +9552,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.44,
       "z": 0,
       "r": 0.006,
-      "share": 0.00507208024946368,
+      "share": 0.005105793380464209,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -9569,7 +9569,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.19,
       "z": 0,
       "r": 0.004,
-      "share": 0.0019259721673821452,
+      "share": 0.001938773729815861,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -9586,7 +9586,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": -0.06,
       "r": 0.005,
-      "share": 0.0022144208658120166,
+      "share": 0.002229139690646722,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -9603,7 +9603,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0.08,
       "r": 0.006,
-      "share": 0.00507208024946368,
+      "share": 0.005105793380464209,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -9620,7 +9620,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0,
       "r": 0.006,
-      "share": 0.003655208596685951,
+      "share": 0.0036795040573635225,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -9637,7 +9637,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.24,
       "z": 0,
       "r": 0.006,
-      "share": 0.003655208596685951,
+      "share": 0.0036795040573635225,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -9654,7 +9654,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": -0.07,
       "r": 0.006,
-      "share": 0.003655208596685951,
+      "share": 0.0036795040573635225,
       "domain": "main",
       "port": "p37",
       "powerConnected": true
@@ -9671,7 +9671,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0.07,
       "r": 0.006,
-      "share": 0.003655208596685951,
+      "share": 0.0036795040573635225,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -9679,16 +9679,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "レーザーガス供給槽 1",
-      "w": 0.1225,
+      "w": 0.09000000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 0.04287499999999999,
+      "size": 0.027,
       "at": 0.866,
       "part": 39,
-      "y": -0.15,
-      "z": -0.1,
-      "r": 0.007,
-      "share": 0.008916537811954376,
+      "y": -0.28,
+      "z": -0.04,
+      "r": 0.006,
+      "share": 0.005652401544652657,
       "domain": "main",
       "port": "p39",
       "powerConnected": true
@@ -9696,16 +9696,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "レーザーガス供給槽 2",
-      "w": 0.1225,
+      "w": 0.09000000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 0.04287499999999999,
+      "size": 0.027,
       "at": 0.866,
       "part": 40,
-      "y": -0.15,
-      "z": 0.1,
-      "r": 0.007,
-      "share": 0.008916537811954376,
+      "y": -0.28,
+      "z": 0.04,
+      "r": 0.006,
+      "share": 0.005652401544652657,
       "domain": "main",
       "port": "p40",
       "powerConnected": true
@@ -9717,12 +9717,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.07408799999999999,
-      "at": 0.891,
+      "at": 0.866,
       "part": 41,
       "y": -0.19,
-      "z": 0,
+      "z": -0.12,
       "r": 0.009,
-      "share": 0.015407777339057162,
+      "share": 0.015510189838526887,
       "domain": "main",
       "port": "p41",
       "powerConnected": true
@@ -9734,12 +9734,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.07408799999999999,
-      "at": 0.853,
+      "at": 0.866,
       "part": 42,
       "y": -0.19,
-      "z": -0.12,
+      "z": 0.12,
       "r": 0.009,
-      "share": 0.015407777339057162,
+      "share": 0.015510189838526887,
       "domain": "main",
       "port": "p42",
       "powerConnected": true
@@ -9751,12 +9751,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.07408799999999999,
-      "at": 0.853,
+      "at": 0.891,
       "part": 43,
       "y": -0.19,
-      "z": 0.12,
+      "z": 0,
       "r": 0.009,
-      "share": 0.015407777339057162,
+      "share": 0.015510189838526887,
       "domain": "main",
       "port": "p43",
       "powerConnected": true
@@ -9844,21 +9844,21 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.27,
       "z": 0,
       "r": 0.064,
-      "share": 0.19497361595563903,
+      "share": 0.19486904442656655,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 2.2784638208103654,
+      "w": 2.278463820810366,
       "hits": 1,
       "crew": 0,
-      "size": 59.200628415150014,
+      "size": 59.20062841515002,
       "at": 0.393,
       "y": -0.22,
       "z": 0,
       "r": 0.083,
-      "share": 0.4206242733208121,
+      "share": 0.4203986770358452,
       "domain": "main"
      },
      {
@@ -9872,27 +9872,27 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.19,
       "z": 0,
       "r": 0.076,
-      "share": 0.32242196583489846,
+      "share": 0.3222490390631983,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.6356445204025557,
+      "w": 0.6393081902221588,
       "hits": 1,
       "crew": 0,
-      "size": 8.723375609546876,
-      "at": 0.819,
+      "size": 8.798902671101395,
+      "at": 0.82,
       "y": -0.05,
       "z": 0,
       "r": 0.044,
-      "share": 0.06198014488865038,
+      "share": 0.06248323947438992,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 23.049471075919456,
+      "w": 23.012545216145643,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -9904,7 +9904,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.00040776592257844667,
+    "D": 0.00040763362732174524,
     "shieldBuffer": 0.08471702163444517,
     "wCap": 0,
     "fuel": {
@@ -9912,8 +9912,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.38484510006474965,
      "massKg": 96.21127501618741,
-     "capacityJ": 4.177612480421595e+22,
-     "specificEnergyJPerKg": 434212360216483700000,
+     "capacityJ": 4.176256278617063e+22,
+     "specificEnergyJPerKg": 434071399419081900000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 2,
@@ -9928,16 +9928,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 2800970731346821600,
-     "fixed": 79720138571127100,
+     "P": 2800052931732946000,
+     "fixed": 79688388571127100,
      "cooling": 21809721660215256,
-     "De": 2800970731346821600,
-     "Ds": 1706092620068221000,
-     "Dw": 2278933333333333.5,
+     "De": 2800052931732946000,
+     "Ds": 1705539096714182100,
+     "Dw": 2502080000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2800970731346821600,
+       "P": 2800052931732946000,
        "reactors": [
         8,
         9,
@@ -9946,15 +9946,15 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 8,
-         "P": 830719146929143000
+         "P": 830446943544881000
         },
         {
          "moduleIndex": 9,
-         "P": 830719146929143000
+         "P": 830446943544881000
         },
         {
          "moduleIndex": 12,
-         "P": 1139532437488535700
+         "P": 1139159044643183600
         }
        ],
        "modules": [
@@ -10010,7 +10010,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 79720138571127100,
+       "cap": 79688388571127100,
        "auto": true,
        "ok": true,
        "routeId": "p16>hotel",
@@ -10046,7 +10046,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p9",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p9",
@@ -10058,7 +10058,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p10",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p10",
@@ -10070,7 +10070,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p11",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p11",
@@ -10082,7 +10082,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p18",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p18",
@@ -10094,7 +10094,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p19",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p19",
@@ -10106,7 +10106,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p21",
@@ -10118,7 +10118,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p28",
-       "cap": 6692029320769330,
+       "cap": 6689364097969387,
        "auto": true,
        "ok": true,
        "routeId": "p16>p28",
@@ -10130,7 +10130,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p29",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p29",
@@ -10142,7 +10142,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p30",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p30",
@@ -10154,7 +10154,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p31",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p31",
@@ -10166,7 +10166,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p32",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p32",
@@ -10178,7 +10178,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p33",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p33",
@@ -10190,7 +10190,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p34",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p34",
@@ -10202,7 +10202,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p35",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p35",
@@ -10214,7 +10214,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p36",
@@ -10226,7 +10226,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p37",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p37",
@@ -10238,7 +10238,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p38",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p38",
@@ -10250,61 +10250,61 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p39",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p39",
        "model": "source-distance",
-       "lengthM": 9.313008375385474,
-       "efficiency": 0.9999068742527177
+       "lengthM": 9.304971789317795,
+       "efficiency": 0.9999069546110976
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p40",
        "model": "source-distance",
-       "lengthM": 9.313008375385474,
-       "efficiency": 0.9999068742527177
+       "lengthM": 9.304971789317795,
+       "efficiency": 0.9999069546110976
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p41",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p41",
        "model": "source-distance",
-       "lengthM": 9.888446794112816,
-       "efficiency": 0.9999011204209667
+       "lengthM": 9.319043942379498,
+       "efficiency": 0.9999068139026703
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p42",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p42",
        "model": "source-distance",
-       "lengthM": 9.025664296881422,
-       "efficiency": 0.9999097474300395
+       "lengthM": 9.319043942379498,
+       "efficiency": 0.9999068139026703
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p43",
-       "cap": 3319459511379899,
+       "cap": 3318137476052624,
        "auto": true,
        "ok": true,
        "routeId": "p16>p43",
        "model": "source-distance",
-       "lengthM": 9.025664296881422,
-       "efficiency": 0.9999097474300395
+       "lengthM": 9.888446794112816,
+       "efficiency": 0.9999011204209667
       },
       {
        "kind": "power",
@@ -10322,7 +10322,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "f22",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p12>f22",
@@ -10334,7 +10334,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "f23",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p12>f23",
@@ -10346,7 +10346,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "f24",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p12>f24",
@@ -10394,7 +10394,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "f22",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p13>f22",
@@ -10406,7 +10406,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "f23",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p13>f23",
@@ -10418,7 +10418,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "f24",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p13>f24",
@@ -10466,7 +10466,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f22",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f22",
@@ -10478,7 +10478,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f23",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f23",
@@ -10490,7 +10490,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f24",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f24",
@@ -10562,11 +10562,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p14",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p12>p14",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p12>p14",
        "model": "source-distance",
        "lengthM": 0.552,
@@ -10576,11 +10576,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p15",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p12>p15",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p12>p15",
        "model": "source-distance",
        "lengthM": 8.016028505438339,
@@ -10590,11 +10590,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "p14",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p13>p14",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p13>p14",
        "model": "source-distance",
        "lengthM": 8.016028505438339,
@@ -10604,11 +10604,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "p15",
-       "cap": 1163006805700800300,
+       "cap": 1162625720962833400,
        "auto": true,
        "ok": true,
        "capacityGroup": "p13>p15",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p13>p15",
        "model": "source-distance",
        "lengthM": 0.552,
@@ -10618,11 +10618,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p14",
-       "cap": 1595345412483949800,
+       "cap": 1594822662500457000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p14",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p16>p14",
        "model": "source-distance",
        "lengthM": 9.171684496318003,
@@ -10632,11 +10632,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
-       "cap": 1595345412483949800,
+       "cap": 1594822662500457000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p15",
-       "groupCap": 3921359023885550000,
+       "groupCap": 3920074104426124300,
        "routeId": "p16>p15",
        "model": "source-distance",
        "lengthM": 9.171684496318003,
@@ -10648,7 +10648,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 79720138571127100,
+       "weight": 79688388571127100,
        "domain": "main"
       }
      ],
@@ -10681,23 +10681,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329629736.713891,
-       "shaftWattsPerNewton": 2213148249.8781962,
-       "wattsPerNewton": 2329629736.713891,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40865.09360334229,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10710,10 +10710,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601162212.0040824,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10721,12 +10721,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1202249010555650600,
-       "cost": 920.7575928427614,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -10745,7 +10745,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600,
+       "pathCapacityW": 2800052931732946000,
        "transmissionRouteIds": [
         "p12>p14",
         "p13>p14",
@@ -10755,23 +10755,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329629736.713891,
-       "shaftWattsPerNewton": 2213148249.8781962,
-       "wattsPerNewton": 2329629736.713891,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40865.09360334229,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10784,10 +10784,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601162212.0040824,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10795,12 +10795,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1202249010555650600,
-       "cost": 920.7575928427614,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -10819,7 +10819,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600,
+       "pathCapacityW": 2800052931732946000,
        "transmissionRouteIds": [
         "p12>p15",
         "p13>p15",
@@ -10831,23 +10831,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329629736.713891,
-       "shaftWattsPerNewton": 2213148249.8781962,
-       "wattsPerNewton": 2329629736.713891,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40865.09360334229,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10860,10 +10860,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601162212.0040824,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10871,12 +10871,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1202249010555650600,
-       "cost": 920.7575928427614,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -10901,28 +10901,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600
+       "pathCapacityW": 2800052931732946000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 132273342462956690,
-       "densityFactor": 10.5878126279724,
+       "densityFactor": 10.584343298488523,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2329629736.713891,
-       "shaftWattsPerNewton": 2213148249.8781962,
-       "wattsPerNewton": 2329629736.713891,
-       "ratedShaftPowerW": 1330461097389740300,
-       "ratedWasteHeatW": 70024268283670600,
+       "profileWattsPerNewton": 2329564052.120654,
+       "shaftWattsPerNewton": 2213085849.5146213,
+       "wattsPerNewton": 2329564052.120654,
+       "ratedShaftPowerW": 1330025142573149200,
+       "ratedWasteHeatW": 70001323293323710,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 40865.09360334229,
+       "conversionMassKg": 40852.85507177274,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2800970731346821600,
-       "sourceInputLimitW": 2800970731346821600,
+       "availableInputW": 2800052931732946000,
+       "sourceInputLimitW": 2800052931732946000,
        "sourceIds": [
         "p12",
         "p13",
@@ -10935,10 +10935,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1400485365673410800,
+       "ratedInputW": 1400026465866473000,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 601162212.0040824,
+       "ratedThrustN": 600982172.8627713,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -10946,12 +10946,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.5599999999999999,
        "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2800970731346821600,
-       "maxRatedInputW": 2800970731346821600,
-       "inputDensityWPerM3": 3599856293510616600,
+       "maxInputW": 2800052931732946000,
+       "maxRatedInputW": 2800052931732946000,
+       "inputDensityWPerM3": 3598676721486098000,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 1202249010555650600,
-       "cost": 920.7575928427614,
+       "costBasisInputW": 1201888953568801300,
+       "cost": 920.1396259328754,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -10976,22 +10976,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2800970731346821600
+       "pathCapacityW": 2800052931732946000
       }
      ],
-     "massKg": 40865.09360334229,
-     "ratedThrustN": 1202249010.5593596,
-     "ratedAccelMps2": 29419.950000090776,
-     "structuralAccelerationLimitMps2": 184308.36109363995,
+     "massKg": 40852.85507177274,
+     "ratedThrustN": 1201888954.8619435,
+     "ratedAccelMps2": 29419.950031653676,
+     "structuralAccelerationLimitMps2": 184308.36109363998,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 29419.950000090776,
+     "accelerationLimitMps2": 29419.950031653676,
      "conversionModelVersion": 1,
-     "conversionMassKg": 40865.09360334229,
+     "conversionMassKg": 40852.85507177274,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2800970731346821600,[[\"main\",2800970731346821600,[[8,830719146929143000],[9,830719146929143000],[12,1139532437488535700]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.158624891762711,0.29658258746948746],[9,\"reactor\",13,\"p13\",\"main\",0.158624891762711,0.29658258746948746],[12,\"reactor\",16,\"p16\",\"main\",0.217592444118945,0.4068348250610251]]]"
+     "sourceBudgetKey": "[2800052931732946000,[[\"main\",2800052931732946000,[[8,830446943544881000],[9,830446943544881000],[12,1139159044643183600]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.15857291483100597,0.2965825874694874],[9,\"reactor\",13,\"p13\",\"main\",0.15857291483100597,0.2965825874694874],[12,\"reactor\",16,\"p16\",\"main\",0.21752114517284762,0.40683482506102514]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 1393.117145149612,
+    "maxSpeed": 1393.131683780664,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -11118,7 +11118,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00195951,
+       "sh": 0.00195862,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11131,7 +11131,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p3",
        "n": "送電損失 p16>p3",
        "g": "high",
-       "sh": 0.00010381,
+       "sh": 0.00010382,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11144,7 +11144,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.00010381,
+       "sh": 0.00010382,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11212,7 +11212,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
        "routeId": "p16>p19"
@@ -11443,7 +11443,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.294303,
+       "sh": 0.294232,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -11456,7 +11456,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f22",
        "n": "送電損失 p12>f22",
        "g": "high",
-       "sh": 0.0000465478,
+       "sh": 0.000139656,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11469,7 +11469,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f23",
        "n": "送電損失 p12>f23",
        "g": "high",
-       "sh": 0.0000470657,
+       "sh": 0.00014121,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11482,7 +11482,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f24",
        "n": "送電損失 p12>f24",
        "g": "high",
-       "sh": 0.000073178,
+       "sh": 0.0000439108,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11495,7 +11495,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f25",
        "n": "送電損失 p12>f25",
        "g": "high",
-       "sh": 0.0004971,
+       "sh": 0.000497146,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11508,7 +11508,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f26",
        "n": "送電損失 p12>f26",
        "g": "high",
-       "sh": 0.000501992,
+       "sh": 0.000502038,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11521,7 +11521,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p17",
        "n": "送電損失 p13>p17",
        "g": "high",
-       "sh": 0.300217,
+       "sh": 0.300146,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -11599,7 +11599,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.0377245,
+       "sh": 0.0377166,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11612,7 +11612,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.0000216127,
+       "sh": 0.000064844,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11625,7 +11625,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.0000216127,
+       "sh": 0.000064844,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11638,7 +11638,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.0000264818,
+       "sh": 0.0000158905,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11651,7 +11651,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.000169679,
+       "sh": 0.000169695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11664,7 +11664,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f26",
        "n": "送電損失 p16>f26",
        "g": "high",
-       "sh": 0.000169679,
+       "sh": 0.000169695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -11677,7 +11677,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p20",
        "n": "送電損失 p12>p20",
        "g": "high",
-       "sh": 0.00815572,
+       "sh": 0.00815647,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11690,7 +11690,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p20",
        "n": "送電損失 p13>p20",
        "g": "high",
-       "sh": 0.00000121132,
+       "sh": 0.00000121144,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -11716,7 +11716,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p14",
        "n": "送電損失 p12>p14",
        "g": "high",
-       "sh": 0.00307753,
+       "sh": 0.0030768,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -11729,7 +11729,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p15",
        "n": "送電損失 p12>p15",
        "g": "high",
-       "sh": 0.0446929,
+       "sh": 0.0446823,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -11742,7 +11742,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p14",
        "n": "送電損失 p13>p14",
        "g": "high",
-       "sh": 0.0446929,
+       "sh": 0.0446823,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -11755,7 +11755,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p15",
        "n": "送電損失 p13>p15",
        "g": "high",
-       "sh": 0.00307753,
+       "sh": 0.0030768,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -11768,7 +11768,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p14",
        "n": "送電損失 p16>p14",
        "g": "high",
-       "sh": 0.130158,
+       "sh": 0.130127,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -11781,7 +11781,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p15",
        "n": "送電損失 p16>p15",
        "g": "high",
-       "sh": 0.130158,
+       "sh": 0.130127,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -11839,145 +11839,145 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 47884305315188940,
+       "cap": 47868614970253460,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 3970010679224728.5,
+       "cap": 3968709817981267.5,
        "sec": 0
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 3970010679224728.5,
+       "cap": 3968709817981267.5,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 47884305315188950,
+       "cap": 47868614970253464,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 3970010679224729.5,
+       "cap": 3968709817981268.5,
        "sec": 0
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 3970010679224729.5,
+       "cap": 3968709817981268.5,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 65684918127831170,
+       "cap": 65663395020923816,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 5445830835699213,
+       "cap": 5444046389549064,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 5445830835699213,
+       "cap": 5444046389549064,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1186195398642302200,
+       "cap": 1185808453429525200,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 98345551204298430,
+       "cap": 98313470199533150,
        "sec": 3
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 98345551204298430,
+       "cap": 98313470199533150,
        "sec": 3
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 34595014693131270,
+       "cap": 34583678876311776,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 34595014693131270,
+       "cap": 34583678876311776,
        "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 2868216984158740,
+       "cap": 2867277149832337.5,
        "sec": 0
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 733048292039405.8,
+       "cap": 804826294704813.5,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 60775853980297.125,
+       "cap": 66726852647593.234,
        "sec": 4
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 60775853980297.125,
+       "cap": 66726852647593.234,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 119580207856690660,
+       "cap": 119532582856690660,
        "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 119580207856690660,
+       "cap": 119532582856690660,
        "sec": 3
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 119580207856690660,
+       "cap": 119532582856690660,
        "sec": 4
       },
       {
@@ -11989,19 +11989,19 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 8,
        "d": 0,
-       "cap": 1241082411105.4678,
+       "cap": 1240588127386.713,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 102896145061.62207,
+       "cap": 102855164794.09793,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 102896145061.62207,
+       "cap": 102855164794.09793,
        "sec": 3
       },
       {
@@ -12043,397 +12043,397 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 11,
        "d": 0,
-       "cap": 364142544803.67377,
+       "cap": 363997518389.96277,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 30190472266.74692,
+       "cap": 30178448360.220295,
        "sec": 3
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 30190472266.74692,
+       "cap": 30178448360.220295,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 318355828518.05994,
+       "cap": 318229037499.6722,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 26394369317.69023,
+       "cap": 26383857278.43821,
        "sec": 3
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 26394369317.69023,
+       "cap": 26383857278.43821,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 234463015563.72693,
+       "cap": 234369636389.0595,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 19438951229.30754,
+       "cap": 19431209312.238747,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 19438951229.30754,
+       "cap": 19431209312.238747,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 72606175726.12291,
+       "cap": 72577258991.64877,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 6019661162.734734,
+       "cap": 6017263722.823784,
        "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 6019661162.734734,
+       "cap": 6017263722.823784,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 192201990386.58722,
+       "cap": 192125442436.41867,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 15935157655.110886,
+       "cap": 15928811187.773798,
        "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 15935157655.110886,
+       "cap": 15928811187.773798,
        "sec": 3
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 149481957627.50827,
+       "cap": 149422423709.98456,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 12393308501.113096,
+       "cap": 12388372639.83685,
        "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 12393308501.113096,
+       "cap": 12388372639.83685,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 58547325776.37373,
+       "cap": 58524008235.45223,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 4854064542.4906025,
+       "cap": 4852131322.704657,
        "sec": 3
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 4854064542.4906025,
+       "cap": 4852131322.704657,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 397275227660.4708,
+       "cap": 397117005551.17334,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 32937449672.12085,
+       "cap": 32924331731.7129,
        "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 32937449672.12085,
+       "cap": 32924331731.7129,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 364538424064.6591,
+       "cap": 364393239984.808,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 30223293979.068954,
+       "cap": 30211257000.696426,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 30223293979.068954,
+       "cap": 30211257000.696426,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 318710695090.70667,
+       "cap": 318583762740.23035,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 26423790734.03603,
+       "cap": 26413266977.168026,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 26423790734.03603,
+       "cap": 26413266977.168026,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 397203684701.8987,
+       "cap": 397045491085.88995,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 32931518160.580994,
+       "cap": 32918402582.505753,
        "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 32931518160.580994,
+       "cap": 32918402582.505753,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 397492926957.1319,
+       "cap": 397334618145.1167,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 32955498770.398773,
+       "cap": 32942373641.60806,
        "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 32955498770.398773,
+       "cap": 32942373641.60806,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 397653426292.2124,
+       "cap": 397495053558.408,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 32968805511.930973,
+       "cap": 32955675083.487602,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 32968805511.930973,
+       "cap": 32955675083.487602,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 412816690876.2702,
+       "cap": 412652279095.63055,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 34225967371.842606,
+       "cap": 34212336255.746563,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 34225967371.842606,
+       "cap": 34212336255.746563,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 389473896908.4332,
+       "cap": 389318781821.47424,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 32290653896.47179,
+       "cap": 32277793554.284878,
        "sec": 3
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 32290653896.47179,
+       "cap": 32277793554.284878,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 389814666083.9266,
+       "cap": 389659415279.4248,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 32318906520.310738,
+       "cap": 32306034926.0008,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 32318906520.310738,
+       "cap": 32306034926.0008,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 389814666083.9266,
+       "cap": 389659415279.4248,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 32318906520.310738,
+       "cap": 32306034926.0008,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 32318906520.310738,
+       "cap": 32306034926.0008,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 397738932043.4347,
+       "cap": 397237452283.6696,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 32975894656.134964,
+       "cap": 32934317776.43341,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 32975894656.134964,
+       "cap": 32934317776.43341,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 397738932043.4347,
+       "cap": 397237452283.6696,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 32975894656.134964,
+       "cap": 32934317776.43341,
        "sec": 3
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 32975894656.134964,
+       "cap": 32934317776.43341,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 422313477350.2808,
+       "cap": 397838176917.2301,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 35013330652.39916,
+       "cap": 32984122888.877045,
        "sec": 3
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 35013330652.39916,
+       "cap": 32984122888.877045,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 385467626707.7421,
+       "cap": 397838176917.2301,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 31958500482.61495,
+       "cap": 32984122888.877045,
        "sec": 3
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 31958500482.61495,
+       "cap": 32984122888.877045,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 385467626707.7421,
+       "cap": 422145283301.12085,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 31958500482.61495,
+       "cap": 34999385954.50803,
        "sec": 3
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 31958500482.61495,
+       "cap": 34999385954.50803,
        "sec": 3
       },
       {
@@ -12457,55 +12457,55 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 34,
        "d": 0,
-       "cap": 25694686990.851124,
+       "cap": 77084060972.55336,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 2130305140.3078115,
+       "cap": 6390915420.923433,
        "sec": 3
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 2130305140.3078115,
+       "cap": 6390915420.923433,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 25980515331.009727,
+       "cap": 77941545993.02917,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 2154002707.9217825,
+       "cap": 6462008123.7653475,
        "sec": 3
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 2154002707.9217825,
+       "cap": 6462008123.7653475,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 40396416935.437325,
+       "cap": 24237850161.262386,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 3349201906.145854,
+       "cap": 2009521143.687512,
        "sec": 3
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 3349201906.145854,
+       "cap": 2009521143.687512,
        "sec": 3
       },
       {
@@ -12565,55 +12565,55 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 40,
        "d": 0,
-       "cap": 25980515331.009727,
+       "cap": 77941545993.02917,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 2154002707.9217825,
+       "cap": 6462008123.7653475,
        "sec": 3
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 2154002707.9217825,
+       "cap": 6462008123.7653475,
        "sec": 3
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 25694686990.851124,
+       "cap": 77084060972.55336,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 2130305140.3078115,
+       "cap": 6390915420.923433,
        "sec": 3
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 2130305140.3078115,
+       "cap": 6390915420.923433,
        "sec": 3
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 40396416935.437325,
+       "cap": 24237850161.262386,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 3349201906.145854,
+       "cap": 2009521143.687512,
        "sec": 3
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 3349201906.145854,
+       "cap": 2009521143.687512,
        "sec": 3
       },
       {
@@ -12673,55 +12673,55 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 46,
        "d": 0,
-       "cap": 14914132456.322157,
+       "cap": 44742397368.96646,
        "sec": 4
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 1236506716.2035213,
+       "cap": 3709520148.610563,
        "sec": 3
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 1236506716.2035213,
+       "cap": 3709520148.610563,
        "sec": 3
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 14914132456.322157,
+       "cap": 44742397368.96646,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 1236506716.2035213,
+       "cap": 3709520148.610563,
        "sec": 3
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 1236506716.2035213,
+       "cap": 3709520148.610563,
        "sec": 3
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 18274902123.514683,
+       "cap": 10964941274.108809,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 1515142719.824037,
+       "cap": 909085631.894422,
        "sec": 3
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 1515142719.824037,
+       "cap": 909085631.894422,
        "sec": 3
       },
       {
@@ -12817,109 +12817,109 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 54,
        "d": 0,
-       "cap": 8260019869204.136,
+       "cap": 8257313292172.922,
        "sec": 3
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 119945803856375.34,
+       "cap": 119906500977829.19,
        "sec": 3
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 119945803856375.34,
+       "cap": 119906500977829.19,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 9944513533267.406,
+       "cap": 9941254994868.957,
        "sec": 0
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 8260019869204.136,
+       "cap": 8257313292172.922,
        "sec": 3
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 684824952048.4763,
+       "cap": 684600554103.3179,
        "sec": 0
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 188254287209246.78,
+       "cap": 188192601554992.22,
        "sec": 3
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 188254287209246.78,
+       "cap": 188192601554992.22,
        "sec": 3
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 15607859938890.709,
+       "cap": 15602745680585.54,
        "sec": 2
       }
      ]
@@ -12934,7 +12934,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 69.6558572574806,
+    "mglt": 69.6565841890332,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -12968,7 +12968,7 @@ const CRAFT_PRICE_CATALOG={
       0.51
      ],
      "k": "claser",
-     "gun": 0.36363636347107436,
+     "gun": 0.3636363637752066,
      "aa": 0.36363636363636365,
      "cycle": 0.12
     },
@@ -12990,7 +12990,7 @@ const CRAFT_PRICE_CATALOG={
       -0.51
      ],
      "k": "claser",
-     "gun": 0.36363636347107436,
+     "gun": 0.3636363637752066,
      "aa": 0.36363636363636365,
      "cycle": 0.12
     },
@@ -13012,7 +13012,7 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "k": "cturret",
-     "gun": 0.2727272730578512,
+     "gun": 0.2727272724495868,
      "aa": 0.2727272727272727,
      "cycle": 0.12
     }
@@ -13020,7 +13020,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "37ify6",
+   "signature": "4pvjno",
    "build": 159055,
    "crew": 0,
    "total": 159055,
@@ -13079,8 +13079,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -13101,8 +13101,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -13123,8 +13123,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -13145,8 +13145,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -13917,7 +13917,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 13057654821960880,
      "De": 955619411010277800,
      "Ds": 0,
-     "Dw": 4278933333333333.5,
+     "Dw": 4836800000000000,
      "domains": [
       {
        "id": "main",
@@ -14254,7 +14254,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f25",
@@ -14266,7 +14266,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f26",
@@ -14278,7 +14278,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f27",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f27",
@@ -14290,7 +14290,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f28",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f28",
@@ -14350,7 +14350,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f25",
@@ -14362,7 +14362,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f26",
@@ -14374,7 +14374,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f27",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f27",
@@ -14386,7 +14386,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f28",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f28",
@@ -14446,7 +14446,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p23>f25",
@@ -14458,7 +14458,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p23>f26",
@@ -14470,7 +14470,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "f27",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p23>f27",
@@ -14482,7 +14482,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p23",
        "to": "f28",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p23>f28",
@@ -14542,7 +14542,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p24>f25",
@@ -14554,7 +14554,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p24>f26",
@@ -14566,7 +14566,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "f27",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p24>f27",
@@ -14578,7 +14578,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "f28",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p24>f28",
@@ -15737,7 +15737,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>hotel",
        "n": "送電損失 p24>hotel",
        "g": "high",
-       "sh": 0.0195736,
+       "sh": 0.0195577,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -15750,7 +15750,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p3",
        "n": "送電損失 p17>p3",
        "g": "high",
-       "sh": 0.000425056,
+       "sh": 0.000424711,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -15763,7 +15763,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p4",
        "n": "送電損失 p18>p4",
        "g": "high",
-       "sh": 0.000425056,
+       "sh": 0.000424711,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -15776,7 +15776,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p5",
        "n": "送電損失 p17>p5",
        "g": "high",
-       "sh": 0.000668824,
+       "sh": 0.000668281,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -15789,7 +15789,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p6",
        "n": "送電損失 p24>p6",
        "g": "high",
-       "sh": 0.000655277,
+       "sh": 0.000654745,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16010,7 +16010,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f25",
        "n": "送電損失 p17>f25",
        "g": "high",
-       "sh": 0.0000164426,
+       "sh": 0.0000492876,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16023,7 +16023,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f26",
        "n": "送電損失 p17>f26",
        "g": "high",
-       "sh": 0.000186571,
+       "sh": 0.000559257,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16036,7 +16036,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f27",
        "n": "送電損失 p17>f27",
        "g": "high",
-       "sh": 0.0000167973,
+       "sh": 0.0000503509,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16049,7 +16049,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f28",
        "n": "送電損失 p17>f28",
        "g": "high",
-       "sh": 0.000186602,
+       "sh": 0.000559352,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16062,7 +16062,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f29",
        "n": "送電損失 p17>f29",
        "g": "high",
-       "sh": 0.000580108,
+       "sh": 0.000579637,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16075,7 +16075,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f30",
        "n": "送電損失 p17>f30",
        "g": "high",
-       "sh": 0.00214583,
+       "sh": 0.00214408,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16088,7 +16088,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f31",
        "n": "送電損失 p17>f31",
        "g": "high",
-       "sh": 0.00114177,
+       "sh": 0.00114084,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16101,7 +16101,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f32",
        "n": "送電損失 p17>f32",
        "g": "high",
-       "sh": 0.00142713,
+       "sh": 0.00142597,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16426,7 +16426,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p14",
        "n": "送電損失 p17>p14",
        "g": "high",
-       "sh": 0.0116177,
+       "sh": 0.0116083,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16439,7 +16439,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p14",
        "n": "送電損失 p18>p14",
        "g": "high",
-       "sh": 7.09238e-7,
+       "sh": 7.08662e-7,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16478,7 +16478,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p19",
        "n": "送電損失 p17>p19",
        "g": "high",
-       "sh": 0.0118012,
+       "sh": 0.0117916,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16491,7 +16491,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.167417,
+       "sh": 0.167281,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16504,7 +16504,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.0901138,
+       "sh": 0.0900406,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16517,7 +16517,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.133129,
+       "sh": 0.133021,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16530,7 +16530,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p19",
        "n": "送電損失 p18>p19",
        "g": "high",
-       "sh": 0.175977,
+       "sh": 0.175834,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16543,7 +16543,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.0124045,
+       "sh": 0.0123945,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16556,7 +16556,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.140175,
+       "sh": 0.140061,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16569,7 +16569,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.0943677,
+       "sh": 0.0942911,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16582,7 +16582,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p19",
        "n": "送電損失 p23>p19",
        "g": "high",
-       "sh": 0.0231276,
+       "sh": 0.0231088,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16595,7 +16595,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p20",
        "n": "送電損失 p23>p20",
        "g": "high",
-       "sh": 0.0367166,
+       "sh": 0.0366868,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16608,7 +16608,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p21",
        "n": "送電損失 p23>p21",
        "g": "high",
-       "sh": 0.00138597,
+       "sh": 0.00138485,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16621,7 +16621,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p22",
        "n": "送電損失 p23>p22",
        "g": "high",
-       "sh": 0.0169903,
+       "sh": 0.0169765,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16634,7 +16634,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p19",
        "n": "送電損失 p24>p19",
        "g": "high",
-       "sh": 0.0269203,
+       "sh": 0.0268984,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16647,7 +16647,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p20",
        "n": "送電損失 p24>p20",
        "g": "high",
-       "sh": 0.016908,
+       "sh": 0.0168942,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16660,7 +16660,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p21",
        "n": "送電損失 p24>p21",
        "g": "high",
-       "sh": 0.0124808,
+       "sh": 0.0124706,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16673,7 +16673,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p22",
        "n": "送電損失 p24>p22",
        "g": "high",
-       "sh": 0.00101811,
+       "sh": 0.00101728,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16993,31 +16993,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 8,
        "d": 0,
-       "cap": 1108206224438813.8,
+       "cap": 1252688800876929,
        "sec": 3
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 113993316116177.1,
+       "cap": 128855214241257.64,
        "sec": 4
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 113993316116177.1,
+       "cap": 128855214241257.64,
        "sec": 4
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 134203571664416.03,
+       "cap": 151700385320277.8,
        "sec": 4
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 134203571664416.03,
+       "cap": 151700385320277.8,
        "sec": 4
       },
       {
@@ -17689,121 +17689,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 31,
        "d": 0,
-       "cap": 793743709.1998442,
+       "cap": 2381231127.5995326,
        "sec": 3
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 81646786.99929145,
+       "cap": 244940360.99787438,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 81646786.99929145,
+       "cap": 244940360.99787438,
        "sec": 4
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 96122218.4207846,
+       "cap": 288366655.2623538,
        "sec": 4
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 96122218.4207846,
+       "cap": 288366655.2623538,
        "sec": 4
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 9005783555.427687,
+       "cap": 27017350666.283066,
        "sec": 3
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 926361095.13606,
+       "cap": 2779083285.40818,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 926361095.13606,
+       "cap": 2779083285.40818,
        "sec": 4
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 1090598746.0836434,
+       "cap": 3271796238.250931,
        "sec": 4
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 1090598746.0836434,
+       "cap": 3271796238.250931,
        "sec": 4
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 810867296.3762108,
+       "cap": 2432601889.1286325,
        "sec": 3
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 83408168.99028951,
+       "cap": 250224506.97086856,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 83408168.99028951,
+       "cap": 250224506.97086856,
        "sec": 4
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 98195881.70483544,
+       "cap": 294587645.11450636,
        "sec": 4
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 98195881.70483544,
+       "cap": 294587645.11450636,
        "sec": 4
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 9007308755.85092,
+       "cap": 27021926267.55275,
        "sec": 3
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 926517981.6885371,
+       "cap": 2779553945.0656114,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 926517981.6885371,
+       "cap": 2779553945.0656114,
        "sec": 4
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 1090783447.57673,
+       "cap": 3272350342.7301893,
        "sec": 4
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 1090783447.57673,
+       "cap": 3272350342.7301893,
        "sec": 4
       },
       {
@@ -17929,121 +17929,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 39,
        "d": 0,
-       "cap": 9005783555.427687,
+       "cap": 27017350666.283066,
        "sec": 3
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 926361095.13606,
+       "cap": 2779083285.40818,
        "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 926361095.13606,
+       "cap": 2779083285.40818,
        "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 1090598746.0836434,
+       "cap": 3271796238.250931,
        "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 1090598746.0836434,
+       "cap": 3271796238.250931,
        "sec": 4
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 793743709.1998442,
+       "cap": 2381231127.5995326,
        "sec": 3
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 81646786.99929145,
+       "cap": 244940360.99787438,
        "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 81646786.99929145,
+       "cap": 244940360.99787438,
        "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 96122218.4207846,
+       "cap": 288366655.2623538,
        "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 96122218.4207846,
+       "cap": 288366655.2623538,
        "sec": 4
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 9007308755.85092,
+       "cap": 27021926267.55275,
        "sec": 3
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 926517981.6885371,
+       "cap": 2779553945.0656114,
        "sec": 4
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 926517981.6885371,
+       "cap": 2779553945.0656114,
        "sec": 4
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 1090783447.57673,
+       "cap": 3272350342.7301893,
        "sec": 4
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 1090783447.57673,
+       "cap": 3272350342.7301893,
        "sec": 4
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 810867296.3762108,
+       "cap": 2432601889.1286325,
        "sec": 3
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 83408168.99028951,
+       "cap": 250224506.97086856,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 83408168.99028951,
+       "cap": 250224506.97086856,
        "sec": 4
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 98195881.70483544,
+       "cap": 294587645.11450636,
        "sec": 4
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 98195881.70483544,
+       "cap": 294587645.11450636,
        "sec": 4
       },
       {
@@ -18169,121 +18169,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 47,
        "d": 0,
-       "cap": 4442024720.539232,
+       "cap": 13326074161.617697,
        "sec": 3
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 456919584.9993705,
+       "cap": 1370758754.9981117,
        "sec": 3
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 456919584.9993705,
+       "cap": 1370758754.9981117,
        "sec": 3
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 537928383.5189362,
+       "cap": 1613785150.5568087,
        "sec": 3
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 537928383.5189362,
+       "cap": 1613785150.5568087,
        "sec": 3
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 6484715497.207926,
+       "cap": 19454146491.623775,
        "sec": 3
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 667036700.6565294,
+       "cap": 2001110101.9695883,
        "sec": 3
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 667036700.6565294,
+       "cap": 2001110101.9695883,
        "sec": 3
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 785297864.0266991,
+       "cap": 2355893592.080097,
        "sec": 3
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 785297864.0266991,
+       "cap": 2355893592.080097,
        "sec": 3
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 4545959035.741337,
+       "cap": 13637877107.224009,
        "sec": 3
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 467610571.0152193,
+       "cap": 1402831713.0456576,
        "sec": 3
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 467610571.0152193,
+       "cap": 1402831713.0456576,
        "sec": 3
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 550514810.1343262,
+       "cap": 1651544430.4029787,
        "sec": 3
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 550514810.1343262,
+       "cap": 1651544430.4029787,
        "sec": 3
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 6556345690.388768,
+       "cap": 19669037071.1663,
        "sec": 3
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 674404790.7057092,
+       "cap": 2023214372.1171274,
        "sec": 3
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 674404790.7057092,
+       "cap": 2023214372.1171274,
        "sec": 3
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 793972267.3569539,
+       "cap": 2381916802.0708613,
        "sec": 3
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 793972267.3569539,
+       "cap": 2381916802.0708613,
        "sec": 3
       },
       {
@@ -18409,121 +18409,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 55,
        "d": 0,
-       "cap": 6505161198.275046,
+       "cap": 19515483594.825134,
        "sec": 3
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 669139804.946655,
+       "cap": 2007419414.8399649,
        "sec": 3
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 669139804.946655,
+       "cap": 2007419414.8399649,
        "sec": 3
       },
       {
        "s": 55,
        "d": 3,
-       "cap": 787773834.6970315,
+       "cap": 2363321504.0910945,
        "sec": 3
       },
       {
        "s": 55,
        "d": 4,
-       "cap": 787773834.6970315,
+       "cap": 2363321504.0910945,
        "sec": 3
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 4471820462.256619,
+       "cap": 13415461386.769857,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 459984461.67088175,
+       "cap": 1379953385.012645,
        "sec": 3
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 459984461.67088175,
+       "cap": 1379953385.012645,
        "sec": 3
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 541536642.4067516,
+       "cap": 1624609927.2202547,
        "sec": 3
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 541536642.4067516,
+       "cap": 1624609927.2202547,
        "sec": 3
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 6515711384.2267275,
+       "cap": 19547134152.68018,
        "sec": 3
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 670225027.7650737,
+       "cap": 2010675083.2952204,
        "sec": 3
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 670225027.7650737,
+       "cap": 2010675083.2952204,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 789051460.2916329,
+       "cap": 2367154380.874898,
        "sec": 3
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 789051460.2916329,
+       "cap": 2367154380.874898,
        "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 4487154414.088175,
+       "cap": 13461463242.264524,
        "sec": 3
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 461561756.56410426,
+       "cap": 1384685269.6923127,
        "sec": 3
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 461561756.56410426,
+       "cap": 1384685269.6923127,
        "sec": 3
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 543393581.1769403,
+       "cap": 1630180743.5308208,
        "sec": 3
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 543393581.1769403,
+       "cap": 1630180743.5308208,
        "sec": 3
       },
       {
@@ -19366,7 +19366,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "13bpq0g",
+   "signature": "1h0pzy6",
    "build": 95519,
    "crew": 1000,
    "total": 96519,
@@ -19412,8 +19412,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 6.928215964346294e-14,
-    "upS": 6.928215964346294e-14,
+    "up": 6.93625800261019e-14,
+    "upS": 6.93625800261019e-14,
     "down": 0.01,
     "T": 0
    },
@@ -19427,8 +19427,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.857,
       "pd": false,
@@ -19449,8 +19449,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.857,
       "pd": false,
@@ -19471,8 +19471,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.857,
       "pd": false,
@@ -19493,8 +19493,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.857,
       "pd": false,
@@ -19989,7 +19989,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 1172670401373013,
      "De": 1079444516431250300,
      "Ds": 0,
-     "Dw": 278933333333333.38,
+     "Dw": 836800000000000,
      "domains": [
       {
        "id": "main",
@@ -20268,7 +20268,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "f15",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p10>f15",
@@ -20280,7 +20280,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "f16",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p10>f16",
@@ -20292,7 +20292,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "f17",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p10>f17",
@@ -20304,7 +20304,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p10",
        "to": "f18",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p10>f18",
@@ -20773,7 +20773,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>hotel",
        "n": "送電損失 p10>hotel",
        "g": "high",
-       "sh": 0.0199276,
+       "sh": 0.0198855,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -20981,7 +20981,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f15",
        "n": "送電損失 p10>f15",
        "g": "high",
-       "sh": 0.000266436,
+       "sh": 0.000797617,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -20994,7 +20994,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f16",
        "n": "送電損失 p10>f16",
        "g": "high",
-       "sh": 0.000263423,
+       "sh": 0.000788596,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21007,7 +21007,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f17",
        "n": "送電損失 p10>f17",
        "g": "high",
-       "sh": 0.000266436,
+       "sh": 0.000797617,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21020,7 +21020,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>f18",
        "n": "送電損失 p10>f18",
        "g": "high",
-       "sh": 0.000263423,
+       "sh": 0.000788596,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -21033,7 +21033,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>p31",
        "n": "送電損失 p10>p31",
        "g": "high",
-       "sh": 0.000444872,
+       "sh": 0.000443931,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -21046,7 +21046,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>p11",
        "n": "送電損失 p10>p11",
        "g": "high",
-       "sh": 0.489284,
+       "sh": 0.488249,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -21059,7 +21059,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p10>p12",
        "n": "送電損失 p10>p12",
        "g": "high",
-       "sh": 0.489284,
+       "sh": 0.488249,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -21171,19 +21171,19 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 3,
        "d": 0,
-       "cap": 33598459858175.707,
+       "cap": 100795379574527.11,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 35500770070912.16,
+       "cap": 106502310212736.45,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 35500770070912.16,
+       "cap": 106502310212736.45,
        "sec": 4
       },
       {
@@ -21501,73 +21501,73 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 21,
        "d": 0,
-       "cap": 2870299229.278074,
+       "cap": 8610897687.834219,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 3032812617.109349,
+       "cap": 9098437851.328045,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 3032812617.109349,
+       "cap": 9098437851.328045,
        "sec": 4
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 2837837261.6022778,
+       "cap": 8513511784.806831,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 2998512686.2383394,
+       "cap": 8995538058.715015,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 2998512686.2383394,
+       "cap": 8995538058.715015,
        "sec": 4
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 2870299229.278074,
+       "cap": 8610897687.834219,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 3032812617.109349,
+       "cap": 9098437851.328045,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 3032812617.109349,
+       "cap": 9098437851.328045,
        "sec": 4
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 2837837261.6022778,
+       "cap": 8513511784.806831,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 2998512686.2383394,
+       "cap": 8995538058.715015,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 2998512686.2383394,
+       "cap": 8995538058.715015,
        "sec": 4
       },
       {
@@ -21744,7 +21744,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1poo0y6",
+   "signature": "1aju33y",
    "build": 85104,
    "crew": 1000,
    "total": 86104,
@@ -21805,8 +21805,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.477,
       "pd": false,
@@ -21827,8 +21827,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.477,
       "pd": false,
@@ -22292,7 +22292,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 787435084800000,
      "De": 586049700581384300,
      "Ds": 0,
-     "Dw": 139466666666666.69,
+     "Dw": 418400000000000,
      "domains": [
       {
        "id": "main",
@@ -22567,7 +22567,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "f14",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p9>f14",
@@ -22579,7 +22579,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p9",
        "to": "f15",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p9>f15",
@@ -23028,7 +23028,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>hotel",
        "n": "送電損失 p9>hotel",
        "g": "high",
-       "sh": 0.00225045,
+       "sh": 0.00225006,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -23236,7 +23236,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>f14",
        "n": "送電損失 p9>f14",
        "g": "high",
-       "sh": 0.0000441842,
+       "sh": 0.000132529,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -23249,7 +23249,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>f15",
        "n": "送電損失 p9>f15",
        "g": "high",
-       "sh": 0.0000441842,
+       "sh": 0.000132529,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -23262,7 +23262,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>p10",
        "n": "送電損失 p9>p10",
        "g": "high",
-       "sh": 0.498831,
+       "sh": 0.498742,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -23275,7 +23275,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p9>p11",
        "n": "送電損失 p9>p11",
        "g": "high",
-       "sh": 0.498831,
+       "sh": 0.498742,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -23358,13 +23358,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 3,
        "d": 0,
-       "cap": 26150000000000.004,
+       "cap": 78450000000000,
        "sec": 1
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 26150000000000.004,
+       "cap": 78450000000000,
        "sec": 1
       },
       {
@@ -23580,25 +23580,25 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 21,
        "d": 0,
-       "cap": 301116898.6206903,
+       "cap": 903350695.8620707,
        "sec": 1
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 301116898.6206903,
+       "cap": 903350695.8620707,
        "sec": 1
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 301116898.6294,
+       "cap": 903350695.8881998,
        "sec": 1
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 301116898.6294,
+       "cap": 903350695.8881998,
        "sec": 1
       },
       {
@@ -23701,7 +23701,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "wvvvke",
+   "signature": "1gx8ob6",
    "build": 121855,
    "crew": 1000,
    "total": 122855,
@@ -23762,8 +23762,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.743,
       "pd": false,
@@ -23784,8 +23784,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.743,
       "pd": false,
@@ -24350,7 +24350,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 2313830754081822.5,
      "De": 1909404163061764400,
      "Ds": 0,
-     "Dw": 1139466666666666.8,
+     "Dw": 1418400000000000,
      "domains": [
       {
        "id": "main",
@@ -24648,7 +24648,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "f20",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p14>f20",
@@ -24660,7 +24660,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "f21",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p14>f21",
@@ -24684,7 +24684,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "f20",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p15>f20",
@@ -24696,7 +24696,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "f21",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p15>f21",
@@ -25236,7 +25236,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.0219845,
+       "sh": 0.0219804,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -25457,7 +25457,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f20",
        "n": "送電損失 p14>f20",
        "g": "high",
-       "sh": 0.0000473114,
+       "sh": 0.000141907,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25470,7 +25470,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f21",
        "n": "送電損失 p14>f21",
        "g": "high",
-       "sh": 0.0000472789,
+       "sh": 0.00014181,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25483,7 +25483,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f22",
        "n": "送電損失 p14>f22",
        "g": "high",
-       "sh": 0.00104097,
+       "sh": 0.00104077,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25535,7 +25535,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p36",
        "n": "送電損失 p14>p36",
        "g": "high",
-       "sh": 0.000658571,
+       "sh": 0.000658447,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25548,7 +25548,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p36",
        "n": "送電損失 p15>p36",
        "g": "high",
-       "sh": 2.50065e-8,
+       "sh": 2.50017e-8,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -25561,7 +25561,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p16",
        "n": "送電損失 p14>p16",
        "g": "high",
-       "sh": 0.147967,
+       "sh": 0.147939,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -25574,7 +25574,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p17",
        "n": "送電損失 p14>p17",
        "g": "high",
-       "sh": 0.327605,
+       "sh": 0.327543,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -25587,7 +25587,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p16",
        "n": "送電損失 p15>p16",
        "g": "high",
-       "sh": 0.344879,
+       "sh": 0.344814,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -25600,7 +25600,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p17",
        "n": "送電損失 p15>p17",
        "g": "high",
-       "sh": 0.15577,
+       "sh": 0.15574,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -25730,19 +25730,19 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 4,
        "d": 0,
-       "cap": 255915188089234.78,
+       "cap": 318561405440355.7,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 85692405955382.61,
+       "cap": 106669297279822.16,
        "sec": 4
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 85692405955382.61,
+       "cap": 106669297279822.16,
        "sec": 4
       },
       {
@@ -26078,37 +26078,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 23,
        "d": 0,
-       "cap": 2531929849.847112,
+       "cap": 7595789549.541335,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 847808846.9997162,
+       "cap": 2543426540.999148,
        "sec": 3
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 847808846.9997162,
+       "cap": 2543426540.999148,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 2530192012.4402595,
+       "cap": 7590576037.320776,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 847226937.5411007,
+       "cap": 2541680812.6233015,
        "sec": 3
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 847226937.5411007,
+       "cap": 2541680812.6233015,
        "sec": 3
       },
       {
@@ -26132,37 +26132,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 26,
        "d": 0,
-       "cap": 3945297810.848997,
+       "cap": 11835893432.546993,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1321070719.3520265,
+       "cap": 3963212158.05608,
        "sec": 3
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 1321070719.3520265,
+       "cap": 3963212158.05608,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 3487974958.6771493,
+       "cap": 10463924876.031448,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1167937582.575015,
+       "cap": 3503812747.7250447,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 1167937582.575015,
+       "cap": 3503812747.7250447,
        "sec": 3
       },
       {
@@ -26367,7 +26367,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "dugg0f",
+   "signature": "lyhhhb",
    "build": 128793,
    "crew": 1000,
    "total": 129793,
@@ -26413,8 +26413,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 8.505200494756978e-14,
-    "upS": 8.505200494756978e-14,
+    "up": 8.502906132605708e-14,
+    "upS": 8.502906132605708e-14,
     "down": 0.01,
     "T": 0
    },
@@ -26428,8 +26428,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.55,
       "pd": false,
@@ -26450,8 +26450,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.55,
       "pd": false,
@@ -27161,7 +27161,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 6903635570963246,
      "De": 1034691425710104000,
      "Ds": 0,
-     "Dw": 2139466666666666.8,
+     "Dw": 2418400000000000,
      "domains": [
       {
        "id": "main",
@@ -27512,7 +27512,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f25",
@@ -27524,7 +27524,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f26",
@@ -27560,7 +27560,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f25",
@@ -27572,7 +27572,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f26",
@@ -27608,7 +27608,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f25",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f25",
@@ -27620,7 +27620,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f26",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f26",
@@ -28457,7 +28457,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.0149747,
+       "sh": 0.0149601,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28470,7 +28470,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p5",
        "n": "送電損失 p16>p5",
        "g": "high",
-       "sh": 0.000173865,
+       "sh": 0.000173695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28483,7 +28483,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p6",
        "n": "送電損失 p17>p6",
        "g": "high",
-       "sh": 0.000173865,
+       "sh": 0.000173695,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28496,7 +28496,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p7",
        "n": "送電損失 p16>p7",
        "g": "high",
-       "sh": 0.00115111,
+       "sh": 0.00114999,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28509,7 +28509,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p8",
        "n": "送電損失 p17>p8",
        "g": "high",
-       "sh": 0.00115111,
+       "sh": 0.00114999,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28522,7 +28522,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p9",
        "n": "送電損失 p18>p9",
        "g": "high",
-       "sh": 0.000341715,
+       "sh": 0.000341382,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28756,7 +28756,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.000186691,
+       "sh": 0.000559528,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28769,7 +28769,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f26",
        "n": "送電損失 p16>f26",
        "g": "high",
-       "sh": 0.000301398,
+       "sh": 0.000903312,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28782,7 +28782,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f27",
        "n": "送電損失 p16>f27",
        "g": "high",
-       "sh": 0.000656732,
+       "sh": 0.000656091,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28795,7 +28795,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f28",
        "n": "送電損失 p16>f28",
        "g": "high",
-       "sh": 0.00125104,
+       "sh": 0.00124982,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28912,7 +28912,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.0042613,
+       "sh": 0.00425714,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28925,7 +28925,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p23",
        "n": "送電損失 p17>p23",
        "g": "high",
-       "sh": 1.08949e-7,
+       "sh": 1.08843e-7,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28951,7 +28951,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p19",
        "n": "送電損失 p16>p19",
        "g": "high",
-       "sh": 0.0391975,
+       "sh": 0.0391592,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28964,7 +28964,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.297365,
+       "sh": 0.297075,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28977,7 +28977,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p21",
        "n": "送電損失 p16>p21",
        "g": "high",
-       "sh": 0.11826,
+       "sh": 0.118144,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -28990,7 +28990,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p19",
        "n": "送電損失 p17>p19",
        "g": "high",
-       "sh": 0.310659,
+       "sh": 0.310356,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29003,7 +29003,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.0409499,
+       "sh": 0.04091,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29016,7 +29016,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.123547,
+       "sh": 0.123426,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29029,7 +29029,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p19",
        "n": "送電損失 p18>p19",
        "g": "high",
-       "sh": 0.0224719,
+       "sh": 0.02245,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29042,7 +29042,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.0224719,
+       "sh": 0.02245,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29055,7 +29055,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.000454612,
+       "sh": 0.000454168,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -29362,37 +29362,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 6,
        "d": 0,
-       "cap": 413303618044237.9,
+       "cap": 467188148079670.1,
        "sec": 3
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 35888622141678.34,
+       "cap": 40567607404073.4,
        "sec": 3
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 35888622141678.34,
+       "cap": 40567607404073.4,
        "sec": 3
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 106601555362529.44,
+       "cap": 120499751412536.38,
        "sec": 4
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 106601555362529.44,
+       "cap": 120499751412536.38,
        "sec": 4
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 104016026947346.42,
+       "cap": 117577134287110.16,
        "sec": 4
       },
       {
@@ -30268,73 +30268,73 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 31,
        "d": 0,
-       "cap": 4405579421.1982355,
+       "cap": 13216738263.594704,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 382552119.7000848,
+       "cap": 1147656359.1002543,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 382552119.7000848,
+       "cap": 1147656359.1002543,
        "sec": 4
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 1136311413.8589904,
+       "cap": 3408934241.57697,
        "sec": 4
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 1136311413.8589904,
+       "cap": 3408934241.57697,
        "sec": 4
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 1108751164.488915,
+       "cap": 3326253493.466745,
        "sec": 4
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 7112209332.164022,
+       "cap": 21336627996.492058,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 617578414.9250604,
+       "cap": 1852735244.7751806,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 617578414.9250604,
+       "cap": 1852735244.7751806,
        "sec": 4
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 1834420372.2683856,
+       "cap": 5503261116.805155,
        "sec": 4
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 1834420372.2683856,
+       "cap": 5503261116.805155,
        "sec": 4
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 1789928094.6298394,
+       "cap": 5369784283.889516,
        "sec": 4
       },
       {
@@ -30412,73 +30412,73 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 35,
        "d": 0,
-       "cap": 7112154068.6689415,
+       "cap": 21336462206.006817,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 617573616.1993619,
+       "cap": 1852720848.5980856,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 617573616.1993619,
+       "cap": 1852720848.5980856,
        "sec": 4
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 1834406118.402043,
+       "cap": 5503218355.206128,
        "sec": 4
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 1834406118.402043,
+       "cap": 5503218355.206128,
        "sec": 4
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 1789914186.4786825,
+       "cap": 5369742559.436047,
        "sec": 4
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 4405584384.357982,
+       "cap": 13216753153.073942,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 382552550.66888595,
+       "cap": 1147657652.0066576,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 382552550.66888595,
+       "cap": 1147657652.0066576,
        "sec": 4
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 1136312693.984606,
+       "cap": 3408938081.953817,
        "sec": 4
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 1136312693.984606,
+       "cap": 3408938081.953817,
        "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 1108752413.5661924,
+       "cap": 3326257240.6985765,
        "sec": 4
       },
       {
@@ -30556,73 +30556,73 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 39,
        "d": 0,
-       "cap": 5150574123.124477,
+       "cap": 15451722369.37343,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 447242657.5702891,
+       "cap": 1341727972.710867,
        "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 447242657.5702891,
+       "cap": 1341727972.710867,
        "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 1328464568.3316932,
+       "cap": 3985393704.9950786,
        "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 1328464568.3316932,
+       "cap": 3985393704.9950786,
        "sec": 4
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 1296243810.5922358,
+       "cap": 3888731431.7767067,
        "sec": 4
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 5150703689.442457,
+       "cap": 15452111068.327366,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 447253908.2741911,
+       "cap": 1341761724.822573,
        "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 447253908.2741911,
+       "cap": 1341761724.822573,
        "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 1328497986.793125,
+       "cap": 3985493960.379374,
        "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 1328497986.793125,
+       "cap": 3985493960.379374,
        "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 1296276418.5178237,
+       "cap": 3888829255.5534706,
        "sec": 4
       },
       {
@@ -31205,7 +31205,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "rr4x5f",
+   "signature": "1s336rn",
    "build": 100714,
    "crew": 0,
    "total": 100714,
@@ -31264,8 +31264,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.817,
       "pd": false,
@@ -31286,8 +31286,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.817,
       "pd": false,
@@ -31308,8 +31308,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.817,
       "pd": false,
@@ -31330,8 +31330,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.817,
       "pd": false,
@@ -31959,7 +31959,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 2138580161525952,
      "De": 452746217455838700,
      "Ds": 0,
-     "Dw": 3278933333333333.5,
+     "Dw": 3836800000000000,
      "domains": [
       {
        "id": "main",
@@ -32273,7 +32273,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f19",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f19",
@@ -32285,7 +32285,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f20",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f20",
@@ -32297,7 +32297,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f21",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f21",
@@ -32309,7 +32309,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f22",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f22",
@@ -32797,7 +32797,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f19",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.695023,
+       "sh": 0.739366,
        "m": [
         0,
         1,
@@ -32816,7 +32816,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.304977,
+       "sh": 0.260634,
        "m": [
         6
        ],
@@ -32842,7 +32842,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.0219217,
+       "sh": 0.0218497,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -32855,7 +32855,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.000558907,
+       "sh": 0.00055707,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -32868,7 +32868,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p5",
        "n": "送電損失 p16>p5",
        "g": "high",
-       "sh": 0.000558907,
+       "sh": 0.00055707,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -32881,7 +32881,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p6",
        "n": "送電損失 p16>p6",
        "g": "high",
-       "sh": 0.000518656,
+       "sh": 0.000516951,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -32894,7 +32894,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p7",
        "n": "送電損失 p16>p7",
        "g": "high",
-       "sh": 0.000518656,
+       "sh": 0.000516951,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33115,7 +33115,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f19",
        "n": "送電損失 p16>f19",
        "g": "high",
-       "sh": 0.000414837,
+       "sh": 0.00124042,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33128,7 +33128,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f20",
        "n": "送電損失 p16>f20",
        "g": "high",
-       "sh": 0.000414837,
+       "sh": 0.00124042,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33141,7 +33141,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f21",
        "n": "送電損失 p16>f21",
        "g": "high",
-       "sh": 0.000409547,
+       "sh": 0.0012246,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33154,7 +33154,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.000409547,
+       "sh": 0.0012246,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -33167,7 +33167,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.00126894,
+       "sh": 0.00126477,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33180,7 +33180,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.00126894,
+       "sh": 0.00126477,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33193,7 +33193,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.000171978,
+       "sh": 0.000171412,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33206,7 +33206,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p13",
        "n": "送電損失 p16>p13",
        "g": "high",
-       "sh": 0.00259794,
+       "sh": 0.0025894,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -33219,7 +33219,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.484483,
+       "sh": 0.482891,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33232,7 +33232,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p18",
        "n": "送電損失 p16>p18",
        "g": "high",
-       "sh": 0.484483,
+       "sh": 0.482891,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33402,31 +33402,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 3,
        "d": 0,
-       "cap": 416421648916905.1,
+       "cap": 518358705965134.1,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 109544587770773.72,
+       "cap": 136360323508716.45,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 109544587770773.72,
+       "cap": 136360323508716.45,
        "sec": 4
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 109544587770773.72,
+       "cap": 136360323508716.45,
        "sec": 4
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 109544587770773.72,
+       "cap": 136360323508716.45,
        "sec": 4
       },
       {
@@ -34128,121 +34128,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 27,
        "d": 0,
-       "cap": 2855947145.335192,
+       "cap": 8567841436.005577,
        "sec": 2
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 2855947145.335192,
+       "cap": 8567841436.005577,
        "sec": 2
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 751290317.2651575,
+       "cap": 2253870951.7954717,
        "sec": 4
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2819532411.996603,
+       "cap": 8458597235.989805,
        "sec": 2
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 2819532411.996603,
+       "cap": 8458597235.989805,
        "sec": 2
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 741710995.5302433,
+       "cap": 2225132986.5907297,
        "sec": 4
       },
       {
@@ -34545,15 +34545,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "14rzepy",
-   "build": 242823,
+   "signature": "dy589f",
+   "build": 242808,
    "crew": 1000,
-   "total": 243823,
+   "total": 243808,
    "by": {
     "hull": 7,
     "armor": 3,
     "power": 113541,
-    "drive": 32469,
+    "drive": 32454,
     "defense": 37501,
     "command": 20502,
     "weapons": 14800,
@@ -34564,7 +34564,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 13274726900000000,
+    "power": 13207498900000000,
     "crew": 1,
     "suitSeats": 0,
     "lifeSupportCapacity": 1,
@@ -34582,10 +34582,10 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 23.328,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 4,
+    "laserUnits": 0.8,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 643.1249999999999,
+    "laserGasSeconds": 694.5749999999998,
     "landingSupport": 12.4416,
     "landingRatio": 1,
     "landingReady": true
@@ -34606,8 +34606,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.750000004,
-      "weaponPowerW": 139466666666666.69,
+      "size": 0.7500000024,
+      "weaponPowerW": 83680000000000,
       "stock": 0,
       "at": 0.283,
       "pd": false,
@@ -34628,8 +34628,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.750000004,
-      "weaponPowerW": 139466666666666.69,
+      "size": 0.7500000024,
+      "weaponPowerW": 83680000000000,
       "stock": 0,
       "at": 0.283,
       "pd": false,
@@ -34655,7 +34655,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": 0,
       "r": 0.062,
-      "share": 0.7314877406876098,
+      "share": 0.7726068561390309,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -34672,7 +34672,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.41,
       "z": 0,
       "r": 0.025,
-      "share": 0.04974104245245024,
+      "share": 0.052537135337552755,
       "domain": "main",
       "port": "p14",
       "powerConnected": true
@@ -34680,16 +34680,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "上部機関用反応炉",
-      "w": 0.02839467028560714,
+      "w": 0.028365255325887486,
       "hits": 1,
-      "crew": 0.000002392352932611813,
-      "size": 0.004784705865223626,
+      "crew": 0.0000023886364215693554,
+      "size": 0.004777272843138711,
       "at": 0.348,
       "part": 15,
       "y": 0.25,
       "z": 0,
       "r": 0.011,
-      "share": 0.0269951623044704,
+      "share": 0.026991635836333877,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -34697,16 +34697,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "下部機関用反応炉",
-      "w": 0.06560304622786674,
+      "w": 0.06553508590493044,
       "hits": 1,
-      "crew": 0.000008401484167569626,
-      "size": 0.01680296833513925,
+      "crew": 0.000008388432494358633,
+      "size": 0.016776864988717267,
       "at": 0.589,
       "part": 16,
       "y": 0.06,
       "z": 0,
       "r": 0.016,
-      "share": 0.09480182694213758,
+      "share": 0.09478944266312399,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -34714,16 +34714,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "補助反応炉（機首）",
-      "w": 0.04365964503114954,
+      "w": 0.04361441658908459,
       "hits": 1,
-      "crew": 0.000004561317517788066,
-      "size": 0.009122635035576131,
+      "crew": 0.000004554231528638249,
+      "size": 0.009108463057276498,
       "at": 0.703,
       "part": 17,
       "y": 0.07,
       "z": 0,
       "r": 0.013,
-      "share": 0.05146962433359858,
+      "share": 0.051462900684814225,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -34731,16 +34731,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷補助反応炉",
-      "w": 0.049474873505641885,
+      "w": 0.049423620879826366,
       "hits": 1,
-      "crew": 0.000005502335189713327,
-      "size": 0.011004670379426654,
+      "crew": 0.000005493787333244029,
+      "size": 0.010987574666488057,
       "at": 0.431,
       "part": 18,
       "y": 0.09,
       "z": 0.27,
       "r": 0.014,
-      "share": 0.06208800945508819,
+      "share": 0.06207989869122117,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -34748,16 +34748,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷補助反応炉",
-      "w": 0.049474873505641885,
+      "w": 0.049423620879826366,
       "hits": 1,
-      "crew": 0.000005502335189713327,
-      "size": 0.011004670379426654,
+      "crew": 0.000005493787333244029,
+      "size": 0.010987574666488057,
       "at": 0.431,
       "part": 19,
       "y": 0.09,
       "z": -0.27,
       "r": 0.014,
-      "share": 0.06208800945508819,
+      "share": 0.06207989869122117,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -34893,7 +34893,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.19,
       "z": 0,
       "r": 0.016,
-      "share": 0.036688834907272226,
+      "share": 0.036692541052802854,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -34910,7 +34910,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": 0.22,
       "r": 0.015,
-      "share": 0.010895801108305665,
+      "share": 0.011508286702783286,
       "domain": "main",
       "port": "p28",
       "powerConnected": true
@@ -34927,7 +34927,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": -0.22,
       "r": 0.015,
-      "share": 0.010851914514920014,
+      "share": 0.01146193311261858,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -34935,16 +34935,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "翼根部の推進・兵装用反応炉",
-      "w": 0.23579804368653795,
+      "w": 0.23558309788863785,
       "hits": 1,
-      "crew": 0.000012465319186593889,
-      "size": 0.062326595932969436,
+      "crew": 0.000012448278604505909,
+      "size": 0.06224139302252954,
       "at": 0.283,
       "part": 32,
       "y": 0.05,
       "z": -0.71,
       "r": 0.025,
-      "share": 0.35164472393686375,
+      "share": 0.35166444738929264,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -34952,16 +34952,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "翼根部の推進・兵装用反応炉",
-      "w": 0.23547066198935301,
+      "w": 0.2352557688539522,
       "hits": 1,
-      "crew": 0.000012439367950054042,
-      "size": 0.062196839750270204,
+      "crew": 0.000012422343378185651,
+      "size": 0.06211171689092825,
       "at": 0.283,
       "part": 33,
       "y": 0.05,
       "z": 0.71,
       "r": 0.025,
-      "share": 0.3509126435727533,
+      "share": 0.3509317760439929,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -34978,7 +34978,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.11,
       "z": 0,
       "r": 0.023,
-      "share": 0.04009961349484592,
+      "share": 0.04235373279874838,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -34995,7 +34995,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": -0.17,
       "r": 0.018,
-      "share": 0.019307631799218156,
+      "share": 0.020392971575793617,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -35012,7 +35012,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.17,
       "z": -0.1,
       "r": 0.009,
-      "share": 0.0026718298135373028,
+      "share": 0.0028220213648900514,
       "domain": "main",
       "port": "p37",
       "powerConnected": true
@@ -35029,7 +35029,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.13,
       "z": -0.13,
       "r": 0.014,
-      "share": 0.00842952410505043,
+      "share": 0.0089033728869183,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -35046,7 +35046,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.14,
       "z": 0.12,
       "r": 0.013,
-      "share": 0.007331501008346357,
+      "share": 0.0077436266252583,
       "domain": "main",
       "port": "p39",
       "powerConnected": true
@@ -35063,7 +35063,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": 0,
       "r": 0.011,
-      "share": 0.004616921917792459,
+      "share": 0.004876452918530009,
       "domain": "main",
       "port": "p40",
       "powerConnected": true
@@ -35080,7 +35080,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": -0.1,
       "r": 0.011,
-      "share": 0.004616921917792459,
+      "share": 0.004876452918530009,
       "domain": "main",
       "port": "p41",
       "powerConnected": true
@@ -35097,7 +35097,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": 0.1,
       "r": 0.011,
-      "share": 0.004616921917792459,
+      "share": 0.004876452918530009,
       "domain": "main",
       "port": "p42",
       "powerConnected": true
@@ -35114,7 +35114,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": -0.05,
       "r": 0.011,
-      "share": 0.004616921917792459,
+      "share": 0.004876452918530009,
       "domain": "main",
       "port": "p43",
       "powerConnected": true
@@ -35122,16 +35122,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "レーザーガス供給槽 1",
-      "w": 0.1225,
+      "w": 0.0441,
       "hits": 1,
       "crew": 0,
-      "size": 0.04287499999999999,
-      "at": 0.619,
+      "size": 0.009260999999999998,
+      "at": 0.594,
       "part": 44,
-      "y": 0.12,
-      "z": 0,
-      "r": 0.022,
-      "share": 0.0339421342978998,
+      "y": 0.14,
+      "z": 0.06,
+      "r": 0.013,
+      "share": 0.0077436266252583,
       "domain": "main",
       "port": "p44",
       "powerConnected": true
@@ -35139,16 +35139,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "レーザーガス供給槽 2",
-      "w": 0.1225,
+      "w": 0.0441,
       "hits": 1,
       "crew": 0,
-      "size": 0.04287499999999999,
-      "at": 0.495,
+      "size": 0.009260999999999998,
+      "at": 0.594,
       "part": 45,
-      "y": 0.12,
-      "z": 0.2,
-      "r": 0.022,
-      "share": 0.0339421342978998,
+      "y": 0.14,
+      "z": -0.12,
+      "r": 0.013,
+      "share": 0.0077436266252583,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -35165,7 +35165,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": -0.14,
       "r": 0.015,
-      "share": 0.010943814916248792,
+      "share": 0.01155899951058965,
       "domain": "main",
       "port": "p46",
       "powerConnected": true
@@ -35182,7 +35182,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": 0.14,
       "r": 0.015,
-      "share": 0.010943814916248792,
+      "share": 0.01155899951058965,
       "domain": "main",
       "port": "p47",
       "powerConnected": true
@@ -35197,9 +35197,9 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.6,
       "part": 48,
       "y": 0.12,
-      "z": -0.14,
+      "z": 0.14,
       "r": 0.015,
-      "share": 0.010943814916248792,
+      "share": 0.01155899951058965,
       "domain": "main",
       "port": "p48",
       "powerConnected": true
@@ -35207,16 +35207,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.03929310789518908,
+      "w": 0.03914830345247801,
       "hits": 1,
-      "crew": 3.8944360387344615e-7,
-      "size": 0.007788872077468922,
-      "at": 0.508,
+      "crew": 3.8729280009887375e-7,
+      "size": 0.007745856001977474,
+      "at": 0.622,
       "part": 49,
       "y": 0.16,
-      "z": -0.21,
+      "z": 0,
       "r": 0.013,
-      "share": 0.018288937072903664,
+      "share": 0.018189768917866105,
       "domain": "main",
       "port": "p49",
       "powerConnected": true
@@ -35270,7 +35270,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": 0.68,
       "r": 0.029,
-      "share": 0.21764092109587482,
+      "share": 0.2176629062292005,
       "domain": "main",
       "port": "p1",
       "powerConnected": true
@@ -35288,7 +35288,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.53,
       "z": -0.68,
       "r": 0.029,
-      "share": 0.2176408832952739,
+      "share": 0.21766286842478114,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -35306,7 +35306,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": 0.68,
       "r": 0.03,
-      "share": 0.25487023964767735,
+      "share": 0.254895985523826,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -35324,7 +35324,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.49,
       "z": -0.68,
       "r": 0.03,
-      "share": 0.25487018398099803,
+      "share": 0.25489592985152343,
       "domain": "main",
       "port": "p4",
       "powerConnected": true
@@ -35340,35 +35340,35 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": 0,
       "r": 0.087,
-      "share": 0.2943699731903485,
+      "share": 0.2921766897285791,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.3878753387916898,
+      "w": 0.38903534088402303,
       "hits": 1,
       "crew": 0,
-      "size": 4.158161598636853,
-      "at": 0.343,
+      "size": 4.176828990774392,
+      "at": 0.344,
       "y": 0.11,
       "z": 0,
       "r": 0.102,
-      "share": 0.4777479892761394,
+      "share": 0.47631718999467804,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.20125029280523135,
+      "w": 0.20525942687448565,
       "hits": 1,
       "crew": 0,
-      "size": 1.554060395450137,
-      "at": 0.619,
-      "y": 0.06,
+      "size": 1.6007288757939848,
+      "at": 0.617,
+      "y": 0.07,
       "z": 0,
-      "r": 0.073,
-      "share": 0.17855227882037536,
+      "r": 0.074,
+      "share": 0.18254390633315595,
       "domain": "main"
      },
      {
@@ -35382,13 +35382,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.048,
-      "share": 0.04932975871313673,
+      "share": 0.04896221394358702,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 8.208682818169102,
+      "w": 8.117212448454637,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -35400,7 +35400,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.00013642066506768723,
+    "D": 0.00013623689101132456,
     "shieldBuffer": 0.02551298707898365,
     "wCap": 0,
     "fuel": {
@@ -35408,8 +35408,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.07853981633974483,
      "massKg": 19.634954084936208,
-     "capacityJ": 2.2224833472505022e+21,
-     "specificEnergyJPerKg": 113190147409388390000,
+     "capacityJ": 2.2195127997367798e+21,
+     "specificEnergyJPerKg": 113038858666828960000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -35424,16 +35424,16 @@ const CRAFT_PRICE_CATALOG={
      "version": 1
     },
     "grid": {
-     "P": 928222697568807600,
-     "fixed": 20912036436864530,
-     "cooling": 4478124226829083,
-     "De": 928222697568807400,
-     "Ds": 570784062643203400,
-     "Dw": 278933333333333.38,
+     "P": 926901791466730000,
+     "fixed": 20838050176454184,
+     "cooling": 4471365966418740,
+     "De": 926901791466730000,
+     "Ds": 570015151991381950,
+     "Dw": 167360000000000,
      "domains": [
       {
        "id": "main",
-       "P": 928222697568807600,
+       "P": 926901791466730000,
        "reactors": [
         4,
         5,
@@ -35446,31 +35446,31 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 4,
-         "P": 25057522375563300
+         "P": 25018595611315460
         },
         {
          "moduleIndex": 5,
-         "P": 87997207538682200
+         "P": 87860504216582510
         },
         {
          "moduleIndex": 6,
-         "P": 47775273541786010
+         "P": 47701054838828720
         },
         {
          "moduleIndex": 7,
-         "P": 57631499623079580
+         "P": 57541969310966020
         },
         {
          "moduleIndex": 8,
-         "P": 57631499623079580
+         "P": 57541969310966020
         },
         {
          "moduleIndex": 19,
-         "P": 326404614238514300
+         "P": 325958406280293000
         },
         {
          "moduleIndex": 20,
-         "P": 325725080628102500
+         "P": 325279291897778300
         }
        ],
        "modules": [
@@ -35530,7 +35530,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 20912036436864530,
+       "cap": 20838050176454184,
        "auto": true,
        "ok": true,
        "routeId": "p16>hotel",
@@ -35590,7 +35590,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p13",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p18>p13",
@@ -35602,7 +35602,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p14",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p14",
@@ -35614,7 +35614,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p25",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p25",
@@ -35626,7 +35626,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p26",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p26",
@@ -35638,7 +35638,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p28",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p28",
@@ -35650,7 +35650,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p29",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p15>p29",
@@ -35662,7 +35662,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p35",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p35",
@@ -35674,7 +35674,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p36",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p19>p36",
@@ -35686,7 +35686,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p37",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p37",
@@ -35698,7 +35698,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p38",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p38",
@@ -35710,7 +35710,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p39",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p39",
@@ -35722,7 +35722,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p40",
@@ -35734,7 +35734,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p41",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p41",
@@ -35746,7 +35746,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p42",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p42",
@@ -35758,7 +35758,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p43",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p43",
@@ -35770,31 +35770,31 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p44",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p44",
        "model": "source-distance",
-       "lengthM": 0.30610455730027886,
-       "efficiency": 0.999996938959112
+       "lengthM": 0.28401760508813534,
+       "efficiency": 0.9999971598279824
       },
       {
        "kind": "power",
-       "from": "p18",
+       "from": "p16",
        "to": "p45",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
-       "routeId": "p18>p45",
+       "routeId": "p16>p45",
        "model": "source-distance",
-       "lengthM": 0.5435071296680479,
-       "efficiency": 0.9999945649434733
+       "lengthM": 0.38143544670101126,
+       "efficiency": 0.9999961856528077
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p46",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p46",
@@ -35806,7 +35806,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p47",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p47",
@@ -35818,7 +35818,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p48",
-       "cap": 950547110766569.5,
+       "cap": 947184098929735.6,
        "auto": true,
        "ok": true,
        "routeId": "p16>p48",
@@ -35866,7 +35866,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p15>f30",
@@ -35878,7 +35878,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p15>f31",
@@ -35926,7 +35926,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f30",
@@ -35938,7 +35938,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p16>f31",
@@ -35986,7 +35986,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f30",
@@ -35998,7 +35998,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p17>f31",
@@ -36046,7 +36046,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f30",
@@ -36058,7 +36058,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p18>f31",
@@ -36106,7 +36106,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p19>f30",
@@ -36118,7 +36118,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p19>f31",
@@ -36166,7 +36166,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p32>f30",
@@ -36178,7 +36178,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p32>f31",
@@ -36226,7 +36226,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "f30",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p33>f30",
@@ -36238,7 +36238,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "f31",
-       "cap": 209200000000000.03,
+       "cap": 125520000000000,
        "auto": false,
        "ok": true,
        "routeId": "p33>f31",
@@ -36262,13 +36262,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p15>p49",
        "model": "source-distance",
-       "lengthM": 1.3942962200024067,
-       "efficiency": 0.9999860571350027
+       "lengthM": 2.1832249180128005,
+       "efficiency": 0.9999781679891417
       },
       {
        "kind": "power",
@@ -36286,13 +36286,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p16>p49",
        "model": "source-distance",
-       "lengthM": 0.8700127982466699,
-       "efficiency": 0.9999912999098636
+       "lengthM": 0.395554904699714,
+       "efficiency": 0.9999960444587762
       },
       {
        "kind": "power",
@@ -36310,13 +36310,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p17>p49",
        "model": "source-distance",
-       "lengthM": 1.641944867866458,
-       "efficiency": 0.9999835806861197
+       "lengthM": 0.6882819499536508,
+       "efficiency": 0.999993117204187
       },
       {
        "kind": "power",
@@ -36334,13 +36334,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p18>p49",
        "model": "source-distance",
-       "lengthM": 1.3384781765546272,
-       "efficiency": 0.9999866153078103
+       "lengthM": 1.6622365663863856,
+       "efficiency": 0.9999833777724869
       },
       {
        "kind": "power",
@@ -36358,13 +36358,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p19>p49",
        "model": "source-distance",
-       "lengthM": 0.6564353959933906,
-       "efficiency": 0.9999934356675854
+       "lengthM": 1.6622365663863856,
+       "efficiency": 0.9999833777724869
       },
       {
        "kind": "power",
@@ -36382,13 +36382,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p32>p49",
        "model": "source-distance",
-       "lengthM": 2.1867564530859394,
-       "efficiency": 0.9999781326745626
+       "lengthM": 3.2148427635938903,
+       "efficiency": 0.9999678520891192
       },
       {
        "kind": "power",
@@ -36406,23 +36406,23 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p49",
-       "cap": 1223710559389564.2,
+       "cap": 1216952298979221.2,
        "auto": false,
        "ok": true,
        "routeId": "p33>p49",
        "model": "source-distance",
-       "lengthM": 2.896480413383284,
-       "efficiency": 0.9999710356153421
+       "lengthM": 3.2148427635938903,
+       "efficiency": 0.9999678520891192
       },
       {
        "kind": "power",
        "from": "p15",
        "to": "p20",
-       "cap": 35080531325788616,
+       "cap": 35026033855841640,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p15>p20",
        "model": "source-distance",
        "lengthM": 0.12206555615733701,
@@ -36432,11 +36432,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p21",
-       "cap": 35080531325788616,
+       "cap": 35026033855841640,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p15>p21",
        "model": "source-distance",
        "lengthM": 1.7769246702423378,
@@ -36446,11 +36446,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p20",
-       "cap": 123196090554155090,
+       "cap": 123004705903215500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p16>p20",
        "model": "source-distance",
        "lengthM": 2.064000968992021,
@@ -36460,11 +36460,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 123196090554155090,
+       "cap": 123004705903215500,
        "auto": true,
        "ok": true,
        "capacityGroup": "p16>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p16>p21",
        "model": "source-distance",
        "lengthM": 0.35390276896527817,
@@ -36474,11 +36474,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p20",
-       "cap": 66885382958500410,
+       "cap": 66781476774360200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p17>p20",
        "model": "source-distance",
        "lengthM": 2.9394557319340597,
@@ -36488,11 +36488,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p21",
-       "cap": 66885382958500410,
+       "cap": 66781476774360200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p17>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p17>p21",
        "model": "source-distance",
        "lengthM": 1.2185986171188086,
@@ -36502,11 +36502,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p20",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p18>p20",
        "model": "source-distance",
        "lengthM": 1.0761505470890214,
@@ -36516,11 +36516,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p21",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p18>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p18>p21",
        "model": "source-distance",
        "lengthM": 1.1961643226905347,
@@ -36530,11 +36530,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p20",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p19>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p19>p20",
        "model": "source-distance",
        "lengthM": 1.0761505470890214,
@@ -36544,11 +36544,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p19",
        "to": "p21",
-       "cap": 80684099472311410,
+       "cap": 80558757035352420,
        "auto": true,
        "ok": true,
        "capacityGroup": "p19>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p19>p21",
        "model": "source-distance",
        "lengthM": 1.1961643226905347,
@@ -36558,11 +36558,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p20",
-       "cap": 456966459933920000,
+       "cap": 456341768792410200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p32>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p32>p20",
        "model": "source-distance",
        "lengthM": 1.8747789202996707,
@@ -36572,11 +36572,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p21",
-       "cap": 456966459933920000,
+       "cap": 456341768792410200,
        "auto": true,
        "ok": true,
        "capacityGroup": "p32>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p32>p21",
        "model": "source-distance",
        "lengthM": 2.7507129882968098,
@@ -36586,11 +36586,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p20",
-       "cap": 456015112879343500,
+       "cap": 455391008656889600,
        "auto": true,
        "ok": true,
        "capacityGroup": "p33>p20",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p33>p20",
        "model": "source-distance",
        "lengthM": 1.8747789202996707,
@@ -36600,11 +36600,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p21",
-       "cap": 456015112879343500,
+       "cap": 455391008656889600,
        "auto": true,
        "ok": true,
        "capacityGroup": "p33>p21",
-       "groupCap": 1299511776596330500,
+       "groupCap": 1297662508053421800,
        "routeId": "p33>p21",
        "model": "source-distance",
        "lengthM": 2.7507129882968098,
@@ -36616,7 +36616,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 20912036436864530,
+       "weight": 20838050176454184,
        "domain": "main"
       }
      ],
@@ -36630,7 +36630,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p49",
        "port": "p49",
-       "weight": 1223710559389564.2,
+       "weight": 1216952298979221.2,
        "domain": "main"
       },
       {
@@ -36667,23 +36667,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 15313272856330830,
-       "densityFactor": 29.311086472314997,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020550207.6464038,
-       "shaftWattsPerNewton": 1919522697.2640836,
-       "wattsPerNewton": 2020550207.646404,
-       "ratedShaftPowerW": 426406231622763650,
-       "ratedWasteHeatW": 22442433243303372,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 425799434789644160,
+       "ratedWasteHeatW": 22410496567876028,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9008.443312005538,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36700,10 +36700,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 448848664866067000,
+       "ratedInputW": 448209931357520200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 222141802.35040984,
+       "ratedThrustN": 221852861.95261264,
        "effectiveMachineryVolumeM3": 0.045039037812737735,
        "machineryVolumeM3": 0.045039037812737735,
        "machineryShape": "frustum",
@@ -36711,12 +36711,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.24499999999999997,
        "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 330803275661130400,
-       "cost": 1340.5195680899915,
+       "costBasisInputW": 330373017939200900,
+       "cost": 1336.869024108263,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -36735,7 +36735,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600,
+       "pathCapacityW": 926901791466730000,
        "transmissionRouteIds": [
         "p15>p20",
         "p16>p20",
@@ -36749,23 +36749,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 16354700231106086,
-       "densityFactor": 29.311086472314994,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020550207.6464038,
-       "shaftWattsPerNewton": 1919522697.2640836,
-       "wattsPerNewton": 2020550207.646404,
-       "ratedShaftPowerW": 455405331067603460,
-       "ratedWasteHeatW": 23968701635137044,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 454757267103749300,
+       "ratedWasteHeatW": 23934593005460516,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9008.443312005538,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36782,10 +36782,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 479374032702740500,
+       "ratedInputW": 478691860109209860,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 237249255.61791873,
+       "ratedThrustN": 236940664.91787934,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryShape": "frustum",
@@ -36793,12 +36793,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.252,
        "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 587960290637931500,
-       "cost": 4117.217630446493,
+       "costBasisInputW": 587195562856051800,
+       "cost": 4106.21413703117,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -36817,7 +36817,7 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600,
+       "pathCapacityW": 926901791466730000,
        "transmissionRouteIds": [
         "p15>p21",
         "p16>p21",
@@ -36833,23 +36833,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 15313272856330830,
-       "densityFactor": 29.311086472314997,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020550207.6464038,
-       "shaftWattsPerNewton": 1919522697.2640836,
-       "wattsPerNewton": 2020550207.646404,
-       "ratedShaftPowerW": 426406231622763650,
-       "ratedWasteHeatW": 22442433243303372,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 425799434789644160,
+       "ratedWasteHeatW": 22410496567876028,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9008.443312005538,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36866,10 +36866,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 448848664866067000,
+       "ratedInputW": 448209931357520200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 222141802.35040984,
+       "ratedThrustN": 221852861.95261264,
        "effectiveMachineryVolumeM3": 0.045039037812737735,
        "machineryVolumeM3": 0.045039037812737735,
        "machineryShape": "frustum",
@@ -36877,12 +36877,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.24499999999999997,
        "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 330803275661130400,
-       "cost": 1340.5195680899915,
+       "costBasisInputW": 330373017939200900,
+       "cost": 1336.869024108263,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -36907,28 +36907,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600
+       "pathCapacityW": 926901791466730000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 16354700231106086,
-       "densityFactor": 29.311086472314994,
+       "densityFactor": 29.26937536884682,
        "efficiency": 0.95,
        "wasteFraction": 0.050000000000000044,
-       "profileWattsPerNewton": 2020550207.6464038,
-       "shaftWattsPerNewton": 1919522697.2640836,
-       "wattsPerNewton": 2020550207.646404,
-       "ratedShaftPowerW": 455405331067603460,
-       "ratedWasteHeatW": 23968701635137044,
+       "profileWattsPerNewton": 2020302679.0488598,
+       "shaftWattsPerNewton": 1919287545.0964167,
+       "wattsPerNewton": 2020302679.0488598,
+       "ratedShaftPowerW": 454757267103749300,
+       "ratedWasteHeatW": 23934593005460516,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 9008.443312005538,
+       "conversionMassKg": 8996.726522654491,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 928222697568807600,
-       "sourceInputLimitW": 928222697568807600,
+       "availableInputW": 926901791466730000,
+       "sourceInputLimitW": 926901791466730000,
        "sourceIds": [
         "p15",
         "p16",
@@ -36945,10 +36945,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 479374032702740500,
+       "ratedInputW": 478691860109209860,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 237249255.61791873,
+       "ratedThrustN": 236940664.91787934,
        "effectiveMachineryVolumeM3": 0.04810205950325319,
        "machineryVolumeM3": 0.04810205950325319,
        "machineryShape": "frustum",
@@ -36956,12 +36956,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.252,
        "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 928222697568807600,
-       "maxRatedInputW": 928222697568807600,
-       "inputDensityWPerM3": 9965769400587098000,
+       "maxInputW": 926901791466730000,
+       "maxRatedInputW": 926901791466730000,
+       "inputDensityWPerM3": 9951587625407918000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 587960290637931500,
-       "cost": 4117.217630446493,
+       "costBasisInputW": 587195562856051800,
+       "cost": 4106.21413703117,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -36986,22 +36986,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 928222697568807600
+       "pathCapacityW": 926901791466730000
       }
      ],
-     "massKg": 9008.443312005538,
-     "ratedThrustN": 459381777.69219756,
-     "ratedAccelMps2": 50994.57939419791,
-     "structuralAccelerationLimitMps2": 2059538.1887048958,
+     "massKg": 8996.726522654491,
+     "ratedThrustN": 458784258.48124456,
+     "ratedAccelMps2": 50994.57645244505,
+     "structuralAccelerationLimitMps2": 2071999.865748339,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 50994.57939419791,
+     "accelerationLimitMps2": 50994.57645244505,
      "conversionModelVersion": 1,
-     "conversionMassKg": 9008.443312005538,
+     "conversionMassKg": 8996.726522654491,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[928222697568807600,[[\"main\",928222697568807600,[[4,25057522375563300],[5,87997207538682200],[6,47775273541786010],[7,57631499623079580],[8,57631499623079580],[19,326404614238514300],[20,325725080628102500]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004784705865223626,0.0269951623044704],[5,\"reactor\",16,\"p16\",\"main\",0.01680296833513925,0.09480182694213758],[6,\"reactor\",17,\"p17\",\"main\",0.009122635035576131,0.05146962433359858],[7,\"reactor\",18,\"p18\",\"main\",0.011004670379426654,0.06208800945508819],[8,\"reactor\",19,\"p19\",\"main\",0.011004670379426654,0.06208800945508819],[19,\"reactor\",32,\"p32\",\"main\",0.062326595932969436,0.35164472393686375],[20,\"reactor\",33,\"p33\",\"main\",0.062196839750270204,0.3509126435727533]]]"
+     "sourceBudgetKey": "[926901791466730000,[[\"main\",926901791466730000,[[4,25018595611315460],[5,87860504216582510],[6,47701054838828720],[7,57541969310966020],[8,57541969310966020],[19,325958406280293000],[20,325279291897778300]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.004777272843138711,0.026991635836333877],[5,\"reactor\",16,\"p16\",\"main\",0.016776864988717267,0.09478944266312399],[6,\"reactor\",17,\"p17\",\"main\",0.009108463057276498,0.051462900684814225],[7,\"reactor\",18,\"p18\",\"main\",0.010987574666488057,0.06207989869122117],[8,\"reactor\",19,\"p19\",\"main\",0.010987574666488057,0.06207989869122117],[19,\"reactor\",32,\"p32\",\"main\",0.06224139302252954,0.35166444738929264],[20,\"reactor\",33,\"p33\",\"main\",0.06211171689092825,0.3509317760439929]]]"
     },
     "profileVersion": 23,
-    "maxSpeed": 2534.2935713201314,
+    "maxSpeed": 2534.5092489701246,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -37012,7 +37012,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p15",
        "n": "上部機関用反応炉 #15",
        "g": "high",
-       "sh": 0.0286721,
+       "sh": 0.0286684,
        "m": [
         4
        ],
@@ -37026,7 +37026,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "下部機関用反応炉 #16",
        "g": "high",
-       "sh": 0.100691,
+       "sh": 0.100678,
        "m": [
         5
        ],
@@ -37040,7 +37040,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "補助反応炉（機首） #17",
        "g": "high",
-       "sh": 0.0546668,
+       "sh": 0.0546599,
        "m": [
         6
        ],
@@ -37054,7 +37054,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "右舷補助反応炉 #18",
        "g": "high",
-       "sh": 0.0659448,
+       "sh": 0.0659364,
        "m": [
         7
        ],
@@ -37068,7 +37068,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p19",
        "n": "左舷補助反応炉 #19",
        "g": "high",
-       "sh": 0.0659448,
+       "sh": 0.0659364,
        "m": [
         8
        ],
@@ -37098,7 +37098,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p32",
        "n": "翼根部の推進・兵装用反応炉 #32",
        "g": "high",
-       "sh": 0.373488,
+       "sh": 0.373511,
        "m": [
         19
        ],
@@ -37112,7 +37112,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p33",
        "n": "翼根部の推進・兵装用反応炉 #33",
        "g": "high",
-       "sh": 0.310592,
+       "sh": 0.31061,
        "m": [
         20
        ],
@@ -37183,7 +37183,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00396639,
+       "sh": 0.00395509,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37196,7 +37196,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p1",
        "n": "送電損失 p33>p1",
        "g": "high",
-       "sh": 0.0000673237,
+       "sh": 0.0000674076,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37209,7 +37209,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p2",
        "n": "送電損失 p32>p2",
        "g": "high",
-       "sh": 0.0000696059,
+       "sh": 0.0000696926,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37222,7 +37222,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p3",
        "n": "送電損失 p33>p3",
        "g": "high",
-       "sh": 0.000093535,
+       "sh": 0.0000936516,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37235,7 +37235,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p4",
        "n": "送電損失 p32>p4",
        "g": "high",
-       "sh": 0.000093535,
+       "sh": 0.0000936516,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -37453,16 +37453,16 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
-       "id": "feed:p18>p45",
-       "n": "送電損失 p18>p45",
+       "id": "feed:p16>p45",
+       "n": "送電損失 p16>p45",
        "g": "high",
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
-       "routeId": "p18>p45"
+       "routeId": "p16>p45"
       },
       {
        "k": "feed",
@@ -37508,7 +37508,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p22",
        "n": "送電損失 p15>p22",
        "g": "high",
-       "sh": 0.0119197,
+       "sh": 0.0119165,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37521,7 +37521,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p23",
        "n": "送電損失 p15>p23",
        "g": "high",
-       "sh": 0.0032118,
+       "sh": 0.00321094,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37534,7 +37534,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p24",
        "n": "送電損失 p15>p24",
        "g": "high",
-       "sh": 0.0032118,
+       "sh": 0.00321094,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37547,7 +37547,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f30",
        "n": "送電損失 p15>f30",
        "g": "high",
-       "sh": 0.0000959116,
+       "sh": 0.0000576187,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37560,7 +37560,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f31",
        "n": "送電損失 p15>f31",
        "g": "high",
-       "sh": 0.0000959116,
+       "sh": 0.0000576187,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37573,7 +37573,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p22",
        "n": "送電損失 p16>p22",
        "g": "high",
-       "sh": 0.0182114,
+       "sh": 0.0182143,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37586,7 +37586,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.0039077,
+       "sh": 0.00390832,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37599,7 +37599,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p24",
        "n": "送電損失 p16>p24",
        "g": "high",
-       "sh": 0.0039077,
+       "sh": 0.00390832,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37638,7 +37638,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.00512256,
+       "sh": 0.00512098,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37651,7 +37651,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p23",
        "n": "送電損失 p17>p23",
        "g": "high",
-       "sh": 0.00542785,
+       "sh": 0.00542618,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37664,7 +37664,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p24",
        "n": "送電損失 p17>p24",
        "g": "high",
-       "sh": 0.00542785,
+       "sh": 0.00542618,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37703,7 +37703,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.0258196,
+       "sh": 0.0258116,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37716,7 +37716,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p23",
        "n": "送電損失 p18>p23",
        "g": "high",
-       "sh": 0.0044466,
+       "sh": 0.00444522,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37729,7 +37729,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p24",
        "n": "送電損失 p18>p24",
        "g": "high",
-       "sh": 0.00719985,
+       "sh": 0.00719763,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37768,7 +37768,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p22",
        "n": "送電損失 p19>p22",
        "g": "high",
-       "sh": 0.0258196,
+       "sh": 0.0258116,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37781,7 +37781,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p23",
        "n": "送電損失 p19>p23",
        "g": "high",
-       "sh": 0.00719985,
+       "sh": 0.00719763,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37794,7 +37794,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p24",
        "n": "送電損失 p19>p24",
        "g": "high",
-       "sh": 0.0044466,
+       "sh": 0.00444522,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37833,7 +37833,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p22",
        "n": "送電損失 p32>p22",
        "g": "high",
-       "sh": 0.218643,
+       "sh": 0.218616,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37846,7 +37846,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p23",
        "n": "送電損失 p32>p23",
        "g": "high",
-       "sh": 0.083893,
+       "sh": 0.0838827,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37859,7 +37859,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p24",
        "n": "送電損失 p32>p24",
        "g": "high",
-       "sh": 0.0656993,
+       "sh": 0.0656912,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37898,7 +37898,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p22",
        "n": "送電損失 p33>p22",
        "g": "high",
-       "sh": 0.0858956,
+       "sh": 0.0859035,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -37911,7 +37911,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p23",
        "n": "送電損失 p33>p23",
        "g": "high",
-       "sh": 0.0258105,
+       "sh": 0.0258129,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37924,7 +37924,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p24",
        "n": "送電損失 p33>p24",
        "g": "high",
-       "sh": 0.0329581,
+       "sh": 0.0329611,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37937,7 +37937,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f30",
        "n": "送電損失 p33>f30",
        "g": "high",
-       "sh": 0.00000559323,
+       "sh": 0.00000336012,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37950,7 +37950,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f31",
        "n": "送電損失 p33>f31",
        "g": "high",
-       "sh": 0.000136104,
+       "sh": 0.0000817644,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -37963,7 +37963,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p27",
        "n": "送電損失 p15>p27",
        "g": "high",
-       "sh": 0.000960687,
+       "sh": 0.000961885,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37976,7 +37976,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p49",
        "n": "送電損失 p15>p49",
        "g": "high",
-       "sh": 0.000456175,
+       "sh": 0.000711229,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -37989,7 +37989,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p27",
        "n": "送電損失 p16>p27",
        "g": "high",
-       "sh": 5.65829e-9,
+       "sh": 5.66535e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38002,7 +38002,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p49",
        "n": "送電損失 p16>p49",
        "g": "high",
-       "sh": 3.9688e-9,
+       "sh": 2.81331e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38057,7 +38057,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
        "routeId": "p18>p49"
@@ -38083,7 +38083,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
        "routeId": "p19>p49"
@@ -38109,7 +38109,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p32>p49"
@@ -38135,7 +38135,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p33>p49"
@@ -38145,7 +38145,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p20",
        "n": "送電損失 p15>p20",
        "g": "high",
-       "sh": 0.000189809,
+       "sh": 0.000189751,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38158,7 +38158,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p21",
        "n": "送電損失 p15>p21",
        "g": "high",
-       "sh": 0.00295101,
+       "sh": 0.0029501,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38171,7 +38171,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.0112711,
+       "sh": 0.0112677,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38184,7 +38184,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p21",
        "n": "送電損失 p16>p21",
        "g": "high",
-       "sh": 0.00206401,
+       "sh": 0.00206338,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38197,7 +38197,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.0087148,
+       "sh": 0.00871211,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38210,7 +38210,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.00385853,
+       "sh": 0.00385734,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38223,7 +38223,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.00384875,
+       "sh": 0.00384757,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38236,7 +38236,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.00456891,
+       "sh": 0.0045675,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38249,7 +38249,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p20",
        "n": "送電損失 p19>p20",
        "g": "high",
-       "sh": 0.00384875,
+       "sh": 0.00384757,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38262,7 +38262,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p21",
        "n": "送電損失 p19>p21",
        "g": "high",
-       "sh": 0.00456891,
+       "sh": 0.0045675,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38275,7 +38275,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p20",
        "n": "送電損失 p32>p20",
        "g": "high",
-       "sh": 0.0379743,
+       "sh": 0.0379697,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38288,7 +38288,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p21",
        "n": "送電損失 p32>p21",
        "g": "high",
-       "sh": 0.0595061,
+       "sh": 0.0594989,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38301,7 +38301,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p20",
        "n": "送電損失 p33>p20",
        "g": "high",
-       "sh": 0.0788523,
+       "sh": 0.0788424,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38314,7 +38314,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p21",
        "n": "送電損失 p33>p21",
        "g": "high",
-       "sh": 0.123562,
+       "sh": 0.123547,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38340,11 +38340,11 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 1 #49",
        "k": "hdis",
        "g": "high",
-       "cap": 81580703959304290,
+       "cap": 81130153265281420,
        "m": 35,
        "sec": 4,
        "src": -1,
-       "power": 1223710559389564.2
+       "power": 1216952298979221.2
       },
       {
        "id": "p1",
@@ -38395,7 +38395,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 244534718835653200000,
+       "cap": 244534933757916970000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -38405,3607 +38405,3607 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 847418477280119.4,
+       "cap": 847275902544190.5,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 422427783399574.75,
+       "cap": 420024136643379.2,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 91222850738935.1,
+       "cap": 91207502862763.52,
        "sec": 2
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 94315150763983.77,
+       "cap": 94299282620823.34,
        "sec": 2
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 114240620727620.3,
+       "cap": 114221400204621,
        "sec": 2
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 114240620727620.3,
+       "cap": 114221400204621,
        "sec": 2
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 2975970987860141,
+       "cap": 2975470292761909,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 1483485269164893.5,
+       "cap": 1475044123257312.2,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 320357137007798.1,
+       "cap": 320303238213475.9,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 331216700974164.25,
+       "cap": 331160975102068.4,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 401191125796222.75,
+       "cap": 401123627009789.7,
        "sec": 3
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 401191125796222.75,
+       "cap": 401123627009789.7,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 1615708406825730.5,
+       "cap": 1615436570412414.2,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 805410950096430.8,
+       "cap": 800828099503546,
        "sec": 4
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 173927676567271.4,
+       "cap": 173898413938213.62,
        "sec": 3
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 179823530010229.8,
+       "cap": 179793275427644.66,
        "sec": 3
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 217813909254178.34,
+       "cap": 217777262943735.28,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 217813909254178.34,
+       "cap": 217777262943735.28,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1949035380353002.5,
+       "cap": 1948707463022757.2,
        "sec": 3
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 971570384129953.5,
-       "sec": 3
+       "cap": 966042073507399.8,
+       "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 209809637568327.12,
+       "cap": 209774337944264.56,
        "sec": 2
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 216921828672338.28,
+       "cap": 216885332450849.88,
        "sec": 2
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 262749771973663.5,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 262749771973663.5,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 1949035380353001.5,
-       "sec": 3
-      },
-      {
-       "s": 4,
-       "d": 1,
-       "cap": 971570384129952.9,
+       "cap": 1948707463022757.2,
        "sec": 3
       },
       {
        "s": 4,
+       "d": 1,
+       "cap": 966042073507399.8,
+       "sec": 4
+      },
+      {
+       "s": 4,
        "d": 2,
-       "cap": 209809637568327.03,
+       "cap": 209774337944264.56,
        "sec": 2
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 216921828672338.16,
+       "cap": 216885332450849.88,
        "sec": 2
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 262749771973663.4,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 262749771973663.4,
+       "cap": 262705565385821.8,
        "sec": 2
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 231640581584496670,
+       "cap": 231639889830305920,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 115470006906377470,
+       "cap": 114831950780126480,
        "sec": 4
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 24935630701356184,
+       "cap": 24935556235444740,
        "sec": 4
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 25780906318351320,
+       "cap": 25780829328171690,
        "sec": 4
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 31227503925634184,
+       "cap": 31227410670140870,
        "sec": 4
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 31227503925634184,
+       "cap": 31227410670140870,
        "sec": 4
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 11038653264656158,
+       "cap": 11038857143048088,
        "sec": 2
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 5502634123900257,
-       "sec": 2
+       "cap": 5472345462812861,
+       "sec": 3
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 1188288249688146.2,
+       "cap": 1188310196776408.2,
        "sec": 1
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 1228569207304694,
+       "cap": 1228591898362049.8,
        "sec": 1
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 1488122615639451,
+       "cap": 1488150100518139.8,
        "sec": 1
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 1488122615639451,
+       "cap": 1488150100518139.8,
        "sec": 1
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 11015672168250658,
+       "cap": 11015858360050226,
        "sec": 2
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 5491178327413702,
-       "sec": 2
+       "cap": 5460944166088242,
+       "sec": 3
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 1185814382073240.5,
+       "cap": 1185834425236324.8,
        "sec": 1
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 1226011479770638.8,
+       "cap": 1226032202362980.2,
        "sec": 1
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 1485024530350123.5,
+       "cap": 1485049630896462,
        "sec": 1
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 1485024530350123.5,
+       "cap": 1485049630896462,
        "sec": 1
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 6505402636714835,
+       "cap": 6505157916875970,
        "sec": 2
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 3242863932787256.5,
+       "cap": 3224833055631680.5,
        "sec": 2
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 700293172306586.8,
+       "cap": 700266828720823.5,
        "sec": 0
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 724031923910200.1,
+       "cap": 724004687321529.6,
        "sec": 0
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 876994371997552.4,
+       "cap": 876961381276856.8,
        "sec": 0
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 876994371997552.4,
+       "cap": 876961381276856.8,
        "sec": 0
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 6947823042422488,
+       "cap": 6947561679639839,
        "sec": 2
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 3463405113236460.5,
-       "sec": 2
+       "cap": 3444147989462205,
+       "sec": 3
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 747918816207182.9,
+       "cap": 747890681042858,
        "sec": 1
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 773271996417596.1,
+       "cap": 773242907518887.4,
        "sec": 1
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 936637137792356.9,
+       "cap": 936601903433742.5,
        "sec": 1
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 936637137792356.9,
+       "cap": 936601903433742.5,
        "sec": 1
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 52640767645635.055,
+       "cap": 31628281041924.707,
        "sec": 2
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 26240781136103.445,
-       "sec": 2
+       "cap": 15679239074612.664,
+       "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 5666670031946.194,
+       "cap": 3404719200691.75,
        "sec": 1
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 5858760541503.694,
+       "cap": 3520133410884.692,
        "sec": 1
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 7096510322405.809,
+       "cap": 4263813635943.091,
        "sec": 1
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 7096510322405.809,
+       "cap": 4263813635943.091,
        "sec": 1
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 31368054655296790,
+       "cap": 31257075264681276,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 31368054655296790,
+       "cap": 31257075264681276,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 31368054655296790,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 31368054655296790,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 31368054655296790,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 31368054655296790,
+       "cap": 31257075264681276,
        "sec": 2
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 244534718835653200000,
+       "cap": 244534933757916970000,
        "sec": -1
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 142504413144.68738,
+       "cap": 142197248014.71127,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 71036713245.36005,
+       "cap": 70492122047.96356,
        "sec": 4
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 15340306068.922588,
+       "cap": 15307240376.40435,
        "sec": 2
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 15860316444.14031,
+       "cap": 15826129880.689249,
        "sec": 2
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 19211042773.49024,
+       "cap": 19169633793.09252,
        "sec": 2
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 19211042773.49024,
+       "cap": 19169633793.09252,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 1900855088.7002528,
+       "cap": 1903492345.5176697,
        "sec": 2
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 947553095.916295,
-       "sec": 2
+       "cap": 943627366.9917582,
+       "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 204623128.57444277,
+       "cap": 204907023.82981604,
        "sec": 1
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 211559505.81425446,
+       "cap": 211853024.63760647,
        "sec": 1
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 256254579.134685,
+       "cap": 256610108.14888218,
        "sec": 1
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 256254579.134685,
+       "cap": 256610108.14888218,
        "sec": 1
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 1965290854.4189057,
+       "cap": 1968017509.7725062,
        "sec": 2
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 979673539.8456613,
-       "sec": 2
+       "cap": 975614735.3643605,
+       "sec": 3
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 211559505.8142544,
+       "cap": 211853024.63760644,
        "sec": 1
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 218731014.48592412,
+       "cap": 219034483.09989825,
        "sec": 1
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 264941175.03755572,
+       "cap": 265308755.88274264,
        "sec": 1
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 264941175.03755572,
+       "cap": 265308755.88274264,
        "sec": 1
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 2640920354.0875554,
+       "cap": 2644584381.529455,
        "sec": 2
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 1316466611.5054016,
-       "sec": 2
+       "cap": 1311012467.4819725,
+       "sec": 3
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 284289627.53748125,
+       "cap": 284684052.5322118,
        "sec": 1
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 293926564.0641756,
+       "cap": 294334359.3977106,
        "sec": 1
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 356022896.1628367,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 356022896.1628367,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 2640920354.0875554,
+       "cap": 2644584381.529455,
        "sec": 2
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 1316466611.5054016,
-       "sec": 2
+       "cap": 1311012467.4819725,
+       "sec": 3
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 284289627.53748125,
+       "cap": 284684052.5322118,
        "sec": 1
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 293926564.0641756,
+       "cap": 294334359.3977106,
        "sec": 1
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 356022896.1628367,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 356022896.1628367,
+       "cap": 356516844.28946847,
        "sec": 1
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 6742698580.407132,
+       "cap": 6728164841.836262,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 3361153068.782237,
-       "sec": 3
+       "cap": 3335385345.435599,
+       "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 725837591.071062,
+       "cap": 724273064.098999,
        "sec": 2
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 750442255.1751659,
+       "cap": 748824693.3904908,
        "sec": 2
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 908984276.1952556,
+       "cap": 907024980.5693705,
        "sec": 2
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 908984276.1952556,
+       "cap": 907024980.5693705,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 5099171049.508157,
+       "cap": 5088179898.401824,
        "sec": 3
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 2541874624.368127,
-       "sec": 2
+       "cap": 2522387763.531322,
+       "sec": 3
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 548915243.1919651,
+       "cap": 547732068.4516171,
        "sec": 2
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 567522539.571354,
+       "cap": 566299257.212689,
        "sec": 2
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 687420066.3665292,
+       "cap": 685938347.524466,
        "sec": 2
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 687420066.3665292,
+       "cap": 685938347.524466,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 5903586147.09972,
+       "cap": 5890861096.933325,
        "sec": 3
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 2942865747.0769506,
+       "cap": 2920304754.2077827,
        "sec": 3
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 635508868.8292836,
+       "cap": 634139043.4323908,
        "sec": 2
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 657051542.3489206,
+       "cap": 655635282.192811,
        "sec": 2
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 795863394.586705,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 795863394.586705,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 5903586147.09972,
+       "cap": 5890861096.933325,
        "sec": 3
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 2942865747.0769506,
+       "cap": 2920304754.2077827,
        "sec": 3
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 635508868.8292836,
+       "cap": 634139043.4323908,
        "sec": 2
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 657051542.3489206,
+       "cap": 655635282.192811,
        "sec": 2
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 795863394.586705,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 795863394.586705,
+       "cap": 794147928.5344837,
        "sec": 2
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 9586755329.060797,
+       "cap": 9566091288.686764,
        "sec": 2
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 4778880697.347074,
-       "sec": 2
+       "cap": 4742244199.932082,
+       "sec": 3
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 1031994432.3854079,
+       "cap": 1029769991.0718858,
        "sec": 1
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 1066977294.500168,
+       "cap": 1064677448.396357,
        "sec": 1
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 1292392022.263757,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 1292392022.263757,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 9586755329.060797,
+       "cap": 9566091288.686764,
        "sec": 2
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 4778880697.347074,
-       "sec": 2
+       "cap": 4742244199.932082,
+       "sec": 3
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 1031994432.3854079,
+       "cap": 1029769991.0718858,
        "sec": 1
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 1066977294.500168,
+       "cap": 1064677448.396357,
        "sec": 1
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 1292392022.263757,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 1292392022.263757,
+       "cap": 1289606299.6693585,
        "sec": 1
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 2137589402.01527,
+       "cap": 2132981875.0480952,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 1065562266.0128144,
+       "cap": 1057393309.3728293,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 230107088.9875239,
+       "cap": 229611098.21546617,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 237907329.2921858,
+       "cap": 237394525.27361766,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 288168769.85122126,
+       "cap": 287547628.402384,
        "sec": 3
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 288168769.85122126,
+       "cap": 287547628.402384,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 3205101385.8921437,
+       "cap": 3198192860.3099604,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 1597703980.162065,
-       "sec": 3
+       "cap": 1585455447.2008584,
+       "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 345022551.62858045,
+       "cap": 344278863.1028919,
        "sec": 2
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 356718231.34480363,
+       "cap": 355949333.03858334,
        "sec": 2
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 432080231.4748685,
+       "cap": 431148892.0339887,
        "sec": 2
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 432080231.4748685,
+       "cap": 431148892.0339887,
        "sec": 2
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 3384694049.3685293,
+       "cap": 3377398415.74806,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 1687228734.2017126,
+       "cap": 1674293874.5402448,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 364355331.32757515,
+       "cap": 363569971.42022204,
        "sec": 3
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 376706359.5081711,
+       "cap": 375894377.2310772,
        "sec": 3
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 456291147.21925926,
+       "cap": 455307621.68170106,
        "sec": 3
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 456291147.21925926,
+       "cap": 455307621.68170106,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 3247975264.5846596,
+       "cap": 3240974325.299415,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1619076086.1845243,
+       "cap": 1606663707.512024,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 349637836.21515167,
+       "cap": 348884199.5449908,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 361489966.25634336,
+       "cap": 360710782.5804143,
        "sec": 3
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 437860065.9322834,
+       "cap": 436916268.18528396,
        "sec": 3
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 437860065.9322834,
+       "cap": 436916268.18528396,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 3257227817.30546,
+       "cap": 3250206934.346217,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1623688370.9545946,
+       "cap": 1611240632.9647648,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 350633854.42626345,
+       "cap": 349878070.86074317,
        "sec": 3
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 362519747.79664546,
+       "cap": 361738344.4492431,
        "sec": 3
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 439107404.04736894,
+       "cap": 438160917.6904816,
        "sec": 3
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 439107404.04736894,
+       "cap": 438160917.6904816,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 2167061542.4359937,
+       "cap": 2162390488.918004,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 1080253768.8343327,
+       "cap": 1071972182.22109,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 233279704.09875655,
+       "cap": 232776874.82456753,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 241187490.6783755,
+       "cap": 240667616.34404445,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 292141913.8244818,
+       "cap": 291512208.3511485,
        "sec": 3
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 292141913.8244818,
+       "cap": 291512208.3511485,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2959281433.747364,
+       "cap": 2952902767.668372,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 1475165729.8359709,
+       "cap": 1463856616.0767972,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 318560540.9403914,
+       "cap": 317873890.6970488,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 329359203.34515053,
+       "cap": 328649276.82237256,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 398941204.3316468,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 398941204.3316468,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 2959281433.747364,
+       "cap": 2952902767.668372,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 1475165729.8359709,
+       "cap": 1463856616.0767972,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 318560540.9403914,
+       "cap": 317873890.6970488,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 329359203.34515053,
+       "cap": 328649276.82237256,
        "sec": 3
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 398941204.3316468,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 398941204.3316468,
+       "cap": 398081295.3353063,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 2348102314.4292,
+       "cap": 2343041031.5068502,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 1170500387.3214562,
+       "cap": 1161526939.953717,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 252768369.69194105,
+       "cap": 252223533.02746922,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 261336789.00353238,
+       "cap": 260773483.29958695,
        "sec": 3
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 316548049.310096,
+       "cap": 315865736.9482235,
        "sec": 3
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 316548049.310096,
+       "cap": 315865736.9482235,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 2196466405.659632,
+       "cap": 2033587933.2288492,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 1094911734.7930138,
+       "cap": 1008120275.0815775,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 236445076.95852497,
+       "cap": 218911545.44192627,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 244460164.31305134,
+       "cap": 226332275.79588994,
        "sec": 3
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 296105988.14802146,
+       "cap": 274148315.1770692,
        "sec": 3
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 296105988.14802146,
+       "cap": 274148315.1770692,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 3899954136.7343698,
+       "cap": 2731105853.963156,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 1944079608.257264,
-       "sec": 3
+       "cap": 1353904170.941205,
+       "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 419822016.68044525,
-       "sec": 2
+       "cap": 293997910.5340634,
+       "sec": 3
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 434053271.48317236,
-       "sec": 2
+       "cap": 303963941.399625,
+       "sec": 3
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 525753442.17153674,
-       "sec": 2
+       "cap": 368180817.8540033,
+       "sec": 3
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 525753442.17153674,
-       "sec": 2
+       "cap": 368180817.8540033,
+       "sec": 3
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 2784590326.880997,
+       "cap": 2778588203.642763,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 1388084342.0309412,
+       "cap": 1377442823.3094466,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 299755403.6978831,
+       "cap": 299109287.5144888,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 309916603.8232352,
+       "cap": 309248585.396336,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 375391068.2193656,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 375391068.2193656,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 2784590326.880997,
+       "cap": 2778588203.642763,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 1388084342.0309412,
+       "cap": 1377442823.3094466,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 299755403.6978831,
+       "cap": 299109287.5144888,
        "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 309916603.8232352,
+       "cap": 309248585.396336,
        "sec": 3
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 375391068.2193656,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 375391068.2193656,
+       "cap": 374581921.0237317,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 2790796196.275017,
+       "cap": 2784780696.4217234,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 1391177892.292669,
+       "cap": 1380512657.38043,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 300423452.7345917,
+       "cap": 299775896.58618397,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 310607298.59000164,
+       "cap": 309937791.3857157,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 376227682.4669128,
+       "cap": 375416731.9676591,
        "sec": 3
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 376227682.4669128,
+       "cap": 375416731.9676591,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 1361280927743080.8,
+       "cap": 1363169576398336.8,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 678581952492100.5,
+       "cap": 675770575683721.4,
        "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 146539083362726.44,
+       "cap": 146742392493924.16,
        "sec": 3
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 151506509917395.16,
+       "cap": 151716710883548.72,
        "sec": 3
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 183514500025038.28,
+       "cap": 183769109052924.16,
        "sec": 3
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 183514500025038.28,
+       "cap": 183769109052924.16,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 366808213098217.5,
+       "cap": 367317124832956.44,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 182849423922366.5,
-       "sec": 3
+       "cap": 182091875585053.75,
+       "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 39486147364489.61,
+       "cap": 39540930662779.72,
        "sec": 2
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 40824660834472.32,
+       "cap": 40881301193721.414,
        "sec": 2
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 49449473991676.76,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 49449473991676.76,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 366808213098217.5,
+       "cap": 367317124832956.44,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 182849423922366.5,
-       "sec": 3
+       "cap": 182091875585053.75,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 39486147364489.61,
+       "cap": 39540930662779.72,
        "sec": 2
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 40824660834472.32,
+       "cap": 40881301193721.414,
        "sec": 2
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 49449473991676.76,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 49449473991676.76,
+       "cap": 49518080464194.03,
        "sec": 2
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 3249559347.270049,
+       "cap": 1952440682.281593,
        "sec": 3
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 1619865732.0979087,
+       "cap": 967892760.1507758,
        "sec": 3
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 349808359.4480545,
+       "cap": 210176211.29533607,
        "sec": 2
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 361666269.9378191,
+       "cap": 217300828.62738144,
        "sec": 2
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 438073616.3729625,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 438073616.3729625,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 3249559347.270049,
+       "cap": 1952440682.281593,
        "sec": 3
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 1619865732.0979087,
+       "cap": 967892760.1507758,
        "sec": 3
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 349808359.4480545,
+       "cap": 210176211.29533607,
        "sec": 2
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 361666269.9378191,
+       "cap": 217300828.62738144,
        "sec": 2
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 438073616.3729625,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 438073616.3729625,
+       "cap": 263208841.27238324,
        "sec": 2
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 615591728206736.9,
+       "cap": 616445803560302.6,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 306864974268818.7,
+       "cap": 305593627353689.44,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 66267179491489.34,
+       "cap": 66359118941226.37,
        "sec": 3
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 68513524558997.48,
+       "cap": 68608580600251.016,
        "sec": 3
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 82988019532974.62,
+       "cap": 83103157568261.11,
        "sec": 3
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 82988019532974.62,
+       "cap": 83103157568261.11,
        "sec": 3
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 132091356082697.17,
+       "cap": 132274620357507.9,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 65845931204321.57,
+       "cap": 65573130368351.64,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 14219361959760.865,
+       "cap": 14239089980844.967,
        "sec": 3
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 14701374229583.273,
+       "cap": 14721770997144.803,
        "sec": 3
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 17807256882188.902,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 17807256882188.902,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 132091356082697.17,
+       "cap": 132274620357507.9,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 65845931204321.57,
+       "cap": 65573130368351.64,
        "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 14219361959760.865,
+       "cap": 14239089980844.967,
        "sec": 3
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 14701374229583.273,
+       "cap": 14721770997144.803,
        "sec": 3
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 17807256882188.902,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 17807256882188.902,
+       "cap": 17831962768445.68,
        "sec": 3
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 4851455897.349744,
+       "cap": 2914912100.386214,
        "sec": 3
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 2418391639.932119,
-       "sec": 3
+       "cap": 1445023320.8328526,
+       "sec": 4
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 522249218.1323654,
+       "cap": 313784273.7440693,
        "sec": 2
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 539952581.4588865,
+       "cap": 324421028.78624123,
        "sec": 2
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 654025547.0057489,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 654025547.0057489,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 4851455897.349744,
+       "cap": 2914912100.386214,
        "sec": 3
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 2418391639.932119,
-       "sec": 3
+       "cap": 1445023320.8328526,
+       "sec": 4
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 522249218.1323654,
+       "cap": 313784273.7440693,
        "sec": 2
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 539952581.4588865,
+       "cap": 324421028.78624123,
        "sec": 2
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 654025547.0057489,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 654025547.0057489,
+       "cap": 392959767.39069486,
        "sec": 2
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 269301036308471.12,
+       "cap": 269674666049193.53,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 134243284616735.67,
+       "cap": 133687112358298.67,
        "sec": 4
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 28989700953720.906,
+       "cap": 29029921424460.4,
        "sec": 4
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 29972402680965.695,
+       "cap": 30013986557492.965,
        "sec": 4
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 36304515862357.76,
+       "cap": 36354884947581.66,
        "sec": 4
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 36304515862357.76,
+       "cap": 36354884947581.66,
        "sec": 4
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 285348904279149.1,
+       "cap": 285744798920264.1,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 142242951224077.88,
+       "cap": 141653636208023.97,
        "sec": 4
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 30717220831816.96,
+       "cap": 30759838073148.18,
        "sec": 3
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 31758482554929.41,
+       "cap": 31802544448509.14,
        "sec": 3
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 38467931515282.13,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 48,
        "d": 5,
-       "cap": 38467931515282.13,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 285348904279149.1,
+       "cap": 285744798920264.1,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 142242951224077.88,
+       "cap": 141653636208023.97,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 30717220831816.96,
+       "cap": 30759838073148.18,
        "sec": 3
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 31758482554929.41,
+       "cap": 31802544448509.14,
        "sec": 3
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 38467931515282.13,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 49,
        "d": 5,
-       "cap": 38467931515282.13,
+       "cap": 38521302135296.086,
        "sec": 3
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 6033073954.341842,
+       "cap": 3624866564.620893,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 3007413840.913804,
+       "cap": 1796972443.8999176,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 649447964.127834,
+       "cap": 390209407.0857307,
        "sec": 2
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 671463149.3525065,
+       "cap": 403436844.6140606,
        "sec": 2
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 813319666.6324567,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 50,
        "d": 5,
-       "cap": 813319666.6324567,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 6033073954.341842,
+       "cap": 3624866564.620893,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 3007413840.913804,
+       "cap": 1796972443.8999176,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 649447964.127834,
+       "cap": 390209407.0857307,
        "sec": 2
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 671463149.3525065,
+       "cap": 403436844.6140606,
        "sec": 2
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 813319666.6324567,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 813319666.6324567,
+       "cap": 488668842.4899681,
        "sec": 2
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 1125221349849639,
+       "cap": 1126782488146626.8,
        "sec": 4
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 560909129780207.56,
+       "cap": 558585273518954.25,
        "sec": 4
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 121127756825706.36,
+       "cap": 121295810142535.19,
        "sec": 3
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 125233782480815.08,
+       "cap": 125407532520248.27,
        "sec": 3
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 151691270498816.22,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 52,
        "d": 5,
-       "cap": 151691270498816.22,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 53,
        "d": 0,
-       "cap": 193787281663687.03,
+       "cap": 194056143205387.06,
        "sec": 4
       },
       {
        "s": 53,
        "d": 1,
-       "cap": 96600598215609.44,
+       "cap": 96200380260355.05,
        "sec": 4
       },
       {
        "s": 53,
        "d": 2,
-       "cap": 20860801061418.184,
+       "cap": 20889743451684.04,
        "sec": 2
       },
       {
        "s": 53,
        "d": 3,
-       "cap": 21567946860110.332,
+       "cap": 21597870348351.305,
        "sec": 2
       },
       {
        "s": 53,
        "d": 4,
-       "cap": 26124494497020.297,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 53,
        "d": 5,
-       "cap": 26124494497020.297,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 54,
        "d": 0,
-       "cap": 313775159528634.5,
+       "cap": 314210492912816.3,
        "sec": 4
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 156413093033980.06,
+       "cap": 155765070874434.47,
        "sec": 4
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 33777248562169.957,
+       "cap": 33824111302824.785,
        "sec": 2
       },
       {
        "s": 54,
        "d": 3,
-       "cap": 34922240038853.7,
+       "cap": 34970691346988.35,
        "sec": 2
       },
       {
        "s": 54,
        "d": 4,
-       "cap": 42300079540996.62,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 54,
        "d": 5,
-       "cap": 42300079540996.62,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 2693650078.8071957,
+       "cap": 1618432358.2557216,
        "sec": 3
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 1342751736.6587732,
-       "sec": 3
+       "cap": 802313215.7433369,
+       "sec": 4
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 289965873.61491346,
+       "cap": 174220904.31882542,
        "sec": 2
       },
       {
        "s": 55,
        "d": 3,
-       "cap": 299795225.26287675,
+       "cap": 180126697.68556532,
        "sec": 2
       },
       {
        "s": 55,
        "d": 4,
-       "cap": 363131398.8026452,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 55,
        "d": 5,
-       "cap": 363131398.8026452,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 4445778658.5062,
+       "cap": 2671168053.779029,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 2216166480.3741555,
-       "sec": 3
+       "cap": 1324190918.5059059,
+       "sec": 4
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 478578900.33850986,
+       "cap": 287545730.0041251,
        "sec": 2
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 494801913.909307,
+       "cap": 297293042.885621,
        "sec": 2
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 599336133.424277,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 599336133.424277,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 1125221349849639,
+       "cap": 1126782488146626.8,
        "sec": 4
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 560909129780207.56,
+       "cap": 558585273518954.25,
        "sec": 4
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 121127756825706.36,
+       "cap": 121295810142535.19,
        "sec": 3
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 125233782480815.08,
+       "cap": 125407532520248.27,
        "sec": 3
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 151691270498816.22,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 151691270498816.22,
+       "cap": 151901727802817.88,
        "sec": 3
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 313775159528634.5,
+       "cap": 314210492912816.3,
        "sec": 4
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 156413093033980.06,
+       "cap": 155765070874434.47,
        "sec": 4
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 33777248562169.957,
+       "cap": 33824111302824.785,
        "sec": 2
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 34922240038853.7,
+       "cap": 34970691346988.35,
        "sec": 2
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 42300079540996.62,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 42300079540996.62,
+       "cap": 42358766904283.766,
        "sec": 2
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 193787281663687.03,
+       "cap": 194056143205387.06,
        "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 96600598215609.44,
+       "cap": 96200380260355.05,
        "sec": 4
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 20860801061418.184,
+       "cap": 20889743451684.04,
        "sec": 2
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 21567946860110.332,
+       "cap": 21597870348351.305,
        "sec": 2
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 26124494497020.297,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 26124494497020.297,
+       "cap": 26160739764544.06,
        "sec": 2
       },
       {
        "s": 60,
        "d": 0,
-       "cap": 4445778658.5062,
+       "cap": 2671168053.779029,
        "sec": 3
       },
       {
        "s": 60,
        "d": 1,
-       "cap": 2216166480.3741555,
-       "sec": 3
+       "cap": 1324190918.5059059,
+       "sec": 4
       },
       {
        "s": 60,
        "d": 2,
-       "cap": 478578900.33850986,
+       "cap": 287545730.0041251,
        "sec": 2
       },
       {
        "s": 60,
        "d": 3,
-       "cap": 494801913.909307,
+       "cap": 297293042.885621,
        "sec": 2
       },
       {
        "s": 60,
        "d": 4,
-       "cap": 599336133.424277,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 60,
        "d": 5,
-       "cap": 599336133.424277,
+       "cap": 360100593.4056764,
        "sec": 2
       },
       {
        "s": 61,
        "d": 0,
-       "cap": 2693650078.8071957,
+       "cap": 1618432358.2557216,
        "sec": 3
       },
       {
        "s": 61,
        "d": 1,
-       "cap": 1342751736.6587732,
-       "sec": 3
+       "cap": 802313215.7433369,
+       "sec": 4
       },
       {
        "s": 61,
        "d": 2,
-       "cap": 289965873.61491346,
+       "cap": 174220904.31882542,
        "sec": 2
       },
       {
        "s": 61,
        "d": 3,
-       "cap": 299795225.26287675,
+       "cap": 180126697.68556532,
        "sec": 2
       },
       {
        "s": 61,
        "d": 4,
-       "cap": 363131398.8026452,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 61,
        "d": 5,
-       "cap": 363131398.8026452,
+       "cap": 218181125.5829901,
        "sec": 2
       },
       {
        "s": 62,
        "d": 0,
-       "cap": 1684125811979900.5,
+       "cap": 1686462377405342.2,
        "sec": 4
       },
       {
        "s": 62,
        "d": 1,
-       "cap": 839516192759995,
+       "cap": 836038062600599.6,
        "sec": 4
       },
       {
        "s": 62,
        "d": 2,
-       "cap": 181292669077649.47,
+       "cap": 181544195525044.06,
        "sec": 2
       },
       {
        "s": 62,
        "d": 3,
-       "cap": 187438183283671.53,
+       "cap": 187698236051316.8,
        "sec": 2
       },
       {
        "s": 62,
        "d": 4,
-       "cap": 227037270607440.2,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 62,
        "d": 5,
-       "cap": 227037270607440.2,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 63,
        "d": 0,
-       "cap": 646206113304773.8,
+       "cap": 647102663224807.2,
        "sec": 3
       },
       {
        "s": 63,
        "d": 1,
-       "cap": 322125872141393.4,
-       "sec": 3
+       "cap": 320791299061470.8,
+       "sec": 4
       },
       {
        "s": 63,
        "d": 2,
-       "cap": 69562754885627.62,
+       "cap": 69659266634814.07,
        "sec": 2
       },
       {
        "s": 63,
        "d": 3,
-       "cap": 71920814373276.03,
+       "cap": 72020597707180.67,
        "sec": 2
       },
       {
        "s": 63,
        "d": 4,
-       "cap": 87115149694237.36,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 63,
        "d": 5,
-       "cap": 87115149694237.36,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 64,
        "d": 0,
-       "cap": 506068374831152.56,
+       "cap": 506770496881137.56,
        "sec": 3
       },
       {
        "s": 64,
        "d": 1,
-       "cap": 252268917376796.2,
-       "sec": 3
+       "cap": 251223762873079.47,
+       "sec": 4
       },
       {
        "s": 64,
        "d": 2,
-       "cap": 54477216462271.63,
+       "cap": 54552798452378.66,
        "sec": 2
       },
       {
        "s": 64,
        "d": 3,
-       "cap": 56323901766077.48,
+       "cap": 56402045857544.06,
        "sec": 2
       },
       {
        "s": 64,
        "d": 4,
-       "cap": 68223158712431.82,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 64,
        "d": 5,
-       "cap": 68223158712431.82,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 65,
        "d": 0,
-       "cap": 5764058813.049896,
+       "cap": 3463233539.9926844,
        "sec": 2
       },
       {
        "s": 65,
        "d": 1,
-       "cap": 2873313071.4785924,
-       "sec": 2
+       "cap": 1716845331.3281298,
+       "sec": 3
       },
       {
        "s": 65,
        "d": 2,
-       "cap": 620489039.1828016,
+       "cap": 372809945.45554984,
        "sec": 1
       },
       {
        "s": 65,
        "d": 3,
-       "cap": 641522565.9347613,
+       "cap": 385447570.7252296,
        "sec": 1
       },
       {
        "s": 65,
        "d": 4,
-       "cap": 777053692.3230938,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 65,
        "d": 5,
-       "cap": 777053692.3230938,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 66,
        "d": 0,
-       "cap": 236883227.29977936,
+       "cap": 142327128.23626167,
        "sec": 2
       },
       {
        "s": 66,
        "d": 1,
-       "cap": 118083401.90310243,
-       "sec": 2
+       "cap": 70556508.19155617,
+       "sec": 3
       },
       {
        "s": 66,
        "d": 2,
-       "cap": 25499990.69631091,
+       "cap": 15321221.714293582,
        "sec": 1
       },
       {
        "s": 66,
        "d": 3,
-       "cap": 26364397.16059265,
+       "cap": 15840585.162235744,
        "sec": 1
       },
       {
        "s": 66,
        "d": 4,
-       "cap": 31934265.834686723,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 66,
        "d": 5,
-       "cap": 31934265.834686723,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 67,
        "d": 0,
-       "cap": 1684125811979900.5,
+       "cap": 1686462377405342.2,
        "sec": 4
       },
       {
        "s": 67,
        "d": 1,
-       "cap": 839516192759995,
+       "cap": 836038062600599.6,
        "sec": 4
       },
       {
        "s": 67,
        "d": 2,
-       "cap": 181292669077649.47,
+       "cap": 181544195525044.06,
        "sec": 2
       },
       {
        "s": 67,
        "d": 3,
-       "cap": 187438183283671.53,
+       "cap": 187698236051316.8,
        "sec": 2
       },
       {
        "s": 67,
        "d": 4,
-       "cap": 227037270607440.2,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 67,
        "d": 5,
-       "cap": 227037270607440.2,
+       "cap": 227352263366897,
        "sec": 2
       },
       {
        "s": 68,
        "d": 0,
-       "cap": 506068374831152.56,
+       "cap": 506770496881137.56,
        "sec": 3
       },
       {
        "s": 68,
        "d": 1,
-       "cap": 252268917376796.2,
-       "sec": 3
+       "cap": 251223762873079.47,
+       "sec": 4
       },
       {
        "s": 68,
        "d": 2,
-       "cap": 54477216462271.63,
+       "cap": 54552798452378.66,
        "sec": 2
       },
       {
        "s": 68,
        "d": 3,
-       "cap": 56323901766077.48,
+       "cap": 56402045857544.06,
        "sec": 2
       },
       {
        "s": 68,
        "d": 4,
-       "cap": 68223158712431.82,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 68,
        "d": 5,
-       "cap": 68223158712431.82,
+       "cap": 68317811898510.88,
        "sec": 2
       },
       {
        "s": 69,
        "d": 0,
-       "cap": 646206113304773.8,
+       "cap": 647102663224807.2,
        "sec": 3
       },
       {
        "s": 69,
        "d": 1,
-       "cap": 322125872141393.4,
-       "sec": 3
+       "cap": 320791299061470.8,
+       "sec": 4
       },
       {
        "s": 69,
        "d": 2,
-       "cap": 69562754885627.62,
+       "cap": 69659266634814.07,
        "sec": 2
       },
       {
        "s": 69,
        "d": 3,
-       "cap": 71920814373276.03,
+       "cap": 72020597707180.67,
        "sec": 2
       },
       {
        "s": 69,
        "d": 4,
-       "cap": 87115149694237.36,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 69,
        "d": 5,
-       "cap": 87115149694237.36,
+       "cap": 87236013732636.27,
        "sec": 2
       },
       {
        "s": 70,
        "d": 0,
-       "cap": 236883227.29977936,
+       "cap": 142327128.23626167,
        "sec": 2
       },
       {
        "s": 70,
        "d": 1,
-       "cap": 118083401.90310243,
-       "sec": 2
+       "cap": 70556508.19155617,
+       "sec": 3
       },
       {
        "s": 70,
        "d": 2,
-       "cap": 25499990.69631091,
+       "cap": 15321221.714293582,
        "sec": 1
       },
       {
        "s": 70,
        "d": 3,
-       "cap": 26364397.16059265,
+       "cap": 15840585.162235744,
        "sec": 1
       },
       {
        "s": 70,
        "d": 4,
-       "cap": 31934265.834686723,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 70,
        "d": 5,
-       "cap": 31934265.834686723,
+       "cap": 19187142.96657406,
        "sec": 1
       },
       {
        "s": 71,
        "d": 0,
-       "cap": 5764058813.049896,
+       "cap": 3463233539.9926844,
        "sec": 2
       },
       {
        "s": 71,
        "d": 1,
-       "cap": 2873313071.4785924,
-       "sec": 2
+       "cap": 1716845331.3281298,
+       "sec": 3
       },
       {
        "s": 71,
        "d": 2,
-       "cap": 620489039.1828016,
+       "cap": 372809945.45554984,
        "sec": 1
       },
       {
        "s": 71,
        "d": 3,
-       "cap": 641522565.9347613,
+       "cap": 385447570.7252296,
        "sec": 1
       },
       {
        "s": 71,
        "d": 4,
-       "cap": 777053692.3230938,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 71,
        "d": 5,
-       "cap": 777053692.3230938,
+       "cap": 466879068.5368738,
        "sec": 1
       },
       {
        "s": 72,
        "d": 0,
-       "cap": 27124590331.85331,
-       "sec": 3
+       "cap": 27162223137.8455,
+       "sec": 4
       },
       {
        "s": 72,
        "d": 1,
-       "cap": 13521277711.907568,
-       "sec": 3
+       "cap": 13465258823.637247,
+       "sec": 4
       },
       {
        "s": 72,
        "d": 2,
-       "cap": 2919906187.4827323,
+       "cap": 2923957281.4061637,
        "sec": 2
       },
       {
        "s": 72,
        "d": 3,
-       "cap": 3018886058.24486,
+       "cap": 3023074477.386035,
        "sec": 2
       },
       {
        "s": 72,
        "d": 4,
-       "cap": 3656670369.5664477,
+       "cap": 3661743654.173208,
        "sec": 2
       },
       {
        "s": 72,
        "d": 5,
-       "cap": 3656670369.5664477,
+       "cap": 3661743654.173208,
        "sec": 2
       },
       {
        "s": 73,
        "d": 0,
-       "cap": 12879900803.549475,
-       "sec": 3
+       "cap": 20084046002.790115,
+       "sec": 4
       },
       {
        "s": 73,
        "d": 1,
-       "cap": 6420473582.677506,
-       "sec": 3
+       "cap": 9956360209.581024,
+       "sec": 4
       },
       {
        "s": 73,
        "d": 2,
-       "cap": 1386494748.5044036,
+       "cap": 2162006116.065379,
        "sec": 2
       },
       {
        "s": 73,
        "d": 3,
-       "cap": 1433494570.4876041,
+       "cap": 2235294458.98285,
        "sec": 2
       },
       {
        "s": 73,
        "d": 4,
-       "cap": 1736341491.4320834,
+       "cap": 2707533460.26274,
        "sec": 2
       },
       {
        "s": 73,
        "d": 5,
-       "cap": 1736341491.4320834,
+       "cap": 2707533460.26274,
        "sec": 2
       },
       {
        "s": 74,
        "d": 0,
-       "cap": 10914574806.249725,
+       "cap": 10929717747.43872,
        "sec": 4
       },
       {
        "s": 74,
        "d": 1,
-       "cap": 5440782524.534033,
+       "cap": 5418241268.090748,
        "sec": 4
       },
       {
        "s": 74,
        "d": 2,
-       "cap": 1174931459.6315308,
+       "cap": 1176561566.0085666,
        "sec": 2
       },
       {
        "s": 74,
        "d": 3,
-       "cap": 1214759644.7037866,
+       "cap": 1216445008.9241116,
        "sec": 2
       },
       {
        "s": 74,
        "d": 4,
-       "cap": 1471395578.7771292,
+       "cap": 1473437001.1055932,
        "sec": 3
       },
       {
        "s": 74,
        "d": 5,
-       "cap": 1471395578.7771292,
+       "cap": 1473437001.1055932,
        "sec": 3
       },
       {
        "s": 75,
        "d": 0,
-       "cap": 8036820119.859568,
+       "cap": 3638843550.429969,
        "sec": 4
       },
       {
        "s": 75,
        "d": 1,
-       "cap": 4006256884.6857367,
+       "cap": 1803901321.9427197,
        "sec": 4
       },
       {
        "s": 75,
        "d": 2,
-       "cap": 865147104.8433079,
-       "sec": 2
+       "cap": 391714000.77164346,
+       "sec": 3
       },
       {
        "s": 75,
        "d": 3,
-       "cap": 894474125.3464711,
-       "sec": 2
+       "cap": 404992441.47576714,
+       "sec": 3
       },
       {
        "s": 75,
        "d": 4,
-       "cap": 1083445008.322011,
-       "sec": 2
+       "cap": 490553082.18681175,
+       "sec": 3
       },
       {
        "s": 75,
        "d": 5,
-       "cap": 1083445008.322011,
-       "sec": 2
+       "cap": 490553082.18681175,
+       "sec": 3
       },
       {
        "s": 76,
        "d": 0,
-       "cap": 25844178100.53005,
+       "cap": 25880034455.54171,
        "sec": 4
       },
       {
        "s": 76,
        "d": 1,
-       "cap": 12883007819.030548,
+       "cap": 12829633294.005861,
        "sec": 4
       },
       {
        "s": 76,
        "d": 2,
-       "cap": 2782072452.446414,
+       "cap": 2785932315.0868526,
        "sec": 3
       },
       {
        "s": 76,
        "d": 3,
-       "cap": 2876379993.20731,
+       "cap": 2880370698.6491203,
        "sec": 3
       },
       {
        "s": 76,
        "d": 4,
-       "cap": 3484057791.465611,
+       "cap": 3488891592.430997,
        "sec": 3
       },
       {
        "s": 76,
        "d": 5,
-       "cap": 3484057791.465611,
+       "cap": 3488891592.430997,
        "sec": 3
       },
       {
        "s": 77,
        "d": 0,
-       "cap": 15167552298.681034,
+       "cap": 6331729524.719874,
        "sec": 4
       },
       {
        "s": 77,
        "d": 1,
-       "cap": 7560839973.295762,
+       "cap": 3138858569.084763,
        "sec": 4
       },
       {
        "s": 77,
        "d": 2,
-       "cap": 1632755712.2172651,
+       "cap": 681597620.111723,
        "sec": 3
       },
       {
        "s": 77,
        "d": 3,
-       "cap": 1688103363.478868,
+       "cap": 704702624.183307,
        "sec": 3
       },
       {
        "s": 77,
        "d": 4,
-       "cap": 2044740156.1049445,
+       "cap": 853581471.9370275,
        "sec": 3
       },
       {
        "s": 77,
        "d": 5,
-       "cap": 2044740156.1049445,
+       "cap": 853581471.9370275,
        "sec": 3
       },
       {
        "s": 78,
        "d": 0,
-       "cap": 19859537192.32329,
+       "cap": 19887090423.583553,
        "sec": 4
       },
       {
        "s": 78,
        "d": 1,
-       "cap": 9899737261.359518,
+       "cap": 9858722478.040539,
        "sec": 4
       },
       {
        "s": 78,
        "d": 2,
-       "cap": 2137838205.8110206,
+       "cap": 2140804254.3101015,
        "sec": 2
       },
       {
        "s": 78,
        "d": 3,
-       "cap": 2210307297.5334287,
+       "cap": 2213373890.0494275,
        "sec": 2
       },
       {
        "s": 78,
        "d": 4,
-       "cap": 2677267391.544402,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 78,
        "d": 5,
-       "cap": 2677267391.544402,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 79,
        "d": 0,
-       "cap": 12364281496.109787,
+       "cap": 15291380359.284525,
        "sec": 4
       },
       {
        "s": 79,
        "d": 1,
-       "cap": 6163443641.7929735,
+       "cap": 7580469141.407009,
        "sec": 4
       },
       {
        "s": 79,
        "d": 2,
-       "cap": 1330989393.851704,
+       "cap": 1646085547.466999,
        "sec": 2
       },
       {
        "s": 79,
        "d": 3,
-       "cap": 1376107678.3890505,
+       "cap": 1701885057.5506265,
        "sec": 2
       },
       {
        "s": 79,
        "d": 4,
-       "cap": 1666830769.9640827,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 79,
        "d": 5,
-       "cap": 1666830769.9640827,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 80,
        "d": 0,
-       "cap": 19859537192.32329,
+       "cap": 19887090423.583553,
        "sec": 4
       },
       {
        "s": 80,
        "d": 1,
-       "cap": 9899737261.359518,
+       "cap": 9858722478.040539,
        "sec": 4
       },
       {
        "s": 80,
        "d": 2,
-       "cap": 2137838205.8110206,
+       "cap": 2140804254.3101015,
        "sec": 2
       },
       {
        "s": 80,
        "d": 3,
-       "cap": 2210307297.5334287,
+       "cap": 2213373890.0494275,
        "sec": 2
       },
       {
        "s": 80,
        "d": 4,
-       "cap": 2677267391.544402,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 80,
        "d": 5,
-       "cap": 2677267391.544402,
+       "cap": 2680981847.0662203,
        "sec": 2
       },
       {
        "s": 81,
        "d": 0,
-       "cap": 6063886465.098038,
+       "cap": 15291380359.284525,
        "sec": 4
       },
       {
        "s": 81,
        "d": 1,
-       "cap": 3022773502.0124054,
+       "cap": 7580469141.407009,
        "sec": 4
       },
       {
        "s": 81,
        "d": 2,
-       "cap": 652764867.3403127,
+       "cap": 1646085547.466999,
        "sec": 2
       },
       {
        "s": 81,
        "d": 3,
-       "cap": 674892489.9620185,
+       "cap": 1701885057.5506265,
        "sec": 2
       },
       {
        "s": 81,
        "d": 4,
-       "cap": 817473506.1454469,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 81,
        "d": 5,
-       "cap": 817473506.1454469,
+       "cap": 2061433436.7993233,
        "sec": 2
       },
       {
        "s": 82,
        "d": 0,
-       "cap": 49307223154.81282,
+       "cap": 49375632267.7357,
        "sec": 3
       },
       {
        "s": 82,
        "d": 1,
-       "cap": 24579049833.475246,
-       "sec": 3
+       "cap": 24477218403.358288,
+       "sec": 4
       },
       {
        "s": 82,
        "d": 2,
-       "cap": 5307820845.067591,
+       "cap": 5315184944.9363785,
        "sec": 2
       },
       {
        "s": 82,
        "d": 3,
-       "cap": 5487746975.408867,
+       "cap": 5495360705.781682,
        "sec": 2
       },
       {
        "s": 82,
        "d": 4,
-       "cap": 6647114655.371296,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 82,
        "d": 5,
-       "cap": 6647114655.371296,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 83,
        "d": 0,
-       "cap": 20200223019.19087,
-       "sec": 3
+       "cap": 29574010622.082,
+       "sec": 4
       },
       {
        "s": 83,
        "d": 1,
-       "cap": 10069564994.100527,
-       "sec": 3
+       "cap": 14660865771.494364,
+       "sec": 4
       },
       {
        "s": 83,
        "d": 2,
-       "cap": 2174512332.1918387,
+       "cap": 3183581228.2366414,
        "sec": 2
       },
       {
        "s": 83,
        "d": 3,
-       "cap": 2248224614.6390204,
+       "cap": 3291499235.973478,
        "sec": 2
       },
       {
        "s": 83,
        "d": 4,
-       "cap": 2723195302.462008,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 83,
        "d": 5,
-       "cap": 2723195302.462008,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 84,
        "d": 0,
-       "cap": 49307223154.81282,
+       "cap": 49375632267.7357,
        "sec": 3
       },
       {
        "s": 84,
        "d": 1,
-       "cap": 24579049833.475246,
-       "sec": 3
+       "cap": 24477218403.358288,
+       "sec": 4
       },
       {
        "s": 84,
        "d": 2,
-       "cap": 5307820845.067591,
+       "cap": 5315184944.9363785,
        "sec": 2
       },
       {
        "s": 84,
        "d": 3,
-       "cap": 5487746975.408867,
+       "cap": 5495360705.781682,
        "sec": 2
       },
       {
        "s": 84,
        "d": 4,
-       "cap": 6647114655.371296,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 84,
        "d": 5,
-       "cap": 6647114655.371296,
+       "cap": 6656336898.847529,
        "sec": 2
       },
       {
        "s": 85,
        "d": 0,
-       "cap": 26756222720.45477,
-       "sec": 3
+       "cap": 29574010622.082,
+       "sec": 4
       },
       {
        "s": 85,
        "d": 1,
-       "cap": 13337650946.936943,
-       "sec": 3
+       "cap": 14660865771.494364,
+       "sec": 4
       },
       {
        "s": 85,
        "d": 2,
-       "cap": 2880252174.108465,
+       "cap": 3183581228.2366414,
        "sec": 2
       },
       {
        "s": 85,
        "d": 3,
-       "cap": 2977887841.027397,
+       "cap": 3291499235.973478,
        "sec": 2
       },
       {
        "s": 85,
        "d": 4,
-       "cap": 3607010672.8399982,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 85,
        "d": 5,
-       "cap": 3607010672.8399982,
+       "cap": 3986877111.431077,
        "sec": 2
       },
       {
        "s": 86,
        "d": 0,
-       "cap": 32325170185.390167,
+       "cap": 32319731606.07357,
        "sec": 3
       },
       {
        "s": 86,
        "d": 1,
-       "cap": 16113703389.21065,
+       "cap": 16022015170.765186,
        "sec": 3
       },
       {
        "s": 86,
        "d": 2,
-       "cap": 3479737879.208149,
+       "cap": 3479152427.3652506,
        "sec": 2
       },
       {
        "s": 86,
        "d": 3,
-       "cap": 3597695095.4524946,
+       "cap": 3597089797.784413,
        "sec": 2
       },
       {
        "s": 86,
        "d": 4,
-       "cap": 4357761373.055646,
+       "cap": 4357028197.306399,
        "sec": 2
       },
       {
        "s": 86,
        "d": 5,
-       "cap": 4357761373.055646,
+       "cap": 4357028197.306399,
        "sec": 2
       },
       {
        "s": 87,
        "d": 0,
-       "cap": 470557943726.74347,
+       "cap": 470478774253.3784,
        "sec": 4
       },
       {
        "s": 87,
        "d": 1,
-       "cap": 234567400238.36322,
-       "sec": 3
+       "cap": 233232693590.62634,
+       "sec": 4
       },
       {
        "s": 87,
        "d": 2,
-       "cap": 50654591816.76021,
+       "cap": 50646069386.28992,
        "sec": 2
       },
       {
        "s": 87,
        "d": 3,
-       "cap": 52371696624.10804,
+       "cap": 52362885297.68959,
        "sec": 2
       },
       {
        "s": 87,
        "d": 4,
-       "cap": 63435991804.42009,
+       "cap": 63425318955.0282,
        "sec": 2
       },
       {
        "s": 87,
        "d": 5,
-       "cap": 63435991804.42009,
+       "cap": 63425318955.0282,
        "sec": 2
       },
       {
        "s": 88,
        "d": 0,
-       "cap": 1919482379191.9268,
+       "cap": 1919159434034.757,
        "sec": 4
       },
       {
        "s": 88,
        "d": 1,
-       "cap": 956838573214.8234,
-       "sec": 3
+       "cap": 951394087735.6682,
+       "sec": 4
       },
       {
        "s": 88,
        "d": 2,
-       "cap": 206628317965.22244,
+       "cap": 206593553585.33313,
        "sec": 2
       },
       {
        "s": 88,
        "d": 3,
-       "cap": 213632667726.75546,
+       "cap": 213596724893.3106,
        "sec": 2
       },
       {
        "s": 88,
        "d": 4,
-       "cap": 258765727151.03763,
+       "cap": 258722190862.64508,
        "sec": 2
       },
       {
        "s": 88,
        "d": 5,
-       "cap": 258765727151.03763,
+       "cap": 258722190862.64508,
        "sec": 2
       },
       {
        "s": 89,
        "d": 0,
-       "cap": 329125784163.4074,
+       "cap": 329070410079.6192,
        "sec": 4
       },
       {
        "s": 89,
        "d": 1,
-       "cap": 164065192335.70734,
+       "cap": 163131648703.2581,
        "sec": 4
       },
       {
        "s": 89,
        "d": 2,
-       "cap": 35429711633.66424,
+       "cap": 35423750727.78875,
        "sec": 3
       },
       {
        "s": 89,
        "d": 3,
-       "cap": 36630718807.68676,
+       "cap": 36624555837.20533,
        "sec": 3
       },
       {
        "s": 89,
        "d": 4,
-       "cap": 44369499708.06889,
+       "cap": 44362034718.95928,
        "sec": 3
       },
       {
        "s": 89,
        "d": 5,
-       "cap": 44369499708.06889,
+       "cap": 44362034718.95928,
        "sec": 3
       },
       {
        "s": 90,
        "d": 0,
-       "cap": 1484135480132.9,
+       "cap": 1483885780333.0537,
        "sec": 4
       },
       {
        "s": 90,
        "d": 1,
-       "cap": 739823449624.837,
+       "cap": 735613796981.876,
        "sec": 4
       },
       {
        "s": 90,
        "d": 2,
-       "cap": 159764122461.7389,
+       "cap": 159737242793.4503,
        "sec": 2
       },
       {
        "s": 90,
        "d": 3,
-       "cap": 165179855426.54367,
+       "cap": 165152064583.05884,
        "sec": 2
       },
       {
        "s": 90,
        "d": 4,
-       "cap": 200076541921.11975,
+       "cap": 200042879851.08612,
        "sec": 2
       },
       {
        "s": 90,
        "d": 5,
-       "cap": 200076541921.11975,
+       "cap": 200042879851.08612,
        "sec": 2
       },
       {
        "s": 91,
        "d": 0,
-       "cap": 615277510553.736,
+       "cap": 615173992597.7999,
        "sec": 4
       },
       {
        "s": 91,
        "d": 1,
-       "cap": 306708340598.1814,
+       "cap": 304963146420.74335,
        "sec": 4
       },
       {
        "s": 91,
        "d": 2,
-       "cap": 66233354609.4178,
+       "cap": 66222211115.033,
        "sec": 3
       },
       {
        "s": 91,
        "d": 3,
-       "cap": 68478553070.75402,
+       "cap": 68467031830.79685,
        "sec": 3
       },
       {
        "s": 91,
        "d": 4,
-       "cap": 82945659800.81769,
+       "cap": 82931704528.5884,
        "sec": 3
       },
       {
        "s": 91,
        "d": 5,
-       "cap": 82945659800.81769,
+       "cap": 82931704528.5884,
        "sec": 3
       },
       {
        "s": 92,
        "d": 0,
-       "cap": 655451314064.8588,
+       "cap": 655341037028.7517,
        "sec": 3
       },
       {
        "s": 92,
        "d": 1,
-       "cap": 326734492048.64594,
-       "sec": 3
+       "cap": 324875347520.7231,
+       "sec": 4
       },
       {
        "s": 92,
        "d": 2,
-       "cap": 70557981673.33661,
+       "cap": 70546110577.91629,
        "sec": 2
       },
       {
        "s": 92,
        "d": 3,
-       "cap": 72949777662.26329,
+       "cap": 72937504156.82874,
        "sec": 2
       },
       {
        "s": 92,
        "d": 4,
-       "cap": 88361496690.3207,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 92,
        "d": 5,
-       "cap": 88361496690.3207,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 93,
        "d": 0,
-       "cap": 728547700687.8876,
+       "cap": 728425125479.9803,
        "sec": 4
       },
       {
        "s": 93,
        "d": 1,
-       "cap": 363172149951.49274,
+       "cap": 361105672332.1792,
        "sec": 4
       },
       {
        "s": 93,
        "d": 2,
-       "cap": 78426656885.45836,
+       "cap": 78413461917.21657,
        "sec": 2
       },
       {
        "s": 93,
        "d": 3,
-       "cap": 81085187627.33833,
+       "cap": 81071545372.0375,
        "sec": 2
       },
       {
        "s": 93,
        "d": 4,
-       "cap": 98215632285.24304,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 93,
        "d": 5,
-       "cap": 98215632285.24304,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 94,
        "d": 0,
-       "cap": 655451314064.8588,
+       "cap": 655341037028.7517,
        "sec": 3
       },
       {
        "s": 94,
        "d": 1,
-       "cap": 326734492048.64594,
-       "sec": 3
+       "cap": 324875347520.7231,
+       "sec": 4
       },
       {
        "s": 94,
        "d": 2,
-       "cap": 70557981673.33661,
+       "cap": 70546110577.91629,
        "sec": 2
       },
       {
        "s": 94,
        "d": 3,
-       "cap": 72949777662.26329,
+       "cap": 72937504156.82874,
        "sec": 2
       },
       {
        "s": 94,
        "d": 4,
-       "cap": 88361496690.3207,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 94,
        "d": 5,
-       "cap": 88361496690.3207,
+       "cap": 88346630225.41032,
        "sec": 2
       },
       {
        "s": 95,
        "d": 0,
-       "cap": 728547700687.8876,
+       "cap": 728425125479.9803,
        "sec": 4
       },
       {
        "s": 95,
        "d": 1,
-       "cap": 363172149951.49274,
+       "cap": 361105672332.1792,
        "sec": 4
       },
       {
        "s": 95,
        "d": 2,
-       "cap": 78426656885.45836,
+       "cap": 78413461917.21657,
        "sec": 2
       },
       {
        "s": 95,
        "d": 3,
-       "cap": 81085187627.33833,
+       "cap": 81071545372.0375,
        "sec": 2
       },
       {
        "s": 95,
        "d": 4,
-       "cap": 98215632285.24304,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 95,
        "d": 5,
-       "cap": 98215632285.24304,
+       "cap": 98199107901.82143,
        "sec": 2
       },
       {
        "s": 96,
        "d": 0,
-       "cap": 6467137642888.547,
+       "cap": 6467257087678.722,
        "sec": 3
       },
       {
        "s": 96,
        "d": 1,
-       "cap": 3223789299701.9385,
-       "sec": 2
+       "cap": 3206044296251.3657,
+       "sec": 3
       },
       {
        "s": 96,
        "d": 2,
-       "cap": 696174024667.105,
+       "cap": 696186882652.3364,
        "sec": 2
       },
       {
        "s": 96,
        "d": 3,
-       "cap": 719773144147.3461,
+       "cap": 719786437996.4836,
        "sec": 2
       },
       {
        "s": 96,
        "d": 4,
-       "cap": 871835862047.5638,
+       "cap": 871851964418.8694,
        "sec": 2
       },
       {
        "s": 96,
        "d": 5,
-       "cap": 871835862047.5638,
+       "cap": 871851964418.8694,
        "sec": 2
       },
       {
        "s": 97,
        "d": 0,
-       "cap": 9488671655225.729,
+       "cap": 9488846906234.363,
        "sec": 3
       },
       {
        "s": 97,
        "d": 1,
-       "cap": 4729987181290.144,
-       "sec": 3
+       "cap": 4703951472672.054,
+       "sec": 4
       },
       {
        "s": 97,
        "d": 2,
-       "cap": 1021435927257.1027,
+       "cap": 1021454792666.6152,
        "sec": 2
       },
       {
        "s": 97,
        "d": 3,
-       "cap": 1056060873943.7844,
+       "cap": 1056080378858.7043,
        "sec": 2
       },
       {
        "s": 97,
        "d": 4,
-       "cap": 1279169346475.3699,
+       "cap": 1279192972091.9297,
        "sec": 2
       },
       {
        "s": 97,
        "d": 5,
-       "cap": 1279169346475.3699,
+       "cap": 1279192972091.9297,
        "sec": 2
       },
       {
        "s": 98,
        "d": 0,
-       "cap": 6453673870626.152,
+       "cap": 6453782953497.67,
        "sec": 3
       },
       {
        "s": 98,
        "d": 1,
-       "cap": 3217077773312.693,
-       "sec": 2
+       "cap": 3199364699251.8296,
+       "sec": 3
       },
       {
        "s": 98,
        "d": 2,
-       "cap": 694724677360.6626,
+       "cap": 694736419906.7285,
        "sec": 2
       },
       {
        "s": 98,
        "d": 3,
-       "cap": 718274666423.7362,
+       "cap": 718286807022.211,
        "sec": 2
       },
       {
        "s": 98,
        "d": 4,
-       "cap": 870020808751.195,
+       "cap": 870035514230.5854,
        "sec": 2
       },
       {
        "s": 98,
        "d": 5,
-       "cap": 870020808751.195,
+       "cap": 870035514230.5854,
        "sec": 2
       },
       {
        "s": 99,
        "d": 0,
-       "cap": 9468917426803.04,
+       "cap": 9469077474664.732,
        "sec": 3
       },
       {
        "s": 99,
        "d": 1,
-       "cap": 4720139939167.045,
-       "sec": 3
+       "cap": 4694151077780.578,
+       "sec": 4
       },
       {
        "s": 99,
        "d": 2,
-       "cap": 1019309425323.0763,
+       "cap": 1019326654145.187,
        "sec": 2
       },
       {
        "s": 99,
        "d": 3,
-       "cap": 1053862287198.4352,
+       "cap": 1053880100048.4141,
        "sec": 2
       },
       {
        "s": 99,
        "d": 4,
-       "cap": 1276506275775.9365,
+       "cap": 1276527851853.8206,
        "sec": 2
       },
       {
        "s": 99,
        "d": 5,
-       "cap": 1276506275775.9365,
+       "cap": 1276527851853.8206,
        "sec": 2
       }
      ]
@@ -42020,7 +42020,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 126.71467856600657,
+    "mglt": 126.72546244850624,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -42084,7 +42084,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "16sdr7t",
+   "signature": "r5qmo1",
    "build": 152526,
    "crew": 1000,
    "total": 153526,
@@ -42145,8 +42145,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -42167,8 +42167,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -42189,8 +42189,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -42211,8 +42211,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -42986,7 +42986,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 15590660747952108,
      "De": 1547226769040435700,
      "Ds": 944874775086263800,
-     "Dw": 2278933333333333.5,
+     "Dw": 2836800000000000,
      "domains": [
       {
        "id": "main",
@@ -43355,7 +43355,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "f42",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p30>f42",
@@ -43367,7 +43367,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "f43",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p30>f43",
@@ -43379,7 +43379,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "f44",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p30>f44",
@@ -43391,7 +43391,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "f45",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p30>f45",
@@ -44256,7 +44256,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>hotel",
        "n": "送電損失 p30>hotel",
        "g": "high",
-       "sh": 0.0125268,
+       "sh": 0.0125196,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44269,7 +44269,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p2",
        "n": "送電損失 p30>p2",
        "g": "high",
-       "sh": 0.000332395,
+       "sh": 0.000332203,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44282,7 +44282,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p3",
        "n": "送電損失 p30>p3",
        "g": "high",
-       "sh": 0.000340502,
+       "sh": 0.000340306,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44295,7 +44295,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p16",
        "n": "送電損失 p30>p16",
        "g": "high",
-       "sh": 0.000335188,
+       "sh": 0.000334995,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44308,7 +44308,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p17",
        "n": "送電損失 p30>p17",
        "g": "high",
-       "sh": 0.000327208,
+       "sh": 0.000327019,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44568,7 +44568,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p39",
        "n": "送電損失 p30>p39",
        "g": "high",
-       "sh": 0.833362,
+       "sh": 0.832881,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44581,7 +44581,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f42",
        "n": "送電損失 p30>f42",
        "g": "high",
-       "sh": 0.0000723849,
+       "sh": 0.00021703,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44594,7 +44594,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f43",
        "n": "送電損失 p30>f43",
        "g": "high",
-       "sh": 0.0000723849,
+       "sh": 0.00021703,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44607,7 +44607,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f44",
        "n": "送電損失 p30>f44",
        "g": "high",
-       "sh": 0.0000718478,
+       "sh": 0.000215419,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44620,7 +44620,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f45",
        "n": "送電損失 p30>f45",
        "g": "high",
-       "sh": 0.0000718478,
+       "sh": 0.000215419,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -44633,7 +44633,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f46",
        "n": "送電損失 p30>f46",
        "g": "high",
-       "sh": 0.000872494,
+       "sh": 0.000871991,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -44646,7 +44646,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f47",
        "n": "送電損失 p30>f47",
        "g": "high",
-       "sh": 0.000872494,
+       "sh": 0.000871991,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -44659,7 +44659,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p41",
        "n": "送電損失 p30>p41",
        "g": "high",
-       "sh": 0.0102888,
+       "sh": 0.0102829,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -44672,7 +44672,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p31",
        "n": "送電損失 p30>p31",
        "g": "high",
-       "sh": 0.0367324,
+       "sh": 0.0367112,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44685,7 +44685,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p32",
        "n": "送電損失 p30>p32",
        "g": "high",
-       "sh": 0.0367324,
+       "sh": 0.0367112,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44698,7 +44698,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p33",
        "n": "送電損失 p30>p33",
        "g": "high",
-       "sh": 0.0334945,
+       "sh": 0.0334752,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44711,7 +44711,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p34",
        "n": "送電損失 p30>p34",
        "g": "high",
-       "sh": 0.0334945,
+       "sh": 0.0334752,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44983,31 +44983,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 6,
        "d": 0,
-       "cap": 566293940924138.5,
+       "cap": 704918668798383.5,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 71208123024760.97,
+       "cap": 88639364935339,
        "sec": 3
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 72944906513169.77,
+       "cap": 90801300665469.22,
        "sec": 3
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 72944906513169.77,
+       "cap": 90801300665469.22,
        "sec": 3
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 71208123024760.97,
+       "cap": 88639364935339,
        "sec": 3
       },
       {
@@ -45799,121 +45799,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 33,
        "d": 0,
-       "cap": 8013464603.248152,
+       "cap": 24040393809.74445,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 1007645909.8104728,
+       "cap": 3022937729.431418,
        "sec": 3
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 1032222639.3180454,
+       "cap": 3096667917.9541354,
        "sec": 3
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 1032222639.3180454,
+       "cap": 3096667917.9541354,
        "sec": 3
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 1007645909.8104728,
+       "cap": 3022937729.431418,
        "sec": 3
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 8013464603.236608,
+       "cap": 24040393809.709824,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 1007645909.8090212,
+       "cap": 3022937729.4270635,
        "sec": 3
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 1032222639.3165585,
+       "cap": 3096667917.949675,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 1032222639.3165585,
+       "cap": 3096667917.949675,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 1007645909.8090212,
+       "cap": 3022937729.4270635,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 7954007086.288247,
+       "cap": 23862021258.86474,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 1000169477.7379022,
+       "cap": 3000508433.213706,
        "sec": 3
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 1024563855.2437046,
+       "cap": 3073691565.7311134,
        "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 1024563855.2437046,
+       "cap": 3073691565.7311134,
        "sec": 3
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 1000169477.7379022,
+       "cap": 3000508433.213706,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 7954007086.288247,
+       "cap": 23862021258.86474,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 1000169477.7379022,
+       "cap": 3000508433.213706,
        "sec": 3
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 1024563855.2437046,
+       "cap": 3073691565.7311134,
        "sec": 3
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 1024563855.2437046,
+       "cap": 3073691565.7311134,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 1000169477.7379022,
+       "cap": 3000508433.213706,
        "sec": 3
       },
       {
@@ -46246,7 +46246,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "3cef4i",
+   "signature": "1qqqj7o",
    "build": 123572,
    "crew": 1000,
    "total": 124572,
@@ -46307,8 +46307,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.31,
       "pd": false,
@@ -46329,8 +46329,8 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000002,
-      "weaponPowerW": 69733333333333.34,
+      "size": 1.000000006,
+      "weaponPowerW": 209200000000000,
       "stock": 0,
       "at": 0.31,
       "pd": false,
@@ -46934,7 +46934,7 @@ const CRAFT_PRICE_CATALOG={
      "cooling": 12388904626461760,
      "De": 1083855266043378000,
      "Ds": 0,
-     "Dw": 2139466666666666.8,
+     "Dw": 2418400000000000,
      "domains": [
       {
        "id": "main",
@@ -47238,7 +47238,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "f29",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p21>f29",
@@ -47250,7 +47250,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "f30",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p21>f30",
@@ -47286,7 +47286,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "f29",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p22>f29",
@@ -47298,7 +47298,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "f30",
-       "cap": 104600000000000.02,
+       "cap": 313800000000000,
        "auto": false,
        "ok": true,
        "routeId": "p22>f30",
@@ -47822,7 +47822,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f29",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.0651876,
+       "sh": 0.173007,
        "m": [
         0,
         1
@@ -47837,7 +47837,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f31",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.934812,
+       "sh": 0.826993,
        "m": [
         2,
         3
@@ -47864,7 +47864,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>hotel",
        "n": "送電損失 p21>hotel",
        "g": "high",
-       "sh": 0.0208882,
+       "sh": 0.0208743,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -47877,7 +47877,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p7",
        "n": "送電損失 p21>p7",
        "g": "high",
-       "sh": 0.000536544,
+       "sh": 0.000536187,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -47890,7 +47890,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p8",
        "n": "送電損失 p22>p8",
        "g": "high",
-       "sh": 0.000536544,
+       "sh": 0.000536187,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48124,7 +48124,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f29",
        "n": "送電損失 p21>f29",
        "g": "high",
-       "sh": 0.000107966,
+       "sh": 0.000323683,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48137,7 +48137,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f30",
        "n": "送電損失 p21>f30",
        "g": "high",
-       "sh": 0.000225606,
+       "sh": 0.000676365,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48150,7 +48150,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f31",
        "n": "送電損失 p21>f31",
        "g": "high",
-       "sh": 0.00079335,
+       "sh": 0.000792821,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48163,7 +48163,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f32",
        "n": "送電損失 p21>f32",
        "g": "high",
-       "sh": 0.00111078,
+       "sh": 0.00111004,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48228,7 +48228,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p28",
        "n": "送電損失 p21>p28",
        "g": "high",
-       "sh": 0.01223,
+       "sh": 0.0122218,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48241,7 +48241,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p28",
        "n": "送電損失 p22>p28",
        "g": "high",
-       "sh": 6.26324e-7,
+       "sh": 6.25907e-7,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48254,7 +48254,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p23",
        "n": "送電損失 p21>p23",
        "g": "high",
-       "sh": 0.106111,
+       "sh": 0.10604,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48267,7 +48267,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p24",
        "n": "送電損失 p21>p24",
        "g": "high",
-       "sh": 0.360478,
+       "sh": 0.360237,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48280,7 +48280,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p23",
        "n": "送電損失 p22>p23",
        "g": "high",
-       "sh": 0.383959,
+       "sh": 0.383703,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48293,7 +48293,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p24",
        "n": "送電損失 p22>p24",
        "g": "high",
-       "sh": 0.113023,
+       "sh": 0.112947,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -48423,19 +48423,19 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 4,
        "d": 0,
-       "cap": 38793554782628.28,
+       "cap": 116380664347884.83,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 6753222608685.865,
+       "cap": 20259667826057.594,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 6753222608685.865,
+       "cap": 20259667826057.594,
        "sec": 3
       },
       {
@@ -48843,37 +48843,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 27,
        "d": 0,
-       "cap": 6068817234.529561,
+       "cap": 18206451703.588676,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1056466054.3704566,
+       "cap": 3169398163.1113696,
        "sec": 3
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 1056466054.3704566,
+       "cap": 3169398163.1113696,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 12680638373.260536,
+       "cap": 38041915119.78161,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 2207458796.5632877,
+       "cap": 6622376389.689862,
        "sec": 3
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 2207458796.5632877,
+       "cap": 6622376389.689862,
        "sec": 3
       },
       {
@@ -48915,37 +48915,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 31,
        "d": 0,
-       "cap": 12680638373.299301,
+       "cap": 38041915119.897896,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 2207458796.5700364,
+       "cap": 6622376389.710107,
        "sec": 3
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 2207458796.5700364,
+       "cap": 6622376389.710107,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 6068817234.464956,
+       "cap": 18206451703.394867,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 1056466054.3592104,
+       "cap": 3169398163.07763,
        "sec": 3
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 1056466054.3592104,
+       "cap": 3169398163.07763,
        "sec": 3
       },
       {
@@ -49201,6 +49201,10 @@ const PARTS = {
 const ARMOR_MAX = {hull: 3, cit: 4};
 
 // ---------- fittings (physical sizes in metres) ----------
+// Output per barrel per second of each class of aircraft laser (claserH heavy, claser medium, claserL and cturret light), in kt/s
+// and in TT/s (1 kt = 1e-9 TT).
+const CRAFT_LASER_OUTPUT_KT=Object.freeze({heavy:400,medium:50,light:10}),KT_PER_TT=1e9;
+const CRAFT_LASER_OUTPUT=Object.freeze(Object.fromEntries(Object.entries(CRAFT_LASER_OUTPUT_KT).map(([k,kt])=>[k,kt/KT_PER_TT])));
 const FITS = {
   pd:  {cat: 'w', name: '点防御レーザー砲', short: '点防御', fm: 9, wm: 9, hm: 6, tt: 0.5, aa: 6, mass: 250, crew: 3, cost: 20e3, desc: '戦闘機とミサイルを迎撃する。'},
   ltl: {cat: 'w', name: '軽ターボレーザー四連砲塔', short: '軽TL四連', fm: 14, wm: 14, hm: 7, tt: 24, aa: 1.5, mass: 900, crew: 6, cost: 80e3, desc: '4門×6TT。小型艦の主砲、大型艦の副砲。'},
@@ -49218,9 +49222,10 @@ const FITS = {
   brT: {cat: 'b', name: '塔型艦橋', short: '塔型', fm: 50, wm: 44, hm: 110, sensor: 1.0, pw: 3e21, mass: 45000, crew: 120, cost: 1.5e6, desc: '高さ110m級。視界が広いが標的になりやすい。'},
   brL: {cat: 'b', name: '大型司令塔', short: '大型', fm: 70, wm: 110, hm: 150, sensor: 1.25, pw: 6e21, mass: 110000, crew: 250, cost: 4e6, desc: '旗艦向けの指揮能力。'},
   // v21 Starfighter and small-craft weapons (metres; the pilot fires them, so no gun crew). Fixed guns point to the bow.
-  claser: {cat:'w',craft:true,fixed:true,name:'固定式レーザー砲',short:'レーザー砲',fm:2.6,wm:.32,hm:.32,barrels:1,boltTT:2e-9,tt:2e-9,cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-shot',pointDefense:false,aa:2,mass:1.2,crew:0,cost:400,evidence:'ユーザー指定：航空機レーザーは1門1発2 kt',desc:'機首方向に固定した戦闘機用レーザー砲。1門1発2 kt（0.000000002 TT）。'},
-  claserH: {cat:'w',craft:true,fixed:true,name:'重レーザー砲',short:'重レーザー',fm:3.6,wm:.5,hm:.5,barrels:1,boltTT:2e-9,tt:2e-9,cycle:.18,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-shot',pointDefense:false,aa:1,mass:3,crew:0,cost:1200,evidence:'ユーザー指定：航空機レーザーは1門1発2 kt',desc:'重戦闘機・ガンシップ用のレーザー砲。1門1発2 kt（0.000000002 TT）。'},
-  cturret: {cat:'w',craft:true,name:'小型旋回砲塔',short:'旋回砲塔',fm:1.3,wm:1.3,hm:.7,barrels:2,boltTT:2e-9,tt:4e-9,cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-shot',pointDefense:false,dualPurpose:true,aa:1.5,mass:2,crew:0,cost:900,evidence:'ユーザー指定：航空機レーザーは1門1発2 kt',desc:'後部銃座・上部砲塔などの小型連装レーザー砲塔。2門が各1発2 kt、一斉射4 kt。'},
+  claser: {cat:'w',craft:true,fixed:true,name:'固定式レーザー砲',short:'レーザー砲',fm:2.6,wm:.32,hm:.32,barrels:1,outputClass:'medium',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:1.2,crew:0,cost:400,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（中型 50 kt/s）',desc:'機首方向に固定した戦闘機用レーザー砲（中型）。1門あたり毎秒50 kt、0.12秒ごとに1発6 kt。'},
+  claserL: {cat:'w',craft:true,fixed:true,name:'固定式軽レーザー砲',short:'軽レーザー',fm:2.2,wm:.26,hm:.26,barrels:1,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:.8,crew:0,cost:300,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）',desc:'機首方向に固定した戦闘機用の軽レーザー砲（軽）。1門あたり毎秒10 kt、0.12秒ごとに1発1.2 kt。'},
+  claserH: {cat:'w',craft:true,fixed:true,name:'重レーザー砲',short:'重レーザー',fm:3.6,wm:.5,hm:.5,barrels:1,outputClass:'heavy',cycle:.18,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:1,mass:3,crew:0,cost:1200,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（重 400 kt/s）',desc:'重戦闘機・ガンシップ用のレーザー砲（重）。1門あたり毎秒400 kt、0.18秒ごとに1発72 kt。'},
+  cturret: {cat:'w',craft:true,name:'小型旋回砲塔',short:'旋回砲塔',fm:1.3,wm:1.3,hm:.7,barrels:2,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,dualPurpose:true,aa:1.5,mass:2,crew:0,cost:900,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）',desc:'後部銃座・上部砲塔などの小型連装レーザー砲塔（軽）。2門が各毎秒10 kt、0.12秒ごとに各1発1.2 kt（一斉射2.4 kt）。'},
   // v22 Ordnance is carried as stores (ORDNANCE): these fittings are the stations that hold it — launch tubes with
   // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
   // are chosen in the order of battle (the default is the craft's canon loadout).
@@ -49230,6 +49235,13 @@ const FITS = {
   cbomb: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
   cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', thin: 6, heavy: 3, maxMass: .4}, desc: '機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイルなら6発、魚雷なら3発、爆弾なら2発まで（1か所 0.4 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。'},
 };
+// Aircraft lasers are defined by their output per barrel per second (user decision 2026-11-11, docs/dev-status-2026-11.md
+// §1 4-2): heavy 400 kt/s, medium 50 kt/s, light 10 kt/s (1 kt = 1e-9 TT). Each shot carries that output over one firing
+// period (boltTT = rate × cycle), so a slower gun fires bigger shots and the per-second output stays the defined figure.
+for(const d of Object.values(FITS)){if(!d.outputClass)continue;const kt=CRAFT_LASER_OUTPUT_KT[d.outputClass];d.barrelTTs=kt/KT_PER_TT;d.boltTT=kt*d.cycle/KT_PER_TT;d.tt=d.barrels*d.boltTT;}
+// One shot of a weapon fired every `cycle` seconds (TT, all barrels). An aircraft laser carries its per-second output
+// over the period it actually fires at (a custom cadence or the catalogue's); other weapons keep their catalogue volley.
+function craftShotTT(d,cycle){const c=Number.isFinite(cycle)&&cycle>0?cycle:d?.cycle;return d?.outputClass&&d.barrelTTs>0&&c>0?d.barrelTTs*c*Math.max(1,d.barrels||1):Math.max(0,d?.tt||0);}
 for (const k in FITS) { const d = FITS[k]; d.key = k; d.power = d.tt ? d.tt * TT / (d.cycle||K.cycle) : d.ion ? d.ion * TT / (d.cycle||K.cycle) : (d.pw || 0); d.r = Math.max(d.fm, d.wm) / 2; }
 // Retired aircraft ion fittings are inert compatibility inputs, never placeable weapons.
 Object.defineProperty(FITS,'cion',{enumerable:false,value:Object.freeze({key:'cion',cat:'retired',craft:true,fixed:true,retired:true,catalogHidden:true,name:'廃止された航空機用イオン砲',short:'廃止済み',fm:1.8,wm:.55,hm:.55,r:.9,barrels:0,boltTT:0,tt:0,ion:0,power:0,aa:0,mass:0,crew:0,cost:0,pointDefense:false})});
@@ -51051,7 +51063,7 @@ function simulate(A, B, tmax) {
     const air0 = [sd[0].air, sd[1].air], hpf = sd.map(X => 0.35 + 0.65 * Math.max(0, X.hp) / X.p.hp), loss = [0, 0];
     for (let k = 0; k < 2; k++) {
       const Y = sd[1 - k], mine = air0[k], theirs = air0[1 - k], esc = mine + theirs > 0 ? theirs / (mine + theirs) : 0;
-      out[k].fd = mine * (1 - 0.5 * esc) * 0.6;
+      out[k].fd = mine * (1 - 0.5 * esc) * fleetAirGun(sd[k].p);
       loss[k] = Math.min(mine, Y.p.aa * 0.012 * hpf[1 - k] + 0.012 * theirs);
     }
     for (let k = 0; k < 2; k++) { sd[k].air -= loss[k]; sd[k].lostF += loss[k]; }
@@ -51721,7 +51733,7 @@ function craftMuzzleBlocked(ship,f){
 // Mounting-radius circles are clearance probes, not the bodies' hit boxes.
 function craftFitBounds(f){
  const d=fitSpec(f),L=d.fm,W=d.wm,h=d.hm,k=f.k;
- if(k==='claser'||k==='claserH')return [-L*.4,h*.5-W*.42,-W*.42,L*.53,h*.5+W*.42,W*.42];
+ if(k==='claser'||k==='claserL'||k==='claserH')return [-L*.4,h*.5-W*.42,-W*.42,L*.53,h*.5+W*.42,W*.42];
  if(k==='cion')return [-L*.43,0,-W*.5,L*.47,h,W*.5];
  if(k==='cturret')return [-W*.5,0,-W*.5,Math.max(L*.68,W*.5),Math.max(h*.8,h*.55+W*.06),W*.5];
  if(k==='ctorp'||k==='cmsl')return [-L*.5,0,-W*.5,L*.51,h,W*.5];
@@ -51836,7 +51848,7 @@ function bridgeLooseStructures(ship){
 }
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');try{
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -55545,7 +55557,7 @@ const SEPARATIST_EXAMPLES={
 // v24 In the remeasured model (Executor_Complete.stl) the six lower-wing nozzles from |z| 1,332 m outward hang below
 // the plate, so all six keep the full measured body as an exposed turbine.
 const EXECUTOR_TURBINE_DEPTH=.22,EXECUTOR_TURBINE_OUTBOARD=1200;
-const EXECUTOR_BLUEPRINT={"exactCredit":"The Executor-class shape (hull, terraces, engine mouths) was measured from Executor_Complete.stl supplied by the user (no author or licence stated). The command tower is the Imperial-class one.","dimensions":{"length":19000,"width":6422.508,"heightIncludingSourceBridge":1671.2,"coordinate":"X=0 aft, X=19000 bow, Y=0 model bottom, Z=0 centerplane"},"cityTerraces":[{"y":[660.0,690.0],"m":1,"k":0,"o":[6092.1,2983.7,6086.8,2984.4,6095.0,3011.5,6088.1,3014.0,6104.1,3059.5,6104.3,3065.8,6084.6,3070.4,6114.3,3153.6,6168.6,3140.4,6093.8,2983.0]},{"y":[720.0,750.0],"m":1,"k":0,"o":[5971.7,2654.3,5970.0,2655.8,5969.8,2664.6,5971.3,2664.6,5974.1,2673.7,5970.4,2675.2,5975.4,2677.4,5983.4,2700.8,5987.7,2701.8,5982.3,2704.0,5997.4,2748.6,5998.2,2750.6,6004.5,2750.4,6037.3,2845.3,6106.2,2827.7,5978.0,2652.7]},{"y":[750.0,780.0],"m":1,"k":0,"o":[5926.3,2469.7,5914.6,2437.8,5902.2,2441.1,5891.5,2414.1,5910.0,2475.1,5904.1,2479.9,5910.7,2499.2,5918.4,2500.3,5917.4,2508.7,5921.9,2521.9,5925.9,2523.2,5923.0,2525.1,5925.1,2531.6,5938.6,2569.9,5941.9,2569.6,5974.9,2664.9,6000.3,2681.8,6086.2,2662.1,6092.8,2680.4,6114.1,2675.5,5998.5,2536.8,5911.5,2427.0]},{"y":[780.0,810.0],"m":1,"k":0,"o":[5876.8,2288.3,5853.8,2228.7,5841.2,2232.5,5862.6,2292.6,5850.5,2259.6,5842.4,2260.7,5837.8,2248.1,5834.2,2248.7,5848.1,2296.8,5843.9,2299.8,5859.5,2345.3,5864.5,2344.3,5855.7,2348.1,5860.6,2362.4,5870.8,2362.8,5866.5,2368.0,5875.2,2393.0,5880.9,2392.2,5913.4,2486.2,5924.5,2498.4,6071.5,2469.4,5998.5,2392.4,5900.5,2282.7]},{"y":[810.0,840.0],"m":1,"k":0,"o":[5804.5,2065.9,5809.9,2110.7,5797.3,2078.6,5787.9,2080.6,5774.9,2049.5,5786.2,2081.1,5773.1,2049.6,5784.2,2081.8,5776.3,2083.5,5785.9,2116.4,5778.8,2120.4,5784.4,2147.6,5794.9,2166.7,5802.5,2165.0,5796.6,2166.9,5809.4,2204.8,5812.7,2214.4,5819.0,2213.2,5851.5,2307.6,5885.6,2352.2,6066.4,2309.1,5948.6,2200.3,5815.9,2062.9]},{"y":[840.0,870.0],"m":1,"k":0,"o":[5741.2,1921.4,5742.9,1933.1,5738.7,1922.4,5720.2,1925.5,5724.2,1938.0,5718.2,1942.5,5733.8,1988.0,5740.9,1986.3,5735.2,1989.4,5742.1,2010.0,5750.4,2034.1,5757.6,2035.2,5789.7,2128.5,5827.9,2187.3,5972.5,2150.0,6041.5,2136.1,5948.7,2063.4,5898.7,2020.8,5785.2,1914.5]},{"y":[870.0,900.0],"m":1,"k":0,"o":[5676.6,1732.4,5674.4,1733.4,5676.6,1756.9,5668.5,1736.0,5656.5,1741.3,5662.7,1759.8,5653.6,1764.7,5663.5,1793.5,5674.1,1793.5,5668.0,1799.4,5671.5,1809.6,5679.3,1808.8,5672.2,1812.1,5683.7,1846.7,5687.5,1856.5,5695.7,1856.1,5728.7,1951.2,5766.0,2007.6,5989.1,1952.8,5898.8,1891.0,5848.7,1852.8,5798.7,1811.9,5703.8,1726.1]},{"y":[870.0,900.0],"m":1,"k":1,"o":[12232.4,575.9,12272.7,575.9,12272.7,587.6,12314.8,587.6,12314.8,576.1,12453.7,576.1,12453.7,517.2,12217.0,575.9]},{"y":[870.0,900.0],"m":1,"k":2,"o":[12487.6,516.9,12496.9,516.9,12496.9,537.6,12530.2,537.6,12530.2,516.9,12703.1,516.9,12694.0,471.6,12721.1,471.6,12721.1,461.2,12853.6,460.2,12865.4,455.5,12865.4,435.4,12966.3,435.4,12966.3,455.5,13003.4,455.5,13003.4,432.5,13175.2,432.5,13175.2,400.8,13333.7,393.3,13339.7,357.9,13375.9,357.9,13375.9,285.9,12454.9,516.9]},{"y":[870.0,900.0],"m":1,"k":2,"o":[13900.0,196.4,14043.1,196.5,14043.1,123.1,14047.3,122.0,14047.3,119.6,14059.0,118.9,14068.6,112.1,13899.8,154.6]},{"y":[900.0,930.0],"m":1,"k":0,"o":[5617.1,1656.6,5614.0,1657.8,5617.4,1657.3,5618.9,1662.3,5629.2,1664.1,5620.5,1671.9,5633.6,1676.8,5666.6,1772.1,5679.4,1792.2,5899.5,1761.5,5798.8,1695.8,5699.7,1619.0,5650.8,1641.2,5616.2,1654.0]},{"y":[900.0,930.0],"m":1,"k":2,"o":[11079.0,681.7,11753.1,712.3,11753.1,589.6,12398.9,577.7,12398.9,525.2,12525.0,509.9,12805.7,537.0,12846.7,346.8,13479.1,377.8,13479.1,238.7,13301.0,238.7,13333.4,179.0,13477.3,179.0,13477.3,81.2]},{"y":[900.0,930.0],"m":1,"k":0,"o":[5931.3,1793.0,5924.7,1775.7,5907.1,1765.8,5681.5,1794.5,5702.8,1826.7,5852.9,1790.8,5860.5,1811.1]},{"y":[930.0,960.0],"m":1,"k":0,"o":[5594.6,1563.7,5605.4,1595.0,5762.2,1557.3,5699.8,1515.8,5650.7,1538.6,5593.2,1559.8]},{"y":[930.0,960.0],"m":1,"k":1,"o":[9219.9,969.4,9325.9,969.4,9325.9,941.0,9433.2,941.0,9433.2,969.4,9517.9,969.4,9517.9,940.6,9603.0,940.6,9603.0,870.5,9203.5,969.4]},{"y":[930.0,960.0],"m":0,"k":2,"o":[9931.0,789.8,12453.7,576.1,12453.7,494.8,12053.9,483.4,12884.9,383.0,12930.1,275.6,13316.3,301.2,13287.5,177.4,13543.6,177.4,13543.6,60.8,13170.5,47.5,13543.6,-62.1,13543.6,-178.7,13287.5,-178.7,13316.3,-302.1,12862.0,-276.9,12963.8,-289.4,12884.9,-395.9,12377.5,-451.5,12560.6,-494.5,12276.5,-464.7,12453.7,-577.2,10035.1,-789.7,13102.0,0.1]},{"y":[930.0,960.0],"m":1,"k":2,"o":[12560.6,468.4,12560.6,462.7,12357.7,462.7,12357.7,493.5,12560.6,493.5]},{"y":[960.0,990.0],"m":1,"k":1,"o":[8291.4,1021.9,8291.4,1053.1,8331.3,1053.1,8331.3,1015.3,8807.0,1015.3,8807.0,1053.1,8855.9,1024.9,8963.4,1053.1,9011.2,1023.9,8985.3,901.9,9488.4,938.5,9488.4,910.6,9573.5,910.6,9573.5,788.8,9488.4,788.8,9470.2,725.9]},{"y":[960.0,990.0],"m":1,"k":2,"o":[11667.5,358.7,11667.5,364.5,11883.7,364.5,11883.7,326.9,11667.5,326.9]},{"y":[960.0,990.0],"m":1,"k":2,"o":[12624.0,435.8,12871.1,417.6,12871.1,307.1,12655.8,294.7,12655.8,322.4,12527.3,322.4,12527.3,294.7,12497.8,294.7,12497.8,329.9,12382.8,329.9,12382.8,294.7,12284.6,294.7,12189.8,310.4,12189.8,352.1,11976.9,352.1,11976.9,384.7,12189.8,384.7,12189.8,429.1,12287.6,446.2,12342.0,446.2,12342.0,417.6,12490.5,417.6,12490.5,446.2]},{"y":[960.0,990.0],"m":1,"k":2,"o":[12048.6,440.2,12116.7,440.2,12116.7,410.2,11724.1,410.2,11724.1,440.2]},{"y":[990.0,1020.0],"m":1,"k":1,"o":[7218.1,1138.1,7254.2,1169.6,7327.3,1169.6,7327.3,1131.7,7769.9,1131.7,7769.9,1169.6,7851.8,1169.6,7851.8,1141.1,7959.7,1169.6,7959.7,1140.5,8007.4,1140.5,8007.4,1040.6,8041.8,1040.6,8007.4,967.1,8268.7,967.1,8268.7,942.2,7932.8,930.3,7094.5,1138.1]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[12710.7,312.0,12534.4,312.0,12534.4,280.8,12383.0,280.8,12383.0,312.4,12334.5,312.4,12334.5,280.8,12295.1,280.8,12295.1,303.0,12142.7,280.8,12142.7,419.9,12502.0,439.2,12502.0,412.4,12669.5,412.4,12669.5,439.2,12693.0,419.9,12786.8,439.2,12786.8,416.5,12904.1,416.5,12904.1,309.6,12771.5,309.6,12771.5,280.8,12710.7,280.8]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[11629.2,420.5,11409.5,420.5,11409.5,456.5,11635.9,456.5,11635.9,420.5]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[11307.4,427.6,11185.4,428.1,11183.2,428.8,11183.9,448.6,11196.9,464.6,11222.9,464.6,11223.7,455.6,11242.7,455.4,11244.2,464.7,11314.8,464.5,11368.7,465.7,11368.8,467.7,11427.4,467.8,11430.9,462.9,11383.0,462.5,11401.9,458.6,11409.1,447.9,11332.3,427.7]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[10911.1,568.4,10911.1,596.6,11304.6,597.3,11315.9,598.1,11315.9,625.2,11680.6,625.2,11680.6,575.7,11373.1,575.7,11330.6,568.4]},{"y":[1020.0,1050.0],"m":0,"k":2,"o":[6821.7,1055.9,9488.4,939.6,9573.5,788.8,9353.1,788.0,9383.0,640.3,10901.7,633.8,10700.6,521.9,11217.1,500.7,11206.2,298.3,12467.2,155.4,12023.5,45.1,12467.2,-156.8,11206.2,-299.4,11217.1,-513.4,10700.6,-523.3,10901.7,-635.2,9383.0,-641.3,9353.1,-789.4,9573.5,-790.1,9488.4,-940.9,6711.9,-1056.0,10952.0,-0.1]},{"y":[1020.0,1050.0],"m":1,"k":2,"o":[11593.3,375.8,11609.2,375.8,11609.2,348.7,11463.9,348.7,11463.9,375.8]},{"y":[1050.0,1080.0],"m":0,"k":2,"o":[6134.6,1048.7,10659.1,572.2,11444.5,113.0,12272.5,156.0,11545.1,-27.5,12272.5,-157.1,11444.5,-113.3,11197.1,-422.3,9062.9,-791.2,7570.4,-759.0,7873.5,-932.9,7535.7,-1060.8,6134.6,-1055.8,10252.0,0.0]},{"y":[1050.0,1080.0],"m":1,"k":2,"o":[8570.9,989.7,8197.8,989.7,8197.8,1015.6,8570.9,1015.6]},{"y":[1080.0,1110.0],"m":0,"k":2,"o":[6069.8,966.0,7562.8,1030.5,7569.1,673.1,7846.2,694.2,7668.8,613.3,9631.4,640.3,11419.5,171.7,11437.3,-124.2,9631.4,-641.3,7668.8,-614.7,7846.2,-695.4,7569.1,-674.2,7562.8,-1029.8,6134.6,-1055.8,6200.9,-828.9,9552.0,0.1]},{"y":[1080.0,1110.0],"m":1,"k":2,"o":[10502.1,394.3,10543.8,394.3,10543.8,361.1,10295.2,361.1,10295.2,394.3]},{"y":[1080.0,1110.0],"m":1,"k":1,"o":[6630.9,1040.6,6708.0,1040.6,6708.0,1024.5,6511.5,1024.6,6511.5,1040.6]},{"y":[1080.0,1110.0],"m":1,"k":1,"o":[7244.4,1073.9,7244.4,1056.3,7128.6,1056.3,7128.6,1083.1,7244.4,1083.1]},{"y":[1080.0,1110.0],"m":1,"k":3,"o":[11988.5,152.4,12086.7,152.4,12086.7,172.3,12302.8,155.4,12302.8,75.5,12180.8,75.5,12180.8,54.2,12124.6,54.2,12124.6,77.3,11962.6,77.3,11962.6,54.2,11822.7,54.2,11822.7,77.7,11778.4,77.7,11778.4,54.2,11742.2,54.2,11742.2,70.5,11601.9,54.2,11601.9,157.8,11932.8,172.3,11932.8,152.4]},{"y":[1080.0,1110.0],"m":1,"k":2,"o":[10699.5,316.0,10699.7,321.7,10679.3,321.9,10681.8,326.6,10699.8,326.8,10700.0,330.9,10716.1,331.4,10717.0,319.9,10771.4,319.5,10772.6,330.6,10789.1,331.8,10788.9,326.7,10807.2,326.4,10809.4,324.0,10809.2,321.8,10788.9,321.6,10788.7,316.3,10810.0,316.7,10813.4,311.7,10812.6,286.9,10808.7,285.8,10673.9,287.1,10674.6,311.9,10679.2,316.4]},{"y":[1110.0,1140.0],"m":0,"k":2,"o":[5702.6,947.5,7584.7,1042.8,7567.3,588.3,8957.6,711.6,8826.3,348.0,9629.5,552.8,11148.0,150.6,10831.9,32.2,11148.0,-151.7,9629.5,-553.9,8826.2,-356.4,8789.3,-734.4,7567.1,-589.5,7584.5,-1042.1,6270.0,-1110.2,5702.6,-933.3,6201.0,-652.1,8851.9,0.6]},{"y":[1110.0,1140.0],"m":1,"k":1,"o":[6783.3,1030.9,6617.8,1030.9,6617.8,1046.1,6908.4,1046.1,6908.4,1030.9]},{"y":[1110.0,1140.0],"m":1,"k":3,"o":[11338.3,75.5,11384.3,75.5,11384.3,43.3,11158.3,43.3,11158.3,75.5]},{"y":[1110.0,1140.0],"m":1,"k":3,"o":[11419.5,129.2,11242.1,129.2,11242.1,171.7,11419.5,171.7]},{"y":[1110.0,1140.0],"m":1,"k":2,"o":[7598.0,646.3,7598.0,694.2,7846.2,694.2,7845.8,646.1]},{"y":[1140.0,1170.0],"m":1,"k":1,"o":[2472.7,958.4,2464.1,960.7,2513.5,963.3,2514.7,968.4,2507.8,974.3,2515.7,975.2,2521.8,969.2,2557.1,973.3,2551.7,976.2,2604.5,981.3,2632.5,972.5,2729.7,982.2,2719.5,980.2,2740.5,979.7,2705.1,971.6,2824.4,987.3,2850.6,979.5,2818.9,966.5,2867.3,944.4]},{"y":[1140.0,1170.0],"m":0,"k":2,"o":[5639.2,828.4,5762.5,988.8,6890.6,968.9,7581.6,768.8,7594.0,561.8,9457.1,236.4,9796.9,-49.3,8839.8,-286.6,8841.0,-438.9,7594.0,-562.7,7581.6,-768.1,6890.6,-954.2,5759.7,-974.1,5639.2,-825.1,6201.1,-475.3,8152.0,0.2,6201.1,475.3]},{"y":[1140.0,1170.0],"m":1,"k":2,"o":[6280.1,973.2,6280.1,981.3,6224.3,981.3,6224.3,1009.2,6466.0,1009.2,6466.0,981.3,6453.4,981.3,6453.4,973.2]},{"y":[1140.0,1200.0],"m":1,"k":2,"o":[6178.5,1016.2,6178.5,1037.8,6341.5,1037.8,6341.5,1016.2]},{"y":[1140.0,1170.0],"m":1,"k":2,"o":[6413.7,1089.9,6413.7,1067.1,6231.4,1067.1,6231.4,1089.9]},{"y":[1140.0,1170.0],"m":0,"k":3,"o":[10488.3,-111.2,10269.3,-147.9,9968.0,-95.8,9885.4,7.4,9968.0,94.8,10269.4,150.9,10594.1,84.1,10730.4,80.9,10730.4,53.4,10655.5,49.0,10682.6,1.4,10655.4,-46.2,10730.4,-54.5,10730.4,-82.3]},{"y":[1140.0,1170.0],"m":1,"k":3,"o":[10771.6,122.2,10602.8,122.2,10602.8,146.8,10771.6,146.8]},{"y":[1140.0,1170.0],"m":1,"k":3,"o":[9817.4,114.9,9686.1,115.2,9732.2,165.9,9657.6,168.6,9646.2,115.2,9610.5,115.4,9609.6,157.3,9515.5,186.2,9741.7,199.6,9615.3,219.6,9762.2,247.8,10771.6,166.1,10264.2,181.2,10159.3,134.9]},{"y":[1140.0,1170.0],"m":1,"k":2,"o":[8404.1,577.9,8308.0,577.9,8307.9,679.9,8416.4,679.9,8416.4,707.5,8466.1,707.5,8466.1,677.7,8610.2,677.7,8610.2,707.5,8734.2,707.5,8734.2,677.7,8774.1,677.7,8774.1,707.5,8805.8,686.4,8930.4,707.5,8930.4,574.7,8636.8,556.1,8636.8,581.5,8499.9,581.5,8499.9,555.9,8404.1,555.9]},{"y":[1170.0,1200.0],"m":1,"k":1,"o":[1964.7,905.0,2020.9,909.2,2021.4,914.0,2061.0,918.5,2081.5,911.7,2141.9,919.7,2323.9,917.6,2248.9,909.7,2346.6,917.9,2302.5,909.1,2354.4,916.4,2387.1,897.5,2398.5,899.1,2374.4,918.7,2425.5,925.5,2595.2,873.9,2547.6,854.7,2199.9,868.4,2150.3,846.3,2100.6,886.5]},{"y":[1170.0,1200.0],"m":0,"k":2,"o":[5698.6,705.3,5704.6,968.9,7257.9,844.2,7485.8,723.2,7487.8,500.6,8316.4,470.8,8445.5,274.0,8835.8,244.7,8597.7,91.6,9151.6,-17.0,8597.7,-90.3,8835.8,-245.5,8445.5,-275.1,8315.5,-471.2,7487.8,-501.1,7485.8,-722.5,7257.9,-843.3,5704.4,-954.2,5649.3,-717.9,6201.1,-298.5,7402.0,0.0,6201.1,298.5]},{"y":[1170.0,1200.0],"m":0,"k":3,"o":[9574.2,-21.7,9574.2,-23.8,9498.1,-25.5,9498.1,25.2,9545.7,28.0,9574.2,27.7]},{"y":[1170.0,1200.0],"m":1,"k":2,"o":[8388.0,381.0,8388.1,423.7,8667.7,423.7,8667.7,371.7,8388.0,371.7]},{"y":[1170.0,1200.0],"m":1,"k":2,"o":[8010.2,509.7,8124.9,509.7,8124.9,470.2,7829.3,470.2,7829.3,509.7]},{"y":[1200.0,1230.0],"m":1,"k":1,"o":[1597.6,859.8,1995.3,889.7,1760.7,852.5,2014.7,876.9,1905.9,846.8,2035.3,861.8,1993.8,848.4,2043.1,855.0,2010.4,843.0,2051.2,848.3,2024.5,837.5,2075.8,833.2,2084.1,815.7,2058.4,809.5,2119.0,816.2,2238.4,774.4,2150.3,749.5,2100.4,783.9]},{"y":[1200.0,1230.0],"m":0,"k":2,"o":[5578.3,648.7,5651.7,823.4,7265.0,832.0,7262.9,551.8,7491.7,588.7,7486.3,278.0,8473.6,274.0,8645.3,-18.6,8474.3,-275.1,7486.3,-279.0,7491.7,-588.0,7262.1,-553.1,7265.0,-830.4,5651.7,-808.9,5579.1,-647.1,6201.2,-121.8,6702.0,0.1,6201.2,121.8]},{"y":[1200.0,1230.0],"m":1,"k":2,"o":[7826.2,350.5,7837.9,350.6,7837.9,365.9,8105.3,365.9,8105.3,405.2,8355.2,405.2,8355.2,355.9,8267.8,355.9,8267.8,326.9,7997.9,326.9,7998.1,313.4,7613.9,313.4,7614.4,350.6]},{"y":[1200.0,1230.0],"m":1,"k":2,"o":[7886.2,432.0,7961.7,432.0,7961.7,398.1,7609.3,398.1,7609.3,432.0]},{"y":[1230.0,1260.0],"m":0,"k":2,"o":[5547.2,580.9,6208.9,665.9,6718.0,377.4,7200.8,595.2,7547.9,407.2,7323.3,274.9,8224.6,239.3,8331.3,-126.4,7323.3,-272.3,7547.9,-407.6,7200.8,-594.4,6718.0,-362.8,5738.9,-689.5,5542.7,-559.6,6052.0,0.2]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6430.1,682.8,6276.7,682.8,6276.7,720.6,6604.7,720.6,6604.7,682.8]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6093.9,746.1,6093.9,715.0,5704.6,715.0,5704.6,746.1]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6353.3,750.8,6124.3,750.8,6124.3,784.6,6391.3,784.6,6391.3,750.8]},{"y":[1230.0,1260.0],"m":1,"k":3,"o":[8423.0,125.1,8423.0,145.2,8551.0,145.2,8551.0,116.8,8423.0,116.8]},{"y":[1230.0,1260.0],"m":1,"k":3,"o":[7997.9,313.4,7613.9,313.4,7613.9,350.4,7997.9,350.5]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6490.1,474.2,6457.4,474.2,6457.4,505.4,6646.8,505.4,6646.8,474.1]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6296.0,625.4,6296.0,647.9,6782.5,647.9,6782.5,625.4]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6713.1,741.5,6755.1,741.5,6755.1,705.3,6645.2,705.4,6645.2,741.5]},{"y":[1260.0,1290.0],"m":0,"k":2,"o":[5574.1,389.4,6162.1,470.2,6123.8,380.5,6808.4,285.6,6927.5,66.2,7118.8,66.0,6969.8,29.6,7118.8,-67.0,6927.7,-67.0,6808.4,-270.9,6119.8,-366.6,5982.6,-452.4,6162.1,-471.4,5665.9,-469.3,5560.4,-377.7]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[7381.4,86.2,7381.4,59.0,7169.5,59.0,7169.5,86.2]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[6946.1,148.8,7253.0,148.8,7253.0,97.5,6946.1,97.5]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[7410.0,121.2,7410.0,177.6,7635.0,177.6,7635.0,121.2]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[7203.0,296.9,7211.7,299.6,7214.8,257.3,7223.9,256.2,7223.9,241.7,7264.7,242.6,7236.4,245.7,7236.1,254.6,7236.9,260.2,7265.0,261.5,7268.7,208.9,7274.8,214.3,7285.5,172.9,7134.7,173.1,7135.1,195.3,7179.5,198.5,7179.9,239.1,7198.3,258.0]},{"y":[1290.0,1320.0],"m":1,"k":2,"o":[3486.8,452.7,3693.3,452.7,3693.3,484.3,3716.0,484.3,3716.0,446.2,4042.6,446.2,4042.6,484.3,4071.3,484.3,4071.3,455.9,4138.3,455.9,4138.3,484.3,4143.5,484.3,4143.5,454.9,4175.7,454.9,4175.7,410.4,3486.2,427.3]},{"y":[1290.0,1320.0],"m":1,"k":2,"o":[4671.4,354.1,4687.8,354.1,4687.5,324.9,4461.6,324.9,4457.9,354.1]},{"y":[1320.0,1350.0],"m":0,"k":3,"o":[6994.3,-31.3,6216.1,-119.3,6276.1,-152.7,6195.4,-168.1,6195.4,-239.1,6075.6,-239.1,6034.9,-134.8,5729.0,-134.8,5729.0,133.9,6034.9,133.9,6075.6,238.4,6195.4,238.4,6195.5,167.3,6276.1,151.5,6216.1,117.8,6577.4,116.2,7037.5,16.6]},{"y":[1350.0,1380.0],"m":0,"k":3,"o":[6299.0,98.5,6332.1,-0.7,6305.7,-20.0,6304.4,-96.9,6195.4,-132.8,6195.4,-239.1,6075.6,-239.1,6075.6,-168.2,6034.9,-168.2,6034.9,-134.8,5729.0,-134.8,5752.8,-107.4,5752.8,106.1,5729.0,133.9,6034.9,133.9,6034.9,167.1,6075.6,167.1,6075.6,238.4,6195.4,238.4,6195.4,127.5]},{"y":[1350.0,1380.0],"m":0,"k":3,"o":[5540.8,-162.0,5266.5,-162.0,5250.3,-153.1,5250.3,-67.6,5444.8,-67.6,5475.4,-50.9,5475.4,83.3,5444.8,99.8,5250.3,99.8,5250.3,185.8,5266.5,194.5,5540.8,194.5,5557.2,185.8,5557.2,-153.1]},{"y":[1380.0,1410.0],"m":1,"k":3,"o":[3624.2,236.1,3367.9,236.2,3366.6,353.5,3559.7,337.8,3560.4,315.1,3573.0,313.8,3571.0,320.1,3581.0,319.5,3576.0,313.5,3666.3,305.7,3668.0,296.8,3665.4,294.6,3667.8,290.2,3683.8,290.2,3683.8,260.9,3663.3,260.9,3663.3,245.4,3651.5,239.5,3656.7,239.5,3656.7,236.1]},{"y":[1380.0,1410.0],"m":0,"k":3,"o":[5875.1,-40.7,5876.9,48.8,6001.5,47.2,5997.6,85.8,6196.6,85.7,6217.9,79.0,6217.9,46.9,6277.3,47.0,6277.4,7.6,6296.3,-0.8,6277.6,-8.9,6277.4,-48.2,6217.9,-50.9,6217.9,-80.3,6001.3,-80.5,6001.6,-49.4]},{"y":[1380.0,1410.0],"m":0,"k":3,"o":[3758.4,58.5,3789.4,56.8,3789.4,-25.6,3734.6,-25.9,3734.6,59.1]},{"y":[1380.0,1410.0],"m":1,"k":3,"o":[4147.9,41.9,3826.4,37.9,3822.1,49.7,3825.7,54.3,4147.1,58.7,4149.8,55.6]},{"y":[1380.0,1410.0],"m":1,"k":3,"o":[3797.1,315.7,3911.4,300.7,3911.5,236.2,3738.7,236.1,3739.0,319.8]},{"y":[1410.0,1440.0],"m":1,"k":3,"o":[3516.7,169.5,3614.7,147.5,3614.7,56.8,3585.2,35.1,3576.2,56.1,3489.1,35.1,3489.1,63.7,3196.8,63.7,3196.8,35.1,3172.4,58.6,2984.8,58.6,2984.8,145.9,3172.4,145.9,3196.8,169.5,3196.8,141.6,3489.1,141.6]}],"engines":[{"mouth":[1400,850,0],"direction":[-1,0,0],"diameter":290,"sourceBodyLength":3000,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[1430,906,-290],"direction":[-1,0,0],"diameter":200,"sourceBodyLength":3000,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[1430,906,290],"direction":[-1,0,0],"diameter":200,"sourceBodyLength":3000,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4960,736,-684],"direction":[-1,0,0],"diameter":157,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4960,736,684],"direction":[-1,0,0],"diameter":157,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4970,768,-985],"direction":[-1,0,0],"diameter":250,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4970,768,985],"direction":[-1,0,0],"diameter":250,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5750,530,-1332],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5750,530,1332],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5676,476,-1702],"direction":[-1,0,0],"diameter":264,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5676,476,1702],"direction":[-1,0,0],"diameter":264,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5708,530,-2063],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5708,530,2063],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"}],"bridge":{"isd":{"x":6112,"baseY":1400,"note":"v24 Imperial-class command tower on the city roof (y 1,400 m) under the model bridge (x 5,930-6,294 m)"}},"hull":{"L":19000,"W":6422.508,"H":1400.706,"sec":"warship","plan":"wedge","deckWidth":0,"keelWidth":0,"belt":0.132,"chineHeight":0.587,"bowFree":true,"stations":[[0.000158,0.004483,0.030366,0.484817,0.0,0.0,0.4683,0.2],[0.016854,0.223921,0.115059,0.441898,0.0,0.0,0.347,0.2],[0.139988,0.328584,0.446209,0.157145,0.0,0.0,0.0338,0.8],[0.258949,0.437094,0.294348,0.244707,0.0,0.0,0.0331,0.3759],[0.292341,0.467551,0.520503,0.11836,0.0,0.0,0.0509,0.6152],[0.317385,0.908806,0.612047,0.033163,0.0,0.0,0.2834,0.3772],[0.323647,1.0,0.891802,-0.013952,0.0,0.0,0.1311,0.4174],[0.371648,0.930479,0.621688,0.029182,0.0,0.0,0.1603,0.3584],[0.396692,0.894207,0.835926,-0.025684,0.0,0.0,0.1031,0.4586],[0.400866,0.888161,0.59417,0.052087,0.0,0.0,0.1626,0.3081],[0.40504,0.882115,0.755576,-0.065164,0.0,0.0,0.1227,0.5009],[0.415476,0.867001,0.546806,0.029903,0.0,0.0,0.1555,0.3233],[0.425911,0.851887,0.431105,-0.076455,0.0,0.0,0.2131,0.5188],[0.436346,0.836773,0.713684,-0.07902,0.0,0.0,0.1277,0.517],[0.463477,0.797475,0.550372,-0.144213,0.0,0.0,0.1548,0.6397],[0.469738,0.788407,0.760907,-0.036382,0.0,0.0,0.1178,0.4644],[0.486434,0.764225,0.510099,-0.134356,0.0,0.0,0.1799,0.6395],[0.492695,0.755157,0.706823,-0.028861,0.0,0.0,0.1121,0.4546],[0.498956,0.746089,0.500632,-0.128728,0.0,0.0,0.1671,0.6357],[0.501044,0.743066,0.700369,-0.027783,0.0,0.0,0.1247,0.4531],[0.513566,0.72493,0.562256,0.044388,0.0,0.0,0.161,0.3161],[0.519827,0.715862,0.442051,-0.066642,0.0,0.0,0.1853,0.5158],[0.551132,0.670522,0.557816,0.063005,0.0,0.0,0.1457,0.2859],[0.563654,0.652385,0.362747,-0.065281,0.0,0.0,0.214,0.5547],[0.58035,0.628202,0.63843,-0.022503,0.0,0.0,0.1348,0.456],[0.680528,0.477688,0.269897,-0.057756,0.0,0.0,0.3478,0.5088],[0.71392,0.428483,0.38067,0.015434,0.0,0.0,0.2124,0.2991],[0.730616,0.40455,0.335076,-0.098352,0.0,0.0,0.245,0.5982],[0.738964,0.39259,0.297018,-0.003174,0.0,0.0,0.2714,0.2719],[0.999842,0.003126,0.080053,-0.056413,0.0,0.0,0.02,0.2]],"bowW":0.011781,"bowH":0.108225},"trench":{"from":0.2952,"to":0.9848,"height":80,"depth":32,"note":"source trench back walls (rounded boxes) span x 5608-18712 between the upper plate tip (y 462.8) and the lower hull tip (y 371.5)"},"ventralTerraces":[{"y":[0.0,30.0],"m":0,"k":0,"o":[7664.7,93.0,7714.8,65.0,7733.7,75.4,7740.4,7.7,7761.3,2.2,7740.4,-7.6,7732.4,-76.1,7714.6,-65.3,7664.6,-93.0,7657.7,-115.8,7628.6,-80.0,7568.5,-88.1,7585.8,-67.8,7559.4,-4.3,7558.5,-41.8,7550.2,-4.4,7528.2,2.6,7550.1,4.5,7559.2,41.4,7559.6,4.5,7585.8,67.7,7569.2,89.2,7629.3,79.7,7657.4,115.7]},{"y":[0.0,30.0],"m":0,"k":0,"o":[6330.1,39.3,6338.4,58.3,6384.9,57.1,6393.4,32.2,6396.0,53.1,6431.8,41.8,6432.9,20.2,6484.6,22.1,6484.9,0.2,6496.5,19.8,6526.7,9.3,6526.5,-10.7,6487.3,-20.6,6485.0,0.2,6484.0,-24.6,6434.1,-19.7,6431.8,-41.9,6396.0,-53.1,6393.4,-32.2,6392.6,-55.1,6337.4,-57.5]},{"y":[30.0,60.0],"m":0,"k":0,"o":[6318.2,19.5,6333.7,211.0,6955.6,-8.5,6333.7,-211.3]},{"y":[30.0,60.0],"m":0,"k":0,"o":[7571.4,-141.0,7523.5,-131.3,7466.4,-2.8,7523.7,131.5,7643.1,160.6,7652.5,181.3,7761.8,116.8,7785.4,127.0,7774.1,103.0,7810.2,4.6,7825.7,15.1,7836.1,-4.0,7810.0,-4.2,7774.4,-103.0,7785.8,-126.7,7762.0,-116.8,7664.5,-180.4]},{"y":[30.0,60.0],"m":0,"k":0,"o":[7205.9,11.6,7184.8,11.3,7182.0,10.2,7182.3,4.8,7184.5,4.0,7248.1,4.4,7249.1,6.6,7268.2,2.7,7264.7,-2.5,7249.2,-5.8,7184.8,-3.9,7182.3,-5.1,7183.8,-11.3,7222.0,-12.7,7179.1,-21.8,7094.5,-20.9,7074.2,-24.6,7074.2,24.4,7077.0,25.5,7099.1,20.7,7179.4,21.7,7222.0,12.8]},{"y":[60.0,90.0],"m":0,"k":0,"o":[6511.1,-271.7,6333.3,-350.8,6317.9,-167.2,7001.9,0.6,6317.9,167.2,6333.4,351.0,7049.7,97.5,7279.0,81.6,7391.0,149.5,7478.8,129.7,7614.1,207.9,7618.3,272.0,7692.0,266.7,7853.0,25.2,7950.9,24.5,7950.8,-24.2,7853.0,-25.9,7692.1,-267.1,7618.4,-271.9,7614.1,-208.1,7478.8,-129.1,7388.7,-147.6,7282.3,-82.6,7049.8,-97.5]},{"y":[90.0,120.0],"m":1,"k":0,"o":[6443.4,433.0,6669.6,381.4,6670.6,359.2,6686.0,376.0,6726.4,332.2,6774.8,346.6,6800.7,278.6,6886.3,212.3,6319.5,356.0,6287.8,432.5,6308.9,485.0]},{"y":[90.0,120.0],"m":0,"k":0,"o":[7221.5,135.7,7246.5,264.3,7446.3,214.1,7690.1,289.1,7972.3,118.0,8524.5,-6.9,7965.4,-120.6,7690.1,-289.2,7446.9,-214.8,7246.5,-265.6,7257.3,-137.2,7184.0,-136.6,7752.0,0.1]},{"y":[120.0,150.0],"m":1,"k":0,"o":[6333.3,586.9,6345.0,603.4,6351.2,622.9,6366.0,618.5,6367.5,595.6,6369.6,595.6,6369.7,613.8,6399.4,606.4,6400.8,584.6,6401.5,597.7,6422.4,596.9,6423.2,581.6,6438.0,580.9,6439.3,572.6,6439.7,588.7,6462.6,570.7,6462.7,564.9,6466.3,564.0,6466.3,567.9,6533.4,522.1,6593.1,476.0,6317.5,545.6]},{"y":[150.0,180.0],"m":1,"k":0,"o":[7586.5,520.2,7715.6,522.7,7791.9,361.8,7533.4,427.3]},{"y":[150.0,180.0],"m":0,"k":0,"o":[8520.4,183.8,8692.8,156.9,9076.4,258.0,9290.4,214.6,9246.8,85.0,9361.7,78.0,9241.2,35.8,9363.8,-4.3,9243.9,-49.0,9361.9,-79.3,9246.9,-86.2,9292.9,-209.2,9076.7,-254.2,8692.6,-153.1,8487.1,-184.8,9252.0,-0.2]},{"y":[180.0,210.0],"m":0,"k":0,"o":[9014.3,256.7,9311.9,309.9,9316.1,202.2,9681.8,86.2,9992.1,85.9,10010.6,79.3,9861.6,41.0,10030.4,30.9,10071.8,-3.4,10030.1,-27.9,9861.6,-42.1,10010.6,-80.4,9992.3,-87.3,9650.5,-89.1,9546.9,-122.0,9553.2,-131.5,9519.6,-131.4,9316.1,-198.9,9311.8,-306.2,8986.7,-247.7,9952.0,-0.1,8978.2,249.9]},{"y":[210.0,240.0],"m":0,"k":0,"o":[9886.6,213.4,10148.2,209.2,10500.0,116.0,10519.4,87.4,10618.9,87.4,10619.0,55.1,10684.1,34.0,10893.1,29.5,10939.4,-3.4,10919.9,-3.9,10893.2,-26.2,10687.8,-30.9,10653.6,-39.5,10618.9,-51.4,10618.9,-88.2,10512.9,-88.4,10500.0,-117.1,10235.4,-177.2,10148.1,-206.3,9880.5,-210.5,10702.0,0.0]},{"y":[210.0,240.0],"m":0,"k":0,"o":[10980.6,-35.9,10955.4,-42.5,10955.3,45.8,11113.3,4.7,11113.3,-0.3]},{"y":[210.0,240.0],"m":1,"k":0,"o":[10660.3,87.2,10788.1,87.0,10795.1,82.8,10805.1,80.6,10672.4,48.1,10656.9,80.4]},{"y":[240.0,270.0],"m":0,"k":0,"o":[10750.2,227.7,10904.8,240.3,11374.8,88.4,11540.3,88.1,11540.3,38.2,11560.7,32.6,11632.3,31.1,11643.8,61.6,11816.4,15.6,11896.7,16.7,11866.1,2.5,11898.9,-6.8,11816.4,-11.1,11643.8,-56.5,11632.6,-27.6,11540.3,-33.2,11540.2,-89.4,11368.8,-89.1,10904.7,-237.2,10624.1,-211.4,11451.9,-0.6,10615.8,213.5]},{"y":[270.0,300.0],"m":0,"k":0,"o":[10959.3,328.3,10959.8,365.1,11279.6,282.4,11620.0,287.4,11747.6,245.1,11747.5,277.7,11768.2,279.3,11772.0,238.0,12358.5,47.2,12686.7,28.8,12638.3,7.8,12699.4,-18.9,12360.2,-42.4,11771.8,-234.6,11767.9,-276.1,11747.5,-274.3,11747.4,-241.8,11619.8,-284.0,11276.3,-278.7,10959.8,-359.9,10959.2,-318.0,12202.0,0.1]},{"y":[300.0,330.0],"m":1,"k":0,"o":[6151.2,1697.2,6153.3,1732.6,6160.3,1770.1,6167.5,1798.1,6170.6,1803.7,6175.7,1807.7,6182.5,1808.8,6264.8,1788.0,6274.2,1778.8,6276.9,1769.3,6276.9,1690.9,6200.1,1709.9,6151.4,1694.3]},{"y":[300.0,330.0],"m":1,"k":0,"o":[6896.6,1653.1,6891.2,1685.8,6890.7,1708.2,6892.7,1733.2,6898.6,1756.6,6904.2,1763.1,6914.0,1764.6,6955.9,1741.3,6969.7,1729.8,6976.4,1720.1,6983.0,1701.2,6981.5,1693.7,6970.0,1676.7,6954.4,1663.2,6941.7,1654.8,6913.9,1641.1,6910.2,1641.0,6905.3,1641.6,6900.4,1645.2]},{"y":[300.0,330.0],"m":1,"k":0,"o":[6550.7,1764.5,6597.1,1741.0,6617.6,1719.6,6622.6,1703.5,6610.4,1676.4,6554.4,1641.1,6540.5,1645.6,6532.8,1677.5,6355.5,1677.4,6355.5,1685.1,6345.5,1677.6,6330.4,1682.1,6318.2,1695.6,6323.7,1713.2,6340.7,1720.3,6350.3,1721.0,6350.3,1714.9,6355.5,1720.7,6532.3,1721.0,6537.2,1753.3]},{"y":[300.0,330.0],"m":1,"k":0,"o":[9606.6,884.5,9608.1,890.6,9790.9,844.5,9782.8,810.4,9600.1,856.6]},{"y":[330.0,360.0],"m":1,"k":0,"o":[6721.7,1771.0,6819.3,1770.9,6876.7,1762.7,6894.4,1806.8,6912.0,1812.9,7007.8,1788.2,7020.9,1776.0,7022.0,1755.0,7031.6,1758.7,7093.1,1745.0,7093.3,1719.0,7107.5,1719.1,7107.6,1710.5,7113.7,1710.0,7116.5,1719.4,7201.3,1703.7,7187.2,1695.1,7118.0,1686.3,7113.7,1686.2,7113.6,1696.1,7107.4,1694.6,7107.4,1685.8,7093.2,1687.0,7093.1,1676.6]},{"y":[330.0,360.0],"m":1,"k":0,"o":[7336.6,1711.4,7339.3,1727.1,7365.4,1747.4,7391.0,1758.7,7417.4,1754.4,7452.6,1745.0,7452.5,1659.2,7390.9,1645.4,7344.3,1671.6,7339.4,1678.3,7336.0,1696.0]},{"y":[360.0,390.0],"m":1,"k":0,"o":[11463.1,837.4,11342.6,867.7,11349.4,894.8,11469.8,863.3]},{"y":[360.0,390.0],"m":1,"k":0,"o":[11270.8,952.2,11262.1,919.1,11134.7,951.3,11143.6,985.6]},{"y":[390.0,420.0],"m":1,"k":0,"o":[7399.3,2015.5,10970.2,1110.2,11027.6,1169.6,11100.3,1151.3,11087.4,1102.0,14025.7,379.9,14055.3,323.5,14802.5,144.7,14802.3,98.2]},{"y":[420.0,450.0],"m":1,"k":0,"o":[5768.2,2072.6,5768.2,2084.2,5777.5,2088.9,5776.7,2109.5,5790.8,2113.2,5832.7,2113.3,5834.0,2115.8,5876.7,2115.9,5876.7,2133.3,5879.3,2134.5,5879.3,2115.6,5920.4,2115.9,5898.9,2099.6,5849.3,2074.1,5799.8,2061.7,5768.2,2062.9]},{"y":[420.0,450.0],"m":1,"k":0,"o":[7178.9,2271.3,10713.4,1374.0,10724.6,1421.3,10810.1,1400.3,10799.1,1353.1,10973.0,1308.4,11196.2,1265.5,11208.8,1313.9,11258.6,1301.4,11245.9,1253.0,13903.1,604.9,13944.7,525.7,7229.2,2211.4]},{"y":[450.0,480.0],"m":1,"k":0,"o":[5762.9,2098.6,5720.4,2115.5,5720.4,2131.5,5749.5,2122.0,5749.5,2126.6,5768.2,2127.4,5768.2,2136.0,5825.5,2142.6,5831.2,2148.0,5789.6,2148.7,5864.8,2156.0,5848.8,2141.8,5799.1,2110.6]},{"y":[450.0,480.0],"m":1,"k":0,"o":[6983.3,2497.7,13630.6,830.3,13650.8,863.1,13780.5,830.0,13819.1,756.4]},{"y":[450.0,480.0],"m":1,"k":0,"o":[11018.9,1565.9,11006.8,1512.5,10890.1,1541.0,10902.9,1594.4]},{"y":[450.0,480.0],"m":1,"k":0,"o":[10647.6,1687.1,10635.9,1638.5,10563.4,1656.5,10575.3,1706.0]},{"y":[480.0,510.0],"m":1,"k":0,"o":[6039.4,2683.9,6003.7,2745.5,6100.0,2760.2,6003.7,2755.3,6003.6,2842.2,6085.1,2986.2,13511.3,1053.5,16100.6,472.2,16068.6,423.5,14472.6,791.0,6200.5,2844.5,6115.6,2660.7]},{"y":[510.0,540.0],"m":1,"k":0,"o":[5491.2,-0.2,5475.2,-0.2,5463.9,2.0,5463.8,141.5,5475.4,144.1,5502.5,144.3,5498.0,-0.2]},{"y":[510.0,540.0],"m":0,"k":0,"o":[6226.5,3097.4,18614.4,-1.3,6110.0,-3127.1,6046.4,-2714.0,6200.5,-3033.6,17000.5,-359.8,18152.0,-0.1,17000.5,359.8,6200.5,3033.6,6046.4,2712.7,6104.7,3127.2]},{"y":[540.0,570.0],"m":1,"k":0,"o":[6002.6,2783.5,6002.6,2840.4,6117.2,3161.6,6176.2,3147.2,6036.9,2773.3]},{"y":[600.0,630.0],"m":0,"k":0,"o":[2631.4,12.3,2635.1,25.4,2644.5,42.9,2659.7,58.2,2671.8,65.4,2685.2,70.3,2699.3,72.4,2713.8,71.8,2737.9,64.0,2753.1,52.8,2765.3,37.7,2774.5,14.1,2775.1,-12.7,2764.9,-38.5,2752.4,-53.6,2736.2,-65.0,2713.8,-71.8,2699.8,-72.5,2685.9,-70.5,2672.9,-66.1,2660.9,-59.2,2645.7,-44.9,2635.9,-27.7,2630.9,-7.9]},{"y":[600.0,630.0],"m":0,"k":0,"o":[4366.3,-20.7,4365.6,-124.7,4235.8,-160.2,4184.7,1.2,4235.8,162.6,4365.6,127.4]},{"y":[600.0,630.0],"m":0,"k":0,"o":[3338.9,76.4,3347.1,72.2,3346.3,-70.2,3339.7,-73.6,3274.7,-95.5,3103.8,-95.5,3026.2,-42.8,3026.1,1.0,3029.7,48.4,3103.9,98.0,3274.9,98.0]},{"y":[600.0,630.0],"m":0,"k":0,"o":[4055.6,199.3,4002.8,59.8,3895.8,86.0,4050.0,40.7,3896.0,14.5,4050.2,-31.5,3896.3,-51.4,4002.8,-57.1,4055.6,-196.8,3937.9,-241.1,3883.9,-215.2,3901.1,-147.5,3817.4,-177.8,3815.9,-50.1,3688.9,-38.3,3815.7,13.2,3688.9,40.8,3815.6,52.6,3937.9,243.8]},{"y":[600.0,630.0],"m":0,"k":0,"o":[3625.3,-21.7,3625.3,68.0,3672.0,67.3,3672.0,-64.8,3625.3,-65.2]},{"y":[600.0,630.0],"m":1,"k":0,"o":[3740.9,108.8,3727.0,128.0,3718.0,262.9,3718.2,279.0,3769.5,278.7,3768.8,197.3,3762.0,133.5,3755.7,120.6,3743.9,105.7]},{"y":[630.0,660.0],"m":0,"k":0,"o":[4308.4,160.4,4385.4,139.1,4385.4,-136.5,3859.9,-282.3,2903.0,-223.3,2794.3,-193.7,2850.7,-47.7,2748.8,-81.7,2740.2,-249.0,2662.9,-240.4,2656.1,-83.7,2517.7,-39.7,2496.1,37.1,2617.7,43.6,2660.7,250.9,2738.6,258.0,2782.4,47.2,2851.5,47.4,2797.7,197.7,3282.3,267.0,3859.8,284.8]},{"y":[660.0,690.0],"m":0,"k":0,"o":[4019.4,254.3,4647.2,104.8,4959.3,263.7,4959.3,-265.1,4392.7,-102.1,3979.4,-325.7,3757.1,-230.1,2664.3,-280.3,2429.0,-39.7,2662.8,282.4]},{"y":[690.0,720.0],"m":0,"k":0,"o":[2312.3,-443.6,2150.5,-18.8,2276.6,465.6,2504.6,350.3,2509.6,167.9,2681.6,341.4,2916.8,231.1,2977.6,341.4,4392.2,403.8,4391.6,291.8,3979.4,273.2,4435.4,130.1,4961.8,328.6,4961.8,-329.9,4435.4,-131.4,3979.4,-270.5,4391.6,-294.9,4392.1,-406.8,2977.6,-342.6,2951.2,-232.3,2681.6,-342.6,2509.6,-169.0,2509.6,-342.6]},{"y":[720.0,750.0],"m":0,"k":0,"o":[2292.1,439.4,2519.9,260.7,2671.2,434.2,4460.9,428.8,4358.1,260.9,4618.9,356.4,4656.8,194.3,4962.0,342.6,4962.1,-343.5,4656.8,-195.0,4358.1,-262.2,4460.9,-432.0,2671.2,-435.1,2519.9,-261.8,2244.6,-459.2]},{"y":[750.0,780.0],"m":0,"k":0,"o":[4642.1,-495.1,2751.6,-395.3,2509.6,-206.0,2623.8,-369.2,2291.7,-279.6,2212.6,-459.2,2187.3,449.6,2291.9,278.2,2290.8,438.3,2623.8,366.4,2509.6,208.6,4954.3,524.1,4967.3,-480.0]},{"y":[750.0,780.0],"m":1,"k":0,"o":[4611.1,422.5,4593.2,422.7,4593.8,506.8,4635.5,506.6,4635.1,422.3]},{"y":[750.0,780.0],"m":1,"k":0,"o":[4887.1,507.0,4887.5,422.9,4845.7,422.4,4845.2,506.6]},{"y":[810.0,870.0],"m":0,"k":0,"o":[4251.3,536.7,4282.0,635.2,4417.5,597.8,4926.0,625.3,4925.5,-613.9,4278.6,-623.2,4273.5,-489.7,3549.2,-490.0,3549.2,-580.1,3428.5,-580.1,3428.5,-490.0,2191.9,-498.3,2191.9,496.8,3428.5,492.6,3428.5,578.9,3549.2,578.9,3549.2,492.6,4273.5,492.5,4278.1,573.1]},{"y":[1080.0,1110.0],"m":1,"k":0,"o":[1135.6,77.7,1293.4,77.7,1293.4,9.7,1069.1,9.7,1069.1,77.7]},{"y":[1080.0,1110.0],"m":1,"k":0,"o":[1274.0,411.1,1246.0,405.6,1246.0,485.1,1380.4,511.6,1375.3,431.2]},{"y":[1230.0,1260.0],"m":1,"k":0,"o":[406.1,73.0,395.0,99.7,416.0,146.3,379.3,176.4,392.0,181.1,377.2,305.5,415.5,295.6,354.2,471.4,334.3,479.3,343.8,498.9,279.7,673.4,288.8,695.5,302.9,711.0,802.1,772.9,831.5,731.4,548.9,614.4,498.3,527.3]},{"y":[1260.0,1290.0],"m":1,"k":0,"o":[211.2,490.2,208.8,507.2,231.5,558.5,225.4,560.8,229.5,571.1,235.8,568.5,290.5,703.2,305.3,715.0,589.0,750.0,673.5,749.1,477.4,729.0,647.8,739.9,782.4,712.2,808.6,714.7,875.6,699.0,749.7,690.2,699.5,676.7,249.2,490.3,218.6,469.6]},{"y":[1290.0,1320.0],"m":1,"k":0,"o":[199.1,483.6,207.6,504.0,215.8,506.7,211.6,522.8,229.7,571.2,248.9,579.1,285.8,625.5,298.9,622.2,294.4,611.5,445.4,574.4,460.4,608.5,503.4,598.1,487.9,563.9,511.1,557.9,519.5,576.5,532.7,574.5,524.3,556.5,399.6,546.2,349.2,531.7,192.1,466.7]}],"measured":"v24: hull stations (30, chosen on the measured plan and height profile), city and ventral terraces (horizontal 60 m layers (pieces of at least 15,000 m², at most 24 outline points) of the model outside the fitted hull) and the 13 engine mouths re-measured on Executor_Complete.stl, scaled to 19,000 m. Interior rooms keep their places relative to the hull depth (interiorFrame). v24 (flat wedge): the city and ventral terraces re-measured as the parts of the model outside the flat wedge hull, in 30 m layers (pieces of at least 3,000 m², consecutive layers merged at 85% overlap).","interiorFrame":[[0,842.9,856.7,1358.2,1400.7],[500,733.6,929.3,1190.3,1387.1],[1000,657.0,921.4,1055.5,1351.4],[1500,615.0,913.3,920.7,1315.7],[2000,573.0,905.3,785.8,1280.0],[2500,524.5,900.3,651.0,1244.4],[3000,472.2,897.1,642.4,1235.4],[3500,419.8,894.0,693.1,1239.0],[4000,342.0,891.1,743.8,1242.6],[4500,319.0,888.6,794.4,1246.2],[5000,275.9,895.2,794.7,1246.9],[5500,223.0,724.0,530.4,1232.3],[6000,11.8,702.3,329.8,1179.0],[6500,23.0,693.5,152.2,1255.9],[7000,34.2,684.8,289.0,1185.3],[7500,45.4,676.0,96.7,1244.1],[8000,56.6,667.3,323.0,1002.3],[8500,67.9,658.5,99.2,1005.9],[9000,79.1,649.7,125.6,1108.3],[9500,90.5,644.5,170.2,1011.3],[10000,103.3,655.8,318.3,971.0],[10500,116.1,667.1,392.8,1141.4],[11000,128.9,678.5,232.9,1094.7],[11500,261.2,683.6,273.6,1039.5],[12000,276.2,667.5,328.4,958.7],[12500,291.2,651.4,383.3,877.9],[13000,306.2,635.3,433.2,828.3],[13500,321.1,619.2,452.8,970.3],[14000,336.1,603.1,447.2,876.8],[14500,209.4,582.9,495.1,882.9],[15000,221.7,570.0,502.9,860.1],[15500,234.0,557.2,510.7,837.2],[16000,246.3,544.3,518.5,814.4],[16500,259.5,531.4,526.3,791.5],[17000,283.3,518.5,534.1,768.7],[17500,307.8,505.7,541.9,745.8],[18000,336.7,493.0,549.7,723.0],[18500,375.9,480.7,557.5,700.1],[19000,362.4,470.7,565.3,677.4]],"nozzleScale":1,"nozzleScaleNote":"v24: the measured circles are the nozzle mouths themselves (Executor_Complete.stl), so the game nozzle takes the full measured diameter; the earlier model set its nozzle at 0.8 of a wider housing."};
+const EXECUTOR_BLUEPRINT={"exactCredit":"The Executor-class shape (hull, terraces, engine mouths) was measured from Executor_Complete.stl supplied by the user (no author or licence stated). The command tower is the Imperial-class one.","dimensions":{"length":19000,"width":6422.508,"heightIncludingSourceBridge":1671.2,"coordinate":"X=0 aft, X=19000 bow, Y=0 model bottom, Z=0 centerplane"},"cityTerraces":[{"y":[660.0,690.0],"m":1,"k":0,"o":[6092.1,2983.7,6086.8,2984.4,6095.0,3011.5,6088.1,3014.0,6104.1,3059.5,6104.3,3065.8,6084.6,3070.4,6114.3,3153.6,6168.6,3140.4,6093.8,2983.0]},{"y":[720.0,750.0],"m":1,"k":0,"o":[5971.7,2654.3,5970.0,2655.8,5969.8,2664.6,5971.3,2664.6,5974.1,2673.7,5970.4,2675.2,5975.4,2677.4,5983.4,2700.8,5987.7,2701.8,5982.3,2704.0,5997.4,2748.6,5998.2,2750.6,6004.5,2750.4,6037.3,2845.3,6106.2,2827.7,5978.0,2652.7]},{"y":[750.0,780.0],"m":1,"k":0,"o":[5926.3,2469.7,5914.6,2437.8,5902.2,2441.1,5891.5,2414.1,5910.0,2475.1,5904.1,2479.9,5910.7,2499.2,5918.4,2500.3,5917.4,2508.7,5921.9,2521.9,5925.9,2523.2,5923.0,2525.1,5925.1,2531.6,5938.6,2569.9,5941.9,2569.6,5974.9,2664.9,6000.3,2681.8,6086.2,2662.1,6092.8,2680.4,6114.1,2675.5,5998.5,2536.8,5911.5,2427.0]},{"y":[780.0,810.0],"m":1,"k":0,"o":[5876.8,2288.3,5853.8,2228.7,5841.2,2232.5,5862.6,2292.6,5850.5,2259.6,5842.4,2260.7,5837.8,2248.1,5834.2,2248.7,5848.1,2296.8,5843.9,2299.8,5859.5,2345.3,5864.5,2344.3,5855.7,2348.1,5860.6,2362.4,5870.8,2362.8,5866.5,2368.0,5875.2,2393.0,5880.9,2392.2,5913.4,2486.2,5924.5,2498.4,6071.5,2469.4,5998.5,2392.4,5900.5,2282.7]},{"y":[810.0,840.0],"m":1,"k":0,"o":[5804.5,2065.9,5809.9,2110.7,5797.3,2078.6,5787.9,2080.6,5774.9,2049.5,5786.2,2081.1,5773.1,2049.6,5784.2,2081.8,5776.3,2083.5,5785.9,2116.4,5778.8,2120.4,5784.4,2147.6,5794.9,2166.7,5802.5,2165.0,5796.6,2166.9,5809.4,2204.8,5812.7,2214.4,5819.0,2213.2,5851.5,2307.6,5885.6,2352.2,6066.4,2309.1,5948.6,2200.3,5815.9,2062.9]},{"y":[840.0,870.0],"m":1,"k":0,"o":[5741.2,1921.4,5742.9,1933.1,5738.7,1922.4,5720.2,1925.5,5724.2,1938.0,5718.2,1942.5,5733.8,1988.0,5740.9,1986.3,5735.2,1989.4,5742.1,2010.0,5750.4,2034.1,5757.6,2035.2,5789.7,2128.5,5827.9,2187.3,5972.5,2150.0,6041.5,2136.1,5948.7,2063.4,5898.7,2020.8,5785.2,1914.5]},{"y":[870.0,900.0],"m":1,"k":0,"o":[5676.6,1732.4,5674.4,1733.4,5676.6,1756.9,5668.5,1736.0,5656.5,1741.3,5662.7,1759.8,5653.6,1764.7,5663.5,1793.5,5674.1,1793.5,5668.0,1799.4,5671.5,1809.6,5679.3,1808.8,5672.2,1812.1,5683.7,1846.7,5687.5,1856.5,5695.7,1856.1,5728.7,1951.2,5766.0,2007.6,5989.1,1952.8,5898.8,1891.0,5848.7,1852.8,5798.7,1811.9,5703.8,1726.1]},{"y":[870.0,900.0],"m":1,"k":1,"o":[12232.4,575.9,12272.7,575.9,12272.7,587.6,12314.8,587.6,12314.8,576.1,12453.7,576.1,12453.7,517.2,12217.0,575.9]},{"y":[870.0,900.0],"m":1,"k":2,"o":[12487.6,516.9,12496.9,516.9,12496.9,537.6,12530.2,537.6,12530.2,516.9,12703.1,516.9,12694.0,471.6,12721.1,471.6,12721.1,461.2,12853.6,460.2,12865.4,455.5,12865.4,435.4,12966.3,435.4,12966.3,455.5,13003.4,455.5,13003.4,432.5,13175.2,432.5,13175.2,400.8,13333.7,393.3,13339.7,357.9,13375.9,357.9,13375.9,285.9,12454.9,516.9]},{"y":[870.0,900.0],"m":1,"k":2,"o":[13900.0,196.4,14043.1,196.5,14043.1,123.1,14047.3,122.0,14047.3,119.6,14059.0,118.9,14068.6,112.1,13899.8,154.6]},{"y":[900.0,930.0],"m":1,"k":0,"o":[5617.1,1656.6,5614.0,1657.8,5617.4,1657.3,5618.9,1662.3,5629.2,1664.1,5620.5,1671.9,5633.6,1676.8,5666.6,1772.1,5679.4,1792.2,5899.5,1761.5,5798.8,1695.8,5699.7,1619.0,5650.8,1641.2,5616.2,1654.0]},{"y":[900.0,930.0],"m":1,"k":2,"o":[11079.0,681.7,11753.1,712.3,11753.1,589.6,12398.9,577.7,12398.9,525.2,12525.0,509.9,12805.7,537.0,12846.7,346.8,13479.1,377.8,13479.1,238.7,13301.0,238.7,13333.4,179.0,13477.3,179.0,13477.3,81.2]},{"y":[900.0,930.0],"m":1,"k":0,"o":[5931.3,1793.0,5924.7,1775.7,5907.1,1765.8,5681.5,1794.5,5702.8,1826.7,5852.9,1790.8,5860.5,1811.1]},{"y":[930.0,960.0],"m":1,"k":0,"o":[5594.6,1563.7,5605.4,1595.0,5762.2,1557.3,5699.8,1515.8,5650.7,1538.6,5593.2,1559.8]},{"y":[930.0,960.0],"m":1,"k":1,"o":[9219.9,969.4,9325.9,969.4,9325.9,941.0,9433.2,941.0,9433.2,969.4,9517.9,969.4,9517.9,940.6,9603.0,940.6,9603.0,870.5,9203.5,969.4]},{"y":[930.0,960.0],"m":0,"k":2,"o":[9931.0,789.8,12453.7,576.1,12453.7,494.8,12053.9,483.4,12884.9,383.0,12930.1,275.6,13316.3,301.2,13287.5,177.4,13543.6,177.4,13543.6,60.8,13170.5,47.5,13543.6,-62.1,13543.6,-178.7,13287.5,-178.7,13316.3,-302.1,12862.0,-276.9,12963.8,-289.4,12884.9,-395.9,12377.5,-451.5,12560.6,-494.5,12276.5,-464.7,12453.7,-577.2,10035.1,-789.7,13102.0,0.1]},{"y":[930.0,960.0],"m":1,"k":2,"o":[12560.6,468.4,12560.6,462.7,12357.7,462.7,12357.7,493.5,12560.6,493.5]},{"y":[960.0,990.0],"m":1,"k":1,"o":[8291.4,1021.9,8291.4,1053.1,8331.3,1053.1,8331.3,1015.3,8807.0,1015.3,8807.0,1053.1,8855.9,1024.9,8963.4,1053.1,9011.2,1023.9,8985.3,901.9,9488.4,938.5,9488.4,910.6,9573.5,910.6,9573.5,788.8,9488.4,788.8,9470.2,725.9]},{"y":[960.0,990.0],"m":1,"k":2,"o":[11667.5,358.7,11667.5,364.5,11883.7,364.5,11883.7,326.9,11667.5,326.9]},{"y":[960.0,990.0],"m":1,"k":2,"o":[12624.0,435.8,12871.1,417.6,12871.1,307.1,12655.8,294.7,12655.8,322.4,12527.3,322.4,12527.3,294.7,12497.8,294.7,12497.8,329.9,12382.8,329.9,12382.8,294.7,12284.6,294.7,12189.8,310.4,12189.8,352.1,11976.9,352.1,11976.9,384.7,12189.8,384.7,12189.8,429.1,12287.6,446.2,12342.0,446.2,12342.0,417.6,12490.5,417.6,12490.5,446.2]},{"y":[960.0,990.0],"m":1,"k":2,"o":[12048.6,440.2,12116.7,440.2,12116.7,410.2,11724.1,410.2,11724.1,440.2]},{"y":[990.0,1020.0],"m":1,"k":1,"o":[7218.1,1138.1,7254.2,1169.6,7327.3,1169.6,7327.3,1131.7,7769.9,1131.7,7769.9,1169.6,7851.8,1169.6,7851.8,1141.1,7959.7,1169.6,7959.7,1140.5,8007.4,1140.5,8007.4,1040.6,8041.8,1040.6,8007.4,967.1,8268.7,967.1,8268.7,942.2,7932.8,930.3,7094.5,1138.1]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[12710.7,312.0,12534.4,312.0,12534.4,280.8,12383.0,280.8,12383.0,312.4,12334.5,312.4,12334.5,280.8,12295.1,280.8,12295.1,303.0,12142.7,280.8,12142.7,419.9,12502.0,439.2,12502.0,412.4,12669.5,412.4,12669.5,439.2,12693.0,419.9,12786.8,439.2,12786.8,416.5,12904.1,416.5,12904.1,309.6,12771.5,309.6,12771.5,280.8,12710.7,280.8]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[11629.2,420.5,11409.5,420.5,11409.5,456.5,11635.9,456.5,11635.9,420.5]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[11307.4,427.6,11185.4,428.1,11183.2,428.8,11183.9,448.6,11196.9,464.6,11222.9,464.6,11223.7,455.6,11242.7,455.4,11244.2,464.7,11314.8,464.5,11368.7,465.7,11368.8,467.7,11427.4,467.8,11430.9,462.9,11383.0,462.5,11401.9,458.6,11409.1,447.9,11332.3,427.7]},{"y":[990.0,1020.0],"m":1,"k":2,"o":[10911.1,568.4,10911.1,596.6,11304.6,597.3,11315.9,598.1,11315.9,625.2,11680.6,625.2,11680.6,575.7,11373.1,575.7,11330.6,568.4]},{"y":[1020.0,1050.0],"m":0,"k":2,"o":[6821.7,1055.9,9488.4,939.6,9573.5,788.8,9353.1,788.0,9383.0,640.3,10901.7,633.8,10700.6,521.9,11217.1,500.7,11206.2,298.3,12467.2,155.4,12023.5,45.1,12467.2,-156.8,11206.2,-299.4,11217.1,-513.4,10700.6,-523.3,10901.7,-635.2,9383.0,-641.3,9353.1,-789.4,9573.5,-790.1,9488.4,-940.9,6711.9,-1056.0,10952.0,-0.1]},{"y":[1020.0,1050.0],"m":1,"k":2,"o":[11593.3,375.8,11609.2,375.8,11609.2,348.7,11463.9,348.7,11463.9,375.8]},{"y":[1050.0,1080.0],"m":0,"k":2,"o":[6134.6,1048.7,10659.1,572.2,11444.5,113.0,12272.5,156.0,11545.1,-27.5,12272.5,-157.1,11444.5,-113.3,11197.1,-422.3,9062.9,-791.2,7570.4,-759.0,7873.5,-932.9,7535.7,-1060.8,6134.6,-1055.8,10252.0,0.0]},{"y":[1050.0,1080.0],"m":1,"k":2,"o":[8570.9,989.7,8197.8,989.7,8197.8,1015.6,8570.9,1015.6]},{"y":[1080.0,1110.0],"m":0,"k":2,"o":[6069.8,966.0,7562.8,1030.5,7569.1,673.1,7846.2,694.2,7668.8,613.3,9631.4,640.3,11419.5,171.7,11437.3,-124.2,9631.4,-641.3,7668.8,-614.7,7846.2,-695.4,7569.1,-674.2,7562.8,-1029.8,6134.6,-1055.8,6200.9,-828.9,9552.0,0.1]},{"y":[1080.0,1110.0],"m":1,"k":2,"o":[10502.1,394.3,10543.8,394.3,10543.8,361.1,10295.2,361.1,10295.2,394.3]},{"y":[1080.0,1110.0],"m":1,"k":1,"o":[6630.9,1040.6,6708.0,1040.6,6708.0,1024.5,6511.5,1024.6,6511.5,1040.6]},{"y":[1080.0,1110.0],"m":1,"k":1,"o":[7244.4,1073.9,7244.4,1056.3,7128.6,1056.3,7128.6,1083.1,7244.4,1083.1]},{"y":[1080.0,1110.0],"m":1,"k":3,"o":[11988.5,152.4,12086.7,152.4,12086.7,172.3,12302.8,155.4,12302.8,75.5,12180.8,75.5,12180.8,54.2,12124.6,54.2,12124.6,77.3,11962.6,77.3,11962.6,54.2,11822.7,54.2,11822.7,77.7,11778.4,77.7,11778.4,54.2,11742.2,54.2,11742.2,70.5,11601.9,54.2,11601.9,157.8,11932.8,172.3,11932.8,152.4]},{"y":[1080.0,1110.0],"m":1,"k":2,"o":[10699.5,316.0,10699.7,321.7,10679.3,321.9,10681.8,326.6,10699.8,326.8,10700.0,330.9,10716.1,331.4,10717.0,319.9,10771.4,319.5,10772.6,330.6,10789.1,331.8,10788.9,326.7,10807.2,326.4,10809.4,324.0,10809.2,321.8,10788.9,321.6,10788.7,316.3,10810.0,316.7,10813.4,311.7,10812.6,286.9,10808.7,285.8,10673.9,287.1,10674.6,311.9,10679.2,316.4]},{"y":[1110.0,1140.0],"m":0,"k":2,"o":[5702.6,947.5,7584.7,1042.8,7567.3,588.3,8957.6,711.6,8826.3,348.0,9629.5,552.8,11148.0,150.6,10831.9,32.2,11148.0,-151.7,9629.5,-553.9,8826.2,-356.4,8789.3,-734.4,7567.1,-589.5,7584.5,-1042.1,6270.0,-1110.2,5702.6,-933.3,6201.0,-652.1,8851.9,0.6]},{"y":[1110.0,1140.0],"m":1,"k":1,"o":[6783.3,1030.9,6617.8,1030.9,6617.8,1046.1,6908.4,1046.1,6908.4,1030.9]},{"y":[1110.0,1140.0],"m":1,"k":3,"o":[11338.3,75.5,11384.3,75.5,11384.3,43.3,11158.3,43.3,11158.3,75.5]},{"y":[1110.0,1140.0],"m":1,"k":3,"o":[11419.5,129.2,11242.1,129.2,11242.1,171.7,11419.5,171.7]},{"y":[1110.0,1140.0],"m":1,"k":2,"o":[7598.0,646.3,7598.0,694.2,7846.2,694.2,7845.8,646.1]},{"y":[1140.0,1170.0],"m":1,"k":1,"o":[2472.7,958.4,2464.1,960.7,2513.5,963.3,2514.7,968.4,2507.8,974.3,2515.7,975.2,2521.8,969.2,2557.1,973.3,2551.7,976.2,2604.5,981.3,2632.5,972.5,2729.7,982.2,2719.5,980.2,2740.5,979.7,2705.1,971.6,2824.4,987.3,2850.6,979.5,2818.9,966.5,2867.3,944.4]},{"y":[1140.0,1170.0],"m":0,"k":2,"o":[5639.2,828.4,5762.5,988.8,6890.6,968.9,7581.6,768.8,7594.0,561.8,9457.1,236.4,9796.9,-49.3,8839.8,-286.6,8841.0,-438.9,7594.0,-562.7,7581.6,-768.1,6890.6,-954.2,5759.7,-974.1,5639.2,-825.1,6201.1,-475.3,8152.0,0.2,6201.1,475.3]},{"y":[1140.0,1170.0],"m":1,"k":2,"o":[6280.1,973.2,6280.1,981.3,6224.3,981.3,6224.3,1009.2,6466.0,1009.2,6466.0,981.3,6453.4,981.3,6453.4,973.2]},{"y":[1140.0,1200.0],"m":1,"k":2,"o":[6178.5,1016.2,6178.5,1037.8,6341.5,1037.8,6341.5,1016.2]},{"y":[1140.0,1170.0],"m":1,"k":2,"o":[6413.7,1089.9,6413.7,1067.1,6231.4,1067.1,6231.4,1089.9]},{"y":[1140.0,1170.0],"m":0,"k":3,"o":[10488.3,-111.2,10269.3,-147.9,9968.0,-95.8,9885.4,7.4,9968.0,94.8,10269.4,150.9,10594.1,84.1,10730.4,80.9,10730.4,53.4,10655.5,49.0,10682.6,1.4,10655.4,-46.2,10730.4,-54.5,10730.4,-82.3]},{"y":[1140.0,1170.0],"m":1,"k":3,"o":[10771.6,122.2,10602.8,122.2,10602.8,146.8,10771.6,146.8]},{"y":[1140.0,1170.0],"m":1,"k":3,"o":[9817.4,114.9,9686.1,115.2,9732.2,165.9,9657.6,168.6,9646.2,115.2,9610.5,115.4,9609.6,157.3,9515.5,186.2,9741.7,199.6,9615.3,219.6,9762.2,247.8,10771.6,166.1,10264.2,181.2,10159.3,134.9]},{"y":[1140.0,1170.0],"m":1,"k":2,"o":[8404.1,577.9,8308.0,577.9,8307.9,679.9,8416.4,679.9,8416.4,707.5,8466.1,707.5,8466.1,677.7,8610.2,677.7,8610.2,707.5,8734.2,707.5,8734.2,677.7,8774.1,677.7,8774.1,707.5,8805.8,686.4,8930.4,707.5,8930.4,574.7,8636.8,556.1,8636.8,581.5,8499.9,581.5,8499.9,555.9,8404.1,555.9]},{"y":[1170.0,1200.0],"m":1,"k":1,"o":[1964.7,905.0,2020.9,909.2,2021.4,914.0,2061.0,918.5,2081.5,911.7,2141.9,919.7,2323.9,917.6,2248.9,909.7,2346.6,917.9,2302.5,909.1,2354.4,916.4,2387.1,897.5,2398.5,899.1,2374.4,918.7,2425.5,925.5,2595.2,873.9,2547.6,854.7,2199.9,868.4,2150.3,846.3,2100.6,886.5]},{"y":[1170.0,1200.0],"m":0,"k":2,"o":[5698.6,705.3,5704.6,968.9,7257.9,844.2,7485.8,723.2,7487.8,500.6,8316.4,470.8,8445.5,274.0,8835.8,244.7,8597.7,91.6,9151.6,-17.0,8597.7,-90.3,8835.8,-245.5,8445.5,-275.1,8315.5,-471.2,7487.8,-501.1,7485.8,-722.5,7257.9,-843.3,5704.4,-954.2,5649.3,-717.9,6201.1,-298.5,7402.0,0.0,6201.1,298.5]},{"y":[1170.0,1200.0],"m":0,"k":3,"o":[9574.2,-21.7,9574.2,-23.8,9498.1,-25.5,9498.1,25.2,9545.7,28.0,9574.2,27.7]},{"y":[1170.0,1200.0],"m":1,"k":2,"o":[8388.0,381.0,8388.1,423.7,8667.7,423.7,8667.7,371.7,8388.0,371.7]},{"y":[1170.0,1200.0],"m":1,"k":2,"o":[8010.2,509.7,8124.9,509.7,8124.9,470.2,7829.3,470.2,7829.3,509.7]},{"y":[1200.0,1230.0],"m":1,"k":1,"o":[1597.6,859.8,1995.3,889.7,1760.7,852.5,2014.7,876.9,1905.9,846.8,2035.3,861.8,1993.8,848.4,2043.1,855.0,2010.4,843.0,2051.2,848.3,2024.5,837.5,2075.8,833.2,2084.1,815.7,2058.4,809.5,2119.0,816.2,2238.4,774.4,2150.3,749.5,2100.4,783.9]},{"y":[1200.0,1230.0],"m":0,"k":2,"o":[5578.3,648.7,5651.7,823.4,7265.0,832.0,7262.9,551.8,7491.7,588.7,7486.3,278.0,8473.6,274.0,8645.3,-18.6,8474.3,-275.1,7486.3,-279.0,7491.7,-588.0,7262.1,-553.1,7265.0,-830.4,5651.7,-808.9,5579.1,-647.1,6201.2,-121.8,6702.0,0.1,6201.2,121.8]},{"y":[1200.0,1230.0],"m":1,"k":2,"o":[7826.2,350.5,7837.9,350.6,7837.9,365.9,8105.3,365.9,8105.3,405.2,8355.2,405.2,8355.2,355.9,8267.8,355.9,8267.8,326.9,7997.9,326.9,7998.1,313.4,7613.9,313.4,7614.4,350.6]},{"y":[1200.0,1230.0],"m":1,"k":2,"o":[7886.2,432.0,7961.7,432.0,7961.7,398.1,7609.3,398.1,7609.3,432.0]},{"y":[1230.0,1260.0],"m":0,"k":2,"o":[5547.2,580.9,6208.9,665.9,6718.0,377.4,7200.8,595.2,7547.9,407.2,7323.3,274.9,8224.6,239.3,8331.3,-126.4,7323.3,-272.3,7547.9,-407.6,7200.8,-594.4,6718.0,-362.8,5738.9,-689.5,5542.7,-559.6,6052.0,0.2]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6430.1,682.8,6276.7,682.8,6276.7,720.6,6604.7,720.6,6604.7,682.8]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6093.9,746.1,6093.9,715.0,5704.6,715.0,5704.6,746.1]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6353.3,750.8,6124.3,750.8,6124.3,784.6,6391.3,784.6,6391.3,750.8]},{"y":[1230.0,1260.0],"m":1,"k":3,"o":[8423.0,125.1,8423.0,145.2,8551.0,145.2,8551.0,116.8,8423.0,116.8]},{"y":[1230.0,1260.0],"m":1,"k":3,"o":[7997.9,313.4,7613.9,313.4,7613.9,350.4,7997.9,350.5]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6490.1,474.2,6457.4,474.2,6457.4,505.4,6646.8,505.4,6646.8,474.1]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6296.0,625.4,6296.0,647.9,6782.5,647.9,6782.5,625.4]},{"y":[1230.0,1260.0],"m":1,"k":2,"o":[6713.1,741.5,6755.1,741.5,6755.1,705.3,6645.2,705.4,6645.2,741.5]},{"y":[1260.0,1290.0],"m":0,"k":2,"o":[5574.1,389.4,6162.1,470.2,6123.8,380.5,6808.4,285.6,6927.5,66.2,7118.8,66.0,6969.8,29.6,7118.8,-67.0,6927.7,-67.0,6808.4,-270.9,6119.8,-366.6,5982.6,-452.4,6162.1,-471.4,5665.9,-469.3,5560.4,-377.7]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[7381.4,86.2,7381.4,59.0,7169.5,59.0,7169.5,86.2]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[6946.1,148.8,7253.0,148.8,7253.0,97.5,6946.1,97.5]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[7410.0,121.2,7410.0,177.6,7635.0,177.6,7635.0,121.2]},{"y":[1260.0,1290.0],"m":1,"k":3,"o":[7203.0,296.9,7211.7,299.6,7214.8,257.3,7223.9,256.2,7223.9,241.7,7264.7,242.6,7236.4,245.7,7236.1,254.6,7236.9,260.2,7265.0,261.5,7268.7,208.9,7274.8,214.3,7285.5,172.9,7134.7,173.1,7135.1,195.3,7179.5,198.5,7179.9,239.1,7198.3,258.0]},{"y":[1290.0,1320.0],"m":1,"k":2,"o":[3486.8,452.7,3693.3,452.7,3693.3,484.3,3716.0,484.3,3716.0,446.2,4042.6,446.2,4042.6,484.3,4071.3,484.3,4071.3,455.9,4138.3,455.9,4138.3,484.3,4143.5,484.3,4143.5,454.9,4175.7,454.9,4175.7,410.4,3486.2,427.3]},{"y":[1290.0,1320.0],"m":1,"k":2,"o":[4671.4,354.1,4687.8,354.1,4687.5,324.9,4461.6,324.9,4457.9,354.1]},{"y":[1320.0,1350.0],"m":0,"k":3,"o":[6994.3,-31.3,6216.1,-119.3,6276.1,-152.7,6195.4,-168.1,6195.4,-239.1,6075.6,-239.1,6034.9,-134.8,5729.0,-134.8,5729.0,133.9,6034.9,133.9,6075.6,238.4,6195.4,238.4,6195.5,167.3,6276.1,151.5,6216.1,117.8,6577.4,116.2,7037.5,16.6]},{"y":[1350.0,1380.0],"m":0,"k":3,"o":[6299.0,98.5,6332.1,-0.7,6305.7,-20.0,6304.4,-96.9,6195.4,-132.8,6195.4,-239.1,6075.6,-239.1,6075.6,-168.2,6034.9,-168.2,6034.9,-134.8,5729.0,-134.8,5752.8,-107.4,5752.8,106.1,5729.0,133.9,6034.9,133.9,6034.9,167.1,6075.6,167.1,6075.6,238.4,6195.4,238.4,6195.4,127.5]},{"y":[1350.0,1380.0],"m":0,"k":3,"o":[5540.8,-162.0,5266.5,-162.0,5250.3,-153.1,5250.3,-67.6,5444.8,-67.6,5475.4,-50.9,5475.4,83.3,5444.8,99.8,5250.3,99.8,5250.3,185.8,5266.5,194.5,5540.8,194.5,5557.2,185.8,5557.2,-153.1]},{"y":[1380.0,1410.0],"m":1,"k":3,"o":[3624.2,236.1,3367.9,236.2,3366.6,353.5,3559.7,337.8,3560.4,315.1,3573.0,313.8,3571.0,320.1,3581.0,319.5,3576.0,313.5,3666.3,305.7,3668.0,296.8,3665.4,294.6,3667.8,290.2,3683.8,290.2,3683.8,260.9,3663.3,260.9,3663.3,245.4,3651.5,239.5,3656.7,239.5,3656.7,236.1]},{"y":[1380.0,1410.0],"m":0,"k":3,"o":[5875.1,-40.7,5876.9,48.8,6001.5,47.2,5997.6,85.8,6196.6,85.7,6217.9,79.0,6217.9,46.9,6277.3,47.0,6277.4,7.6,6296.3,-0.8,6277.6,-8.9,6277.4,-48.2,6217.9,-50.9,6217.9,-80.3,6001.3,-80.5,6001.6,-49.4]},{"y":[1380.0,1410.0],"m":0,"k":3,"o":[3758.4,58.5,3789.4,56.8,3789.4,-25.6,3734.6,-25.9,3734.6,59.1]},{"y":[1380.0,1410.0],"m":1,"k":3,"o":[4147.9,41.9,3826.4,37.9,3822.1,49.7,3825.7,54.3,4147.1,58.7,4149.8,55.6]},{"y":[1380.0,1410.0],"m":1,"k":3,"o":[3797.1,315.7,3911.4,300.7,3911.5,236.2,3738.7,236.1,3739.0,319.8]},{"y":[1410.0,1440.0],"m":1,"k":3,"o":[3516.7,169.5,3614.7,147.5,3614.7,56.8,3585.2,35.1,3576.2,56.1,3489.1,35.1,3489.1,63.7,3196.8,63.7,3196.8,35.1,3172.4,58.6,2984.8,58.6,2984.8,145.9,3172.4,145.9,3196.8,169.5,3196.8,141.6,3489.1,141.6]}],"engines":[{"mouth":[1400,850,0],"direction":[-1,0,0],"diameter":290,"sourceBodyLength":3000,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[1430,906,-290],"direction":[-1,0,0],"diameter":200,"sourceBodyLength":3000,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[1430,906,290],"direction":[-1,0,0],"diameter":200,"sourceBodyLength":3000,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4960,736,-684],"direction":[-1,0,0],"diameter":157,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4960,736,684],"direction":[-1,0,0],"diameter":157,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4970,768,-985],"direction":[-1,0,0],"diameter":250,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[4970,768,985],"direction":[-1,0,0],"diameter":250,"sourceBodyLength":2400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5750,530,-1332],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5750,530,1332],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5676,476,-1702],"direction":[-1,0,0],"diameter":264,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5676,476,1702],"direction":[-1,0,0],"diameter":264,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5708,530,-2063],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"},{"mouth":[5708,530,2063],"direction":[-1,0,0],"diameter":210,"sourceBodyLength":1400,"provenance":"v24 measured on Executor_Complete.stl: tube circle in a cross-section just ahead of the mouth"}],"bridge":{"isd":{"x":6112,"baseY":1380,"note":"v24 Imperial-class command tower on the city roof (y 1,380 m in the rebuilt body) under the model bridge (x 5,930-6,294 m)"}},"hull":{"L":19000,"W":6422.508,"H":1400.706,"sec":"warship","plan":"wedge","deckWidth":0,"keelWidth":0,"belt":0.132,"chineHeight":0.587,"bowFree":true,"stations":[[0.000158,0.004483,0.030366,0.484817,0.0,0.0,0.4683,0.2],[0.016854,0.223921,0.115059,0.441898,0.0,0.0,0.347,0.2],[0.139988,0.328584,0.446209,0.157145,0.0,0.0,0.0338,0.8],[0.258949,0.437094,0.294348,0.244707,0.0,0.0,0.0331,0.3759],[0.292341,0.467551,0.520503,0.11836,0.0,0.0,0.0509,0.6152],[0.317385,0.908806,0.612047,0.033163,0.0,0.0,0.2834,0.3772],[0.323647,1.0,0.891802,-0.013952,0.0,0.0,0.1311,0.4174],[0.371648,0.930479,0.621688,0.029182,0.0,0.0,0.1603,0.3584],[0.396692,0.894207,0.835926,-0.025684,0.0,0.0,0.1031,0.4586],[0.400866,0.888161,0.59417,0.052087,0.0,0.0,0.1626,0.3081],[0.40504,0.882115,0.755576,-0.065164,0.0,0.0,0.1227,0.5009],[0.415476,0.867001,0.546806,0.029903,0.0,0.0,0.1555,0.3233],[0.425911,0.851887,0.431105,-0.076455,0.0,0.0,0.2131,0.5188],[0.436346,0.836773,0.713684,-0.07902,0.0,0.0,0.1277,0.517],[0.463477,0.797475,0.550372,-0.144213,0.0,0.0,0.1548,0.6397],[0.469738,0.788407,0.760907,-0.036382,0.0,0.0,0.1178,0.4644],[0.486434,0.764225,0.510099,-0.134356,0.0,0.0,0.1799,0.6395],[0.492695,0.755157,0.706823,-0.028861,0.0,0.0,0.1121,0.4546],[0.498956,0.746089,0.500632,-0.128728,0.0,0.0,0.1671,0.6357],[0.501044,0.743066,0.700369,-0.027783,0.0,0.0,0.1247,0.4531],[0.513566,0.72493,0.562256,0.044388,0.0,0.0,0.161,0.3161],[0.519827,0.715862,0.442051,-0.066642,0.0,0.0,0.1853,0.5158],[0.551132,0.670522,0.557816,0.063005,0.0,0.0,0.1457,0.2859],[0.563654,0.652385,0.362747,-0.065281,0.0,0.0,0.214,0.5547],[0.58035,0.628202,0.63843,-0.022503,0.0,0.0,0.1348,0.456],[0.680528,0.477688,0.269897,-0.057756,0.0,0.0,0.3478,0.5088],[0.71392,0.428483,0.38067,0.015434,0.0,0.0,0.2124,0.2991],[0.730616,0.40455,0.335076,-0.098352,0.0,0.0,0.245,0.5982],[0.738964,0.39259,0.297018,-0.003174,0.0,0.0,0.2714,0.2719],[0.999842,0.003126,0.080053,-0.056413,0.0,0.0,0.02,0.2]],"bowW":0.011781,"bowH":0.108225},"trench":{"from":0.2952,"to":0.9848,"height":80,"depth":32,"note":"source trench back walls (rounded boxes) span x 5608-18712 between the upper plate tip (y 462.8) and the lower hull tip (y 371.5)"},"ventralTerraces":[{"y":[0.0,30.0],"m":0,"k":0,"o":[7664.7,93.0,7714.8,65.0,7733.7,75.4,7740.4,7.7,7761.3,2.2,7740.4,-7.6,7732.4,-76.1,7714.6,-65.3,7664.6,-93.0,7657.7,-115.8,7628.6,-80.0,7568.5,-88.1,7585.8,-67.8,7559.4,-4.3,7558.5,-41.8,7550.2,-4.4,7528.2,2.6,7550.1,4.5,7559.2,41.4,7559.6,4.5,7585.8,67.7,7569.2,89.2,7629.3,79.7,7657.4,115.7]},{"y":[0.0,30.0],"m":0,"k":0,"o":[6330.1,39.3,6338.4,58.3,6384.9,57.1,6393.4,32.2,6396.0,53.1,6431.8,41.8,6432.9,20.2,6484.6,22.1,6484.9,0.2,6496.5,19.8,6526.7,9.3,6526.5,-10.7,6487.3,-20.6,6485.0,0.2,6484.0,-24.6,6434.1,-19.7,6431.8,-41.9,6396.0,-53.1,6393.4,-32.2,6392.6,-55.1,6337.4,-57.5]},{"y":[30.0,60.0],"m":0,"k":0,"o":[6318.2,19.5,6333.7,211.0,6955.6,-8.5,6333.7,-211.3]},{"y":[30.0,60.0],"m":0,"k":0,"o":[7571.4,-141.0,7523.5,-131.3,7466.4,-2.8,7523.7,131.5,7643.1,160.6,7652.5,181.3,7761.8,116.8,7785.4,127.0,7774.1,103.0,7810.2,4.6,7825.7,15.1,7836.1,-4.0,7810.0,-4.2,7774.4,-103.0,7785.8,-126.7,7762.0,-116.8,7664.5,-180.4]},{"y":[30.0,60.0],"m":0,"k":0,"o":[7205.9,11.6,7184.8,11.3,7182.0,10.2,7182.3,4.8,7184.5,4.0,7248.1,4.4,7249.1,6.6,7268.2,2.7,7264.7,-2.5,7249.2,-5.8,7184.8,-3.9,7182.3,-5.1,7183.8,-11.3,7222.0,-12.7,7179.1,-21.8,7094.5,-20.9,7074.2,-24.6,7074.2,24.4,7077.0,25.5,7099.1,20.7,7179.4,21.7,7222.0,12.8]},{"y":[60.0,90.0],"m":0,"k":0,"o":[6511.1,-271.7,6333.3,-350.8,6317.9,-167.2,7001.9,0.6,6317.9,167.2,6333.4,351.0,7049.7,97.5,7279.0,81.6,7391.0,149.5,7478.8,129.7,7614.1,207.9,7618.3,272.0,7692.0,266.7,7853.0,25.2,7950.9,24.5,7950.8,-24.2,7853.0,-25.9,7692.1,-267.1,7618.4,-271.9,7614.1,-208.1,7478.8,-129.1,7388.7,-147.6,7282.3,-82.6,7049.8,-97.5]},{"y":[90.0,120.0],"m":1,"k":0,"o":[6443.4,433.0,6669.6,381.4,6670.6,359.2,6686.0,376.0,6726.4,332.2,6774.8,346.6,6800.7,278.6,6886.3,212.3,6319.5,356.0,6287.8,432.5,6308.9,485.0]},{"y":[90.0,120.0],"m":0,"k":0,"o":[7221.5,135.7,7246.5,264.3,7446.3,214.1,7690.1,289.1,7972.3,118.0,8524.5,-6.9,7965.4,-120.6,7690.1,-289.2,7446.9,-214.8,7246.5,-265.6,7257.3,-137.2,7184.0,-136.6,7752.0,0.1]},{"y":[120.0,150.0],"m":1,"k":0,"o":[6333.3,586.9,6345.0,603.4,6351.2,622.9,6366.0,618.5,6367.5,595.6,6369.6,595.6,6369.7,613.8,6399.4,606.4,6400.8,584.6,6401.5,597.7,6422.4,596.9,6423.2,581.6,6438.0,580.9,6439.3,572.6,6439.7,588.7,6462.6,570.7,6462.7,564.9,6466.3,564.0,6466.3,567.9,6533.4,522.1,6593.1,476.0,6317.5,545.6]},{"y":[150.0,180.0],"m":1,"k":0,"o":[7586.5,520.2,7715.6,522.7,7791.9,361.8,7533.4,427.3]},{"y":[150.0,180.0],"m":0,"k":0,"o":[8520.4,183.8,8692.8,156.9,9076.4,258.0,9290.4,214.6,9246.8,85.0,9361.7,78.0,9241.2,35.8,9363.8,-4.3,9243.9,-49.0,9361.9,-79.3,9246.9,-86.2,9292.9,-209.2,9076.7,-254.2,8692.6,-153.1,8487.1,-184.8,9252.0,-0.2]},{"y":[180.0,210.0],"m":0,"k":0,"o":[9014.3,256.7,9311.9,309.9,9316.1,202.2,9681.8,86.2,9992.1,85.9,10010.6,79.3,9861.6,41.0,10030.4,30.9,10071.8,-3.4,10030.1,-27.9,9861.6,-42.1,10010.6,-80.4,9992.3,-87.3,9650.5,-89.1,9546.9,-122.0,9553.2,-131.5,9519.6,-131.4,9316.1,-198.9,9311.8,-306.2,8986.7,-247.7,9952.0,-0.1,8978.2,249.9]},{"y":[210.0,240.0],"m":0,"k":0,"o":[9886.6,213.4,10148.2,209.2,10500.0,116.0,10519.4,87.4,10618.9,87.4,10619.0,55.1,10684.1,34.0,10893.1,29.5,10939.4,-3.4,10919.9,-3.9,10893.2,-26.2,10687.8,-30.9,10653.6,-39.5,10618.9,-51.4,10618.9,-88.2,10512.9,-88.4,10500.0,-117.1,10235.4,-177.2,10148.1,-206.3,9880.5,-210.5,10702.0,0.0]},{"y":[210.0,240.0],"m":0,"k":0,"o":[10980.6,-35.9,10955.4,-42.5,10955.3,45.8,11113.3,4.7,11113.3,-0.3]},{"y":[210.0,240.0],"m":1,"k":0,"o":[10660.3,87.2,10788.1,87.0,10795.1,82.8,10805.1,80.6,10672.4,48.1,10656.9,80.4]},{"y":[240.0,270.0],"m":0,"k":0,"o":[10750.2,227.7,10904.8,240.3,11374.8,88.4,11540.3,88.1,11540.3,38.2,11560.7,32.6,11632.3,31.1,11643.8,61.6,11816.4,15.6,11896.7,16.7,11866.1,2.5,11898.9,-6.8,11816.4,-11.1,11643.8,-56.5,11632.6,-27.6,11540.3,-33.2,11540.2,-89.4,11368.8,-89.1,10904.7,-237.2,10624.1,-211.4,11451.9,-0.6,10615.8,213.5]},{"y":[270.0,300.0],"m":0,"k":0,"o":[10959.3,328.3,10959.8,365.1,11279.6,282.4,11620.0,287.4,11747.6,245.1,11747.5,277.7,11768.2,279.3,11772.0,238.0,12358.5,47.2,12686.7,28.8,12638.3,7.8,12699.4,-18.9,12360.2,-42.4,11771.8,-234.6,11767.9,-276.1,11747.5,-274.3,11747.4,-241.8,11619.8,-284.0,11276.3,-278.7,10959.8,-359.9,10959.2,-318.0,12202.0,0.1]},{"y":[300.0,330.0],"m":1,"k":0,"o":[6151.2,1697.2,6153.3,1732.6,6160.3,1770.1,6167.5,1798.1,6170.6,1803.7,6175.7,1807.7,6182.5,1808.8,6264.8,1788.0,6274.2,1778.8,6276.9,1769.3,6276.9,1690.9,6200.1,1709.9,6151.4,1694.3]},{"y":[300.0,330.0],"m":1,"k":0,"o":[6896.6,1653.1,6891.2,1685.8,6890.7,1708.2,6892.7,1733.2,6898.6,1756.6,6904.2,1763.1,6914.0,1764.6,6955.9,1741.3,6969.7,1729.8,6976.4,1720.1,6983.0,1701.2,6981.5,1693.7,6970.0,1676.7,6954.4,1663.2,6941.7,1654.8,6913.9,1641.1,6910.2,1641.0,6905.3,1641.6,6900.4,1645.2]},{"y":[300.0,330.0],"m":1,"k":0,"o":[6550.7,1764.5,6597.1,1741.0,6617.6,1719.6,6622.6,1703.5,6610.4,1676.4,6554.4,1641.1,6540.5,1645.6,6532.8,1677.5,6355.5,1677.4,6355.5,1685.1,6345.5,1677.6,6330.4,1682.1,6318.2,1695.6,6323.7,1713.2,6340.7,1720.3,6350.3,1721.0,6350.3,1714.9,6355.5,1720.7,6532.3,1721.0,6537.2,1753.3]},{"y":[300.0,330.0],"m":1,"k":0,"o":[9606.6,884.5,9608.1,890.6,9790.9,844.5,9782.8,810.4,9600.1,856.6]},{"y":[330.0,360.0],"m":1,"k":0,"o":[6721.7,1771.0,6819.3,1770.9,6876.7,1762.7,6894.4,1806.8,6912.0,1812.9,7007.8,1788.2,7020.9,1776.0,7022.0,1755.0,7031.6,1758.7,7093.1,1745.0,7093.3,1719.0,7107.5,1719.1,7107.6,1710.5,7113.7,1710.0,7116.5,1719.4,7201.3,1703.7,7187.2,1695.1,7118.0,1686.3,7113.7,1686.2,7113.6,1696.1,7107.4,1694.6,7107.4,1685.8,7093.2,1687.0,7093.1,1676.6]},{"y":[330.0,360.0],"m":1,"k":0,"o":[7336.6,1711.4,7339.3,1727.1,7365.4,1747.4,7391.0,1758.7,7417.4,1754.4,7452.6,1745.0,7452.5,1659.2,7390.9,1645.4,7344.3,1671.6,7339.4,1678.3,7336.0,1696.0]},{"y":[360.0,390.0],"m":1,"k":0,"o":[11463.1,837.4,11342.6,867.7,11349.4,894.8,11469.8,863.3]},{"y":[360.0,390.0],"m":1,"k":0,"o":[11270.8,952.2,11262.1,919.1,11134.7,951.3,11143.6,985.6]},{"y":[390.0,420.0],"m":1,"k":0,"o":[7399.3,2015.5,10970.2,1110.2,11027.6,1169.6,11100.3,1151.3,11087.4,1102.0,14025.7,379.9,14055.3,323.5,14802.5,144.7,14802.3,98.2]},{"y":[420.0,450.0],"m":1,"k":0,"o":[5768.2,2072.6,5768.2,2084.2,5777.5,2088.9,5776.7,2109.5,5790.8,2113.2,5832.7,2113.3,5834.0,2115.8,5876.7,2115.9,5876.7,2133.3,5879.3,2134.5,5879.3,2115.6,5920.4,2115.9,5898.9,2099.6,5849.3,2074.1,5799.8,2061.7,5768.2,2062.9]},{"y":[420.0,450.0],"m":1,"k":0,"o":[7178.9,2271.3,10713.4,1374.0,10724.6,1421.3,10810.1,1400.3,10799.1,1353.1,10973.0,1308.4,11196.2,1265.5,11208.8,1313.9,11258.6,1301.4,11245.9,1253.0,13903.1,604.9,13944.7,525.7,7229.2,2211.4]},{"y":[450.0,480.0],"m":1,"k":0,"o":[5762.9,2098.6,5720.4,2115.5,5720.4,2131.5,5749.5,2122.0,5749.5,2126.6,5768.2,2127.4,5768.2,2136.0,5825.5,2142.6,5831.2,2148.0,5789.6,2148.7,5864.8,2156.0,5848.8,2141.8,5799.1,2110.6]},{"y":[450.0,480.0],"m":1,"k":0,"o":[6983.3,2497.7,13630.6,830.3,13650.8,863.1,13780.5,830.0,13819.1,756.4]},{"y":[450.0,480.0],"m":1,"k":0,"o":[11018.9,1565.9,11006.8,1512.5,10890.1,1541.0,10902.9,1594.4]},{"y":[450.0,480.0],"m":1,"k":0,"o":[10647.6,1687.1,10635.9,1638.5,10563.4,1656.5,10575.3,1706.0]},{"y":[480.0,510.0],"m":1,"k":0,"o":[6039.4,2683.9,6003.7,2745.5,6100.0,2760.2,6003.7,2755.3,6003.6,2842.2,6085.1,2986.2,13511.3,1053.5,16100.6,472.2,16068.6,423.5,14472.6,791.0,6200.5,2844.5,6115.6,2660.7]},{"y":[510.0,540.0],"m":1,"k":0,"o":[5491.2,-0.2,5475.2,-0.2,5463.9,2.0,5463.8,141.5,5475.4,144.1,5502.5,144.3,5498.0,-0.2]},{"y":[510.0,540.0],"m":0,"k":0,"o":[6226.5,3097.4,18614.4,-1.3,6110.0,-3127.1,6046.4,-2714.0,6200.5,-3033.6,17000.5,-359.8,18152.0,-0.1,17000.5,359.8,6200.5,3033.6,6046.4,2712.7,6104.7,3127.2]},{"y":[540.0,570.0],"m":1,"k":0,"o":[6002.6,2783.5,6002.6,2840.4,6117.2,3161.6,6176.2,3147.2,6036.9,2773.3]},{"y":[600.0,630.0],"m":0,"k":0,"o":[2631.4,12.3,2635.1,25.4,2644.5,42.9,2659.7,58.2,2671.8,65.4,2685.2,70.3,2699.3,72.4,2713.8,71.8,2737.9,64.0,2753.1,52.8,2765.3,37.7,2774.5,14.1,2775.1,-12.7,2764.9,-38.5,2752.4,-53.6,2736.2,-65.0,2713.8,-71.8,2699.8,-72.5,2685.9,-70.5,2672.9,-66.1,2660.9,-59.2,2645.7,-44.9,2635.9,-27.7,2630.9,-7.9]},{"y":[600.0,630.0],"m":0,"k":0,"o":[4366.3,-20.7,4365.6,-124.7,4235.8,-160.2,4184.7,1.2,4235.8,162.6,4365.6,127.4]},{"y":[600.0,630.0],"m":0,"k":0,"o":[3338.9,76.4,3347.1,72.2,3346.3,-70.2,3339.7,-73.6,3274.7,-95.5,3103.8,-95.5,3026.2,-42.8,3026.1,1.0,3029.7,48.4,3103.9,98.0,3274.9,98.0]},{"y":[600.0,630.0],"m":0,"k":0,"o":[4055.6,199.3,4002.8,59.8,3895.8,86.0,4050.0,40.7,3896.0,14.5,4050.2,-31.5,3896.3,-51.4,4002.8,-57.1,4055.6,-196.8,3937.9,-241.1,3883.9,-215.2,3901.1,-147.5,3817.4,-177.8,3815.9,-50.1,3688.9,-38.3,3815.7,13.2,3688.9,40.8,3815.6,52.6,3937.9,243.8]},{"y":[600.0,630.0],"m":0,"k":0,"o":[3625.3,-21.7,3625.3,68.0,3672.0,67.3,3672.0,-64.8,3625.3,-65.2]},{"y":[600.0,630.0],"m":1,"k":0,"o":[3740.9,108.8,3727.0,128.0,3718.0,262.9,3718.2,279.0,3769.5,278.7,3768.8,197.3,3762.0,133.5,3755.7,120.6,3743.9,105.7]},{"y":[630.0,660.0],"m":0,"k":0,"o":[4308.4,160.4,4385.4,139.1,4385.4,-136.5,3859.9,-282.3,2903.0,-223.3,2794.3,-193.7,2850.7,-47.7,2748.8,-81.7,2740.2,-249.0,2662.9,-240.4,2656.1,-83.7,2517.7,-39.7,2496.1,37.1,2617.7,43.6,2660.7,250.9,2738.6,258.0,2782.4,47.2,2851.5,47.4,2797.7,197.7,3282.3,267.0,3859.8,284.8]},{"y":[660.0,690.0],"m":0,"k":0,"o":[4019.4,254.3,4647.2,104.8,4959.3,263.7,4959.3,-265.1,4392.7,-102.1,3979.4,-325.7,3757.1,-230.1,2664.3,-280.3,2429.0,-39.7,2662.8,282.4]},{"y":[690.0,720.0],"m":0,"k":0,"o":[2312.3,-443.6,2150.5,-18.8,2276.6,465.6,2504.6,350.3,2509.6,167.9,2681.6,341.4,2916.8,231.1,2977.6,341.4,4392.2,403.8,4391.6,291.8,3979.4,273.2,4435.4,130.1,4961.8,328.6,4961.8,-329.9,4435.4,-131.4,3979.4,-270.5,4391.6,-294.9,4392.1,-406.8,2977.6,-342.6,2951.2,-232.3,2681.6,-342.6,2509.6,-169.0,2509.6,-342.6]},{"y":[720.0,750.0],"m":0,"k":0,"o":[2292.1,439.4,2519.9,260.7,2671.2,434.2,4460.9,428.8,4358.1,260.9,4618.9,356.4,4656.8,194.3,4962.0,342.6,4962.1,-343.5,4656.8,-195.0,4358.1,-262.2,4460.9,-432.0,2671.2,-435.1,2519.9,-261.8,2244.6,-459.2]},{"y":[750.0,780.0],"m":0,"k":0,"o":[4642.1,-495.1,2751.6,-395.3,2509.6,-206.0,2623.8,-369.2,2291.7,-279.6,2212.6,-459.2,2187.3,449.6,2291.9,278.2,2290.8,438.3,2623.8,366.4,2509.6,208.6,4954.3,524.1,4967.3,-480.0]},{"y":[750.0,780.0],"m":1,"k":0,"o":[4611.1,422.5,4593.2,422.7,4593.8,506.8,4635.5,506.6,4635.1,422.3]},{"y":[750.0,780.0],"m":1,"k":0,"o":[4887.1,507.0,4887.5,422.9,4845.7,422.4,4845.2,506.6]},{"y":[810.0,870.0],"m":0,"k":0,"o":[4251.3,536.7,4282.0,635.2,4417.5,597.8,4926.0,625.3,4925.5,-613.9,4278.6,-623.2,4273.5,-489.7,3549.2,-490.0,3549.2,-580.1,3428.5,-580.1,3428.5,-490.0,2191.9,-498.3,2191.9,496.8,3428.5,492.6,3428.5,578.9,3549.2,578.9,3549.2,492.6,4273.5,492.5,4278.1,573.1]},{"y":[1080.0,1110.0],"m":1,"k":0,"o":[1135.6,77.7,1293.4,77.7,1293.4,9.7,1069.1,9.7,1069.1,77.7]},{"y":[1080.0,1110.0],"m":1,"k":0,"o":[1274.0,411.1,1246.0,405.6,1246.0,485.1,1380.4,511.6,1375.3,431.2]},{"y":[1230.0,1260.0],"m":1,"k":0,"o":[406.1,73.0,395.0,99.7,416.0,146.3,379.3,176.4,392.0,181.1,377.2,305.5,415.5,295.6,354.2,471.4,334.3,479.3,343.8,498.9,279.7,673.4,288.8,695.5,302.9,711.0,802.1,772.9,831.5,731.4,548.9,614.4,498.3,527.3]},{"y":[1260.0,1290.0],"m":1,"k":0,"o":[211.2,490.2,208.8,507.2,231.5,558.5,225.4,560.8,229.5,571.1,235.8,568.5,290.5,703.2,305.3,715.0,589.0,750.0,673.5,749.1,477.4,729.0,647.8,739.9,782.4,712.2,808.6,714.7,875.6,699.0,749.7,690.2,699.5,676.7,249.2,490.3,218.6,469.6]},{"y":[1290.0,1320.0],"m":1,"k":0,"o":[199.1,483.6,207.6,504.0,215.8,506.7,211.6,522.8,229.7,571.2,248.9,579.1,285.8,625.5,298.9,622.2,294.4,611.5,445.4,574.4,460.4,608.5,503.4,598.1,487.9,563.9,511.1,557.9,519.5,576.5,532.7,574.5,524.3,556.5,399.6,546.2,349.2,531.7,192.1,466.7]}],"measured":"v24: hull stations (30, chosen on the measured plan and height profile), city and ventral terraces (horizontal 60 m layers (pieces of at least 15,000 m², at most 24 outline points) of the model outside the fitted hull) and the 13 engine mouths re-measured on Executor_Complete.stl, scaled to 19,000 m. Interior rooms keep their places relative to the hull depth (interiorFrame). v24 (flat wedge): the city and ventral terraces re-measured as the parts of the model outside the flat wedge hull, in 30 m layers (pieces of at least 3,000 m², consecutive layers merged at 85% overlap).","interiorFrame":[[0,842.9,856.7,1358.2,1400.7],[500,733.6,929.3,1190.3,1387.1],[1000,657.0,921.4,1055.5,1351.4],[1500,615.0,913.3,920.7,1315.7],[2000,573.0,905.3,785.8,1280.0],[2500,524.5,900.3,651.0,1244.4],[3000,472.2,897.1,642.4,1235.4],[3500,419.8,894.0,693.1,1239.0],[4000,342.0,891.1,743.8,1242.6],[4500,319.0,888.6,794.4,1246.2],[5000,275.9,895.2,794.7,1246.9],[5500,223.0,724.0,530.4,1232.3],[6000,11.8,702.3,329.8,1179.0],[6500,23.0,693.5,152.2,1255.9],[7000,34.2,684.8,289.0,1185.3],[7500,45.4,676.0,96.7,1244.1],[8000,56.6,667.3,323.0,1002.3],[8500,67.9,658.5,99.2,1005.9],[9000,79.1,649.7,125.6,1108.3],[9500,90.5,644.5,170.2,1011.3],[10000,103.3,655.8,318.3,971.0],[10500,116.1,667.1,392.8,1141.4],[11000,128.9,678.5,232.9,1094.7],[11500,261.2,683.6,273.6,1039.5],[12000,276.2,667.5,328.4,958.7],[12500,291.2,651.4,383.3,877.9],[13000,306.2,635.3,433.2,828.3],[13500,321.1,619.2,452.8,970.3],[14000,336.1,603.1,447.2,876.8],[14500,209.4,582.9,495.1,882.9],[15000,221.7,570.0,502.9,860.1],[15500,234.0,557.2,510.7,837.2],[16000,246.3,544.3,518.5,814.4],[16500,259.5,531.4,526.3,791.5],[17000,283.3,518.5,534.1,768.7],[17500,307.8,505.7,541.9,745.8],[18000,336.7,493.0,549.7,723.0],[18500,375.9,480.7,557.5,700.1],[19000,362.4,470.7,565.3,677.4]],"nozzleScale":1,"nozzleScaleNote":"v24: the measured circles are the nozzle mouths themselves (Executor_Complete.stl), so the game nozzle takes the full measured diameter; the earlier model set its nozzle at 0.8 of a wider housing."};
 
 // Construction examples: every hull/terrace is a normal editable solid. Only
 // independently reusable fittings use source model geometry.
@@ -55725,17 +55737,37 @@ function executorMidY(x,z,r=0){let bot=-Infinity,top=Infinity;for(const dz of [-
 function executorY(x,y){const F=EXECUTOR_BLUEPRINT.interiorFrame,i=Math.max(0,Math.min(F.length-2,Math.floor(x/500))),t=clamp((x-F[i][0])/500,0,1),g=k=>F[i][k]+(F[i+1][k]-F[i][k])*t,ob=g(1),ot=g(2);EXECUTOR_WEDGE_HULL||={...JSON.parse(JSON.stringify(EXECUTOR_BLUEPRINT.hull)),stations:EXECUTOR_WEDGE_STATIONS.map(r=>r.slice())};const q=sectionBase(EXECUTOR_WEDGE_HULL,x),nb=q.ybot,nt=q.ytop;return nb+(y-ob)*(nt-nb)/Math.max(1,ot-ob);}
 // v24 70 TT quad turbolasers in the Executor's side trench: about as many as its two 13 km rows can hold
 // beside the point-defence lasers and ion cannons (trenchArmamentPacking: about 1,000 a side).
-const EXECUTOR_TRENCH_QUADS=1880,EXECUTOR_TRENCH_FROM=.325;
+// Executor nozzle diameters by distance from the centreline |z| (m): each nozzle grows toward the size whose shaft limit
+// pi(0.35 d)^2 x ENGINE_SHAFT_FLUX passes its whole share of the main reactor's engine supply (user decision, 2026-11-11:
+// larger nozzles, reactor unchanged), but no further than 4 m clear of its neighbours. The central three are already 17 m
+// apart, so they keep their size (a 292.7 m pair left no room for their machinery inside the casing). Matched by position, never by part id (ids shift with the structures built before them).
+// Engine tunnels [x0,x1,y,|z|,r] (m): the hull keeps the original wedge's width over the engine section and the engines
+// sit in round tunnels cut through the hull, as in the original (Stern_1/Stern_2), instead of the
+// hull narrowing to stay clear of them. Radius: the final nozzle radius, so each engine casing still bears on the hull; the body structures keep their own wider clearance.
+const EXECUTOR_ENGINE_TUNNELS=[[1186,2286,850,0,145.0],[1220,2170,906,290,133.7],[4752,5402,736,684,133.7],[4758,5858,768,985,164.9],[5540,6790,530,1332,181.9],[5463,6863,476,1702,180.5],[5498,6748,530,2063,180.5]];
+const EXECUTOR_NOZZLE_DIAMETERS=[[0,290],[290,267.47],[684,267.47],[985,329.9],[1332,363.9],[1702,361],[2063,361]];
+const EXECUTOR_TRENCH_QUADS=1380,EXECUTOR_TRENCH_FROM=.473684;
 // v24 By the user's decision the Executor's hull is a plain wedge of flat faces (docs/executor-stl-rebuild.md). Each
 // face was fitted as a straight line on Executor_Complete.stl (sections every 250 m, the city and the ventral fittings
 // left out): forward of the shoulder (x 6,200 m) the plan edge, the dorsal ridge, the keel and the side band are
 // linear in x, so the stations there only sample those lines; aft of it the stern block is flat-topped and flat-bottomed
 // (deck and keel widths), stepped down at each row of engine mouths (x 1,425 and 4,960 m) so the engine bodies stay
 // inside and their exhaust leaves clear of the hull. The side band is 140 m (the trench and its margin), centred where the model's band is (y 622 m).
-const EXECUTOR_WEDGE_STATIONS=[[0.0, 0.11989, 0.07853, 0.46023, 0.3, 0, 0.3636, 0.2273], [0.052632, 0.24881, 0.15706, 0.42096, 0.3, 0, 0.2273, 0.2045], [0.073947, 0.26345, 0.15564, 0.42025, 0.3, 0, 0.1835, 0.2], [0.075, 0.26438, 0.53901, 0.22642, 0.3, 0.6, 0.053, 0.7483], [0.110526, 0.29677, 0.51403, 0.21393, 0.3, 0.6, 0.0417, 0.7083], [0.115789, 0.30144, 0.32484, 0.30495, 0.3, 0.6, 0.0659, 0.5275], [0.26, 0.43877, 0.282, 0.28353, 0.3, 0.6, 0.0759, 0.2278], [0.261053, 0.44095, 0.46405, 0.18894, 0.3, 0.8, 0.0462, 0.5277], [0.284211, 0.46026, 0.46405, 0.18894, 0.3, 0.8, 0.0462, 0.4969], [0.3, 0.66952, 0.66395, 0.06757, 0.2, 0.95, 0.129, 0.3978], [0.326316, 0.99704, 0.8505, -0.04329, 0, 0, 0.1175, 0.4851], [0.394737, 0.89738, 0.77393, -0.04418, 0, 0, 0.1291, 0.4848], [0.473684, 0.78237, 0.68558, -0.04519, 0, 0, 0.1458, 0.4843], [0.552632, 0.66737, 0.59723, -0.04621, 0, 0, 0.1674, 0.4837], [0.631579, 0.55237, 0.50889, -0.04723, 0, 0, 0.1964, 0.4829], [0.710526, 0.43737, 0.42054, -0.04825, 0, 0, 0.2377, 0.4817], [0.789474, 0.32237, 0.33219, -0.04926, 0, 0, 0.3009, 0.4799], [0.868421, 0.20736, 0.24384, -0.05028, 0, 0, 0.4099, 0.4768], [0.947368, 0.09236, 0.15549, -0.0513, 0, 0, 0.6428, 0.4702], [1.0, 0.01569, 0.09659, -0.05198, 0, 0, 0.98, 0.459]];
+// v24 (2026-11-10) Stations re-fitted inside the supplied model (assembled printed parts) less the spaces of the
+// exposed engines: the stern block is the model's thin upper deck with the engines hanging free below it; in the
+// trench range (x >= 0.325 L) the belt and width are kept for the trench batteries (scripts/stl-check/executor).
+const EXECUTOR_WEDGE_STATIONS=[[0.001053,0.037369,0.044304,0.482635,0.98,0.98,0.98,0.5],[0.022368,0.233554,0.05124,0.403736,0.98,0.98,0.98,0.5],[0.052632,0.249124,0.059357,0.383861,0.98,0.98,0.98,0.5],[0.078947,0.264694,0.060219,0.365556,0.98,0.98,0.98,0.5],[0.105263,0.295835,0.05913,0.349728,0.98,0.98,0.98,0.5],[0.131579,0.326975,0.051575,0.325468,0.98,0.98,0.98,0.5],[0.157895,0.342545,0.044588,0.303312,0.98,0.98,0.98,0.5],[0.189474,0.373686,0.04522,0.278972,0.98,0.98,0.98,0.5],[0.221053,0.404826,0.043616,0.254425,0.98,0.98,0.98,0.5],[0.252632,0.435967,0.04766,0.228119,0.98,0.98,0.98,0.5],[0.273684,0.451537,0.051016,0.210205,0.98,0.98,0.98,0.5],[0.284211,0.46026,0.126242,0.234527,0,0,0.1698,0.2],[0.3,0.66952,0.47011,0.16449,0.08,0.95,0.1822,0.2],[0.326316,0.99704,0.543649,0.087489,0,0,0.1838,0.2041],[0.394737,0.89738,0.61837,-0.012836,0,0,0.1616,0.4103],[0.473684,0.78237,0.618925,-0.065886,0,0,0.1615,0.496],[0.552632,0.66737,0.497493,-0.096079,0,0,0.201,0.5807],[0.631579,0.55237,0.423905,-0.089722,0,0,0.2358,0.5797],[0.710526,0.43737,0.357459,-0.079791,0,0,0.2796,0.5667],[0.789474,0.32237,0.159741,-0.002297,0,0,0.6257,0.2041],[0.868421,0.20736,0.127286,-0.018429,0,0,0.7852,0.2053],[0.947368,0.09236,0.110095,-0.073998,0,0,0.9078,0.7865],[1,0.01569,0.077175,-0.056761,0,0,0.98,0.5106]];
 // The ventral recess (the model's triangular recess under the forward hull, with the tongue from aft at its base),
 // cut 100 m deep into the flat bottom; the air group is stowed and launched there through open doors.
 const EXECUTOR_RECESS_CUTS=[{"shape":"poly","c":[14300,135,705],"s":[800,290,870],"rotation":[0,0,0],"verts":[[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[0.5,-0.5,-0.2828],[0.5,0.5,-0.2828],[0.5,-0.5,-0.5],[0.5,0.5,-0.5]],"mirror":true},{"shape":"poly","c":[15800,135,0],"s":[2200,1246,870],"rotation":[0,0,0],"verts":[[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[0.5,-0.5,0],[0.5,0.5,0]],"mirror":false}];
+// v24 (2026-11-10) The model's body outside the flat hull: city, side plates, ventral blocks and the casings ahead of
+// the engines, as ordinary outline structures in 60 m bands (the band's mid-height section, fine detail simplified,
+// <= 48 points). Slabs over a sloping deck reach the hull; no structure is placed in the engines' own space, outside
+// the hull side at the trench's height, or where the Imperial-class command tower stands. Slabs are lowered (raised)
+// to the hull only where the model is solid over the added range; gaps automatic struts would bridge are closed the
+// same way (scripts/stl-check/executor: body60.py, seat60.py, finalize60.py). Struts remain only under plates the model
+// itself leaves floating (the user's decision).
+const EXECUTOR_BODY_STRUCTURES=[{"y":[19.550855327715883,120],"m":0,"o":[6334.3,122.4,6328.5,103.2,6320.4,2.1,6328.5,-102.1,6334.3,-121.4,6335.1,-140.6,6410.2,-116.7,6356.2,-114.5,6359.0,-113.2,6423.5,-112.5,6458.7,-99.6,6460.4,-79.6,6462.6,-98.3,6526.3,-77.8,6528.7,-57.9,6530.3,-77.4,6569.3,-64.9,6568.9,-59.2,6531.8,-57.9,6536.1,-55.4,6569.3,-55.5,6571.5,-44.4,6572.8,-63.7,6580.4,-62.1,6588.0,-58.0,6588.6,-36.8,6591.3,-40.2,6645.0,-39.6,6689.3,-24.6,6690.6,-3.5,6693.9,-24.8,6737.5,-10.8,6736.9,12.3,6693.9,25.9,6690.6,5.0,6689.6,25.8,6646.1,40.5,6591.3,41.2,6588.6,38.5,6588.0,58.5,6580.3,63.2,6572.8,64.8,6571.6,45.5,6569.3,57.0,6537.7,56.7,6530.5,59.6,6569.0,59.9,6568.7,68.1,6529.8,77.9,6527.9,59.3,6525.9,80.2,6463.1,101.7,6461.3,81.5,6458.5,102.6,6425.5,113.1,6359.0,114.3,6356.2,115.4,6410.8,117.9,6335.4,140.8],"t":[120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120],"b":[25.8,27.2,19.6,27.1,26.2,29.1,29.3,24.7,24.6,29.1,29.2,25.8,29.1,29.2,25.8,29.1,29.2,28.3,24.9,24.7,27.5,25.8,29.1,29.1,29.1,24.9,25.3,29.1,29.1,25.0,29.1,29.1,29.2,29.1,25.1,29.1,29.1,25.2,25.1,29.1,29.1,29.1,25.5,27.3,24.7,24.7,27.9,29.1,29.1,28.5,29.1,29.1,25.6,29.2,29.1,25.0,25.1,29.6,29.1],"tri":[0,1,2,0,2,3,58,0,3,58,3,4,58,4,5,5,6,7,58,5,7,58,7,8,58,8,9,58,9,10,58,10,11,11,12,13,11,13,14,14,15,16,14,16,17,14,17,18,14,18,19,11,14,19,19,20,21,21,22,23,21,23,24,21,24,25,19,21,25,11,19,25,25,26,27,25,27,28,25,28,29,29,30,31,29,31,32,25,29,32,32,33,34,25,32,34,11,25,34,11,34,35,11,35,36,36,37,38,11,36,38,11,38,39,39,40,41,39,41,42,11,39,42,11,42,43,11,43,44,11,44,45,45,46,47,45,47,48,45,48,49,11,45,49,11,49,50,11,50,51,11,51,52,11,52,53,11,53,54,11,54,55,11,55,56,58,11,56,56,57,58]},{"y":[19.76311201745405,120],"m":0,"o":[7497.9,-14.7,7509.6,-3.6,7513.8,-33.5,7523.3,-33.0,7516.8,-40.6,7522.8,-56.1,7553.3,-99.3,7532.7,-104.5,7537.7,-126.0,7554.3,-123.9,7560.7,-104.9,7579.9,-117.6,7585.6,-111.6,7616.9,-127.4,7633.9,-126.3,7634.0,-134.9,7655.4,-135.0,7658.2,-149.9,7664.4,-133.5,7712.2,-117.4,7742.4,-88.3,7758.2,-100.7,7748.9,-81.8,7766.8,-60.5,7761.0,-55.1,7774.3,-3.7,7796.4,2.4,7774.5,5.2,7760.3,56.2,7766.6,61.4,7749.0,83.2,7758.0,101.6,7742.7,89.7,7709.5,120.6,7695.9,125.9,7692.5,118.7,7689.8,128.5,7664.3,135.2,7657.9,151.1,7655.3,136.3,7634.0,135.4,7634.3,126.7,7627.6,131.7,7585.9,112.6,7579.7,118.9,7560.4,106.4,7554.1,125.1,7540.9,129.1,7531.7,121.4,7533.7,105.1,7553.7,100.2,7534.9,78.2,7534.0,62.1,7531.2,72.0,7523.0,57.9,7509.7,5.1,7491.5,15.5,7480.8,3.2],"t":[120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120],"b":[26.7,23.1,29.4,25.8,28.2,28.4,21.9,29.3,28.9,29.6,21.3,28.4,24.8,26.4,26.2,28.4,23.6,28.0,22.7,28.6,19.8,29.7,19.8,28.5,25.6,21.0,27.9,20.7,25.3,28.5,20.1,29.6,20.0,28.6,28.4,25.1,29.3,23.3,28.0,23.2,28.8,26.0,27.3,24.9,28.5,21.6,29.7,28.4,28.9,29.7,21.6,28.5,27.9,29.0,28.5,23.9,27.7,27.1],"tri":[57,0,1,1,2,3,3,4,5,3,5,6,6,7,8,6,8,9,6,9,10,3,6,10,1,3,10,1,10,11,1,11,12,1,12,13,1,13,14,14,15,16,1,14,16,16,17,18,1,16,18,1,18,19,1,19,20,20,21,22,1,20,22,1,22,23,57,1,23,57,23,24,57,24,25,57,25,26,57,26,27,28,29,30,27,28,30,30,31,32,27,30,32,27,32,33,27,33,34,27,34,35,35,36,37,27,35,37,37,38,39,27,37,39,27,39,40,27,40,41,27,41,42,27,42,43,43,44,45,27,43,45,45,46,47,45,47,48,45,48,49,45,49,50,27,45,50,27,50,51,27,51,52,52,53,54,27,52,54,27,54,55,57,27,55,55,56,57]},{"y":[120,247.8],"m":0,"o":[7111.1,388.3,7111.1,72.8,7254.4,41.5,7111.1,9.6,7111.1,-10.4,7251.8,-41.7,7111.1,-72.6,7111.1,-388.8,7294.5,-342.6,7318.8,-383.9,7504.0,-376.8,7566.2,-484.4,7760.1,-434.7,7814.6,-320.1,8038.2,-322.5,8126.8,-131.8,8167.0,-121.6,8295.0,-121.6,8296.1,-116.5,8641.6,-178.8,8690.8,-149.9,8895.9,-180.9,9016.1,-176.3,9081.3,-160.9,9000.2,-159.2,9113.0,-156.6,9159.9,-147.6,9157.2,-139.5,9172.0,-138.2,9172.0,-123.3,9175.2,-141.9,9211.9,-134.5,9212.2,-115.5,9214.6,-134.5,9232.9,-132.7,9237.4,94.6,9231.9,137.6,9214.6,139.6,9213.9,120.5,9212.0,139.4,9175.7,147.9,9172.3,128.5,9172.0,143.1,9157.0,144.6,9159.9,152.7,9113.0,161.7,9000.2,164.3,9083.3,166.1,9014.9,181.4,8895.5,186.0,8690.7,154.7,8641.1,183.7,8296.0,121.4,8166.0,122.4,8126.5,132.5,8038.2,322.4,7814.6,320.1,7760.1,434.7,7566.2,484.3,7504.0,376.9,7318.8,383.8,7294.5,342.5],"t":[247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8,247.8],"b":[120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120],"tri":[61,0,1,61,1,2,2,3,4,2,4,5,61,2,5,5,6,7,5,7,8,61,5,8,61,8,9,61,9,10,61,10,11,61,11,12,61,12,13,61,13,14,61,14,15,61,15,16,61,16,17,61,17,18,61,18,19,61,19,20,61,20,21,61,21,22,22,23,24,61,22,24,61,24,25,61,25,26,61,26,27,61,27,28,29,30,31,29,31,32,32,33,34,32,34,35,29,32,35,29,35,36,36,37,38,29,36,38,29,38,39,29,39,40,29,40,41,29,41,42,29,42,43,28,29,43,43,44,45,28,43,45,28,45,46,46,47,48,46,48,49,28,46,49,28,49,50,28,50,51,28,51,52,28,52,53,61,28,53,61,53,54,54,55,56,61,54,56,56,57,58,56,58,59,61,56,59,59,60,61]},{"y":[149.00409450541656,180],"m":0,"o":[6783.6,472.5,6783.6,-138.4,6798.1,-140.5,6783.6,-143.8,6783.6,-472.2,7111.1,-388.8,7111.1,-72.6,6988.7,-99.0,6988.7,99.4,7111.1,72.8,7111.1,388.3],"t":[180,180,180,180,180,180,180,180,180,180,180],"b":[149.4,149.0,149.8,149.4,149.4,149.4,149.4,150.1,150.1,149.4,149.3],"tri":[10,0,1,10,1,2,2,3,4,2,4,5,2,5,6,2,6,7,2,7,8,10,2,8,8,9,10]},{"y":[120,180],"m":0,"o":[6132.5,-312.3,6159.8,-405.7,6248.8,-383.1,6251.6,-392.4,6195.3,-409.4,6201.2,-431.9,6259.0,-418.3,6309.5,-592.9,6329.6,-587.9,6353.0,-649.7,6360.0,-655.8,6510.3,-542.4,6777.3,-473.8,6777.3,-145.3,6773.0,-146.2,6773.0,-136.9,6777.3,-137.5,6777.3,142.7,6773.0,142.1,6773.0,145.9,6777.3,144.9,6777.3,474.1,6509.9,543.6,6383.4,641.2,6360.7,656.5,6356.2,655.5,6329.4,588.6,6309.4,592.6,6259.0,418.3,6201.2,431.9,6195.3,409.5,6251.6,392.6,6248.8,383.2,6160.1,406.5,6132.7,311.4,6221.6,288.7,6216.5,267.4,6770.5,146.5,6705.4,146.5,6704.6,126.3,6680.4,128.2,6642.9,122.6,6642.4,146.4,6600.9,146.5,6600.1,116.2,6545.5,115.9,6544.7,107.8,6507.7,102.2,6268.9,47.8,6268.3,-42.1,6507.9,-97.0,6544.7,-102.7,6545.5,-116.1,6600.1,-116.2,6600.9,-146.8,6642.5,-146.6,6642.9,-117.5,6680.4,-123.0,6704.6,-121.3,6705.4,-146.8,6770.5,-146.8,6216.5,-267.7,6221.8,-288.4],"t":[180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180],"b":[120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120],"tri":[62,0,1,62,1,2,62,2,3,3,4,5,3,5,6,3,6,7,62,3,7,62,7,8,62,8,9,62,9,10,62,10,11,62,11,12,62,12,13,62,13,14,15,16,17,15,17,18,19,20,21,19,21,22,19,22,23,19,23,24,19,24,25,19,25,26,19,26,27,19,27,28,19,28,29,29,30,31,19,29,31,19,31,32,19,32,33,33,34,35,19,33,35,35,36,37,19,35,37,18,19,37,15,18,37,14,15,37,14,37,38,14,38,39,14,39,40,14,40,41,41,42,43,14,41,43,14,43,44,14,44,45,14,45,46,14,46,47,14,47,48,48,49,50,48,50,51,51,52,53,48,51,53,53,54,55,53,55,56,48,53,56,48,56,57,48,57,58,14,48,58,14,58,59,14,59,60,62,14,60,60,61,62]},{"y":[180,240],"m":1,"o":[7168.5,444.0,7168.5,775.4,6512.9,942.0,6406.6,926.6,6392.3,878.5,6325.1,895.0,6294.9,790.6,6361.1,769.9,6357.3,756.6,6317.6,768.5,6315.8,765.8,6267.5,777.7,6240.5,684.0,6329.8,661.3,6321.2,628.8],"t":[240,240,240,240,240,240,240,240,240,240,240,240,240,240,240],"b":[180,180,180,180,180,180,180,180,180,180,180,180,180,180,180],"tri":[14,0,1,14,1,2,14,2,3,14,3,4,4,5,6,4,6,7,14,4,7,14,7,8,8,9,10,10,11,12,8,10,12,8,12,13,8,13,14]},{"y":[180,240],"m":0,"o":[6496.6,-56.9,6496.6,-25.9,6453.7,-20.5,6453.6,-14.0,6448.7,-13.0,6442.6,-0.7,6442.6,6.0,6448.7,18.1,6453.6,19.1,6453.7,25.7,6496.6,31.0,6496.6,62.0,6478.1,59.2,6487.0,55.8,6438.2,55.2,6398.0,49.7,6406.4,46.3,6380.2,45.7,6361.1,40.9,6334.9,41.5,6329.3,40.0,6331.6,37.3,6299.3,33.4,6300.6,29.5,6323.7,27.7,6323.6,23.9,6311.5,22.0,6323.5,19.9,6323.5,-14.9,6311.4,-16.8,6323.6,-18.7,6323.7,-22.4,6300.6,-24.4,6299.8,-28.8,6331.6,-32.3,6329.2,-34.8,6334.9,-36.4,6361.1,-35.8,6376.5,-37.5,6374.7,-39.1,6377.9,-40.3,6406.4,-41.2,6397.7,-44.7,6438.2,-50.1,6487.0,-50.7,6478.1,-54.1],"t":[240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240],"b":[180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180],"tri":[0,1,2,2,3,4,7,8,9,9,10,11,11,12,13,9,11,13,9,13,14,7,9,14,6,7,14,5,6,14,14,15,16,5,14,16,4,5,16,2,4,16,2,16,17,2,17,18,0,2,18,18,19,20,18,20,21,21,22,23,18,21,23,18,23,24,18,24,25,25,26,27,18,25,27,18,27,28,28,29,30,18,28,30,18,30,31,31,32,33,31,33,34,18,31,34,34,35,36,18,34,36,18,36,37,18,37,38,38,39,40,18,38,40,18,40,41,41,42,43,18,41,43,18,43,44,0,18,44,0,44,45]},{"y":[180,308.2],"m":0,"o":[7168.5,-443.5,7168.5,-775.3,9136.7,-275.3,9301.3,-306.3,9301.2,-185.1,8999.9,-247.5,8778.6,-187.2,8609.3,-122.6,8540.6,-103.6,8288.6,-0.0,8609.2,122.6,8715.8,152.1,8999.9,247.5,9301.2,182.6,9301.9,310.5,9123.6,277.8,7168.5,775.4,7168.5,444.0,7434.7,385.4,7350.2,88.2,7350.1,103.0,7339.5,103.2,7339.6,272.5,7332.8,292.9,7325.7,292.7,7324.4,286.5,7320.4,293.0,7280.0,292.9,7276.2,285.8,7273.0,158.4,7227.5,158.3,7221.6,141.3,7168.5,141.4,7168.5,122.1,7221.6,122.0,7221.6,113.6,7168.5,113.2,7168.5,-152.9,7221.6,-152.7,7221.6,-161.2,7168.5,-161.2,7168.5,-180.6,7221.6,-180.5,7227.6,-197.6,7273.0,-197.4,7276.2,-325.0,7280.0,-331.9,7320.4,-332.0,7324.1,-325.6,7325.7,-331.8,7332.8,-331.8,7339.6,-311.8,7339.5,-142.4,7350.0,-141.7,7353.6,-100.6,7434.8,-385.4],"t":[308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2,308.2],"b":[209.4,209.4,193.8,188.1,180,182.1,182.5,180,180,180,180,180,180,180,187.6,193.1,209.4,209.5,209.9,201.9,208.8,208.9,188.5,191.4,191.2,190.1,191.0,189.6,188.4,206.5,206.3,204.7,208.2,208.1,204.6,206.3,209.3,209.3,206.3,204.6,208.1,208.1,204.7,206.3,206.4,194.6,195.8,197.2,196.3,197.3,197.6,194.6,208.9,209.2,193.8,209.9],"tri":[55,0,1,55,1,2,2,3,4,2,4,5,55,2,5,55,5,6,55,6,7,55,7,8,55,8,9,10,11,12,12,13,14,12,14,15,12,15,16,10,12,16,9,10,16,16,17,18,9,16,18,55,9,18,55,18,19,19,20,21,55,19,21,21,22,23,21,23,24,21,24,25,21,25,26,21,26,27,55,21,27,55,27,28,29,30,31,31,32,33,29,31,33,29,33,34,29,34,35,35,36,37,29,35,37,29,37,38,29,38,39,39,40,41,39,41,42,29,39,42,29,42,43,29,43,44,28,29,44,28,44,45,28,45,46,28,46,47,28,47,48,28,48,49,28,49,50,28,50,51,28,51,52,28,52,53,28,53,54,28,54,55]},{"y":[180,240],"m":0,"o":[9320.5,228.9,9331.8,310.1,9323.2,315.3,9302.8,310.8,9303.5,182.0,9594.3,122.9,10242.5,-0.0,9797.0,-84.6,9303.5,-184.6,9303.5,-306.6,9322.6,-310.2,9331.7,-305.3,9321.1,-228.1,9391.5,-210.4,9555.4,-210.6,9718.1,-206.7,10082.4,-87.0,10537.2,-86.4,10389.9,-41.7,10443.2,-26.9,10463.4,-26.3,10475.9,-16.4,10523.6,-1.7,10462.0,30.8,10423.8,31.7,10394.3,41.7,10536.3,87.1,10096.4,87.4,9718.1,210.9,9561.5,214.7,9375.7,214.8],"t":[240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240],"b":[188.3,205.0,203.3,201.4,180,195.9,198.4,186.9,180,188.8,203.0,205.3,189.1,198.5,204.3,209.5,205.6,209.7,209.4,209.1,209.8,209.5,209.8,209.8,208.5,209.5,209.6,206.5,209.5,204.5,198.0],"tri":[0,1,2,0,2,3,0,3,4,30,0,4,30,4,5,30,5,6,6,7,8,8,9,10,8,10,11,8,11,12,8,12,13,6,8,13,6,13,14,6,14,15,6,15,16,6,16,17,6,17,18,6,18,19,30,6,19,30,19,20,30,20,21,30,21,22,22,23,24,25,26,27,24,25,27,22,24,27,30,22,27,30,27,28,28,29,30]},{"y":[243.5695053831236,300],"m":1,"o":[7351.9,787.4,7351.9,1053.3,7225.9,1035.3,7180.6,1046.4,7181.9,1028.8,7145.9,1023.4,7144.8,1027.8,7101.7,1038.2,7103.1,1019.9,6947.2,1056.9,6945.9,1061.0,6936.0,1059.6,6926.7,1062.5,6768.0,1051.4,6734.0,1059.4,6484.3,1022.4,6722.5,961.9,6623.9,946.7],"t":[300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300],"b":[269.4,258.1,250.6,269.4,247.9,245.7,246.3,269.4,243.6,266.3,266.9,266.3,266.4,261.7,269.3,254.4,269.8,264.6],"tri":[17,0,1,2,3,4,1,2,4,1,4,5,17,1,5,5,6,7,5,7,8,17,5,8,9,10,11,11,12,13,9,11,13,8,9,13,13,14,15,8,13,15,8,15,16,8,16,17]},{"y":[240,323.5],"m":0,"o":[7351.9,692.6,7352.2,143.1,7365.5,142.1,7351.9,94.1,7351.9,-93.8,7365.5,-141.9,7352.2,-142.9,7351.9,-692.3,7470.2,-692.1,7470.6,-575.8,7488.7,-575.8,7537.5,-747.2,7351.9,-787.7,7351.9,-1053.2,7541.7,-1080.8,9301.8,-632.6,9300.9,-595.4,9000.1,-666.3,8947.4,-658.4,8906.1,-647.9,8770.7,-626.9,8609.3,-582.2,8523.7,-567.5,8312.4,-504.0,8280.6,-497.9,8039.8,-422.0,8015.4,-411.2,7800.9,-341.2,7718.5,-302.0,7600.3,-260.0,7499.8,-209.5,7471.2,-176.1,7421.5,-97.5,7388.2,-55.9,7359.9,-0.0,7421.4,97.4,7441.3,122.0,7499.8,209.5,7617.4,254.0,7718.6,302.1,7971.7,392.0,8015.5,411.3,8146.9,454.2,8312.3,503.9,8358.3,512.7,8609.3,582.2,8730.8,603.2,8906.1,647.9,8958.8,656.1,8999.9,666.3,9300.9,592.9,9301.5,633.1,7541.5,1080.7,7351.9,1053.3,7351.9,787.4,7537.3,746.8,7488.7,575.7,7470.6,575.7,7470.2,692.4],"t":[323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5,323.5],"b":[254.6,269.4,260.3,240,242.3,264.8,269.4,254.5,258.5,240.4,241.5,269.9,269.4,258.0,269.4,269.4,263.8,262.9,259.7,256.5,248.2,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,243.2,256.5,259.7,262.8,263.3,269.4,269.4,258.1,269.4,269.9,241.5,240.4,258.6],"tri":[58,0,1,58,1,2,2,3,4,5,6,7,5,7,8,5,8,9,5,9,10,4,5,10,4,10,11,11,12,13,11,13,14,14,15,16,14,16,17,11,14,17,11,17,18,11,18,19,11,19,20,11,20,21,11,21,22,11,22,23,11,23,24,11,24,25,11,25,26,11,26,27,11,27,28,11,28,29,11,29,30,4,11,30,4,30,31,4,31,32,4,32,33,4,33,34,2,4,34,58,2,34,58,34,35,58,35,36,37,38,39,39,40,41,43,44,45,45,46,47,47,48,49,49,50,51,49,51,52,47,49,52,45,47,52,43,45,52,42,43,52,41,42,52,39,41,52,52,53,54,52,54,55,39,52,55,37,39,55,36,37,55,36,55,56,36,56,57,36,57,58]},{"y":[240,335.8],"m":0,"o":[7159.2,618.1,7159.2,204.3,7162.3,204.3,7162.3,195.4,7159.2,195.5,7159.2,-618.4,7224.7,-618.4,7225.3,-692.2,7351.9,-692.3,7351.9,94.1,7350.2,88.2,7350.2,169.8,7344.4,170.7,7344.2,184.5,7344.3,204.3,7351.9,204.3,7351.9,692.6,7225.3,692.6,7224.7,618.1],"t":[335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8,335.8],"b":[240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240],"tri":[18,0,1,18,1,2,18,2,3,3,4,5,18,3,5,18,5,6,18,6,7,18,7,8,8,9,10,18,8,10,10,11,12,18,10,12,18,12,13,18,13,14,18,14,15,18,15,16,16,17,18]},{"y":[240,369.0],"m":0,"o":[6307.6,-27.3,6375.2,-37.5,6375.8,-188.5,6472.1,-188.6,6473.0,-237.3,6547.1,-237.2,6547.7,-208.5,6655.9,-208.5,6656.0,-236.8,6671.7,-237.3,6671.8,-284.5,6701.7,-285.0,6690.3,-285.7,6687.9,-310.3,6705.2,-322.5,6706.5,-339.6,6710.4,-333.3,6717.4,-338.2,6717.9,-649.7,6893.2,-649.9,6893.9,-692.3,7057.3,-692.3,7058.2,-618.4,7159.2,-618.4,7159.2,618.1,7058.2,618.1,7057.3,692.6,6893.9,692.6,6893.2,650.1,6717.8,649.9,6717.4,299.0,6710.2,294.0,6706.4,300.3,6703.7,282.5,6671.9,284.4,6671.7,237.1,6656.0,236.6,6655.9,208.4,6547.7,208.4,6547.1,237.1,6473.0,237.1,6472.1,188.4,6375.6,188.2,6375.2,42.7,6308.3,33.0,6323.4,29.4,6323.3,23.9,6311.6,22.0,6323.2,15.7,6281.4,13.6,6281.5,-8.4,6323.2,-10.4,6311.6,-16.8,6323.3,-18.8,6323.4,-24.2],"t":[369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0,369.0],"b":[240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240],"tri":[54,0,1,1,2,3,3,4,5,1,3,5,1,5,6,1,6,7,7,8,9,9,10,11,7,9,11,11,12,13,11,13,14,14,15,16,11,14,16,11,16,17,17,18,19,11,17,19,19,20,21,11,19,21,7,11,21,7,21,22,7,22,23,7,23,24,1,7,24,25,26,27,25,27,28,25,28,29,25,29,30,24,25,30,31,32,33,30,31,33,24,30,33,33,34,35,24,33,35,35,36,37,24,35,37,1,24,37,54,1,37,54,37,38,54,38,39,39,40,41,41,42,43,39,41,43,54,39,43,43,44,45,54,43,45,54,45,46,46,47,48,54,46,48,48,49,50,48,50,51,54,48,51,51,52,53,51,53,54]},{"y":[263.27760045795526,300],"m":1,"o":[9302.9,632.5,9303.6,592.2,9863.3,467.3,10298.1,378.9,10084.5,435.0],"t":[300,300,300,300,300],"b":[269.3,263.3,265.9,269.3,269.4],"tri":[4,0,1,4,1,2,2,3,4]},{"y":[251.29776832940954,300],"m":0,"o":[10959.6,-245.1,10960.8,-263.5,11012.1,-250.7,11233.2,-270.4,11351.5,-231.1,11351.6,-274.3,11371.9,-276.0,11376.2,-273.9,11375.9,-230.7,11358.1,-228.7,11790.7,-89.3,11829.5,-89.2,11833.3,-82.3,11830.3,-76.3,11963.8,-31.9,11977.3,-28.6,11981.7,-39.7,12024.4,-27.0,12180.9,-23.2,12226.6,3.8,12182.9,28.2,12030.1,32.0,11981.4,44.7,11977.0,33.5,11831.7,79.4,11833.3,83.0,11829.5,89.6,11801.1,89.6,11358.1,233.3,11376.1,235.2,11376.2,278.6,11372.0,280.7,11351.8,278.8,11351.5,235.5,11233.5,275.0,11015.5,255.6,10960.8,269.7,10959.6,249.8,10882.5,240.4,11807.0,-0.0,10894.7,-237.2],"t":[300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300],"b":[257.3,269.4,259.7,269.6,258.5,262.9,263.0,263.3,259.1,258.2,262.6,264.0,263.8,264.2,269.1,264.3,269.4,264.5,269.8,269.9,269.8,264.7,269.4,264.3,264.0,263.9,264.1,263.0,258.2,259.4,263.3,263.0,262.8,258.7,269.6,259.9,269.4,257.3,253.7,251.3,254.2],"tri":[0,1,2,40,0,2,40,2,3,40,3,4,4,5,6,4,6,7,4,7,8,40,4,8,40,8,9,40,9,10,10,11,12,10,12,13,40,10,13,40,13,14,40,14,15,15,16,17,17,18,19,15,17,19,15,19,20,40,15,20,40,20,21,21,22,23,40,21,23,24,25,26,24,26,27,24,27,28,28,29,30,28,30,31,28,31,32,28,32,33,33,34,35,28,33,35,24,28,35,23,24,35,35,36,37,23,35,37,23,37,38,23,38,39,23,39,40]},{"y":[326.0474548339844,417.4],"m":1,"o":[6593.7,677.9,6593.8,529.6,6600.5,522.9,6606.7,529.8,6606.6,678.2,6628.8,678.0,6628.8,529.7,6632.7,523.8,6638.4,524.1,6641.7,529.9,6641.8,678.0,6654.0,678.8,6653.9,718.8,6582.6,718.9,6582.2,678.8],"t":[417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4,417.4],"b":[328.3,328.2,328.8,328.4,328.2,328.2,328.3,328.9,328.8,328.2,328.3,328.7,326.1,326.0,328.7],"tri":[0,1,2,0,2,3,0,3,4,14,0,4,14,4,5,5,6,7,5,7,8,5,8,9,5,9,10,14,5,10,14,10,11,14,11,12,12,13,14]},{"y":[320.6885269956668,360],"m":1,"o":[6404.4,1770.5,6404.4,1755.1,6526.7,1755.1,6525.6,1750.5,6404.4,1750.6,6404.4,1650.6,6527.4,1649.0,6404.4,1649.0,6404.4,1637.0,6530.7,1637.2,6531.8,1634.3,6404.4,1634.1,6404.4,1628.6,6533.9,1628.6,6540.0,1616.7,6545.6,1613.2,6554.1,1613.4,6595.8,1625.9,6653.1,1650.6,6690.4,1651.2,6691.0,1698.3,6691.3,1680.9,6697.0,1677.8,6746.6,1678.2,6751.3,1681.4,6751.4,1725.2,6748.2,1728.3,6696.9,1729.3,6691.2,1725.8,6691.0,1707.7,6690.4,1750.1,6658.5,1750.2,6649.8,1758.9,6625.5,1770.4,6554.2,1794.2,6540.0,1790.3,6531.0,1770.5],"t":[360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360],"b":[329.5,327.1,324.8,324.7,328.4,327.8,324.9,327.2,327.5,324.7,324.3,329.4,329.7,324.7,327.4,327.4,327.3,328.2,328.4,328.3,320.7,323.1,324.0,327.2,327.7,327.9,328.2,324.2,323.7,321.3,328.3,328.3,328.5,328.4,327.6,327.8,324.4],"tri":[36,0,1,36,1,2,36,2,3,3,4,5,3,5,6,36,3,6,6,7,8,6,8,9,36,6,9,36,9,10,10,11,12,10,12,13,36,10,13,36,13,14,36,14,15,36,15,16,36,16,17,36,17,18,36,18,19,36,19,20,20,21,22,20,22,23,36,20,23,36,23,24,24,25,26,24,26,27,24,27,28,24,28,29,36,24,29,29,30,31,36,29,31,36,31,32,36,32,33,36,33,34,34,35,36]},{"y":[302.8751533799482,360],"m":1,"o":[6179.2,1827.6,6179.5,1570.9,6222.3,1577.8,6271.3,1590.6,6277.3,1601.3,6277.4,1628.6,6404.4,1628.6,6404.4,1634.1,6277.4,1633.9,6277.4,1636.7,6404.4,1637.0,6404.4,1649.0,6277.4,1650.8,6404.4,1650.6,6404.4,1750.6,6277.4,1750.6,6277.4,1755.1,6404.4,1755.1,6404.4,1770.5,6277.4,1770.4,6277.2,1798.1,6275.2,1804.2,6267.9,1810.3],"t":[360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360],"b":[326.1,326.2,327.0,326.9,324.3,310.2,329.7,329.4,308.1,306.9,327.5,327.2,302.9,327.8,328.4,303.1,304.4,327.1,329.5,310.0,324.3,327.0,327.1],"tri":[22,0,1,22,1,2,22,2,3,22,3,4,22,4,5,5,6,7,5,7,8,22,5,8,22,8,9,9,10,11,9,11,12,22,9,12,12,13,14,12,14,15,22,12,15,22,15,16,16,17,18,16,18,19,22,16,19,22,19,20,20,21,22]},{"y":[324.89284553230766,360],"m":1,"o":[6897.0,1619.1,6905.0,1613.6,6913.7,1613.3,6959.5,1627.1,7011.7,1648.7,7019.1,1659.8,7022.7,1673.5,7022.7,1734.7,7016.8,1753.3,6971.6,1775.7,6913.7,1794.1,6899.5,1790.3,6888.2,1763.0,6879.1,1708.2,6880.3,1682.0],"t":[360,360,360,360,360,360,360,360,360,360,360,360,360,360,360],"b":[327.8,327.4,327.3,328.2,328.7,327.8,326.2,326.4,328.8,328.2,327.6,327.8,324.9,325.1,325.0],"tri":[14,0,1,14,1,2,14,2,3,14,3,4,14,4,5,14,5,6,14,6,7,14,7,8,14,8,9,14,9,10,14,10,11,14,11,12,12,13,14]},{"y":[317.5602595996268,367.9],"m":1,"o":[8550.5,1257.5,8712.8,1217.8,8732.3,1297.4,8569.5,1339.4],"t":[367.9,367.9,367.9,367.9],"b":[317.6,317.8,329.8,329.4],"tri":[3,0,1,1,2,3]},{"y":[300,377.0],"m":1,"o":[7671.0,1184.4,7514.9,1160.7,7753.1,1101.0,7708.7,1093.7,7804.6,1071.6,7626.5,1060.2,7562.4,831.3,7679.7,860.9,7718.6,874.8,7934.1,925.4,8312.4,997.8,8392.0,1004.4,8609.3,1041.8,8744.3,1051.0,8906.2,1076.1,8959.5,1079.0,8999.0,1085.6,8998.8,1108.7,8972.2,1115.5,8982.5,1162.0,8829.2,1199.4,8818.0,1155.0,8439.1,1252.7,8450.2,1303.3,8391.4,1317.4,8379.3,1267.5,7765.6,1423.6,7763.8,1262.0,7725.6,1261.4,7725.2,1207.5,7671.5,1220.8],"t":[377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0,377.0],"b":[323.9,314.4,306.4,327.8,329.9,321.9,320.5,300,300,300,300,300,304.3,310.9,320.9,323.4,325.9,329.4,319.2,325.9,325.7,319.3,321.8,329.4,329.4,321.4,329.4,305.8,324.3,317.1,329.3],"tri":[0,1,2,30,0,2,2,3,4,30,2,4,4,5,6,4,6,7,4,7,8,4,8,9,4,9,10,30,4,10,30,10,11,12,13,14,14,15,16,14,16,17,12,14,17,12,17,18,11,12,18,11,18,19,19,20,21,11,19,21,11,21,22,22,23,24,11,22,24,11,24,25,11,25,26,11,26,27,11,27,28,11,28,29,11,29,30]},{"y":[384.3852918539194,467.4],"m":1,"o":[6355.1,1252.7,6361.7,1239.5,6376.5,1234.8,6476.0,1254.4,6485.2,1260.1,6492.0,1275.6,6492.3,1364.2,6484.9,1382.7,6477.6,1386.6,6376.5,1407.4,6368.0,1406.3,6361.7,1401.5,6354.9,1388.1,6348.3,1362.3,6343.9,1322.8,6347.6,1283.8],"t":[467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4,467.4],"b":[385.1,388.0,387.4,388.5,388.3,386.0,385.6,388.5,388.0,387.6,387.4,387.7,384.8,384.4,384.5,384.4],"tri":[15,0,1,15,1,2,15,2,3,15,3,4,15,4,5,15,5,6,15,6,7,15,7,8,15,8,9,15,9,10,15,10,11,15,11,12,15,12,13,13,14,15]},{"y":[360,420],"m":1,"o":[6976.4,1501.3,6976.4,1334.9,7026.0,1334.9,7026.0,1300.9,6976.4,1300.9,6976.4,943.3,7012.9,1000.8,7124.6,1134.6,7244.2,1225.0,7111.5,1226.3,7111.4,1300.2,7091.1,1300.9,7091.1,1391.8,7259.0,1391.8,7259.0,1254.7,7270.1,1253.8,7271.1,1245.3,7305.0,1270.6,7421.6,1376.9,7499.8,1421.2,7645.6,1439.9,7644.7,1501.3],"t":[420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420],"b":[360,414.2,384.0,366.5,366.5,360,360,360,366.5,366.5,366.5,366.5,384.0,384.0,384.0,366.5,366.5,366.5,384.0,360,383.9,383.8],"tri":[0,1,2,3,4,5,3,5,6,3,6,7,2,3,7,0,2,7,7,8,9,0,7,9,9,10,11,0,9,11,0,11,12,21,0,12,21,12,13,13,14,15,13,15,16,13,16,17,13,17,18,13,18,19,21,13,19,19,20,21]},{"y":[360,448.6],"m":1,"o":[6537.4,1308.9,6728.3,1308.9,6728.6,1254.1,6786.6,1253.8,6786.6,793.2,6880.6,792.6,6976.4,943.3,6976.4,1300.9,6954.1,1300.4,6954.0,1258.0,6946.4,1258.0,6946.4,1334.9,6976.4,1334.9,6976.4,1501.3,6537.0,1501.2],"t":[448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6,448.6],"b":[384.0,384.0,384.0,366.5,366.5,366.5,360,366.5,366.5,366.5,366.5,365.1,414.2,360,384.0],"tri":[14,0,1,1,2,3,14,1,3,3,4,5,3,5,6,6,7,8,6,8,9,3,6,9,3,9,10,14,3,10,14,10,11,14,11,12,12,13,14]},{"y":[360,420],"m":1,"o":[7762.2,1497.2,7763.1,1449.4,8015.6,1474.1,8084.5,1473.0,8312.4,1491.7,8422.4,1488.7,8578.8,1500.3,7754.0,1500.6],"t":[420,420,420,420,420,420,420,420],"b":[363.7,382.7,360,360,360.4,360,371.9,363.9],"tri":[0,1,2,7,0,2,7,2,3,7,3,4,4,5,6,4,6,7]},{"y":[363.7344887055274,426.5],"m":1,"o":[7732.3,1831.6,7732.3,1623.3,7749.5,1602.7,7732.3,1607.0,7732.3,1505.2,7745.8,1501.4,8855.2,1501.4,8999.0,1504.5,8998.2,1510.4],"t":[426.5,426.5,426.5,426.5,426.5,426.5,426.5,426.5,426.5],"b":[389.4,369.4,369.7,389.4,363.8,363.7,382.5,388.5,389.4],"tri":[8,0,1,8,1,2,2,3,4,8,2,4,8,4,5,8,5,6,6,7,8]},{"y":[363.8346186308667,420],"m":1,"o":[7656.5,1850.8,7656.5,1713.5,7661.2,1707.9,7656.5,1709.1,7656.5,1643.6,7675.4,1621.1,7656.5,1625.8,7656.5,1568.2,7670.5,1551.5,7670.8,1522.2,7732.3,1505.2,7732.3,1607.0,7714.4,1611.5,7730.3,1625.7,7732.3,1623.3,7732.3,1831.6],"t":[420,420,420,420,420,420,420,420,420,420,420,420,420,420,420,420],"b":[389.4,371.4,371.3,388.6,380.5,377.8,389.4,381.6,379.6,375.3,363.8,389.4,377.4,369.4,369.4,389.4],"tri":[15,0,1,15,1,2,2,3,4,15,2,4,15,4,5,5,6,7,5,7,8,15,5,8,15,8,9,9,10,11,9,11,12,15,9,12,15,12,13,13,14,15]},{"y":[360,481.9],"m":1,"o":[6277.4,1574.6,6384.4,1574.5,6388.1,1565.6,6396.7,1562.5,6535.9,1561.7,6537.3,1501.4,7644.8,1501.4,7645.6,1581.1,7656.5,1568.2,7656.5,1625.8,7645.6,1628.5,7645.6,1656.6,7656.5,1643.6,7656.5,1709.1,7645.6,1711.9,7645.6,1726.5,7656.5,1713.5,7656.5,1850.8,7645.6,1853.5,7645.6,1912.9,7525.1,1913.8,7524.9,1968.5,7488.8,1968.9,7487.8,1886.3,7395.5,1886.3,7395.1,1968.7,7280.3,1968.9,7279.5,1817.0,7117.4,1817.0,7116.5,1968.9,6928.1,1968.8,6927.5,1872.6,6799.6,1872.6,6799.2,1968.7,6672.5,1968.9,6671.7,1913.8,6536.7,1913.5,6536.4,1846.0,6522.8,1827.0,6428.9,1827.1,6425.6,1833.8,6417.8,1837.2,6277.4,1837.5,6275.7,1853.2,6267.6,1858.3,6179.9,1871.4,6179.3,1528.3,6271.5,1542.0,6277.4,1549.7],"t":[481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9,481.9],"b":[360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360,360],"tri":[1,2,3,1,3,4,4,5,6,1,4,6,1,6,7,0,1,7,7,8,9,0,7,9,0,9,10,0,10,11,11,12,13,0,11,13,0,13,14,0,14,15,15,16,17,0,15,17,0,17,18,18,19,20,20,21,22,20,22,23,18,20,23,18,23,24,24,25,26,24,26,27,18,24,27,0,18,27,0,27,28,28,29,30,28,30,31,0,28,31,0,31,32,0,32,33,33,34,35,0,33,35,35,36,37,35,37,38,0,35,38,0,38,39,0,39,40,0,40,41,0,41,42,0,42,43,48,0,43,48,43,44,48,44,45,48,45,46,46,47,48]},{"y":[420,480],"m":1,"o":[6264.6,1408.4,6264.8,1417.2,6259.0,1421.4,6223.4,1419.8,6223.6,1221.9,6258.5,1220.7,6264.8,1224.2,6264.6,1233.6,6278.0,1233.4,6278.3,1225.1,6283.8,1220.7,6317.3,1220.9,6323.3,1225.2,6323.2,1233.7,6328.8,1233.7,6357.8,1183.9,6366.5,1179.0,6376.5,1177.6,6461.5,1187.5,6530.8,1346.6,6625.5,1500.5,6329.6,1501.2,6329.8,1484.8,6533.5,1484.7,6533.5,1428.9,6492.3,1428.9,6490.2,1447.0,6477.8,1452.7,6375.6,1464.7,6358.0,1457.9,6328.8,1408.4,6323.1,1408.4,6321.5,1419.3,6309.2,1421.5,6282.2,1420.5,6278.2,1416.8,6278.3,1408.4],"t":[480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480],"b":[443.0,444.1,443.5,442.8,443.2,443.6,444.0,443.2,443.2,443.9,443.4,443.5,444.0,443.2,441.6,443.0,443.5,442.8,442.7,420,420,445.0,445.0,438.0,438.3,424.3,443.9,443.8,443.6,442.5,441.6,443.1,443.3,443.4,443.5,444.0,443.1],"tri":[0,1,2,0,2,3,0,3,4,36,0,4,36,4,5,5,6,7,36,5,7,36,7,8,36,8,9,36,9,10,36,10,11,36,11,12,36,12,13,36,13,14,36,14,15,36,15,16,36,16,17,36,17,18,36,18,19,20,21,22,20,22,23,20,23,24,19,20,24,19,24,25,25,26,27,19,25,27,19,27,28,19,28,29,19,29,30,36,19,30,31,32,33,31,33,34,31,34,35,31,35,36,30,31,36]},{"y":[420,480],"m":1,"o":[7245.1,2355.0,7245.1,2160.5,7259.4,2173.2,7269.6,2161.1,7245.1,2139.3,7245.1,1973.7,7257.8,1977.4,7257.4,2036.1,7259.1,1977.2,7421.8,2016.7,7435.4,2014.9,7500.0,2027.0,7550.0,2021.0,7718.8,2020.2,7808.0,2009.0,8015.6,2005.6,8130.1,1990.6,8312.5,1985.6,8449.9,1966.9,8609.4,1961.0,8767.6,1938.6,8902.1,1933.3,8901.4,1934.5],"t":[480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480],"b":[449.4,440.8,430.1,429.9,443.6,438.0,438.0,436.5,438.0,420,420,420,420,420,420,426.4,428.5,434.7,437.1,442.3,444.9,449.2,449.4],"tri":[0,1,2,22,0,2,22,2,3,22,3,4,4,5,6,4,6,7,7,8,9,4,7,9,4,9,10,4,10,11,4,11,12,4,12,13,4,13,14,4,14,15,4,15,16,4,16,17,4,17,18,4,18,19,22,4,19,22,19,20,20,21,22]},{"y":[420,494.2],"m":1,"o":[6179.5,1541.5,6223.4,1541.3,6224.4,1522.6,6271.6,1530.5,6277.2,1536.6,6277.4,1547.1,6328.9,1547.1,6329.8,1501.4,6626.3,1501.5,6653.6,1545.3,6827.8,1745.8,7059.3,1881.9,7124.8,1934.8,7245.1,1973.7,7245.1,2139.3,7237.9,2132.8,7218.5,2136.5,7245.1,2160.5,7245.1,2355.0,7071.3,2398.3,7213.5,2228.3,7106.3,2254.1,7200.2,2141.1,7164.6,2150.1,7240.2,2057.4,7132.9,2057.2,7132.8,2106.3,7118.0,2107.0,7117.2,2057.3,7105.7,2056.2,7105.8,2038.7,7117.2,2038.1,7117.2,2013.7,7013.8,2013.7,7013.9,2090.4,7007.5,2107.7,6982.7,2116.9,6903.8,2133.8,6895.5,2131.9,6886.9,2122.9,6875.7,2075.8,6875.1,2027.8,6887.5,1972.1,6786.7,1972.1,6786.1,2137.9,6699.7,2138.0,6698.8,2117.3,6690.8,2117.4,6690.1,2133.3,6634.8,2133.1,6633.9,2138.0,6585.3,2137.7,6584.4,2133.0,6388.7,2133.1,6387.9,2159.6,6381.3,2165.6,6303.4,2177.5,6264.1,2180.3,6254.3,2174.5,6233.4,2133.2,6177.7,2132.6],"t":[494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2,494.2],"b":[420,420,432.9,425.4,448.4,472.5,445.0,445.0,420,420,420,420,438.0,438.0,443.6,442.4,436.3,440.8,449.4,449.8,429.9,449.8,436.6,449.8,439.0,445.0,445.0,445.0,445.0,448.4,448.5,445.0,445.0,443.4,445.6,448.2,448.3,447.7,447.4,447.1,444.2,444.3,438.0,438.0,438.0,438.0,433.0,432.9,446.9,438.0,438.0,438.0,438.0,425.5,445.6,445.6,445.6,445.2,445.1,443.2,446.2],"tri":[60,0,1,1,2,3,60,1,3,60,3,4,60,4,5,60,5,6,6,7,8,60,6,8,60,8,9,60,9,10,60,10,11,13,14,15,16,17,18,18,19,20,16,18,20,16,20,21,16,21,22,22,23,24,16,22,24,15,16,24,13,15,24,12,13,24,11,12,24,25,26,27,25,27,28,25,28,29,24,25,29,24,29,30,24,30,31,24,31,32,11,24,32,11,32,33,33,34,35,33,35,36,33,36,37,11,33,37,11,37,38,11,38,39,11,39,40,11,40,41,11,41,42,11,42,43,60,11,43,43,44,45,43,45,46,43,46,47,60,43,47,47,48,49,49,50,51,47,49,51,47,51,52,60,47,52,60,52,53,53,54,55,53,55,56,53,56,57,53,57,58,53,58,59,53,59,60]},{"y":[482.8303183928057,540],"m":1,"o":[5980.3,2699.7,5988.6,2694.6,6279.0,2624.4,6305.0,2647.0,6531.1,2764.3,6623.7,2739.7,6828.2,2782.5,6958.5,2730.5,7125.1,2734.8,7260.3,2671.2,7422.0,2656.4,7459.2,2638.6,7500.1,2632.9,7605.3,2607.1,7718.9,2592.9,7867.5,2556.4,8015.7,2537.0,8171.5,2498.7,8312.6,2479.5,8474.8,2439.6,8500.2,2437.0,6079.4,3051.8,6004.0,2842.5,6004.1,2762.7,6001.3,2762.3],"t":[540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540,540],"b":[499.5,488.3,486.4,491.1,483.5,483.4,497.4,494.6,501.6,497.2,501.1,499.9,500.6,500.7,502.9,503.1,505.8,506.0,508.5,508.7,509.3,509.4,507.5,483.0,482.8],"tri":[24,0,1,24,1,2,24,2,3,24,3,4,4,5,6,24,4,6,6,7,8,8,9,10,10,11,12,10,12,13,10,13,14,8,10,14,14,15,16,8,14,16,16,17,18,8,16,18,18,19,20,18,20,21,8,18,21,6,8,21,6,21,22,6,22,23,6,23,24]},{"y":[541.4588805654134,600.6],"m":0,"o":[5690.6,185.6,5690.6,160.9,5698.9,160.3,5690.6,159.8,5690.6,-185.2,5797.7,-185.1,5798.3,184.9],"t":[600.6,600.6,600.6,600.6,600.6,600.6,600.6],"b":[566.5,541.5,542.1,541.5,566.5,566.7,566.7],"tri":[6,0,1,6,1,2,2,3,4,6,2,4,4,5,6]},{"y":[540,600],"m":0,"o":[5337.0,115.6,5297.6,90.7,5296.1,-41.4,5337.4,-43.3,5337.6,-170.9,5354.3,-175.0,5418.1,-176.5,5421.3,-158.6,5464.4,-159.8,5463.6,-166.5,5475.6,-170.6,5540.6,-171.9,5545.5,-168.1,5545.7,-161.6,5626.8,-163.7,5626.7,-168.9,5630.8,-172.9,5670.2,-173.5,5670.7,-185.0,5690.6,-185.2,5690.6,159.8,5682.6,161.0,5690.6,160.9,5690.6,185.6,5670.6,185.4,5670.2,172.0,5658.5,171.1,5659.0,159.3,5629.5,158.3,5628.4,170.8,5615.7,170.8,5603.6,169.6,5604.1,157.7,5562.0,156.6,5561.4,164.4,5555.2,166.1,5553.2,181.2,5527.9,180.4,5527.4,172.2,5499.7,172.5,5485.7,170.4,5479.4,167.1,5480.1,164.3,5456.0,162.2,5455.7,154.0,5421.3,153.2,5418.0,171.1,5354.4,169.6,5337.2,165.0],"t":[600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600],"b":[556.7,566.8,568.1,557.7,568.9,565.6,549.2,547.3,557.9,557.9,554.6,540,565.7,540,540,540,540,541.3,566.4,566.5,541.5,540.9,541.5,566.5,566.4,542.5,541.0,557.0,550.6,540,549.5,550.3,550.0,558.7,565.4,562.8,568.6,562.0,541.1,548.2,551.8,553.6,553.5,540,540,547.3,549.2,565.6,569.0],"tri":[0,1,2,0,2,3,48,0,3,48,3,4,48,4,5,48,5,6,48,6,7,48,7,8,8,9,10,48,8,10,48,10,11,48,11,12,48,12,13,48,13,14,14,15,16,14,16,17,48,14,17,17,18,19,48,17,19,19,20,21,21,22,23,21,23,24,19,21,24,19,24,25,19,25,26,19,26,27,19,27,28,28,29,30,19,28,30,19,30,31,19,31,32,19,32,33,33,34,35,19,33,35,35,36,37,19,35,37,19,37,38,19,38,39,19,39,40,19,40,41,19,41,42,19,42,43,19,43,44,19,44,45,48,19,45,48,45,46,46,47,48]},{"y":[626.1431173494408,660],"m":0,"o":[2626.3,43.9,2620.8,32.3,2615.5,4.3,2616.4,-14.5,2621.7,-33.0,2638.3,-59.4,2667.2,-80.6,2700.5,-88.4,2736.1,-83.1,2765.6,-65.2,2786.4,-35.9,2792.5,-17.9,2792.8,18.6,2778.5,52.2,2751.6,77.5,2717.9,89.5,2682.6,87.8,2651.4,72.6],"t":[660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660],"b":[626.8,626.5,626.1,626.4,626.6,627.5,626.8,626.4,626.8,627.8,627.0,626.9,626.9,627.5,627.4,626.7,626.6,627.2],"tri":[17,0,1,17,1,2,17,2,3,17,3,4,17,4,5,17,5,6,17,6,7,17,7,8,17,8,9,17,9,10,17,10,11,17,11,12,17,12,13,17,13,14,17,14,15,15,16,17]},{"y":[624.3380689178341,660],"m":0,"o":[2877.2,41.5,2825.8,37.7,2835.6,-8.7,2847.5,-37.5,2877.2,-39.5,2877.0,-197.4,2949.1,-205.5,2950.9,-211.9,3027.9,-231.6,3283.5,-258.8,3397.4,-259.1,3402.2,-253.5,3627.9,-277.7,3860.3,-276.4,4381.9,-131.2,4381.6,135.5,3860.3,280.0,3628.1,281.4,3402.2,257.5,3397.4,263.0,3283.5,262.5,3027.9,235.3,2951.0,215.8,2949.2,209.3,2877.8,201.6],"t":[660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660],"b":[627.7,629.8,629.8,629.8,628.6,629.0,624.4,627.6,626.1,625.8,626.9,624.3,626.5,626.5,626.9,626.9,626.7,626.5,624.4,626.9,625.9,626.1,627.5,624.3,628.8],"tri":[0,1,2,0,2,3,0,3,4,24,0,4,24,4,5,24,5,6,24,6,7,24,7,8,24,8,9,24,9,10,24,10,11,24,11,12,24,12,13,24,13,14,24,14,15,24,15,16,24,16,17,24,17,18,18,19,20,18,20,21,18,21,22,18,22,23,18,23,24]},{"y":[600,660],"m":1,"o":[5096.9,290.1,5275.9,290.1,5276.5,360.9,5096.6,361.5],"t":[660,660,660,660],"b":[600,600,600,600],"tri":[3,0,1,1,2,3]},{"y":[660,720],"m":0,"o":[1909.4,-4.1,1914.3,-58.3,1920.6,-71.2,1928.4,-71.3,1977.7,-50.2,1992.4,-37.5,1996.5,-17.1,1996.6,16.5,1992.4,37.5,1977.7,50.4,1928.4,71.5,1920.7,71.4,1913.0,50.5],"t":[720,720,720,720,720,720,720,720,720,720,720,720,720],"b":[660,660,660,660,660,660,660,660,660,660,660,660,660],"tri":[12,0,1,12,1,2,12,2,3,12,3,4,12,4,5,12,5,6,12,6,7,12,7,8,12,8,9,12,9,10,10,11,12]},{"y":[660,720],"m":0,"o":[2189.7,-277.9,2261.3,-278.6,2265.9,-292.7,2276.7,-293.5,2277.0,-301.2,2289.7,-306.2,2290.8,-278.6,2301.5,-278.6,2301.2,-405.2,2314.8,-404.6,2315.9,-291.5,2412.9,-291.0,2412.4,-258.5,2315.9,-257.7,2315.9,-247.7,2399.2,-247.3,2399.5,-252.5,2406.5,-252.7,2422.7,-247.3,2422.7,-331.8,2411.5,-331.8,2411.3,-338.0,2463.8,-341.9,2463.9,-351.3,2470.3,-352.5,2475.7,-351.3,2476.0,-341.9,2503.0,-341.6,2503.0,341.7,2476.0,342.0,2475.7,351.4,2470.4,352.6,2463.9,351.5,2463.8,342.0,2411.3,338.1,2411.5,331.9,2422.7,331.9,2422.7,247.4,2406.5,252.9,2399.5,252.7,2399.2,247.4,2315.9,247.8,2315.9,257.9,2412.4,258.7,2412.9,291.2,2315.9,291.6,2314.8,404.8,2301.2,405.4,2301.5,278.8,2290.8,278.8,2289.7,306.3,2277.0,301.3,2276.7,293.7,2265.9,292.8,2261.3,278.8,2189.7,278.1],"t":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"b":[660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660],"tri":[55,0,1,55,1,2,55,2,3,3,4,5,55,3,5,55,5,6,55,6,7,7,8,9,7,9,10,55,7,10,10,11,12,10,12,13,55,10,13,55,13,14,55,14,15,15,16,17,55,15,17,55,17,18,19,20,21,19,21,22,18,19,22,22,23,24,18,22,24,55,18,24,55,24,25,55,25,26,55,26,27,27,28,29,29,30,31,27,29,31,27,31,32,27,32,33,33,34,35,33,35,36,27,33,36,27,36,37,27,37,38,27,38,39,27,39,40,27,40,41,55,27,41,55,41,42,55,42,43,43,44,45,45,46,47,45,47,48,43,45,48,55,43,48,55,48,49,49,50,51,49,51,52,49,52,53,49,53,54,49,54,55]},{"y":[660,720],"m":0,"o":[4416.9,141.3,4416.9,124.8,4439.8,125.0,4435.5,120.9,4435.5,89.8,4416.9,90.0,4416.9,-86.7,4435.5,-87.0,4435.5,-117.3,4439.3,-120.9,4416.9,-120.8,4416.9,-137.4,4601.8,-139.5,4635.8,-137.5,4636.8,-140.1,4690.4,-140.1,4692.3,-145.4,4711.1,-145.4,4712.9,-148.6,4719.2,-148.7,4719.6,-224.0,4855.3,-224.2,4855.6,-264.0,4890.1,-264.0,4889.9,264.1,4855.6,264.0,4855.3,223.9,4719.6,223.7,4719.2,152.6,4712.7,152.3,4711.1,149.3,4692.2,149.2,4690.4,141.3,4511.4,141.2,4497.9,143.3,4494.3,141.2],"t":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"b":[660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660],"tri":[35,0,1,35,1,2,35,2,3,35,3,4,4,5,6,35,4,6,35,6,7,35,7,8,35,8,9,9,10,11,9,11,12,35,9,12,35,12,13,13,14,15,35,13,15,15,16,17,35,15,17,17,18,19,35,17,19,19,20,21,35,19,21,21,22,23,21,23,24,21,24,25,21,25,26,21,26,27,21,27,28,21,28,29,21,29,30,21,30,31,21,31,32,21,32,33,35,21,33,33,34,35]},{"y":[660,720],"m":0,"o":[2503.4,341.0,2504.2,-341.9,2509.8,-168.4,2656.2,-229.5,2682.6,-342.0,2836.9,-341.8,2846.8,-231.5,2977.7,-231.7,2978.6,-342.0,3075.5,-341.8,3076.0,-279.0,3178.7,-279.0,3186.5,-329.9,3978.5,-329.9,3979.5,-264.6,4046.4,-257.8,4416.9,-137.4,4416.9,-120.8,4396.2,-120.6,4396.3,-86.1,4416.9,-86.7,4416.9,90.0,4396.3,90.0,4396.2,124.5,4416.9,124.8,4416.9,141.3,3979.5,268.5,3978.7,331.9,3186.3,331.9,3178.7,278.8,3076.0,278.8,3075.5,341.8,2978.6,342.0,2977.7,233.1,2837.4,231.5,2836.9,341.8,2682.6,342.0,2681.7,288.8,2654.7,279.4,2654.9,236.4,2509.8,168.5],"t":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"b":[660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660],"tri":[40,0,1,40,1,2,40,2,3,3,4,5,40,3,5,40,5,6,40,6,7,7,8,9,7,9,10,40,7,10,40,10,11,11,12,13,40,11,13,40,13,14,40,14,15,40,15,16,16,17,18,40,16,18,40,18,19,40,19,20,20,21,22,40,20,22,40,22,23,40,23,24,40,24,25,40,25,26,40,26,27,27,28,29,30,31,32,30,32,33,29,30,33,27,29,33,40,27,33,40,33,34,34,35,36,34,36,37,34,37,38,34,38,39,34,39,40]},{"y":[720,780],"m":0,"o":[2005.5,106.8,2005.5,85.1,2013.9,85.1,2005.5,82.8,2005.5,-82.7,2013.9,-85.0,2005.5,-85.0,2005.5,-106.6,2103.8,-106.6,2122.8,-95.2,2128.6,-82.7,2189.7,-82.4,2189.7,-277.8,2200.6,-278.6,2204.5,-292.5,2214.3,-293.3,2214.4,-300.8,2231.3,-307.8,2215.8,-316.9,2215.5,-325.1,2205.3,-325.6,2200.0,-342.2,2203.0,-450.0,2212.9,-450.9,2213.3,-458.4,2230.4,-466.0,2289.2,-466.0,2290.4,-439.5,2403.4,-443.9,2416.0,-437.6,2503.3,-351.6,2503.1,352.3,2484.6,369.5,2487.4,372.6,2476.5,376.4,2474.7,384.4,2404.4,443.9,2290.4,439.6,2289.2,466.2,2230.5,466.2,2213.4,458.7,2199.2,437.9,2200.0,342.4,2205.3,325.7,2215.5,325.2,2215.8,317.0,2231.3,307.9,2214.4,301.0,2214.3,293.5,2204.5,292.6,2200.6,278.8,2189.7,278.0,2189.7,82.6,2128.6,82.9,2122.8,95.4,2103.8,106.7],"t":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"b":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"tri":[55,0,1,55,1,2,55,2,3,55,3,4,55,4,5,5,6,7,55,5,7,55,7,8,55,8,9,55,9,10,55,10,11,11,12,13,11,13,14,11,14,15,15,16,17,11,15,17,17,18,19,19,20,21,17,19,21,17,21,22,17,22,23,17,23,24,17,24,25,17,25,26,11,17,26,11,26,27,11,27,28,55,11,28,55,28,29,55,29,30,30,31,32,32,33,34,30,32,34,30,34,35,30,35,36,30,36,37,37,38,39,30,37,39,30,39,40,30,40,41,41,42,43,41,43,44,44,45,46,41,44,46,30,41,46,30,46,47,30,47,48,30,48,49,30,49,50,30,50,51,30,51,52,30,52,53,55,30,53,53,54,55]},{"y":[720,780],"m":0,"o":[1896.8,82.8,1806.1,82.4,1806.1,-82.1,1896.8,-82.6,1914.6,-134.4,1920.7,-138.6,1988.7,-127.4,1996.8,-120.1,1997.4,-106.8,2005.5,-106.6,2005.5,-85.0,1997.4,-82.9,2005.5,-82.7,2005.5,82.8,1997.4,83.0,1997.4,85.1,2005.5,85.1,2005.5,106.8,1997.4,106.9,1996.8,120.2,1988.6,127.5,1920.7,138.8,1914.6,134.5],"t":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"b":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"tri":[0,1,2,0,2,3,22,0,3,22,3,4,22,4,5,22,5,6,22,6,7,22,7,8,22,8,9,9,10,11,22,9,11,22,11,12,12,13,14,22,12,14,22,14,15,22,15,16,16,17,18,22,16,18,22,18,19,22,19,20,20,21,22]},{"y":[720,780],"m":0,"o":[4469.6,438.6,4469.6,292.4,4575.6,292.4,4576.0,278.8,4581.7,278.1,4581.5,261.4,4469.6,261.4,4469.6,-261.6,4581.9,-261.5,4582.0,-265.8,4576.5,-266.5,4576.2,-279.1,4582.3,-280.1,4582.1,-330.3,4576.5,-331.2,4576.3,-343.8,4580.2,-344.6,4622.1,-344.0,4622.4,-330.9,4616.7,-330.3,4616.8,-280.1,4622.1,-279.5,4622.5,-266.8,4616.8,-265.8,4616.8,-261.5,4626.4,-261.6,4627.1,-382.1,4889.8,-382.0,4890.2,381.5,4627.0,382.0,4626.4,261.4,4616.3,261.4,4616.2,278.2,4621.9,279.1,4621.6,292.0,4616.0,292.6,4616.0,342.6,4621.8,343.2,4621.0,357.0,4575.8,356.6,4576.0,343.2,4581.6,342.6,4581.9,292.5,4579.5,292.5,4578.4,322.8,4545.6,320.8,4545.0,328.7,4537.5,328.6,4537.0,323.0,4524.4,323.0,4524.1,328.6,4516.8,328.8,4515.7,320.8,4470.3,322.4],"t":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"b":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"tri":[53,0,1,53,1,2,2,3,4,5,6,7,5,7,8,4,5,8,4,8,9,9,10,11,9,11,12,4,9,12,13,14,15,13,15,16,13,16,17,12,13,17,17,18,19,12,17,19,4,12,19,4,19,20,20,21,22,20,22,23,4,20,23,4,23,24,4,24,25,25,26,27,4,25,27,2,4,27,27,28,29,27,29,30,27,30,31,2,27,31,2,31,32,2,32,33,2,33,34,2,34,35,36,37,38,36,38,39,35,36,39,39,40,41,35,39,41,35,41,42,2,35,42,2,42,43,53,2,43,43,44,45,45,46,47,45,47,48,43,45,48,43,48,49,49,50,51,49,51,52,43,49,52,43,52,53]},{"y":[660,780],"m":0,"o":[4890.8,381.1,4890.8,-381.3,4935.7,-382.2,4936.0,-479.1,5298.4,-476.9,5299.2,-422.1,5334.9,-421.6,5335.0,-371.2,5484.6,-371.2,5484.6,-421.3,5491.0,-422.1,5491.7,-428.9,5505.8,-428.8,5506.0,-466.3,5521.0,-466.7,5521.9,-479.4,5567.7,-479.2,5567.8,479.3,5521.8,479.6,5521.0,467.1,5506.4,467.1,5505.8,455.5,5490.5,455.0,5490.3,422.1,5484.6,421.2,5484.6,371.2,5335.0,371.2,5334.9,421.7,5299.2,422.1,5298.8,476.8,5176.9,477.0,5175.8,479.7,4936.4,479.6,4935.7,382.1],"t":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"b":[660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660,660],"tri":[33,0,1,33,1,2,33,2,3,33,3,4,33,4,5,33,5,6,33,6,7,33,7,8,8,9,10,10,11,12,8,10,12,12,13,14,8,12,14,14,15,16,8,14,16,33,8,16,16,17,18,16,18,19,16,19,20,16,20,21,16,21,22,16,22,23,16,23,24,16,24,25,16,25,26,33,16,26,33,26,27,33,27,28,33,28,29,33,29,30,33,30,31,31,32,33]},{"y":[720,783.1019897460939],"m":1,"o":[5374.8,772.7,5235.7,772.5,5235.8,599.7,5374.9,599.7,5383.5,584.6,5390.6,581.7,5451.3,588.7,5456.8,593.5,5456.9,599.8,5567.8,600.3,5567.7,772.7,5457.1,772.6,5456.8,779.2,5451.4,783.3,5408.2,788.6,5385.5,788.4],"t":[775.6,769.4,783.1,783.1,782.9,782.9,783.1,783.1,783.1,767.5,770.6,781.6,768.1,768.1,768.6,769.5],"b":[720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],"tri":[0,1,2,0,2,3,15,0,3,15,3,4,15,4,5,15,5,6,15,6,7,15,7,8,15,8,9,9,10,11,15,9,11,15,11,12,15,12,13,13,14,15]},{"y":[720,846.0],"m":1,"o":[5483.0,1100.8,5422.9,1100.1,5422.9,861.8,5484.7,861.2,5498.3,858.2,5567.4,861.0,5568.1,1076.7,5571.3,1126.3,5556.7,1127.0,5548.5,1121.7,5548.0,1107.1,5496.7,1113.0,5488.3,1109.5],"t":[821.0,818.2,805.6,804.3,803.1,818.1,846.0,818.1,818.1,818.1,819.0,801.0,817.0],"b":[720,720,720,720,720,720,720,720,720,720,720,720,720],"tri":[0,1,2,12,0,2,12,2,3,12,3,4,12,4,5,12,5,6,6,7,8,6,8,9,6,9,10,12,6,10,10,11,12]},{"y":[780,840],"m":1,"o":[2195.5,327.2,2195.5,315.9,2200.1,312.8,2215.9,313.2,2225.4,317.5,2229.1,329.0,2220.7,336.9,2212.9,338.4,2251.1,363.6,2271.7,401.4,2252.7,441.1,2219.7,463.7,2287.2,464.0,2294.0,469.8,2293.9,481.3,2287.5,485.6,2196.4,485.7,2195.5,478.7,2192.0,479.6,2191.9,326.8],"t":[840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840],"b":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"tri":[0,1,2,0,2,3,0,3,4,0,4,5,0,5,6,19,0,6,19,6,7,19,7,8,19,8,9,19,9,10,19,10,11,11,12,13,11,13,14,11,14,15,11,15,16,19,11,16,19,16,17,17,18,19]},{"y":[780,840],"m":0,"o":[1993.7,-351.0,2054.8,-330.6,2060.3,-310.1,2249.4,-310.2,2253.7,-331.9,2306.3,-350.1,2322.4,-348.4,2322.5,-309.1,2452.2,-310.3,2452.3,-420.7,2503.1,-449.5,2502.9,449.9,2452.3,420.9,2452.2,310.4,2322.5,309.3,2322.4,348.6,2306.3,350.2,2253.7,332.1,2249.4,310.3,2060.3,310.3,2054.8,330.7,1993.7,351.1,1775.9,344.3,1775.6,241.2,1789.7,226.1,1993.7,226.6,1994.6,236.6,2052.1,251.8,2060.6,272.7,2183.8,272.8,2183.8,123.3,2036.5,142.0,1997.4,123.3,1992.6,148.2,1925.5,160.7,1900.6,123.5,1806.0,122.6,1806.3,-123.1,1900.6,-123.3,1925.5,-160.5,1992.6,-148.1,1997.4,-123.2,2036.5,-141.8,2183.8,-123.1,2183.8,-272.7,2060.6,-272.5,2052.0,-251.6,1994.6,-236.4,1993.7,-226.5,1789.7,-226.0,1775.6,-241.2,1775.6,-343.6],"t":[840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840],"b":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"tri":[51,0,1,51,1,2,3,4,5,3,5,6,3,6,7,2,3,7,8,9,10,8,10,11,7,8,11,11,12,13,7,11,13,7,13,14,7,14,15,7,15,16,7,16,17,7,17,18,19,20,21,19,21,22,19,22,23,18,19,23,18,23,24,24,25,26,24,26,27,24,27,28,18,24,28,18,28,29,7,18,29,7,29,30,7,30,31,32,33,34,32,34,35,32,35,36,32,36,37,31,32,37,31,37,38,31,38,39,31,39,40,31,40,41,31,41,42,31,42,43,7,31,43,7,43,44,2,7,44,51,2,44,51,44,45,51,45,46,51,46,47,51,47,48,51,48,49,49,50,51]},{"y":[780,840],"m":0,"o":[4891.8,-528.0,5235.5,-528.0,5235.8,-737.9,5375.1,-738.1,5383.5,-759.4,5390.6,-763.8,5451.4,-753.7,5456.7,-747.6,5456.9,-738.1,5514.8,-737.5,5514.4,737.9,5456.9,738.0,5456.7,747.6,5451.4,753.6,5390.6,763.7,5383.5,759.5,5375.0,737.9,5235.8,738.2,5235.5,528.0,4890.9,527.4],"t":[840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840],"b":[780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780,780],"tri":[19,0,1,1,2,3,19,1,3,19,3,4,19,4,5,19,5,6,19,6,7,19,7,8,19,8,9,9,10,11,11,12,13,9,11,13,9,13,14,9,14,15,9,15,16,9,16,17,9,17,18,9,18,19]},{"y":[780,887.1234741210939],"m":1,"o":[5489.2,867.6,5496.4,864.7,5520.2,868.2,5527.2,1107.5,5434.9,1108.1,5422.8,1103.0,5422.8,868.4],"t":[887.1,887.1,840.2,840.2,840.2,840.2,887.1],"b":[780,780,780,780,780,780,780],"tri":[0,1,2,6,0,2,6,2,3,6,3,4,4,5,6]},{"y":[840,900],"m":0,"o":[1775.6,-191.2,2101.2,-199.9,2101.2,-138.5,2036.4,-147.1,1997.4,-128.1,1989.1,-143.8,1925.4,-154.5,1905.5,-128.2,1806.2,-127.7,1806.0,127.2,1905.5,128.4,1925.4,154.7,1989.1,144.0,1997.4,128.2,2036.4,147.2,2101.2,138.7,2101.2,200.1,1990.9,188.5,1776.1,190.6,1775.8,393.7,1979.7,385.6,1991.0,396.3,2060.2,381.3,2164.0,381.3,2164.0,480.6,2191.9,481.4,2192.0,531.6,2211.3,526.2,2211.6,626.7,2258.6,626.7,2258.8,511.2,2318.4,490.0,2318.5,626.5,2399.7,626.8,2400.1,486.2,2457.8,486.3,2461.6,520.5,2503.3,527.7,2503.1,-528.1,2461.6,-520.4,2457.8,-486.1,2400.1,-486.0,2400.0,-626.4,2319.2,-626.9,2318.4,-489.9,2258.8,-511.0,2258.6,-626.6,2211.8,-626.8,2211.3,-526.1,2192.0,-531.5,2191.9,-481.3,2164.0,-480.5,2164.0,-381.2,2060.2,-381.1,1991.0,-396.2,1979.7,-385.5,1775.9,-393.7]},{"y":[840,900],"m":1,"o":[4269.6,658.2,4269.6,573.9,4278.2,572.3,4274.2,571.0,4277.9,561.2,4274.1,559.1,4277.9,555.4,4274.0,552.7,4277.9,551.5,4274.1,546.1,4277.9,545.3,4269.6,545.3,4269.6,144.8,4890.1,145.1,4889.9,559.4,4702.0,559.6,4701.2,655.1,4633.0,654.7,4632.1,660.4,4609.8,660.5,4608.6,655.0,4601.0,654.5,4600.6,643.8,4592.3,643.7,4585.0,625.7,4575.2,642.3,4566.6,642.7,4565.6,653.9,4465.7,656.4,4464.9,662.1,4442.9,662.2,4442.0,656.8,4433.7,656.2,4433.3,645.8,4425.1,645.3,4417.8,627.3,4407.9,644.0,4399.5,644.4,4398.7,655.5,4302.8,658.1,4301.5,663.5,4279.6,663.7,4278.5,658.4],"t":[900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900],"b":[840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840],"tri":[42,0,1,42,1,2,2,3,4,4,5,6,2,4,6,6,7,8,2,6,8,8,9,10,2,8,10,10,11,12,10,12,13,2,10,13,42,2,13,13,14,15,42,13,15,15,16,17,17,18,19,15,17,19,15,19,20,15,20,21,15,21,22,15,22,23,15,23,24,24,25,26,26,27,28,24,26,28,15,24,28,28,29,30,15,28,30,15,30,31,15,31,32,15,32,33,15,33,34,15,34,35,42,15,35,35,36,37,42,35,37,42,37,38,42,38,39,42,39,40,40,41,42]},{"y":[840,900],"m":0,"o":[2503.4,527.5,2503.9,-530.1,2698.0,-538.5,2707.0,-530.7,2786.4,-535.5,2806.2,-523.6,2806.7,-542.7,2839.9,-542.8,2840.9,-627.0,2912.0,-626.6,2912.3,-542.8,3003.9,-542.8,3004.9,-579.5,3174.3,-579.5,3175.1,-551.6,3361.1,-551.6,3362.0,-579.5,3689.1,-579.5,3690.1,-542.5,3865.3,-544.1,3866.3,-606.0,3923.7,-605.6,3923.9,-544.5,4073.7,-546.2,4074.7,-579.5,4221.8,-579.5,4222.6,-547.2,4251.5,-547.1,4254.9,-627.6,4254.9,-179.7,3563.8,-179.6,3563.8,-69.7,4254.9,-69.7,4254.9,34.8,3563.8,34.8,3563.8,144.7,4254.9,144.8,4254.9,545.4,4222.6,545.2,4222.1,579.1,4074.5,579.2,4073.7,544.4,4043.6,540.1,4000.6,547.0,3873.2,539.2,3690.1,540.9,3689.1,579.3,3362.0,579.3,3361.1,551.9,3175.1,551.9,3174.3,579.2,3004.9,579.3,3003.9,542.7,2912.3,542.7,2912.0,626.7,2840.9,627.1,2839.9,542.7,2806.6,542.5,2806.2,521.6,2786.3,533.9,2708.7,529.3,2698.0,538.8,2593.7,538.8,2573.4,528.8],"t":[900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900],"b":[840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840],"tri":[63,0,1,63,1,2,63,2,3,63,3,4,63,4,5,5,6,7,63,5,7,7,8,9,63,7,9,63,9,10,63,10,11,11,12,13,63,11,13,63,13,14,63,14,15,15,16,17,63,15,17,63,17,18,63,18,19,19,20,21,19,21,22,63,19,22,63,22,23,23,24,25,23,25,26,23,26,27,27,28,29,23,27,29,23,29,30,63,23,30,63,30,31,31,32,33,31,33,34,63,31,34,63,34,35,63,35,36,36,37,38,38,39,40,36,38,40,36,40,41,36,41,42,36,42,43,36,43,44,36,44,45,45,46,47,36,45,47,36,47,48,36,48,49,49,50,51,36,49,51,36,51,52,36,52,53,53,54,55,53,55,56,36,53,56,36,56,57,36,57,58,63,36,58,58,59,60,63,58,60,63,60,61,61,62,63]},{"y":[840,969.8],"m":0,"o":[5235.5,-559.6,5235.7,-676.3,5337.9,-676.7,5338.1,-801.8,5422.8,-802.2,5422.8,-1045.4,5474.1,-1046.2,5461.9,-398.3,5461.9,398.2,5474.6,893.3,5475.6,1054.2,5422.8,1053.3,5422.8,802.2,5338.1,801.8,5337.9,676.5,5235.7,676.1,5235.5,559.6,4890.8,558.8,4890.8,-558.9],"t":[969.8,954.9,953.1,932.0,909.8,909.8,945.5,969.8,969.8,966.8,945.5,909.8,909.8,932.0,953.2,955.0,969.8,969.8,969.8],"b":[840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840,840],"tri":[0,1,2,2,3,4,4,5,6,4,6,7,2,4,7,0,2,7,18,0,7,18,7,8,18,8,9,9,10,11,9,11,12,18,9,12,12,13,14,18,12,14,14,15,16,18,14,16,16,17,18]},{"y":[807.1,900],"m":0,"o":[14057.7,191.4,14057.7,96.5,14067.7,96.5,14072.9,92.9,14072.9,79.6,14067.7,76.2,14057.7,76.2,14057.7,-74.7,14067.7,-74.7,14072.9,-78.6,14072.9,-91.6,14067.7,-95.5,14057.7,-95.5,14057.7,-191.6,14398.2,-104.0,14122.0,-102.2,14140.8,-87.9,14141.7,-49.4,14160.2,-48.8,14160.3,-6.4,14183.0,0.1,14160.3,6.6,14160.2,48.6,14140.8,49.4,14140.5,89.4,14122.4,102.6,14398.1,103.6],"t":[872.0,899.5,896.3,896.1,897.7,899.7,900,900,899.7,897.7,896.2,896.7,899.2,873.5,870.2,879.0,871.6,892.9,892.5,892.5,870.3,892.5,892.5,893.0,871.5,878.9,870.2],"b":[807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1,807.1],"tri":[0,1,2,0,2,3,5,6,7,4,5,7,4,7,8,4,8,9,11,12,13,10,11,13,13,14,15,10,13,15,9,10,15,4,9,15,3,4,15,0,3,15,0,15,16,0,16,17,0,17,18,0,18,19,19,20,21,0,19,21,21,22,23,0,21,23,23,24,25,0,23,25,0,25,26]},{"y":[900,960],"m":0,"o":[1775.6,-187.8,1776.1,-397.5,2096.9,-385.1,2097.0,-506.9,2159.7,-507.5,2160.6,-537.5,2213.4,-537.4,2214.1,-514.7,2273.2,-514.7,2274.2,-537.5,2376.6,-537.4,2377.4,-462.8,2499.4,-462.8,2482.3,-489.4,2456.6,-492.3,2449.4,-538.6,2503.0,-563.3,2503.0,563.4,2449.4,538.8,2456.5,492.4,2482.3,489.5,2499.4,463.0,2377.4,463.0,2376.6,537.6,2274.2,537.6,2273.2,514.8,2214.1,514.8,2213.4,537.6,2160.6,537.6,2159.7,507.7,2097.0,507.0,2096.9,385.2,1775.9,397.4,1776.0,187.2,2096.9,196.0,2106.2,179.7,2106.2,117.1,2033.9,126.7,2013.4,103.5,1925.7,119.2,1911.6,103.5,1806.0,102.4,1806.3,-103.0,1911.6,-103.4,1925.7,-119.0,2013.4,-103.4,2033.9,-126.6,2106.2,-117.0,2096.9,-195.8],"t":[960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960],"b":[900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900],"tri":[48,0,1,48,1,2,48,2,3,48,3,4,4,5,6,48,4,6,48,6,7,48,7,8,8,9,10,48,8,10,48,10,11,48,11,12,13,14,15,13,15,16,12,13,16,12,16,17,17,18,19,17,19,20,17,20,21,12,17,21,48,12,21,48,21,22,48,22,23,23,24,25,48,23,25,48,25,26,48,26,27,27,28,29,29,30,31,27,29,31,31,32,33,31,33,34,27,31,34,27,34,35,27,35,36,36,37,38,38,39,40,38,40,41,38,41,42,36,38,42,36,42,43,36,43,44,36,44,45,36,45,46,36,46,47,27,36,47,27,47,48]},{"y":[900,1017.7388490587443],"m":0,"o":[4253.2,673.5,4253.2,-661.2,4258.1,-672.7,4266.3,-672.9,4267.1,-683.4,4308.8,-683.2,4315.7,-694.7,4317.0,-689.2,4334.1,-688.1,4334.5,-683.1,4399.1,-680.7,4399.7,-669.4,4408.2,-669.2,4418.0,-653.2,4425.1,-670.9,4433.5,-671.0,4434.3,-681.7,4471.7,-681.7,4483.3,-693.0,4484.2,-687.1,4497.5,-686.5,4500.0,-681.1,4500.0,-559.2,4262.7,-561.5,4262.5,-553.5,4500.0,-554.9,4500.0,693.7,4483.1,705.7,4471.7,694.6,4434.6,694.5,4433.5,684.2,4425.2,683.5,4418.0,665.7,4408.2,682.0,4399.7,682.5,4399.1,693.0,4334.5,695.6,4334.0,700.7,4312.0,707.4,4308.8,695.8,4267.2,695.9,4266.3,685.4,4258.1,685.2],"t":[961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,1017.7,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3,961.3],"b":[900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900],"tri":[42,0,1,42,1,2,3,4,5,5,6,7,5,7,8,3,5,8,3,8,9,3,9,10,3,10,11,2,3,11,2,11,12,2,12,13,13,14,15,15,16,17,13,15,17,17,18,19,13,17,19,13,19,20,13,20,21,13,21,22,2,13,22,2,22,23,2,23,24,42,2,24,42,24,25,25,26,27,25,27,28,25,28,29,25,29,30,25,30,31,25,31,32,42,25,32,42,32,33,42,33,34,34,35,36,36,37,38,36,38,39,34,36,39,34,39,40,34,40,41,34,41,42]},{"y":[900,960],"m":0,"o":[2503.4,562.8,2503.9,-565.6,2708.5,-553.3,2776.6,-565.9,2813.9,-545.6,2851.3,-565.8,2915.5,-565.8,3000.4,-533.5,3000.9,-579.4,3078.5,-579.5,3079.5,-533.4,3179.6,-533.3,3179.8,-579.2,3254.7,-579.5,3253.1,-612.1,3262.2,-579.5,3314.8,-579.4,3315.5,-556.3,3554.0,-556.3,3554.5,-602.9,3650.0,-603.1,3651.0,-556.4,3865.1,-556.3,3865.6,-658.2,3923.1,-658.8,3924.1,-556.4,4171.2,-579.5,4176.0,-532.4,4249.7,-532.3,4253.2,-661.2,4253.2,673.5,4249.8,571.0,4051.4,579.5,4050.5,554.4,3651.0,554.5,3650.0,602.8,3554.5,602.7,3553.9,554.4,3315.5,554.4,3314.5,579.5,3180.3,579.5,3179.5,543.6,3079.5,543.6,3077.4,581.2,3000.9,579.4,3000.4,543.6,2915.4,563.9,2851.3,563.9,2813.9,543.7,2776.4,564.0,2742.8,551.4],"t":[960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960],"b":[900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900],"tri":[50,0,1,50,1,2,50,2,3,50,3,4,50,4,5,50,5,6,50,6,7,7,8,9,50,7,9,50,9,10,50,10,11,11,12,13,50,11,13,13,14,15,50,13,15,50,15,16,50,16,17,50,17,18,18,19,20,50,18,20,50,20,21,50,21,22,22,23,24,22,24,25,50,22,25,50,25,26,50,26,27,50,27,28,28,29,30,28,30,31,28,31,32,28,32,33,28,33,34,34,35,36,28,34,36,28,36,37,28,37,38,38,39,40,28,38,40,28,40,41,28,41,42,42,43,44,28,42,44,28,44,45,28,45,46,28,46,47,28,47,48,50,28,48,48,49,50]},{"y":[900,976.1],"m":0,"o":[4894.4,-723.6,4896.3,-651.5,4905.8,-667.7,4914.8,-668.0,4915.1,-678.9,4924.4,-680.0,4922.4,-811.2,5035.2,-816.7,5038.2,-681.9,5047.2,-681.7,5048.1,-671.3,5056.1,-671.3,5061.1,-659.2,5067.4,-659.4,5064.6,-839.1,5176.8,-839.5,5180.8,-683.4,5203.0,-683.9,5209.3,-718.7,5207.3,-839.1,5330.1,-839.5,5335.7,-640.0,5335.9,-838.9,5419.4,-838.8,5408.8,59.0,5419.5,839.5,5336.2,838.9,5336.2,640.0,5330.1,839.5,5207.2,839.2,5209.4,699.8,5203.3,699.9,5202.8,696.6,5180.5,696.2,5176.6,839.5,5064.4,839.1,5067.2,672.1,5063.5,665.8,5056.3,683.5,5048.1,683.8,5047.2,694.2,5037.8,694.6,5035.0,810.7,4922.7,805.5,4924.2,692.9,4915.1,691.5,4914.8,680.6,4905.9,680.4,4895.9,664.7,4894.5,717.7,4890.8,717.8,4890.8,-723.5],"t":[934.8,934.5,939.1,939.1,939.1,933.4,934.0,933.6,930.9,936.9,936.9,936.9,936.1,931.6,932.3,931.9,931.0,934.3,930.1,930.5,932.0,974.0,932.0,916.1,976.1,916.1,931.9,973.9,931.9,930.5,930.0,934.2,934.3,931.0,931.9,932.3,931.7,931.6,936.8,936.8,936.9,932.9,933.5,933.9,933.4,939.1,939.1,939.1,934.6,934.8,934.8,932.7],"b":[900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900,900],"tri":[51,0,1,1,2,3,3,4,5,5,6,7,3,5,7,3,7,8,1,3,8,1,8,9,1,9,10,1,10,11,1,11,12,1,12,13,13,14,15,13,15,16,13,16,17,18,19,20,17,18,20,17,20,21,13,17,21,1,13,21,21,22,23,21,23,24,1,21,24,1,24,25,25,26,27,1,25,27,1,27,28,28,29,30,1,28,30,30,31,32,1,30,32,1,32,33,1,33,34,34,35,36,1,34,36,1,36,37,1,37,38,1,38,39,1,39,40,1,40,41,1,41,42,42,43,44,1,42,44,51,1,44,51,44,45,51,45,46,51,46,47,51,47,48,51,48,49,49,50,51]},{"y":[830.8,960],"m":0,"o":[11714.0,689.0,11714.0,459.7,11733.1,460.4,11733.2,515.5,11856.7,514.8,11859.1,477.9,11856.1,453.5,11863.2,354.9,11861.0,328.3,11920.8,327.6,11920.8,315.5,11866.9,315.1,11866.9,292.3,11920.8,291.3,11920.8,274.7,11885.9,274.7,11714.0,296.2,11714.0,-312.9,11920.8,-286.8,11920.8,-304.1,11866.9,-304.6,11866.5,-327.5,11860.5,-328.4,11863.4,-354.3,11856.2,-372.7,11859.9,-399.9,11854.7,-475.4,11858.6,-515.6,11733.2,-515.6,11733.1,-460.1,11714.0,-459.4,11714.0,-688.9,11754.4,-688.3,11754.5,-616.1,12140.5,-562.8,12355.4,-562.8,12356.3,-532.8,12616.4,-497.0,12659.6,-497.0,12660.5,-490.7,12735.0,-480.5,12735.0,271.2,12722.9,271.2,12723.4,274.3,12735.0,274.5,12735.0,469.3,12660.5,479.5,12659.7,497.2,12539.1,497.3,12538.3,509.4,12356.3,531.3,12355.4,563.1,12057.7,563.1,11754.5,604.9,11754.4,688.5],"t":[960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960],"b":[830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8,830.8],"tri":[54,0,1,1,2,3,54,1,3,5,6,7,7,8,9,5,7,9,4,5,9,10,11,12,10,12,13,15,16,17,14,15,17,14,17,18,19,20,21,21,22,23,19,21,23,19,23,24,19,24,25,19,25,26,19,26,27,28,29,30,28,30,31,28,31,32,28,32,33,27,28,33,27,33,34,19,27,34,18,19,34,14,18,34,13,14,34,10,13,34,9,10,34,9,34,35,4,9,35,4,35,36,4,36,37,4,37,38,4,38,39,4,39,40,40,41,42,4,40,42,4,42,43,4,43,44,4,44,45,4,45,46,46,47,48,4,46,48,4,48,49,4,49,50,3,4,50,3,50,51,3,51,52,3,52,53,3,53,54]},{"y":[960,1020],"m":0,"o":[1791.1,-217.8,1775.6,-221.0,1775.9,-363.5,1794.3,-366.3,1807.2,-345.4,1977.6,-345.7,1991.1,-366.7,2054.7,-354.9,2060.4,-340.3,2097.9,-340.0,2098.5,-482.1,2334.4,-482.1,2334.5,-556.2,2364.2,-556.8,2365.2,-467.0,2503.0,-466.7,2503.0,466.8,2365.2,467.1,2365.1,556.2,2335.3,556.9,2334.4,482.3,2098.2,482.1,2097.9,340.2,2060.4,340.5,2054.7,355.0,1991.1,366.9,1977.6,345.9,1807.2,345.5,1801.1,362.5,1775.9,363.7,1776.2,220.3,1797.4,219.3,1805.1,232.5,1980.1,231.8,1991.1,217.4,2053.2,229.4,2060.4,243.0,2097.8,242.8,2098.4,203.9,2184.5,203.6,2103.1,203.1,2102.8,43.5,2029.8,64.1,2022.6,54.1,2015.4,2.8,2018.7,-37.0,2029.7,-64.0,2102.8,-43.3,2103.1,-203.0,2184.5,-203.5,2098.4,-203.8,2097.8,-242.7,2060.4,-242.9,2053.2,-229.3,1991.1,-217.3,1980.1,-231.6,1805.1,-232.4],"t":[1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020],"b":[960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960],"tri":[56,0,1,56,1,2,56,2,3,56,3,4,56,4,5,5,6,7,56,5,7,56,7,8,56,8,9,9,10,11,11,12,13,11,13,14,9,11,14,9,14,15,56,9,15,15,16,17,17,18,19,15,17,19,15,19,20,15,20,21,23,24,25,23,25,26,23,26,27,27,28,29,27,29,30,23,27,30,30,31,32,23,30,32,22,23,32,22,32,33,22,33,34,22,34,35,22,35,36,22,36,37,21,22,37,21,37,38,21,38,39,15,21,39,15,39,40,15,40,41,15,41,42,15,42,43,43,44,45,43,45,46,43,46,47,15,43,47,47,48,49,15,47,49,15,49,50,15,50,51,15,51,52,56,15,52,52,53,54,52,54,55,52,55,56]},{"y":[960,1017.652288505339],"m":1,"o":[4739.2,1026.6,4746.4,1027.0,4746.2,1160.9,4505.8,1123.6,4506.4,1122.3],"t":[990.4,990.1,1005.1,1017.7,1017.4],"b":[960,960,960,960,960],"tri":[4,0,1,4,1,2,2,3,4]},{"y":[907.3,1020],"m":1,"o":[8608.8,897.1,8608.8,803.7,8963.9,803.7,8965.0,766.0,9023.4,766.1,9024.0,797.7,9045.9,797.7,9045.9,724.1,8608.8,724.1,8608.8,478.8,9000.2,353.3,9203.4,245.0,9301.7,186.4,9301.7,903.0,9024.0,903.3,9023.5,934.5,8965.0,934.6,8963.9,897.1],"t":[997.9,997.9,997.9,1013.2,1013.2,997.9,990.2,999.2,1017.5,1020,1020,1020,1020,997.9,997.9,1013.2,1013.2,997.9],"b":[907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3,907.3],"tri":[17,0,1,17,1,2,17,2,3,17,3,4,17,4,5,17,5,6,7,8,9,7,9,10,7,10,11,6,7,11,6,11,12,6,12,13,17,6,13,17,13,14,17,14,15,15,16,17]},{"y":[960,1014.0788574218751],"m":1,"o":[11884.2,365.2,11669.8,365.2,11669.0,328.4,11884.4,327.7],"t":[999.8,999.8,1014.1,1014.1],"b":[960,960,960,960],"tri":[3,0,1,1,2,3]},{"y":[960,994.8688964843751],"m":1,"o":[11725.6,439.9,11726.5,410.9,12118.2,411.8,12117.3,440.9],"t":[994.9,994.9,994.9,994.9],"b":[960,960,960,960],"tri":[3,0,1,1,2,3]},{"y":[960,1018.1953735351565],"m":1,"o":[12355.3,563.1,11617.3,563.1,11616.4,516.5,12355.4,515.6],"t":[997.0,1018.2,997.0,997.0],"b":[960,960,960,960],"tri":[3,0,1,1,2,3]},{"y":[960,1020],"m":1,"o":[11979.4,352.8,12300.4,352.8,12301.4,336.1,12804.5,336.1,12805.4,398.5,12301.4,399.4,12300.4,385.4,11979.3,385.4],"t":[990.2,1020,1020,1020,1020,1020,1020,990.2],"b":[960,960,960,960,960,960,960,960],"tri":[7,0,1,1,2,3,7,1,3,3,4,5,3,5,6,3,6,7]},{"y":[828,1018.1953735351564],"m":1,"o":[11410.5,625.9,11410.5,576.4,11682.1,577.3,11681.3,625.9],"t":[1018.2,1017.9,1018.2,1018.2],"b":[828,828,828,828],"tri":[3,0,1,1,2,3]},{"y":[889.8,1080],"m":0,"o":[11181.6,531.6,11181.6,454.4,11185.3,454.4,11181.6,452.9,11181.6,-531.7,11333.2,-531.6,11334.3,-523.3,11410.5,-503.0,11410.5,-491.9,11395.2,-488.2,11410.5,-488.2,11410.5,-482.7,11395.1,-482.8,11395.1,-476.8,11410.5,-476.6,11410.5,-471.1,11394.9,-470.7,11410.5,-467.6,11410.5,456.4,11394.9,459.6,11410.5,459.9,11410.5,465.4,11395.1,465.4,11395.2,471.7,11410.5,471.6,11410.5,477.0,11395.3,477.4,11410.5,480.8,11410.5,491.8,11334.3,512.3,11333.3,531.6],"t":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"b":[889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8,889.8],"tri":[30,0,1,30,1,2,2,3,4,30,2,4,30,4,5,30,5,6,6,7,8,6,8,9,9,10,11,9,11,12,6,9,12,6,12,13,13,14,15,13,15,16,6,13,16,16,17,18,6,16,18,6,18,19,19,20,21,19,21,22,6,19,22,6,22,23,23,24,25,23,25,26,6,23,26,26,27,28,26,28,29,6,26,29,6,29,30]},{"y":[960,1018.1953735351564],"m":1,"o":[11181.6,614.0,11181.6,563.6,11208.8,563.6,11209.6,551.4,11275.2,551.4,11276.2,556.8,11387.1,556.8,11388.0,576.4,11410.5,576.4,11410.5,625.9,11318.1,625.9,11317.3,605.6,11268.2,605.6,11267.3,618.2,11242.0,618.2,11241.2,614.0],"t":[991.4,1015.1,1018.2,1018.2,1018.2,1018.2,1018.2,1017.8,1017.9,1018.2,1018.2,1018.2,1018.2,1018.2,1018.2,1018.2],"b":[960,960,960,960,960,960,960,960,960,960,960,960,960,960,960,960],"tri":[15,0,1,15,1,2,15,2,3,15,3,4,15,4,5,15,5,6,7,8,9,7,9,10,6,7,10,6,10,11,6,11,12,15,6,12,15,12,13,13,14,15]},{"y":[889.2,1017.1931232356465],"m":0,"o":[10983.0,519.3,10983.0,-435.1,11051.9,-435.0,11052.7,-417.7,11062.3,-417.0,11062.4,-395.4,11110.5,-395.4,11099.3,-431.9,11095.7,-480.9,10983.0,-481.1,10983.0,-530.6,11026.9,-530.6,11057.1,-522.7,11058.0,-501.7,11085.4,-501.7,11086.2,-510.5,11095.7,-510.5,11096.4,-531.6,11181.6,-531.7,11181.6,452.9,11178.2,454.4,11181.6,454.4,11181.6,531.6,11096.3,531.5,11095.7,499.3,11086.2,499.2,11085.4,490.4,11058.0,490.4,11057.1,511.4,11026.9,519.3],"t":[1005.4,1007.9,1007.9,1009.8,1009.8,1013.5,991.7,1002.4,1007.5,998.0,1005.4,992.0,1009.6,1010.5,1017.1,1016.5,1016.9,1001.1,1001.1,1017.2,1017.2,1017.2,1001.1,1001.1,1016.9,1017.1,1017.1,1010.9,1009.6,992.0],"b":[889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2,889.2],"tri":[29,0,1,29,1,2,29,2,3,29,3,4,29,4,5,29,5,6,6,7,8,8,9,10,10,11,12,10,12,13,8,10,13,8,13,14,8,14,15,8,15,16,6,8,16,6,16,17,6,17,18,29,6,18,18,19,20,20,21,22,20,22,23,18,20,23,18,23,24,18,24,25,18,25,26,18,26,27,29,18,27,27,28,29]},{"y":[960,1015.1243286132814],"m":1,"o":[10983.0,605.6,10983.0,566.9,11077.8,566.9,11078.8,551.4,11102.0,551.5,11102.5,563.6,11181.6,563.6,11181.6,614.0,11163.0,614.0,11162.1,618.2,11072.3,618.2,11071.4,605.6],"t":[1015.1,1015.1,1015.1,1015.1,1015.1,1015.1,1015.1,991.4,991.4,991.4,1015.1,1015.1],"b":[960,960,960,960,960,960,960,960,960,960,960,960],"tri":[11,0,1,11,1,2,2,3,4,11,2,4,11,4,5,11,5,6,11,6,7,11,7,8,11,8,9,9,10,11]},{"y":[960,1080],"m":0,"o":[10952.5,519.4,10952.5,-404.4,10961.3,-404.4,10961.3,-414.0,10952.5,-414.0,10952.5,-435.1,10983.0,-435.1,10983.0,519.3],"t":[1080,1080,1080,1080,1080,1080,1080,1080],"b":[960,960,960,960,960,960,960,960],"tri":[7,0,1,7,1,2,7,2,3,3,4,5,3,5,6,3,6,7]},{"y":[891.4,1020],"m":0,"o":[10496.3,665.7,10496.3,644.3,10540.9,644.2,10541.3,641.0,10496.3,641.0,10496.3,-642.9,10880.3,-640.7,10881.0,-610.6,10903.3,-610.6,10904.2,-618.3,10947.2,-618.3,10948.1,-605.5,10952.5,-605.5,10952.5,-558.2,10924.4,-558.2,10923.4,-551.2,10901.5,-551.2,10900.7,-558.2,10880.9,-558.2,10881.2,-530.5,10952.5,-530.6,10952.5,-481.1,10881.0,-481.1,10881.0,-464.0,10881.0,-404.4,10936.8,-404.4,10936.8,-414.0,10897.1,-414.2,10896.7,-434.1,10936.8,-435.1,10937.5,-462.1,10943.3,-435.1,10952.5,-435.1,10952.5,-414.0,10943.8,-414.0,10943.8,-404.5,10952.5,-404.4,10952.5,519.4,10881.3,519.4,10881.1,546.6,10881.2,558.2,10900.7,558.2,10901.5,551.4,10923.4,551.4,10924.4,558.2,10952.5,558.2,10952.5,605.6,10948.1,605.6,10947.2,618.2,10904.2,618.2,10903.3,610.8,10881.0,610.8,10880.1,641.0,10647.3,641.1,10645.8,648.7,10573.5,649.0,10573.5,661.4,10570.4,664.6],"t":[1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020],"b":[891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4,891.4],"tri":[57,0,1,57,1,2,57,2,3,3,4,5,57,3,5,5,6,7,8,9,10,8,10,11,7,8,11,11,12,13,7,11,13,5,7,13,5,13,14,14,15,16,14,16,17,5,14,17,5,17,18,5,18,19,19,20,21,5,19,21,5,21,22,5,22,23,5,23,24,26,27,28,26,28,29,26,29,30,25,26,30,25,30,31,25,31,32,32,33,34,25,32,34,25,34,35,25,35,36,25,36,37,24,25,37,5,24,37,5,37,38,5,38,39,5,39,40,41,42,43,41,43,44,44,45,46,41,44,46,40,41,46,40,46,47,40,47,48,48,49,50,40,48,50,40,50,51,5,40,51,5,51,52,5,52,53,5,53,54,5,54,55,57,5,55,55,56,57]},{"y":[892.1,1020],"m":0,"o":[9302.8,902.4,9302.9,185.0,9607.5,-0.0,9302.9,-193.2,9303.0,-902.9,9569.2,-902.9,9569.2,-797.6,9457.2,-797.3,9474.8,-682.8,9887.3,-678.6,9887.8,-715.4,9907.9,-716.3,9929.4,-706.4,9927.8,-678.8,10056.4,-679.0,10056.7,-707.8,10079.1,-711.3,10082.6,-679.2,10103.9,-684.9,10108.6,-700.4,10150.3,-695.3,10114.7,-682.1,10128.7,-675.4,10128.7,-640.8,10405.1,-640.7,10415.4,-627.3,10432.9,-627.4,10440.9,-637.5,10434.6,-640.6,10496.3,-642.9,10496.3,641.0,10451.4,641.0,10496.3,644.3,10496.3,665.7,10479.2,665.3,10488.2,648.8,10354.2,650.3,10347.9,641.0,10142.3,641.0,10254.6,643.0,10255.4,665.9,10142.2,666.7,10115.1,692.6,10100.7,680.4,10094.4,704.7,10040.8,704.6,10037.9,680.4,10025.2,696.3,10014.3,680.4,10013.4,711.5,9983.3,712.6,9900.4,712.4,9889.9,699.9,9866.2,701.4,9865.7,680.2,9475.3,680.0,9457.3,797.8,9569.2,798.0,9569.2,903.0],"t":[960,1020,1020,1020,997.9,997.9,997.9,997.9,1016.2,1012.8,993.4,997.9,998.2,1013.4,1015.0,999.8,997.6,1015.2,1014.4,1010.8,1010.8,1015.0,1016.2,1020,1016.4,1003.7,1003.2,1003.0,1020,1001.3,1001.4,1002.6,1001.3,991.5,991.3,992.6,999.6,1015.9,1015.9,1018.1,1014.1,1013.9,1010.7,1018.7,999.9,1018.5,1018.2,1020,1017.9,1007.1,1006.8,1017.1,1019.0,1019.1,1020,1015.2,997.9,997.9,997.9],"b":[892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1,892.1],"tri":[0,1,2,2,3,4,4,5,6,4,6,7,4,7,8,2,4,8,2,8,9,0,2,9,9,10,11,0,9,11,0,11,12,0,12,13,0,13,14,14,15,16,0,14,16,0,16,17,0,17,18,18,19,20,18,20,21,0,18,21,0,21,22,0,22,23,0,23,24,0,24,25,0,25,26,0,26,27,27,28,29,0,27,29,29,30,31,32,33,34,32,34,35,31,32,35,31,35,36,29,31,36,29,36,37,29,37,38,38,39,40,38,40,41,38,41,42,29,38,42,29,42,43,43,44,45,29,43,45,29,45,46,29,46,47,29,47,48,48,49,50,29,48,50,29,50,51,29,51,52,29,52,53,29,53,54,29,54,55,0,29,55,0,55,56,58,0,56,56,57,58]},{"y":[1020,1084.6461334796902],"m":0,"o":[2280.0,555.7,2280.0,535.5,2306.8,535.4,2306.7,505.9,2280.0,505.8,2280.0,-505.7,2306.7,-505.8,2306.8,-531.8,2280.0,-535.4,2280.0,-555.6,2333.5,-555.6,2340.7,-545.1,2350.7,-555.8,2464.2,-555.4,2478.0,-545.1,2478.6,-552.0,2502.5,-555.8,2503.3,555.1,2478.7,552.2,2473.4,545.3,2473.2,551.8,2464.3,555.5,2350.7,555.9,2340.7,545.3,2333.5,555.7],"t":[1084.5,1071.9,1071.9,1071.9,1071.9,1071.9,1071.9,1071.9,1071.9,1084.5,1084.5,1071.9,1084.6,1081.1,1077.8,1080.9,1080.6,1080.6,1080.9,1071.9,1080.9,1081.1,1084.6,1071.9,1084.5],"b":[1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020],"tri":[24,0,1,24,1,2,24,2,3,3,4,5,24,3,5,24,5,6,24,6,7,7,8,9,7,9,10,24,7,10,24,10,11,24,11,12,24,12,13,24,13,14,14,15,16,24,14,16,16,17,18,16,18,19,16,19,20,16,20,21,16,21,22,16,22,23,16,23,24]},{"y":[1020,1080],"m":1,"o":[3622.9,1199.4,3769.7,1139.9,3769.8,1203.8,3778.3,1226.3],"t":[1061.2,1080,1055.1,1052.6],"b":[1020,1020,1020,1020],"tri":[0,1,2,0,2,3]},{"y":[965.3,1079.3333985099093],"m":1,"o":[7302.8,1030.4,7302.8,795.3,7455.4,795.3,7455.4,982.8,7335.5,982.3,7335.5,994.5,7455.4,994.6,7455.4,1030.4],"t":[1064.4,1051.3,1051.3,1077.5,1079.3,1064.4,1064.1,1071.9],"b":[965.3,965.3,965.3,965.3,965.3,965.3,965.3,965.3],"tri":[0,1,2,2,3,4,0,2,4,0,4,5,7,0,5,5,6,7]},{"y":[973.2,1064.4969149845037],"m":1,"o":[7164.2,1030.4,7164.2,994.4,7284.2,994.6,7284.2,978.5,7164.2,978.4,7164.2,795.3,7302.8,795.3,7302.8,1030.4],"t":[1064.3,1064.5,1063.8,1062.2,1062.2,1051.3,1051.3,1064.4],"b":[973.2,973.2,973.2,973.2,973.2,973.2,973.2,973.2],"tri":[7,0,1,7,1,2,7,2,3,3,4,5,3,5,6,3,6,7]},{"y":[1020,1080],"m":0,"o":[10673.0,522.6,10673.0,-274.4,10820.5,-274.4,10821.2,-281.6,10840.5,-281.7,10840.5,-201.4,10825.2,-201.4,10825.2,-192.8,10840.5,-192.2,10840.5,496.4,10800.2,495.2,10798.4,489.3,10805.2,486.0,10796.9,479.6,10795.4,522.6],"t":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"b":[1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020],"tri":[14,0,1,14,1,2,14,2,3,3,4,5,3,5,6,3,6,7,7,8,9,3,7,9,9,10,11,9,11,12,3,9,12,3,12,13,3,13,14]},{"y":[1020,1052.7602539062502],"m":1,"o":[10673.0,616.6,10673.0,548.2,10742.5,548.2,10743.5,527.5,10792.2,527.6,10792.8,546.5,10903.1,547.2,10902.4,619.0,10805.4,619.0,10804.4,634.5,10785.2,634.4,10784.7,621.2,10727.4,621.2,10726.9,634.4,10709.2,634.5,10708.2,616.6],"t":[1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8,1052.8],"b":[1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020,1020],"tri":[15,0,1,15,1,2,2,3,4,15,2,4,15,4,5,15,5,6,15,6,7,15,7,8,8,9,10,8,10,11,15,8,11,15,11,12,15,12,13,13,14,15]},{"y":[949.6,1080],"m":0,"o":[9402.1,581.9,9402.1,-578.2,9404.8,-578.9,9402.1,-587.2,9409.5,-640.3,10243.8,-640.8,10244.8,-604.1,10270.3,-604.1,10271.2,-621.7,10371.1,-621.7,10372.1,-634.5,10429.4,-634.5,10430.2,-623.7,10513.4,-623.7,10514.2,-634.5,10568.1,-634.5,10569.0,-616.6,10673.0,-616.6,10673.0,-547.9,10658.1,-547.9,10658.4,-522.6,10673.0,-522.6,10673.0,-327.5,10244.8,-327.5,10244.8,-274.4,10311.2,-274.4,10312.1,-287.0,10468.4,-287.0,10469.4,-274.4,10673.0,-274.4,10673.0,522.6,10658.5,522.6,10658.3,548.2,10673.0,548.2,10673.0,616.6,10657.9,616.6,10656.9,627.1,10569.0,627.2,10568.0,634.5,10514.3,634.5,10513.4,627.2,10430.2,627.2,10429.2,634.5,10372.0,634.5,10371.1,627.2,10244.8,627.2,10243.8,641.0,9410.2,641.0],"t":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"b":[949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6,949.6],"tri":[47,0,1,47,1,2,2,3,4,47,2,4,47,4,5,47,5,6,47,6,7,7,8,9,47,7,9,9,10,11,47,9,11,47,11,12,13,14,15,13,15,16,12,13,16,16,17,18,12,16,18,12,18,19,12,19,20,20,21,22,12,20,22,12,22,23,47,12,23,47,23,24,47,24,25,25,26,27,47,25,27,47,27,28,47,28,29,29,30,31,47,29,31,47,31,32,47,32,33,33,34,35,47,33,35,35,36,37,37,38,39,37,39,40,35,37,40,35,40,41,41,42,43,41,43,44,35,41,44,35,44,45,47,35,45,45,46,47]},{"y":[950.5,1080],"m":0,"o":[9302.8,568.1,9302.8,-579.5,9365.1,-578.2,9372.6,-583.0,9402.1,-587.2,9399.6,-578.1,9402.1,-578.2,9402.1,581.9,9394.7,581.4,9394.5,575.0,9379.9,573.0,9377.4,589.9,9367.6,590.5,9366.5,577.9,9363.7,577.3,9360.7,567.1],"t":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"b":[950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5,950.5],"tri":[15,0,1,15,1,2,15,2,3,3,4,5,15,3,5,15,5,6,6,7,8,6,8,9,15,6,9,15,9,10,15,10,11,11,12,13,15,11,13,13,14,15]},{"y":[1080,1202.2],"m":0,"o":[1028.0,36.2,900.3,35.6,900.9,-36.1,1028.0,-36.1],"t":[1201.7,1202.2,1142.2,1201.3],"b":[1080,1080,1080,1080],"tri":[3,0,1,1,2,3]},{"y":[1080,1151.429704999037],"m":0,"o":[2035.6,-136.3,2035.6,136.5,1921.6,136.5,1921.6,-136.3],"t":[1147.4,1147.4,1151.4,1151.4],"b":[1080,1080,1080,1080],"tri":[3,0,1,1,2,3]},{"y":[1080,1143.9],"m":0,"o":[2035.6,688.9,2035.6,532.6,2047.8,535.0,2047.8,529.8,2035.6,529.8,2035.6,156.2,2047.8,156.2,2047.8,136.5,2035.6,136.5,2035.6,-136.3,2047.8,-136.3,2047.8,-156.1,2035.6,-156.1,2035.6,-529.6,2047.8,-529.6,2047.8,-534.9,2035.6,-532.5,2035.6,-688.7,2502.6,-790.9,2503.3,-184.3,2423.7,-183.4,2423.7,-70.8,2503.1,-70.4,2503.3,32.9,2423.7,33.8,2423.7,146.4,2503.3,147.3,2503.3,790.4],"t":[1113.3,1139.4,1139.5,1140.7,1139.6,1142.9,1113.2,1108.7,1088.4,1088.4,1108.7,1113.2,1142.9,1139.6,1140.7,1139.5,1139.4,1113.3,1113.1,1085,1143.9,1085,1085,1085,1085,1085,1085,1112.5],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[27,0,1,27,1,2,27,2,3,3,4,5,27,3,5,27,5,6,27,6,7,7,8,9,27,7,9,27,9,10,27,10,11,11,12,13,27,11,13,27,13,14,27,14,15,15,16,17,27,15,17,17,18,19,17,19,20,17,20,21,21,22,23,21,23,24,17,21,24,17,24,25,27,17,25,25,26,27]},{"y":[1080,1151.453237546116],"m":1,"o":[1921.6,663.9,1921.6,156.2,2035.6,156.2,2035.6,529.8,2021.0,529.8,2035.6,532.6,2035.6,688.9],"t":[1113.3,1151.5,1142.9,1139.6,1140.2,1139.4,1113.3],"b":[1080,1080,1080,1080,1080,1080,1080],"tri":[6,0,1,1,2,3,1,3,4,6,1,4,4,5,6]},{"y":[1080,1193.1113896689603],"m":0,"o":[1200.5,-88.1,1200.5,88.2,1059.2,87.9,1059.1,-87.7],"t":[1192.0,1193.1,1133.3,1133.3],"b":[1080,1080,1080,1080],"tri":[3,0,1,1,2,3]},{"y":[1080,1181.5],"m":0,"o":[1210.9,399.3,1215.4,370.4,1446.5,416.3,1451.6,409.4,1453.9,319.0,1479.6,301.4,1447.7,277.2,1455.4,161.7,1480.0,143.1,1449.3,120.3,1454.3,42.2,1304.6,42.2,1304.0,88.1,1200.5,88.2,1200.5,-88.1,1304.0,-88.0,1304.6,-42.1,1454.3,-42.1,1449.3,-120.1,1480.0,-142.9,1455.4,-161.6,1447.7,-277.1,1479.6,-301.2,1453.9,-318.8,1446.5,-416.1,1214.8,-370.4,1200.5,-414.9,1220.1,-418.9,1220.1,-462.7,1200.5,-458.7,1200.5,-476.4,1211.9,-478.6,1224.7,-511.1,1547.4,-581.8,1548.1,-616.0,1614.6,-616.0,1615.3,-596.8,1921.6,-663.7,1921.6,-156.1,1817.9,-156.1,1817.9,-83.6,1918.8,-83.6,1921.6,-136.3,1921.6,136.5,1918.8,83.8,1817.9,83.8,1817.9,156.2,1921.6,156.2,1921.6,663.9,1615.3,597.0,1614.6,616.1,1548.2,616.2,1547.4,581.9,1224.7,511.3,1211.9,478.7,1200.5,476.5,1200.5,458.9,1220.1,462.9,1220.1,419.0,1200.5,415.0,1200.5,397.2],"t":[1121.5,1145.9,1181.5,1181.5,1181.5,1180.0,1181.5,1180.3,1178.9,1180.4,1179.6,1181.5,1181.5,1141.5,1141.5,1139.7,1121.5,1179.1,1178.8,1177.1,1178.2,1178.1,1176.6,1177.6,1177.4,1145.9,1121.5,1121.5,1121.5,1121.5,1121.5,1121.5,1121.5,1170.7,1170.4,1166.9,1167.0,1121.5,1151.5,1159.4,1159.9,1154.6,1154.1,1155.9,1155.7,1161.0,1161.5,1156.1,1121.5,1163.6,1129.2,1167.0,1167.2,1121.5,1121.5,1121.5,1121.5,1121.5,1121.5,1121.5,1121.5],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[0,1,2,3,4,5,5,6,7,5,7,8,8,9,10,11,12,13,11,13,14,10,11,14,14,15,16,10,14,16,10,16,17,8,10,17,8,17,18,8,18,19,19,20,21,19,21,22,22,23,24,24,25,26,24,26,27,24,27,28,28,29,30,24,28,30,24,30,31,24,31,32,24,32,33,22,24,33,19,22,33,8,19,33,5,8,33,33,34,35,5,33,35,5,35,36,5,36,37,3,5,37,37,38,39,3,37,39,3,39,40,2,3,40,2,40,41,41,42,43,41,43,44,41,44,45,2,41,45,2,45,46,2,46,47,2,47,48,0,2,48,60,0,48,60,48,49,60,49,50,50,51,52,60,50,52,52,53,54,54,55,56,52,54,56,52,56,57,52,57,58,60,52,58,58,59,60]},{"y":[1080,1140],"m":1,"o":[2504.4,144.8,2693.0,145.5,2692.3,832.5,2503.5,790.9],"t":[1085,1140,1112.7,1112.9],"b":[1080,1080,1080,1080],"tri":[3,0,1,1,2,3]},{"y":[1080,1121.1888957788274],"m":1,"o":[2504.0,1028.8,2503.5,1021.6,2692.9,945.0,2693.0,1048.0,2696.5,1056.4,2690.3,1059.2],"t":[1120.5,1121.2,1110.3,1111.4,1110.4,1110.4],"b":[1080,1080,1080,1080,1080,1080],"tri":[5,0,1,5,1,2,5,2,3,3,4,5]},{"y":[1032.5,1139.5979003906252],"m":0,"o":[4946.1,717.6,5003.1,719.9,4936.2,720.0,4890.8,729.3,4891.7,-730.2,4936.2,-719.9,4990.1,-720.6,4946.4,-717.6,5045.5,-694.7,4950.4,-687.3,5127.5,-695.7,5149.2,-690.5,5129.5,-668.6,5061.9,-660.9,5163.0,-634.7,5164.8,-621.7,5180.1,-607.4,5180.5,-629.2,5209.0,-629.3,5209.6,-597.3,5491.6,-597.3,5491.6,-518.6,5446.4,-518.6,5446.5,-513.5,5486.8,-517.2,5489.0,-504.1,5491.6,-504.4,5491.6,-381.4,5447.7,-286.1,5400.0,-88.6,5382.8,-120.8,5382.7,120.7,5389.4,114.5,5399.9,89.9,5424.0,234.5,5447.8,286.2,5491.6,469.0,5491.6,506.6,5488.9,506.7,5487.3,517.6,5446.4,514.4,5446.4,518.7,5491.6,518.6,5491.6,597.4,5209.6,597.4,5209.0,629.2,5180.5,629.0,5180.1,607.2,5164.8,621.6,5164.0,634.8,5063.1,659.5,5129.6,668.6,5150.2,691.5,5131.4,696.1,4950.4,687.4,5030.9,693.9,5013.6,700.1,5015.7,703.7],"t":[1110.6,1112.5,1114.8,1110.8,1110.6,1114.9,1110.1,1110.7,1113.9,1118.6,1110.7,1110.2,1112.9,1117.3,1110.1,1110.2,1134.3,1134.3,1134.3,1134.3,1134.3,1134.3,1137.2,1139.6,1139.6,1139.6,1139.6,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1139.6,1139.6,1139.6,1139.6,1137.2,1134.3,1134.3,1134.3,1134.3,1134.3,1134.3,1110.2,1110.2,1117.6,1112.8,1110.2,1110.6,1118.6,1114.7,1110.9,1110.2],"b":[1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5,1032.5],"tri":[0,1,2,0,2,3,0,3,4,0,4,5,5,6,7,0,5,7,7,8,9,0,7,9,9,10,11,9,11,12,9,12,13,0,9,13,13,14,15,13,15,16,16,17,18,16,18,19,19,20,21,19,21,22,19,22,23,16,19,23,23,24,25,25,26,27,23,25,27,16,23,27,13,16,27,13,27,28,28,29,30,13,28,30,13,30,31,32,33,34,31,32,34,13,31,34,34,35,36,13,34,36,13,36,37,13,37,38,13,38,39,13,39,40,13,40,41,41,42,43,41,43,44,13,41,44,13,44,45,45,46,47,13,45,47,13,47,48,13,48,49,13,49,50,50,51,52,50,52,53,50,53,54,13,50,54,0,13,54,57,0,54,54,55,56,54,56,57]},{"y":[1080,1140],"m":1,"o":[8091.3,634.3,8436.5,634.3,8437.5,609.1,8848.3,608.7,8849.3,668.9,8828.5,669.9,8814.3,677.0,8813.3,695.1,8091.3,695.2],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[8,0,1,1,2,3,8,1,3,8,3,4,8,4,5,8,5,6,6,7,8]},{"y":[1080,1139.0452047928484],"m":1,"o":[8835.6,433.2,8915.8,433.0,8955.2,452.3,8955.2,464.2,8947.9,466.8,8955.2,467.6,8955.2,473.0,8948.3,473.1,8947.8,479.1,8955.2,479.0,8955.2,484.8,8948.2,485.0,8955.2,487.6,8953.2,497.7,8938.2,503.7,8882.0,500.3,8873.4,503.7,8868.0,502.0,8867.0,494.1,8856.9,493.8,8856.2,502.7,8842.6,503.1,8835.4,486.8],"t":[1135.8,1118.5,1115.5,1115.6,1116.7,1116.2,1116.3,1116.6,1114.8,1114.5,1114.7,1115.1,1114.4,1110.9,1110.6,1111.1,1127.1,1127.1,1127.2,1135.9,1139.0,1137.2,1137.2],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[22,0,1,22,1,2,22,2,3,22,3,4,22,4,5,5,6,7,22,5,7,22,7,8,22,8,9,22,9,10,22,10,11,22,11,12,22,12,13,22,13,14,15,16,17,15,17,18,14,15,18,22,14,18,22,18,19,22,19,20,20,21,22]},{"y":[1009.5,1140],"m":0,"o":[8955.2,427.9,8955.2,-439.5,8962.1,-439.5,8962.3,-447.3,8965.2,-449.8,9005.6,-451.7,9009.6,-454.3,9037.4,-451.7,9039.7,-452.1,9040.6,-459.5,9134.6,-459.5,9134.6,-426.1,9120.0,-426.0,9134.6,-425.1,9134.6,413.5,9120.1,413.5,9119.9,425.1,9107.5,427.3,9134.6,427.3,9134.6,460.3,9040.6,460.3,9039.7,440.8,9034.4,440.1,9031.6,452.8,9009.4,454.6,9006.1,452.9,8999.7,437.8,8963.5,437.1,8962.2,427.8],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5,1009.5],"tri":[28,0,1,28,1,2,28,2,3,28,3,4,28,4,5,28,5,6,28,6,7,28,7,8,28,8,9,9,10,11,9,11,12,28,9,12,28,12,13,13,14,15,28,13,15,28,15,16,28,16,17,28,17,18,18,19,20,18,20,21,28,18,21,28,21,22,22,23,24,22,24,25,22,25,26,28,22,26,26,27,28]},{"y":[1012.1,1140],"m":0,"o":[8600.4,543.5,8600.4,507.3,8606.9,507.3,8606.8,496.2,8600.4,496.1,8600.4,-495.8,8606.8,-495.8,8606.8,-503.1,8606.8,-507.2,8600.4,-507.3,8600.4,-543.7,8703.4,-543.7,8704.1,-588.8,8803.8,-588.9,8804.6,-508.3,8793.3,-507.4,8795.2,-504.0,8822.3,-502.2,8823.3,-496.1,8829.8,-493.5,8830.0,-438.9,8834.7,-439.0,8835.4,-486.5,8842.1,-502.4,8856.1,-502.2,8858.7,-493.6,8858.7,421.4,8855.5,426.3,8830.0,427.6,8829.8,493.9,8823.0,496.4,8822.4,502.4,8795.2,504.4,8793.6,507.3,8804.6,508.2,8804.0,588.9,8704.2,588.9,8703.6,543.5],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1,1012.1],"tri":[37,0,1,37,1,2,37,2,3,3,4,5,37,3,5,37,5,6,37,6,7,37,7,8,8,9,10,8,10,11,37,8,11,37,11,12,12,13,14,12,14,15,37,12,15,37,15,16,37,16,17,37,17,18,37,18,19,37,19,20,37,20,21,21,22,23,21,23,24,37,21,24,37,24,25,25,26,27,25,27,28,37,25,28,28,29,30,30,31,32,28,30,32,37,28,32,37,32,33,37,33,34,37,34,35,35,36,37]},{"y":[1026.0,1140],"m":0,"o":[8558.7,543.5,8558.7,497.0,8566.0,496.2,8558.7,496.1,8558.7,-495.8,8566.0,-495.9,8558.7,-496.9,8558.7,-543.7,8600.4,-543.7,8600.4,-507.3,8593.7,-505.5,8593.9,-495.8,8600.4,-495.8,8600.4,496.1,8593.9,496.2,8593.7,507.2,8600.4,507.3,8600.4,543.5],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0,1026.0],"tri":[17,0,1,17,1,2,2,3,4,2,4,5,5,6,7,5,7,8,8,9,10,5,8,10,2,5,10,2,10,11,2,11,12,2,12,13,2,13,14,2,14,15,17,2,15,15,16,17]},{"y":[1018.5,1140],"m":1,"o":[7084.8,712.9,7084.8,658.0,7144.4,658.0,7145.6,639.4,7163.3,638.2,7163.6,654.8,7311.3,655.5,7309.9,714.3,7163.3,715.2,7163.3,732.6,7145.4,732.9,7144.4,712.9],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1018.5,1018.5,1018.5,1018.5,1018.5,1018.5,1018.5,1018.5,1018.5,1018.5,1018.5,1018.5],"tri":[11,0,1,11,1,2,11,2,3,11,3,4,11,4,5,11,5,6,11,6,7,11,7,8,11,8,9,9,10,11]},{"y":[1012.2,1140],"m":1,"o":[6819.7,970.5,6819.7,592.7,6874.3,592.8,6874.7,630.8,6930.6,630.9,6931.2,657.9,7084.8,658.0,7084.8,712.9,6931.2,712.9,6931.1,861.1,6887.6,861.9,6887.3,898.8,7035.2,900.1,7035.5,882.1,7058.1,882.0,7058.6,903.9,7084.8,903.9,7084.8,1020.6,6900.7,1020.5,6898.6,1013.3,6896.9,1020.5,6819.7,1020.2,6819.7,979.1,6888.1,978.8,6890.4,961.8,6887.2,961.8,6886.2,970.2],"t":[1129.1,1138.0,1138.0,1138.0,1137.2,1140,1140.0,1140.0,1140.0,1140,1140,1137.2,1137.5,1139.5,1139.4,1137.4,1137.6,1125.6,1124.4,1138.4,1124.3,1125.9,1128.2,1128.6,1137.6,1137.6,1129.4],"b":[1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2,1012.2],"tri":[26,0,1,1,2,3,26,1,3,3,4,5,5,6,7,5,7,8,3,5,8,3,8,9,3,9,10,26,3,10,26,10,11,12,13,14,12,14,15,11,12,15,15,16,17,11,15,17,11,17,18,11,18,19,11,19,20,20,21,22,20,22,23,20,23,24,11,20,24,11,24,25,11,25,26]},{"y":[1015.7,1140],"m":1,"o":[6819.7,317.8,6819.7,561.9,6703.8,554.5,6698.9,454.7,6698.2,529.6,6418.3,529.8,6446.0,534.9,6451.8,590.1,6479.0,601.4,6510.8,601.4,6511.8,565.7,6752.1,565.7,6753.0,592.7,6819.7,592.7,6812.9,973.9,6735.5,963.3,6716.7,978.7,6582.4,978.7,6552.5,963.1,6551.3,981.6,6464.2,979.6,6462.2,944.8,6461.5,1056.5,6136.0,1056.6,6135.2,1020.6,6156.0,1020.0,6144.9,946.2,6134.5,966.5,5819.7,966.5,5818.6,947.7,5739.8,961.3,5708.8,938.0,5721.1,882.2,5702.6,880.1,5693.0,843.3,5720.3,835.3,5649.9,820.8,5650.9,728.4,5699.8,808.1,5768.5,785.1,5774.1,901.1,6637.3,897.1,6649.8,821.4,6412.3,821.4,6411.3,875.9,6258.4,875.9,6257.7,821.4,6223.5,821.4,6222.7,875.1,6070.4,875.2,6069.5,821.4,6043.9,820.9,6043.8,770.6,5824.6,769.5,5937.8,737.5,6200.3,559.7],"t":[1138.6,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1138.0,1128.3,1137.2,1126.5,1140,1137.2,1137.2,1137.2,1137.2,1137.5,1137.2,1137.2,1137.2,1137.2,1131.0,1137.2,1137.8,1137.2,1139.8,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2,1137.2],"b":[1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7,1015.7],"tri":[0,1,2,0,2,3,55,0,3,3,4,5,55,3,5,55,5,6,55,6,7,55,7,8,9,10,11,9,11,12,9,12,13,9,13,14,8,9,14,15,16,17,15,17,18,18,19,20,18,20,21,15,18,21,21,22,23,23,24,25,21,23,25,21,25,26,26,27,28,26,28,29,29,30,31,26,29,31,21,26,31,32,33,34,32,34,35,36,37,38,35,36,38,35,38,39,32,35,39,31,32,39,31,39,40,21,31,40,21,40,41,15,21,41,14,15,41,14,41,42,8,14,42,55,8,42,55,42,43,55,43,44,44,45,46,55,44,46,55,46,47,55,47,48,55,48,49,55,49,50,55,50,51,55,51,52,52,53,54,52,54,55]},{"y":[1080,1119.0152587890625],"m":1,"o":[10297.6,361.8,10544.4,361.8,10545.3,394.2,10297.5,395.1],"t":[1119.0,1119.0,1119.0,1119.0],"b":[1080,1080,1080,1080],"tri":[3,0,1,1,2,3]},{"y":[1080,1131.8872070312502],"m":0,"o":[11340.0,172.4,11340.0,129.9,11404.3,129.9,11404.3,48.4,11385.8,48.4,11392.0,126.0,11341.8,125.6,11340.0,41.2,11404.3,41.2,11404.3,-40.4,11340.0,-40.4,11342.5,-124.7,11392.2,-125.0,11385.8,-47.5,11404.3,-47.5,11404.3,-129.7,11340.0,-129.7,11340.0,-172.4,11420.2,-172.4,11421.0,-137.1,11432.7,-129.0,11416.9,-123.5,11435.7,-115.8,11416.9,-110.4,11438.3,-102.3,11416.9,-97.3,11441.0,-88.9,11416.9,-84.0,11442.9,-75.7,11416.9,-70.4,11445.5,-62.6,11416.9,-57.5,11448.2,-49.2,11416.9,-44.0,11450.6,-36.0,11416.9,-30.5,11453.1,-22.8,11416.9,-17.7,11455.7,-9.6,11416.9,-4.2,11458.4,-3.0,11416.9,4.6,11455.7,10.1,11416.9,18.3,11453.1,23.4,11416.9,31.3,11450.6,36.7,11416.9,44.6,11448.1,49.9,11416.9,58.1,11445.7,63.3,11416.9,71.5,11443.0,76.5,11416.9,84.6,11441.0,89.5,11416.9,97.7,11438.2,102.7,11416.9,111.2,11435.6,123.7,11416.9,124.4,11432.6,129.8,11421.0,137.6,11420.5,172.3],"t":[1131.9,1131.9,1131.9,1120.8,1120.8,1131.9,1111.6,1119.6,1120.8,1120.8,1119.6,1111.9,1111.6,1120.8,1120.8,1131.9,1131.9,1131.9,1131.9,1131.9,1111.9,1120.7,1111.9,1120.8,1111.9,1120.8,1112.0,1120.8,1111.9,1120.8,1111.9,1120.8,1111.9,1120.8,1111.9,1120.8,1111.9,1120.8,1111.9,1120.8,1111.8,1120.8,1111.8,1120.8,1111.8,1120.8,1111.9,1120.8,1111.9,1120.8,1112.0,1120.8,1111.9,1120.8,1112.0,1120.8,1112.0,1120.8,1111.8,1120.7,1112.0,1131.9,1131.9],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[62,0,1,62,1,2,62,2,3,4,5,6,4,6,7,3,4,7,3,7,8,62,3,8,62,8,9,10,11,12,10,12,13,9,10,13,9,13,14,15,16,17,15,17,18,14,15,18,9,14,18,19,20,21,18,19,21,9,18,21,21,22,23,9,21,23,23,24,25,9,23,25,25,26,27,9,25,27,27,28,29,9,27,29,29,30,31,9,29,31,31,32,33,9,31,33,9,33,34,9,34,35,35,36,37,9,35,37,37,38,39,9,37,39,39,40,41,9,39,41,41,42,43,9,41,43,43,44,45,9,43,45,45,46,47,9,45,47,47,48,49,9,47,49,49,50,51,9,49,51,51,52,53,9,51,53,53,54,55,9,53,55,55,56,57,9,55,57,57,58,59,9,57,59,62,9,59,59,60,61,59,61,62]},{"y":[1080,1131.88720703125],"m":0,"o":[11101.9,170.8,11101.9,63.1,11159.8,61.5,11160.7,44.1,11250.6,44.0,11250.6,-43.5,11160.7,-43.6,11159.8,-60.9,11101.9,-62.4,11101.9,-169.6,11104.7,-168.5,11104.7,-151.0,11149.5,-150.0,11149.0,-123.7,11104.7,-123.6,11104.7,-67.9,11159.8,-68.0,11160.7,-76.0,11250.6,-76.0,11250.7,-129.7,11243.5,-130.5,11244.0,-172.3,11340.0,-172.4,11340.0,-129.7,11263.2,-129.7,11263.2,-76.0,11273.9,-76.0,11274.9,-124.7,11324.0,-124.5,11324.3,-76.0,11340.0,-76.0,11340.0,-40.4,11263.2,-40.4,11263.2,41.2,11340.0,41.2,11340.0,76.2,11324.2,76.2,11323.2,125.9,11274.6,125.6,11274.0,76.2,11263.2,76.2,11263.2,129.9,11340.0,129.9,11340.0,172.4,11244.0,172.3,11243.5,130.7,11250.6,129.9,11250.6,76.2,11160.7,76.2,11159.8,68.7,11104.7,68.8,11104.7,123.7,11149.0,123.8,11149.5,150.3,11104.7,151.3,11104.7,169.8],"t":[1120.8,1120.8,1120.8,1099.2,1120.8,1120.8,1099.8,1120.8,1120.8,1120.7,1120.7,1130.5,1130.5,1130.5,1130.5,1120.8,1120.8,1102.2,1120.6,1131.9,1131.9,1131.9,1131.9,1131.9,1131.9,1120.6,1111.4,1111.8,1111.8,1111.6,1111.0,1119.6,1120.8,1120.8,1119.6,1107.2,1110.0,1110.8,1112.0,1110.0,1119.6,1131.9,1131.9,1131.9,1131.9,1131.9,1131.9,1119.6,1102.1,1120.8,1120.8,1130.5,1130.5,1130.5,1130.5,1120.8],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[55,0,1,2,3,4,5,6,7,8,9,10,8,10,11,11,12,13,11,13,14,8,11,14,8,14,15,7,8,15,7,15,16,5,7,16,5,16,17,5,17,18,5,18,19,4,5,19,19,20,21,19,21,22,19,22,23,26,27,28,26,28,29,29,30,31,26,29,31,25,26,31,25,31,32,33,34,35,33,35,36,33,36,37,37,38,39,33,37,39,33,39,40,41,42,43,41,43,44,40,41,44,44,45,46,40,44,46,33,40,46,32,33,46,25,32,46,24,25,46,4,19,23,24,46,47,47,48,49,51,52,53,51,53,54,54,55,1,51,54,1,50,51,1,50,1,2,49,50,2,49,2,4,47,49,4,47,4,23,23,24,47]},{"y":[1080,1134.1088867187502],"m":0,"o":[10972.1,151.3,10972.1,102.0,11005.2,92.4,11005.5,81.9,10981.9,81.8,10981.7,94.3,10972.1,94.8,10972.1,-93.7,10981.5,-93.3,10982.0,-81.6,11005.4,-81.6,11005.3,-89.6,10972.1,-99.2,10972.1,-151.1,11031.6,-151.2,11034.3,-157.2,11046.6,-158.2,11051.6,-154.9,11051.7,-151.2,11059.4,-151.2,11059.4,-123.3,11018.5,-123.0,11030.4,-116.8,11032.3,-112.1,11059.4,-112.2,11059.4,-104.9,11034.8,-104.9,11044.5,-81.6,11053.1,-81.7,11053.4,-93.3,11059.4,-93.8,11059.4,-53.3,11001.4,-53.3,11018.6,-40.8,11028.9,-24.9,11059.4,-21.7,11059.4,25.5,11027.1,28.5,11009.0,53.2,11059.4,53.2,11059.4,95.0,11053.3,94.1,11053.2,81.9,11030.0,81.9,11030.0,85.4,11044.0,84.0,11036.0,105.7,11059.4,105.7,11059.4,113.0,11033.8,113.0,11031.6,118.9,11024.0,123.7,11059.4,123.7,11059.4,151.3,11051.1,151.4,11049.4,157.8,11042.3,159.8,11031.6,155.8,11032.5,151.3],"t":[1130.5,1119.7,1115.8,1134.1,1134.1,1113.3,1113.3,1113.0,1113.0,1134.1,1134.1,1115.6,1116.2,1130.5,1130.5,1113.6,1114.5,1130.5,1130.5,1130.5,1130.5,1130.5,1110.8,1120.8,1120.8,1120.8,1120.8,1134.1,1134.1,1112.8,1112.9,1134.1,1134.1,1110.5,1115.4,1113.0,1112.9,1116.1,1134.1,1134.1,1113.0,1112.9,1134.1,1134.1,1134.1,1134.1,1120.8,1120.8,1120.8,1120.8,1110.8,1130.5,1130.5,1130.5,1130.5,1112.9,1115.1,1113.5,1130.5],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[58,0,1,58,1,2,58,2,3,4,5,6,4,6,7,3,4,7,7,8,9,3,7,9,11,12,13,14,15,16,14,16,17,14,17,18,13,14,18,13,18,19,13,19,20,13,20,21,11,13,21,10,11,21,10,21,22,10,22,23,23,24,25,23,25,26,10,23,26,10,26,27,28,29,30,28,30,31,27,28,31,10,27,31,9,10,31,9,31,32,3,9,32,3,32,33,34,35,36,33,34,36,33,36,37,33,37,38,3,33,38,3,38,39,39,40,41,39,41,42,3,39,42,44,45,46,46,47,48,46,48,49,44,46,49,44,49,50,44,50,51,43,44,51,51,52,53,51,53,54,51,54,55,51,55,56,56,57,58,51,56,58,51,58,3,51,3,42,42,43,51]},{"y":[1080,1134.10888671875],"m":0,"o":[10927.3,171.2,10927.3,99.5,10931.7,100.7,10931.7,83.2,10927.3,83.5,10927.3,-81.6,10931.7,-81.6,10931.7,-96.5,10927.3,-95.2,10927.3,-166.7,10960.7,-164.7,10957.0,-151.0,10972.1,-151.1,10972.1,-99.2,10956.1,-103.5,10944.2,-100.2,10944.2,-81.8,10957.7,-81.6,10958.3,-93.4,10972.1,-93.7,10972.1,94.8,10958.1,94.4,10957.6,81.9,10944.2,81.8,10944.2,104.8,10959.2,105.7,10972.1,102.0,10972.1,151.3,10957.4,151.3,10956.8,161.4,10960.4,169.3],"t":[1126.7,1118.0,1120.8,1134.1,1134.1,1134.1,1134.1,1120.8,1118.1,1127.3,1111.2,1130.5,1130.5,1116.2,1120.8,1120.8,1134.1,1134.1,1112.8,1113.0,1113.3,1112.9,1134.1,1134.1,1120.8,1120.8,1119.7,1130.5,1130.5,1111.0,1111.0],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[30,0,1,3,4,5,3,5,6,7,8,9,7,9,10,6,7,10,6,10,11,6,11,12,12,13,14,12,14,15,6,12,15,3,6,15,2,3,15,2,15,16,2,16,17,17,18,19,2,17,19,19,20,21,19,21,22,19,22,23,2,19,23,2,23,24,1,2,24,25,26,27,24,25,27,1,24,27,1,27,28,1,28,29,1,29,30]},{"y":[1080,1134.1088867187502],"m":0,"o":[10878.7,173.8,10878.7,82.2,10885.9,85.1,10887.8,82.3,10878.7,79.7,10878.7,-75.6,10880.8,-78.2,10878.7,-77.3,10878.7,-169.3,10927.3,-166.7,10927.3,-95.2,10921.4,-93.3,10924.3,-87.7,10921.9,-81.6,10927.3,-81.6,10927.3,83.5,10922.7,83.8,10924.3,89.1,10917.4,96.5,10927.3,99.5,10927.3,171.2],"t":[1129.3,1129.8,1134.1,1134.1,1134.1,1134.1,1134.1,1134.1,1129.4,1127.3,1118.1,1119.5,1118.8,1134.1,1134.1,1134.1,1134.1,1112.5,1120.5,1118.0,1126.7],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[20,0,1,20,1,2,20,2,3,3,4,5,20,3,5,20,5,6,6,7,8,20,6,8,8,9,10,8,10,11,8,11,12,8,12,13,13,14,15,8,13,15,8,15,16,16,17,18,8,16,18,20,8,18,18,19,20]},{"y":[1080,1140],"m":0,"o":[9963.2,427.8,9963.2,417.3,9973.5,417.0,9963.2,414.0,9963.2,-425.3,9973.5,-428.2,9963.2,-428.5,9963.2,-438.9,10029.1,-438.1,10035.9,-424.9,10036.5,-437.0,10060.0,-455.9,10112.2,-467.2,10151.2,-438.8,10225.0,-438.8,10225.4,-424.9,10241.3,-412.0,10241.2,-368.3,10233.1,-357.1,10329.8,-347.9,10383.0,-314.5,10383.9,-305.9,10427.9,-302.1,10442.9,-290.8,10435.1,-276.4,10458.4,-249.4,10688.7,-249.6,10689.6,-230.9,10795.8,-230.4,10801.8,201.9,10795.7,230.5,10689.6,230.7,10688.7,249.5,10453.6,249.6,10435.1,265.1,10443.1,279.2,10427.2,291.0,10383.9,294.6,10383.0,303.3,10329.9,336.8,10268.9,342.5,10268.4,356.5,10241.1,356.6,10241.3,400.0,10225.4,413.4,10225.0,427.9,10158.5,427.7,10138.6,455.3,10111.9,467.3,10059.9,456.0,10035.8,413.6,10030.1,426.8],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[51,0,1,51,1,2,51,2,3,51,3,4,51,4,5,5,6,7,5,7,8,51,5,8,51,8,9,51,9,10,51,10,11,51,11,12,51,12,13,51,13,14,51,14,15,51,15,16,16,17,18,51,16,18,51,18,19,19,20,21,21,22,23,21,23,24,21,24,25,25,26,27,27,28,29,25,27,29,21,25,29,19,21,29,19,29,30,19,30,31,19,31,32,19,32,33,19,33,34,34,35,36,19,34,36,19,36,37,19,37,38,19,38,39,19,39,40,40,41,42,19,40,42,42,43,44,19,42,44,44,45,46,19,44,46,19,46,47,19,47,48,19,48,49,19,49,50,19,50,51]},{"y":[1080,1128.489501953125],"m":0,"o":[9726.9,545.5,9726.9,445.1,9793.4,451.0,9794.3,446.0,9794.4,427.7,9726.9,427.1,9726.9,-481.7,9767.9,-481.7,9768.9,-455.9,9775.8,-454.6,9777.2,-446.6,9782.0,-447.3,9783.0,-457.6,9821.9,-460.3,9826.9,-438.2,9963.2,-438.9,9963.2,-428.5,9951.2,-428.9,9963.2,-425.3,9963.2,414.0,9951.2,417.7,9963.2,417.3,9963.2,427.8,9816.4,427.1,9816.3,436.8,9813.6,437.9,9816.5,439.4,9816.5,472.7,9824.3,477.6,9826.9,489.5,9826.8,530.8,9824.5,541.3,9819.6,541.5,9819.5,551.4,9743.1,547.1,9742.5,536.4,9747.7,535.7,9742.4,535.2,9740.9,546.2],"t":[1110.5,1128.5,1123.6,1124.3,1126.8,1125.8,1128.5,1128.5,1128.5,1110.7,1111.4,1112.3,1110.6,1110.6,1120.0,1110.9,1114.3,1122.0,1122.8,1122.8,1122.0,1114.2,1110.9,1127.1,1125.8,1125.6,1125.5,1121.0,1119.9,1116.9,1111.5,1110.6,1111.9,1110.6,1110.5,1111.5,1112.2,1111.4,1110.5],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[38,0,1,4,5,6,4,6,7,4,7,8,4,8,9,4,9,10,4,10,11,4,11,12,4,12,13,3,4,13,3,13,14,14,15,16,14,16,17,3,14,17,3,17,18,2,3,18,18,19,20,20,21,22,20,22,23,18,20,23,2,18,23,23,24,25,2,23,25,2,25,26,2,26,27,1,2,27,1,27,28,1,28,29,1,29,30,1,30,31,1,31,32,1,32,33,33,34,35,33,35,36,1,33,36,1,36,37,1,37,38]},{"y":[1080,1128.489501953125],"m":0,"o":[9612.1,536.4,9614.4,523.1,9612.1,523.4,9614.3,-639.6,9640.2,-640.6,9641.4,-481.7,9649.2,-481.7,9649.2,-446.9,9641.5,-446.3,9649.2,-446.3,9649.2,-442.8,9641.5,-443.0,9641.5,-438.3,9649.2,-438.2,9649.2,427.1,9641.7,427.7,9641.6,439.2,9649.2,439.4,9649.2,538.7,9641.5,538.0,9640.5,641.0,9614.4,640.3,9614.4,536.1],"t":[1114.5,1118.3,1114.8,1117.8,1117.7,1128.5,1128.5,1128.5,1128.5,1128.5,1110.0,1128.5,1123.5,1120.0,1125.4,1125.3,1123.7,1123.8,1110.5,1122.9,1122.5,1117.8,1118.2],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[22,0,1,1,2,3,1,3,4,22,1,4,22,4,5,5,6,7,5,7,8,22,5,8,8,9,10,8,10,11,22,8,11,22,11,12,22,12,13,13,14,15,22,13,15,22,15,16,22,16,17,17,18,19,22,17,19,22,19,20,20,21,22]},{"y":[1080,1140],"m":0,"o":[9302.8,422.9,9302.9,-458.8,9338.8,-459.2,9339.2,-435.0,9407.7,-434.7,9347.6,-436.9,9401.3,-439.3,9612.1,-438.7,9612.1,427.1,9509.0,427.3,9612.1,436.4,9612.1,523.4,9609.2,524.0,9612.1,524.8,9612.1,536.4,9604.4,535.1,9603.4,523.2,9602.4,533.0,9588.1,533.4,9543.8,530.8,9540.8,518.3,9540.2,528.8,9470.8,524.5,9469.7,512.7,9466.8,511.7,9466.8,524.3,9461.8,525.5,9458.9,530.6,9449.9,530.5,9449.1,525.6,9438.7,530.9,9303.4,530.8,9303.3,498.8,9363.8,498.7,9363.9,428.6,9312.3,425.9,9363.8,423.8],"t":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"b":[1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080,1080],"tri":[36,0,1,1,2,3,36,1,3,36,3,4,4,5,6,4,6,7,36,4,7,36,7,8,36,8,9,36,9,10,36,10,11,36,11,12,12,13,14,12,14,15,12,15,16,36,12,16,36,16,17,36,17,18,18,19,20,36,18,20,36,20,21,21,22,23,36,21,23,36,23,24,36,24,25,36,25,26,36,26,27,27,28,29,36,27,29,36,29,30,30,31,32,30,32,33,30,33,34,36,30,34,34,35,36]},{"y":[1140,1187.4838451980654],"m":0,"o":[1321.8,191.4,1321.8,183.0,1338.6,183.0,1338.5,160.2,1321.8,160.2,1321.8,-160.1,1338.5,-160.1,1338.6,-182.9,1321.8,-182.9,1321.8,-191.3,1345.7,-191.3,1346.6,-159.9,1379.0,-159.2,1380.9,-146.4,1367.8,-139.3,1382.3,-136.3,1504.4,-135.7,1504.5,135.6,1382.3,136.5,1367.8,139.5,1380.9,146.6,1378.8,159.7,1346.6,160.0,1346.4,191.0],"t":[1187.5,1187.4,1186.6,1186.4,1187.3,1185.2,1184.3,1184.1,1185.0,1185.0,1183.7,1183.9,1182.2,1182.2,1182.9,1182.2,1175.8,1177.6,1184.0,1184.8,1184.1,1184.3,1186.0,1186.2],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[23,0,1,23,1,2,23,2,3,3,4,5,23,3,5,23,5,6,23,6,7,7,8,9,7,9,10,23,7,10,23,10,11,11,12,13,11,13,14,15,16,17,14,15,17,11,14,17,11,17,18,11,18,19,19,20,21,19,21,22,11,19,22,11,22,23]},{"y":[1140,1188.294009874669],"m":1,"o":[1321.8,606.1,1321.8,314.5,1427.9,359.8,1475.3,369.3,1473.4,379.3,1488.8,386.4,1489.4,424.6,1496.8,426.0,1504.4,401.3,1504.5,432.7,1484.5,641.0],"t":[1178.9,1188.3,1183.1,1180.7,1180.8,1180.1,1180.3,1179.9,1179.4,1179.6,1172.8],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[10,0,1,10,1,2,2,3,4,10,2,4,10,4,5,10,5,6,10,6,7,10,7,8,8,9,10]},{"y":[1140,1198.5643861270137],"m":0,"o":[1128.0,563.4,1128.0,344.0,1130.9,353.4,1153.7,358.1,1156.6,345.8,1128.0,299.3,1128.0,-299.2,1156.6,-345.6,1153.7,-357.9,1130.9,-353.3,1128.0,-343.8,1128.0,-563.2,1321.8,-605.9,1321.8,-314.3,1192.3,-259.2,1136.9,-159.9,1156.4,-159.9,1157.2,-181.8,1185.8,-181.5,1186.2,-159.9,1208.4,-159.9,1209.1,-177.2,1238.5,-176.5,1240.0,-166.9,1237.3,-159.9,1297.1,-159.9,1297.5,-190.9,1321.8,-191.3,1321.8,-182.9,1305.1,-182.9,1305.0,-160.1,1321.8,-160.1,1321.8,160.2,1305.0,160.3,1305.1,183.0,1321.8,183.0,1321.8,191.4,1297.5,191.0,1297.1,160.0,1237.3,160.0,1240.0,167.1,1238.5,176.7,1209.1,177.4,1208.4,160.0,1186.2,160.0,1185.8,181.6,1157.2,182.0,1156.4,160.0,1136.9,160.0,1192.3,259.3,1321.8,314.5,1321.8,606.1],"t":[1189.1,1198.6,1198.5,1197.3,1197.1,1198.3,1194.3,1192.5,1192.6,1193.8,1194.0,1192.6,1182.2,1184.9,1191.3,1194.8,1193.8,1193.6,1192.1,1192.2,1191.1,1190.9,1189.4,1189.4,1189.6,1186.5,1186.2,1185.0,1185.0,1185.9,1186.0,1185.2,1187.3,1188.2,1188.3,1187.4,1187.5,1188.7,1188.6,1191.7,1191.6,1191.7,1193.3,1193.2,1194.3,1194.5,1196.0,1195.9,1196.9,1194.7,1188.3,1178.9],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[0,1,2,51,0,2,51,2,3,51,3,4,51,4,5,9,10,11,8,9,11,7,8,11,7,11,12,6,7,12,6,12,13,6,13,14,6,14,15,5,6,15,5,15,16,16,17,18,16,18,19,20,21,22,20,22,23,20,23,24,26,27,28,26,28,29,25,26,29,25,29,30,25,30,31,25,31,32,24,25,32,20,24,32,19,20,32,16,19,32,16,32,33,34,35,36,34,36,37,33,34,37,33,37,38,16,33,38,16,38,39,39,40,41,16,39,41,41,42,43,16,41,43,16,43,44,16,44,45,16,45,46,16,46,47,16,47,48,5,16,48,51,5,48,51,48,49,49,50,51]},{"y":[1140,1209.2],"m":0,"o":[770.9,-39.5,742.8,-40.5,757.5,-261.5,815.2,-478.0,843.3,-478.7,850.4,-502.5,1128.0,-563.2,1128.0,-343.8,1105.0,-262.1,1128.0,-299.2,1128.0,299.3,1105.0,262.3,1128.0,344.0,1128.0,563.4,850.4,502.7,843.3,478.8,815.2,478.1,757.5,261.7,742.8,40.7,770.9,39.7],"t":[1172.0,1183.9,1172.0,1209.2,1209.1,1208.8,1192.6,1194.0,1195.8,1194.3,1198.3,1199.2,1198.6,1189.1,1203.9,1204.4,1205.8,1209.2,1183.9,1209.2],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[0,1,2,0,2,3,19,0,3,19,3,4,19,4,5,19,5,6,19,6,7,19,7,8,8,9,10,8,10,11,19,8,11,19,11,12,19,12,13,19,13,14,19,14,15,19,15,16,19,16,17,17,18,19]},{"y":[1072.1,1200],"m":0,"o":[4274.9,500.2,4274.9,429.4,4277.9,429.4,4277.9,424.0,4274.9,423.9,4274.9,-500.5,4284.3,-500.5,4284.4,-531.4,4632.5,-532.0,4633.0,-558.1,4669.6,-558.3,4670.6,-526.1,4889.8,-526.0,4890.2,525.8,4670.6,526.3,4670.3,558.3,4633.5,558.5,4632.5,531.8,4285.1,531.7,4284.3,500.2],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1,1072.1],"tri":[19,0,1,19,1,2,19,2,3,3,4,5,19,3,5,19,5,6,19,6,7,19,7,8,8,9,10,19,8,10,19,10,11,19,11,12,19,12,13,19,13,14,14,15,16,14,16,17,19,14,17,17,18,19]},{"y":[1094.2,1200],"m":0,"o":[2860.9,751.0,2947.6,772.1,2812.2,844.4,2812.0,145.0,3563.8,144.7,3563.8,34.8,2812.6,34.8,2811.9,-69.4,3563.8,-69.7,3563.8,-179.6,2812.0,-179.9,2812.0,-844.0,2947.5,-772.2,2861.1,-750.8,2973.3,-764.4,3224.3,-633.7,3152.9,-604.9,3200.3,-614.8,3290.4,-610.1,3333.1,-595.1,3507.7,-580.2,3786.1,-582.2,3826.3,-621.9,4055.6,-566.9,3922.9,-549.1,4120.7,-500.4,4147.4,-500.3,4150.6,-469.4,4179.0,-468.7,4179.1,-395.4,4204.1,-395.4,4204.3,-423.4,4224.6,-423.7,4224.6,-433.1,4187.3,-434.8,4187.7,-500.1,4274.9,-500.5,4274.9,500.2,4187.7,496.5,4188.4,429.7,4254.0,428.2,4253.1,423.8,4204.7,423.7,4204.1,395.5,4179.1,395.5,4179.0,468.5,4150.6,469.2,4147.4,496.6,3922.9,549.0,4055.5,567.1,3826.1,622.0,3786.1,582.2,3507.6,580.0,3333.0,595.0,3290.4,609.9,3200.5,614.7,3152.7,604.8,3224.9,633.7,2973.1,764.6],"t":[1178.2,1170.3,1170.5,1189.1,1189.1,1189.1,1189.1,1189.1,1189.1,1189.1,1189.1,1170.5,1170.3,1178.2,1170.5,1170.3,1175.0,1171.2,1170.9,1175.0,1171.3,1172.9,1170.6,1170.2,1177.2,1197.0,1196.0,1178.0,1175.9,1182.0,1200,1184.6,1183.7,1184.9,1186.0,1194.4,1200,1198.3,1194.4,1185.9,1183.7,1183.5,1185.5,1200,1182.0,1175.9,1178.0,1196.0,1177.2,1170.2,1170.6,1172.8,1171.4,1175.0,1170.9,1171.2,1175.0,1170.3,1170.5],"b":[1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2,1094.2],"tri":[0,1,2,0,2,3,58,0,3,58,3,4,5,6,7,5,7,8,11,12,13,10,11,13,9,10,13,9,13,14,14,15,16,9,14,16,9,16,17,9,17,18,9,18,19,9,19,20,9,20,21,8,9,21,5,8,21,4,5,21,4,21,22,22,23,24,4,22,24,4,24,25,4,25,26,4,26,27,58,4,27,58,27,28,58,28,29,58,29,30,30,31,32,33,34,35,33,35,36,32,33,36,32,36,37,30,32,37,37,38,39,37,39,40,30,37,40,30,40,41,30,41,42,30,42,43,30,43,44,44,45,46,30,44,46,30,46,47,30,47,48,48,49,50,30,48,50,30,50,51,30,51,52,30,52,53,30,53,54,30,54,55,30,55,56,58,30,56,56,57,58]},{"y":[1069.2,1200],"m":1,"o":[6886.7,533.4,6887.6,501.8,7182.3,502.7,7181.4,534.4],"t":[1200,1200,1200,1200],"b":[1069.2,1069.2,1069.2,1069.2],"tri":[3,0,1,1,2,3]},{"y":[1140,1191.5433349609375],"m":1,"o":[8389.6,372.4,8667.5,372.4,8668.3,423.5,8389.5,424.3],"t":[1191.5,1191.5,1191.5,1191.5],"b":[1140,1140,1140,1140],"tri":[3,0,1,1,2,3]},{"y":[1140,1197.5886733843465],"m":0,"o":[8680.8,357.1,8680.8,231.9,8774.3,230.4,8774.2,191.7,8680.8,191.7,8680.8,-191.8,8774.3,-191.8,8774.4,-226.1,8680.8,-231.6,8680.8,-356.7,8698.8,-347.4,8700.4,-329.3,8736.7,-328.3,8758.3,-344.4,8839.4,-338.4,8845.8,-267.6,8822.6,-257.1,8817.5,-218.3,8881.1,-218.1,8885.1,-187.2,8815.5,-180.4,8814.8,-151.3,8753.4,-151.3,8891.6,-137.0,8872.1,-165.3,9063.3,-202.5,9082.6,-177.7,9154.3,-180.6,9089.9,-168.0,9124.0,-123.5,9197.2,-122.0,9131.2,-113.9,9160.6,-73.1,8986.4,-48.5,9301.8,-40.6,9301.1,-7.6,9149.1,-8.9,9149.3,13.1,9301.3,11.9,9301.3,45.2,8984.8,54.2,9160.9,77.5,9131.1,118.6,9196.3,127.3,9123.8,127.8,9089.9,172.3,9153.2,185.1,9082.6,181.8,9063.0,206.8,8872.1,169.5,8891.6,141.3,8808.1,149.5,8815.5,180.8,8885.2,187.8,8881.1,218.5,8817.5,218.8,8822.5,257.2,8845.8,267.9,8839.4,339.2,8758.4,344.8,8736.6,328.8,8700.4,329.9,8696.5,351.1],"t":[1172.0,1197.6,1192.4,1192.9,1193.3,1193.3,1192.8,1192.4,1197.6,1172.2,1172.5,1175.2,1172.0,1172.1,1170.4,1178.8,1182.8,1189.5,1174.7,1173.1,1193.9,1177.7,1177.7,1173.5,1173.1,1173.9,1175.5,1170.5,1175.5,1175.5,1170.6,1175.5,1173.0,1184.6,1178.2,1177.9,1188.5,1188.5,1177.9,1177.9,1184.4,1173.1,1175.2,1170.5,1175.4,1175.2,1170.4,1175.2,1174.1,1173.1,1173.6,1177.7,1194.5,1173.1,1174.7,1189.3,1182.8,1178.8,1170.6,1172.0,1171.9,1174.8,1172.0],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[62,0,1,3,4,5,8,9,10,8,10,11,7,8,11,7,11,12,7,12,13,7,13,14,6,7,14,14,15,16,6,14,16,6,16,17,6,17,18,6,18,19,5,6,19,5,19,20,5,20,21,5,21,22,3,5,22,3,22,23,2,3,23,23,24,25,23,25,26,23,26,27,23,27,28,23,28,29,29,30,31,23,29,31,23,31,32,23,32,33,33,34,35,33,35,36,33,36,37,37,38,39,37,39,40,33,37,40,23,33,40,40,41,42,42,43,44,40,42,44,40,44,45,45,46,47,40,45,47,40,47,48,40,48,49,40,49,50,23,40,50,23,50,51,2,23,51,2,51,52,2,52,53,53,54,55,2,53,55,2,55,56,1,2,56,1,56,57,1,57,58,1,58,59,1,59,60,1,60,61,1,61,62]},{"y":[1140,1173.8361816406252],"m":1,"o":[8680.8,682.7,8680.8,586.8,8773.0,586.8,8774.0,556.7,8822.2,556.8,8822.8,584.5,8930.9,585.1,8930.4,686.3,8835.2,686.4,8834.2,708.1,8814.9,707.8,8814.6,689.2,8758.5,689.2,8758.2,707.8,8740.4,708.1,8739.4,682.7],"t":[1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[15,0,1,15,1,2,2,3,4,15,2,4,15,4,5,15,5,6,15,6,7,15,7,8,8,9,10,8,10,11,15,8,11,15,11,12,15,12,13,13,14,15]},{"y":[1140,1200],"m":0,"o":[8515.7,369.6,8515.7,366.8,8526.0,366.8,8525.8,363.2,8515.7,363.7,8515.7,-363.3,8526.0,-363.0,8526.0,-366.4,8515.7,-366.5,8515.7,-369.2,8531.1,-368.9,8537.9,-339.2,8551.6,-336.7,8553.2,-329.2,8554.7,-336.4,8560.0,-339.5,8561.7,-365.3,8633.9,-364.9,8635.4,-357.3,8680.8,-356.7,8680.8,-346.8,8676.2,-349.5,8635.4,-349.6,8635.1,-339.1,8680.8,-338.3,8680.8,-330.5,8634.9,-329.3,8680.8,-330.3,8680.8,-231.6,8598.3,-231.8,8598.3,-173.2,8641.8,-167.8,8643.0,-165.3,8645.6,-167.4,8662.7,-165.4,8662.9,-191.3,8680.8,-191.8,8680.8,191.7,8663.0,191.3,8662.7,169.5,8642.4,169.6,8641.7,172.0,8598.3,177.8,8598.3,231.9,8680.8,231.9,8680.8,330.6,8634.9,331.0,8680.8,330.8,8680.8,338.4,8635.0,338.1,8635.2,349.9,8680.8,347.6,8680.8,357.1,8635.4,357.7,8634.1,365.3,8561.4,365.5,8560.0,340.0,8554.4,335.8,8553.2,329.7,8551.7,338.1,8538.0,339.0,8530.9,369.1],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[61,0,1,61,1,2,61,2,3,3,4,5,61,3,5,61,5,6,61,6,7,7,8,9,7,9,10,61,7,10,61,10,11,61,11,12,61,12,13,61,13,14,61,14,15,61,15,16,16,17,18,19,20,21,18,19,21,16,18,21,16,21,22,16,22,23,23,24,25,23,25,26,16,23,26,26,27,28,16,26,28,16,28,29,61,16,29,61,29,30,61,30,31,61,31,32,61,32,33,34,35,36,34,36,37,33,34,37,37,38,39,33,37,39,33,39,40,33,40,41,33,41,42,43,44,45,43,45,46,46,47,48,46,48,49,43,46,49,43,49,50,50,51,52,50,52,53,43,50,53,43,53,54,43,54,55,42,43,55,33,42,55,33,55,56,33,56,57,33,57,58,58,59,60,33,58,60,33,60,61]},{"y":[1140,1173.8361816406252],"m":1,"o":[8515.7,692.8,8515.7,556.5,8519.5,557.2,8519.6,570.6,8564.7,570.6,8565.6,556.5,8628.3,556.5,8629.1,586.8,8680.8,586.8,8680.8,682.7,8602.3,682.7,8601.4,708.1,8548.4,708.1,8547.6,692.8],"t":[1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8,1173.8],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[13,0,1,1,2,3,13,1,3,13,3,4,4,5,6,13,4,6,13,6,7,13,7,8,8,9,10,13,8,10,13,10,11,11,12,13]},{"y":[1059,1200],"m":1,"o":[7976.3,314.0,7976.3,366.6,7839.4,366.6,7838.5,351.1,7614.5,350.2,7615.4,314.1],"t":[1200,1200,1200,1200,1200,1200],"b":[1059,1059,1059,1059,1059,1059],"tri":[5,0,1,1,2,3,5,1,3,3,4,5]},{"y":[1070.4,1200],"m":0,"o":[7700.2,297.1,7700.2,-297.0,7976.3,-297.0,7976.3,297.1],"t":[1200,1200,1200,1200],"b":[1070.4,1070.4,1070.4,1070.4],"tri":[3,0,1,1,2,3]},{"y":[1140,1200],"m":1,"o":[7700.2,569.3,7700.2,452.4,7833.7,452.6,7833.7,432.6,7700.2,432.6,7700.2,362.9,7764.4,363.0,7764.9,398.7,7961.4,398.7,7962.3,417.2,7976.3,417.2,7976.3,561.9,7975.4,550.7,7965.2,550.8,7964.1,559.0,7873.0,559.6,7871.3,550.9,7867.4,549.6,7866.0,562.9,7857.0,560.3,7856.5,549.3,7854.2,560.7,7830.8,564.5,7828.0,549.6,7827.1,563.8,7815.7,564.7,7814.7,568.8],"t":[1173.6,1188.0,1188.0,1190.0,1198.9,1200,1200,1197.0,1179.1,1200,1200,1170.6,1171.8,1171.9,1171.3,1171.3,1172.0,1172.0,1170.6,1170.7,1172.0,1170.7,1170.6,1172.3,1170.7,1172.1,1171.6],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[26,0,1,26,1,2,4,5,6,4,6,7,3,4,7,3,7,8,2,3,8,2,8,9,2,9,10,10,11,12,2,10,12,2,12,13,2,13,14,14,15,16,2,14,16,2,16,17,2,17,18,18,19,20,2,18,20,2,20,21,2,21,22,2,22,23,2,23,24,2,24,25,2,25,26]},{"y":[1091.0,1200],"m":0,"o":[7544.0,620.5,7544.0,-620.3,7563.2,-619.9,7566.6,-660.4,7575.3,-663.3,7585.3,-562.5,7615.1,-562.4,7616.9,-549.5,7620.5,-563.4,7700.2,-569.0,7700.2,-452.1,7694.2,-452.0,7693.9,-440.5,7565.5,-440.2,7565.6,-426.1,7700.2,-431.7,7700.2,-362.5,7565.5,-362.5,7565.4,-298.5,7565.5,-276.7,7614.5,-276.7,7614.6,-292.8,7621.1,-293.4,7622.1,-276.3,7667.8,-274.5,7698.0,-274.5,7700.2,-297.0,7700.2,297.1,7698.0,274.6,7622.1,276.2,7621.1,293.3,7614.6,292.7,7614.5,276.6,7565.4,276.6,7565.5,362.8,7700.2,362.9,7700.2,432.6,7610.8,432.6,7609.8,426.3,7565.6,426.3,7565.5,441.1,7693.9,441.4,7694.2,452.4,7700.2,452.4,7700.2,569.3,7620.5,563.7,7616.7,549.8,7615.1,562.7,7585.3,563.2,7575.5,665.3,7566.8,662.2,7563.2,621.9],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0,1091.0],"tri":[51,0,1,51,1,2,2,3,4,2,4,5,5,6,7,7,8,9,7,9,10,5,7,10,5,10,11,5,11,12,5,12,13,2,5,13,51,2,13,51,13,14,14,15,16,14,16,17,51,14,17,51,17,18,51,18,19,20,21,22,20,22,23,19,20,23,19,23,24,25,26,27,24,25,27,24,27,28,19,24,28,19,28,29,19,29,30,30,31,32,19,30,32,19,32,33,51,19,33,51,33,34,34,35,36,36,37,38,34,36,38,34,38,39,51,34,39,51,39,40,40,41,42,42,43,44,40,42,44,44,45,46,40,44,46,40,46,47,40,47,48,51,40,48,51,48,49,49,50,51]},{"y":[1084.6,1200],"m":0,"o":[7509.8,426.3,7509.8,-426.2,7544.0,-426.2,7544.0,426.3],"t":[1200,1200,1200,1200],"b":[1084.6,1084.6,1084.6,1084.6],"tri":[3,0,1,1,2,3]},{"y":[1140,1191.7065735189271],"m":1,"o":[7509.8,719.9,7509.8,441.1,7544.0,441.1,7544.0,620.5,7538.6,619.0,7538.3,611.8,7527.6,612.0,7544.0,644.2,7544.0,666.5,7540.9,672.0,7544.0,672.2,7544.0,681.9,7541.0,681.9,7540.7,692.9,7544.0,692.8,7544.0,702.5,7541.1,702.5,7544.0,710.5,7541.5,723.8],"t":[1183.4,1191.7,1189.8,1170.4,1170.5,1171.3,1175.9,1177.1,1175.9,1175.8,1175.6,1176.0,1176.2,1173.9,1173.9,1173.8,1173.9,1171.4,1170.4],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[0,1,2,2,3,4,2,4,5,2,5,6,0,2,6,18,0,6,6,7,8,6,8,9,9,10,11,9,11,12,6,9,12,6,12,13,18,6,13,13,14,15,13,15,16,18,13,16,16,17,18]},{"y":[1069.2,1200],"m":0,"o":[7453.5,426.3,7453.5,280.2,7477.8,280.2,7477.8,274.7,7453.5,274.6,7453.5,-274.5,7477.8,-274.5,7477.8,-280.1,7453.5,-280.1,7453.5,-426.1,7509.8,-426.2,7509.8,426.3],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1069.2,1069.2,1069.2,1069.2,1069.2,1069.2,1069.2,1069.2,1069.2,1069.2,1069.2,1069.2],"tri":[11,0,1,11,1,2,11,2,3,3,4,5,11,3,5,11,5,6,11,6,7,7,8,9,7,9,10,7,10,11]},{"y":[1070.8,1200],"m":1,"o":[7453.5,441.1,7453.5,563.1,7404.4,563.9,7401.7,549.5,7396.3,550.6,7395.3,554.8,7311.2,554.8,7307.7,549.8,7307.1,555.0,7289.8,555.3,7289.7,495.0,7024.9,495.0,7024.0,472.7,6886.7,471.8,6887.6,425.2,7213.6,425.2,7214.6,444.5,7311.1,444.5,7312.2,441.1],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8,1070.8],"tri":[18,0,1,1,2,3,18,1,3,18,3,4,18,4,5,18,5,6,18,6,7,18,7,8,18,8,9,10,11,12,12,13,14,10,12,14,14,15,16,10,14,16,10,16,17,9,10,17,9,17,18]},{"y":[1140,1200],"m":1,"o":[7453.5,767.5,7453.5,687.3,7470.2,686.2,7470.9,563.0,7453.5,563.1,7453.5,441.1,7509.8,441.1,7509.8,720.2,7505.6,720.6,7504.1,708.5,7501.6,708.8,7501.0,719.1,7494.7,718.4,7491.6,699.1,7489.3,616.6,7489.2,719.0,7485.8,723.2,7485.9,733.9,7474.2,737.8,7470.5,750.9,7455.3,759.9],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[20,0,1,20,1,2,3,4,5,3,5,6,2,3,6,6,7,8,6,8,9,6,9,10,6,10,11,6,11,12,6,12,13,6,13,14,2,6,14,20,2,14,20,14,15,20,15,16,16,17,18,20,16,18,18,19,20]},{"y":[1071.5,1200],"m":0,"o":[7358.9,347.0,7358.9,285.8,7394.7,285.8,7394.7,274.7,7358.9,274.6,7358.9,-274.5,7394.7,-274.5,7394.7,-285.8,7358.9,-285.8,7358.9,-426.1,7453.5,-426.1,7453.5,-280.1,7429.3,-280.1,7429.3,-274.6,7453.5,-274.5,7453.5,274.6,7429.3,274.6,7429.3,280.2,7453.5,280.2,7453.5,426.3,7358.9,426.3],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5,1071.5],"tri":[0,1,2,20,0,2,3,4,5,3,5,6,7,8,9,7,9,10,6,7,10,10,11,12,6,10,12,3,6,12,2,3,12,2,12,13,2,13,14,14,15,16,2,14,16,20,2,16,20,16,17,20,17,18,18,19,20]},{"y":[1069.4,1200],"m":1,"o":[7221.7,407.8,7221.7,347.0,7358.9,347.0,7358.9,426.3,7297.8,426.3,7297.1,407.8],"t":[1200,1200,1200,1200,1200,1200],"b":[1069.4,1069.4,1069.4,1069.4,1069.4,1069.4],"tri":[5,0,1,5,1,2,5,2,3,3,4,5]},{"y":[1140,1200],"m":1,"o":[7221.7,849.1,7221.7,813.0,7242.9,812.2,7244.1,717.7,7236.0,717.7,7235.6,732.6,7221.7,732.9,7221.7,638.2,7235.7,638.5,7236.1,653.0,7281.6,653.0,7281.7,638.7,7287.8,638.2,7288.5,653.2,7311.2,653.9,7311.3,687.5,7370.6,687.5,7370.6,723.5,7367.3,723.6,7370.6,725.1,7370.6,746.9,7367.6,746.9,7366.8,754.5,7357.6,754.2,7355.1,723.5,7350.1,723.5,7349.4,749.7,7346.4,749.8,7344.6,744.7,7328.2,744.7,7326.7,749.9,7322.3,750.0,7319.7,723.6,7308.6,723.6,7308.6,753.2,7299.2,763.3,7292.7,763.4,7290.1,758.0,7280.5,757.4,7279.2,723.8,7270.5,722.7,7268.6,728.1,7262.0,728.3,7267.9,772.9,7265.5,773.9,7265.3,783.7,7261.9,785.1,7264.6,786.4,7264.7,817.1,7261.9,818.1,7264.1,820.5,7261.8,830.6,7264.6,832.9,7264.6,843.3,7257.5,849.0,7257.2,868.0,7250.6,870.3,7249.6,864.2,7244.3,864.2,7241.3,864.3,7240.6,870.3,7229.9,868.4,7227.7,848.9],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[62,0,1,62,1,2,4,5,6,4,6,7,3,4,7,7,8,9,3,7,9,3,9,10,10,11,12,10,12,13,3,10,13,3,13,14,3,14,15,3,15,16,3,16,17,3,17,18,18,19,20,18,20,21,18,21,22,18,22,23,18,23,24,3,18,24,3,24,25,25,26,27,25,27,28,25,28,29,29,30,31,25,29,31,25,31,32,3,25,32,3,32,33,33,34,35,33,35,36,33,36,37,33,37,38,33,38,39,3,33,39,3,39,40,3,40,41,3,41,42,2,3,42,42,43,44,2,42,44,62,2,44,44,45,46,62,44,46,62,46,47,47,48,49,62,47,49,62,49,50,62,50,51,62,51,52,62,52,53,62,53,54,62,54,55,55,56,57,62,55,57,62,57,58,62,58,59,62,59,60,60,61,62]},{"y":[1071.3,1200],"m":1,"o":[7095.6,404.1,7095.6,362.8,7130.7,362.8,7131.6,347.0,7221.7,347.0,7221.7,407.8,7131.7,407.8,7130.7,404.2],"t":[1200,1200,1200,1200,1200,1200,1200,1200],"b":[1071.3,1071.3,1071.3,1071.3,1071.3,1071.3,1071.3,1071.3],"tri":[7,0,1,7,1,2,7,2,3,7,3,4,7,4,5,5,6,7]},{"y":[1140,1200],"m":1,"o":[7095.6,712.9,7095.6,658.0,7212.4,658.0,7212.7,638.8,7221.7,638.2,7221.7,732.9,7212.5,732.3,7212.4,712.9],"t":[1200,1200,1200,1200,1200,1200,1200,1200],"b":[1140,1140,1140,1140,1140,1140,1140,1140],"tri":[7,0,1,7,1,2,7,2,3,7,3,4,7,4,5,5,6,7]},{"y":[1140,1200],"m":1,"o":[7095.6,864.8,7095.6,813.0,7221.7,813.0,7218.9,867.2,7211.4,865.4,7210.8,848.9,7186.2,849.0,7185.3,865.2,7135.1,865.2,7130.4,882.3,7121.8,880.5,7115.5,887.2,7113.0,881.3,7112.8,849.0,7108.3,849.0,7107.1,864.5],"t":[1200,1184.0,1184.1,1197.8,1200,1200,1200,1200,1200,1180.5,1180.5,1180.2,1180.4,1200,1200,1200],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[15,0,1,2,3,4,2,4,5,1,2,5,1,5,6,1,6,7,1,7,8,1,8,9,10,11,12,10,12,13,9,10,13,1,9,13,1,13,14,1,14,15]},{"y":[1096.5,1200],"m":0,"o":[7023.6,404.1,7023.6,282.0,7032.8,282.0,7032.8,274.7,7023.6,274.6,7023.6,-274.5,7032.8,-274.5,7032.8,-281.7,7023.6,-281.7,7023.6,-403.9,7095.6,-403.9,7095.6,-362.9,7060.5,-362.9,7060.5,-346.6,7095.6,-346.5,7095.6,-285.8,7060.5,-285.8,7060.5,-274.6,7095.6,-274.5,7095.6,274.6,7060.5,274.6,7060.5,285.8,7095.6,285.8,7095.6,346.8,7060.5,346.8,7060.5,362.8,7095.6,362.8,7095.6,404.1],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5,1096.5],"tri":[0,1,2,3,4,5,3,5,6,7,8,9,9,10,11,9,11,12,7,9,12,6,7,12,3,6,12,2,3,12,2,12,13,13,14,15,13,15,16,2,13,16,2,16,17,2,17,18,0,2,18,18,19,20,0,18,20,0,20,21,0,21,22,22,23,24,0,22,24,0,24,25,27,0,25,25,26,27]},{"y":[1086.4,1200],"m":1,"o":[6338.7,518.3,6338.7,507.2,6363.2,507.3,6363.1,503.9,6338.7,503.9,6338.7,314.0,6698.0,314.1,6698.9,345.0,6772.8,345.6,6772.4,392.5,6698.9,392.7,6698.9,432.4,6742.8,432.7,6743.2,469.4,6698.9,470.4,6698.9,496.8,6755.5,496.9,6755.4,529.7,6364.1,529.6,6363.2,513.1,6353.7,518.3],"t":[1174.6,1196.7,1196.7,1196.7,1196.7,1196.7,1196.7,1196.7,1167.6,1167.6,1167.6,1196.7,1167.6,1167.6,1167.6,1200,1199.5,1194.5,1196.7,1196.7,1168.2],"b":[1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4,1086.4],"tri":[20,0,1,20,1,2,3,4,5,3,5,6,2,3,6,20,2,6,7,8,9,7,9,10,6,7,10,6,10,11,11,12,13,11,13,14,6,11,14,6,14,15,15,16,17,15,17,18,6,15,18,6,18,19,6,19,20]},{"y":[1071.4,1200],"m":1,"o":[6338.7,969.5,6338.7,531.6,6447.9,531.7,6448.4,601.4,6802.8,601.4,6803.7,630.9,6930.3,630.9,6931.2,654.9,6963.0,654.9,6963.4,638.5,6981.0,638.2,6982.1,658.0,7023.6,658.0,7023.6,712.9,6982.1,712.9,6981.1,732.9,6963.3,732.6,6963.1,716.0,6931.2,716.2,6931.1,810.0,6893.3,810.6,6893.2,812.8,7023.6,813.0,7023.6,864.8,7022.1,854.1,7015.9,853.9,7014.4,864.7,6983.3,864.8,6981.5,848.9,6976.5,848.9,6975.9,867.8,6970.4,870.8,6966.3,867.8,6965.2,849.0,6957.3,848.8,6956.6,873.7,6938.9,874.0,6934.5,848.8,6931.1,857.1,6923.3,856.5,6923.0,848.8,6908.1,848.8,6908.3,873.0,6892.9,874.2,6892.3,922.5,6826.7,922.7,6803.2,927.2,6847.6,927.3,6850.0,943.1,6869.0,945.8,6787.3,960.5,6621.2,960.5,6533.6,966.0],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4,1071.4],"tri":[52,0,1,1,2,3,52,1,3,52,3,4,52,4,5,52,5,6,52,6,7,52,7,8,8,9,10,8,10,11,52,8,11,52,11,12,12,13,14,14,15,16,12,14,16,12,16,17,12,17,18,52,12,18,18,19,20,52,18,20,52,20,21,22,23,24,21,22,24,21,24,25,25,26,27,25,27,28,21,25,28,21,28,29,29,30,31,29,31,32,29,32,33,21,29,33,21,33,34,34,35,36,34,36,37,21,34,37,21,37,38,38,39,40,21,38,40,21,40,41,52,21,41,41,42,43,52,41,43,43,44,45,52,43,45,52,45,46,52,46,47,52,47,48,48,49,50,48,50,51,48,51,52]},{"y":[1072.3,1200],"m":1,"o":[6175.6,969.5,6175.6,537.4,6245.0,537.4,6245.0,521.5,6241.8,524.4,6229.8,524.4,6228.9,529.6,6175.6,532.8,6175.6,221.4,6200.3,201.4,6338.7,145.4,6338.7,274.6,6334.0,274.6,6316.7,293.5,6294.2,303.1,6180.2,304.9,6209.0,314.0,6338.7,314.0,6338.7,503.9,6314.2,503.9,6314.2,507.1,6338.7,507.2,6338.7,518.3,6268.3,518.7,6268.3,531.5,6338.7,531.6,6338.7,969.5],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3,1072.3],"tri":[26,0,1,26,1,2,26,2,3,3,4,5,5,6,7,3,5,7,8,9,10,8,10,11,8,11,12,8,12,13,8,13,14,8,14,15,7,8,15,3,7,15,3,15,16,26,3,16,16,17,18,16,18,19,16,19,20,20,21,22,20,22,23,16,20,23,16,23,24,26,16,24,24,25,26]},{"y":[1072.5,1200],"m":1,"o":[5855.7,969.5,5855.7,529.8,5859.6,528.4,5855.7,527.4,5855.7,478.2,5937.8,432.8,6036.0,335.0,6175.6,221.4,6175.6,532.8,6097.9,532.8,6097.5,537.3,6175.6,537.4,6175.6,969.5],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5,1072.5],"tri":[12,0,1,12,1,2,2,3,4,12,2,4,12,4,5,12,5,6,6,7,8,6,8,9,6,9,10,12,6,10,10,11,12]},{"y":[1081.9,1196.7052001953125],"m":1,"o":[5805.7,967.4,5805.7,601.4,5844.0,601.4,5844.0,537.9,5805.7,534.4,5805.7,505.8,5855.7,478.2,5855.7,527.4,5851.9,529.8,5855.7,529.8,5855.7,969.5],"t":[1189.0,1140,1179.3,1196.7,1196.7,1140,1196.7,1179.3,1187.5,1179.3,1186.5],"b":[1081.9,1081.9,1081.9,1081.9,1081.9,1081.9,1081.9,1081.9,1081.9,1081.9,1081.9],"tri":[10,0,1,10,1,2,10,2,3,3,4,5,3,5,6,6,7,8,3,6,8,10,3,8,8,9,10]},{"y":[1073.4,1200],"m":0,"o":[4891.8,-526.1,5220.7,-526.1,5221.7,-558.2,5268.8,-558.1,5269.3,-534.5,5334.2,-534.5,5382.7,-538.8,5382.8,-557.6,5391.3,-558.2,5392.2,-539.6,5447.2,-544.2,5449.8,-527.9,5478.6,-530.9,5478.0,-546.5,5531.5,-551.0,5534.4,-535.6,5697.0,-549.1,5640.2,-421.1,5510.4,-59.8,5510.3,59.6,5530.6,182.9,5699.6,553.6,5805.7,505.8,5805.7,534.4,5792.2,533.2,5792.0,557.3,5764.3,555.5,5765.1,601.4,5805.7,601.4,5805.7,967.4,5714.2,962.8,5766.4,944.2,5725.5,942.4,5718.8,935.5,5719.9,861.9,5639.9,861.1,5639.9,741.3,5649.8,740.5,5650.3,706.1,5692.9,705.8,5694.9,645.3,5690.2,640.3,5690.3,601.0,5695.1,595.2,5715.9,594.9,5715.2,558.1,5690.3,557.5,5685.6,548.7,5534.4,535.6,5531.4,551.1,5478.0,546.4,5478.6,531.0,5449.8,528.2,5447.2,544.2,5392.2,539.5,5391.3,558.6,5382.8,558.0,5382.7,539.1,5334.7,534.6,5269.3,534.6,5268.8,558.5,5221.7,558.6,5220.7,526.3,4890.9,525.9],"t":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"b":[1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4,1073.4],"tri":[63,0,1,1,2,3,63,1,3,63,3,4,63,4,5,63,5,6,6,7,8,6,8,9,63,6,9,63,9,10,63,10,11,63,11,12,12,13,14,63,12,14,63,14,15,63,15,16,63,16,17,63,17,18,63,18,19,63,19,20,22,23,24,21,22,24,24,25,26,21,24,26,27,28,29,29,30,31,27,29,31,26,27,31,26,31,32,26,32,33,26,33,34,26,34,35,35,36,37,37,38,39,35,37,39,26,35,39,26,39,40,26,40,41,41,42,43,41,43,44,26,41,44,26,44,45,21,26,45,21,45,46,20,21,46,20,46,47,20,47,48,20,48,49,20,49,50,20,50,51,20,51,52,52,53,54,20,52,54,54,55,56,20,54,56,20,56,57,20,57,58,20,58,59,59,60,61,20,59,61,20,61,62,20,62,63]},{"y":[1140,1171.1374329576897],"m":1,"o":[9359.8,100.2,9303.4,100.1,9302.9,73.8,9410.2,73.6,9410.4,99.4,9405.3,100.2,9416.4,126.5,9422.8,164.2,9424.7,236.6,9335.3,235.9,9343.0,132.0,9352.3,107.8],"t":[1171.0,1171.0,1171.0,1171.0,1171.0,1171.0,1170.7,1170.7,1171.1,1170.5,1170.8,1170.5],"b":[1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140,1140],"tri":[0,1,2,0,2,3,11,0,3,11,3,4,11,4,5,11,5,6,11,6,7,11,7,8,11,8,9,9,10,11]},{"y":[1140,1174.1855154257491],"m":0,"o":[9499.5,57.7,9499.7,-53.8,9575.2,-54.6,9575.5,58.7],"t":[1174.0,1173.7,1174.2,1174.1],"b":[1140,1140,1140,1140],"tri":[3,0,1,1,2,3]},{"y":[1140,1183.7673339843748],"m":0,"o":[10428.8,83.9,10148.9,83.9,10026.5,61.4,10025.9,-56.4,10148.9,-79.6,10428.8,-79.6,10562.2,-32.4,10562.0,36.9],"t":[1183.8,1183.8,1170.5,1170.4,1183.8,1183.8,1170.4,1170.5],"b":[1140,1140,1140,1140,1140,1140,1140,1140],"tri":[7,0,1,7,1,2,7,2,3,7,3,4,7,4,5,5,6,7]},{"y":[1162.5,1258.2559814453125],"m":1,"o":[2631.4,450.3,2847.9,421.1,2900.5,428.7,2945.9,446.7,2903.1,452.6,2678.3,465.8],"t":[1236.9,1238.4,1258.3,1230.3,1231.0,1231.3],"b":[1162.5,1162.5,1162.5,1162.5,1162.5,1162.5],"tri":[5,0,1,5,1,2,5,2,3,3,4,5]},{"y":[1200,1260],"m":0,"o":[4652.0,480.9,4652.0,408.7,4656.1,406.4,4654.6,404.2,4652.0,406.9,4652.0,-480.7,4889.5,-480.7,4890.3,480.1],"t":[1260,1260,1260,1260,1260,1260,1260,1260],"b":[1200,1200,1200,1200,1200,1200,1200,1200],"tri":[7,0,1,7,1,2,7,2,3,3,4,5,7,3,5,5,6,7]},{"y":[1200,1256.1647949218752],"m":1,"o":[7615.5,314.0,7997.7,314.1,7998.5,350.2,7615.4,351.2],"t":[1256.2,1256.2,1256.2,1256.2],"b":[1200,1200,1200,1200],"tri":[3,0,1,1,2,3]},{"y":[1030,1240.6137695312502],"m":1,"o":[8354.8,405.8,8106.6,405.8,8105.9,357.3,8355.0,356.5],"t":[1240.6,1240.6,1240.6,1240.6],"b":[1030,1030,1030,1030],"tri":[3,0,1,1,2,3]},{"y":[1200,1247.1507122585358],"m":0,"o":[8359.5,-240.7,8381.3,-234.8,8382.2,-249.5,8521.5,-249.4,8522.1,-209.5,8541.8,-209.4,8537.3,-185.4,8551.4,-180.4,8545.3,-176.2,8584.0,-167.0,8599.9,-156.2,8616.0,-119.9,8616.0,-115.3,8607.2,-117.4,8621.7,-77.4,8632.8,-74.0,8644.1,-55.5,8634.8,-44.7,8645.6,-45.4,8653.9,-25.8,8645.2,-19.5,8662.8,-17.8,8662.8,8.8,8645.5,9.5,8653.8,15.9,8649.1,28.2,8645.4,36.7,8634.9,35.5,8644.0,46.7,8632.7,64.8,8622.5,66.1,8624.3,72.6,8609.5,98.0,8607.2,108.1,8616.7,107.2,8604.5,139.1,8584.1,158.6,8566.7,159.6,8557.1,169.8,8548.0,165.9,8545.5,167.3,8551.3,171.5,8535.0,173.7,8541.6,208.6,8522.1,209.4,8521.6,249.3,8382.1,249.4,8381.3,225.7,8359.4,231.9],"t":[1230.5,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1230.3,1231.2,1235.0,1235.8,1236.7,1240.0,1239.8,1240.4,1243.4,1242.5,1246.6,1247.2,1244.8,1244.8,1247.1,1246.9,1243.3,1242.5,1243.4,1240.5,1240.0,1240.3,1239.5,1237.0,1236.8,1235.3,1231.6,1230.5,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1237.0,1230.6],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[48,0,1,48,1,2,48,2,3,48,3,4,48,4,5,48,5,6,6,7,8,48,6,8,48,8,9,48,9,10,10,11,12,10,12,13,48,10,13,48,13,14,48,14,15,48,15,16,48,16,17,48,17,18,18,19,20,48,18,20,48,20,21,21,22,23,48,21,23,48,23,24,24,25,26,24,26,27,48,24,27,48,27,28,28,29,30,48,28,30,48,30,31,48,31,32,48,32,33,48,33,34,48,34,35,35,36,37,37,38,39,35,37,39,48,35,39,48,39,40,40,41,42,48,40,42,42,43,44,44,45,46,42,44,46,42,46,47,42,47,48]},{"y":[1200,1258.78744785497],"m":1,"o":[7389.8,284.3,7389.8,479.1,7383.6,478.8,7389.8,481.9,7389.8,490.9,7380.0,489.6,7379.4,472.5,7374.4,470.9,7370.3,407.8,7363.5,415.2,7360.0,453.5,7353.8,443.8,7347.0,452.9,7343.2,414.9,7324.6,412.9,7323.0,466.4,7261.2,503.4,7258.6,559.3,7271.9,599.7,7267.5,687.1,7228.6,682.6,7227.7,668.7,7221.5,666.4,7221.1,681.2,7195.9,682.7,7175.2,679.7,7173.4,664.7,7172.2,679.4,7159.5,680.0,7151.9,677.8,7151.7,661.9,7149.2,675.9,7132.9,677.2,7131.6,662.3,7115.4,659.9,7114.2,676.2,7104.8,673.5,7104.3,660.3,7075.7,663.1,7069.9,657.9,7066.5,672.5,7066.1,657.9,7014.0,658.2,7005.0,652.0,6952.8,649.8,6952.8,664.5,6941.9,665.2,6921.7,663.1,6921.4,648.8,6933.3,648.1,6864.7,643.9,6863.9,658.2,6817.8,657.5,6818.3,519.6,7239.5,547.4,7239.8,496.2,7246.5,470.1,7289.6,440.6,7297.6,407.8,7131.3,407.7,7130.8,347.5,7307.4,347.0,7313.1,297.9,7321.3,280.2],"t":[1244.2,1230.8,1231.6,1230.5,1230.4,1230.6,1232.3,1232.0,1250.9,1234.1,1230.5,1230.4,1230.4,1234.1,1236.5,1230.5,1249.6,1243.7,1237.4,1230.5,1230.4,1231.9,1232.0,1230.4,1230.4,1230.4,1231.7,1230.5,1230.4,1230.5,1231.8,1230.5,1230.4,1231.6,1232.2,1230.4,1230.5,1231.5,1231.5,1232.0,1230.4,1232.0,1231.6,1230.4,1232.0,1230.4,1230.4,1230.4,1232.0,1232.1,1231.6,1230.5,1230.5,1245.0,1244.6,1250.1,1252.5,1246.6,1250.9,1258.8,1250.7,1250.9,1252.0,1251.4],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[0,1,2,2,3,4,2,4,5,0,2,5,0,5,6,0,6,7,0,7,8,63,0,8,63,8,9,63,9,10,63,10,11,11,12,13,63,11,13,63,13,14,63,14,15,17,18,19,17,19,20,16,17,20,16,20,21,16,21,22,22,23,24,16,22,24,16,24,25,26,27,28,26,28,29,26,29,30,30,31,32,30,32,33,30,33,34,34,35,36,34,36,37,37,38,39,34,37,39,39,40,41,41,42,43,39,41,43,34,39,43,30,34,43,44,45,46,44,46,47,44,47,48,44,48,49,43,44,49,43,49,50,50,51,52,50,52,53,43,50,53,30,43,53,26,30,53,26,53,54,25,26,54,16,25,54,16,54,55,15,16,55,15,55,56,15,56,57,15,57,58,63,15,58,58,59,60,58,60,61,63,58,61,61,62,63]},{"y":[1200,1260],"m":0,"o":[7407.6,272.8,7407.6,-271.6,7419.2,-271.4,7419.6,-262.8,7467.1,-262.9,7467.1,-287.1,7407.6,-282.3,7407.6,-426.6,7426.2,-417.2,7430.5,-451.6,7432.8,-406.9,7455.8,-407.2,7451.2,-417.1,7459.8,-419.9,7460.2,-436.3,7470.7,-444.5,7471.6,-459.4,7483.1,-460.2,7489.8,-459.0,7489.8,-422.1,7495.6,-420.1,7496.5,-406.9,7548.3,-406.5,7548.4,-346.9,7498.5,-346.3,7496.3,-320.1,7488.0,-320.7,7486.0,-292.6,7548.0,-302.6,7550.8,-262.8,8292.1,-262.8,8293.0,-205.4,8352.2,-204.9,8352.4,204.2,8293.0,205.1,8292.5,263.5,7550.7,263.7,7547.4,304.5,7486.0,294.2,7488.3,321.4,7496.3,322.0,7498.5,347.0,7548.4,347.5,7548.5,406.8,7496.9,407.8,7495.6,422.5,7489.8,423.5,7489.8,460.9,7483.4,462.1,7471.8,461.4,7471.0,444.2,7460.2,439.1,7459.8,421.1,7450.8,417.6,7455.2,409.3,7432.6,409.3,7431.5,453.4,7427.4,418.3,7407.6,428.9,7407.6,285.3,7467.1,288.4,7467.1,263.7,7419.6,263.7,7419.3,272.6],"t":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[63,0,1,63,1,2,63,2,3,5,6,7,5,7,8,8,9,10,5,8,10,5,10,11,11,12,13,5,11,13,5,13,14,5,14,15,4,5,15,4,15,16,4,16,17,4,17,18,4,18,19,4,19,20,4,20,21,21,22,23,21,23,24,21,24,25,21,25,26,4,21,26,4,26,27,4,27,28,4,28,29,3,4,29,29,30,31,3,29,31,31,32,33,3,31,33,3,33,34,3,34,35,3,35,36,3,36,37,3,37,38,3,38,39,39,40,41,41,42,43,41,43,44,39,41,44,3,39,44,3,44,45,3,45,46,3,46,47,47,48,49,47,49,50,50,51,52,47,50,52,52,53,54,47,52,54,55,56,57,55,57,58,55,58,59,54,55,59,47,54,59,47,59,60,47,60,61,3,47,61,3,61,62,3,62,63]},{"y":[1129.4,1260],"m":0,"o":[6581.4,545.0,6581.4,293.8,6659.3,274.7,6581.4,274.6,6581.4,-274.5,6598.9,-274.5,6581.4,-277.5,6581.4,-529.2,6599.0,-525.7,6600.5,-505.0,6603.6,-522.0,6716.1,-505.9,6717.6,-478.5,6705.7,-476.6,6715.2,-473.5,6748.7,-474.9,6751.2,-488.1,6775.2,-488.1,6776.3,-463.1,6783.6,-461.3,6784.8,-489.0,6899.4,-473.7,6900.4,-385.4,7051.0,-385.0,7050.5,-346.4,6900.6,-346.3,6900.9,-281.5,6915.4,-281.1,6915.7,-262.8,6966.6,-262.8,6967.6,-283.4,7152.8,-283.4,7153.7,-262.8,7407.6,-271.6,7407.6,272.8,7153.7,263.7,7152.8,284.6,6967.6,284.6,6966.6,263.7,6915.7,263.7,6915.4,282.2,6900.9,282.7,6900.6,347.5,7050.5,347.5,7050.9,386.4,6900.6,386.7,6899.3,489.3,6784.8,504.7,6783.6,477.2,6776.3,479.3,6775.1,504.0,6751.2,503.9,6748.7,490.6,6705.7,492.4,6717.5,494.2,6717.8,514.4,6705.6,524.3,6603.6,537.8,6596.6,510.6,6599.3,539.7],"t":[1230.6,1230.5,1230.8,1232.1,1229.9,1229.4,1230.1,1230.6,1230.6,1256.2,1230.5,1230.6,1233.2,1234.7,1234.5,1233.8,1231.7,1231.5,1234.4,1233.7,1230.8,1255.4,1259.3,1260,1250.1,1249.0,1251.0,1252.2,1260,1260,1260.0,1257.0,1251.8,1256.2,1256.2,1251.7,1257.1,1259.9,1260,1260,1251.8,1250.8,1229.6,1250.1,1260,1259.4,1254.0,1230.8,1233.7,1234.3,1231.5,1231.7,1233.8,1234.6,1233.1,1231.1,1230.5,1230.5,1233.6,1230.5],"b":[1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4,1129.4],"tri":[0,1,2,2,3,4,2,4,5,5,6,7,2,5,7,7,8,9,2,7,9,2,9,10,10,11,12,10,12,13,2,10,13,2,13,14,2,14,15,2,15,16,2,16,17,2,17,18,2,18,19,19,20,21,2,19,21,0,2,21,0,21,22,22,23,24,22,24,25,0,22,25,0,25,26,0,26,27,0,27,28,29,30,31,29,31,32,32,33,34,29,32,34,28,29,34,28,34,35,28,35,36,36,37,38,28,36,38,28,38,39,28,39,40,28,40,41,42,43,44,42,44,45,42,45,46,41,42,46,41,46,47,28,41,47,28,47,48,28,48,49,49,50,51,28,49,51,28,51,52,28,52,53,53,54,55,53,55,56,53,56,57,28,53,57,28,57,58,0,28,58,0,58,59]},{"y":[1200,1256.1647949218752],"m":1,"o":[6581.4,756.7,6581.4,683.4,6605.1,683.9,6605.3,716.5,6645.7,716.5,6646.6,706.1,6755.6,706.6,6755.4,741.8,6709.1,742.1,6708.4,756.6],"t":[1241.0,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2,1241.0],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[0,1,2,0,2,3,9,0,3,9,3,4,9,4,5,5,6,7,5,7,8,5,8,9]},{"y":[1129.5,1256.1647949218752],"m":1,"o":[6235.3,724.8,6235.3,355.4,6263.6,350.7,6264.6,328.8,6313.9,329.1,6314.7,341.1,6452.8,316.6,6458.4,313.3,6581.4,293.8,6581.4,513.1,6577.7,514.0,6576.9,526.8,6553.3,527.0,6551.8,518.5,6547.0,519.3,6548.4,530.7,6581.4,530.9,6581.4,545.0,6513.6,557.8,6511.4,526.3,6509.2,555.0,6456.9,568.1,6454.9,537.7,6450.4,536.9,6449.4,567.0,6387.8,581.1,6377.0,579.1,6374.9,583.1,6320.4,593.1,6319.0,626.0,6581.4,626.0,6581.4,648.5,6317.9,648.5,6313.5,683.4,6581.4,683.4,6581.4,756.7,6392.0,756.7,6391.2,785.2,6235.3,785.2,6235.3,751.4,6341.9,751.4,6341.9,722.4,6278.2,721.2,6277.3,718.4],"t":[1230.6,1230.5,1230.6,1233.3,1232.2,1230.5,1230.5,1230.5,1230.5,1234.1,1234.4,1233.2,1233.2,1233.8,1234.5,1232.9,1231.4,1230.6,1230.5,1233.9,1230.5,1230.5,1233.8,1234.2,1230.5,1230.5,1231.0,1230.5,1240.6,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2,1241.0,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2,1256.2],"b":[1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5,1129.5],"tri":[43,0,1,43,1,2,43,2,3,43,3,4,43,4,5,6,7,8,5,6,8,5,8,9,5,9,10,5,10,11,11,12,13,5,11,13,5,13,14,5,14,15,15,16,17,15,17,18,15,18,19,5,15,19,5,19,20,20,21,22,5,20,22,5,22,23,5,23,24,5,24,25,5,25,26,5,26,27,5,27,28,43,5,28,43,28,29,29,30,31,29,31,32,43,29,32,43,32,33,43,33,34,34,35,36,36,37,38,34,36,38,38,39,40,34,38,40,34,40,41,43,34,41,41,42,43]},{"y":[1129.6,1243.0239669825826],"m":1,"o":[5870.0,765.1,5870.0,404.0,5968.3,404.0,6020.4,394.3,5870.0,394.3,5870.0,338.0,6085.3,338.0,6086.2,352.7,6128.0,353.0,6128.3,374.5,6235.3,355.4,6235.3,724.8,6213.2,726.5,6212.4,701.5,6208.9,702.8,6206.2,731.3,6177.7,736.5,6146.2,737.5,6142.0,714.8,6113.3,718.9,6132.8,738.7,6131.7,744.7,6128.1,745.7,6021.0,765.1],"t":[1234.1,1232.8,1230.5,1229.5,1233.0,1241.6,1236.3,1234.5,1233.5,1229.9,1230.5,1230.6,1230.6,1243.0,1233.9,1230.5,1230.5,1231.2,1233.4,1233.8,1230.9,1230.6,1230.5,1230.5],"b":[1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6,1129.6],"tri":[23,0,1,23,1,2,23,2,3,3,4,5,3,5,6,23,3,6,23,6,7,23,7,8,23,8,9,23,9,10,10,11,12,10,12,13,10,13,14,10,14,15,10,15,16,10,16,17,10,17,18,10,18,19,23,10,19,23,19,20,23,20,21,21,22,23]},{"y":[1200,1320],"m":0,"o":[5020.0,491.2,5020.0,472.6,5040.4,464.3,5020.0,462.4,5020.0,-461.2,5042.0,-463.2,5020.0,-472.3,5020.0,-491.3,5060.6,-493.2,5089.7,-467.5,5153.6,-473.4,5148.0,-484.3,5161.7,-484.1,5162.9,-474.3,5396.0,-495.5,5396.8,-511.7,5451.5,-511.9,5451.5,-312.3,5400.2,-312.3,5400.1,-282.0,5439.2,-282.0,5440.1,-279.5,5400.1,-279.9,5400.1,-274.6,5440.1,-274.5,5440.8,-278.6,5451.5,-278.6,5451.5,287.6,5442.5,285.3,5440.1,275.0,5400.1,276.5,5400.1,281.2,5400.2,314.0,5451.5,314.0,5451.5,512.1,5396.8,512.0,5396.0,496.8,5162.1,475.4,5161.5,480.4,5150.4,480.5,5151.3,474.5,5088.6,468.7,5060.5,493.3],"t":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[42,0,1,42,1,2,2,3,4,42,2,4,42,4,5,5,6,7,5,7,8,42,5,8,42,8,9,42,9,10,10,11,12,42,10,12,42,12,13,42,13,14,14,15,16,42,14,16,16,17,18,42,16,18,42,18,19,19,20,21,19,21,22,42,19,22,42,22,23,42,23,24,24,25,26,42,24,26,26,27,28,26,28,29,26,29,30,32,33,34,32,34,35,31,32,35,30,31,35,30,35,36,30,36,37,26,30,37,37,38,39,26,37,39,26,39,40,26,40,41,26,41,42]},{"y":[1200,1260],"m":0,"o":[4959.4,480.9,4959.4,427.7,4972.8,427.7,4972.8,406.0,4959.4,406.0,4959.4,-408.7,4972.8,-408.0,4972.8,-427.6,4959.4,-427.6,4959.4,-480.8,4997.7,-481.6,4959.4,-487.2,4959.4,-496.0,5000.5,-499.8,5006.7,-498.2,5007.4,-490.3,5020.0,-491.3,5020.0,-472.3,5005.1,-478.4,5005.2,-459.9,5020.0,-461.2,5020.0,462.4,5005.7,461.1,5005.1,478.9,5020.0,472.6,5020.0,491.2,5007.4,490.1,5006.7,498.3,5000.7,499.9,4959.4,496.3,4959.4,487.2,4997.6,482.0],"t":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[31,0,1,31,1,2,31,2,3,3,4,5,31,3,5,31,5,6,31,6,7,7,8,9,7,9,10,31,7,10,10,11,12,10,12,13,31,10,13,13,14,15,15,16,17,13,15,17,13,17,18,31,13,18,31,18,19,31,19,20,20,21,22,31,20,22,31,22,23,23,24,25,31,23,25,31,25,26,31,26,27,31,27,28,31,28,29,29,30,31]},{"y":[1200,1260],"m":0,"o":[4935.1,-483.8,4930.5,-480.8,4959.4,-480.8,4959.4,-427.6,4946.4,-427.6,4946.4,-410.3,4950.0,-413.5,4954.0,-412.7,4954.4,-408.9,4959.4,-408.7,4959.4,406.0,4950.0,409.8,4946.4,406.8,4946.4,427.7,4959.4,427.7,4959.4,480.9,4930.9,480.9,4934.6,483.7,4890.8,479.9,4890.8,-479.8],"t":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"b":[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],"tri":[19,0,1,19,1,2,19,2,3,19,3,4,19,4,5,5,6,7,5,7,8,8,9,10,5,8,10,19,5,10,19,10,11,19,11,12,19,12,13,13,14,15,13,15,16,19,13,16,16,17,18,16,18,19]},{"y":[1260,1319.6964148122224],"m":1,"o":[191.7,466.8,191.7,201.6,197.9,200.7,200.4,207.1,201.4,203.2,206.1,201.6,209.2,191.9,212.9,190.6,213.8,413.8,216.1,425.8,382.5,686.3,312.1,703.6,285.4,667.6,276.8,666.5,268.3,645.7,273.6,642.0,263.7,639.8],"t":[1319.7,1294.7,1293.2,1290.7,1291.4,1290.9,1293.6,1292.7,1281.4,1279.9,1290.6,1290.6,1292.1,1290.7,1294.3,1295.9,1294.6],"b":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"tri":[0,1,2,0,2,3,0,3,4,0,4,5,0,5,6,0,6,7,0,7,8,0,8,9,16,0,9,9,10,11,9,11,12,12,13,14,12,14,15,9,12,15,9,15,16]},{"y":[1199.9,1320],"m":0,"o":[1719.8,413.6,1719.8,371.5,1741.3,372.5,1741.7,350.1,1719.8,352.0,1719.8,-351.9,1741.7,-349.9,1741.3,-372.4,1719.8,-371.4,1719.8,-413.5,2132.1,-408.8,2131.9,-391.5,1939.7,-382.2,1939.5,-314.0,1956.5,-310.7,1982.5,-314.3,2006.3,-310.1,2123.6,-279.7,2132.0,-281.9,2132.7,-278.2,2157.0,-272.3,2503.0,-301.7,2503.0,302.0,2157.0,272.4,2132.7,278.3,2132.0,282.0,2123.6,279.8,2006.3,310.2,1982.5,314.5,1956.5,310.8,1939.5,314.1,1939.7,382.3,2131.9,391.7,2132.1,408.9],"t":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"b":[1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9,1199.9],"tri":[33,0,1,33,1,2,3,4,5,3,5,6,7,8,9,7,9,10,10,11,12,7,10,12,6,7,12,3,6,12,2,3,12,2,12,13,2,13,14,2,14,15,2,15,16,2,16,17,2,17,18,2,18,19,2,19,20,2,20,21,21,22,23,21,23,24,24,25,26,21,24,26,21,26,27,21,27,28,21,28,29,21,29,30,2,21,30,2,30,31,33,2,31,31,32,33]},{"y":[1260,1320],"m":0,"o":[4656.1,354.7,4656.1,325.5,4664.1,325.5,4656.1,318.5,4656.1,-322.3,4661.1,-325.6,4656.1,-325.6,4656.1,-354.8,4687.2,-354.7,4687.9,-341.1,4689.7,-344.5,4699.4,-343.8,4700.3,-340.5,4715.2,-339.1,4715.8,-335.1,4739.8,-334.1,4742.0,-329.7,4742.9,-333.9,4762.8,-332.2,4763.7,-336.2,4806.4,-334.3,4807.2,-329.0,4823.6,-328.4,4824.5,-320.5,4833.5,-319.9,4845.0,-310.2,4853.2,-320.4,4862.3,-319.9,4863.4,-327.4,4889.6,-325.5,4890.3,-5.4,4819.6,-4.5,4817.4,-7.4,4817.4,7.6,4890.3,9.1,4890.3,321.3,4863.4,323.9,4862.3,316.1,4853.2,316.7,4845.0,306.4,4833.6,316.1,4824.5,316.9,4823.6,324.5,4807.2,325.5,4806.4,330.5,4763.8,332.6,4762.8,328.6,4743.1,330.3,4740.5,326.3,4739.9,330.3,4715.8,331.5,4715.2,335.4,4700.3,336.7,4699.4,340.0,4689.7,340.8,4687.9,337.3,4687.2,354.6],"t":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"b":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"tri":[56,0,1,56,1,2,2,3,4,56,2,4,56,4,5,5,6,7,5,7,8,56,5,8,56,8,9,56,9,10,56,10,11,56,11,12,56,12,13,14,15,16,16,17,18,18,19,20,16,18,20,16,20,21,16,21,22,16,22,23,23,24,25,16,23,25,25,26,27,27,28,29,25,27,29,25,29,30,16,25,30,14,16,30,14,30,31,14,31,32,14,32,33,33,34,35,14,33,35,35,36,37,14,35,37,14,37,38,14,38,39,14,39,40,14,40,41,14,41,42,14,42,43,13,14,43,13,43,44,13,44,45,13,45,46,13,46,47,13,47,48,13,48,49,13,49,50,13,50,51,13,51,52,13,52,53,13,53,54,13,54,55,13,55,56]},{"y":[1195.5,1320],"m":0,"o":[6045.2,309.8,6045.2,-291.9,6082.9,-284.7,6085.1,-272.7,6109.1,-280.1,6259.0,-260.2,6249.5,-265.9,6252.7,-287.6,6325.9,-288.0,6327.6,-251.5,6346.3,-249.4,6351.5,-263.2,6478.4,-263.2,6479.3,-249.5,6813.1,-249.5,6814.1,-193.2,6855.3,-156.2,6828.7,-158.7,6838.6,-145.6,6883.5,-141.9,6969.6,-66.4,7046.0,-65.7,7045.6,-40.0,7000.3,-39.9,7023.3,-18.2,6990.2,-12.7,7047.5,-8.7,7041.7,11.1,6990.2,12.7,7023.3,18.0,7000.4,39.6,7045.6,39.7,7045.9,66.2,6969.6,66.7,6907.1,121.5,6906.6,135.3,6897.0,130.3,6892.2,152.9,6853.4,160.0,6813.9,193.1,6813.2,249.3,6650.3,249.4,6606.1,269.9,6591.8,269.5,6591.3,252.5,6552.6,253.2,6552.2,268.0,6538.7,249.4,6509.7,249.4,6494.6,264.3,6430.4,268.7,6351.3,262.9,6347.8,249.4,6327.8,251.8,6340.2,254.1,6329.1,257.2,6325.9,288.2,6252.8,287.9,6251.9,270.6,6128.4,293.9,6119.7,272.7,6116.7,295.1,6085.1,286.3,6092.1,310.4],"t":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"b":[1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5,1195.5],"tri":[0,1,2,0,2,3,0,3,4,0,4,5,5,6,7,5,7,8,0,5,8,0,8,9,0,9,10,10,11,12,0,10,12,0,12,13,0,13,14,0,14,15,15,16,17,0,15,17,18,19,20,20,21,22,20,22,23,18,20,23,18,23,24,18,24,25,25,26,27,25,27,28,18,25,28,28,29,30,18,28,30,30,31,32,30,32,33,18,30,33,17,18,33,17,33,34,17,34,35,17,35,36,17,36,37,17,37,38,17,38,39,39,40,41,17,39,41,17,41,42,17,42,43,17,43,44,17,44,45,45,46,47,17,45,47,17,47,48,17,48,49,17,49,50,17,50,51,17,51,52,17,52,53,53,54,55,53,55,56,53,56,57,17,53,57,17,57,58,17,58,59,17,59,60,60,61,62,17,60,62,0,17,62,0,62,63]},{"y":[1189.5,1310.46240234375],"m":1,"o":[5905.3,252.7,5999.9,252.8,5999.9,320.8,5991.0,320.9,5990.9,334.4,5999.9,327.6,5999.9,369.8,5990.9,362.2,5990.8,380.8,5999.9,382.4,5999.9,391.6,5984.4,394.1,5932.5,392.8,5933.1,327.1,5909.0,332.0,5906.2,323.0,5908.7,320.6,5933.1,321.4,5933.1,318.4,5905.3,320.5],"t":[1310.5,1297.5,1291.2,1306.7,1305.2,1299.9,1298.5,1301.6,1299.2,1297.1,1296.0,1299.5,1297.7,1305.8,1290.5,1291.2,1292.0,1306.4,1306.7,1291.8],"b":[1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5,1189.5],"tri":[19,0,1,1,2,3,4,5,6,4,6,7,4,7,8,8,9,10,8,10,11,4,8,11,3,4,11,3,11,12,1,3,12,1,12,13,13,14,15,13,15,16,13,16,17,1,13,17,1,17,18,1,18,19]},{"y":[1260,1294.785798042457],"m":0,"o":[7869.2,81.2,7869.9,21.5,7861.5,21.0,7846.8,-1.4,7861.4,-24.1,7870.1,-24.5,7870.1,-81.3,7799.6,-81.4,7799.2,-119.9,7975.5,-120.3,7976.0,-82.0,7962.5,-81.3,7962.6,-24.5,7971.0,-24.1,7985.6,-1.6,7971.2,21.1,7962.5,21.4,7962.4,70.3,7962.8,81.2,7976.0,81.9,7975.9,119.8,7799.2,119.8,7799.6,81.3],"t":[1291.4,1294.8,1293.1,1293.2,1293.2,1294.8,1291.3,1291.2,1291.2,1291.2,1291.2,1291.2,1294.8,1293.2,1294.3,1293.2,1294.8,1290.8,1291.2,1291.2,1291.2,1291.2,1291.2],"b":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"tri":[1,2,3,1,3,4,1,4,5,6,7,8,6,8,9,5,6,9,1,5,9,0,1,9,9,10,11,0,9,11,0,11,12,0,12,13,0,13,14,14,15,16,0,14,16,0,16,17,0,17,18,22,0,18,22,18,19,22,19,20,20,21,22]},{"y":[1281.0,1368.4682933285414],"m":1,"o":[708.4,239.7,711.1,236.6,805.8,236.6,807.1,229.7,876.6,243.3,937.9,259.8,968.1,272.7,975.2,282.7,951.3,289.2,929.6,291.0,824.6,286.2,822.5,290.7,710.9,290.7,708.4,288.6],"t":[1353.0,1352.0,1368.5,1358.2,1353.6,1351.6,1350.5,1350.4,1351.1,1351.8,1366.2,1359.3,1351.9,1352.9],"b":[1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0,1281.0],"tri":[13,0,1,13,1,2,2,3,4,13,2,4,13,4,5,13,5,6,13,6,7,7,8,9,7,9,10,13,7,10,13,10,11,11,12,13]},{"y":[1320,1359.2080656756712],"m":0,"o":[1708.9,79.9,1708.9,66.2,1747.7,66.2,1747.6,43.5,1708.9,53.6,1708.9,34.3,1747.5,24.2,1747.5,-24.0,1708.9,-34.1,1708.9,-53.4,1747.6,-43.4,1747.7,-66.1,1708.9,-66.1,1708.9,-79.8,1879.5,-79.8,1879.8,-66.1,1788.7,-66.1,1972.6,-0.2,1788.7,66.2,1879.8,66.2,1879.5,79.9],"t":[1359.2,1359.0,1357.0,1355.8,1357.8,1357.7,1356.0,1356.0,1357.7,1357.8,1355.7,1357.0,1359.0,1359.2,1350.2,1350.0,1354.8,1350.2,1354.8,1350.0,1350.2],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[20,0,1,20,1,2,3,4,5,3,5,6,3,6,7,2,3,7,7,8,9,7,9,10,2,7,10,2,10,11,11,12,13,11,13,14,11,14,15,2,11,15,16,17,18,18,19,20,18,20,2,18,2,15,15,16,18]},{"y":[1249.8,1366.062088920285],"m":0,"o":[1561.7,124.0,1574.9,82.8,1561.7,86.4,1561.7,57.2,1574.9,66.0,1574.9,41.9,1561.7,-86.2,1574.9,-82.7,1561.7,-123.9,1608.2,-105.2,1583.2,-97.0,1583.2,-79.8,1624.1,-79.8,1624.7,-123.8,1688.6,-123.7,1637.2,-111.9,1632.3,-79.8,1708.9,-79.8,1708.9,-66.1,1660.1,-66.1,1708.9,-53.4,1708.9,-34.1,1632.3,-54.2,1640.6,-28.7,1690.6,-25.6,1633.0,-19.5,1624.1,-56.3,1583.2,-65.9,1580.6,-23.4,1690.7,0.6,1580.6,23.5,1583.2,66.0,1624.1,56.5,1633.0,19.6,1690.6,25.8,1640.6,28.8,1632.3,54.3,1708.9,34.3,1708.9,53.6,1660.1,66.2,1708.9,66.2,1708.9,79.9,1632.3,79.9,1637.2,112.0,1689.1,123.4,1624.7,123.9,1624.1,79.9,1583.2,79.9,1583.2,97.1,1608.2,105.4],"t":[1354.5,1366.0,1352.0,1352.0,1366.1,1354.0,1352.0,1366.0,1354.5,1355.7,1358.1,1365.8,1363.7,1352.3,1350.2,1351.9,1363.2,1359.2,1359.0,1361.6,1357.8,1357.7,1361.9,1351.9,1350.1,1352.0,1362.3,1365.6,1354.0,1350.1,1354.0,1365.6,1362.4,1352.0,1350.1,1351.9,1361.9,1357.7,1357.8,1361.6,1359.0,1359.2,1363.2,1351.9,1350.1,1352.3,1363.7,1365.8,1358.1,1355.7],"b":[1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8,1249.8],"tri":[1,2,3,1,3,4,5,6,7,8,9,10,7,8,10,5,7,10,4,5,10,1,4,10,1,10,11,13,14,15,12,13,15,12,15,16,16,17,18,12,16,18,11,12,18,11,18,19,11,19,20,11,20,21,11,21,22,23,24,25,22,23,25,22,25,26,11,22,26,11,26,27,11,27,28,1,11,28,28,29,30,1,28,30,1,30,31,0,1,31,33,34,35,32,33,35,32,35,36,32,36,37,32,37,38,31,32,38,31,38,39,39,40,41,31,39,41,31,41,42,43,44,45,42,43,45,42,45,46,31,42,46,31,46,47,0,31,47,0,47,48,0,48,49]},{"y":[1256.0,1377.333457899873],"m":0,"o":[1008.6,158.3,1008.6,-158.1,1361.7,-156.9,1363.8,-79.8,1392.3,-104.0,1386.8,-158.1,1466.3,-157.4,1401.1,-153.2,1401.1,-112.1,1427.0,-111.2,1425.4,-147.3,1464.5,-142.4,1462.3,-123.9,1525.1,-123.9,1525.1,-116.3,1468.0,-115.8,1456.2,-104.6,1472.4,-100.4,1525.1,-114.2,1496.9,-105.5,1519.7,-103.5,1491.9,-96.0,1525.1,-87.9,1525.1,-63.7,1481.1,-50.7,1525.1,-36.8,1525.1,37.0,1481.1,50.8,1525.1,63.8,1525.1,88.1,1491.9,96.2,1519.7,103.7,1496.9,105.7,1525.1,114.3,1472.4,100.5,1456.2,104.7,1468.0,116.0,1525.1,116.5,1525.1,124.0,1462.3,124.0,1464.5,142.5,1425.4,147.4,1427.0,111.3,1401.1,112.2,1401.1,153.4,1465.8,158.2,1386.5,158.0,1392.3,104.1,1363.8,79.9,1361.7,157.1],"t":[1360.2,1366.0,1353.7,1377.3,1352.9,1352.9,1350.1,1352.4,1352.3,1351.2,1351.6,1350.2,1358.0,1355.7,1355.7,1357.9,1358.4,1360.6,1355.8,1359.3,1356.6,1359.6,1353.3,1368.7,1356.6,1353.4,1353.4,1356.6,1368.7,1353.3,1359.6,1357.0,1359.3,1355.8,1360.6,1358.4,1357.9,1355.9,1355.7,1358.0,1350.2,1351.6,1351.2,1352.3,1352.4,1350.2,1352.9,1352.9,1377.3,1353.7],"b":[1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0,1256.0],"tri":[49,0,1,49,1,2,49,2,3,5,6,7,4,5,7,4,7,8,4,8,9,3,4,9,9,10,11,9,11,12,3,9,12,12,13,14,12,14,15,3,12,15,3,15,16,3,16,17,17,18,19,17,19,20,3,17,20,3,20,21,3,21,22,3,22,23,3,23,24,3,24,25,3,25,26,3,26,27,27,28,29,27,29,30,3,27,30,30,31,32,3,30,32,32,33,34,3,32,34,3,34,35,36,37,38,36,38,39,35,36,39,3,35,39,3,39,40,40,41,42,3,40,42,3,42,43,3,43,44,44,45,46,44,46,47,3,44,47,3,47,48,3,48,49]},{"y":[1320,1351.365478515625],"m":0,"o":[2139.9,80.7,2130.2,74.7,2130.3,-74.7,2140.3,-80.7,2185.5,-80.7,2195.4,-74.5,2195.4,74.9,2185.3,80.8],"t":[1351.4,1351.4,1351.4,1351.4,1351.4,1351.4,1351.4,1351.4],"b":[1320,1320,1320,1320,1320,1320,1320,1320],"tri":[7,0,1,7,1,2,7,2,3,7,3,4,7,4,5,5,6,7]},{"y":[1320,1358.8795166015627],"m":1,"o":[2418.7,113.7,2418.7,218.8,2135.4,218.7,2134.8,191.9,2151.3,191.4,2151.3,131.4,2107.4,130.5,2108.3,104.1,2362.9,104.1,2364.0,113.7],"t":[1358.9,1356.5,1356.5,1356.5,1358.9,1358.9,1356.5,1356.5,1356.5,1358.9],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[9,0,1,9,1,2,2,3,4,9,2,4,9,4,5,9,5,6,9,6,7,7,8,9]},{"y":[1320,1351.3654785156252],"m":0,"o":[2272.3,-85.4,2272.3,-54.8,2268.4,-54.8,2268.4,55.0,2272.3,55.0,2272.3,85.6,2215.6,85.6,2215.3,80.8,2203.3,74.7,2203.3,-74.7,2215.3,-80.7,2215.7,-85.5],"t":[1351.1,1350.8,1351.4,1351.4,1350.8,1351.1,1350.4,1351.4,1351.4,1351.4,1351.4,1350.1],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[11,0,1,11,1,2,11,2,3,3,4,5,11,3,5,11,5,6,11,6,7,11,7,8,8,9,10,8,10,11]},{"y":[1320,1356.657958984375],"m":0,"o":[2345.3,-85.3,2345.3,-35.9,2341.5,-35.9,2341.5,36.1,2345.3,36.1,2345.3,85.5,2272.3,85.6,2272.3,55.0,2276.3,55.0,2276.3,-54.8,2272.3,-54.8,2272.3,-85.4],"t":[1351.1,1356.7,1356.7,1356.7,1356.7,1351.1,1351.1,1350.8,1351.4,1351.4,1350.8,1351.1],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[11,0,1,11,1,2,11,2,3,3,4,5,11,3,5,5,6,7,5,7,8,5,8,9,11,5,9,9,10,11]},{"y":[1320,1356.657958984375],"m":0,"o":[2418.7,-85.2,2418.7,-35.9,2414.4,-35.9,2414.4,36.1,2418.7,36.1,2418.7,85.3,2345.3,85.5,2345.3,36.1,2349.1,36.1,2349.1,-35.9,2345.3,-35.9,2345.3,-85.3],"t":[1351.2,1356.7,1356.7,1356.7,1356.7,1351.2,1351.1,1356.7,1356.7,1356.7,1356.7,1351.1],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[11,0,1,11,1,2,11,2,3,3,4,5,11,3,5,5,6,7,5,7,8,5,8,9,11,5,9,9,10,11]},{"y":[1320,1380],"m":0,"o":[2418.7,-113.6,2469.0,-113.6,2469.0,-89.1,2469.0,-85.0,2418.7,-85.2,2418.7,-35.9,2422.9,-35.9,2422.9,36.1,2418.7,36.1,2418.7,85.3,2469.0,85.2,2469.0,89.2,2469.0,113.7,2418.7,113.7,2418.7,218.8,2498.5,218.9,2498.7,223.3,2502.5,223.6,2502.9,-223.3,2498.8,-223.2,2498.5,-218.8,2418.7,-218.7]},{"y":[1320,1375.0189208984377],"m":0,"o":[4253.1,253.3,4253.1,-234.1,4268.3,-233.9,4268.6,-224.2,4338.5,-224.0,4339.4,-234.1,4412.9,-234.2,4413.2,-196.1,4361.8,-193.1,4357.2,-186.7,4377.8,-181.9,4395.5,-189.4,4421.3,-183.2,4427.6,-177.0,4423.0,-171.2,4434.6,-168.5,4461.2,-173.7,4486.9,-167.6,4493.1,-161.6,4489.1,-155.7,4509.4,-150.9,4526.9,-158.1,4552.3,-152.1,4558.8,-145.9,4554.8,-140.2,4565.4,-137.6,4782.8,-137.1,4782.1,-100.4,4631.2,-100.4,4631.2,100.1,4782.1,100.1,4782.5,137.1,4631.4,137.3,4630.9,156.0,4554.8,173.9,4558.8,179.5,4552.3,185.9,4527.0,191.7,4509.4,184.6,4489.1,189.4,4493.1,195.3,4487.1,201.1,4461.3,207.5,4443.5,200.1,4423.0,205.0,4427.5,211.0,4413.6,218.9,4412.9,234.1,4328.1,239.0,4311.8,231.0,4257.6,243.9,4291.1,236.0,4295.9,241.9,4291.1,247.9],"t":[1367.0,1370.1,1370.2,1371.4,1372.2,1370.2,1370.2,1371.1,1370.0,1367.9,1367.9,1368.9,1352.4,1367.8,1367.8,1367.8,1352.6,1369.8,1370.8,1371.0,1371.0,1370.0,1369.9,1370.7,1375.0,1375.0,1375.0,1375.0,1374.8,1374.7,1375.0,1375.0,1374.8,1353.1,1371.1,1370.8,1369.9,1369.9,1371.1,1371.1,1370.8,1369.7,1352.5,1367.8,1367.9,1367.3,1372.4,1370.2,1352.9,1368.0,1368.0,1368.0,1367.7,1352.1],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[0,1,2,0,2,3,0,3,4,4,5,6,4,6,7,4,7,8,4,8,9,0,4,9,0,9,10,0,10,11,0,11,12,12,13,14,0,12,14,0,14,15,15,16,17,15,17,18,15,18,19,15,19,20,20,21,22,20,22,23,20,23,24,15,20,24,15,24,25,25,26,27,25,27,28,15,25,28,15,28,29,29,30,31,29,31,32,15,29,32,15,32,33,15,33,34,34,35,36,15,34,36,15,36,37,15,37,38,15,38,39,39,40,41,15,39,41,15,41,42,15,42,43,15,43,44,44,45,46,15,44,46,46,47,48,15,46,48,15,48,49,15,49,50,0,15,50,53,0,50,53,50,51,51,52,53]},{"y":[1320,1380],"m":0,"o":[3196.8,399.3,3196.8,-233.3,3334.1,-233.2,3369.6,-236.3,3369.6,-239.4,3196.8,-239.4,3196.8,-399.5,3398.8,-399.5,3399.8,-436.1,3458.8,-436.0,3459.3,-405.5,3713.0,-405.5,3713.8,-337.4,3736.8,-335.2,3736.9,-352.7,3739.5,-354.7,4010.0,-329.7,4011.2,-325.3,4015.2,-324.1,4015.1,-267.8,4156.3,-234.2,4179.6,-234.2,4187.5,-237.0,4197.0,-234.2,4253.1,-234.1,4253.1,253.3,4248.2,246.0,4190.2,259.8,4198.2,264.3,4196.7,268.4,4191.0,270.3,4180.6,268.7,4179.5,262.5,4015.3,301.2,4015.2,320.5,4011.2,321.6,4010.0,326.0,3739.5,350.9,3736.9,349.1,3736.8,331.6,3713.8,333.8,3712.9,405.6,3459.3,405.6,3458.8,436.0,3399.8,436.2,3398.8,399.3],"t":[1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[45,0,1,45,1,2,45,2,3,45,3,4,4,5,6,4,6,7,45,4,7,45,7,8,45,8,9,45,9,10,45,10,11,45,11,12,45,12,13,13,14,15,13,15,16,45,13,16,45,16,17,45,17,18,45,18,19,45,19,20,45,20,21,45,21,22,45,22,23,45,23,24,24,25,26,24,26,27,27,28,29,27,29,30,27,30,31,24,27,31,24,31,32,24,32,33,33,34,35,33,35,36,33,36,37,24,33,37,24,37,38,24,38,39,24,39,40,45,24,40,45,40,41,45,41,42,45,42,43,43,44,45]},{"y":[1320,1380],"m":0,"o":[2858.6,407.8,2858.6,230.9,2866.7,231.0,2866.6,227.1,2858.6,227.1,2858.6,-227.1,2872.7,-227.1,2872.7,-231.0,2858.6,-231.0,2858.6,-408.0,2872.7,-408.0,2873.5,-436.1,2911.8,-436.0,2912.3,-408.5,2962.2,-408.5,2962.9,-436.0,3029.4,-436.1,3030.5,-399.5,3196.8,-399.5,3196.8,-239.4,3030.5,-239.4,3030.4,-234.4,3039.3,-234.3,3039.9,-226.8,3048.4,-226.7,3074.8,-226.7,3076.0,-233.6,3196.8,-233.3,3196.8,399.3,3030.5,399.3,3029.4,436.2,2962.9,436.1,2962.2,408.7,2912.3,408.7,2911.8,436.0,2873.5,436.1,2872.7,407.8],"t":[1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[36,0,1,36,1,2,36,2,3,3,4,5,36,3,5,36,5,6,7,8,9,7,9,10,7,10,11,6,7,11,36,6,11,36,11,12,36,12,13,36,13,14,14,15,16,36,14,16,36,16,17,17,18,19,17,19,20,36,17,20,36,20,21,36,21,22,36,22,23,36,23,24,36,24,25,25,26,27,36,25,27,27,28,29,36,27,29,29,30,31,29,31,32,36,29,32,36,32,33,36,33,34,34,35,36]},{"y":[1320,1358.9451904296877],"m":0,"o":[2504.4,-223.6,2543.1,-223.5,2543.7,-195.3,2566.9,-195.3,2567.8,-225.0,2858.6,-227.1,2858.6,227.1,2851.9,227.1,2849.5,230.7,2858.6,230.9,2858.6,407.8,2833.2,406.9,2833.2,235.1,2823.1,232.6,2817.7,227.2,2567.7,225.2,2566.9,195.5,2543.7,195.5,2543.1,223.6,2503.5,223.1],"t":[1358.9,1358.9,1358.9,1358.9,1358.9,1355.9,1355.8,1355.8,1355.9,1355.8,1355.9,1355.9,1355.9,1351.5,1352.7,1358.9,1358.9,1358.9,1358.9,1358.9],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[19,0,1,19,1,2,19,2,3,3,4,5,19,3,5,5,6,7,5,7,8,8,9,10,8,10,11,5,8,11,5,11,12,5,12,13,5,13,14,5,14,15,5,15,16,5,16,17,19,5,17,17,18,19]},{"y":[1320,1356.5011841830199],"m":0,"o":[5272.5,35.2,5266.2,18.6,5267.1,8.7,5272.6,-1.7,5295.7,-19.9,5335.5,-31.6,5373.7,-32.3,5405.7,-26.0,5425.2,-17.7,5439.3,-7.1,5449.9,11.9,5448.0,27.1,5439.2,40.7,5417.7,54.7,5388.5,64.3,5359.0,66.9,5322.9,62.8,5295.7,53.6],"t":[1355.5,1355.6,1355.4,1355.4,1355.9,1356.3,1356.3,1356.0,1355.7,1355.3,1355.6,1355.6,1355.4,1356.1,1356.4,1356.4,1356.5,1355.9],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[17,0,1,17,1,2,17,2,3,17,3,4,17,4,5,17,5,6,17,6,7,17,7,8,17,8,9,17,9,10,17,10,11,17,11,12,17,12,13,17,13,14,17,14,15,15,16,17]},{"y":[1260,1362.9091927063464],"m":0,"o":[4934.3,105.9,4935.3,74.4,5301.2,74.4,5302.1,93.2,5445.3,93.1,5462.3,83.9,5462.3,-50.3,5445.3,-59.6,5247.1,-59.6,5246.1,-74.3,4935.2,-74.3,4934.9,-106.9,5246.2,-107.0,5246.3,-160.9,5277.4,-174.3,5473.3,-174.3,5478.3,-170.0,5490.0,-170.0,5495.4,-174.3,5531.3,-174.3,5562.4,-160.9,5562.5,194.3,5546.3,203.7,5536.5,203.8,5531.4,208.1,5510.7,208.2,5495.3,208.2,5490.0,203.8,5478.4,203.8,5473.3,208.1,5277.4,208.1,5272.3,204.0,5262.4,203.7,5246.2,194.7,5246.1,106.9],"t":[1350.8,1350.8,1350.8,1352.4,1352.3,1352.3,1352.3,1352.3,1352.3,1362.6,1350.8,1350.8,1362.9,1353.2,1355.4,1355.9,1356.8,1361.5,1356.8,1355.4,1353.3,1353.8,1355.2,1356.7,1355.3,1356.7,1356.7,1361.5,1356.7,1356.0,1355.3,1356.3,1355.3,1353.3,1362.6],"b":[1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260,1260],"tri":[34,0,1,34,1,2,34,2,3,34,3,4,7,8,9,9,10,11,7,9,11,7,11,12,7,12,13,7,13,14,6,7,14,6,14,15,5,6,15,5,15,16,5,16,17,5,17,18,5,18,19,5,19,20,5,20,21,4,5,21,34,4,21,34,21,22,34,22,23,34,23,24,34,24,25,25,26,27,34,25,27,34,27,28,34,28,29,34,29,30,34,30,31,34,31,32,32,33,34]},{"y":[1320,1380],"m":0,"o":[5753.3,-106.8,5729.8,-107.2,5729.9,-134.0,6035.5,-134.2,6035.8,-167.4,6076.2,-167.6,6076.6,-238.3,6195.0,-238.5,6195.9,-118.9,6283.8,-114.0,6282.5,-108.0,6195.9,-105.4,6277.7,-105.2,6328.7,-90.0,6455.2,-90.1,6460.9,-87.9,6461.3,-35.7,6514.0,-28.8,6515.3,-35.3,6545.9,-31.5,6547.3,-25.0,6549.7,-30.9,6589.9,-26.3,6593.3,-19.3,6594.4,-25.8,6646.9,-19.2,6607.6,-17.3,6665.2,-17.1,6756.8,-5.5,6757.7,4.4,6665.2,16.9,6607.6,17.3,6607.7,17.8,6645.9,18.1,6646.9,19.2,6594.5,26.0,6592.9,19.4,6583.8,27.8,6549.6,30.9,6546.5,25.1,6545.9,31.5,6515.3,35.5,6514.0,29.2,6461.3,35.8,6460.8,87.9,6455.5,89.9,6328.7,89.8,6277.9,105.0,6195.9,105.1,6282.4,107.9,6283.4,114.2,6195.9,118.8,6195.7,238.6,6077.1,239.0,6076.2,167.8,6035.8,167.5,6035.5,134.5,5729.8,134.2,5729.8,107.1,5753.3,106.7],"t":[1375.5,1375.5,1375.5,1380,1375.5,1375.5,1375.5,1375.5,1380,1351.7,1352.0,1380,1374.1,1357.9,1352.3,1351.6,1351.6,1351.9,1351.2,1351.2,1352.0,1351.2,1351.1,1352.0,1351.2,1351.2,1352.3,1351.1,1351.1,1350.4,1351.1,1352.3,1352.2,1351.5,1351.1,1351.1,1352.1,1351.1,1351.2,1353.0,1351.2,1351.2,1351.8,1351.6,1351.6,1352.2,1357.9,1374.0,1380,1352.0,1351.7,1380,1375.5,1375.5,1375.5,1375.5,1375.5,1375.5,1375.5,1375.5],"b":[1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320,1320],"tri":[0,1,2,0,2,3,59,0,3,3,4,5,59,3,5,5,6,7,59,5,7,59,7,8,8,9,10,8,10,11,59,8,11,59,11,12,59,12,13,59,13,14,59,14,15,59,15,16,59,16,17,17,18,19,59,17,19,59,19,20,20,21,22,59,20,22,59,22,23,23,24,25,23,25,26,59,23,26,59,26,27,59,27,28,28,29,30,28,30,31,59,28,31,59,31,32,32,33,34,32,34,35,32,35,36,59,32,36,36,37,38,36,38,39,59,36,39,39,40,41,39,41,42,59,39,42,59,42,43,43,44,45,43,45,46,59,43,46,46,47,48,59,46,48,59,48,49,59,49,50,59,50,51,51,52,53,51,53,54,51,54,55,51,55,56,59,51,56,59,56,57,57,58,59]},{"y":[1380,1411.9151471027644],"m":1,"o":[3406.9,340.3,3408.5,237.0,3519.1,237.0,3527.0,326.4,3476.4,331.5,3482.5,333.3,3478.5,335.5,3408.9,342.3],"t":[1411.3,1411.6,1410.2,1410.2,1411.9,1411.7,1410.2,1410.6],"b":[1380,1380,1380,1380,1380,1380,1380,1380],"tri":[7,0,1,7,1,2,2,3,4,7,2,4,7,4,5,5,6,7]},{"y":[1380,1426.1148681640627],"m":1,"o":[3174.4,63.4,3175.3,40.5,3194.9,40.9,3195.1,67.9,3491.4,67.9,3492.1,40.5,3516.9,40.7,3517.3,61.0,3578.3,61.0,3578.3,41.3,3582.5,40.5,3583.3,61.6,3612.7,62.3,3612.7,143.2,3583.3,144.0,3582.5,165.9,3578.3,165.1,3578.3,144.7,3517.3,144.7,3516.9,165.7,3492.4,165.9,3491.4,137.5,3195.0,137.5,3194.9,165.5,3175.4,165.9,3174.4,142.3,2987.0,141.7,2987.6,63.5],"t":[1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1,1426.1],"b":[1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380,1380],"tri":[0,1,2,0,2,3,27,0,3,4,5,6,4,6,7,4,7,8,8,9,10,8,10,11,4,8,11,4,11,12,4,12,13,3,4,13,27,3,13,27,13,14,14,15,16,14,16,17,27,14,17,18,19,20,18,20,21,17,18,21,27,17,21,27,21,22,22,23,24,22,24,25,27,22,25,25,26,27]}];
 function executorDesign(opt={}){
  const b=EXECUTOR_BLUEPRINT,hullSpec={...JSON.parse(JSON.stringify(b.hull)),stations:EXECUTOR_WEDGE_STATIONS.map(r=>r.slice())};
  const s=newShip(hullSpec,'エグゼクター級｜超大型指揮戦艦');s._building=true;s.reference='executor';s.detail=1;s.paint='neutral';s.lights='blue';s.armor={hull:1.2,cit:1};s.shieldTarget=1;
@@ -55745,6 +55777,7 @@ function executorDesign(opt={}){
  // rather than on the flare itself, where its wall turned 66 degrees across the ship.
  s.trenches.push({id:s.nextId++,side:'both',from:Math.max(b.trench.from,EXECUTOR_TRENCH_FROM),to:b.trench.to,level:.5,height:b.trench.height,depth:b.trench.depth,taper:false,chine:true});
  for(const q of EXECUTOR_RECESS_CUTS)s.solidCuts.push(normalizeSolidCut({...q,id:s.nextId++,structures:false}));
+ for(const [x0,x1,y,z,r] of EXECUTOR_ENGINE_TUNNELS)s.solidCuts.push(normalizeSolidCut({id:s.nextId++,shape:'cylinder',c:[(x0+x1)/2,y,z],s:[2*r,2*r,x1-x0],rotation:[0,0,90],mirror:z>0,structures:false}));
  // The inner engines under the shoulder (mouths x 5,676-5,750 m) exhaust through channels open to the stern, as in the
  // model, where the stern block and the wedge plates' aft edges would otherwise stand behind them.
  for(const e of b.engines)if(e.mouth[0]>5600&&e.mouth[2]>0&&e.mouth[2]<1800){const d=e.diameter*1.35;s.solidCuts.push(normalizeSolidCut({id:s.nextId++,shape:'box',c:[(5300+e.mouth[0])/2,e.mouth[1],e.mouth[2]],s:[e.mouth[0]-5300,d,d],rotation:[0,0,0],mirror:true,structures:false}));}
@@ -55754,10 +55787,24 @@ function executorDesign(opt={}){
  const terrace=(d,name,paint,skin)=>{
   const P=[];for(let i=0;i<d.o.length;i+=2)P.push([d.o[i],d.o[i+1]]);
   const xs=P.map(p=>p[0]),zs=P.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs),cx=(x0+x1)/2,cz=(z0+z1)/2,[y0,y1]=d.y;
+  // A slab with per-vertex top heights (d.t, measured on the original at each outline vertex, top triangles d.tri;
+  // optional bottoms d.b resting on the hull surface)
+  // is an editable vertex structure whose top follows the original, so slanted faces are slopes, not 60 m steps.
+  if(Array.isArray(d.t)&&d.t.length===P.length&&Array.isArray(d.tri)){
+   const n=P.length,cy=(y0+y1)/2,u=(x,y,z)=>[(x-cx)/(x1-x0),(y-cy)/(y1-y0),(z-cz)/(z1-z0)],bottom=Array.isArray(d.b)&&d.b.length===n?d.b:null,v=[...P.map(([x,z],i)=>u(x,bottom?bottom[i]:y0,z)),...P.map(([x,z],i)=>u(x,d.t[i],z))];
+   // A bottom that follows the hull surface (d.b) is triangulated like the top; a flat bottom is one face.
+   let f=[...(bottom?[]:[P.map((_,i)=>i)]),...P.map((_,i)=>[i,n+i,n+(i+1)%n,(i+1)%n])];for(let i=0;i<d.tri.length;i+=3){f.push([n+d.tri[i],n+d.tri[i+2],n+d.tri[i+1]]);if(bottom)f.push([d.tri[i],d.tri[i+1],d.tri[i+2]]);}
+   const W=q=>[q[0]*(x1-x0),q[1]*(y1-y0),q[2]*(z1-z0)];let vol=0;for(const face of f)for(let k=1;k+1<face.length;k++)vol+=dot(W(v[face[0]]),cross(W(v[face[k]]),W(v[face[k+1]])));
+   if(vol<0)f=f.map(face=>face.slice().reverse());
+   // placePart keeps no mesh, so the mesh is attached to the placed part; the mirrored copy is its own part with
+   // z negated and the faces reversed.
+   const put=(sign)=>{const q=placePart(s,'struct',[cx,cy,sign*cz],[x1-x0,z1-z0,y1-y0],{label:name(cx,sign*cz),form:'box',skin,paint},false);if(!q)return null;const r=normalizeStructMesh({v:v.map(([a,b,c])=>[a,b,sign*c]),f:sign>0?f:f.map(face=>face.slice().reverse())});if(r.mesh){q.form='mesh';q.mesh=r.mesh;}return q;};
+   const a=put(1);if(d.m)put(-1);return a;
+  }
   return placePart(s,'struct',[cx,(y0+y1)/2,cz],[x1-x0,z1-z0,y1-y0],{label:name(cx,cz),form:'outline',outline:P.map(([x,z])=>[(x-cx)/(x1-x0),(z-cz)/(z1-z0)]),corner:0,taper:0,skin,paint},!!d.m);
  };
- for(const d of b.cityTerraces)terrace(d,cx=>d.k===0?(cx<3600?'後部城郭の基部甲板':'都市基部区画'):d.k<4?'中央都市区画':'都市上層区画',d.k%2?'#8a9197':'#80888e','service');
- for(const d of b.ventralTerraces)terrace(d,(cx,cz)=>cx<6500?'機関区画の腹部構造':cx>11000&&cx<15000?(Math.abs(cz)>520?'前部腹部の竜骨張出し':'腹部ドッキング区画'):'腹部の装甲区画','#7a8288','armor');
+ // v24 The body above, below and beside the flat hull is measured on the supplied model (EXECUTOR_BODY_STRUCTURES).
+ for(const d of EXECUTOR_BODY_STRUCTURES){const up=(d.y[0]+d.y[1])/2>=640;terrace(d,cx=>up?(cx<3600?'後部城郭':cx<6200?'都市基部区画':'都市区画'):(cx<6500?'機関区画の腹部構造':'腹部構造'),up?'#80888e':'#7a8288',up?'service':'armor');}
  // Command tower: ordinary support structure under the source bridge body.
  // v24 By the user's decision the command tower is the Imperial-class one (support wall, bridge body,
  // domes and mast), standing on the measured city roof under the model's bridge.
@@ -57436,7 +57483,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 });
 // v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452303266577,craft_awing:0.492755075492,craft_btlb:0.497497004708,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639542538851,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.418134051559,craft_xwing:0.393494072058,craft_z95:0.571066159999});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452526541719,craft_awing:0.492755075492,craft_btlb:0.497442660163,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639542538851,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.393494072058,craft_z95:0.571066159999});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
@@ -57453,6 +57500,7 @@ function refitCraftInterior(ship,key){
  if(key==='craft_tie_in'){Object.assign(reactors[0],{k:'aux',d:1.7});reactors[0].c=[2.95,1.4,0];}
  if(key==='craft_vwing')for(const z of [-1.75,1.75])reactors.push(placePart(ship,'aux',[2.236,.55,z],1.3,{label:'翼根部の推進・兵装用反応炉',autoFit:false}));
  // v24 Under the reactor-supply drive model each factory craft's plant is scaled to give its target
+ // (ARC-170, BTL-B and V-wing re-measured 2026-11-11 after laser gas followed the per-second laser output)
  // acceleration (as the TIE/ln's reactor was); measured once on the completed craft against the
  // component-rated acceleration of its combat preview (S.propulsion), cooling and token shields included.
  if(CRAFT_REACTOR_SCALE[key])for(const p of reactors)p.d*=CRAFT_REACTOR_SCALE[key];
@@ -57770,7 +57818,11 @@ function refitShipPropulsion(ship,key,options={}){
  if(key==='mc80liberty'){for(const [id,c] of [[69,[590,64,-75]],[83,[660,75,95]],[84,[660,75,-95]],[91,[660,86,-70]]]){const p=ship.parts.find(p=>p.id===id);if(p)p.c=c;}}
  if(key==='mc75'){for(const [id,c] of [[8,[620,290,0]],[9,[800,286,55]],[24,[660,292,75]],[25,[660,292,-75]],[26,[610,290,70]],[27,[610,290,-70]],[31,[720,262,36]],[32,[720,262,-36]]]){const p=ship.parts.find(p=>p.id===id);if(p)p.c=c;}}
  if(key==='executor'){
-  const changes=[];for(const p of ship.parts.filter(p=>p.k==='engine')){const original=p.id<=276?247.6584:[277,278,285,286].includes(p.id)?210.5088:210.5096,next=Math.max(p.d,original*1.08);if(next>p.d+1e-7){changes.push({id:p.id,diameterBeforeM:p.d,diameterAfterM:next,mouth:add(p.c,mul(norm(p.dir||[-1,0,0]),partDims(p).l/2))});p.d=next;}}
+  // Every engine is at least 1.08 x 247.6584 m. The rule used to pick the base by part id (ids up to 276, and a few
+  // others at 210.5 m), which every published Executor engine (ids 249-261) fell under; ids shift whenever a structure is
+  // added or removed before the engines, so the base is no longer read from the id (that silently changed the thrust).
+  // Each nozzle then takes its EXECUTOR_NOZZLE_DIAMETERS size (larger nozzles toward 1,230 G, reactor unchanged).
+  const changes=[];for(const p of ship.parts.filter(p=>p.k==='engine')){const original=247.6584,row=EXECUTOR_NOZZLE_DIAMETERS.reduce((a,b)=>Math.abs(Math.abs(p.c[2])-b[0])<Math.abs(Math.abs(p.c[2])-a[0])?b:a),next=Math.max(p.d,original*1.08,Math.abs(Math.abs(p.c[2])-row[0])<=40?row[1]:0);if(next>p.d+1e-7){changes.push({id:p.id,diameterBeforeM:p.d,diameterAfterM:next,mouth:add(p.c,mul(norm(p.dir||[-1,0,0]),partDims(p).l/2))});p.d=next;}}
   ship._accelEngineDiameterChanges=changes;
  }
  syncCompartments(ship);
@@ -57807,6 +57859,8 @@ function refitShipSystems(ship,key){return withFrozenStructures(()=>constructShi
 const SHIP_ENGINE_ACCEL_TARGETS={imperial:2300,imperial2:2300,arquitens:1800,cr90:2100,hammerhead:2500,mc80home:2100,mc80liberty:2100,mc75:2100,mc30c:2100};
 // Factory-only goals. Values marked assumed are a design target, not a claim
 // that a published MGLT speed supplies a measured acceleration.
+// Examples whose structures carry no added surface pattern (user decision, 2026-11-11). Skin is appearance only.
+const PLAIN_SKIN_EXAMPLES=new Set(['executor','mandator2']);
 const SHIP_MILITARY_ACCEL_TARGETS=Object.freeze({mandator2:2000,dreadnaught:2000,gozanti:500,lucrehulk:2000,munificent:2000,nebulonb:1000,onager:2000,providence:2000,providenceDn:2000,recusant:2000,recusantDn:2000,reptransport:2000,subjugator:2000,executor:3300,venator:3000,acclamator:3500});
 function stockAccelerationPayload(ship){
  const copy=p=>JSON.parse(publicJSON(p));
@@ -61574,6 +61628,10 @@ function fleetProfile(S,name,ship){
  // v22 The embarked combat craft's stores at their canon load (C.CRAFT_LOADOUT): the TT one craft brings to the
  // fight in torpedoes, missiles and bombs, and the share of it that is ion. The fleet model spends it as they attack.
  {let n=0,T=0,I=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0)||!r.type)continue;const o=craftOrdnance(r.type),t=o.reduce((a,x)=>a+x.n*x.tt,0);n+=r.deployable;T+=r.deployable*t;I+=r.deployable*o.filter(x=>x.ion).reduce((a,x)=>a+x.n*x.tt,0);}if(n>0&&T>0){out.airOrd=Math.round(T/n*10)/10;out.airIon=Math.round(I/T*1000)/1000;}}
+ // The laser output one combat craft brings (TT/s, averaged over the deployable combat craft): every laser barrel of its
+ // type or design (airWingGunRate). The fleet model's craft attack (fleetTick) multiplies it by the craft aloft. It is an upper
+ // bound: every barrel firing all the time and hitting, with no laser-gas limit (docs/ship-example-refit.md).
+ {let n=0,G=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0))continue;n+=r.deployable;G+=r.deployable*airWingGunRate(r);}if(n>0)out.airGun=G/n;}
  out.aaCh=S.aaChannels||AA_CHANNELS.base;out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewCapacity=Math.max(0,S.crew||0);out.fuel=fuelProfileFromStats(S);out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);out.autoCrew=S.autoCrew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
@@ -61690,7 +61748,7 @@ function hullSectionShares(ship){
 
 function emptyDesignProfile(p){
  const q={...p,slots:0,embarkedSlots:0,aviationSize:0};
- for(const key of ['airOrd','airIon','airWings','airWing','groundForces','air','ground','troops','vehicles','carried','complement','manifest'])delete q[key];
+ for(const key of ['airOrd','airIon','airGun','airWings','airWing','groundForces','air','ground','troops','vehicles','carried','complement','manifest'])delete q[key];
  return q;
 }
 // A combat-only legacy profile can retain its finite electrical plant and known
@@ -62685,7 +62743,7 @@ function fleetTick(b,dt,opts={}){
    if(!total&&!(p.profileVersion>=5)&&(u.pw?.P||0)>0&&powerFactor(u,'reactor')>0){msl=(p.msl||0)/20*crewEff;imsl=(p.imsl||0)/20*crewEff;}else for(const packet of missilePackets){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*(isConcussionLauncher(packet.kind)?1:crewEff);if(packet.ion)imsl+=damage;else msl+=damage;}
    const fundedAA=msl+imsl>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,icpt=1-.7*fundedAA/(fundedAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
   // Aircraft attrition also reads the common pre-damage snapshot.
-  const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*.6*(1-.5*airEnemy/(u.air+airEnemy+1));
+  const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*fleetAirGun(p)*(1-.5*airEnemy/(u.air+airEnemy+1));
   const chK=Math.min(1,(t.p.aaCh??AA_CHANNELS.base*4)/Math.max(1,Math.ceil(u.air/AA_CHANNELS.flight))),fundedAirAA=u.air>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,loss=Math.min(u.air,(fundedAirAA*.012*chK+airEnemy*.012/enemies.length)*dt);
   // The craft aloft release their stores over about a minute of attacks; point defence takes its share as it does missiles'.
   let ord=0,iord=0;if(u.ordPool>0&&u.air>0){const rel=Math.min(u.ordPool,u.air*p.airOrd/60*dt*(1-.5*airEnemy/(u.air+airEnemy+1)));u.ordPool-=rel;const fundedOrdAA=rel>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,r=rel/dt*(1-.7*fundedOrdAA/(fundedOrdAA+rel/dt*.5+1e-9)),ik=clamp(p.airIon||0,0,1);ord=r*(1-ik);iord=r*ik;}
@@ -64499,9 +64557,29 @@ function ordnanceSummary(list){return (list||[]).map(x=>`${x.name} ${x.n}`).join
 // toughness: 0.35 + 0.17 ln(mass in t), ×1.3 with shields.
 const craftSpeed=G=>Number.isFinite(G)&&G>0?Math.round(clamp(2070*Math.pow(G/3700,.34),500,3200)):0;
 const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機':'fighter','重戦闘機':'fighter','ドロイド戦闘機':'fighter','ガンシップ':'transport','揚陸艇':'transport','シャトル':'transport','非武装艇':'transport'};
-// A fixed fighter cannon only fires near its physical barrel axis. Its calibrated
-// shot energy stays fixed; a faster cadence draws more electrical power.
-const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserH:.18,cturret:.12})});
+// A fixed fighter cannon only fires near its physical barrel axis. Its catalogue
+// shot energy (output per barrel per second × its period) stays fixed; a faster cadence draws more electrical power.
+const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserL:.12,claserH:.18,cturret:.12})});
+// Sustained gun output in TT/s of a set of craft fire arcs: each arc's weapon at its own cadence, as the RTS squadrons
+// fire them (Rts.squadWeaponEnergy): an aircraft laser gives barrels × its output per barrel per second at any cadence.
+function craftArcsGunRate(arcs){
+ let rate=0;for(const a of Array.isArray(arcs)?arcs:[]){const d=FITS[canonicalWeaponKind(a?.k)];if(!d||d.retired||d.store||!(d.tt>0))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||CRAFT_FIRE.defaultCycle;rate+=craftShotTT(d,cycle)/cycle;}return rate;
+}
+// Sustained laser output of one craft of a type in TT/s. A modelled type uses its offline fire-arc snapshot
+// (CRAFT_PRICE_CATALOG); a table-only type uses the RTS's estimated equipment (round(aa × 2) fixed medium lasers,
+// Rts.craftLaserArcs). null when neither knows the type.
+const FLEET_AIR_GUN_DEFAULT=2*CRAFT_LASER_OUTPUT.medium;
+function craftLaserRate(type){
+ if(typeof type!=='string')return null;const entry=CRAFT_PRICE_CATALOG.entries[type]||CRAFT_PRICE_CATALOG.entries[craftTypeOf(type)];
+ if(Array.isArray(entry?.fireArcs))return craftArcsGunRate(entry.fireArcs);
+ const R=typeof Rts!=='undefined'?Rts:null,c=R?.CRAFT?.[type];if(c&&typeof R.craftLaserArcs==='function')return craftArcsGunRate(R.craftLaserArcs(c));
+ return null;
+}
+// One craft of an air-wing row: a player's design by its own fire arcs, a type by craftLaserRate, else the standard
+// fighter of two medium lasers (FLEET_AIR_GUN_DEFAULT).
+function airWingGunRate(r){const arcs=r?.design?.craft?.fireArcs;if(Array.isArray(arcs))return craftArcsGunRate(cleanCraftFireArcs(arcs)||[]);return craftLaserRate(r?.type)??FLEET_AIR_GUN_DEFAULT;}
+// Per-craft laser output of a fleet profile; a profile assembled before airGun existed takes the standard fighter's.
+const fleetAirGun=p=>Number.isFinite(p?.airGun)&&p.airGun>=0?p.airGun:FLEET_AIR_GUN_DEFAULT;
 function cleanCraftFireArcs(raw){
  if(!Array.isArray(raw))return null;const vec=(v,fallback)=>{if(!Array.isArray(v)||v.length!==3||!v.every(Number.isFinite))return fallback;if(Math.abs(Math.hypot(...v)-1)<1e-12)return v.slice();const scale=Math.max(...v.map(Math.abs));return scale>1e-8?norm(v.map(n=>n/scale)):fallback;};
  return raw.slice(0,128).filter(a=>a&&typeof a==='object'&&!retiredAircraftIon(a.k)&&vec(a.dir,null)).map(a=>{const k=canonicalWeaponKind(a.k);return {fixed:!!a.fixed,dir:vec(a.dir,[1,0,0]),up:vec(a.up,[0,1,0]),...(Array.isArray(a.pos)&&a.pos.length===3&&a.pos.every(Number.isFinite)?{pos:a.pos.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate))}:{}),...(typeof k==='string'&&FITS[k]?{k}:{}),gun:Number.isFinite(a.gun)?clamp(a.gun,0,1):0,aa:Number.isFinite(a.aa)?clamp(a.aa,0,1):0,cycle:Number.isFinite(a.cycle)?clamp(a.cycle,.03,10):CRAFT_FIRE.cycles[k]||FITS[k]?.cycle||CRAFT_FIRE.defaultCycle};});
@@ -64629,17 +64707,22 @@ function cleanDesignBlueprint(raw){
 function designCraftSnapshot(ship,S,ref=''){
  if(typeof ship==='string'){if(ship.length>16*1024*1024)return null;try{ship=JSON.parse(ship);}catch(e){return null;}}
  const craft=craftCombat(ship,S);if(!craft)return null;const raw={};for(const k of DESIGN_BLUEPRINT_KEYS)if(Object.hasOwn(ship,k))raw[k]=ship[k];raw.format='starship-yard';raw.v=ship.format==='starship-yard'?ship.v:3;
- const blueprint=cleanDesignBlueprint(raw);if(!blueprint)return null;return cleanDesignCraft({ref,name:ship.name,dims:craft.dims,craft,blueprint,weaponProfileVersion:1});
+ const blueprint=cleanDesignBlueprint(raw);if(!blueprint)return null;return cleanDesignCraft({ref,name:ship.name,dims:craft.dims,craft,blueprint,weaponProfileVersion:WEAPON_PROFILE_VERSION});
 }
 function blueprintWeaponProfileAffected(blueprint){
  const affected=kind=>{if(retiredAircraftIon(kind))return true;const k=canonicalWeaponKind(kind),d=FITS[k];return !!d&&d.cat==='w'&&(d.fixedPerBarrelEnergy||!d.craft&&!d.fixed&&(k==='stl'||k==='oct40'||d.weaponSizing?.anchorBlend>0));};
  if(Array.isArray(blueprint?.fits)&&blueprint.fits.some(f=>affected(f?.k)))return true;
  return Array.isArray(blueprint?.surfaces?.patches)&&blueprint.surfaces.patches.some(p=>affected(p?.battery?.weapon)||Array.isArray(p?.aggregate?.guns)&&p.aggregate.guns.some(r=>Array.isArray(r)&&affected(r[1])));
 }
+// Saved design-craft snapshots record the weapon model their cached combat figures used. 2: aircraft lasers fire their
+// per-barrel per-second output (2026-11-11); a version-1 snapshot with an aircraft laser holds 2 kt-era power, laser
+// units and heat, and is rebuilt from its blueprint once. Version-1 snapshots without one stay current.
+const WEAPON_PROFILE_VERSION=2;
+function blueprintAircraftLaser(blueprint){return Array.isArray(blueprint?.fits)&&blueprint.fits.some(f=>!!FITS[canonicalWeaponKind(f?.k)]?.outputClass);}
 // Legacy combat-only snapshots remain valid; newer ones also retain the complete model and build cost.
 function cleanDesignCraft(d){
  if(!d||typeof d!=='object')return null;d=migrateWeaponDesign(d);let c=d.craft;if(!c||typeof c!=='object'||!Object.values(CRAFT_ROLE_RTS).includes(c.role))return null;
- const needsWeaponRefresh=d.weaponProfileVersion===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||d.weaponProfileVersion!==1&&blueprintWeaponProfileAffected(d.blueprint)||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION,blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=d.weaponProfileVersion===1?1:undefined;
+ const wpv=d.weaponProfileVersion,laser=blueprintAircraftLaser(d.blueprint),needsWeaponRefresh=wpv===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||wpv!==1&&wpv!==WEAPON_PROFILE_VERSION&&blueprintWeaponProfileAffected(d.blueprint)||wpv!==WEAPON_PROFILE_VERSION&&laser||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION,blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=wpv===WEAPON_PROFILE_VERSION||wpv===1&&!laser?wpv:undefined;
  // Combat-only records retain their historical figures for inspection, but
  // cannot certify a new physical model without the editable geometry.
  const requiresBlueprint=!blueprint&&(needsWeaponRefresh||d.requiresBlueprint===true||d.legacyReadOnly===true),sourceProfileVersion=Number.isSafeInteger(d.sourceProfileVersion)?d.sourceProfileVersion:c.powerProfile?.profileVersion;
@@ -64649,7 +64732,7 @@ function cleanDesignCraft(d){
   // muzzle positions and cadence even when the saved weapon id stays the same.
   // A stale electrical revision also means its cached combat ratings may still
   // describe the former output of an otherwise canonical weapon such as PD.
-  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=1;}catch(e){return null;}
+  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=WEAPON_PROFILE_VERSION;}catch(e){return null;}
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count,...(st.store?.mount==='bay'&&Array.isArray(st.store.box)&&st.store.box.length===3&&st.store.box.every(v=>Number.isFinite(v)&&v>0&&v<=40)?{store:{mount:'bay',box:st.store.box.slice()}}:{})}));
@@ -67274,7 +67357,7 @@ initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,fleetPrepareCollision,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
  withFrozenStructures,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatReadoutRates, heatProfile, heatProfileOf, heatLegacy, FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus, heatLim, heatSwLim, normalizeLinks, LINK_LIMIT, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swEnergyTT, swRange, swFree, swAxis, swBeamTrace, superweaponSelection, superweaponCommand, superweaponSetAuto, MGLT, engineDepthRatio, sublightMGLT, SUBLIGHT_REFERENCE_VERSION, SUBLIGHT_REFERENCE, sublightReference, referenceSublightMGLT, referenceSublightSpeed, referenceSpeedProfile, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponShape, superweaponBodyTriangles, superweaponMuzzle, superweaponAxis, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, groundingStats, engineMountSamples, engineAppearance, engineSkinMesh, engineCasingSections, engineCasingCapacity, engineCasingFit, fitEngineCasing, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, referencePhysicalProfileCurrent, canopyShape, setCanopyShape, canopyTriangles, canopyMountPosition, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, meshFaceTriangles, meshTriangles, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, placeRotationalCopies, placeLinearCopies, rotationalArray, linearArray, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshPlanarMoves, meshMoveVertices, meshSetVertex, meshAddEdge, meshRemoveEdge, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, weaponPreviewStats, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, FLIGHT_POWER_POLICY, shipCombatPowerDemand, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetWeaponPackets, combatAddWeapons, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, GUN_ACCURACY, gunDispersion, gunTargetEllipse, gunHitChance, gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, CORVETTE_WEAPON_KEYS, VENATOR_SIDE_WEAPON_KEYS, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, integratedEngine, nozzleShaftCapacity, propulsionOwners, engineOwner, engineMachineryPaths, enginePaths, engineTransmission, engineDriveRoutes, ENGINE_FEED_LOSS_PER_M, ENGINE_SHAFT_FLUX, ENGINE_TRANSMISSION_VERSION, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
-   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
+   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
@@ -67919,12 +68002,12 @@ function craftLaserArcs(c){
  // and electrical plant, rather than interpreting strategy scores as TT.
  const arcs=estimatedCraftBOM(c).fits.flatMap(row=>{const d=C.FITS[row.k];return d?.craft&&d.tt>0&&!d.retired?Array.from({length:Math.max(0,Math.floor(row.count||0))},()=>({k:row.k,fixed:!!d.fixed,dir:[1,0,0],up:[0,1,0],gun:1,aa:1,cycle:d.cycle||C.CRAFT_FIRE.defaultCycle})):[];});for(const a of arcs)a.gun=a.aa=1/arcs.length;return c.fireArcs=arcs;
 }
-// TT delivered by the installed, bearing laser barrels over one strafe. A
-// calibrated projectile always carries its catalogue energy at every cadence.
+// TT delivered by the installed, bearing laser barrels over one strafe. An aircraft laser's
+// shot is its per-second output over the arc's actual period (C.craftShotTT), so cadence does not change output.
 function squadWeaponEnergy(s,target,seconds=C.CRAFT_HEAT.strafeS){
  const c=CRAFT[s?.craft],aim=squadArcAim(s,target),energy={gun:0,ion:0};if(!c||!aim||!(seconds>0)||!Number.isFinite(seconds))return energy;
  const emptyGas=c.systems?.managed&&s.laserGas===0;
- for(const a of craftLaserArcs(c)){const d=C.FITS[a.k];if(!d||d.retired||!(d.tt>0||d.ion>0)||d.store||emptyGas&&d.craft&&d.tt>0||!squadArcBears(s,target,a,aim))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||C.CRAFT_FIRE.defaultCycle;energy.gun+=(d.tt||0)*seconds/cycle;energy.ion+=(d.ion||0)*seconds/cycle;}
+ for(const a of craftLaserArcs(c)){const d=C.FITS[a.k];if(!d||d.retired||!(d.tt>0||d.ion>0)||d.store||emptyGas&&d.craft&&d.tt>0||!squadArcBears(s,target,a,aim))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||C.CRAFT_FIRE.defaultCycle;energy.gun+=(d.tt>0?C.craftShotTT(d,cycle):0)*seconds/cycle;energy.ion+=(d.ion||0)*seconds/cycle;}
  // A geometry-only query is nominal. Once an allocation exists, the shared
  // laser/ion battery can emit only the useful energy its received watts fund.
  // This limits firing duty, leaving every catalogue projectile's yield intact.
@@ -71525,7 +71608,7 @@ return {routeItinerary,jumpEstimate,normalizeJumpNavigation,convoyKit, aiPlan, F
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupHyperspaceReadiness, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, supplyGive, rearTick, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
- squadFireArc,squadLaserEnergy,squadWeaponEnergy,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
+ squadFireArc,squadLaserEnergy,squadWeaponEnergy,craftLaserArcs,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
  wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal, groundHooks, logEvent: event};
 })();
@@ -71577,7 +71660,7 @@ const DRIVES = Object.freeze({
 const BODY_FORMS = Object.freeze({box: {name: '箱形', fill: .8, area: 1}, wedge: {name: '楔形', fill: .6, area: .88}, round: {name: '円筒・卵形', fill: .55, area: .85}});
 const MOUNTS = Object.freeze({turret: {name: '旋回砲塔', arc: 360}, chin: {name: '機首下砲架', arc: 120}, hull: {name: '車体固定', arc: 40}, side: {name: '側面砲架', arc: 180}});
 // The fittings a vehicle may carry, at the scale each starts from (Core.fitSpec: length × scale, mass and energy × scale³).
-const VWEAPONS = Object.freeze({claser: 1, claserH: 1, cturret: 1, cmsl: 1, ctorp: 1, pd: .5, ltl: .3});
+const VWEAPONS = Object.freeze({claser: 1, claserL: 1, claserH: 1, cturret: 1, cmsl: 1, ctorp: 1, pd: .5, ltl: .3});
 const VD_LIMITS = Object.freeze({L: [1.5, 160], W: [.8, 40], H: [.6, 40], legH: [0, 40], armor: [0, 80], weapons: 8, count: 12, scale: [.1, 2], crew: [0, 80], troops: [0, 300], reactor: [.02, 2000], name: 40});
 // Provisional material constants: durasteel armour 7.8 t/m³ (steel), the body's frame and systems 0.18 t/m³ of its
 // volume, a reactor 0.5 t and 0.3 m³ per MW, a crewman or trooper aboard 0.12 t; an energy weapon draws 2,000 MW

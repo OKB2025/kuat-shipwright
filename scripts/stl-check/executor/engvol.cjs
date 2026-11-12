@@ -1,0 +1,4 @@
+const path=require('path'),fs=require('fs'),root=process.argv[2],out=process.argv[3];const {C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+const s=C.buildDesign('executor');C.syncCompartments(s);C.remount(s);C.syncCompartments(s);const S=C.computeStats(s);
+const eng=s.parts.filter(p=>p.k==='engine'||p.k==='engineCore').map(p=>{let v=null,spec=null;try{v=C.partVolume(p);}catch(e){}try{spec=C.resolveEngineSpec?.(p,s);}catch(e){}return {id:p.id,k:p.k,label:p.label,c:p.c.map(Math.round),d:p.d,vol:v,eff:spec?.effectiveMachineryVolumeM3,rated:spec?.ratedThrustN,input:spec?.ratedInputW,valid:spec?.valid,issues:spec?.issues}});
+fs.writeFileSync(out,JSON.stringify({engineVolume:S.engineVolume,eff:S.effectiveMachineryVolumeM3,rated:S.ratedAccelMps2,eng},null,1));console.log('ok');
