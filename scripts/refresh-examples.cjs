@@ -29,7 +29,14 @@ function parse(args){
 // Build one ship and leave its row and blueprint in out/<key>.row.json and out/<key>.blueprint.json.
 function worker(root,key,out){
  const sources=G.sourceHashes(root),{C,R,data}=G.loadRuntime(root);let blueprint=null,entry=null;
- if(G.exampleKeys(C,data).includes(key))entry=G.compactCatalogEntry(G.generateEntry(C,R,key,data.designs[key],sources,{onBuilt:b=>{blueprint=b.blueprint;}}));
+ // The saved design is made by the authoring tool; a catalogue ship's row is then computed from that saved design
+ // loaded back (deserialize and the ordinary load steps), the path the game takes, so the stored figures equal
+ // what the game computes for the design it opens (2026-11-12: the in-memory build differed by up to 5e-4 on
+ // six ships). The row names the saved design by the stable hash of the file written here.
+ // The design is serialized after the authoring build's own statistics run, as before (generateBlueprint alone
+ // gives a different venator design), so the stored designs do not change; the row is then computed again from it.
+ if(G.exampleKeys(C,data).includes(key)){G.generateEntry(C,R,key,data.designs[key],sources,{onBuilt:b=>{blueprint=b.blueprint;}});
+  entry=G.compactCatalogEntry(G.generateEntryFromBlueprint(C,R,key,JSON.parse(JSON.stringify(blueprint)),data.designs[key],sources));entry.model={...entry.model,blueprintSha256:F.sha(F.stable(blueprint))};}
  else blueprint=G.generateBlueprint(C,key);
  if(G.stable(sources)!==G.stable(G.sourceHashes(root)))throw Error('Model sources changed while building '+key);
  fs.writeFileSync(path.join(out,key+'.blueprint.json'),JSON.stringify(blueprint));
