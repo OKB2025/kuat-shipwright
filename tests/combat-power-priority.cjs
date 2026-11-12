@@ -9,7 +9,10 @@ function unit({efficiency=1,cap=100*TT,surface=false}={}){
  const powerPaths=[{from:'p1',to:'bus',cap,efficiency,ok:true},...modules.slice(1).map(m=>({from:'bus',to:m.port,cap:100*TT,ok:true}))];
  const engine={id:2,machineryId:2,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:100*TT,wattsPerNewton:2e9,ratedThrustN:100*TT/2e9,driveProfileId:'standard',effectiveMachineryVolumeM3:1,machineryVolumeM3:1,direction:[1,0,0],pathCapacityW:200*TT,valid:true,available:true,connected:true,outletAvailable:true,integrated:true};
  const src=(k,id,m)=>({k,id,n:id,g:'high',sh:1,st:1e30,m,pc:[],sec:-1,sw:-1,gen:-1});
- const p={name:'Fixed combat electrical priority',hp:1e9,len:100,width:40,height:20,D:30*C.K.deflect,shieldBuffer:300*C.K.deflect,reserve:100*C.K.deflect,wCap:1000,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,energyModel:{version:0},propulsion:{version:1,engines:[engine],massKg:1e9,ratedThrustN:engine.ratedThrustN,ratedAccelMps2:engine.ratedThrustN/1e9,accelerationLimitMps2:1e20},grid:{P:100*TT,fixed:15*TT,cooling:5*TT,De:100*TT,Ds:30*TT,Dw:40*TT,domains:[{id:'main',P:100*TT,sources:[{moduleIndex:0,P:100*TT}],modules:modules.map((_,i)=>i)}],trunks:[],fixedLoads:[{id:'p5',port:'p5',domain:'main',weight:10*TT}],coolingLoads:[{id:'p6',port:'p6',domain:'main',weight:5*TT}],powerPaths},heat:{v:1,src:[src('engine','p2',[1]),src('shield','p3',[2]),src('weapon','p4',[3]),src('reactor','p1',[0]),src('hotel','p5',[4])],dis:[{id:'p6',n:'powered cooler',k:'hdis',g:'high',cap:100*TT,power:5*TT,m:5,sec:-1}],ln:[]}};
+ // 2026-11-12: converter power is reserved for the heat that can reach it (disPowerK × heat). This
+ // priority fixture keeps a fixed 5 TT reservation by giving the cooler a 1 TT rating at 5 TT input, so any
+ // step with at least 1 TT of heat (the 10 TT services alone) reserves its full 5 TT as before.
+ const p={name:'Fixed combat electrical priority',hp:1e9,len:100,width:40,height:20,D:30*C.K.deflect,shieldBuffer:300*C.K.deflect,reserve:100*C.K.deflect,wCap:1000,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,energyModel:{version:0},propulsion:{version:1,engines:[engine],massKg:1e9,ratedThrustN:engine.ratedThrustN,ratedAccelMps2:engine.ratedThrustN/1e9,accelerationLimitMps2:1e20},grid:{P:100*TT,fixed:15*TT,cooling:5*TT,De:100*TT,Ds:30*TT,Dw:40*TT,domains:[{id:'main',P:100*TT,sources:[{moduleIndex:0,P:100*TT}],modules:modules.map((_,i)=>i)}],trunks:[],fixedLoads:[{id:'p5',port:'p5',domain:'main',weight:10*TT}],coolingLoads:[{id:'p6',port:'p6',domain:'main',weight:5*TT}],powerPaths},heat:{v:1,src:[src('engine','p2',[1]),src('shield','p3',[2]),src('weapon','p4',[3]),src('reactor','p1',[0]),src('hotel','p5',[4])],dis:[{id:'p6',n:'powered cooler',k:'hdis',g:'high',cap:1*TT,power:5*TT,m:5,sec:-1}],ln:[]}};
  if(surface)p.surface={mounts:[{id:4,module:3,power:40*TT,capacity:1000,gun:10,ion:0,boltTT:1,band:'mid',arcs:Array(6).fill(1),muzzle:[0,0,0]}],patches:[],devices:[]};
  const u=C.fleetUnit('priority-test','priority-test',p);u.maneuver=1;u.energy=1000;u.shield=u.shieldMax;u.bank=u.bankMax;C.heatInit(u);if(surface)u.surfaceBanks={4:1000};return u;
 }
@@ -79,9 +82,7 @@ test('continuous squad firing remains a real weapon demand with full compatibili
  try{
   R.squadPropulsion(s,1,.01);near(s.drive.energy,p.wCap,'compatibility bank starts full');near(s.drive.pw.wpn/TT,40,'continuous shots are paid directly');near(s.weaponPowerK,1);near(s.drive.propulsion.actualInputW/TT,45);assert.equal(s.drive.pw.activeWeaponFire,true);
   s.weaponDemand=false;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn,0);near(s.drive.propulsion.actualInputW/TT,85);assert.equal(s.drive.pw.activeCombatPower,false);
-  s.weaponDemand=true;s.drive.p.grid.P=30*TT;s.drive.p.grid.domains[0].P=30*TT;s.drive.p.grid.domains[0].sources[0].P=30*TT;R.squadPropulsion(s,1,.01);
-  // 2026-11-12: the cooler reserves disPowerK-share of the plant-bounded heat (30 TT × 1.04 × 5/100 × 1.1), not its 5 TT rating.
-  const reserve=Math.min(5,30*(1+C.HEAT.waste.reactor)*.05*C.HEAT.coolingHeadroom);near(s.drive.pw.wpn/TT,20-reserve);near(s.weaponPowerK,(20-reserve)/40);near(s.drive.propulsion.actualInputW,0);
+  s.weaponDemand=true;s.drive.p.grid.P=30*TT;s.drive.p.grid.domains[0].P=30*TT;s.drive.p.grid.domains[0].sources[0].P=30*TT;R.squadPropulsion(s,1,.01);near(s.drive.pw.wpn/TT,15);near(s.weaponPowerK,15/40);near(s.drive.propulsion.actualInputW,0);
  }finally{delete R.CRAFT[key];}
 });
 

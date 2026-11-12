@@ -16,7 +16,8 @@ test('a fully used lossy cooler pays sent watts and creates source, line and dev
 });
 
 test('an unused cooling reservation creates no actual electrical, feed or reactor heat',()=>{
- const u=cooler();allocate(u);tick(u);const c=u.ht.cooling;near(c.inputJ,0);near(c.heatJ,0);near(c.sourceInputJ,0);near(c.feedLossJ,0);near(c.reactorWasteJ,0);near(u.ht.feedLossJ||0,0);near(u.ht.qJ,0);near(u.ht.emit,0);near(u.pw.draw,0);
+ // 2026-11-12: with no heat to convert nothing is reserved at all, so the cooling ledger may not exist yet.
+ const u=cooler();allocate(u);tick(u);const c=u.ht.cooling||{inputJ:0,heatJ:0,sourceInputJ:0,feedLossJ:0,reactorWasteJ:0};near(c.inputJ,0);near(c.heatJ,0);near(c.sourceInputJ,0);near(c.feedLossJ,0);near(c.reactorWasteJ,0);near(u.ht.feedLossJ||0,0);near(u.ht.qJ,0);near(u.ht.emit,0);near(u.pw.draw,0);
 });
 
 test('partially used cooling scales the sent electrical cost and route loss by received use',()=>{

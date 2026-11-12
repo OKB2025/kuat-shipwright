@@ -9,7 +9,11 @@ function fund(u){const h=C.heatOf(u);h.cooling={reserveJ:1,reserveByNodeJ:{p1:1}
 const ctx={time:0,ev(){}};
 test('one ship reservoir uses kg and the specified persistent safety curve',()=>{
  const u=unit();near(C.shipHeatCapacity(u),100);for(const [f,r]of [[.69,1],[.7,1],[.8,1-.4/3],[.9,1-.8/3],[1,.6],[1.5,.6]])near(C.shipHeatThermalLimit(f),r);
- C.shipHeatAdd(u,80,ctx);near(u.ht.qJ,80);near(C.shipHeatOutputFactor(u),1-.4/3);fund(u);C.heatTick(ctx,u,1,1);near(u.ht.qJ,76+4*K*(1+RW));near(u.ht.cooling.inputJ,4*K);near(C.shipHeatOutputFactor(u),1-.4/3);
+ C.shipHeatAdd(u,80,ctx);near(u.ht.qJ,80);near(C.shipHeatOutputFactor(u),1-.4/3);fund(u);C.heatTick(ctx,u,1,1);
+ // One step: the 4 J drained leave and the converter's own input (4·K, with the reactor's loss) enters the
+ // store after the solve. It is offered again on the next solve (h.coolingSelfW, heat-converters.cjs), so
+ // this is the instantaneous ledger, not a steady floor.
+ near(u.ht.qJ,76+4*K*(1+RW));near(u.ht.cooling.inputJ,4*K);near(u.ht.coolingSelfW,4*K*(1+RW));near(C.shipHeatOutputFactor(u),1-.4/3);
  assert.equal(u.ht.st,undefined,'individual heat stores are retired');near(C.heatStatus(u).massKg,100);
 });
 test('only converted heat leaves; there is no passive hull path, before or during a blackout',()=>{

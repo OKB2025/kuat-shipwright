@@ -62,10 +62,39 @@ test('converter input follows the heat actually converted and is itself heat abo
  assert.ok(['hdis','wing','radiator','solar'].every(k=>C.HEAT.disPowerK[k]===K),'one coefficient for every converter');
 });
 
-test('battle: the converter reservation is bounded by the plant, not the converter rating',()=>{
- const K=C.HEAT.disPowerK.hdis,H={dis:[{k:'hdis',id:'p1',cap:1e6,power:1e6*K,m:0},{k:'wing',id:'p2',cap:3e6,power:3e6*K,m:1}]},u={p:{grid:{P:100}},ht:{qJ:0}};
- const d=Array.from(C.coolingDemandW(u,H)),bound=100*(1+C.HEAT.waste.reactor);
- near(d[0],bound*.25*K*C.HEAT.coolingHeadroom,1e-12,'share of the plant-bounded heat');near(d[1],bound*.75*K*C.HEAT.coolingHeadroom,1e-12);
- assert.ok(d[0]+d[1]<H.dis[0].power+H.dis[1].power,'a large rating does not hold power away from propulsion');
- u.ht.qJ=1e9;const full=Array.from(C.coolingDemandW(u,H));near(full[0],H.dis[0].power,1e-12,'never above the rating');
+test('battle: the reservation follows this step\'s requested loads through the real paths, not the rating',()=>{
+ const K=C.HEAT.disPowerK.hdis,hd=C.HEAT.coolingHeadroom;
+ // a wing far from the guns and an hdis on the guns' own path (auto links): the hdis must not be starved
+ const H={src:[{k:'weapon',sh:1},{k:'hotel',sh:1}],dis:[{k:'hdis',id:'p1',cap:100,power:100*K,m:0},{k:'wing',id:'p2',cap:1e6,power:1e6*K,m:1}],ln:[{s:0,d:0,cap:1e9},{s:1,d:1,cap:1e9}]};
+ const u={p:{grid:{P:1000,fixed:10,cooling:0,De:0}},ht:{qJ:0}},d=Array.from(C.coolingDemandW(u,H,{weapons:200,shields:0,throttle:0}));
+ const gun=200*C.HEAT.waste.weapon,reactor=C.HEAT.waste.reactor*210;
+ near(d[0],gun*K*hd,1e-3,'the hdis on the gun path is funded for all the gun heat that reaches it');
+ near(d[1],(10+reactor)*K*hd,1e-3,'the wing is funded for the hotel heat and the reactor loss');
+ const small=Array.from(C.coolingDemandW(u,{...H,dis:[{...H.dis[0],cap:20,power:20*K},H.dis[1]]},{weapons:200,shields:0,throttle:0}));
+ near(small[0],20*K,1e-12,'never above the rating');
+ assert.ok(d[0]+d[1]<(H.dis[0].power+H.dis[1].power)*1e-3,'a large wing rating does not hold power away from propulsion');
+ const idle=Array.from(C.coolingDemandW({p:{grid:{P:1000,fixed:0,De:0}},ht:{qJ:0}},H,{}));assert.deepEqual(idle,[0,0],'no heat, no reservation');
+});
+
+test('battle: the converters\' own input heat is removed by the next solve and leaves no 20 s store floor',()=>{
+ // physics review of 8ee306e: the input was added to the store after the solve and only left through
+ // qJ/drainS, so the store settled at drainS × input (gozanti 77% full). It is now offered again to the
+ // converters' spare capacity on the next solve.
+ const {unit,allocate,tick,P}=require('./helpers/global-energy-runtime.cjs'),u=unit({coolingW:.02*P});
+ for(let i=0;i<120;i++){allocate(u,{throttle:1});tick(u);}
+ const input=u.ht.cooling.lastDraw;assert.ok(input>0);
+ assert.ok(u.ht.qJ<2*input*(1+C.HEAT.waste.reactor),`store ${u.ht.qJ} stays within one step of converter input ${input}, not ${C.HEAT.drainS}× it`);
+});
+
+test('a ship blacked out by a full store restarts only while a friendly ship tows it',()=>{
+ const {unit,allocate,tick,P}=require('./helpers/global-energy-runtime.cjs'),ctx={time:0,ev(){}};
+ const run=(towing)=>{const tower=unit({coolingW:.02*P}),towed=unit({coolingW:.02*P});tower.side=towed.side=0;towed.crew=towed.p.crewCapacity;
+  C.shipHeatAdd(towed,towed.ht.capacityJ*1.01,ctx);assert.equal(towed.ht.online,false);let moved=0;
+  for(let i=0;i<400;i++){allocate(tower,{throttle:0});tick(tower);if(towing)moved+=C.towHeatRelief(tower,towed,1);C.shipHeatRecoveryTick(towed,1,ctx);}
+  return {tower,towed,moved};};
+ const alone=run(false);assert.equal(alone.towed.ht.online,false,'on its own a ship at 100% stays dead');assert.ok(alone.towed.ht.qJ>=alone.towed.ht.capacityJ);
+ const towed=run(true);assert.ok(towed.moved>0);assert.equal(towed.towed.ht.online,true,'towing lets the store fall to 90% and the crew restart it');
+ assert.ok(towed.tower.ht.qJ<C.HEAT.governStart*towed.tower.ht.capacityJ*(1+1e-9),'the tower is never pushed into its own governor');
+ const enemy=unit({coolingW:.02*P}),victim=unit({coolingW:.02*P});enemy.side=1;victim.side=0;C.shipHeatAdd(victim,victim.ht.capacityJ*1.01,ctx);allocate(enemy,{throttle:0});tick(enemy);
+ assert.equal(C.towHeatRelief(enemy,victim,1),0,'only a friendly tower relieves heat');
 });

@@ -14,7 +14,7 @@ test('thermal specifications retain real sink ratings rather than the much small
  assert.equal(H.mode,'strict');assert.ok(rates.equipmentMaxHeatW>0);near(rates.rejectionCapacityW,H.disCap+H.skin);
  // 2026-11-12 user decision: the hull skin removes no heat; only the installed converter is represented.
  assert.ok(H.disCap>0);assert.equal(H.skin,0);assert.ok(!H.net.dis.some(d=>d.k==='skin'));
- assert.ok(rates.rejectionCapacityW>H.presets.combat.out,'a lightly loaded sink retains spare rated capacity (2026-11-12: converter enlarged from 0.2 m to 0.6 m because the hull skin no longer takes the hotel heat)');
+ assert.ok(rates.rejectionCapacityW>H.presets.combat.out,'a lightly loaded sink retains spare rated capacity '); // 2026-11-12: the fixture's 0.2 m hdis (8.4e16 W) cannot take its 1.6e18 W hotel heat once the hull skin (×100 of it) is gone; 0.6 m (2.3e18 W) restores a lightly loaded sink, so the margin is >1× instead of the skin's >100×);
  assert.equal(C.publicJSON(stats),before,'reading a specification does not change operating loads, warnings or heat paths');
 });
 
@@ -24,7 +24,8 @@ test('rated total does not turn a missing converter or a limited heat path into 
   // 2026-11-12: without the hull skin a ship with no converter has zero rejection capacity.
   if(!options.cooler)assert.equal(rates.rejectionCapacityW,0);
   assert.ok(H.presets.combat.stored>0,'waste still accumulates when its actual route cannot carry it');
-  assert.ok(stats.warnings.some(w=>w.code==='heat'&&/不足/.test(w.text)));
+  // no converter: the inspection names the converter volume; converter present but path-limited: add heat paths
+  assert.ok(stats.warnings.some(w=>w.code==='heat'&&(options.cooler?/変換能力は足りています。熱輸送路を足してください。/:/熱エネルギー変換装置を約 .+ m³ 追加すると解消します。/).test(w.text)),JSON.stringify(stats.warnings.filter(w=>w.code==='heat').map(w=>w.text)));
   assert.equal(C.publicJSON(stats),before);
  }
 });
