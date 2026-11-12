@@ -2269,7 +2269,9 @@ function onEngineStructureGeometry(msg) {
     // removed parts) stay previewed until the full geometry arrives.
     if(live.active){
       const shapes=new Set(live.parts.filter(p=>C.isShapePart(p)).map(p=>p.id));
-      if(shapes.size){
+      // While the S-foils are shown stowed, the preview holds the posed copies: leave it to the full geometry
+      // (onEngineGeometry keeps it the same way), or the stow view is dropped or its parts left hidden.
+      if(shapes.size&&st.foilView!=='stow'){
         if(shapes.size===live.parts.length&&!live.fits.length&&!live.hide.fits.size&&[...live.hide.parts].every(id=>shapes.has(id)))clearPreview();
         else{live.parts=live.parts.filter(p=>!shapes.has(p.id));for(const id of shapes)live.hide.parts.delete(id);showPreview({});}
       }

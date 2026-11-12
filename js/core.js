@@ -53280,7 +53280,15 @@ function syncCompartmentsRaw(ship){
  try{for(const p of [...ship.parts,...turretIntrusions(ship),...weaponCapacitors(ship),...missileCells(ship),...commandCompartments(ship)]){
    if(explicitInteriorPlacement(p)){
     // A room with a hatch is checked against its opening's skin: keep the whole envelope in its key.
-    const hatched=ship.hatches.some(h=>h.bay===p.id),key=(hatched?envelopeKey:localEnvelope.key(interiorSolveBounds(p),'interior'))+JSON.stringify([p,occupied.filter(q=>q.id!==p.id),ship.hatches.filter(h=>h.bay===p.id)],(k,v)=>k.startsWith('_')?undefined:v);
+    // The solve also reads the other rooms' fitted shapes (_clip, _packing: obstacles, and the packing search
+    // reaches past the requested bounds) and every hatch opening, so their identities are in the key: a room
+    // re-clipped by a structure outside this room's bounds re-solves this room too (independent check
+    // 2026-11-12: otherwise the result differed from a full recompute).
+    // Only rooms and openings within a generous bound of the packing search (packFlexibleVolume searches up
+    // to about 3-5 cube roots of the volume, or 0.65 of the largest dimension, past the requested room).
+    const hatched=ship.hatches.some(h=>h.bay===p.id),others=occupied.filter(q=>q.id!==p.id),sb=interiorSolveBounds(p),ext=[0,1,2].map(i=>sb[i+3]-sb[i]),reach=Math.cbrt(Math.max(1,ext[0]*ext[1]*ext[2]))*5+Math.max(...ext)*1.65,zone=sb.map((v,i)=>i<3?v-reach:v+reach),inZone=b=>!!b&&[0,1,2].every(i=>b[i]<=zone[i+3]&&b[i+3]>=zone[i]);
+    const fitted=others.filter(q=>(q._clip||q._packing)&&inZone(partAABB(q))).map(q=>q.id+':'+interiorFittedContentKey(q._clip)+'.'+interiorFittedContentKey(q._packing)).join(','),mouths=ship.hatches.filter(h=>h.bay===p.id||inZone(openingBounds(ship,h)));
+    const key=(hatched?envelopeKey:localEnvelope.key(sb,'interior'))+JSON.stringify([p,others,mouths],(k,v)=>k.startsWith('_')?undefined:v)+'|'+fitted;
     if(p._explicitInteriorKey!==key){const solved=solveInteriorPlacement(ship,p,p.placement);delete p._interiorPlacementError;if(solved.ok){delete p._clip;delete p._packing;if(solved.part._clip)p._clip=solved.part._clip;if(solved.part._packing)p._packing=solved.part._packing;}else p._interiorPlacementError={code:solved.code,error:solved.error};p._explicitInteriorKey=key;}
     continue;
    }
@@ -53312,6 +53320,15 @@ function interiorLocalEnvelope(ship){
  return {key(b,kind){if(!b||!b.every(Number.isFinite))return global+JSON.stringify(rows.map(r=>r.json));const pad=.1+1e-6*Math.max(...b.map(Math.abs));let out=global+'|'+kind;for(const r of rows)if(r.always||!r.b.every(Number.isFinite)||boxesOverlap(r.b,b,-pad))out+='|'+r.json;return out;}};
 }
 // The bounds an explicit interior solve can read: its requested body and any packing it retains.
+// Content key of a room's fitted shape (_clip or _packing), computed once per object: equal content gives an
+// equal key, so a neighbour re-clipped back to the same shape does not re-solve the rooms solved against it.
+const INTERIOR_FITTED_KEYS=new WeakMap();
+function interiorFittedContentKey(g){
+ if(!g||typeof g!=='object')return '0';let k=INTERIOR_FITTED_KEYS.get(g);if(k)return k;
+ let a=2166136261,b=2246822507;const mix=v=>{const n=Math.round(v*1e6);a=Math.imul(a^(n&0xffff),16777619)>>>0;b=Math.imul(b^(n>>>16&0xffff)^(n<0?0x5bd1:0),2654435761)>>>0;};
+ const walk=v=>{if(typeof v==='number')mix(v);else if(ArrayBuffer.isView(v)){mix(v.length);for(let i=0;i<v.length;i++)mix(v[i]);}else if(Array.isArray(v)){mix(v.length);for(const x of v)walk(x);}else if(v&&typeof v==='object'){for(const key of Object.keys(v).sort()){mix(key.length);walk(v[key]);}}else if(typeof v==='string'||typeof v==='boolean'){mix(String(v).length);for(let i=0;i<String(v).length;i++)mix(String(v).charCodeAt(i));}};
+ walk(g);k=a.toString(36)+b.toString(36);INTERIOR_FITTED_KEYS.set(g,k);return k;
+}
 function interiorSolveBounds(p){const a=partAABB(p),b=partAABB({...p,_packing:null,_clip:null});return [0,1,2].map(i=>Math.min(a[i],b[i])).concat([3,4,5].map(i=>Math.max(a[i],b[i])));}
 function clipCompartmentMesh(ship,p,b){
  // Marching tetrahedra with bisected boundary edges. This closes the cut faces

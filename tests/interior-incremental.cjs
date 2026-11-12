@@ -158,3 +158,21 @@ test('a hatched hangar keeps the whole-envelope key and a structure touching it 
  part(toucher.id).c=[205,66,0];derive(s);same(s,'structure touching the bay');
  part(toucher.id).c=[250,66,0];derive(s);same(s,'structure leaves the bay');
 });
+
+// An explicit room p behind a legacy room q reads q's fitted shape (q._clip is subtracted from p's solve).
+// A structure S moved next to q, but more than the 10 cm margin away from p's bounds, re-clips q; p must
+// then be re-solved too, or it differs from a full recompute (independent check 2026-11-12; main re-solves
+// every room on any structure move and agreed).
+test('an explicit room is re-solved when a room it is solved against is re-clipped by a structure outside its bounds',()=>{
+ const row=p=>({id:p.id,k:p.k,vol:C.partVolume(p),clip:p._clip?[p._clip.volume,digest(p._clip.tris)]:null,packing:p._packing?[p._packing.volume,JSON.stringify(p._packing.boxes).length]:null,err:p._interiorPlacementError?.code||null});
+ for(const sc of [[238,69.3,10],[238,68,16.2],[236,69.3,10]]){
+  const s=userFixture(C,{interior:4,structures:1}),add=p=>{p.id=s.nextId++;s.parts.push(p);return p;},part=id=>s.parts.find(p=>p.id===id);
+  const q=add({k:'cargo',c:[238,68,10],d:8}),p=add({k:'fuel',c:[238,62,10],d:6});
+  p.placement={modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'clip',geometryRevision:1,hostId:1,requestedGeometry:JSON.parse(C.publicJSON(p))};
+  const S=add({k:'struct',form:'box',c:[300,68,10],s:[8,6,8],taper:0,yaw:0,pitch:0,roll:0,offsetX:0,offsetZ:0});derive(s);
+  const qClip=part(q.id)._clip;part(S.id).c=sc;derive(s);
+  assert.notEqual(part(q.id)._clip,qClip,`S at [${sc}] re-clips the room it touches`);
+  const cold=fresh(s);
+  assert.deepEqual([row(part(p.id)),row(part(q.id))],[row(cold.parts.find(x=>x.id===p.id)),row(cold.parts.find(x=>x.id===q.id))],`S at [${sc}]: the explicit room equals a full recompute`);
+ }
+});

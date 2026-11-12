@@ -361,7 +361,10 @@ function supersede(job, phase = 'derive') {
   return true;
 }
 let lastStructureHullKey = null;
-function structureHullKey(s) { return JSON.stringify([s.hull, s.cuts, s.subs, s.trenches, s.solidCuts, s.hullSkin, s.hullBands], (k, v) => k[0] === '_' ? undefined : v); }
+// The hull state an early structures packet is valid against: the ship's hull and its cuts, and each hull
+// structure's own profile and hull data (its trenches, cuts and skin), so an edit of those (a trench through
+// 'all') sends the full geometry only (independent check 2026-11-12).
+function structureHullKey(s) { return JSON.stringify([s.hull, s.cuts, s.subs, s.trenches, s.solidCuts, s.hullSkin, s.hullBands, (s.parts || []).filter(p => C.isHullStructure(p)).map(p => [p.id, p.hullProfile, p.hullData])], (k, v) => k[0] === '_' ? undefined : v); }
 function structurePass(job) {
   const t0 = now(), transfer = [], m = G.meshStructures(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation}), geos = {};
   for (const k of Object.keys(m.g)) geos[k] = geoOut(m.g[k], transfer);

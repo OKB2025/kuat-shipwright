@@ -137,7 +137,7 @@ for(const [phase,trigger]of [['after the structures','structureGeometry'],['betw
 function fn(text,name){const match=new RegExp('function '+name+'\\s*\\(').exec(text);assert.ok(match,name);for(let b=text.indexOf('}',match.index);b>=0;b=text.indexOf('}',b+1)){const code=text.slice(match.index,b+1);try{new vm.Script(code);return code;}catch{}}assert.fail(name);}
 test('the editor ignores a stale or superseded structures packet and keeps other groups and ranges',()=>{
  const cx=vm.createContext({});
- vm.runInContext(`let dragSnap=null;const applied=[],cleared=[],shown=[];const eng={gen:5,geoGen:4};const ship={saveId:'d',parts:[]};
+ vm.runInContext(`let dragSnap=null;const st={foilView:null};const applied=[],cleared=[],shown=[];const eng={gen:5,geoGen:4};const ship={saveId:'d',parts:[]};
   const meshStore={ranges:{1:[['struct',0,6],['interior',0,3]],2:[['engine',0,9]]}};const live={active:false,parts:[],fits:[],hide:{parts:new Set(),fits:new Set()}};
   const C={isShapePart:p=>p.k==='struct'};const applyGeometry=m=>{applied.push(m);meshStore.ranges=m.ranges;return true;};
   const clearPreview=()=>{cleared.push(1);live.active=false;},showPreview=x=>shown.push(x),engineStatus=()=>{},requestDraw=()=>{};`+fn(app,'onEngineStructureGeometry'),cx);
@@ -159,7 +159,7 @@ test('the editor ignores a stale or superseded structures packet and keeps other
 
 test('a full geometry that arrives while the structures packet is still uploading wins: no later structure slice, ranges or status',async()=>{
  const cx=vm.createContext({});
- vm.runInContext(`let dragSnap=null,bounds=null,clock=0;const timers=[],uploads=[];const performance={now:()=>clock+=4},setTimeout=fn=>{timers.push(fn);return timers.length;};
+ vm.runInContext(`let dragSnap=null,bounds=null,clock=0;const st={foilView:null};const timers=[],uploads=[];const performance={now:()=>clock+=4},setTimeout=fn=>{timers.push(fn);return timers.length;};
   const eng={gen:5,geoGen:4,sentGen:5};const ship={saveId:'d',parts:[]};const meshStore={geos:{},ranges:{1:[['struct',0,6]],2:[['engine',0,9]]}};
   const live={active:false,parts:[],fits:[],hide:{parts:new Set(),fits:new Set()}};const view={upload:(k,g)=>uploads.push([k,g.tag])};
   const C={isShapePart:p=>p.k==='struct'};const clearPreview=()=>{},showPreview=()=>{},engineStatus=()=>{},requestDraw=()=>{},retainGeometry=()=>{},kickEngine=()=>{};`
@@ -176,4 +176,23 @@ test('a full geometry that arrives while the structures packet is still uploadin
  assert.equal(run('meshStore.geos.refStruct.tag'),'full-ref','no early slice after the full geometry');
  assert.equal(run('JSON.stringify(uploads.map(u=>u[1]))'),JSON.stringify(['early-struct','early-plate','full-struct','full-ref']));
  assert.equal(run('eng.structGen'),undefined,'the early packet never completes');
+});
+
+// The hull state an early packet is valid against includes each hull structure's own profile and hull data
+// (its trenches, cuts and skin live there): an 'all' edit of that data (e.g. a trench) sends the full geometry
+// only (independent check 2026-11-12). The changed field stands in for any edit of the hull data.
+test('no early structure packet when a hull structure\'s hull data changed',async()=>{
+ const {C,messages,wait,send}=setup(),ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'Hull data edit');ship.fits=[];ship.hatches=[];C.ensurePrimaryHull(ship);
+ const hull=ship.parts.find(p=>C.isHullStructure(p));assert.ok(hull,'fixture has a hull structure');
+ ship.parts.push({id:ship.nextId++,k:'struct',form:'box',c:[60,22,0],s:[20,8,12]});ship.detail=0;
+ send({type:'update',gen:1,designId:'d',state:state(C,ship),what:['all'],reset:true,view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===1);
+ const box=ship.parts.at(-1);box.c=[70,22,0];hull.hullData={...(hull.hullData||{}),editMark:1};
+ send({type:'update',gen:2,designId:'d',state:state(C,ship),what:['all'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===2);
+ assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===2),false,'no early packet after a hull-data edit');
+ box.c=[72,22,0];
+ send({type:'update',gen:3,designId:'d',state:state(C,ship),what:['parts'],view,statsDelay:0});
+ await wait(m=>m.type==='stats'&&m.gen===3);
+ assert.equal(messages.some(m=>m.type==='structureGeometry'&&m.gen===3),true,'an ordinary move afterwards has one again');
 });
