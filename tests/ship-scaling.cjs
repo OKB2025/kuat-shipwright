@@ -182,3 +182,28 @@ test('surface settings stay on the same faces through scaling, saving and reload
  C.scaleShipDesign(s,{factor:2,validate:false});const again=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));
  ids.forEach((id,i)=>{const q=again.surfaces.patches.find(p=>p.id===id);assert.ok(q,id);assert.equal(q.armor.thickness,4);assert.equal(q.armor.material,'dense');nearV(centre(again,id),c0[i].map(v=>v*2),1e-6,'face '+id);});
 });
+
+// Placement code merged from main (#84-#93): ship-level cuts carve hull material, removals named by content,
+// mirrored halves split from an off-centre hull.
+test('ship-level cuts and recesses scale with the hull they carve',()=>{
+ const {s}=metaFixture();s.solidCuts=[C.normalizeSolidCut({id:950,shape:'box',c:[300,50,20],s:[30,20,10],rotation:[0,30,0],mirror:false,structures:true})];s.subs=[{id:951,structures:true,b:[60,40,-5,80,60,5]}];
+ C.scaleShipDesign(s,{factor:2,validate:false});nearV(s.solidCuts[0].c,[600,100,40],1e-12,'cut centre');nearV(s.solidCuts[0].s,[60,40,20],1e-12,'cut size');assert.deepEqual(plain(s.solidCuts[0].rotation),[0,30,0]);
+ nearV(s.subs[0].b,[120,80,-10,160,120,10],1e-12,'recess');
+});
+test('a child fitted into removals named by their content keeps them after scaling',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'idless');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ hull.hullData.subs=[{structures:false,b:[20,24,-3,30,40,3]},{structures:false,b:[100,20,-3,120,40,3]}];ship._cache=null;C.refreshPlacementGeometry(ship);
+ const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+2.5,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+ const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const box=ship.parts.at(-1);
+ const old=box.placement.fitRemovalIds.slice();assert.equal(old.length,2);assert.ok(old.every(id=>/^subs:#/.test(id)));
+ const r=C.scaleShipDesign(ship,{factor:2,validate:'full'});assert.equal(r.fitRemovalIdsRenamed,2);const now=box.placement.fitRemovalIds;assert.equal(now.length,2);assert.notDeepEqual(plain(now),plain(old),'renamed to the scaled content');
+ assert.ok(now.every(id=>/^subs:#/.test(id)));assert.equal(box._placementError,undefined);assert.deepEqual(plain(r.unseated),{parts:[],fits:[]});assert.ok(C.placementContact(ship,box,hull).connected,'still fitted to the scaled hull');
+});
+test('mirrored halves split from an off-centre hull stay a pair for both structure options',()=>{
+ for(const structures of ['scale','keep']){
+  const s=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'mirror');s.fits=[];C.ensurePrimaryHull(s);const hull=s.parts[0],h2=JSON.parse(C.publicJSON(hull));h2.id=s.nextId++;h2.c=[hull.c[0],hull.c[1],hull.c[2]+20];delete h2.primaryHull;h2.label='H2';h2.hullData={...h2.hullData,solidCuts:[],subs:[]};s.parts.push(h2);
+  const H2=s.parts.find(q=>q.label==='H2'),ID=900;s.nextId=Math.max(s.nextId,ID+1);H2.hullData.solidCuts.push(C.normalizeSolidCut({id:ID,shape:'box',c:[110,16,-5],s:[20,8,6],rotation:[0,0,0],mirror:true}));s._cache=null;C.refreshPlacementGeometry(s);
+  C.setSolidCutScope(s,ID,'all');const mate=s.solidCuts.find(c=>c.id!==ID).id;assert.equal(C.solidCutMirrorPartner(s,ID).mate.id,mate);
+  C.scaleShipDesign(s,{factor:1.5,structures,validate:false});const pair=C.solidCutMirrorPartner(s,ID);assert.ok(pair,structures+': still a pair');assert.equal(pair.mate.id,mate);assert.equal(pair.hull.id,H2.id);
+ }
+});

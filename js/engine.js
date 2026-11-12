@@ -732,8 +732,17 @@ function handleCraftPrice(job){
 function handleFleet(job) { return fleetJob(job); }
 async function fleetJob(job) {
   const t0 = now();
-  if (job.design && typeof C.placementDraftStatus === 'function' && !C.placementDraftStatus(job.design).ok)
-    throw Object.assign(new Error('配置の計算・修正が完了していない部品があります'), {code: 'placement-unresolved'});
+  if (job.design && typeof C.placementDraftStatus === 'function' && !C.placementDraftStatus(job.design).ok) {
+    // A refusal stored for interior equipment is re-checked when the design is loaded (the interior is the
+    // primary hull plus its attached structures), so an old refusal must not block the fleet by itself.
+    // Pending source data is still never completed here.
+    const status = C.placementDraftStatus(job.design), byId = new Map((job.design.parts || []).map(p => [p.id, p]));
+    const staleInterior = !status.pending.length && status.failed.length && status.failed.every(row => row.list === 'parts' && C.placementCapability?.(byId.get(row.id) || {}).space === 'interior');
+    const checked = staleInterior ? C.deserialize(job.design) : null;
+    if (!checked || !C.placementDraftStatus(checked).ok)
+      throw Object.assign(new Error('配置の計算・修正が完了していない部品があります'), {code: 'placement-unresolved'});
+    job.design = C.serialize(checked);
+  }
   if (job.prepareOnly && !(await diskOpen())) { post({type: 'fleet', id: job.id, src: 'unavailable', cacheSaved: false, ms: now() - t0}); return; }
   const djson = job.key ? '' : JSON.stringify(job.design), dkey = job.key ? 'k:' + job.key + (job.paint ? '#' + job.paint : '') : 'd:' + designHash(djson);
   let rec = fleetBuilt.get(dkey), src = rec ? 'memory' : '', save = false;

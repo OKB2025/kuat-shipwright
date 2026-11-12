@@ -40,6 +40,10 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | テスト | 内容 |
 | --- | --- |
 | `tests/placement-hull-seam-contact.cjs` | 新規設計艦の船体甲板への水平配置が、継ぎ目の位置でも接地する。浮かせた構造物は未接続のまま |
+| `tests/placement-curved-hull-surface.cjs`（2026-11-11） | 曲面船体の面配置・重なり接触。重なり接触の限界値（最小の厚み `eps`、最小体積 `eps×面接触の最小面積`、埋没の上限なし・完全埋没は接続しない）は [design-placement-v1.2.md](design-placement-v1.2.md)「重なりによる接触」 |
+| `tests/placement-cut-keeps-connection.cjs`（2026-11-11） | 船体を削っても、まだ触れている構造物・装備は接続のまま（面IDは手がかり）。足元を削り切った構造物は動かさず `severed` の警告。規則は [design-placement-v1.2.md](design-placement-v1.2.md)「削りと接続」。約 30 秒 |
+| `tests/solid-cut-scope.cjs`（2026-11-11） | 削るメニューの一本化：艦レベルの立体カットが船体の材料（質量・容積・価格）を減らす、新しいカットはすべての構造物を切る、船体所有の削りの範囲切り替え、固定機器との重なりの警告。規則は [design-placement-v1.2.md](design-placement-v1.2.md)「削りと接続」段階 2 |
+| `tests/structural-connectivity.cjs`（2026-11-11） | 接続は接触の網：親との接触を失っても接地した隣に触れていれば接地、両方切り離されれば原因の削りを示す、触れていない部品は赤枠、組のキャッシュ |
 | `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
 | `tests/ship-scaling.cjs`・`tests/ship-scaling-ui.cjs`（2026-11-11） | 艦全体の拡大縮小（docs/ship-scaling-v24.md）。インペリアル級を 2,200 m にして形状・区分ごとの扱い・取付・鏡像・保存・Undo/Redo を検査。全体で約 2 分 |
 | `scripts/browser-ship-scaling.cjs URL OUTPUT_DIR [structures] [interior]`（2026-11-11） | 実エディタと Worker で、捨てた結果のあとの統計、拡大縮小・Undo/Redo、保存→再読込→再オープンでの統計の一致、幅 390 px の日本語・英語カード画像を `OUTPUT_DIR/result.json` と画像に出す（出力先は必須。ポート 8765 は他の作業と重なりやすいので別のポートで配信） |

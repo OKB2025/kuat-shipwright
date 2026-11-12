@@ -23,7 +23,9 @@
 
 - 親と取付点：配置情報（`placement.parentStructureId`／`hostId`／`surfaceAnchor`）、装備の `host`、ノズル支持台の `parentId` があればそれを使う。古い作例のように配置情報がない部品は、大きさを保つものだけ形状から決める（いちばん近い構造物の表面の点。機関は推力軸が表面と交わる点）。大きさが変わるものは船体に従う。
 - 大きさが変わるときに倍率を掛ける値：`s`・`room`・`d`・`length`・`ridge`・`shellThick`・`offsetX/Z`、太陽電池翼の `panelFrame`・`panelRib` など長さの値。割合（輪郭・ロフト・テーパー・角度）はそのまま。`room` を持つ区画の `d` は読み込み時と同じく容積から求め直す。
-- 配置情報の `requestedGeometry`・`contactOffset`・剛体の姿勢オフセットも同じ変換を受ける。艦の切り取り（`ship.solidCuts`・`subs`）と船体に属さない開口は、近い構造物（または格納区画）と同じに動く。予定寸法も k 倍。
+- 配置情報の `requestedGeometry`・`contactOffset`・剛体の姿勢オフセットも同じ変換を受ける。予定寸法も k 倍。
+- 艦の切り取り（`ship.solidCuts`・`subs`。船体の材料を削る）は、削る船体構造物（中心にいちばん近いもの）と同じ変換を受ける。中心からずれた船体の左右対称の切り取りを「全体」に切り替えてできた 2 つの半分（`solidCutMirrorPartner`）は、どちらもその船体に従うので、拡大縮小後も対の関係が保たれる。船体に属さない開口は格納区画（なければ主船体）に従う。
+- 子部品が取り付いたときの削り（`placement.fitRemovalIds`）は id で、id のない削りは内容のハッシュで呼ばれる。拡大縮小で内容が変わるため、同じ位置の削りの新しい名前に付け替える（`report.fitRemovalIdsRenamed`）。
 - 表面パッチの ID（`surfaces.patches[].id`、`partitions` の `baseId` と各 `leaves[].id`、部品・装備の `surfacePatch`、配置情報の `hostSurfaceId`）は、面の構成ハッシュが変わった部品だけ付け替える。主船体の ID は保存された構成ハッシュを使うので変わらない。パッチの集約データ（`aggregate`）は保存時の正規化で落ちるため変換しない。
 - 鏡像の組（同じ種類・同じ大きさで z が反対の部品・装備）は鏡像の変換を受け、中心線上の部品は中心線に残る。組は隣り合う区分（位置の丸めの境目をまたぐもの）まで探す。
 - 変換後、既存の仕組みで付け直して検証する：`syncTrenchArmament`、`refreshPlacementGeometry`（配置ソルバー）、`syncEngineMountSupports`、`remount`（装備の取付）。`validate:'full'` では接地判定（`groundingStats`）も行う。変換前にも同じ検査をし、**変換後に新しく失敗したものだけ** `report.unseated` に ID・名前・理由付きで返す。部品は消さず、変換後の位置に残す。
