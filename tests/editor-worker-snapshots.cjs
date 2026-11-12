@@ -205,3 +205,24 @@ test('adoption records the authored fields the Worker changed, and only those it
  assert.deepEqual(plain(run('eng.authoredDrift.items')),[{list:'parts',id:1,kind:'changed',sent:[1]}],'only the changed part is compared, not the unchanged fit');
  assert.equal(run('ship.parts[0].t'),11,'phase A1 still adopts the public state');
 });
+
+// A failure in the drift detector never stops the adoption: the state and the generation are adopted and the
+// record carries the error (regression review 2026-11-12).
+test('a throwing drift detector does not stop the adoption',async()=>{
+ const {run,drain}=uiSetup();
+ run('C.authoredStateDrift=()=>{throw Error("detector failed");};');
+ run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=12;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
+ assert.equal(run('ship.parts[0].t'),12,'the state is adopted');assert.equal(run('eng.adoptedGen'),1,'the generation is adopted');
+ assert.equal(run('eng.authoredDrift.gen'),1);assert.match(run('eng.authoredDrift.error'),/detector failed/);
+});
+
+// One generation adopts twice (its geometry, then its surfaces answer): the second sees no part change and must
+// not erase the first record.
+test('a second adoption of the same generation keeps the first record',async()=>{
+ const {run,drain}=uiSetup();
+ run('C.authoredStateDrift=(sent,received)=>["parts","fits","hatches"].flatMap(list=>(received[list]||[]).map(it=>({list,id:it.id,kind:"changed"})));');
+ run('var msg=packet();var s=JSON.parse(msg.state);s.parts[0].t=13;msg.state=JSON.stringify(s);onEngineGeometry(msg);');await drain();
+ const first=plain(run('eng.authoredDrift.items'));assert.equal(first.length,1);
+ run('adoptEngineState(msg);');await drain();
+ assert.deepEqual(plain(run('eng.authoredDrift.items')),first,'the first adoption\'s record survives the second');
+});

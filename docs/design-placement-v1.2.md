@@ -270,3 +270,8 @@
 - 部品の `d`、`shellFlip`、`ship.nextId`。
 
 どの往復でも、2 回目の Worker の通過では作者データは変わらなかった。
+
+**運用の注意**
+- `ALLOWED` は厳密一致で比べる。sunk-interference（PR #97）がマージされると、「root resized across, sunk child elsewhere」の edit の行（子の `c` の再着座）は出なくなるので、その PR を取り込む時に `node --test tests/worker-authored-drift.cjs` を実行し、行を直す。
+- `scripts/example-invariance.cjs` の出力先は、実行ごとに別のディレクトリ（`/tmp/ks-verify/<日時>-invariance/`）にする。`docs/benchmarks/` には書かない。
+- 取り込みの記録（`eng.authoredDrift`）は、取り込みが確定した時だけ残る。同じ世代の 2 回の取り込み（形状と表面）の記録はつなぐ。検出器が例外を投げても取り込みは止まらず、記録に `error` が付く。

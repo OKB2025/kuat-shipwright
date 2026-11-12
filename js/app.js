@@ -2176,9 +2176,12 @@ function adoptEngineState(msg) {
   const surfaceChanged=Object.hasOwn(src,'surfaces')&&C.publicJSON(source.surfaces)!==C.publicJSON(src.surfaces),publicPrepared=clock();
   // Phase A1: record every authored field the design engine changed (only the changed, added and removed
   // items are compared again). Adoption itself is unchanged in this phase.
-  if(C.authoredStateDrift){const sent={},received={};for(const list of ['parts','fits','hatches']){const now=ids[list];sent[list]=patches.filter(p=>p.list===list).map(p=>p.current).concat((source[list]||[]).filter(it=>!now.has(it.id)));const had=new Set((source[list]||[]).map(it=>it.id));received[list]=patches.filter(p=>p.list===list).map(p=>p.next).concat((src[list]||[]).filter(it=>!had.has(it.id)));}
+  let driftItems=[],driftError=null;
+  if(C.authoredStateDrift)try{const sent={},received={};for(const list of ['parts','fits','hatches']){const now=ids[list];sent[list]=patches.filter(p=>p.list===list).map(p=>p.current).concat((source[list]||[]).filter(it=>!now.has(it.id)));const had=new Set((source[list]||[]).map(it=>it.id));received[list]=patches.filter(p=>p.list===list).map(p=>p.next).concat((src[list]||[]).filter(it=>!had.has(it.id)));}
    if(surfaceChanged){sent.surfaces=source.surfaces;received.surfaces=src.surfaces;}sent.nextId=source.nextId;received.nextId=Number.isFinite(src.nextId)&&src.nextId>source.nextId?src.nextId:source.nextId;
-   eng.authoredDrift={gen:msg.gen,items:C.authoredStateDrift(sent,received)};}
+   // Computed here (before the patches change the live items), recorded only when this adoption commits; a
+   // failure in the detector never stops the adoption (regression review 2026-11-12).
+   try{driftItems=C.authoredStateDrift(sent,received);}catch(error){driftItems=null;driftError=String(error?.message||error);}}catch(error){driftItems=null;driftError=String(error?.message||error);}
   const seen=new Set([source,...Object.values(ids).flatMap(index=>[...index.values()])]),frames=[];
   const ref=v=>v.$r==='ship'?source:(ids[v.$r]?.get(v.id)||null);
   const visit=v=>{
@@ -2190,6 +2193,9 @@ function adoptEngineState(msg) {
   visit(c);let slices=0,largestSliceMs=0;
   const commit=()=>{
     if(!valid())return false;
+    // The geometry and the surface answer of one generation both adopt: the second sees no part change, so the
+    // records of one generation are joined, not replaced.
+    {const prev=eng.authoredDrift?.gen===msg.gen?eng.authoredDrift:null,items=(prev?.items||[]).concat(driftItems||[]),error=driftError||prev?.error||null;eng.authoredDrift=error?{gen:msg.gen,items,error}:{gen:msg.gen,items};}
     const began=clock();
     for(const {current,next}of patches){for(const k of Object.keys(current))if(k[0]!=='_')delete current[k];for(const[k,v]of Object.entries(next))if(k[0]!=='_')current[k]=v;}
     for(const list of Object.keys(lists))source[list]=lists[list];
