@@ -62033,8 +62033,11 @@ function shieldRechargeStep(u,s={},dt=0,options={}){
  return {generatedTT:gen0,reserveSpentTT:bd,decayedTT:decay,deltaTT:gen-decay,had};
 }
 // A penetration is kept for the X-ray replay (u.hitLog, at most 24) and handed
-// to ctx.hit. The armour it got through is the zone's (box model) or the
-// surface patch's (surfaceLastHit: thickness and integrity after the hit).
+// to ctx.hit. thick is the nominal plate thickness of the zone (box model, Z.T)
+// or of the struck surface patch; integrity is that armour's state after the hit.
+// On surface armour a remnant too small to reach any module (empty path and
+// under COMBAT's path threshold Q*.05) is not recorded, so a record always shows
+// a real penetration rather than a 「非貫通」 card.
 function combatHitRecord(ctx,u,o,rec,armor){
  rec.t=Math.round(ctx.time*10)/10;rec.src=combatTop(o);rec.thick=+(+armor.thickness||0).toFixed(2);rec.integrity=+(+armor.integrity||0).toFixed(2);if(armor.patch!=null)rec.patch=armor.patch;
  u.hitLog.push(rec);if(u.hitLog.length>24)u.hitLog.shift();ctx.hit?.(u,rec);return rec;
@@ -62056,9 +62059,9 @@ function combatResolve(ctx,u,o,dt,s){
  let hullHit=beamLeak*(beamIncoming>0?Math.min(beamIncoming,Math.max(0,o.hull||0))/beamIncoming:0)+o.direct;
  const surfaceZones=!!p.surface?.patches?.length;let recs=0;try{
  if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot',surfaceZones),local=u.surfaceLastHit;
-  if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q);if(recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
+  if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q);if((rec.path.length>0||remaining>=Q*.05)&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
  if(p.surface?.patches?.length&&hullHit>0){const patches=p.surface.patches.filter(q=>q.exposed&&q.triangles?.length>=9),fw=o.face?.some(v=>v>0)?o.face:Z.faceShare,weighted=patches.map(q=>({q,w:q.area*(Math.max(0,q.normal[0])*fw[0]+Math.max(0,-q.normal[0])*fw[1]+Math.max(0,q.normal[2])*fw[2]+Math.max(0,-q.normal[2])*fw[3]+Math.max(0,q.normal[1])*fw[4]+Math.max(0,-q.normal[1])*fw[5])}));let total=weighted.reduce((a,x)=>a+x.w,0);if(!(total>0)){for(const x of weighted)x.w=x.q.area;total=weighted.reduce((a,x)=>a+x.w,0);}
-   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled){const rec=combatPenetrate(ctx,u,local.section,local.face,left,null,Q);if(recs++<3)combatHitRecord(ctx,u,o,rec,local);}}u.surfaceFallback=true;}
+   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled){const rec=combatPenetrate(ctx,u,local.section,local.face,left,null,Q);if((rec.path.length>0||left>=Q*.05)&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}u.surfaceFallback=true;}
  // The deferred hits are synced once here, also when a hit throws.
  }finally{if(surfaceZones&&typeof surfaceArmorSync==='function')surfaceArmorSync(u);}
  if(surfaceZones){
