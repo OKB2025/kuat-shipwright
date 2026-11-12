@@ -8564,7 +8564,7 @@ function trialGunsLayout(hud,gn,force){
  // Measure translated labels before the observer's asynchronous update.
  window.KSI18n?.localize(hud);
  const hr=hud.getBoundingClientRect(),box=s=>{const e=hud.querySelector(s);if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return r.width?r:null;};
- const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl'),box('.th-sw'),box('.th-swmode')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top');if(!pad||!hr.width)return;
+ const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl'),box('.th-sw'),box('.th-swmode')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top'),rudder=box('.th-rudderbar');if(!pad||!hr.width)return;
  // Longer damage reports stay between the top controls and the helm pad.
  const self=hud.querySelector('.th-self');if(self&&!self.hidden&&!trial.spectate){const y=(top?top.bottom:hr.top+60)+6;Object.assign(self.style,{top:(y-hr.top)+'px',transform:'none',maxHeight:Math.max(48,pad.top-y-8)+'px'});}
  const lo=pad.right+10,hi=(right.length?Math.min(...right.map(r=>r.left)):hr.right)-10,gap=hi-lo;
@@ -8573,7 +8573,9 @@ function trialGunsLayout(hud,gn,force){
  if(!band){m=fit(true,0);band=m.w<=gap;}
  if(!band&&gap>=170){m=fit(true,gap);band=m.h<=Math.max(44,pad.height*.6);}
  let x,bottom;const cy=hr.top+hr.height/2,clear=74;
- if(band){x=C.clamp(hr.left+hr.width/2,lo+m.w/2,hi-m.w/2);bottom=hr.bottom-pad.bottom+4;if(keys&&keys.left<x+m.w/2&&keys.right>x-m.w/2)bottom=hr.bottom-keys.top+6;}
+ if(band){x=C.clamp(hr.left+hr.width/2,lo+m.w/2,hi-m.w/2);bottom=hr.bottom-pad.bottom+4;if(keys&&keys.left<x+m.w/2&&keys.right>x-m.w/2)bottom=hr.bottom-keys.top+6;
+  // 4a The rudder gauge sits at the bottom centre: the turret status goes above it where they meet.
+  if(rudder&&rudder.left<x+m.w/2&&rudder.right>x-m.w/2)bottom=Math.max(bottom,hr.bottom-rudder.top+6);}
  else{const wide=Math.min(hr.width-24,420);m=fit(true,wide);x=hr.left+hr.width/2;bottom=hr.bottom-pad.top+8;
   // Above the pad would reach the reticle: sit under the top bar instead.
   if(hr.bottom-bottom-m.h<cy+clear){const y=(top?top.bottom:hr.top+60)+6;bottom=hr.bottom-y-m.h;}}
@@ -8814,8 +8816,8 @@ function trialHudHTML(){
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="pd-auto" aria-pressed="${trialDefenseEnabled()}" aria-label="点防御の自動迎撃">${trialDefenseEnabled()?'自動迎撃 ON':'自動迎撃 OFF'}</button><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
  <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
-  <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div>
-  <div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div></div>
+  <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div></div>
+ <div class="th-card th-rudderbar" data-th-rudderbar><div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div><button type="button" class="th-btn th-center" data-trial-cmd="center" aria-keyshortcuts="X">中央に戻す（X）</button></div>
  <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
  <button type="button" class="th-btn th-level" data-trial-cmd="level">水平</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>

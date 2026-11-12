@@ -726,6 +726,11 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .th-arrow.up{grid-area:1/2}.th-arrow.left{grid-area:2/1}.th-arrow.right{grid-area:2/3}.th-arrow.down{grid-area:3/2}
 .th-dmid{grid-area:2/2;display:grid;place-items:center;font:600 16px/1 var(--font-display);color:var(--hud-on)}
 .th-rudder{grid-column:1/-1;display:grid;gap:3px}
+/* 4a bottom centre: rudder gauge with a visible centre button (X and the gamepad do the same) */
+.th-rudderbar{position:absolute;left:50%;bottom:var(--th-gb);transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:5px 8px;width:min(300px,calc(100% - 2 * var(--th-gl) - 520px));min-width:200px;box-sizing:border-box}
+.th-rudderbar .th-rudder{flex:1 1 auto;min-width:0}.th-rudderbar .th-center{flex:0 0 auto;min-height:30px;padding:3px 9px;font-size:11px;white-space:nowrap}
+@container ks (orientation:landscape) and (max-height:560px){.th-rudderbar{min-width:180px;width:min(250px,calc(100% - 520px));padding:3px 6px;gap:5px}.th-rudderbar .th-center{min-height:26px;padding:2px 7px;font-size:10.5px}}
+@container ks (max-width:640px){.th-rudderbar{bottom:calc(var(--th-gb) + 128px);width:min(260px,calc(100% - 24px))}}
 .th-order{text-align:center;font-size:11px;font-weight:500;color:var(--hud-dim);line-height:1.3}
 .th-gauge{position:relative;height:18px;margin:0 8px;border-radius:6px;background:rgba(255,255,255,.05)}
 .th-gauge span{position:absolute;top:5px;width:2px;height:8px;background:rgba(219,229,232,.35);transform:translateX(-50%)}
