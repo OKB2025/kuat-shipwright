@@ -115,3 +115,35 @@ test('the two halves of a split mirrored cut stay a pair: switching either one b
   same(H2.hullData.solidCuts.map(c=>[c.id,c.mirror,c.c.map(v=>+v.toFixed(6)),c.rotation.map(v=>+v.toFixed(6))]),[[id,true,[110,16,-5],[0,0,15]]],'one mirrored hull cut, the original id');
  }
 });
+// Ships for the pair rules: H2 at z+20 (and optionally H3 at z-20) beside the primary hull.
+function twin(withH3=false){
+ const s=design(),hull=s.parts[0],add=(dz,label)=>{const h=JSON.parse(C.publicJSON(hull));h.id=s.nextId++;h.c=[hull.c[0],hull.c[1],hull.c[2]+dz];delete h.primaryHull;h.label=label;h.hullData={...h.hullData,solidCuts:[],subs:[]};s.parts.push(h);};
+ add(20,'H2');if(withH3)add(-20,'H3');s._cache=null;C.refreshPlacementGeometry(s);return {s,H2:s.parts.find(q=>q.label==='H2'),H3:s.parts.find(q=>q.label==='H3')};
+}
+const box=(s,c,extra={})=>{const q=C.normalizeSolidCut({id:s.nextId++,shape:'box',c,s:[20,8,6],structures:true,...extra});s.solidCuts.push(q);return q;};
+test('pair links are made only when unambiguous: one candidate, mutual, on one hull, and reaching that hull',()=>{
+ // One exact mirror pair about H2's centreline (world z 15 and 25): linked.
+ {const {s,H2}=twin(true),a=box(s,[110,16,15]),b=box(s,[110,16,25]);const p=C.solidCutMirrorPartner(s,a.id);assert.equal(p.mate.id,b.id);assert.equal(p.hull.id,H2.id);assert.equal(C.solidCutMirrorPartner(s,b.id).mate.id,a.id);}
+ // Three candidates (a and two identical mirrors of it): no link for any of them.
+ {const {s}=twin(),a=box(s,[110,16,15]),b=box(s,[110,16,25]),c=box(s,[110,16,25]);for(const q of [a,b,c])assert.equal(C.solidCutMirrorPartner(s,q.id),null,'cut '+q.id);
+  // and switching one back to hull-only moves only that one.
+  C.setSolidCutScope(s,b.id,'hull');assert.equal(s.solidCuts.length,2);}
+ // Two unrelated cuts that happen to mirror about H2's centreline (z -15 and 55), but one cuts H3 and the
+ // other nothing; H2 is not reached. With a second off-centre hull: no link.
+ {const {s}=twin(true),a=box(s,[110,16,-15]),b=box(s,[110,16,55]);assert.equal(C.solidCutMirrorPartner(s,a.id),null);assert.equal(C.solidCutMirrorPartner(s,b.id),null);}
+ // Two off-centre hulls on the same centreline (H2 and a copy above it): the pair mirrors about both, so it is ambiguous.
+ {const {s,H2}=twin(),h=JSON.parse(C.publicJSON(H2));h.id=s.nextId++;h.c=[H2.c[0],H2.c[1]+40,H2.c[2]];h.label='H2b';s.parts.push(h);s._cache=null;C.refreshPlacementGeometry(s);
+  const a=box(s,[110,16,15],{s:[20,8,80]}),b=box(s,[110,16,25],{s:[20,8,80]});assert.equal(C.solidCutMirrorPartner(s,a.id),null,'mirror about two hulls');assert.equal(C.solidCutMirrorPartner(s,a.id,H2.id).mate.id,b.id,'with the hull named it is unambiguous');}
+});
+test('a split pair is still a pair after serialize and deserialize (1e-6 tolerance)',()=>{
+ const {s,H2}=twin(),id=s.nextId++;H2.hullData.solidCuts.push(C.normalizeSolidCut({id,shape:'box',c:[110,16,-5],s:[20,8,6],rotation:[12.5,-7.25,33],mirror:true}));
+ C.setSolidCutScope(s,id,'all');const mate=s.solidCuts.find(c=>c.id!==id).id;
+ const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(s))));assert.equal(C.solidCutMirrorPartner(L,id).mate.id,mate);assert.equal(C.solidCutMirrorPartner(L,mate).mate.id,id);
+ C.setSolidCutScope(L,mate,'hull');const h=L.parts.find(q=>q.label==='H2');assert.equal(L.solidCuts.length,0);same(h.hullData.solidCuts.map(c=>[c.id,c.mirror]),[[id,true]]);
+});
+test('on a hull on the centreline two plain cuts that are exact mirrors are not joined (only an off-centre hull split joins back)',()=>{
+ const s=design(),hull=s.parts[0],a=C.normalizeSolidCut({id:s.nextId++,shape:'box',c:[110,16,-5],s:[20,8,6]}),b=C.normalizeSolidCut({id:s.nextId++,shape:'box',c:[110,16,5],s:[20,8,6],structures:true});
+ hull.hullData.solidCuts.push(a);s.solidCuts.push(b);assert.equal(C.hullMirrorIsWorldMirror(hull),true);
+ assert.equal(C.mergeHullMirrorHalves(hull,a.id),a.id);assert.equal(C.solidCutMirrorPartner(s,b.id),null);
+ C.setSolidCutScope(s,b.id,'hull',hull.id);same(hull.hullData.solidCuts.map(c=>[c.id,c.mirror]),[[a.id,false],[b.id,false]],'two plain cuts, as the user made them');
+});

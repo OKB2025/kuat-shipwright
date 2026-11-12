@@ -65159,9 +65159,11 @@ function sameSolidCut(a,b){
 }
 // A hull cut that is the exact mirror half of another plain cut on the same hull joins it as one mirrored
 // cut (the lower id stays). Undoes the split of a scope round trip, so the list does not grow.
+// Only on a hull off the centreline, where the split happens; a centreline hull's cuts are left as the user made them.
+// Exactly one such mate: with several identical candidates nothing is joined.
 function mergeHullMirrorHalves(p,id){
- const list=p.hullData?.solidCuts||[],cut=list.find(c=>c.id===id);if(!cut||cut.mirror)return id;
- const mate=list.find(c=>c.id!==id&&!c.mirror&&sameSolidCut(c,mirrorSolidCut(cut)));if(!mate)return id;
+ const list=p.hullData?.solidCuts||[],cut=list.find(c=>c.id===id);if(!cut||cut.mirror||hullMirrorIsWorldMirror(p))return id;
+ const mates=list.filter(c=>c.id!==id&&!c.mirror&&sameSolidCut(c,mirrorSolidCut(cut)));if(mates.length!==1)return id;const mate=mates[0];
  const keep=mate.id<id?mate:cut,drop=keep===mate?cut:mate;keep.mirror=true;p.hullData.solidCuts=list.filter(c=>c!==drop);return keep.id;
 }
 // The other half of a split mirrored cut. Switching an off-centre hull's mirrored cut to scope 'all' leaves
@@ -65169,13 +65171,21 @@ function mergeHullMirrorHalves(p,id){
 // is the other plain ship-level cut of the same scope that is the exact mirror of this one about the
 // centreline of a hull off the centreline (hullId, if given, else any). The editor and setSolidCutScope
 // use it so the scope switch, edits and 取り消す act on both halves together. Returns {hull,mate} or null.
+// The link is made only when it is unambiguous, so nothing moves with a cut by accident: exactly one
+// candidate on exactly one hull, the candidate's own only candidate is this cut, and the pair reaches that
+// hull (a split hull cut carved it). Otherwise the cuts are independent.
+function solidCutMirrorCandidates(ship,cut,hullId){
+ const out=[];
+ for(const hull of ship.parts||[]){if(!isHullStructure(hull)||(hullId!=null&&hull.id!==hullId)||hullMirrorIsWorldMirror(hull))continue;
+  let hb;try{hb=partAABB(hull);}catch(e){continue;}
+  const want=mirrorSolidCut(hullTransformSolidCut(hull,cut)),reaches=c=>compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(q.bounds,hb,0));
+  for(const c of ship.solidCuts)if(c.id!==cut.id&&!c.mirror&&!!c.structures===!!cut.structures&&sameSolidCut(hullTransformSolidCut(hull,c),want)&&(reaches(cut)||reaches(c)))out.push({hull,mate:c});}
+ return out;
+}
 function solidCutMirrorPartner(ship,id,hullId=null){
  const cut=(ship.solidCuts||[]).find(c=>c.id===id);if(!cut||cut.mirror)return null;
- for(const hull of ship.parts||[]){if(!isHullStructure(hull)||(hullId!=null&&hull.id!==hullId)||hullMirrorIsWorldMirror(hull))continue;
-  const want=mirrorSolidCut(hullTransformSolidCut(hull,cut));
-  const mate=ship.solidCuts.find(c=>c.id!==id&&!c.mirror&&!!c.structures===!!cut.structures&&sameSolidCut(hullTransformSolidCut(hull,c),want));
-  if(mate)return {hull,mate};}
- return null;
+ const found=solidCutMirrorCandidates(ship,cut,hullId);if(found.length!==1)return null;
+ const back=solidCutMirrorCandidates(ship,found[0].mate,hullId);return back.length===1&&back[0].mate===cut&&back[0].hull===found[0].hull?found[0]:null;
 }
 // The partner of a half after the half was edited to `cut`: the mirror of it about the pair's hull centreline.
 function solidCutMirrorOf(hull,cut,id){return normalizeSolidCut({...hullWorldSolidCut(hull,mirrorSolidCut(hullTransformSolidCut(hull,cut))),id,structures:normalizeSolidCut(cut).structures});}

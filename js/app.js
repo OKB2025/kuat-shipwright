@@ -10466,7 +10466,7 @@ function solidCutPanelHTML(){
       <div class="row2"><button class="btn sm" data-cutter-center>左右中央へ</button><button class="btn sm" data-cutter-through>上下に貫通</button></div>
     </details>
     <details class="cutter-rotation"><summary>角度を変える</summary>${cutterInputs('rotation',['X軸回転','Y軸回転','Z軸回転'],'°')}<div class="cutter-nudge">${[0,1,2].map(a=>`<button class="btn sm" data-cutter-turn="${a}">${['X','Y','Z'][a]} +90°</button>`).join('')}</div><button class="btn sm ghost" data-cutter-zero>回転を戻す</button></details>
-    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 全体に適用（重なるすべての構造物を切る）</label></div></div>
+    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''} ${cutterLinkedHalf()?'disabled title="この切削は左右対称の片側です（もう片側と一緒に動きます）"':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 全体に適用（重なるすべての構造物を切る）</label></div></div>
     <p class="note">${editing?'変更は実行するまで確定しません。':['cylinder','ellcyl','cone','frustum'].includes(q.shape)?'軸は初期状態で上下方向です。':q.shape==='capsule'?'カプセルの軸は前後方向です。':q.shape==='torus'?'リングは水平で、管の太さは高さで決まります。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
     <div class="cutter-apply"><button type="button" class="btn primary" data-cutter-apply>${editing?'この形で切削を更新':'重なりを切り取る'}</button>${editing?'<button class="btn ghost" data-cutter-cancel>調整をやめる</button>':''}</div>
   </div><div class="pgroup"><div class="cutter-heading"><h4>立体で切った箇所</h4><button class="btn sm ghost" data-cutter-new>新しいカッター</button></div>
@@ -10507,7 +10507,7 @@ function applySolidCutter(){
   const changed=mutate(editing?'立体切削を調整':'立体の重なりを切削',()=>{
     ship.solidCuts||=[];const owned=editing?ownedSolidCut(st.solidCutEdit):null,i=editing?ship.solidCuts.findIndex(q=>q.id===st.solidCutEdit):-1;
     if(editing&&i<0&&!owned)return '調整する切削が見つかりません';
-    applied=C.normalizeSolidCut({...draft,id:editing?st.solidCutEdit:ship.nextId++});
+    applied=C.normalizeSolidCut({...draft,id:editing?st.solidCutEdit:ship.nextId++,...(pair?{mirror:false}:{})});
     // An edited cut that changes scope goes through Core.setSolidCutScope, like the list's switch: a mirrored
     // cut keeps its mirror plane (cutterMirrorHull; a hull's centreline and world z=0 differ for a hull off the
     // centreline, so it splits into its halves), and halves coming back to their hull join into one cut.
@@ -10525,6 +10525,22 @@ function applySolidCutter(){
   if(changed&&applied){const q=worldSolidCut(applied.id);st.solidCutEdit=q?applied.id:null;st.solidCutter=C.normalizeSolidCut(q||{...applied,id:-1});st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
   renderPanel();return !!changed;
 }
+// The list's 全体に適用 switch and 取り消す. Each is one mutate (one Undo step); for a half of a split
+// mirrored pair, Core.setSolidCutScope moves both halves, and 取り消す removes both.
+function toggleSolidCutScope(id){
+  const next=C.solidCutScope(ship,id)==='all'?'hull':'all';
+  mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');
+  // The switch can move the edited cut's partner too, so the draft always re-reads the cut being edited.
+  if(st.solidCutEdit!=null){const q=worldSolidCut(st.solidCutEdit);if(q)st.solidCutter=C.normalizeSolidCut(q);else{st.solidCutEdit=null;st.solidCutter=C.normalizeSolidCut({...st.solidCutter,id:-1});}}
+  renderPanel();
+}
+function deleteSolidCut(id){
+  mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id),mate=own?null:C.solidCutMirrorPartner?.(ship,id)?.mate.id;if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id&&c.id!==mate);},'hull');
+  if(st.solidCutEdit!=null&&!worldSolidCut(st.solidCutEdit)){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();
+}
+// The split half being edited, if any ({hull,mate}). Its 左右対称 switch is off and disabled: the pair
+// already is the mirrored cut, and a mirror on one half would duplicate the other.
+function cutterLinkedHalf(){return st.solidCutEdit!=null&&ship?C.solidCutMirrorPartner?.(ship,st.solidCutEdit)||null:null;}
 function cutterPlanePoint(px,py,point,normal){
   const r=view?.ray(px,py);if(!r)return null;const den=C.dot(r.d,normal);if(Math.abs(den)<1e-6)return null;
   const t=C.dot(C.sub(point,r.o),normal)/den;if(!Number.isFinite(t)||t<0)return null;return C.add(r.o,C.mul(r.d,t));
@@ -10555,10 +10571,8 @@ function bindSolidCuts(){
     if('cutterCancel'in d){const c=worldSolidCut(st.solidCutEdit);if(c)st.solidCutter=C.normalizeSolidCut(c);st.solidCutEdit=null;st.cutterAction='camera';updateCutterDraft(true);}
     if('cutterApply'in d)applySolidCutter();
     if(d.cutterSelect)selectSolidCut(+d.cutterSelect);
-    if(d.cutterScope){const id=+d.cutterScope,next=C.solidCutScope(ship,id)==='all'?'hull':'all';mutate(next==='all'?'切削を全体に適用':'切削を船体だけに戻す',()=>{if(!C.setSolidCutScope(ship,id,next,st.cutterHullId))return '切削の適用範囲を変えられません';},'hull');// The switch can move the edited cut's partner too (a split mirrored pair), so the draft always re-reads
-    // the cut being edited.
-    if(st.solidCutEdit!=null){const q=worldSolidCut(st.solidCutEdit);if(q)st.solidCutter=C.normalizeSolidCut(q);else{st.solidCutEdit=null;st.solidCutter=C.normalizeSolidCut({...st.solidCutter,id:-1});}}renderPanel();}
-    if(d.cutterDelete){const id=+d.cutterDelete;mutate('立体切削を取り消す',()=>{const own=ownedSolidCut(id),mate=own?null:C.solidCutMirrorPartner?.(ship,id)?.mate.id;if(own)own.part.hullData.solidCuts=own.part.hullData.solidCuts.filter(c=>c.id!==id);else ship.solidCuts=(ship.solidCuts||[]).filter(c=>c.id!==id&&c.id!==mate);},'hull');if(st.solidCutEdit!=null&&!worldSolidCut(st.solidCutEdit)){st.solidCutEdit=null;st.cutterAction='place';}cutterOverlayKey='';renderPanel();}
+    if(d.cutterScope)toggleSolidCutScope(+d.cutterScope);
+    if(d.cutterDelete)deleteSolidCut(+d.cutterDelete);
     if(d.cutterScale){const q=ensureSolidCutter();q.s=q.s.map(v=>v*Number(d.cutterScale));updateCutterDraft(false);}
     if('cutterNudge'in d){const q=ensureSolidCutter(),a=+d.cutterNudge;q.c[a]+=st.cutterStep*(+d.direction);updateCutterDraft(false);}
     if('cutterTurn'in d){const q=ensureSolidCutter(),a=+d.cutterTurn;q.rotation[a]=((q.rotation[a]+270)%360)-180;updateCutterDraft(false);}
@@ -10575,7 +10589,7 @@ function bindSolidCuts(){
   $('#panel').addEventListener('change',e=>{
     const t=e.target,d=t.dataset;onField(e);
     if('cutterVisible'in d){st.cutterVisible=t.checked;cutterOverlayKey='';refreshSolidCutterOverlay();}
-    if('cutterMirror'in d){ensureSolidCutter().mirror=t.checked;updateCutterDraft(true);}
+    if('cutterMirror'in d){ensureSolidCutter().mirror=t.checked&&!cutterLinkedHalf();updateCutterDraft(true);}
     if('cutterStructures'in d){ensureSolidCutter().structures=t.checked;updateCutterDraft(true);}
     if('cutterPlane'in d&&['screen','xz','xy','yz'].includes(t.value))st.cutterPlane=t.value;
     if('cutterStep'in d&&t.value!==''&&Number.isFinite(+t.value))st.cutterStep=C.clamp(+t.value,.01,1000);
