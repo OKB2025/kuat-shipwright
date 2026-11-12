@@ -123,3 +123,47 @@ test('a child whose parent no longer touches it but which rests on a connected n
  const S=grounding(ship),d=S.placementDiagnostics.find(x=>x.partId===B.id);assert.ok(!S.ungrounded.parts.includes(B.id));assert.ok(!S.severed.includes(B.id));assert.equal(d.connected,true);assert.equal(d.via,'contact-graph');
  const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),S2=grounding(L);assert.ok(!S2.ungrounded.parts.includes(B.id)&&!S2.severed.includes(B.id),'reload agrees');
 });
+
+// ---- Stage 1 high review (8642163) ----
+test('a kept-whole child stays connected after a reload or deferred load followed by an unrelated hull cut',()=>{
+ const make=()=>{const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'kept');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],id=ship.nextId++;
+  const recess=c=>{C.hullOwnSolidCut(ship,hull,{id,shape:'box',c,s:[20,6,20],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;};recess([110,30,0]);C.refreshPlacementGeometry(ship);
+  placeOn(ship,hull,110,'box',[6,4,4],2.5);recess([122,30,0]);C.refreshPlacementGeometry(ship);return ship;};
+ const farCut=s=>{C.hullOwnSolidCut(s,s.parts[0],{id:s.nextId++,shape:'box',c:[20,28,0],s:[4,4,4],rotation:[0,0,0],mirror:false,structures:false});s._cache=null;return C.refreshPlacementGeometry(s);};
+ const ship=make();for(const [label,L] of [['reload',C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))))],['deferred',(()=>{const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);return D;})()]]){
+  const b=L.parts.find(q=>q.label==='box');assert.equal(b.placement.parentPoseKey,C.placementPositionKey(L.parts[0]),label+': the parent key matches after a reload');
+  const r=farCut(L),S=grounding(L);assert.equal(r.ok,true,label+' '+JSON.stringify(r.failed));assert.equal(b._placementError,undefined,label);assert.ok(!S.ungrounded.parts.includes(b.id),label+': not red');}
+});
+
+test('a mirrored hull-owned cut on a hull off the centreline: the pair cache and severingCuts see it',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'mirror');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
+ const h2=JSON.parse(C.publicJSON(hull));h2.id=ship.nextId++;h2.c=[hull.c[0],hull.c[1],hull.c[2]+20];delete h2.primaryHull;h2.label='H2';h2.hullData={...h2.hullData,solidCuts:[],subs:[]};ship.parts.push(h2);ship._cache=null;C.refreshPlacementGeometry(ship);
+ const H2=ship.parts.find(q=>q.label==='H2'),raw=C.rayPart([110,500,25],[0,-1,0],H2),hit={p:raw.p,n:C.norm(raw.n)},c=[hit.p[0],hit.p[1]+1.8,hit.p[2]];
+ const d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',label:'S',c,s:[8,8,4],yaw:0,pitch:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:H2.id,hostId:H2.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);
+ const S=ship.parts.find(q=>q.label==='S');assert.ok(C.structuralConnectivity(ship).adj.get(S.id).has(H2.id));
+ // Drawn on the other side of H2's own centreline (local z -5); its mirror (local z +5) is under S.
+ const local=[110,31.2,-5],id=ship.nextId++;H2.hullData.solidCuts.push(C.normalizeSolidCut({id,shape:'box',c:local,s:[20,8,6],rotation:[0,0,0],mirror:true,structures:false}));ship._cache=null;C.refreshPlacementGeometry(ship);
+ assert.equal(C.placementContact(ship,S,H2).connected,false,'the mirrored cut took the deck from under S');const g=C.structuralConnectivity(ship);assert.equal(g.adj.get(S.id).has(H2.id),false,'the cached pair was re-measured');
+ const St=grounding(ship);assert.ok(St.severed.includes(S.id));assert.ok(St.severedCuts.find(r=>r.partId===S.id).cutIds.includes(id),'severingCuts lists the mirrored cut');
+});
+
+test('several edits in one refresh: the contact graph is rebuilt after each change, so the result equals later refreshes and a reload',()=>{
+ const {ship,hull,A,D}=design();const X=placeOn(ship,hull,40,'X');
+ // One refresh carries three cuts: under X, under D and under A.
+ cut(ship,hull,[40,28,0],[20,16,40]);cut(ship,hull,[93,28,0],[18,16,40]);cut(ship,hull,[112,28,0],[20,16,40]);
+ C.refreshPlacementGeometry(ship);const look=s=>{const S=grounding(s);return JSON.stringify([X,D,A].map(q=>{const r=s.parts.find(z=>z.id===q.id);return [S.severed.includes(q.id),S.ungrounded.parts.includes(q.id),!!r._placementError];}));};
+ const first=look(ship);for(let i=0;i<2;i++){ship._cache=null;C.refreshPlacementGeometry(ship);}same(look(ship),first,'later refreshes');same(look(C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))))),first,'reload');
+ const S=grounding(ship);assert.ok(S.severed.includes(A.id)&&S.severed.includes(D.id),'A is not grounded through the severed D');
+});
+
+test('parts in a failure or still being solved carry nothing in the contact graph',()=>{
+ const {ship,hull,A,D}=design();cut(ship,hull,[112,28,0],[20,16,40]);C.refreshPlacementGeometry(ship);assert.ok(C.structuralConnectivity(ship).connected.has(A.id),'A rests on D');
+ D._placementError='contact-zero';assert.equal(C.structuralConnectivity(ship).connected.has(A.id),false,'not through a failed D');delete D._placementError;
+ D.placement.validationFailed=true;assert.equal(C.structuralConnectivity(ship).connected.has(A.id),false,'not through an unsolved D');
+});
+
+test('severingCuts lists a hull-owned notch',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'notch');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],A=placeOn(ship,hull,110,'A');
+ const id=ship.nextId++;hull.hullData.subs.push({id,structures:false,b:[100,20,-20,120,40,20]});ship._cache=null;C.refreshPlacementGeometry(ship);
+ const S=grounding(ship);assert.ok(S.severed.includes(A.id),'A is cut off by the notch');assert.ok(S.severedCuts.find(r=>r.partId===A.id).cutIds.includes(id),'the notch is named');
+});

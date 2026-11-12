@@ -62799,7 +62799,10 @@ function placementDependencyKey(p){return placementKeyHash(publicJSON([placement
 const PLACEMENT_REMOVAL_KEYS=['cuts','trenches','solidCuts','subs','hatches'];
 function placementPositionKey(p){return placementParentKeys(p).ppk;}
 // Both parent keys from one copy of the parent's shape (refreshPlacementGeometry calls this once per parent).
-function placementParentKeys(p){const q=placementShape(p),revision=p.placement?.geometryRevision||0,pk=placementKeyHash(publicJSON([q,revision]));if(q.hullData&&typeof q.hullData==='object'){q.hullData={...q.hullData};for(const k of PLACEMENT_REMOVAL_KEYS)delete q.hullData[k];}return {pk,ppk:placementKeyHash(publicJSON([q,revision]))};}
+// Key order does not matter: a reload rebuilds objects with their keys in another order, and the
+// persisted parentPoseKey must still match the same parent.
+function placementCanonicalJSON(v){const walk=x=>{if(Array.isArray(x))return x.map(walk);if(x&&typeof x==='object'){const o={};for(const k of Object.keys(x).sort())if(x[k]!==undefined&&!k.startsWith('_'))o[k]=walk(x[k]);return o;}return x;};return JSON.stringify(walk(JSON.parse(publicJSON(v))));}
+function placementParentKeys(p){const q=placementShape(p),revision=p.placement?.geometryRevision||0,pk=placementKeyHash(publicJSON([q,revision]));if(q.hullData&&typeof q.hullData==='object'){q.hullData={...q.hullData};for(const k of PLACEMENT_REMOVAL_KEYS)delete q.hullData[k];}return {pk,ppk:placementKeyHash(placementCanonicalJSON([q,revision]))};}
 // The parent without what cuts removed: hull-owned removals and every ship-level solid cut or notch
 // that carves structures. Used only to tell a child that a cut separated from one that never touched.
 // keepShipCuts: only the parent's own removals are left out (the fitting reference: ship-level cuts carve
@@ -62811,6 +62814,16 @@ function placementParentKeys(p){const q=placementShape(p),revision=p.placement?.
 function placementRemovalEntries(parent){
  const out=[];for(const k of PLACEMENT_REMOVAL_KEYS){const seen=new Map();(parent?.hullData?.[k]||[]).forEach((item,i)=>{let id;if(item?.id!=null)id=k+':'+item.id;else{const h=placementKeyHash(publicJSON(item)),n=seen.get(h)||0;seen.set(h,n+1);id=k+':#'+h+'#'+n;}out.push({k,i,item,id});});}
  return out;
+}
+function hullRemovalWorldBounds(p,e){
+ const corners=b=>{const pts=[];for(const x of [b[0],b[3]])for(const y of [b[1],b[4]])for(const z of [b[2],b[5]])pts.push(hullWorldPoint(p,[x,y,z]));return [0,1,2].map(i=>Math.min(...pts.map(q=>q[i]))).concat([0,1,2].map(i=>Math.max(...pts.map(q=>q[i]))));};
+ try{
+  if(e.k==='solidCuts'){const inst=compiledSolidCut(e.item).instances;if(!inst.length)return null;return inst.map(q=>corners(q.bounds)).reduce((a,b)=>[0,1,2].map(i=>Math.min(a[i],b[i])).concat([3,4,5].map(i=>Math.max(a[i],b[i]))));}
+  if(e.k==='subs'&&Array.isArray(e.item?.b))return corners(e.item.b);
+  const h=p.hullProfile||{},L=h.L??p.s?.[0],W=h.W??p.s?.[1],H=h.H??p.s?.[2];
+  if((e.k==='cuts'||e.k==='trenches')&&Number.isFinite(L)&&Number.isFinite(e.item?.from)&&Number.isFinite(e.item?.to))return corners([Math.min(e.item.from,e.item.to)*L,-H,-W,Math.max(e.item.from,e.item.to)*L,2*H,W]);
+ }catch(err){}
+ return null;
 }
 function placementRemovalIds(parent){return placementRemovalEntries(parent).map(e=>e.id);}
 // The removals a child was fitted into, with their current content: an edit of one of them (same id,
@@ -63513,7 +63526,7 @@ function structuralConnectivity(ship,options={}){
  const old=ship._structuralContactCache?.pairs||new Map(),pairs=new Map();
  const base=new Map(),baseOf=p=>{let v=base.get(p.id);if(v==null){const q=placementShape(p),g=p._placementGeometry;if(q.hullData&&typeof q.hullData==='object'){q.hullData={...q.hullData};for(const k of PLACEMENT_REMOVAL_KEYS)delete q.hullData[k];}v=placementKeyHash(publicJSON([q,g?[g.volume,g.area]:null,!!p._placementError]));base.set(p.id,v);}return v;};
  const removalsOf=new Map(),removals=p=>{let list=removalsOf.get(p.id);if(list)return list;list=[];
-  if(isHullStructure(p))for(const e of placementRemovalEntries(p)){let b=null;try{if(e.k==='solidCuts'){const inst=compiledSolidCut(hullWorldSolidCut(p,e.item)).instances;b=inst.reduce((a,q)=>a?[0,1,2].map(i=>Math.min(a[i],q.bounds[i])).concat([3,4,5].map(i=>Math.max(a[i],q.bounds[i]))):q.bounds.slice(),null);}else if(e.k==='subs'&&Array.isArray(e.item?.b)){const c=e.item.b,pts=[];for(const x of [c[0],c[3]])for(const y of [c[1],c[4]])for(const z of [c[2],c[5]])pts.push(hullWorldPoint(p,[x,y,z]));b=[0,1,2].map(i=>Math.min(...pts.map(q=>q[i]))).concat([0,1,2].map(i=>Math.max(...pts.map(q=>q[i]))));}}catch(err){b=null;}list.push({key:e.id+'='+placementKeyHash(publicJSON(e.item)),b});}
+  if(isHullStructure(p))for(const e of placementRemovalEntries(p))list.push({key:e.id+'='+placementKeyHash(publicJSON(e.item)),b:hullRemovalWorldBounds(p,e)});
   removalsOf.set(p.id,list);return list;};
  const shipCuts=[...(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures).map(c=>({key:'ship:'+placementKeyHash(publicJSON(c)),b:(()=>{const inst=compiledSolidCut(c).instances;return inst.reduce((a,q)=>a?[0,1,2].map(i=>Math.min(a[i],q.bounds[i])).concat([3,4,5].map(i=>Math.max(a[i],q.bounds[i]))):q.bounds.slice(),null);})()})),...(ship.subs||[]).filter(c=>ship.hull?.assembly||c.structures).map(c=>({key:'shipsub:'+placementKeyHash(publicJSON(c)),b:c.b.slice()}))];
  const bounds=new Map(),bound=p=>{if(!bounds.has(p.id)){let b=null;try{b=partAABB(p);}catch(e){b=null;}bounds.set(p.id,b);}return bounds.get(p.id);};
@@ -63532,17 +63545,20 @@ function structuralConnectivity(ship,options={}){
   pairs.set(key,connected);if(connected){adj.get(a.id).add(b.id);adj.get(b.id).add(a.id);}}
  ship._structuralContactCache={pairs};
  // Root component: explicit roots, hull structures, and any extra ids the caller already grounded.
- const roots=new Set(options.roots||[]);for(const p of structures)if(isHullStructure(p)||p.placement?.root&&p.placement.parentStructureId==null)roots.add(p.id);
+ // Parts in a failure or still being solved carry nothing (the same exclusions as groundingStats).
+ const usable=new Map(structures.map(p=>[p.id,!p._placementError&&!p.placement?.pendingGeometry&&!p.placement?.validationFailed]));
+ const roots=new Set(options.roots||[]);for(const p of structures)if((isHullStructure(p)||p.placement?.root&&p.placement.parentStructureId==null)&&usable.get(p.id))roots.add(p.id);
  const connected=new Set(),queue=[...roots].filter(id=>adj.has(id));for(const id of queue)connected.add(id);
- while(queue.length){const id=queue.shift();for(const next of adj.get(id)||[])if(!connected.has(next)){connected.add(next);queue.push(next);}}
+ while(queue.length){const id=queue.shift();for(const next of adj.get(id)||[])if(!connected.has(next)&&usable.get(next)){connected.add(next);queue.push(next);}}
  return {adj,connected,roots,measured,reused};
 }
 // The cuts that separated a severed part: solid cuts (ship-level ones that carve structures and the
 // parent hull's own) and notches whose bounds reach the part's padded bounds.
 function severingCuts(ship,p,parent){
  let b;try{b=partAABB(p);}catch(e){return [];}const pad=Math.max(PLACEMENT_TOLERANCES.coordinate*16,...[0,1,2].map(i=>(b[i+3]-b[i])*.05)),box=[0,1,2].map(i=>b[i]-pad).concat([0,1,2].map(i=>b[i+3]+pad)),ids=[];
- const solids=[...(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures),...(parent&&isHullStructure(parent)?(parent.hullData?.solidCuts||[]).map(c=>hullWorldSolidCut(parent,c)):[])];
- for(const c of solids)if(compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(box,q.bounds,0)))ids.push(c.id);
+ for(const c of (ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures))if(compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(box,q.bounds,0)))ids.push(c.id);
+ // The parent hull's own removals (solid cuts, notches, bevels, trenches) in its own frame.
+ if(parent&&isHullStructure(parent))for(const e of placementRemovalEntries(parent)){if(e.k==='hatches')continue;const b=hullRemovalWorldBounds(parent,e);if(b&&solidBoundsOverlap(box,b,0))ids.push(e.item?.id??e.id);}
  for(const c of ship.subs||[])if((ship.hull?.assembly||c.structures)&&[0,1,2].every(i=>c.b[i]<=box[i+3]&&c.b[i+3]>=box[i]))ids.push(c.id);
  return [...new Set(ids)];
 }
@@ -63650,7 +63666,9 @@ function placementChildCutKey(ship,p){
 function refreshPlacementGeometry(ship,options={}){
  if(!ship?.parts||ship._refreshingPlacement)return {ok:true,updated:[],failed:[],resolvedParts:[],resolvedFits:[]};ship._refreshingPlacement=true;
  // Ship-level solid cuts that carve structures change their material without changing any part key.
- const graphCache={graph:null};let shipCutKey=null;const cutKey=()=>shipCutKey??=placementKeyHash(publicJSON((ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures))),parentKeys=new Map(),keysOf=q=>{let k=parentKeys.get(q);if(!k){k=placementParentKeys(q);parentKeys.set(q,k);}return k;};
+ // The contact graph built during this refresh is dropped whenever a part's pose, fitted shape or
+ // state changes later in the same refresh (several edits can arrive in one Worker update).
+ const graphCache={graph:null},refreshFingerprint=q=>publicJSON([q.c,q.yaw,q.pitch,q.roll,q.s,q._placementGeometry?.volume??null,q._placementGeometry?.area??null,q._placementError||'',!!q._placementSevered,!!q.placement?.pendingGeometry]);let shipCutKey=null;const cutKey=()=>shipCutKey??=placementKeyHash(publicJSON((ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures))),parentKeys=new Map(),keysOf=q=>{let k=parentKeys.get(q);if(!k){k=placementParentKeys(q);parentKeys.set(q,k);}return k;};
  const updated=[],failed=[],severed=[],resolvedParts=[],resolvedFits=[],done=new Set(),active=new Set(),eligible=p=>p.placement&&(p.placement.pendingGeometry||p.placement.validationFailed||placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p));
  // Resolve integrated bodies before publishing authored meshes or pending
  // placement packets. Legacy engines have no parent metadata to visit, but
@@ -63659,13 +63677,13 @@ function refreshPlacementGeometry(ship,options={}){
  const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
   const interior=explicitInteriorPlacement(p);
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||(interior?meta.parentGeometryKey!==interiorEnvelopeKey(ship):parent&&meta.parentGeometryKey!==placementDependencyKey(parent)))){meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;}
-  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);if(result.ok){updated.push(p.id);if(parent&&placementCapability(p).kind==='structure')p._placementLocalHash=placementLocalParentHash(ship,p,parent);if(parent)p._placementFitRemovalKey=placementFitRemovalKey(p,parent);}else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
+  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent);graphCache.graph=null;if(result.ok){updated.push(p.id);if(parent&&placementCapability(p).kind==='structure')p._placementLocalHash=placementLocalParentHash(ship,p,parent);if(parent)p._placementFitRemovalKey=placementFitRemovalKey(p,parent);}else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   if(meta.validationFailed){failed.push({partId:p.id,code:meta.repairReason||'placement-failed'});active.delete(p.id);done.add(p.id);return;}
   if(parent?._placementError){p._placementError='parent-unresolved';failed.push({partId:p.id,code:'parent-unresolved'});}else if(!meta.root){const failure=placementParentCheck(ship,p,meta.parentStructureId);if(failure){p._placementError=failure.code;failed.push({partId:p.id,code:failure.code});}else{
    // Only a change of the parent's pose or outer form (placementPositionKey) re-solves the child. A
    // change of the parent's material alone (its own cuts, trenches, solid cuts, notches, hatches)
    // keeps the child exactly where and as it is and re-checks its real contact (removalOnly).
-   const {pk,ppk}=keysOf(parent),sk=placementShapeKey(p),mk=pk+'/'+cutKey(),ck=placementChildCutKey(ship,p),fk=placementFitRemovalKey(p,parent),fitRemovalsChanged=p._placementFitRemovalKey!=null&&p._placementFitRemovalKey!==fk,keptKey=pk+'|'+ck+'|'+fk,childCutChanged=p._placementChildCutKey!=null&&p._placementChildCutKey!==ck&&placementCapability(p).kind==='structure'&&meta.mode!=='surface',cold=!p._placementSelfKey,parentKeyChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,removalOnly=(parentKeyChanged||p._placementMaterialKey!=null&&p._placementMaterialKey!==mk)&&!cold&&p._placementParentPoseKey===ppk&&!p._placementError&&!fitRemovalsChanged,parentChanged=parentKeyChanged&&!removalOnly,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
+   const fp0=refreshFingerprint(p),{pk,ppk}=keysOf(parent),sk=placementShapeKey(p),mk=pk+'/'+cutKey(),ck=placementChildCutKey(ship,p),fk=placementFitRemovalKey(p,parent),fitRemovalsChanged=p._placementFitRemovalKey!=null&&p._placementFitRemovalKey!==fk,keptKey=pk+'|'+ck+'|'+fk,childCutChanged=p._placementChildCutKey!=null&&p._placementChildCutKey!==ck&&placementCapability(p).kind==='structure'&&meta.mode!=='surface',cold=!p._placementSelfKey,parentKeyChanged=(p._placementParentKey||meta.parentGeometryKey)!==pk,removalOnly=(parentKeyChanged||p._placementMaterialKey!=null&&p._placementMaterialKey!==mk)&&!cold&&p._placementParentPoseKey===ppk&&!p._placementError&&!fitRemovalsChanged,parentChanged=parentKeyChanged&&!removalOnly,selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==placementRequestKey(p),structure=placementCapability(p).kind==='structure';
    if(meta.materializedAttachment){if(parentChanged&&!selfChanged)placementApplyEquipmentPose(parent,p,meta,placementAnchor(parent,meta));placementRestoreMaterialized(p);const contact=placementContact(ship,p,parent);if(contact.connected){delete p._placementError;meta.parentGeometryRevision=parent.placement?.geometryRevision||0;meta.parentGeometryKey=pk;meta.requestedGeometry=placementShape(p);if(parentChanged||cold||selfChanged)updated.push(p.id);}else if(!parentChanged&&!selfChanged&&!cold)placementKeepContact(ship,p,parent,severed,false,contact,failed,graphCache);else{p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});}}
    // A severed child keeps its stored pose until it is edited or its parent moves; one without a
    // fitted shape (reloaded) is solved again only once it touches its parent again.
@@ -63691,7 +63709,10 @@ function refreshPlacementGeometry(ship,options={}){
     else if(structure&&!selfChanged&&(PLACEMENT_SEVERABLE_CODES.has(r.code)||PLACEMENT_FIT_KEEP_CODES.has(r.code))&&(()=>{
      // The solved (fitted) child when the solve reached the contact check, as a reload gives it; else the
      // whole requested body. Restored unchanged when it touches no connected body either.
-     const snap={...p},candidate=r.code==='contact-zero'&&r.unattachedPart;if(candidate){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(candidate,key))delete p[key];Object.assign(p,candidate);}else{delete p._placementGeometry;delete p._placementPrecise;}
+     const snap={...p,placement:{...p.placement,requestedGeometry:p.placement?.requestedGeometry&&{...p.placement.requestedGeometry}}},candidate=r.code==='contact-zero'&&r.unattachedPart;if(candidate){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(candidate,key))delete p[key];Object.assign(p,candidate);}else if(parentChanged){
+      // User decision 1: a child follows its moved parent. Judge it at the carried pose, never at the
+      // pose it was left behind at.
+      if(!placementCarryToParent(p,parent)){Object.assign(p,snap);return false;}}else{delete p._placementGeometry;delete p._placementPrecise;}
      if(placementTouchesConnected(ship,p,graphCache))return true;for(const key of Object.keys(p))delete p[key];Object.assign(p,snap);return false;})()){delete p._placementError;delete p._placementSevered;delete p._placementLocalHash;const m=p.placement;m.parentLocalAnchor=localStruct(parent,p.c);m.requestedGeometry=placementShape(p);m.parentPoseKey=ppk;if(parent.s)m.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];if(!p._placementGeometry)p._placementKeptWhole=keptKey;}
     else if(!selfChanged&&r.code==='contact-zero'&&r.unattachedPart&&placementSeveredByCut(ship,r.unattachedPart,parent)){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.unattachedPart,key))delete p[key];Object.assign(p,r.unattachedPart);p._placementSevered=true;delete p._placementError;delete p._placementLocalHash;severed.push({partId:p.id,code:'severed'});}
     else if(!selfChanged&&(placementStoredPoseSevered(ship,p,parent,r.code)||parentChanged&&PLACEMENT_SEVERABLE_CODES.has(r.code)&&placementCarryToParent(p,parent)&&placementStoredPoseSevered(ship,p,parent,r.code))){p._placementSevered=true;delete p._placementError;delete p._placementLocalHash;severed.push({partId:p.id,code:'severed'});}
@@ -63699,12 +63720,13 @@ function refreshPlacementGeometry(ship,options={}){
     // (a recess wall now crosses the footprint, ...) but the unedited child, at its stored pose under an
     // unmoved parent, really touches the parent with its whole requested body. It stays connected with
     // that body (no fitted shape, exactly as a reload gives) instead of a red repair state.
-    else if(structure&&!selfChanged&&PLACEMENT_FIT_KEEP_CODES.has(r.code)&&placementStoredPoseKept(ship,p,parent,cold)){delete p._placementError;delete p._placementSevered;delete p._placementLocalHash;p._placementKeptWhole=keptKey;}
+    else if(structure&&!selfChanged&&PLACEMENT_FIT_KEEP_CODES.has(r.code)&&placementStoredPoseKept(ship,p,parent,cold)){delete p._placementError;delete p._placementSevered;delete p._placementLocalHash;p._placementKeptWhole=keptKey;p.placement.parentPoseKey=ppk;}
     // A failed re-solve keeps no fitted shape from an earlier pose: a reload has none either, so mass
     // and drawing agree before and after saving.
     else{p._placementError=r.code;delete p._placementGeometry;if(selfChanged){meta.requestedGeometry=placementShape(p);meta.parentLocalAnchor=localStruct(parent,p.c);meta.repairRequired=true;meta.repairReason=r.code;}failed.push({partId:p.id,code:r.code});}
    }if(p._placementError){delete p._placementSevered;delete p._placementLocalHash;delete p._placementKeptWhole;}
    if(structure&&!p._placementError&&!p._placementSevered&&p._placementLocalHash===undefined)p._placementLocalHash=placementLocalParentHash(ship,p,parent);
+   if(refreshFingerprint(p)!==fp0)graphCache.graph=null;
    p._placementParentKey=pk;p._placementParentPoseKey=ppk;p._placementMaterialKey=mk;p._placementChildCutKey=ck;p._placementFitRemovalKey=placementFitRemovalKey(p,parent);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);
   }}else if(meta.materializedAttachment)placementRestoreMaterialized(p);active.delete(p.id);done.add(p.id);};
  try{const ids=options.ids==null?null:new Set(options.ids);
