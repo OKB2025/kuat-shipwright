@@ -718,6 +718,8 @@ function handleTrialRays(job) {
 // not the live built ship nor its full statistics: those are released once the
 // job is done (the ship is restored from the packed caches when a mesh or the
 // turret rays need it). The records are bounded by count and by their size.
+// Outside that bound: while a ship is flown (trial), trialHold keeps that one ship's live graph, its
+// turret-ray context and its pose cache until trialEnd, so the flown ship is not released during the trial.
 const fleetBuilt = new Map(), FLEET_KEEP = 2, FLEET_BYTES = 128e6;
 function fleetKeep(keys, rec) {
   for (const k of keys) { fleetBuilt.delete(k); fleetBuilt.set(k, rec); }
