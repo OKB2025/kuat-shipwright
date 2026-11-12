@@ -48,7 +48,10 @@ function generateEntry(C,R,key,previous,sources,options={}){
 function generateEntryFromBlueprint(C,R,key,blueprint,previous,sources,options={}){
  if(!C.DESIGNS[key]||C.SHIP_EXAMPLES[key]?.craft||key.startsWith('craft_'))throw new Error('Not a selectable ship example: '+key);
  if(!previous)throw new Error('Missing fleet metadata: '+key);
- return generateEntryFromShip(C,R,key,C.deserialize(plain(blueprint)),previous,sources,options);
+ // A saved design is measured the way the game's engine measures it: deserialize and the load steps without
+ // the authoring freeze of structure triangulations (withFrozenStructures), which gave venator a different
+ // crit than the engine computes (physics review 2026-11-12).
+ return generateMeasuredEntry(C,R,key,C.deserialize(plain(blueprint)),previous,sources,options);
 }
 function generateEntryFromShip(C,R,key,ship,previous,sources,options={}){
  const measure=()=>generateMeasuredEntry(C,R,key,ship,previous,sources,options);return typeof C.withFrozenStructures==='function'?C.withFrozenStructures(measure):measure();
