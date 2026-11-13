@@ -122,3 +122,19 @@ test('Worker patches (an undo back to the lost-parent state, then a redo) give t
   assert.equal(p.placement.parentStructureId,1,label+' #'+id);assert.deepEqual(pose(p),pose(f),label+' #'+id+': same pose');
   assert.equal(JSON.stringify(p.placement.surfaceAnchor.map(v=>+v.toFixed(9))),JSON.stringify(f.placement.surfaceAnchor.map(v=>+v.toFixed(9))),label+' #'+id+': same anchor');}
 });
+// High review 2026-11-13: a copy that faces another way than its source must not be re-seated by the join.
+test('rotational-array copies of a hull-mounted box stay where the array put them and can be moved',()=>{
+ const {ship,box}=cigarWithBox(),res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count:4,axis:0,center:[110,16,0]});assert.equal(res.ok,true,res.error);
+ // Turned 90°, 180° and 270° about the x axis through [110,16,0] (the array's own placement), not re-seated by the join.
+ const [x,y,z]=box.c,ry=y-16,expect=[[x,16-z,ry],[x,16-ry,-z],[x,16+z,-ry]].map(v=>JSON.stringify(v.map(n=>+n.toFixed(6))));
+ const placed=new Map(res.parts.map((id,i)=>[id,expect[i]]));C.refreshPlacementGeometry(ship);const S={warnings:[]};C.groundingStats(ship,S);
+ for(const id of res.parts){const p=ship.parts.find(q=>q.id===id);assert.equal(JSON.stringify(p.c.map(n=>+n.toFixed(6))),placed.get(id),'#'+id+' not moved');assert.equal(p.placement.parentStructureId,1);assert.ok(!S.ungrounded.parts.includes(id),'#'+id+' not red');
+  const want=[p.c[0]-5,p.c[1],p.c[2]];p.c=want.slice();C.refreshPlacementGeometry(ship);assert.equal(JSON.stringify(p.c),JSON.stringify(want),'#'+id+' a move is kept');}
+});
+test('a top-mounted box pasted under the hull is joined on the underside, like a fresh placement there, and moves are kept',()=>{
+ const {ship,box}=cigarWithBox(),q=JSON.parse(C.publicJSON(box));q.id=ship.nextId++;q.c=[80,-1.8,0];C.remapPlacementCopy(q,new Map(),{detachRoots:true});ship.parts.push(q);C.refreshPlacementGeometry(ship);
+ const p=ship.parts.find(x=>x.id===q.id),m=p.placement,hull=ship.parts[0];
+ assert.equal(m.parentStructureId,1);assert.equal(m.contactSide,'top','its top face meets the hull');assert.ok(m.contactNormal[1]<-.9,'anchored on the underside');
+ assert.ok(C.worldStruct(hull,m.surfaceAnchor)[1]<1,'the anchor is under the hull, not on its far side');
+ const want=[75,-1.8,3];p.c=want.slice();C.refreshPlacementGeometry(ship);assert.equal(JSON.stringify(p.c),JSON.stringify(want),'the move is kept');
+});

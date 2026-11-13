@@ -8917,7 +8917,7 @@ function trialHudHTML(){
  return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
  <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl></div>
  <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
- <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">給電優先順 <kbd>P</kbd></p><p class="th-power-policy">シールド・艦内設備 → 兵装 → 航行</p><p class="note">シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。</p><p class="th-jump-ready" data-th="jump-ready">ジャンプ待機</p></div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
+ <button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
  <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 ${trialCamName(trial.camMode)}</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
  <div class="th-flash" data-th="flash" aria-hidden="true"></div>${trial.mode==='battle'||trial.pat?'<div class="th-cine" aria-hidden="true"><i class="bar top"></i><i class="bar bot"></i><b>敵艦隊　ハイパースペースより出現</b></div>':''}<div class="th-hit" data-th="hit" aria-hidden="true"></div>
@@ -9077,8 +9077,8 @@ function trialCommand(cmd){
  else if(cmd==='foil'||cmd==='foil:open'||cmd==='foil:close'){trialFoilCommand(cmd.split(':')[1]);return;}
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
- else if(cmd==='power'){const m=$('#thPower'),b=document.querySelector('[data-trial-cmd="power"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
- else if(cmd==='pnext'){trialCommand('power');return;}
+ // The power order is fixed (シールド・艦内設備 → 兵装 → 航行) and has no control in the piloting HUD (2026-11-13).
+ else if(cmd==='power'||cmd==='pnext')return;
  else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));}
  else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
  else if(cmd==='volley'){trialVolley();}
@@ -10248,7 +10248,7 @@ async function spaceBattleLaunch(){
  await fleetSetMode('design');await trialStart({design:asset.design,battle:plan,system:fleet.system||'coruscant',returnTo:'tactical'});
 }
 function trialSetPower(){trial.powerMode='balanced';toast('給電優先順：シールド・艦内設備 → 兵装 → 航行');}
-const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
+const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
@@ -11535,7 +11535,7 @@ const PAD_HOST = {
       const menu = padHudMenu();
       if (menu && ['confirm', 'up', 'down', 'left', 'right'].includes(a)) return false;   // the focus ring works the open menu
       if (a === 'cancel') { if (menu) { if (menu.id === 'thMap') trialMapShow(false); else if (menu.id) padClose(menu); else menu.hidden = true; } return true; }
-      const cmd = {up: 'level', down: 'center', left: 'rudder-', right: 'rudder+', trigL: 'tele-', trigR: 'tele+', mode: 'gunmode', menu: 'menu', select: 'pnext', l3: 'missile', r3: 'cam'}[a];
+      const cmd = {up: 'level', down: 'center', left: 'rudder-', right: 'rudder+', trigL: 'tele-', trigR: 'tele+', mode: 'gunmode', menu: 'menu', l3: 'missile', r3: 'cam'}[a];
       if (a === 'confirm') { if (!repeat) trial.fire = true; return true; }
       if (a === 'action') { padTarget(0); return true; }
       if (a === 'prev' || a === 'next') { padTarget(a === 'next' ? 1 : -1); return true; }

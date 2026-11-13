@@ -64064,14 +64064,28 @@ function placementAdoptContactParent(ship,part){
  const A=partAABB(part),descendants=new Set([part.id]);let grew=true;while(grew){grew=false;for(const q of ship.parts)if(q.placement?.parentStructureId!=null&&descendants.has(q.placement.parentStructureId)&&!descendants.has(q.id)){descendants.add(q.id);grew=true;}}
  const candidates=ship.parts.filter(q=>isShapePart(q)&&!descendants.has(q.id)&&!q.plate&&!q._placementError&&!q.placement?.validationFailed&&!q.placement?.pendingGeometry).filter(q=>{const B=partAABB(q);return [0,1,2].every(i=>A[i]<=B[i+3]+1e-3&&A[i+3]>=B[i]-1e-3);});
  let best=null;for(const q of candidates){let contact;try{contact=placementContact(ship,part,q);}catch(e){continue;}if(!contact.connected)continue;const score=[q.primaryHull?1:0,contact.area||0];if(!best||score[0]>best.score[0]||score[0]===best.score[0]&&score[1]>best.score[1])best={parent:q,contact,score};}
- if(!best)return null;const parent=best.parent;let hit=placementContactAnchor(best.contact);
- // An overlap (a body sunk into its parent) has no face regions: anchor on the parent's surface on the part's
- // side, where a ray from outside through the part's centre meets the parent.
- if(!hit){const B=partAABB(parent),mid=[0,1,2].map(i=>(B[i]+B[i+3])/2),A2=partAABB(part),pc=[0,1,2].map(i=>(A2[i]+A2[i+3])/2),d=sub(pc,mid),l=len(d);if(l>1e-6){const dir=mul(d,1/l),reach=len(sub(B.slice(3),B.slice(0,3)))+len(sub(A2.slice(3),A2.slice(0,3)))+1,r=rayPart(add(pc,mul(dir,reach)),mul(dir,-1),parent);if(r?.p&&r.n)hit={p:r.p,n:norm(r.n)};}}
+ if(!best)return null;const parent=best.parent;
+ // The contact point lies on the parent's outer surface at the part (within the part's bounds), on the part's side:
+ // among the candidates, the one whose outward normal best follows the direction from the parent's centre to the
+ // part's centre. Face regions come first; an overlap (a body sunk into its parent) has none usable, so rays from
+ // the part's centre (toward the parent and along the six axes) and from well outside through it are tried.
+ const A0=partAABB(part),pc0=[0,1,2].map(i=>(A0[i]+A0[i+3])/2),B0=partAABB(parent),mid=[0,1,2].map(i=>(B0[i]+B0[i+3])/2),d0=sub(pc0,mid),l0=len(d0),side=l0>1e-6?mul(d0,1/l0):[0,1,0],
+  margin=.5+.02*len(sub(A0.slice(3),A0.slice(0,3))),valid=h=>!!h&&dot(h.n,sub(h.p,mid))>0&&[0,1,2].every(i=>h.p[i]>=A0[i]-margin&&h.p[i]<=A0[i+3]+margin);
+ let hit=null;const consider=h=>{if(valid(h)&&(!hit||dot(h.n,side)>dot(hit.n,side)+1e-9))hit=h;};
+ consider(placementContactAnchor(best.contact));
+ if(!hit){const reach=2*(len(sub(B0.slice(3),B0.slice(0,3)))+len(sub(A0.slice(3),A0.slice(0,3))))+10,rays=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1],mul(side,-1)].map(v=>[pc0,v]);rays.push([add(pc0,mul(side,reach)),mul(side,-1)]);
+  for(const [o,v] of rays){let r=null;try{r=rayPart(o,v,parent);}catch(e){}consider(r?.p&&r.n?{p:r.p,n:norm(r.n)}:null);}}
  // The part's current shape is what the user last edited: an unresolved part's edits never reached its stored request.
  const requested=placementShape(part);requested.id=part.id;meta.requestedGeometry=requested;
  meta.parentStructureId=parent.id;meta.parentGeometryRevision=parent.placement?.geometryRevision??0;meta.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)meta.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];
  if(hit){meta.surfaceAnchor=localStruct(parent,hit.p);meta.contactNormal=hit.n;meta.contactLocalNormal=placementLocalNormal(parent,hit.n);}
+ // The copy's contact record must describe where it sits now (a copy may face another way than its source: an
+ // array copy turned about an axis, a paste onto the opposite face), so the re-solve keeps its stored pose and fits
+ // it against the right face. A turned copy (surfaceNormal) is a surface placement; otherwise the contact side is
+ // the part's face that faces the parent's surface (against its normal), and a cut-fit's offset and axis follow from it.
+ if(part.surfaceNormal&&meta.mode!=='surface'){meta.mode='surface';for(const key of ['contactFit','contactOffset','contactAxis'])delete meta[key];}
+ if(hit&&meta.mode!=='surface'){const local=placementLocalNormal(part,mul(hit.n,-1)),sides=meta.mode==='horizontal'?{top:[0,1,0],bottom:[0,-1,0]}:{fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]};let side=meta.contactSide,best=-Infinity;for(const [k,v] of Object.entries(sides)){const q=dot(local,v);if(q>best){best=q;side=k;}}meta.contactSide=side;
+  if(meta.contactFit==='cut'){meta.contactOffset=sub(part.c,hit.p);meta.contactAxis=meta.mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);}}
  for(const key of ['unresolvedParentId','hostSurfaceId','parentGeometryKey'])delete meta[key];delete part._placementError;delete part._placementSelfKey;delete part._placementParentKey;delete part._placementParentPoseKey;
  // A stored refusal becomes a draft solved again with its pose kept (the refresh's refusal → pending rule).
  if(meta.validationFailed){delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;meta.pendingGeometry=true;part._placementAdoptKeepPose=true;}
@@ -66736,8 +66750,9 @@ function heatStats(ship,S){
  S.heat.mode='strict';S.heat.dissipatorPower=rated;S.heat.feedLossW=net.src.filter(s=>s.k==='feed').reduce((n,s)=>n+(s.rated.combat||0),0);
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:inspectionTargets(ship,S,{code:'heat',text})});
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
- // A load without any source is already reported as 「ジェネレーターがありません」 (S.Vgen <= 0): not a second, broken-line warning.
- if(S.heat.power.broken&&!(S.Vgen<=0&&net.links.filter(l=>l.kind==='power'&&!l.ok).every(l=>l.why==='no-source')))warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
+ // Without a generator (「ジェネレーターがありません」, S.Vgen <= 0) the ship's own living/electronics load (hotel) has no
+ // source by definition: that alone is not a second, broken-line warning. Unpowered equipment still is.
+ if(S.heat.power.broken&&!(S.Vgen<=0&&net.links.filter(l=>l.kind==='power'&&!l.ok).every(l=>l.why==='no-source'&&l.to==='hotel')))warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
  if(S.heat.heat.broken)warn('warn',`接続できない熱輸送路が ${S.heat.heat.broken} 本あります（相手がない、または放熱翼に適さない廃熱）。`);
  if(c.overCount)warn('warn',`戦闘負荷で ${c.overCount} 系統の廃熱が処理しきれず蓄熱します（最短 ${f(c.over[0].t)} で出力制限）。散逸装置か熱輸送路を足してください。`);
  else if(m.overCount)warn('info',`最大出力では ${m.overCount} 系統が蓄熱します（最短 ${f(m.over[0].t)} で出力制限）。散逸装置を足すと全力運転を続けられます。`);

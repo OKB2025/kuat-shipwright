@@ -36,8 +36,9 @@ test('4c the reactor-load meter sits beside the throttle in the helm pad, with t
  const pad=padMarkup.slice(0,padMarkup.indexOf('<div class="th-card th-rudderbar"'));
  assert.ok(pad.indexOf('data-th-throttle')<pad.indexOf('data-th-load')&&pad.indexOf('data-th-load')<pad.indexOf('data-th-heat'),'throttle, reactor load, stored heat');
  assert.match(pad,/role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150"/);assert.match(pad,/data-th-heat role="meter" aria-label="蓄熱"/);
- assert.match(hudSource,/<p class="th-power-policy">シールド・艦内設備 → 兵装 → 航行<\/p>/,'the fixed power order is unchanged');
- assert.doesNotMatch(hudSource,/data-trial-cmd="power"/,'no power-order button (the order is fixed)');
+ // The power order is fixed: shown in the fleet screen, with no control in the piloting HUD (2026-11-13).
+ assert.match(extract('fleetPowerHTML'),/シールド・艦内設備 → 兵装 → 航行/,'the fixed power order is unchanged');
+ assert.doesNotMatch(hudSource,/data-trial-cmd="power"|id="thPower"/,'no power-order button or panel');assert.doesNotMatch(app,/KeyP:'pnext'|select: 'pnext'/,'no key or pad button opens it');
  // The reactor load and thrust are not repeated in the fire-control status.
  assert.doesNotMatch(extract('trialHudUpdate'),/it\(lCls,'炉心負荷'|it\('wait','推力'/);
 });
