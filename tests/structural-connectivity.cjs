@@ -12,11 +12,14 @@ function design(){
  // D (x 87..103) and A (x 102..118) sit side by side on the deck and overlap by 1 m.
  const D=place(95,'D'),A=place(110,'A');return {ship,hull,A,D};
 }
+// 2026-11-13 user decision: no fitting. The structures keep their requested (untrimmed) base, sunk to reach the deck.
+// The cut under A was moved 0.5 m (x 101.5..121.5, was 102..122) so its wall no longer lies exactly on A's end face
+// (x 102): an untrimmed base there keeps a real face contact with that wall, which a fitted base did not.
 const cut=(ship,hull,c,s)=>{const id=ship.nextId++;C.hullOwnSolidCut(ship,hull,{id,shape:'box',c,s,rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;return id;};
 const grounding=ship=>{const S={warnings:[]};C.groundingStats(ship,S);return S;};
 
 test('a structure cut off from its parent but touching a connected neighbour stays connected (no red, no severed warning)',()=>{
- const {ship,hull,A,D}=design();cut(ship,hull,[112,28,0],[20,16,40]);C.refreshPlacementGeometry(ship);
+ const {ship,hull,A,D}=design();cut(ship,hull,[111.5,28,0],[20,16,40]);C.refreshPlacementGeometry(ship);
  assert.equal(C.placementContact(ship,A,hull).connected,false,'A lost its parent contact');assert.equal(C.placementContact(ship,A,D).connected,true,'A still touches D');
  const check=(s,label)=>{const S=grounding(s),a=s.parts.find(p=>p.label==='A'),d=S.placementDiagnostics.find(x=>x.partId===a.id);
   assert.ok(!S.ungrounded.parts.includes(a.id),label+': no red frame');same(S.severed,[],label+': no severed warning');
@@ -26,7 +29,7 @@ test('a structure cut off from its parent but touching a connected neighbour sta
 });
 
 test('when the neighbour is cut off too, both are severed and the responsible cuts are listed',()=>{
- const {ship,hull,A,D}=design(),first=cut(ship,hull,[112,28,0],[20,16,40]),second=cut(ship,hull,[93,28,0],[18,16,40]);C.refreshPlacementGeometry(ship);
+ const {ship,hull,A,D}=design(),first=cut(ship,hull,[111.5,28,0],[20,16,40]),second=cut(ship,hull,[93,28,0],[18,16,40]);C.refreshPlacementGeometry(ship);
  const S=grounding(ship);same([...S.severed].sort((a,b)=>a-b),[D.id,A.id].sort((a,b)=>a-b));assert.ok(!S.ungrounded.parts.includes(A.id)&&!S.ungrounded.parts.includes(D.id),'warnings, not red');
  const byPart=Object.fromEntries(S.severedCuts.map(r=>[r.partId,r.cutIds]));assert.ok(byPart[A.id].includes(first),'A: the cut under it');assert.ok(byPart[D.id].includes(second),'D: the cut under it');
  const d=S.placementDiagnostics.find(x=>x.partId===A.id);assert.equal(d.code,'severed');assert.ok(d.cutIds.includes(first));
@@ -80,7 +83,7 @@ test('a part touching only a severed neighbour is not grounded by it',()=>{
  const {ship,hull,A,D}=design();
  // A lifts off the deck (no cut): it is not severed, and D still grounds it through the contact graph.
  // Then cut under both: D and A are severed; nothing is grounded by them.
- cut(ship,hull,[112,28,0],[20,16,40]);cut(ship,hull,[93,28,0],[18,16,40]);C.refreshPlacementGeometry(ship);
+ cut(ship,hull,[111.5,28,0],[20,16,40]);cut(ship,hull,[93,28,0],[18,16,40]);C.refreshPlacementGeometry(ship);
  const S=grounding(ship);assert.ok(S.severed.includes(A.id)&&S.severed.includes(D.id));
  for(const q of [A,D]){const d=S.placementDiagnostics.find(x=>x.partId===q.id);assert.equal(d.connected,false);assert.equal(d.code,'severed');}
 });
@@ -139,7 +142,9 @@ test('a mirrored hull-owned cut on a hull off the centreline: the pair cache and
  const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'mirror');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0];
  const h2=JSON.parse(C.publicJSON(hull));h2.id=ship.nextId++;h2.c=[hull.c[0],hull.c[1],hull.c[2]+20];delete h2.primaryHull;h2.label='H2';h2.hullData={...h2.hullData,solidCuts:[],subs:[]};ship.parts.push(h2);ship._cache=null;C.refreshPlacementGeometry(ship);
  const H2=ship.parts.find(q=>q.label==='H2'),raw=C.rayPart([110,500,25],[0,-1,0],H2),hit={p:raw.p,n:C.norm(raw.n)},c=[hit.p[0],hit.p[1]+1.8,hit.p[2]];
- const d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',label:'S',c,s:[8,8,4],yaw:0,pitch:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:H2.id,hostId:H2.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);
+ /* 2026-11-13 user decision: no fitting. S is 5 m wide (was 8) so it lies within the mirrored cut (z 22..28): an untrimmed
+    8 m base, sunk to the lowest skin point at its edge, kept a real overlap with the deck strips left at z 21..22 and 28..29. */
+ const d=C.preparePlacementDraft(ship,{id:ship.nextId,k:'struct',form:'box',label:'S',c,s:[8,5,4],yaw:0,pitch:0,offsetX:0,offsetZ:0},{mode:'horizontal',parentStructureId:H2.id,hostId:H2.id,hit,contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);
  const S=ship.parts.find(q=>q.label==='S');assert.ok(C.structuralConnectivity(ship).adj.get(S.id).has(H2.id));
  // Drawn on the other side of H2's own centreline (local z -5); its mirror (local z +5) is under S.
  const local=[110,31.2,-5],id=ship.nextId++;H2.hullData.solidCuts.push(C.normalizeSolidCut({id,shape:'box',c:local,s:[20,8,6],rotation:[0,0,0],mirror:true,structures:false}));ship._cache=null;C.refreshPlacementGeometry(ship);
@@ -150,14 +155,14 @@ test('a mirrored hull-owned cut on a hull off the centreline: the pair cache and
 test('several edits in one refresh: the contact graph is rebuilt after each change, so the result equals later refreshes and a reload',()=>{
  const {ship,hull,A,D}=design();const X=placeOn(ship,hull,40,'X');
  // One refresh carries three cuts: under X, under D and under A.
- cut(ship,hull,[40,28,0],[20,16,40]);cut(ship,hull,[93,28,0],[18,16,40]);cut(ship,hull,[112,28,0],[20,16,40]);
+ cut(ship,hull,[40,28,0],[20,16,40]);cut(ship,hull,[93,28,0],[18,16,40]);cut(ship,hull,[111.5,28,0],[20,16,40]);
  C.refreshPlacementGeometry(ship);const look=s=>{const S=grounding(s);return JSON.stringify([X,D,A].map(q=>{const r=s.parts.find(z=>z.id===q.id);return [S.severed.includes(q.id),S.ungrounded.parts.includes(q.id),!!r._placementError];}));};
  const first=look(ship);for(let i=0;i<2;i++){ship._cache=null;C.refreshPlacementGeometry(ship);}same(look(ship),first,'later refreshes');same(look(C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))))),first,'reload');
  const S=grounding(ship);assert.ok(S.severed.includes(A.id)&&S.severed.includes(D.id),'A is not grounded through the severed D');
 });
 
 test('parts in a failure or still being solved carry nothing in the contact graph',()=>{
- const {ship,hull,A,D}=design();cut(ship,hull,[112,28,0],[20,16,40]);C.refreshPlacementGeometry(ship);assert.ok(C.structuralConnectivity(ship).connected.has(A.id),'A rests on D');
+ const {ship,hull,A,D}=design();cut(ship,hull,[111.5,28,0],[20,16,40]);C.refreshPlacementGeometry(ship);assert.ok(C.structuralConnectivity(ship).connected.has(A.id),'A rests on D');
  D._placementError='contact-zero';assert.equal(C.structuralConnectivity(ship).connected.has(A.id),false,'not through a failed D');delete D._placementError;
  D.placement.validationFailed=true;assert.equal(C.structuralConnectivity(ship).connected.has(A.id),false,'not through an unsolved D');
 });

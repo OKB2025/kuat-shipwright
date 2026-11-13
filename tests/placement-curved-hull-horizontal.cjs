@@ -54,10 +54,17 @@ test('the requested body keeps its outward faces and upright pose; the ship grow
  const outer=req.c[2]+req.s[1]/2,face=C.rayPart([req.c[0],req.c[1],h.W*5],[0,0,-1],r.part);assert.ok(face);assert.ok(Math.abs(face.p[2]-outer)<1e-4,'outer side face unchanged');
 });
 
-test('a structure with a real gap from the steep hull side is still refused (not grounded, not moved)',()=>{
+// 2026-11-13 user decision: no fitting; the user's own seat (a draft) brings the whole base down to the body along its
+// contact axis. A horizontal draft beside the steep wall has a vertical contact axis and a lateral gap: no column under
+// its footprint meets the hull, so the seat cannot close it and it is still refused, not moved (as before). A draft
+// lifted above the top is brought down by the seat and joined (until then it was refused with a placement error).
+test('a lateral gap from the steep hull side is still refused (not grounded, not moved); a gap above the top is closed by the seat',()=>{
  for(const spec of [CIGAR,ELLIPSE,undefined]){const h=C.newShip(spec,'new').hull,size=h.W*.25,r=place(spec,[h.L*.4,h.H*.5,h.W*5],[0,0,-1],{lift:[0,0,size*.5+h.W*.05]});
   assert.ok(r.part._placementError,'a floating structure keeps a placement error');assert.equal(r.ungrounded,true,'and is reported ungrounded');}
- const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{lift:[0,h.H*.6,0]});assert.ok(r.part._placementError);assert.equal(r.ungrounded,true);
+ const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{lift:[0,h.H*.6,0]});
+ assert.equal(r.part._placementError,undefined,'the seat closes the gap above the top');assert.equal(r.ungrounded,false);assert.equal(C.placementContact(r.ship,r.part,r.hull).connected,true);
+ // The same gap made afterwards (the hull moved down) is refused where the structure stands.
+ const c=JSON.stringify(r.part.c);r.hull.c=C.add(r.hull.c,[0,-h.H,0]);r.ship._cache=null;C.refreshPlacementGeometry(r.ship);assert.equal(JSON.stringify(r.part.c),c,'not moved');assert.ok(r.part._placementError,'a gap made afterwards is refused in place');
 });
 
 // Changed 2026-11-11 (user decision: buried structures, wholly buried ones included,

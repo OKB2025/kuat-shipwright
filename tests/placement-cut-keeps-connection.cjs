@@ -211,18 +211,23 @@ function placeInto(cutC,cutS,{mode='horizontal',hitX=110,cx=110,size=[6,4,4],lif
  assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));return {ship,hull,box:ship.parts.at(-1)};
 }
 const shapeOf=(s,b,h)=>({c:b.c.map(v=>+v.toFixed(2)),vol:+(b._placementGeometry?.volume??C.partVolume(b)).toFixed(2),contact:C.placementContact(s,b,h).connected,mass:+C.computeStats({...s,_cache:null}).mass.toFixed(2)});
+// 2026-11-13 user decision: no fitting. The box keeps its requested solid; the seat brings its whole base down to the
+// lowest surface under its footprint (here the recess or hole floor). Until then these expected origin/main's fitted
+// values (main: on the floor c 21.2 vol 76.8 mass 106193.05; hovering c 22.5 vol 108 mass 106306.93; tall c 25.2
+// vol 403.2 mass 106016.41; over a hole c 33.8 vol 655.13 mass 105283.93; beside c 33.18 vol 78.03 mass 106201.32).
+// Now: the requested volume, the seated centre, connected; mass is checked as live = reload = deferred (shapeOf).
 for(const [name,cc,cs,opts,expected] of [
- ['on a recess floor',[110,30,0],[20,6,20],{},{c:[110,21.2,0],vol:76.8,contact:true,mass:106193.05}],
- ['hovering 0.5 m above a recess floor (extends to the floor)',[110,30,0],[20,6,20],{lift:2.5},{c:[110,22.5,0],vol:108,contact:true,mass:106306.93}],
- ['tall in a narrow recess',[110,30,0],[20,6,20],{size:[6,12,4],lift:5.2},{c:[110,25.2,0],vol:403.2,contact:true,mass:106016.41}],
- ['over a small existing hole (fills it)',[110,31,0],[4,4,4],{hitX:104,size:[16,8,6],lift:1.8},{c:[110,33.8,0],vol:655.13,contact:true,mass:105283.93}],
- ['beside a recess',[110,30,0],[20,6,20],{hitX:123.5,cx:123.5},{c:[123.5,33.18,0],vol:78.03,contact:true,mass:106201.32}],
+ ['on a recess floor',[110,30,0],[20,6,20],{},{c:[110,21.2,0],vol:96,contact:true}],
+ ['hovering 0.5 m above a recess floor (seated on the floor)',[110,30,0],[20,6,20],{lift:2.5},{c:[110,22,0],vol:96,contact:true}],
+ ['tall in a narrow recess',[110,30,0],[20,6,20],{size:[6,12,4],lift:5.2},{c:[110,22,0],vol:288,contact:true}],
+ ['over a small existing hole (seated to the hole floor)',[110,31,0],[4,4,4],{hitX:104,size:[16,8,6],lift:1.8},{c:[110,32,0],vol:768,contact:true}],
+ ['beside a recess',[110,30,0],[20,6,20],{hitX:123.5,cx:123.5},{c:[123.5,33.18,0],vol:96,contact:true}],
 ])
- test(`placement into an existing recess matches origin/main: ${name}; live = reload = deferred`,()=>{
-  const {ship,hull,box}=placeInto(cc,cs,opts),live=shapeOf(ship,box,hull);same(live,expected,'as on main');
+ test(`placement into an existing recess: ${name}; live = reload = deferred`,()=>{
+  const {ship,hull,box}=placeInto(cc,cs,opts),live=shapeOf(ship,box,hull);same({c:live.c,vol:live.vol,contact:live.contact},expected,'seated, requested solid');
   const {L}=reload(ship),D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);
   same(shapeOf(L,L.parts.find(p=>p.id===box.id),L.parts[0]),live,'reload');same(shapeOf(D,D.parts.find(p=>p.id===box.id),D.parts[0]),live,'deferred');
-  assert.ok(Array.isArray(box.placement.fitRemovalIds)&&box.placement.fitRemovalIds.length===1,'the recess is recorded as part of the fitted parent');
+  assert.ok(Array.isArray(box.placement.fitRemovalIds)&&box.placement.fitRemovalIds.length===1,'the recess is recorded with the placement');
  });
 
 test('a design saved by origin/main with a box placed over an existing recess loads connected and unchanged',()=>{
@@ -249,9 +254,11 @@ test('a cut made after placing into a recess still does not re-fit the child (li
 for(const [name,lift,newC,newS,expected,severed=false] of [
  // Stage B (2026-11-13): the stored fitted shape is not re-fitted to the deepened floor; the box keeps its base
  // and, no longer touching, is severed by the edited cut (a warning, not a failure).
- ['deepen the recess by 2 m (hovering box)',2.5,[110,29,0],[20,6,22],{c:[110,22.5,0],contact:false},true],
+ // 2026-11-13 user decision: no fitting; the hovering draft is seated on the recess floor (c 22, was 22.5 with the fit
+ // reaching down), and the widened case keeps the requested 96 m3 (main fitted 108 m3, mass 107075.22).
+ ['deepen the recess by 2 m (hovering box)',2.5,[110,29,0],[20,6,22],{c:[110,22,0],contact:false},true],
  ['raise the recess floor by 1 m (box on the floor)',1.2,[110,30.5,0],[20,6,19],{c:[110,21.2,0],contact:true}],
- ['widen the recess (hovering box)',2.5,[110,30,0],[30,6,20],{c:[110,22.5,0],vol:108,contact:true,mass:107075.22}],
+ ['widen the recess (hovering box)',2.5,[110,30,0],[30,6,20],{c:[110,22,0],vol:96,contact:true}],
 ])
  test(`editing the recess a child was fitted into: ${name} — live = reload = main`,()=>{
   const ship=C.newShip(CIGAR,'recess edit');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],id=ship.nextId++;
@@ -271,15 +278,19 @@ test('id-less removals: deleting an earlier one or editing the fitted one re-sol
  const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+2.5,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
  const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const box=ship.parts.at(-1);
  assert.equal(box.placement.fitRemovalIds.length,2,'content-named ids');const fitted=box.placement.fitRemovalIds[1];/* the recess at x 100..120, under the box */assert.ok(box.placement.fitRemovalIds.every(id=>/^subs:#/.test(id)));
- const look=()=>({c:box.c.map(v=>+v.toFixed(4)),vol:+(box._placementGeometry?.volume??C.partVolume(box)).toFixed(4),err:box._placementError||null,contact:C.placementContact(ship,box,hull).connected,stats:[+statsOf(ship).mass.toFixed(3),+statsOf(ship).volume.toFixed(3),statsOf(ship).cost]});
- same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105945.301,135045.945,372662]},'placed (main)');
+ // 2026-11-13 user decision: no fitting. The draft is seated on the recess floor (c 22; with the fit main kept c 22.5 and
+ // extended the base). Ship figures were compared with main's fitted values (105945.301 / 105363.924 / 105181.203 t);
+ // they are now checked to be stable over a second refresh (no silent change), not against main.
+ const look=()=>({c:box.c.map(v=>+v.toFixed(4)),vol:+(box._placementGeometry?.volume??C.partVolume(box)).toFixed(4),err:box._placementError||null,contact:C.placementContact(ship,box,hull).connected});
+ const stable=label=>{const a=statsOf(ship);C.refreshPlacementGeometry(ship);const b=statsOf(ship);same([a.mass,a.volume,a.cost],[b.mass,b.volume,b.cost],label+': figures stable');};
+ same(look(),{c:[110,22,0],vol:96,err:null,contact:true},'placed');stable('placed');
  hull.hullData.subs=hull.hullData.subs.slice(1);ship._cache=null;let r=C.refreshPlacementGeometry(ship);assert.ok(r.updated.includes(box.id),'re-solved');
- same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105363.924,135325.581,370378]},'earlier one deleted (main)');
+ same(look(),{c:[110,22,0],vol:96,err:null,contact:true},'earlier one deleted');stable('earlier one deleted');
  // Stage B (2026-11-13): the record of the removals the shape was fitted with is kept as written at the fit (a
  // re-solve writes nothing authored); the fitted recess keeps its content id, the deleted one stays listed.
  const ids=placementIds(box);assert.equal(ids.length,2);assert.ok(ids.includes(fitted),'the fitted recess keeps its content id after the earlier one is gone');
  hull.hullData.subs=[{structures:false,b:[100,21,-3,120,40,3]}];ship._cache=null;r=C.refreshPlacementGeometry(ship);assert.ok(r.updated.includes(box.id),'re-solved after the edit');
- // 2026-11-12: the raised floor no longer lifts the child (main: c y 23.5); it stays at 22.5, overlapping the floor.
- same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105181.203,135368.297,369671]},'fitted one edited (position kept)');
+ // 2026-11-12: the raised floor no longer lifts the child (main: c y 23.5); it stays where it is, overlapping the floor.
+ same(look(),{c:[110,22,0],vol:96,err:null,contact:true},'recorded one edited (position kept)');stable('recorded one edited');
 });
 function placementIds(b){return b.placement.fitRemovalIds||[];}
