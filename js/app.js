@@ -8616,14 +8616,22 @@ function hitcamEdge(mk,view,f,at,cross){
  if(view==='top'){for(let s=0;s<h;s++){const j=f===2?h-1-s:s;if(lit(i,j))return [i+.5,j+(f===2?1:0)];}return [i+.5,f===2?h:0];}
  for(let s=0;s<h;s++){const j=f===4?h-1-s:s;if(lit(i,j))return [i+.5,h-(j+(f===4?1:0))];}return [i+.5,f===4?0:h];
 }
+function hitcamFit(g,text,w){if(g.measureText(text).width<=w)return text;if(!(w>0))return '';let lo=0,hi=text.length;while(lo<hi){const m=(lo+hi+1)>>1;if(g.measureText(text.slice(0,m)+'…').width<=w)lo=m;else hi=m-1;}return text.slice(0,lo)+'…';}
 const hitcamEase=x=>x<0?0:x>1?1:x*x*(3-2*x);
 // Draws record rec on target profile p into a 2D context at progress k (0…1).
 function hitcamDraw(g,W,H,p,rec,k,o={}){
  g.clearRect(0,0,W,H);g.fillStyle='rgba(6,11,16,.9)';g.fillRect(0,0,W,H);g.strokeStyle='rgba(120,190,230,.35)';g.lineWidth=1;g.strokeRect(.5,.5,W-1,H-1);
  const f=rec.face,view=f>=4?'side':'top',mk=hitcamMask(p,view),fz=Math.max(9,Math.min(12,W/32)),font=`600 ${fz}px `+(getComputedStyle(document.body).fontFamily||'sans-serif');
- g.font=font;g.textBaseline='top';g.fillStyle='#9fd6ff';g.fillText(o.title||'被弾リプレイ',8,6);
- if(o.sub){g.fillStyle='#c9d3da';g.textAlign='right';g.fillText(o.sub,W-8,6);g.textAlign='left';}
- const top=fz+12,bot=fz*2+16,bw=W-24,bh=H-top-bot,asp=mk?mk.w/mk.h:(view==='top'?2.4:4),box=bw/bh>asp?{w:bh*asp,h:bh}:{w:bw,h:bw/asp};box.x=(W-box.w)/2;box.y=top+(bh-box.h)/2;
+ g.font=font;g.textBaseline='top';
+ // Title left, source right when both fit; otherwise the source takes a second
+ // line, or on a card too short for that, both share one line, each cut with an
+ // ellipsis (long ship names).
+ const tw=Math.max(1,W-16),title=o.title||'被弾リプレイ',sub=o.sub||'',crowded=!!sub&&g.measureText(title).width+fz+g.measureText(sub).width>tw,twoLines=crowded&&H-(fz*2+15)-(fz*2+16)>=48;
+ if(twoLines){g.fillStyle='#9fd6ff';g.fillText(hitcamFit(g,title,tw),8,6);g.fillStyle='#c9d3da';g.fillText(hitcamFit(g,sub,tw),8,fz+9);}
+ else{const t1=crowded?hitcamFit(g,title,Math.max(tw*.55,tw-fz-g.measureText(sub).width)):title;g.fillStyle='#9fd6ff';g.fillText(t1,8,6);
+  if(sub){g.fillStyle='#c9d3da';g.textAlign='right';g.fillText(crowded?hitcamFit(g,sub,Math.max(0,tw-fz-g.measureText(t1).width)):sub,W-8,6);g.textAlign='left';}}
+ // The drawing area keeps a minimum size so a short card never gives a negative box.
+ const top=fz+12+(twoLines?fz+3:0),bot=fz*2+16,bw=Math.max(16,W-24),bh=Math.max(16,H-top-bot),asp=mk?mk.w/mk.h:(view==='top'?2.4:4),box=bw/bh>asp?{w:bh*asp,h:bh}:{w:bw,h:bw/asp};box.x=(W-box.w)/2;box.y=top+(bh-box.h)/2;
  const cuts=p.sectionCuts||[.2,.4,.6,.8],si=rec.sec,a0=si>0?cuts[si-1]:0,a1=si<cuts.length?cuts[si]:1;
  // Hull silhouette, the struck section lit.
  g.save();g.imageSmoothingEnabled=true;if(mk){g.globalAlpha=.55;g.drawImage(mk.cv,box.x,box.y,box.w,box.h);g.globalAlpha=1;g.save();g.beginPath();g.rect(box.x+a0*box.w,box.y-2,(a1-a0)*box.w,box.h+4);g.clip();g.globalAlpha=.55;g.drawImage(mk.cv,box.x,box.y,box.w,box.h);g.restore();}
@@ -8680,7 +8688,13 @@ function hitcamStep(now){
  if(H.cur&&now-H.at>HITCAM_DUR*1000+500)H.cur=null;
  if(!H.cur){H.queue=H.queue.filter(q=>now-q.at<5000);const q=H.queue.shift();if(q){H.cur=q;H.at=now;H.last=now;}}
  if(!H.cur){show(false);return;}
- show(true);const cv=el.querySelector('canvas'),r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1),W=Math.max(1,Math.round(r.width*d)),Hh=Math.max(1,Math.round(r.height*d));if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh;}
+ show(true);const cv=el.querySelector('canvas'),r=cv.getBoundingClientRect();
+ // A card just unhidden has no layout yet (0×0 on the first frame after the battle opens):
+ // draw nothing and restart its clock, so the replay starts once the card has a size.
+ // A card that stays without a size (HUD folded away) for 3 s drops that replay so the queue moves on.
+ if(!(r.width>=8&&r.height>=8)){if(H.unsized==null)H.unsized=now;if(now-H.unsized>3000){H.cur=null;H.unsized=null;show(false);}else H.at=now;return;}
+ H.unsized=null;
+ const d=Math.min(2,window.devicePixelRatio||1),W=Math.max(1,Math.round(r.width*d)),Hh=Math.max(1,Math.round(r.height*d));if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh;}
  const g=localCanvas(cv.getContext('2d'));g.setTransform(d,0,0,d,0,0);const q=H.cur,k=Math.min(1,(now-H.at)/(HITCAM_DUR*1000)),B=trial.battle,src=q.rec.src!=null?B?.b.units.find(x=>String(x.id)===String(q.rec.src)):null;
  const title=q.role==='taken'?`被弾 · ${shipTag(q.u.name)}`:`命中 · ${shipTag(q.u.name)}`,sub=src?`${src.team!==q.u.team&&src.team?'敵 ':''}${shipTag(src.name)} から`:'';
  hitcamDraw(g,r.width,r.height,q.p,q.rec,k,{title,sub});
@@ -10146,7 +10160,7 @@ async function fleetAssetLoad(source,opts={}){
  if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);}}
  else if(cached)return cached.stats||opts.lite?cached:fleetAssetStats(cached);
  let payload=null,key=source,alias=null;
- if(source==='current'){const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
+ if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
  // An embarked design is a snapshot, independent of the current draft or the source save.
  else if(Rts.CRAFT[source]?.blueprint){payload={design:Rts.CRAFT[source].blueprint};}
  else if(source.startsWith('save:')){
@@ -10157,7 +10171,7 @@ async function fleetAssetLoad(source,opts={}){
   key='save:'+rec.id+'-'+rec.savedAt;if(source!==key)alias=source;
   if(!fleet.assets.has(key))payload={design:await unpack(rec.data)};
  }
- else if(source.startsWith('draft-')){const data=C.serialize(ship);if('draft-'+fleetHash(JSON.stringify(data))!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
+ else if(source.startsWith('draft-')){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);if('draft-'+fleetHash(JSON.stringify(data))!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
  // v21.2 An example in another side's paint ('arquitens#republic'): the same design, repainted.
  else if(/^[A-Za-z0-9_]+#(republic|neutral|dark|cis)$/.test(source)){if(!fleet.assets.has(key)){const [k0,paint]=source.split('#');payload={key:k0,paint};}}
  else if(!fleet.assets.has(key))payload={key:source};
@@ -10190,7 +10204,7 @@ async function fleetSetMode(mode){
  if(!fleet.battle)fleet.battle=C.fleetBattle([]);fleet.selected=fleetUnits()[0]?.id||null;
  if(view){view.off=[0,0,0];if(fleet.sceneCamera[mode])view.cam=fleet.sceneCamera[mode];else{view.cam.target=[0,0,0];view.cam.th=.85;view.cam.ph=mode==='tactical'?.0006:1.04;view.cam.ortho=mode==='tactical';}}
  fleetRender();try{fleet.saves=await Store.list();}catch(e){fleet.saves=[];}if(token!==fleet.modeToken)return;
- if(!fleetUnits().length){await fleetAdd('current',0);if(fleetUnits().length){await fleetAdd(mode==='review'?'imperial':'current',mode==='review'?0:1);}fleet.selected=fleetUnits().find(u=>u.team===0)?.id||fleetUnits()[0]?.id||null;}if(mode==='tactical'&&fleet.battle.phase==='execute')fleet.frame=C.fleetSample(fleet.battle.last,fleet.elapsed);fleetRender();fleetFit();
+ if(!fleetUnits().length&&ship){await fleetAdd('current',0);if(fleetUnits().length){await fleetAdd(mode==='review'?'imperial':'current',mode==='review'?0:1);}fleet.selected=fleetUnits().find(u=>u.team===0)?.id||fleetUnits()[0]?.id||null;}if(mode==='tactical'&&fleet.battle.phase==='execute')fleet.frame=C.fleetSample(fleet.battle.last,fleet.elapsed);fleetRender();fleetFit();
 }
 function fleetArrange(){
  const units=fleetUnits();if(fleet.mode==='review'){C.fleetFormation(units,fleet.form,fleet.gap,false);return;}
@@ -14532,7 +14546,7 @@ function voyHitReplay(uid, idx) {
  const w = voy.w, u = w?.units.get(uid), rec = u?.hitLog?.[idx];if (!rec) return;const el = $('#voySheet'), src = rec.src != null ? w.units.get(String(rec.src)) : null;
  el.hidden = false;el.innerHTML = `<div class="voy-sheet-card hitcam-card" role="dialog" aria-label="被弾リプレイ"><canvas class="hitcam-cv"></canvas><div class="vs-acts"><button type="button" class="btn sm" data-vhitplay>もう一度</button><button type="button" class="btn sm ghost" data-vhitclose>閉じる</button></div></div>`;
  voy.replay = {cv: el.querySelector('canvas'), u, rec, t0: performance.now(), title: `${u.side === 0 ? '' : '敵 '}${shipTag(u.name)} · 被弾 ${voyClock(rec.t)}`, sub: src ? `${src.side !== 0 ? '敵 ' : ''}${shipTag(src.name)} から` : ''};
- const loop = now => { const q = voy.replay; if (!q || el.hidden || !q.cv.isConnected) { voy.replay = null; return; } const r = q.cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1), W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d)); if (q.cv.width !== W || q.cv.height !== H) { q.cv.width = W; q.cv.height = H; } const g = localCanvas(q.cv.getContext('2d')); g.setTransform(d, 0, 0, d, 0, 0); hitcamDraw(g, r.width, r.height, q.u.p, q.rec, Math.min(1, (now - q.t0) / (HITCAM_DUR * 1000)), {title: q.title, sub: q.sub}); requestAnimationFrame(loop); };
+ const loop = now => { const q = voy.replay; if (!q || el.hidden || !q.cv.isConnected) { voy.replay = null; return; } const r = q.cv.getBoundingClientRect(); if (!(r.width >= 8 && r.height >= 8)) { q.t0 = now; requestAnimationFrame(loop); return; } const d = Math.min(2, window.devicePixelRatio || 1), W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d)); if (q.cv.width !== W || q.cv.height !== H) { q.cv.width = W; q.cv.height = H; } const g = localCanvas(q.cv.getContext('2d')); g.setTransform(d, 0, 0, d, 0, 0); hitcamDraw(g, r.width, r.height, q.u.p, q.rec, Math.min(1, (now - q.t0) / (HITCAM_DUR * 1000)), {title: q.title, sub: q.sub}); requestAnimationFrame(loop); };
  requestAnimationFrame(loop);
 }
 
