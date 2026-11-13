@@ -120,17 +120,17 @@ test('cuts through a recovered structure follow the cut rules, live = reload',()
   for(const row of live){assert.equal(row.error,null);assert.equal(row.connected,true,JSON.stringify(row));assert.equal(row.red,false);assert.equal(row.severed,false);}
   sameLook(look(reload(ship)),live,'ship-level cut: reload');closeStats(statsOf(reload(ship)),statsOf(ship),'ship-level cut');}
  // (b) a hull-only cut removing the hull except a 0.4 m slab at the centreline: the structures no longer touch
- // the cut hull but touch it without the cut, so the refresh classes them as severed (kept where they are, no
- // re-solve, no stored failure), exactly like the never-refused structures 58/59 on the same hull.
+ // the cut hull. 2026-11-13 user decision (no parent relation, no severed category): they are judged by contact
+ // alone, red, kept where they are (no re-solve), exactly like the never-refused structures 58/59 on the same hull.
  // Note: groundingStats then marks every one of these structures red (50/51/58/59 too), which is the same on
  // main b40b72d for 50/51/58/59; the recovered structures only have to behave like the others.
  {const ship=C.deserialize(saved()),hull=ship.parts[0],before=SUNK.map(id=>ship.parts.find(p=>p.id===id).c.slice());
   for(const z of [-25.2,25.2])C.hullOwnSolidCut(ship,hull,{id:ship.nextId++,shape:'box',c:[100,16,z],s:[260,60,50],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;
-  const r=C.refreshPlacementGeometry(ship),severedIds=r.severed.map(x=>x.partId);
-  for(const id of [...SUNK,58,59])assert.ok(severedIds.includes(id),'#'+id+' severed by the cut: '+JSON.stringify(r.severed));
-  assert.ok(!r.failed.some(f=>SUNK.includes(f.partId)),JSON.stringify(r.failed));
+  const r=C.refreshPlacementGeometry(ship),failedIds=r.failed.map(x=>x.partId);
+  for(const id of [...SUNK,58,59])assert.ok(failedIds.includes(id),'#'+id+' red by contact after the cut: '+JSON.stringify(r.failed));
+  assert.ok(!(r.severed||[]).length,'no severed category');
   const live=look(ship),S=grounding(ship),ref=[58,59].map(id=>({red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id)}));
-  for(const row of live){assert.equal(row.failed,false);assert.equal(row.error,null);assert.deepEqual({red:row.red,severed:row.severed},ref[0],'same as the never-refused structure 58: '+JSON.stringify(row));}
+  for(const row of live){assert.equal(row.failed,false);assert.equal(row.error,'contact-zero');assert.deepEqual({red:row.red,severed:row.severed},ref[0],'same as the never-refused structure 58: '+JSON.stringify(row));}
   SUNK.forEach((id,i)=>assert.deepEqual(ship.parts.find(p=>p.id===id).c,before[i],'not moved'));
   sameLook(look(reload(ship)),live,'hull cut: reload');}
 });

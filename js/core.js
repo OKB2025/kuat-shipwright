@@ -63455,6 +63455,10 @@ function structuralParentFirst(list){const byId=new Map(list.map(p=>[p.id,p])),d
 // (built examples, surface placements) keep their whole volume as before.
 function placementBuriedOnce(pt){const m=pt?.placement;return !!m&&!!m.mode&&m.mode!=='surface'&&m.parentStructureId!=null&&!isHullStructure(pt);}
 function placementSameShape(a,b){const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='id'&&!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;return JSON.stringify(canon(placementShape(a)))===JSON.stringify(canon(placementShape(b)));}
+// The requested solid a placed structure carries as its placement geometry (transport, early pick), built on the numeric
+// base a part without it uses (Float32 world base when ship cuts carve structures or it has openings). The same helper
+// builds it for a loaded structure (no solve), so live = reload.
+function placementStructureGeometry(ship,part){part._solidCutShip=ship;const carving=part._apertures?.length||(ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures),T=carving?unpiercedStructTriangles(part):placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);part._placementGeometry={local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
 function placementSinkToSurface(ship,part,parent,axis){
  const a=norm(axis),ref=Math.abs(a[1])<.9?[0,1,0]:[1,0,0],e1=norm(cross(a,ref)),e2=cross(a,e1),b=partAABB(part),corners=[];for(let i=0;i<8;i++)corners.push([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]);
  const pr=v=>[dot(v,e1),dot(v,e2),dot(v,a)],P=corners.map(pr),lo=[0,1,2].map(i=>Math.min(...P.map(q=>q[i]))),hi=[0,1,2].map(i=>Math.max(...P.map(q=>q[i]))),span=hi[2]-lo[2]+1,N=7;let depth=0,any=false;
@@ -63836,7 +63840,7 @@ function solvePlacement(ship,input,request={}){
  // it and a just-placed structure can be picked before the background survey (early-pick).
  // Built on the same numeric base a part without it uses (the Float32 world base structTriangles starts from when ship
  // cuts carve structures or the part has openings), so contact anchors are the same cold and warm (undo/redo test).
- if(mode!=='surface'&&!isHullStructure(part)){part._solidCutShip=ship;const carving=part._apertures?.length||(ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures),T=carving?unpiercedStructTriangles(part):placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);part._placementGeometry={local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
+ if(mode!=='surface'&&!isHullStructure(part))placementStructureGeometry(ship,part);
  // The solved (fitted) pose travels with the failure so a refresh can tell a part severed by a cut
  // (a warning, kept exactly as solved) from a real gap (a failure).
  // Stage B (2026-11-13, user report: a mirrored copy overlapping its deck was red): structures have no parent relation;
@@ -64055,10 +64059,10 @@ function refreshPlacementGeometry(ship,options={}){
  // placement packets. Legacy engines have no parent metadata to visit, but
  // their repaired body position must still reach the same generation.
  const embedded=syncEmbeddedEngineMachinery(ship);for(const id of embedded.updated)if(!ship.parts.find(p=>p.id===id)?.placement){updated.push(id);resolvedParts.push(id);}for(const row of embedded.failed)if(!ship.parts.find(p=>p.id===row.partId)?.placement){failed.push(row);resolvedParts.push(row.partId);}
- const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);if(p.placement.unresolvedParentId!=null&&p.placement.parentStructureId==null)placementAdoptContactParent(ship,p);const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
+ const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);/* stage B: no parent adoption (a lost parent stays as saved; contact alone judges the part) */const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
   const interior=explicitInteriorPlacement(p);
   let keepPose=!!p._placementAdoptKeepPose;delete p._placementAdoptKeepPose;
-  if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||interior&&meta.parentGeometryKey!==interiorEnvelopeKey(ship))){/* stage B: a refused exterior item is solved again when the user edits it, not when the body it was tapped on changes */meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;keepPose=!meta.root&&!meta.newPlacement&&Array.isArray(meta.parentLocalAnchor);}
+  if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||interior&&meta.parentGeometryKey!==interiorEnvelopeKey(ship)||meta.newPlacement&&parent&&meta.parentGeometryKey!==placementDependencyKey(parent))){/* a refused new draft (the user's unfinished placement) is retried when the body it was tapped on changes *//* stage B: a refused exterior item is solved again when the user edits it, not when the body it was tapped on changes */meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;keepPose=!meta.root&&!meta.newPlacement&&Array.isArray(meta.parentLocalAnchor);}
   if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent,{keepPose});graphCache.graph=null;if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[placementRefusalKey(ship,p,parent)];failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   // A refused structure is re-checked whenever it has not been solved for its current public state
   // (placementRefusalKey): a fresh copy (load, import, new Worker ship), or a patch that brought back an
@@ -64078,12 +64082,15 @@ function refreshPlacementGeometry(ship,options={}){
   const structure=placementCapability(p).kind==='structure',sk=placementShapeKey(p),rk=placementRequestKey(p),selfChanged=!!p._placementSelfKey&&p._placementSelfKey!==sk,requestChanged=!!p._placementRequestKey&&p._placementRequestKey!==rk;
   if(meta.materializedAttachment)placementRestoreMaterialized(p);
   else if((selfChanged||requestChanged)&&!meta.root){/* a root is placed on the ship itself; its edits are the editor's (never re-solved here) */
+   delete p._placementError;delete p._placementLoose;/* judged afresh: a red mark from the last pass must not keep it out of the contact graph */
    let input={...placementShape(p),placement:meta};const request={...meta,keepTransform:!requestChanged,geometryRevision:(meta.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||0};
    if(structure&&meta.mode==='surface'){for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];input.placement={...meta};for(const key of ['contactFit','contactOffset','contactAxis'])delete input.placement[key];}
    if(requestChanged&&!selfChanged)input={...placementShape(meta.requestedGeometry),id:p.id,placement:meta};
-   const r=!parent?placementFailure('parent-required','追加元の面を選び直してください'):legacyExteriorShieldAttachment(input)?solveExteriorEquipmentPlacement(ship,placementShape(input),request,{...publicCopyOf(meta),geometryRevision:request.geometryRevision,requestedGeometry:placementShape(input)},{old:meta,existing:p,inputKey:placementShapeKey(p)}):solvePlacement(ship,input,request);
-   if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];if(!Object.hasOwn(r.part,'surfaceNormal'))delete p.surfaceNormal;Object.assign(p,r.part);delete p._placementError;delete meta.repairRequired;updated.push(p.id);}
-   else if(structure&&r.code==='contact-zero'){/* edited where it touches nothing: kept where the user put it, judged by the contact graph (red) */delete p._placementGeometry;meta.requestedGeometry=placementShape(p);}
+   // A structure with no tapped body (a copy whose source body was not copied) is kept exactly where the user put it:
+   // its request becomes the new shape and the contact graph judges it (no sink without a body to sink to).
+   const r=!parent&&structure?{ok:false,code:'contact-zero',keepAsPut:true}:!parent?placementFailure('parent-required','追加元の面を選び直してください'):legacyExteriorShieldAttachment(input)?solveExteriorEquipmentPlacement(ship,placementShape(input),request,{...publicCopyOf(meta),geometryRevision:request.geometryRevision,requestedGeometry:placementShape(input)},{old:meta,existing:p,inputKey:placementShapeKey(p)}):solvePlacement(ship,input,request);
+   if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];if(!Object.hasOwn(r.part,'surfaceNormal'))delete p.surfaceNormal;Object.assign(p,r.part);delete p._placementError;delete p.placement.repairRequired;if(!parent)delete p.placement.unresolvedParentId;updated.push(p.id);}
+   else if(structure&&r.code==='contact-zero'){/* edited where it touches nothing, or with no tapped body: kept where the user put it, judged by the contact graph */delete p._placementGeometry;meta.requestedGeometry=placementShape(p);meta.geometryRevision=(meta.geometryRevision||0)+1;if(meta.mode!=='surface'&&!isHullStructure(p))try{placementStructureGeometry(ship,p);}catch(e){}}
    else{p._placementError=r.code;delete p._placementGeometry;meta.requestedGeometry=placementShape(p);meta.repairRequired=true;meta.repairReason=r.code;failed.push({partId:p.id,code:r.code});}
   }
   else if(meta.repairRequired&&!structure){p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}
@@ -64096,7 +64103,7 @@ function refreshPlacementGeometry(ship,options={}){
    p._placementParentKey=placementDependencyKey(parent);}
   else if(!structure){const contact=placementEquipmentAnyContact(ship,p);if(contact.connected)delete p._placementError;else{p._placementError=contact.reason||'contact-zero';failed.push({partId:p.id,code:p._placementError});}}
   else if(meta.repairRequired&&!PLACEMENT_CONTACT_CODES.has(meta.repairReason)){p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}
-  else delete p._placementError;/* a kept structure: the contact graph judges it */
+  else{delete p._placementError;if(!p._placementGeometry&&meta.mode!=='surface'&&!isHullStructure(p)&&!meta.root)try{placementStructureGeometry(ship,p);}catch(e){}}/* a kept structure: the contact graph judges it; a loaded one gets the same carried geometry as a solved one */
   p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(!p._placementError)delete p._placementSevered;
   active.delete(p.id);done.add(p.id);};
  try{const ids=options.ids==null?null:new Set(options.ids);
@@ -64112,7 +64119,7 @@ function refreshPlacementGeometry(ship,options={}){
   // A loose structure is reported (red) but keeps its pose, record and place in the graph (_placementLoose is derived).
   {const placed=ship.parts.filter(p=>p.placement&&isShapePart(p)&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p)));for(const p of placed)delete p._placementLoose;
    if(placed.length){const S={warnings:[]};groundingStats(ship,S);const red=new Set(S.ungrounded?.parts||[]);
-    for(const p of placed){if(p._placementError||p.placement.pendingGeometry||p.placement.validationFailed||!red.has(p.id))continue;p._placementLoose='contact-zero';failed.push({partId:p.id,code:p._placementLoose});}}}
+    for(const p of placed){if(p._placementError||p.placement.pendingGeometry||p.placement.validationFailed||!red.has(p.id))continue;p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});/* red like any refusal; a loose part grounds nothing, so leaving it out of the graph changes no other result */}}}
   if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);for(const q of fits.severed||[])severed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,severed,resolvedParts,resolvedFits};
 }
 function placementCopyClosure(ship,selection={}){
@@ -64456,7 +64463,7 @@ function normalizePlacementMetadata(value,part){
  if(out.rigidPose!=null){if(!out.rigidPose||typeof out.rigidPose!=='object'||Array.isArray(out.rigidPose))throw new Error('通常取付の姿勢が不正です');for(const key of ['offset','forward','up','direction'])if((key!=='direction'||out.rigidPose[key]!=null)&&(!Array.isArray(out.rigidPose[key])||out.rigidPose[key].length!==3||!out.rigidPose[key].every(Number.isFinite)||key!=='offset'&&len(out.rigidPose[key])<1e-8))throw new Error('通常取付の姿勢が不正です');}
  if(out.materializedGeometry){const checked=normalizeStructMesh(out.materializedGeometry);if(!checked.mesh)throw new Error('保持する実形状が不正です');out.materializedGeometry=checked.mesh;}
  // A fitted shape stored by an unreleased stage B build is ignored: structures are no longer fitted (2026-11-13).
- delete out.fittedGeometry;
+ delete out.fittedGeometry;/* stage B (contact only): a structure's saved contact-type repair state is obsolete; its contact is judged on every load */if((out.repairRequired||out.validationFailed)&&PLACEMENT_CONTACT_CODES.has(out.repairReason)&&part&&placementCapability(part).kind==='structure'&&!out.newPlacement){for(const key of ['repairRequired','repairReason','validationFailed','validationSourceKey'])delete out[key];}
  if(out.fitRemovalHashes!=null&&(typeof out.fitRemovalHashes!=='object'||Array.isArray(out.fitRemovalHashes)||!Object.values(out.fitRemovalHashes).every(v=>typeof v==='string')))delete out.fitRemovalHashes;
  if(out.anchorDimensions&&out.anchorDimensions.some(v=>v<=0))throw new Error('親寸法の基準値が不正です');
  if(!out.requestedGeometry||typeof out.requestedGeometry!=='object'||out.requestedGeometry.k!==part.k||publicJSON(out.requestedGeometry).length>2e6)throw new Error('配置の編集元形状が不正です');delete out.requestedGeometry.placement;return out;
@@ -65185,7 +65192,7 @@ function groundingStats(ship,S){
  // contact graph), not only its own parent; placed equipment still mounts on its parent.
  let graph=null;const contactGraph=()=>graph||(graph=structuralConnectivity(ship));
  const structureExplicit=p=>explicit(p)&&placementCapability(p).kind==='structure';
- const touch=(a,b)=>{if(explicit(a)){if(a._placementError)return false;if(structureExplicit(a)&&isShapePart(b))return !b._placementError&&!!contactGraph().adj.get(a.id)?.has(b.id);b._solidCutShip=ship;return placementEquipmentContact(ship,a,b).connected;}/* equipment touches any body at its seat (no parent relation) */if(explicit(b)&&isShapePart(a)){if(b._placementError)return false;if(structureExplicit(b))return !!contactGraph().adj.get(b.id)?.has(a.id);return placementContact(ship,b,a).connected;}if(!near(a,b))return false;if(a.k==='engine'||b.k==='engine'){const engine=a.k==='engine'?a:b,other=engine===a?b:a;return sm(engine).some(q=>nearSolid(other,q));}
+ const touch=(a,b)=>{if(explicit(a)){if(a._placementError)return false;if(structureExplicit(a)&&isShapePart(b))return !b._placementError&&!!contactGraph().adj.get(a.id)?.has(b.id);if(!isShapePart(b)||b.plate)return false;b._solidCutShip=ship;try{return placementEquipmentContact(ship,a,b).connected;}catch(e){return false;}}/* equipment touches any structure at its seat (no parent relation) */if(explicit(b)&&isShapePart(a)){if(b._placementError)return false;if(structureExplicit(b))return !!contactGraph().adj.get(b.id)?.has(a.id);return placementContact(ship,b,a).connected;}if(!near(a,b))return false;if(a.k==='engine'||b.k==='engine'){const engine=a.k==='engine'?a:b,other=engine===a?b:a;return sm(engine).some(q=>nearSolid(other,q));}
  // v24 Two structures touch only where their shapes do, not where their bounding boxes overlap: a thin slab lying
  // inside another structure's box but clear of its shape (a measured layer floating over a tower) is loose.
  if(isShapePart(a)&&isShapePart(b))return sm(a).some(q=>nearSolid(b,q))||sm(b).some(q=>nearSolid(a,q));return true;};
