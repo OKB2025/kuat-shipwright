@@ -50596,7 +50596,9 @@ function baseComputeStats(ship,options={}) {
   const hullBins=bins.slice(); bins.fill(0);
   const occupied=allOccupied(ship), physical=[...ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)),...occupied], material=structuralMaterial(ship),accepted=[], acceptedBounds=[];
   const inAccepted=p=>{for(let i=0;i<accepted.length;i++){const b=acceptedBounds[i];if(p[0]>=b[0]-1e-4&&p[0]<=b[3]+1e-4&&p[1]>=b[1]-1e-4&&p[1]<=b[4]+1e-4&&p[2]>=b[2]-1e-4&&p[2]<=b[5]+1e-4&&inPart(accepted[i],p))return true;}return false;};
-  const invalid=new Set(occupied.filter(p=>p._interiorPlacementError).map(p=>p.id));
+  // User decision 2026-11-13: exterior equipment (engines, sensors, command) that does not stand on its body (refused,
+  // e.g. the body moved away and it did not follow) is a warning and gives no performance: no thrust, no function.
+  const invalid=new Set(occupied.filter(p=>p._interiorPlacementError||p._placementError&&p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior').map(p=>p.id));
   for(let i=0;i<occupied.length;i++)for(let j=i+1;j<occupied.length;j++){
     const a=occupied[i],b=occupied[j];
     if((a.k==='machinery'&&(b.id===a.reactor||b.id===a.nozzle||a.sourcePartIds?.includes(b.id)||b.k==='machinery'))||(b.k==='machinery'&&(a.id===b.reactor||a.id===b.nozzle||b.sourcePartIds?.includes(a.id))))continue;
@@ -50659,7 +50661,7 @@ function baseComputeStats(ship,options={}) {
     else if (pt.k === 'engine') {
       engN++; Veng += V;
       const spec=resolveEngineSpec(pt,ship),source=ship.parts.find(r=>isReactor(r)&&r.id===spec.reactorId),path=enginePaths(ship).find(r=>r.nozzle===spec.machineryId);
-      let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id));
+      let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id))&&!invalid.has(pt.id)&&!(pt.placement&&info[pt.id].floating);/* user decision 2026-11-13: a placed engine that does not stand on its body gives no thrust */
       info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;
       if(ok){ventEng+=V;if(!countedMachinery.has(spec.machineryId)){countedMachinery.add(spec.machineryId);availableThrust+=spec.ratedThrustN;engineDemand+=spec.valid?spec.ratedInputW:0;}info[pt.id].powerRatio=1;}
     }
@@ -51394,7 +51396,7 @@ function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepIn
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
- const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
+ const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=structuralParentFirst(ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b))),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
  // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
  // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
@@ -63356,7 +63358,10 @@ function placementTranslationLimit(source,parent,hit,mode,side,target){
  return Math.max(0,Math.min(1,end));
 }
 function placementConstrainTranslation(ship,part,parent,hit,mode,side,old,request){
- if(request._skipContactClamp||request.hit||old.parentGeometryKey!==placementDependencyKey(parent)||old.contactFit!=='cut'||old.mode!==mode||old.parentStructureId!==parent.id||!old.requestedGeometry?.c)return null;
+ // Stage B high review H2: the authored start position is where the structure really is (it is never moved by a
+ // non-user re-solve), so the clamp does not depend on the saved parent key, which keeps the value of the last user seat
+ // (and is absent on copies). probe(0) still guards a start that does not solve against the current parent.
+ if(request._skipContactClamp||request.hit||old.contactFit!=='cut'||old.mode!==mode||old.parentStructureId!==parent.id||!old.requestedGeometry?.c)return null;
  const source=placementShape(old.requestedGeometry),shape=placementShape(part),target=part.c.slice(),start=source.c.slice();delete source.id;delete shape.id;delete source.c;delete shape.c;
  if(publicJSON(source)!==publicJSON(shape)||len(sub(target,start))<1e-9)return null;
  const authored={...placementShape(old.requestedGeometry),id:part.id},limit=placementTranslationLimit(authored,parent,hit,mode,side,target),distance=len(sub(target,start)),scale=Math.max(...part.s),margin=Math.max(1e-7,scale*1e-4)/distance;
@@ -63439,6 +63444,11 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 // probed on a grid over its footprint; it then overlaps the body on the higher side (counted once by the union).
 // The same shape and pose for the no-rewrite rule, whatever the key order and the defaults a load adds (0, false,
 // empty) or the id.
+// Stage B high review H1 (2026-11-13): a structure's overlap with the body it was placed on belongs to that body. The
+// union adds every placed part after the part it was placed on (its placement parent), keeping the usual order otherwise,
+// so a child's increment never includes its parent's material and the result does not depend on ids. Parts without a
+// placement parent (built examples, roots) keep exactly the previous order.
+function structuralParentFirst(list){const byId=new Map(list.map(p=>[p.id,p])),done=new Set(),out=[],visit=(p,stack)=>{if(done.has(p.id)||stack.has(p.id))return;stack.add(p.id);const parent=byId.get(p.placement?.parentStructureId);if(parent)visit(parent,stack);stack.delete(p.id);done.add(p.id);out.push(p);};for(const p of list)visit(p,new Set());return out;}
 // Stage B (no fitting, 2026-11-13): a wing, solar panel or plate placed horizontally/vertically on a parent is no longer cut
 // to the parent, so its buried root would be counted twice (parent material + its own). Like main (which cut it away),
 // it counts only the part outside what was already joined: its increment in the structural union. Unplaced parts
@@ -63583,8 +63593,13 @@ function solveExteriorEquipmentPlacement(ship,input,request,metadata,context){
  // placement (a tap, a drag, a new draft, another body chosen) seats it; any other re-solve (reload, Worker,
  // the body below moved, turned or resized) keeps its world pose and is judged where it stands.
  const kept=!(request.hit&&!request._storedHit)&&request.position==null&&!old.pendingGeometry&&!old.newPlacement&&!!old.rigidPose&&!!old.requestedGeometry&&parentId===old.parentStructureId;
- if(!request.hit&&(request.keepTransform||kept)&&old.rigidPose)anchor=sub(part.c,placementRigidVector(parent,old.rigidPose.offset));
- const surface=placementEquipmentSurface(ship,parent,metadata,anchor,normal,!request.hit&&!!surfaceId);if(!surface.ok)return surface;anchor=surface.p;normal=surface.n;
+ // Stage B high review H3: a kept fitting does not turn with the body, so its seat is found from its own world pose:
+ // along the world contact normal saved at the user's seat, from the part back to the body, re-projected onto the
+ // body's real surface. (Turning the saved body-local offset with the turned body would look for the seat elsewhere.)
+ let keptReproject=false;
+ if(kept&&!request.hit&&old.rigidPose&&Array.isArray(old.contactNormal)&&Array.isArray(old.contactLocalNormal)){const nW=norm(old.contactNormal),nL=norm(old.contactLocalNormal),off=old.rigidPose.offset,along=dot(off,nL),lateral=sub(off,mul(nL,along));normal=nW;anchor=sub(sub(part.c,mul(nW,along)),placementRigidVector(parent,lateral));keptReproject=true;}
+ else if(!request.hit&&(request.keepTransform||kept)&&old.rigidPose)anchor=sub(part.c,placementRigidVector(parent,old.rigidPose.offset));
+ const surface=placementEquipmentSurface(ship,parent,metadata,anchor,normal,keptReproject||!request.hit&&!!surfaceId);if(!surface.ok)return surface;anchor=surface.p;normal=surface.n;
  if(!request.hit&&!request.keepTransform&&!kept)part=placementApplyEquipmentPose(parent,part,old,anchor);
  if(!Array.isArray(part.c)||part.c.length!==3||!part.c.every(Number.isFinite))return placementFailure('placement-position','配置位置を有限の3座標で指定してください');
  if(isShapePart(part)){const checked=placementValidateSolid(part);if(!checked.ok)return checked;}else if(!Number.isFinite(part.d)||part.d<=0)return placementFailure('geometry-dimensions','機器の実寸を正の値で指定してください');
@@ -64216,7 +64231,7 @@ function remapPlacementCopy(part,mapping,options={}){
  if(options.point&&Array.isArray(options.sourceParts)&&Array.isArray(options.targetParts)){const old=options.sourceParts.find(p=>p.id===meta.parentStructureId),parent=options.targetParts.find(p=>p.id===lookup(meta.parentStructureId));if(old&&parent){const normal=meta.contactLocalNormal?placementWorldNormal(old,meta.contactLocalNormal):meta.contactNormal;for(const key of ['surfaceAnchor','parentLocalAnchor'])if(meta[key])meta[key]=localStruct(parent,options.point(worldStruct(old,meta[key])));if(parent.s)meta.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];if(normal){meta.contactNormal=options.rotate?options.rotate(normal):normal;meta.contactLocalNormal=placementLocalNormal(parent,meta.contactNormal);}if(meta.rigidPose)meta.rigidPose=placementEquipmentPose(parent,part,worldStruct(parent,meta.surfaceAnchor));}}
  // Interior equipment has no structure parent: a copy is anchored to the target ship's primary hull.
  const interior=placementCapability(part).space==='interior'&&meta.hostId!=null;if(interior&&options.interiorAnchor!=null)meta.hostId=options.interiorAnchor;
- for(const key of ['parentStructureId','hostId']){const id=meta[key];if(id==null||id==='hull'||key==='hostId'&&interior)continue;const next=lookup(id);if(next!=null)meta[key]=next;else if(!options.keepExternal){if(key==='parentStructureId')meta.unresolvedParentId=id;delete meta[key];if(key==='parentStructureId'){delete meta.root;part._placementError='parent-missing';}}}
+ for(const key of ['parentStructureId','hostId']){const id=meta[key];if(id==null||id==='hull'||key==='hostId'&&interior)continue;const next=lookup(id);if(key==='parentStructureId'&&next!=null&&next!==id){delete meta.fitRemovalIds;delete meta.fitRemovalHashes;}/* stage B high review L5: a copy on another body records that body's removals on its first solve */if(next!=null)meta[key]=next;else if(!options.keepExternal){if(key==='parentStructureId')meta.unresolvedParentId=id;delete meta[key];if(key==='parentStructureId'){delete meta.root;part._placementError='parent-missing';}}}
  if(meta.root&&options.detachRoots){delete meta.root;meta.unresolvedParentId=part.id;part._placementError='parent-required';}
  if(meta.hostSurfaceId){const mapped=surfaceRemapPatchId(meta.hostSurfaceId,{parts:typeof sourceMap?.entries==='function'?new Map(sourceMap):sourceMap},options.mirror||false);if(mapped)meta.hostSurfaceId=mapped;else delete meta.hostSurfaceId;}
  if(options.rotate)for(const key of ['contactOffset','contactAxis'])if(meta[key])meta[key]=options.rotate(meta[key]);
@@ -64229,6 +64244,9 @@ function reflectPlacementMetadata(source,out,ship,axis){
  // The fit axis lives in the part's own frame: the mirrored copy's is the source's world axis, reflected, in its own frame.
  {const fa=placementFitAxisWorld(source);if(fa)meta.fitAxis=norm(placementLocalNormal(out,reflect(fa)));else delete meta.fitAxis;}
  delete meta.fittedGeometry;// a field of an unreleased stage B build (structures are no longer fitted)
+ // Stage B high review L5: the removal bookkeeping describes the cuts of the body it was taken on. A mirror on the twin
+ // body records its own on its first solve.
+ if(target&&parent&&target!==parent){delete meta.fitRemovalIds;delete meta.fitRemovalHashes;}
  if(target&&parent){meta.parentStructureId=target.id;for(const key of ['surfaceAnchor','parentLocalAnchor'])if(sourceMeta[key])meta[key]=localStruct(target,point(worldStruct(parent,sourceMeta[key])));const n=sourceMeta.contactLocalNormal?placementWorldNormal(parent,sourceMeta.contactLocalNormal):sourceMeta.contactNormal;if(n){meta.contactNormal=reflect(n);meta.contactLocalNormal=placementLocalNormal(target,meta.contactNormal);}if(target.s)meta.anchorDimensions=[target.s[0],target.s[2],target.s[1]];
   if(sourceMeta.hostSurfaceId){const patches=surfacePatches(ship,true),patch=patches.find(p=>p.id===sourceMeta.hostSurfaceId),frames=patch?[{id:patch.baseId||patch.id.split('/')[0],u:patch.u,v:patch.v}]:null;meta.hostSurfaceId=surfaceRemapPatchId(sourceMeta.hostSurfaceId,{parts:new Map([[parent.id,target.id]])},axis===1?'y':'z',patches,frames)||sourceMeta.hostSurfaceId;}
  }else if(meta.root){delete meta.root;meta.unresolvedParentId=source.id;out._placementError='parent-required';}

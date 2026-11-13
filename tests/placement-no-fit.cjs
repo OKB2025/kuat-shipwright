@@ -104,3 +104,41 @@ for(const [name,extra] of [['wing',{k:'wing',form:'trap',s:[20,12,2],wing:{foil:
   const r=C.solvePlacement(ship,part,{mode:'horizontal',parentStructureId:1,position:part.c.slice(),hit,contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);
   const st=stats(ship),mv=st.info[id].materialVolume;assert.ok(mv<C.partVolume(r.part)-1e-6,'the buried root is not counted again');near(mv,st.volume-v0,1e-6*Math.max(1,st.volume));
  });
+
+// ---- Stage B Opus/high review (2026-11-13) ----
+// H1: the overlap with the body a part was placed on is counted once and does not depend on ids or the parent's mode.
+{
+ const WING={k:'wing',form:'trap',s:[20,12,2],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}},PLATE={k:'struct',form:'box',plate:true,s:[30,20,1.5]},BOX={k:'struct',form:'box',s:[16,10,4]};
+ const stats=s=>{const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
+ const put=(ship,spec,id,parentId,mode,sinkBy)=>{const parent=ship.parts.find(p=>p.id===parentId),raw=C.rayPart([0,500,0],[0,-1,0],parent),hit={p:Array.from(raw.p),n:Array.from(C.norm(raw.n))},part={id,c:[0,raw.p[1]+spec.s[2]/2-sinkBy,0],yaw:0,pitch:0,...structuredClone(spec)};
+  const req=mode==='surface'?{mode,parentStructureId:parentId,hit,position:part.c.slice()}:{mode,parentStructureId:parentId,position:part.c.slice(),hit,contactFit:'cut',contactSide:'bottom'};const r=C.solvePlacement(ship,part,req);assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);};
+ const run=(pSpec,pId,pMode,cSpec,cId)=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'order');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]}],fits:[],hatches:[],links:[],groups:[],nextId:40,autoHabitation:false,detail:0});C.refreshPlacementGeometry(ship);
+  put(ship,pSpec,pId,1,pMode,0);const s0=stats(ship);put(ship,cSpec,cId,pId,'horizontal',0.5);const s1=stats(ship);return {child:s1.info[cId].materialVolume,parentDelta:s1.info[pId].materialVolume-s0.info[pId].materialVolume,ship:s1.volume-s0.volume,mass:s1.mass-s0.mass};};
+ for(const [name,args] of [['a box on a surface plate',[PLATE,10,'surface',BOX,31]],['a box on a horizontal plate',[PLATE,10,'horizontal',BOX,31]],['a wing on a surface wing',[WING,10,'surface',WING,31]]])
+  test(`H1: ${name} counts the overlap once (child material = added ship volume; parent unchanged)`,()=>{const r=run(...args);near(r.parentDelta,0,1e-6);near(r.child,r.ship,1e-6*Math.max(1,r.ship));});
+ test('H1: the result does not depend on whether the child id is smaller than the parent id',()=>{const a=run(WING,10,'surface',WING,5),b=run(WING,10,'surface',WING,31);near(a.child,b.child,1e-6);near(a.mass,b.mass,1e-6*Math.max(1,b.mass));});
+}
+// H2: the drag clamp works after the body changed and on a copy (the saved parent key is the last user seat, or absent).
+{
+ const fx=()=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'clamp');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
+  const parent=ship.parts[0],hit=C.rayPart([20,200,30],[0,-1,0],parent),c=[20,hit.p[1]+8,30],r=C.solvePlacement(ship,{id:2,k:'struct',form:'box',c,s:[16,16,16],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);return ship;};
+ const drag=(ship,id,dx)=>{const p=ship.parts.find(q=>q.id===id);p.c=[p.c[0]+dx,p.c[1],p.c[2]];ship._cache=null;const r=C.refreshPlacementGeometry(ship);return {x:p.c[0],failed:r.failed.length,err:p._placementError||null};};
+ test('H2: after the body was resized, dragging past its edge stops at the edge (still connected)',()=>{const s=fx();s.parts[0].s=[124,80,20];s._cache=null;C.refreshPlacementGeometry(s);const r=drag(s,2,100);assert.equal(r.err,null);assert.ok(r.x<75,`stopped at ${r.x}`);});
+ test('H2: a copy dragged past the edge stops at the edge',()=>{const s=fx(),o=JSON.parse(C.publicJSON(s.parts[1]));o.id=5;o.c=[o.c[0]-40,o.c[1],o.c[2]];C.remapPlacementCopy(o,new Map(),{keepExternal:true});s.parts.push(o);s.nextId=6;s._cache=null;C.refreshPlacementGeometry(s);const r=drag(s,5,-100);assert.equal(r.err,null);assert.ok(r.x>-75,`stopped at ${r.x}`);});
+}
+// H3 and the 2026-11-13 decision on floating exterior equipment.
+{
+ const fx=()=>{const s=C.newShip({L:200,W:100,H:100,assembly:true},'eq');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[50,0,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});
+  const h=C.rayPart([-100,0,0],[1,0,0],s.parts[0]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[-12,0,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:1,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(C.acceptPlacementResult(s,r).ok,true);return s;};
+ test('H3: an engine still touching its body after the body turned (yaw 180, face in the same plane) is accepted, live and reloaded',()=>{
+  const s=fx(),e=s.parts.find(p=>p.k==='engine'),c0=plain(e.c);s.parts[0].yaw=180;C.refreshPlacementGeometry(s);assert.equal(e._placementError??null,null);assert.deepEqual(plain(e.c),c0);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);assert.equal(L.parts.find(p=>p.k==='engine')._placementError??null,null);});
+ test('an engine left behind by its body (refused) is a warning and is not in the performance figures',()=>{
+  const s=fx(),e=s.parts.find(p=>p.k==='engine');s.parts[0].c=[80,0,0];C.refreshPlacementGeometry(s);assert.ok(e._placementError,'refused where it stands');
+  const st=C.computeStats(s);assert.notEqual(st.info[e.id]?.vent,true,'no thrust from a refused engine');});
+}
+test('refused placed engines on a powered example (cr90) give no rated thrust; unplaced example engines are unchanged',()=>{
+ const zlib=require('node:zlib'),fs=require('node:fs'),raw=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples/cr90/design.json.gz')))),mk=()=>C.deserialize(structuredClone(raw.design||raw.ship||raw));
+ const base=C.computeStats(mk());assert.ok(base.ratedThrustN>0);const s=mk();for(const e of s.parts.filter(p=>p.k==='engine')){e.placement={modelVersion:1,mode:'direct'};e._placementError={code:'surface-missing'};}
+ assert.equal(C.computeStats(s).ratedThrustN,0);
+});
