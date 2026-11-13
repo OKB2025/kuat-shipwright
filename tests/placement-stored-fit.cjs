@@ -160,3 +160,18 @@ test('stored meshes keep outward faces: positive signed volume for the source an
  const saved=structuredClone(C.serialize(ship)),raw=saved.parts.find(p=>p.id===2);raw.placement.fittedGeometry.f=raw.placement.fittedGeometry.f.slice(0,-3);
  const L=C.deserialize(saved),r=L.parts.find(p=>p.id===2);C.refreshPlacementGeometry(L);assert.ok(r.placement.fittedGeometry&&C.placementFittedSolid(r.placement.fittedGeometry),'dropped and fitted once again');near(C.partVolume(r),C.partVolume(part),1e-6);
 });
+
+// High review 2026-11-13: F1, a copy at another place on the same body (requestedGeometry rewritten to the copy's
+// pose, as remapPlacementCopy / placementArrayPart do) is fitted anew there; F2, a twin mirrored from a source
+// resized but not yet re-solved does not take the source's pre-resize record.
+test('a copy at another place on the same body is fitted anew there, not given the source solid',()=>{
+ const {ship,part}=fixture(),o=JSON.parse(C.publicJSON(part));o.id=7;o.c=[o.c[0],o.c[1],o.c[2]-50];o.placement.requestedGeometry.c=o.c.slice();o.placement.requestedGeometry.id=7;ship.parts.push(o);ship.nextId=8;C.refreshPlacementGeometry(ship);
+ const copy=ship.parts.find(p=>p.id===7),fresh=C.solvePlacement(ship,(q=>{delete q.placement;return q;})(JSON.parse(C.publicJSON(copy))),{mode:'horizontal',parentStructureId:1,position:copy.c.slice(),hit:(h=>({p:Array.from(h.p),n:Array.from(h.n)}))(C.rayPart([copy.c[0],200,copy.c[2]],[0,-1,0],ship.parts[0])),contactFit:'cut',contactSide:'bottom'});
+ assert.equal(fresh.ok,true,fresh.error);near(C.partVolume(copy),C.partVolume(fresh.part),1e-6);assert.notEqual(C.publicJSON(copy.placement.fittedGeometry),C.publicJSON(part.placement.fittedGeometry));
+});
+test('a twin mirrored from a resized source is fitted anew, not given the pre-resize solid',()=>{
+ // As the editor does (editSel → assignMirror): an existing twin is rewritten from the mirrored source.
+ const {ship,part}=fixture(),twin=C.mirrorPart(part,ship);twin.id=5;ship.parts.push(twin);ship.nextId=6;part.tw=5;twin.tw=2;C.refreshPlacementGeometry(ship);
+ part.s=[16,16,26];const m=C.mirrorPart(part,ship);assert.equal(m.placement.fittedGeometry,undefined,'the stale record is not reflected');
+ for(const k of Object.keys(twin))if(!k.startsWith('_'))delete twin[k];Object.assign(twin,m,{id:5,tw:2});C.refreshPlacementGeometry(ship);near(C.partVolume(twin),C.partVolume(part),1e-6);
+});
