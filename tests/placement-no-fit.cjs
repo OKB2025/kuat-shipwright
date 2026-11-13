@@ -18,7 +18,9 @@ function fixture(pitch=6){
 const surfaceY=(ship,x,z)=>C.rayPart([x,500,z],[0,-1,0],ship.parts[0]).p[1];
 
 test('a structure keeps its requested solid: no cut, no stored shape',()=>{
- const {part}=fixture();near(C.partVolume(part),SIZE[0]*SIZE[1]*SIZE[2],1e-6);assert.equal(part.placement.fittedGeometry,undefined);assert.equal(part._placementGeometry,undefined);
+ const {part}=fixture();near(C.partVolume(part),SIZE[0]*SIZE[1]*SIZE[2],1e-6);assert.equal(part.placement.fittedGeometry,undefined);
+ // The solve carries the requested solid itself as the placement geometry (transport, early pick): same volume and bounds.
+ assert.ok(part._placementGeometry);near(part._placementGeometry.volume,SIZE[0]*SIZE[1]*SIZE[2],1e-6*SIZE[0]*SIZE[1]*SIZE[2]);
 });
 
 test('the seat sinks the base until the whole footprint reaches the sloped body, and it is connected by overlap',()=>{
