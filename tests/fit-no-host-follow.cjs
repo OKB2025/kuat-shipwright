@@ -12,20 +12,20 @@ const pose=f=>plain({p:f.p,n:f.n,a:f.a,tilt:f.tilt??null,frameForward:f.frameFor
 
 for(const [name,edit] of [['moved',h=>{h.c=[105,10,4];}],['turned',h=>{h.yaw=20;}],['resized',h=>{h.s=[200,160,30];}]])
  test(`a host ${name}: the fitting keeps its world pose and record, and is judged where it stands`,()=>{
-  const s=fixture(),f=place(s),before=pose(f),record=C.publicJSON(f.placement);edit(s.parts[0]);C.refreshPlacementGeometry(s);C.remount(s);
+  const s=fixture(),f=place(s),before=pose(f),record=C.publicJSON(f.placement);edit(s.parts[0]);C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});
   assert.deepEqual(pose(f),before);assert.equal(C.publicJSON(f.placement),record);
   // A reload keeps it as well.
-  const L=C.deserialize(structuredClone(C.serialize(s)));C.remount(L);assert.deepEqual(pose(L.fits[0]),before);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.remount(L,{keepFitPose:true});assert.deepEqual(pose(L.fits[0]),before);
  });
 
 test('the host moved away leaves the fitting floating where it was; moved back, it is supported again',()=>{
- const s=fixture(),f=place(s),before=pose(f);s.parts[0].c=[100,-30,0];C.refreshPlacementGeometry(s);C.remount(s);assert.deepEqual(pose(f),before);assert.equal(f.float,true);
- s.parts[0].c=[100,10,0];C.refreshPlacementGeometry(s);C.remount(s);assert.deepEqual(pose(f),before);assert.equal(f.float,false);
+ const s=fixture(),f=place(s),before=pose(f);s.parts[0].c=[100,-30,0];C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.deepEqual(pose(f),before);assert.equal(f.float,true);
+ s.parts[0].c=[100,10,0];C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.deepEqual(pose(f),before);assert.equal(f.float,false);
 });
 
 test('repeated remounts write nothing: no re-cast of the stored position (the Subjugator jitter)',()=>{
- const s=fixture();s.fits.push({id:9,k:'pd',p:[150,20,-40],n:[0,1,0],a:2,ped:.3});C.remount(s);const once=C.publicJSON(s.fits);for(let i=0;i<3;i++){C.remount(s);assert.equal(C.publicJSON(s.fits),once);}
- const L=C.deserialize(structuredClone(C.serialize(s)));C.remount(L);assert.deepEqual(plain(L.fits[0].p),[150,20,-40]);
+ const s=fixture();s.fits.push({id:9,k:'pd',p:[150,20,-40],n:[0,1,0],a:2,ped:.3});C.remount(s,{keepFitPose:true});const once=C.publicJSON(s.fits);for(let i=0;i<3;i++){C.remount(s,{keepFitPose:true});assert.equal(C.publicJSON(s.fits),once);}
+ const L=C.deserialize(structuredClone(C.serialize(s)));C.remount(L,{keepFitPose:true});assert.deepEqual(plain(L.fits[0].p),[150,20,-40]);
 });
 
 test('deleting the structure under a fitting moves it down its height axis onto the structure below',()=>{
@@ -37,5 +37,5 @@ test('deleting the structure under a fitting moves it down its height axis onto 
 test('deleting the structure under a fitting with nothing below leaves it where it is, floating (a warning)',()=>{
  const s=fixture();s.parts.push({id:2,k:'struct',form:'box',c:[260,10,0],s:[40,40,20]});s.nextId=3;C.refreshPlacementGeometry(s);
  const f=place(s,2,[260,20,0]),before=plain(f.p);const r=C.removeParts(s,[2]);assert.equal(r.ok,true);assert.equal(s.fits.length,1,'not deleted');assert.deepEqual(plain(s.fits[0].p),before);
- C.remount(s);assert.equal(s.fits[0].float,true);assert.deepEqual(plain(s.fits[0].p),before);
+ C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,true);assert.deepEqual(plain(s.fits[0].p),before);
 });

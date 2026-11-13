@@ -67,8 +67,10 @@ test('a structural batch uses existing dependent deletion and excludes every exp
  Object.assign(designUI,{space:'exterior'});st.sel=null;st.multi={parts:new Set(),fits:new Set()};
  `);
  const childId=r.run('child.part.id'),gunId=r.run('ship.fits[0].id');remove(r,'parts','struct');
- assert.equal(r.run('ship.parts.length'),0,'a support also scheduled for deletion is never retained as a reparenting destination');assert.equal(r.run('ship.fits.length'),0);assert.equal(r.run('undoStack.length'),1);
- assert.deepEqual(plain(r.run('previews.at(-1)[2]')),{parts:[1,2,childId],fits:[gunId]});
+ assert.equal(r.run('ship.parts.length'),0,'a support also scheduled for deletion is never retained as a reparenting destination');
+ // Stage C (user decision 2026-11-13): a weapon whose support is deleted with nothing below stays where it is, floating (a warning).
+ assert.equal(r.run('ship.fits.length'),1);assert.equal(r.run('ship.fits[0].host'),1);assert.equal(r.run('undoStack.length'),1);
+ assert.deepEqual(plain(r.run('previews.at(-1)[2]')),{parts:[1,2,childId],fits:[]});
  r.run('undo()');assert.equal(r.run(`ship.parts.find(p=>p.id===${childId}).placement.parentStructureId`),1);assert.equal(r.run(`ship.fits.find(f=>f.id===${gunId}).host`),1);
 });
 

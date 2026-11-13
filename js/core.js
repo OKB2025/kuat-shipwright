@@ -50275,7 +50275,7 @@ function baseMountFit(ship,f){
  normalizeFitMount(f);const d=fitSpec(f),fr=fitFrameOf(f),R=d.r,gun=d.cat==='w',flush=gun&&!fitHasPedestal(f),big=f.localMount||d.casemate||flush?Math.max(2,Math.min(6,R*.25)):Math.max(ship.hull.H,ship.hull.W,200)*2,h0=isAnchoredFit(f)?fitAttachmentHit(ship,f):rayEnv(ship,add(f.p,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});
  delete f._onPlate;if(!h0){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}if(h0.part?.plate){f.float=true;f._onPlate=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
  // Stage C: p is kept; the surface below must lie within FIT_SUPPORT_GAP_M of it along the fitting's up axis.
- if(!isAnchoredFit(f)&&Math.abs(dot(sub(h0.p,f.p),fr.up))>FIT_SUPPORT_GAP_M){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
+ if(!isAnchoredFit(f)&&ship._keepFitPose){if(Math.abs(dot(sub(h0.p,f.p),fr.up))>FIT_SUPPORT_GAP_M){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
  f.float=false;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
  let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=rayEnv(ship,add(q,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
 }
@@ -50526,11 +50526,15 @@ function fitClash(ship, f) {
 }
 // A client ship (the editor's copy) receives mounts and clipped volumes from
 // the background engine; it never recomputes them on the interface thread.
-function remount(ship) {
-  if(ship._client)return;
+// options.keepFitPose (stage C, 2026-11-13): load, reload and the Worker remount fittings without moving them: a
+// fitting keeps its stored position and is only judged (supported within FIT_SUPPORT_GAP_M, else floating). Building
+// a design and the editor's own seat, slide and twin actions call mountFit/remount without it and seat as before.
+function remount(ship,options={}) {
+  if(ship._client)return;const keep=ship._keepFitPose;if(options.keepFitPose)ship._keepFitPose=true;try{
   // Mounting never changes the hull, so one locked cache serves every fitting.
   syncAviationSurfaces(ship);const old=ship._lockedCache;ship._lockedCache=cache(ship);ship._rayLock={env:null,tris:new Map()};
   try{for (const f of ship.fits) mountFit(ship, f);}finally{if(old)ship._lockedCache=old;else delete ship._lockedCache;delete ship._rayLock;}
+  }finally{if(keep)ship._keepFitPose=keep;else delete ship._keepFitPose;}
 }
 function removeItem(ship, listName, id, mirror) {
   if(listName==='parts'&&!ship._placementDeleting){const part=ship.parts.find(p=>p.id===id),ids=[id];if(mirror&&part?.tw)ids.push(part.tw);return removeParts(ship,ids);}
@@ -51687,13 +51691,13 @@ function mountFitUnframed(ship,f){
   let p=f.p,n=f.n||AXES[f.a],host=f.host?ship.parts.find(q=>q.id===f.host):null,h=null;
   if(f.host&&!host){f.float=true;return f;}
   if(isAnchoredFit(f))h=fitAttachmentHit(ship,f);
-  else if(host&&f.local&&!fitPoseValid(f)){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
+  else if(host&&f.local&&!(ship._keepFitPose&&fitPoseValid(f))){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
   else h=rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:12,structOnly:true});
   // Command pods belong to exposed structure walls, never hull skins, roofs or armoured plating.
   const valid=isShapePart(h?.part)&&!h.part.plate&&Math.abs(dot(h.n,structFrame(h.part).up))<.65;
   if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;
   f.float=!valid;f.base=0;f.low=0;f.ped=0;
-  if(!valid)return f;if(!fitPoseValid(f)){f.p=h.p;f.n=h.n;}f._wallUp=structFrame(h.part).up;
+  if(!valid)return f;if(!(ship._keepFitPose&&fitPoseValid(f))){f.p=h.p;f.n=h.n;}f._wallUp=structFrame(h.part).up;
   if(isShapePart(h.part)&&!f.local){f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
   return f;
 }
@@ -64178,7 +64182,8 @@ function reflectPlacementMetadata(source,out,ship,axis){
 // a fitting has no parent. Its world pose (p, n, a, tilt, frameForward) is the user's and is decided only when the
 // user places, moves, seats or slides it. Remounting (load, reload, Worker, a host edited, moved, turned or resized)
 // keeps that pose and only judges where it stands: supported when the surface below lies within FIT_SUPPORT_GAP_M
-// of it (user decision 2026-11-12: a gap of a few cm counts as contact), else floating (a warning).
+// of it (user decision 2026-11-12: a gap of a few cm counts as contact), else floating (a warning). Anchored fittings
+// (placement.mode 'direct') never take their pose from the host; other fittings keep it under remount(ship,{keepFitPose}).
 const FIT_SUPPORT_GAP_M=.05;
 function fitPoseValid(f){return Array.isArray(f?.p)&&f.p.length===3&&f.p.every(Number.isFinite)&&Array.isArray(f.n)&&f.n.length===3&&f.n.every(Number.isFinite)&&len(f.n)>1e-8;}
 function isAnchoredFit(f){return !!(f?.placement&&FITS[f.k]&&f.placement.mode==='direct'&&f.placement.modelVersion===PLACEMENT_MODEL_VERSION);}
