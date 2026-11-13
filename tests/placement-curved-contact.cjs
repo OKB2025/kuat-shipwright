@@ -7,35 +7,34 @@ function closedPositive(part){const T=C.structTriangles(part),ids=new Map(),face
  assert.ok(signed>0,'the fitted material has outward winding and positive signed volume');for(const rows of edges.values()){assert.equal(rows.length,2,'every effective edge has two incident faces');assert.equal(rows[0][0],rows[1][1],'the two normals use opposite edge directions');}near(signed,C.partVolume(part),.002);assert.equal(C.meshTopology(faces).closed,true);
 }
 
-test('horizontal fitting reconstructs the real curved underside and preserves the authored roof',()=>{
- const ship=fixture(),before=C.publicJSON(ship),result=solve(ship);assert.equal(result.ok,true,result.error);assert.equal(result.contact.connected,true);closedPositive(result.part);
- for(const [x,z]of [[100,0],[96,-3],[104,2]]){const parent=C.rayPart([x,200,z],[0,-1,0],ship.parts[0]),bottom=C.rayPart([x,0,z],[0,1,0],result.part),top=C.rayPart([x,200,z],[0,-1,0],result.part);assert.ok(parent&&bottom&&top);near(bottom.p[1],parent.p[1]);near(top.p[1],80);}
- assert.ok(result.effectiveVolume>1000,'material below the authored contact plane is included in the actual volume');assert.equal(C.publicJSON(ship),before);
+// 2026-11-13 user decision: no fitting (no contact-face cut). Until then these tests checked the fitted underside that
+// followed the curved parent; now the requested box is kept whole, the seat sinks it until its whole base reaches the
+// body (the lowest surface point under the footprint), and it is joined by the overlap.
+test('a horizontal child on the curved parent keeps its requested box, its base reaching the lowest surface under it',()=>{
+ const ship=fixture(),before=C.publicJSON(ship),result=solve(ship);assert.equal(result.ok,true,result.error);assert.equal(result.contact.connected,true);assert.ok(result.contact.overlap);closedPositive(result.part);near(C.partVolume(result.part),1000,1e-6);
+ const b=C.partAABB(result.part);let lowest=Infinity;for(const x of [b[0]+1e-3,b[3]-1e-3])for(const z of [b[2]+1e-3,b[5]-1e-3]){const h=C.rayPart([x,200,z],[0,-1,0],ship.parts[0]);if(h)lowest=Math.min(lowest,h.p[1]);}
+ assert.ok(b[1]<=lowest+1e-3&&b[1]>=lowest-.1,`base ${b[1]} at the lowest surface ${lowest}`);near(b[4]-b[1],10);assert.equal(C.publicJSON(ship),before);
 });
-
-test('vertical curved fitting keeps the body upright and has the same real contact after lateral reflection',()=>{
- const results=[];for(const sign of [1,-1]){const result=solve(fixture(),{mode:'vertical',origin:[100,50,sign*150],direction:[0,0,-sign]});assert.equal(result.ok,true,result.error);closedPositive(result.part);const up=C.structFrame(result.part).up;near(up[0],0);near(up[1],1);near(up[2],0);results.push(result);}
- near(results[0].effectiveVolume,results[1].effectiveVolume,.002);near(results[0].contact.area,results[1].contact.area,.002);
+test('a vertical child keeps the body upright, whole, and the same contact after lateral reflection',()=>{
+ const results=[];for(const sign of [1,-1]){const result=solve(fixture(),{mode:'vertical',origin:[100,50,sign*150],direction:[0,0,-sign]});assert.equal(result.ok,true,result.error);closedPositive(result.part);near(C.partVolume(result.part),1000,1e-6*1000);assert.ok(result.contact.connected);const up=C.structFrame(result.part).up;near(up[0],0);near(up[1],1);near(up[2],0);results.push(result);}
+ near(C.partAABB(results[0].part)[2],-C.partAABB(results[1].part)[5],1e-6);
 });
-
-test('underside fitting reverses the contact side without reversing normals or changing curved material volume',()=>{
- const above=solve(fixture()),below=solve(fixture(),{origin:[100,-100,0],direction:[0,1,0]});assert.equal(above.ok,true,above.error);assert.equal(below.ok,true,below.error);assert.equal(below.part.placement.contactSide,'top');closedPositive(below.part);near(above.effectiveVolume,below.effectiveVolume,.002);near(above.contact.area,below.contact.area,.002);
+test('an underside child reverses the contact side and sits against the parent from below, whole',()=>{
+ const ship=fixture(),below=solve(ship,{origin:[100,-100,0],direction:[0,1,0]});assert.equal(below.ok,true,below.error);assert.equal(below.part.placement.contactSide,'top');closedPositive(below.part);near(C.partVolume(below.part),1000,1e-6);
+ // The parent's bottom is at y 30; the child hangs below it, its top reaching the highest skin point over its footprint.
+ const b=C.partAABB(below.part);let highest=-Infinity;for(const x of [b[0]+1e-3,b[3]-1e-3])for(const z of [b[2]+1e-3,b[5]-1e-3]){const h=C.rayPart([x,-200,z],[0,1,0],ship.parts[0]);if(h)highest=Math.max(highest,h.p[1]);}
+ assert.ok(b[4]>=highest-1e-3&&b[4]<=highest+.1,`top ${b[4]} at the highest underside point ${highest}`);
 });
-
-test('curved finite-parent overhang retains its authored underside beyond the real contact boundary',()=>{
- const ship=fixture(),result=solve(ship,{origin:[148,200,0],size:[20,20,30]});assert.equal(result.ok,true,result.error);closedPositive(result.part);
- const parent=ship.parts[0],contact=C.rayPart([145,0,0],[0,1,0],result.part),skin=C.rayPart([145,200,0],[0,-1,0],parent);assert.ok(contact&&skin);near(contact.p[1],skin.p[1]);assert.equal(C.rayPart([156,200,0],[0,-1,0],parent),null);
- const overhang=C.rayPart([156,0,0],[0,1,0],result.part);assert.ok(overhang);near(overhang.p[1],result.part.placement.requestedGeometry.c[1]-15);near(C.rayPart([156,200,0],[0,-1,0],result.part).p[1],result.part.placement.requestedGeometry.c[1]+15);
+test('curved finite-parent overhang keeps its requested box beyond the real contact boundary',()=>{
+ const ship=fixture(),result=solve(ship,{origin:[148,200,0],size:[20,20,30]});assert.equal(result.ok,true,result.error);closedPositive(result.part);near(C.partVolume(result.part),12000,1e-6*12000);
+ const parent=ship.parts[0],base=C.partAABB(result.part)[1],skin=C.rayPart([145,200,0],[0,-1,0],parent);assert.ok(skin);assert.ok(base<=skin.p[1]+1e-6,'the base reaches the skin');assert.equal(C.rayPart([156,200,0],[0,-1,0],parent),null);
+ const overhang=C.rayPart([156,0,0],[0,1,0],result.part);assert.ok(overhang);near(overhang.p[1],result.part.c[1]-15);near(C.rayPart([156,200,0],[0,-1,0],result.part).p[1],result.part.c[1]+15);
 });
-
-test('a cut through the curved parent and its child remains a real opening after fitting',()=>{
+test('a cut through the curved parent and its child remains a real opening',()=>{
  const ship=fixture();ship.solidCuts=[C.normalizeSolidCut({id:3,shape:'box',c:[104,50,0],s:[2,2,100],structures:true})];ship.parts[0]._solidCutShip=ship;ship.nextId=4;
- // Stage B (physics review 2026-11-13): the stored fitted record is the child's uncut solid and must be closed; the
- // ship cut carves it at run time like any other structure. The carved triangles are not checked edge by edge any
- // more: the ship-cut carving leaves T-junctions on main too (a plain carved box: 16 edges, a child with the cut added
- // after its fit: 49, /tmp/ks-verify/20261113-stageB/physfix/open.cjs); main passed here only because it baked the cut
- // into the fit. The opening itself is still required.
- const result=solve(ship);assert.equal(result.ok,true,result.error);const record={...result.part};delete record._solidCutShip;C.placementRestoreFitted(record,result.part.placement.fittedGeometry);closedPositive(record);assert.equal(C.rayPart([104,200,0],[0,-1,0],ship.parts[0]),null);assert.equal(C.rayPart([104,0,0],[0,1,0],result.part),null,'fitting cannot add a false floor across the cut');
+ // 2026-11-13 user decision: no fitting; the child is the requested box carved by the ship cut. The carved triangles are
+ // not checked edge by edge: the ship-cut carving leaves T-junctions on main too (a plain carved box: 16 edges).
+ const result=solve(ship);assert.equal(result.ok,true,result.error);assert.ok(C.partVolume(result.part)<1000,'the cut carves the child');assert.equal(C.rayPart([104,200,0],[0,-1,0],ship.parts[0]),null);assert.equal(C.rayPart([104,0,0],[0,1,0],result.part),null,'no false floor across the cut');
 });
 
 test('saved curved contact regenerates the same material, attachment and editable source',()=>{

@@ -63443,9 +63443,15 @@ function placementSameShape(a,b){const canon=v=>Array.isArray(v)?v.map(canon):v&
 function placementSinkToSurface(ship,part,parent,axis){
  const a=norm(axis),ref=Math.abs(a[1])<.9?[0,1,0]:[1,0,0],e1=norm(cross(a,ref)),e2=cross(a,e1),b=partAABB(part),corners=[];for(let i=0;i<8;i++)corners.push([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]);
  const pr=v=>[dot(v,e1),dot(v,e2),dot(v,a)],P=corners.map(pr),lo=[0,1,2].map(i=>Math.min(...P.map(q=>q[i]))),hi=[0,1,2].map(i=>Math.max(...P.map(q=>q[i]))),span=hi[2]-lo[2]+1,N=7;let depth=0,any=false;
- parent._solidCutShip=ship;part._solidCutShip=ship;
- for(let i=0;i<N;i++)for(let j=0;j<N;j++){const t=k=>1e-4+(1-2e-4)*k/(N-1),u=lo[0]+(hi[0]-lo[0])*t(i),v=lo[1]+(hi[1]-lo[1])*t(j),o=add(add(mul(e1,u),mul(e2,v)),mul(a,lo[2]-span)),hb=rayPart(o,a,part);if(!hb)continue;
-  const hp=rayPart(add(hb.p,mul(a,span)),mul(a,-1),parent);if(!hp)continue;any=true;depth=Math.max(depth,dot(sub(hb.p,hp.p),a));}
+ parent._solidCutShip=ship;part._solidCutShip=ship;const pb=partAABB(parent),far=len(sub(pb.slice(3),pb.slice(0,3)))+span+len(sub(b.slice(3),b.slice(0,3)));
+ // Each footprint sample is probed by two slightly offset rays and keeps the smaller gap: a ray that runs exactly along
+ // a mesh seam can slip between triangles and reach the body's far side. The grid is nudged off exact axes for the
+ // same reason.
+ const du=(hi[0]-lo[0])*1e-5+1e-7,dv=(hi[1]-lo[1])*1e-5+1e-7,gap=(u,v)=>{const o=add(add(mul(e1,u),mul(e2,v)),mul(a,lo[2]-span)),hb=rayPart(o,a,part);if(!hb)return null;
+  // The body below is probed from outside it (beyond its bounds on the part's side), so the first hit is its outer
+  // surface on that side; a base already in or overlapping the body gives a negative gap and is never moved.
+  const hp=rayPart(add(hb.p,mul(a,far)),mul(a,-1),parent);return hp?dot(sub(hb.p,hp.p),a):null;};
+ for(let i=0;i<N;i++)for(let j=0;j<N;j++){const t=k=>k===0?1e-4:k===N-1?1-1e-4:(k+.0137*(k%3))/(N-1),u=lo[0]+(hi[0]-lo[0])*t(i),v=lo[1]+(hi[1]-lo[1])*t(j),su=u<(lo[0]+hi[0])/2?1:-1,sv=v<(lo[1]+hi[1])/2?1:-1,g=[gap(u+su*du,v+sv*dv*.618),gap(u+su*du*.618,v+sv*dv)].filter(x=>x!=null);if(!g.length)continue;any=true;depth=Math.max(depth,Math.min(...g));}
  if(any&&depth>0)part.c=sub(part.c,mul(a,depth));
 }
 function placementGeometryTriangles(p){const g=p._placementGeometry;if(!g?.local)return null;const key=JSON.stringify([p.c,p.yaw,p.pitch,p.roll,p.surfaceNormal]);if(g.key===key)return g.tris;const T=new Float64Array(g.local.length);for(let i=0;i<T.length;i+=3)T.set(worldStruct(p,Array.from(g.local.slice(i,i+3))),i);g.key=key;return g.tris=T;}
@@ -63780,6 +63786,9 @@ function solvePlacement(ship,input,request={}){
    else if(!request.hit&&!request.position&&old.contactFit==='cut'&&old.contactOffset&&old.parentGeometryKey!==placementDependencyKey(parent)){let offset=old.contactOffset.slice();if(mode==='vertical'&&old.contactAxis){const a=Math.atan2(axis[2],axis[0])-Math.atan2(old.contactAxis[2],old.contactAxis[0]),c=Math.cos(a),s=Math.sin(a);offset=[offset[0]*c-offset[2]*s,offset[1],offset[0]*s+offset[2]*c];}part.c=add(hit.p,offset);}
    placementSinkToSurface(ship,part,parent,axis);
   }}
+ // A draft (pendingGeometry, a new placement) is the user's seat even when its first solve keeps the drafted pose: its
+ // whole base is brought down to reach the body here, in the solve (the Worker), not in the cheap draft preparation.
+ else if(mode!=='surface'&&(old.pendingGeometry||old.newPlacement)){const axis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);placementSinkToSurface(ship,part,parent,axis);}
  const constrained=mode!=='surface'&&contactFit==='cut'?placementConstrainTranslation(ship,part,parent,hit,mode,contactSide,old,request):null;if(constrained)return constrained;
  if(mode==='surface'){delete metadata.contactFit;delete metadata.contactOffset;delete metadata.contactAxis;}else{metadata.contactFit=contactFit;if(contactFit==='cut'){metadata.contactOffset=sub(part.c,hit.p);metadata.contactAxis=placementFitAxisWorld({...part,placement:metadata},hit.n)||(mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]));}}
  metadata.requestedGeometry=placementShape(part);metadata.parentStructureId=parentId;metadata.parentGeometryRevision=parent.placement?.geometryRevision??0;metadata.parentGeometryKey=placementDependencyKey(parent);metadata.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)metadata.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];delete metadata.unresolvedParentId;delete metadata.root;delete metadata.repairRequired;delete metadata.repairReason;metadata.contactNormal=hit.n.slice();metadata.contactLocalNormal=placementLocalNormal(parent,hit.n);metadata.contactSide=contactSide;metadata.parentPoseKey=placementPositionKey(parent);if(surfaceHintLost){const again=placementRebindSurface(ship,parent,hit);if(again)metadata.hostSurfaceId=again;else delete metadata.hostSurfaceId;}else if(surfaceId)metadata.hostSurfaceId=surfaceId;metadata.surfaceAnchor=localStruct(parent,hit.p);
@@ -63793,6 +63802,9 @@ function solvePlacement(ship,input,request={}){
  if(mode!=='surface'){metadata.fitRemovalIds=removalIds;if(freshFit||!metadata.fitRemovalHashes)metadata.fitRemovalHashes=Object.fromEntries(placementRemovalEntries(parent).filter(e=>removalIds.includes(e.id)).map(e=>[e.id,placementKeyHash(publicJSON(e.item))]));}
  else{delete metadata.fitRemovalIds;delete metadata.fitRemovalHashes;}
  {const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
+ // The structure's solid is its requested one; it is also given as the placement geometry, so a Worker result carries
+ // it and a just-placed structure can be picked before the background survey (early-pick).
+ if(mode!=='surface'&&!isHullStructure(part)){const T=placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);part._placementGeometry={local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
  // The solved (fitted) pose travels with the failure so a refresh can tell a part severed by a cut
  // (a warning, kept exactly as solved) from a real gap (a failure).
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});

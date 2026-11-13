@@ -85,7 +85,7 @@ test('a surface plate can be dragged along the side and sunk into the hull; save
 });
 
 // The same contact rule holds for structures on structures and in the other placement modes (user decision 2026-11-11).
-test('structure on structure: a rolled surface plate and a vertical-mode block sunk into a rotated parent are joined by the overlap; lifted copies are refused',()=>{
+test('structure on structure: a rolled surface plate and a vertical-mode block sunk into a rotated parent are joined by the overlap; a lifted copy is refused, a dragged block is seated',()=>{
  const ship=C.newShip({L:200,W:200,H:200,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[80,60,40],roll:20,yaw:15}];ship.fits=[];ship.nextId=2;const parent=ship.parts[0];
  const raw=C.rayPart([0,200,0],[0,-1,0],parent),hit={p:raw.p,n:C.norm(raw.n)};
  const plate=C.alignStructure({id:2,k:'struct',form:'box',c:[0,0,0],s:[30,20,2],yaw:0,pitch:0,roll:6},hit,'surface');
@@ -94,7 +94,10 @@ test('structure on structure: a rolled surface plate and a vertical-mode block s
  const side=C.rayPart([200,0,0],[-1,0,0],parent),n=C.norm(side.n),out=C.norm([n[0],0,n[2]]),c=C.add(side.p,C.mul(out,4));
  const block=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:c.slice()});
  assert.equal(block.ok,true,block.code);assert.equal(block.contact.connected,true);
- const away=C.add(side.p,C.mul(out,12)),far=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c:away,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:away});assert.equal(far.ok,false);
+ // 2026-11-13 user decision: the user's seat (a drag position) moves a vertical block along its contact axis until its
+ // whole base reaches the body, so a block dragged 12 m clear of the side is seated against it (until then: refused).
+ // The lifted surface plate above is not a seat (keepTransform) and is still refused.
+ const away=C.add(side.p,C.mul(out,12)),far=C.solvePlacement(ship,{id:3,k:'struct',form:'box',c:away,s:[10,10,10]},{mode:'vertical',parentStructureId:1,hit:{p:side.p,n},contactFit:'cut',position:away});assert.equal(far.ok,true,far.code);assert.equal(far.contact.connected,true);
 });
 
 // Overlap thresholds (docs/design-placement-v1.2.md, 重なりによる接触).

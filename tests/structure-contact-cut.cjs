@@ -20,28 +20,25 @@ function closedPositive(part){const T=C.structTriangles(part),vertices=new Map()
  assert.ok(signed>0,'cut material keeps outward winding');near(signed,C.partVolume(part),.003);assert.equal(C.meshTopology(faces).closed,true);for(const e of edges.values()){assert.equal(e.length,2,'each effective edge is closed');assert.equal(e[0][0],e[1][1],'paired faces have opposite edge directions');}
 }
 
-test('a gabled parent cuts only the overlapping child material, retaining its authored roof and world pose',()=>{
- const ship=fixture(),input=child(),before=C.publicJSON(ship),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.error);assert.equal(r.contact.connected,true);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);
- assert.deepEqual(plain(r.part.c),[0,10,0]);assert.equal(r.part.placement.contactFit,'cut');assert.deepEqual(plain(r.part.placement.requestedGeometry.c),[0,10,0]);near(r.requestedVolume,4000);near(r.effectiveVolume,3000);closedPositive(r.part);
- for(const x of [-8,-4,0,4,8]){const top=C.rayPart([x,100,0],[0,-1,0],r.part),bottom=C.rayPart([x,-30,0],[0,1,0],r.part);assert.ok(top&&bottom);near(top.p[1],20);near(bottom.p[1],10-Math.abs(x));assert.equal(C.inPart(r.part,[x,10-Math.abs(x)-1,0]),false,'the blue overlap is actually removed');assert.equal(C.inPart(r.part,[x,11-Math.abs(x),0]),true);}
+// 2026-11-13 user decision: no fitting (no contact-face cut). Until then the child was cut where it overlapped the
+// parent; now it keeps its requested box, joined by the overlap (the union counts the shared volume once).
+test('a gabled parent keeps the whole child box, overlapping its roof, with its authored roof and world pose',()=>{
+ const ship=fixture(),input=child(),before=C.publicJSON(ship),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.error);assert.equal(r.contact.connected,true);assert.ok(r.contact.overlap);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);
+ assert.deepEqual(plain(r.part.c),[0,10,0]);assert.equal(r.part.placement.contactFit,'cut');assert.deepEqual(plain(r.part.placement.requestedGeometry.c),[0,10,0]);near(r.requestedVolume,4000);near(C.partVolume(r.part),4000);closedPositive(r.part);
+ for(const x of [-8,-4,0,4,8]){const top=C.rayPart([x,100,0],[0,-1,0],r.part),bottom=C.rayPart([x,-30,0],[0,1,0],r.part);assert.ok(top&&bottom);near(top.p[1],20);near(bottom.p[1],0);assert.equal(C.inPart(r.part,[x,10-Math.abs(x)-1,0]),true,'the overlap with the roof is kept');}
 });
-
-test('explicit world position wins over a catalogue input center without lifting the requested cut body',()=>{
- const ship=fixture(),input=child([30,40,50]),r=solve(ship,input,{position:[0,10,0]});assert.equal(r.ok,true,r.error);assert.deepEqual(plain(r.part.c),[0,10,0]);assert.deepEqual(plain(input.c),[30,40,50]);near(C.partVolume(r.part),3000);near(C.rayPart([0,100,0],[0,-1,0],r.part).p[1],20);
+test('explicit world position wins over a catalogue input center and keeps the requested body',()=>{
+ const ship=fixture(),input=child([30,40,50]),r=solve(ship,input,{position:[0,10,0]});assert.equal(r.ok,true,r.error);assert.deepEqual(plain(r.part.c),[0,10,0]);assert.deepEqual(plain(input.c),[30,40,50]);near(C.partVolume(r.part),4000);near(C.rayPart([0,100,0],[0,-1,0],r.part).p[1],20);
 });
-
-test('finite overhang keeps its requested bottom instead of adding a skirt down to a remote parent skin',()=>{
- const ship=fixture(),r=solve(ship,child([0,10,0],[40,10,20]));assert.equal(r.ok,true,r.error);near(r.requestedVolume,8000);near(r.effectiveVolume,7000);closedPositive(r.part);for(const x of [-15,15]){assert.equal(C.rayPart([x,100,0],[0,-1,0],ship.parts[0]),null);near(C.rayPart([x,-30,0],[0,1,0],r.part).p[1],0);near(C.rayPart([x,100,0],[0,-1,0],r.part).p[1],20);}
+test('finite overhang keeps its requested bottom and the whole requested body',()=>{
+ const ship=fixture(),r=solve(ship,child([0,10,0],[40,10,20]));assert.equal(r.ok,true,r.error);near(r.requestedVolume,8000);near(C.partVolume(r.part),8000);closedPositive(r.part);for(const x of [-15,15]){assert.equal(C.rayPart([x,100,0],[0,-1,0],ship.parts[0]),null);near(C.rayPart([x,-30,0],[0,1,0],r.part).p[1],0);near(C.rayPart([x,100,0],[0,-1,0],r.part).p[1],20);}
 });
-
-test('underside contact mirrors the same cut without changing the outer bottom or reversing material normals',()=>{
- const ship=fixture(gable(true)),input=child([0,-10,0]),hit=C.rayPart([-5,-100,0],[0,1,0],ship.parts[0]),r=solve(ship,input,{hit,contactSide:'top'});assert.equal(r.ok,true,r.error);assert.equal(r.part.placement.contactSide,'top');assert.deepEqual(plain(r.part.c),[0,-10,0]);near(C.partVolume(r.part),3000);near(C.rayPart([0,-100,0],[0,1,0],r.part).p[1],-20);near(C.rayPart([0,100,0],[0,-1,0],r.part).p[1],-10);closedPositive(r.part);
+test('underside contact keeps the whole mirrored body without reversing material normals',()=>{
+ const ship=fixture(gable(true)),input=child([0,-10,0]),hit=C.rayPart([-5,-100,0],[0,1,0],ship.parts[0]),r=solve(ship,input,{hit,contactSide:'top'});assert.equal(r.ok,true,r.error);assert.equal(r.part.placement.contactSide,'top');assert.deepEqual(plain(r.part.c),[0,-10,0]);near(C.partVolume(r.part),4000);near(C.rayPart([0,-100,0],[0,1,0],r.part).p[1],-20);near(C.rayPart([0,100,0],[0,-1,0],r.part).p[1],0);closedPositive(r.part);
 });
-
-test('vertical contact cuts the parent-facing side while preserving the upright body and outward face',()=>{
- const parent={...gable(),pitch:-90},ship=fixture(parent),input=child([10,0,0]),hit=C.rayPart([100,-5,0],[-1,0,0],parent),before=C.publicJSON(parent),r=solve(ship,input,{mode:'vertical',contactSide:'aft',hit});assert.equal(r.ok,true,r.error);assert.equal(C.publicJSON(parent),before);assert.deepEqual(plain(r.part.c),[10,0,0]);near(C.partVolume(r.part),3000);const up=C.structFrame(r.part).up;near(up[0],0);near(up[1],1);near(up[2],0);near(C.rayPart([100,1,.1],[-1,0,0],r.part).p[0],20);near(C.rayPart([-100,1,.1],[1,0,0],r.part).p[0],9);closedPositive(r.part);
+test('vertical contact keeps the parent-facing side, the upright body and the outward face',()=>{
+ const parent={...gable(),pitch:-90},ship=fixture(parent),input=child([10,0,0]),hit=C.rayPart([100,-5,0],[-1,0,0],parent),before=C.publicJSON(parent),r=solve(ship,input,{mode:'vertical',contactSide:'aft',hit});assert.equal(r.ok,true,r.error);assert.equal(C.publicJSON(parent),before);assert.deepEqual(plain(r.part.c),[10,0,0]);near(C.partVolume(r.part),4000);const up=C.structFrame(r.part).up;near(up[0],0);near(up[1],1);near(up[2],0);near(C.rayPart([100,1,.1],[-1,0,0],r.part).p[0],20);near(C.rayPart([-100,1,.1],[1,0,0],r.part).p[0],0);closedPositive(r.part);
 });
-
 // Changed 2026-11-11 (user decision: any genuine overlap is a contact, in every
 // placement mode). A parent ridge piercing the child's opposite skin is still
 // never cut through the authored roof and the child is never moved above it,
@@ -51,11 +48,13 @@ test('vertical contact cuts the parent-facing side while preserving the upright 
 // inside the parent is now grounded too (user decision 2026-11-11; the
 // inspection list warns about it); a body with a real gap is still rejected
 // atomically.
-test('a parent penetrating the opposite skin keeps the whole child in place (joined by the overlap); a buried body is joined; a gap is rejected atomically',()=>{
+test('a parent penetrating the opposite skin keeps the whole child in place (joined by the overlap); a buried body is joined; a raised body is seated',()=>{
  const ship=fixture(),before=C.publicJSON(ship);
  {const input=child([0,4.5,0],[20,10,9]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.code);assert.equal(r.contact.overlap,true);near(C.partVolume(r.part),20*10*9);assert.deepEqual(plain(r.part.c),[0,4.5,0],'not moved above the ridge');assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
  {const input=child([0,-5,0],[5,5,5]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.code);assert.equal(r.contact.whollyInside,true);near(C.partVolume(r.part),125);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
- {const input=child([0,16,0],[20,10,9]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,false);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
+ // 2026-11-13 user decision: the user's seat (this request has a position) sinks the body until its whole base reaches
+ // the parent, so the child requested 1 m above the ridge is seated down onto the eaves (base y 0) instead of refused.
+ {const input=child([0,16,0],[20,10,9]),source=C.publicJSON(input),r=solve(ship,input);assert.equal(r.ok,true,r.code);near(C.partAABB(r.part)[1],0,.01);assert.equal(C.publicJSON(ship),before);assert.equal(C.publicJSON(input),source);}
 });
 
 test('the whole child joined by the overlap is charged once: ship structural volume equals the union of parent and child',()=>{
@@ -68,21 +67,19 @@ test('the whole child joined by the overlap is charged once: ship structural vol
  const sampled=inside/(N[0]*N[1]*N[2])*20*20*10;assert.ok(Math.abs(sampled-withPart)<=withPart*.02,`sampled union ${sampled} vs structural volume ${withPart}`);
 });
 
-test('cut contact is a saved source contract and regenerates the same closed material after v3 reload',()=>{
- const ship=fixture(),r=solve(ship);assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const source=plain(accepted.part.placement.requestedGeometry),id=accepted.part.id,saved=plain(C.serialize(ship));assert.equal(saved.v,3);const loaded=C.deserialize(saved),part=loaded.parts.find(p=>p.id===id);assert.ok(part);assert.equal(part.placement.contactFit,'cut');assert.deepEqual(plain(part.placement.requestedGeometry),source);assert.deepEqual(plain(part.c),[0,10,0]);near(C.partVolume(part),3000);assert.equal(C.placementDiagnostics(loaded).find(q=>q.partId===id).connected,true);closedPositive(part);
+test('the placement is a saved source contract and regenerates the same closed body after v3 reload',()=>{
+ const ship=fixture(),r=solve(ship);assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const source=plain(accepted.part.placement.requestedGeometry),id=accepted.part.id,saved=plain(C.serialize(ship));assert.equal(saved.v,3);const loaded=C.deserialize(saved),part=loaded.parts.find(p=>p.id===id);assert.ok(part);assert.equal(part.placement.contactFit,'cut');assert.deepEqual(plain(part.placement.requestedGeometry),source);assert.deepEqual(plain(part.c),[0,10,0]);near(C.partVolume(part),4000);assert.equal(C.placementDiagnostics(loaded).find(q=>q.partId===id).connected,true);closedPositive(part);
 });
-
-test('height editing grows the top from 40m to 60m while keeping the real cut contact fixed',()=>{
- const ship=fixture(),r=solve(ship,child([0,20,0],[20,10,40]));assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,before=C.publicJSON(ship.parts[0]);near(C.partVolume(part),7000);
- assert.equal(C.resizeStructureHeightAtContact(part,60),true);assert.deepEqual(plain(part.c),[0,30,0]);near(part.s[2],60);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(ship.parts[0]),before);near(C.partVolume(part),11000);near(C.partVolume(part.placement.requestedGeometry),12000);
- for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,100,0],[0,-1,0],part).p[1],60);near(C.rayPart([x,-30,0],[0,1,0],part).p[1],10-Math.abs(x));}closedPositive(part);
- const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===part.id);assert.deepEqual(plain(saved.c),[0,30,0]);near(saved.s[2],60);near(C.partVolume(saved),11000);closedPositive(saved);
+test('height editing grows the top from 40m to 60m while keeping the base fixed',()=>{
+ const ship=fixture(),r=solve(ship,child([0,20,0],[20,10,40]));assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,before=C.publicJSON(ship.parts[0]);near(C.partVolume(part),8000);
+ assert.equal(C.resizeStructureHeightAtContact(part,60),true);assert.deepEqual(plain(part.c),[0,30,0]);near(part.s[2],60);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(ship.parts[0]),before);near(C.partVolume(part),12000);near(C.partVolume(part.placement.requestedGeometry),12000);
+ for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,100,0],[0,-1,0],part).p[1],60);near(C.rayPart([x,-30,0],[0,1,0],part).p[1],0);}closedPositive(part);
+ const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===part.id);assert.deepEqual(plain(saved.c),[0,30,0]);near(saved.s[2],60);near(C.partVolume(saved),12000);closedPositive(saved);
 });
-
-test('underside height editing grows downward while retaining the mirrored cut contact',()=>{
- const ship=fixture(gable(true)),hit=C.rayPart([-5,-100,0],[0,1,0],ship.parts[0]),r=solve(ship,child([0,-20,0],[20,10,40]),{hit,contactSide:'top'});assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,before=C.publicJSON(ship.parts[0]);near(C.partVolume(part),7000);
- assert.equal(C.resizeStructureHeightAtContact(part,60),true);assert.deepEqual(plain(part.c),[0,-30,0]);near(part.s[2],60);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(ship.parts[0]),before);near(C.partVolume(part),11000);near(C.partVolume(part.placement.requestedGeometry),12000);
- for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,-100,0],[0,1,0],part).p[1],-60);near(C.rayPart([x,30,0],[0,-1,0],part).p[1],-10+Math.abs(x));}closedPositive(part);
+test('underside height editing grows downward while keeping the top fixed',()=>{
+ const ship=fixture(gable(true)),hit=C.rayPart([-5,-100,0],[0,1,0],ship.parts[0]),r=solve(ship,child([0,-20,0],[20,10,40]),{hit,contactSide:'top'});assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,before=C.publicJSON(ship.parts[0]);near(C.partVolume(part),8000);
+ assert.equal(C.resizeStructureHeightAtContact(part,60),true);assert.deepEqual(plain(part.c),[0,-30,0]);near(part.s[2],60);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(ship.parts[0]),before);near(C.partVolume(part),12000);near(C.partVolume(part.placement.requestedGeometry),12000);
+ for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,-100,0],[0,1,0],part).p[1],-60);near(C.rayPart([x,30,0],[0,-1,0],part).p[1],0);}closedPositive(part);
 });
 
 test('dependency refresh clamps a translation away from the parent to the last real contact',()=>{
@@ -97,12 +94,11 @@ test('dependency refresh stops a lateral drag at the parent edge instead of leav
  const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),plain(part.c));near(C.partVolume(saved),C.partVolume(part));assert.equal(C.placementDiagnostics(loaded).find(q=>q.partId===id).connected,true);
 });
 
-test('dependency refresh permits a deeper valid cut without lifting the child roof back up',()=>{
+test('dependency refresh keeps a deeper position without lifting the child roof back up',()=>{
  const ship=fixture(),r=solve(ship);assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,id=part.id,before=C.publicJSON(ship.parts[0]),size=plain(part.s);part.c=[0,5,0];
- const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(part.id,id);assert.equal(C.publicJSON(ship.parts[0]),before);assert.deepEqual(plain(part.s),size);assert.deepEqual(plain(part.c),[0,5,0]);assert.deepEqual(plain(part.placement.requestedGeometry.c),[0,5,0]);near(C.partVolume(part.placement.requestedGeometry),4000,.003);near(C.partVolume(part),2000);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,100,0],[0,-1,0],part).p[1],15);near(C.rayPart([x,-30,0],[0,1,0],part).p[1],10-Math.abs(x));}closedPositive(part);
- const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),[0,5,0]);near(C.partVolume(saved),2000);closedPositive(saved);
+ const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(part.id,id);assert.equal(C.publicJSON(ship.parts[0]),before);assert.deepEqual(plain(part.s),size);assert.deepEqual(plain(part.c),[0,5,0]);assert.deepEqual(plain(part.placement.requestedGeometry.c),[0,5,0]);near(C.partVolume(part),4000,.003);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,100,0],[0,-1,0],part).p[1],15);near(C.rayPart([x,-30,0],[0,1,0],part).p[1],-5);}closedPositive(part);
+ const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),[0,5,0]);near(C.partVolume(saved),4000,.003);closedPositive(saved);
 });
-
 test('a translation stops at an opening instead of jumping across it to another valid contact',()=>{
  const parent=ringParent(),ship=fixture(parent),input=child([-10,4,0],[4,4,8]),hit=C.rayPart([-10,100,0],[0,-1,0],parent);near(C.partVolume(parent),7500);closedPositive(parent);const r=solve(ship,input,{hit});assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,before=C.publicJSON(parent),id=part.id;near(C.partVolume(part),128);
  // The destination is supported by the other side of the ring, but the
@@ -135,6 +131,7 @@ test('a concave outline can slide along real support and clamps at its final con
  const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),plain(part.c));assert.deepEqual(plain(saved.outline),outline);near(C.partVolume(saved),3000,.003);closedPositive(saved);
 });
 
-test('the authenticated Imperial forward center beam cuts a 180x110x60m child at the requested preview pose',()=>{
- const file='assets/source/imperial-ii-user-layout/imperial-ii-upload.json',bytes=fs.readFileSync(path.join(root,file)),manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/imperial-ii-user-layout/manifest.json')));assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),manifest.sourceSha256);const raw=JSON.parse(bytes),parent=raw.parts.find(p=>p.id===40);assert.equal(parent.label,'艦首中央の縦通装甲 1');const ship=fixture(parent),hit=C.rayPart([1056.12,1000,-2.81],[0,-1,0],parent);assert.ok(hit);const c=C.add(hit.p,[0,18,0]),input=child(c,[180,110,60]),before=C.publicJSON(parent),requested=180*110*60,r=solve(ship,input,{hit});assert.equal(r.ok,true,r.error);assert.equal(C.publicJSON(parent),before);assert.deepEqual(plain(r.part.c),plain(c));near(r.requestedVolume,requested);assert.ok(r.effectiveVolume>0&&r.effectiveVolume<requested);near(C.rayPart([hit.p[0],1000,hit.p[2]],[0,-1,0],r.part).p[1],c[1]+30,.0001);assert.equal(C.inPart(parent,parent.c),true);assert.equal(C.inPart(r.part,parent.c),false);closedPositive(r.part);
+test('the authenticated Imperial forward center beam keeps a 180x110x60m child whole at the requested preview pose',()=>{
+ const file='assets/source/imperial-ii-user-layout/imperial-ii-upload.json',bytes=fs.readFileSync(path.join(root,file)),manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/imperial-ii-user-layout/manifest.json')));assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),manifest.sourceSha256);const raw=JSON.parse(bytes),parent=raw.parts.find(p=>p.id===40);assert.equal(parent.label,'艦首中央の縦通装甲 1');const ship=fixture(parent),hit=C.rayPart([1056.12,1000,-2.81],[0,-1,0],parent);assert.ok(hit);const c=C.add(hit.p,[0,18,0]),input=child(c,[180,110,60]),before=C.publicJSON(parent),requested=180*110*60,r=solve(ship,input,{hit});assert.equal(r.ok,true,r.error);assert.equal(C.publicJSON(parent),before);// 2026-11-13: the seat sinks the requested body until its whole base reaches the beam (here 0.78 m); x and z stay.
+ near(r.part.c[0],c[0]);near(r.part.c[2],c[2]);assert.ok(r.part.c[1]<=c[1]+1e-9&&r.part.c[1]>c[1]-2,'sunk a little, not moved away');near(r.requestedVolume,requested);near(C.partVolume(r.part),requested,requested*1e-6);near(C.rayPart([hit.p[0],1000,hit.p[2]],[0,-1,0],r.part).p[1],r.part.c[1]+30,.0001);assert.equal(C.inPart(parent,parent.c),true);assert.ok(r.contact.overlap,'joined by the overlap (2026-11-13: no fitting; until then the overlap was cut away)');closedPositive(r.part);
 });

@@ -111,13 +111,17 @@ test('normal exterior installation preserves pose, validates finite physical siz
  s.parts.push({id:2,k:'gen',c:[3,10.92,0],d:4});assert.equal(C.solvePlacement(s,sensor,request).code,'placement-interference');assert.equal(C.solvePlacement(s,{...sensor,d:0},request).code,'geometry-dimensions');
 });
 
-test('an authored hull fitted as a child shares its effective skin, containment and hull material volume',()=>{
+// 2026-11-13 user decision: no fitting. Until then the hull child carried a fitted cache (_placementGeometry); now it
+// keeps its own hull solid, and its skin, containment and material volume must still agree.
+test('an authored hull placed as a child shares its skin, containment and hull material volume',()=>{
  const s=fixture({...box([80,80,20]),id:1,roll:10}),h={L:10,W:10,H:10,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1,bowFree:true,stations:[[0,1,1],[1,1,1]]},input={...box(),form:'hull',hullProfile:h,hullData:{cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[]}},child=add(s,1,'horizontal',[0,100,0],[0,-1,0],input),T=C.structTriangles(child),volume=C.meshVolume(T);
- assert.equal(C.isHullStructure(child),true);assert.ok(child._placementGeometry);near(C.partVolume(child),volume);near(C.hullStructureGeometry(s,child).volume,volume);near(C.computeStats(s).info[child.id].materialVolume,volume);assert.equal(C.inPart(child,[0,child.c[1],0]),true);const restored=C.deserialize(C.serialize(s)),p=restored.parts.find(p=>p.id===child.id);near(C.partVolume(p),C.meshVolume(C.structTriangles(p)));
+ assert.equal(C.isHullStructure(child),true);assert.equal(child._placementGeometry,undefined);near(C.partVolume(child),volume);near(C.hullStructureGeometry(s,child).volume,volume);near(C.computeStats(s).info[child.id].materialVolume,volume);assert.equal(C.inPart(child,[0,child.c[1],0]),true);const restored=C.deserialize(C.serialize(s)),p=restored.parts.find(p=>p.id===child.id);near(C.partVolume(p),C.meshVolume(C.structTriangles(p)));
 });
 
-test('changing the saved placement mode invalidates the fitted cache and restores the unchanged surface shape',()=>{
- const s=fixture({...box([80,80,20]),id:1,roll:10}),child=add(s);assert.ok(child._placementGeometry);child.placement.mode='surface';child.placement.contactSide='surface';const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child._placementGeometry,undefined);assert.ok(child.surfaceNormal);near(C.partVolume(child),1000);assert.equal(child.placement.mode,'surface');
+// 2026-11-13 user decision: no fitting; the horizontal child no longer has a fitted cache to invalidate (the check
+// assert.ok(child._placementGeometry) is gone); the mode change must still give the unchanged surface shape.
+test('changing the saved placement mode gives the unchanged surface shape',()=>{
+ const s=fixture({...box([80,80,20]),id:1,roll:10}),child=add(s);assert.equal(child._placementGeometry,undefined);child.placement.mode='surface';child.placement.contactSide='surface';const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child._placementGeometry,undefined);assert.ok(child.surfaceNormal);near(C.partVolume(child),1000);assert.equal(child.placement.mode,'surface');
 });
 
 test('horizontal wedge fitting keeps volume across ship scales and a translated coordinate origin',()=>{
