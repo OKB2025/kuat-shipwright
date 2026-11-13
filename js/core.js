@@ -63755,7 +63755,7 @@ function solvePlacement(ship,input,request={}){
  let part=placementShape(input);if(part.k==='struct'&&part.form==='hull'&&!part.hullProfile){if(!Array.isArray(part.s)||part.s.length!==3||!part.s.every(v=>Number.isFinite(v)&&v>0))return placementFailure('geometry-dimensions','船体の実寸を正の値で指定してください');const h={...publicCopyOf(ship.hull),L:part.s[0],W:part.s[1],H:part.s[2],assembly:false,bowFree:true};h.stations=[profileAt(h,0),profileAt(h,1)];part.hullProfile=h;part.hullData={cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[]};}const old=input.placement||{},parentId=request.parentStructureId??old.parentStructureId,hostId=request.hostId??old.hostId,existing=ship.parts.find(p=>p.id===input.id),inputKey=placementShapeKey(existing||input);
  if(mode!=='surface'&&part.surfaceNormal&&isShapePart(part)&&input.placement?.mode===mode){const f=structFrame(part),a=placementFrameAngles(f.fw,f.up);delete part.surfaceNormal;delete part._frame;part.yaw=a.yaw;part.pitch=a.pitch;part.roll=a.roll;}
  if(request.position!=null){if(!Array.isArray(request.position)||request.position.length!==3||!request.position.every(v=>Number.isFinite(v)&&Math.abs(v)<=DESIGN_LIMITS.coordinate))return placementFailure('placement-position','配置位置を有限の3座標で指定してください');part.c=request.position.slice();}
- const metadata={...publicCopyOf(old),modelVersion:PLACEMENT_MODEL_VERSION,mode,geometryRevision:request.geometryRevision??old.geometryRevision??0,requestedGeometry:placementShape(part)};for(const key of ['pendingGeometry','newPlacement','validationFailed','validationSourceKey','repairRequired','repairReason','severed'])delete metadata[key];
+ const metadata={...publicCopyOf(old),modelVersion:PLACEMENT_MODEL_VERSION,mode,geometryRevision:request.geometryRevision??old.geometryRevision??0,requestedGeometry:(q=>{delete q._geom;return q;})(placementShape(part))};/* the saved request never carries a geometry cache */for(const key of ['pendingGeometry','newPlacement','validationFailed','validationSourceKey','repairRequired','repairReason','severed'])delete metadata[key];
  if(cap.space==='interior'){
   delete metadata.hostSurfaceId;part.placement=metadata;const r=solveInteriorPlacement(ship,part,{...request,mode});if(!r.ok)return r;metadata.hostId=r.part.placement.hostId;r.part.placement=metadata;r.inputKey=inputKey;r.existingId=existing?input.id:null;return r;
  }
@@ -63864,7 +63864,7 @@ function solvePlacement(ship,input,request={}){
   // reload gives the same judgement as the live design (a save from before the record existed: migration).
   for(const key of PLACEMENT_AUTHORED_ANCHOR_KEYS){if(Object.hasOwn(old,key))metadata[key]=publicCopyOf(old[key]);else if(key!=='fitRemovalIds'&&key!=='fitRemovalHashes')delete metadata[key];}
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);part._placementFitRemovalKey=placementFitRemovalKey(part,parent);
- return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(metadata.requestedGeometry),effectiveVolume:partVolume(part)};
+ return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(placementShape(metadata.requestedGeometry)),effectiveVolume:partVolume(part)};/* measured on a copy: the stored request carries no geometry cache */
 }
 function acceptPlacementResult(ship,result,options={}){
  if(result?.entityKind==='fit'||result?.fit)return acceptFitPlacementResult(ship,result,options);
@@ -64118,9 +64118,9 @@ function refreshPlacementGeometry(ship,options={}){
   for(const p of ship.parts)if(p._placementError&&done.has(p.id)&&!failed.some(q=>q.partId===p.id))failed.push({partId:p.id,code:p._placementError});
   // Stage B contact-only judgment of placed structures: the same contact graph from the hull as 点検 (groundingStats).
   // A loose structure is reported (red) but keeps its pose, record and place in the graph (_placementLoose is derived).
-  {const placed=ship.parts.filter(p=>p.placement&&isShapePart(p)&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p)));for(const p of placed)delete p._placementLoose;
-   if(placed.length){const S={warnings:[]};groundingStats(ship,S);const red=new Set(S.ungrounded?.parts||[]);
-    for(const p of placed){if(p._placementError||p.placement.pendingGeometry||p.placement.validationFailed||!red.has(p.id))continue;p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});/* red like any refusal; a loose part grounds nothing, so leaving it out of the graph changes no other result */}}}
+  {const placed=ship.parts.filter(p=>p.placement&&isShapePart(p)&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))&&done.has(p.id));for(const p of placed)delete p._placementLoose;
+   if(placed.length&&options.ids==null){const S={warnings:[]};groundingStats(ship,S);/* a targeted refresh (ids) rebuilds its branch only; the next full refresh judges contact */const red=new Set(S.ungrounded?.parts||[]);
+    for(const p of placed){if(!done.has(p.id)||p._placementError||p.placement.pendingGeometry||p.placement.validationFailed||!red.has(p.id))continue;/* a targeted refresh marks only what it visited */p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});/* red like any refusal; a loose part grounds nothing, so leaving it out of the graph changes no other result */}}}
   if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);for(const q of fits.severed||[])severed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,severed,resolvedParts,resolvedFits};
 }
 function placementCopyClosure(ship,selection={}){
@@ -64225,7 +64225,13 @@ function removeParts(ship,inputIds){
  const extent=(q,a)=>{const B=bound(q),h=[0,1,2].map(i=>(B[i+3]-B[i])/2);return 2*(Math.abs(a[0])*h[0]+Math.abs(a[1])*h[1]+Math.abs(a[2])*h[2]);};
  const onRemoved=ship.parts.filter(p=>!removed.has(p.id)&&p.placement&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))&&removedStructs.some(q=>near(p,q,1e-3)&&touches(p,q)));
  const sinkDepth=(p,q,a)=>{const probe={...p,c:p.c.slice()};delete probe._placementGeometry;placementSinkToSurface(ship,probe,q,a);return dot(sub(p.c,probe.c),a);};
- for(const p of onRemoved){if(remaining.some(q=>q.id!==p.id&&near(p,q,1e-3)&&touches(p,q)))continue;const a=axisOf(p);if(!a)continue;
+ for(const p of onRemoved){const still=remaining.find(q=>q.id!==p.id&&near(p,q,1e-3)&&touches(p,q));
+  // Still touching another body: nothing moves. The delete (a user action) points its recorded tapped body and a nozzle
+  // foundation (derived support) at that body when theirs was removed.
+  if(still){const m=p.placement;if(removed.has(m.parentStructureId)){m.parentStructureId=still.id;m.parentGeometryRevision=still.placement?.geometryRevision||0;delete m.hostSurfaceId;reparented.push({list:'parts',partId:p.id,parentStructureId:still.id});}
+   if(p.engineMountSupport&&removed.has(p.engineMountSupport.parentId)){p.engineMountSupport={...p.engineMountSupport,parentId:still.id,sourceKey:engineSupportSourceKey(ship,p,still)};delete p._engineMountSupportGeometry;}
+   continue;}
+  const a=axisOf(p);if(!a)continue;
   const reach=Math.max(...removedStructs.filter(q=>near(p,q,1e-3)).map(q=>extent(q,a)))+PLACEMENT_TOLERANCES.coordinate*4;let best=null;
   if(placementCapability(p).kind==='structure'){for(const q of remaining){if(q.id===p.id)continue;const swept={...p,c:sub(p.c,mul(a,reach/2))};let B;try{B=partAABB(swept);}catch(e){continue;}const Q=bound(q),A0=bound(p);if(![0,1,2].every(i=>Math.min(A0[i],B[i])-reach<=Q[i+3]&&Math.max(A0[i+3],B[i+3])+reach>=Q[i]))continue;let d;try{d=sinkDepth(p,q,a);}catch(e){continue;}if(d>1e-9&&d<=reach&&(!best||d<best.d))best={d,q};}}
   else{const seat=add(p.c,mul(a,-1e-3)),h=rayEnv(ship,seat,mul(a,-1),{maxT:reach+extent(p,a),structOnly:true});if(h&&h.part&&!removed.has(h.part.id)&&isShapePart(h.part)){const before=p.c.slice(),probeDepth=dot(sub(p.c,h.p),a)-extent(p,a)/2;if(probeDepth>0&&probeDepth<=reach)best={d:probeDepth,q:h.part};p.c=before;}}
