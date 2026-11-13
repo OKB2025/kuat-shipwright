@@ -10678,6 +10678,9 @@ Object.assign(root.KS_EN.terms,{
  "閉じる（変更を適用）": "Close (apply the changes)",
  "「設置」を押してから、配置する面をタップしてください。": "Press Install first, then tap the surface to place on.",
  "中央に戻す（X）": "Center rudder (X)",
+ "水平・舵中央": "Level & midships",
+ "蓄熱": "Stored heat",
+ "水平に戻し、舵を中央に戻す（Z・X）": "Level the ship and center the rudder (Z, X)",
  "炉心負荷（使用中の電力÷現在の発電可能出力・全反応炉）": "Reactor load (power in use ÷ currently available generation, all reactors)",
  "機関は戦闘時の想定負荷（定格の35%）で表示します。冷却設備は排熱設備の定格消費電力です。": "Engines are shown at the load assumed in combat (35% of their rating). Cooling is the rated power draw of the heat dissipators."
 });

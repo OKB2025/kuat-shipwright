@@ -295,3 +295,33 @@ body.designer-ui #dock .design-edit-footer [data-design-action="edit-cancel"]{co
 .design-metrics>.design-power{grid-column:1/-1;display:block}
 .design-metrics>.design-power dd{font:inherit;margin-top:3px}
 body.designer-ui .design-metrics>.design-power{grid-template-columns:none}
+/* Trial / fleet piloting HUD layout (user request 2026-11-13): the helm column at the left edge, vertically centred
+   (throttle, speed bar, reactor load and stored heat side by side; the rudder bar with its arrows below), one
+   「水平・舵中央」 button beside the stick, the fire-control status small along the bottom edge, and the menu
+   buttons at the top right (the fixed power order has no button). */
+#trialHud .th-left{position:absolute;left:var(--th-gl);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;pointer-events:none;max-height:calc(100% - 120px)}
+#trialHud .th-left>.th-card{pointer-events:auto}
+#trialHud .th-left .th-pad{position:static;display:grid;grid-template-columns:auto 8px auto auto;grid-template-rows:minmax(0,1fr) auto;gap:6px 8px;padding:8px 10px;align-items:stretch}
+#trialHud .th-left .th-pad .th-dmid{grid-column:1/-1;grid-row:2;grid-area:auto;font:600 12px/1.2 var(--font-display);color:var(--hud-on);text-align:center;white-space:nowrap}
+#trialHud .th-left .th-load{grid-row:1}
+#trialHud .th-heatg .th-load-bar i{background:#e8a25c}#trialHud .th-heatg[data-level="wait"] .th-load-bar i{background:#f0c060}#trialHud .th-heatg[data-level="ng"] .th-load-bar i{background:#ff7a5c}
+#trialHud .th-heatg .th-load-full{display:none}
+#trialHud .th-left .th-rudderbar{position:static;transform:none;width:auto;min-width:0;display:flex;align-items:center;gap:6px;padding:4px 6px}
+#trialHud .th-left .th-rudderbar .th-rudder{flex:1 1 auto;min-width:96px}
+#trialHud .th-left .th-rudderbar .th-arrow{flex:none;width:34px;height:34px;font-size:15px}
+#trialHud .th-level{right:calc(var(--th-gr) + 146px);top:50%;bottom:auto;transform:translateY(-50%);min-height:30px;padding:4px 10px;white-space:nowrap}
+#trialHud .th-guns{font-size:10px;gap:6px;padding:2px 8px}#trialHud .th-guns .th-gmode{font-size:10px;padding:1px 6px}
+#trialHud .th-top{flex-wrap:nowrap}#trialHud .th-top .th-bar{flex:0 1 auto;min-width:0;max-width:none}#trialHud .th-actions{margin-left:auto;flex:0 1 auto;justify-content:flex-end}
+#trialHud .th-card.th-self{left:auto;right:var(--th-gr)}
+#trialHud:not(.spectate) .th-hitcam{left:50%;right:auto;transform:translateX(-50%)}
+@container ks (orientation:landscape) and (max-height:560px){
+ #trialHud .th-left{gap:5px;max-height:calc(100% - 70px)}
+ #trialHud .th-left .th-pad{gap:3px 6px;padding:5px 7px}
+ #trialHud .th-left .th-rudderbar .th-arrow{width:30px;height:28px}
+ #trialHud .th-level{right:calc(var(--th-gr) + 122px);top:calc(50% + 26px);padding:2px 9px;min-height:26px}
+ #trialHud .th-card.th-self{top:calc(var(--sa-top,0px) + 56px)}
+}
+@container ks (max-width:640px){
+ #trialHud .th-level{right:var(--th-gr);top:calc(50% + 70px);transform:none}
+ #trialHud .th-left .th-rudderbar .th-rudder{min-width:72px}
+}
