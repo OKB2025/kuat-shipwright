@@ -99,8 +99,8 @@ test('an Imperial-style example keeps its engine foundations and rooms equal to 
  if(carrier&&!C.isHullStructure(carrier)){carrier.c=[carrier.c[0],carrier.c[1]-.5,carrier.c[2]];derive(s);same(s,'carrier move',{stats:false});}
 });
 
-// Note: the parent-move / carried-child cases below are temporary. The user decided (2026-11-12) to
-// remove parent-child relations between structures in a later PR; drop or rewrite them then.
+// The parent-move case follows the user decision (2026-11-12, PR #97): a child structure does not follow its
+// parent, so moving the parent leaves the child where it is; the child is then moved by the user edit itself.
 // Review 2026-11-12: key coverage. Rotated and mirrored structures, a carried child that alone reaches a
 // room, a hatched hangar and a structure touching it, a sub added and removed, and a shape change that
 // changes a structure's bounds, each compared with a fresh load.
@@ -127,11 +127,14 @@ test('rotated, mirrored, carried-child, hatch, sub and shape edits equal a full 
  part(rotated.id).c=[204,66,2];derive(s);same(s,'rotated onto');part(rotated.id).yaw=60;derive(s);same(s,'rotated turn');part(rotated.id).c=[240,66,0];derive(s);same(s,'rotated away');
  // Mirrored pair moves together, as the editor moves a mirrored pair.
  for(const dx of [8,-14]){part(mirA.id).c=[part(mirA.id).c[0]+dx,66,10];part(mirB.id).c=[part(mirB.id).c[0]+dx,66,-10];derive(s);same(s,'mirrored pair '+dx);}
- // The parent moves; its child follows and alone leaves the room.
+ // The parent moves and its child stays (no parent follow); then the child is moved and alone leaves the room.
  const beforeChild=childClip(),childKey=part(rChild.id)._clipKey,outKey=part(rOut.id)._clipKey,outBox=C.partAABB(part(rOut.id)),childBox=C.partAABB(part(child.id));
  assert.ok(childBox[2]-outBox[5]>.1+1e-9&&outBox[1]>parentBox[4]+.1,'precondition: the second room is outside the 10 cm margin of the child and the parent');
+ const childC=part(child.id).c.slice();
  part(parent.id).c=[124,72,0];derive(s);same(s,'parent move');
- assert.ok(part(child.id).c[0]<128,'the child followed its parent');
+ assert.deepEqual(part(child.id).c,childC,'the child stays where it was placed when its parent moves');
+ part(child.id).c=[childC[0]-6,childC[1],childC[2]];derive(s);same(s,'child move');
+ assert.ok(part(child.id).c[0]<128,'the child moved');
  assert.notEqual(part(rChild.id)._clipKey,childKey,'the room only the child reached is re-clipped');void beforeChild;
  assert.equal(part(rOut.id)._clipKey,outKey,'the room 15 cm away (outside the margin) is not recomputed');
  // A sub (legacy box cut) added and removed changes every key. A cut renumbers semantic face ids, so

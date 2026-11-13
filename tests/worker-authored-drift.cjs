@@ -12,9 +12,10 @@ const {scenarios}=require('./helpers/authored-drift-scenarios.cjs');
 const ALLOWED={
  // Phase B (structure parent link). first: the Worker gets the design cold (reset) and re-solves the placed
  // child, which leaves floating-point noise (~6e-14) in placement.surfaceAnchor/contactOffset. edit: the root's
- // resize re-solves the child (geometryRevision, parentGeometryKey, parentPoseKey, anchorDimensions; c moves only
- // by noise). Checked value by value against main (high review 2026-11-12).
- 'root resized across, sunk child elsewhere':{first:[['parts',2,'changed','placement']],edit:[['parts',2,'changed','c,placement']]},
+ // resize re-solves the child (geometryRevision, parentGeometryKey, parentPoseKey, anchorDimensions). Checked
+ // value by value against main (high review 2026-11-12). Since PR #97 (a re-solve keeps the stored pose) the
+ // child's c no longer moves, so 'c' left this entry.
+ 'root resized across, sunk child elsewhere':{first:[['parts',2,'changed','placement']],edit:[['parts',2,'changed','placement']]},
  'unrelated structure moved':{first:[['parts',2,'changed','placement']],edit:[]},
  // Phase C (fit host-follow): the weapon follows its moved host.
  'weapon on a moved structure':{first:[],edit:[['fits',2,'changed','p,placement']]},
