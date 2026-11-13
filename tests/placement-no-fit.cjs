@@ -142,3 +142,17 @@ test('refused placed engines on a powered example (cr90) give no rated thrust; u
  const base=C.computeStats(mk());assert.ok(base.ratedThrustN>0);const s=mk();for(const e of s.parts.filter(p=>p.k==='engine')){e.placement={modelVersion:1,mode:'direct'};e._placementError={code:'surface-missing'};}
  assert.equal(C.computeStats(s).ratedThrustN,0);
 });
+
+// User report 2026-11-13 (screenshot, design 建造中): a mirrored copy that visibly overlaps its deck was red ("接地して
+// いない部品"). The deck under the original is one-sided and its mirrored counterpart is a separate part without a twin
+// link, so the mirror kept the original's deck as parent, which is not under the copy. Overlap with any structure is
+// the connection (no parent relation): the copy is accepted, live and after a reload.
+test('a mirrored copy over a separately built mirrored deck (no twin link) is connected, live and reloaded',()=>{
+ const s=C.newShip({L:600,W:200,H:80,plan:'wedge',sec:'rect'},'mirror deck');s.fits=[];C.ensurePrimaryHull(s);C.refreshPlacementGeometry(s);
+ const top=C.rayPart([250,500,0],[0,-1,0],s.parts[0]).p[1];s.parts.push({id:2,k:'struct',form:'box',c:[250,top+8,-30],s:[80,20,30],label:'deck port'},{id:3,k:'struct',form:'box',c:[250,top+8,30],s:[80,20,30],label:'deck stbd'});s.nextId=10;C.refreshPlacementGeometry(s);
+ const deck=s.parts.find(p=>p.id===2),hit=C.rayPart([250,500,-30],[0,-1,0],deck),c=[250,hit.p[1]+4,-30],r=C.solvePlacement(s,{id:10,k:'struct',form:'box',c,s:[30,20,10],yaw:0},{mode:'horizontal',parentStructureId:2,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});
+ assert.equal(r.ok,true,r.error);s.parts.push(r.part);const twin=C.mirrorPart(r.part,s);twin.id=11;r.part.tw=11;twin.tw=10;s.parts.push(twin);s.nextId=12;
+ assert.equal(twin.placement.parentStructureId,2,'the mirror keeps the one-sided deck as parent (no twin link)');
+ const res=C.refreshPlacementGeometry(s),S={warnings:[]};C.groundingStats(s,S);assert.deepEqual(Array.from(res.failed,f=>f.code),[]);assert.equal(s.parts.find(p=>p.id===11)._placementError??null,null);assert.deepEqual(Array.from(S.ungrounded?.parts||[]),[]);
+ const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);const S2={warnings:[]};C.groundingStats(L,S2);assert.equal(L.parts.find(p=>p.id===11)._placementError??null,null);assert.deepEqual(Array.from(S2.ungrounded?.parts||[]),[]);
+});

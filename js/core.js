@@ -63565,12 +63565,16 @@ function placementEquipmentSurface(ship,parent,metadata,anchor,normal,reproject=
  if(!hit||!reproject&&len(sub(hit.p,anchor))>epsilon*8||Math.abs(dot(hit.n,n))<.5)return placementFailure('surface-missing','指定した追加元の実形状に取付点がありません。面を選び直してください');
  return {ok:true,p:hit.p,n:dot(hit.n,n)<0?mul(hit.n,-1):hit.n};
 }
+// Stage B: equipment does not move with its body, so where it meets the body is found from its own world pose: the
+// world contact normal saved at the user's seat, and the offset along it (both unchanged while the equipment is not
+// moved by the user), re-projected onto the body's real surface. The body-relative record stays as written.
+function placementEquipmentWorldSeat(part,parent,metadata){if(!Array.isArray(metadata?.contactNormal)||!Array.isArray(metadata.contactLocalNormal)||!metadata.rigidPose?.offset||!Array.isArray(part?.c))return null;const nW=norm(metadata.contactNormal),nL=norm(metadata.contactLocalNormal),off=metadata.rigidPose.offset,along=dot(off,nL),lateral=sub(off,mul(nL,along));return {anchor:sub(sub(part.c,mul(nW,along)),placementRigidVector(parent,lateral)),normal:nW};}
 function placementEquipmentContact(ship,part,parent){
  if(!parent)return {connected:false,area:0,regions:[],reason:'parent-missing'};
  const foundation=part.k==='engine'&&engineMountSupportContact(ship,part,parent);if(foundation?.connected)return {...foundation,supportRule:'nozzle-foundation'};
- const metadata=part.placement||{},anchor=placementAnchor(parent,metadata),normal=metadata.contactLocalNormal?placementWorldNormal(parent,metadata.contactLocalNormal):metadata.contactNormal;
+ const metadata=part.placement||{},seat=placementEquipmentWorldSeat(part,parent,metadata),anchor=seat?seat.anchor:placementAnchor(parent,metadata),normal=seat?seat.normal:metadata.contactLocalNormal?placementWorldNormal(parent,metadata.contactLocalNormal):metadata.contactNormal;
  if(!anchor||!normal)return {connected:false,area:0,regions:[],reason:'surface-required'};
- const surface=placementEquipmentSurface(ship,parent,metadata,anchor,normal);if(!surface.ok)return {connected:false,area:0,regions:[],reason:surface.code,error:surface.error};
+ const surface=placementEquipmentSurface(ship,parent,metadata,anchor,normal,!!seat);if(!surface.ok)return {connected:false,area:0,regions:[],reason:surface.code,error:surface.error};
  if(isShapePart(part)){const contact=placementContact(ship,part,parent);if(contact.connected)return {...contact,points:[surface.p],supportRule:'ordinary-mount'};
   // Reference equipment can have an authored stem or collar whose lowest
   // contact is an edge. Preserve that normal mounting rule while requiring
@@ -63597,7 +63601,8 @@ function solveExteriorEquipmentPlacement(ship,input,request,metadata,context){
  // along the world contact normal saved at the user's seat, from the part back to the body, re-projected onto the
  // body's real surface. (Turning the saved body-local offset with the turned body would look for the seat elsewhere.)
  let keptReproject=false;
- if(kept&&!request.hit&&old.rigidPose&&Array.isArray(old.contactNormal)&&Array.isArray(old.contactLocalNormal)){const nW=norm(old.contactNormal),nL=norm(old.contactLocalNormal),off=old.rigidPose.offset,along=dot(off,nL),lateral=sub(off,mul(nL,along));normal=nW;anchor=sub(sub(part.c,mul(nW,along)),placementRigidVector(parent,lateral));keptReproject=true;}
+ const keptSeat=kept&&!request.hit?placementEquipmentWorldSeat(part,parent,old):null;
+ if(keptSeat){normal=keptSeat.normal;anchor=keptSeat.anchor;keptReproject=true;}
  else if(!request.hit&&(request.keepTransform||kept)&&old.rigidPose)anchor=sub(part.c,placementRigidVector(parent,old.rigidPose.offset));
  const surface=placementEquipmentSurface(ship,parent,metadata,anchor,normal,keptReproject||!request.hit&&!!surfaceId);if(!surface.ok)return surface;anchor=surface.p;normal=surface.n;
  if(!request.hit&&!request.keepTransform&&!kept)part=placementApplyEquipmentPose(parent,part,old,anchor);
@@ -63607,12 +63612,13 @@ function solveExteriorEquipmentPlacement(ship,input,request,metadata,context){
  // settings. Only the attachment relationship and rigid pose are new.
  try{const candidate=publicCopyOf(ship);candidate.parts=candidate.parts.filter(p=>p.id!==context.existing?.id);if(context.existing)candidate.nextId=context.existing.id;const options=placementShape(part),id=part.id;for(const key of ['id','k','c','s','d'])delete options[key];const normalized=placePart(candidate,part.k,part.c,part.s||part.d,options,false);if(!normalized)return placementFailure('placement-part','配置する部品を作成できません');const pose=kept?Object.fromEntries(['c','dir','roll','yaw','pitch','surfaceNormal'].filter(k=>Object.hasOwn(part,k)).map(k=>[k,publicCopyOf(part[k])])):null;part={...part,...placementShape(normalized),...(pose||{}),id};if(hardConflicts(candidate,normalized,[normalized.id]).length)return placementFailure('placement-interference','機関・区画の占有範囲と干渉します。位置か大きさを修正してください');}catch(error){return placementFailure('placement-interference',error.message||'通常取付の条件を満たしません');}
  Object.assign(metadata,{parentStructureId:parentId,parentGeometryRevision:parent.placement?.geometryRevision??0,parentGeometryKey:placementDependencyKey(parent),parentLocalAnchor:localStruct(parent,part.c),surfaceAnchor:localStruct(parent,anchor),contactNormal:normal.slice(),contactLocalNormal:placementLocalNormal(parent,normal),rigidPose:placementEquipmentPose(parent,part,anchor),requestedGeometry:placementShape(part)});if(parent.s)metadata.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];for(const key of ['root','unresolvedParentId','repairRequired','repairReason'])delete metadata[key];
- // The parent-relative anchors of equipment describe where it meets the body (its contact is judged from them), so
- // after a real change of that body they are re-expressed for the unchanged world pose. Values that differ only by
- // numeric noise keep the stored ones, so a reload or a Worker pass writes nothing.
- if(kept&&placementSameShape(old.requestedGeometry,part))for(const key of [...PLACEMENT_AUTHORED_ANCHOR_KEYS,'rigidPose']){if(Object.hasOwn(old,key)&&(['geometryRevision','parentGeometryRevision','parentGeometryKey','parentPoseKey','anchorDimensions','requestedGeometry','hostSurfaceId'].includes(key)||!Object.hasOwn(metadata,key)||authoredValueDiff(publicCopyOf(old[key]),publicCopyOf(metadata[key]))<2))metadata[key]=publicCopyOf(old[key]);}
+ // Stage B: on a kept (non-user) pass the contact is judged with the anchors re-expressed for the unchanged world pose
+ // (high review H3), and then the stored record is restored as it was: a reload, a Worker pass or another part edited
+ // writes nothing authored (worker-authored-drift).
+ const keepRecord=kept&&placementSameShape(old.requestedGeometry,part);
  part.placement=metadata;
  if(part.k==='engine')buildEngineMountSupport(ship,part,parent);const contact=placementEquipmentContact(ship,part,parent);if(!contact.connected)return placementFailure(contact.reason||'contact-zero','追加元との通常取付の接触がありません。位置や向きを修正してください',{contact});
+ if(keepRecord)for(const key of [...PLACEMENT_AUTHORED_ANCHOR_KEYS,'rigidPose'])if(Object.hasOwn(old,key))metadata[key]=publicCopyOf(old[key]);
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);
  return {ok:true,part,contact,inputKey:context.inputKey,existingId:context.existing?part.id:null,parentId,parentKey:placementDependencyKey(parent)};
 }
@@ -63829,7 +63835,14 @@ function solvePlacement(ship,input,request={}){
  if(mode!=='surface'&&!isHullStructure(part)){part._solidCutShip=ship;const carving=part._apertures?.length||(ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures),T=carving?unpiercedStructTriangles(part):placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);part._placementGeometry={local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
  // The solved (fitted) pose travels with the failure so a refresh can tell a part severed by a cut
  // (a warning, kept exactly as solved) from a real gap (a failure).
- const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});
+ // Stage B (2026-11-13, user report: a mirrored copy overlapping its deck was red): structures have no parent relation;
+ // overlap is the connection. When the recorded body is not touched (e.g. a mirror kept a one-sided parent because its
+ // mirrored counterpart is a separate part without a twin link), contact with any other structure or the hull is accepted;
+ // the structural graph then decides whether that neighbour is grounded.
+ let contact=placementContact(ship,part,parent);
+ if(!contact.connected){const box=partAABB(part),near=q=>{const b=partAABB(q);return b[0]<=box[3]&&b[3]>=box[0]&&b[1]<=box[4]&&b[4]>=box[1]&&b[2]<=box[5]&&b[5]>=box[2];};
+  for(const q of ship.parts){if(q===parent||q.id===part.id||!isShapePart(q)||q.plate||q._placementError||q.placement?.validationFailed||!near(q))continue;q._solidCutShip=ship;const c=placementContact(ship,part,q);if(c.connected){contact={...c,neighbourId:q.id};break;}}}
+ if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});
  // Interior equipment lies inside the hull and its structures (user decision 2026-11-11): a structure
  // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.
  // This includes legacy interior parts without placement metadata (2026-11-12: sunk structures over
