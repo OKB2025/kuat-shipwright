@@ -4,7 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const C=vm.runInContext('Core',context),TT=C.TT;
 function box(center,size=[200,40,40]){return C.structTriangles({id:1,k:'struct',form:'box',c:center,s:[size[0],size[2],size[1]],taper:0});}
 function world(u,p){const c=Math.cos(u.yaw),s=Math.sin(u.yaw);return [u.pos[0]+p[0]*c-p[2]*s,u.pos[1]+p[1],u.pos[2]+p[0]*s+p[2]*c];}
-function expected(u,from,to){const d=C.norm(C.sub(to,from)),hit=C.rayTris(u.p.surface.shell,from,d);return hit?.p||null;}
+function expected(u,from,to){const d=C.norm(C.sub(to,from)),hit=C.rayTris(C.surfaceShell(u.p.surface),from,d);return hit?.p||null;}
 function compare(u,from,to){const a=expected(u,from,to),b=C.surfaceRayHit(u,world(u,from),world(u,to));assert.equal(!!b,!!a);if(a)assert.ok(C.len(C.sub(a,b))<1e-7,`nearest surface differs: ${JSON.stringify(a)} / ${JSON.stringify(b)}`);}
 function armed(){
  const modules=[{k:'weapon',fit:1,size:1,share:.5,at:.8,domain:'main',powerConnected:true},{k:'weapon',fit:2,size:1,share:.5,at:.2,domain:'main',powerConnected:true},{k:'reactor',part:3,size:100,share:1,at:.5,domain:'main'}],mount=(id,module,point)=>({id,module,patch:null,cell:null,capacity:10,boltTT:1,center:point,muzzle:point,normal:[1,0,0],arcs:[1,1,1,1,1,1],gun:1,ion:0,power:TT,barrels:1,crewNeed:10,band:'mid',fixed:false});

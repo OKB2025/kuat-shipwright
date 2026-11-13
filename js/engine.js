@@ -714,7 +714,24 @@ function handleTrialRays(job) {
 // Built fleet ships are kept for a while: a fleet battle asks for the same
 // design again (its 3D model, then the turrets when it is flown), and building
 // a large example takes tens of seconds. Very large designs are not kept.
-const fleetBuilt = new Map(), FLEET_KEEP = 4;
+// A kept record holds the packed caches, the profile and the display figures,
+// not the live built ship nor its full statistics: those are released once the
+// job is done (the ship is restored from the packed caches when a mesh or the
+// turret rays need it). The records are bounded by count and by their size.
+// Outside that bound: while a ship is flown (trial), trialHold keeps that one ship's live graph, its
+// turret-ray context and its pose cache until trialEnd, so the flown ship is not released during the trial.
+const fleetBuilt = new Map(), FLEET_KEEP = 2, FLEET_BYTES = 128e6;
+function fleetKeep(keys, rec) {
+  for (const k of keys) { fleetBuilt.delete(k); fleetBuilt.set(k, rec); }
+  const recs = [...new Set(fleetBuilt.values())];
+  let count = recs.length, bytes = recs.reduce((n, r) => n + (r.bytes || 0), 0);
+  for (const r of recs) {
+    if (count <= FLEET_KEEP && bytes <= FLEET_BYTES) break;
+    if (r === rec) continue;
+    for (const [k, v] of fleetBuilt) if (v === r) fleetBuilt.delete(k);
+    count--; bytes -= r.bytes || 0;
+  }
+}
 const designHash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + s.length; };
 // Restore completed native caches when available. A public-state-only record
 // retains the legacy compartment derivation; repainting derives a new variant.
@@ -748,7 +765,7 @@ async function fleetJob(job) {
   let rec = fleetBuilt.get(dkey), src = rec ? 'memory' : '', save = false;
   const matches = r => !djson || r.designJSON === djson || JSON.stringify(r.serial) === djson;
   if (rec && !matches(rec)) { rec = null; src = ''; }
-  if (rec) { fleetBuilt.delete(dkey); fleetBuilt.set(dkey, rec); }
+  if (rec) fleetKeep([dkey, rec.alias], rec);
   else {
     rec = null;
     // v13 LOAD the disk cache: the record of this design, or (a repainted example) the plain example's build.
@@ -779,14 +796,14 @@ async function fleetJob(job) {
     rec.cacheId ||= dkey; rec.designJSON ||= djson;
     rec.alias = 'd:' + designHash(JSON.stringify(rec.serial)); rec.surfaces = !!rec.serial.surfaces;
     const big = rec.d ? rec.d.parts.length + rec.d.fits.length >= 3000 : rec.state.length > 4e6;
-    if (!big) { fleetBuilt.set(dkey, rec); fleetBuilt.set(rec.alias, rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
+    if (!big) fleetKeep([dkey, rec.alias], rec);
   }
   const lite = !!job.lite && !rec.surfaces;
-  if (!lite && (!rec.stats || !rec.profile)) { const d = recShip(rec); rec.stats ||= C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
+  if (!lite && (!rec.profile || !rec.stats && !rec.displayStats)) { const d = recShip(rec); rec.stats ||= C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
   const {stats, profile, serial} = rec;
   let displayStats = null, geometry = null, stored = null, gid = null;
   const transfer = [], records = [], identity = JSON.stringify(serial);
-  if (!lite && stats) { if (!rec.displayStats) { rec.displayStats = statsOut(stats, recShip(rec)); save = true; } displayStats = rec.displayStats; }
+  if (!lite && (stats || rec.displayStats)) { if (!rec.displayStats) { rec.displayStats = statsOut(stats, recShip(rec)); save = true; } displayStats = rec.displayStats; }
   if (!job.statsOnly) {
     gid = 'g|' + rec.cacheId + (job.trial ? '|t' : '|m');
     stored = await diskGet(gid);
@@ -794,22 +811,39 @@ async function fleetJob(job) {
     geometry = stored && stored.geometry || null;
     if (geometry) { for (const m of Object.values(geometry.meshes)) if (m.geo) for (const k of ['pos', 'nor', 'uv', 'col', 'idx']) if (m.geo[k]) transfer.push(m.geo[k].buffer); }
     else {
-      const tg = now(); geometry = G.fleetGeometry(recShip(rec), {trial: !!job.trial, ...(profile?.surface?.offset ? {center: profile.surface.offset} : {})});
+      // A surface design's model and trial variants come from one build (they share their meshes); the other
+      // variant is stored with this one, so flying the ship later does not build its whole model again.
+      const tg = now(), center = profile?.surface?.offset ? {center: profile.surface.offset} : {}, built = rec.surfaces ? G.fleetGeometry(recShip(rec), {variants: true, ...center}) : {model: null, trial: null};
+      geometry = (job.trial ? built.trial : built.model) || G.fleetGeometry(recShip(rec), {trial: !!job.trial, ...center});
       for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
-      records.push({id: gid, geometry, identity, ms: Math.round(now() - tg)});
+      const ms = Math.round(now() - tg);
+      records.push({id: gid, geometry, identity, ms});
+      const other = built.trial ? (job.trial ? built.model : built.trial) : null;
+      if (other) records.push({id: 'g|' + rec.cacheId + (job.trial ? '|m' : '|t'), geometry: other, identity, ms});
     }
   }
   if (!rec.caches) { rec.caches = packCaches(recShip(rec), {runtime: true}); save = true; }
   if (save) {
-    records.push({id: rec.cacheId, state: rec.state, caches: rec.caches, stats: rec.stats, displayStats: rec.displayStats, profile: rec.profile, serial, designJSON: rec.designJSON});
+    const main = {id: rec.cacheId, state: rec.state, caches: rec.caches, stats: rec.stats, displayStats: rec.displayStats, profile: rec.profile, serial, designJSON: rec.designJSON};
+    records.push(main);
     if (rec.alias !== rec.cacheId) records.push({id: rec.alias, alias: rec.cacheId});
   }
   const cacheSaved = records.length ? await diskPutMany(records) : !!stored || src === 'disk';
   if (job.prepareOnly && job.silent) post({type:'fleet',id:job.id,src,cacheSaved,geoCached:!!stored,ms:now()-t0});
-  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile, design: serial, ms: now() - t0, src, cacheSaved});
-  else post({type: 'fleet', id: job.id, stats: displayStats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved}, transfer);
+  // profileKnown/statsKnown: the page already holds this design's profile or figures (same design, same engine).
+  else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile: job.profileKnown ? null : profile, design: serial, ms: now() - t0, src, cacheSaved});
+  else post({type: 'fleet', id: job.id, stats: job.statsKnown ? null : displayStats, profile: lite || job.profileKnown ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved}, transfer);
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
+  // Release the live ship graph and the full statistics (the display figures and
+  // the profile answer later requests); size the kept record for the budget.
+  rec.d = null;
+  if (rec.displayStats && rec.profile && rec.serial) rec.stats = null;
+  // Measured again whenever a profile, packed caches or display figures were added since the last
+  // measure (a lite record later completed), so fleetKeep's byte bound counts the record as it is now.
+  const bytesKey = (rec.profile ? 1 : 0) + (rec.caches ? 2 : 0) + (rec.displayStats ? 4 : 0);
+  if ((!rec.bytes || rec.bytesKey !== bytesKey) && fleetBuilt.has(dkey)) { rec.bytes = cacheBytes({state: rec.state, caches: rec.caches, profile: rec.profile, displayStats: rec.displayStats, serial: rec.serial}); rec.bytesKey = bytesKey; }
+  if (fleetBuilt.has(dkey)) fleetKeep([], rec);
 }
 
 function handleOp(job) {
@@ -893,7 +927,9 @@ function connectInline(deliver) {
   post = (msg) => { const m = copy(msg); setTimeout(() => deliver(m), 0); };
   return (msg) => { const m = copy(msg); setTimeout(() => receive(m), 0); };
 }
-return {listenWorker, connectInline, packCaches, disk: DISK};
+// Read-only diagnostic for tests: each kept fleet record's counted size, its size measured now and whether it holds a profile.
+function fleetRecordSizes() { return [...new Set(fleetBuilt.values())].map(r => ({bytes: r.bytes || 0, profile: !!r.profile, measured: cacheBytes({state: r.state, caches: r.caches, profile: r.profile, displayStats: r.displayStats, serial: r.serial})})); }
+return {listenWorker, connectInline, packCaches, disk: DISK, fleetRecordSizes};
 })();
 if (typeof self !== 'undefined' && typeof window === 'undefined' && typeof importScripts === 'function' && self.__ksWorker) YardEngine.listenWorker(self);
 

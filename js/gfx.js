@@ -3553,7 +3553,7 @@ function fleetGeometry(ship,opts){
  for(const row of surfaceVisualPlan(model)){const owner=/^p\d+$/.test(row.host)?owners.get(+row.host.slice(1)):null;if(owner==null)continue;for(const item of row.devices){if(owners.has(item.id))continue;owners.set(item.id,owner);foils[owner].partIds.push(item.id);}}
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name]&&(!name.startsWith('surface')||parts.g[name].ni))put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp((b[3]-b[0])*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
+ const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,both=!!opts?.variants&&surfaceTurrets,trial=!!opts?.trial||both,turrets=trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp((b[3]-b[0])*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name,hatchId:hatch.id});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r'),rest={open:0,_doorDetached:false,_slideSide:side},owner=hatch.hullOwner&&model.parts.find(p=>p.id===hatch.hullOwner),local=owner?.hullData?.hatches?.find(h=>h.id===hatch.hullHatch),source={...model,_referenceDoorOnly:true,hatches:[{...hatch,...rest}],...(local?{parts:[{...owner,hullData:{...owner.hullData,hatches:[{...local,...rest}]}}]}:{})};
@@ -3561,10 +3561,14 @@ function fleetGeometry(ship,opts){
   else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,hatchId:hatch.id,axis:panel.axis,side:panel.side,travel:panel.travel});}
  }
  for(const launcher of launchers||[]){const owner=owners.get(launcher.id);if(owner!=null)launcher.foilId=foils[owner].id;}
- const eyes=opts?.trial?trialEyes(ship,b,meshes):null;splitFoilGeometry(meshes,ranges,foils,owners);
+ const eyes=trial?trialEyes(ship,b,meshes):null;splitFoilGeometry(meshes,ranges,foils,owners);
  const glowOwners=new Int32Array(parts.glow.length);for(const [id,[start,count]] of Object.entries(parts.glowRanges||{})){const owner=owners.get(Number(id));if(owner!=null)glowOwners.fill(owner+1,start,start+count);}
  const glow=[];for(let i=0;i<parts.glow.length;i+=4)(glowOwners[i]?foils[glowOwners[i]-1].glow:glow).push(...parts.glow.slice(i,i+4));
- return {meshes,doors,rays,foils,center,glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:b[3]-b[0],turrets,surfaceTurrets,launchers,targetRadius,eyes};
+ const out={meshes,doors,rays,foils,center,glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:b[3]-b[0],turrets,surfaceTurrets,launchers,targetRadius,eyes};
+ // opts.variants: the plain model and the trial model of a surface design differ only in the launchers and the
+ // eye points (both carry the turret meshes), so one build serves both; they share the same mesh objects.
+ if(opts?.variants)return both?{model:{...out,launchers:null,eyes:null},trial:out}:{model:out,trial:null};
+ return out;
 }
 // ---------- trial turrets ----------
 // Every gun turret becomes its own mesh with a pivot, a traverse axis and the
