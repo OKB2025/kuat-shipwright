@@ -26,7 +26,7 @@ test('height editing previews the new requested body from the same base',()=>{
 });
 
 test('a direct dimension edit previews the edited requested body',()=>{
- const r=fixture(),{part}=r;assert.deepEqual(yBounds(preview(r)),[0,40]);part.s[2]=100;part.c[1]=50;assert.deepEqual(yBounds(preview(r)),[0,100]);assert.equal(part._placementGeometry,undefined);
+ const r=fixture(),{part}=r;assert.deepEqual(yBounds(preview(r)),[0,40]);part.s[2]=100;part.c[1]=50;assert.deepEqual(yBounds(preview(r)),[0,100]);/* 2026-11-13 user decision: no fitting; the solve carries the requested solid as the placement geometry */assert.equal(r.C.placementCachedGeometryInputCurrent(part),false,'the 40 m solid of the last solve is not current for the edited body');
 });
 
 test('progressive previews keep an unchanged frame warm and rebuild after an edit',()=>{

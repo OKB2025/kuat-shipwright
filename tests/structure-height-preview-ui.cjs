@@ -21,8 +21,8 @@ function renderedY(r){const g=r.G.meshPreview(r.ship,[r.part],[],{requestedPart:
 // retains the unchanged fitted solid…'.
 test('the real editor proxy and preview grow from the installed base',()=>{
  const r=fixture(),{C,part,request,bump}=r,sourceBefore=C.publicJSON(r.ship.parts[0]);assert.deepEqual(renderedY(r),[0,40]);
- C.resizeStructureHeightAtContact(part,100);bump();const proxy=request(part);assert.equal(proxy._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,100],'requested-height preview replaces the former Y40..70 floating slab');assert.equal(C.publicJSON(r.ship.parts[0]),sourceBefore);
- const result=C.refreshPlacementGeometry(r.ship);assert.equal(result.ok,true,JSON.stringify(result.failed));assert.equal(part._placementGeometry,undefined);assert.equal(request(part)._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,100]);
+ C.resizeStructureHeightAtContact(part,100);bump();const proxy=request(part);/* 2026-11-13 user decision: no fitting; the solve carries the requested solid as the placement geometry */assert.equal(C.placementCachedGeometryInputCurrent(proxy),false,'the 40 m solid of the last solve is not current for the resized body');assert.deepEqual(renderedY(r),[0,100],'requested-height preview replaces the former Y40..70 floating slab');assert.equal(C.publicJSON(r.ship.parts[0]),sourceBefore);
+ const result=C.refreshPlacementGeometry(r.ship);assert.equal(result.ok,true,JSON.stringify(result.failed));assert.ok(Math.abs(part._placementGeometry.volume-C.partVolume({...part,_placementGeometry:undefined}))<=1e-6*part._placementGeometry.volume,'the carried solid is the requested one');assert.deepEqual(renderedY(r),[0,100]);
 });
 
 test('direct dimension edits clear the detached editor fit while preserving the source last-valid solid',()=>{

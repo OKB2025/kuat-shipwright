@@ -121,7 +121,7 @@ test('an authored hull placed as a child shares its skin, containment and hull m
 // 2026-11-13 user decision: no fitting; the horizontal child no longer has a fitted cache to invalidate (the check
 // assert.ok(child._placementGeometry) is gone); the mode change must still give the unchanged surface shape.
 test('changing the saved placement mode gives the unchanged surface shape',()=>{
- const s=fixture({...box([80,80,20]),id:1,roll:10}),child=add(s);assert.equal(child._placementGeometry,undefined);child.placement.mode='surface';child.placement.contactSide='surface';const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child._placementGeometry,undefined);assert.ok(child.surfaceNormal);near(C.partVolume(child),1000);assert.equal(child.placement.mode,'surface');
+ const s=fixture({...box([80,80,20]),id:1,roll:10}),child=add(s);/* 2026-11-13 user decision: no fitting; the solve carries the requested solid as the placement geometry */near(child._placementGeometry.volume,1000);child.placement.mode='surface';child.placement.contactSide='surface';const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child._placementGeometry,undefined);assert.ok(child.surfaceNormal);near(C.partVolume(child),1000);assert.equal(child.placement.mode,'surface');
 });
 
 test('horizontal wedge fitting keeps volume across ship scales and a translated coordinate origin',()=>{

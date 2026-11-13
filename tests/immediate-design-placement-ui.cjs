@@ -19,8 +19,9 @@ test('derived adoption keeps the live ship and item identity, generation and one
  assert.equal(r('ship===identity'),true);assert.equal(r('ship.parts[2]===partIdentity'),true);assert.equal(r('eng.gen'),r('beforeGen'));assert.equal(r('undoStack.length'),1);assert.equal(r('redoStack.length'),0);
  assert.equal(r('C.placementDraftStatus(ship).ready'),true);assert.equal(r('ship.parts[2].placement.pendingGeometry'),undefined);
  // 2026-11-13 user decision: no fitting. Until then the adopted part carried a fitted solid that passed
- // placementCachedGeometryCurrent; it now keeps its requested solid, and the engine's keys still reach the part.
- assert.equal(r('ship.parts[2]._placementGeometry'),undefined);assert.equal(r('typeof ship.parts[2]._placementParentKey'),'string','the real engine geometry keys reach the part');
+ // placementCachedGeometryCurrent; it now keeps its requested solid, which the engine carries as the placement geometry
+ // (same volume), and the engine's keys still reach the part.
+ {const carried=r('ship.parts[2]._placementGeometry.volume'),requested=r('C.partVolume({...ship.parts[2],_placementGeometry:undefined})');assert.ok(Math.abs(carried-requested)<=1e-6*requested,`${carried} != ${requested}`);}assert.equal(r('typeof ship.parts[2]._placementParentKey'),'string','the real engine geometry keys reach the part');
  r('undo()');assert.equal(r('ship.parts.length'),2);
 });
 

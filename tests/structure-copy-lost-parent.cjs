@@ -132,13 +132,13 @@ test('rotational-array copies of a hull-mounted box stay where the array put the
   const want=[p.c[0]-5,p.c[1],p.c[2]];p.c=want.slice();C.refreshPlacementGeometry(ship);assert.equal(JSON.stringify(p.c),JSON.stringify(want),'#'+id+' a move is kept');}
 });
 // 2026-11-13 user decision: no fitting. Copies keep the source's requested solid; the checks that compared the fitted
-// (trimmed) volume (_placementGeometry.volume) now compare the requested solid (partVolume) and that no fitted cache exists.
+// (trimmed) volume (_placementGeometry.volume) now compare the requested solid (partVolume), which is also the carried placement geometry.
 test('rotational-array copies are placed the same way as their source: same solid, turn kept on a drag (user request 2026-11-13)',()=>{
  for(const count of [3,4,6]){
   const {ship,box}=cigarWithBox(),vol=C.partVolume(box),res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count,axis:0,center:[110,16,0]});assert.equal(res.ok,true,res.error);C.refreshPlacementGeometry(ship);
   for(const id of res.parts){const p=ship.parts.find(q=>q.id===id),m=p.placement,label=`${count} copies #${id}`;
    assert.equal(p.surfaceNormal,undefined,label+': the turn is yaw/pitch/roll');assert.ok(['horizontal','vertical'].includes(m.mode),label+' '+m.mode);assert.equal(m.contactFit,'cut',label+': the source fit');
-   assert.equal(p._placementGeometry,undefined,label+': no fitted cache');assert.ok(Math.abs(C.partVolume(p)-vol)<1e-6*vol,`${label}: the source solid ${C.partVolume(p)} vs ${vol}`);
+   /* 2026-11-13 user decision: no fitting; the carried placement geometry is the requested solid */assert.ok(Math.abs(p._placementGeometry.volume-vol)<1e-6*vol,label+': the carried solid is the requested one');assert.ok(Math.abs(C.partVolume(p)-vol)<1e-6*vol,`${label}: the source solid ${C.partVolume(p)} vs ${vol}`);
    const turn=JSON.stringify([p.yaw||0,p.pitch||0,p.roll||0]),want=[p.c[0]-5,p.c[1],p.c[2]],input=JSON.parse(C.publicJSON(p));input.c=want.slice();
    const r=C.solvePlacement(ship,input,{...m,position:want.slice()});assert.equal(r.ok,true,label+': '+r.error);assert.equal(JSON.stringify([r.part.yaw||0,r.part.pitch||0,r.part.roll||0]),turn,label+': a drag keeps the turn');
    const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),q=L.parts.find(x=>x.id===id);assert.equal(JSON.stringify([q.c,q.yaw||0,q.pitch||0,q.roll||0]),JSON.stringify([p.c,p.yaw||0,p.pitch||0,p.roll||0]),label+': reload');assert.ok(Math.abs(C.partVolume(q)-vol)<1e-6*vol,label+': reload, same solid');}
@@ -181,7 +181,7 @@ test('mirroring a turned array copy reflects its fit axis with the pose',()=>{
 test('a 45° array copy set level again keeps its requested solid, and a rotate-tool turn survives a reload (high review D2, D3)',()=>{
  const {ship,box}=cigarWithBox(),res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count:8,axis:0,center:[110,16,0]});assert.equal(res.ok,true,res.error);C.refreshPlacementGeometry(ship);
  const p=ship.parts.find(q=>q.id===res.parts[0]);assert.equal(p.roll,45);const volume=C.partVolume(p);
- p.pitch=0;p.roll=0;C.refreshPlacementGeometry(ship);assert.equal(p._placementGeometry,undefined);assert.ok(Math.abs(C.partVolume(p)-volume)<1e-6*volume,'same requested solid (Float32 triangles of the turned box)');
+ p.pitch=0;p.roll=0;C.refreshPlacementGeometry(ship);assert.ok(Math.abs(p._placementGeometry.volume-volume)<1e-6*volume,'the carried solid is the requested one');assert.ok(Math.abs(C.partVolume(p)-volume)<1e-6*volume,'same requested solid (Float32 triangles of the turned box)');
  // The rotate tool turns the 90° copy 10° more about x and writes surfaceNormal + yaw: the pose and the cut survive a reload.
  const q=ship.parts.find(x=>x.id===res.parts[1]),f0=C.structFrame(q),a=10*Math.PI/180,R=v=>[v[0],v[1]*Math.cos(a)-v[2]*Math.sin(a),v[1]*Math.sin(a)+v[2]*Math.cos(a)],fw=R(f0.fw),up=C.norm(R(f0.up));
  let b=C.sub([1,0,0],C.mul(up,up[0]));if(C.len(b)<.001)b=C.sub([0,0,1],C.mul(up,up[2]));b=C.norm(b);const rt=C.norm(C.cross(b,up));q.surfaceNormal=up;q.yaw=Math.atan2(C.dot(fw,rt),C.dot(fw,b))*180/Math.PI;delete q.pitch;delete q.roll;

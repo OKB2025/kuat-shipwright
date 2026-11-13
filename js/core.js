@@ -63804,7 +63804,9 @@ function solvePlacement(ship,input,request={}){
  {const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
  // The structure's solid is its requested one; it is also given as the placement geometry, so a Worker result carries
  // it and a just-placed structure can be picked before the background survey (early-pick).
- if(mode!=='surface'&&!isHullStructure(part)){const T=placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);part._placementGeometry={local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
+ // Built on the same numeric base a part without it uses (the Float32 world base structTriangles starts from when ship
+ // cuts carve structures or the part has openings), so contact anchors are the same cold and warm (undo/redo test).
+ if(mode!=='surface'&&!isHullStructure(part)){part._solidCutShip=ship;const carving=part._apertures?.length||(ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures),T=carving?unpiercedStructTriangles(part):placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);part._placementGeometry={local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
  // The solved (fitted) pose travels with the failure so a refresh can tell a part severed by a cut
  // (a warning, kept exactly as solved) from a real gap (a failure).
  const contact=placementContact(ship,part,parent);if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});

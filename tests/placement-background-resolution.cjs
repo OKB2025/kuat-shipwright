@@ -21,8 +21,8 @@ test('a placed draft resolves before heavy geometry with the original source gua
  assert.equal(packet.gen,1);assert.equal(packet.designId,'draft-A');assert.equal(row.sourceKey,input);assert.equal(row.list,'parts');assert.equal(row.part.id,2);
  assert.equal(row.part.placement.pendingGeometry,undefined);assert.equal(row.part.placement.validationFailed,undefined);assert.ok(row.part.placement.hostSurfaceId);
  // 2026-11-13 user decision: no fitting. Until then the row carried the fitted solid (effectiveGeometry.placement, 48 m3);
- // the structure now keeps its requested 4x4x4 solid, so no fitted geometry travels with the row.
- assert.equal(row.effectiveGeometry?.placement,undefined);assert.ok(Math.abs(C.partVolume(row.part)-64)<1e-6);assert.ok(row.geometryKeys.self);
+ // the structure now keeps its requested 4x4x4 solid, and that solid travels with the row as the placement geometry.
+ assert.ok(Math.abs(row.effectiveGeometry.placement.volume-64)<1e-6);assert.ok(Math.abs(C.partVolume(row.part)-64)<1e-6);assert.ok(row.geometryKeys.self);
  assert.equal(packet.placementDraftStatus.ok,true);assert.equal(C.publicJSON(ship),state,'background resolution never mutates the editor source');
  await f.wait('geometry');assert.ok(f.messages.findIndex(m=>m.type==='placementResolution')<f.messages.findIndex(m=>m.type==='geometry'));
 });

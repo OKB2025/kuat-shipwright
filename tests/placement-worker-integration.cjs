@@ -34,19 +34,20 @@ function solve(ship, part, request) {
 }
 
 // 2026-11-13 user decision: no fitting. Until then the Worker result carried a fitted solid
-// (effectiveGeometry.placement.local) that adoption reused; a structure now keeps its requested solid, so nothing
-// fitted crosses the boundary. The flow (no authoring side effect, id, contact, save/reload) is unchanged.
+// (effectiveGeometry.placement.local) that adoption reused; a structure now keeps its requested solid, and that solid
+// crosses the boundary as the placement geometry. The flow (no authoring side effect, id, contact, save/reload) is unchanged.
 test('actual exterior structure result crosses the Worker boundary and commits without a second solve', async () => {
   const ship = fixture(), before = C.publicJSON(ship), child = {id: 0, k: 'struct', form: 'box', c: [0, 0, 0], s: [6, 3, 6]};
   const reply = await solve(ship, child, {mode: 'horizontal', parentStructureId: 1, parentGeometryRevision: 0,
     geometryRevision: 1, hit: {p: [0, 10, 0], n: [0, 1, 0]}});
   assert.equal(reply.result.ok, true, reply.result.error);
   assert.equal(C.publicJSON(ship), before, 'verification has no authoring side effect');
-  assert.equal(reply.result.effectiveGeometry?.placement, undefined, 'no fitted solid');
-  assert.equal(reply.result.part._placementGeometry, undefined);
+  const geometry = reply.result.effectiveGeometry.placement;
+  near(geometry.volume, 108); // the requested 6x3x6 solid, not a fitted one
+  assert.equal(reply.result.part._placementGeometry, undefined); // private fields do not cross the boundary
   const accepted = C.acceptPlacementResult(ship, reply.result);
   assert.equal(accepted.ok, true, accepted.error);
-  assert.equal(accepted.part._placementGeometry, undefined, 'the requested solid, no fitted cache');
+  assert.equal(accepted.part._placementGeometry, geometry, 'adoption reuses the carried solid without a second solve');
   assert.equal(accepted.part.id, 2);
   near(C.partVolume(accepted.part), 108);
   assert.equal(C.placementContact(ship, accepted.part, ship.parts[0]).connected, true);
@@ -130,7 +131,7 @@ test('a new structure and its weapon fitting solve in dependency order and adopt
   assert.equal(reply.result.ok, true, reply.result.error);
   assert.equal(C.publicJSON(ship), before);
   const [structure, weapon] = reply.result.results;
-  assert.equal(structure.effectiveGeometry?.placement, undefined); // 2026-11-13 user decision: no fitting (was a fitted solid)
+  near(structure.effectiveGeometry.placement.volume, C.partVolume({...structure.part, _placementGeometry: undefined})); // 2026-11-13 user decision: no fitting (was a fitted solid; now the requested solid)
   assert.equal(structure.part.id, 2); assert.equal(weapon.fit.id, 3); assert.equal(weapon.fit.host, 2);
   for (const result of reply.result.results) { const accepted = C.acceptPlacementResult(ship, result); assert.equal(accepted.ok, true, accepted.error); }
   assert.deepEqual(ship.parts.map(p => p.id), [1, 2]); assert.equal(ship.fits[0].id, 3); assert.equal(ship.nextId, 4);
