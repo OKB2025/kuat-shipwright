@@ -131,6 +131,17 @@ test('rotational-array copies of a hull-mounted box stay where the array put the
  for(const id of res.parts){const p=ship.parts.find(q=>q.id===id);assert.equal(JSON.stringify(p.c.map(n=>+n.toFixed(6))),placed.get(id),'#'+id+' not moved');assert.equal(p.placement.parentStructureId,1);assert.ok(!S.ungrounded.parts.includes(id),'#'+id+' not red');
   const want=[p.c[0]-5,p.c[1],p.c[2]];p.c=want.slice();C.refreshPlacementGeometry(ship);assert.equal(JSON.stringify(p.c),JSON.stringify(want),'#'+id+' a move is kept');}
 });
+test('rotational-array copies are placed the same way as their source: same fit, same trimmed shape, turn kept on a drag (user request 2026-11-13)',()=>{
+ for(const count of [3,4,6]){
+  const {ship,box}=cigarWithBox(),vol=box._placementGeometry.volume,res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count,axis:0,center:[110,16,0]});assert.equal(res.ok,true,res.error);C.refreshPlacementGeometry(ship);
+  for(const id of res.parts){const p=ship.parts.find(q=>q.id===id),m=p.placement,label=`${count} copies #${id}`;
+   assert.equal(p.surfaceNormal,undefined,label+': the turn is yaw/pitch/roll');assert.ok(['horizontal','vertical'].includes(m.mode),label+' '+m.mode);assert.equal(m.contactFit,'cut',label+': the source fit');
+   assert.ok(Math.abs(p._placementGeometry.volume-vol)<1e-6*vol,`${label}: trimmed like the source ${p._placementGeometry.volume} vs ${vol}`);
+   const turn=JSON.stringify([p.yaw||0,p.pitch||0,p.roll||0]),want=[p.c[0]-5,p.c[1],p.c[2]],input=JSON.parse(C.publicJSON(p));input.c=want.slice();
+   const r=C.solvePlacement(ship,input,{...m,position:want.slice()});assert.equal(r.ok,true,label+': '+r.error);assert.equal(JSON.stringify([r.part.yaw||0,r.part.pitch||0,r.part.roll||0]),turn,label+': a drag keeps the turn');
+   const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),q=L.parts.find(x=>x.id===id);assert.equal(JSON.stringify([q.c,q.yaw||0,q.pitch||0,q.roll||0]),JSON.stringify([p.c,p.yaw||0,p.pitch||0,p.roll||0]),label+': reload');assert.ok(Math.abs(q._placementGeometry.volume-vol)<1e-6*vol,label+': reload trimmed');}
+ }
+});
 test('a top-mounted box pasted under the hull is joined on the underside, like a fresh placement there, and moves are kept',()=>{
  const {ship,box}=cigarWithBox(),q=JSON.parse(C.publicJSON(box));q.id=ship.nextId++;q.c=[80,-1.8,0];C.remapPlacementCopy(q,new Map(),{detachRoots:true});ship.parts.push(q);C.refreshPlacementGeometry(ship);
  const p=ship.parts.find(x=>x.id===q.id),m=p.placement,hull=ship.parts[0];
