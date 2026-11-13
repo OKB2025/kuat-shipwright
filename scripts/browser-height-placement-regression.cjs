@@ -70,7 +70,7 @@ async function observeUploads(page){
  });
 }
 async function heatReadouts(page){
- const result=await page.evaluate(()=>{const Y=window.__yard;return{rates:Y.C.heatReadoutRates(Y.stats?.heat),rows:[...document.querySelectorAll('#designMetrics [data-design-metric]')].map(el=>{const r=el.getBoundingClientRect();return{metric:el.dataset.designMetric,label:el.querySelector('dt').getAttribute('aria-label'),text:el.querySelector('dd').textContent,visible:r.width>0&&r.height>0&&getComputedStyle(el).visibility==='visible'};})};});
+ const result=await page.evaluate(()=>{const Y=window.__yard;return{rates:Y.C.heatReadoutRates(Y.stats?.heat),rows:[...document.querySelectorAll('#designMetrics [data-design-metric="equipment-heat"],#designMetrics [data-design-metric="rejection-capacity"]')].map(el=>{const r=el.getBoundingClientRect();return{metric:el.dataset.designMetric,label:el.querySelector('dt').getAttribute('aria-label'),text:el.querySelector('dd').textContent,visible:r.width>0&&r.height>0&&getComputedStyle(el).visibility==='visible'};})};});
  assert.equal(result.rows.length,2);for(const key of ['equipmentMaxHeatW','rejectionCapacityW'])assert.ok(Number.isFinite(result.rates[key])&&result.rates[key]>=0);for(const row of result.rows){assert.equal(row.visible,true);assert.ok(row.text.trim()&&row.text.trim()!=='—'&&!/NaN|Infinity/.test(row.text));const value=row.metric==='equipment-heat'?result.rates.equipmentMaxHeatW:result.rates.rejectionCapacityW;if(value===0)assert.equal(parseFloat(row.text),0);}
  return result;
 }
@@ -80,7 +80,8 @@ async function heightEdit(page){
  // Open the actual size disclosure through its summary rather than editing DOM state.
  await openAncestors(height);
  await height.scrollIntoViewIfNeeded();await frames(page);const before=await partState(page);near(before.bounds[1],10);near(before.bounds[4],40);
- assert.equal(await page.locator('#dock [data-design-action="edit-cancel"]').count(),1);assert.equal(await page.locator('#dock [data-design-action="edit-apply"]').count(),0,'editing has no explicit apply action');
+ assert.equal(await page.locator('#dock [data-design-action="edit-cancel"]').count(),1);// UI phase 1 (2026-11-12, item 2c): the edit window has explicit 取消（破棄） and 適用（Enter） in its footer.
+ assert.equal(await page.locator('#designEditFooter:not([hidden]) [data-design-action="edit-apply"]').count(),1,'the edit window footer offers 適用（Enter）');
  await page.evaluate(()=>{window.__heightUploads=[];});await height.fill('100');await height.press('Tab');await frames(page);
  const immediate=await partState(page);near(immediate.c[1]-immediate.s[2]/2,0);near(immediate.s[2],100);near(immediate.bounds[4],100);assert.equal(immediate.form,before.form);assert.equal(immediate.taper,before.taper);assert.deepEqual(immediate.angles,before.angles);for(const axis of [0,2])near(immediate.c[axis],before.c[axis]);assert.deepEqual(immediate.s.slice(0,2),before.s.slice(0,2));
  await page.screenshot({path:output.replace(/\.json$/,'.height-edit.jpg'),type:'jpeg',quality:85});

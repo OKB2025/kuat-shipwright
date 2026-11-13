@@ -207,12 +207,15 @@ function bindHeaderActions(t){
  `);
 }
 
-test('the real Close action keeps changed inputs and compacts them into one Undo without an Apply button',()=>{
+// Changed 2026-11-12 (UI phase 1, item 2c, user decision): closing still applies the edit, but the window now also
+// has explicit 適用（Enter） (edit-apply) and 取消（破棄） (edit-cancel) buttons fixed at its bottom. The earlier
+// assertion that no Apply button exists is replaced by checks on those two buttons.
+test('the real Close action keeps changed inputs and compacts them into one Undo; explicit Apply and Discard sit in the footer',()=>{
  const t=setup(),r=t.run;bindHeaderActions(t);
  r("designUI.layout='edit';designUIEditBegin();mutate('move',()=>ship.parts[0].c[0]=4);mutate('height',()=>ship.parts[0].s[2]=35);eng.waiting=true;headerAction('close')");
  assert.equal(r('ship.parts[0].c[0]'),4);assert.equal(r('ship.parts[0].s[2]'),35);assert.equal(r('designUI.drawer'),false);assert.equal(r('designUIEditSession()'),null);assert.equal(r('undoStack.length'),1);assert.equal(r('requests.length'),0,'closing never waits for a strict solve');
  assert.equal(r('designUISavedDesign().parts[0].s[2]'),35);r('undo()');assert.equal(r('ship.parts[0].c[0]'),0);assert.equal(r('ship.parts[0].s[2]'),20);r('redo()');assert.equal(r('ship.parts[0].s[2]'),35);assert.equal(r('designUI.drawer'),false);
- const panel=fn('designUIPanel');assert.match(panel,/data-design-action="edit-cancel">取消</);assert.doesNotMatch(panel,/data-design-action="edit-apply"/);
+ const panel=fn('designUIPanel'),footer=fn('designUIEditFooter');assert.match(panel,/designUIEditFooter\(active&&designUI\.drawer&&layout==='edit'&&!!designUIEditSession\(\)\)/);assert.match(footer,/data-design-action="edit-cancel"[^>]*>取消（破棄）</);assert.match(footer,/data-design-action="edit-apply">適用（Enter）</);
 });
 
 test('the real Cancel action restores source and history instead of taking the Close path',()=>{

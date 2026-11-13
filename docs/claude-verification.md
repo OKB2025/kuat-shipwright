@@ -46,6 +46,9 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | `tests/placement-cut-keeps-connection.cjs`（2026-11-11） | 船体を削っても、まだ触れている構造物・装備は接続のまま（面IDは手がかり）。足元を削り切った構造物は動かさず `severed` の警告。規則は [design-placement-v1.2.md](design-placement-v1.2.md)「削りと接続」。約 30 秒 |
 | `tests/solid-cut-scope.cjs`（2026-11-11） | 削るメニューの一本化：艦レベルの立体カットが船体の材料（質量・容積・価格）を減らす、新しいカットはすべての構造物を切る、船体所有の削りの範囲切り替え、固定機器との重なりの警告。規則は [design-placement-v1.2.md](design-placement-v1.2.md)「削りと接続」段階 2 |
 | `tests/structural-connectivity.cjs`（2026-11-11） | 接続は接触の網：親との接触を失っても接地した隣に触れていれば接地、両方切り離されれば原因の削りを示す、触れていない部品は赤枠、組のキャッシュ |
+| `tests/structure-sunk-interior-interference.cjs`（2026-11-12） | 船体に減り込ませた構造物が内装機器（船内にある配置情報のない旧 `repulsor`・`gen`、直接配置・切り取り配置）に重なっても干渉にしない。船外の旧形式部品・外装機器との重なりは干渉のまま。保存済みの拒否は読み込みで一度だけ再検査（回復／同じ理由で再拒否）、Undo/Redo では解き直さない。回復した構造物を削り（艦レベル・船体専用）が通っても規則どおりで、再読込と一致。約 6 分 |
+| `tests/structure-refusal-recheck-worker.cjs`（2026-11-12） | Worker（`applyState`）で、読み込み直後の回復をエディタが捨てて拒否のままの状態を送り返しても再検査して回復し、質量が冷えた読み込みと一致する。回復しない構造物は同じ拒否状態では解き直さない（公開状態が変わるたびに最大一度）。約 6 分 |
+| `tests/placement-reseat-keeps-pose.cjs`（2026-11-12） | 配置済みの構造物の解き直し（再読込・船体の拡大縮小・離れた場所の削り・親の移動と回転）で、減り込ませた `legacy-fit`・`cut`・面配置の子がワールドの姿勢のまま動かず、`roll` −8°/+8° も保つ。親が離れたら子はその場で赤枠。b40b72d では `legacy-fit` が再読込で 1 m 浮き上がり、`roll` が 0 に戻り、子が親に運ばれる |
 | `tests/trench-trial-aim.cjs` | 試験航行のトレンチ砲群が壁の法線を基準に ±85°×±20° で照準する。他の固定機器・操縦士の砲は固定のまま |
 
 ### UI・配置・親子関係・Undo/Redo・保存
@@ -66,6 +69,7 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | 世代管理・古い結果の破棄 | `node --test tests/placement-worker-generations.cjs tests/placement-worker-priority.cjs tests/placement-worker-integration.cjs tests/editor-worker-snapshots.cjs` |
 | 準備済み設計・キャッシュ | `tests/prepared-ship-cache.cjs`、`tests/structural-survey-cache.cjs`、`tests/surface-client-cache-core.cjs`、`tests/startup-preload.cjs` |
 | 実 Worker | `scripts/browser-prepared-ship-cache.cjs`、`browser-full-placement-latency.cjs`、`browser-mass-drag-throttle.cjs` |
+| 構造物移動の応答（2026-11-12） | `node --test tests/interior-incremental.cjs tests/engine-structure-first.cjs`（区画・機関台座の局所再計算が全再計算と一致、構造物の先行表示、古い世代の中断）。時間測定は `node scripts/benchmark-edit-latency.cjs OUT.json [--designs imperial,user] [--moves N] [--profile DIR]`（Node・vm 上の実 engine.js）と `node scripts/browser-edit-latency.cjs URL OUT.json`（ヘッドレス Chromium・実 Worker）。どちらも出力先は必須。`user` は `tests/helpers/edit-latency-fixtures.cjs` の設計。`interior-incremental.cjs` の「親の移動に子が追従する」場合は暫定（ユーザー決定 2026-11-12：構造物の親子関係は後続 PR で廃止）。廃止時に削除・書き換える |
 
 ### 作例形状・STL（reference-fidelity-reviewer の証拠）
 

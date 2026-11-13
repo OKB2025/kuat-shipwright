@@ -3,12 +3,13 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..'));
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),helper=app.split('\n').find(line=>line.startsWith('function engineShipState('));
 assert.ok(helper,'the editor must serialize worker state separately from its save identity');
 function fixture(){
- const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone});
+ const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone,...require('./helpers/example-reader.cjs')(root)});
  for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js','js/engine.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
  vm.runInContext('const C=Core;'+helper,cx);
  const {C,E,state}=vm.runInContext('({C:Core,E:YardEngine,state:engineShipState})',cx),messages=[],waiting=[],sync=[],mount=[];
- const build=C.buildDesign,syncCompartments=C.syncCompartments,remount=C.remount;let builtShip;
- C.buildDesign=(...args)=>(builtShip=build(...args));
+ const deserialize=C.deserialize,syncCompartments=C.syncCompartments,remount=C.remount;let builtShip;
+ // The example opens from its saved design (C.deserialize), never from the authoring tool.
+ C.buildDesign=()=>{throw Error('buildDesign must not run when an example is opened');};C.deserialize=(...args)=>(builtShip=deserialize(...args));
  C.syncCompartments=(s,...args)=>{sync.push({ship:s,derive:new Error().stack.includes('deriveState')});return syncCompartments(s,...args);};
  C.remount=(s,...args)=>{mount.push(s);return remount(s,...args);};
  const scope={postMessage(msg){

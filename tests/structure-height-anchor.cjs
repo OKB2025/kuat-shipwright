@@ -80,6 +80,15 @@ test('new legacy catalogue requests and explicitly changed mounting points keep 
  const positioned=C.solvePlacement(ship,part,{mode:'horizontal',position:[0,55,0]});assert.equal(positioned.ok,true,positioned.error);nearPoint(positioned.part.c,[0,60,0]);
 });
 
-test('a changed legacy parent still follows the existing parent alignment rule',()=>{
- const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,[0,65,0]);near(C.partAABB(part)[1],15);near(C.partAABB(part)[4],115);assertStableReload(ship,part);
+// 2026-11-12 user decision: a re-solve never re-seats a placed child (no flush legacy-fit re-seat) and children do
+// not follow their parent. Raised 5 m, the parent now overlaps the child's base, which is a contact.
+// The child's fitted shape is still re-fitted to the moved parent's skin (its base follows the parent's new
+// top, 10 -> 15 m): that re-fit on a parent edit is main's existing behaviour (ATTACH-02) and is removed with
+// the stored fitted shape in stage B of the no-recompute plan (docs/handoff-2026-11-12.md §4). This test
+// checks what this branch changes: the pose (position, yaw, pitch, roll) and size are not touched.
+test('a changed legacy parent leaves its child where it is (no re-seat, no follow)',()=>{
+ const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);const before=part.c.slice(),size=part.s.slice(),angles=[part.yaw||0,part.pitch||0,part.roll||0];parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,before);nearPoint(part.s,size);nearPoint([part.yaw||0,part.pitch||0,part.roll||0],angles);
+ // Known deviation pinned at its current value so any other shape change shows: the fitted base follows the
+ // raised parent's top (10 -> 15 m). TODO stage B (stored fitted shape): the base stays at 10 m here.
+ near(C.partAABB(part)[1],15);assertStableReload(ship,part);
 });

@@ -4,7 +4,12 @@
 // knocked out so power loss and heat limits run. After every tick the whole
 // unit state (everything but the immutable profile p) and the battle state are
 // hashed, and a compact numeric digest is kept. The expected values were
-// recorded from 910ef75 (origin/main 3e82bf1 + the heat-governor HUD fix).
+// recorded from 910ef75 (origin/main 3e82bf1 + the heat-governor HUD fix) and
+// re-recorded on b40b72d (and again on 734081a, when surface remnants that reach
+// no module stopped being recorded) when surface-armour penetrations began to
+// be written to u.hitLog (X-ray replay): ticks 4..95 changed hash only through hitLog; with
+// hitLog left out of the hash, and in every digest number, shot, event count and
+// random state, all 96 ticks are identical to the 910ef75 recording.
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest

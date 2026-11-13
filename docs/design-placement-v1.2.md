@@ -102,13 +102,21 @@
 
 実際のすき間、点・辺だけの接触、最小値に届かない数値上のかすり、親の中に完全に埋もれた部品は従来どおり `contact-zero`。水平・垂直の切り取り成形が作れない場合（`surface-missing`・`minimum-thickness`・`contact-shape`・`geometry-complex`）でも、要求形状が上の条件で親と重なれば、閉じた要求形状のまま接続する（`placementOverlapFallback`）。境界の検査は `tests/placement-curved-hull-surface.cjs`。
 
+**内装機器との重なり（2026-11-12 ユーザー決定）**：船内は船体と取り付けた構造物を合わせたもので、構造物は本体に材料を足す。構造物が内装機器に重なっても干渉（`placement-interference`）にしない（`structureInteriorEquipment`、`solvePlacement`）。内装機器とは、切り取り・容積維持・直接配置の内装部品（内装の検証を通っている）と、配置情報のない旧形式の内装部品（例：`repulsor`・`gen`）のうち中心が今の船内（主船体と取り付けた構造物、`interiorEnvelopeHostIds`。いま置いている構造物自身は数えない）にあるもの。旧形式の部品が船体・構造物の外にあり、新しい構造物がそれを呑み込む場合は従来どおり干渉。旧形式のシールド投射器は外装に付けていたため内装機器に数えない。機器が船内からはみ出していれば、それは内装側の判定（`fixed-outside`、部品情報の「表面の露出」）で示し、構造物の配置は拒否しない。外装機器（推進 `engine`、`sensor`・`scanner`、`sbeam`・`hion`、内装の配置先を持たないシールド投射器・配置情報のない旧形式のシールド投射器）との重なりは従来どおり `placement-interference`（「配置と保存の契約」：外装機器は干渉規則を継承する）。外装の装備（`fits`、砲塔など）はこの検査の対象外（現行どおり）。
+
+**再計算は姿勢を保つ（2026-11-12 ユーザー決定）**：減り込ませたり重ねたりした構造物はそのまま認め、自動で動かさない。子は親に追従しない（まとめて動かすときは複数選択で動かす）。面への着座（傾きを 0 に戻す、垂直配置の `yaw` を壁から決め直す、`legacy-fit` の底面を表面にそろえる、面配置を接平面に合わせ直す）は、利用者の明示的な配置（タップ `request.hit`、ドラッグ・位置指定 `request.position`、配置方式・接触側・親の変更、まだ一度も解いていない下書き）でだけ行う。配置済みの構造物の解き直し（読み込み・再読込・Worker の作り直し・拒否の再検査、親の移動・回転・拡大縮小・削り・頂点編集）では、子のワールドの位置・`yaw`・`pitch`・`roll`・面法線をそのまま保つ（`solvePlacement` の `storedPose`。保存した基準点から作った当たりは `resolvePendingPlacementPart` が `request._storedHit` で区別する）。親が離れて子に触れなくなっても子は動かず、その場で既存の規則どおり判定する（削りで離れれば `severed` の警告、それ以外は赤い失敗。例：船体を 40 m 上へ動かすと、減り込ませた子は元の位置のまま `minimum-thickness` で赤枠）。b40b72d では `legacy-fit` の子が再読込で底面を表面にそろえられて 1 m 浮き上がり、「左右の傾き」で付けた `roll` が再読込で 0 に戻り、親を動かすと子が一緒に運ばれていた（`tests/placement-reseat-keeps-pose.cjs`）。外装機器（推進・センサーなど `rigidPose` を持つ部品）と装備（`fits`）の親への追従はこの変更の対象外で、従来どおり。
+
+**未対応（報告のみ）**：移動の制限 `placementConstrainTranslation` は、利用者が構造物を親に完全に埋まる位置まで動かすと、まだ親の外に材料が残る位置まで押し戻す（例：甲板から 6 m 沈めると 0.69 m 戻る）。これも「自動で動かさない」に反するが、移動操作の制約という別の仕組みのため、このブランチでは変えていない。
+
+**拒否された構造物の再検査（2026-11-12）**：`validationFailed` の構造物は、今の公開状態（配置記録を含む）に対してまだ解いていなければ、`refreshPlacementGeometry` で一度だけ現在の規則により調べ直す（`placementRecheckRefusal`）。「解いた」の記録は最後に拒否した公開状態のキー（`placementRefusalKey`、非公開のキャッシュ）で、読み込み・取り込み・Worker の新しい船にはまだないので調べ直す。Worker が回復させた結果をエディタが古い世代・入力キーとして捨て、拒否のままの写しを送り返した場合も、公開状態がキーと違うので調べ直して再び回復する。解き方は通常の読み込みと同じ（`keepTransform:false`）。通れば接続し、通らなければ現在の理由と文言で再び `validationFailed`（点検の「配置の計算」エラーと 接続状態「計算失敗」）。同じ拒否状態は何度送られても解き直さない（編集中の失敗、Undo/Redo の `patchShip`）。公開状態が変わるたびに最大一度。保存した傾き（`pitch`・`roll`、「左右の傾き」など）は回復しても保つ（報告の設計の #100 −8°、#101 +8°）。検査は `tests/structure-sunk-interior-interference.cjs`、`tests/structure-refusal-recheck-worker.cjs`。
+
 ### 削りと接続（2026-11-11 ユーザー決定）
 
 ユーザーの考え方：船体が土台の本体で、構造物はそこに材料を足し、削り（削る）は足し合わせた本体を削る。**実際にまだ触れている構造物を、削りが切り離してはならない。**
 
 ユーザー決定（2026-11-11）。1〜5 は目標のモデルで、段階的に実装する。
 
-1. 船体や親構造物を移動・回転・拡大縮小したとき、取り付けた構造物は剛体のまとまりとして追従し、形を保つ。親の形状へ再成形しない（後続段階。現行の ATTACH-02 の再成形はこの段階で置き換える）。
+1. 船体や親構造物を移動・回転・拡大縮小したとき、取り付けた構造物は剛体のまとまりとして追従し、形を保つ。親の形状へ再成形しない（後続段階。現行の ATTACH-02 の再成形はこの段階で置き換える）。 **（2026-11-12 ユーザー決定で取り下げ：子は親に追従しない。まとめて動かすときは複数選択で動かす。「再計算は姿勢を保つ」）**
 2. 新しい削りは、交差するすべての構造物（板・翼・パネルを含む）に効く。作例・保存済みの船体専用の削りは船体専用のまま。個別に「すべてに適用」へ切り替えられる（後続段階）。
 3. 削りが構造物を切り離したり、固定機器（反応炉・機関など）に当たったりしても、削りは実行し、点検に警告（選択リンク付き）を出す。自動で移動・削除はしない。
 4. トレンチ・面取り・平面台形の削りは船体専用の形状道具のまま。削るメニューは立体カッター（箱・円柱など）の単一の道具になる（後続段階）。
@@ -122,7 +130,7 @@
 |面IDは手がかり|保存した `hostSurfaceId` は位置に基づく番号（面：船体の4分割：連結成分：トークン）で、削りで番号が変わり、消えたり重複したりする。消えた・重複した面IDでは保存した姿勢を保ち、親との実接触（面接触か重なり）で判定する。失敗は実際の接触ゼロだけ。アンカーの下の面が1つに決まれば面IDを付け直す|`placementSurfacePatch`（一意のときだけ）、`placementRebindSurface`、`placementEquipmentSurface`、`fitAttachmentSurface`。今回の要求で新しく選んだ面IDが存在しない場合（古い選択）は従来どおり `surface-missing`|
 |切り離し|削りで足元の材料がなくなり実際に接しなくなった子（構造物・外装機器・装備）は `severed`。赤い修復状態ではなく点検の警告（`lv:'warn'`、`code:'severed'`、選択リンク `targets`、装備は `list:'fits'`）。位置・形状は動かさない。判定は設計データに書き込まず、設計だけから毎回同じ結果を出す：今の位置で親に接していない、かつ削り（船体所有の削り・構造物に効く艦レベルの立体カット・切り欠き）を除いた親には接している。それ以外の理由で接していない子（利用者が離した、削りのない親で面IDが消えて隙間がある等）は従来どおり赤い `contact-zero`。失敗した子には前の切り離し判定や接触キャッシュを残さない。Worker・エディタ・再読込（`deferPlacementGeometry` を含む）・Undo/Redo・履歴の配置情報の差で同じ判定になる|`placementSeveredByCut`（構造物は `placementContact`、外装機器は `placementEquipmentContact`）、`fitSeveredByCut`、`placementStoredPoseSevered`、`placementKeepContact`、`refreshPlacementGeometry` の戻り値 `severed`、`placementDiagnostics` の `code:'severed'`、`groundingStats` の `S.severed`・`S.severedFits`|
 |成形形状|水平・垂直の切り取り成形（`fitPlacementContact`・`placementOverlapFallback`）は、子を置いた時点で親にあった削り（船体所有の削り・トレンチ・立体カット・切り欠き・ハッチ）を含み、その後に加えた親自身の削りを除いた親（`placementUncutParent(ship,parent,true,fitRemovalIds)`）に対して作る。置いた時点の削りの ID は配置のたびに `placement.fitRemovalIds` に記録する（新しいタップ・移動のとき。再計算・再読込では記録を使う）。記録のない保存データは今あるすべての削りを含める（従来どおり）。記録した削りそのものを編集・削除した（同じ ID で大きさを変えた、など）ときは、親が変わったときと同じく子を作り直す（main と同じ。子ごとに記録した削りとその内容のキー `placementFitRemovalKey` で判定）。ID のない削りは内容（と同じ内容の中での順番）で名前を付けるので、前の削りを消しても名前は変わらない。既存の凹みに置いた子は main と同じ形になる（床まで伸びる、床で切る、小さな穴を埋める）。構造物に効く艦レベルの立体カットは子も削るので、子の範囲に届く艦レベルのカットが変わったときは子を作り直す（`placementChildCutKey`）。成形形状は子の要求、親の姿勢・外形（位置決めキー）、子に届く艦レベルのカットだけで決まり、編集中・再読込・Worker の候補で同じ形・同じ質量になる。接触の判定は削った実際の親で行う。削りを狭めても広げても、残した子の形は新しく解いた形と同じで、質量・容積・価格も一致する（再読込を挟まなくてよい）。重なりは接触で、質量は構造の合併で一度だけ数える|`solvePlacement`、`tests/placement-cut-keeps-connection.cjs`「narrowing a cut」「does not depend on history」|
-|親が動いたとき|ユーザー決定 1（剛体追従）のこの段階での最小形：親が動いて子の再計算が失敗したとき、子は保存した親ローカルの基準点で親と一緒に平行移動し、その位置で判定する（削りで離れていれば警告、そうでなければ失敗）。切り離された子が親の移動で赤くなることはない。回転・拡大縮小を含む完全な剛体追従と再成形の廃止は段階 3|`placementCarryToParent`|
+|親が動いたとき|2026-11-12 ユーザー決定（ユーザー決定 1 の取り下げ）：子は親に追従しない。親が移動・回転・拡大縮小しても、子は保存したワールドの位置・向きのまま、その場で判定する（削りで離れていれば警告、そうでなければ赤い失敗）。親とまだ触れていれば接続のまま|`solvePlacement` の `storedPose`（以前の `placementCarryToParent` は削除）|
 |計算量|親ごとのキーは更新 1 回につき 1 度だけ計算する。材料だけの変更では、子の周りの親の三角形と子自身の三角形が変わっていなければ接触を測り直さない（周りの範囲は子の寸法の 1% と `8×placementEpsilon` の大きい方）|`placementParentKeys`、`placementLocalParentHash`|
 |浮いた装備|面IDが消えても実形状に触れていれば着座のまま。足元が削られて浮いた装備は `floatingFits` に出す（以前は `float` を理由に飛ばしていた）|`groundingStats`|
 
@@ -238,3 +246,48 @@
 実Safariを確認済みとして扱わない。操作性能には測定環境・観測値・未測定項目を付ける。
 構文検査だけで合格とせず、失敗試験と既存mainの失敗も区別してPRへ記載する。
 配置から保存・再読込・性能反映まで成立した範囲だけを完成扱いにする。
+
+## 編集した値は再計算しない（2026-11-12 ユーザー決定、段階 A1）
+
+ユーザーが置いた位置・向き・形（作者データ）は、置いた時と編集した時だけ決まる。再読込、再チェック、Worker、他の部品の編集では計算し直さない。合わなくなったら警告だけを出す。根本の仕組みは、エディタが Worker の公開状態をまるごと取り込むこと（`adoptEngineState`）で、Worker が計算し直した値がユーザーのデータを上書きする。段階の一覧は [handoff-2026-11-12.md](handoff-2026-11-12.md) §4。
+
+段階 A1 では、変化を検出して測るだけにとどめ、取り込みの動きは変えない。
+
+- `Core.authoredStateDrift(sent, received)`：エディタが送った状態と Worker が返した状態を比べ、作者データ（`_` で始まらない公開フィールド）が変わった項目を `[{list,id,kind,keys}]` で返す。Worker が解いたドラフト（`pendingGeometry`）はユーザーの要求への答えなので数えない。`surfaces` と `nextId` の変化も報告する。
+- `adoptEngineState`（js/app.js）は、取り込むたびに、変わった項目だけを比べて `eng.authoredDrift = {gen, items}` に記録する。
+- `tests/worker-authored-drift.cjs`：小さな設計に 1 回の編集を加え、Worker が変えた作者データを一覧にする。一覧は `ALLOWED` と一致しなければならない。`ALLOWED` には、まだ残っている書き換えを、それを取り除く段階の名前と一緒に書いてある。段階を進めたら、その段階の行を消す。新しい書き換えが入るとテストが失敗する。すべての段階が終われば空になる（段階 A2）。
+- `scripts/example-invariance.cjs`：保存した作例を普通の保存データとして読み込み、本物の Worker の更新経路を 2 回通す（reset と、Worker 自身の状態の往復）。次のものを記録し、2 つの版を比べる（`run <root> <out.json>`、`compare <base.json> <head.json>`）。
+  - 読み込みと Worker が変えた作者データ
+  - 往復した設計の computeStats の要約
+
+**基準値（2026-11-12、main e5527e1）**：全 28 隻で、A1 のブランチは main と同じ結果だった（数値の差 0、作者データの変化も同数）。Worker を 1 回通したときに作者データが変わった件数は次のとおり。
+
+| 作例 | 件数 | 作例 | 件数 | 作例 | 件数 | 作例 | 件数 |
+|---|---|---|---|---|---|---|---|
+| acclamator | 4 | gr75 | 3 | mc30c | 0 | providenceDn | 8 |
+| arquitens | 20 | hammerhead | 3 | mc75 | 2 | recusant | 9 |
+| cr90 | 3 | heraklon | 1 | mc80home | 2 | recusantDn | 9 |
+| dreadnaught | 5 | imperial | 0 | mc80liberty | 0 | reptransport | 1 |
+| executor | 5 | imperial2 | 0 | munificent | 7 | subjugator | 2 |
+| gozanti | 0 | lh3210 | 325 | nebulonb | 7 | venator | 14 |
+| lucrehulk | 325 | mandator2 | 6 | onager | 0 | providence | 8 |
+
+主な書き換えの対象は、件数の多い順に次のとおり。
+- 機関の台座（`engineMountSupport`）：段階 F で取り除く。
+- 装備の `slope`、`commandEnabled`、`n`：段階 C で取り除く。
+- 部品の `d`、`shellFlip`、`ship.nextId`。
+
+どの往復でも、2 回目の Worker の通過では作者データは変わらなかった。
+
+**運用の注意**
+- `ALLOWED` は厳密一致で比べる。sunk-interference（PR #97）がマージされると、「root resized across, sunk child elsewhere」の edit の行（子の配置の解き直しによる placement の書き換え。c は誤差だけ動く）は変わるので、その PR を取り込む時に `node --test tests/worker-authored-drift.cjs` を実行し、行を直す。
+- `scripts/example-invariance.cjs` の出力先は、実行ごとに別のディレクトリ（`/tmp/ks-verify/<日時>-invariance/`）にする。`docs/benchmarks/` には書かない。
+- 取り込みの記録（`eng.authoredDrift`）は、取り込みが確定した時だけ残る。同じ世代の 2 回の取り込み（形状と表面）の記録はつなぐ。検出器が例外を投げても取り込みは止まらず、記録に `error` が付く。
+
+**A1 の検出器の限界（Opus/high の確認、2026-11-12）**：後の段階の判定に使う前に、次の点を直すか、ここで扱う。
+- エディタでの記録（`eng.authoredDrift`）は診断用で、既定では切ってある。大きな艦（subjugator、装備 1153）では、比べるだけで取り込み 1 回につき約 90 ms かかるため。有効にするには `eng.recordAuthoredDrift=true` か、localStorage の `yard.authoredDrift` を `'1'` にする。記録には世代（gen）と設計（designId）が付く。
+- `placementResolution` の経路（`onEnginePlacementResolution`）は、取り込みより前に live の項目を書き換えるので、記録に残らない。旧式エンジンの位置の修正（段階 F の対象）もここを通る。テストと `example-invariance.cjs` は返ってきた状態をまるごと比べるので、こちらでは捕まる。
+- Worker が解いたドラフト（`pendingGeometry`）は、項目ごと数えない。解くのに関係ないキーの書き換えも見えなくなる。拒否から形を直して解き直した項目は、変化として数える。どちらも、段階 B の前に、解いた結果が担うキーだけを除外する形に絞る。
+- `ALLOWED` のシナリオは、段階 B、C、F だけを扱う。D（ハッチ）、E（船体カット）、G（surfaces と publicJSON）、H（ミラー）のシナリオはまだ無い。ハーネスは `geometry` の応答だけを比べ、`surfaceGeometry` の応答は比べない。したがって、`ALLOWED` が空になっても、段階 A2 の完了を意味しない。
+- 段階 B の PR は、F2（除外をキー単位に絞る）、F3（`surfaceGeometry` の比較と D・E・G・H のシナリオ）、F4（許容差の方針の統一）への対応を受け入れ条件にする。それまでは「`ALLOWED` の行を消したら段階完了」という判定を使わない。
+- 上の基準値と「2 回目の往復では変わらなかった」は、`example-invariance.cjs` の許容差（相対 1e-9）の中での話。誤差なしで比べると、subjugator は Worker の往復のたびに約 220 個の装備（p、base、low、mountSupport）が最大 2.5e-12 だけゆらぎ続ける。lucrehulk は 2 個。main からある Worker の挙動で、段階 C で扱う。検出器とテストは誤差なしで比べるので、許容差の方針は段階 B の前にそろえる。

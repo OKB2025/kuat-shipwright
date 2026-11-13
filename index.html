@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"></noscript>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="js/design-ui.css?v=75e41d961458">
+<link rel="stylesheet" href="js/design-ui.css?v=889f87501efa">
 
 
 
@@ -257,7 +257,9 @@ input[type=range] { width: 100%; accent-color: var(--accent); min-width: 0; }
 .kv dd small { display: block; font-family: var(--font-ui); font-weight: 400; font-size: 11px; color: var(--muted); }
 .pbar { position: relative; display: flex; height: 13px; border-radius: 3px; background: var(--panel-2); border: 1px solid var(--line); overflow: visible; }
 .pbar em { display: block; height: 100%; }
-.p-w { background: var(--accent); } .p-s { background: var(--c-shield); } .p-e { background: var(--c-engine); } .p-o { background: var(--dim); }
+.p-w { background: var(--accent); } .p-s { background: var(--c-shield); } .p-e { background: var(--c-engine); } .p-o { background: var(--dim); } .p-c { background: var(--cyan); }
+.pbar.pbar-sm { height: 7px; border-radius: 2px; } .plegend.plegend-sm { gap: 1px 7px; margin-top: 3px; font-size: 9.5px; line-height: 1.3; } .plegend-sm i { width: 6px; height: 6px; margin-right: 2px; vertical-align: 0; }
+.power-basis { margin-top: 4px; }
 .pmark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--bad); }
 .plegend, .clegend { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 11.5px; color: var(--muted); margin-top: 6px; }
 .plegend i, .clegend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
@@ -561,6 +563,7 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 .tr-btn{display:grid;justify-items:center;gap:1px;width:52px;padding:6px 2px 5px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--hud-fg);font:700 10.5px/1.15 var(--font-ui);letter-spacing:.02em;touch-action:manipulation}
 .tr-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tr-btn:hover{background:rgba(255,255,255,.06)}.tr-btn[aria-pressed="true"]{background:var(--hud-on);color:var(--hud-on-ink)}
+.tr-btn .tr-state{font:800 9.5px/1.1 var(--font-ui);letter-spacing:.06em;color:var(--hud-dim)}.tr-btn[aria-pressed="true"] .tr-state{color:inherit}
 #chipMirror[aria-pressed="true"],#chipVMirror[aria-pressed="true"]{background:rgba(240,160,58,.18);color:#ffc27a;border-color:rgba(240,160,58,.55)}
 .hudbar{justify-content:flex-end}.viewport-guide{display:none!important}
 .tut{left:calc(var(--gl) + 70px);width:min(372px,calc(100% - 100px))}.inspect{left:calc(var(--gl) + 70px)}
@@ -571,6 +574,10 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 /* ---- shorter editor panel ---- */
 .panel .rail-dup{display:none}
 .panel .note.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.panel .note.clamp.full{display:block}
+/* 5a a 「？」 marker only on notes whose text is cut off (set by noteClampMeasure); the title is the full text */
+.panel .note.clamp.clamp-cut{position:relative;padding-right:1.7em}
+.panel .note.clamp.clamp-cut::after{content:"？";position:absolute;right:0;bottom:0;display:grid;place-items:center;width:1.35em;height:1.35em;border:1px solid var(--line-2);border-radius:50%;background:var(--panel-2);color:var(--cyan);font-size:.92em;font-weight:700;line-height:1}
+@media (hover:hover){.panel .note.clamp.clamp-cut{cursor:help}.panel .note.clamp.clamp-cut:hover::after{border-color:var(--cyan)}}
 .panel details.fold{border:1px solid var(--line);border-radius:8px;padding:0 10px;margin:0 0 12px;background:var(--panel-2)}
 .panel details.fold>summary{cursor:pointer;padding:9px 0;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;list-style:none}
 .panel details.fold>summary::-webkit-details-marker{display:none}.panel details.fold>summary::before{content:"▸ ";color:var(--cyan)}.panel details.fold[open]>summary::before{content:"▾ "}
@@ -715,7 +722,7 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .shot-actions{display:flex;gap:6px}.shot-btn:disabled,.shot-quality select:disabled{opacity:.55;cursor:default}.shot-result{flex-basis:100%;text-align:right;color:#e8eef0;text-shadow:0 1px 3px #000;font:12px var(--font-ui)}.shot-result:empty{display:none}.shotbar:focus-within{opacity:1;pointer-events:auto}
 .th-tmarks{position:absolute;inset:0;overflow:hidden}.th-tmark{position:absolute;left:0;top:0;will-change:transform}.th-tmark i{position:absolute;left:-13px;top:-13px;width:26px;height:26px;border:1.5px solid rgba(255,170,90,.85);border-radius:3px;clip-path:polygon(0 0,35% 0,35% 12%,65% 12%,65% 0,100% 0,100% 35%,88% 35%,88% 65%,100% 65%,100% 100%,65% 100%,65% 88%,35% 88%,35% 100%,0 100%,0 65%,12% 65%,12% 35%,0 35%)}.th-tmark b{position:absolute;left:16px;top:-6px;font:600 11px/1 var(--font-display);white-space:nowrap;color:#ffc58e;text-shadow:0 1px 3px rgba(0,0,0,.9)}.th-tmark.lock i{border-color:#ff6a3a;box-shadow:0 0 8px rgba(255,100,60,.7)}.th-tmark.lock b{display:none}
 /* bottom left: telegraph, arrows, rudder */
-.th-pad{position:absolute;left:var(--th-gl);bottom:var(--th-gb);display:grid;grid-template-columns:auto 8px auto;grid-template-rows:auto auto;gap:8px 8px;padding:8px 10px;align-items:center}
+.th-pad{position:absolute;left:var(--th-gl);bottom:var(--th-gb);display:grid;grid-template-columns:auto 8px auto auto;grid-template-rows:auto auto;gap:8px 8px;padding:8px 10px;align-items:center}
 .th-tele-ladder{display:grid;gap:2px;grid-row:1}.th-tele-ladder span{font:700 11px/1 var(--font-ui);padding:4px 7px;border-radius:5px;color:var(--hud-dim);text-align:center;min-width:34px}.th-tele-ladder span.on{background:var(--hud-on);color:var(--hud-on-ink)}
 .th-tele-bar{grid-row:1;align-self:stretch;position:relative;width:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}.th-tele-bar i{position:absolute;left:0;right:0;bottom:0;height:20%;background:linear-gradient(#9fe3f4,#2b7f99)}
 .th-dpad{grid-row:1;display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
@@ -723,6 +730,20 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .th-arrow.up{grid-area:1/2}.th-arrow.left{grid-area:2/1}.th-arrow.right{grid-area:2/3}.th-arrow.down{grid-area:3/2}
 .th-dmid{grid-area:2/2;display:grid;place-items:center;font:600 16px/1 var(--font-display);color:var(--hud-on)}
 .th-rudder{grid-column:1/-1;display:grid;gap:3px}
+/* 4c reactor load beside the throttle: 0–150 %, the mark at 100 % */
+.th-load{grid-row:1;align-self:stretch;display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center;gap:3px;min-width:30px}
+.th-load-bar{position:relative;width:10px;min-height:48px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.th-load-bar i{position:absolute;left:0;right:0;bottom:0;height:0;background:#7fd6a0;transition:height .2s}
+.th-load-full{position:absolute;left:-2px;right:-2px;bottom:66.67%;height:2px;background:rgba(219,229,232,.75)}
+.th-load[data-level="wait"] .th-load-bar i{background:#f0c060}.th-load[data-level="ng"] .th-load-bar i{background:#ff7a5c}
+.th-load small{font:700 9.5px/1.15 var(--font-ui);color:var(--hud-dim);white-space:nowrap;font-variant-numeric:tabular-nums}.th-load[data-level="ng"] small{color:#ff9a86}
+@media(prefers-reduced-motion:reduce){.th-load-bar i{transition:none}}
+/* 4a bottom centre: rudder gauge with a visible centre button (X and the gamepad do the same) */
+.th-rudderbar{position:absolute;left:50%;bottom:var(--th-gb);transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:5px 8px;width:min(300px,calc(100% - 2 * var(--th-gl) - 520px));min-width:200px;box-sizing:border-box}
+.th-rudderbar .th-rudder{flex:1 1 auto;min-width:0}.th-rudderbar .th-center{flex:0 0 auto;min-height:30px;padding:3px 9px;font-size:11px;white-space:nowrap}
+@container ks (orientation:landscape) and (max-height:560px){.th-rudderbar{min-width:180px;width:min(250px,calc(100% - 520px));padding:3px 6px;gap:5px}.th-rudderbar .th-center{min-height:26px;padding:2px 7px;font-size:10.5px}}
+#trialHud .th-keys{margin-bottom:54px}
+@container ks (max-width:640px){.th-rudderbar{bottom:calc(var(--th-gb) + 128px);width:min(260px,calc(100% - 24px))}}
 .th-order{text-align:center;font-size:11px;font-weight:500;color:var(--hud-dim);line-height:1.3}
 .th-gauge{position:relative;height:18px;margin:0 8px;border-radius:6px;background:rgba(255,255,255,.05)}
 .th-gauge span{position:absolute;top:5px;width:2px;height:8px;background:rgba(219,229,232,.35);transform:translateX(-50%)}
@@ -786,7 +807,7 @@ html[lang="en"] .th-sw{font-size:9px;letter-spacing:-.04em}
 @container ks (max-width:900px) {.th-keys{display:none}}
 @container ks (max-width:640px) {.th-read dd{font-size:16px}.th-read{gap:2px 12px}.th-id b{max-width:60cqw}.th-actions{justify-content:flex-start}.th-records{font-size:10.5px;white-space:normal;text-align:center;border-radius:10px}.th-dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.th-stick{--sz:120px}.th-fire{--sz:78px}.th-msl{--sz:56px;right:calc(var(--th-gr) + 88px)}}
 @container ks (orientation:landscape) and (max-height:560px) {#trialHud{padding-block:max(6px,var(--sa-top,0px)) max(6px,var(--sa-bottom,0px));--th-gb:max(6px,var(--sa-bottom,0px))}.th-card{padding:5px 9px}.th-id b{font-size:14px}.th-read dd{font-size:15px}.th-btn{min-height:30px;padding:4px 9px;font-size:11px}.th-records{font-size:10.5px;margin-top:4px}
- .th-pad{grid-template-columns:auto 6px auto;gap:4px 6px;padding:5px 8px}.th-tele-ladder span{padding:2px 6px;font-size:10px}.th-dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:3px}.th-arrow{font-size:15px}.th-gauge{height:14px}.th-gauge span{top:3px}.th-gauge span:nth-child(3){top:1px}.th-order{font-size:10px}
+ .th-pad{grid-template-columns:auto 6px auto auto;gap:4px 6px;padding:5px 8px}.th-tele-ladder span{padding:2px 6px;font-size:10px}.th-dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:3px}.th-arrow{font-size:15px}.th-gauge{height:14px}.th-gauge span{top:3px}.th-gauge span:nth-child(3){top:1px}.th-order{font-size:10px}
  .th-stick{--sz:112px;margin-top:-30px}.th-fire{--sz:70px;font-size:14px}.th-msl{--sz:52px;right:calc(var(--th-gr) + 80px);font-size:11px}.th-reticle b{top:calc(100% + 8px)}}
 @container ks (max-width:420px) {.btn-ghost{padding:0 8px;font-size:12px}.tb-actions{gap:4px}.icon-btn{width:32px;height:32px}}
 @container ks (min-width:1000px) {.tabs button{padding:9px 6px 7px;font-size:13px;letter-spacing:.02em}}
@@ -1482,8 +1503,8 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
       <div class="shotbar" id="shotBar" hidden aria-label="スクリーンショット表示の操作"></div>
       <nav class="toolrail" id="toolRail" aria-label="道具と対称">
         <div class="tr-tools" id="railTools"></div>
-        <button type="button" class="tr-btn" id="chipMirror" aria-pressed="true" title="左右対称：左右の対になる位置にも同時に配置・編集"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M4 7l5 5-5 5z"/><path d="M20 7l-5 5 5 5z"/></svg><span>左右対称</span></button>
-        <button type="button" class="tr-btn" id="chipVMirror" aria-pressed="false" title="上下対称：上下の対になる位置にも同時に配置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M7 4l5 5 5-5z"/><path d="M7 20l5-5 5 5z"/></svg><span>上下対称</span></button>
+        <button type="button" class="tr-btn" id="chipMirror" aria-pressed="true" title="左右対称：左右の対になる位置にも同時に配置・編集"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M4 7l5 5-5 5z"/><path d="M20 7l-5 5 5 5z"/></svg><span>左右対称</span><span class="tr-state" data-symmetry-state>ON</span></button>
+        <button type="button" class="tr-btn" id="chipVMirror" aria-pressed="false" title="上下対称：上下の対になる位置にも同時に配置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M7 4l5 5 5-5z"/><path d="M7 20l5-5 5 5z"/></svg><span>上下対称</span><span class="tr-state" data-symmetry-state>OFF</span></button>
       </nav>
       <div class="hudbar">
         <div class="hudgrp">
@@ -1629,9 +1650,9 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 
 <style>.ks-language{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;color:#b7c9d2}.ks-language select{font:inherit;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px}.brand,.brand-txt{min-width:0}.brand-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html[lang=en] #tabs button{font-size:11px}.title-foot{flex-wrap:wrap}</style>
 <script>/* The English catalog (~0.9 MB) is loaded only when the page starts in English (same rule as js/i18n.js); a Japanese start goes on without it, and switching language fetches it then. */
-window.KS_EN_SRC="js/lang-en.js?v=11ce846dd6";(function(){var l;try{l=localStorage.getItem("yard.language")}catch(e){}if(l==="en"||l!=="ja"&&!/^ja\b/i.test(navigator.language||"ja"))document.write('<script src="'+window.KS_EN_SRC+'"><\/script>');})();</script>
+window.KS_EN_SRC="js/lang-en.js?v=16d36b5fe6";(function(){var l;try{l=localStorage.getItem("yard.language")}catch(e){}if(l==="en"||l!=="ja"&&!/^ja\b/i.test(navigator.language||"ja"))document.write('<script src="'+window.KS_EN_SRC+'"><\/script>');})();</script>
 <script src="js/i18n.js?v=4b3c56c2bb"></script>
-<script>window.KS_FILES={"data":["data/reference.js","data/textures.js","data/coruscant.js","data/imperial2.js","data/fleet.js"],"core":"js/core.js","gfx":"js/gfx.js","engine":"js/engine.js","app":"js/app.js","worker":"js/worker.js","sizes":{"js/asset-cache.js":5862,"data/reference.js":17871345,"data/textures.js":561583,"data/coruscant.js":5925015,"data/imperial2.js":352189,"data/fleet.js":6171987,"js/core.js":4496886,"js/gfx.js":381580,"js/engine.js":69382,"js/app.js":1883509},"hashes":{"js/asset-cache.js":"9e8f4b51b1c112d0eddd3e262ec7f8234c88d65b1ba29b796b7fc3b714b8084d","data/reference.js":"a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe","data/textures.js":"2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354","data/coruscant.js":"80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767","data/imperial2.js":"18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626","data/fleet.js":"20135a2fd690570fcdbca9042470aaa9a18d594c6d7c1679d3c7275bf81f21c9","js/core.js":"6d2c01f34b7a940849c99df6262353e1e0389c6b41942d7fd7a398246658eabf","js/gfx.js":"f9e2df2ad484f4c464acd1188a0bd0701e10f6af5b8ee8eaeaa1c041319e5369","js/engine.js":"896c12e121c03f73221e61327610385cb8c306146a50f2a5a158da191eac26fb","js/app.js":"c17c0666d92e35b12bbe0dca691ac987d9475ac119791798307d638a982b969a"},"preload":"js/asset-cache.js"};</script>
+<script>window.KS_FILES={"data":["data/reference.js","data/textures.js","data/coruscant.js","data/imperial2.js","data/fleet.js"],"core":"js/core.js","gfx":"js/gfx.js","engine":"js/engine.js","app":"js/app.js","worker":"js/worker.js","sizes":{"js/asset-cache.js":5862,"data/reference.js":17871345,"data/textures.js":561583,"data/coruscant.js":5925015,"data/imperial2.js":352189,"data/fleet.js":6171490,"js/core.js":4519283,"js/gfx.js":387036,"js/engine.js":82894,"js/app.js":1906777},"hashes":{"js/asset-cache.js":"9e8f4b51b1c112d0eddd3e262ec7f8234c88d65b1ba29b796b7fc3b714b8084d","data/reference.js":"a2ab8ef651c4ca94f469131474e0f0b26a3e7269978da4ffe6eee240f79368fe","data/textures.js":"2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354","data/coruscant.js":"80d611f9bc877fa5590907e16dc25bd6f2f834007236af2f0964f3978037b767","data/imperial2.js":"18b3f863310754b341927300e03a9904b4b6d28d9ce9a7809a624e88c2afa626","data/fleet.js":"cebd14dc19a50c3e33f8ff543a367c610f067afe7323288130d123e99f1fcefd","js/core.js":"bd1885995e7354f81828f11cd77fa09d47e85947f33c93bb3a06e7a6759ee7ff","js/gfx.js":"11e63c7d32e7372800218fec9865aaf430adb1df045263e7ba4a7aee765def0e","js/engine.js":"715c2ad60ef791357243e56ca72d751695290361df0cccf2b7bae679218b9dc0","js/app.js":"a16fe78085382bf4d96372f59253e5155e6ce30cb9dc7458cfbeee32cbb17aa7"},"preload":"js/asset-cache.js"};</script>
 <script src="js/asset-cache.js?v=9e8f4b51b1c1"></script>
 <script>
 /* ============================================================
