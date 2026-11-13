@@ -148,7 +148,9 @@ test('a parent refresh writes nothing in the fitting (stage C): no dependency ge
  C.refreshFitPlacementAttachments(s);assert.equal(f.float,true);assert.equal(f.placement.parentGeometryRevision,oldParentRevision);assert.equal(f.placement.parentGeometryKey,oldParentKey);assert.equal(f.placement.geometryRevision,ownRevision);assert.equal(C.fitPlacementShapeKey(f),key);
  const after=JSON.parse(C.publicJSON(f)),was=JSON.parse(record);delete after.float;delete was.float;assert.deepEqual(after,was,'only the derived support state changed');
  const saved=plain(C.serialize(s)),restored=C.deserialize(saved),fit=restored.fits[0];assert.equal(fit.placement.parentGeometryRevision,oldParentRevision);vector(fit.p,f.p);
- const hit={p:f.p.slice(),n:f.n.slice()},r=C.solveFitPlacement(s,f,{mode:'direct',hostId:1,hit,parentGeometryRevision:3,geometryRevision:ownRevision+1});f.placement.geometryRevision++;const before=state(s),late=C.acceptFitPlacementResult(s,r);assert.equal(late.ok,false,'a newer intrinsic fitting request still invalidates a late result');assert.equal(state(s),before);
+ // Stage C high review M3: the fitting floats now (it did not follow the parent), so the user's new request seats it on
+ // the moved parent's real surface; the solve must succeed for the late-result check to mean anything.
+ const top=C.rayPart(C.add(f.p,[0,200,0]),[0,-1,0],parent),hit={p:Array.from(top.p),n:Array.from(C.norm(top.n))},r=C.solveFitPlacement(s,f,{mode:'direct',hostId:1,hit,parentGeometryRevision:3,geometryRevision:ownRevision+1});assert.equal(r.ok,true,r.error);f.placement.geometryRevision++;const before=state(s),late=C.acceptFitPlacementResult(s,r);assert.equal(late.ok,false,'a newer intrinsic fitting request still invalidates a late result');assert.equal(state(s),before);
 });
 
 test('Core exposed and clipped surface picks round-trip into strict fitting validation across scale and large world coordinates',()=>{

@@ -59,3 +59,33 @@ test('a pedestalled gun left floating by a deletion keeps no support; dropped on
  const a=make(false);assert.ok(a.fits[0].mountSupport,'a support on the slope');C.removeParts(a,[2]);C.remount(a,{keepFitPose:true});assert.equal(a.fits[0].float,true);assert.equal(a.fits[0].mountSupport,undefined);assert.equal(a.fits[0].base,0);assert.equal(a.fits[0].low,0);/* pedVol keeps only the manual pedestal (ped 2) */
  const b=make(true),r=C.removeParts(b,[2]);assert.ok(r.reparented.some(q=>q.list==='fits'),'dropped and mounted');near(b.fits[0].p[1],20,1e-6);assert.equal(b.fits[0].host,1);C.remount(b,{keepFitPose:true});assert.equal(b.fits[0].float,false);
 });
+
+// ---- Stage C high review (2026-11-13) regressions ----
+const r3=v=>Array.from(v).map(x=>+x.toFixed(3));
+test('a roof added above a kept fitting does not make it float (the seat probe is local)',()=>{
+ const s=fixture();C.refreshPlacementGeometry(s);s.fits.push({id:9,k:'pd',p:[100,20,0],n:[0,1,0],a:2,ped:.3});C.remount(s);const f=s.fits[0];assert.equal(f.float,false);
+ s.parts.push({id:2,k:'struct',form:'box',c:[100,40,0],s:[30,30,4]});C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.deepEqual(r3(f.p),[100,20,0]);assert.equal(f.float,false);
+});
+test('an embedded launcher and a reference turret keep their pose on a keep remount when their structure moves',()=>{
+ const wall=()=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'k');s.parts=[{id:1,k:'struct',form:'box',c:[100,30,0],s:[100,60,60]}];s.fits=[];s.links=[];s.armor={hull:0,cit:0};s.nextId=2;s.detail=0;C.refreshPlacementGeometry(s);return s;};
+ {const s=wall();s.fits.push({id:5,k:'shipMsl',p:[150,30,0],n:[1,0,0],tilt:[1,0,0],a:0,ped:0,launcherEmbedded:true});C.remount(s);const g=s.fits[0];const p0=r3(g.p);
+  s.parts[0].c=[100,30,20];C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.deepEqual(r3(g.p),p0,'embedded launcher does not follow');}
+ {const s=wall();s.fits.push({id:7,k:'refVen',p:[100,61,0],a:2,mountAxis:2,mountOffset:1,ped:0});C.remount(s);const g=s.fits[0];assert.equal(g.float,false);assert.deepEqual(r3(g.p),[100,61,0]);
+  C.remount(s,{keepFitPose:true});assert.equal(g.float,false,'its own seat supports it');s.parts[0].c=[100,25,0];C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.deepEqual(r3(g.p),[100,61,0],'reference turret does not follow');assert.equal(g.float,true);}
+});
+for(const roll of [0,12,25])test(`deleting the structure under a fitting drops it onto a sloped surface below (roll ${roll}°)`,()=>{
+ const s=fixture();s.parts[0].roll=roll;s.parts.push({id:2,k:'struct',form:'box',c:[100,30,0],s:[60,40,20]});s.nextId=3;C.refreshPlacementGeometry(s);s.fits.push({id:9,k:'pd',p:[100,40,0],n:[0,1,0],a:2,ped:.3});C.remount(s);const f=s.fits[0];
+ const r=C.removeParts(s,[2]);assert.ok(r.reparented.some(q=>q.list==='fits'&&q.fitId===9));assert.equal(f.float,false);assert.ok(f.p[1]<25,'it moved down');
+ C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.equal(f.float,false,'and stays supported after a reload remount');
+});
+test('deleting a structure drops a fitting onto the procedural hull below it',()=>{
+ const s=C.newShip({L:600,W:400,H:120,plan:'rect',sec:'rect'},'hull');s.parts=[{id:1,k:'struct',form:'box',c:[300,130,0],s:[40,40,20]}];s.fits=[];s.nextId=2;s.detail=0;C.refreshPlacementGeometry(s);
+ s.fits.push({id:5,k:'pd',p:[300,140,0],n:[0,1,0],a:2,ped:.3});C.remount(s);C.removeParts(s,[1]);const f=s.fits[0];assert.equal(f.float,false);near(f.p[1],C.rayEnv(s,[300,500,0],[0,-1,0],{}).p[1],1e-6);
+});
+test('the drop reach is the depth of the structure the fitting stood on, not of other structures deleted with it; a floating fitting keeps no host',()=>{
+ for(const bulk of [false,true]){const s=fixture();s.parts[0].c=[200,10,0];s.parts[0].s=[100,160,20];s.parts.push({id:2,k:'struct',form:'box',c:[80,21,20],s:[20,12,2]},{id:4,k:'struct',form:'box',c:[80,-60,20],s:[40,40,10]},{id:3,k:'struct',form:'box',c:[260,10,80],s:[20,20,200]});s.nextId=5;C.refreshPlacementGeometry(s);
+  s.fits.push({id:9,k:'pd',p:[80,22,20],n:[0,1,0],a:2,ped:.3,host:2});C.remount(s);C.removeParts(s,bulk?[2,3]:[2]);const f=s.fits[0];assert.deepEqual(r3(f.p),[80,22,20]);assert.equal(f.float,true);assert.equal(f.host,undefined,'no dangling host id');}
+});
+test('mirroring a ship launcher flips its tilt once (n and tilt agree)',()=>{
+ const t=C.norm([0,1,.3]),m=C.assemblyMirrorFit({id:1,k:'shipMsl',p:[10,5,8],n:t.slice(),tilt:t.slice(),a:2});assert.ok(m.tilt[2]<0);assert.deepEqual(r3(m.tilt),r3(m.n));
+});
