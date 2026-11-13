@@ -25,8 +25,8 @@ body.designer-ui .design-metrics{display:grid}
 .design-categories{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.design-categories button{min-height:40px}.design-categories button[aria-pressed=true]{border-color:var(--cyan);color:var(--cyan)}
 .design-placement{position:relative;border:1px solid var(--line-2);border-radius:10px;padding:12px;margin:12px 0}.design-placement h4{margin:0 0 10px}.design-placement select{max-width:100%;width:100%;min-height:42px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;padding:8px}.design-placement .seg{display:flex;flex-wrap:wrap;gap:6px}.design-placement button{min-height:40px}.design-placement label{font-size:12px;display:grid;gap:6px;margin:9px 0}.design-placement .note{line-height:1.6}
 .design-placement-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.design-placement-actions button{min-height:44px;flex:1}.design-part-preview{float:right;width:min(240px,32%);height:160px;margin:0 0 10px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--space)}
-.design-placement-bar{position:absolute;z-index:23;bottom:calc(80px + var(--sa-bottom));left:max(14px,var(--sa-left));right:calc(180px + var(--sa-right));display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:650px;padding:10px;background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:10px;backdrop-filter:blur(10px)}
-.design-placement-bar p{margin:0;flex:1 1 180px;font-size:12px}.design-placement-bar button{min-height:42px}.design-placement-bar[data-state=failed]{border-color:var(--bad)}
+.design-placement-bar{position:absolute;z-index:23;top:calc(48px + var(--sa-top,0px));left:calc(max(12px,var(--sa-left)) + 66px);right:calc(min(230px,28cqw) + 20px + var(--sa-right));margin-inline:auto;width:max-content;max-width:min(600px,calc(100% - 96px - min(230px,28cqw) - var(--sa-left) - var(--sa-right)));box-sizing:border-box;display:grid;gap:4px;padding:6px 10px;background:var(--hud-bg);border:1px solid rgba(240,160,58,.6);border-radius:16px;box-shadow:0 4px 18px #0007;backdrop-filter:blur(10px)}
+.design-placement-bar p{margin:0;font-size:12px}.design-placement-bar button{min-height:32px}.design-placement-bar[data-state=failed]{border-color:var(--bad)}
 body.designer-ui #dock:not(.design-details) .design-legacy-groups{display:none}
 body.designer-ui #dock .design-placement{display:flow-root}
 body.designer-ui #dock .design-placement .note{display:block;max-height:none}
@@ -37,7 +37,7 @@ body.shot-mode .design-menu,body.shot-mode .design-metrics,body.shot-mode .desig
 @container ks (max-width:700px){
  body.designer-ui #dock{left:max(5px,var(--sa-left));right:max(5px,var(--sa-right));max-height:66cqh;bottom:calc(66px + var(--sa-bottom))}
  body.designer-ui #dock .panel{padding:10px}.design-menu{gap:5px;padding-inline:max(6px,var(--sa-left));padding-block:8px calc(8px + var(--sa-bottom))}.design-menu>button{min-width:62px;padding-inline:9px}.design-menu .seg{flex:0 1 150px}
- .design-metrics{min-width:115px;max-width:140px;gap:4px;padding:8px;right:max(6px,var(--sa-right));top:10px}.design-metrics dd{font-size:14px}.design-metrics dt,.design-metrics p{font-size:10px}.design-placement-bar{right:max(6px,var(--sa-right));bottom:calc(76px + var(--sa-bottom));left:max(6px,var(--sa-left))}.design-drawer-head{padding:7px 10px}.design-part-preview{width:35%;height:130px}
+ .design-metrics{min-width:115px;max-width:140px;gap:4px;padding:8px;right:max(6px,var(--sa-right));top:10px}.design-metrics dd{font-size:14px}.design-metrics dt,.design-metrics p{font-size:10px}.design-placement-bar{left:calc(max(6px,var(--sa-left)) + 58px);right:max(6px,var(--sa-right));max-width:calc(100% - 70px)}.design-drawer-head{padding:7px 10px}.design-part-preview{width:35%;height:130px}
  body.designer-ui .hudbar{left:12px;right:auto;top:10px}.design-menu button{font-size:12px}
 }
 @container ks (max-height:460px){body.designer-ui #dock{max-height:64cqh}.design-part-preview{height:110px}.design-metrics{gap:3px}.design-metrics>div{grid-template-columns:40px 1fr;align-items:center;gap:5px}}
@@ -72,18 +72,27 @@ body.designer-ui #dock.design-editing .panel>.sel-strip{position:static}
 body.designer-ui #dock.design-editing .ed-list,body.designer-ui #dock.design-editing .editor{position:relative;isolation:isolate}
 .design-parent-target{flex:1 1 100%;font-size:12px;color:var(--cyan)}
 .design-parent-target small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-/* Repeated placement keeps the target visible above a compact feedback strip. */
-body.designer-ui .design-placement-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 8px;padding:7px 9px;align-items:center}
-body.designer-ui .design-placement-bar>p{grid-column:1;grid-row:1;min-width:0;font-size:11px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-body.designer-ui .design-placement-bar>button{grid-row:1;min-height:32px;padding:4px 8px;font-size:11px;line-height:1.3}
-body.designer-ui .design-placement-bar>[data-design-action="adjust"]{grid-column:2}
-body.designer-ui .design-placement-bar>[data-design-action="cancel"]{grid-column:3}
-body.designer-ui .design-placement-bar>.design-parent-target{grid-column:1/-1;grid-row:2;min-width:0;font-size:10px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 1b The placement pill at the top centre: what is placed, 完了 and キャンセル（Esc）, then status and settings. */
+body.designer-ui .design-placement-bar>.design-pill-head{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
+body.designer-ui .design-pill-name{flex:0 1 auto;min-width:0;font-size:12.5px;line-height:1.3;color:#ffc27a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.designer-ui .design-pill-head button{flex:0 0 auto;min-height:30px;padding:3px 10px;font-size:11.5px;line-height:1.3}
+body.designer-ui .design-placement-bar>p{min-width:0;font-size:11px;line-height:1.35;text-align:center;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+body.designer-ui .design-placement-bar>.design-parent-target{min-width:0;font-size:10px;line-height:1.3;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.designer-ui .design-placement-bar .design-parent-target small{font-size:10px;margin-top:1px}
+body.designer-ui .design-pill-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5px}
+body.designer-ui .design-pill-tools button{min-height:26px;padding:2px 8px;font-size:11px;line-height:1.3}
+/* 1b Armed placement: the 3D view's edge glows. */
+body.designer-ui.design-armed .viewport::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 0 2px rgba(240,160,58,.85),inset 0 0 26px 6px rgba(240,160,58,.32);animation:design-armed-glow 1.4s ease-in-out infinite alternate}
+@keyframes design-armed-glow{from{opacity:.65}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){body.designer-ui.design-armed .viewport::after{animation:none}}
+body.shot-mode .viewport::after{display:none}
 @container ks (orientation:landscape) and (max-height:640px){
- body.designer-ui .design-placement-bar{bottom:calc(48px + var(--sa-bottom));left:max(6px,var(--sa-left));right:calc(min(205px,25cqw) + 18px + var(--sa-right));max-width:650px;padding:5px 7px;gap:3px 6px}
- body.designer-ui .design-placement-bar>button{min-height:28px;padding:3px 7px}
+ body.designer-ui .design-placement-bar{top:calc(40px + var(--sa-top,0px));left:calc(max(6px,var(--sa-left)) + 58px);right:calc(min(205px,25cqw) + 18px + var(--sa-right));max-width:calc(100% - 82px - min(205px,25cqw) - var(--sa-left) - var(--sa-right));padding:4px 8px;gap:2px}
+ body.designer-ui .design-pill-head button{min-height:26px;padding:2px 8px;font-size:11px}
+ body.designer-ui .design-pill-name{font-size:11.5px}
+ body.designer-ui .design-placement-bar>p{-webkit-line-clamp:1;font-size:10.5px}
  body.designer-ui .design-placement-bar .design-parent-target small{display:none}
+ body.designer-ui .design-pill-tools button{min-height:24px;padding:1px 7px;font-size:10.5px}
 }
 /* Weapon names must not set the minimum width of the trench editor. */
 [data-trench-armament-editor]{min-width:0;max-width:100%}
@@ -276,3 +285,13 @@ body.title-open .design-readouts,body.shot-mode .design-readouts,body.trial-on .
 #trialHud .th-jumpbtn [data-jump-readiness]{display:block;font-size:10px;line-height:1.5;white-space:normal;margin-top:4px}
 @container ks (max-width:640px){#trialHud .th-heat{font-size:10px}#trialHud .th-gmode[data-trial-cmd="pd-auto"]{font-size:10px;padding-inline:5px}}
 @container ks (orientation:landscape) and (max-height:560px){#trialHud .th-throttle-control{gap:3px;min-width:60px}#trialHud [data-th-throttle]{height:88px;min-height:60px}#trialHud .th-pad{padding:5px 7px;gap:4px 6px}#trialHud .th-pad .th-dpad{grid-template-columns:28px 64px 28px;grid-template-rows:36px}#trialHud .th-heat{margin-top:1px}}
+/* 2c Apply / discard fixed at the bottom of the small edit window (outside the scrolling panel). */
+body.designer-ui #dock .design-edit-footer{flex:0 0 auto;display:flex;gap:6px;justify-content:flex-end;padding:6px 8px;border-top:1px solid var(--line-2);background:var(--panel)}
+body.designer-ui #dock .design-edit-footer[hidden]{display:none}
+body.designer-ui #dock .design-edit-footer button{flex:1 1 0;min-width:0;min-height:34px;padding:4px 8px;font-size:12px;line-height:1.3}
+body.designer-ui #dock .design-edit-footer [data-design-action="edit-cancel"]{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 55%,transparent)}
+@container ks (orientation:landscape) and (max-height:640px){body.designer-ui #dock .design-edit-footer{padding:4px 6px}body.designer-ui #dock .design-edit-footer button{min-height:30px;font-size:11.5px}}
+/* 3a Compact combat power bar in the always-visible metrics. */
+.design-metrics>.design-power{grid-column:1/-1;display:block}
+.design-metrics>.design-power dd{font:inherit;margin-top:3px}
+body.designer-ui .design-metrics>.design-power{grid-template-columns:none}
