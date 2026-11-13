@@ -39,3 +39,14 @@ test('deleting the structure under a fitting with nothing below leaves it where 
  const f=place(s,2,[260,20,0]),before=plain(f.p);const r=C.removeParts(s,[2]);assert.equal(r.ok,true);assert.equal(s.fits.length,1,'not deleted');assert.deepEqual(plain(s.fits[0].p),before);
  C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,true);assert.deepEqual(plain(s.fits[0].p),before);
 });
+
+// Regression review 2026-11-13: a weapon WITHOUT a host (example and legacy fittings) standing on a deleted structure
+// drops onto the structure below too; the drop never reaches beyond the removed structure's own depth.
+test('deleting the structure under a hostless weapon drops it onto the structure below',()=>{
+ const s=fixture();s.parts.push({id:2,k:'struct',form:'box',c:[80,26,20],s:[20,20,12]});s.nextId=3;s.fits.push({id:9,k:'pd',p:[80,32,20],n:[0,1,0],a:2,ped:.3});C.remount(s);
+ assert.equal(s.fits[0].host,undefined);const r=C.removeParts(s,[2]);assert.equal(r.ok,true);assert.equal(s.fits.length,1);near(s.fits[0].p[1],20,1e-6);near(s.fits[0].p[0],80);
+});
+test('a mirrored template keeps the tilt of a sloped non-turret fitting mirrored',()=>{
+ const f={id:1,k:'cmsl',p:[10,5,8],n:C.norm([0,1,.3]),tilt:C.norm([0,1,.3]),a:2,placement:{mode:'direct',modelVersion:C.PLACEMENT_MODEL_VERSION}},m=C.assemblyMirrorFit(f);
+ if(!C.fitCanRotate(f)){near(m.tilt[2],-f.tilt[2]);near(m.tilt[1],f.tilt[1]);}
+});

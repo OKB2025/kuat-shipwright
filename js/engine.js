@@ -871,7 +871,7 @@ function fleetKeep(keys, rec) {
 const designHash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + s.length; };
 // Restore completed native caches when available. A public-state-only record
 // retains the legacy compartment derivation; repainting derives a new variant.
-function rehydrate(state, paint, caches) { const d = JSON.parse(state); if (paint) d.paint = paint; if (!caches || paint || !restoreCaches(d, caches)) C.syncCompartments(d); if (paint) { C.remount(d); C.syncCompartments(d); } return d; }
+function rehydrate(state, paint, caches) { const d = JSON.parse(state); if (paint) d.paint = paint; if (!caches || paint || !restoreCaches(d, caches)) C.syncCompartments(d); if (paint) { C.remount(d, {keepFitPose: true}); C.syncCompartments(d); } return d; }
 const recShip = (rec) => rec.d || (rec.d = rehydrate(rec.state, rec.paint, rec.caches));
 // job.lite: the caller has the fleet profile already (the precomputed examples of a fleet battle) and needs only the
 // 3D model, so the performance figures (seconds for a large ship) are left until a request needs them; a design

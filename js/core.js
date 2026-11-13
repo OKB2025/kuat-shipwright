@@ -64145,9 +64145,14 @@ function removeParts(ship,inputIds){
  // Stage C (user decision 2026-11-13): a fitting whose structure is deleted is neither deleted nor re-attached to
  // whatever it touches. It moves along its own height axis (down, against its up) onto the first structure below
  // within reach and is mounted there; with nothing below it stays where it is, floating (a warning).
- for(const fit of ship.fits.filter(f=>removed.has(f.host))){
-  const up=norm(fitUp(fit)),start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),down=mul(up,-1);let best=null;
-  for(const q of supports){if(q.plate)continue;q._solidCutShip=ship;const h=rayPart(start,down,q);if(h){const t=dot(sub(start,h.p),up);if(t>=0&&(!best||t<best.t))best={t,p:h.p,part:q};}}
+ // A fitting stands on a removed structure when it is hosted by it, or (no host: example and legacy fittings) when the
+ // surface just below it belongs to a removed structure (regression review 2026-11-13).
+ const removedParts=ship.parts.filter(p=>removed.has(p.id)&&isShapePart(p)),standsOnRemoved=f=>{if(removed.has(f.host))return true;if(f.host!=null&&ship.parts.some(p=>p.id===f.host))return false;const up=norm(fitUp(f)),o=add(f.p,mul(up,FIT_SUPPORT_GAP_M));let best=null;for(const q of ship.parts){if(!isShapePart(q)||q.plate)continue;q._solidCutShip=ship;const h=rayPart(o,mul(up,-1),q);if(h){const t=dot(sub(o,h.p),up);if(t>=0&&t<=2*FIT_SUPPORT_GAP_M&&(!best||t<best.t))best={t,part:q};}}return !!best&&removed.has(best.part.id);};
+ for(const fit of ship.fits.filter(standsOnRemoved)){
+  // The drop is limited to the depth of the removed structure below the fitting (plus the contact gap), so a fitting on
+  // a wall never jumps across the interior to a far wall.
+  const up=norm(fitUp(fit)),start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),down=mul(up,-1),reach=Math.max(0,...removedParts.map(q=>{const b=partAABB(q);return Math.abs(dot(sub(b.slice(3),b.slice(0,3)),up));}))+2*FIT_SUPPORT_GAP_M;let best=null;
+  for(const q of supports){if(q.plate)continue;q._solidCutShip=ship;const h=rayPart(start,down,q);if(h){const t=dot(sub(start,h.p),up);if(t>=0&&t<=reach&&(!best||t<best.t))best={t,p:h.p,part:q};}}
   if(best){const before={p:fit.p.slice()};fit.p=best.p.slice();const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,best.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:best.part.id,moved:true});continue;}fit.p=before.p;}
   fit.float=true;
  }
@@ -65048,7 +65053,7 @@ function cleanDesignCraft(d){
   // muzzle positions and cadence even when the saved weapon id stays the same.
   // A stale electrical revision also means its cached combat ratings may still
   // describe the former output of an otherwise canonical weapon such as PD.
-  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=WEAPON_PROFILE_VERSION;}catch(e){return null;}
+  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship,{keepFitPose:true});syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=WEAPON_PROFILE_VERSION;}catch(e){return null;}
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count,...(st.store?.mount==='bay'&&Array.isArray(st.store.box)&&st.store.box.length===3&&st.store.box.every(v=>Number.isFinite(v)&&v>0&&v<=40)?{store:{mount:'bay',box:st.store.box.slice()}}:{}),
@@ -66418,7 +66423,7 @@ function normalizeAssemblyTemplate(o){
 // Mirror one child across Z = 0 (USERPART-003): the same transform as the
 // ship's left-right symmetry (positions, rotations, nozzle directions, mesh
 // winding, equipment skins); fittings flip their normal and local position.
-function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(q.frameForward)q.frameForward=mirrorP(q.frameForward);if(q.localForward)q.localForward=[q.localForward[0],q.localForward[1],-q.localForward[2]];if(validTurretSupport(q.mountSupport))q.mountSupport={...q.mountSupport,polys:q.mountSupport.polys.map(poly=>poly.map(p=>[p[0],-p[1],p[2]]).reverse())};if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(fitCanRotate(f)){if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(q.tilt)q.tilt=mirrorP(q.tilt);if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;if(q.assetYaw!=null)q.assetYaw=-q.assetYaw;}if(isShipLauncher(f)){q.launchYaw=-(q.launchYaw||0);if(q.tilt)q.tilt=mirrorP(q.tilt);if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;}if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
+function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(q.frameForward)q.frameForward=mirrorP(q.frameForward);if(q.localForward)q.localForward=[q.localForward[0],q.localForward[1],-q.localForward[2]];if(validTurretSupport(q.mountSupport))q.mountSupport={...q.mountSupport,polys:q.mountSupport.polys.map(poly=>poly.map(p=>[p[0],-p[1],p[2]]).reverse())};if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(fitCanRotate(f)){if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(q.tilt)q.tilt=mirrorP(q.tilt);if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;if(q.assetYaw!=null)q.assetYaw=-q.assetYaw;}if(!fitCanRotate(f)&&q.tilt)q.tilt=mirrorP(q.tilt);/* stage C: a kept pose is not re-derived from the host, so the tilt of every fitting is mirrored with it */if(isShipLauncher(f)){q.launchYaw=-(q.launchYaw||0);if(q.tilt)q.tilt=mirrorP(q.tilt);if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;}if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
 // USERPART-002/005: place independent copies at a point. Returns the new
 // group(s) and children, or {error}. With mirror (and the point off the
 // centre line) a mirrored instance is placed too and paired child by child.
