@@ -53,14 +53,17 @@ test('a field stored by an unreleased stored-fit build is ignored on load',()=>{
  const L=C.deserialize(saved),q=L.parts.find(p=>p.id===2);assert.equal(q.placement.fittedGeometry,undefined);near(C.partVolume(q),C.partVolume(part));
 });
 
-test('a removal recorded at the placement and edited later severs the structure (a warning), without moving it',()=>{
+// 2026-11-13 user decision: no parent relation and no severed category (cuts will be baked into the parts). A
+// structure that a later cut separates from everything is judged by contact alone: red, not moved, nothing recorded.
+test('a structure a later cut leaves touching nothing is red by contact alone, without moving it (no removal bookkeeping)',()=>{
  const CIGAR={L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},ship=C.newShip(CIGAR,'recess');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],id=ship.nextId++;
  C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:[110,30,0],s:[20,6,20],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;C.refreshPlacementGeometry(ship);
  const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+2,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
  const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);
- const box=ship.parts.at(-1),c=plain(box.c);assert.ok(box.placement.fitRemovalHashes,'the recess content is recorded');
+ const box=ship.parts.at(-1),c=plain(box.c);assert.equal(box.placement.fitRemovalHashes,undefined,'no removal bookkeeping');assert.equal(box.placement.fitRemovalIds,undefined);
  C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:[110,29,0],s:[20,6,24],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;const r=C.refreshPlacementGeometry(ship);
- assert.deepEqual(plain(box.c),c);assert.equal(box._placementError,undefined);assert.ok(r.severed.some(q=>q.partId===box.id),'severed by the edited recess');
+ assert.deepEqual(plain(box.c),c,'not moved');assert.ok(r.failed.some(q=>q.partId===box.id),'red: touches nothing');assert.ok(!(r.severed||[]).length,'no severed category');
+ const L=C.deserialize(structuredClone(C.serialize(ship)));const rl=C.refreshPlacementGeometry(L);assert.ok(rl.failed.some(q=>q.partId===box.id),'the same after a reload');
 });
 
 test('exterior equipment does not follow the structure it was mounted on',()=>{
@@ -152,7 +155,21 @@ test('a mirrored copy over a separately built mirrored deck (no twin link) is co
  const top=C.rayPart([250,500,0],[0,-1,0],s.parts[0]).p[1];s.parts.push({id:2,k:'struct',form:'box',c:[250,top+8,-30],s:[80,20,30],label:'deck port'},{id:3,k:'struct',form:'box',c:[250,top+8,30],s:[80,20,30],label:'deck stbd'});s.nextId=10;C.refreshPlacementGeometry(s);
  const deck=s.parts.find(p=>p.id===2),hit=C.rayPart([250,500,-30],[0,-1,0],deck),c=[250,hit.p[1]+4,-30],r=C.solvePlacement(s,{id:10,k:'struct',form:'box',c,s:[30,20,10],yaw:0},{mode:'horizontal',parentStructureId:2,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});
  assert.equal(r.ok,true,r.error);s.parts.push(r.part);const twin=C.mirrorPart(r.part,s);twin.id=11;r.part.tw=11;twin.tw=10;s.parts.push(twin);s.nextId=12;
- assert.equal(twin.placement.parentStructureId,2,'the mirror keeps the one-sided deck as parent (no twin link)');
+ assert.equal(twin.placement.parentStructureId,3,'the mirror records the separately built mirrored deck it really stands on');
  const res=C.refreshPlacementGeometry(s),S={warnings:[]};C.groundingStats(s,S);assert.deepEqual(Array.from(res.failed,f=>f.code),[]);assert.equal(s.parts.find(p=>p.id===11)._placementError??null,null);assert.deepEqual(Array.from(S.ungrounded?.parts||[]),[]);
  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);const S2={warnings:[]};C.groundingStats(L,S2);assert.equal(L.parts.find(p=>p.id===11)._placementError??null,null);assert.deepEqual(Array.from(S2.ungrounded?.parts||[]),[]);
 });
+
+// 2026-11-13 user decision: no parent relation. Deleting a structure removes only it; a structure that stood on it
+// drops along its own contact axis onto the body below (like a weapon), or stays where it is (red) when nothing is there.
+{
+ const fx=(lowerTop)=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,10+lowerTop/2,0],s:[40,40,lowerTop]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+  const mid=s.parts[1],hit=C.rayPart([0,200,0],[0,-1,0],mid),c=[0,hit.p[1]+3,0],r=C.solvePlacement(s,{id:3,k:'struct',form:'box',c,s:[10,10,6],yaw:0},{mode:'horizontal',parentStructureId:2,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);s.parts.push(r.part);s.nextId=4;C.refreshPlacementGeometry(s);return s;};
+ test('deleting the structure under another drops it onto the body below; only the selected part is removed',()=>{
+  const s=fx(8),top=s.parts.find(p=>p.id===3),y0=top.c[1],r=C.removeParts(s,[2]);assert.deepEqual(Array.from(r.removed),[2]);assert.ok(s.parts.some(p=>p.id===3),'the structure on top is kept');
+  near(top.c[1],y0-8,1e-6);C.refreshPlacementGeometry(s);const S={warnings:[]};C.groundingStats(s,S);assert.deepEqual(Array.from(S.ungrounded?.parts||[]),[]);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);near(L.parts.find(p=>p.id===3).c[1],y0-8,1e-6);});
+ test('with nothing below within the removed structure\'s depth, it stays where it is and is red',()=>{
+  const s=fx(8);s.parts[0].c=[0,-200,0];C.refreshPlacementGeometry(s);const top=s.parts.find(p=>p.id===3),c0=plain(top.c);C.removeParts(s,[2]);assert.deepEqual(plain(top.c),c0);
+  const r=C.refreshPlacementGeometry(s);assert.ok(r.failed.some(q=>q.partId===3));});
+}
