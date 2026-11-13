@@ -9,29 +9,32 @@ function fixture({mode='horizontal',underside=false,form='box',tilted=false,pend
  const center=mode==='vertical'?[55,0,0]:C.add(hit.p,mode==='surface'?C.mul(hit.n,20):[0,underside?-10:10,0]),input={id:2,k:'struct',form,c:center,s:[20,20,40],taper:form==='trap'?.75:0,yaw:mode==='surface'?17:0},request={mode,parentStructureId:1,position:center,hit,...(mode==='surface'?{}:{contactFit:'cut',contactSide:mode==='vertical'?'aft':underside?'top':'bottom'})};
  const result=pending?C.preparePlacementDraft(ship,input,request):C.solvePlacement(ship,input,request);assert.equal(result.ok,true,result.error);ship.parts.push(result.part);return {ship,parent,part:result.part,hit,request};
 }
-function refresh(ship,part){const result=C.refreshPlacementGeometry(ship);assert.equal(result.ok,true,JSON.stringify(result.failed));assert.equal(part._placementError,undefined);assert.equal(C.placementCachedGeometryInputCurrent(part),true);}
+// 2026-11-13 user decision: structures are not fitted (no contact-face cut); a child keeps its requested solid and is
+// joined to the parent by overlap. Expectations below that used the fitted base at the parent top (y 10) now use the
+// requested base (reviewed change; until then the child was cut to the parent's top).
+function refresh(ship,part){const result=C.refreshPlacementGeometry(ship);assert.equal(result.ok,true,JSON.stringify(result.failed));assert.equal(part._placementError,undefined);}
 function assertStableReload(ship,part){
  const center=plain(part.c),size=plain(part.s),volume=C.partVolume(part),bounds=C.partAABB(part),request=plain(part.placement.requestedGeometry),loaded=C.deserialize(C.serialize(ship)),copy=loaded.parts.find(p=>p.id===part.id);
  nearPoint(copy.c,center);nearPoint(copy.s,size);nearPoint(C.partAABB(copy),bounds);near(C.partVolume(copy),volume,.002);const restored=plain(copy.placement.requestedGeometry);for(const key of ['c','s','surfaceNormal'])if(request[key]){nearPoint(restored[key],request[key]);delete restored[key];delete request[key];}assert.deepEqual(restored,request);assert.equal(C.placementDiagnostics(loaded).find(p=>p.partId===copy.id).connected,true);
 }
 
-test('resizing a fitted child immediately replaces the old floating local solid with its new requested bounds',()=>{
- const {ship,parent,part}=fixture(),parentBefore=C.publicJSON(parent),original=part._placementGeometry;assert.ok(original);nearPoint(C.partAABB(part),[-10,10,-10,10,40,10]);
- assert.equal(C.resizeStructureHeightAtContact(part,100),true);nearPoint(part.c,[0,50,0]);assert.equal(part._placementGeometry,undefined,'the 40m effective solid cannot be translated to the new 100m center');nearPoint(C.partAABB(part),[-10,0,-10,10,100,10]);
- assert.equal(C.placementCachedGeometryInputCurrent(part),false);refresh(ship,part);nearPoint(part.c,[0,50,0]);nearPoint(C.partAABB(part),[-10,10,-10,10,100,10]);assert.notEqual(part._placementGeometry,original);assert.equal(C.publicJSON(parent),parentBefore);assertStableReload(ship,part);
+test('resizing a child immediately gives its new requested bounds from the same base',()=>{
+ const {ship,parent,part}=fixture(),parentBefore=C.publicJSON(parent);nearPoint(C.partAABB(part),[-10,0,-10,10,40,10]);
+ assert.equal(C.resizeStructureHeightAtContact(part,100),true);nearPoint(part.c,[0,50,0]);nearPoint(C.partAABB(part),[-10,0,-10,10,100,10]);
+ refresh(ship,part);nearPoint(part.c,[0,50,0]);nearPoint(C.partAABB(part),[-10,0,-10,10,100,10]);assert.equal(C.publicJSON(parent),parentBefore);assertStableReload(ship,part);
 });
 
-test('successive height changes keep the authored base, taper and parent cut fixed through warm and cold solves',()=>{
+test('successive height changes keep the authored base and taper fixed through warm and cold solves',()=>{
  const {ship,parent,part}=fixture({form:'trap'}),parentBefore=C.publicJSON(parent),base=part.c[1]-part.s[2]/2,side=part.placement.contactSide,anchor=plain(part.placement.surfaceAnchor);let previousVolume=C.partVolume(part);
  for(const height of [100,60,120]){
-  const previous=part.s[2];assert.equal(C.resizeStructureHeightAtContact(part,height),true);near(part.c[1]-height/2,base);assert.equal(part.form,'trap');near(part.taper,.75);nearPoint(part.placement.surfaceAnchor,anchor);assert.equal(part.placement.contactSide,side);nearPoint(part.placement.requestedGeometry.c,part.c);near(part.placement.requestedGeometry.s[2],height);refresh(ship,part);near(part.c[1]-height/2,base);near(C.partAABB(part)[1],10);near(C.partAABB(part)[4],base+height);assert.equal(Math.sign(C.partVolume(part)-previousVolume),Math.sign(height-previous));previousVolume=C.partVolume(part);assertStableReload(ship,part);
+  const previous=part.s[2];assert.equal(C.resizeStructureHeightAtContact(part,height),true);near(part.c[1]-height/2,base);assert.equal(part.form,'trap');near(part.taper,.75);nearPoint(part.placement.surfaceAnchor,anchor);assert.equal(part.placement.contactSide,side);nearPoint(part.placement.requestedGeometry.c,part.c);near(part.placement.requestedGeometry.s[2],height);refresh(ship,part);near(part.c[1]-height/2,base);near(C.partAABB(part)[1],base);near(C.partAABB(part)[4],base+height);assert.equal(Math.sign(C.partVolume(part)-previousVolume),Math.sign(height-previous));previousVolume=C.partVolume(part);assertStableReload(ship,part);
  }
  assert.equal(C.publicJSON(parent),parentBefore);
 });
 
 test('underside height changes grow downwards without moving the parent contact or retaining an old-height slab',()=>{
  const {ship,parent,part}=fixture({underside:true}),parentBefore=C.publicJSON(parent),base=part.c[1]+part.s[2]/2;
- assert.equal(C.resizeStructureHeightAtContact(part,100),true);near(part.c[1]+50,base);nearPoint(C.partAABB(part),[-10,-100,-10,10,0,10]);refresh(ship,part);nearPoint(C.partAABB(part),[-10,-100,-10,10,-10,10]);near(part.c[1]+50,base);assert.equal(C.publicJSON(parent),parentBefore);assertStableReload(ship,part);
+ assert.equal(C.resizeStructureHeightAtContact(part,100),true);near(part.c[1]+50,base);nearPoint(C.partAABB(part),[-10,-100,-10,10,0,10]);refresh(ship,part);nearPoint(C.partAABB(part),[-10,-100,-10,10,0,10]);near(part.c[1]+50,base);assert.equal(C.publicJSON(parent),parentBefore);assertStableReload(ship,part);
 });
 
 test('upright side-mounted height changes retain the lower edge and the parent-facing side',()=>{
@@ -47,14 +50,13 @@ test('surface-mounted height uses its real local up vector without reseating aft
 test('a new pending child resized before its first Worker solve keeps the latest height and mounting point',()=>{
  const {ship,parent,part}=fixture({pending:true}),parentBefore=C.publicJSON(parent),anchor=plain(part.placement.surfaceAnchor),base=part.c[1]-part.s[2]/2;
  for(const height of [60,80,100]){assert.equal(C.resizeStructureHeightAtContact(part,height),true);near(part.c[1]-height/2,base);assert.equal(part.placement.pendingGeometry,true);nearPoint(part.placement.surfaceAnchor,anchor);}
- refresh(ship,part);near(part.s[2],100);near(part.c[1]-50,base);nearPoint(C.partAABB(part),[-10,10,-10,10,100,10]);assert.equal(part.placement.pendingGeometry,undefined);assert.equal(C.publicJSON(parent),parentBefore);assertStableReload(ship,part);
+ refresh(ship,part);near(part.s[2],100);near(part.c[1]-50,base);nearPoint(C.partAABB(part),[-10,base,-10,10,base+100,10]);assert.equal(part.placement.pendingGeometry,undefined);assert.equal(C.publicJSON(parent),parentBefore);assertStableReload(ship,part);
 });
 
-test('unchanged or invalid height input preserves the accepted cache and source fields',()=>{
- const {ship,part}=fixture(),before=C.publicJSON(part),geometry=part._placementGeometry;assert.equal(C.placementCachedGeometryInputCurrent(part),true);assert.equal(C.placementCachedGeometryCurrent(ship,part),true);
- assert.equal(C.resizeStructureHeightAtContact(part,40),true);assert.equal(part._placementGeometry,geometry);assert.equal(C.publicJSON(part),before);
- for(const value of [0,-1,NaN,Infinity]){assert.equal(C.resizeStructureHeightAtContact(part,value),false);assert.equal(part._placementGeometry,geometry);assert.equal(C.publicJSON(part),before);}
- assert.equal(C.placementCachedGeometryInputCurrent({...part,s:[20,20,60]}),false,'an old fitted solid is invalid for a changed height even if retained by a shallow clone');
+test('unchanged or invalid height input preserves the source fields',()=>{
+ const {ship,part}=fixture(),before=C.publicJSON(part);
+ assert.equal(C.resizeStructureHeightAtContact(part,40),true);assert.equal(C.publicJSON(part),before);
+ for(const value of [0,-1,NaN,Infinity]){assert.equal(C.resizeStructureHeightAtContact(part,value),false);assert.equal(C.publicJSON(part),before);}
 });
 
 function legacyEmbedded(){
@@ -66,7 +68,7 @@ function legacyEmbedded(){
 
 test('an embedded legacy child keeps its installed base through height changes and cold restoration',()=>{
  const {ship,parent,part}=legacyEmbedded(),parentBefore=C.publicJSON(parent),base=part.c[1]-part.s[2]/2;
- for(const height of [100,60,120]){assert.equal(C.resizeStructureHeightAtContact(part,height),true);const intended=part.c.slice();refresh(ship,part);nearPoint(part.c,intended);near(part.c[1]-height/2,base);near(C.partAABB(part)[1],10);near(C.partAABB(part)[4],base+height);assert.equal(part.placement.contactFit,'legacy-fit');assertStableReload(ship,part);}
+ for(const height of [100,60,120]){assert.equal(C.resizeStructureHeightAtContact(part,height),true);const intended=part.c.slice();refresh(ship,part);nearPoint(part.c,intended);near(part.c[1]-height/2,base);near(C.partAABB(part)[1],base);near(C.partAABB(part)[4],base+height);assert.equal(part.placement.contactFit,'legacy-fit');assertStableReload(ship,part);}
  assert.equal(C.publicJSON(parent),parentBefore);
  // Older version-one records omitted the fitting marker; retaining their
  // complete stored request must not opt them into a different placement mode.
@@ -82,10 +84,10 @@ test('new legacy catalogue requests and explicitly changed mounting points keep 
 
 // 2026-11-12 user decision: a re-solve never re-seats a placed child (no flush legacy-fit re-seat) and children do
 // not follow their parent. Raised 5 m, the parent now overlaps the child's base, which is a contact.
-// Stage B (2026-11-13): the fitted shape is stored with the child (placement.fittedGeometry) and is not
-// re-fitted when the parent changes, so the base stays at 10 m (it was 15 m, re-fitted to the raised parent,
-// until stage B; that provisional value is restored here as planned in docs/handoff-2026-11-13.md §3).
 test('a changed legacy parent leaves its child where it is (no re-seat, no follow)',()=>{
- const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);const before=part.c.slice(),size=part.s.slice(),angles=[part.yaw||0,part.pitch||0,part.roll||0];parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,before);nearPoint(part.s,size);nearPoint([part.yaw||0,part.pitch||0,part.roll||0],angles);
- near(C.partAABB(part)[1],10);assertStableReload(ship,part);
+ const {ship,parent,part}=legacyEmbedded();C.resizeStructureHeightAtContact(part,100);refresh(ship,part);const before=part.c.slice(),size=part.s.slice(),angles=[part.yaw||0,part.pitch||0,part.roll||0],baseBefore=C.partAABB(part)[1];parent.c[1]+=5;refresh(ship,part);nearPoint(part.c,before);nearPoint(part.s,size);nearPoint([part.yaw||0,part.pitch||0,part.roll||0],angles);
+ // handoff-2026-11-13 §3.1: the provisional 15 m (the base re-fitted to the raised parent) was to return to 10 m (the
+ // base not re-fitted). With no fitting at all (2026-11-13), the base is the child's own requested base, 5 m (sunk 5 m
+ // into the parent), and the parent edit does not change it.
+ near(baseBefore,5);near(C.partAABB(part)[1],baseBefore);assertStableReload(ship,part);
 });
