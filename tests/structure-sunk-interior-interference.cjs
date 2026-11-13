@@ -108,13 +108,17 @@ test('an in-session refusal kept through an Undo/Redo patch is not re-solved',()
 // 2026-11-13 user decision: no fitting. Volumes are compared to 7 significant digits (was 3 decimals): a structure's
 // solid built before a structure-carving ship cut existed (live) and after it (reload) differ only by Float32 rounding of
 // the world base (18511.721 vs 18511.720 m³, 5e-8 relative).
-function look(ship){const S=grounding(ship);return SUNK.map(id=>{const p=ship.parts.find(q=>q.id===id),d=S.placementDiagnostics.find(x=>x.partId===id);return {id,error:p._placementError||null,failed:!!p.placement.validationFailed,connected:d.connected,code:d.code,red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id),volume:+C.partVolume(p).toPrecision(7)};});}
+function look(ship){const S=grounding(ship);return SUNK.map(id=>{const p=ship.parts.find(q=>q.id===id),d=S.placementDiagnostics.find(x=>x.partId===id);return {id,error:p._placementError||null,failed:!!p.placement.validationFailed,connected:d.connected,code:d.code,red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id),volume:C.partVolume(p)};});}
+// Physics review 2026-11-13: the volume is compared with a relative tolerance, not by rounding. A solid built while a
+// structure-carving cut exists is made from Float32 world triangles, one built without it from Float64 local ones, so
+// the live and reloaded volumes may differ in the last digits (history dependent; ~|c|/size × 1.2e-7).
+function sameLook(a,b,msg){assert.equal(a.length,b.length,msg);a.forEach((x,i)=>{const y=b[i];assert.ok(Math.abs(x.volume-y.volume)<=1e-6*Math.max(1,Math.abs(x.volume)),`${msg}: volume ${x.volume} vs ${y.volume}`);assert.deepEqual({...x,volume:0},{...y,volume:0},msg);});}
 test('cuts through a recovered structure follow the cut rules, live = reload',()=>{
  // (a) a ship-level cut (all structures) through the middle of both structures: still touching, connected.
  {const ship=C.deserialize(saved());ship.solidCuts=[...(ship.solidCuts||[]),{id:ship.nextId++,shape:'box',c:[87.66,14.6,0],s:[10,40,60],rotation:[0,0,0],mirror:false,structures:true}];ship._cache=null;
   const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));const live=look(ship);
   for(const row of live){assert.equal(row.error,null);assert.equal(row.connected,true,JSON.stringify(row));assert.equal(row.red,false);assert.equal(row.severed,false);}
-  assert.deepEqual(look(reload(ship)),live,'ship-level cut: reload');closeStats(statsOf(reload(ship)),statsOf(ship),'ship-level cut');}
+  sameLook(look(reload(ship)),live,'ship-level cut: reload');closeStats(statsOf(reload(ship)),statsOf(ship),'ship-level cut');}
  // (b) a hull-only cut removing the hull except a 0.4 m slab at the centreline: the structures no longer touch
  // the cut hull but touch it without the cut, so the refresh classes them as severed (kept where they are, no
  // re-solve, no stored failure), exactly like the never-refused structures 58/59 on the same hull.
@@ -128,7 +132,7 @@ test('cuts through a recovered structure follow the cut rules, live = reload',()
   const live=look(ship),S=grounding(ship),ref=[58,59].map(id=>({red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id)}));
   for(const row of live){assert.equal(row.failed,false);assert.equal(row.error,null);assert.deepEqual({red:row.red,severed:row.severed},ref[0],'same as the never-refused structure 58: '+JSON.stringify(row));}
   SUNK.forEach((id,i)=>assert.deepEqual(ship.parts.find(p=>p.id===id).c,before[i],'not moved'));
-  assert.deepEqual(look(reload(ship)),live,'hull cut: reload');}
+  sameLook(look(reload(ship)),live,'hull cut: reload');}
 });
 
 test('a placed horizontal structure keeps an edited roll through save and two reloads (same mass)',()=>{

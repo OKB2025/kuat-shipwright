@@ -31,8 +31,8 @@ test('direct dimension edits clear the detached editor fit while preserving the 
 
 
 test('an authoritative fitting cache removal also updates the stable editor proxy',()=>{
- // Stage B (2026-11-13): the fitted solid is public (placement.fittedGeometry); removing it is the authoritative
- // removal now, and the proxy follows it.
+ // Stage B (2026-11-13, no fitting): the solve's carried solid (_placementGeometry) is the cache; removing it is the
+ // authoritative removal, and the proxy follows it. (placement.fittedGeometry no longer exists; deleting it is a no-op.)
  const r=fixture(),{C,part,request,bump}=r,proxy=request(part);delete part._placementGeometry;delete part.placement.fittedGeometry;bump();const now=request(part);assert.equal(now._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,40]);
 });
 

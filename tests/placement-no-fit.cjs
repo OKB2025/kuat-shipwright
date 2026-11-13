@@ -89,3 +89,15 @@ test('placementSameShape ignores key order, defaults and empty arrays (one defin
  const a={k:'struct',form:'box',s:[16,16,20],yaw:0},b={yaw:0,s:[16,16,20],form:'box',k:'struct',taper:0,mirror:false};
  assert.equal(C.placementSameShape(a,b),true);assert.equal(C.placementSameShape(a,{...a,s:[16,16,21]}),false);
 });
+
+// Physics review 2026-11-13: without fitting, a wing / solar panel / plate seated horizontally on its parent would count
+// its buried root twice (the parent's material and its own). It counts only its increment in the structural union, so
+// its material volume equals what it adds to the ship's volume.
+for(const [name,extra] of [['wing',{k:'wing',form:'trap',s:[20,12,2],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}}],['plate',{k:'struct',form:'box',plate:true,s:[16,10,1.5]}]])
+ test(`a ${name} seated on a curved hull counts its buried root once (material volume = added ship volume)`,()=>{
+  const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'once');ship.fits=[];C.ensurePrimaryHull(ship);C.refreshPlacementGeometry(ship);
+  const stats=s=>{const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);},v0=stats(ship).volume;
+  const raw=C.rayPart([100,500,0],[0,-1,0],ship.parts[0]),hit={p:Array.from(raw.p),n:Array.from(C.norm(raw.n))},id=ship.nextId++,part={id,c:[100,raw.p[1]+extra.s[2]/2-0.5,0],yaw:0,pitch:0,...extra};
+  const r=C.solvePlacement(ship,part,{mode:'horizontal',parentStructureId:1,position:part.c.slice(),hit,contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);
+  const st=stats(ship),mv=st.info[id].materialVolume;assert.ok(mv<C.partVolume(r.part)-1e-6,'the buried root is not counted again');near(mv,st.volume-v0,1e-6*Math.max(1,st.volume));
+ });

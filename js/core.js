@@ -50611,7 +50611,7 @@ function baseComputeStats(ship,options={}) {
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
-    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):placementBuriedOnce(pt)?(material.envelopeVolumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
@@ -50633,7 +50633,7 @@ function baseComputeStats(ship,options={}) {
     if (isShapePart(pt)) {
       // A light structure (an open framework or a lightly built hull extension,
       // like a freighter's cargo ring) weighs and holds a quarter of a solid one.
-      const lf = pt.light ? .25 : 1, vOut = material.envelopeVolumes.get(pt.id)??V*(1-fH),m=isAeroPart(pt)?V*d.dens:materialV*K.structDens*lf;
+      const lf = pt.light ? .25 : 1, vOut = material.envelopeVolumes.get(pt.id)??V*(1-fH),m=isAeroPart(pt)?materialV*d.dens:materialV*K.structDens*lf;
       info[pt.id].materialVolume=materialV;info[pt.id].materialMass=m;
       Vstruct += materialV; structOut += vOut; hpSum += m * 1.5;const price=partBuildCost(pt,materialV);cost += price;costBy[costCategory(pt.k)]+=price;crew += materialV * d.crew / 1000;
       const b = structBox(pt);
@@ -63439,6 +63439,11 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 // probed on a grid over its footprint; it then overlaps the body on the higher side (counted once by the union).
 // The same shape and pose for the no-rewrite rule, whatever the key order and the defaults a load adds (0, false,
 // empty) or the id.
+// Stage B (no fitting, 2026-11-13): a wing, solar panel or plate placed horizontally/vertically on a parent is no longer cut
+// to the parent, so its buried root would be counted twice (parent material + its own). Like main (which cut it away),
+// it counts only the part outside what was already joined: its increment in the structural union. Unplaced parts
+// (built examples, surface placements) keep their whole volume as before.
+function placementBuriedOnce(pt){const m=pt?.placement;return !!m&&!!m.mode&&m.mode!=='surface'&&m.parentStructureId!=null&&!isHullStructure(pt);}
 function placementSameShape(a,b){const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='id'&&!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;return JSON.stringify(canon(placementShape(a)))===JSON.stringify(canon(placementShape(b)));}
 function placementSinkToSurface(ship,part,parent,axis){
  const a=norm(axis),ref=Math.abs(a[1])<.9?[0,1,0]:[1,0,0],e1=norm(cross(a,ref)),e2=cross(a,e1),b=partAABB(part),corners=[];for(let i=0;i<8;i++)corners.push([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]);
