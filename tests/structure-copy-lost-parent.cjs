@@ -149,3 +149,24 @@ test('a top-mounted box pasted under the hull is joined on the underside, like a
  assert.ok(C.worldStruct(hull,m.surfaceAnchor)[1]<1,'the anchor is under the hull, not on its far side');
  const want=[75,-1.8,3];p.c=want.slice();C.refreshPlacementGeometry(ship);assert.equal(JSON.stringify(p.c),JSON.stringify(want),'the move is kept');
 });
+// Review 2026-11-13 (fitAxis): copies whose parent is inside the selection, mirror, save round trip.
+test('an array of a box and the child on it: child copies keep the turned fit through a parent edit and a reload',()=>{
+ const {ship,box}=cigarWithBox(),top=C.rayPart([box.c[0],500,box.c[2]],[0,-1,0],box),hit={p:top.p,n:C.norm(top.n)};
+ const child={id:ship.nextId,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+1.5,hit.p[2]],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+ const d=C.preparePlacementDraft(ship,child,{mode:'horizontal',parentStructureId:box.id,hostId:box.id,hit,contactFit:'cut',position:child.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);const src=ship.parts.at(-1),vol=src._placementGeometry.volume;
+ const res=C.placeRotationalCopies(ship,{parts:[box.id,src.id],fits:[]},{count:4,axis:0,center:[110,16,0]});assert.equal(res.ok,true,res.error);C.refreshPlacementGeometry(ship);
+ const kids=res.parts.map(id=>ship.parts.find(p=>p.id===id)).filter(p=>p.s[0]===6);assert.equal(kids.length,3);
+ const state=p=>JSON.stringify([p.c.map(n=>+n.toFixed(6)),p.yaw||0,p.pitch||0,p.roll||0]);
+ for(const p of kids){const label='#'+p.id;assert.equal(p.surfaceNormal,undefined,label);assert.ok(Array.isArray(p.placement.fitAxis),label+': turned fit axis');assert.ok(Math.abs(p._placementGeometry.volume-vol)<1e-6*vol,`${label}: ${p._placementGeometry.volume} vs ${vol}`);
+  // The parent copy is resized (its geometry key changes): the child is not re-seated upright.
+  const before=state(p),parent=ship.parts.find(q=>q.id===p.placement.parentStructureId);parent.s=[parent.s[0]+2,parent.s[1],parent.s[2]];C.refreshPlacementGeometry(ship);
+  assert.equal(state(p),before,label+': pose kept after the parent edit');assert.ok(Math.abs(p.roll||0)>1||Math.abs(p.pitch||0)>1||p.roll===180,label+': still turned');}
+ const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))));
+ for(const p of kids){const q=L.parts.find(x=>x.id===p.id);assert.equal(state(q),state(p),'reload #'+p.id);assert.equal(JSON.stringify(q.placement.fitAxis),JSON.stringify(p.placement.fitAxis),'fitAxis saved');}
+});
+test('mirroring a turned array copy reflects its fit axis with the pose',()=>{
+ const {ship,box}=cigarWithBox(),res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count:4,axis:0,center:[110,16,0]});C.refreshPlacementGeometry(ship);
+ const p=ship.parts.find(q=>q.id===res.parts[0]),m=C.mirrorPart(p,ship);assert.ok(Array.isArray(p.placement.fitAxis));
+ assert.equal(JSON.stringify(m.placement.fitAxis.map(n=>+n.toFixed(9))),JSON.stringify([p.placement.fitAxis[0],p.placement.fitAxis[1],-p.placement.fitAxis[2]].map(n=>+n.toFixed(9))));
+});

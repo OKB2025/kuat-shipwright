@@ -62977,7 +62977,7 @@ function resizeStructureHeightAtContact(part,height){
  return true;
 }
 
-function placementRequestKey(p){const m=p.placement;return m?publicJSON([m.mode,m.modelVersion,m.geometryRevision,m.contactSide,m.contactFit,m.contactOffset,m.contactAxis,m.pendingGeometry,m.validationFailed,m.hostSurfaceId,m.surfaceAnchor,m.contactLocalNormal,m.anchorDimensions,m.rigidPose,m.requestedGeometry]):'';}
+function placementRequestKey(p){const m=p.placement;return m?publicJSON([m.mode,m.modelVersion,m.geometryRevision,m.contactSide,m.contactFit,m.contactOffset,m.contactAxis,m.pendingGeometry,m.validationFailed,m.hostSurfaceId,m.surfaceAnchor,m.contactLocalNormal,m.anchorDimensions,m.rigidPose,m.requestedGeometry,...(m.fitAxis?[m.fitAxis]:[])]):'';}
 function placementKeyHash(text){let a=2166136261,b=2246822507;for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);a=Math.imul(a^c,16777619);b=Math.imul(b^c,3266489909);}return text.length+':'+(a>>>0).toString(36)+':'+(b>>>0).toString(36);}
 function placementDependencyKey(p){return placementKeyHash(publicJSON([placementShape(p),p.placement?.geometryRevision||0]));}
 // Positioning key (user rule 2026-11-11: the hull is the base body, structures
@@ -63726,7 +63726,7 @@ function solvePlacement(ship,input,request={}){
  // any part and drops the turned fit axis.
  if(request.hit&&!request._storedHit)delete metadata.fitAxis;
  if(!request.keepTransform&&!storedLegacyPose&&(storedPose||metadata.fitAxis&&request.position!=null&&old.mode===mode&&!part.surfaceNormal)){/* the stored world pose (a turned copy: its turn), unchanged */}
- else if(!request.keepTransform&&!storedLegacyPose&&!storedSurfacePose){if(mode==='surface')part=alignStructure(part,hit,'surface');else{delete part.surfaceNormal;part.pitch=0;part.roll=mode==='horizontal'&&contactSide==='top'&&Math.abs(Math.abs(part.roll||0)-180)<1e-6?180:0;if(mode==='vertical'){const n=norm([normal[0],0,normal[2]]),local={fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]}[contactSide];part.yaw=(Math.atan2(-n[2],-n[0])-Math.atan2(local[2],local[0]))*180/Math.PI;}
+ else if(!request.keepTransform&&!storedLegacyPose&&!storedSurfacePose){delete metadata.fitAxis;if(mode==='surface')part=alignStructure(part,hit,'surface');else{delete part.surfaceNormal;part.pitch=0;part.roll=mode==='horizontal'&&contactSide==='top'&&Math.abs(Math.abs(part.roll||0)-180)<1e-6?180:0;if(mode==='vertical'){const n=norm([normal[0],0,normal[2]]),local={fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]}[contactSide];part.yaw=(Math.atan2(-n[2],-n[0])-Math.atan2(local[2],local[0]))*180/Math.PI;}
    const axis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);
    if(contactFit==='legacy-fit'){const T=structTriangles({...part,c:[0,0,0]});let low=Infinity;for(let i=0;i<T.length;i+=3)low=Math.min(low,dot(Array.from(T.slice(i,i+3)),axis));part.c=add(hit.p,mul(axis,-low));}
    else if(!request.hit&&!request.position&&old.contactFit==='cut'&&old.contactOffset&&old.parentGeometryKey!==placementDependencyKey(parent)){let offset=old.contactOffset.slice();if(mode==='vertical'&&old.contactAxis){const a=Math.atan2(axis[2],axis[0])-Math.atan2(old.contactAxis[2],old.contactAxis[0]),c=Math.cos(a),s=Math.sin(a);offset=[offset[0]*c-offset[2]*s,offset[1],offset[0]*s+offset[2]*c];}part.c=add(hit.p,offset);}
@@ -64135,13 +64135,13 @@ function remapPlacementCopy(part,mapping,options={}){
  for(const key of ['parentStructureId','hostId']){const id=meta[key];if(id==null||id==='hull'||key==='hostId'&&interior)continue;const next=lookup(id);if(next!=null)meta[key]=next;else if(!options.keepExternal){if(key==='parentStructureId')meta.unresolvedParentId=id;delete meta[key];if(key==='parentStructureId'){delete meta.root;part._placementError='parent-missing';}}}
  if(meta.root&&options.detachRoots){delete meta.root;meta.unresolvedParentId=part.id;part._placementError='parent-required';}
  if(meta.hostSurfaceId){const mapped=surfaceRemapPatchId(meta.hostSurfaceId,{parts:typeof sourceMap?.entries==='function'?new Map(sourceMap):sourceMap},options.mirror||false);if(mapped)meta.hostSurfaceId=mapped;else delete meta.hostSurfaceId;}
- if(options.rotate)for(const key of ['contactOffset','contactAxis'])if(meta[key])meta[key]=options.rotate(meta[key]);
+ if(options.rotate)for(const key of ['contactOffset','contactAxis','fitAxis'])if(meta[key])meta[key]=options.rotate(meta[key]);
  const requested=placementShape(meta.requestedGeometry||part);requested.id=part.id;for(const key of ['c','yaw','pitch','roll','surfaceNormal']){if(part[key]!=null)requested[key]=publicCopyOf(part[key]);else delete requested[key];}meta.requestedGeometry=requested;delete meta.parentGeometryKey;if(options.rotate&&meta.contactNormal)meta.contactNormal=norm(options.rotate(meta.contactNormal));delete part._placementGeometry;delete part._placementSelfKey;delete part._placementParentKey;
 }
 function reflectPlacementMetadata(source,out,ship,axis){
  if(!source.placement)return;const meta=out.placement,sourceMeta=source.placement,reflect=v=>v.map((x,i)=>i===axis?-x:x),point=axis===1?v=>vmirrorPoint(ship,v):mirrorP,parent=placementParent(ship,sourceMeta.parentStructureId),pair=axis===1?'vt':'tw',target=parent&&(placementParent(ship,parent[pair])||parent);
  const requested=sourceMeta.requestedGeometry;if(requested){const q=axis===1?vmirrorPart(placementShape(requested),ship):mirrorPart(placementShape(requested),ship);q.id=out.id;meta.requestedGeometry=q;}
- if(sourceMeta.contactNormal)meta.contactNormal=reflect(sourceMeta.contactNormal);for(const key of ['contactOffset','contactAxis'])if(sourceMeta[key])meta[key]=reflect(sourceMeta[key]);
+ if(sourceMeta.contactNormal)meta.contactNormal=reflect(sourceMeta.contactNormal);for(const key of ['contactOffset','contactAxis','fitAxis'])if(sourceMeta[key])meta[key]=reflect(sourceMeta[key]);
  if(target&&parent){meta.parentStructureId=target.id;for(const key of ['surfaceAnchor','parentLocalAnchor'])if(sourceMeta[key])meta[key]=localStruct(target,point(worldStruct(parent,sourceMeta[key])));const n=sourceMeta.contactLocalNormal?placementWorldNormal(parent,sourceMeta.contactLocalNormal):sourceMeta.contactNormal;if(n){meta.contactNormal=reflect(n);meta.contactLocalNormal=placementLocalNormal(target,meta.contactNormal);}if(target.s)meta.anchorDimensions=[target.s[0],target.s[2],target.s[1]];
   if(sourceMeta.hostSurfaceId){const patches=surfacePatches(ship,true),patch=patches.find(p=>p.id===sourceMeta.hostSurfaceId),frames=patch?[{id:patch.baseId||patch.id.split('/')[0],u:patch.u,v:patch.v}]:null;meta.hostSurfaceId=surfaceRemapPatchId(sourceMeta.hostSurfaceId,{parts:new Map([[parent.id,target.id]])},axis===1?'y':'z',patches,frames)||sourceMeta.hostSurfaceId;}
  }else if(meta.root){delete meta.root;meta.unresolvedParentId=source.id;out._placementError='parent-required';}
@@ -66427,8 +66427,15 @@ function placementArrayPart(source,point,rotate){
   if(Array.isArray(p.surfaceNormal)&&!isShapePart(p)&&!p.room&&!p.weaponBody&&p.k!=='sensor')p.surfaceNormal=norm(rotate(p.surfaceNormal));
  }
  if(p.placement){const original=source.placement.requestedGeometry||source;const requestPart=placementArrayPart(placementShape(original),point,rotate);p.placement.requestedGeometry=placementShape(requestPart);if(rotate&&p.placement.contactNormal)p.placement.contactNormal=norm(rotate(p.placement.contactNormal));
-  // A turned cut-fit copy is cut along its source's axis turned with it (2026-11-13: an array copy is placed the same way).
-  const axis=source.placement.fitAxis||source.placement.contactAxis;if(rotate&&p.placement.contactFit==='cut'&&Array.isArray(axis))p.placement.fitAxis=norm(rotate(axis));}
+  // A turned copy of a horizontal or vertical structure is placed the same way as its source (2026-11-13 user request
+  // 「連続配置のコピーは同じ置き方ができるように」): its turn is yaw/pitch/roll (same frame, no surfaceNormal); it rests
+  // on the parent's top/underside (horizontal) or side (vertical) as its turned contact normal says, keeps the
+  // source's fit, and a cut-fit copy is cut along the source's axis turned with it (fitAxis).
+  const m=p.placement,axis=source.placement.fitAxis||source.placement.contactAxis;
+  if(rotate&&isShapePart(p)&&p.surfaceNormal&&['horizontal','vertical'].includes(m.mode)&&Array.isArray(m.contactNormal)){const f=structFrame(p),a=placementFrameAngles(f.fw,f.up),n=m.contactNormal;delete p.surfaceNormal;delete p._frame;p.yaw=a.yaw;p.pitch=a.pitch;p.roll=a.roll;
+   m.mode=Math.abs(n[1])>=Math.hypot(n[0],n[2])?'horizontal':'vertical';if(m.mode==='horizontal')m.contactSide=n[1]<0?'top':'bottom';else{let best=-Infinity;for(const [k,v] of Object.entries({fore:[1,0,0],aft:[-1,0,0],port:[0,0,-1],stbd:[0,0,1]})){const q=dot(n,v);if(q>best){best=q;m.contactSide=k;}}}
+   if(m.contactFit==='cut'&&Array.isArray(axis)){m.fitAxis=norm(rotate(axis));m.contactAxis=m.fitAxis.slice();if(Array.isArray(m.contactOffset))m.contactOffset=rotate(m.contactOffset);}else delete m.fitAxis;
+   const requested=placementShape(p);requested.id=p.id;m.requestedGeometry=requested;}}
  return p;
 }
 function placementArrayFit(source,point,rotate){
