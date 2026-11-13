@@ -84,3 +84,41 @@ test('default surface records of removed parts and copies are dropped; a record 
  const kept=C.deserialize(set);assert.ok(kept.surfaces.patches.some(q=>q.id===rec.id));
  assert.equal(C.computeStats(kept).warnings.filter(w=>w.code==='surface-orphan').length,1);
 });
+
+// Review 2026-11-13: cases beyond the reported design.
+function cigarWithBox(){
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'t');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts.find(p=>C.isShapePart(p));
+ const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+1.8,hit.p[2]],s:[16,8,6],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+ const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
+ assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);return {ship,hull,box:ship.parts.at(-1)};
+}
+test('a cut-fit structure pasted from another ship (root and parent dropped) is joined where it overlaps, keeping its authored shape',()=>{
+ const {ship,box}=cigarWithBox(),copy=JSON.parse(C.publicJSON(box)),authored=JSON.stringify(['c','s','yaw','pitch','roll','form'].map(k=>copy[k]));
+ // A paste into another design: no id of the source ship survives; detachRoots as the editor passes it.
+ const target=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'other');target.fits=[];C.ensurePrimaryHull(target);
+ copy.id=target.nextId++;C.remapPlacementCopy(copy,new Map(),{detachRoots:true});assert.equal(copy.placement.parentStructureId,undefined);
+ target.parts.push(copy);C.refreshPlacementGeometry(target);const p=target.parts.find(q=>q.id===copy.id);
+ assert.equal(p.placement.parentStructureId,C.primaryHullPart(target).id);assert.equal(p._placementError,undefined);
+ assert.equal(JSON.stringify(['c','s','yaw','pitch','roll','form'].map(k=>p[k])),authored,'the authored shape and pose, not a fitted shape');
+ assert.equal(JSON.stringify(p.placement.requestedGeometry.s),JSON.stringify(copy.s));
+});
+test('the parent chosen among several touching bodies does not depend on part order (hull first)',()=>{
+ const {ship,hull,box}=cigarWithBox();
+ // A plate-like copy resting on both the hull and the box.
+ const make=()=>{const q={id:0,k:'struct',form:'box',c:[box.c[0]+9,box.c[1],box.c[2]],s:[6,6,6],yaw:0,pitch:0,offsetX:0,offsetZ:0,placement:{modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'horizontal',unresolvedParentId:999,requestedGeometry:null}};return q;};
+ const results=[];for(const order of ['after','before']){const s=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))));const q=make();q.id=s.nextId++;q.placement.requestedGeometry={...q,placement:undefined};
+  if(order==='after')s.parts.push(q);else s.parts.splice(1,0,q);C.refreshPlacementGeometry(s);results.push(s.parts.find(p=>p.id===q.id).placement.parentStructureId);}
+ assert.equal(results[0],hull.id);assert.equal(results[1],hull.id,'same choice in either order');
+});
+test('a surface record written before the authored flag existed is kept (treated as set by the user)',()=>{
+ const source=saved();const legacy=source.surfaces.patches.find(q=>q.id.startsWith('p2:'));delete legacy.authored;
+ const s=C.deserialize(source);assert.ok(s.surfaces.patches.some(q=>q.id===legacy.id),'kept');assert.equal(s.surfaces.patches.length,18);
+});
+test('Worker patches (an undo back to the lost-parent state, then a redo) give the same joined result each time',async()=>{
+ const source=saved(),w=designWorker(root,C),first=(await w.update(source,{reset:true})).state;
+ const edited=JSON.parse(JSON.stringify(first));edited.parts.find(p=>p.id===106).c[0]+=1;await w.update(edited);
+ const undo=(await w.update(source)).state,redo=(await w.update(first)).state;
+ for(const [label,state] of [['undo',undo],['redo',redo]])for(const id of LOST){const p=state.parts.find(q=>q.id===id),f=first.parts.find(q=>q.id===id);
+  assert.equal(p.placement.parentStructureId,1,label+' #'+id);assert.deepEqual(pose(p),pose(f),label+' #'+id+': same pose');
+  assert.equal(JSON.stringify(p.placement.surfaceAnchor.map(v=>+v.toFixed(9))),JSON.stringify(f.placement.surfaceAnchor.map(v=>+v.toFixed(9))),label+' #'+id+': same anchor');}
+});
