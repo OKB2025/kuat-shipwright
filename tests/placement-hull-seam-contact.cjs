@@ -21,10 +21,15 @@ for(const [x,z] of [[60,0],[60,10],[150,10],[250,0]])test(`a structure seated on
 test('the mirrored seam positions give the same fitted volume',()=>{
  const a=vol(C.structTriangles(seat(150,10).part)),b=vol(C.structTriangles(seat(150,-10).part));assert.ok(Math.abs(a-b)<1e-6*Math.max(1,a),`${a} != ${b}`);
 });
-test('a real gap is still refused: a structure lifted off the deck is not grounded',()=>{
+// 2026-11-13 user decision: no fitting; the user's own seat brings a horizontal structure down until its whole base
+// reaches the body. A draft lifted 26 m off the deck is therefore seated (until then it was refused). A real gap is
+// still refused when it arises without a user seat: the deck moved away afterwards.
+test('a lifted draft is seated on the deck; a gap made afterwards (the deck lowered) is refused in place',()=>{
  const ship=C.newShip({L:300,W:60,H:40},'gap');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts.find(p=>C.isShapePart(p)),hit=C.rayPart([60,500,0],[0,-1,0],hull);
  const pv={id:ship.nextId,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+30,hit.p[2]],s:[20,16,8]};
  const d=C.preparePlacementDraft(ship,pv,{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit:{p:hit.p,n:C.norm(hit.n)},contactFit:'cut',position:pv.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION});
- ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const st={warnings:[]};C.groundingStats(ship,st);
- assert.ok(ship.parts.at(-1)._placementError||(st.ungrounded?.parts||[]).includes(ship.parts.at(-1).id),'a 26 m gap is not accepted as contact');
+ ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const part=ship.parts.at(-1);let st={warnings:[]};C.groundingStats(ship,st);
+ assert.equal(part._placementError,undefined);assert.ok(!(st.ungrounded?.parts||[]).includes(part.id),'seated on the deck');assert.ok(C.partAABB(part)[1]<=hit.p[1]+1e-6,'its base reaches the deck');
+ const c=Array.from(part.c);hull.c=[hull.c[0],hull.c[1]-20,hull.c[2]];C.refreshPlacementGeometry(ship);st={warnings:[]};C.groundingStats(ship,st);
+ assert.deepEqual(Array.from(part.c),c,'not moved');assert.ok(part._placementError||(st.ungrounded?.parts||[]).includes(part.id),'the 20 m gap made afterwards is not accepted as contact');
 });
