@@ -51699,7 +51699,7 @@ function mountFitUnframed(ship,f){
   if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;
   f.float=!valid;f.base=0;f.low=0;f.ped=0;
   if(!valid)return f;if(!(ship._keepFitPose&&fitPoseValid(f))){f.p=h.p;f.n=h.n;}f._wallUp=structFrame(h.part).up;
-  if(isShapePart(h.part)&&(!f.local||ship._keepFitPose&&fitPoseValid(f))){/* a kept pod re-expresses its kept pose on the wall it stands on, so a later seating remount does not pull it back */f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
+  if(isShapePart(h.part)&&(!f.local||ship._keepFitPose&&fitPoseValid(f)&&(f.host!==h.part.id||len(sub(worldStruct(h.part,[f.local[0]*h.part.s[0],f.local[1]*h.part.s[2],f.local[2]*h.part.s[1]]),f.p))>FIT_SUPPORT_GAP_M))){/* only when it stands on another wall, or its wall moved under it beyond the tolerance: otherwise a remount writes nothing (no numeric drift) *//* a kept pod re-expresses its kept pose on the wall it stands on, so a later seating remount does not pull it back */f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
   return f;
 }
 function mountEmbeddedLauncher(ship,f){
