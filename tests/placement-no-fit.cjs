@@ -88,6 +88,9 @@ test('a stored refused structure is not sunk by a reload or by a later body edit
 test('placementSameShape ignores key order, defaults and empty arrays (one definition only)',()=>{
  const a={k:'struct',form:'box',s:[16,16,20],yaw:0},b={yaw:0,s:[16,16,20],form:'box',k:'struct',taper:0,mirror:false};
  assert.equal(C.placementSameShape(a,b),true);assert.equal(C.placementSameShape(a,{...a,s:[16,16,21]}),false);
+ // A reload may add empty lists and nested defaults; the shape is still the same (the replaced top-level-only version did not see this).
+ assert.equal(C.placementSameShape({...a,outline:[[0,0],[1,0],[0,1]]},{...a,outline:[[0,0],[1,0],[0,1]],holes:[],label:''}),true,'empty list and empty string are defaults');
+ assert.equal(C.placementSameShape({...a,outline:[[0,0],[1,0],[0,1]]},{...a,outline:[[0,0],[1,0],[0,2]]}),false,'a nested change is seen');
 });
 
 // Physics review 2026-11-13: without fitting, a wing / solar panel / plate seated horizontally on its parent would count
