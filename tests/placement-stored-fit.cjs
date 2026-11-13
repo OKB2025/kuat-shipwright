@@ -139,3 +139,24 @@ test('rotated array copies keep a consistent stored shape, live = reload',()=>{
  for(const id of res.parts){const p=ship.parts.find(q=>q.id===id);assert.ok(p.placement.fittedGeometry,'copy #'+id+' stores its shape');assert.equal(p.placement.fittedGeometry.shape,C.placementFitShapeKey(p));}
  liveEqualsReload(ship,res.parts);
 });
+
+// Physics review 2026-11-13 (finding 1): a ship-level cut that carves structures and already exists when the child is
+// fitted is not baked into the stored record; it carves the stored solid at run time. Removing it restores the
+// ship's mass to that of the design placed without it.
+test('a structure-carving ship cut present at the fit is not baked into the stored record',()=>{
+ const make=withCut=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'pre-cut');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20],pitch:6}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
+  const parent=ship.parts[0],hit=C.rayPart([20,200,30],[0,-1,0],parent),c=[20,hit.p[1]+8,30];if(withCut)ship.solidCuts=[C.normalizeSolidCut({id:9,shape:'box',c:[20,hit.p[1]+8,30],s:[30,4,30],structures:true})];
+  const r=C.solvePlacement(ship,{id:2,k:'struct',form:'box',c,s:[16,16,20],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);return {ship,p:ship.parts.find(q=>q.id===2)};};
+ const mass=s=>C.computeStats({...s,_cache:null}).mass,A=make(true),B=make(false),carved=C.partVolume(A.p);
+ const copy={...A.p};C.placementRestoreFitted(copy,A.p.placement.fittedGeometry);assert.ok(copy._placementGeometry.volume>carved+100,'the record is the uncut solid; the cut carves it at run time');
+ A.ship.solidCuts=[];A.ship._cache=null;C.refreshPlacementGeometry(A.ship);near(mass(A.ship),mass(B.ship),1e-9*mass(B.ship));
+ const L=C.deserialize(structuredClone(C.serialize(A.ship)));C.refreshPlacementGeometry(L);near(mass(L),mass(B.ship),1e-9*mass(B.ship));
+});
+
+test('stored meshes keep outward faces: positive signed volume for the source and its mirror copy; a broken record is dropped on load',()=>{
+ const signed=g=>{let v=0;for(let i=0;i<g.f.length;i+=3){const a=g.v.slice(g.f[i]*3,g.f[i]*3+3),b=g.v.slice(g.f[i+1]*3,g.f[i+1]*3+3),c=g.v.slice(g.f[i+2]*3,g.f[i+2]*3+3);v+=C.dot(a,C.cross(b,c));}return v/6;};
+ const {ship,part}=fixture(),q=C.mirrorPart(part,ship);assert.ok(signed(part.placement.fittedGeometry)>0);assert.ok(signed(q.placement.fittedGeometry)>0,'mirror reverses the faces');
+ assert.equal(C.placementFittedSolid(part.placement.fittedGeometry),true);
+ const saved=structuredClone(C.serialize(ship)),raw=saved.parts.find(p=>p.id===2);raw.placement.fittedGeometry.f=raw.placement.fittedGeometry.f.slice(0,-3);
+ const L=C.deserialize(saved),r=L.parts.find(p=>p.id===2);C.refreshPlacementGeometry(L);assert.ok(r.placement.fittedGeometry&&C.placementFittedSolid(r.placement.fittedGeometry),'dropped and fitted once again');near(C.partVolume(r),C.partVolume(part),1e-6);
+});
